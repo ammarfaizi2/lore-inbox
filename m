@@ -1,91 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbTKERCw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 12:02:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbTKERCw
+	id S263002AbTKERDR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 12:03:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTKERDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 12:02:52 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:6117 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262993AbTKERCu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 12:02:50 -0500
-Date: Wed, 5 Nov 2003 18:02:17 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matt <dirtbird@ntlworld.com>, herbert@gondor.apana.org.au,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [MOUSE] Alias for /dev/psaux
-Message-ID: <20031105170217.GA27752@ucw.cz>
-References: <3FA91493.7060009@ntlworld.com> <Pine.LNX.4.44.0311050818240.11208-100000@home.osdl.org>
+	Wed, 5 Nov 2003 12:03:17 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:23936 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263002AbTKERDJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 12:03:09 -0500
+Message-Id: <200311051703.hA5H38nQ007123@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: 2.6.0-test9: Kernel OOPS in /sbin/nameif
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311050818240.11208-100000@home.osdl.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-402562100P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 05 Nov 2003 12:03:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 05, 2003 at 08:27:30AM -0800, Linus Torvalds wrote:
-> 
-> On Wed, 5 Nov 2003, Matt wrote:
-> >
-> > had excatly the same problem moving to test9-mm1, way i fixed it was to 
-> > pass the options "psmouse_rate=60 psmouse_resolution=200" to the kernel 
-> > at boot (these were the old defaults).
-> 
-> Can you guys test passing in "psmouse_noext=1" instead?
-> 
-> The thing is, the psmouse initialization in 2.4.x does _nothing_. Nada. 
-> Zilch. Zero. And it obviously works fine. So the 2.6.x code is apparently 
-> just _crap_.
-> 
-> The extended psmouse detection code will try different things, and one 
-> thing in particular is that the Logitech magic ID matching sets the 
-> resolution to zero, while the IntelliMouse thing sets the rate to 80.
-> 
-> I don't know what the proper thing to do is, but I'm pretty certain that
-> the current mouse initialization has got to go. It clearly breaks setups
-> that worked fine in 2.4.x, and the 2.6.x doesn't actually have any
-> _advantages_ that I can tell. Maybe Vojtech can inform us.
-> 
-> Passing in "psmouse_noext=1" gets you close to 2.4.x behaviour.
- 
-The main problem here is actually how the X/GPM mouse acceleration
-works. It has a certain threshold in mixels per update after which it
-begins multiplying the values coming from a mouse by a user settable
-multiplier.
+--==_Exmh_-402562100P
+Content-Type: text/plain; charset=us-ascii
 
-The problem is in "mixels per update". It's not in "mixels per second",
-which means that if you change the updates per second value, the
-threshold kicks in at a different mouse speed.
+(am on lkml but not linux-net - linux-net replies please cc: me)
 
-This of course annoys people. Both ways. I've got a bunch of mails that
-mouse worked just fine with psmouse_rate=200 (or 2.5.* code, which is
-the equivalent) and that the default settings (same as 2.4) are utter
-crap. And I've also got a bunch of mails stating the opposite.
+This broke sometime between 2.6.0-test8-mm1 (which works) and -test9.
 
-Also, all the complaints started coming in only after I changed the
-default value down from 200. This was unfortunately needed because of
-old machines where the i8042 will ignore all keyboard input if mouse
-input is available and the mouse is able to saturate the cable at 200
-updates per second.
+Userspace is Red Hat Rawhide/Fedora Core, kernel compiled with RH gcc-3.3.2-1
 
-The reason to use a high rate of updates per second is that the more
-updates per second you get, the more snappy the system feels. Suddenly
-windows are dragged smoothly on the screen and in GIMP the
-freehand-drawn curves are actually curves and not just polygons. Also,
-fine pointing is much easier, because the hand-mouse-screen-eye feedback
-loop is faster.
+Basic summary - when /sbin/nameif goes to rename an interface, things
+go totally pear-shaped.  nameif itself croaks, and apparently leaves
+data structures corrupted - on a subsequent 'ifup lo' or 'shutdown -r'
+the system locks up solid.
 
-Imagine what life used to be with old serial mice. That's the same, only
-exaggerated.
+Unable to handle kernel NULL pointer dereference at virtual address 000000d8
+ printing eip:
+c033eb32
+*pde = 0f670067
+*pte = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c033eb32>]    Not tainted
+EFLAGS: 00010246
+EIP is at addrconf_sysctl_unregister+0x7/0x3a
+eax: 0000009c   ebx: 0000009c   ecx: 00000000   edx: 00000000
+esi: 00000000   edi: cfd4a800   ebp: cedabea8   esp: cedabea4
+ds: 007b   es: 007b   ss: 0068
+Process nameif (pid: 280, threadinfo=cedaa000 task=ceaeecc0)
+Stack: 0000009c cedabec0 c033cdda 0000009c c042e318 cfd4a800 0000000a cedabee0 
+       c012673d c042e318 0000000a cfd4a800 cfd4a800 00000000 cedabf34 cedabf10 
+       c02ec593 c04c5848 0000000a cfd4a800 cfd4a800 cedabf34 00000010 cedabf24 
+Call Trace:
+ [<c033cdda>] addrconf_notify+0xc4/0xfb
+ [<c012673d>] notifier_call_chain+0x1c/0x37
+ [<c02ec593>] dev_ifsioc+0x2f3/0x391
+ [<c02ec867>] dev_ioctl+0x236/0x33b
+ [<c0322188>] inet_ioctl+0xbf/0xcd
+ [<c02e4ee7>] sock_ioctl+0x27d/0x2a3
+ [<c0156922>] sys_ioctl+0x200/0x246
+ [<c010a96b>] syscall_call+0x7/0xb
 
-Regarding removing all extension support from the psmouse driver in the
-kernel, well, then we can ditch the input core completely, because the
-only way to make your mouse wheel work will be to let X access the PS/2
-port directly again, with all the problems that causes.
+Code: 8b 58 3c 85 db 74 27 c7 40 3c 00 00 00 00 ff 33 e8 dc 13 de 
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Reproducible on both -test9 and -test9-mm1.  Sorry I didn't catch it sooner,
+I hadn't booted the laptop in the docking station under -test9 till
+yesterday, so the call to nameif didn't actually have to rename
+anything until then.
+
+--==_Exmh_-402562100P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/qS1McC3lWbTT17ARApmQAJ9NMWohn4Qv7ik/OLMbIOlJlgHhLACfaSt3
+AWzd3jxxc5mlWQW6fDZTtCM=
+=sPup
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-402562100P--

@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317510AbSFEALb>; Tue, 4 Jun 2002 20:11:31 -0400
+	id <S317512AbSFEANy>; Tue, 4 Jun 2002 20:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317512AbSFEALa>; Tue, 4 Jun 2002 20:11:30 -0400
-Received: from [209.184.141.168] ([209.184.141.168]:34428 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S317510AbSFEAL3>;
-	Tue, 4 Jun 2002 20:11:29 -0400
-Subject: Re: Load kernel module automatically
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: dmarkh@cfl.rr.com
-Cc: Jan Hudec <bulb@ucw.cz>, kernelnewbies@nl.linux.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CFD4CCE.9DB9BF52@cfl.rr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 04 Jun 2002 19:11:25 -0500
-Message-Id: <1023235885.10519.11.camel@UberGeek>
-Mime-Version: 1.0
+	id <S317513AbSFEANx>; Tue, 4 Jun 2002 20:13:53 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:20492 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S317512AbSFEANw>; Tue, 4 Jun 2002 20:13:52 -0400
+Date: Wed, 5 Jun 2002 02:13:10 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: puw@cola.enlightnet.local
+To: Philippe De Muyter <phdm@macqel.be>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: smbfs and >2Gb files
+In-Reply-To: <200206031318.g53DIpS08552@mail.macqel.be>
+Message-ID: <Pine.LNX.4.44.0206050205550.13561-100000@cola.enlightnet.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-06-04 at 18:27, Mark Hounschell wrote:
-> Austin Gonyou wrote:
-> > 
-> > On Tue, 2002-06-04 at 17:27, Jan Hudec wrote:
-........
-> > > Kernel does not seek for modules to load in any way. Actually, in usual
-> > > installation there are tons of modules compiled an mostly unused. You
-> > > must put the insmod command (or better modprobe command) somewhere in
-> > > the init scripts. Since I expect your installation is RedHat (the kernel
-> > > version looks like a RedHat one), there should already be one a it
-> > > should be loading all modules listed in /etc/modules.conf (not sure abou
-> > > the exact name - I don't have RedHat).
-> > 
-> > Isn't that what modules.conf (conf.modules on some) is for though? To
-> > have lists of available devices and load modules if their services are
-> > used?(i.e. ifup eth0, but eth0 doesn't exist at boot time, so ifup calls
-> > a utility that loads the module, then ifup continues to run)
-> > 
-> The utility is built into the kernel, it's called kmod and uses /etc/modules.conf
-> as it's config file....
+On Mon, 3 Jun 2002, Philippe De Muyter wrote:
 
-That's all my point was...:) Thanks!
-
-
+> --- include/linux/smb.hbk	Fri May 31 16:43:54 2002
+> +++ include/linux/smb.h	Fri May 31 17:55:49 2002
+> @@ -85,7 +85,7 @@
+>  	uid_t		f_uid;
+>  	gid_t		f_gid;
+>  	kdev_t		f_rdev;
+> -	off_t		f_size;
+> +	size_t		f_size;
+>  	time_t		f_atime;
+>  	time_t		f_mtime;
+>  	time_t		f_ctime;
 > 
-> Mark
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Is it possible to incorporate that in the official linux kernel tree ?
+
+Doesn't this just allow smbfs to list the file? If you tried to read all
+of it you'd only get the first 2G of it (or is it 4 ...), repeated over
+and over.
+
+
+2.5 has proper support for large files on smbfs, for 2.4 there is a patch
+here:
+	http://www.hojdpunkten.ac.se/054/samba/index.html
+(if you can reach that site, the admins have been very "creative" lately ...)
+
+If anything is going into 2.4 I'd prefer if that was it. Maybe for 2.4.20,
+I have had some positive reports on that. Note that you need to patch
+samba or else the server won't know that the client supports large files.
+
+/Urban
+

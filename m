@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262945AbSJFWpV>; Sun, 6 Oct 2002 18:45:21 -0400
+	id <S262242AbSJFWkc>; Sun, 6 Oct 2002 18:40:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262946AbSJFWpU>; Sun, 6 Oct 2002 18:45:20 -0400
-Received: from mnh-1-11.mv.com ([207.22.10.43]:261 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S262945AbSJFWpT>;
-	Sun, 6 Oct 2002 18:45:19 -0400
-Message-Id: <200210062354.SAA04224@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Daniel Phillips <phillips@arcor.de>
-cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem? 
-In-Reply-To: Your message of "Mon, 07 Oct 2002 00:18:46 +0200."
-             <E17yJjd-0002H7-00@starship> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 06 Oct 2002 18:54:47 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S262239AbSJFWkc>; Sun, 6 Oct 2002 18:40:32 -0400
+Received: from mail.cyberus.ca ([216.191.240.111]:34007 "EHLO cyberus.ca")
+	by vger.kernel.org with ESMTP id <S262235AbSJFWka>;
+	Sun, 6 Oct 2002 18:40:30 -0400
+Date: Sun, 6 Oct 2002 18:38:32 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Andre Hedrick <andre@pyxtechnologies.com>
+cc: Ben Greear <greearb@candelatech.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
+Subject: Re: Update on e1000 troubles (over-heating!)
+In-Reply-To: <Pine.LNX.4.10.10210052045090.22517-100000@master.linux-ide.org>
+Message-ID: <Pine.GSO.4.30.0210061835350.1861-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-phillips@arcor.de said:
-> Linus has indeed shown respect, but you have not, quite the contrary. 
 
-Don't you have anything better to do than to take useless, content-free
-potshots at things you don't like?
 
-Surely, there's some code that needs writing.
+On Sat, 5 Oct 2002, Andre Hedrick wrote:
 
-				Jeff
+>
+> I have a pair of Compaq e1000's which have never overheated, and I use
+> them for heavy duty iSCSI testing and designing of drivers.  These are
+> massive 66/64 cards but still nothing like what you are reporting.
+>
+> I will look some more at the issue soon.
+>
+
+It seems like the prerequisite to reproduce it is you beat the NIC heavily
+with a lot of packets/sec and then run it at that sustained rate for at
+least 30 minutes. isci would tend to use MTU sized packets which will
+not be that effective.
+
+cheers,
+jamal
+
+
+
 

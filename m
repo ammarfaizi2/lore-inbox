@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264321AbTLPXd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 18:33:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbTLPXd6
+	id S264278AbTLPXcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 18:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264321AbTLPXcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 18:33:58 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:45512 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264321AbTLPXd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 18:33:57 -0500
-Subject: Re: essid any -> orinoco_lock() called with hw_unavailable -test11
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1071571879.2498.65.camel@localhost>
-References: <1071571879.2498.65.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1071617600.734.44.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Dec 2003 10:33:21 +1100
+	Tue, 16 Dec 2003 18:32:09 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:30441 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S264278AbTLPXcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 18:32:06 -0500
+Message-ID: <3FDF95EB.2080903@labs.fujitsu.com>
+Date: Wed, 17 Dec 2003 08:31:55 +0900
+From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
+Reply-To: tsuchiya@labs.fujitsu.com
+Organization: Fujitsu Labs
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bryan Whitehead <driver@jpl.nasa.gov>
+CC: "Stephen C. Tweedie" <sct@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: filesystem bug?
+References: <3FDD7DFD.7020306@labs.fujitsu.com> <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov>
+In-Reply-To: <3FDF7BE0.205@jpl.nasa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-16 at 21:51, Soeren Sonnenburg wrote:
-> Hi.
-> 
-> I get quiete many error messages in when I do
-> 
-> ifconfig eth1 192.168.0.1 up
-> iwconfig eth1 mode ad-hoc
-> iwconfig eth1 nick bla
-> iwconfig eth1 key off
-> iwconfig eth1 essid "any"
-> ifconfig eth1 down
-> 
-> and no wireless network is available. The device is no longer accessible
-> afterwards. Reloading kernel modules helps, however if I go to sleep
-> mode on this 1GHz 15" G4 Powerbook the machine hangs on resume, see
-> 
-> http://www.nn7.de/kernel/essid_any.jpg
-> 
-> for the messages and xmon trace (please use a webbrowser to view it, it
-> is a redirect)
+Hi,
 
-Which test11 ? Did you try my tree ?
+Stephen, I don't have anything helpful for debuging at this point. We 
+noticed the problem
+by debuging our SCSI driver. Then we found that the same thing happens 
+on generic
+SCSI disk and IDE also.  The problem we observed in our driver was that 
+while it is
+processing a buffer, which should be locked by BH_LOCK,  the contents of 
+the buffer were
+overwritten. The amount of overwrite is a few byte to 1KB out of 4KB, 
+which cannot be done
+in our driver. Then, we tried a generic SCSI and I reproduced the problem.
+I think it is not because of a broken pointer because overwrites only 
+happen in data buffers
+and other parts of memory seem ok.
 
-(ppc.bkbits.net/linuxppc-2.5-benh via bitkeeper, rsync mirror on
-source.mvista.com)
+Especially with Ext2 reproducing is easy, it happens in a few hours with 
+my script.
+With Ext3, in a day if you are lucky.
 
-Ben.
+Now I am trying 2.4.23 from kernel.org with ext3, and 2.6.0-test11 from 
+kernel.org with ext3.
+So far, it's been a about a day, they are runing nicely. Let's see what 
+happens.
+
+Following is the failed combination:
+Redhat9 with 2.4.20-8 ext2 and ext3
+Redhat9 with 2.4.20-19.9 ext2 and ext3
+Redhat9 with 2.4.20-24.9 ext2
+
+Thanks,
+Yoshi
+---
+Yoshihiro Tsuchiya
 
 

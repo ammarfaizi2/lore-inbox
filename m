@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbUCKU7G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 15:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbUCKU7G
+	id S261723AbUCKU71 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 15:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUCKU71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 15:59:06 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:4171 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261728AbUCKU7C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 15:59:02 -0500
-Subject: Re: 2.6.4-mm1
-From: Redeeman <lkml@metanurb.dk>
-To: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040311104650.009a8d3e.akpm@osdl.org>
-References: <20040310233140.3ce99610.akpm@osdl.org>
-	 <1079024816.5325.2.camel@redeeman.linux.dk>
-	 <200403111453.20866.norberto+linux-kernel@bensa.ath.cx>
-	 <20040311100957.00dd6e7f.akpm@osdl.org>
-	 <1079028899.5327.4.camel@redeeman.linux.dk>
-	 <20040311104650.009a8d3e.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1079038721.5333.8.camel@redeeman.linux.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Mar 2004 21:58:41 +0100
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Mar 2004 15:59:27 -0500
+Received: from [218.18.210.171] ([218.18.210.171]:10528 "ehlo sina.com")
+	by vger.kernel.org with ESMTP id S261723AbUCKU7X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 15:59:23 -0500
+From: "Frank" <hechun1978@sina.com>
+Subject: mp3 player without any wire comes out with a very good price!
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hechun1978@sina.com
+Date: Fri, 12 Mar 2004 04:59:46 +0800
+X-Priority: 2
+X-Mailer: FoxMail 3.11 Release [cn]
+Message-Id: <S261723AbUCKU7X/20040311205923Z+1007@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gonna try now, already compiling... i will come back with details in a
-few minutes..
+Dear friends,
 
-On Thu, 2004-03-11 at 19:46, Andrew Morton wrote:
-> Redeeman <lkml@metanurb.dk> wrote:
-> >
-> >  i didnt do anything more than patch with mm1, is there a patch for doing
-> >  that spin_unlock_irq()? :)
-> 
-> --- 25/fs/mpage.c~a	2004-03-11 10:46:29.000000000 -0800
-> +++ 25-akpm/fs/mpage.c	2004-03-11 10:46:31.000000000 -0800
-> @@ -672,7 +672,6 @@ mpage_writepages(struct address_space *m
->  		}
->  		pagevec_release(&pvec);
->  	}
-> -	spin_unlock_irq(&mapping->tree_lock);
->  	if (bio)
->  		mpage_bio_submit(WRITE, bio);
->  	return ret;
-> 
-> _
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Regards, Redeeman
-redeeman@metanurb.dk
+Good day!
+
+Just a short message from HY Technology Co, Ltd.
+ 
+We just updated our Mp3 players with internal FM radio function to support 8 languages, English, 
+Chinese, French, Italian, German, Spanish, Czech, Swede. 
+
+>From now on, our BX1002Na, BX1002Nd and BXKing can come with internal FM radio function and 
+support 8 languages also.
+
+The price is only 54 USD for 128M and 77 USD for 256M.
+ 
+By the way, did you get our introduction about our latest Mp3 player------Butterfly, the headset 
+Mp3 player?
+ 
+The Mp3 IC and pc board are already installed in headphone. 
+You can enjoy music completely free now, without any wire around you!
+
+The price is only 55 USD for 128M and 79 USD for 256M.
+
+We have 20 kings of mp3 players to satisfy your demand. And the smallest mp3 player in the 
+world- BXDIOMAND!
+ 
+If you need catalogue and price list, please kindly tell us and we will send them to you.
+ 
+Looking forward to any comment from you. 
+ 
+Have a nice day!
+
+
+Frank
+
+HY Technology (Hong Kong) Company Ltd.
 

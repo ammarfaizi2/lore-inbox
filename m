@@ -1,90 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310953AbSDDGer>; Thu, 4 Apr 2002 01:34:47 -0500
+	id <S311180AbSDDGou>; Thu, 4 Apr 2002 01:44:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311092AbSDDGei>; Thu, 4 Apr 2002 01:34:38 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:44781 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S310953AbSDDGeX>; Thu, 4 Apr 2002 01:34:23 -0500
-Date: Thu, 4 Apr 2002 08:21:26 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: arjan@fenrus.demon.nl
-Cc: "Axel H. Siebenwirth" <axel@hh59.org>, <joe@tmsusa.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Another BUG in page_alloc.c:108
-In-Reply-To: <200204030700.g3370VO01976@fenrus.demon.nl>
-Message-ID: <Pine.LNX.4.44.0204040817240.10620-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311121AbSDDGol>; Thu, 4 Apr 2002 01:44:41 -0500
+Received: from zok.sgi.com ([204.94.215.101]:1708 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S311180AbSDDGo0>;
+	Thu, 4 Apr 2002 01:44:26 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: tigran@aivazian.fsnet.co.uk (Tigran Aivazian),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        andrea@suse.de (Andrea Arcangeli),
+        arjanv@redhat.com (Arjan van de Ven), hugh@veritas.com (Hugh Dickins),
+        mingo@redhat.com (Ingo Molnar),
+        stelian.pop@fr.alcove.com (Stelian Pop),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules... 
+In-Reply-To: Your message of "Wed, 03 Apr 2002 22:25:52 +0100."
+             <E16ssGO-0004YM-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 04 Apr 2002 16:43:19 +1000
+Message-ID: <22511.1017902599@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002 arjan@fenrus.demon.nl wrote:
+On Wed, 3 Apr 2002 22:25:52 +0100 (BST), 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> Ok, so that would cover the 2.5.x (and future stable) kernels. Does
+>> Marcelo also agree that it should be the case in the 2.4.x kernel?
+>
+>Thats a Keith Owens question - will it break current modutils ? I think
+>modutils compatibility for 2.4 must be sacrosanct
 
-> In article <20020403035406.GA2925@neon> you wrote:
-> > EIP:    0010:[__free_pages_ok+45/688]    Tainted: P 
-> 
-> Nvidia ? 
-> I get the distinct impression that the lastest nvidia drivers
-> reintroduced a bug that fubars the page allocator ;(
+Trivial change to modutils, keeping backwards compatibility, so
+EXPORT_SYMBOL_GPL == EXPORT_SYMBOL_INTERNAL.
 
-The latest nvidia stuff definately spews major chunks on its way out...
-
-This is on 2.4.19-pre2-ac3, backing upto the previous release nvidia 
-drivers i can't reproduce.
-
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0130c47>]    Not tainted
-EFLAGS: 00013282
-eax: 00000000   ebx: c15f94b0   ecx: c100000c   edx: db140eb0
-esi: 00000000   edi: 00000000   ebp: 00007000   esp: deb35edc
-ds: 0018   es: 0018   ss: 0018
-Process X (pid: 1457, stackpage=deb35000)
-Stack: c0306380 c15f94b0 00000000 00000001 c15f94b0 00008000 c15f94b0 
-c15f94b0 
-       00008000 debb5688 00007000 c0124782 c15f94b0 1d68d027 00000008 
-00000000 
-       425a3000 de793424 4259b000 00000000 425a3000 de793424 dfffcd50 
-dec00420 
-Call Trace: [<c0124782>] [<c01270ed>] [<c01271a2>] [<c0106f2b>] 
-
-Code: 0f 0b c6 43 24 05 8b 43 18 89 f1 83 e0 eb 89 43 18 c1 e8 18
-
->>EIP; c0130c47 <__free_pages_ok+97/250>   <=====
-Trace; c0124782 <zap_page_range+192/260>
-Trace; c01270ed <do_munmap+1ed/270>
-Trace; c01271a2 <sys_munmap+32/50>
-Trace; c0106f2b <system_call+33/38>
-Code;  c0130c47 <__free_pages_ok+97/250>
-00000000 <_EIP>:
-Code;  c0130c47 <__free_pages_ok+97/250>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0130c49 <__free_pages_ok+99/250>
-   2:   c6 43 24 05               movb   $0x5,0x24(%ebx)
-Code;  c0130c4d <__free_pages_ok+9d/250>
-   6:   8b 43 18                  mov    0x18(%ebx),%eax
-Code;  c0130c50 <__free_pages_ok+a0/250>
-   9:   89 f1                     mov    %esi,%ecx
-Code;  c0130c52 <__free_pages_ok+a2/250>
-   b:   83 e0 eb                  and    $0xffffffeb,%eax
-Code;  c0130c55 <__free_pages_ok+a5/250>
-   e:   89 43 18                  mov    %eax,0x18(%ebx)
-Code;  c0130c58 <__free_pages_ok+a8/250>
-  11:   c1 e8 18                  shr    $0x18,%eax
-
-0xc0130c40 <__free_pages_ok+144>:       mov    0x28(%ebx),%edx
-0xc0130c43 <__free_pages_ok+147>:       test   %edx,%edx
-0xc0130c45 <__free_pages_ok+149>:       je     0xc0130c49 
-<__free_pages_ok+153>
-0xc0130c47 <__free_pages_ok+151>:       ud2a
-
-if (page->pte_chain)
-                BUG();
-
-
--- 
-http://function.linuxpower.ca
-
+When the flamers and lawyers agree on what they really mean by
+EXPORT_SYMBOL_GPL or its replacement and everybody agrees on what the
+keyword should be, let me know and I will roll a new modutils.
+Otherwise, leave me out of this flamewar.
 

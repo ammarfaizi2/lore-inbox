@@ -1,47 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVCRSoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVCRSrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbVCRSoT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 13:44:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVCRSoS
+	id S261705AbVCRSrw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 13:47:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVCRSrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 13:44:18 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:11730 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261681AbVCRSoQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 13:44:16 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 18 Mar 2005 13:47:52 -0500
+Received: from alog0452.analogic.com ([208.224.222.228]:54702 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261705AbVCRSrr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 13:47:47 -0500
+Date: Fri, 18 Mar 2005 13:44:36 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Le Wen <le_wen@hotmail.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Questions about request_irq and reading PCI_INTERRUPT_LINE
+In-Reply-To: <BAY20-F12D2C7B3C608DE7BF487B9E54A0@phx.gbl>
+Message-ID: <Pine.LNX.4.61.0503181337240.27860@chaos.analogic.com>
+References: <BAY20-F12D2C7B3C608DE7BF487B9E54A0@phx.gbl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 0/6] PCI Express Advanced Error Reporting Driver
-Date: Fri, 18 Mar 2005 10:44:11 -0800
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408132915@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 0/6] PCI Express Advanced Error Reporting Driver
-Thread-Index: AcUr58JcOc/uf/87S7Gkta26lPzHcgAAdJAA
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Grant Grundler" <grundler@parisc-linux.org>
-Cc: "Greg KH" <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-       <linux-pci@atrey.karlin.mff.cuni.cz>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 18 Mar 2005 18:44:11.0900 (UTC) FILETIME=[79FEA3C0:01C52BEA]
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, March 18, 2005 10:26 AM Grant Grundler wrote:
->> He was referring to an unpublished draft "Error Reporting ECN".
->> You'll have to talk to Intel's PCI-SIG representative to get a copy.
->
->Good News: the "Error Reporting ECN" is now posted on the PCISIG
-website.
->
->Tom, please review and see if/how that changes your implementation.
+On Fri, 18 Mar 2005, Le Wen wrote:
 
-Agree. Thanks for the update.
+> Hi, there,
+>
+> I have problem to grab video from my ati all-in-wonder card. The card is in a 
+> PII Celeron machine with an on board video card (ATI Technologies Inc 3D Rage 
+> IIC AGP). there is no monitor connected with the on board video card. I only 
+> hook my AIW card with a monitor.
+>
+> I use km-0.6 from gatos project. I load this km_drv module, but kernel always 
+> complains:
+>
+> km: IRQ 0 busy
+>
+> I checked code:
+>       km_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
+>
+> here dev->irq with a value 0.
+>
+> When km_probe gets called, it try to request an IRQ0 returns a -EBUSY:
+>       kms_irq=dev.irq;
+>       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
+>
+>       if(result==-EBUSY){
+>               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
+>               goto fail;
+>       }
+>
+>
+> So I tried to get right IRQ number using:
+>       u8 myirq;
+>       int rtn=pci_read_config_byte(dev,PCI_INTERRUPT_LINE, &myirq);
+>       dev->irq=myirq;
+>       kms->irq=dev_irq;
+>       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
+>
+>       if(result==-EBUSY){
+>               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
+>               goto fail;
+>       }
+>       if(result<0){
+>               printk(KERN_ERR "km: could not install irq handler: 
+> result=%d\n",result);
+>               goto fail;
+>       }
+> But this time I got:
+>
+> km: kms->irq=24
+> km: could not install irq handler: result=-38
+>
+>
+> My questions are:
+> 1. I don't know why dev->irq has value of 0?
+>
 
-Thanks,
-Long
+The PCI interface now needs to be enabled first. The IRQ value
+returned is BAD until after one calls pci_enable_device(). This
+is a BUG, now considered a FEATURE so it's unlikely to be fixed!
+There are lots of people who have encountered this problem
+with modules that are not in the "distribution".
+
+> 2. Is an IRQ number of 24 valid for a Intel PII Celeron?
+>
+
+Could be, but it;s probably invalid considering the way you
+got it.
+
+> 3. What does this result=-38 mean?
+>
+
+Probably errno 38, i.e., ENOSYS
+
+>
+> Wen, Le
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

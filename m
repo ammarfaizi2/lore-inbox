@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312444AbSDXRm3>; Wed, 24 Apr 2002 13:42:29 -0400
+	id <S312455AbSDXRtO>; Wed, 24 Apr 2002 13:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312446AbSDXRm2>; Wed, 24 Apr 2002 13:42:28 -0400
-Received: from proxyserver.epcnet.de ([62.132.156.25]:55310 "HELO
-	viruswall.epcnet.de") by vger.kernel.org with SMTP
-	id <S312444AbSDXRm1>; Wed, 24 Apr 2002 13:42:27 -0400
-Date: Wed, 24 Apr 2002 19:42:24 +0200
-From: jd@epcnet.de
-To: davem@redhat.com
-Subject: AW: Re: AW: Re: AW: Re: VLAN and Network Drivers 2.4.x
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-ID: <210844917.avixxmail@nexxnet.epcnet.de>
-In-Reply-To: <20020424.095951.43413800.davem@redhat.com>
-X-Priority: 3
-X-Mailer: avixxmail 1.2.2.7
-X-MAIL-FROM: <jd@epcnet.de>
-Content-Type: text/plain; charset="iso-8859-1";
+	id <S312458AbSDXRtO>; Wed, 24 Apr 2002 13:49:14 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:33294 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S312455AbSDXRtM>; Wed, 24 Apr 2002 13:49:12 -0400
+Message-Id: <5.1.0.14.2.20020424184702.03eca250@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 24 Apr 2002 18:49:19 +0100
+To: andersen@codepoet.org
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [Linux-NTFS-Dev] Re: ANN: NTFS 2.0.2 for kernel 2.5.9
+  released
+Cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+In-Reply-To: <20020424160250.GA21659@codepoet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Von: <davem@redhat.com>
-> Gesendet: 24.04.2002 19:10
-> Yes, the "cannot do VLAN" flag is there in 2.4.x
+At 17:02 24/04/02, Erik Andersen wrote:
+>On Wed Apr 24, 2002 at 12:51:45PM +0100, Anton Altaparmakov wrote:
+> > NTFS 2.0.2 for kernel 2.5.9 is now available. This is a small update 
+> mainly
+> > to incorporate kernel 2.5.9. Also the default fmask is changed to 0177
+>
+>Any plans to make a 2.4.x version?
 
-Mhh, did not found the symbol in netdevice.h on stock 2.4.18.
+Not immediate plans. Eventually yes but right now there are too many other 
+things to do.
 
-> VLAN layer checks this and fails to bring up VLAN if
-> flag is set for the device being configured.  I'm way
-> ahead of you.
+But just today someone contacted me and he may be interested in doing the 
+backport...
 
-Ok, awaiting your changes.
+Best regards,
 
-Greetings
+Anton
 
-   Jochen Dolze
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

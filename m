@@ -1,86 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbTEZUzE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 16:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbTEZUzE
+	id S262254AbTEZU46 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 16:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbTEZU46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 16:55:04 -0400
-Received: from plg2.math.uwaterloo.ca ([129.97.140.200]:60373 "EHLO
-	plg2.math.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S262245AbTEZUzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 16:55:02 -0400
-Date: Mon, 26 May 2003 17:09:34 -0400
-From: Richard C Bilson <rcbilson@plg2.math.uwaterloo.ca>
-Message-Id: <200305262109.RAA23875@plg2.math.uwaterloo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: setitimer 1 usec fails
+	Mon, 26 May 2003 16:56:58 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:45467 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S262254AbTEZU44 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 16:56:56 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Kimmo Sundqvist <rabbit80@mbnet.fi>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.20-ck7] good compressed caching experience
+Date: Tue, 27 May 2003 07:11:34 +1000
+User-Agent: KMail/1.5.1
+References: <200305262150.04552.rabbit80@mbnet.fi>
+In-Reply-To: <200305262150.04552.rabbit80@mbnet.fi>
+Cc: rcastro@users.sourceforge.net
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200305270711.34608.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In trying the latest development kernel, I've noticed that calling
-setitimer with a 1 usec delay (the shortest possible delay) results in
-the timer never going off.  2 usec is ok but 1 is not, so I suspect
-that somehow things are being rounded off incorrectly.  The attached
-program demonstrates the problem on 2.5.69, but runs correctly on a
-2.4.20 kernel.
+On Tue, 27 May 2003 04:50, Kimmo Sundqvist wrote:
+> Hello
 
-I have only had the opportunity to try this on a single architecture
-(ia64), so if anyone can convince me that it's a platform-specific
-problem I'll be happy to take my gripe to the ia64 list.  I've tried to
-figure out how the usecs are converted to jiffies, but the code is
-sufficiently convoluted that I thought I'd throw it out in the hope of
-finding someone who understands the situation a little better.
+Hi Kimmo
 
-- Richard
+> I just decided to tell everyone that I've been able to run 2.4.20-ck7 with
+> compressed caching enabled in my little brother's Pentium 133MHz, for
+> hours, doing stress testing, compiling kernels and using the Internet under
+> X.
+>
+> I had pre-empt enabled.  Compressed swap worked also.  I used 4kB pages
+> without compressed swap, and 8kB with it.
+>
+> This was with Con's ck7pre versions released on 24th and 25th of May.
+>
+> Now running 2.4.20-ck7pre with compressed cache in a dual CPU machine with
+> SMP disabled (compressed caching and SMP support are still mutually
+> exclusive), 1GB of RAM but "mem=128M" for testing purposes.  Been stable
+> for 6 hours now, and done even some stress testing.  Try 128 instances of
+> burnBX with 1MB each, like "for ((A=128;A--;A<1)) do burnBX J & done".  A
+> nice brute force or "if you don't behave I'll push all my buttons" method
+> :)
+>
+> Wondering if Pentium 133MHz (64MB RAM) is fast enough to benefit from
+> compressed caching.  I know there's a limit, depending on the speed of the
+> CPU and the speed of the swap partition (doing random accesses), which
+> determines if compressed caching is beneficial or not.
+>
+> This machine has a Seagate Barracuda V 80GB, which does sequential reads at
+> 40MB/s.  I could drive this into trashing, then type "sar -B 1 1000" and
+> see how the swap is doing.  Now, compressed caching brings me benefit if,
+> and only if, it can compress and decompress pages faster than that in this
+> CPU, which it sure does, since this is a Pentium III 933MHz, but I'm not
+> sure about the little brother's Pentium 133MHz.  It has a 4GB Seagate that
+> does 6MB/s sequentially.  Did I figure it out correctly?  Of course
+> swapping to a partition gets slower as the swap usage increases.  Longer
+> seeks and the like.
 
-// When run, this program should print "handled alarm" from within the
-// signal handler, and "out of sigsuspend" right after.  It works on
-// 2.4.20 or if MY_TIMER_USEC is >= 2, but not on 2.5.69 with
-// MY_TIMER_USEC = 1.
+What you describe has been my experience with cc as well. I haven't had any 
+crashes or unusual problems with it since removing the AA vm changes as well 
+- it seemed to be the combination that caused hiccups on extreme testing. 
+>From what I can see, no matter how slow your cpu you will still get benefit 
+from cc as the hard drives on those machines are proportionately slower as 
+well. The one limitation of cc is that it does require _some_ ram to actually 
+store swap pages in, and it seems that you need more than 32Mb ram to start 
+deriving benefit.
 
-#define MY_TIMER_USEC 1
+One minor thing, though - my vm hacks make compressed caching work much less 
+than it normally does as they try to avoid swapping quite aggressively. It is 
+when the vm attempts to start swapping that cc looks to see if it should take 
+pages into compressed cache instead.
 
-#include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/time.h>
+I've cc'ed the actual developer of cc as he has indicated that he is actively 
+working on compressed caching again.
 
-void
-alarm_handler( int x )
-{
-  printf( "handled alarm\n" );
-  return;
-}
+> Just a warning... both systems have only ReiserFS partitions.  Other FSes
+> might still get hurt.
 
-int
-main()
-{
-  struct itimerval it = { { 0, 0 }, { 0, MY_TIMER_USEC } };
-  sigset_t mask;
-  struct sigaction act;
+This is definitely the case! If you try out compressed caching with ck7 please 
+do not enable preempt if you are using ext2/3 or vfat.
 
-  act.sa_handler = alarm_handler;
-  act.sa_flags = 0;
-  sigemptyset( &act.sa_mask );
-  if( sigaction(SIGALRM, &act, 0) ) {
-    perror( "sigaction" );
-    exit( 1 );
-  }
-  
-  if( setitimer(ITIMER_REAL, &it, 0) ) {
-    perror( "setitimer" );
-    exit( 1 );
-  }
-  
-  sigemptyset( &mask );
-  sigsuspend( &mask );
-  
-  printf( "out of sigsuspend\n" );
-  return 0;
-}
-
--- 
-Richard C. Bilson, Research Assistant   | School of Computer Science
-rcbilson@plg.uwaterloo.ca               | University of Waterloo
-http://plg.uwaterloo.ca/~rcbilson       | 200 University Avenue West
-Office: DC 3548F Ph: (519)888-4567x4822 | Waterloo, Ontario, CANADA N2L 3G1
+Cheers,
+Con

@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266339AbUGJSny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUGJSol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266339AbUGJSny (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 14:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUGJSny
+	id S266341AbUGJSol (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 14:44:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266342AbUGJSoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 14:43:54 -0400
-Received: from fep16.inet.fi ([194.251.242.241]:26523 "EHLO fep16.inet.fi")
-	by vger.kernel.org with ESMTP id S266339AbUGJSnx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 14:43:53 -0400
-From: Jan Knutar <jk-lkml@sci.fi>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: XFS: how to NOT null files on fsck?
-Date: Sat, 10 Jul 2004 21:43:49 +0300
-User-Agent: KMail/1.6.2
-Cc: L A Walsh <lkml@tlinx.org>,
-       Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
+	Sat, 10 Jul 2004 14:44:39 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:27559 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S266341AbUGJSof (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 14:44:35 -0400
+Date: Sat, 10 Jul 2004 11:43:57 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: L A Walsh <lkml@tlinx.org>
+Cc: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
        linux-kernel@vger.kernel.org
-References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <40EEC9DC.8080501@tlinx.org> <20040709215955.GA24857@taniwha.stupidest.org>
-In-Reply-To: <20040709215955.GA24857@taniwha.stupidest.org>
-MIME-Version: 1.0
+Subject: Re: XFS: how to NOT null files on fsck?
+Message-ID: <20040710184357.GA5014@taniwha.stupidest.org>
+References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <40EEC9DC.8080501@tlinx.org> <20040709215955.GA24857@taniwha.stupidest.org> <40F03665.90108@tlinx.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407102143.49838.jk-lkml@sci.fi>
+In-Reply-To: <40F03665.90108@tlinx.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 July 2004 00:59, Chris Wedgwood wrote:
+On Sat, Jul 10, 2004 at 11:33:09AM -0700, L A Walsh wrote:
 
-> I *never* see this even when beating the hell out of machines and
-> trying to break things.
+> My cases have been "vim" edited files.  I'd sorta think once vim has
+> exited, the data has been flushed, but that's just a WAG...
 
-I've seen this on a partition with NO other activity, than me editing a .c
-file with emacs in a project consisting of about 4 files in total, compiling
-and testingocasionally, editing again, etc... Then one day, powerloss, 
-when power came back, the file was nothing but null. Atleast it had 
-correct size and timestamp though, great comfort, that. :)
+No, that's not the case.  Normally when files are written the data
+isn't not flushed immediately, it sits in memory (the page-cache) for
+some (usually) small amount of time.
 
+If the data is critical applications should fsync (or similar) as
+required.
+
+FWIW my standard method of shutdown is:
+
+     sync ; poweroff -f
+
+sorta thing.  I don't loose any data doing this, (at least nothing
+I've noticed).
+
+
+   --cw

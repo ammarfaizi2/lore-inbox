@@ -1,119 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUIWVDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267335AbUIWVDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUIWVDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 17:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUIWVCQ
+	id S267335AbUIWVDs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 17:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267358AbUIWVDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 17:02:16 -0400
-Received: from 114.135.160.66.in-arpa.com ([66.160.135.114]:27908 "EHLO lvsbox")
-	by vger.kernel.org with ESMTP id S267356AbUIWUz5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:55:57 -0400
-Message-ID: <4153384E.1030804@bushytails.net>
-Date: Thu, 23 Sep 2004 13:55:42 -0700
-From: Randy Gardner <lkml@bushytails.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.8.1 OOM on hard drive copy 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Sep 2004 17:03:46 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:35744 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S267335AbUIWVAL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 17:00:11 -0400
+Date: Thu, 23 Sep 2004 22:59:58 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+Cc: davem@davemloft.net, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: ArcNet and 2.6.8.1
+In-Reply-To: <20040924.001627.113803491.yoshfuji@linux-ipv6.org>
+Message-Id: <Pine.OSF.4.05.10409232258030.21511-100000@da410.ifa.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+X-DAIMI-Spam-Score: 0 () 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I put an older 8gb hard drive in today to try to copy the data off of 
-it, but whenever I try, I get repeated OOMs starting about 1.3gb into 
-the copy.
+After I got the arcnet device running labtop computer froze up. I have
+turned off preemtion and SMP. It seems to make it more stable but I can't
+be conclusive.
 
-Quick system specs:
-Dual p3s on a MSI 694D Pro motherboard (via chipset), 2GB of ram. 
-2.6.8.1 kernel compiled with 4gb memory limit.
-
-A search of the archives shows a very similar problem (and patch) with 
-burning audio CDs under 2.6.8.1, so this is probably the same bug, but I 
-figure it's different enough to warrant a separate post, even if just to 
-help people searching for it.  (I can't find any reference to this 
-problem with copying between hard drives).  (If I was wrong to figure 
-that, I apologize)
-
-The hard drive being copied from does not work with DMA, and having it 
-in results in no dma for any of the drives.  (No message is displayed 
-for this, but hdparm shows dma off when it's normally on.  On the box 
-the 8gb drive was removed from, dma would always immediately time out)
-
-If I ctrl-c the copy, the box does remain up, but running most any 
-command will result in another OOM and another random process killed 
-(usually apache, mysql, or something else large).  Rebooting the box at 
-this point sometimes succeeds, but sometimes init gets oom-killed first, 
-and the box has to be physically reset.
-
-Watching with top shows there's still some physical ram left, and the 
-4gb of swap is not being used at all.  As such, it appears the OOM is 
-happening when the box is not really out of memory.
-
-Let me know if I should post dmesg output or other further information; 
-it's quite long, so figured I'd skip it unless it was needed.  And, of 
-course, let me know if there's any experiments I should try to see what 
-happens.  For now I'll try -rc2 and see if it helps.
+Esben
 
 
-Thanks in advance,
---Randy
+On Fri, 24 Sep 2004, YOSHIFUJI Hideaki / [iso-2022-jp] 吉藤英明 wrote:
 
-
-Exact message copied from kern.log:
-
-I mount the partition, and begin the copy...  10 minutes (and 1.2 - 
-1.3gb; very slow with no dma) later the OOMs start.  It is repeatable at 
-the same approximate place.
-
-Sep 23 11:58:52 localhost kernel: EXT3 FS on hdc1, internal journal
-Sep 23 11:58:52 localhost kernel: EXT3-fs: recovery complete.
-Sep 23 11:58:52 localhost kernel: EXT3-fs: mounted filesystem with 
-ordered data mode.
-Sep 23 12:08:19 localhost kernel: oom-killer: gfp_mask=0xd0
-Sep 23 12:08:19 localhost kernel: DMA per-cpu:
-Sep 23 12:08:19 localhost kernel: cpu 0 hot: low 2, high 6, batch 1
-Sep 23 12:08:19 localhost kernel: cpu 0 cold: low 0, high 2, batch 1
-Sep 23 12:08:19 localhost kernel: cpu 1 hot: low 2, high 6, batch 1
-Sep 23 12:08:19 localhost kernel: cpu 1 cold: low 0, high 2, batch 1
-Sep 23 12:08:19 localhost kernel: Normal per-cpu:
-Sep 23 12:08:19 localhost kernel: cpu 0 hot: low 32, high 96, batch 16
-Sep 23 12:08:19 localhost kernel: cpu 0 cold: low 0, high 32, batch 16
-Sep 23 12:08:19 localhost kernel: cpu 1 hot: low 32, high 96, batch 16
-Sep 23 12:08:19 localhost kernel: cpu 1 cold: low 0, high 32, batch 16
-Sep 23 12:08:19 localhost kernel: HighMem per-cpu:
-Sep 23 12:08:19 localhost kernel: cpu 0 hot: low 32, high 96, batch 16
-Sep 23 12:08:22 localhost kernel: cpu 0 cold: low 0, high 32, batch 16
-Sep 23 12:08:22 localhost kernel: cpu 1 hot: low 32, high 96, batch 16
-Sep 23 12:08:22 localhost kernel: cpu 1 cold: low 0, high 32, batch 16
-Sep 23 12:08:22 localhost kernel:
-Sep 23 12:08:22 localhost kernel: Free pages:      918916kB (917056kB 
-HighMem)
-Sep 23 12:08:22 localhost kernel: Active:8455 inactive:54703 dirty:43461 
-writeback:0 unstable:0 free:229729 slab:4608 mapped:8431 pagetables:195
-Sep 23 12:08:22 localhost kernel: DMA free:44kB min:16kB low:32kB 
-high:48kB active:0kB inactive:0kB present:16384kB
-Sep 23 12:08:22 localhost kernel: protections[]: 8 476 732
-Sep 23 12:08:24 localhost kernel: Normal free:1816kB min:936kB 
-low:1872kB high:2808kB active:0kB inactive:200kB present:901120kB
-Sep 23 12:08:24 localhost kernel: protections[]: 0 468 724
-Sep 23 12:08:24 localhost kernel: HighMem free:917056kB min:512kB 
-low:1024kB high:1536kB active:33820kB inactive:218612kB present:1179584kB
-Sep 23 12:08:24 localhost kernel: protections[]: 0 0 256
-Sep 23 12:08:24 localhost kernel: DMA: 1*4kB 1*8kB 0*16kB 1*32kB 0*64kB 
-0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 44kB
-Sep 23 12:08:24 localhost kernel: Normal: 0*4kB 1*8kB 1*16kB 0*32kB 
-0*64kB 0*128kB 1*256kB 1*512kB 1*1024kB 0*2048kB 0*4096kB = 1816kB
-Sep 23 12:08:24 localhost kernel: HighMem: 272*4kB 574*8kB 375*16kB 
-143*32kB 1583*64kB 710*128kB 108*256kB 44*512kB 45*1024kB 43*2048kB 
-128*4096kB = 917056kB
-Sep 23 12:08:24 localhost kernel: Swap cache: add 0, delete 0, find 0/0, 
-race 0+0
-Sep 23 12:08:24 localhost kernel: Out of Memory: Killed process 2665 
-(apache2).
-
-At this point further OOMs repeat from the oom-killer line.
-
+> Hello.
+> 
+> In article <Pine.OSF.4.05.10409231534150.5114-100000@da410.ifa.au.dk> (at Thu, 23 Sep 2004 17:08:47 +0200 (METDST)), Esben Nielsen <simlo@phys.au.dk> says:
+> 
+> >  I am trying to upgrade my labtop to 2.6.8.1. I have ArcNet COM20020
+> > PCMCIA card. After editing /etc/pcmcia/config to make it know about the
+> > module, it finds the com20020 with no problems but as soon as I try to
+> > start the network device the ifconfig process crashes.
+> :
+> > I fixed it by changing
+> > 	lp->hw.open(dev);
+> > to
+> > 	if(lp->hw.open) {
+> > 		lp->hw.open(dev);
+> > 	}
+> 
+> Thanks.
+> 
+> Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+> 
+> ===== drivers/net/arcnet/arcnet.c 1.18 vs edited =====
+> --- 1.18/drivers/net/arcnet/arcnet.c	2004-07-01 13:18:14 +09:00
+> +++ edited/drivers/net/arcnet/arcnet.c	2004-09-24 00:11:35 +09:00
+> @@ -401,7 +401,8 @@
+>  	lp->rfc1201.sequence = 1;
+>  
+>  	/* bring up the hardware driver */
+> -	lp->hw.open(dev);
+> +	if (lp->hw.open)
+> +		lp->hw.open(dev);
+>  
+>  	if (dev->dev_addr[0] == 0)
+>  		BUGMSG(D_NORMAL, "WARNING!  Station address 00 is reserved "
+> 
+> -- 
+> Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+> GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+> 
 

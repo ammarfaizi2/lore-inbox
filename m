@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129853AbQKSUf3>; Sun, 19 Nov 2000 15:35:29 -0500
+	id <S129944AbQKSUgJ>; Sun, 19 Nov 2000 15:36:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129870AbQKSUfU>; Sun, 19 Nov 2000 15:35:20 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:10245 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129413AbQKSUfA>;
-	Sun, 19 Nov 2000 15:35:00 -0500
-Date: Sat, 18 Nov 2000 17:00:45 +0000
+	id <S129870AbQKSUf7>; Sun, 19 Nov 2000 15:35:59 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:11013 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129413AbQKSUfZ>;
+	Sun, 19 Nov 2000 15:35:25 -0500
+Date: Sat, 18 Nov 2000 18:54:41 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: test11-pre6 still very broken
-Message-ID: <20001118170045.A177@toy>
-In-Reply-To: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet> <20001117223137.A26341@wirex.com> <3A162EFE.A980A941@talontech.com> <20001117235624.B26341@wirex.com> <8v6h3d@penguin.transmeta.com>
+To: Werner Almesberger <Werner.Almesberger@epfl.ch>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] swap=<device> kernel commandline
+Message-ID: <20001118185441.B177@toy>
+In-Reply-To: <20001118141524.A15214@nic.fr> <Pine.LNX.4.21.0011181804360.9267-100000@duckman.distro.conectiva> <20001118223455.G23033@almesberger.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <8v6h3d@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 18, 2000 at 10:17:17AM -0800
+In-Reply-To: <20001118223455.G23033@almesberger.net>; from Werner.Almesberger@epfl.ch on Sat, Nov 18, 2000 at 10:34:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi1
 
-> >One note for the archives, if you are presented a choice between a OHCI
-> >or a UHCI controller, go for the OHCI.  It has a "cleaner" interface,
-> >handles more of the logic in the silicon, and due to this provides
-> >faster transfers.
+> > Did you try to load an initrd on a low-memory machine?
+> > It shouldn't work and it probably won't ;)
 > 
-> I'd disagree.  UHCI has tons of advantages, not the least of which is
-> [Cthat it was there first and is widely available.  If OHCI hadn't been
-> done we'd have _one_ nice good USB controller implementation instead of
-> fighting stupid and unnecessary battles that shouldn't have existed in
-> the first place. 
+> You must be really low on memory ;-)
+> 
+> # zcat initrd.gz | wc -c
+>  409600
+> 
+> (ash, pwd, chroot, pivot_root, smount, and still about 82 kB free.)
 
-UHCI has one bad disadvantage: the way it is designed, you can choose
-either slow USB or slow system.
+Your solution requires 400K initrd _plus_ memory for ash and swapon. That
+might be easily 600K total. Yes I could imagine machine with freemem less
+than that. However such machines do not usually have swap available.
 
-If you are doing bulk usb transfers at high speed (faster than ISDN modem,
-or so), you need to make loop in the command "tree", which hogs down your
-PCI bus (leading to slow overall performance). It is called FSBR and its
-ugly. 50% system slowdown due to stupid UHCI.
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

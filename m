@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285724AbRLHBX3>; Fri, 7 Dec 2001 20:23:29 -0500
+	id <S285732AbRLHBZj>; Fri, 7 Dec 2001 20:25:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285731AbRLHBXT>; Fri, 7 Dec 2001 20:23:19 -0500
-Received: from [144.137.80.33] ([144.137.80.33]:32496 "EHLO e4.eyal.emu.id.au")
-	by vger.kernel.org with ESMTP id <S285724AbRLHBXH>;
-	Fri, 7 Dec 2001 20:23:07 -0500
-Message-ID: <3C116B1E.9C153277@eyal.emu.id.au>
-Date: Sat, 08 Dec 2001 12:21:34 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15 i686)
-X-Accept-Language: en
+	id <S285734AbRLHBZa>; Fri, 7 Dec 2001 20:25:30 -0500
+Received: from sm10.texas.rr.com ([24.93.35.222]:28333 "EHLO sm10.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S285732AbRLHBZU>;
+	Fri, 7 Dec 2001 20:25:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marvin Justice <mjustice@austin.rr.com>
+Reply-To: mjustice@austin.rr.com
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: highmem question
+Date: Fri, 7 Dec 2001 19:30:01 -0600
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.30.0112071404280.29154-100000@mustard.heime.net> <9url8t$nmo$1@cesium.transmeta.com>
+In-Reply-To: <9url8t$nmo$1@cesium.transmeta.com>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.17-pre6
-In-Reply-To: <Pine.LNX.4.21.0112071935050.22884-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01120719300102.00764@bozo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> Some critical stuff this time: Notably the multithread coredump deadlock
-> fix and the copy_user_highpage fix for some architectures...
-> 
-> pre6:
+>
+> > I heard that himem slows down systems.
+>
+> It does, because it's a hack to extend 32-bit machines beyond their
+> architectural lifetime.
+>
 
-Everything possible built as a module. The wan error I undertsand
-is something we really like as it is by now a permanent feature, but
-the sis one is new.
+While it certainly makes sense to expect a performance hit for mem above 4GB 
+on 32 bit systems I don't see why there should be any a priori reason to 
+either move to 64 bit or take a performance hit for if you need, say,  2GB of 
+RAM. The problem is that 2.4 Linux considers HIGHMEM to be anything above 
+896MB. 
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.17-pre6/kernel/drivers/char/drm/sis.o
-depmod:         sis_malloc_Ra3329ed5
-depmod:         sis_free_Rced25333
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.17-pre6/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
+>From what I've read it looks like there will be changes in 2.5 to fix all 
+this.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+Marvin Justice

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281815AbRK1I6x>; Wed, 28 Nov 2001 03:58:53 -0500
+	id <S282098AbRK1Izp>; Wed, 28 Nov 2001 03:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282081AbRK1I6n>; Wed, 28 Nov 2001 03:58:43 -0500
-Received: from web13105.mail.yahoo.com ([216.136.174.150]:18438 "HELO
-	web13105.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281815AbRK1I6h>; Wed, 28 Nov 2001 03:58:37 -0500
-Message-ID: <20011128085835.40289.qmail@web13105.mail.yahoo.com>
-Date: Wed, 28 Nov 2001 03:58:35 -0500 (EST)
-From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
+	id <S282091AbRK1IzX>; Wed, 28 Nov 2001 03:55:23 -0500
+Received: from quadpro.xs4all.nl ([213.84.70.40]:59143 "HELO
+	quadpro.stupendous.org") by vger.kernel.org with SMTP
+	id <S282095AbRK1IzW>; Wed, 28 Nov 2001 03:55:22 -0500
+Date: Wed, 28 Nov 2001 09:55:20 +0100
+From: Jurjen Oskam <jurjen@quadpro.stupendous.org>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111280054110.1609-100000@eduard.t-online.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: 'spurious 8259A interrupt: IRQ7'
+Message-ID: <20011128095520.B577@quadpro.stupendous.org>
+In-Reply-To: <XFMail.20011127152007.ast@domdv.de> <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>; from martin@jtrix.com on Tue, Nov 27, 2001 at 02:38:13PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-Cx 486,  no pci, no network card, same message.
->From my experience in PC hardware i know that irq 7 is
-usually asigned to the parallel port.
-I know a windoze box which didn't print until i set up
-in bios that paralel port has irq7.
+On Tue, Nov 27, 2001 at 02:38:13PM -0000, Martin A. Brooks wrote:
 
-Bye
+> In my research before posting, a common thread seemed to be the presence of
+> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
 
-=====
-*********************************************************
-                Désolé, un problème s'est produit : 
-                 *  votre signature ne peut pas comporter 
-                 plus de 600 caractères ni occuper plus de 
-                 sept lignes. 
-Another way to say: Welcome to Yahoo! ^^^
-**********************************************************
+Yup: standard SuSE 7.3 install on an Asus A7V266-E motherboard (VIA KT266A
+chipset, 512 MB DDR, Athlon XP).
 
-__________________________________________________________
-Obtenez votre adresse @yahoo.ca gratuite et en français !
-courriel.yahoo.ca
+Just recently installed Linux on that machine (yesterday evening) so I
+don't even know what kernel version SuSE 7.3 uses. :-( If needed, I can try
+other kernels.
+
+-- 
+      Jurjen Oskam * http://www.stupendous.org/ for PGP key * Q265230
+    8:39am  up 30 days, 23:33,  1 user,  load average: 0.15, 0.03, 0.01

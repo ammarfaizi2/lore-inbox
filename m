@@ -1,78 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268399AbUIBO5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268347AbUIBPGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268399AbUIBO5J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 10:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268392AbUIBO5J
+	id S268347AbUIBPGo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 11:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIBPGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 10:57:09 -0400
-Received: from adsl-ull-123-100.42-151.net24.it ([151.42.100.123]:53233 "EHLO
-	www.gtkperl.org") by vger.kernel.org with ESMTP id S268389AbUIBO4f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 10:56:35 -0400
-Date: Thu, 2 Sep 2004 16:56:27 +0200
-From: Paolo Molaro <lupus@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: incorrect time accouting
-Message-ID: <20040902145627.GX2761@debian.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Sep 2004 11:06:44 -0400
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:59281 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S268347AbUIBPGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 11:06:13 -0400
+From: Stuart Young <cef-lkml@optusnet.com.au>
+To: linux-kernel@vger.kernel.org, Rohit Neupane <rohitneupane@gmail.com>
+Subject: Re: Weird Problem with TCP
+Date: Fri, 3 Sep 2004 01:06:23 +1000
+User-Agent: KMail/1.7
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <93e09f0104090202216403c08d@mail.gmail.com> <1094122617.4966.0.camel@localhost.localdomain> <93e09f0104090206334a708289@mail.gmail.com>
+In-Reply-To: <93e09f0104090206334a708289@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200409030106.24476.cef-lkml@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While benchmarking, a user pointed out that time(1) reported
-incorrect user and system times when running mono.
-A typical example (running on 2.6.8.1 is):
+On Thu, 2 Sep 2004 23:33, Rohit Neupane wrote:
+> On Thu, 02 Sep 2004 11:56:59 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> 
+wrote:
+> > > * Everything works fine for about 5-10 mins then all of a sudden TCP
+> > > services are not accessable.
+> > > * For some reason TCP times out. However at the same time
+> > > ping,traceroute and dns trace works without any problem.
+> > > * The connected TCP sokets keeps working without any problem. I
+> > > verified this by using Msn chat. I observerd that I chat session (
+> > > which I had started when everything was normal) continued without any
+> > > problem however I was not able to initiate a new chat session.
+> >
+> > Are you using session tracking. The symptoms you describe are
+> > classically those of session tracking nat/firewalling/whatever running
+> > out of table entries and being unable to allow new connections.
+>
+> No, it is not running any session tracking (ip_conntrack) neither it
+> does nat. It is just a firewall with around 1600 rules in FORWARD
+> mangle table and around 1500 rules in FORWARD filter table. Out of
+> 1500 rules , 1377 rules are MAC filter rules.
+> And it had 3 alias address for the interface conneted to the wirelss.
 
-	$ /usr/bin/time mono so-sieve.exe 5000
-	Count: 1028
-	0.02user 0.00system 0:01.97elapsed 1%CPU (0avgtext+0avgdata 0maxresident)k
-	0inputs+0outputs (1major+1509minor)pagefaults 0swaps
+EEEEK! 1600? That is insane!
 
-Where so-sieve.exe is a cpu-bound benchmark.
-On 2.6.8.1 very low user and system times are reported every time, while
-on both 2.4.19 and 2.2.20 sometimes the correct (or at least sensible) 
-results are reported, while sometimes very low timings are reported as
-well.
-top reports high cpu usage and low idle percentages, but with no cpu
-time accounted to the mono process.
-This looks like a mild security issue, since it appears there is some way
-to circumvent the kernel's idea of the cpu resource usage of a process,
-so the limits set become useless and users could bog down the system.
+Consider cutting your rules into sections, and jumping to other tables to do 
+sections of the work. Perhaps you can filter on the start of the MAC address 
+and break this into smaller sections?
 
-http://primates.ximian.com/~lupus/time-strace has the result of
-	strace -tt -f time /usr/local/bin/mono so-sieve.exe 5000 2> time-strace
-The highlights include:
-
-[pid  9630] 19:22:28.609566 execve("/usr/local/bin/mono", ["/usr/local/bin/mono", "so-sieve.exe", "5000"], [/* 33 vars */]) = 0
-Pid 9630 is the main process: it creates a thread that will execute the
-bulk of the cpu-intensive code (pid 9633):
-
-[pid  9630] 19:22:28.839532 clone(Process 9633 attached child_stack=0x40d17b48, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, parent_tidptr=0x40d17bf8, {entry_number:6, base_addr:0x40d17bb0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}, child_tidptr=0x40d17bf8) = 9633
-The main loop starts here, after some memory allocation:
-
-[pid  9633] 19:22:28.849138 brk(0x82ae000) = 0x82ae000
-And it ends about two seconds later, with the next entry in the trace
-for the 9633 pid:
-
-[pid  9633] 19:22:30.780451 brk(0)      = 0x82ae000
-At the end, wait4 is called to collect the times, less than 0.5 sec
-user+system:
-[pid  9629] 19:22:30.821596 <... wait4 resumed> [WIFSIGNALED(s) && WTERMSIG(s) == SIGKILL], 0, {ru_utime={0, 14997}, ru_stime={0, 1999}, ...}) = 9630
-
-http://primates.ximian.com/~lupus/mono-1.1.1.tar.gz is the mono source,
-if you don't have mono installed to reproduce (I tried to reproduce with
-a simple pthread program what mono is doing, executing cpu-intensive
-code in a subthread, but times are reported correctly there).
-http://primates.ximian.com/~lupus/so-sieve.exe is the sample program,
-but other programs exibited the same behaviour.
-Let me know if more info is needed to track down the problem.
-
-lupus
+Also of note: MAC addresses are easily spoofed, so if you're using this to 
+lock out people on wireless, forget it, it doesn't work. Get them to use 
+tunnels (eg: ipsec) instead. The only real way MAC addresses even sort of 
+work is when you're providing a hotspot, ie: where you can't guarantee the 
+client to have anything apart from base wireless, and you should therefore 
+keep a tight leash on users connections by either timing them out regularly, 
+or making them keep open a https:// page to a login/AAA server (ie: a page 
+that auto-refreshes - when they stop refreshing the page, consider their 
+connection stale).
 
 -- 
------------------------------------------------------------------
-lupus@debian.org                                     debian/rules
-lupus@ximian.com                             Monkeys do it better
+ Stuart Young (aka Cef)
+ cef-lkml@optusnet.com.au is for LKML and related email only

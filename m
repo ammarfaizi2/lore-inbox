@@ -1,127 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268412AbTBNNnd>; Fri, 14 Feb 2003 08:43:33 -0500
+	id <S268441AbTBNNwF>; Fri, 14 Feb 2003 08:52:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268414AbTBNNnd>; Fri, 14 Feb 2003 08:43:33 -0500
-Received: from DaVinci.coe.neu.edu ([129.10.32.95]:19851 "EHLO
-	DaVinci.coe.neu.edu") by vger.kernel.org with ESMTP
-	id <S268412AbTBNNnV>; Fri, 14 Feb 2003 08:43:21 -0500
-Date: Fri, 14 Feb 2003 08:53:08 -0500 (EST)
-From: Mauricio Martinez <mauricio@coe.neu.edu>
-To: Corey Minyard <minyard@acm.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.20 drivers/cdrom/cdu31a.c
-In-Reply-To: <3E494681.6090200@acm.org>
-Message-ID: <Pine.GSO.4.33.0302140847230.27605-200000@Amps.coe.neu.edu>
+	id <S268444AbTBNNwF>; Fri, 14 Feb 2003 08:52:05 -0500
+Received: from vsmtp1.tin.it ([212.216.176.221]:5261 "EHLO smtp1.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S268441AbTBNNwE>;
+	Fri, 14 Feb 2003 08:52:04 -0500
+Message-ID: <3E4CF5D2.6ED23062@libero.it>
+Date: Fri, 14 Feb 2003 14:57:38 +0100
+From: Abramo Bagnara <abramo.bagnara@libero.it>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en, it
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-1045230788=:27605"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Synchronous signal delivery..
+References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com>
+		 <3E4CAEFC.92914AB3@libero.it> <1045232677.7958.9.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Alan Cox wrote:
+> 
+> On Fri, 2003-02-14 at 08:55, Abramo Bagnara wrote:
+> > This reminds me the unfortunate (and much needed) lack of an unified way
+> > to send/receive out-of-band data to/from a regular fd.
+> >
+> > Something like:
+> >       oob = fd_open(fd, channel, flags);
+> >       write(oob, ...)
+> >       read(oob, ....)
+> >       close(oob);
+> >
+> > Don't you think it's time to introduce it and to start to avoid the
+> > proliferation of different tricky ways to do the same things?
+> 
+> Why are you trying to throw yet more crap into the kernel. Linus signals
+> as fd thing is questionable but makes a little sense (its in many ways
+> more unix than the traditional approach of using real time queued
+> signal since you can now select on it)
 
----559023410-851401618-1045230788=:27605
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+My comment was not related to "signals as fd" stuff, but to the more
+generic need (implicit in Linus reply to Davide's comment) to have
+sometimes a control channel for an open fd (much like a file approach to
+ioctl/fcntl problem space).
 
+FWIW and IIRC a similar solution (based on a fs approach) was suggested
+also by Al Viro some time ago.
 
-Attached is the output you requested, when reading an 80 k file.
+> Out of band data is a second data channel, so open two pipes. Jeez
 
-Basically, the original patch tries to read 4 sectors less for each retry,
-but I'm not sure when is it necessary to try to read again - this may be
-the reason of the behavior I described before.
+What about the relation between the two channels?
 
-Hope this helps.
+-- 
+Abramo Bagnara                       mailto:abramo.bagnara@libero.it
 
--Mauricio
-
----559023410-851401618-1045230788=:27605
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="out.log"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.33.0302140853080.27605@Amps.coe.neu.edu>
-Content-Description: 
-Content-Disposition: attachment; filename="out.log"
-
-Y29wbGV5On4+IG1vdW50IC9kZXYvc29ueWNkIC9jZHJvbSAtdCBpc285NjYw
-DQpjZHUzMWE6IFRyeWluZyBzZXNzaW9uIDENCmNkdTMxYTogVHJ5aW5nIHNl
-c3Npb24gMg0KbW91bnQ6IGJsb2NrIGRldmljZSAvZGV2L3NvbnljZCBpcyB3
-cml0ZS1wcm90ZWN0ZWQsIG1vdW50aW5nIHJlYWQtb25seQ0KY29wbGV5On4+
-IGxzIC1sIC9jZHJvbS8NCnRvdGFsIDI0OTYyNw0KZHIteHIteHIteCAgIDEg
-cm9vdCAgICAgcm9vdCAgICAgICAgIDIwNDggTWFyIDI5ICAxOTk0IDBtc3Zp
-ZGVvLw0KZHIteHIteHIteCAgIDEgcm9vdCAgICAgcm9vdCAgICAgICAgIDIw
-NDggTWFyIDI5ICAxOTk0IDEwMWF2aS8NCmRyLXhyLXhyLXggICAxIHJvb3Qg
-ICAgIHJvb3QgICAgICAgICAyMDQ4IE1hciAyOSAgMTk5NCAzMDFhdmkvDQpk
-ci14ci14ci14ICAgMSByb290ICAgICByb290ICAgICAgICAgMjA0OCBNYXIg
-MjkgIDE5OTQgMzAyYXZpLw0KZHIteHIteHIteCAgIDEgcm9vdCAgICAgcm9v
-dCAgICAgICAgIDIwNDggTWFyIDI5ICAxOTk0IDQwMWF2aS8NCmRyLXhyLXhy
-LXggICAxIHJvb3QgICAgIHJvb3QgICAgICAgICAyMDQ4IE1hciAyOSAgMTk5
-NCA1MDFhdmkvDQotci14ci14ci14ICAgMSByb290ICAgICByb290ICAgICAg
-ICA4OTI0OCBTZXAgMjAgIDE5OTMgY29tbWRsZy5kbGwqDQotci14ci14ci14
-ICAgMSByb290ICAgICByb290ICAgICAgICAxMTc3NiBTZXAgMjAgIDE5OTMg
-ZWVzYy5kbGwqDQpkci14ci14ci14ICAgMSByb290ICAgICByb290ICAgICAg
-ICAgODE5MiBNYXIgMjkgIDE5OTQgZ2J1dDE2Lw0KZHIteHIteHIteCAgIDEg
-cm9vdCAgICAgcm9vdCAgICAgICAgIDgxOTIgTWFyIDI5ICAxOTk0IGdidXQy
-NTYvDQotci14ci14ci14ICAgMSByb290ICAgICByb290ICAgICAyNTAxMzQ1
-MjggRGVjICAzICAxOTkzIGdyb2Z0LndpbioNCi1yLXhyLXhyLXggICAxIHJv
-b3QgICAgIHJvb3QgICAgICAgMTExNjM1IE1hciAyOCAgMTk5NCBuZ21lLmhs
-cCoNCi1yLXhyLXhyLXggICAxIHJvb3QgICAgIHJvb3QgICAgICAgICAgNDAx
-IE1hciAyOCAgMTk5NCBuZ21lLmluaSoNCi1yLXhyLXhyLXggICAxIHJvb3Qg
-ICAgIHJvb3QgICAgICAgNzA2MDQ4IEZlYiAxOSAgMTk5MyBuZ21lY2wuZXhl
-Kg0KLXIteHIteHIteCAgIDEgcm9vdCAgICAgcm9vdCAgICAgIDQzMzI0ODYg
-U2VwIDIxICAxOTkzIG9wZW5hbmltLmF2aSoNCi1yLXhyLXhyLXggICAxIHJv
-b3QgICAgIHJvb3QgICAgICAgMjAyNTcyIEFwciAyNyAgMTk5MyBzZXR1cC5l
-eGUqDQpjb3BsZXk6fj4gY3AgL2Nkcm9tL2NvbW1kbGcuZGxsIC4NCkZlYiAx
-MyAyMzowNDoyNiBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxl
-ZnQ6IDI4DQpGZWIgMTMgMjM6MDQ6MjYgY29wbGV5IGtlcm5lbDogTnVtYmVy
-IG9mIGJsb2NrcyBsZWZ0OiAyNA0KRmViIDEzIDIzOjA0OjI2IGNvcGxleSBr
-ZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogMjANCkZlYiAxMyAyMzow
-NDoyNiBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDE2
-DQpGZWIgMTMgMjM6MDQ6MjYgY29wbGV5IGtlcm5lbDogTnVtYmVyIG9mIGJs
-b2NrcyBsZWZ0OiAxMg0KRmViIDEzIDIzOjA0OjI2IGNvcGxleSBrZXJuZWw6
-IE51bWJlciBvZiBibG9ja3MgbGVmdDogOA0KRmViIDEzIDIzOjA0OjI2IGNv
-cGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogNA0KRmViIDEz
-IDIzOjA0OjI2IGNvcGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVm
-dDogNTINCkZlYiAxMyAyMzowNDoyNiBjb3BsZXkga2VybmVsOiBOdW1iZXIg
-b2YgYmxvY2tzIGxlZnQ6IDQ4DQpGZWIgMTMgMjM6MDQ6MjYgY29wbGV5IGtl
-cm5lbDogTnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA0NA0KRmViIDEzIDIzOjA0
-OjI3IGNvcGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogNDAN
-CkZlYiAxMyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxv
-Y2tzIGxlZnQ6IDM2DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDog
-TnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiAzMg0KRmViIDEzIDIzOjA0OjI3IGNv
-cGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogMjgNCkZlYiAx
-MyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxl
-ZnQ6IDI0DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVy
-IG9mIGJsb2NrcyBsZWZ0OiAyMA0KRmViIDEzIDIzOjA0OjI3IGNvcGxleSBr
-ZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogMTYNCkZlYiAxMyAyMzow
-NDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDEy
-DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVyIG9mIGJs
-b2NrcyBsZWZ0OiA4DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDog
-TnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA0DQpGZWIgMTMgMjM6MDQ6MjcgY29w
-bGV5IGtlcm5lbDogTnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA3Ng0KRmViIDEz
-IDIzOjA0OjI3IGNvcGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVm
-dDogNzINCkZlYiAxMyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIg
-b2YgYmxvY2tzIGxlZnQ6IDY4DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtl
-cm5lbDogTnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA2NA0KRmViIDEzIDIzOjA0
-OjI3IGNvcGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogNjAN
-CkZlYiAxMyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxv
-Y2tzIGxlZnQ6IDU2DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDog
-TnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA1Mg0KRmViIDEzIDIzOjA0OjI3IGNv
-cGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogNDgNCkZlYiAx
-MyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxl
-ZnQ6IDQ0DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVy
-IG9mIGJsb2NrcyBsZWZ0OiA0MA0KRmViIDEzIDIzOjA0OjI3IGNvcGxleSBr
-ZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogMzYNCkZlYiAxMyAyMzow
-NDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDMy
-DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVyIG9mIGJs
-b2NrcyBsZWZ0OiAyOA0KRmViIDEzIDIzOjA0OjI3IGNvcGxleSBrZXJuZWw6
-IE51bWJlciBvZiBibG9ja3MgbGVmdDogMjQNCkZlYiAxMyAyMzowNDoyNyBj
-b3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDIwDQpGZWIg
-MTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVyIG9mIGJsb2NrcyBs
-ZWZ0OiAxNg0KRmViIDEzIDIzOjA0OjI3IGNvcGxleSBrZXJuZWw6IE51bWJl
-ciBvZiBibG9ja3MgbGVmdDogMTINCkZlYiAxMyAyMzowNDoyNyBjb3BsZXkg
-a2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDgNCkZlYiAxMyAyMzow
-NDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDQN
-CkZlYiAxMyAyMzowNDoyOCBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxv
-Y2tzIGxlZnQ6IDQNCmNvcGxleTp+Pg0KDQo=
----559023410-851401618-1045230788=:27605--
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy

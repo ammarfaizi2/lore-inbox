@@ -1,158 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264003AbTICRFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 13:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbTICRFY
+	id S264100AbTICQx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 12:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264117AbTICQx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 13:05:24 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:52659 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264003AbTICRDt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 13:03:49 -0400
-Date: Wed, 3 Sep 2003 19:03:48 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: (Simple) Basic Design Flaw in make menuconfig GUI
-Message-ID: <20030903170348.GJ14376@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <001f01c37229$4bbd0410$1400a8c0@gaussian> <20030903083334.6a98a4f5.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y5yQnZmVlpWlTeDv"
-Content-Disposition: inline
-In-Reply-To: <20030903083334.6a98a4f5.rddunlap@osdl.org>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+	Wed, 3 Sep 2003 12:53:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52671 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264100AbTICQxY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 12:53:24 -0400
+Message-ID: <3F561BE4.7090806@pobox.com>
+Date: Wed, 03 Sep 2003 12:50:44 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jt@hpl.hp.com
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Marcel Holtmann <marcel@holtmann.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: request_firmware() backport to 2.4
+References: <20030902192043.GD22376@bougret.hpl.hp.com>
+In-Reply-To: <20030902192043.GD22376@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jean Tourrilhes wrote:
+> Marcelo wrote :
+> 
+>>On 1 Sep 2003, Marcel Holtmann wrote:
+>>
+>>
+>>>no, the bfubase.frm is the original firmware file from AVM. This file
+>>>have to be placed somewhere on the filesystem. 
+>>
+>>Right, and without placing the file somewhere on the filesystem bfusb
+>>2.4.22 users wont have 2.4.23 working without "issues".
+> 
+> 
+> 	But various high level kernel people, such as Jeff, have
+> decided that binary firmwares *must* be removed from the kernel
+> because of legal "issues" (GPL == source available). In 2.6.X, it
+> seems that the tolerance towards this "issue" will end, so all those
+> nasty details will have to work.
 
---y5yQnZmVlpWlTeDv
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, I wouldn't put it that strongly.
 
-On Wed, 2003-09-03 08:33:34 -0700, Randy.Dunlap <rddunlap@osdl.org>
-wrote in message <20030903083334.6a98a4f5.rddunlap@osdl.org>:
-> On Wed, 3 Sep 2003 10:40:17 -0400 "Stevo" <stevo@cool3dz.com> wrote:
->=20
-> | PROBLEM: (ocassionally) While I am speeding through the kernel
-> | configuration, I will accidentally hit the "Esc" key one too many times=
- (I'm
-> | sure we've all done this) and it will leave me at the "exit" screen:
+It's more like, at least in my own case, the Debian people make a stink 
+about the legality of non-GPL'd firmwares.  And certain people, and at 
+certain times, have refused patches related to legality of firmwares. 
+AND, on top of all that, as a programmer I hate seeing these ugly BLOBs 
+embedded in C code, and would much rather see them removed from the C 
+source code.
 
-> | can someone please add one more simple choice to the "exit" menu?
->=20
-> Yes, I've needed that choice at times also.
-
-Like this?
+So, I "prefer" that firmware leaves the kernel, but that's just my 
+personal opinion.  There has been no decision made AFAIK, and I don't 
+recall Marcelo or Linus speaking definitively on the subject.
 
 
---- linux-2.6.0-test4-bk5/scripts/kconfig/mconf.c.jbglaw	2003-09-03 18:28:0=
-6.000000000 +0200
-+++ linux-2.6.0-test4-bk5/scripts/kconfig/mconf.c	2003-09-03 19:00:31.00000=
-0000 +0200
-@@ -773,27 +773,56 @@
- 	tcgetattr(1, &ios_org);
- 	atexit(conf_cleanup);
- 	init_wsize();
--	conf(&rootmenu);
-=20
--	do {
--		cprint_init();
--		cprint("--yesno");
--		cprint("Do you wish to save your new kernel configuration?");
--		cprint("5");
--		cprint("60");
--		stat =3D exec_conf();
--	} while (stat < 0);
--
--	if (stat =3D=3D 0) {
--		conf_write(NULL);
--		printf("\n\n"
--			"*** End of Linux kernel configuration.\n"
--			"*** Execute 'make' to build the kernel or try 'make help'."
--			"\n\n");
--	} else
--		printf("\n\n"
--			"Your kernel configuration changes were NOT saved."
--			"\n\n");
-+	while (1) {
-+		/*
-+		 * Config dialog
-+		 */
-+		conf(&rootmenu);
-+
-+		/*
-+		 * Really quit?
-+		 */
-+		do {
-+			cprint_init();
-+			cprint("--title");
-+			cprint("Save configuration");
-+			cprint("--radiolist");
-+			cprint(radiolist_instructions);
-+			cprint("15");
-+			cprint("70");
-+			cprint("6");
-+
-+			cprint("continue");
-+			cprint("Continue with configuation");
-+			cprint("ON");
-+
-+			cprint("save");
-+			cprint("Save .config and exit");
-+			cprint("OFF");
-+
-+			cprint("exit");
-+			cprint("Don't save .config and exit");
-+			cprint("OFF");
-+
-+			stat =3D exec_conf();
-+		} while (stat < 0);
-+
-+		if(!strcmp(input_buf, "save")) {
-+			conf_write(NULL);
-+			printf("\n\n"
-+				"*** End of Linux kernel configuration.\n"
-+				"*** Execute 'make' to build the kernel or try 'make help'."
-+				"\n\n");
-+			return 0;
-+		}
-+		if(!strcmp(input_buf, "exit")) {
-+			printf("\n\n"
-+				"Your kernel configuration changes were NOT saved."
-+				"\n\n");
-+			return 0;
-+		}
-+	}
-=20
- 	return 0;
- }
+> 	Of course, 2.4.X is more "don't rock the boat".
+
+Agreed...
+
+	Jeff
 
 
 
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
-
---y5yQnZmVlpWlTeDv
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/Vh7zHb1edYOZ4bsRAgfxAJ0XPFuV+vMvkflzPloudwDYxiTJ/gCeNGny
-BqRDjDp3JFTU2OxRGiFwVpY=
-=ce9s
------END PGP SIGNATURE-----
-
---y5yQnZmVlpWlTeDv--

@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318643AbSHPSY0>; Fri, 16 Aug 2002 14:24:26 -0400
+	id <S318649AbSHPScs>; Fri, 16 Aug 2002 14:32:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318649AbSHPSY0>; Fri, 16 Aug 2002 14:24:26 -0400
-Received: from smtpout.mac.com ([204.179.120.86]:29155 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S318643AbSHPSYZ>;
-	Fri, 16 Aug 2002 14:24:25 -0400
-Date: Fri, 16 Aug 2002 20:27:12 +0200
-Mime-Version: 1.0 (Apple Message framework v482)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: [RFD]replace save_flags();cli(); with spin_lock_irqsave
-From: pwaechtler@mac.com
+	id <S318652AbSHPScs>; Fri, 16 Aug 2002 14:32:48 -0400
+Received: from atlas015.atlas-iap.es ([194.224.1.15]:60616 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id <S318649AbSHPScr>; Fri, 16 Aug 2002 14:32:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
 To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-Message-Id: <C8181396-B145-11D6-8C8C-00039387C942@mac.com>
-X-Mailer: Apple Mail (2.482)
+Subject: BUG: 2.4.19 and Promise 20267 doesn't recognise ide raid
+Date: Fri, 16 Aug 2002 20:36:38 +0200
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17flxe-0007iH-00@antoli.gallimedina.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a large patch (>130KB) against 2.5.31 converting most of oss 
-sound drivers to
-use spinlocks instead of cli() - so that they compile on SMP systems.
+Just upgraded a server from 2.4.17 to 2.4.19, had to go down to 2.4.18. 
 
-Most changes are trivial but I think some drivers are simply not SMP 
-safe. I hope I haven't
-break any drivers. Since one can argue that OSS in the kernel gets 
-obsolete and there are
-no maintainers for individual drivers I would  prefer NOT to split the 
-patches for each
-individual driver.
+It doesn't boot with 2.4.19, the error is (ish, messages are not logged 
+because the disk cannot be mounted, neither the root filesystem):
 
-Some like the GUS driver and the dmabuf.c were more complicated - I had 
-to change the
-locking a lot. Now if I grep through the kernel source with
+- RAID cannot be found.
+- Cannot mount root FS.
 
-/usr/src/linux-2.5.31:>find . -name "*.c"| xargs egrep 'cli[ \t]*\(\)' | 
-wc -l
-    1838
+I checked that drivers/ide/pdc202xx.c has been changed extensively from 
+2.4.18 to 2.4.19.
 
-Is the usage of cli() really obsolete? Will all occurences will be fixed 
-as stated in
+I believes the config is the right one (at least similar to the working 
+2.4.17 and 2.4.18):
 
-/usr/src/linux-2.5.31/include/linux/interrupt.h
-/*
-  * Temporary defines for UP kernels, until all code gets fixed.
-  */
-#if !CONFIG_SMP
-# define cli()                  local_irq_disable()
-# define sti()                  local_irq_enable()
-# define save_flags(x)          local_irq_save(x)
-# define restore_flags(x)       local_irq_restore(x)
-# define save_and_cli(x)        local_irq_save_off(x)
-#endif
+CONFIG_BLK_DEV_PDC202XX=y
+CONFIG_PDC202XX_BURST=y
+CONFIG_PDC202XX_FORCE=y
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_BLK_DEV_ATARAID=y
+CONFIG_BLK_DEV_ATARAID_PDC=y
+CONFIG_BLK_DEV_ATARAID_HPT=y
 
+
+Hope this helps.
+
+-- 
+  ricardo
+       A paperless office has about as much a chance as a paperless bathroom

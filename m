@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313448AbSC2Oin>; Fri, 29 Mar 2002 09:38:43 -0500
+	id <S313451AbSC2PA2>; Fri, 29 Mar 2002 10:00:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313449AbSC2Oic>; Fri, 29 Mar 2002 09:38:32 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:63752 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S313448AbSC2OiY>;
-	Fri, 29 Mar 2002 09:38:24 -0500
-Date: Fri, 29 Mar 2002 10:38:43 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bkbits.net down
-In-Reply-To: <20020327222738.B16149@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44L.0203291037450.18660-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S313452AbSC2PAS>; Fri, 29 Mar 2002 10:00:18 -0500
+Received: from smtp02.vsnl.net ([203.197.12.8]:24574 "EHLO smtp02.vsnl.net")
+	by vger.kernel.org with ESMTP id <S313451AbSC2PAC>;
+	Fri, 29 Mar 2002 10:00:02 -0500
+Message-ID: <3CA48237.EA4D3F08@vsnl.net>
+Date: Fri, 29 Mar 2002 20:33:19 +0530
+From: "Amit S. Kale" <kgdb@vsnl.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: announce: kgdb 1.5 with reworked buggy smp handling
+In-Reply-To: <30144.1017399590@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Larry McVoy wrote:
+Keith Owens wrote:
+> 
+> On Fri, 29 Mar 2002 16:01:36 +0530,
+> "Amit S. Kale" <kgdb@vsnl.net> wrote:
+> >kgdb 1.5 at http://kgdb.sourceforge.net/
+> >
+> >smp handling is completely reworked. Previous kgdb had a bug
+> >which caused it to hang when a processor spun with
+> >interrupts disabled and another processor enters kgdb. kgdb
+> >now uses nmi watchdog for holding other processors while
+> >a machine is in kgdb.
+> 
+> IA64 disabled spin loops ignore NMI :(.
 
-> There are a couple of trees which are missing files, both in Rik's
-> linuxvm.bkbits.net, I suspect an interrupted clone.  They are:
-> 	bk://linuxvm.bkits.net/linux-2.5-vmtidbits
-> 	bk://linuxvm.bkits.net/linux-2.5-writethrot
-> Rik, ping me if you need help cleaning these up.
+Thanks for the info.
 
-No big deal, either tree is just a copy of stuff I have here
-so people can pull it. I don't rely on bkbits in any way except
-as a distribution medium ;)
-
-regards,
-
-Rik
+Isn't there any way get into an interrupt disabled spinning
+processor on an ia64 smp machine?
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Amit S. Kale
+Linux kernel source level debugger    http://kgdb.sourceforge.net/
+	[29th March - kgdb-1.5 with reworked smp handling.]
+Translation filesystem                http://trfs.sourceforge.net/
 

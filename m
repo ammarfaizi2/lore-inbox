@@ -1,81 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132537AbRDWXdm>; Mon, 23 Apr 2001 19:33:42 -0400
+	id <S132577AbRDWXev>; Mon, 23 Apr 2001 19:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132575AbRDWXdc>; Mon, 23 Apr 2001 19:33:32 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:33036 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S132537AbRDWXdQ>; Mon, 23 Apr 2001 19:33:16 -0400
-Date: Tue, 24 Apr 2001 01:31:50 +0200
-From: Kurt Garloff <kurt@garloff.de>
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: read perf improved by mounting ext2?
-Message-ID: <20010424013150.A6892@garloff.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+	id <S132575AbRDWXef>; Mon, 23 Apr 2001 19:34:35 -0400
+Received: from mailhost.iworld.com ([63.95.15.3]:34464 "EHLO
+	mailhost.iworld.com") by vger.kernel.org with ESMTP
+	id <S132576AbRDWXe0>; Mon, 23 Apr 2001 19:34:26 -0400
+Message-ID: <3AE4BBAA.C5A91413@internet.com>
+Date: Mon, 23 Apr 2001 19:32:58 -0400
+From: Byron Albert <balbert@internet.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: odd messages in dmesg (network I think)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+ I am getting odd message in my dmesg
+I am running
+Linux extreme 2.4.2-ac28 #1 SMP Fri Apr 13 01:58:47 UTC 2001 i686
+unknown
+and the messages look like
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Undo Hoe 64.22.x.x/4414 c3 l2 ss10/65535 p4
+Undo Hoe 64.22.x.x/4414 c3 l1 ss10/65535 p3
+Undo Hoe 64.22.x.x/4414 c3 l1 ss10/65535 p2
+Undo retrans 64.22.x.x/4414 c2 l0 ss10/65535 p0
+Undo partial loss 64.157.x.x/32831 c1 l1 ss2/65535 p1
+Disorder3 1 4 f4 s2 rr0
+Disorder3 1 4 f4 s2 rr0
+Disorder3 1 4 f4 s2 rr0
+Undo loss 64.108.x.x/2786 c2 l0 ss2/65535 p0
+Undo partial loss 200.27.x.x/2374 c1 l1 ss2/65535 p1
+Undo partial loss 213.228.x..x/32936 c2 l1 ss2/65535 p1
+Undo partial loss 213.228.x.x/32937 c2 l1 ss2/65535 p1
+Disorder3 3 5 f6 s2 rr0
+Disorder1 3 6 f0 s0 rr1
+Undo Hoe 202.75.x.x/34237 c7 l0 ss4/65535 p6
+Undo Hoe 202.75.x.x/34237 c7 l0 ss4/65535 p5
+Undo retrans 202.75.x.x/34237 c6 l0 ss4/65535 p5
 
-I have some memory reading some similar question somewhere (here?) but I'm
-not sure there was an answer.
+On my webserver errors like this fill the dmesg in a day. I did repalce
+some ips with x.x.
 
-I do observe strange behaviour if read performance fo my IDE harddisk as
-reported by hdparm (or doing linear reads with a self written program):
-My FUJITSU MPG3409AT E is supposed to make slightly above 30MB/s. However,
-it's connected to a PIIX4, which can only do UDMA33. So I expect something
-between 25 and 30 MB/s maximumn speed.
+Thanks for any info
+Byron
 
-I get it. But not over the whole disk.
-Doing a read speed measurement on /dev/hda, I constantly get ~16 MB/s.
-Not bad, but less than I'd expect. Measuring single partitions, some show
-the same, some show significantly more, 26MB/s--18MB/s, depending on the
-position of the partition on disk. Those look good!
-
-There are enough partitions to see a clear pattern: Those with mounted ext2
-filesystems perform better. Umounting them does not harm, they just need to
-have been mounted once. reiser or (v)fat however don't improve anything.
-swap does, as does a ext2 over raid5.
-
-Kernel 2.4.3pre7; Dual iPIII-700 system; i440BX MoBo.
-
-Is this to be expected? Blocksize issues? Readahead behaviour? What's
-changed on ext2 mounting ... ?
-
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>   [SuSE Nuernberg, FRG]
- (See mail header or public key servers for PGP2 and GPG public keys.)
-
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4h (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE65LtlxmLh6hyYd04RAmbOAKDaGwvMUFZQfUGFjT9DHW1R85cl7QCfT5Ag
-CadqxILzgsLfn7XUqb++9/0=
-=fDRe
------END PGP SIGNATURE-----
-
---jI8keyz6grp/JLjh--

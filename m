@@ -1,99 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVCYSBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVCYSK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVCYSBc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 13:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVCYSBc
+	id S261716AbVCYSK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 13:10:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVCYSK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 13:01:32 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:20381 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261706AbVCYSBZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 13:01:25 -0500
-Message-ID: <424451F2.5070201@free.fr>
-Date: Fri, 25 Mar 2005 19:01:22 +0100
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.5) Gecko/20041217
-X-Accept-Language: fr-fr, fr, en
-MIME-Version: 1.0
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: Andrew Morton <akpm@osdl.org>, rjw@sisk.pl, rlrevell@joe-job.com,
-       alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.12-rc1-mm2
-References: <20050324044114.5aa5b166.akpm@osdl.org> <1111682812.23440.6.camel@mindpipe> <20050324121722.759610f4.akpm@osdl.org> <200503242331.46985.rjw@sisk.pl> <42434E59.2060805@free.fr> <20050324154920.4e506d76.akpm@osdl.org> <Pine.LNX.4.50.0503241658360.29178-100000@monsoon.he.net>
-In-Reply-To: <Pine.LNX.4.50.0503241658360.29178-100000@monsoon.he.net>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig6FA4E2C925427CC22E33E638"
-Content-Transfer-Encoding: 8bit
+	Fri, 25 Mar 2005 13:10:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:39370 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261716AbVCYSKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 13:10:21 -0500
+Date: Fri, 25 Mar 2005 10:10:14 -0800
+From: Greg KH <greg@kroah.com>
+To: Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCH] driver core: Separate platform device name from platform device number
+Message-ID: <20050325181014.GA13436@kroah.com>
+References: <1110414879646@kroah.com> <11104148792069@kroah.com> <20050325180136.GA4192@linux-sh.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050325180136.GA4192@linux-sh.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6FA4E2C925427CC22E33E638
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+On Fri, Mar 25, 2005 at 08:01:36PM +0200, Paul Mundt wrote:
+> On Wed, Mar 09, 2005 at 04:34:39PM -0800, Greg KH wrote:
+> > [PATCH] driver core: Separate platform device name from platform device number
+> > 
+> > Separate platform device name from platform device number such that
+> > names ending with numbers aren't confusing.
+> > 
+> This might make sense for devices that end in numbers, but does it really
+> make sense for devices that don't?
 
+Then fix those drivers to not put the number in there if they don't have
+one :)
 
-Le 25.03.2005 02:00, Patrick Mochel a écrit :
-> On Thu, 24 Mar 2005, Andrew Morton wrote:
->
->
->>Laurent Riffard <laurent.riffard@free.fr> wrote:
->>
->>> hello,
->>>
->>> Same kinds of problem here. It depends on the removed module. I
->>> mean: "rmmod loop" or "rmmod pcspkr" works. But "rmmod
->>> snd_ens1371" or "rmmod ohci1394" hangs.
->>>
->>> Sysrq-T when rmmoding snd_ens1371 :
->
-> <snip>
->
->> It looks like we're getting stuck in the wait_for_completion() in
->> the new klist_remove().
->
-> D'oh! It's getting hung while waiting to remove the current node from
-> the list (which it can't remove because it's being used). The patch
-> below should fix it.
->
-> 	Pat
->
->
-> ===== drivers/base/dd.c 1.3 vs edited =====
-> --- 1.3/drivers/base/dd.c	2005-03-21 12:25:04 -08:00
-> +++ edited/drivers/base/dd.c	2005-03-24 16:55:21 -08:00
-> @@ -177,7 +177,7 @@
->
->  	sysfs_remove_link(&drv->kobj, kobject_name(&dev->kobj));
->  	sysfs_remove_link(&dev->kobj, "driver");
-> -	klist_remove(&dev->knode_driver);
-> +	klist_del(&dev->knode_driver);
->
->  	down(&dev->sem);
->  	device_detach_shutdown(dev);
+> I don't really see how having something like randomfb.0 is intuitive,
+> this may make sense for things like serial8250 where another 0 would
+> be misleading without some form of delimiter, but those are the corner
+> cases and should be treated as such.
 
-Ok, I can confirm this patch solved the problem.
+I don't see the serial8250 driver adding that .0 to it on my machines,
+does this happen on yours?
 
-Thanks for your help.
---
-laurent
+> It's a bit irritating to have to constantly update userspace code that is
+> acting under the false pretense that there is some sort of consistent
+> naming scheme in place that won't change every time some new corner case
+> crops up.
 
---------------enig6FA4E2C925427CC22E33E638
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+What userspace code are you referring to?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+thanks,
 
-iD8DBQFCRFHyUqUFrirTu6IRAj9jAJ4kXF7GFwoHc6LAPIw2DLlAarASzwCgurb8
-9H0ddYoQs8cdA7MmRZbEoCU=
-=5NOf
------END PGP SIGNATURE-----
-
---------------enig6FA4E2C925427CC22E33E638--
+greg k-h

@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131957AbRBQWCg>; Sat, 17 Feb 2001 17:02:36 -0500
+	id <S131111AbRBQWGs>; Sat, 17 Feb 2001 17:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131984AbRBQWC0>; Sat, 17 Feb 2001 17:02:26 -0500
-Received: from felix.convergence.de ([212.84.236.131]:49280 "EHLO
-	convergence.de") by vger.kernel.org with ESMTP id <S131957AbRBQWCQ>;
-	Sat, 17 Feb 2001 17:02:16 -0500
-Date: Sat, 17 Feb 2001 23:03:49 +0100
+	id <S131984AbRBQWGj>; Sat, 17 Feb 2001 17:06:39 -0500
+Received: from felix.convergence.de ([212.84.236.131]:49536 "EHLO
+	convergence.de") by vger.kernel.org with ESMTP id <S131111AbRBQWGZ>;
+	Sat, 17 Feb 2001 17:06:25 -0500
+Date: Sat, 17 Feb 2001 23:07:59 +0100
 From: Felix von Leitner <leitner@convergence.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [LONG RANT] Re: Linux stifles innovation...
-Message-ID: <20010217230349.A4561@convergence.de>
+Subject: Re: Linux stifles innovation...
+Message-ID: <20010217230759.B4561@convergence.de>
 Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <96lrau$dcd$1@forge.intermeta.de> <200102171337.f1HDbwh13232@flint.arm.linux.org.uk> <20010217201539.B13970@forge.intermeta.de>
+In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com> <Pine.LNX.4.10.10102161511510.12028-100000@clueserver.org> <5.0.0.25.0.20010217145654.0390e900@mail.etinc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010217201539.B13970@forge.intermeta.de>; from hps@intermeta.de on Sat, Feb 17, 2001 at 08:15:39PM +0100
+In-Reply-To: <5.0.0.25.0.20010217145654.0390e900@mail.etinc.com>; from dennis@etinc.com on Sat, Feb 17, 2001 at 03:05:36PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Henning P . Schmiedehausen (hps@intermeta.de):
-> "If a company does not write a driver which works on all hardware
->  platforms in all cases and gives us the source, then it is better,
->  that the company writes no drivers at all."
+Thus spake Dennis (dennis@etinc.com):
+> You are confusing "progress" with "innovation". If there is only 1 choice, 
+> thats not innovation. Expanding on a bad idea, or even a good one, is not 
+> innovation.
 
-> "If I can't force a company to write a driver for everyone, then I
->  don't want to write them any driver at all."
+This is bizarre.
 
-> IMHO you're like a spoiled kid: "If I can't have it, noone should have it".
+Please name one innovation in the history of mankind that could not be
+seen as expanding on a different idea or even cloning an idea from
+someone else (for example, nature).
 
-Henning, what is the matter with you?
-
-I bought the hardware.  Why should I pay for the driver?
-Not even on Windows you pay extra for a driver!
-
-Please state your intentions.  Why would you want to split the Linux
-user base into people who pay companies to screw them (I get a driver
-for hardware I already paid for, but the driver will work with exactly
-one kernel version on one hardware) and people who think they deserve
-support when they buy hardware?
-
-Why do we even have to discuss drivers?
-A company that actively hinders developing a good driver with patents,
-NDAs or other legal crap does not deserve my money.  If you throw your
-money at such people, you deserve everything you get.
+Dennis, do you have a single argument or are you going to post bizarre
+statements like this forever?  Please just say so, so people cann
+killfile you now.
 
 Felix

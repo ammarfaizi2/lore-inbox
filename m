@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268219AbUH3Sww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268251AbUH3SvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268219AbUH3Sww (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 14:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268964AbUH3S1Z
+	id S268251AbUH3SvM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 14:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268971AbUH3S1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:27:25 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:26584 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S268856AbUH3SSZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:18:25 -0400
-Date: Mon, 30 Aug 2004 21:18:21 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       James Colannino <lkml@colannino.org>, linux-kernel@vger.kernel.org
-Subject: Re: submitting kernel patch for 3w-9xxx in 2.4
-Message-ID: <20040830181821.GQ19844@mea-ext.zmailer.org>
-References: <413217A3.4020906@colannino.org> <20040829182333.GP19844@mea-ext.zmailer.org> <Pine.LNX.4.61.0408291433210.32154@twin.uoregon.edu>
+	Mon, 30 Aug 2004 14:27:31 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:579 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268803AbUH3ST7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 14:19:59 -0400
+Date: Mon, 30 Aug 2004 20:21:41 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       mpm@selenic.com, linux-kernel@vger.kernel.org, bcasavan@sgi.com
+Subject: Re: [PATCH] kallsyms data size reduction / lookup speedup
+Message-ID: <20040830182141.GB8990@mars.ravnborg.org>
+Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
+	Andrew Morton <akpm@osdl.org>,
+	viro@parcelfarce.linux.theplanet.co.uk, mpm@selenic.com,
+	linux-kernel@vger.kernel.org, bcasavan@sgi.com
+References: <1093406686.412c0fde79d4f@webmail.grupopie.com> <20040825173941.GJ5414@waste.org> <412CDE9D.3090609@grupopie.com> <20040825185854.GP31237@waste.org> <412CE3ED.5000803@grupopie.com> <20040825192922.GH21964@parcelfarce.linux.theplanet.co.uk> <412D236E.3030401@grupopie.com> <20040825234345.GN21964@parcelfarce.linux.theplanet.co.uk> <20040826025904.02bf4c0e.akpm@osdl.org> <412DBAD9.6020303@grupopie.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0408291433210.32154@twin.uoregon.edu>
+In-Reply-To: <412DBAD9.6020303@grupopie.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 02:35:47PM -0700, Joel Jaeggli wrote:
-> On Sun, 29 Aug 2004, Matti Aarnio wrote:
-> >On Sun, Aug 29, 2004 at 10:51:31AM -0700, James Colannino wrote:
-> >>Everyone,
-> >>
-> >>I've created a kernel patch for 2.4.27 that adds the newer 3w-9xxx 3Ware
-> >>driver (for the 3Ware 9000 series of controllers).  If anyone here is
-> >>interested, I can patch the latest pre-release for 2.4.28 and submit it
-> >>to the list.  Just let me know.
-> >>
-> >>http://james.colannino.org/downloads/patches/3w-9xxx-2.4.27.diff
-> >
-> >May I suggest you don't use triple-x in its name.
-> >Such causes indigestion by several spam filters that people have
-> >deployed...  (The aic7xxx as prime example.)
-> 
-> got another identifier that would indicate a presence of a variable that 
-> won't have some other meaning to a filesystem or user? #### ???? *
+On Thu, Aug 26, 2004 at 11:26:33AM +0100, Paulo Marques wrote:
+> If there is a way to know at compile time the exported symbols, then 
+> scripts/kallsyms might generate a bitmap along with all the other data 
+> it generates so that checking is_exported would become O(1).
 
-No idea about that, but every time somebody reports problems with
-the AIC7XXX driver with either in all uppercase, or lowercase
-name in message subject, a dozen or so linux-kernel recipient systems
-do react adversely with something like "keep your spam".
+If there exist a symbol named __ksymtab_{symbol} then you know it is exported.
 
-For number wildcarding,  "N" is usable in some cases.
-e.g.  3w-9nnn  
-
-I do urge you to consider rewriting configuration options, and file
-names so that triple-x doesn't appear in them.
-
-Both for 2.4 and 2.6 kernels, as well.
-
-> >>James
-> >
-> >/Matti Aarnio
-
-/Matti Aarnio
+	Sam

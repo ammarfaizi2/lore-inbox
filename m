@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbVA1SnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262733AbVA1SrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbVA1SnS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 13:43:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbVA1Sm2
+	id S262733AbVA1SrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 13:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbVA1Sop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 13:42:28 -0500
-Received: from out005pub.verizon.net ([206.46.170.143]:25823 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S262701AbVA1Siw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 13:38:52 -0500
-Message-ID: <41FA8A3F.CC19F9EE@gte.net>
-Date: Fri, 28 Jan 2005 10:53:51 -0800
-From: Bukie Mabayoje <bukiemab@gte.net>
-X-Mailer: Mozilla 4.78 [en] (WinNT; U)
-X-Accept-Language: en
+	Fri, 28 Jan 2005 13:44:45 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25238 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262623AbVA1SmA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 13:42:00 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Grant Grundler <grundler@parisc-linux.org>
+Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
+Date: Fri, 28 Jan 2005 10:41:41 -0800
+User-Agent: KMail/1.7.2
+Cc: Jon Smirl <jonsmirl@gmail.com>, Greg KH <greg@kroah.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <matthew@wil.cx>,
+       linux-pci@atrey.karlin.mff.cuni.cz, lkml <linux-kernel@vger.kernel.org>
+References: <9e47339105011719436a9e5038@mail.gmail.com> <200501270828.43879.jbarnes@sgi.com> <20050128173222.GC30791@colo.lackof.org>
+In-Reply-To: <20050128173222.GC30791@colo.lackof.org>
 MIME-Version: 1.0
-To: Michael Gernoth <simigern@stud.uni-erlangen.de>
-CC: linux-kernel@vger.kernel.org,
-       Matthias Koerber <simakoer@stud.informatik.uni-erlangen.de>
-Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
-References: <20050128164811.GA8022@cip.informatik.uni-erlangen.de>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [66.199.68.159] at Fri, 28 Jan 2005 12:38:47 -0600
+Content-Disposition: inline
+Message-Id: <200501281041.42016.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday, January 28, 2005 9:32 am, Grant Grundler wrote:
+> On Thu, Jan 27, 2005 at 08:28:43AM -0800, Jesse Barnes wrote:
+> > But then again,
+> > I suppose if a platform supports more than one legacy I/O space,
+>
+> Eh?! there can only be *one* legacy I/O space.
+> We can support multipl IO port spaces, but only one can be the "legacy".
 
+What do you mean?  If you define legacy I/O space to be 
+0x0000000000000000-0x000000000000ffff, then yes of course you're right.  But 
+if you mean being able to access legacy ports at all, then no.  On SGI 
+machines, there's a per-bus base address that can be used as the base for 
+port I/O, which is what I was getting at.
 
-Michael Gernoth wrote:
+> Moving the VGA device can only function within that legacy space
+> the way the code is written now (using hard coded addresses).
+> If it is intended to work with multiple IO Port address spaces,
+> then it needs to use the pci_dev->resource[] and mangle that appropriately.
 
-> Hi,
->
-> we have about 70 P4 uniprocessor machines (some with Hyperthreading
-> capable CPUs) running linux 2.4.29, which are woken up on the weekdays
-> by sending a WOL packet to them. The machines all have a E100 nic with
-> WOL enabled in the bios. The E100 driver is compiled into the kernel
-> and not loaded as a module.
->
-> If the machine which should be woken up is already running (because
-> someone switched it on by hand), the WOL packet causes keventd to go
-> mad and "use" 100% CPU:
->
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->     2 root      15   0     0    0    0 R 99.9  0.0 140:50.94 keventd
->
-> This can be reproduced on any of the 70 machines by simply sending a WOL
-> packet to it, when it's already running... No entry is made in the
-> kernel log.
->
-> The dmesg of an affected machine can be found at:
-> http://wwwcip.informatik.uni-erlangen.de/~simigern/cip-dmesg
-> Our kernel-config is at:
-> http://wwwcip.informatik.uni-erlangen.de/~simigern/cip-generic-config
-> lspci -vvv is at:
-> http://wwwcip.informatik.uni-erlangen.de/~simigern/cip-lspci
->
-> We are using a kernel.org linux 2.4.29 kernel patched with the current
-> autofs patch and ACL support.
->
-> Regards,
->   Michael
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+There is no resource for some of the I/O port space that cards respond to.  I 
+can set the I/O BAR of my VGA card to 0x400 and it'll still respond to 
+accesses at 0x3bc for example.  That's what I mean by legacy space--space 
+that cards respond to but don't report in their PCI resources.
 
-Do you know the official NIC product name e.g Pro/100B. I need to identify the LAN Controller. There are differences between  557 (not sure if 557 can do WOL), 558 and 559 how they ASSERT the PME# signal. Even the same chip have differences between steppings.
-
-I suspect that PME# is not being  DEASSERT after the Wake-up packet is received
+Jesse

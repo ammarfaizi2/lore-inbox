@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129588AbQLaX2y>; Sun, 31 Dec 2000 18:28:54 -0500
+	id <S130405AbQLaX3p>; Sun, 31 Dec 2000 18:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129747AbQLaX2o>; Sun, 31 Dec 2000 18:28:44 -0500
-Received: from m11.boston.juno.com ([63.211.172.74]:17140 "EHLO
-	m11.boston.juno.com") by vger.kernel.org with ESMTP
-	id <S129588AbQLaX2i>; Sun, 31 Dec 2000 18:28:38 -0500
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk, mhaque@haque.net
-Date: Sun, 31 Dec 2000 17:52:00 -0500
-Subject: Re: [PATCH] 2.4.0-prerelease -- rcpci45 compile error
-Message-ID: <20001231.175201.-277039.1.fdavis112@juno.com>
-X-Mailer: Juno 5.0.15
+	id <S130423AbQLaX3f>; Sun, 31 Dec 2000 18:29:35 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54797 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129747AbQLaX3Y>; Sun, 31 Dec 2000 18:29:24 -0500
+Subject: Re: tdfx.o and -test13
+To: tmh@magenta-netlogic.com (Tony Hoyle)
+Date: Sun, 31 Dec 2000 23:01:05 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jjs@pobox.com (J Sloan),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3A4FB803.20765A02@magenta-netlogic.com> from "Tony Hoyle" at Dec 31, 2000 10:49:39 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Juno-Line-Breaks: 0,2-5,7,9,11
-From: Frank Davis <fdavis112@juno.com>
+Message-Id: <E14CrTQ-0000BD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mohammad,
-  This appears to be a merge mismatch between Alan and Linus..This is
-sent to Alan shortly after test13pre4-ac2 was released.
-Regards,
-Frank
+> make 3.79.1
 
---- linux/drivers/net/rcpci45.c.orig Sun Dec 31 15:58:05 2000 +++
-linux/drivers/net/rcpci45.c Sun Dec 31 16:27:04 2000 @@ -157,7
-+157,7 @@ { RC_PCI45_VENDOR_ID, RC_PCI45_DEVICE_ID, PCI_ANY_ID,
-PCI_ANY_ID, 0, 0, 0}, {0, } };
--MODULE_DEVICE_TABLE(pci, rcpci_pci_table); +MODULE_DEVICE_TABLE(pci,
-rcpci45_pci_table); static void
-rcpci45_remove_one(struct pci_dev *pdev) { 
+Ditto
+
+> gcc 2.95.2 20000220
+gcc version 2.96 20000731 (Red Hat Linux 7.0)
+
+and I really can't see that being relevant
+
+> ld 2.10.91
+GNU ld version 2.10.90 (with BFD 2.10.0.18)
+
+> modversions 2.3.23
+insmod version 2.3.21
+
+I see modversions.h being included properly on the command line
+
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,101 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbTH3Aeo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 20:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTH3Aeo
+	id S262182AbTH3A3p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 20:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTH3A3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 20:34:44 -0400
-Received: from web20714.mail.yahoo.com ([66.163.169.155]:14266 "HELO
-	web20714.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262301AbTH3Ael (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 20:34:41 -0400
-Message-ID: <20030830003440.66145.qmail@web20714.mail.yahoo.com>
-Date: Fri, 29 Aug 2003 21:34:40 -0300 (ART)
-From: =?iso-8859-1?q?Gaston=20Gransis?= <give54sh2@yahoo.com.ar>
-Subject: Via 8235 rear sound
-To: linux-kernel@vger.kernel.org
+	Fri, 29 Aug 2003 20:29:45 -0400
+Received: from astro.as.arizona.edu ([128.196.208.2]:37136 "EHLO
+	astro.as.arizona.edu") by vger.kernel.org with ESMTP
+	id S262182AbTH3A3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 20:29:43 -0400
+Message-ID: <3F4FEFE9.4050704@as.arizona.edu>
+Date: Fri, 29 Aug 2003 17:29:29 -0700
+From: don fisher <dfisher@as.arizona.edu>
+Organization: caao
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030611
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+Subject: How to choose between ip 2 identical ethernet cards
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody:
-  i came hear as the last resource ... i have tried
-with alsa mailing list, and nobody answered me ...
-I installed this driver(kernel 2.6.0-test2) and
-compiled all the alsa libraries.
-When i play sound everything works great except for
-the rear channel, and the center/lfe channel. 
+Sorry for a bit off topic.
 
-i have tried with 
-alsaplayer -d hw:0,1 but the sound stills go out in
-the front channel(only).
+I have a Dell 8200 laptop and a docking station, both with 3c905C 
+ethenet chips. I wish to use the 3c905c internal to the docking 
+station when the system is docked. Otherwise the 3c905c internal to 
+the 8200. In my office I would like to run with both eth0 and eth1, 
+but I need to be able to connect the correct interface to the correct 
+cable. The same module is loaded for both devices.
 
- cat /proc/asound/cards
-0 [V8235          ]: VIA8233 - VIA 8235
-                     VIA 8235 at 0xe000, irq 5
+The HOWTOs I found all assumed you had old cards with fixed addresses. 
+These could be specified as options in modules.conf. From the Net-HOWTO:
+         alias eth0 ne
+         alias eth1 ne
+         alias eth2 ne
+         options ne io=0x220,0x240,0x300
+But this does not seem to apply to the 3c59x driver. modinfo doesn't 
+even list "io" as a valid option.
 
+I did find:
+  1) in /proc/ioports, one of the devices is listed with "(#2)" after it.
+  2) in /etc/sysconfig/hwconf, one of the devices has
+subDeviceId = 00d4, the other 00de.
 
+I have tried changing the order of loading modules, along with a few 
+vain attempts in modules.conf. For info, this is a Redhat system. 
+Where is the definition as to which device will be associated with 
+eth0 made?
 
- cat /proc/asound/card0/ac97#0
-0-0/0: Avance Logic ALC650 rev 0
- 
-Capabilities     :
-DAC resolution   : 20-bit
-ADC resolution   : 18-bit
-3D enhancement   : Realtek 3D Stereo Enhancement
- 
-Current setup
-Mic gain         : +0dB [+0dB]
-POP path         : pre 3D
-Sim. stereo      : off
-3D enhancement   : on
-Loudness         : off
-Mono output      : MIX
-Mic select       : Mic1
-ADC/DAC loopback : off
-Extended ID      : codec=0 rev=1 AMAP LDAC SDAC CDAC
-DSA=0 SPDIF DRA VRA
-Extended status  : SPCV LDAC SDAC CDAC SPDIF=res SPDIF
-VRA
-PCM front DAC    : 48000Hz
-PCM Surr DAC     : 48000Hz
-PCM LFE DAC      : 48000Hz
-PCM ADC          : 48000Hz
-SPDIF Control    : Consumer PCM Copyright Category=0x2
-Generation=1 Rate=48kHz
+Any assistance would be appreciated. I did try to RTFM, I just can't 
+find the correct "fine manual";-)
+thanks
+don
+
+-------------------------------------------------------------------
+|    Don Fisher				  dfisher@as.arizona.edu  |
+|    Steward Observatory		  			  |
+|    933 N. Cherry Ave.    		  VOICE: (520)621-7647	  |
+|    University of Arizona		  FAX:   (520)621-9843    |
+|    Tucson, AZ  85721                				  |
+-------------------------------------------------------------------
 
 
 
- cat /proc/asound/pcm
-00-00: VIA 8235 : VIA 8235 : playback 4 : capture 1
-00-01: VIA 8235 : VIA 8235 : playback 1 : capture 1
-
- cat /proc/asound/version
-Advanced Linux Sound Architecture Driver Version 0.9.4
-(Mon Jun 09 12:01:18 2003 UTC).
-Compiled on Aug 25 2003 for kernel 2.6.0-test2.
+-- 
+redhat-list mailing list
+unsubscribe mailto:redhat-list-request@redhat.com?subject=unsubscribe
+https://www.redhat.com/mailman/listinfo/redhat-list
 
 
- cat /proc/asound/devices
-  0: [0- 0]: ctl
- 17: [0- 1]: digital audio playback
- 25: [0- 1]: digital audio capture
- 16: [0- 0]: digital audio playback
- 24: [0- 0]: digital audio capture
- 33:       : timer
-
-
-
-Sorry if i bother anyone ... this is the last place on
-earth.
-
-Any help would be apreciated!
-Thanks
-
-
-------------
-Internet GRATIS es Yahoo! Conexión
-4004-1010 desde Buenos Aires. Usuario: yahoo; contraseña: yahoo
-Más ciudades: http://conexion.yahoo.com.ar

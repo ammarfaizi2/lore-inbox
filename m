@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbQLOB5e>; Thu, 14 Dec 2000 20:57:34 -0500
+	id <S129257AbQLOCdF>; Thu, 14 Dec 2000 21:33:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbQLOB5Z>; Thu, 14 Dec 2000 20:57:25 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:41999 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S129325AbQLOB5T>; Thu, 14 Dec 2000 20:57:19 -0500
-Date: Fri, 15 Dec 2000 02:25:29 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: Netfilter is broken (was Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback))
-Message-ID: <20001215022529.H6775@coruscant.gnumonks.org>
-In-Reply-To: <Pine.LNX.4.30.0012141204210.27848-100000@age.cs.columbia.edu> <200012141955.LAA08814@pizda.ninka.net> <20001215012000.B6775@coruscant.gnumonks.org> <200012150011.QAA12767@pizda.ninka.net> <20001215014832.A27064@gruyere.muc.suse.de>
-Mime-Version: 1.0
+	id <S129267AbQLOCcz>; Thu, 14 Dec 2000 21:32:55 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:52745 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S129257AbQLOCcw>; Thu, 14 Dec 2000 21:32:52 -0500
+Message-ID: <3A397BA9.CB0EC8E5@thebarn.com>
+Date: Thu, 14 Dec 2000 20:02:17 -0600
+From: Russell Cattelan <cattelan@thebarn.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-whipme11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Test12 ll_rw_block error.
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001215014832.A27064@gruyere.muc.suse.de>; from ak@suse.de on Fri, Dec 15, 2000 at 01:48:32AM +0100
-X-Operating-System: 2.4.0-test11p4
-X-Date: Today is Setting Orange, the 53rd day of The Aftermath in the YOLD 3166
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 01:48:32AM +0100, Andi Kleen wrote:
-> 
-> Also is it sure that the backtrace involves ip_rcv ? A more likely
-> guess is that it happens during the IP_LOCAL_OUT hook, when skb->dev 
-> isn't set yet, but conntrack already has to already reassemble fragments.
+This would seem to be an error on the part of ll_rw_block.
+Setting b_end_io to a default handler without checking to see
+a callback has already been defined defeats the purpose of having
+a function op.
 
-Oh, thanks Andi. This is the key, of course. I'm always way too focused
-on forwarded packets ;)
+void ll_rw_block(int rw, int nr, struct buffer_head * bhs[])
+ {
+@@ -928,7 +1046,8 @@
+                if (test_and_set_bit(BH_Lock, &bh->b_state))
+                        continue;
 
-This is definitely the problem. 
+-               set_bit(BH_Req, &bh->b_state);
++               /* We have the buffer lock */
++               bh->b_end_io = end_buffer_io_sync;
 
-We could set skb->dev to skb->dst->dev, but this sounds more like a 
-hack than a real solution...
+                switch(rw) {
+                case WRITE:
 
-> -Andi
 
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org                http://www.gnumonks.org
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+-Russell Cattelan
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

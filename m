@@ -1,64 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277791AbRJIPpk>; Tue, 9 Oct 2001 11:45:40 -0400
+	id <S277792AbRJIPuj>; Tue, 9 Oct 2001 11:50:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277790AbRJIPp3>; Tue, 9 Oct 2001 11:45:29 -0400
-Received: from ns.suse.de ([213.95.15.193]:57610 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S277788AbRJIPpU>;
-	Tue, 9 Oct 2001 11:45:20 -0400
-Date: Tue, 9 Oct 2001 17:45:50 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: <Jose_Jorge@teklynx.fr>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kapmidled and AMD K6-2
-In-Reply-To: <OFD647EAB7.926A3491-ONC1256AE0.00534E9E@bradycorp.com>
-Message-ID: <Pine.LNX.4.30.0110091735160.31520-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277790AbRJIPuT>; Tue, 9 Oct 2001 11:50:19 -0400
+Received: from sushi.toad.net ([162.33.130.105]:1721 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S277788AbRJIPuM>;
+	Tue, 9 Oct 2001 11:50:12 -0400
+Subject: Re: sysctl interface to bootflags?
+From: Thomas Hood <jdthood@mail.com>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0110091731480.31520-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.30.0110091731480.31520-100000@Appserv.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 09 Oct 2001 11:50:08 -0400
+Message-Id: <1002642610.1103.39.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001 Jose_Jorge@teklynx.fr wrote:
+Sorry, I didn't read your code very carefully before because
+I thought it relied on ACPI.  Now I understand it better.
+It doesn't use /dev/nvram, but /dev/mem.
 
-> for the AMD K6-2 on a DFI motherboard AT/ATX, using the AT power supply,
-> this option is buggy. I mean the cycles kapmidled works doesn't cool the
-> processor, they hot him.
+Here's what happens when I run it.
 
-Initially, I thought was odd. The spec seemed straight forward
-enough, and doesn't say we have to do any special magic.
-Just that "During the execution of the HLT instruction, the AMD-K6-2
-processor executes a Halt special cycle."
+jdthood@thanatos:~/src/sbf$ gcc sbf.c
+jdthood@thanatos:~/src/sbf$ su
+Password: 
+root@thanatos:/home/jdthood/src/sbf# gdb -q ./a.out
+(no debugging symbols found)...(gdb) run
+Starting program: /mnt/p/home/jdthood/src/sbf/./a.out 
+BOOT @ 0x07fd0040
+CMOS register:51
+(no debugging symbols found)...(no debugging symbols found)...
+Program received signal SIGSEGV, Segmentation fault.
+0x80489be in outb_p ()
 
-The next bit is interesting however..
+--
+Thomas
 
-"After BRDY# is sampled asserted during this cycle, and then EWBE#
-is also sampled asserted (if not masked off), the processor enters
-the halt state in which the processor disables most of its internal
-clock distribution."
+On Tue, 2001-10-09 at 11:34, Dave Jones wrote:
+> On 9 Oct 2001, Thomas Hood wrote:
+> 
+> > Hi.  I looked at your code and I saw that it depended
+> > on ACPI.  Since ACPI doesn't work on my machine, I
+> > thought I should look for another solution.  However,
+> 
+> Huh ? Read the code again.
+> Its no more dependant upon ACPI than bootflag.c is.
+> The bootflag is pointed at by an ACPI table.
+> The code I wrote functions /exactly/ the same on
+> a kernel with APM, ACPI or NO power management.
+> 
+> > Alan now tells me that what I want to do can already
+> > be done via /dev/nvram.
+> 
+> My code _is_ using /dev/nvram !
+> 
+> regards,
+> 
+> Dave.
+> 
+> -- 
+> | Dave Jones.        http://www.suse.de/~davej
+> | SuSE Labs
+> 
 
-EWBE is a feature that is enabled with bits 2-3 of the EFER MSR.
-This controls the behaviour of the CPU with respect to ordering
-of write cycles. Behaviour here can affect performance, and from
-my interpretation of the above, the amount of power saving that
-is possible.
-
-You can control the EWBE register using powertweak
-(http://www.powertweak.org), but if you don't want to/are unable
-to build that, and want to do some further tests, let me know
-and I'll hack something up.
-
-If this feature is affecting temperature dramatically, it may
-be worth us clearing this on boot up.
-
-I've heard reports from Athlon users who also say HLT doesn't
-do anything regarding temperature for their systems. I wonder
-if it also has a similar feature tucked away in an MSR somewhere..
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
 

@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263432AbUJ2Qmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263413AbUJ2Qmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263432AbUJ2Qmk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 12:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbUJ2Qjq
+	id S263413AbUJ2Qmv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 12:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbUJ2QkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 12:39:46 -0400
-Received: from mail.kroah.org ([69.55.234.183]:42185 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263432AbUJ2QiC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 12:38:02 -0400
-Date: Fri, 29 Oct 2004 11:37:04 -0500
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH 1/4] Driver core: export device_attach
-Message-ID: <20041029163704.GA27902@kroah.com>
-References: <200410062354.18885.dtor_core@ameritech.net> <20041008214820.GA1096@kroah.com> <200410120129.59221.dtor_core@ameritech.net> <200410120131.05691.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 29 Oct 2004 12:40:20 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:56028 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S263430AbUJ2Qhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 12:37:33 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.10-rc1-mm2: konqueror segfaults for no reason
+Date: Fri, 29 Oct 2004 18:23:34 +0200
+User-Agent: KMail/1.6.2
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200410120131.05691.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410291823.34175.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 01:31:04AM -0500, Dmitry Torokhov wrote:
-> #### AUTHOR dtor_core@ameritech.net
-> #### COMMENT START
-> ### Comments for ChangeSet
-> Driver core: make device_attach() global and export it and
->              driver_attach() so subsystems can have finer
->              control over binding process.
+Hi,
 
-Applied, thanks.
+On 2.6.10-rc1-mm2 with SuSE 9.1 /x86_64 konqueror always crashes for no 
+specific reason and the following messages appear in dmesg:
 
-greg k-h
+local[18494]: segfault at 0000003000000018 rip 0000000000428f2a rsp 
+0000007fbfffe870 error 4
+local[18493]: segfault at 0000003000000018 rip 0000000000428f2a rsp 
+0000007fbfffe870 error 4
+
+This does not happen on 2.6.10-rc1.
+
+The .config is available at:
+http://www.sisk.pl/kernel/041029/2.6.10-rc1-mm2.config
+
+Greets,
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280800AbRKGRaN>; Wed, 7 Nov 2001 12:30:13 -0500
+	id <S280814AbRKGRfx>; Wed, 7 Nov 2001 12:35:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280814AbRKGR3x>; Wed, 7 Nov 2001 12:29:53 -0500
-Received: from splot.org ([216.86.199.146]:55430 "EHLO gee.splot.org")
-	by vger.kernel.org with ESMTP id <S280800AbRKGR3q>;
-	Wed, 7 Nov 2001 12:29:46 -0500
-Date: Wed, 7 Nov 2001 09:29:10 -0800 (PST)
-From: Eric Ortega <eto@splot.org>
-To: linux-kernel@vger.kernel.org
+	id <S280867AbRKGRfo>; Wed, 7 Nov 2001 12:35:44 -0500
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:14351 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S280814AbRKGRf1>;
+	Wed, 7 Nov 2001 12:35:27 -0500
+Date: Wed, 7 Nov 2001 09:38:02 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Dan Hollis <goemon@anime.net>
+cc: Maxwell Spangler <maxwax@mindspring.com>, linux-kernel@vger.kernel.org
 Subject: Re: Athlon Bug Stomper Success Reports for 2.4.14
-In-Reply-To: <Pine.LNX.4.33.0111070045320.20152-100000@tyan.doghouse.com>
-Message-ID: <Pine.LNX.4.21.0111070926520.13588-100000@gee.splot.org>
+In-Reply-To: <Pine.LNX.4.30.0111062206080.4584-100000@anime.net>
+Message-ID: <Pine.LNX.4.10.10111070937280.24922-100000@innerfire.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Nov 2001, Dan Hollis wrote:
 
+> On Wed, 7 Nov 2001, Maxwell Spangler wrote:
+> >  * Nobody seems to know what this does. Damn.
+> >  * But it does seem to fix some unspecified problem
+> >  * with 'movntq' copies on Athlons.
+> >  * VIA 8363 chipset:
+> >  *  - bit 7 at offset 0x55: Debug (RW)
+> 
+> I've given alan a full description of what this does.
 
-On Wed, 7 Nov 2001, Maxwell Spangler wrote:
+Is there a place the rest of us can find out? I'm very curious to find out
+what it was.
 
-> If you are using an Athlon with 2.4.14 and you previously had problems but now
-> have stability with an Athlon optimized, kernel, please respond.  (Just a few
-> people, please.)
+	Gerhard
 
-We're running an Athlon 1.4 GHz with an IWill KK266 board which finally 
-booted with Athlon optimizations (2.4.14). 
+--
+Gerhard Mack
 
-We've also been running processes on it all night without issues.
+gmack@innerfire.net
 
-We're very grateful and happy to have this fairly well resolved, expecially
-since we have 11 more of these machines.  :)
+<>< As a computer I find your faith in technology amusing.
 

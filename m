@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUCGDGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 22:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUCGDGY
+	id S261746AbUCGDH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 22:07:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbUCGDHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 22:06:24 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:50683 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S261745AbUCGDGX (ORCPT
+	Sat, 6 Mar 2004 22:07:25 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:48601 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S261746AbUCGDHQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 22:06:23 -0500
-Message-ID: <404A919C.3070501@matchmail.com>
-Date: Sat, 06 Mar 2004 19:06:04 -0800
+	Sat, 6 Mar 2004 22:07:16 -0500
+Message-ID: <404A91DF.6060802@matchmail.com>
+Date: Sat, 06 Mar 2004 19:07:11 -0800
 From: Mike Fedyk <mfedyk@matchmail.com>
 User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Steve Longerbeam <stevel@mvista.com>
-CC: Dave Jones <davej@redhat.com>, LKML <linux-kernel@vger.kernel.org>
+To: Steve Kenton <skenton@ou.edu>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: new special filesystem for consideration in 2.6/2.7
-References: <40462AA1.7010807@mvista.com> <4048C245.7060009@mvista.com> <20040305184203.GB26176@redhat.com> <4048CE25.8010705@mvista.com>
-In-Reply-To: <4048CE25.8010705@mvista.com>
+References: <4048CCAC.60104@ou.edu>
+In-Reply-To: <4048CCAC.60104@ou.edu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Longerbeam wrote:
+Steve Kenton wrote:
+> People have kicked around ideas for persistant memory use as a
+> disk replacement etc. with memory mapped data spaces, but until
+> there is actual (affordable) hardware it remains just an interesting
+> thought experiment.
 > 
-> 
-> Dave Jones wrote:
-> 
->> On Fri, Mar 05, 2004 at 10:09:09AM -0800, Steve Longerbeam wrote:
->> > >An intro to PRAMFS along with a technical specification
->> > >is at the SourceForge project web page at
->> > >http://pramfs.sourceforge.net/. A patch for 2.6.3 has
->> > >been released at the SF project site. > > > A new patch for 2.6.4 
->> is available, but it and the 2.6.3 patch
->> > are each ~2900 lines, so I won't post here. But here's the intro:
->>
->> Without commenting on the code, the biggest thing holding back
->> inclusion of this is likely the comment about there likely being
->> patents held on parts of that code.
->>
->>         Dave
->>
-> 
-> Dave, true MV has a patent pending, but it would only affect any future use
-> of the technology in a _non GPL_ operating system. Used in Linux or any
-> future GPL software, no patent licenses or royalties are involved at all.
+> If the recent news about giga-bit mram being a real possibility in
+> the not too far future pans out, this may be get more important.
 
-A statement in legal terms should be in the patch.
+This is a reality in embedded devices.  Go read the message again...

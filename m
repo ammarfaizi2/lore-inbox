@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265815AbUHCMSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUHCMVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265815AbUHCMSM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 08:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUHCMSM
+	id S265900AbUHCMVa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 08:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266028AbUHCMV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 08:18:12 -0400
-Received: from s124.mittwaldmedien.de ([62.216.178.24]:25259 "EHLO
-	s124.mittwaldmedien.de") by vger.kernel.org with ESMTP
-	id S265815AbUHCMSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 08:18:08 -0400
-Message-ID: <410F828E.3090808@vcd-berlin.de>
-Date: Tue, 03 Aug 2004 14:18:22 +0200
-From: Elmar Hinz <elmar.hinz@vcd-berlin.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PATCH: Add support for IT8212 IDE controllers
-References: <2obsK-5Ni-13@gated-at.bofh.it> <410F7407.8070903@vcd-berlin.de> <1091530208.3573.5.camel@localhost.localdomain>
-In-Reply-To: <1091530208.3573.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Aug 2004 08:21:29 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47316 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265974AbUHCMV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 08:21:26 -0400
+Date: Tue, 3 Aug 2004 14:21:20 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: yokota@netlab.is.tsukuba.ac.jp, gotom@debian.or.jp
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] SCSI nsp32.c: missing parts of inline removal patch
+Message-ID: <20040803122120.GZ2746@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 
-> Not your fault - I missed out an include file update when I posted it -
-> PCI_DEVICE_ID_ITE_8212 is 0x8212..
-> 
-> 
 
-Oops. I only understand "trainstation". I guess you will put the fixed 
-patch on the list. Do you? :-)
+The SCSI tree as included in 2.6.8-rc2-mm2 only removes the inline's 
+from the functions prototypes, but the part of my original patch that 
+also removes the inline's from the functions was lost.
 
-In drivers/ide/pci/ some other drivers have a *.h file. Maybe you mean that?
-
-Then I discover on http://lkml.org/lkml/2004/8/1/121 a double linebreak, 
-wich causes an error. It is not there in the newsgroup. Strange.
+Please additionally apply the patch below.
 
 
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
-#define DECLARE_ITE_DEV(name_str)			\
-
-	{						\
-		.name		= name_str,		\
-		.init_chipset	= init_chipset_it8212,	\
-		.init_hwif	= init_hwif_it8212,	\
-		.channels	= 2,			\
-		.autodma	= AUTODMA,		\
-		.bootable	= ON_BOARD,		\
-	}
-
-
-Regards
-
-Elmar
-
-
-
+--- linux-2.6.8-rc1-mm1-full-3.4/drivers/scsi/nsp32.c.old	2004-07-16 00:34:49.000000000 +0200
++++ linux-2.6.8-rc1-mm1-full-3.4/drivers/scsi/nsp32.c	2004-07-16 00:37:26.000000000 +0200
+@@ -3387,7 +3387,7 @@
+ 	return val;
+ }
+ 
+-static inline void nsp32_prom_set(nsp32_hw_data *data, int bit, int val)
++static void nsp32_prom_set(nsp32_hw_data *data, int bit, int val)
+ {
+ 	int base = data->BaseAddress;
+ 	int tmp;
+@@ -3405,7 +3405,7 @@
+ 	udelay(10);
+ }
+ 
+-static inline int nsp32_prom_get(nsp32_hw_data *data, int bit)
++static int nsp32_prom_get(nsp32_hw_data *data, int bit)
+ {
+ 	int base = data->BaseAddress;
+ 	int tmp, ret;
 

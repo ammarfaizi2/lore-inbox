@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264978AbSKIEP7>; Fri, 8 Nov 2002 23:15:59 -0500
+	id <S261857AbSKIEdp>; Fri, 8 Nov 2002 23:33:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265091AbSKIEP7>; Fri, 8 Nov 2002 23:15:59 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:12 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S264978AbSKIEP6>;
-	Fri, 8 Nov 2002 23:15:58 -0500
-Date: Fri, 8 Nov 2002 23:22:41 -0500 (EST)
-Message-Id: <200211090422.gA94Mfn244751@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] procps 3.1.0
+	id <S262055AbSKIEdo>; Fri, 8 Nov 2002 23:33:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62476 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261857AbSKIEdm>; Fri, 8 Nov 2002 23:33:42 -0500
+Date: Fri, 8 Nov 2002 20:40:00 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Dipankar Sarma <dipankar@gamebox.net>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: [TRIVIAL] Re: UP went into unexpected trashing 
+In-Reply-To: <20021109041542.054AF2C0DF@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0211082038580.1609-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This includes the first noticeable vmstat change. Now you get
-IO-wait time separate from idle time if you run Linux 2.5.41
-or later.
+On Sat, 9 Nov 2002, Rusty Russell wrote:
+> - * Returns the bit-number of the first zero bit, not the number of the byte
+> - * containing a bit.
+> + * Returns the bit-number of the first zero bit (not the number of the byte
+> + * containing the bit) or a value >= size if none found.
 
-There's a Solaris-compatible pmap as well, lacking only the
-per-vma resident memory stats that Linux doesn't supply.
-(hint, hint... though I don't know where they'd fit)
+Ok.
 
-http://procps.sf.net/
-http://procps.sf.net/procps-3.1.0.tar.gz
+However, what was the original codepath that doesn't follow this and was 
+the cause of the headache (ie the "unexpected trashing"?) Let's fix that 
+user of the functions too, not just the documentation..
 
-------------- recent changes -------------
+		Linus
 
-procps-3.0.5 --> procps-3.1.0
-
-vmstat displays IO-wait time instead of bogus "w"
-can build w/o shared library (set SHARED=0)
-when IO-wait hidden, count as idle, not as sys
-pmap command added (like Sun has)
-do not crash GNU make 3.79
-top slightly faster
-
-procps-3.0.4 --> procps-3.0.5
-
-top tolerates super-wide displays
-better (?) RPM generation
-XConsole and top.desktop removed
-old build system removed
-code cleanup
-pgrep and pkill get "-o" (oldest matching process)
-had vmstat "bi" and "bo" output interchanged on 2.5.xx
-fix man page tbl directives
-top man page cleaned up
-
------------------------------------------

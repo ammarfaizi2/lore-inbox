@@ -1,131 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268149AbUIWDBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268175AbUIWDIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268149AbUIWDBM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 23:01:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUIWDBM
+	id S268175AbUIWDIu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 23:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbUIWDIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 23:01:12 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:857 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S268149AbUIWDBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 23:01:00 -0400
-Message-ID: <41523C66.3080508@yahoo.com.au>
-Date: Thu, 23 Sep 2004 13:00:54 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Wed, 22 Sep 2004 23:08:50 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:62180 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S268175AbUIWDIo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 23:08:44 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc2-mm2 vs cachefs
+Date: Wed, 22 Sep 2004 23:08:42 -0400
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm2
-References: <20040922131210.6c08b94c.akpm@osdl.org>
-In-Reply-To: <20040922131210.6c08b94c.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------020704050406000503060606"
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409222308.42860.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.51.220] at Wed, 22 Sep 2004 22:08:43 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020704050406000503060606
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Greetings;
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm2/
-> 
+I just now rebooted to 2.6.9-rc2-mm2 after making an unrelated 
+adjustment to my modprobe.conf, trying to get the pl2303 module to 
+autoload on boot.  That didn't work either, but I can modprobe it in 
+by hand and that seems to do it.
 
-fs/dcache.c:select_parent()
-{
-...
-                 /*
-                  * select_parent() is a performance optimization, it is
-                  * not necessary to complete it. Abort if a reschedule is
-                  * pending:
-                  */
-                 if (need_resched())
-                         goto out;
-...
-}
+But as it was rebooting, I saw this go by in my dmesg:
 
-This one came back. It is the
-VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
-thing.
+CacheFS: Wrong magic number on cache
 
-Attached is a fix.
+and there appears to be no further references to it.
 
---------------020704050406000503060606
-Content-Type: text/x-patch;
- name="sched-vfs-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sched-vfs-fix.patch"
+I don't recall seeing that msg before now, and it has been turned on 
+in the kernels I'm building for quite a while.  I probably haven't 
+properly init'd it or something equally dumb as I don't think there 
+is a line in my /etc/fstab for it.  So what should that line look 
+like from a copy/paste from somebody elses /etc/fstab that has it 
+working?
 
+Humm, I just read Documentation/cachefs.txt, and I see it wasn't what 
+I had in mind from the description at all.  And rather than try and 
+setup all that, I think I might take it back out of the kernel here 
+unless someone can show a good example of how to use it, to take the 
+pressure off of /swap for instance.  Or could it even be made to do 
+that?
 
+TIA
 
-
----
-
- linux-2.6-npiggin/fs/dcache.c |   26 +++++++++++++++++---------
- 1 files changed, 17 insertions(+), 9 deletions(-)
-
-diff -puN fs/dcache.c~sched-vfs-fix fs/dcache.c
---- linux-2.6/fs/dcache.c~sched-vfs-fix	2004-09-23 12:53:04.000000000 +1000
-+++ linux-2.6-npiggin/fs/dcache.c	2004-09-23 12:59:25.000000000 +1000
-@@ -156,7 +156,7 @@ repeat:
- 		spin_unlock(&dcache_lock);
- 		return;
- 	}
--			
-+
- 	/*
- 	 * AV: ->d_delete() is _NOT_ allowed to block now.
- 	 */
-@@ -540,6 +540,13 @@ positive:
-  * list for prune_dcache(). We descend to the next level
-  * whenever the d_subdirs list is non-empty and continue
-  * searching.
-+ *
-+ * It returns zero iff there are no unused children,
-+ * otherwise  it returns the number of children moved to
-+ * the end of the unused list. This may not be the total
-+ * number of unused children, because select_parent can
-+ * drop the lock and return early due to latency
-+ * constraints.
-  */
- static int select_parent(struct dentry * parent)
- {
-@@ -556,14 +563,6 @@ resume:
- 		struct dentry *dentry = list_entry(tmp, struct dentry, d_child);
- 		next = tmp->next;
- 
--		/*
--		 * select_parent() is a performance optimization, it is
--		 * not necessary to complete it. Abort if a reschedule is
--		 * pending:
--		 */
--		if (need_resched())
--			goto out;
--
- 		if (!list_empty(&dentry->d_lru)) {
- 			dentry_stat.nr_unused--;
- 			list_del_init(&dentry->d_lru);
-@@ -577,6 +576,15 @@ resume:
- 			dentry_stat.nr_unused++;
- 			found++;
- 		}
-+
-+		/*
-+		 * We can return to the caller if we have found some (this
-+		 * ensures forward progress). We'll be coming back to find
-+		 * the rest.
-+		 */
-+		if (found && need_resched())
-+			goto out;
-+
- 		/*
- 		 * Descend a level if the d_subdirs list is non-empty.
- 		 */
-
-_
-
---------------020704050406000503060606--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.26% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

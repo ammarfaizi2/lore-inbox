@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265829AbTFSQAD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 12:00:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265832AbTFSQAD
+	id S265830AbTFSQFy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 12:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265831AbTFSQFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 12:00:03 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:12956 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S265829AbTFSQAA (ORCPT
+	Thu, 19 Jun 2003 12:05:54 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:34765 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S265830AbTFSQFx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 12:00:00 -0400
-Message-ID: <3EF1E136.40305@colorfullife.com>
-Date: Thu, 19 Jun 2003 18:13:42 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ray Bryant <raybry@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Bug in __pollwait() can cause select() and poll() to
- hang in
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jun 2003 12:05:53 -0400
+Date: Thu, 19 Jun 2003 10:19:52 -0600
+From: Matthew Wilcox <willy@fc.hp.com>
+To: Matthew Wilcox <willy@fc.hp.com>
+Cc: Greg KH <greg@kroah.com>, davidm@hpl.hp.com, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: move pci_domain_nr() inside "#ifdef CONFIG_PCI" bracket
+Message-ID: <20030619161952.GF21906@ldl.fc.hp.com>
+References: <16112.54572.443092.996206@napali.hpl.hp.com> <20030618215706.GA1919@kroah.com> <20030619150344.GE21906@ldl.fc.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030619150344.GE21906@ldl.fc.hp.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ray,
+On Thu, Jun 19, 2003 at 09:03:44AM -0600, Matthew Wilcox wrote:
+> On Wed, Jun 18, 2003 at 02:57:06PM -0700, Greg KH wrote:
+> > On Wed, Jun 18, 2003 at 02:10:04PM -0700, David Mosberger wrote:
+> > > Trivial build fix: pci_domain_nr() cannot be declared unless
+> > > CONFIG_PCI is defined (otherwise, struct pci_bus hasn't been defined).
+> > 
+> > Thanks, I've added this to my pci bk tree and will send it off to Linus
+> > in a bit.
+> 
+> I don't understand.  One of the PPC guys saw it too, but how is it
+> possible?  CONFIG_PCI is first mentioned at line 526 of pci.h.
+> pci_bus is defined at line 446.
 
-your bug description seems to be correct, but the fix is wrong:
-If the allocation is for the 2nd page of wait queue heads, then 
-"current->state = TASK_INTERRUPTIBLE" can lead to lost wakeups, if an fd 
-that is stored in the first page gets ready during the allocation. 
-Setting the state to interruptible is only permitted if a full scan of 
-all file descriptors happens before calling schedule(). This is 
-expensive and should be avoided.
+Now I understand.  Tom Rini forwarded me the output from gcc -E.  The
+problem is that CONFIG_PCI_DOMAIN is conditional on CONFIG_PCI.  So ppc
+& ia64 define a macro for pci_domain_nr, then PCI_DOMAIN isn't set, so
+the default definition of pci_domain_nr happens ... and gets mutilated
+by the macro:
 
-The correct fix is current->state = TASK_RUNNING just before calling 
-yield() in the rebalance code.
+static inline int ((struct pci_controller *)( struct pci_bus *bus)->sysdata)->index  { return 0; }
 
---
-    Manfred
+A bit subtle, that ... I think this patch is fine, though perhaps it'd
+be best to unconditionally make CONFIG_PCI_DOMAIN true as well?
 
+-- 
+It's always legal to use Linux (TM) systems
+http://www.gnu.org/philosophy/why-free.html

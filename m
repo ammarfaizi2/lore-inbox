@@ -1,50 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbUKYDKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbUKYDWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262949AbUKYDKU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 22:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbUKYDKU
+	id S262935AbUKYDWn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 22:22:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUKYDWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 22:10:20 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:27039 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262949AbUKYDJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 22:09:33 -0500
-Subject: Re: Suspend 2 merge: 46/51: LZF support.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <58cb370e04112415014eaaebaf@mail.gmail.com>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101300108.5805.380.camel@desktop.cunninghams>
-	 <58cb370e04112415014eaaebaf@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1101350324.25030.0.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 13:38:44 +1100
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Nov 2004 22:22:43 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:30611 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S262935AbUKYDWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 22:22:42 -0500
+Date: Wed, 24 Nov 2004 21:22:37 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+In-Reply-To: <Pine.LNX.4.58.0411240258460.2242@gradall.private.brainfood.com>
+Message-ID: <Pine.LNX.4.58.0411242122130.2173@gradall.private.brainfood.com>
+References: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com>
+ <Pine.LNX.4.58.0411222237130.2287@gradall.private.brainfood.com>
+ <20041123115201.GA26714@elte.hu> <Pine.LNX.4.58.0411231206240.2146@gradall.private.brainfood.com>
+ <20041124040604.GA13340@elte.hu> <Pine.LNX.4.58.0411240258460.2242@gradall.private.brainfood.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 24 Nov 2004, Adam Heath wrote:
 
-On Thu, 2004-11-25 at 10:01, Bartlomiej Zolnierkiewicz wrote:
-> Hi Nigel!
-> 
-> Shouldn't LZF code go to lib/ ?
+> The symptoms still occur with 30-9.  I'll be trying rc2-mm2 over the holiday.
 
-I suppose it could. Will do.
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+Been running rc2-mm3 all day.  No issues yet.

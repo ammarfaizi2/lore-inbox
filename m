@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbVAKVDF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262826AbVAKVGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262755AbVAKVDF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:03:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVAKVDA
+	id S262826AbVAKVGT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:06:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVAKVDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:03:00 -0500
-Received: from [195.110.122.101] ([195.110.122.101]:61325 "EHLO
-	cadalboia.ferrara.linux.it") by vger.kernel.org with ESMTP
-	id S262755AbVAKVBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:01:30 -0500
-From: Simone Piunno <pioppo@ferrara.linux.it>
-To: "Jean Delvare" <khali@linux-fr.org>
-Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
-Date: Tue, 11 Jan 2005 22:04:59 +0100
-User-Agent: KMail/1.7.2
-Cc: sensors@stimpy.netroedge.com, "Jonas Munsin" <jmunsin@iki.fi>,
-       djg@pdp8.net, "Greg KH" <greg@kroah.com>,
-       "LKML" <linux-kernel@vger.kernel.org>
-References: <YN0o4rkI.1105435582.0805630.khali@localhost>
-In-Reply-To: <YN0o4rkI.1105435582.0805630.khali@localhost>
-X-Key-URL: http://members.ferrara.linux.it/pioppo/mykey.asc
-X-Key-FP: 9C15F0D3E3093593AC952C92A0CD52B4860314FC
-X-Key-ID: 860314FC/C09E842C
-X-Message: GnuPG/PGP5 are welcome
+	Tue, 11 Jan 2005 16:03:30 -0500
+Received: from alog0337.analogic.com ([208.224.222.113]:10880 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262788AbVAKVAl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 16:00:41 -0500
+Date: Tue, 11 Jan 2005 15:58:15 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: john stultz <johnstul@us.ibm.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: New Linux System time proposal
+In-Reply-To: <1105474167.4152.7.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.61.0501111548400.3354@chaos.analogic.com>
+References: <Pine.LNX.4.61.0501110930280.26281@chaos.analogic.com>
+ <1105474167.4152.7.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501112205.02322.pioppo@ferrara.linux.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 January 2005 10:26, Jean Delvare wrote:
+On Tue, 11 Jan 2005, john stultz wrote:
 
-> What you have here is this default configuration, i.e. all fans are
-> supposedly off. Of course it isn't the case, I assume that your fans
-> are running at full speed when you turn your computer on. 
+> On Tue, 2005-01-11 at 09:31 -0500, linux-os wrote:
+>> I think that Linux time should be re-thought and done over once and
+>> for all.
+>
+> I agree, and I've been working on this for awhile.
+>
+> You can find an outdated summery of my ideas here:
+> http://lwn.net/Articles/100665/
+>
+> And as soon as I get ppc64 booting I'll be sending out a new release of
+> the code.
+>
+> thanks
+> -john
+>
 
-Yes, thank you for your analisys.
+I'm glad you are working on it. The system I proposed is the same
+thing that was done in VAX/VMS. There was never any need to upset
+any timing anywhere because it was just BOOTTIME + OFFSET +
+uFORTNIGHT-tick = (quadword) time.
 
-> Additionally, the first fan control output was turned to manual PWM
-> control mode, full speed. The driver supposedly doesn't do that, I
-> guess you did it yourself through the sysfs interface?
+A more modern version for Linux would "simplicate and add lightness",
+as well as get rid of the:
 
-Of course, sorry.
+    warning:  Clock skew detected.  Your build may be incomplete.
 
-> > > Do you know what kind of it87 chip you do have? There are three of
-> > > them, IT8705F, IT8712F and a SIS950 clone (mostly similar to the
-> > > IT8705F).
-> See /sys/bus/i2c/devices/0-0290/name. If it says it8712 it's an IT8712F,
-> if it says it87 it is a less featured IT8705F or clone. After looking at
-
-pioppo@roentgen ~ $ cat /sys/devices/platform/i2c-0/0-0290/name
-it87
-
-> 2* I would then add a check to the it87 driver, which completely disables
-> the fan speed control interface if the initial configuration looks weird
-> (all fans supposedly stopped and polarity set to "active low"). This
-> should protect users of the driver who have a faulty BIOS.
-
-If the driver can perform a similar guess, couldn't it also activate a reverse 
-polarity mode as well?  I think all systems boot with with full-speed fan, so 
-any value you found at loading time should be the full-speed one, shouln't 
-it?
-
-BTW:
-  I'm writing a report to giga-byte.
+...from `make` as a result of more-and-more-usual time jumps.
 
 Cheers,
-  Simone
--- 
-http://thisurlenablesemailtogetthroughoverzealousspamfilters.org
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

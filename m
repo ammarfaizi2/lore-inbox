@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135842AbRDTRMw>; Fri, 20 Apr 2001 13:12:52 -0400
+	id <S135914AbRDTRQW>; Fri, 20 Apr 2001 13:16:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135914AbRDTRMg>; Fri, 20 Apr 2001 13:12:36 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6661 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S135842AbRDTRMT>;
-	Fri, 20 Apr 2001 13:12:19 -0400
-Message-ID: <20010420190227.B905@bug.ucw.cz>
-Date: Fri, 20 Apr 2001 19:02:27 +0200
+	id <S135906AbRDTRQM>; Fri, 20 Apr 2001 13:16:12 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:8709 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S135898AbRDTRP7>;
+	Fri, 20 Apr 2001 13:15:59 -0400
+Message-ID: <20010420190128.A905@bug.ucw.cz>
+Date: Fri, 20 Apr 2001 19:01:28 +0200
 From: Pavel Machek <pavel@suse.cz>
 To: John Fremlin <chief@bandits.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: sfr@linuxcare.com.au, linux-kernel@vger.kernel.org,
-        apenwarr@worldvisions.ca
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        "'Pavel Machek'" <pavel@suse.cz>,
+        Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <E14pqYS-0004Y3-00@the-village.bc.nu> <m27l0i58i3.fsf@boreas.yi.org.>
+In-Reply-To: <E14pgBe-0003gg-00@the-village.bc.nu> <m2k84jkm1j.fsf@boreas.yi.org.>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <m27l0i58i3.fsf@boreas.yi.org.>; from John Fremlin on Wed, Apr 18, 2001 at 08:10:44PM +0100
+In-Reply-To: <m2k84jkm1j.fsf@boreas.yi.org.>; from John Fremlin on Wed, Apr 18, 2001 at 02:56:56AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > I'm wondering if that veto business is really needed. Why not reject
-> > > *all* APM rejectable events, and then let the userspace event handler
-> > > send the system to sleep or turn it off? Anybody au fait with the APM
-> > > spec?
-> > 
-> > Because apmd is optional
+> [...]
 > 
-> The veto stuff only comes into action, iff someone has registered as
-> willing to exercise this power. We would not break compatibility with
-> any std kernel by instead having a apmd send a "reject all" ioctl
-> instead, and so deal with events without having the pressure of having
-> to reject or accept them, and let us remove all the veto code from the
-> kernel driver. Or am I missing something?
+> > I would tend to agree here. If you want to wire it to init the fine
+> > but pm is basically message passing kernel->user and possibly
+> > message reply to allow veto/approve. APM provides a good API for
+> > this and there is a definite incentive to make ACPI use the same
+> > messages, behaviour and extend it.
+> 
+> I'm wondering if that veto business is really needed. Why not reject
+> *all* APM rejectable events, and then let the userspace event handler
+> send the system to sleep or turn it off? Anybody au fait with the APM
+> spec?
 
-No, this looks reasonable.
+My thinkpad actually started blinking with some LED when you pressed
+the button. LED went off when you rejected or when sleep was
+completed. So you would loose visual indication of "system is now
+going to sleep". But I guess that is very little loose for the loose
+of complexity.
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

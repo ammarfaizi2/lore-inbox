@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130154AbRAVJty>; Mon, 22 Jan 2001 04:49:54 -0500
+	id <S130792AbRAVJxI>; Mon, 22 Jan 2001 04:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130792AbRAVJto>; Mon, 22 Jan 2001 04:49:44 -0500
-Received: from www.lahn.de ([213.61.112.58]:10876 "EHLO serv02.lahn.de")
-	by vger.kernel.org with ESMTP id <S130154AbRAVJtd>;
-	Mon, 22 Jan 2001 04:49:33 -0500
-Date: Mon, 22 Jan 2001 10:46:03 +0100 (CET)
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-Reply-To: pmhahn@titan.lahn.de
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Firewall netlink question...
-In-Reply-To: <20010122073343.A3839@lemsip.lan>
-Message-ID: <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de>
+	id <S131555AbRAVJw6>; Mon, 22 Jan 2001 04:52:58 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:62724 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S130792AbRAVJwv>; Mon, 22 Jan 2001 04:52:51 -0500
+Message-ID: <3A6C02C4.E34E3A6@idb.hist.no>
+Date: Mon, 22 Jan 2001 10:52:04 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Sutherland <mandrake@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.30.0101210945220.8238-100000@dax.joh.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jan 2001, Scaramanga wrote:
-
-> Under Linux 2.2.x I used to be able to use ipchains to send packet to a
-> netlink socket so that my userspace application could further analyze
-> the packet data.
+James Sutherland wrote:
 > 
-> Since kernel 2.4 and iptables, I have not enjoyed the same functionality,
-> has it been deprecated in favour of a better method, if so, what? I ask 
-> because I just spent my last few hours writing an iptables plugin, and 
-> netfilter target kernel module, in order to replace the old functionality 
-> exactly, to the end that my application works with zero modifications.
-You might take a look at
+> On Sat, 20 Jan 2001, Linus Torvalds wrote:
+> 
+> >
+> >
+> > On Sat, 20 Jan 2001, Roman Zippel wrote:
+> > >
+> > > On Sat, 20 Jan 2001, Linus Torvalds wrote:
+> > >
+> > > > But point-to-point also means that you don't get any real advantage from
+> > > > doing things like device-to-device DMA. Because the links are
+> > > > asynchronous, you need buffers in between them anyway, and there is no
+> > > > bandwidth advantage of not going through the hub if the topology is a
+> > > > pretty normal "star" kind of thing. And you _do_ want the star topology,
+> > > > because in the end most of the bandwidth you want concentrated at the
+> > > > point that uses it.
+> > >
+> > > I agree, but who says, that the buffer always has to be the main memory?
+> >
+> > It doesn't _have_ to be.
+> >
+> > But think like a good hardware designer.
+> >
+> > In 99% of all cases, where do you want the results of a read to end up?
+> > Where do you want the contents of a write to come from?
+> >
+> > Right. Memory.
+> 
+> For many applications, yes - but think about a file server for a moment.
+> 99% of the data read from the RAID (or whatever) is really aimed at the
+> appropriate NIC - going via main memory would just slow things down.
+> 
+> Take a heavily laden webserver. With a nice intelligent NIC and RAID
+> controller, you might have the httpd write the header to this NIC, then
+> have the NIC and RAID controller handle the sendfile operation themselves
+> - without ever touching the OS with this data.
 
-$ man iptables
-...
-TARGETS
-...
-QUEUE means to pass the packet to userspace (if supported by the kernel).
+And when the next user wants the same webpage/file you read it from the
+RAID again?
+Seems to me you loose the benefit of caching stuff in memory with this
+scheme.
+Sure - the RAID controller might have some cache, but it is usually
+smaller
+than main memory anyway.  And then there are things like
+retransmissions...
 
-$ sed -n -e '1874,1876p' /usr/src/linux-2.4.0/Documentation/Configure.help
-CONFIG_IP_NF_QUEUE
-  Netfilter has the ability to queue packets to user space: the
-  netlink device can be used to access them using this driver.
 
-$ lynx /usr/share/doc/iptables/html/packet-filtering-HOWTO-7.html
-
-BYtE   
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
-
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,83 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131724AbRDTVBS>; Fri, 20 Apr 2001 17:01:18 -0400
+	id <S131730AbRDTVB2>; Fri, 20 Apr 2001 17:01:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131742AbRDTVBI>; Fri, 20 Apr 2001 17:01:08 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:10196 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S131724AbRDTVAr>; Fri, 20 Apr 2001 17:00:47 -0400
+	id <S131742AbRDTVBS>; Fri, 20 Apr 2001 17:01:18 -0400
+Received: from www.chieflandrelayforlife.com ([204.157.225.180]:38785 "EHLO
+	mail.co.gilchrist.fl.us") by vger.kernel.org with ESMTP
+	id <S131730AbRDTVBH>; Fri, 20 Apr 2001 17:01:07 -0400
+Date: Fri, 20 Apr 2001 17:01:05 -0400 (EDT)
+From: <lkern@mail.co.gilchrist.fl.us>
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@mail.hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: IP Acounting Idea for 2.5
-Date: Fri, 20 Apr 2001 21:00:45 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9bq81t$9ct$1@forge.intermeta.de>
-In-Reply-To: <Pine.LNX.4.33.0104152039130.1616-100000@asdf.capslock.lan> <01041708461209.00352@workshop> <20010416020732.30431.qmail@logi.cc> <20010416224321.O16697@corellia.laforge.distro.conectiva> <9bgpfa$329$1@forge.intermeta.de> <20010420131719.A2461@tatooine.laforge.distro.conectiva>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 987800445 25910 212.34.181.4 (20 Apr 2001 21:00:45 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 20 Apr 2001 21:00:45 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+Subject: Kernel Panic Linux 2.4.3 RH7
+Message-ID: <Pine.LNX.4.21.0104201647250.1287-100000@proxy.co.gilchrist.fl.us>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Welte <laforge@gnumonks.org> writes:
+Machine has been locking up between 0-3 times a day
+sporadically.  Nothing predictable about it. Hadn't locked up for 3
+days, and locked 3x today, the last 2 times within 20 minutes of each 
+other. Had run stable with 2.2.18, and was running fairly stable on 2.4.3
+up until about last week.  (might be coincidence, or not, but seems to
+happen when I am on IRC -- DOS?, nothing in log files or firewall logs
+however)
 
->On Tue, Apr 17, 2001 at 06:56:42AM +0000, Henning P. Schmiedehausen wrote:
->> 
->> Resettable counters in a security sensitive environment are just a
->> call for trouble. That's why you can't reset the SNMP counters on any
->> Cisco device I've encountered today. They learned their lesson. Maybe
->> you will, too.
+Machine info:
 
->Well, I'm not sure about which SNTP counters you are talking, but I suppose
->it is not about per-filtering-rule counters, but something like per-interface
->counters, etc.
+RedHat 7, Intel Celeron 450, 256Meg ECC PC100 DRAM, 1 15G IDE (/usr, /tmp,
+/home,
+/var, swap ), 1 2G SCSI (/, /boot, swap) HDD, 2 identical tulip chipset
+eth cards.
 
-You don't want your counters going backward. Full stop. If a program
-can reset your counter, your application will never know, if it was a
-legal, correct, valid reason or just a hacker trying to hide his
-traces. At least provide some sort of lock-down.
+I just swapped the RAM out this last crash, seeing if that makes any
+differences.
 
->There's always a way for somebody with root access to reset the counters of
->a rule: 
-
->just delete and re-insert the rule.
-
-Bad thing. If you want to use the rules in a security sensitive
-environment, don't allow removal. If you need to, reset the whole
-module and notify the user. Better, shut down the filter and yell for
-help.
-
-ipfilter is about security, isn't it?
-
->If somebody wants to reset the counter, he can. If we remove the functionality
->from iptables, people still can - but it's more difficult.
-
-There is no "more difficult", just "different ways". If you bother to
-use a filtering environment where the filter counters tell e.g. "we
-rejected xxx attacks", you don't want anyone to mess with these
-counters. If this is a counter for a filtering rule, don't allow the
-rule (and its counters) to be removed. Inactivate the rule but keep
-the evidence (counter settings) around till module removal or reboot.
-
-Sorry, I may be anal about security but as more and more people start
-thinking "why should I bother with FW-1 or PIX when I can get a $99
-Linux box and hack some filters", at least I want the $99 software
-trying not to be sloppy about security.
+Kernel is configured as advanced router with packet filtering, ip
+firewalling, NAT, IPTABLES and others enabled running a fairly
+comprehensive iptables ruleset, nothing superhuge though.
 
 
- 	Regards
- 		Henning
+Machine was recently upgraded to 2.4.3 kernel, from 2.2.18.
+Dump message is partially as follows:
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+Mismatch in TCPACCEPT IN=ETH0 OUT= MAC= 00:00:e8:24:53
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+(some other stuff below this, but the machine then rolled to the below and
+I couldn't finish copying down the above, remainder is as follows:
+
+Kernel Panic:  Attempted to Kill init!
+Unable to handle kernel paging request at virtual address e030a40c
+
+printing eip:
+c01194ae
+*pid=00000000
+Oops: 0000
+CPU: 0
+Eip: 0010 [<c01194ae7>]
+EFLAGS: 0010087
+
+(stack information skipped, if you need it let me know and I will write it
+all down the next time)
+
+Process: swapper (pid0, stack page c02dl000)
+
+stack 00000000
+
+Code 8b1186108b 590c85d274 088b410489 42048910
+
+Kernel Panic: Aiee, killing interrupt handler
+In interrupt handler - not syncing
+
+Any ideas?
+
+-buddy ellis
+
+

@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270143AbTGMHTP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 03:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270144AbTGMHSp
+	id S270151AbTGMHdi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 03:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270149AbTGMHdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 03:18:45 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:40716 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S270143AbTGMHSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 03:18:42 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5 and devfs versioning
-Date: Sun, 13 Jul 2003 11:32:46 +0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 13 Jul 2003 03:33:38 -0400
+Received: from rth.ninka.net ([216.101.162.244]:12428 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S265182AbTGMHdg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 03:33:36 -0400
+Date: Sun, 13 Jul 2003 00:48:18 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "Alan Shih" <alan@storlinksemi.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: TCP IP Offloading Interface
+Message-Id: <20030713004818.4f1895be.davem@redhat.com>
+In-Reply-To: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
+References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307131132.46522.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-{pts/2}% dmesg | head -1
-Linux version 2.5.75-1borsmp ...
+On Sun, 13 Jul 2003 00:33:00 -0700
+"Alan Shih" <alan@storlinksemi.com> wrote:
 
-{pts/2}% dmesg | grep devfs
-Kernel command line: BOOT_IMAGE=2575-1borsmp ro root=345 devfs=mount
-devfs: v1.22 (20021013) Richard Gooch (rgooch@atnf.csiro.au)
+> Or TOE is a forbidden discussion?
 
-well, this is not quite correct to put it mildly. It has been so much changed 
-that IMHO it needs own version just to avoid confusion.
+TOE is evil, read this:
 
--andrey
+http://www.usenix.org/events/hotos03/tech/full_papers/mogul/mogul.pdf
+
+TOE is exactly suboptimal for the very things performance
+matters, high connection rates.
+
+Your return is also absolutely questionable.  Servers "serve" data
+and we offload all of the send side TCP processing that can
+reasonably be done (segmentation, checksumming).
+
+I've never seen an impartial benchmark showing that TCP send
+side performance goes up as a result of using TOE vs. the usual
+segmentation + checksum offloading offered today.
+
+On receive side, clever RX buffer flipping tricks are the way
+to go and require no protocol changes and nothing gross like
+TOE or weird buffer ownership protocols like RDMA requires.
+
+I've made postings showing how such a scheme can work using a limited
+flow cache on the networking card.  I don't have a reference handy,
+but I suppose someone else does.
+
+And finally, this discussion belongs on the "networking" lists.
+Nearly all of the "networking" developers don't have time to sift
+through linux-kernel every day.

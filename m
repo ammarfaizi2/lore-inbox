@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbULaU1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbULaVQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbULaU1J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 15:27:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbULaU1J
+	id S261163AbULaVQm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 16:16:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbULaVQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 15:27:09 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:50147 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262153AbULaU1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 15:27:02 -0500
-Subject: Re: Queues when accessing disks
-From: "M. Edward Borasky" <znmeb@cesmail.net>
-Reply-To: znmeb@cesmail.net
-To: Felipe Erias <charles.swann@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <169c13c404123019322a766f64@mail.gmail.com>
-References: <169c13c404123019322a766f64@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 31 Dec 2004 12:26:44 -0800
-Message-Id: <1104524814.5185.28.camel@DreamGate>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Fri, 31 Dec 2004 16:16:42 -0500
+Received: from mail.tmr.com ([216.238.38.203]:64455 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S261163AbULaVQj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 16:16:39 -0500
+Message-ID: <41D5C459.8050601@tmr.com>
+Date: Fri, 31 Dec 2004 16:27:53 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Terry Hardie <terryh@orcas.net>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Asus P4C800-E Deluxe and Intel Pro/1000
+References: <200411112003.43598.Gregor.Jasny@epost.de><6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com> <Pine.LNX.4.58.0412262127510.3478@orcas.net>
+In-Reply-To: <Pine.LNX.4.58.0412262127510.3478@orcas.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-31 at 04:32 +0100, Felipe Erias wrote:
-> Hi,
+Terry Hardie wrote:
+> Well, this has been plauging me for months, and finally figured it out.
 > 
-> I'm trying to apply queuing theory to the study of the GNU/Linux kernel.
-> Right now, I'm focusing in the queue of processes that appears when they
-> try to access an I/O device (specifically, an IDE HD). When they want to
-> read data, it behaves as a usual queue: several clients (processes) that
-> require attention from a server (disk / driver / ...). The case when they want
-> to write data is a bit more tricky, because of the cache buffers used by the OS,
-> and maybe could be modelized by a network of queues. Both cases are
-> interesting for my work, but I'll take the reading one first, just
-> because it seems
-> a bit more simple 'a priori'.
+> Any 2.6 kernel on my board, would boot, then give errors (paraphrased,
+> sorry) when I tried to bring up the ethernet:
 > 
-> To modelize the queue, I need to get some information:
->  - what processes claim attention from the disk
->  - when they do it
->  - when they begin to be served
->  - when they finish being served
+> NETDEV WATCHDOG: eth0: transmit timed out
+> IRQ #18: Nobody cared!
 > 
-> To get all this information, maybe I could hack my kernel a bit to write
-> a line to a log on every access to the HD, or account the IRQs from
-> the IDE channels... I also have the feeling that this queuing problem could
-> dissappear o became more hidden if DMA were enabled.
+> And no ethernet conectivity.
 > 
-> To be true, I'm a bit lost and that's why I ask for your help.
+> The Fix: Update bios from asus' website. I guess their ACPI was screwed
+> up. This is the second time I've had to update this MB to fix
+> incompatibilities with Linux. So, watch out with Asus boards on Linux.
 > 
-> Yours sincerely,
-> 
->   Felipe Erias
+> BTW - Linux 2.4's driver worked fine with the old bios. Only 2.6 didn't
+> work.
 
-I have a similar goal -- building an operational queueing model of a
-running Linux system. At this point, though, I'm not really trying to do
-per-process work, just model the system overall, including processors,
-I/O and virtual memory. As I noted in a recent posting, I'm currently
-blocked by the incorrect statistics gathered by a 2.4 kernel in
-"/proc/partitions". You can compute the throughputs, but not the average
-wait and service times, or the utilizations, which depend on the service
-times.
+Some additional info, I've been investigating this for a few hours, and 
+it appears that (a) IRQ 18 on my system is shared by ide0 and ide1, and 
+that the IRQ storm seems to start the first time I use ide1 (DVD only).
 
-I'm rather strongly considering establishing a mailing list just devoted
-to this topic -- queuing models of Linux kernels based on statistics the
-kernel collects. If such a list already exists, please let me know -- I
-don't want to re-invent any wheels, but there *is* a wheel I do want to
-invent! Please e-mail me off-list if you know of such a list or would
-join in if I create it.
+I will be posting a bunch of dmesg results when/if the system reboots, 
+but acpi={off,ht} doesn't help, pollirq doesn't help, and system 
+shutdown leaves the system unbootable without a full (pull the power 
+cord) hardware power cycle.
 
-Thanks,
+Questions:
+1 - do you have trouble rebooting after a failure?
+2 - do you see the IRQ 18 storm start just after the first use of ide1?
+3 - and of course if you can get up in console mode, are ide0 and ide1 
+shared?
 
-Ed Borasky
-http://www.borasky-research.net/
+I may rebuild the kernel with IRQ share off just to see if that helps.
 
-
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

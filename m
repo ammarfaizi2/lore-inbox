@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265810AbUHAL3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265840AbUHALiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265810AbUHAL3L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 07:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbUHAL3K
+	id S265840AbUHALiS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 07:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265825AbUHALiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 07:29:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37082 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265810AbUHAL3H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 07:29:07 -0400
-Date: Sun, 1 Aug 2004 07:28:18 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Scott Wood <scott@timesys.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
-In-Reply-To: <1091234100.1677.41.camel@mindpipe>
-Message-ID: <Pine.LNX.4.58.0408010725030.23711@devserv.devel.redhat.com>
-References: <1090732537.738.2.camel@mindpipe>  <1090795742.719.4.camel@mindpipe>
- <20040726082330.GA22764@elte.hu>  <1090830574.6936.96.camel@mindpipe>
- <20040726083537.GA24948@elte.hu>  <1090832436.6936.105.camel@mindpipe>
- <20040726124059.GA14005@elte.hu>  <20040726204720.GA26561@elte.hu>
- <20040729222657.GA10449@elte.hu>  <1091141622.30033.3.camel@mindpipe> 
- <20040730064431.GA17777@elte.hu>  <1091228074.805.6.camel@mindpipe>
- <1091234100.1677.41.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Aug 2004 07:38:18 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24035 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265823AbUHALiP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 07:38:15 -0400
+Date: Sun, 1 Aug 2004 13:38:09 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: jgarzik@pobox.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [2.6 patch] net/hamachi.c: remove bogus inline at function prototype (fwd)
+Message-ID: <20040801113809.GM2746@fs.tum.de>
+References: <20040729140535.GU2349@fs.tum.de> <Pine.LNX.4.60.0408011314480.2535@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0408011314480.2535@dragon.hygekrogen.localhost>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 01, 2004 at 01:21:22PM +0200, Jesper Juhl wrote:
+>...
+> Wouldn't it make sense to also un-inline hamachi_tx? both the _rx and _tx 
 
-On Fri, 30 Jul 2004, Lee Revell wrote:
+My primary goal was to fix the compilation with gcc 3.4, not to evaluate 
+all inlines (which is also a good thing to do).
 
-> Results with 2.6.8-rc2-M5:
-> 
-> Configuration						max usecs
-> -----------------------------------------------------------------
-> All IRQs threaded					370 
-> Soundcard IRQ not threaded				335
-> Soundcard IRQ not threaded + max_sectors_kb -> 64	161
-> 
-> So, it looks like the added configurability does add some overhead - 161
-> usecs vs. 50. [...]
+> functions are quite big - are they really suitable to be inlined?
 
-+110 usecs is too much to be explained by redirection and configurability
-overhead. The configurability overhead is near zero.
+Each of thamachi_{tx,rx} has exacly one caller, which might be a reason 
+in favor of inlining.
 
-could you try to repeat the '50 usecs' test with -L2 [that was the one you
-used?] to make sure it's repeatable? The latencies of -L2 and -M5 should
-be near identical. The configurability should at most cause a 1-2 usecs
-overhead - definitely not two orders of magnitude higher. So if there's a
-difference then i must have degraded one of the latency reduction changes
-between L2 and M5.
+> Here's a proposed patch against 2.6.8-rc2-mm1
+>...
 
-	Ingo
+Looks good.
+
+> /Jesper Juhl
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285110AbRLVAH5>; Fri, 21 Dec 2001 19:07:57 -0500
+	id <S285273AbRLVALd>; Fri, 21 Dec 2001 19:11:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284979AbRLVAHr>; Fri, 21 Dec 2001 19:07:47 -0500
-Received: from waste.org ([209.173.204.2]:62863 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S285588AbRLVAHi>;
-	Fri, 21 Dec 2001 19:07:38 -0500
-Date: Fri, 21 Dec 2001 18:07:20 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Chris Wedgwood <cw@f00f.org>, Rik van Riel <riel@conectiva.com.br>,
-        "Eric S. Raymond" <esr@thyrsus.com>,
-        David Garfield <garfield@irving.iisd.sra.com>,
-        Linux Anonymous List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-In-Reply-To: <20011221161030.L15926@redhat.com>
-Message-ID: <Pine.LNX.4.43.0112211803150.26909-100000@waste.org>
+	id <S285230AbRLVALS>; Fri, 21 Dec 2001 19:11:18 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:12418 "HELO gherkin.frus.com")
+	by vger.kernel.org with SMTP id <S285134AbRLVALM>;
+	Fri, 21 Dec 2001 19:11:12 -0500
+Message-Id: <m16HZkl-0005khC@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy)
+Subject: Re: sr: unaligned transfer
+In-Reply-To: <20011221230711.E2929@suse.de> "from Jens Axboe at Dec 21, 2001
+ 11:07:11 pm"
+To: Jens Axboe <axboe@kernel.org>
+Date: Fri, 21 Dec 2001 18:11:03 -0600 (CST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Dec 2001, Benjamin LaHaise wrote:
+Jens Axboe wrote:
+> On Fri, Dec 21 2001, Bob_Tracy wrote:
+> > Jens Axboe wrote:
+> > > On Fri, Dec 21 2001, Bob_Tracy wrote:
+> > > > 	sr: unaligned transfer
+> > > > 	Unable to identify CD-ROM format.
+> >
+> > > Please try and mount with -o loop instead.
+> 
+> mount -o loop -t iso9660 /dev/scd1 /mnt
 
-> On Sat, Dec 22, 2001 at 10:00:17AM +1300, Chris Wedgwood wrote:
-> > But what Rik points out shows that right now there is ambiguity
-> > BECAUSE OF LACK OF STANDARDIZATION --- because GB is vague at the very
-> > best, disk manufactures get to claim nice marketing numbers.
->
-> GiB is not a useful standard because NOBODY USES IT.  When it's in
-> common use, then consider applying it to the kernel, but please,
-> not before then.
+I still get the "sr: unaligned transfer" message, and as an added bonus,
+the mount hangs...  Can't interrupt it, can't kill it :-(.
 
-To summarize: don't use it widely until it's widely used.
-
-Let's apply that standard to aio, shall we? :P
+Next? :-)
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

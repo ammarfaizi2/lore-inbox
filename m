@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbUDANtV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 08:49:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUDANtV
+	id S262909AbUDANuD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 08:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbUDANuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 08:49:21 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:3339 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262907AbUDANtU convert rfc822-to-8bit (ORCPT
+	Thu, 1 Apr 2004 08:50:03 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:8870 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262909AbUDANuA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 08:49:20 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "n.v.t n.v.t" <joefso@hotmail.com>, kernelnewbies@nl.linux.org
-Subject: RE: Basic terms.
-Date: Thu, 1 Apr 2004 16:48:42 +0300
-X-Mailer: KMail [version 1.4]
-Cc: kernel-doc@nl.linux.org, linux-kernel@vger.kernel.org
-References: <BAY10-F28wGF5ucvpWy0001807e@hotmail.com>
-In-Reply-To: <BAY10-F28wGF5ucvpWy0001807e@hotmail.com>
+	Thu, 1 Apr 2004 08:50:00 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200404011648.42537.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16492.7681.332798.230663@alkaid.it.uu.se>
+Date: Thu, 1 Apr 2004 15:49:53 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-mm2
+In-Reply-To: <20040323232511.1346842a.akpm@osdl.org>
+References: <20040323232511.1346842a.akpm@osdl.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 April 2004 13:17, n.v.t n.v.t wrote:
-> Hello.
->
-> I'm trying to learn more about the kernel, but when I'm reading
-> articles it has terms that are unfamiliar by me. E.g:
->                page tables
->                physical pages of memory
->                virtual pages
->                pages
->                etc..
->
-> These terms are hard to understand for a newbie like me, is there
-> some page where I might get clear information about what they do?
-> Could someone provide me explanation? Maybe it would be a good idea
-> to do basic term explanations in wiki?
+On 23 Mar 2004, Andrew Morton wrote:
+ > Changes since 2.6.5-rc2-mm1:
+...
+ > -nmi_watchdog-local-apic-fix.patch
+ > -nmi-1-hz-2.patch
+ > 
+ >  I think these were causing kgdb to malfunction.
 
-reading a book about some moderm processor (x86 for example)
-will clear your confusion
--- 
-vda
+Any concrete evidence about this? I fail to see how
+the updated nmi-1-hz patch I wrote could affect kgdb
+in a way that wouldn't also happen on UP w/o the patch.
+
+IOW, I'm more suspicious about the other patch to
+signal LAPIC NMIs on both threads on HT P4.
+
+/Mikael

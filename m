@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129716AbQLKUGg>; Mon, 11 Dec 2000 15:06:36 -0500
+	id <S130287AbQLKUVt>; Mon, 11 Dec 2000 15:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130095AbQLKUG0>; Mon, 11 Dec 2000 15:06:26 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:64273 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129716AbQLKUGI>;
-	Mon, 11 Dec 2000 15:06:08 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200012111935.WAA11862@ms2.inr.ac.ru>
-Subject: Re: Bad behavior of recv on already closed sockets.
-To: dyp@perchine.COM (Denis Perchine)
-Date: Mon, 11 Dec 2000 22:35:21 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0012111103060F.18833@dyp.perchine.com> from "Denis Perchine" at Dec 11, 0 08:15:00 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S130307AbQLKUVj>; Mon, 11 Dec 2000 15:21:39 -0500
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:30927 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S130287AbQLKUVa>; Mon, 11 Dec 2000 15:21:30 -0500
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Zdenek Kabelac <kabi@fi.muni.cz>
+Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+Message-ID: <3A353022.81E7BC5E@fi.muni.cz>
+Date: Mon, 11 Dec 2000 19:50:58 GMT
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Nntp-Posting-Host: dual.fi.muni.cz
+Content-Transfer-Encoding: 7bit
+X-Accept-Language: Czech, en
+Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <E145Xy6-0008HA-00@the-village.bc.nu>
+Mime-Version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+Organization: unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> Looks like it tries to read on socket which is already closed from other
-> side. And it seems like recv did not return in this case. Is this OK, or
-> kernel bug?
-
-This smells like an unknown bug in kernel.
-
-It is unknown, hence there is no workaround (but upgrading to 2.4).
-
-It would be better to understand the issue f.e. trying to restore
-the history of this descriptor.
-
-
-> On the other side I see entries like this:
-> httpd      4260          root    4u  IPv4 12173018       TCP
-> 127.0.0.1:3994->127.0.0.1:5432 (CLOSE_WAIT)
+Alan Cox wrote:
 > 
-> And again. There is no any corresponding postmaster process. Does anyone has
-> such expirience before? And what can be the reason of such strange things.
+> > Doing a 'make bzImage' is NOT VM-intensive. Using this as a test
+> > for the VM doesn't make any sense since it doesn't really excercise
+> > the VM in any way...
+> 
+> Its an interesting demo that 2.4 has some performance problems since 2.2
+> is slower than 2.0 although nowdays not much.
 
-And this is bug in the application, which forgot to close file.
-Descriptor leakage in httpd or it is blocked at some another job.
+Speaking about performance - could someone explain me why
+md5checksumming on 10GB
+partition is taking my whole 128MB memory and is permamently swaping out
+every application off my memory to swap so the computer is very slow
+during
+this process???
 
-But remembering about the first case, I am not so sure.
-What does httpd make this time?
+Could I set somewhere in /proc that I do not wish to have 100MB disk
+buffers ?
 
-Alexey
+
+-- 
+  Zdenek Kabelac  http://i.am/kabi/ kabi@i.am {debian.org; fi.muni.cz}
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

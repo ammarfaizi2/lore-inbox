@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266295AbSLOIwm>; Sun, 15 Dec 2002 03:52:42 -0500
+	id <S266296AbSLOJqN>; Sun, 15 Dec 2002 04:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266296AbSLOIwm>; Sun, 15 Dec 2002 03:52:42 -0500
-Received: from colina.demon.co.uk ([158.152.133.150]:29826 "EHLO
-	colina.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S266295AbSLOIwl>; Sun, 15 Dec 2002 03:52:41 -0500
+	id <S266298AbSLOJqM>; Sun, 15 Dec 2002 04:46:12 -0500
+Received: from mail.hometree.net ([212.34.181.120]:43470 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S266296AbSLOJqM>; Sun, 15 Dec 2002 04:46:12 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Alcatel speedtouch USB driver and SMP.
-References: <m3n0n7hi52.fsf@colina.demon.co.uk>
-	<20021215075913.GB2180@kroah.com>
-From: Colin Paul Adams <colin@colina.demon.co.uk>
-Date: 15 Dec 2002 08:58:14 +0000
-In-Reply-To: <20021215075913.GB2180@kroah.com>
-Message-ID: <m3hedfhd5l.fsf@colina.demon.co.uk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Networking/Becker et al [was Re: pci-skeleton duplex check]
+Date: Sun, 15 Dec 2002 09:54:05 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <athjft$4b7$1@forge.intermeta.de>
+References: <20021213092229.D9973@work.bitmover.com> <1039898841.855.1684.camel@phantasy>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1039946045 31896 212.34.181.4 (15 Dec 2002 09:54:05 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sun, 15 Dec 2002 09:54:05 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Greg" == Greg KH <greg@kroah.com> writes:
+Robert Love <rml@tech9.net> writes:
 
-    Greg> On Sun, Dec 15, 2002 at 07:10:33AM +0000, Colin Paul Adams
-    Greg> wrote:
-    >> Can anyone tell me if the speedtouch driver is SMP safe yet?
+>On Sat, 2002-12-14 at 08:28, Henning P. Schmiedehausen wrote:
 
-    Greg> Which driver?  I know of at least 3 different ones :(
+>> e) put an alan-cox-like entity between him and the linux kernel developers
+>>    which translates. Worked terrific for Andre Hedrick. :-)
 
-drivers/usb/misc/speedtouch.c
+>Isn't that what Jeff is?
 
-Where are the others?
+Yes. And he does a great job. But the second he started to put
+something in that he maintains in his subsystem, another obnoxious
+developer with too much spare time popped up and started whining about
+"don't put this crap in, Marcello". Of course, without offering any
+alternative.
+
+
+	Regards
+		Henning
+
 -- 
-Colin Paul Adams
-Preston Lancashire
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

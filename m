@@ -1,133 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267555AbUHEFwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267556AbUHEGBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267555AbUHEFwy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 01:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267557AbUHEFwy
+	id S267556AbUHEGBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 02:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267562AbUHEGBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 01:52:54 -0400
-Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:21509 "EHLO
-	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S267555AbUHEFwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 01:52:49 -0400
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Make MAX_INIT_ARGS 25
-Date: Thu, 5 Aug 2004 07:52:46 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, spot@redhat.com, akpm@osdl.org
-References: <20040804193243.36009baa@lembas.zaitcev.lan>
-In-Reply-To: <20040804193243.36009baa@lembas.zaitcev.lan>
+	Thu, 5 Aug 2004 02:01:09 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:58757
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S267556AbUHEGAy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 02:00:54 -0400
+Message-ID: <4111CD14.30601@bio.ifi.lmu.de>
+Date: Thu, 05 Aug 2004 08:00:52 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_uscEBLcevFBLPJC"
-Message-Id: <200408050752.46409.pluto@pld-linux.org>
+To: Bernd Schubert <bernd-schubert@web.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 3c59x very slow with 2.6.X
+References: <200408042203.42367.bernd-schubert@web.de>
+In-Reply-To: <200408042203.42367.bernd-schubert@web.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bernd Schubert wrote:
+> Hello,
+> 
+> somehow the network speed is reduced to 14MBit with 2.6.X on my system, with 
+> 2.4.X it has full 100MBit.
+> As all our systems boot diskless this is really annoying and I will reboot 
+> 2.4.27 soon.
+> 
+> euklid:~# nttcp -T hamilton2
+>      Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+> l  8388608    4.73    4.60     14.2004     14.5911    2048    433.36     445.3
+> 1  8388608    4.73    0.03     14.1984   2236.9621    6145   1300.12  204833.3
 
---Boundary-00=_uscEBLcevFBLPJC
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Thursday 05 of August 2004 04:32, Pete Zaitcev wrote:
+No problem here: both machines have a 3com 3c905CX-TX and run kernel 2.6.7.
 
-> --- linux-2.6.7/init/main.c	2004-06-16 16:54:07.000000000 -0700
-> +++ linux-2.6.7-usb/init/main.c	2004-08-04 19:16:22.566593218 -0700
-> @@ -102,8 +102,8 @@
->  /*
->   * Boot command-line arguments
->   */
-> -#define MAX_INIT_ARGS 8
-> -#define MAX_INIT_ENVS 8
-> +#define MAX_INIT_ARGS 25
-> +#define MAX_INIT_ENVS 25
+zassenhaus /root# nttcp -T riemann
+      Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+l  8388608    0.71    0.01     94.9903   7457.3690    2048   2898.87  227580.8
+1  8388608    0.71    0.04     93.9984   1598.0964    5794   8115.57  137975.4
 
-You should also increase the COMMAND_LINE_SIZE.
+The driver is compiled into the kernel, not as module. Could that make a
+difference for you?
+
+cu,
+Frank
 
 -- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)
-
---Boundary-00=_uscEBLcevFBLPJC
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="kernel-MAX_INIT_ARGS.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="kernel-MAX_INIT_ARGS.patch"
-
---- linux-2.6.7-rc2/init/main.c.org	2004-06-04 12:58:31.000000000 +0200
-+++ linux-2.6.7-rc2/init/main.c	2004-06-04 13:43:02.000000000 +0200
-@@ -103,8 +103,8 @@
- /*
-  * Boot command-line arguments
-  */
--#define MAX_INIT_ARGS 8
--#define MAX_INIT_ENVS 8
-+#define MAX_INIT_ARGS 256
-+#define MAX_INIT_ENVS 256
- 
- extern void time_init(void);
- /* Default late time init is NULL. archs can override this later. */
---- linux-2.6.7/include/asm-i386/param.h.orig	2004-07-03 16:56:41.000000000 +0200
-+++ linux-2.6.7/include/asm-i386/param.h	2004-07-03 19:10:53.358244832 +0200
-@@ -18,6 +18,6 @@
- #endif
- 
- #define MAXHOSTNAMELEN	64	/* max length of hostname */
--#define COMMAND_LINE_SIZE 256
-+#define COMMAND_LINE_SIZE 4096
- 
- #endif
-diff -Nur --exclude '*.orig' linux-2.6.7-rc3.org/include/asm-i386/setup.h linux-2.6.7-rc3/include/asm-i386/setup.h
---- linux-2.6.7-rc3.org/include/asm-i386/setup.h	2004-06-07 21:14:42.000000000 +0200
-+++ linux-2.6.7-rc3/include/asm-i386/setup.h	2004-06-08 11:29:19.000000000 +0200
-@@ -17,7 +17,7 @@
- #define MAX_NONPAE_PFN	(1 << 20)
- 
- #define PARAM_SIZE 2048
--#define COMMAND_LINE_SIZE 256
-+#define COMMAND_LINE_SIZE 4096
- 
- #define OLD_CL_MAGIC_ADDR	0x90020
- #define OLD_CL_MAGIC		0xA33F
-diff -Nur --exclude '*.orig' linux-2.6.7-rc3.org/include/asm-s390/setup.h linux-2.6.7-rc3/include/asm-s390/setup.h
---- linux-2.6.7-rc3.org/include/asm-s390/setup.h	2004-06-07 21:14:58.000000000 +0200
-+++ linux-2.6.7-rc3/include/asm-s390/setup.h	2004-06-08 11:30:38.000000000 +0200
-@@ -9,7 +9,7 @@
- #define _ASM_S390_SETUP_H
- 
- #define PARMAREA		0x10400
--#define COMMAND_LINE_SIZE 	896
-+#define COMMAND_LINE_SIZE 	4096
- #define RAMDISK_ORIGIN		0x800000
- #define RAMDISK_SIZE		0x800000
- 
---- linux-2.6.7/include/asm-ppc/setup.h.orig	2004-07-06 17:53:17.000000000 +0200
-+++ linux-2.6.7/include/asm-ppc/setup.h	2004-07-06 17:55:37.428864888 +0200
-@@ -8,7 +8,7 @@
- #include <asm-m68k/setup.h>
- /* We have a bigger command line buffer. */
- #undef COMMAND_LINE_SIZE
--#define COMMAND_LINE_SIZE	512
-+#define COMMAND_LINE_SIZE	4096
- 
- #endif /* _PPC_SETUP_H */
- #endif /* __KERNEL__ */
---- linux-2.6.7/arch/ppc/syslib/prom.c.orig	2004-07-06 17:53:30.000000000 +0200
-+++ linux-2.6.7/arch/ppc/syslib/prom.c	2004-07-06 17:55:57.781770776 +0200
-@@ -85,7 +85,7 @@
- extern void enter_rtas(void *);
- void phys_call_rtas(int, int, int, ...);
- 
--extern char cmd_line[512];	/* XXX */
-+extern char cmd_line[COMMAND_LINE_SIZE];
- extern boot_infos_t *boot_infos;
- unsigned long dev_tree_size;
- 
-
---Boundary-00=_uscEBLcevFBLPJC--
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

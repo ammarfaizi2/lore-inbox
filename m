@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262905AbSLBAyY>; Sun, 1 Dec 2002 19:54:24 -0500
+	id <S262937AbSLBBBN>; Sun, 1 Dec 2002 20:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262937AbSLBAyY>; Sun, 1 Dec 2002 19:54:24 -0500
-Received: from fep02-svc.mail.telepac.pt ([194.65.5.201]:26610 "EHLO
-	fep02-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id <S262905AbSLBAyX>; Sun, 1 Dec 2002 19:54:23 -0500
-Date: Mon, 2 Dec 2002 01:01:44 +0000
-From: Nuno Monteiro <nuno@itsari.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Exaggerated swap usage
-Message-ID: <20021202010144.GA728@hobbes.itsari.int>
-References: <20021130182345.GA21410@lnuxlab.ath.cx> <20021130184317.GH28164@dualathlon.random> <20021201075921.GC2483@jerry.marcet.dyndns.org> <20021201103643.GL28164@dualathlon.random> <20021201143713.GA871@hobbes.itsari.int> <20021202002108.GQ28164@dualathlon.random>
+	id <S262959AbSLBBBN>; Sun, 1 Dec 2002 20:01:13 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:51693 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S262937AbSLBBBN>;
+	Sun, 1 Dec 2002 20:01:13 -0500
+Date: Mon, 2 Dec 2002 12:08:35 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Maximum Physical Memory on 2.4 and ia32
+Message-Id: <20021202120835.4ecb87fd.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20021202002108.GQ28164@dualathlon.random>; from andrea@suse.de on Mon, Dec 02, 2002 at 00:21:08 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02.12.02 00:21 Andrea Arcangeli wrote:
-> 
-> ok, now it's clear what the problem is. there are inuse-dirty inodes
-> that triggers a deadlock in the schedule-capable
-> try_to_sync_unused_inodes of 2.4.20rc2aa1 (that avoided me to backout an
-> otherwise corrupt lowlatency fix). It can trigger only in UP,
-> in SMP the other cpu can always run kupdate that will flush all dirty
-> inodes, so it would lockup one cpu as worse for 2.5 sec, this is
-> probably why I couldn't reproduce it, I assume all of you reproducing
-> the deadlock were running on an UP machine (doesn't matter if the kernel
-> was compiled for SMP or not).
-> 
-> Can you give a spin to this untested incremental fix?
+Hi all,
 
-[snip snip]
+This may be a FAQ (but I did search).
 
+Given this statement by RedHat:
 
-Yes, this does the trick for me. With this fix it survived the last 30m 
-of torture (consisting of make -j4 bzImage, a gcc build plus 2 mozillas 
-and 1 OpenOffice.org word processor, bear in mind it is only a P200 box) 
-blissfully -- previously it took only 15 seconds with a 1/3 that load to 
-lock up. So, this patch definitely cures it.
+"RAM Limitations on IA32
 
+Red Hat Linux releases based on the 2.4 kernel -- including Red Hat Linux
+7.1, 7.2, 7.3 and Red Hat Linux Advanced Server 2.1 -- support a maximum
+of 16GB of RAM. Previous product announcements from Red Hat suggested that
+Red Hat Linux 7.1 (and by extension, other releases based on the 2.4
+kernel) supported up to 64GB of RAM. A more accurate statement is the
+2.4-based kernels included in Red Hat Linux 7.1, 7.2, 7.3 and Red Hat
+Linux Advanced Server 2.1 support the hardware extensions that support up
+to 64GB of RAM. This is an important distinction: while the hardware will
+indeed support up to 64GB of physical memory, the operating system design
+limits the supported physical memory to approximately 16GB."
 
-	Nuno
-
+(http://www.redhat.com/services/techsupport/production/GSS_caveat.html)
+What are the "operating system design limits" that restrict the amount of
+supported memory to 16GB?
+-- 
+Cheers, Stephen Rothwell                   sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

@@ -1,98 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbTEUTGs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 15:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTEUTGs
+	id S262275AbTEUTFf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 15:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbTEUTFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 15:06:48 -0400
-Received: from holomorphy.com ([66.224.33.161]:57223 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262283AbTEUTGq (ORCPT
+	Wed, 21 May 2003 15:05:35 -0400
+Received: from octopus.com.au ([61.8.3.8]:526 "EHLO octopus.com.au")
+	by vger.kernel.org with ESMTP id S262275AbTEUTFe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 15:06:46 -0400
-Date: Wed, 21 May 2003 12:19:29 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Keith Mannthey <kmannth@us.ibm.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, davem@redhat.com,
-       habanero@us.ibm.com, haveblue@us.ibm.com, arjanv@redhat.com,
-       pbadari@us.ibm.com,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       gh@us.ibm.com, johnstul@us.ltcfwd.linux.ibm, jamesclv@us.ibm.com,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: userspace irq =?unknown-8bit?Q?balance?=
-	=?unknown-8bit?B?csKg?=
-Message-ID: <20030521191929.GM8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Keith Mannthey <kmannth@us.ibm.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, davem@redhat.com,
-	habanero@us.ibm.com, haveblue@us.ibm.com, arjanv@redhat.com,
-	pbadari@us.ibm.com,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	gh@us.ibm.com, johnstul@us.ltcfwd.linux.ibm, jamesclv@us.ibm.com,
-	Andrew Morton <akpm@digeo.com>
-References: <1053541725.16886.4711.camel@dyn9-47-17-180.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1053541725.16886.4711.camel@dyn9-47-17-180.beaverton.ibm.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 21 May 2003 15:05:34 -0400
+Message-ID: <3ECBD0EA.70307@octopus.com.au>
+Date: Thu, 22 May 2003 05:18:02 +1000
+From: Duraid Madina <duraid@octopus.com.au>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030512
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Linux-ia64] Re: web page on O(1) scheduler
+References: <16075.8557.309002.866895@napali.hpl.hp.com>	 <1053507692.1301.1.camel@laptop.fenrus.com>	 <3ECB57A4.1010804@octopus.com.au> <1053522732.1301.4.camel@laptop.fenrus.com>
+In-Reply-To: <1053522732.1301.4.camel@laptop.fenrus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 11:28:41AM -0700, Keith Mannthey wrote:
->   Here is the patch to turn kirqd into a config option if it is really
-> needed.  I don't see why the noirqbalance functionality isn't enough for
-> now.  Is there anything currently keeping a userspace irq balancer from
-> working as 2.5 stands today?  It dosen't look like it to me.
-> Keith      
+Arjan van de Ven wrote:
 
-This will do, though my preference is to make the code actually
-understand what DESTMOD means in IO-APIC RTE's and what DFR means
-for local APIC's instead of the rather ridiculous workarounds for
-not doing so currently present.
+> if you had spent the time you spent on this colorful graphic on reading
+> SUS or Posix about what sched_yield() means
 
-There are a couple of obstacles to doing this:
+Quoth the man page,
 
-(1) There is no true mechanism for correlating IO-APIC's with the
-	APIC buses corresponding to a given cluster for APIC. The
-	assumption is largely global addressibility a la xAPIC.
-(2) DESTMOD is not a static property. Dynamically switching between
-	logical and physical DESTMOD is fully possible and allows a
-	somewhat greater variety of cpu sets to be handled on APIC.
+"A process can relinquish the processor voluntarily without blocking by 
+calling sched_yield. The process will then be moved to the end of the 
+queue for its static priority and a new process gets to run."
 
-I'd also like for there to be validity checking and explicit error
-returns from the affinity setting API.
+How you get from there to "I'm the least important thing in the system" 
+is, once again, beyond me. And even if that were a reasonable 
+interpretation of the word 'yield', you would still hope that more than 
+one CPU would get something to do if there was enough work to go around. 
+Agreed, "spinning" on sched_yield is a very naive way of doing 
+spinlocks. But that doesn't change the fact that it's a simple and 
+correct way. One would have hoped that calling sched_yield every few 
+million cycles wouldn't break the scheduler.
 
-I'm not entirely happy with the genapic bits. Basically the APIC
-is relatively well-standardized, and I'd rather the point-by-point
-"this codepath must differ" abstraction be built atop such an APIC
-manipulation "library" as it were. For instance:
+	Duraid
 
-(1) cpu wakeup via NMI is possible on ordinary machines; INIT merely
-	cannot address cpus above the limit of APIC's physical
-	addressing scheme (which is 4 bits) and so is required for
-	pre-xAPIC machines with > 16 cpus or machines where only
-	logical interrupts are routed across bus boundaries (be they
-	APIC buses or memory buses).
-(2) clustered hierarchical DFR is usable on single APIC bus boxen and
-	xAPIC boxen with provisos for cluster ID's being misrouted.
-(3) IO-APIC RTE formats are not magical properties of the machine;
-	there is just logical and physical DESTMOD and representability
-	of target cpu sets in the logical format and physical format
-	and the dependence of the logical format on the cpus' DFR's.
-
-These somewhat obvious observations imply to me that common code should
-be used to manipulate the local APIC and IO-APIC and the machine-
-specific code should choose its preferred modes when calling it, not
-provide a private implementation or magic values to stuff into various
-registers that specialize the APIC handling to a particular mode.
-
-OTOH I don't see much (if any) chance of any of this happening since
-"just barely works" suffices for most people's purposes and the
-moderately large amount of work required to do all this ends up with
-approximately zero functional difference in the end.
-
-Thanks.
-
-
--- wli

@@ -1,85 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282003AbRKZSTB>; Mon, 26 Nov 2001 13:19:01 -0500
+	id <S282011AbRKZSeO>; Mon, 26 Nov 2001 13:34:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281996AbRKZSSG>; Mon, 26 Nov 2001 13:18:06 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:41784 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S282003AbRKZSQn>; Mon, 26 Nov 2001 13:16:43 -0500
-Date: Mon, 26 Nov 2001 13:16:42 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH] Scalable page cache
-Message-ID: <20011126131641.A13955@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0111261753480.10763-100000@localhost.localdomain> <87vgfxqwd3.fsf@fadata.bg>
-Mime-Version: 1.0
+	id <S282019AbRKZScx>; Mon, 26 Nov 2001 13:32:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58631 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282016AbRKZScQ>; Mon, 26 Nov 2001 13:32:16 -0500
+Message-ID: <3C028A8D.8040503@zytor.com>
+Date: Mon, 26 Nov 2001 10:31:41 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: David Weinehall <tao@acc.umu.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <Pine.LNX.4.21.0111261351160.13786-100000@freak.distro.conectiva> <9tu0n2$sav$1@cesium.transmeta.com> <20011126192902.M5770@khan.acc.umu.se>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <87vgfxqwd3.fsf@fadata.bg>; from velco@fadata.bg on Mon, Nov 26, 2001 at 07:23:52PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 07:23:52PM +0200, Momchil Velikov wrote:
-...
-> Ingo> The problem with the tree is that if we have a big, eg. 16 GB pagecache,
-> Ingo> then even assuming a perfectly balanced tree, it takes more than 20
-> Ingo> iterations to find the page in the tree.  (which also means 20 cachelines
-> Ingo> touched per tree node we pass.) Such an overhead (both algorithmic and
-> Ingo> cache-footprint overhead) is absolutely out of question - and it will only
-> Ingo> get worse with more RAM, which isnt a good property.
+David Weinehall wrote:
+
+>>
+>>Oh, and yes, if you settle on a naming scheme, *please* let me know
+>>ahead of time so I can update the scripts to track it, rather than
+>>finding out by having hundreds of complaints in my mailbox...
+>>
 > 
-> The tree is per mapping, not a single one.  Now, with 16GB cached in a
-> single mapping, it'd perform poorly, indeed (though probably not 20).
-...
+> I for one used the -pre and -pre-final naming for the v2.0.39-series,
+> and I'll probably use the same naming for the final pre-patch of
+> v2.0.40, _unless_ there's some sort of agreement on another naming 
+> scheme. I'd be perfectly content with using the -rc naming for the
+> final instead. The important thing is not the naming itself, but
+> consistency between the different kernel-trees.
+> 
 
-I've looked at both splay trees and the page lock patch by Ingo & Dave, and 
-personally I disagree with both approaches as they fail to address some of 
-the very common cases that are actually causing the underlying problem.
 
-First off, if we take a look at why the page cache lock is being contended 
-a few obvious problems pop out immediately:
+Consistency is a Very Good Thing[TM] (says the one who tries to teach
+scripts to understand the naming.)  The advantage with the -rc naming is
+that it avoids the -pre5, -pre6, -pre-final, -pre-final-really,
+-pre-final-really-i-mean-it-this-time phenomenon when the release
+candidate wasn't quite worthy, you just go -rc1, -rc2, -rc3.  There is no
+shame in needing more than one release candidate.
 
-	1. potentially long hash chains are walked with the page cache
-	   lock held for the entire duration of the operation
-	2. multiple cache lines are touched while holding the page cache 
-	   lock
-	3. sequential lookups involve reaquiring the page cache lock
-	4. the page cache hash is too large, virtually assuring that 
-	   lookups will cause a cache miss
+	-hpa
 
-Neither proposed patch addresses all of these problems to the degree that 
-I think is possible and would like to attempt.  What I've got in mind is 
-a hybrid hash + lock + b*tree scheme, where the lock is per-bucket.  With 
-that in place, each bucket would be treated like the top of a b*tree 
-(I might have the name wrong, someone please correct me if what I'm 
-describing has a different name), where a number of {index, page} pairs 
-are stored, plus pointers to the next level of tree.  The whole thing 
-would be sized at 1 cacheline per bucket and hold around 5-6 page pointers 
-per bucket (64 byte cacheline size).  The lock would be a rw lock to 
-allow simultaneous readers (the most common operation).
 
-This directly helps with #1 by allowing us to avoid pulling in extra 
-cache lines during the initial lookup phase since the page index # 
-is already in the cache line we've retrieved (we may need a pointer 
-to the address space, but the hash function can be chosen to make 
-such collisions irrelevant) as well as reducing the number of cache 
-lines accessed during a lookup.  Since a tree is used for the worst 
-case, the length of a chain is reduced, with a very low likelyhood 
-of ever exceeding 2 levels (remember, we're working on buckets in 
-each level of the tree, not individual page cache entries).  Item 3 
-is addressed by improving cache locality for sequential lookups.  
-Item 4 can be addressed by changing the hash function to cause some 
-grouping for address spaces.
-
-I haven't coded up this idea yet, but I'll get moving on it.  If we're 
-going to change the locking again, I'd like to go all the way and do 
-it Right.  To this end I'd like to see some appropriate benchmarks made 
-to look at the behaviour of the proposed changes under sequential access 
-patterns as well as random.  Thoughts?
-
-		-ben
--- 
-Fish.

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271410AbTG2Mde (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 08:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271413AbTG2Mde
+	id S271685AbTG2MmS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 08:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271690AbTG2MmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 08:33:34 -0400
-Received: from coral.ocn.ne.jp ([211.6.83.180]:35794 "EHLO
-	smtp.coral.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S271410AbTG2Mde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 08:33:34 -0400
-Date: Tue, 29 Jul 2003 21:33:30 +0900
-From: Bruce Harada <bharada@coral.ocn.ne.jp>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: mroos@linux.ee, linux-kernel@vger.kernel.org
-Subject: Re: raid5 autoselecting a slower checksum function
-Message-Id: <20030729213330.684b43ff.bharada@coral.ocn.ne.jp>
-In-Reply-To: <20030728205438.GI32673@louise.pinerecords.com>
-References: <Pine.GSO.4.44.0307281811290.13144-100000@math.ut.ee>
-	<20030729003046.15975639.bharada@coral.ocn.ne.jp>
-	<20030728205438.GI32673@louise.pinerecords.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 29 Jul 2003 08:42:18 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:15022
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271685AbTG2MmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 08:42:13 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: gaxt <gaxt@rogers.com>
+Subject: Re: WINE + Galciv + Con Kolivas's 011 patch to  2.6.0-test2
+Date: Tue, 29 Jul 2003 22:46:36 +1000
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <3F22F75D.8090607@rogers.com> <200307291325.09096.kernel@kolivas.org> <3F266D33.4040106@rogers.com>
+In-Reply-To: <3F266D33.4040106@rogers.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307292246.36808.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003 22:54:38 +0200
-Tomas Szepe <szepe@pinerecords.com> wrote:
+On Tue, 29 Jul 2003 22:48, gaxt wrote:
+> I tried O11. Still chuggy in the AVIs and then locks out input into X. I
+> switch to Alt-F1 console and hear the video advance, switch back, it
+> pauses, switch to Alt-F1 etc. to get it through the video and then it's
+> fine.
+>
+> Incidentally, I moved my /home to another hard drive last night (same
+> 7200 rpms) to get more space. It makes no difference to performance.
+> 260-test2-vanilla was quite good and -mm1 and -O11 are chuggy and lock
+> out input to X and require switching to virtual console to advance
+> through the videos.
+>
+> If there is some other data I can provide you, let me know.
 
-> Fair enough, but wouldn't it be more appropriate if the kernel printed
-> a message like "SSE present, good.  No need to try the other checksumming
-> methods" in this case?
+What top shows as the PRI of all the important processes concerned during all 
+this would be helpful.
 
-As I recall, someone actually posted a small patch to indicate that - I assume
-it got dropped or lost. Certainly, the current message is rather confusing.
+Con
 

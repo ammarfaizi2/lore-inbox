@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132896AbRAUAe7>; Sat, 20 Jan 2001 19:34:59 -0500
+	id <S132294AbRAUAnL>; Sat, 20 Jan 2001 19:43:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132762AbRAUAeu>; Sat, 20 Jan 2001 19:34:50 -0500
-Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:5636
-	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S132896AbRAUAef>; Sat, 20 Jan 2001 19:34:35 -0500
-Date: Sun, 21 Jan 2001 13:34:33 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Dan Maas <dmaas@dcine.com>
-Cc: Edgar Toernig <froese@gmx.de>, Michael Lindner <mikel@att.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  available
-Message-ID: <20010121133433.A1112@metastasis.f00f.org>
-In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no> <015e01c082ac$4bf9c5e0$0701a8c0@morph> <3A69361F.EBBE76AA@att.net> <20010120200727.A1069@metastasis.f00f.org> <3A694254.B52AE20B@att.net> <3A6A09F2.8E5150E@gmx.de> <022f01c08342$088f67b0$0701a8c0@morph>
+	id <S132440AbRAUAnC>; Sat, 20 Jan 2001 19:43:02 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:64008 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S132294AbRAUAmx>;
+	Sat, 20 Jan 2001 19:42:53 -0500
+Date: Sun, 21 Jan 2001 01:42:21 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Minors remaining in Major 10 ??
+Message-ID: <20010121014221.A5792@suse.de>
+In-Reply-To: <3A6A1B40.459A1B7@transmeta.com> <Pine.LNX.4.10.10101201521320.657-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <022f01c08342$088f67b0$0701a8c0@morph>; from dmaas@dcine.com on Sat, Jan 20, 2001 at 07:35:12PM -0500
-X-No-Archive: Yes
+In-Reply-To: <Pine.LNX.4.10.10101201521320.657-100000@master.linux-ide.org>; from andre@linux-ide.org on Sat, Jan 20, 2001 at 03:40:19PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 20, 2001 at 07:35:12PM -0500, Dan Maas wrote:
-    
-    Bingo! With this fix, 2.2.18 performance becomes almost identical to 2.4.0
-    performance. I assume 2.4.0 disables Nagle by default on local
-    connections...
+On Sat, Jan 20 2001, Andre Hedrick wrote:
+> The idea is to have a char not a block because there is no buffered access
+> to the dummy driver.  It is very painful to have to open one block device
+> and pass parameters to select the one you really want to service in a
+> passive mode.
 
-2.4.x has a smarter nagle algorithm.
+Like the raw devices we have already?
 
-
-
-  --cw
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311255AbSCLUFf>; Tue, 12 Mar 2002 15:05:35 -0500
+	id <S311327AbSCLUJ0>; Tue, 12 Mar 2002 15:09:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311258AbSCLUF0>; Tue, 12 Mar 2002 15:05:26 -0500
-Received: from fmfdns01.fm.intel.com ([132.233.247.10]:38886 "EHLO
-	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S311255AbSCLUFI>; Tue, 12 Mar 2002 15:05:08 -0500
-Message-ID: <794826DE8867D411BAB8009027AE9EB913D03D23@FMSMSX38>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Jonathan A. Davis'" <davis@jdhouse.org>, walter <walt@nea-fast.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: oracle rmap kernel version
-Date: Tue, 12 Mar 2002 12:04:57 -0800
+	id <S311258AbSCLUJQ>; Tue, 12 Mar 2002 15:09:16 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:58896 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S311327AbSCLUJH>; Tue, 12 Mar 2002 15:09:07 -0500
+Date: Tue, 12 Mar 2002 16:02:54 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Jens Axboe <axboe@suse.de>
+Cc: Karsten Weiss <knweiss@gmx.de>, lkml <linux-kernel@vger.kernel.org>,
+        Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Linux 2.4.19-pre3
+In-Reply-To: <20020312134631.GE1473@suse.de>
+Message-ID: <Pine.LNX.4.21.0203121558300.3462-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Depends on your hardware configuration and how you stress your system with
-db workload, you should consider some performance patch from the linux
-scalability effort project.
-http://lse.sourceforge.net
 
 
------Original Message-----
-From: Jonathan A. Davis [mailto:davis@jdhouse.org]
-Sent: Tuesday, March 12, 2002 10:35 AM
-To: walter
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oracle rmap kernel version
+On Tue, 12 Mar 2002, Jens Axboe wrote:
 
-
-On Tue, 12 Mar 2002, Martin J. Bligh wrote:
-
-> > Does anyone have any production experience running Oracle 8i on Linux?
-I've 
-> > run it at home, RH 7.2 with vanilla 2.4.16 kernel all IDE drives, and
-its 
-> > fast. We are replacing our SUN/Oracle 8 servers at work in next couple
-of 
+> On Tue, Mar 12 2002, Karsten Weiss wrote:
+> > > Here goes -pre3, with the new IDE code. It has been stable enough time in
 > 
-> The real answer is to try them and do a benchmark for your particular
-> application. Shouldn't take that long .... try the -aa tree too.
+> Oh good god, the nr_sectors/current_nr_sectors for the pio data phases
+> haven't been fixed _yet_?!
 > 
+> task_in_intr()
+> {
+> 	...
+> 	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
+> }
+> 
+> And that's just one instance. Good luck running 2.4.19-pre3, this is
+> just so badly broken I can't find words to explain it (again). It's
+> really puzzling why this is still broken. I fixed it in 2.5 when the
+> merge happened there, the issue has been known for at least that long. I
+> can only recommend that no one uses 2.4.19-pre3!
+> 
+> Marcelo, at least apply the noop patch here. If I get motivated I'll fix
+> the interrupt handlers as well, can't say I really want to though...
 
-I can't speak for -aa, but I can say definitively, DO NOT stay with the
-"stock" kernel for oracle applications.  We're using -rmap here (mostly 9i
-with some 8 scattered around) and performance under moderate and heavy
-load is an order of magnitude better.
+As I previously said, I will apply the noop patch.
 
--- 
+I've read the flamewar which this mail generated, but I prefer to simply
+ignore that: Its useless for me, it haven't explained me nothing which
+matters (that is, the technical side of the problem Jens described).
 
--Jonathan <davis@jdhouse.org>
+So, Jens, could you please explain the problem in the interrupt handlers
+in detail ?
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+
+

@@ -1,91 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267020AbSKSR7q>; Tue, 19 Nov 2002 12:59:46 -0500
+	id <S266995AbSKSR7b>; Tue, 19 Nov 2002 12:59:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267025AbSKSR7q>; Tue, 19 Nov 2002 12:59:46 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:32453 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267020AbSKSR7n>; Tue, 19 Nov 2002 12:59:43 -0500
-Subject: Re: [NFS] Re: Non-blocking lock requests during the grace period
-To: mike.kupfer@sun.com
-Cc: kupfer@athyra.eng.sun.com, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net, trond.myklebust@fys.uio.no
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OFB5AB2A91.F36007C8-ON87256C76.00632179@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Tue, 19 Nov 2002 10:06:11 -0800
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|November 8, 2002) at
- 11/19/2002 11:07:16
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	id <S267020AbSKSR7b>; Tue, 19 Nov 2002 12:59:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31760 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266995AbSKSR7b>; Tue, 19 Nov 2002 12:59:31 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PANIC]: 2.5.4x -> .48: Radeon driver sync problem
+Date: Tue, 19 Nov 2002 18:06:22 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <arduiu$1ru$1@penguin.transmeta.com>
+References: <200211190044.01726.spstarr@sh0n.net>
+X-Trace: palladium.transmeta.com 1037729179 5638 127.0.0.1 (19 Nov 2002 18:06:19 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 19 Nov 2002 18:06:19 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200211190044.01726.spstarr@sh0n.net>,
+Shawn Starr  <spstarr@sh0n.net> wrote:
+>
+>Can't use ksymoops (busted compile with binutils 2.13.90.0.10 20021010 and  
+>GCC 3.2.1 20021118 (prerelease))
+>
+>Can't use kksymoops as its commented out in Kconfig (i386 arch) ;-) and it 
+>doesnt seem to work uncommented ;(
 
+Can you try current BK or the latest nightly snapshot? It should be
+fixed there.. (knock wood).
 
-
-
-Mike,
-
-I agree with the F_GETLK part, as I pointed out to Trond earlier. However,
-I feel it is odd to block a client for about one minutre when it issues
-"non-blocking" lock requests. I have seen that Solaris code does so but
-still feels odd and it may conflict with what most programmers expect,
-though I see your point, perhaps if this was well documented in man pages
-there would not be a problem. In Linux this is not the case.
-
-
-Juan
-
-
-
-
-
-|---------+---------------------------->
-|         |           mike.kupfer@sun.c|
-|         |           om               |
-|         |           Sent by:         |
-|         |           kupfer@athyra.eng|
-|         |           .sun.com         |
-|         |                            |
-|         |                            |
-|         |           11/18/02 05:04 PM|
-|         |                            |
-|---------+---------------------------->
-  >-------------------------------------------------------------------------------------------------------------------------|
-  |                                                                                                                         |
-  |       To:       trond.myklebust@fys.uio.no                                                                              |
-  |       cc:       Juan Gomez/Almaden/IBM@IBMUS, linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net                   |
-  |       Subject:  Re: [NFS] Re: Non-blocking lock requests during the grace period                                        |
-  |                                                                                                                         |
-  |                                                                                                                         |
-  >-------------------------------------------------------------------------------------------------------------------------|
-
-
-
->>>>> "Trond" == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-
->>>>> " " == Juan Gomez <juang@us.ibm.com> writes:
-
-    >> (note that F_GETLK man page does not provide EAGAIN as a
-    >> possible error code).
-
-F_GETLK indicates a conflict by changing the arg struct to show the
-conflicting lock.
-
-As for the original topic, I would hesitate before changing the client
-locking code to return EAGAIN just because the server is in its grace
-period.  The "blocking" or "non-blocking" behavior is tied to what
-happens when there is already a lock that conflicts with the requested
-one.  When the server is in the grace period, it's unknown as to
-whether there is already a lock that conflicts with the requested
-one.
-
-Mike Kupfer                                            mike.kupfer@sun.com
-Solaris File Sharing                                   Speaking for myself,
-not for Sun.
-
-
-
-
-
+		Linus

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279499AbRKASeC>; Thu, 1 Nov 2001 13:34:02 -0500
+	id <S279505AbRKASfC>; Thu, 1 Nov 2001 13:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279502AbRKASdx>; Thu, 1 Nov 2001 13:33:53 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:23818 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S279499AbRKASdh>; Thu, 1 Nov 2001 13:33:37 -0500
-Date: Thu, 1 Nov 2001 10:33:22 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Tim Waugh <twaugh@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: driver initialisation order problem
-In-Reply-To: <3BE15BF0.C6FB873C@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.10.10111011014500.2293-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279509AbRKASex>; Thu, 1 Nov 2001 13:34:53 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:28535 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S279505AbRKASes>; Thu, 1 Nov 2001 13:34:48 -0500
+Date: Thu, 1 Nov 2001 13:34:41 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: vda <vda@port.imtp.ilyichevsk.odessa.ua>,
+        Tim Schmielau <tim@physik3.uni-rostock.de>,
+        Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org,
+        J Sloan <jjs@lexus.com>
+Subject: Re: [Patch] Re: Nasty suprise with uptime
+Message-ID: <20011101133441.E11773@redhat.com>
+In-Reply-To: <20011101120222.B11773@redhat.com> <Pine.LNX.3.95.1011101125206.1496A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1011101125206.1496A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Thu, Nov 01, 2001 at 01:03:32PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 01, 2001 at 01:03:32PM -0500, Richard B. Johnson wrote:
+> does the jumps on condition and tests for zero, even after the
+> flags have been set by the previous operation, I tested what
+> the result was. It turns out that it's only a couple of clock
+> cycles, not the 6 extra clocks that the hand calculation shows.
 
-> > drivers/char/joystick/turbografx.c
-> > drivers/char/joystick/db9.c
-> > drivers/char/joystick/gamecon.c
-> 
-> don't have a good answer.  maybe move 'em to drivers/input :)
+*sigh*  You're not testing any of the effects on available execution 
+resources within the processor.
 
-I suggested that before. Linus didn't like that. Actually in time you will
-see all input devices moved to drivers/input. It will become more and
-more a mess if we don't. I have various devices such as touchscreens,
-keyboard, joysticks etc that are serial devices. It is such a nasty hack
-at present to reach into char/joytsick to get something like a touchscreen
-working. IMO we should have things in the following order:
+> So, if you leave jiffies alone, but bump another variable when it
+> wraps, you get to eat your cake and keep it too.
 
-/drivers/serial 	-> Yes I plan a rewrite of the serial layer.
-/drivers/parport
-/drivers/usb
+As Linus pointed out, using casting tricks with a long long will just 
+work for this case.  Sounds good to me.
 
-/driver/input		
-/driver/char		-> The future console system will be inptu api
-			   based so input needs to be first.		
-
-
-Things like hardware protocols, USB, RS232 should come first. Then char
-devices like input and things in char come next.
-
-
-
+		-ben

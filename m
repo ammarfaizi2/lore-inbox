@@ -1,77 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293285AbSB1NTY>; Thu, 28 Feb 2002 08:19:24 -0500
+	id <S293288AbSB1NVr>; Thu, 28 Feb 2002 08:21:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293297AbSB1NQv>; Thu, 28 Feb 2002 08:16:51 -0500
-Received: from ns1.yourmail.at ([193.53.80.95]:5812 "EHLO zaphod.gnc.at")
-	by vger.kernel.org with ESMTP id <S293285AbSB1NOy>;
-	Thu, 28 Feb 2002 08:14:54 -0500
-Message-ID: <64123.62.178.116.169.1014901987.squirrel@mail.gnc.at>
-Date: Thu, 28 Feb 2002 14:13:07 +0100 (CET)
-Subject: 2.5.5 compile error with 
-From: "[GNC] Gerald Weber" <gerald.weber@gnc.at>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <achim@vortex.de>
-X-Mailer: SquirrelMail (version 1.2.4)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S293334AbSB1NTZ>; Thu, 28 Feb 2002 08:19:25 -0500
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:58643 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S293289AbSB1NQ2>; Thu, 28 Feb 2002 08:16:28 -0500
+Date: Thu, 28 Feb 2002 14:16:26 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Linux SCSI list <linux-scsi@vger.kernel.org>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Tekram DC3x5 SCSI driver 1.37
+Message-ID: <20020228141626.L31674@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pP0ycGQONqsnqIMP"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi there,
 
-suse 7.3,gcc version 2.95.3 20010315 (SuSE),xfs-1.0.2 patch for
-2.5.5 applied,gives compile errors: (if anyone needs something else,
-please let me know)
+--pP0ycGQONqsnqIMP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thx,
-gw
+Hi,
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.5/include  -Wall -Wstrict-prototypes -
-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -
-pipe -mpreferred-stack-boundary=2 -march=i686   -
-DKBUILD_BASENAME=scsi_syms  -DEXPORT_SYMTAB -c scsi_syms.c
-ld -m elf_i386 -r -o scsi_mod.o scsi.o hosts.o scsi_ioctl.o constants.o
-scsicam.o scsi_proc.o scsi_error.o scsi_queue.o scsi_lib.o scsi_merge.o
-scsi_scan.o scsi_syms.o
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.5/include  -Wall -Wstrict-prototypes -
-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -
-pipe -mpreferred-stack-boundary=2 -march=i686   -
-DKBUILD_BASENAME=sym53c8xx  -c -o sym53c8xx.o sym53c8xx.c
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.5/include  -Wall -Wstrict-prototypes -
-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -
-pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=gdth  -c -
-o gdth.o gdth.c
-gdth.c:298: #error Please convert me to Documentation/DMA-mapping.txt
-In file included from gdth.c:704:
-gdth_proc.c:1393: macro `GDTH_LOCK_SCSI_DONE' used with just one arg
-gdth.c:3346: macro `GDTH_UNLOCK_SCSI_DONE' used with too many (2) args
-In file included from gdth.c:704:
-gdth_proc.c: In function `gdth_wait_completion':
-gdth_proc.c:1393: parse error before `)'
-gdth_proc.c:1393: invalid type argument of `->'
-gdth_proc.c:1395: `dev' undeclared (first use in this function)
-gdth_proc.c:1395: (Each undeclared identifier is reported only once
-gdth_proc.c:1395: for each function it appears in.)
-gdth.c: In function `gdth_copy_internal_data':
-gdth.c:2633: structure has no member named `address'
-gdth.c:2633: structure has no member named `address'
-gdth.c: In function `gdth_fill_cache_cmd':
-gdth.c:2808: structure has no member named `address'
-gdth.c: In function `gdth_fill_raw_cmd':
-gdth.c:2925: structure has no member named `address'
-gdth.c: In function `gdth_interrupt':
-gdth.c:3346: `dev' undeclared (first use in this function)
-make[3]: *** [gdth.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5.5/drivers/scsi'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.5/drivers/scsi'
-make[1]: *** [_subdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.5/drivers'
-make: *** [_dir_drivers] Error 2
+I finally ported the Tekram DC395 SCSI driver to use pci_map functions.
+This means that it potentially work on highmem and 64bit archs.
+(Most probably it won't work on big-endian archs, though.)
 
+A few more changes (locking and strtok) have been done to make it work with
+2.5 as well. The driver still works under 2.4 kernels as well.
 
+I also found a strangeness (which I suspect to be a chip bug) when DMAing to
+disk, when the adapter occasionally fails to count one byte or word (wide)
+before a page boundary when the device disconnects.
+This is worked around now; though the real fix may be to review
+the switching on/off of the SCSI FIFO at the right moments to prevent
+counting bytes on the SCSI bus which are not part of the information
+transfer.
+
+The code contains lots of ifdefs, part of which are for debugging and part
+of which for compatibility with older kernels. Please don't flame me for the
+non-aestethic coding, if you dare to look at the code.
+
+The driver still uses old error handling, so expect the driver to break,
+when this is thrown out of 2.5.
+
+Get the driver at
+ http://www.garloff.de/kurt/linux/dc395/
+or
+ ftp://ftp.suse.com/pub/people/garloff/linux/dc395/
+
+The driver is not meant for inclusion into official kernels at this moment,
+as a number of users reported problems with the driver; in the worst case
+they face data corruption, so be warned. That said, it works for most users.
+
+Please report back success and failures to me.
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--pP0ycGQONqsnqIMP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8fi2qxmLh6hyYd04RAnUVAJ4xMZ7EwM4pKLuU8YysqzGD2Md6QwCeJKpW
+iOdtzjNn4/TFZY7CAiK7t4Y=
+=PTo5
+-----END PGP SIGNATURE-----
+
+--pP0ycGQONqsnqIMP--

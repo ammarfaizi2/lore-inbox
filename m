@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286949AbSABLcz>; Wed, 2 Jan 2002 06:32:55 -0500
+	id <S286959AbSABLgp>; Wed, 2 Jan 2002 06:36:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286950AbSABLcp>; Wed, 2 Jan 2002 06:32:45 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:7951 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S286949AbSABLcj>;
-	Wed, 2 Jan 2002 06:32:39 -0500
-Message-ID: <3C32ED47.8000409@evision-ventures.com>
-Date: Wed, 02 Jan 2002 12:21:43 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, pl
+	id <S286951AbSABLgf>; Wed, 2 Jan 2002 06:36:35 -0500
+Received: from dsl-213-023-043-195.arcor-ip.net ([213.23.43.195]:33039 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286950AbSABLg2>;
+	Wed, 2 Jan 2002 06:36:28 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, timothy.covell@ashavan.org
+Subject: Re: [patch] Re: Framebuffer...Why oh Why???
+Date: Wed, 2 Jan 2002 12:36:59 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: landley@trommello.org (Rob Landley),
+        torvalds@transmeta.com (Linus Torvalds),
+        akpm@zip.com.au (Andrew Morton), linux-kernel@vger.kernel.org,
+        linux-fbdev-devel@lists.sourceforge.net (Linux Frame Buffer Device
+	Development),
+        marcelo@conectiva.com.br (Marcelo Tosatti)
+In-Reply-To: <E16LMNj-0008Gz-00@the-village.bc.nu>
+In-Reply-To: <E16LMNj-0008Gz-00@the-village.bc.nu>
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Danny ter Haar <dth@trinity.hoho.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1-dj10
-In-Reply-To: <Pine.LNX.4.33.0201011339240.23436-100000@Appserv.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Ljhc-00010X-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On January 1, 2002 11:42 am, Alan Cox wrote:
+> > > X11 isn't always an improvement.  I've got an X hang on my laptop (about
+> > > once a week) that freezes the keyboard and ignores mouse clicks.  Numlock
+> > > doesn't change the keyboard LEDs, CTRL-ALT-BACKSPACE won't do a thing, and
+> > > although I can ssh in and run top (and see the CPU-eating loop), kill won't
+> > > take X down and kill-9 leaves the video display up so the console that
+> > > thinks it's in text mode, but isn't, is still useless.  (And that's
+> > > assuming I'm plugged into the network and have another box around to ssh in
+> > > from...)
+> 
+> Neomagic Magicgraph 128XD ? If so check man neomagic first 8)
 
->On Tue, 1 Jan 2002, Danny ter Haar wrote:
->
->>drivers/md/mddev.o: In function `lvm_user_bmap':
->>drivers/md/mddev.o(.text+0xf13): undefined reference to `lvm_get_blksize'
->>make[1]: *** [vmlinux] Error 1
->>make[1]: Leaving directory `/archive/usr.src/linux-2.5.1-dj10'
->>make: *** [stamp-build] Error 2
->>ws2:/usr/src/linux-2.5.1-dj10#
->>
->>My system relies on LVM and reiserfs.
->>
->
->Yup, someone needs to do bio surgery on lvm.
->
->Dave.
->
+Right, and check out the neomagic@XFree86.Org mailing list archives.
 
-Replace lvm_get_blksize by block_size().
+I feel your pain ;)
 
-
-
+--
+Daniel

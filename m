@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUJASAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUJASFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265970AbUJASAP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 14:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUJASAP
+	id S266034AbUJASFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 14:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUJASFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 14:00:15 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:16002 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S265978AbUJAR7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 13:59:52 -0400
-Date: Fri, 1 Oct 2004 12:59:40 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Arvind Kalyan <arvy@cse.kongu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OS Virtualization
-In-Reply-To: <49219.172.16.42.200.1096629426.kourier@172.16.42.200>
-Message-ID: <Pine.LNX.4.58.0410011259250.1236@gradall.private.brainfood.com>
-References: <49219.172.16.42.200.1096629426.kourier@172.16.42.200>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 1 Oct 2004 14:05:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23476 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266003AbUJASBw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 14:01:52 -0400
+Date: Fri, 1 Oct 2004 11:00:38 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: rml@novell.com, ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [patch] inotify: make user visible types portable
+Message-Id: <20041001110038.134ba4e7.pj@sgi.com>
+In-Reply-To: <415D8661.3000406@nortelnetworks.com>
+References: <1096410792.4365.3.camel@vertex>
+	<1096583108.4203.86.camel@betsy.boston.ximian.com>
+	<20040930155704.16d71cec.pj@sgi.com>
+	<1096608925.4803.2.camel@localhost>
+	<20040930234436.097e6dfe.pj@sgi.com>
+	<1096616399.4803.26.camel@localhost>
+	<20041001084009.6b33c1a1.pj@sgi.com>
+	<1096645624.7676.18.camel@betsy.boston.ximian.com>
+	<20041001091325.7fbc6971.pj@sgi.com>
+	<415D8661.3000406@nortelnetworks.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Oct 2004, Arvind Kalyan wrote:
+Chris wrote:
+> Why make that job harder than it needs to be?
 
-> Hi all,
->
-> I'm trying to load and run two linux kernels simultaneously; trying to
-> demonstrate virtualization as a first step.
->
->
-> Anyone have pointers to where I can start? I looked into plex, bochs,
-> vmware, usermode linux.. they only simulate an architecture upon which
-> another kernel runs.
->
-> My intentions are to give control to both the kernels to directly control
-> the hardware and do "context switch" between those two based on
-> time-slice.
->
-> Thanks in advance.
+Well ... I think my motivations were clear enough ... trading off this
+against optimizing readability of kernel source code.
 
-Search for xenolinux.
+I should probably quit responding on this thread ... I've nothing more
+worth saying.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

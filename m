@@ -1,143 +1,103 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316491AbSEOUjm>; Wed, 15 May 2002 16:39:42 -0400
+	id <S316492AbSEOUkv>; Wed, 15 May 2002 16:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316498AbSEOUjl>; Wed, 15 May 2002 16:39:41 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41895 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S316491AbSEOUji>; Wed, 15 May 2002 16:39:38 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200205152039.g4FKdcn08311@devserv.devel.redhat.com>
-Subject: Linux 2.2.21-rc4
-To: linux-kernel@vger.kernel.org
-Date: Wed, 15 May 2002 16:39:38 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S316498AbSEOUku>; Wed, 15 May 2002 16:40:50 -0400
+Received: from mail.spylog.com ([194.67.35.220]:6046 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S316492AbSEOUks>;
+	Wed, 15 May 2002 16:40:48 -0400
+Date: Thu, 16 May 2002 00:40:39 +0400
+From: Andrey Nekrasov <andy@spylog.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrea Arcangeli <andrea@suse.de>, "Justin T. Gibbs" <gibbs@scsiguy.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Adaptec Aic7xxx driver & 2.4.19pre8aa2
+Message-ID: <20020515204039.GA31314@spylog.ru>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Andrea Arcangeli <andrea@suse.de>,
+	"Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020515164802.GG25593@dualathlon.random> <E1780jL-0002Ac-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unless something bad turns up this will be the final 2.2.21. 
+Hello Alan Cox,
 
-2.2.21rc4
-o	SiS900 updates					(Mufasa Yang)
-o	Correct kd.h macros				(Andrej Lajovic)
-o	sg buffer clean fix				(Douglas Gilbert)
+Once you wrote about "Re: Adaptec Aic7xxx driver & 2.4.19pre8aa2":
+> > > >Hardware motherboard: Intel "Lancewood" L440GX, SCSI integrated, last BIOS/BMC
+> 
+> 440GX
 
-2.2.21rc3
-o	Plan B driver updates				(Michel Lanners)
-o	3ware raid update				(Adam Radford)
-o	Fix PowerMac compile				(Krzysiek Taraszka)
-o	Fix nvram/rtc ioctl returns			(Paul Gortmaker)
-o	OV511 compile/build fixes			(Toru SAGAMI)
-o	Final ppp zlib bits				(Paul Mackerras)
+yes
+ 
+> > search across the 2.4.19pre patches (from pre2 to pre8) that would limit
+> > the bug to a certain diff. thanks,
+> 
+> No need. The 440GX stuff is a known disaster area. You must use APIC support
+> on those and Intel doesn't want to be helpful on non APIC stuff.
 
-2.2.21rc2
-o	Fix Xeon crash on boot 				(Dave Jones)
-o	Update keyspan maintainer			(Greg Kroah-Hartmann)
-o	Fix visor oops add palm m125 support		(Greg Kroah-Hartmann)
-o	Update whiteheat driver to fix SMP locking	(Greg Kroah-Hartmann)
-o	Fix head.S asm for cpu type			(Mikael Pettersson)
+I always use APIC, tried it to switch off (earlier), was too, as now with
+included APIC.
 
-2.2.21rc1
-o	Add farsync driver				(Bob Dunlop)
-o	Fix x86 cpu type reporting in some cases	(Barry Nathan)
-o	Fix module_license tag compatibility macro	(Keith Owens)
-o	Update MAINTAINERS entry			(Mark McClelland)
-o	Fix fb.h comment error				(Krzysiek Taraszka)
-o	Zlib fix					(Arjan van de Ven)
-o	Back out problem mce change
 
-2.2.21pre4
-o	Fix FAT breakage in pre3			(Dmitry Levin)
-o	Add S/390 LCS driver (IBM opensourced it now)	(DJ Barrow,
-							 Frank Pavlic)
-o	Update COPYING file to match FSF update		(Dan Quinlann)
-	| basically swap 19xx example for this century..
-o	Fix a file name comment				(William Stearns)
-o	Add realtek phy support to 2.2 sis900 driver	(Allan Jacobsen)
-o	Fix MCE address reporting order, fix oops with	(Dave Jones)
-	newer gcc due to bad asm constraints
-o	Starfire update					(Ion Badulescu)
-o	Always victimise the dcache a little when	(John Lash, me)
-	short of memory
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_MCE=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+# CONFIG_NOHIGHMEM is not set
+CONFIG_HIGHMEM4G=y
+# CONFIG_HIGHMEM64G is not set
+CONFIG_HIGHMEM=y
+# CONFIG_1GB is not set
+# CONFIG_2GB is not set
+# CONFIG_3GB is not set
+CONFIG_05GB=y
+CONFIG_HIGHIO=y
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
 
-2.2.21pre3
-o	Fix a case where a non blocking tty write could	(Peter Benie)
-	get stuck
-o	Fix non blocking midi close on es1370, es1371	(me)
-	sonicvibes right this time 
-o	Fix menu/xconfig warnings			(René Scharfe)
-o	Fix non blocking midi close on cmpci, cs4281,	(me)
-	esssolo, trident.
-o	Add eepro100VE ident				(Hanno Boeck)
-o	Fix DRM oops case				(Herbert Xu)
-o	Fix an oops causing datagram AF_UNIX race	(Paul Menage)
-o	Support newer geodes using new CPUID properly	(Hiroshi Miura)
-o	Fix up RTC build for non pmac ppc boxes		(Tom Rini)
-o	Fix MCE address reporting			(Pete Wyckoff)
-o	Vibra16 docs update				(Neale Banks)
-o	Eicon include file fix				(Herbert Xu)
-o	ISDN loop and header fixes			(Kai Germaschewski)
-o	Fix eepro100 out of memory during init path	(Neale Banks)
-o	Fix BSD partition table handling breakage	(Andries Brouwer)
-o	Add WD XD signature to xd driver		(Paul)
-o	3Ware driver update				(Adam Radford)
-o	S/390 debugging updates				(Carsten Otte)
-o	S/390 DASD updates				(Carsten Otte)
-o	S/390 CIO updates				(Carsten Otte)
-o	Update USB serial, belkin, digi_acceleport,	(Greg Kroah-Hartmann)
-	empeg, ftdsio, edgeport, keyspan, mctu232,
-	omninet, prolific, visor
-o	Cyberjack USB driver				(Matthias Bruestle)
-o	USB ir dongle driver				(Greg Kroah-Hartmann)
-o	Support very large FAT file systems		(Vijay Kumar)
-o	Backport 2.4 modversions build fix		(Mikael Pettersson)
-o	Backport 2.4 es1371 init for new revs		(Julian Anastasov)
-o	3c507 driver fixes				(Mark Mackenzie)
-o	ext2 obscure group descriptor corruption fix	(Daniel Phillips,
-							 Al Viro)
-o	Correct a problem where rpciod didnt give up	(Andreas Haumer)
-	its current dir
 
-2.2.21pre2
-o	Fix non blocking midi close on es1370, es1371	(me)
-	sonicvibes
-o	Update osst driver				(Willem Riede)
-o	Update machine check support in 2.2 to match 2.4(Dave Jones)
-o	Additional P4, Rise, Winchip handling for setup	(Dave Jones)
-o	Fix extended MMX initialisation on Cyrix MII	(me)
-o	Backport a lot of x86 setup (cache size etc)	(Dave Jones)
-o	ISDN cleanups					(Kai Germaschewski)
-o	Backport eicon driver fixes			(Kai Germaschewski)
-o	ISDN ppp fixes					(Andre Beck)
-o	Fix timeout handling in eicon driver		(Kai Germaschewski)
-o	Fix null pointer bug in isdnloop		(Kai Germaschewski)
-o	Menuconfig refresh fixup			(Willy Tarreau)
-o	Modular ati frame buffer build fix		(Krzysztof Taraszka)
-o	Backport VIA chipset fixes to 2.2		(me)
-o	Make DCD high->low work on SX16 with CLOCAL set	(Ado Arnolds)
-
-2.2.21pre1
-o	Fix potential corruption with vmalloc on	(Ralf Baechle)
-	virtually cached boxes
-o	Small PPC build fixups				(Tom Rini)
-o	zImage booting fix				(Kalev Soikonen)
-o	EIO on NFS read fixup				(Trond Myklebust)
-o	Update 3ware raid driver			(Adam Radford)
-o	page_alloc race fix				(Andrea Arcangeli)
-o	Update USB maintainers				(Greg Kroah-Hartmann)
-o	bttv clipcount=0 fix				(Solar Designer)
-o	Fix multiple eepro driver bugs			(Aris)
-o	Sym53c8xx queue handling fix			(Gerard Roudier)
-o	Update SubmittingDrivers document		(Michal Svec)
-o	8139too performance tune			(Jens David)
-o	procfs follow link return fix			(Solar Designer)
-o	Backport SEM_UNDO overflow fix from 2.4		(Leonid Igolnik)
-o	VM86 fixes					(Manfred Spraul)
-o	Fix alpha build					(Kim Heino)
-
---
-     "You do my code an injustice there... I've put comments in mine."
-		- David Howells
+-- 
+bye.
+Andrey Nekrasov, SpyLOG.

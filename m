@@ -1,60 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbUCIXOE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 18:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbUCIXOE
+	id S262286AbUCIXLX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 18:11:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbUCIXLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 18:14:04 -0500
-Received: from alt.aurema.com ([203.217.18.57]:16008 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S262304AbUCIXN6 (ORCPT
+	Tue, 9 Mar 2004 18:11:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52679 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262285AbUCIXJP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 18:13:58 -0500
-Date: Wed, 10 Mar 2004 10:13:47 +1100
-From: Kingsley Cheung <kingsley@aurema.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] For preventing kstat overflow
-Message-ID: <20040310101347.B30341@aurema.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040309132338.A30341@aurema.com> <20040308185354.70040c8b.akpm@osdl.org> <20040309165704.L29788@aurema.com>
+	Tue, 9 Mar 2004 18:09:15 -0500
+Date: Tue, 9 Mar 2004 15:11:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Philipp Baer <phbaer@npw.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel oops
+Message-Id: <20040309151106.468cf467.akpm@osdl.org>
+In-Reply-To: <404E41A7.80707@npw.net>
+References: <404E41A7.80707@npw.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040309165704.L29788@aurema.com>; from kingsley@aurema.com on Tue, Mar 09, 2004 at 04:57:04PM +1100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 04:57:04PM +1100, Kingsley Cheung wrote:
-> On Mon, Mar 08, 2004 at 06:53:54PM -0800, Andrew Morton wrote:
-> > Kingsley Cheung <kingsley@aurema.com> wrote:
-> > >
-> > > Hi All,
-> > > 
-> > > What do people think of a patch to change the fields in cpu_usage_stat
-> > > from unsigned ints to unsigned long longs?  And the same change for
-> > > nr_switches in the runqueue structure too?
-> > 
-> > Sounds unavoidable.
-> > 
-> > > Its actually worse for context
-> > > switches on a busy system, for we've been seeing an average of ten
-> > > switches a tick for some of the statistics we have.
-> > 
-> > Sounds broken.  What CPU scheduler are you using?
-> 
-> Um, what do you mean by broken?
-> 
-> Well, as for the scheduler, its the Entitlement Based Scheduler, but
-> it doesn't look like its got anything to do with the scheduler.  Some
-> work loads we have been testing just have processes that come and go
-> so frequently that the context switch rate is high.  Even when Ingo
-> posted his original O(1) patch (see
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=101010394225604&w=2) he
-> claimed high context switch rates.
+Philipp Baer <phbaer@npw.net> wrote:
+>
+> I have a strage problem with the kernel version 2.6.3. Whensoever
+> chkrootkit is run, the following kernel oops is thrown:
 
-Oh, just in case there's some confusion... even though we've been
-seeing it for EBS, the patch is for 2.6.3.
+Could you try this patch?
 
--- 
-		Kingsley
+
+diff -puN drivers/char/tty_io.c~proc_pid_stat-oops-fix drivers/char/tty_io.c
+--- 25/drivers/char/tty_io.c~proc_pid_stat-oops-fix	Tue Mar  9 15:10:12 2004
++++ 25-akpm/drivers/char/tty_io.c	Tue Mar  9 15:10:12 2004
+@@ -481,12 +481,15 @@ void do_tty_hangup(void *data)
+ 	if (tty->session > 0) {
+ 		struct list_head *l;
+ 		for_each_task_pid(tty->session, PIDTYPE_SID, p, l, pid) {
+-			if (p->tty == tty)
+-				p->tty = NULL;
+-			if (!p->leader)
+-				continue;
+-			send_group_sig_info(SIGHUP, SEND_SIG_PRIV, p);
+-			send_group_sig_info(SIGCONT, SEND_SIG_PRIV, p);
++			task_t *task = p;
++			do {
++				if (task->tty == tty)
++					task->tty = NULL;
++				if (task->leader) {
++					send_group_sig_info(SIGHUP, SEND_SIG_PRIV, task);
++					send_group_sig_info(SIGCONT, SEND_SIG_PRIV, task);
++				}
++			} while_each_thread(p, task);
+ 			if (tty->pgrp > 0)
+ 				p->tty_old_pgrp = tty->pgrp;
+ 		}
+@@ -591,8 +594,12 @@ void disassociate_ctty(int on_exit)
+ 	tty->pgrp = -1;
+ 
+ 	read_lock(&tasklist_lock);
+-	for_each_task_pid(current->session, PIDTYPE_SID, p, l, pid)
+-		p->tty = NULL;
++	for_each_task_pid(current->session, PIDTYPE_SID, p, l, pid) {
++		task_t *task = p;
++		do
++			task->tty = NULL;
++		while_each_thread(p, task);
++	}
+ 	read_unlock(&tasklist_lock);
+ 	unlock_kernel();
+ }
+@@ -1260,11 +1267,20 @@ static void release_dev(struct file * fi
+ 		struct pid *pid;
+ 
+ 		read_lock(&tasklist_lock);
+-		for_each_task_pid(tty->session, PIDTYPE_SID, p, l, pid)
+-			p->tty = NULL;
+-		if (o_tty)
+-			for_each_task_pid(o_tty->session, PIDTYPE_SID, p,l, pid)
+-				p->tty = NULL;
++		for_each_task_pid(tty->session, PIDTYPE_SID, p, l, pid) {
++			task_t *task = p;
++			do
++				task->tty = NULL;
++			while_each_thread(p, task);
++		}
++		if (o_tty) {
++			for_each_task_pid(o_tty->session, PIDTYPE_SID, p,l, pid) {
++				task_t *task = p;
++				do
++					task->tty = NULL;
++				while_each_thread(p, task);
++			}
++		}
+ 		read_unlock(&tasklist_lock);
+ 	}
+ 
+@@ -1615,8 +1631,12 @@ static int tiocsctty(struct tty_struct *
+ 			 */
+ 
+ 			read_lock(&tasklist_lock);
+-			for_each_task_pid(tty->session, PIDTYPE_SID, p, l, pid)
+-				p->tty = NULL;
++			for_each_task_pid(tty->session, PIDTYPE_SID, p, l, pid) {
++				task_t *task = p;
++				do
++					task->tty = NULL;
++				while_each_thread(p, task);
++			}
+ 			read_unlock(&tasklist_lock);
+ 		} else
+ 			return -EPERM;
+
+_
+

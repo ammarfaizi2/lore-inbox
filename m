@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262257AbRETWlJ>; Sun, 20 May 2001 18:41:09 -0400
+	id <S262258AbRETWnJ>; Sun, 20 May 2001 18:43:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbRETWk7>; Sun, 20 May 2001 18:40:59 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46345 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262257AbRETWkt>; Sun, 20 May 2001 18:40:49 -0400
-Date: Sun, 20 May 2001 18:03:05 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
-In-Reply-To: <Pine.LNX.4.33.0105191743000.393-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0105201756550.5547-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262261AbRETWm7>; Sun, 20 May 2001 18:42:59 -0400
+Received: from t2.redhat.com ([199.183.24.243]:2805 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262258AbRETWmq>; Sun, 20 May 2001 18:42:46 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3B082672.63D1F44E@gmx.net> 
+In-Reply-To: <3B082672.63D1F44E@gmx.net> 
+To: Jens Haerer <jens.haerer@gmx.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: waitqueue problem on 2.4.3 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 20 May 2001 23:42:32 +0100
+Message-ID: <25249.990398552@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I can't see anything immediately wrong with your code - make sure you're 
+compiling against the source for the kernel you're running, with the same 
+options enabled. 
 
-On Sat, 19 May 2001, Mike Galbraith wrote:
+In general, though, you shouldn't be using any of the sleep_on() functions 
+if you care about the fact that you'll miss wakeup events.
 
-> @@ -1054,7 +1033,7 @@
->  				if (!zone->size)
->  					continue;
-> 
-> -				while (zone->free_pages < zone->pages_low) {
-> +				while (zone->free_pages < zone->inactive_clean_pages) {
->  					struct page * page;
->  					page = reclaim_page(zone);
->  					if (!page)
+--
+dwmw2
 
-
-What you're trying to do with this change ? 
 

@@ -1,91 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264849AbSJOVMg>; Tue, 15 Oct 2002 17:12:36 -0400
+	id <S264852AbSJOVGY>; Tue, 15 Oct 2002 17:06:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264862AbSJOVL0>; Tue, 15 Oct 2002 17:11:26 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:26377 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264849AbSJOVKx>;
-	Tue, 15 Oct 2002 17:10:53 -0400
-Date: Tue, 15 Oct 2002 14:16:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Steven Dake <sdake@mvista.com>
-Cc: Michael Clark <michael@metaparadigm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] [PATCHES] Advanced TCA Hotswap Support in Linux Kernel
-Message-ID: <20021015211651.GM15864@kroah.com>
-References: <3DAB1007.6040400@mvista.com> <20021015052916.GA11190@kroah.com> <3DAC52A7.907@mvista.com> <3DAC685B.9070102@metaparadigm.com> <3DAC6C7B.1080205@mvista.com> <20021015203423.GI15864@kroah.com> <3DAC7EAA.5020408@mvista.com> <20021015205402.GL15864@kroah.com> <3DAC839F.7060301@mvista.com>
+	id <S264849AbSJOVFi>; Tue, 15 Oct 2002 17:05:38 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:32386 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S264852AbSJOVFW>;
+	Tue, 15 Oct 2002 17:05:22 -0400
+Date: Tue, 15 Oct 2002 23:11:16 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: What's wrong with my IDE CD-ROM with 2.5.42-ac1?
+Message-ID: <20021015211116.GA27915@ulima.unil.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <3DAC839F.7060301@mvista.com>
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 02:07:43PM -0700, Steven Dake wrote:
-> 
-> 
-> Greg KH wrote:
-> 
-> >On Tue, Oct 15, 2002 at 01:46:34PM -0700, Steven Dake wrote:
-> > 
-> >
-> >>The data/telecoms I've talked to require disk hotswap times of less then 
-> >>20 msec from notification of hotwap to blue led (a light used to 
-> >>indicate the device can be removed).  They would like 10 msec if it 
-> >>could be done.  This is because of how long it takes on a surprise 
-> >>extraction for the hardware to send the signal vs the user to disconnect 
-> >>the hardware.
-> >>   
-> >>
-> >
-> >But what starts the "notification of hotswap"?  Is this driven by the
-> >user somehow, or is it a hardware event that happens out of the blue?
-> > 
-> >
-> In the case of Advanced TCA, an IPMI message is sent to the CPU blade 
-> indicating the hotswap button is pressed on the front panel of a disk 
-> blade.  The hotswap manager software unmaps the GA address, removes the 
-> device from the linux kernel via the scsi-hotswap-main stuff, and sends 
-> another IPMI message to the disk node telling it to light its "blue 
-> led".  The user removes the disk.  Insertion is easier.
+Hello,
 
-So if userspace gets the event that a button was pressed, it can decide
-to light up the led after is spins the disk down, right?
+with 2.5.42-ac1 and ide-scsi, devfs:
+cdrecord -scanbus
+Cdrecord 1.11a26 (i586-mandrake-linux-gnu) Copyright (C) 1995-2002 Jörg
+Schilling
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.6'
+scsibus0:
+0,0,0	  0) 'LG      ' 'CD-ROM CRD-8400B' '1.03' Removable CD-ROM
+cdrecord: Warning: controller returns wrong size for CD capabilities page.
+0,1,0	  1) 'PIONEER ' 'DVD-ROM DVD-103 ' '1.16' Removable CD-ROM
 
-> In this case, the hotswap button on the front panel is used to indicate 
-> a hotswap event.  There is talk of making the removal of the board 
-> indicate a hotswap event (surprise extraction) because the technicians 
-> don't wait for the blue led to remove the boards occasionally and the 
-> system should be able to handle this use case.
+Oct 14 16:54:39 ulima kernel: phy=0, phyx=24, mii_status=0x786d
+Oct 14 16:54:39 ulima kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+Oct 14 16:54:39 ulima kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Oct 14 16:54:39 ulima kernel: PIIX4: IDE controller at PCI slot 00:07.1
+Oct 14 16:54:39 ulima kernel: PIIX4: chipset revision 1
+Oct 14 16:54:39 ulima kernel: PIIX4: not 100%% native mode: will probe irqs later
+Oct 14 16:54:39 ulima kernel:     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
+Oct 14 16:54:39 ulima kernel:     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:DMA
+Oct 14 16:54:39 ulima kernel: hda: QUANTUM FIREBALL CX13.6A, ATA DISK drive
+Oct 14 16:54:39 ulima kernel: hdb: CRD-8400B, ATAPI CD/DVD-ROM drive
+Oct 14 16:54:39 ulima kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Oct 14 16:54:39 ulima kernel: hdc: Pioneer DVD-ROM ATAPIModel DVD-103S 011, ATAPI CD/DVD-ROM drive
+Oct 14 16:54:39 ulima kernel: hdd: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
+Oct 14 16:54:39 ulima kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Oct 14 16:54:39 ulima kernel: hda: host protected area => 1
+Oct 14 16:54:39 ulima kernel: hda: 26760384 sectors (13701 MB) w/418KiB Cache, CHS=1665/255/63, UDMA(33)
+Oct 14 16:54:39 ulima kernel:  /dev/ide/host0/bus0/target0/lun0: p1 p2
+Oct 14 16:54:39 ulima kernel: ide-floppy driver 0.99.newide
+Oct 14 16:54:39 ulima kernel: hdd: 244766kB, 489532 blocks, 512 sector size
+Oct 14 16:54:39 ulima kernel: hdd: 244736kB, 239/64/32 CHS, 4096 kBps, 512 sector size, 2941 rpm
+Oct 14 16:54:39 ulima kernel: hdd: The disk reports a capacity of 250640384 bytes, but the drive only handles 250609664
+Oct 14 16:54:39 ulima kernel: hdd: The disk reports a capacity of 250640384 bytes, but the drive only handles 250609664
+Oct 14 16:54:39 ulima kernel:  /dev/ide/host0/bus1/target1/lun0: unknown partition tableOct 14 16:54:39 ulima kernel:  /dev/ide/host0/bus1/target1/lun0: unknown partition tableOct 14 16:54:39 ulima kernel: SCSI subsystem driver Revision: 1.00
+Oct 14 16:54:39 ulima kernel: scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+Oct 14 16:54:39 ulima kernel:   Vendor: LG        Model: CD-ROM CRD-8400B  Rev: 1.03
+Oct 14 16:54:39 ulima kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
+Oct 14 16:54:39 ulima kernel: ide-scsi: The scsi wants to send us more data than expected - discarding data
+Oct 14 16:54:39 ulima kernel: ide-scsi: transferred 47 of 48 bytes
+Oct 14 16:54:39 ulima kernel:   Vendor: PIONEER   Model: DVD-ROM DVD-103   Rev: 1.16
+Oct 14 16:54:39 ulima kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
+Oct 14 16:54:39 ulima kernel: Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+Oct 14 16:54:39 ulima kernel: Attached scsi CD-ROM sr1 at scsi0, channel 0, id 1, lun 0
+Oct 14 16:54:39 ulima kernel: sr0: scsi3-mmc drive: 40x/40x cd/rw xa/form2 cdda tray
+Oct 14 16:54:39 ulima kernel: Uniform CD-ROM driver Revision: 3.12
+Oct 14 16:54:39 ulima kernel: sr1: scsi3-mmc drive: 0x/0x cd/rw xa/form2 cdda tray
 
-Hotplug PCI works much the same way.  A user could just walk up, pop the
-slot, and pull out the card without waiting for the LED to go out.  We
-don't care about that, as the user was obviously stupid in doing such a
-thing.  The spec even states something like this :)
+And:
 
-> >>For legacy systems such as SAFTE hotswap, polling through sg at 10 msec 
-> >>intervals would be extremely painful because of all the context 
-> >>switches.  A timer scheduled every 10 msec to send out a SCSI message 
-> >>and handle a response if there is a hotswap event is a much better course.
-> >>   
-> >>
-> >
-> >What generates the hotswap event?
-> > 
-> >
-> In the case of SAFTE, a SCSI processor (ASIC) is polled by some polling 
-> interval about the state of the SAFTE (SCSI) backplane.  When the state 
-> changes, software generates a hotswap event and removes the device.
+ls -al cdrom*
+lr-xr-xr-x    1 root     root           13 Oct 14 16:54 cdrom -> cdroms/cdrom0
+lr-xr-xr-x    1 root     root           31 Oct 14 16:54 cdrom0 -> scsi/host0/bus0/target2/lun0/cd
+lr-xr-xr-x    1 root     root           13 Oct 14 16:54 cdrom1 -> cdroms/cdrom1
 
-So polling can be done within the kernel, right?  Then notify userspace
-of the event, which can decide what to do.  Sound ok?
+cdroms:
+total 0
+drw-rw----    1 root     cdrom           0 Jan  1  1970 .
+drwxr-xr-x    1 root     root            0 Jan  1  1970 ..
+lr-xr-xr-x    1 root     root           34 Jan  1  1970 cdrom0 -> ../scsi/host0/bus0/target0/lun0/cd
+lr-xr-xr-x    1 root     root           34 Jan  1  1970 cdrom1 -> ../scsi/host0/bus0/target1/lun0/cd
 
-Or do you think this should be like the pci hotplug code, in that when a
-slot is opened (or button pressed, depending on the hardware), the
-kernel should scramble as fast as possible to unload the driver, and
-shut down the power to the card?  Then when it is finished, notify
-userspace of what just happened.
+But when I try to `mount -t iso9660 scsi/host0/bus0/target0/lun0/cd /mnt/cdrom/`:
+mount: block device scsi/host0/bus0/target0/lun0/cd is write-protected, mounting read-only
+mount: wrong fs type, bad option, bad superblock on scsi/host0/bus0/target0/lun0/cd,
+       or too many mounted file systems
 
-thanks,
+The same CD mount perfectly on the DVD (and on other CD-ROM devices...).
 
-greg k-h
+Is there something I should try?
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

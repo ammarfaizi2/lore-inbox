@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbTH0UJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 16:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTH0UJQ
+	id S262057AbTH0UJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 16:09:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbTH0UJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 16:09:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60072 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262056AbTH0UJN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 16:09:13 -0400
-Date: Wed, 27 Aug 2003 12:53:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: warudkar@vsnl.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
-Message-Id: <20030827125310.15ebf8f9.akpm@osdl.org>
-In-Reply-To: <200308272137.42632.kernel@kolivas.org>
-References: <200308272138.h7RLciK29987@webmail2.vsnl.net>
-	<200308272137.42632.kernel@kolivas.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 27 Aug 2003 16:09:26 -0400
+Received: from fed1mtao03.cox.net ([68.6.19.242]:32974 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S262057AbTH0UJY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 16:09:24 -0400
+Date: Wed, 27 Aug 2003 13:09:22 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-2.4] make log buffer length selectable
+Message-ID: <20030827200922.GH32065@ip68-0-152-218.tc.ph.cox.net>
+References: <200308251148.h7PBmU8B027700@hera.kernel.org> <20030826042550.GJ734@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030826042550.GJ734@alpha.home.local>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> On Thu, 28 Aug 2003 07:38, warudkar@vsnl.net wrote:
-> > Trying out 2.6.0-test4-mm1. Inside KDE, I start OpenOffice.org, Rational
-> > Rose and Konsole at a time. All of these take extremely long time to
-> > startup. (approx > 5 minutes). Kswapd hogs the CPU all the time. X becomes
-> > unusable till all of them startup, although I can telnet and run top. Same
-> > thing run under 2.4.18 starts up in 3 minutes, X stays usable and kswapd
-> > never take more than 2% CPU.
+On Tue, Aug 26, 2003 at 06:25:50AM +0200, Willy Tarreau wrote:
+> On Mon, Aug 25, 2003 at 04:48:30AM -0700, Marcelo Tosatti wrote:
+> > final:
+> > 
+> > - 2.4.22-rc4 was released as 2.4.22 with no changes.
 > 
-> Yes I can reproduce this with a memory heavy load as well on low memory 
-> (linking at the end of a big kernel compile is standard problem).
+> Hi Marcelo,
+> 
+> as you requested, here is the log_buf_len patch for inclusion in 23-pre.
 
-It could be that recent changes to page reclaim which improve I/O
-scheduling have exacerbated this.
+Two things.  First, why not ask on every arch like 2.6 does?  Second:
+> diff -urN wt10-pre3/kernel/printk.c wt10-pre3-log-buf-len/kernel/printk.c
+> --- wt10-pre3/kernel/printk.c	Wed Mar 19 09:58:20 2003
+> +++ wt10-pre3-log-buf-len/kernel/printk.c	Tue Mar 25 08:14:55 2003
+> @@ -29,6 +29,7 @@
+>  
+>  #include <asm/uaccess.h>
+>  
+> +#if !defined(CONFIG_LOG_BUF_SHIFT) || (CONFIG_LOG_BUF_SHIFT - 0 == 0)
 
-Does this make a difference?
+Why not just || (CONFIG_LOG_BUF_SHIFT == 0) ?
 
-diff -puN mm/vmscan.c~a mm/vmscan.c
---- 25/mm/vmscan.c~a	Wed Aug 27 12:51:36 2003
-+++ 25-akpm/mm/vmscan.c	Wed Aug 27 12:51:48 2003
-@@ -360,8 +360,6 @@ shrink_list(struct list_head *page_list,
- 		 * See swapfile.c:page_queue_congested().
- 		 */
- 		if (PageDirty(page)) {
--			if (referenced)
--				goto keep_locked;
- 			if (!is_page_cache_freeable(page))
- 				goto keep_locked;
- 			if (!mapping)
-
-_
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVCYXO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVCYXTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261870AbVCYXO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 18:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVCYXO2
+	id S261877AbVCYXTR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 18:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVCYXTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 18:14:28 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:42989 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261870AbVCYXO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 18:14:26 -0500
-Subject: Re: How's the nforce4 support in Linux?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Julien Wajsberg <julien.wajsberg@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2a0fbc59050325145935a05521@mail.gmail.com>
-References: <2a0fbc59050325145935a05521@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 25 Mar 2005 18:14:22 -0500
-Message-Id: <1111792462.23430.25.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Mar 2005 18:19:17 -0500
+Received: from mailhub.lss.emc.com ([168.159.2.31]:42707 "EHLO
+	mailhub.lss.emc.com") by vger.kernel.org with ESMTP id S261843AbVCYXTK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 18:19:10 -0500
+From: Brett Russ <russb@emc.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH libata-dev-2.6] libata: flush COMRESET write
+Message-Id: <20050325231907.E1D11BADC@lns1032.lss.emc.com>
+Date: Fri, 25 Mar 2005 18:19:07 -0500 (EST)
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.0.3.0, Antispam-Data: 2005.3.25.14
+X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='__HAS_MSGID 0, __SANE_MSGID 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-25 at 23:59 +0100, Julien Wajsberg wrote:
-> - audio works too. The only problem is that two applications can't
-> open /dev/dsp in the same time.
+Jeff,
 
-Not a problem.  ALSA does software mixing for chipsets that can't do it
-in hardware.  Google for dmix.
+I'm seeing single drives getting stuck in ata_busy_sleep() with these
+log messages on boot:
 
-However this doesn't (and can't be made to) work with the in-kernel OSS
-emulation (it works fine with the alsa-lib/libaoss emulation).  So you
-are technically correct in that two OSS apps can't open /dev/dsp at the
-same time, but there is no problem with multiple apps sharing the sound
-device, as long as they use the ALSA API (which they should be using
-anyway).
+<4>ata2 is slow to respond, please be patient
+<3>ata2 failed to respond (30 secs)
 
-Lee
+One thing I found was the bug fixed below, where the COMRESET wasn't
+getting flushed properly.  This may or may not be the reason, but it
+can't hurt.  I have to keep looking and testing.
 
+I wanted to also send a separate patch to ensure the port was stopped
+before issuing COMRESET, since this is required by at least the ICH6R,
+but the port_stop() routines seemed too heavy to call from
+__sata_phy_reset() so I'm not sending anything like that yet.
 
+Signed-off-by: Brett Russ <russb@emc.com>
 
-
+Index: libata-dev-2.6/drivers/scsi/libata-core.c
+===================================================================
+--- libata-dev-2.6.orig/drivers/scsi/libata-core.c	2005-03-23 16:44:48.000000000 -0500
++++ libata-dev-2.6/drivers/scsi/libata-core.c	2005-03-25 16:58:22.000000000 -0500
+@@ -1262,7 +1262,7 @@
+ 
+ 	if (ap->flags & ATA_FLAG_SATA_RESET) {
+ 		scr_write(ap, SCR_CONTROL, 0x301); /* issue phy wake/reset */
+-		scr_read(ap, SCR_STATUS);	/* dummy read; flush */
++		scr_read(ap, SCR_CONTROL);	/* dummy read; flush */
+ 		udelay(400);			/* FIXME: a guess */
+ 	}
+ 	scr_write(ap, SCR_CONTROL, 0x300);	/* issue phy wake/clear reset */

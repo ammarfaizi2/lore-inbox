@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbUJZRqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbUJZRsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbUJZRqF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 13:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbUJZRqF
+	id S261363AbUJZRsL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 13:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUJZRsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:46:05 -0400
-Received: from mailbox.surfeu.se ([213.173.154.11]:24528 "EHLO surfeu.fi")
-	by vger.kernel.org with ESMTP id S261358AbUJZRof (ORCPT
+	Tue, 26 Oct 2004 13:48:11 -0400
+Received: from holomorphy.com ([207.189.100.168]:5862 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261363AbUJZRrs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:44:35 -0400
-Message-ID: <417E8D6A.E187A858@users.sourceforge.net>
-Date: Tue, 26 Oct 2004 20:46:18 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-crypto@nl.linux.org
-CC: linux-kernel@vger.kernel.org
-Subject: Announce loop-AES-v2.2d file/swap crypto package
+	Tue, 26 Oct 2004 13:47:48 -0400
+Date: Tue, 26 Oct 2004 10:47:37 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Robin Holt <holt@sgi.com>,
+       Jesse Barnes <jbarnes@sgi.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
+Message-ID: <20041026174737.GM17038@holomorphy.com>
+References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com> <200410251940.30574.jbarnes@sgi.com> <20041026143513.GC28391@lnx-holt.americas.sgi.com> <200410260944.22003.jbarnes@engr.sgi.com> <20041026174050.GK17038@holomorphy.com> <Pine.LNX.4.58.0410261041170.19024@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410261041170.19024@schroedinger.engr.sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loop-AES changes since previous release:
-- Fixed mount so that it can set desired initial permissions for loop
-  mounted encrypted file system root directory with random keys. This fix
-  corrects README example 4 unwritable encrypted /tmp problem of
-  loop-AES-v2.2c.
+On Tue, 26 Oct 2004, William Lee Irwin III wrote:
+>> And an architecture method for hugepage clearing.
 
-bzip2 compressed tarball is here:
+On Tue, Oct 26, 2004 at 10:45:55AM -0700, Christoph Lameter wrote:
+> Add clear_huge_page to asm-generic/pgtable.h and an associated
+> __HAVE_ARCH_CLEAR_HUGE_PAGE ?
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2d.tar.bz2
-    md5sum 1de89f3967b8fa74b5f98bc0fb099de2
+Or a weak function.
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2d.tar.bz2.sign
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+-- wli

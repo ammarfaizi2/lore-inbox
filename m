@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261769AbREPRt1>; Wed, 16 May 2001 13:49:27 -0400
+	id <S261591AbREPRwR>; Wed, 16 May 2001 13:52:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262029AbREPRtR>; Wed, 16 May 2001 13:49:17 -0400
-Received: from moe.unleashed.org ([216.86.199.34]:26375 "HELO
-	mail.unleashed.org") by vger.kernel.org with SMTP
-	id <S262027AbREPRtJ>; Wed, 16 May 2001 13:49:09 -0400
-Date: Wed, 16 May 2001 10:49:07 -0700
-From: Leah Cunningham <leah@unleashed.org>
-To: ps <ps@rzeczpospolita.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RH 7.1 on IBM xSeries 240
-Message-ID: <20010516104907.A40821@unleashed.org>
-In-Reply-To: <3B02504E.8F8926AB@rzeczpospolita.pl> <20010516095750.A40686@unleashed.org> <3B02B8F0.6ED9A45D@rzeczpospolita.pl>
-Mime-Version: 1.0
+	id <S261965AbREPRv5>; Wed, 16 May 2001 13:51:57 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:2484 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S261591AbREPRvq>; Wed, 16 May 2001 13:51:46 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rootfs (part 1)
+In-Reply-To: <Pine.LNX.4.21.0105161010200.4738-100000@penguin.transmeta.com>
+Organisation: SAP LinuxLab
+Date: 16 May 2001 19:45:46 +0200
+In-Reply-To: <Pine.LNX.4.21.0105161010200.4738-100000@penguin.transmeta.com>
+Message-ID: <m3ofst5gs5.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3B02B8F0.6ED9A45D@rzeczpospolita.pl>; from ps@rzeczpospolita.pl on Wed, May 16, 2001 at 07:29:20PM +0200
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, if you want I can try and reproduce your issue once I have
-access to this machine.  It may be about a week or so.  RH 7.1 has
-been tested on this machine, but not with ServeRaid 4.71. 
+Hi Linus,
 
-ps (ps@rzeczpospolita.pl) [010516 10:29]:
-- > Yes, I have the newest BIOS and SR Firmware.
-- > I have 2 x 1GHz CPUs and IBM PCI ServeRAID 4.71.00  <ServeRAID 4L>
-- > 
-- >   --  Piotr Szymanek
-- > 
-- > 
-- > Leah Cunningham wrote:
-- > > 
-- > > This may be way off, but have you flashed the BIOS to the most
-- > > current revision? This machine should work properly.  How many
-- > > processors and what SR card are you using?
+On Wed, 16 May 2001, Linus Torvalds wrote:
+> Looks ok, but it also feels like 2.5.x stuff to me. 
+> 
+> Also, there's the question of whether to make ramfs just built-in,
+> or make _tmpfs_ built in - ramfs is certainly simpler, but tmpfs
+> does the same things and you need that one for shared mappings etc.
+> 
+> Comments?
 
-             I can't believe it's not UNIX!!!
-------------------------------------------------------------
-Leah Cunningham             |  SuSE Expert, NOS Engineer, 
-Undisclosed Address         |  QA & Linux geek, et al.        
+cr:/speicher/src/u4ac9 $ ls -l mm/shmem.o*
+-rw-r--r--    1 cr       users      154652 Mai 16 19:27 mm/shmem.o-tmpfs
+-rw-r--r--    1 cr       users      180764 Mai 16 19:24 mm/shmem.o+tmpfs
+cr:/speicher/src/u4ac9 $ ls -l fs/ramfs/ramfs.o
+-rw-r--r--    1 cr       users      141452 Mai 16 19:27 fs/ramfs/ramfs.o
+
+So CONFIG_TMPFS adds 26k and ramfs 140k.
+
+Greetings
+		Christoph
+
+

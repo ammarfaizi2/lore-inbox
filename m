@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVCXR4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVCXR7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262641AbVCXR4H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 12:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbVCXR4G
+	id S262643AbVCXR7l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 12:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVCXR7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 12:56:06 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:27057 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262641AbVCXR4C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 12:56:02 -0500
-Date: Thu, 24 Mar 2005 18:55:56 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Tom Vier <tmv@comcast.net>
-cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Pietro Zuco <maillist@zuco.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Squashfs without ./..
-In-Reply-To: <20050323174925.GA3272@zero>
-Message-ID: <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
-References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>
- <Pine.LNX.4.62.0503221656310.2683@dragon.hyggekrogen.localhost>
- <200503231740.09572.maillist@zuco.org> <Pine.LNX.4.61.0503231829570.1481@yvahk01.tjqt.qr>
- <20050323174925.GA3272@zero>
+	Thu, 24 Mar 2005 12:59:40 -0500
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:18343 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S262643AbVCXR7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 12:59:39 -0500
+Message-ID: <42430185.1060803@qazi.f2s.com>
+Date: Thu, 24 Mar 2005 18:05:57 +0000
+From: Asfand Yar Qazi <ay1204@qazi.f2s.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041010
+X-Accept-Language: en-gb, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: How's the nforce4 support in Linux?
+References: <3Lxis-5a0-29@gated-at.bofh.it> <3Lxis-5a0-31@gated-at.bofh.it> <3Lxis-5a0-33@gated-at.bofh.it> <3Lxis-5a0-27@gated-at.bofh.it> <3LxBD-5wd-9@gated-at.bofh.it> <4242975F.1030203@qazi.f2s.com> <20050324164313.GL17865@csclub.uwaterloo.ca>
+In-Reply-To: <20050324164313.GL17865@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Mar 2005, Tom Vier wrote:
-> On Wed, Mar 23, 2005 at 06:31:24PM +0100, Jan Engelhardt wrote:
-> > Which scripts use that? As stated, these two directory entries exist when you 
-> > stat() them, they just do not show up in readdir(), and I bet few programs 
-> > care for "." and ".." when doing their readdir.
+Lennart Sorensen wrote:
+> On Thu, Mar 24, 2005 at 10:33:03AM +0000, Asfand Yar Qazi wrote:
 > 
-> There's probably a number of apps that skip the first two dirents, instead
-> of checking for the dot dirs.
+>>No, but I do need NCQ
+> 
+> 
+> Perhaps a stupid question... but: Why do you _need_ NCQ?  If you need it
+> that badly (not sure why anyone would), you could always get SCSI or a
+> 3ware controller.
+> 
 
-Yep, check `-noleaf' in find(1).
+For the novelty value.
 
-Gr{oetje,eeting}s,
+> NCQ is a nice feature, but hardly essential.
 
-						Geert
+So is baking soda flavoured toothpaste - whats yer point? :-)
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> Len Sorensen
+> 
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+Anyway, the 3ware controller (if it is avaliable for PCI express) 
+sounds good.  Off-mainboard solutions tend to be quicker anyway.
+

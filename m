@@ -1,54 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273974AbRISAaN>; Tue, 18 Sep 2001 20:30:13 -0400
+	id <S273977AbRISAjq>; Tue, 18 Sep 2001 20:39:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273975AbRISAaE>; Tue, 18 Sep 2001 20:30:04 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:19786 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S273974AbRISA3v>; Tue, 18 Sep 2001 20:29:51 -0400
-Date: Tue, 18 Sep 2001 17:34:43 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Request for new block_device_operations function pointer
-In-Reply-To: <Pine.GSO.4.21.0109181748350.27538-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.30.0109181727111.27510-100000@nakedeye.aparity.com>
+	id <S273976AbRISAji>; Tue, 18 Sep 2001 20:39:38 -0400
+Received: from ns01.vbnet.com.br ([200.230.208.6]:32932 "EHLO
+	iron.vbnet.com.br") by vger.kernel.org with ESMTP
+	id <S273975AbRISAjZ> convert rfc822-to-8bit; Tue, 18 Sep 2001 20:39:25 -0400
+Date: Tue, 18 Sep 2001 21:39:59 -0300 (BRT)
+From: carlos <carlos@techlinux.com.br>
+X-X-Sender: carlos@skydive.techlinux
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Hardware detection tool 0.4.1
+Message-ID: <Pine.LNX.4.40.0109182110250.19983-100000@skydive.techlinux>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Sep 2001, Alexander Viro wrote:
-|>On Tue, 18 Sep 2001, Matt D. Robinson wrote:
-|>
-|>> This would allow projects such as LKCD to use a specific dump
-|>> device associated to a block device driver.  This dump driver
-|>> writes data out directly to disk at a specific offset.  The
-|>
-|>... while submit_bh()... writes data out directly to disk at a specific
-|>offset.  Amazing, isn't it?
-|>
-|>Notice that you _will_ need to deal with IO in driver's queue, no matter
-|>how you implement the thing.  submit_bh() already does it.
 
-... and deals with interrupt state, and any special device
-requirements?  Actually, we don't want to deal with any
-outstanding I/O.  You don't want to flush any outstanding
-requests if you're crashing (which is what LKCD is for).
-Sure, submit_bh() when things are running fine.  But not when
-you're crashing.  And also, this is intended at some point in
-the future to work to raw devices as well.
+Hardware detection tool 0.4.1
 
-I don't want to deal with b_end_io(), blk_get_queue(),
-generic_make_request() or any of that stuff.  This is
-supposed to be raw data to the disk.
+This version supports detection of PCI, ISA PnP, USB and PARPORT
+devices.
 
-Again, the point here is to create a device operation that
-allows the driver to enter a dumping state and write out
-data raw to the device.  It's not intended for the normal
-block operations path.
+ftp://ftp.techlinux.com.br/pub/people/carlos/kernel/hwd/hwd-0.4.1.tar.gz
 
-Thanks,
+TODO:
+- PCMCIA detection/driver table
+- use MODULE_DEVICE_TABLE macro
+- use PCI Class
+- finish serial mouse/modem detection
+- finish psaux mouse detection
+- better USB detection method
+- some EISA/VL/ISA (non-PnP) cards detection \
+        ( ex. sb-like card, isa scsi devs, etc )
+- some PARPORT specific detection ( ex. Iomega ZIP )
 
---Matt
+Changelog:
+* Sun Aug 26 2001 Carlos E. Gorges <carlos@techlinux.com.br>
+- v0.1
+- PCI and ISA PnP dev. tables/detection
+- ProcFS support
+
+* Thu Aug 30 2001 Carlos E. Gorges <carlos@techlinux.com.br>
+- v0.2
+- USB dev. table/detection
+
+* Mon Sep  3 2001 Carlos E. Gorges <carlos@techlinux.com.br>
+- v0.3
+- PARPORT dev. detection
+
+* Wed Sep  5 2001 Carlos E. Gorges <carlos@techlinux.com.br>
+- v0.4
+- rewrite [de]allocation of device struct for better [un]plugable \
+  devices support
+- Use usb_device->bus->busnum instead d.id/v.id in USB disconnect
+
+* Tue Sep 18 2001 Carlos E. Gorges <carlos@techlinux.com.br>
+- v0.4.1
+- PSAUX(PS/2) port detection
+- first SERIAL modem/mouse detection code
+- show Identify
+
+
+
+-- 
+	 _________________________
+	 Carlos E Gorges
+	 (carlos@techlinux.com.br)
+	 Tech informática LTDA
+	 Brazil
+	 _________________________
+
 

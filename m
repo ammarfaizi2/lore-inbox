@@ -1,67 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267362AbUG1XmC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267336AbUG1X0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267362AbUG1XmC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 19:42:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267351AbUG1Xly
+	id S267336AbUG1X0s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267327AbUG1XXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 19:41:54 -0400
-Received: from gprs214-195.eurotel.cz ([160.218.214.195]:39040 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S267327AbUG1Xjr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 19:39:47 -0400
-Date: Thu, 29 Jul 2004 01:39:29 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mochel@digitalimplant.org, akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: -mm swsusp: do not default to platform/firmware
-Message-ID: <20040728233929.GD16494@elf.ucw.cz>
-References: <20040728222445.GA18210@elf.ucw.cz> <20040728161448.336183e2.akpm@osdl.org>
+	Wed, 28 Jul 2004 19:23:33 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:28420 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S267330AbUG1XWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 19:22:07 -0400
+Subject: Re: [Patch] Per kthread freezer flags
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: ncunningham@linuxmail.org
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091054194.8867.26.camel@laptop.cunninghams>
+References: <1090999301.8316.12.camel@laptop.cunninghams>
+	 <20040728142026.79860177.akpm@osdl.org>
+	 <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
+	 <1091054194.8867.26.camel@laptop.cunninghams>
+Content-Type: text/plain
+Date: Thu, 29 Jul 2004 01:21:56 +0200
+Message-Id: <1091056916.1844.14.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040728161448.336183e2.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Evolution 1.5.90 (1.5.90-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > -mm swsusp now defaults to platform/firmware suspend... That's
-> > certainly unexpected, changes behaviour from previous version, and
-> > only works on one of three machines I have here. I'd like the default
-> > to be changed back.
+On Thu, 2004-07-29 at 08:36 +1000, Nigel Cunningham wrote:
+> Hi again.
 > 
-> You overestimate my knowledge of suspend stuff.  AFAICT the current -mm
-> default is to enter ACPI sleep state via the BIOS rather than via Linux's
-> ACPI driver.  Correct?
-
-Its actually bit more complex. There are 3 methods:
-
-shutdown: save state in linux, then tell bios to powerdown
-
-platform: save state in linux, then tell bios to powerdown and blink
-	  "suspended led"
-
-firmware: tell bios to save state itself
-
-"platform" is actually right thing to do, but "shutdown" is most
-reliable.
-
-Old code always did "shutdown". New code does "shutdown", "platform"
-or "firmware" depending on what BIOS can do.
-
-> If not, then what?
+> On Thu, 2004-07-29 at 08:30, Felipe Alfaro Solana wrote:
+> > On Wed, 2004-07-28 at 14:20 -0700, Andrew Morton wrote:
+> > 
+> > > wrt your "Add missing refrigerator support" patch: I'll suck that up, but
+> > > be aware that there's a big i2o patch in -mm which basically rips out the
+> > > driver which you just fixed up.  Perhaps you can send Markus Lidel
+> > > <Markus.Lidel@shadowconnect.com> and I a fix for that version of the driver
+> > > sometime?
+> > 
+> > BTW, the "Add missing refrigerator support" breaks ACPI S3 and S4
+> > support for me (2.6.8-rc2-bk7) and my laptop (NEC Chrom@). When
+> > resuming, my 3c59x CardBus NIC is not powered up forcing me to eject it,
+> > then plug it again.
 > 
-> If so, then why do we feel this change is needed, and why did Pat change things?
-> 
-> My major concern here is that Pat may have made that change to get suitable
-> coverage testing for new code paths, and we wouldn't want to undo that right away.
+> Looking again at the patch, I'm not sure which diff would be relevant to
+> you. When the card is running, do you have a kIrDAd thread?
 
-I believe "platform" is so unreliable (for now) that it blocks usefull
-testing... I'd like it to default to "shutdown" when it is merged
-upstream.
-									Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+kirdad? No... That sounds like Infrared which my laptop does not have.
+Here is a digest of ps -axf:
+
+  PID TTY      STAT   TIME COMMAND
+    1 ?        S      0:00 init [5]
+    2 ?        S<     0:03 [irqd/0]
+    3 ?        S<     0:00 [events/0]
+    4 ?        S<     0:00  \_ [khelper]
+    5 ?        S<     0:00  \_ [kacpid]
+   22 ?        S<     0:00  \_ [kblockd/0]
+   32 ?        S      0:00  \_ [pdflush]
+   33 ?        S      0:00  \_ [pdflush]
+   35 ?        S<     0:00  \_ [aio/0]
+   36 ?        S<     0:00  \_ [xfslogd/0]
+   37 ?        S<     0:00  \_ [xfsdatad/0]
+   34 ?        S      0:00 [kswapd0]
+   38 ?        S      0:00 [xfsbufd]
+  120 ?        S      0:00 [kseriod]
+  125 ?        S      0:00 [xfssyncd]
+  273 ?        Ss     0:00 minilogd
+  286 ?        S      0:00 [xfssyncd]
+  287 ?        S      0:00 [xfssyncd]
+  567 ?        S      0:00 [khubd]
+  871 ?        S      0:00 [pccardd]
+  877 ?        S      0:00 [pccardd]
+
+Anything else? :-)
+

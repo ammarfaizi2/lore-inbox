@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUHTKIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266116AbUHTKKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUHTKIg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 06:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266004AbUHTKIg
+	id S266116AbUHTKKq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 06:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUHTKKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 06:08:36 -0400
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:55170 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id S265928AbUHTKId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 06:08:33 -0400
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-From: Alex Bennee <kernel-hacker@bennee.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Julien Oster <usenet-20040502@usenet.frodoid.org>,
-       Miles Lane <miles.lane@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1092954824.28931.9.camel@localhost.localdomain>
-References: <200408191822.48297.miles.lane@comcast.net>
-	 <87hdqyogp4.fsf@killer.ninja.frodoid.org>
-	 <1092954824.28931.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Hackers Inc
-Message-Id: <1092996500.29012.88.camel@cambridge.braddahead.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 20 Aug 2004 11:08:21 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 06:10:45 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:29269 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S266116AbUHTKKX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 06:10:23 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: linux-kernel@vger.kernel.org
+Subject: BUG: mmap(): any driver changing addr ignores MAP_FIXED
+Date: Tue, 17 Aug 2004 16:53:52 +0200
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200408141252.36943.blaisorblade_personal@yahoo.it>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-19 at 23:33, Alan Cox wrote:
-> On Gwe, 2004-08-20 at 00:23, Julien Oster wrote:
-> > Come on, it's profiling. As presented by that article, it is even more
-> <snip>
-> "Profiling for the people" as it were.. (as opposed to the current
-> fad of 'profiling the people')
+>From 2.6 mm/mmap.c:do_mmap_pgoff, about the address where to install the new 
+mapping:
 
-Well profiling for user space developers. Certainly for embedded "soft
-realtime" work I've found LTT really useful in understanding where the
-contentions where in my user-space code. And also why the old pthread
-mutex didn't work well with SCHED_RT priorities :-(
+        /* Can addr have changed??
+         *
+         * Answer: Yes, several device drivers can do it in their
+         *         f_op->mmap method. -DaveM
+         */
+        addr = vma->vm_start;
 
-If it was my choice I'd like to see LTT merged, but of course its not
-all about me much as I wish it was ;-)
+But if I mmaped with MAP_FIXED? MAP_FIXED is accounted for only inside 
+get_unmapped_area(); so, if the driver changes the addr, MAP_FIXED is 
+actually ignored. Shouldn't we add something like:
 
+if (flags & MAP_FIXED && addr != vma->vm_start) {
+   /*fail the mmap() call cleanly*/
+  error = -EINVAL;				/*???*/
+  goto unmap_and_free_vma;  /*add there a check if(file != NULL) before 
+fput()ing it*/
+}
+
+But I also have two questions:
+1) I cannot find the "several drivers" DaveM speaks about.
+
+In 2.4, there is just drivers/video/epson1356fb.c, for very crappy reasons 
+(because the returned address must not be 32 byte aligned, it explains in the 
+comment); in 2.6, drivers/video/68328fb.c, and only #ifndef MMU (which is a 
+very different case - i.e. providing the physical address instead of 
+mmap()'ing). I found them by hand-checking the output of this command:
+
+find drivers/ -type f|xargs grep 'vm_start.*='
+
+Anyway, in both cases the above MAP_FIXED check should be added anyway.
+2) Which is a good reason to allow such crap?
 -- 
-Alex, Kernel Hacker: http://www.bennee.com/~alex/
-
-Assembly language experience is [important] for the maturity
-and understanding of how computers work that it provides.
-		-- D. Gries
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
 

@@ -1,65 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265788AbUAMWLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 17:11:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUAMWLP
+	id S265661AbUAMWU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 17:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265665AbUAMWU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 17:11:15 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:9345 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265783AbUAMWLI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 17:11:08 -0500
-Subject: Re: Proposed enhancements to MD
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Scott Long <scott_long@adaptec.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-raid <linux-raid@vger.kernel.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>
-In-Reply-To: <20040113134107.A7646@lists.us.dell.com>
-References: <40033D02.8000207@adaptec.com> <40043C75.6040100@pobox.com>
-	 <20040113134107.A7646@lists.us.dell.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CSPhqZAP0rRo10gdZEWm"
-Organization: Red Hat, Inc.
-Message-Id: <1074031848.4981.4.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 13 Jan 2004 23:10:49 +0100
+	Tue, 13 Jan 2004 17:20:29 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:44009 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S265661AbUAMWUU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 17:20:20 -0500
+Message-Id: <200401132220.i0DMK7K23669@zeus.kernel.org>
+From: "MR.ERNEST COLMAN" <macd@zwallet.com>
+To: linux-kernel@vger.kernel.org
+Reply-To: ernestcolman@netscape.net
+Subject: GOOD DAY.
+Date: Tue, 13 Jan 2004 11:20:06 -0800
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="dba08bc7-fd12-4533-8e49-7ba02bc40ef7"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-CSPhqZAP0rRo10gdZEWm
-Content-Type: text/plain
+This is a multi-part message in MIME format
+--dba08bc7-fd12-4533-8e49-7ba02bc40ef7
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
 
+Sir,
+            
+                                                                    
+                                                   =93TRANSFER OF =
+US$21,500,000.00 ONLY =94
+I, on behalf of my other colleagues from Government Constituted Contract =
+Review Panel decided to solicit your assistance as regards transfer of the =
+above mentioned amount into your Bank Account.  Note that, these funds =
+emanated from unclaimed contractual proceeds of contracting firms who could =
+not meet their financial obligation to their creditors. Consequently, these =
+firms went bankrupt and total liquidation.
+We as holders of sensitive positions in our various parastatals were mandated =
+by the Federal Government to scrutinize all payment made to certain foreign =
+contractors and we discovered that some of the contractors have not been paid =
+their contractual entitlement which collectively left an amazing sum of =
+US$26,500,000.00 Only (Twenty Six Million, Five Hundred Thousand US Dollars =
+Only) lying in a suspense Account.  However, from our extensive =
+investigation, we discovered that the foreign beneficiary companies have =
+since been liquidated and no longer existing for some years which motivated =
+our intention, knowing fully well that all operations would be exceedingly =
+smooth and completely safe for all the parties concerned.
+We have agreed on this side that the said amount would be transferred (for =
+own use) into a Bank Account provided by a reliable foreign firm/associate, =
+because we are serving Government workers and the Civil Service Code does not =
+allow us to operate foreign Account/Company, more so there must be some sort =
+of documents to show that it is for the contract that the funds is released =
+for.
+Following our intention to carry out this laudable project expediently we =
+however, succeeded in transferring part of this amount (money) precisely =
+US$5M (Five Million US Dollars) only into a Foreign Bank Account in =
+Switzerland, but the provider of the Account is up to some mischief and =
+refused to comply with our earlier mutual agreement insisting that the total =
+amount be paid into his nominated Bank Account before disbursement will take =
+effect.  We thus, believe and concluded that if in the first successful =
+transfer of US$5M (Five Million US$ Dollars) we were not compensated how then =
+are we sure that when the balance of US$21,500,000.00 Only, (Twenty One =
+Million Five Hundred Thousand US Dollars Only) is transferred into his =
+Account that we will be sure of our due compensation.
+In light of the foregoing, we are therefore seeking your assistance so that =
+the remaining amount of US$21,500,000.00 only can be speedily processed and =
+fully remitted into your nominated Bank Account.
+You are expected therefore to furnish us with your company and bank details =
+i.e.
+(1) Name of company and addr(2) Name of nominated Bank Account suitable for =
+this project, with ABA or Swift Code (If any)
+(3) Name of Beneficiary to the Account.
+On successful remittance of the fund into your Account you will be =
+compensated with 20% of the amount for your valuable assistance and =
+co-operation. So far, much have been said and due to our sensitive positions, =
+we cannot afford a slip in this transaction, neither can we give our =
+identities as regards our respective offices, but were relationship =
+confidently established and smooth operations commences, you will be =
+furnished with all you deserve to know.
+I am disposed to entertain any question(s) from you with respect to this =
+transaction, Please treat with the strictest confidentiality and utmost =
+urgency, for confidentiality reasons and to avoid exposure, please direct =
+your  reply to the under detailed Telephone and Fax number.
+Yours faithfully,
+MR.ERNEST COLMAN.
+EMAIL:ernestcolman@netscape.net  
+--dba08bc7-fd12-4533-8e49-7ba02bc40ef7--
 
-> Ideally in 2.6 one can use device mapper, but DM hasn't been
-> incorporated into 2.4 stock, I know it's not in RHEL 3, and I don't
-> believe it's included in SLES8.  Can anyone share thoughts on if a DDF
-> solution were built on top of DM, that DM could be included in 2.4
-> stock, RHEL3, or SLES8?  Otherwise, Adaptec will be stuck with two
-> different solutions anyhow, one for 2.4 (they're proposing enhancing
-> MD), and DM for 2.6.
-
-Well it's either putting DM into 2.4 or forcing some sort of partitioned
-MD into 2.4. My strong preference would be DM in that cases since it's
-already in 2.6 and is actually designed for the
-multiple-superblock-formats case.
-
-
-
---=-CSPhqZAP0rRo10gdZEWm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBABGzoxULwo51rQBIRAvB3AJ975gLeupCNmZHRCDZ41DylR+7cWgCgn5/9
-5lsgj7bmuCMG+c5VuTD5aC8=
-=Q7RG
------END PGP SIGNATURE-----
-
---=-CSPhqZAP0rRo10gdZEWm--

@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265440AbUFRPc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266125AbUFRQ2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265440AbUFRPc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 11:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbUFRPXF
+	id S266125AbUFRQ2W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 12:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUFRQ2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 11:23:05 -0400
-Received: from gate.crashing.org ([63.228.1.57]:4741 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265255AbUFRPVR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 11:21:17 -0400
-Subject: Re: PATCH: Further aacraid work
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Anton Blanchard <anton@samba.org>, mark_salyzyn@adaptec.com,
-       Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <m3smcut2z0.fsf@averell.firstfloor.org>
-References: <286GI-5y3-11@gated-at.bofh.it> <286Qp-5EU-19@gated-at.bofh.it>
-	 <m3smcut2z0.fsf@averell.firstfloor.org>
+	Fri, 18 Jun 2004 12:28:22 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:9477 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S266125AbUFRQ2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 12:28:18 -0400
+Subject: Re: 2.6.7-ck1
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <200406162122.51430.kernel@kolivas.org>
+References: <200406162122.51430.kernel@kolivas.org>
 Content-Type: text/plain
-Message-Id: <1087571840.8207.270.camel@gaston>
+Date: Fri, 18 Jun 2004 18:28:13 +0200
+Message-Id: <1087576093.2057.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 10:17:21 -0500
+X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-06-16 at 21:22 +1000, Con Kolivas wrote: 
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Patchset update. The focus of this patchset is on system responsiveness with
+> emphasis on desktops, but the scope of scheduler changes now makes this patch 
+> suitable to servers as well.
 
-> The AMD64 IOMMU could do it too (and the code to do it exists in
-> 2.6). But the problem is that the current IO layer doesn't provide a
-> sufficient fallback path when this fails. You have to promise in
-> advance that you can merge and then later it's too late to change your
-> mind without signalling an IO error.
+I've found some interaction problems between, what I think it's, the
+staircase scheduler and swsusp. With vanilla 2.6.7, swsusp is able to
+save ~9000 pages to disk in less than 5 seconds, where as 2.6.7-ck1
+takes more than 1 minute to save the same amount of pages when
+suspending to disk.
 
-Well, the way I do it on ppc64 works with failure cases too. The IO
-layer is given my phusical limitations, that is it provides me with an
-SG list that will always fit. If I can do merging, great, that will
-improve, but I don't enforce merging.
-
-You could do exactly the same.
-
-The problem I agree is that this forces the IO layer to give you small
-enough requests, it would be nice to have a "try big and retry smaller"
-path but that require invasive changes.
-
-> I had a chat with James about this at last year's OLS. The Consensus
-> was iirc that it needs driver interface changes at least.
-
-Ben.
 

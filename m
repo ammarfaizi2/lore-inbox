@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269048AbUJEOKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269031AbUJEOXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269048AbUJEOKO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 10:10:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269412AbUJEOKM
+	id S269031AbUJEOXg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 10:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUJEOXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 10:10:12 -0400
-Received: from relay.pair.com ([209.68.1.20]:58891 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S269048AbUJEOCd (ORCPT
+	Tue, 5 Oct 2004 10:23:35 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:63925 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269031AbUJEOWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 10:02:33 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <41629C78.60203@kegel.com>
-Date: Tue, 05 Oct 2004 06:07:04 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Oct 2004 10:22:55 -0400
+Date: Tue, 5 Oct 2004 16:20:01 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: [PATCH] ide-dma blacklist behaviour broken
+Message-ID: <20041005142001.GR2433@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo wrote:
- > Curiosity: Is this defined in any UNIX standard?
+Hi,
 
-No.  See
-http://www.opengroup.org/onlinepubs/009695399/functions/open.html
-which leaves it undefined.
+The blacklist stuff is broken. When set_using_dma() calls into
+ide_dma_check(), it returns ide_dma_off() for a blacklisted drive. This
+of course succeeds, returning success to the caller of ide_dma_check().
+Not so good... It then uncondtionally calls ide_dma_on(), which turns on
+dma for the drive.
 
-http://www.pasc.org/interps/unofficial/db/p1003.1/pasc-1003.1-71.html
-says implementations have to allow setting O_NONBLOCK even if they
-ignore it.
+This moves the check to ide_dma_on() so we also catch the buggy
+->ide_dma_check() defined by various chipset drivers.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/9911.3/0530.html
-claims other Unixes and NT implement it.
+--- drivers/ide/ide-dma.c~	2004-10-05 16:11:49.631910586 +0200
++++ drivers/ide/ide-dma.c	2004-10-05 16:21:58.828330845 +0200
+@@ -354,11 +355,13 @@
+ 	struct hd_driveid *id = drive->id;
+ 	ide_hwif_t *hwif = HWIF(drive);
+ 
+-	if ((id->capability & 1) && hwif->autodma) {
+-		/* Consult the list of known "bad" drives */
+-		if (__ide_dma_bad_drive(drive))
+-			return __ide_dma_off(drive);
++	/* Consult the list of known "bad" drives */
++	if (__ide_dma_bad_drive(drive)) {
++		__ide_dma_off(drive);
++		return 1;
++	}
+ 
++	if ((id->capability & 1) && hwif->autodma) {
+ 		/*
+ 		 * Enable DMA on any drive that has
+ 		 * UltraDMA (mode 0/1/2/3/4/5/6) enabled
+@@ -512,6 +515,9 @@
+  
+ int __ide_dma_on (ide_drive_t *drive)
+ {
++	if (__ide_dma_bad_drive(drive))
++		return 1;
++
+ 	drive->using_dma = 1;
+ 	ide_toggle_bounce(drive, 1);
+ 
 
-There's a thread that discusses this in a bit of detail, and
-suggests that older Solaris might implement it:
-http://lists.freebsd.org/pipermail/freebsd-arch/2003-April/000132.html
-http://lists.freebsd.org/pipermail/freebsd-arch/2003-April/000134.html
-
-Googling for O_NONBLOCK disk seems to be good.  I'd google more
-but my baby is calling :-)
-- Dan
 -- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change
+Jens Axboe
+

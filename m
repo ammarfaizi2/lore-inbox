@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267268AbTBUJpP>; Fri, 21 Feb 2003 04:45:15 -0500
+	id <S267274AbTBUJtJ>; Fri, 21 Feb 2003 04:49:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267270AbTBUJpO>; Fri, 21 Feb 2003 04:45:14 -0500
-Received: from cda1.e-mind.com ([195.223.140.107]:41861 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267268AbTBUJpO>;
-	Fri, 21 Feb 2003 04:45:14 -0500
-Date: Fri, 21 Feb 2003 10:54:59 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dejan Muhamedagic <dejan@hello-penguin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vm issues on sap app server
-Message-ID: <20030221095459.GK31480@x30.school.suse.de>
-References: <20030219171432.A6059@smp.colors.kwc> <20030219180523.GK14633@x30.suse.de> <20030220124026.GA4051@lilith.homenet> <20030220130858.GI31480@x30.school.suse.de> <20030221000322.GA8096@lilith.homenet>
+	id <S267271AbTBUJtJ>; Fri, 21 Feb 2003 04:49:09 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:32207 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267270AbTBUJtH>;
+	Fri, 21 Feb 2003 04:49:07 -0500
+Date: Fri, 21 Feb 2003 01:43:16 -0800 (PST)
+Message-Id: <20030221.014316.69598293.davem@redhat.com>
+To: ak@suse.de
+Cc: sim@netnation.com, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Longstanding networking / SMP issue? (duplextest)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030221072719.GD25144@wotan.suse.de>
+References: <20030220093422.GA16369@wotan.suse.de>
+	<20030220.202438.10564686.davem@redhat.com>
+	<20030221072719.GD25144@wotan.suse.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030221000322.GA8096@lilith.homenet>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 01:03:22AM +0100, Dejan Muhamedagic wrote:
-> I'd disagree here.  The system _should_ be able to keep stability
-> without resetting.  If it can't, then there's something wrong.
+   From: Andi Kleen <ak@suse.de>
+   Date: Fri, 21 Feb 2003 08:27:19 +0100
+   
+   For icmp_xmit_lock it can be only done in a limited fashion - you are
+   always restricted by the buffer size of the ICMP socket. Also I don't 
+   know how to lock the socket from BH context nicely - the only simple way
+   probably is the trick from the retransmit timer to just try again
+   in a jiffie, but could have nasty queueing up under high load.
+   
+   Fixing the error drop behaviour of TCP will be somewhat nasty too.
+   
+   In both cases you'll need a retry timer (unreliable) or an dedicated ICMP 
+   backlog (complicated)
+   
+The big problem is that we have one ICMP socket for UP and only
+one for SMP too.  That's just dumb, we should make this be a
+per-cpu thing.
 
-I really meant restarting the app server, not the kernel.
+I suspect this will fix the original bug report.
 
-> (1)  Summing up the RSS column of "ps aux" yields incredible 21GB.
-> Could one calculate used_mem - bufs - cached + used_swap ?
-
-you're counting the size of the shm for the N tasks that are mapping it,
-perfectly normal.
-
-For the increased swapping, it is also possible you pay some pagetable
-overhead that increases over time after all the processes touches the
-whole 2G. Not sure if each task is reading the whole shm after the mmap
-or shmat during startup (and certainly it's not mlocked, so the ptes
-will be allocated lazily).
-
-Again, if after stopping and starting the app server it returns at peak
-performance I don't see how this can be a kernel issue.
-
-Andrea
+I don't think the TCP case is much of an issue.  TCP retries things
+etc.

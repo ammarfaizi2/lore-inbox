@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130548AbRAPLiO>; Tue, 16 Jan 2001 06:38:14 -0500
+	id <S130645AbRAPLs1>; Tue, 16 Jan 2001 06:48:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130645AbRAPLiD>; Tue, 16 Jan 2001 06:38:03 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:60690 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130548AbRAPLht>;
-	Tue, 16 Jan 2001 06:37:49 -0500
-Date: Tue, 16 Jan 2001 12:37:43 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Jonathan Thackray <jthackray@zeus.com>
-Subject: Re: 'native files', 'object fingerprints' [was: sendpath()]
-Message-ID: <20010116123743.A32075@gruyere.muc.suse.de>
-In-Reply-To: <20010116121323.A31583@gruyere.muc.suse.de> <Pine.LNX.4.30.0101161217001.2352-100000@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0101161217001.2352-100000@elte.hu>; from mingo@elte.hu on Tue, Jan 16, 2001 at 12:26:12PM +0100
+	id <S130670AbRAPLsR>; Tue, 16 Jan 2001 06:48:17 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:11525 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S130645AbRAPLsH>;
+	Tue, 16 Jan 2001 06:48:07 -0500
+Date: Tue, 16 Jan 2001 12:47:52 +0100
+From: Igor Mozetic <igor.mozetic@uni-mb.si>
+Subject: 2.4.0+aic7xxx doesn't boot, 2.2.17 OK
+To: linux-kernel@vger.kernel.org
+Reply-to: igor.mozetic@uni-mb.si
+Message-id: <14948.13544.776999.735127@ravan.camtp.uni-mb.si>
+MIME-version: 1.0
+X-Mailer: VM 6.89 under Emacs 20.7.2
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2001 at 12:26:12PM +0100, Ingo Molnar wrote:
-> 
-> On Tue, 16 Jan 2001, Andi Kleen wrote:
-> 
-> > On Tue, Jan 16, 2001 at 10:48:34AM +0100, Ingo Molnar wrote:
-> > > this is a safe, very fast [ O(1) ] object-permission model. (it's a
-> > > variation of a former idea of yours.) A process can pass object
-> > > fingerprints and kernel pointers to other processes too - thus the other
-> > > process can access the object too. Threads will 'naturally' share objects,
-> > >...
-> >
-> > Just setuid etc. doesn't work with that because access cannot be
-> > easily revoked without disturbing other clients.
-> 
-> well, you cannot easily close() an already shared file descriptor in
-> another process's context either. Is revocation so important? Why is
-> setuid() a problem? A native file is just like a normal file, with the
-> difference that not an integer but a fingerprint identifies it, and that
-> access and usage counts are not automatically inherited across some
-> explicit sharing interface.
+Intel C440GX+ with on-board Adaptec AIC-7896 fails to boot 2.4.0:
 
-Actually on second thought exec() is more a problem than setuid(), because
-it requires closing for file descriptors.
+SCSI bus is being reset for host 0 channel 0
+SCSI host 0 channel 0 reset (pid 0) timed out - trying harder
+... ad infinitum ...
 
-So if you could devise a security model that doesn't depend on exec giving
-you a clean plate -- then it could work, but would probably not be very
-unixy. 
+In contrast, this is what I get from the 2.2.17 boot:
 
-I'm amazed how non flamed you can present radical API ideas though, I even
-get flamed for much smaller things (like using text errors to replace
-the hundreds of EINVALs in the rtnetlink message interface)  ;);)
+(scsi0) <Adaptec AIC-7896/7 Ultra2 SCSI host adapter> found at PCI 0/12/0
+(scsi0) Wide Channel A, SCSI ID=7, 32/255 SCBs
+(scsi0) Downloading sequencer code... 392 instructions downloaded
+(scsi1) <Adaptec AIC-7896/7 Ultra2 SCSI host adapter> found at PCI 0/12/1
+(scsi1) Wide Channel B, SCSI ID=7, 32/255 SCBs
+(scsi1) Downloading sequencer code... 392 instructions downloaded
+scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.31/3.2.4
+       <Adaptec AIC-7896/7 Ultra2 SCSI host adapter>
+scsi1 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.31/3.2.4
+       <Adaptec AIC-7896/7 Ultra2 SCSI host adapter>
+scsi2 : SCSI host adapter emulation for IDE ATAPI devices
+scsi : 3 hosts.
+(scsi0:0:0:0) Synchronous at 40.0 Mbyte/sec, offset 31.
+  Vendor: IBM       Model: DNES-309170W      Rev: SA30
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
+(scsi0:0:6:0) Synchronous at 10.0 Mbyte/sec, offset 15.
+  Vendor: SONY      Model: CD-R   CDU948S    Rev: 1.0j
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Detected scsi CD-ROM sr0 at scsi0, channel 0, id 6, lun 0
+  Vendor:           Model: ATAPI CDROM       Rev: 120N
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Detected scsi CD-ROM sr1 at scsi2, channel 0, id 0, lun 0
+scsi : detected 3 SCSI generics 2 SCSI cdroms 1 SCSI disk total.
 
-> 
-> perhaps we could get most of the advantages by allowing the relaxation of
-> the 'allocate first free file descriptor number' rule for normal Unix
-> files?
-Not sure I follow. You mean dup2() ? 
+Any quick hint what to try?
 
--Andi
-
+-Igor Mozetic
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

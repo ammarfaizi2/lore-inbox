@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265696AbRF1NDX>; Thu, 28 Jun 2001 09:03:23 -0400
+	id <S265701AbRF1NGD>; Thu, 28 Jun 2001 09:06:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265709AbRF1NDD>; Thu, 28 Jun 2001 09:03:03 -0400
-Received: from jet.caldera.de ([212.34.180.34]:58884 "EHLO jet.caldera.de")
-	by vger.kernel.org with ESMTP id <S265697AbRF1NDB>;
-	Thu, 28 Jun 2001 09:03:01 -0400
-Date: Thu, 28 Jun 2001 15:02:54 +0200
-Message-Id: <200106281302.f5SD2sO02107@jet.caldera.de>
-From: Marcus Meissner <mm@jet.caldera.de>
-To: alad@hss.hns.com, linux-kernel@vger.kernel.org
-Subject: Re: Why we need LDT at all in 2.2 kernels ??
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <65256A79.0038FC3A.00@sandesh.hss.hns.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.3-ac14 (i686))
+	id <S265707AbRF1NFx>; Thu, 28 Jun 2001 09:05:53 -0400
+Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:3332 "EHLO
+	boris.prodako.se") by vger.kernel.org with ESMTP id <S265701AbRF1NFp>;
+	Thu, 28 Jun 2001 09:05:45 -0400
+Date: Thu, 28 Jun 2001 15:05:41 +0200 (CEST)
+From: Tobias Ringstrom <tori@unhappy.mine.nu>
+X-X-Sender: <tori@boris.prodako.se>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Helge Hafting <helge.hafting@idb.hist.no>,
+        Martin Knoblauch <Martin.Knoblauch@TeraPort.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: VM Requirement Document - v0.0
+In-Reply-To: <993731477.9213.4.camel@nomade>
+Message-ID: <Pine.LNX.4.33.0106281439420.1258-100000@boris.prodako.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <65256A79.0038FC3A.00@sandesh.hss.hns.com> you wrote:
-> Hi,
->      In 2.2 kernel do we really need its own LDT (not default_ldt) for every
-> process (no mm sharing) ??
+On 28 Jun 2001, Xavier Bestel wrote:
 
-> In what circumstances a process may need its own LDT ??
+> On 28 Jun 2001 14:02:09 +0200, Tobias Ringstrom wrote:
+>
+> > This would be very useful, I think.  Would it be very hard to classify
+> > pages like this (text/data/cache/...)?
+>
+> How would you classify a page of perl code ?
 
-When using the Windows Emulator WINE and related projects (WordPerfect 2000)
-for instance.
+I do know how the Perl interpreter works, but I think it byte-compiles the
+code and puts it in the data segment, which also would have a high paging
+cost.
 
-Ciao, Marcus
+The perl source code would be paged in/out before running binaries such as
+shells and the window system, but the same thing would happen to binaries
+with short life-span, I suppose.  Perhaps cached executables and cached
+data files can be classified differently as well.
+
+What I meant to ask with the question above was if it would be hard to
+implement the classification in the kernel.
+
+/Tobias
+

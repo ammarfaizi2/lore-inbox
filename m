@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130579AbRAQWYo>; Wed, 17 Jan 2001 17:24:44 -0500
+	id <S130218AbRAQW1O>; Wed, 17 Jan 2001 17:27:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130605AbRAQWYe>; Wed, 17 Jan 2001 17:24:34 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:19889 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S130579AbRAQWYQ>; Wed, 17 Jan 2001 17:24:16 -0500
-Date: Wed, 17 Jan 2001 23:24:05 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: "Scott A. Sibert" <kernel@hollins.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: oops in 2.4.1-pre8
-In-Reply-To: <3A66130E.8010004@hollins.edu>
-Message-ID: <Pine.LNX.4.30.0101172312550.18642-100000@cola.teststation.com>
+	id <S129874AbRAQW1E>; Wed, 17 Jan 2001 17:27:04 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:52098 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S130449AbRAQW0z>; Wed, 17 Jan 2001 17:26:55 -0500
+Message-ID: <3A661C12.22271291@Home.net>
+Date: Wed, 17 Jan 2001 17:26:26 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [DISCUSSION]: 2.4.1-pre8: Detection of CD-ROM/CD-R/CD-RW drives Part 
+ #2
+In-Reply-To: <3A661B21.6BC31670@Home.net>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Scott A. Sibert wrote:
+2.2.18 and below:
 
-> I'm consistently getting an oops when accessing any smbfs mount whether
-> running 'ls' inside the smbfs mount or hitting TAB for filename
-> completion of a directory in an smbfs mount.  I have another machine
-> (dual P2/300 w/320MB memory) that does not have this problem.  The P2
+Jan  5 16:56:54 coredump kernel: hdc: YAMAHA CRW2100E, ATAPI CDROM drive
+Jan  5 16:56:54 coredump kernel: hdc: ATAPI 40X CD-ROM CD-R/RW drive,
+8192kB Cache, (U)DMA
 
-That other machine is not compiled with bigmem, I assume.
+2.4.x:
+
+Jan 15 19:43:05 coredump kernel: hdc: YAMAHA CRW2100E, ATAPI CDROM drive
+Jan 15 19:43:06 coredump kernel: hdc: ATAPI 40X CD-ROM CD-R/RW drive,
+8192kB Cache, (U)DMA
 
 
-> Ethernet is compiled into the kernel as is smbfs (not as modules).  I've
-> compiled this kernel with 4GB bigmem support (otherwise I only get 8xxMB
-> total).
+the standard ATAPI detects this correctly.
 
-The smbfs cache code in 2.4.0 doesn't work with bigmem. For now disable
-bigmem or don't use smbfs, it's oopsing all the time.
+Shawn Starr wrote:
 
-Rainer Mager reported the same thing yesterday ("Oops with 4GB memory
-setting in 2.4.0 stable" if you want to read the thread).
-
-I am currently looking into this ... what kind of server are you
-connecting to? win2k/NT4/9x? It is easier to test with those than the more
-exotic OS/2 & NetApp.
-
-/Urban
+> In 2.4.1-pre8, this info appears in dmesg:
+>
+> SCSI subsystem driver Revision: 1.00
+> scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+>   Vendor: YAMAHA    Model: CRW2100E          Rev: 1.0H
+>   Type:   CD-ROM                             ANSI SCSI revision: 02
+>
+> hdc: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive
+>
+> This model isn't DVD ;)
+>
+> It's a CD-ROM/CD-R/RW drive 8MB cache 40x read, as detected by the
+> standard ATAPI drivers. the SCSI emulation doesnt appear to detect the
+> right kind of drive (its assuming its a CD-ROM only?)
+>
+> Shawn.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,288 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbTFBRDD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 13:03:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTFBRDD
+	id S263547AbTFBREX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 13:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbTFBREX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 13:03:03 -0400
-Received: from otto.nurk.org ([208.33.7.103]:5607 "EHLO otto.nurk.org")
-	by vger.kernel.org with ESMTP id S262090AbTFBRCv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 13:02:51 -0400
-Date: Mon, 2 Jun 2003 10:15:35 -0700 (PDT)
-From: Sean Swallow <sean@swallow.org>
-X-X-Sender: olaph@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-Subject: RocketRaid Serial ATA support (HPT374)
-Message-ID: <Pine.LNX.4.44.0306021014210.31232-100000@localhost.localdomain>
+	Mon, 2 Jun 2003 13:04:23 -0400
+Received: from landfill.ihatent.com ([217.13.24.22]:37860 "EHLO
+	pileup.ihatent.com") by vger.kernel.org with ESMTP id S263547AbTFBRED
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 13:04:03 -0400
+To: David Brownell <david-b@pacbell.net>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
+Subject: Re: USB 2.0 with 250Gb disk and insane loads
+References: <3EDA0E5D.8080404@pacbell.net>
+	<200306011653.47958.oliver@neukum.org>
+	<87k7c5g738.fsf@lapper.ihatent.com>
+	<200306012021.41147.oliver@neukum.org>
+	<87llwkpoex.fsf@lapper.ihatent.com> <3EDB85B5.5040209@pacbell.net>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 02 Jun 2003 19:17:34 +0200
+In-Reply-To: <3EDB85B5.5040209@pacbell.net>
+Message-ID: <87brxgpff5.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello List,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I recently bought a Highpoint RocketRaid 1540. I thoght that it should
-work in Linux since it used the HPT374 chipset. I have been unable to get
-get it working with the driver in the kernel (kernel 2.4.20, 2.4.21-rc2,
-2.4.21-rc6 and 2.5.70) or the driver from HighPoint's site.
+David Brownell <david-b@pacbell.net> writes:
 
-I will be happy to provide any other information I can.
+> Alexander Hoogerhuis wrote:
+> > I had a private reply form a guy that had three of these running
+> > reliably on 2.4.21-pre6, and he noted he'd never done cd->disk
+> > transfers, but across the net. So I did the same.
+> > Results are that it survived a lot longer, I managed to get about
+> > 700Mb across at about 8Mb/s (line speed 100mbit half duplex) before it
+> > fell over with this:
+> > ...
+> > usb-storage: Command WRITE_10 (10 bytes)
+> > usb-storage:  2a 00 18 f0 34 47 00 04 00 00
+> > usb-storage: Bulk command S 0x43425355 T 0xc43 Trg 0 LUN 0 L 524288 F 0 CL 10
+> > usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+> > usb-storage: Status code 0; transferred 31/31
+> > usb-storage: -- transfer complete
+> > usb-storage: Bulk command transfer result=0
+> 
+> 
+> > usb-storage: usb_stor_bulk_transfer_sglist: xfer 524288 bytes, 128 entries
+> > usb-storage: Status code 0; transferred 524288/524288
+> > usb-storage: -- transfer complete
+> > usb-storage: Bulk data transfer result 0x0
+> 
+> That's two successive operations on the OUT endpoint
+> (two IRQs:  request, then 128 pages) both of which
+> worked fine, followed by one on the IN endpoint:
+> 
+> 
+> > usb-storage: Attempting to get CSW...
+> > usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+> > usb-storage: usb_storage_command_abort called
+> > usb-storage: usb_stor_stop_transport called
+> > usb-storage: -- cancelling URB
+> > usb-storage: Status code -104; transferred 0/13
+> > usb-storage: -- transfer cancelled
+> > usb-storage: Bulk status result = 3
+> > usb-storage: -- command was aborted
+> > ...
+> 
+> Interesting.  So basically, the failure mode you saw
+> was that after all the data was (evidently) transferred
+> OK, usb-storage aborted (for some reason) its fetch
+> for the transfer status ... and then trouble.
+> 
+> Why did usb-storage abort that IN transfer?  If we
+> knew that, we'd have a good clue as to what's going
+> wrong.
+> 
 
-I have a RocketRaid 1540 connected to 4 60gb ata100 IBM drives 
-(Model=IC35L060AVVA07-0) on a Tyan 2466N.
+I'll be happy to do whatever is neccesary to answer that, but I have
+no clue off-hand how to get at what the problem is.
 
-Upon boot, the first thing I notice is that the first 2 channels are
-recognized as ata100 and the second 2 are only ata33.
+> 
+> > Load only got up to about 3-4 before it fell over.
+> > Apart from that, it seems the speed at which it falls over is
+> > depening
+> > on two factors: with/without debugging and speed at which data arrives
+> > for the drive.
+> 
+> Not unrelated.  Turning on usb-storage debug slows down the
+> rate at which data is handed to the drive.
+> 
 
-HPT374: IDE controller at PCI slot 02:05.0
-HPT374: chipset revision 7
-HPT374: not 100% native mode: will probe irqs later
-HPT37X: using 33MHz PCI clock
-    ide2: BM-DMA at 0x3000-0x3007, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0x3008-0x300f, BIOS settings: hdg:pio, hdh:pio
-HPT37X: using 33MHz PCI clock
-    ide4: BM-DMA at 0x3400-0x3407, BIOS settings: hdi:pio, hdj:pio
-    ide5: BM-DMA at 0x3408-0x340f, BIOS settings: hdk:pio, hdl:pio
-hde: IC35L060AVVA07-0, ATA DISK drive
-ide2 at 0x3890-0x3897,0x3886 on irq 17
-hdg: IC35L060AVVA07-0, ATA DISK drive
-ide3 at 0x3888-0x388f,0x3882 on irq 17
-hdi: IC35L060AVVA07-0, ATA DISK drive
-ide4 at 0x38a8-0x38af,0x389e on irq 17
-hdk: IC35L060AVVA07-0, ATA DISK drive
-ide5 at 0x38a0-0x38a7,0x389a on irq 17
-hde: max request size: 128KiB
-hde: host protected area => 1
-hde: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, 
-UDMA(100)
- hde: hde1 hde2 hde3
-hdg: max request size: 128KiB
-hdg: host protected area => 1
-hdg: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, 
-UDMA(100)
- hdg: hdg1 hdg2
-hdi: max request size: 128KiB
-hdi: host protected area => 1
-hdi: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, 
-UDMA(33)
- hdi: hdi1 hdi2
-hdk: max request size: 128KiB
-hdk: host protected area => 1
-hdk: 120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, 
-UDMA(33)
- hdk: hdk1 hdk2
+True, but I was thinking of it keeling over faster with debugging than
+without. 
 
-Then the second 2 start complaining...
+> - Dave
+> 
 
-hdi: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdi: drive not ready for command
-hdk: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-hdk: drive not ready for command
+- -A
+- -- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
 
-And, if I try to mount them, more fun ensues...
-
-hdk: drive not ready for command
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide5: reset: success
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide5: reset: success
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-end_request: I/O error, dev hdk, sector 120103024
-md: write_disk_sb failed for device hdk2
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide4: reset: success
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide4: reset: success
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-end_request: I/O error, dev hdi, sector 120103024
-md: write_disk_sb failed for device hdi2
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide3: reset: success
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide3: reset: success
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-end_request: I/O error, dev hdg, sector 120103024
-md: write_disk_sb failed for device hdg2
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide2: reset: success
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide2: reset: success
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-end_request: I/O error, dev hde, sector 120103024
-md: write_disk_sb failed for device hde3
-md: errors occurred during superblock update, repeating
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdk: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdk: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide5: reset: success
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdi: dma_intr: status=0x53 { DriveReady SeekComplete Index Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdi: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdi: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide4: reset: success
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide3: reset: success
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide3: reset: success
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-end_request: I/O error, dev hdg, sector 120103024
-md: write_disk_sb failed for device hdg2
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide2: reset: success
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide2: reset: success
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-end_request: I/O error, dev hde, sector 120103024
-md: write_disk_sb failed for device hde3
-md: errors occurred during superblock update, repeating
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide3: reset: success
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide3: reset: success
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide2: reset: success
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide2: reset: success
-hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hde: drive not ready for command
-hde: status timeout: status=0xd0 { Busy }
-
-hde: drive not ready for command
-ide2: reset: success
-kjournald starting.  Commit interval 5 seconds
-hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hde: drive not ready for command
-
-Thank you for your help.
-
--- 
-Sean Swallow
-
+iD8DBQE+24arCQ1pa+gRoggRAgzNAKDICQ+jU3ck4RV4w1dTBt8LgyHCSwCdGVpJ
+86HgVilIQpKHdv2uWNhXmo0=
+=Xtnx
+-----END PGP SIGNATURE-----

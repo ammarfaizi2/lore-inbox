@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVCDOrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVCDOp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVCDOrW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 09:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbVCDOrV
+	id S262878AbVCDOp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 09:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbVCDOp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 09:47:21 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:47383 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261410AbVCDOrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 09:47:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=eDFy466q56/p/MZPlfZdinz/aA+hhd49cbv4YhBsmegtaoUu9McnIeDD0JiC5w776vLc8U+5kmWKPELNLuQk1H/XFeiQeYgb3Cnsqi4fm1Gc71LU6sm+MIa0lQRrJhv1sg6QovpBCPGUv9yW9anBOavOvLEbmY0qOSjlBHuJ/8Y=
-Message-ID: <65258a58050304064710b403d7@mail.gmail.com>
-Date: Fri, 4 Mar 2005 15:47:10 +0100
-From: Vincent Vanackere <vincent.vanackere@gmail.com>
-Reply-To: Vincent Vanackere <vincent.vanackere@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>, axboe@suse.de
-Subject: Re: 2.6.11-ck1 (cfq-timeslice)
-Cc: ck@vds.kolivas.org,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200503030030.29722.kernel@kolivas.org>
+	Fri, 4 Mar 2005 09:45:28 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:47084 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S263028AbVCDOmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 09:42:32 -0500
+Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on
+	battery power)
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       paul.devriendt@amd.com
+In-Reply-To: <200503041415.35162.rjw@sisk.pl>
+References: <200502252237.04110.rjw@sisk.pl>
+	 <200503030902.48038.rjw@sisk.pl> <20050304110408.GL1345@elf.ucw.cz>
+	 <200503041415.35162.rjw@sisk.pl>
+Content-Type: text/plain
+Message-Id: <1109947460.3772.270.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 05 Mar 2005 01:44:20 +1100
 Content-Transfer-Encoding: 7bit
-References: <200503030030.29722.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Added since 2.6.10-ck7:
-> +cfq-ts-21.diff
-> The latest version of Jens' cfq-timeslice i/o scheduler now heavily tested and
-> with full read i/o priority support
+Hi.
 
-Speaking of the cfq-timeslice scheduler, is there a version that
-applies to recent -mm kernels ?
-(I cannot find anything more recent than 2.6.10-rc3-mm1).
-I'd really love to try it again as it made quite a noticeable
-difference last time I've tried (but I can't live without reiser4 any
-more...).
+On Sat, 2005-03-05 at 00:15, Rafael J. Wysocki wrote:
+> Hi,
+> 
+> On Friday, 4 of March 2005 12:04, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > IIRC kernel code/data is marked as PageReserved(), that's why we need
+> > > > to save that :(. Not sure what to do with data e820 marked as
+> > > > reserved...
+> > > 
+> > > Perhaps we need another page flag, like PG_readonly, and mark the pages
+> > > reserved by the e820 as PG_reserved | PG_readonly (the same for the areas
+> > > that are not returned by e820 at all).  Would that be acceptable?
+> > 
+> > This flags are little in the short supply, but being able to tell
+> > kernel code from memory hole seems like "must have", so yes, that
+> > looks ok.
+> > 
+> > You could get subtle and reuse some other pageflag. I do not think
+> > PG_reserved can have PG_locked... So using for example PG_locked for
+> > this purpose should be okay.
+> 
+> The following patch does this.  It is only for x86-64 without
+> CONFIG_DISCONTIGMEM, but it has no effect in other cases.
 
-Best regards,
+Oops! That's what you get for replying to earlier messages before you
+read later ones! The patch I posted has been in use for quite a while,
+so it might be helpful to compare anyway.
 
-Vincent
+Regards,
+
+Nigel 
+
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://softwaresuspend.berlios.de
+
+

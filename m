@@ -1,97 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269211AbTGOR5X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 13:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269225AbTGOR5G
+	id S268364AbTGOSJd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 14:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269354AbTGOSJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 13:57:06 -0400
-Received: from mail.kroah.org ([65.200.24.183]:54960 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269211AbTGORwc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:52:32 -0400
-Date: Tue, 15 Jul 2003 11:07:32 -0700
-From: Greg KH <greg@kroah.com>
-To: ffrederick@prov-liege.be
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipc kobject model against 2.6t1
-Message-ID: <20030715180732.GB4495@kroah.com>
+	Tue, 15 Jul 2003 14:09:33 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:50846 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S268364AbTGOSIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 14:08:15 -0400
+Date: Tue, 15 Jul 2003 19:22:53 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jamie Lokier <jamie@shareable.org>, Gerd Knorr <kraxel@suse.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [patch] vesafb fix
+Message-ID: <20030715182253.GG15505@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jamie Lokier <jamie@shareable.org>, Gerd Knorr <kraxel@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andi Kleen <ak@suse.de>
+References: <20030715141023.GA14133@bytesex.org> <20030715173557.GB1491@mail.jlokier.co.uk> <20030715175358.GB15505@suse.de> <1058292400.3845.59.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1058292400.3845.59.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some coding style issues:
+On Tue, Jul 15, 2003 at 07:06:41PM +0100, Alan Cox wrote:
 
+ > Not all the MTRR using chips use PAT - but its certainly a start.
+Sure.
 
-> +/*
-> + * sysfs exports
-> + */
-> +
-> +#define SHM_ATTR(_ind, _name)\
-> +		shm_ids.entries[id].sysfs_attr[_ind].name=(char*)kmalloc(SYSFS_ATTR_MAX_LENGTH,GFP_KERNEL); \
-> +		sprintf(shm_ids.entries[id].sysfs_attr[_ind].name,__stringify(_name)); \
-> +		shm_ids.entries[id].sysfs_attr[_ind].mode=0644; \
-> +		sysfs_create_file(&shm_ids.entries[id].kobj, &shm_ids.entries[id].sysfs_attr[_ind]); 
+ > The
+ > base algorithm for allocating MTRRs as efficiently as sanely possible
+ > is already in the kernel btw - or pretty close to it - its used by
+ > the Winchip code to cover RAM with out of order store.
 
-At least _try_ to get within 80 columns :)
+Does that support wierdo cases like Jamie's though?
+I can't see how you can cover an not-a-powerof2 size area of memory
+without doing too little/too much. The winchip code was written with
+RAM in mind, which is always a power of 2 unless you boot with
+mem=fooMB
 
-> +static ssize_t shm_attr_show(struct kobject *kobj, struct attribute *attr, char *buf){
+		Dave
 
-Put '{' on the new line, as Documentation/CodingStyle states to.
-
-> +	unsigned long key=simple_strtoul(kobj->name,NULL,10);
-> +	unsigned int id=0;
-> +	int found=0;
-> +	struct shmid_kernel *shp;
-> +	for(id=0;id<=shm_ids.max_id&&!found;id++){
-
-Add an empty line between the variables being defined, and the first
-function statement.
-
-Add some spaces in the for() line to look like:
-	for (id=0; id<=shm_ids.max_id && !found; id++) {
-
-Same thing for your if () statements:
-
-
-> +	if(found){
-
-
->  void __init shm_init (void)
->  {
->  	ipc_init_ids(&shm_ids, 1);
->  #ifdef CONFIG_PROC_FS
->  	create_proc_read_entry("sysvipc/shm", 0, 0, sysvipc_shm_read_proc, NULL);
->  #endif
-> +        strcpy(shm_ids.kobj.name, "shm");
-> +        //shm_ids.kobj.parent = &ipc_kobj;	
-> +	shm_ids.kobj.parent = NULL;
-> +        kobject_register(&shm_ids.kobj);
-
-Use tabs, and not spaces.
-
-> @@ -266,7 +345,6 @@
->  		shm_unlock(shp);
->  	}
->  	up(&shm_ids.sem);
-> -
->  	return err;
->  }
-
-Was removing that line really necessary :)
-
-
-> @@ -274,6 +283,7 @@
->  		vfree(ptr);
->  	else
->  		kfree(ptr);
-> +
->  }
-
-You added that line why?  :)
-
-Hope this helps,
-
-greg k-h

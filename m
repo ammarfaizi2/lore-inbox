@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265271AbUBPAHL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 19:07:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUBPAHL
+	id S265273AbUBPAS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 19:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUBPASz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 19:07:11 -0500
-Received: from lanshark.nersc.gov ([128.55.16.114]:44482 "EHLO
-	lanshark.nersc.gov") by vger.kernel.org with ESMTP id S265271AbUBPAGq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 19:06:46 -0500
-Message-ID: <403008C0.1070806@lbl.gov>
-Date: Sun, 15 Feb 2004 16:03:12 -0800
-From: Thomas Davis <tadavis@lbl.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix make rpm in 2.6 when using RH9 or Fedora..
-References: <402BD507.2040201@lbl.gov> <402EE151.4000807@tmr.com>
-In-Reply-To: <402EE151.4000807@tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 15 Feb 2004 19:18:55 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:56995 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265273AbUBPASy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 19:18:54 -0500
+Subject: kthread, signals and PF_FREEZE (suspend)
+From: Christophe Saout <christophe@saout.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Content-Type: text/plain
+Message-Id: <1076890731.5525.31.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 16 Feb 2004 01:18:52 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> 
-> 
-> Why do you want to disable the missing file check? As opposed to 
-> providing the file?
-> 
-> I personally fix ther problem instead of disabling the check, the list 
-> can be empty, of course.
-> 
+Hi,
 
-There is four options to fix this problem.
+I was wondering, has kthread been tested with the suspend code?
 
-1) Change the RH9/Fedora macros.
-2) Add a global entry into my .rpmmacros
-3) Find and create the missing file (empty, in this case) (ie, do a 'touch /usr/src/linux-2.6.3/debugfiles.list' and it will proceed without making the debugfile RPM.)
-4) Disable it in the specfile, since only RH9/Fedora does this, and Mandrake/SuSE probably doesn't.
+When trying to freeze the processes the suspend code sets PF_FREEZE on a
+process and calls signal_wake_up(p, 0);
 
-I'm not going to do #1, and I'm not going to do #2, I'll settle for #3 or #4, but #3 now means another file to ship around or create, even if it's empty.
+That means that signal_pending() will return true for that process which
+will make kthread stop the thread.
 
-This simply gets it working again.
-thomas
+The workqueues have PF_IOTHREAD set and I'm only seeing those on my
+machine that's why it doesn't fail.
+
+But the migration threads for example call signal_pending() directly
+after schedule() before checking PF_FREEZE and calling refrigerator()
+(which BTW flushes all signals).
+
+

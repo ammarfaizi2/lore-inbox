@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272102AbRHVTZY>; Wed, 22 Aug 2001 15:25:24 -0400
+	id <S272104AbRHVTZo>; Wed, 22 Aug 2001 15:25:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272098AbRHVTZO>; Wed, 22 Aug 2001 15:25:14 -0400
-Received: from smtp8.xs4all.nl ([194.109.127.134]:5602 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S272100AbRHVTZC>;
-	Wed, 22 Aug 2001 15:25:02 -0400
-From: thunder7@xs4all.nl
-Date: Wed, 22 Aug 2001 21:25:05 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: (lkml)Re: Linux 2.4.8-ac9
-Message-ID: <20010822212505.A2732@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <20010822124856.A5395@lightning.swansea.linux.org.uk> <3B84014C.6DFEA362@delusion.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B84014C.6DFEA362@delusion.de>
-User-Agent: Mutt/1.3.20i
+	id <S272098AbRHVTZZ>; Wed, 22 Aug 2001 15:25:25 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:18396 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S272100AbRHVTZP>; Wed, 22 Aug 2001 15:25:15 -0400
+Date: Wed, 22 Aug 2001 15:40:24 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops after mounting ext3 on 2.4.8-ac9
+In-Reply-To: <3B83F79E.45B9CC34@zip.com.au>
+Message-ID: <Pine.LNX.4.31.0108221537100.3959-100000@rc.priv.hereintown.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 22, 2001 at 09:00:28PM +0200, Udo A. Steinberg wrote:
-> Alan Cox wrote:
-> > 2.4.8-ac9
-> > o       Possible usb -110 error fix                     (me)
-> 
-> It's still broken.
-> 
-usb.c: registered new driver hub
-uhci.c: USB UHCI at I/O 0xa000, IRQ 19
-usb.c: new USB bus registered, assigned bus number 1
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=1 (error=-110)
-uhci.c: USB UHCI at I/O 0xa400, IRQ 19
-usb.c: new USB bus registered, assigned bus number 2
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=1 (error=-110)
-Initializing USB Mass Storage driver...
-usb.c: registered new driver usb-storage
-USB Mass Storage support registered.
+On Wed, 22 Aug 2001, Andrew Morton wrote:
 
-Yup, I see that too. This is an Abit VP6 SMP Intel box.
+> USB problem.  Looks like dev->bus has a wild value in new_dev_inode().
+> >From a quick scan I don't see any changes in ac8->ac9 which could cause
+> this.  Please, work back through kernel versions until it goes away and
+> let us know.
 
-Jurriaan
+Sure enough, I mount /proc and /proc/bus/usb after the last disc
+partition.
+
+Yep, the oops persisted in 2.4.8-ac8, but went away as I went back to
+-ac7.
+
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263374AbSIPXrp>; Mon, 16 Sep 2002 19:47:45 -0400
+	id <S263405AbSIPXxK>; Mon, 16 Sep 2002 19:53:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263405AbSIPXrp>; Mon, 16 Sep 2002 19:47:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:36328 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263374AbSIPXrp>;
-	Mon, 16 Sep 2002 19:47:45 -0400
-Date: Mon, 16 Sep 2002 16:43:43 -0700 (PDT)
-Message-Id: <20020916.164343.128145825.davem@redhat.com>
-To: jgarzik@mandrakesoft.com
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org, todd-lkml@osogrande.com,
-       hadi@cyberus.ca, tcw@tempest.prismnet.com, netdev@oss.sgi.com,
-       pfeather@cs.unm.edu
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D866DD5.4080207@mandrakesoft.com>
-References: <3D86645F.5030401@mandrakesoft.com>
-	<20020916.160210.70782700.davem@redhat.com>
-	<3D866DD5.4080207@mandrakesoft.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S263427AbSIPXxK>; Mon, 16 Sep 2002 19:53:10 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:15112
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263405AbSIPXxJ>; Mon, 16 Sep 2002 19:53:09 -0400
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+From: Robert Love <rml@tech9.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209161644210.2029-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0209161644210.2029-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 16 Sep 2002 19:58:09 -0400
+Message-Id: <1032220689.1203.85.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@mandrakesoft.com>
-   Date: Mon, 16 Sep 2002 19:48:37 -0400
+On Mon, 2002-09-16 at 19:45, Linus Torvalds wrote:
 
-   I dunno when it happened, but 2.5.x now returns EINVAL for all 
-   file->file cases.
-   
-   In 2.4.x, if sendpage is NULL, file_send_actor in mm/filemap.c faked a 
-   call to fops->write().
-   In 2.5.x, if sendpage is NULL, EINVAL is unconditionally returned.
-   
+> Ahhah! I know. You just make lock_depth 0 when you exit, without actually 
+> taking the kernel lock. Which fools the logic into accepting a 
+> preempt-disable, since it thinks that the preempt disable is due to 
+> holding the kernel lock.
 
-What if source and destination file and offsets match?
-Sounds like 2.4.x might deadlock.
+I was this -> <- close to celebrating.  Not so fast, smarty.
 
-In fact it sounds similar to the "read() with buf pointed to same
-page in MAP_WRITE mmap()'d area" deadlock we had ages ago.
+What about release_kernel_lock() ?
+
+It sees task->lock_depth>=0 and calls spin_unlock() on a lock that it
+does not hold.
+
+	Robert Love
+

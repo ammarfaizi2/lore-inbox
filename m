@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261405AbTC0WC0>; Thu, 27 Mar 2003 17:02:26 -0500
+	id <S261406AbTC0WCh>; Thu, 27 Mar 2003 17:02:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261406AbTC0WC0>; Thu, 27 Mar 2003 17:02:26 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55269 "HELO
+	id <S261410AbTC0WCh>; Thu, 27 Mar 2003 17:02:37 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53733 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261405AbTC0WCY>; Thu, 27 Mar 2003 17:02:24 -0500
-Date: Thu, 27 Mar 2003 23:13:31 +0100
+	id <S261406AbTC0WCf>; Thu, 27 Mar 2003 17:02:35 -0500
+Date: Thu, 27 Mar 2003 23:13:42 +0100
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Stelian Pop <stelian@popies.net>,
+To: Jeff Garzik <jgarzik@pobox.com>,
        Marcelo Tosatti <marcelo@conectiva.com.br>,
        Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] fix .text.exit error in sonypi.c
-Message-ID: <20030327221331.GB24744@fs.tum.de>
+Subject: [patch] fix .text.exit error in drivers/net/r8169.c
+Message-ID: <20030327221342.GC24744@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,53 +21,28 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following .text.exit error is present in 2.4.1-pre6 (it seems to be 
-in 2.5.66, too):
 
-<--  snip  -->
+In drivers/net/r8169.c the function rtl8169_remove_one is __devexit but 
+the pointer to it didn't use __devexit_p resulting in a.text.exit 
+compile error when !CONFIG_HOTPLUG.
 
-...
-drivers/char/char.o(.text+0x9a891): In function `sonypi_pm_callback':
-: undefined reference to `local symbols in discarded section .text.exit'
-drivers/char/char.o(.text+0x9a898): In function `sonypi_pm_callback':
-: undefined reference to `local symbols in discarded section .text.exit'
-...
+The fix is simple:
 
-<--  snip  -->
-
-
-In drivers/char/sonypi.c the __devexit funcitions sonypi_type1_dis and 
-sonypi_type2_dis are called from the non-__devexit function 
-sonypi_pm_callback.
-
-
-The following patch removes the __devexit from these two functions:
+--- linux-2.4.21-pre6-full-nohotplug/drivers/net/r8169.c.old	2003-03-27 22:17:09.000000000 +0100
++++ linux-2.4.21-pre6-full-nohotplug/drivers/net/r8169.c	2003-03-27 22:19:18.000000000 +0100
+@@ -1110,7 +1110,7 @@
+ 	.name		= MODULENAME,
+ 	.id_table	= rtl8169_pci_tbl,
+ 	.probe		= rtl8169_init_one,
+-	.remove		= rtl8169_remove_one,
++	.remove		= __devexit_p(rtl8169_remove_one),
+ 	.suspend	= NULL,
+ 	.resume		= NULL,
+ };
 
 
---- linux-2.4.21-pre6-full-nohotplug/drivers/char/sonypi.c.old	2003-03-27 22:07:23.000000000 +0100
-+++ linux-2.4.21-pre6-full-nohotplug/drivers/char/sonypi.c	2003-03-27 22:09:05.000000000 +0100
-@@ -162,7 +162,7 @@
- }
- 
- /* Disables the device - this comes from the AML code in the ACPI bios */
--static void __devexit sonypi_type1_dis(void) {
-+static void sonypi_type1_dis(void) {
- 	u32 v;
- 
- 	pci_read_config_dword(sonypi_device.dev, SONYPI_G10A, &v);
-@@ -174,7 +174,7 @@
- 	outl(v, SONYPI_IRQ_PORT);
- }
- 
--static void __devexit sonypi_type2_dis(void) {
-+static void sonypi_type2_dis(void) {
- 	if (ec_write(SONYPI_SHIB, 0))
- 		printk(KERN_WARNING "ec_write failed\n");
- 	if (ec_write(SONYPI_SLOB, 0))
-
-
-
-I've tested the compilation with 2.4.21-pre6.
+The patch applies against 2.4.21-pre6 and 2.5.66. I've tested the 
+compilation with 2.4.21-pre6.
 
 
 Please apply

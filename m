@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbTLIVvm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 16:51:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbTLIVvm
+	id S262705AbTLIVzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 16:55:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbTLIVzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 16:51:42 -0500
-Received: from main.gmane.org ([80.91.224.249]:40675 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262327AbTLIVvk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 16:51:40 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: dialectical deprecation Re: cdrecord hangs my computer
-Date: Tue, 09 Dec 2003 22:51:38 +0100
-Message-ID: <yw1xn0a11wyd.fsf@kth.se>
-References: <Law9-F31u8ohMschTC00001183f@hotmail.com> <Pine.LNX.4.58.0312060011130.2092@home.osdl.org>
- <3FD1994C.10607@stinkfoot.org> <20031206084032.A3438@animx.eu.org>
- <Pine.LNX.4.58.0312061044450.2092@home.osdl.org>
- <20031206220227.GA19016@work.bitmover.com>
- <Pine.LNX.4.58.0312061429080.2092@home.osdl.org>
- <20031207110122.GB13844@zombie.inka.de>
- <Pine.LNX.4.58.0312070812080.2057@home.osdl.org>
- <1201390000.1070900656@[10.10.2.4]> <3FD4CF90.3000905@nishanet.com>
- <Pine.LNX.4.58.0312091430320.19636@dlang.diginsite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:rXPMVh39RXnvsSy9JNNVNptviA4=
+	Tue, 9 Dec 2003 16:55:31 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:16259
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262251AbTLIVza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 16:55:30 -0500
+Date: Tue, 9 Dec 2003 16:54:00 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+cc: cliff white <cliffw@osdl.org>, hannal@us.ibm.com,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Amy Graf <amy@work.bitmover.com>
+Subject: Re: [Lse-tech] Re: Minutes from OSDL talk at LSE call today
+In-Reply-To: <20031209214815.GA32633@work.bitmover.com>
+Message-ID: <Pine.LNX.4.58.0312091653020.2313@montezuma.fsmlabs.com>
+References: <189470000.1070500829@w-hlinder> <20031204033535.GA2370@work.bitmover.com>
+ <20031204134517.0c7a4ec4.cliffw@osdl.org> <20031204234454.GA15799@work.bitmover.com>
+ <Pine.LNX.4.58.0312091625560.2313@montezuma.fsmlabs.com>
+ <20031209214815.GA32633@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang <david.lang@digitalinsight.com> writes:
+On Tue, 9 Dec 2003, Larry McVoy wrote:
 
-> On Mon, 8 Dec 2003, Bob wrote:
+> It's worth pointing out that triggers in open source trees are quite a bit
+> more dangerous than in controlled environment.  Carl-Daniel's boss made
+> quite a fuss over the fact that triggers are just programs that are run
+> and can be used to cause all sorts of problems if people were malicious.
 >
->> I'm scared(under-informed) to drop ide-scsi since I'm using 3ware
->> and don't know if just scsi-generic would be enough for that hd
->> controller(needs ide-scsi?  3ware's site doc is not easy to find).
->
-> Bob, I don't believe that the 3ware card uses ide-scsi, yes it uses
-> IDE drives and looks like a SCSI controller, but that's done in the
-> 3ware driver, not by useing ide-scsi.
+> I've toyed with the idea of disabling triggers in openlogging trees
+> because of this.  I'm neutral on the topic, it's not like triggers
+> are some huge money maker that we need to reserve for the commercial
+> version.  If the general feeling is that triggers are useful and people
+> will take responsibility for policing their own repos then we'll leave
+> them in.  On the other hand, if someone putting a nasty trigger into
+> your tree somehow becomes the fault of BitMover because we provided the
+> infrastructure then out they go in the next release.
 
-That is correct.
+I personally find them very useful, perhaps we should just stick with the
+other methods of disabling said functionality.
 
--- 
-Måns Rullgård
-mru@kth.se
+Thanks
 

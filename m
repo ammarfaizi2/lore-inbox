@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270911AbRHNWmr>; Tue, 14 Aug 2001 18:42:47 -0400
+	id <S270918AbRHNWt2>; Tue, 14 Aug 2001 18:49:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270907AbRHNWmi>; Tue, 14 Aug 2001 18:42:38 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:18959 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S270909AbRHNWmY>;
-	Tue, 14 Aug 2001 18:42:24 -0400
-Date: Tue, 14 Aug 2001 23:42:30 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Per Jessen <per@computer.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Who do I post to?
-In-Reply-To: <3B790F670002119D@mta2n.bluewin.ch> (added by postmaster@bluewin.ch)
-Message-ID: <Pine.LNX.4.33.0108142335500.21167-100000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270917AbRHNWtR>; Tue, 14 Aug 2001 18:49:17 -0400
+Received: from maile.telia.com ([194.22.190.16]:31960 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S270907AbRHNWtE> convert rfc822-to-8bit;
+	Tue, 14 Aug 2001 18:49:04 -0400
+Subject: Re: Hardlock with all kernel >= 2.4.7-pre5 - softirq related ?
+From: Thomas Svedberg <thsv@bigfoot.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010814214641.B27499@athlon.random>
+In-Reply-To: <997803113.1423.22.camel@athlon1.hemma.se> 
+	<20010814214641.B27499@athlon.random>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 15 Aug 2001 00:48:57 +0200
+Message-Id: <997829352.7554.56.camel@athlon1.hemma.se>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Per.
+Den 14 Aug 2001 21:46:41 +0200 skrev Andrea Arcangeli:
+> On Tue, Aug 14, 2001 at 05:29:54PM +0200, Thomas Svedberg wrote:
+> > I have experienced hardlocks (everything freezes with small white square
+> 
+> exact kernel version? Please make sure you can reproduce on 2.4.9-pre3,
+> thanks.
 
- > PS: is it customary to copy posters on a posting to lkml ? I
- > don't mind, but just to avoid flames.
+I have had crashes with 2.4.7, 2.4.8, and all -pre i tried from
+2.4.7-pre5 and onward as well as with the few recent -ac I tried.
 
-There are arguments both ways, as follows:
+The diff I included earlier was the part of the difference from
+2.4.7-pre4 to -pre5 that I narrowed down the lockup to.
 
-FOR:	Since the person whose email you're replying to may not be
-	on the list, you should always reply to the sender as well
-	as to the list.
+I will try 2.4.9-pre tomorrow and see what happens (but recent kernels
+have taken longer (about 24h) to lock up than older (<1h), so a positive
+success will take some time.
 
-FOR:	The person you're replying to probably gets a lot of emails
-	each day, and ignores any not specifically to them, so if
-	you don't include their name in the To line, they'll never
-	read it.
 
-NOPE:	Anybody who can't be bothered to subscribe to a list they
-	post a question on obviously isn't interested in the reply.
+/ Thomas
+.......................................................................
+ Thomas Svedberg
+ Department of Mathematics
+ Chalmers University of Technology
 
-Personally, I decide based on the content of the email - if it's a
-general comment, I'll send it "list only", but if it's something that
-I feel the original sender will want to comment on, I include them in
-the list as well.
-
-However, one thing I don't do is to blindly reply to everybody the
-sender sent it to. If it was originally sent to lists I'm not on,
-that's their bad luck, coz they get stripped from the reply list.
-Ditto anybody who appears not to be directly concerned with the
-comments I'm making.
-
-Best wishes from Riley.
+ Address: S-412 96 Göteborg, SWEDEN
+ E-mail : thsv@bigfoot.com, thsv@math.chalmers.se
+ Phone  : +46 31 772 5368
+ Fax    : +46 31 772 3595
+.......................................................................
 

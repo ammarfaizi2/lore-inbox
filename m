@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVDCH03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVDCH0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVDCH03 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 03:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVDCH02
+	id S261579AbVDCH0x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 03:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVDCH0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 03:26:28 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:16298 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261584AbVDCH0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 03:26:25 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Paul Jackson'" <pj@engr.sgi.com>, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Date: Sat, 2 Apr 2005 23:23:23 -0800 (PST)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: Industry db benchmark result on recent 2.6 kernels
-In-Reply-To: <20050403065356.GV1753@schnapps.adilger.int>
-Message-ID: <Pine.LNX.4.62.0504022318160.5402@qynat.qvtvafvgr.pbz>
-References: <200504020205.j32256g05369@unix-os.sc.intel.com>
- <Pine.LNX.4.62.0504022228080.5402@qynat.qvtvafvgr.pbz>
- <20050403065356.GV1753@schnapps.adilger.int>
+	Sun, 3 Apr 2005 03:26:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50598 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261579AbVDCH0t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 03:26:49 -0400
+Message-ID: <424F9AA8.3020401@pobox.com>
+Date: Sun, 03 Apr 2005 03:26:32 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: jmerkey <jmerkey@utah-nac.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9 Adaptec 4 Port Starfire Sickness
+References: <424F73F8.8020108@utah-nac.org>
+In-Reply-To: <424F73F8.8020108@utah-nac.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Apr 2005, Andreas Dilger wrote:
+jmerkey wrote:
+> With linux 2.6.9 running at 192 MB/S network loading and protocol 
+> splitting drivers routing packets out of
+> a 2.6.9 device at full 100 mb/s (12.5 MB/S) simultaneously over 4 ports, 
+> the adaptec starfire driver goes into
+> constant Tx FIFO reconfiguration mode and after 3-4 days of constantly 
+> resetting the Tx FIFO window and
+> generating a deluge of messages such as:
+> 
+> ethX:  PCI bus congestion, resetting Tx FIFO window to X bytes
+> 
+> pouring into the system log file at a rate of a dozen per minute.  After 
+> several days, the PCI bus totally locks up
+> and hangs the system.  Need a config option to allow the starfire to 
+> disable this feature.  At very
+> high bus loading rates, the starfire card will completely lock the bus 
+> after 3-4 days
+> of constant Tx FIFO reconfiguration at very high data rates with 
+> protocol splitting and routing.
 
->> given that this would let you get the same storage with about 1200 fewer
->> drives (with corresponding savings in raid controllers, fiberchannel
->> controllers and rack frames) it would be interesting to know how close it
->> would be (for a lot of people the savings, which probably are within
->> spitting distance of $1M could be work the decrease in performance)
->
-> For benchmarks like these, the issue isn't the storage capacity, but
-> rather the ability to have lots of heads seeking concurrently to
-> access the many database tables.  At one large site I used to work at,
-> the database ran on hundreds of 1, 2, and 4GB disks long after they
-> could be replaced by many fewer, larger disks...
+The feature doesn't need disabling; just modify the driver to stop the 
+flapping.
 
-I can understand this to a point, but it seems to me that after you get 
-beyond some point you stop gaining from this (simply becouse you run out 
-of bandwidth to keep all the heads busy). I would have guessed that this 
-happened somewhere in the hundreds of drives rather then the thousands, so 
-going from 1500x73G to 400x300G (even if this drops you from 15Krpm to 
-10Krpm) would still saturate the interface bandwidth before the drives
+	Jeff
 
-David Lang
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+

@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265001AbUEQMQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUEQMQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265001AbUEQMQr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 08:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264987AbUEQMNn
+	id S264991AbUEQMQv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 08:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264982AbUEQMPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 08:13:43 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:49625 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264985AbUEQMLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 08:11:07 -0400
-Date: Mon, 17 May 2004 17:37:15 +0530
+	Mon, 17 May 2004 08:15:39 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:41379 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264991AbUEQMMR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 08:12:17 -0400
+Date: Mon, 17 May 2004 17:38:21 +0530
 From: Maneesh Soni <maneesh@in.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: [2.6.6-mm3] sysfs-leaves-bin.patch
-Message-ID: <20040517120715.GF1249@in.ibm.com>
+Subject: [2.6.6-mm3] sysfs-leaves-misc.patch
+Message-ID: <20040517120821.GH1249@in.ibm.com>
 Reply-To: maneesh@in.ibm.com
-References: <20040517120443.GB1249@in.ibm.com> <20040517120543.GC1249@in.ibm.com> <20040517120615.GD1249@in.ibm.com> <20040517120644.GE1249@in.ibm.com>
+References: <20040517120443.GB1249@in.ibm.com> <20040517120543.GC1249@in.ibm.com> <20040517120615.GD1249@in.ibm.com> <20040517120644.GE1249@in.ibm.com> <20040517120715.GF1249@in.ibm.com> <20040517120751.GG1249@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040517120644.GE1249@in.ibm.com>
+In-Reply-To: <20040517120751.GG1249@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -29,124 +29,179 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 => changes in version 0.6
   o Re-diffed for 2.6.6-mm3
+  o Removed sysfs_remove_dirent()
+  o Added extern definition for the new sysfs_drop_dentry()
 
 => changes in version 0.5
-  o Changes to accomodate latest changes in sysfs like doing
-    module_get/put while open() and release() functions.
+  o New additions like struct sysfs_symlink. and changes to
+    sysfs_get_kobject()
 
 => changes in version 0.4
-  o Made necessary changes for checking DCACHE_SYSFS_CONNECTED flag while
-    opening the sysfs file in open() and a few changes in variable names.
+ o Nil, just re-diffed
 
 => changes in version 0.3
-  o Nil, just re-diffed
+ o Corrected dentry ref counting for sysfs_create_group() and
+   sysfs_remove_group().
 
-=> changes in version 0.2
-  o Nil, just re-diffed
+=> changes in Version 0.2
+  o  Provided error checking after sysfs_get_dentry() call in 
+     sysfs_remove_group().
+  o  kfree the symlink name while freeing the corresponding sysfs_dirent in
+     sysfs_put().
 
-o This patch contains changes required for bin attribute files.
+================
+o This patch has the changes required for attribute groups and misc. routines.
 
 
- fs/sysfs/bin.c |   52 +++++++++++++++++++---------------------------------
- 1 files changed, 19 insertions(+), 33 deletions(-)
+ fs/sysfs/group.c |   18 ++++++++-----
+ fs/sysfs/sysfs.h |   74 ++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 82 insertions(+), 10 deletions(-)
 
-diff -puN fs/sysfs/bin.c~sysfs-leaves-bin fs/sysfs/bin.c
---- linux-2.6.6-mm3/fs/sysfs/bin.c~sysfs-leaves-bin	2004-05-17 15:29:29.000000000 +0530
-+++ linux-2.6.6-mm3-maneesh/fs/sysfs/bin.c	2004-05-17 15:29:29.000000000 +0530
-@@ -17,8 +17,10 @@
- static int
- fill_read(struct dentry *dentry, char *buffer, loff_t off, size_t count)
- {
--	struct bin_attribute * attr = dentry->d_fsdata;
--	struct kobject * kobj = dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * attr_sd = dentry->d_fsdata;
-+	struct bin_attribute * attr = attr_sd->s_element;
-+	struct sysfs_dirent * kobj_sd = dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = kobj_sd->s_element;
+diff -puN fs/sysfs/group.c~sysfs-leaves-misc fs/sysfs/group.c
+--- linux-2.6.6-mm3/fs/sysfs/group.c~sysfs-leaves-misc	2004-05-17 15:29:32.000000000 +0530
++++ linux-2.6.6-mm3-maneesh/fs/sysfs/group.c	2004-05-17 15:29:32.000000000 +0530
+@@ -10,7 +10,7 @@
  
- 	return attr->read(kobj, buffer, off, count);
- }
-@@ -60,8 +62,10 @@ read(struct file * file, char __user * u
- static int
- flush_write(struct dentry *dentry, char *buffer, loff_t offset, size_t count)
- {
--	struct bin_attribute *attr = dentry->d_fsdata;
--	struct kobject *kobj = dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * attr_sd = dentry->d_fsdata;
-+	struct bin_attribute * attr = attr_sd->s_element;
-+	struct sysfs_dirent * kobj_sd = dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = kobj_sd->s_element;
+ #include <linux/kobject.h>
+ #include <linux/module.h>
+-#include <linux/dcache.h>
++#include <linux/fs.h>
+ #include <linux/err.h>
+ #include "sysfs.h"
  
- 	return attr->write(kobj, buffer, offset, count);
- }
-@@ -95,7 +99,8 @@ static ssize_t write(struct file * file,
- static int open(struct inode * inode, struct file * file)
- {
- 	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
--	struct bin_attribute * attr = file->f_dentry->d_fsdata;
-+	struct sysfs_dirent * attr_sd = file->f_dentry->d_fsdata;
-+	struct bin_attribute * attr = attr_sd->s_element;
- 	int error = -EINVAL;
+@@ -31,7 +31,7 @@ static int create_files(struct dentry * 
+ 	int error = 0;
  
- 	if (!kobj || !attr)
-@@ -130,8 +135,10 @@ static int open(struct inode * inode, st
+ 	for (attr = grp->attrs; *attr && !error; attr++) {
+-		error = sysfs_add_file(dir,*attr);
++		error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
+ 	}
+ 	if (error)
+ 		remove_files(dir,grp);
+@@ -70,11 +70,15 @@ void sysfs_remove_group(struct kobject *
+ 	else
+ 		dir = dget(kobj->dentry);
  
- static int release(struct inode * inode, struct file * file)
- {
--	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
--	struct bin_attribute * attr = file->f_dentry->d_fsdata;
-+	struct sysfs_dirent * sd = file->f_dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = sd->s_element;
-+	struct sysfs_dirent * attr_sd = file->f_dentry->d_fsdata;
-+	struct bin_attribute * attr = attr_sd->s_element;
- 	u8 * buffer = file->private_data;
- 
- 	if (kobj) 
-@@ -141,7 +148,7 @@ static int release(struct inode * inode,
- 	return 0;
- }
- 
--static struct file_operations bin_fops = {
-+struct file_operations bin_fops = {
- 	.read		= read,
- 	.write		= write,
- 	.llseek		= generic_file_llseek,
-@@ -158,31 +165,10 @@ static struct file_operations bin_fops =
- 
- int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr)
- {
--	struct dentry * dentry;
--	struct dentry * parent;
--	int error = 0;
--
--	if (!kobj || !attr)
--		return -EINVAL;
--
--	parent = kobj->dentry;
--
--	down(&parent->d_inode->i_sem);
--	dentry = sysfs_get_dentry(parent,attr->attr.name);
--	if (!IS_ERR(dentry)) {
--		dentry->d_fsdata = (void *)attr;
--		error = sysfs_create(dentry,
--				     (attr->attr.mode & S_IALLUGO) | S_IFREG,
--				     NULL);
--		if (!error) {
--			dentry->d_inode->i_size = attr->size;
--			dentry->d_inode->i_fop = &bin_fops;
--		}
--		dput(dentry);
--	} else
--		error = PTR_ERR(dentry);
--	up(&parent->d_inode->i_sem);
--	return error;
-+	if (kobj && kobj->dentry && attr) 
-+		return sysfs_add_file(kobj->dentry, &attr->attr, 
-+					SYSFS_KOBJ_BIN_ATTR);
-+	return -EINVAL;
+-	remove_files(dir,grp);
+-	if (grp->name)
+-		sysfs_remove_subdir(dir);
+-	/* release the ref. taken in this routine */
+-	dput(dir);
++	if (!IS_ERR(dir)) {
++		if (dir && dir->d_inode) {
++			remove_files(dir,grp);
++			if (grp->name)
++				sysfs_remove_subdir(dir);
++			/* release the ref. taken in this routine */
++			dput(dir);
++		}
++	}
  }
  
  
+diff -puN fs/sysfs/sysfs.h~sysfs-leaves-misc fs/sysfs/sysfs.h
+--- linux-2.6.6-mm3/fs/sysfs/sysfs.h~sysfs-leaves-misc	2004-05-17 15:29:32.000000000 +0530
++++ linux-2.6.6-mm3-maneesh/fs/sysfs/sysfs.h	2004-05-17 15:56:18.000000000 +0530
+@@ -1,28 +1,96 @@
+ 
++#include <linux/fs.h>
+ extern struct vfsmount * sysfs_mount;
++extern struct super_block * sysfs_sb;
+ 
+ extern struct inode * sysfs_new_inode(mode_t mode);
+ extern int sysfs_create(struct dentry *, int mode, int (*init)(struct inode *));
+ 
+ extern struct dentry * sysfs_get_dentry(struct dentry *, const char *);
++extern int sysfs_add_file(struct dentry *, const struct attribute *, int);
+ 
+-extern int sysfs_add_file(struct dentry * dir, const struct attribute * attr);
+ extern void sysfs_hash_and_remove(struct dentry * dir, const char * name);
+ 
+ extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
+ extern void sysfs_remove_subdir(struct dentry *);
++extern int sysfs_dir_open(struct inode *inode, struct file *file);
++extern int sysfs_dir_close(struct inode *inode, struct file *file);
++extern loff_t sysfs_dir_lseek(struct file *, loff_t, int);
++extern int sysfs_readdir(struct file *, void *, filldir_t);
++extern void sysfs_umount_begin(struct super_block *);
++extern const unsigned char * sysfs_get_name(struct sysfs_dirent *);
++extern struct dentry * sysfs_lookup(struct inode *, struct dentry *, struct nameidata *);
++extern void sysfs_drop_dentry(struct sysfs_dirent *, struct dentry *);
++extern int sysfs_symlink(struct inode *, struct dentry *, const char *);
++extern int init_symlink(struct inode *);
+ 
+ extern int sysfs_readlink(struct dentry *, char __user *, int );
+ extern int sysfs_follow_link(struct dentry *, struct nameidata *);
+ extern struct rw_semaphore sysfs_rename_sem;
++extern struct file_operations sysfs_file_operations;
++extern struct file_operations bin_fops;
++extern struct inode_operations sysfs_dir_inode_operations;
++extern struct file_operations sysfs_dir_operations;
++
++struct sysfs_symlink {
++	char * link_name;
++	struct kobject * target_kobj;
++};
++
++static inline 
++struct sysfs_dirent * sysfs_new_dirent(struct sysfs_dirent * p, void * e, int t)
++{
++	struct sysfs_dirent * sd;
++
++	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
++	if (!sd)
++		return NULL;
++	memset(sd, 0, sizeof(*sd));
++	atomic_set(&sd->s_count, 1);
++	sd->s_element = e;
++	sd->s_type = t;
++	sd->s_dentry = NULL;
++	INIT_LIST_HEAD(&sd->s_children);
++	list_add(&sd->s_sibling, &p->s_children);
++
++	return sd;
++}
++
++static inline struct sysfs_dirent * sysfs_get(struct sysfs_dirent * sd)
++{
++	if (sd) {
++		WARN_ON(!atomic_read(&sd->s_count)); 
++		atomic_inc(&sd->s_count);
++	}
++	return sd;
++}
++
++static inline void sysfs_put(struct sysfs_dirent * sd)
++{
++	if (atomic_dec_and_test(&sd->s_count)) {
++		if (sd->s_type & SYSFS_KOBJ_LINK) {
++			struct sysfs_symlink * sl = sd->s_element;
++			kfree(sl->link_name);
++			kobject_put(sl->target_kobj);
++			kfree(sl);
++		}
++		kfree(sd);
++	}
++}
+ 
+ static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
+ {
+ 	struct kobject * kobj = NULL;
+ 
+ 	spin_lock(&dcache_lock);
+-	if (!d_unhashed(dentry))
+-		kobj = kobject_get(dentry->d_fsdata);
++	if (!d_unhashed(dentry)) {
++		struct sysfs_dirent * sd = dentry->d_fsdata;
++		if (sd->s_type & SYSFS_KOBJ_LINK) {
++			struct sysfs_symlink * sl = sd->s_element;
++			kobj = kobject_get(sl->target_kobj);
++		} else
++			kobj = kobject_get(sd->s_element);
++	}
+ 	spin_unlock(&dcache_lock);
+ 
+ 	return kobj;
 
 _
 -- 

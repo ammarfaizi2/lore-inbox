@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266359AbUFYIb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266571AbUFYIcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266359AbUFYIb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 04:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266567AbUFYIb6
+	id S266571AbUFYIcH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 04:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266567AbUFYIcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 04:31:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14800 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266571AbUFYIb1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 04:31:27 -0400
-Subject: Re: 2.6.7-mm2, mmaps rework, buggy apps, setarch
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Norbert Preining <preining@logic.at>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040625082243.GA11515@gamma.logic.tuwien.ac.at>
-References: <20040625082243.GA11515@gamma.logic.tuwien.ac.at>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8yiIUIsvhzMu1jUpUtM1"
-Organization: Red Hat UK
-Message-Id: <1088152275.2704.8.camel@laptop.fenrus.com>
+	Fri, 25 Jun 2004 04:32:07 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:53940 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S266598AbUFYIbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 04:31:35 -0400
+Date: Fri, 25 Jun 2004 09:31:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Erik Jacobson <erikj@subway.americas.sgi.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix serial driver
+Message-ID: <20040625083130.GA26557@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Erik Jacobson <erikj@subway.americas.sgi.com>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
+References: <Pine.SGI.3.96.1040623094239.19458C-100000@fsgi900.americas.sgi.com> <20040623143801.74781235.akpm@osdl.org> <200406231754.56837.jbarnes@engr.sgi.com> <Pine.SGI.4.53.0406242153360.343801@subway.americas.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 25 Jun 2004 10:31:16 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SGI.4.53.0406242153360.343801@subway.americas.sgi.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 24, 2004 at 10:15:41PM -0500, Erik Jacobson wrote:
+> Andrew and LKML folks -
+> 
+> Pat is on vacation and said he wouldn't mind if I posted the latest version
+> of this patch.
+> 
+>  - I fixed up Kconfig (x86 problem)
+>  - I changed SYSFS_ONLY to USE_DYNAMIC_MINOR
 
---=-8yiIUIsvhzMu1jUpUtM1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-
->=20
-> Can someone please explain me *what* the effects of a `buggy app' would
-> be: Segfault I suppose. But what to do with a commerical app where I
-> cannot check a stack trace or whatever?
-
-basically the applications that break do:
-
-int ptr;
-
-ptr =3D malloc(some_size);
-
-if (ptr <=3D 0)=20
-    handle_no_memory();
-
-
-
-> Background: I am having problems with current debian/sid on 2.6.7-mm2
-> with vuescan.
-
-can you describe these problems in somewhat more detail ?
-
---=-8yiIUIsvhzMu1jUpUtM1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA2+LSxULwo51rQBIRAoxDAJ9ZvUMSbnFRHuQ4urn3BfvmOiuXkwCfUgxo
-UgpzWyU1n0chABr7r0bufbE=
-=Y/97
------END PGP SIGNATURE-----
-
---=-8yiIUIsvhzMu1jUpUtM1--
+Please kill the ifdef completely.  As long as LANANA hasn't responded you
+should only use the dyanic nimor, and once it's accepted there's no point
+in using the dynamico ne anymore.  Also I'd sugges grabbing a whole dyanmic
+major instead of using a miscdevice so the code both cases is more similar.
 

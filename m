@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266011AbTFWNKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 09:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbTFWNKZ
+	id S266015AbTFWNMM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 09:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbTFWNKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 09:10:25 -0400
-Received: from zork.zork.net ([64.81.246.102]:25536 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S266011AbTFWMvE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 08:51:04 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.73 : undefined reference to pci_destroy_dev
-References: <3EF6F942.7090506@wanadoo.fr>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Mon, 23 Jun 2003 14:05:10 +0100
-In-Reply-To: <3EF6F942.7090506@wanadoo.fr> =?iso-8859-1?q?(R=E9mi?= COLINET's message of "Mon, 23 Jun 2003 14:57:38 +0200")
-Message-ID: <6u7k7dndvd.fsf@zork.zork.net>
+	Mon, 23 Jun 2003 09:10:42 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:4487 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S266016AbTFWNAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 09:00:03 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Linus Torvalds <torvalds@transmeta.com>, torvalds@osdl.org
+Subject: [PATCH] Please restore my (c)
+Date: Mon, 23 Jun 2003 15:15:05 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200306231515.05621.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rémi COLINET <remi.colinet@wanadoo.fr> writes:
+This patch restores my copyright notice for the HTree directory index, 
+inadvertently omitted during the conversion from Ext2 to Ext3.
 
-> Making bzImage with 2.5.73, I'm getting the following undefined reference.
-> I have to set the PCI hotplug in my .config file in order to get the
-> bzImage.
->
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> drivers/built-in.o: In function `pci_remove_bus_device':
-> drivers/built-in.o(.text+0x367b): undefined reference to `pci_destroy_dev'
-> make: *** [.tmp_vmlinux1] Error 1
+Linus, please apply.
 
-Grek KH posted a patch for this.
+--- 2.5.72.clean/fs/ext3/dir.c	2003-06-17 06:20:02.000000000 +0200
++++ 2.5.72/fs/ext3/dir.c	2003-06-19 04:29:27.000000000 +0200
+@@ -16,6 +16,9 @@
+  *
+  *  Big-endian to little-endian byte-swapping/bitmaps by
+  *        David S. Miller (davem@caip.rutgers.edu), 1995
++ *
++ * Hash Tree Directory indexing (c) 2001  Daniel Phillips
++ *
+  */
+ 
+ #include <linux/fs.h>
 
-http://groups.google.com/groups?selm=1pJ0.2Kr.7%40gated-at.bofh.it&oe=UTF-8&output=gplain
 

@@ -1,125 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbVCWWKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262953AbVCWWNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262949AbVCWWKc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 17:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbVCWWKc
+	id S262953AbVCWWNI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 17:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbVCWWNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 17:10:32 -0500
-Received: from mx2.mail.ru ([194.67.23.122]:28233 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S262949AbVCWWKQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 17:10:16 -0500
-From: Vladimir Kondratiev <vkondra@mail.ru>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: wireless 2.6 work
-Date: Thu, 24 Mar 2005 00:07:02 +0200
-User-Agent: KMail/1.7
-Cc: "Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>,
-       Netdev <netdev@oss.sgi.com>, Dan Williams <dcbw@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       James Ketrenos <jketreno@linux.intel.com>
-References: <20050310025036.GE17854@ruslug.rutgers.edu> <4240D158.1060302@pobox.com>
-In-Reply-To: <4240D158.1060302@pobox.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart9429505.gCS1A5zDSB";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503240007.11954.vkondra@mail.ru>
-X-Spam: Not detected
+	Wed, 23 Mar 2005 17:13:08 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:46749 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262953AbVCWWMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 17:12:43 -0500
+Subject: Re: Latency tests with 2.6.12-rc1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "Jack O'Quin" <joq@io.com>
+In-Reply-To: <20050322082222.GB9497@elte.hu>
+References: <1111204984.12740.22.camel@mindpipe>
+	 <20050319070810.GA20059@elte.hu> <1111218702.13039.5.camel@mindpipe>
+	 <1111269392.15042.12.camel@mindpipe>  <20050322082222.GB9497@elte.hu>
+Content-Type: multipart/mixed; boundary="=-2g1Az1fna+C9wB2zIGzS"
+Date: Wed, 23 Mar 2005 17:12:41 -0500
+Message-Id: <1111615961.3377.3.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart9429505.gCS1A5zDSB
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-I did posted once; it was long time ago. I am sure I sent it to Dave. I can=
-=20
-resend if needed. Basically, I made Dave's stack work on 2.6 kernels; did=20
-some changes toward QoS and provided simple utility to imitate low level=20
-driver. I was concentrated on interfaces, it is still just skeleton.
+--=-2g1Az1fna+C9wB2zIGzS
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I did not touched this work since then. I used to do stuff very close to=20
-802.11 stack. Now I am very busy with some different work.
-I can however consult on any 802.11 standard issues, QoS in particular.
+On Tue, 2005-03-22 at 09:22 +0100, Ingo Molnar wrote:
+> hm, weird, and i have no solution for this yet. But i just found a
+> related bug in the -RT patch in that it reverted a latency breaker in
+> the ext3 path that your trace shows - affecting PREEMPT_DESKTOP. Could
+> you try the 40-03 patch i just uploaded (assuming it's stable for you
+> otherwise ...) and see whether you can still reproduce these latencies?
+> (if yes then please also send me a full trace via private mail, or bzip
+> -9 it in your public mail.)
 
-Maybe, it is good idea to talk to James Ketrenos as well. Last time I saw h=
-im=20
-doing good work on .11 stack.
+Ingo,
 
-Vladimir
+The problem is fixed.  Now the longest latency I see with "dbench 16"
+and PREEMPT_DESKTOP is 591us in the ext3 reservation code.  Trace is
+attached (compressed) in case anyone is interested.  But I do not
+consider anything under a millisecond to be a problem with
+PREEMPT_DESKTOP.
 
-On Wednesday 23 March 2005 04:15, Jeff Garzik wrote:
-JG> Luis R. Rodriguez wrote:
-JG> > Jeff,
-JG> >
-JG> > I'm sick off the low activity and slow support on wireless we have. I
-JG> > know you're busy so I wanted to offer my help in helping around work =
-on
-JG> > wireless-2.6, now that I have time after work, and before I commit
-JG> > myself to anything else. It's a bit suicidal, but oh well. Oh yeah and
-JG> > I'll also start using bitkeeper due to the recent clarifications on t=
-he
-JG> > license of its usage.
-JG>
-JG> Great!  While I think BitKeeper is useful, you are more than welcome to
-JG> continue sending patches.
-JG>
-JG> To wireless developers, BitKeeper will mainly be of use in sync'ing with
-JG> the latest wireless-2.6 tree.
-JG>
-JG>
-JG> > I'll willing to review as much patches as I have to and also hopefully
-JG> > write documentation on writing new wireless drivers. That said, if I
- can JG> > be of any assistance, where what you like me to start on?
-JG> >
-JG> > Here's what's on my agenda so far:
-JG> >
-JG> > * Help cleanup new ralink driver, start using ieee802211 and get into
- wireless-2.6. JG> > * Push prism54's new WPA and WDS support into
- wireless-2.6
-JG> > * Start seeing what I can use off of ieee80211 for prism54, clean it,
-JG> >   and move to wireless-2.6
-JG> > * Start incorporating WPA through wpa_supplicant onto as many drivers
-JG> > * Start standardizing all things a bit, as bitched about and well
- pointed out JG> >   by Dan Williams <dcbw@redhat.com>
-JG> > * Listen to Jouni, he's the man
-JG>
-JG> Well, all this sounds good to me.  See also the 'status' post I just
-JG> made, and the 'note on wireless development process' I am about to writ=
-e.
-JG>
-JG> I'm really hoping someone will look into integrating wireless 802.11 as
-JG> a "real" protocol, rather than faking ethernet.  This work starts with
-JG> the "p80211" template DaveM provided, and hopefully continues with
-JG> Vladimir's updates of DaveM's code (did he post those anywhere?).  There
-JG> are also issues such as ARP types that Dan Williams mentioned to me as
-JG> issues.
-JG>
-JG> The "integrate wireless into net stack" work requires a very
-JG> self-motivated person who is willing to poke into the net stack, and
-JG> answer their own questions.
-JG>
-JG>  Jeff
-JG>
-JG>
-JG>
-JG>
-JG>
+Lee
 
---nextPart9429505.gCS1A5zDSB
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQBCQeiOqxdj7mhC6o0RAhwlAKCXVdrBJ+4GMl3wvY1I2VF8i7oHQgCfX2k7
-YiFDk03gK3t8bRVOcbJwW5E=
-=kAfI
------END PGP SIGNATURE-----
+--=-2g1Az1fna+C9wB2zIGzS
+Content-Disposition: attachment; filename=latency_trace.bz2
+Content-Type: application/x-bzip; name=latency_trace.bz2
+Content-Transfer-Encoding: base64
 
---nextPart9429505.gCS1A5zDSB--
+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
+
+
+--=-2g1Az1fna+C9wB2zIGzS--
+

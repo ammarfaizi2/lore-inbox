@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315132AbSDWJjf>; Tue, 23 Apr 2002 05:39:35 -0400
+	id <S315120AbSDWJki>; Tue, 23 Apr 2002 05:40:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315135AbSDWJje>; Tue, 23 Apr 2002 05:39:34 -0400
-Received: from whiskey.openminds.be ([212.35.126.198]:63165 "EHLO
-	whiskey.openminds.be") by vger.kernel.org with ESMTP
-	id <S315132AbSDWJje>; Tue, 23 Apr 2002 05:39:34 -0400
-Date: Tue, 23 Apr 2002 11:39:35 +0200
-From: Frank Louwers <frank@openminds.be>
-To: linux-kernel@vger.kernel.org
-Subject: BUG: 2 NICs on same network
-Message-ID: <20020423113935.A30329@openminds.be>
-Mime-Version: 1.0
+	id <S315121AbSDWJkh>; Tue, 23 Apr 2002 05:40:37 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9482 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315120AbSDWJkg>; Tue, 23 Apr 2002 05:40:36 -0400
+Subject: Re: PDC20268 TX2 support?
+To: linux@cabbey.net (Chris Abbey)
+Date: Tue, 23 Apr 2002 10:58:29 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204201226530.25636-100000@tweedle.cabbey.net> from "Chris Abbey" at Apr 20, 2002 12:33:46 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.21i
-X-PGP2: 1024R/1A899409  C3 D8 FA D3 E0 0E 40 C5  10 32 83 74 36 F0 E5 95
-X-oldGPG: 1024D/3F6A7EDD  D597 566A BDF5 BBFB C308  447A 5E81 1188 3F6A 7EDD
-X-GPG: 1024D/E592712F  E857 266C 04BE 0772 B9C4  E798 3D34 D5E5 E592 712F
-Organisation: Openminds - http://www.openminds.be/
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16zx49-0008Fx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> 
+> The fasttrak also has hardware raid, while it works, it works realtively
+> well.
 
-We recently stummed across a rather annoying bug when 2 nics are on
-the same network.
+I believe its software. Its just concealed from the OS (windows)
 
-Our situation is this: we have a server with 2 nics, each with a
-different IP on the same network, connected to the same switch. Let's
-assume eth0 has ip 1.2.3.1 and eth1 has 1.2.3.2, with a both with a
-netmask of 255.255.255.0.
+> The current 2.4.18 code recognizes the card and provides vanilla IDE
+> access to the drives, unfortunately that isn't much use unless someone
+> wants to try and RE their block allocation on the disks... a decidedly
+> non-trivial endeavour I can assure you. ;(
 
-Now the strange thing is that traffic for 1.2.3.2 arrives at eth0 no
-matter what!
+We have some ata raid support (drivers/ide/ataraid*) because people are
+working on this.
 
-Even if we disconnect the cable for eth1, 1.2.3.2 still replies to
-pings, ssh, web, ...
-
-We tested this on IA32 architecture, different 2.4.x kernels and
-different nics ...
-
-Is this a bug or a known issue? If it is not a bug, how can it be
-solved?
-
-Kind Regards,
-Frank Louwers
-
--- 
-Openminds bvba                www.openminds.be
-Tweebruggenstraat 16  -  9000 Gent  -  Belgium

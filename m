@@ -1,96 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbTIMOkT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 10:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTIMOkT
+	id S261174AbTIMOv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 10:51:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbTIMOv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 10:40:19 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:20133 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262163AbTIMOkL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 10:40:11 -0400
-Date: Sat, 13 Sep 2003 16:39:38 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       =?ISO-8859-15?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.23-pre4: failed at atyfb_base.c
-In-Reply-To: <3F631113.4C6368D3@eyal.emu.id.au>
-Message-ID: <Pine.GSO.4.21.0309131622000.2634-100000@vervain.sonytel.be>
+	Sat, 13 Sep 2003 10:51:27 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:11782 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S261174AbTIMOvY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 10:51:24 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: Pat LaVarre <p.lavarre@ieee.org>, mpm@selenic.com
+Subject: Re: console lost to Ctrl+Alt+F$n in 2.6.0-test5
+Date: Sat, 13 Sep 2003 22:49:39 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <1063378664.5059.19.camel@patehci2> <20030913015747.GC4489@waste.org> <1063460312.2905.13.camel@patehci2>
+In-Reply-To: <1063460312.2905.13.camel@patehci2>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309132249.40283.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Sep 2003, Eyal Lebedinsky wrote:
-> Marcelo Tosatti wrote:
-> > Here goes -pre4, which contains networking update, IA64 update, PPC
-> > update, USB update, bunch of knfsd fixes, amongst others.
-> gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
-> -Wstrict-pro
-> totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> -fomit-frame-pointer
->  -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
-> -DMODULE -DM
-> ODVERSIONS -include
-> /data2/usr/local/src/linux-2.4-pre/include/linux/modversions
-> .h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=atyfb_base 
-> -DEXPORT_SYMTAB
->  -c atyfb_base.c
-> atyfb_base.c: In function `aty_set_crtc':
-> atyfb_base.c:501: warning: passing arg 2 of `aty_st_lcd' makes integer
-> from pointer without a cast
-> atyfb_base.c:501: too few arguments to function `aty_st_lcd'
-> atyfb_base.c:504: warning: passing arg 2 of `aty_st_lcd' makes integer
-> from pointer without a cast
-> atyfb_base.c:504: too few arguments to function `aty_st_lcd'
-> make[3]: *** [atyfb_base.o] Error 1
-> make[3]: Leaving directory
-> `/data2/usr/local/src/linux-2.4-pre/drivers/video/aty'
+Don't think this is a keyboard problem and have seen
+this several times related to video drivers in particular
+when switching back to X.
+
+The script below switches every $wait (5) seconds between
+VT $vt (1) and X @vt$x (7). It logs to $log (log=/tmp/_vt)
+syncs and waits before doing the switch to allow data to
+reach the disk. So if it dies, you should know quite 
+accurately when and where and if it also happens wo KB. 
+
+Put this into a file and make it executable. It must
+be run as root unless chvt is in sudoers or suid root. 
+
+#!/bin/bash
+
+cycle=1
+log=/tmp/_vt.log
+vt=1
+x=7
+wait=5
+#rm -f $log
+echo Starting VT <> X test
+while ((1)); do
+  echo Cycle $cycle switching to VT $vt >> $log    
+  sync
+  sleep $wait
+  chvt $vt
+  echo Cycle $cycle switching to X >> $log    
+  sync
+  sleep $wait
+  chvt $x
+  echo Cycle $cycle
+  ((cycle += 1))
+done
+;;
+
+
+On Saturday 13 September 2003 21:38, Pat LaVarre wrote:
 > 
-> I now disabled CONFIG_FB_ATY_GENERIC_LCD and it builds.
+> > What video are you using?
+> > I'm guessing you've got a framebuffer console?
+> > VESA by any chance?
+> 
+> I do not yet know how to answer such questions confidently.
+> 
+> I see (redhat-config-xfree86 --> tab Advanced) reports:
+> 
+> Video Card
+> Video Card Type = Intel 865
+> Memory Size = 16 megabytes
+> Driver = i810
+> Enable Hardware 3D Acceleration = no
+> 
+> > > Yes, thank you, Ctrl+Alt+F$n now works
+> > > if only I CONFIG_DEBUG_SPINLOCK_SLEEP=n.
+> 
+> Please allow me to disavow that first impression.
+> 
+> With CONFIG_DEBUG_SPINLOCK_SLEEP=y, I've now been counting keystrokes
+> til crash.  I count each of Ctrl+Alt+F5 and Ctrl+Alt+F7 as one stroke. 
+> Sometimes I crash, sometimes I do not.  I began logging life more
+> carefully when first I saw a few strokes cause a crash, and thereafter,
+> per boot:
+> 
+> 8 strokes crashed.
+> 
+> 60 strokes did not crash, so I gave up and rebooted to try again.
+> 
+> 4 strokes crashed.  The first 2 seeming had logged me out, killing my
+> cat /proc/kmsg process.
+> 
+> 8 strokes crashed.
+> 
+> 26 strokes crashed.
+> 
+> ...
+> 
+> The only consistency I see is that always an even number of strokes
+> cause a crash i.e. always the Ctrl+Alt+F7 switch back to my X console,
+> not the switch to a text console.
+> 
+> To prepare to crash, I only know of: sync umount ext3.  For me as yet
+> "Checking ... filesystem..." wastes less than three minutes per crash,
+> and I haven't yet perceptibly lost a disk.
+> 
+> > > I wonder if somehow /proc/kmsg now working is a clue?
+> 
+> Meanwhile, whether `sudo cat /proc/kmsg | tee ...` displays printk
+> intact or not also varies, without clearly correlating with whether a
+> crash will or will not occur.
+> 
+> So far, with CONFIG_DEBUG_SPINLOCK_SLEEP=y, trying `sudo cat /proc/kmsg
+> | tee ...` has never run well enough to capture the cause of the crash.
+> 
+> > >  I could easily check ... ssh ...
+> 
+> Remote ssh freezes and remote ping starts losing all packets.
+> 
+> Pat LaVarre
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-Apparently Daniël didn't sent the latest version to Marcelo?
-
-Here are some fixes:
-
---- linux-2.4.23-pre4/drivers/video/aty/atyfb_base.c.orig	Sat Sep 13 16:29:48 2003
-+++ linux-2.4.23-pre4/drivers/video/aty/atyfb_base.c	Fri Sep 12 12:50:36 2003
-@@ -313,7 +313,7 @@
-     int pll, mclk, xclk;
-     u32 features;
- } aty_chips[] __initdata = {
--    /* Note to kernel maintainers: Please resfuse any patch to change a clock rate,
-+    /* Note to kernel maintainers: Please REFUSE any patch to change a clock rate,
-        unless someone proves that a value is incorrect for him with a dump of
-        the driver information table in the BIOS. Patches accepted in the past have
-        caused chips to be overclocked by as much as 50%!
-@@ -498,10 +498,12 @@
-      * off. It is a Rage Mobility M1, but doesn't happen on these chips
-      * in general. (Daniel Mantione, 26 june 2003)
-      */
--      aty_st_lcd(aty_ld_lcd(LCD_GEN_CTRL, info) | SHADOW_RW_EN, info);
-+      aty_st_lcd(LCD_GEN_CTRL, aty_ld_lcd(LCD_GEN_CTRL, info) | SHADOW_RW_EN,
-+		 info);
-       aty_st_le32(CRTC_H_TOTAL_DISP, crtc->h_tot_disp, info);
-       aty_st_le32(CRTC_H_SYNC_STRT_WID, crtc->h_sync_strt_wid, info);
--      aty_st_lcd(aty_ld_lcd(LCD_GEN_CTRL, info) & ~SHADOW_RW_EN, info);
-+      aty_st_lcd(LCD_GEN_CTRL, aty_ld_lcd(LCD_GEN_CTRL, info) & ~SHADOW_RW_EN,
-+		 info);
-     /* End hack */
- #endif
- 
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

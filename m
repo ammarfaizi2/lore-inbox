@@ -1,92 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262653AbSJTOWU>; Sun, 20 Oct 2002 10:22:20 -0400
+	id <S262708AbSJTO1w>; Sun, 20 Oct 2002 10:27:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262670AbSJTOWT>; Sun, 20 Oct 2002 10:22:19 -0400
-Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:46825 "EHLO
-	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262653AbSJTOWS>; Sun, 20 Oct 2002 10:22:18 -0400
-Date: Sun, 20 Oct 2002 12:28:02 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Jim Houston <jim.houston@attbi.com>
-cc: linux-kernel@vger.kernel.org, <mingo@elte.hu>, <andrea@suse.de>,
-       <jim.houston@ccur.com>, <akpm@digeo.com>, <conman@kolivas.net>
-Subject: Re: [PATCH] Re: Pathological case identified from contest
-In-Reply-To: <200210200319.g9K3J5s07242@linux.local>
-Message-ID: <Pine.LNX.4.44L.0210201214010.22993-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262780AbSJTO1v>; Sun, 20 Oct 2002 10:27:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31732 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262708AbSJTO1u>; Sun, 20 Oct 2002 10:27:50 -0400
+Date: Sun, 20 Oct 2002 16:33:50 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, Dag Brattli <dag@brattli.net>
+cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>
+Subject: [2.4 patch] remove obsolete IrDA list from MAINTAINERS
+Message-ID: <Pine.NEB.4.44.0210201631300.28761-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Oct 2002, Jim Houston wrote:
 
-> 	I'm punishing processes that actually get to run rather
-> 	than rewarding proceses that sleep.
+Mail to the list that is in MAINTAINERS bounces and the new mailinglist
+doesn't accept mail from non-subscribers. Since you can find this new
+mailinglist at the IrDA web page it's IMHO the best to simply remove the
+mailing list entry from MAINTAINERS:
 
-Sounds good...
 
->  static inline unsigned int task_timeslice(task_t *p)
->  {
-> -	return BASE_TIMESLICE(p);
-> +	/*
-> +	 * The more favorable priority the shorter the time slice.
-> +	 * For 100 Hz clock this gives a range 10 - 191 ms.
-> +	 * For 1000 Hz clock this gives 1 - 157 ms.
-> +	 */
-> +	if (HZ > 100)
-> +		return(((p)->prio - MAX_RT_PRIO)*4 + 1);
-> +	else
-> +		return(((p)->prio - MAX_RT_PRIO)/2 + 1);
->  }
+--- linux-2.4.19/MAINTAINERS.old	2002-10-20 16:30:07.000000000 +0200
++++ linux-2.4.19/MAINTAINERS	2002-10-20 16:30:16.000000000 +0200
+@@ -828,7 +828,6 @@
+ IRDA SUBSYSTEM
+ P:      Dag Brattli
+ M:      Dag Brattli <dag@brattli.net>
+-L:      linux-irda@pasta.cs.uit.no
+ W:      http://irda.sourceforge.net/
+ S:      Maintained
 
-It'd be fun if this code also worked for values of HZ not
-equal to 100 or 1000.  Better put HZ somewhere in this
-calculation and make it HZ-independant.
 
-> + * The rq->prio_ind is used to raise/rotate the priority of all of the
-> + * processes in the run queue.  I know this  sounds like a pyramid scheme.
-> + * This increase in priority is balanced by two feedback mechanisms.
-> + * First processes which consume there timeslice are moved to a lower
-> + * priority queue.  To continue the pyramid analogy we make the time
-> + * slice smaller for more favorable priorities.
+cu
+Adrian
 
-Sounds like a good strategy, at least in theory.  I suspect
-it'll balance itself well enough to also work in practice.
-
-> + * The rotate_rate is the rate at which the priorities of processes
-> + * in the run queue increase.  With the initial HZ/10 guess a process
-> + * will go from the worst dynamic priority to the best in 4 seconds.
-
-How long does it take for a best priority process to go
-down ?
-
-Or, for how much time can a newly started CPU hog starve
-an older process ?   This is important to know since eg.
-a newly started Mozilla could starve an already running
-movie player.
-
-> +	if (HZ > 100) {
-> +		hl = 2000;	/* half life of 2 seconds at HZ=1000 */
-> +		as = -23;	/* 64*1024*log(0.5)/hl */
-> +	} else {
-> +		hl = 200;	/* half life of 2 seconds at HZ=100 */
-> +		as = -229;	/* 64*1024*log(0.5)/hl */
-> +	}
-
-Same comment as before, HZ > 100 doesn't mean that HZ == 1000 ;)
-
-I'm about to be dragged off to lunch now, so I haven't looked in
-detail at the rest of this function. Not yet, at least.
-
-kind regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+
+               "Is there not promise of rain?" Ling Tan asked suddenly out
+                of the darkness. There had been need of rain for many days.
+               "Only a promise," Lao Er said.
+                                               Pearl S. Buck - Dragon Seed
+
+
 

@@ -1,115 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266373AbUGBBBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265286AbUGBBEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266373AbUGBBBV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 21:01:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266378AbUGBBBV
+	id S265286AbUGBBEY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 21:04:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265778AbUGBBEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 21:01:21 -0400
-Received: from [171.67.16.125] ([171.67.16.125]:27542 "EHLO smtp2.Stanford.EDU")
-	by vger.kernel.org with ESMTP id S266373AbUGBBBQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 21:01:16 -0400
-Date: Thu, 1 Jul 2004 18:01:00 -0700 (PDT)
-From: Yichen Xie <yxie@cs.stanford.edu>
-X-X-Sender: yxie@kaki.stanford.edu
-To: linux-kernel@vger.kernel.org
-Subject: [BUGS] [CHECKER] 99 synchronization bugs and a lock summary database
-Message-ID: <Pine.LNX.4.44.0407011747040.4015-100000@kaki.stanford.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Jul 2004 21:04:24 -0400
+Received: from mail.shareable.org ([81.29.64.88]:23726 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S265286AbUGBBET
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 21:04:19 -0400
+Date: Fri, 2 Jul 2004 02:03:49 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Keith M. Wesolowski" <wesolows@foobazco.org>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       sparclinux@vger.kernel.org
+Subject: A question about PROT_NONE on Sun4c 32-bit Sparc
+Message-ID: <20040702010349.GF8950@mail.shareable.org>
+References: <20040630030503.GA25149@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040630030503.GA25149@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, 
+Hi Keith,
 
-We are a group of researchers at Stanford working on program analysis
-algorithms.  We have been building a precision enhanced program analysis
-engine at Stanford, and our first application was to derive mutex/lock
-behavior in the linux kernel. In the process, we found 99 likely
-synchronization errors in linux kernel version 2.6.5:
+David Miller suggested I ask you specifically about the Sun4 & Sun4c
+32-bit Sparc ports of Linux.  He's confirmed a bug in the SRMMU 32-bit
+Sparc port, and I just wanted you to confirm it isn't in the other
+32-bit Sparc ports.
 
-    http://glide.stanford.edu/linux-lock/err1.html (69 errors)
-    http://glide.stanford.edu/linux-lock/err2.html (30 errors)
+I would like to know if the Sun4 and Sun4c ports have the same bug.
+I'm guessing not, but it's not clear to me from the code.
 
-err1.html consists of potential double locks/unlocks. Acquiring a lock
-twice in a row may result in a system hang, and releasing a lock more than
-once with certain mutex functions (e.g. up) may cause critical section
-violations.
+In linux-2.6.5/include/asm-sparc/pgtsun4.h (pgtsun4c.h is similar):
 
-err2.html consists of reports on inconsistent output lock states on
-function exit. These errors usually correspond to missed lock operations
-on error paths. (filenames in this report correspond to where a function
-is declared, so CTAGS may come in handy to find the actual implementation
-of the function).
+#define _SUN4C_PAGE_VALID        0x80000000
+#define _SUN4C_PAGE_SILENT_READ  0x80000000   /* synonym */
+#define _SUN4C_PAGE_DIRTY        0x40000000
+#define _SUN4C_PAGE_SILENT_WRITE 0x40000000   /* synonym */
+...
+#define _SUN4C_PAGE_READ         0x00800000   /* implemented in software */
+#define _SUN4C_PAGE_WRITE        0x00400000   /* implemented in software */
+#define _SUN4C_PAGE_ACCESSED     0x00200000   /* implemented in software */
+#define _SUN4C_PAGE_MODIFIED     0x00100000   /* implemented in software */
+...
+#define _SUN4C_READABLE		(_SUN4C_PAGE_READ|_SUN4C_PAGE_SILENT_READ|\
+				 _SUN4C_PAGE_ACCESSED)
+#define _SUN4C_WRITEABLE	(_SUN4C_PAGE_WRITE|_SUN4C_PAGE_SILENT_WRITE|\
+				 _SUN4C_PAGE_MODIFIED)
+...
+#define SUN4C_PAGE_NONE		__pgprot(_SUN4C_PAGE_PRESENT)
+#define SUN4C_PAGE_SHARED	__pgprot(_SUN4C_PAGE_PRESENT|_SUN4C_READABLE|\
+					 _SUN4C_PAGE_WRITE)
+#define SUN4C_PAGE_READONLY	__pgprot(_SUN4C_PAGE_PRESENT|_SUN4C_READABLE)
 
-In the error reports, functions are hyperlinked to their derived
-summaries, and those of their callees (since the analysis spans function
-calls, the error condition of a particular function usually depend on the
-locking behavior of its callees).
+SUN4C_PAGE_NONE corresponds to PROT_NONE mmap memory protection.
 
-For example, in function "radeon_pm_program_v2clk" (first error report in
-err1.html), the tool flagged an error at line 323 of
-"drivers/video/aty/radeon_pm.c". Line 323 invokes two macros, OUTPLL, and
-INPLL. OUTPLL acquires "rinfo->reg_lock", and then evaluates "addr", which
-is calculated, in this case, by calling _INPLL. By clicking on the link
-"drivers/video/aty/radeon_pm.c:radeon_pm_program_v2clk", we can see that
-_INPLL requires "rinfo->reg_lock" be unheld on entry (confirmed by looking
-at its definition), which is not satisfied in this example. So this is a
-double lock error and could potentially lead to a deadlock on MP systems.
+The question is whether PROT_NONE pages are readable by the _kernel_.
+I.e. whether write() would successfully read from those pages.
 
-We also have a separate web interface to the summary database at:
+>From the names of the above macros, I'm guessing not.  There's nothing
+to indicate that they would be.  I just wanted you to confirm, thanks.
 
-	http://glide.stanford.edu/linux-lock/
+(In the SRMMU 32-Sparc version, PROT_NONE pages _are_ readable in the
+kernel, because of the way they are implemented by making them
+priveleged pages.)
 
-For example, typing "fh_put" in the input box gives
+(By the way, as the sun4 files don't contain a definition of
+_SUN4_PAGE_FILE or pgoff_to_pte, but the sun4c one do, I guess the
+sun4 sub-architecture doesn't build in 2.6 but sun4c does?)
 
-=========
- SUMMARY 
-=========
-FUNCTION SUMMARY: 'include/linux/nfsd/nfsfh.h:fh_put'
-{
-  dcache_lock(global): [unlocked -> unlocked]
-  fhp(param#0)->fh_dentry->d_lock: [unlocked -> unlocked]
-  fhp(param#0)->fh_dentry->d_inode->i_sem: [locked -> unlocked]
-}
-
-Each line in the function summary correspond to the requirements and
-effects on one particular lock. For example, fh_put requires that the
-global lock variable dcache_lock be unheld on entry, and it'll remain
-unheld on exit. It also requires fhp->fh_dentry->d_inode->i_sem be held on
-entry and it'll release it on exit. (note: please ignore summaries for
-lock premitives like spin_lock or down_interruptible; models for these
-functions are built into the checker and the derived summaries are not
-used).
-
-We have found that some modules in the kernel has functions with
-complicated synchronization behavior (esp. in filesystems), and we hope
-summaries generated by this tool could be useful not only for bug finding,
-but also for documentation purposes as well.
-
-The analysis is intraprocedurally "path sensitive", so it won't be fooled
-by cases like
-
-     if (flag & BLOCKING) spin_lock(&l);
-     ...
-     if (flag & BLOCKING) spin_unlock(&l);
-
-or
-
-     if (!spin_trylock(&l))
-	return -EAGAIN;
-     ...
-     spin_unlock(&l);
-
-The analysis algorithm models values (down to individual bits) and
-pointers in the program with a boolean satisfiability solver with high
-precision, and we're actively looking for other properties involving
-(heavy) data dependencies where naive analysis would fail. Suggestions and
-insights from the linux kernel community will be more than welcome!
-
-As always, feedbacks and confirmations will be greatly appreciated!
-
-Best regards,
-Yichen Xie
-<yxie@cs.stanford.edu>
-
+Thanks,
+-- Jamie

@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbSJYUff>; Fri, 25 Oct 2002 16:35:35 -0400
+	id <S261571AbSJYUdT>; Fri, 25 Oct 2002 16:33:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261601AbSJYUff>; Fri, 25 Oct 2002 16:35:35 -0400
-Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:4875 "EHLO
+	id <S261573AbSJYUdT>; Fri, 25 Oct 2002 16:33:19 -0400
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:1803 "EHLO
 	daytona.compro.net") by vger.kernel.org with ESMTP
-	id <S261599AbSJYUfe>; Fri, 25 Oct 2002 16:35:34 -0400
-Message-ID: <3DB9AD6D.C96A5398@compro.net>
-Date: Fri, 25 Oct 2002 16:45:33 -0400
+	id <S261571AbSJYUdR>; Fri, 25 Oct 2002 16:33:17 -0400
+Message-ID: <3DB9ACF0.A7DBA5C4@compro.net>
+Date: Fri, 25 Oct 2002 16:43:28 -0400
 From: Mark Hounschell <markh@compro.net>
 Reply-To: markh@compro.net
 Organization: Compro Computer Svcs.
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [OT]AMD/Intel interrupt latency (jitter) differences?
-References: <Pine.LNX.3.95.1021025155330.3856A-100000@chaos.analogic.com>
+References: <3DB99E3D.798B9A5F@compro.net> <1035578152.13244.44.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
+Alan Cox wrote:
+> 
+> On Fri, 2002-10-25 at 20:40, Mark Hounschell wrote:
+> > When we run this program in the emulation on an intel box all is well. When we
+> > run this in the emulation on an AMD MP 1900+ box the determinism (jitter) is
+> > very bad. Sometimes as much as 500us. On the Dual Intel 2.2 p4 zeon the
+> > determinism (jitter) is under 50us. All the other benchmarks we run under the
+> > emulation tell us that the AMD box is the faster box. It's also cheaper. So I
+> > guess my question is, are there any known problem with AMD's and interrupt
+> > latency jitter. I might also add that the only way we get satisfactory numbers,
+> 
+> A lot of the IRQ delivery depends on the APIC. SO for example you'd
+> probably see horrible numbers on a PIII, but very good on PIV. It also
+> depends on chipset vagueries. You might also need to check that your PCI
+> behaviour has no posting errors since the AMD certainly seems to do a
+> lot more aggressive PCI posting.
+> 
+> Does "noapic" change the jitter ?
 
-> 
-> [SNIPPED....]
-> Please use the [Enter] key. Lines should have "\n" and not auto-wrap
-> in your mailer.
-
-Sorry...
-
-> 
-> If you are measuring the interrupt latency jitter, you
-> must disconnect your Ethernet wire if you have a Bus Mastering
-> (read PCI) Ethernet board. You also have to make sure that
-> no other Bus Masters are able to run during the measurements.
-> 
-> This is because the Bus Masters will keep the CPU(s) off the bus
-> for variable lengths of time as they transfer variable lengths
-> of data. This gives you the jitter.
-> 
-> Even though  you may not have any connections to your machine,
-> M$ on LANs generate much broadcast traffic that your network
-> software has to read, then drop on the floor.
-> 
-> What this means, frankly, is that if interrupt latency is
-> in your specification, you can't use any Bus Mastering devices.
-> It's just that simple.
-> 
-
-That makes sense. But, both these Intel and AMD boxes have pretty much the same
-config as far as pci cards and pci busses. They both have 1 or 2 66mhz and a 33
-mhz bus. 
-The Intel box used right now is a Super-micro p4dc6+ and only has our 2 33mhz
-cards in it. It has on board UW-scsi-2 controller using a 66MHz bus where as the
-AMD has no controllers on the 66mhz bus. It is using the onboard IDE controller.
-The intel has built in network card that IS active when running the emulation
-and the AMD has a 3c905 card that is also active. Other than that they are the
-same. I thought all recent pci cards were bus mastering capable these days??
+Actually if I use noapci then the irq affinity stuff does not work, which in
+itself causes
+the jitter to be unexceptable. On the AMD, the process and irq affinity appears
+to be working
+correctly, according to /proc/interrupts, but maybe it's really not??? Thats
+what it acts
+like. It acts just like if I hadn't set the affinity for the emulation and irq
+on the P4,
+just not as bad.
 
 Regards
 Mark

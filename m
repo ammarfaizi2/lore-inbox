@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274845AbTHKVlr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 17:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274863AbTHKVlr
+	id S274833AbTHKVjO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 17:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274838AbTHKVjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 17:41:47 -0400
-Received: from main.gmane.org ([80.91.224.249]:19617 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S274845AbTHKVlq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 17:41:46 -0400
-Mail-Followup-To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: ilmari@ilmari.org (=?utf-8?b?RGFnZmlubiBJbG1hcmkg?=
-	=?utf-8?b?TWFubnPDpWtlcg==?=)
+	Mon, 11 Aug 2003 17:39:14 -0400
+Received: from werbeagentur-aufwind.com ([217.160.128.76]:31171 "EHLO
+	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
+	id S274833AbTHKVjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 17:39:10 -0400
 Subject: Re: [2.6 patch] add an -Os config option
-Date: Mon, 11 Aug 2003 23:41:43 +0200
-Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
-Message-ID: <d8j65l3na7c.fsf@wirth.ping.uio.no>
-References: <20030811211145.GA569@fs.tum.de> <200308112319.43384.fsdeveloper@yahoo.de>
+From: Christophe Saout <christophe@saout.de>
+To: Michael Buesch <fsdeveloper@yahoo.de>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200308112319.43384.fsdeveloper@yahoo.de>
+References: <20030811211145.GA569@fs.tum.de>
+	 <200308112319.43384.fsdeveloper@yahoo.de>
+Content-Type: text/plain
+Message-Id: <1060637947.5365.1.camel@chtephan.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Adrian Bunk <bunk@fs.tum.de>
-Mail-Copies-To: never
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
-Cancel-Lock: sha1:8GzT4WOh2Xl+brsu0inxkZoF7Ys=
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 11 Aug 2003 23:39:07 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch <fsdeveloper@yahoo.de> writes:
+Am Mo, 2003-08-11 um 23.19 schrieb Michael Buesch:
 
 > On Monday 11 August 2003 23:11, Adrian Bunk wrote:
->> +	  The resulting kernel might be significantly slower.
->
+> > +	  The resulting kernel might be significantly slower.
+> 
 > With my poor english knowledge I would say it should be "significant".
 > Correct?
 
-Nope, it's an adverb (modifying the adjective "slower"), hence the -ly
-suffix.
+I don't think so. The sentence above looks fine to me... (and I'm not an
+english genius either) :)
 
--- 
-ilmari
+--
+Christophe Saout <christophe@saout.de>
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
 

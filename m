@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbVCVEyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVCVE6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbVCVEyE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 23:54:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVCVExB
+	id S262309AbVCVE6f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 23:58:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVCVE0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 23:53:01 -0500
-Received: from mail.shareable.org ([81.29.64.88]:12181 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262367AbVCVEsx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 23:48:53 -0500
-Date: Tue, 22 Mar 2005 04:48:38 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, cmorgan@alum.wpi.edu, paul@linuxaudiosystems.com,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Subject: Re: kernel bug: futex_wait hang
-Message-ID: <20050322044838.GB32432@mail.shareable.org>
-References: <1111463950.3058.20.camel@mindpipe> <20050321202051.2796660e.akpm@osdl.org>
+	Mon, 21 Mar 2005 23:26:37 -0500
+Received: from mail.kroah.org ([69.55.234.183]:29920 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262370AbVCVETm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 23:19:42 -0500
+Date: Mon, 21 Mar 2005 20:03:47 -0800
+From: Greg KH <greg@kroah.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: current linus bk, error mounting root
+Message-ID: <20050322040346.GD13745@kroah.com>
+References: <9e47339105030909031486744f@mail.gmail.com> <20050321154131.30616ed0.akpm@osdl.org> <9e473391050321155735fc506d@mail.gmail.com> <20050321161925.76c37a7f.akpm@osdl.org> <20050322003807.GA10180@kroah.com> <20050321164318.04a5dc82.akpm@osdl.org> <9e473391050321165338208c66@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050321202051.2796660e.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <9e473391050321165338208c66@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> iirc we ended up deciding that the futex problems around that time were due
-> to userspace problems (a version of libc).  But then, there's no discussion
-> around Seto's patch and it didn't get applied.  So I don't know what
-> happened to that work - it's all a bit mysterious.
+On Mon, Mar 21, 2005 at 07:53:15PM -0500, Jon Smirl wrote:
+> Here is fedora's initrd nash script from my system. I modified it with
+> the sleep lines.
+> 
+> It already is creating the /dev node with 'mkrootdev /dev/root'
+> I don't think udev is even running yet. Something else is causing this.
+> 
+> echo "Loading libata.ko module"
+> insmod /lib/libata.ko
+> echo "Loading ata_piix.ko module"
+> insmod /lib/ata_piix.ko
+> echo "Loading raid1.ko module"
+> insmod /lib/raid1.ko
+> /sbin/udevstart
+> raidautorun /dev/md0
+> >>>echo Sleep 1
+> >>>sleep 1
+> echo Creating root device
+> mkrootdev /dev/root
+> umount /sys
 
-It can be fixed _either_ in Glibc, or by changing the kernel.
+Care to look at what mkrootdev does?
 
-That problem is caused by differing assumptions between Glibc and the
-kernel about subtle futex semantics.  Which goes to show they are
-really clever, or something.
+thanks,
 
-I provided pseudo-code for the Glibc fix, but not an actual patch
-because NPTL is quite complicated and I wanted to know the Glibc
-people were interested, but apparently they were too busy at the time
-- benchmarks would have made sense for such a patch.
-
-Scott Snyder started fixing part of Glibc, and that did fix his
-instance of this problem so we know the approach works.  But a full
-patch for Glibc was not prepared.
-
-The most recent messages under "Futex queue_me/get_user ordering",
-with a patch from Jakub Jelinek will fix this problem by changing the
-kernel.  Yes, you should apply Jakub's most recent patch, message-ID
-"<20050318165326.GB32746@devserv.devel.redhat.com>".
-
-I have not tested the patch, but it looks convincing.
-
-I argued for fixing Glibc on the grounds that the changed kernel
-behaviour, or more exactly having Glibc depend on it, loses a certain
-semantic property useful for unusual operations on multiple futexes at
-the same time.  But I appear to have lost the argument, and Jakub's
-latest patch does clean up some cruft quite nicely, with no expected
-performance hit.
-
--- Jamie
+greg k-h

@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268115AbUIPTIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268092AbUIPT1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268115AbUIPTIN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 15:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268138AbUIPTIM
+	id S268092AbUIPT1d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 15:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268138AbUIPT1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 15:08:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24752 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268115AbUIPTIH (ORCPT
+	Thu, 16 Sep 2004 15:27:33 -0400
+Received: from colin2.muc.de ([193.149.48.15]:24072 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S268092AbUIPT1c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 15:08:07 -0400
-Message-ID: <4149E46E.7010804@redhat.com>
-Date: Thu, 16 Sep 2004 12:07:26 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a4) Gecko/20040915
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Utz Lehmann <lkml@de.tecosim.com>
-CC: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] flexmmap: optimise mmap_base gap for hard limited stack
-References: <20040916165613.GA10825@de.tecosim.com> <20040916174529.GA16439@devserv.devel.redhat.com> <20040916182139.GA21870@de.tecosim.com>
-In-Reply-To: <20040916182139.GA21870@de.tecosim.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 16 Sep 2004 15:27:32 -0400
+Date: 16 Sep 2004 21:27:30 +0200
+Date: Thu, 16 Sep 2004 21:27:30 +0200
+From: Andi Kleen <ak@muc.de>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: get_current is __pure__, maybe __const__ even
+Message-ID: <20040916192730.GA68479@muc.de>
+References: <2ER4z-46B-17@gated-at.bofh.it> <m3llfaya29.fsf@averell.firstfloor.org> <1095344098.3866.1396.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095344098.3866.1396.camel@cube>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> I count 8 items passed in or out of the asm.
+> I count 11 clobbers. You don't have 19 registers.
 
-Utz Lehmann wrote:
+Read it again. Many of the input arguments are not
+registers, but "i" or "m" 
 
-> A check for CAP_SYS_RESOURCE can be added. But i dont think it's worth.
+> I recall seeing i386 compilers complain about
+> clobbered inputs. I guess the x86-64 gcc needs
+> to have this warning added?
 
-It is needed.  Otherwise how do you allow increasing the stack size
-again once it has been limited?  I've no problem with using the smallest
-reserved stack region with !CAP_SYS_RESOURCE, but otherwise the existing
-method should be used.
+All gcc ports use the same code for this, no difference.
 
-- --
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBSeRu2ijCOnn/RHQRAi9kAKCvg6KSntcpjNT0Ld8wLQuS5RqxtACfUwDY
-X59x6hGwCtUZUgbX2O/hV7k=
-=mOVA
------END PGP SIGNATURE-----
+-Andi

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271736AbRHUQUb>; Tue, 21 Aug 2001 12:20:31 -0400
+	id <S271737AbRHUQXb>; Tue, 21 Aug 2001 12:23:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271732AbRHUQUW>; Tue, 21 Aug 2001 12:20:22 -0400
-Received: from prop.sonic.net ([208.201.224.193]:29808 "EHLO prop.sonic.net")
-	by vger.kernel.org with ESMTP id <S271733AbRHUQUJ>;
-	Tue, 21 Aug 2001 12:20:09 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 21 Aug 2001 09:20:20 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0 ( make modules_install 'isdn')
-Message-ID: <20010821092020.B968@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S271739AbRHUQXV>; Tue, 21 Aug 2001 12:23:21 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1796 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271735AbRHUQXG>; Tue, 21 Aug 2001 12:23:06 -0400
+Subject: Re: massive filesystem corruption with 2.4.9
+To: cwidmer@iiic.ethz.ch
+Date: Tue, 21 Aug 2001 17:26:04 +0100 (BST)
+Cc: kristian@korseby.net (Kristian), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Christian Widmer" at Aug 21, 2001 06:18:52 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108211745440.14658-100000@chaos.tp1.ruhr-uni-bochum.de>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZELs-0008EA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 21, 2001 at 05:47:01PM +0200, Kai Germaschewski wrote:
-> Well, I said should ;-) Maybe I should have tried...
+> that it is a memory problem i also don't belive. that ram work for over 2 year
+> with no errors found with memtest (memtset86, intels memtest) compiling
+> seveal times xfree86 and an many many times several kernels. 
 > 
-> Next try: (still untested)
+> and i never had any problems. until i tried the first time a 2.4.x kernel on 
+> the fileserver (that was 2.4.6). so i moved the fileserver back to 2.2.19.
 
+Nod. I can follow that reasoning, I've come across boxes that fialed with
+2.4 with memory errors, but not 2.2. So far however those have all shown up
+with memtest86, or been Athlon optimisation triggered via things
 
-Closer.
-
-Had to add #include <linux/types.h> to the header file too.
-
-Thanks!
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+Curiouser and curiouser

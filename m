@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263364AbTJaP2L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 10:28:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTJaP2L
+	id S263369AbTJaPfY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 10:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbTJaPfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 10:28:11 -0500
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:61324 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S263364AbTJaP2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 10:28:08 -0500
-Date: Fri, 31 Oct 2003 16:26:50 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Jakob Oestergaard <jakob@unthought.net>
-cc: Maciej Zenczykowski <maze@cela.pl>, Dave Brondsema <dave@brondsema.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: uptime reset after about 45 days
-In-Reply-To: <20031031103723.GE10792@unthought.net>
-Message-ID: <Pine.LNX.4.53.0310311621010.794@gockel.physik3.uni-rostock.de>
-References: <1067552357.3fa18e65d1fca@secure.solidusdesign.com>
- <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
- <20031031103723.GE10792@unthought.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 31 Oct 2003 10:35:24 -0500
+Received: from mail.cybertrails.com ([162.42.150.35]:64450 "EHLO
+	mail12.cybertrails.com") by vger.kernel.org with ESMTP
+	id S263369AbTJaPfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 10:35:20 -0500
+Date: Fri, 31 Oct 2003 08:35:15 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: linux-kernel@vger.kernel.org, davej@redhat.com
+Subject: Re: Post-halloween doc updates.
+Message-Id: <20031031083515.07f92837.dickson@permanentmail.com>
+In-Reply-To: <pan.2003.10.31.12.25.07.551785@dungeon.inka.de>
+References: <20031030141519.GA10700@redhat.com>
+	<pan.2003.10.31.12.25.07.551785@dungeon.inka.de>
+X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Oct 2003, Jakob Oestergaard wrote:
+On Fri, 31 Oct 2003 13:25:08 +0100, Andreas Jellinghaus wrote:
 
-> Still, it's pretty darn pathetic to be required to include workarounds
-> in *Linux* apps that would otherwise only be needed for '95.
+> On Thu, 30 Oct 2003 14:19:47 +0000, Dave Jones wrote:
+> > Deprecated/obsolete features.
+> > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > - devfs has been obsoleted in favour of udev (http://www.kernel.org/pub/linux/utils/kernel/hotplug/)
+> 
+> s/has been obsoleted/will be olsoleted some day/
+> 
+> many devices need to be added to sysfs,
+> before udev+sysfs can replace devfs.
 
-There's nothing wrong with Linux here, it works out of the box.
-If you choose to patch with an inappropriate set of patches, it breaks.
+So the correct term should be deprecated rather than obsoleted.  Which can
+be taken to mean "please which switch when possible".
 
-So either apply
-  http://www.physik3.uni-rostock.de/tim/kernel/2.4/jiffies64-21.patch.gz
-as well, or don't patch at all.
+	-Paul
 
-Just my two cents.
-
-Tim

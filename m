@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291447AbSBAANr>; Thu, 31 Jan 2002 19:13:47 -0500
+	id <S291449AbSBAAVr>; Thu, 31 Jan 2002 19:21:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291450AbSBAANh>; Thu, 31 Jan 2002 19:13:37 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:54290 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S291447AbSBAANc>; Thu, 31 Jan 2002 19:13:32 -0500
-Date: Thu, 31 Jan 2002 16:12:46 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        linux-m68k@lists.linux-m68k.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] amiga input api drivers
-In-Reply-To: <3C59DCC4.EA3848E@linux-m68k.org>
-Message-ID: <Pine.LNX.4.10.10201311612180.6830-100000@www.transvirtual.com>
+	id <S291450AbSBAAVh>; Thu, 31 Jan 2002 19:21:37 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56338 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291449AbSBAAVY>; Thu, 31 Jan 2002 19:21:24 -0500
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+To: anton@samba.org (Anton Blanchard)
+Date: Fri, 1 Feb 2002 00:34:05 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), riel@conectiva.com.br (Rik van Riel),
+        torvalds@transmeta.com (Linus Torvalds),
+        davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org
+In-Reply-To: <20020131234416.GB4138@krispykreme> from "Anton Blanchard" at Feb 01, 2002 10:44:17 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16WReX-0003gt-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > > > +   scancode = scancode >> 1;       /* lowest bit is release bit */
-> > > > +   down = scancode & 1;
-> > >
-> > > Shouldn't that be the other way 'round?
-> > 
-> > I don't know. Anyone?
+> the prefetch engine will have to restart every 4kB, so we would want to
+> use 16MB pages if possible.
 > 
-> He's correct, the up/down event is received in the lsb bit, the other 7
-> bits are the keycode.
+> How would we allocate large pages? Would there be a boot option to
+> reserve an area of RAM for large pages only?
 
-Okay that has been fixed now :-) Another patch is coming your way.
+If you have an rmap all you have to do is to avoid smearing kernel objects
+around lots of 16Mb page sets. If need be you can then get a 16Mb page
+back just by shuffling user pages.
 
-
+It does make the performance analysis much more interesting though.

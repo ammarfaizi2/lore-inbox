@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266340AbUAHWwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 17:52:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUAHWwJ
+	id S266361AbUAHW6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 17:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266365AbUAHW6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 17:52:09 -0500
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:23224 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S266354AbUAHWwE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 17:52:04 -0500
-Message-ID: <3FFDDF0C.7080307@rackable.com>
-Date: Thu, 08 Jan 2004 14:51:56 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Maciej Zenczykowski <maze@cela.pl>
-CC: Gene Heskett <gene.heskett@verizon.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Howto use diff compatibly
-References: <Pine.LNX.4.44.0401082300421.1739-100000@gaia.cela.pl>
-In-Reply-To: <Pine.LNX.4.44.0401082300421.1739-100000@gaia.cela.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jan 2004 22:52:01.0946 (UTC) FILETIME=[078A57A0:01C3D63A]
+	Thu, 8 Jan 2004 17:58:24 -0500
+Received: from mail.kroah.org ([65.200.24.183]:19429 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266361AbUAHW6S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 17:58:18 -0500
+Date: Thu, 8 Jan 2004 14:58:13 -0800
+From: Greg KH <greg@kroah.com>
+To: andreamrl <andreamrl@tiscali.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.6.1-rc1-mm2
+Message-ID: <20040108225813.GA3180@kroah.com>
+References: <200401081629.20497.andreamrl@tiscali.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401081629.20497.andreamrl@tiscali.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Zenczykowski wrote:
->>I have a better idea.  Who is the current maintainer for 
->>drivers/block/floppy.c?
-> 
-> 
-> Check MAINTAINERS for floppy
-> 
-> linux 2.4.23:
-> 
-> IDE/ATAPI FLOPPY DRIVERS
-> P:      Paul Bristow
-> M:      Paul Bristow <paul@paulbristow.net>
-> W:      http://paulbristow.net/linux/idefloppy.html
-> L:      linux-kernel@vger.kernel.org
-> S:      Maintained
-> 
+On Thu, Jan 08, 2004 at 04:29:20PM +0100, andreamrl wrote:
+> When i stop to messing around with a sane backend and i disconnect the power 
+> cord of my USB scanner, system generates a kernel oops (kernel 
+> 2.6.1-rc1-mm2). 
+> I attach the oops log hoping be useful.
 
-   That would be the maintainer for drivers/ide/ide-floppy.c.  I don't 
-think there is a maintainer for drivers/block/floppy.c.
+There seems to be a bug in the scanner driver, a number of people have
+reported this :(
 
--- 
-Unless you can't avoid it never put a
-serial number on any of your systems!!
-(The Numberless Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+This driver isn't needed at all, just use xsane which uses libusb/usbfs
+to talk to the scanner.  That way no more oopses :)
 
+Also, try sending this to the scanner driver maintainer, he's usually
+quite responsive about these kinds of issues.
+
+thanks,
+
+greg k-h

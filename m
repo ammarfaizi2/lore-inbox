@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVBVXwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVBWAOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbVBVXwE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 18:52:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVBVXwE
+	id S261348AbVBWAOn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 19:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVBWAOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 18:52:04 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:10900 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261337AbVBVXwA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 18:52:00 -0500
-Date: Wed, 23 Feb 2005 00:48:10 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Jon Mason <jdmason@us.ibm.com>,
-       Richard Dawe <rich@phekda.gotadsl.co.uk>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: [rft/update] r8169 changes in 2.6.x
-Message-ID: <20050222234810.GA17303@electric-eye.fr.zoreil.com>
+	Tue, 22 Feb 2005 19:14:43 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:37298 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261348AbVBWAOl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 19:14:41 -0500
+Date: Tue, 22 Feb 2005 16:14:12 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@elte.hu, raybry@sgi.com, mort@wildopensource.com,
+       linux-kernel@vger.kernel.org, hilgeman@sgi.com
+Subject: Re: [PATCH/RFC] A method for clearing out page cache
+Message-Id: <20050222161412.4699fef6.pj@sgi.com>
+In-Reply-To: <20050222104535.0b3a3c65.akpm@osdl.org>
+References: <20050214154431.GS26705@localhost>
+	<20050214193704.00d47c9f.pj@sgi.com>
+	<20050221192721.GB26705@localhost>
+	<20050221134220.2f5911c9.akpm@osdl.org>
+	<421A607B.4050606@sgi.com>
+	<20050221144108.40eba4d9.akpm@osdl.org>
+	<20050222075304.GA778@elte.hu>
+	<20050222032633.5cb38abb.pj@sgi.com>
+	<20050222104535.0b3a3c65.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An update of the r8169 driver is available for the 2.6.11-rc4 kernel.
+Andrew asked:
+> So...  Cannot the applicaiton remove all its pagecache with posix_fadvise()
+> prior to exitting?
 
-Noticable changes:
-- better handling of PHY as found on Acer Aspire 1524WLMi (Richard Dawe);
-- fix a bug triggered when the device is brought down then up again;
-- avoid a few lost/screaming interrupts;
-- closed a race when a change of mtu is issued during network activity;
-- fix VLAN on big-endian hosts (is someone using it apart from me ?);
-- merge relevant changes from Realtek's 2.2 driver.
+Hang on ...
 
-If it worked for you before, you should not notice anything.
+The replies of Ray and Martin answer your immediate question.
 
-Patch against 2.6.10-rc4:
-- http://www.fr.zoreil.com/~romieu/misc/20050222-2.6.11-rc4-r8169.c-test.patch
+But we (SGI) are still busy discussing the bigger picture behind the
+scenes ...
 
-Patch-script directory:
-- http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.11-rc4/r8169/
-
-Patch-script tarball:
-- http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.11-rc4/r8169-blob.tar.bz2
-
-The 2.4.x backport will be updated later this week.
-
-As usual, success/regression reports will be welcome.
-
-Thank you for your attention.
-
---
-Ueimor
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

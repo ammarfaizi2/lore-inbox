@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131936AbQLJTCt>; Sun, 10 Dec 2000 14:02:49 -0500
+	id <S131872AbQLJTCj>; Sun, 10 Dec 2000 14:02:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132131AbQLJTCk>; Sun, 10 Dec 2000 14:02:40 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:29201 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131936AbQLJTC0>; Sun, 10 Dec 2000 14:02:26 -0500
-Date: Sun, 10 Dec 2000 10:31:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre8
-In-Reply-To: <Pine.LNX.4.10.10012101014000.3153-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10012101030560.8636-100000@penguin.transmeta.com>
+	id <S131950AbQLJTC3>; Sun, 10 Dec 2000 14:02:29 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57353 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131872AbQLJTCT>; Sun, 10 Dec 2000 14:02:19 -0500
+Subject: Re: Serial cardbus code.... for testing, please.....
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Sun, 10 Dec 2000 18:32:34 +0000 (GMT)
+Cc: tytso@MIT.EDU (Theodore Y. Ts'o), torvalds@transmeta.com (Linus Torvalds),
+        rgooch@ras.ucalgary.ca, jgarzik@mandrakesoft.mandrakesoft.com,
+        dhinds@valinux.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3A33B06A.84ED5D58@mandrakesoft.com> from "Jeff Garzik" at Dec 10, 2000 11:33:46 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E145BH3-0006ph-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> FWIW I don't think you should sit on fixes until post 2.4.0...  and I
+> would like to get CardBus serial working because it's broken in the
+> current tree...
 
-Follow-up: I uploaded the wrong patch by mistake, so if anybody got
-test12-pre8 within the first five minutes, you'll get a kernel that has
-some trouble compiling. Oops. Fixed.
-
-		Linus
-
+I would agree. Right now serial cardbus is broken, line discipline race patches
+dont appear to have been applied and these are serious enough to definitely
+want fixing, either with your patch or someone else doing the work instead.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

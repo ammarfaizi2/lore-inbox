@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276049AbRJBRgQ>; Tue, 2 Oct 2001 13:36:16 -0400
+	id <S276057AbRJBRkh>; Tue, 2 Oct 2001 13:40:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276050AbRJBRgG>; Tue, 2 Oct 2001 13:36:06 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8713 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276049AbRJBRf5>; Tue, 2 Oct 2001 13:35:57 -0400
-Subject: Re: 2.4.10 hangs on console switch
-To: larsch@cs.auc.dk (Lars Christensen)
-Date: Tue, 2 Oct 2001 18:41:25 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.33.0110021836001.15489-100000@peta.cs.auc.dk> from "Lars Christensen" at Oct 02, 2001 06:45:45 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276058AbRJBRk1>; Tue, 2 Oct 2001 13:40:27 -0400
+Received: from mailgw.netvision.net.il ([194.90.1.9]:1997 "EHLO
+	mailgw2.netvision.net.il") by vger.kernel.org with ESMTP
+	id <S276057AbRJBRkL>; Tue, 2 Oct 2001 13:40:11 -0400
+Date: Tue, 2 Oct 2001 19:41:53 +0200 (IST)
+From: Lior Okman <lior@netvision.net.il>
+To: linux-kernel@vger.kernel.org
+Subject: Strange CD-writing problem
+Message-ID: <Pine.LNX.4.21.0110021939550.1608-100000@goblin.realms>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15oTXp-0005Mk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Problem: Kernel 2.4.10 hangs when console is switched from X to text mode,
-> either using C-A-Fn or when shutting down or reboot from X (with a black
-> screen). 2.4.9 does not have this problem.
-> 
-> There is nothing about the hang in the log files. Kernel is configured for
-> Athlon/K7 processor.
 
-You are using the Nvidia drivers aren't you. They seem to have timing
-dependant screen mode switch problems. The timing has changed in 2.4.10
 
-Alan
+Hello,
+ 
+I recently bought a new IDE cd-rw (a Plextor W1610A).
+While trying to burn with it, I had some trouble fixating the disks.
+The burn process would work fine, but when the fixating started, the
+ide-scsi emulation started resetting the IDE bus, or just timing out.
+This is true for every 2.4 kernel, from 2.4.0 to 2.4.10 including selected
+ac versions.
+ 
+The cd writer is connected to the computer as a primary device of the
+third IDE bus (an onboard Promise chip), which kernels 2.2 don't support
+out-of-the-box. I patched the 2.2.19 kernel to add support for Promise
+cards, added reiserfs, and tried burning with this kernel, and it worked
+flawlessly. The cdrecord versions I used were version 1.11a07, and also
+version 1.10a18.
+
+I'd appreciate help in making the cd-writer usable with a 2.4 kernel.
+
+Thanks 
+Lior Okman
+

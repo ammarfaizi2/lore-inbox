@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268954AbUIMUPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268915AbUIMUTC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268954AbUIMUPI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 16:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268937AbUIMUMk
+	id S268915AbUIMUTC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 16:19:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268929AbUIMUTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 16:12:40 -0400
-Received: from d193-185-141-10.elisa-laajakaista.fi ([193.185.141.10]:30863
-	"EHLO mood.vph.iki.fi") by vger.kernel.org with ESMTP
-	id S268929AbUIMULg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 16:11:36 -0400
-Date: Mon, 13 Sep 2004 23:11:13 +0300
-From: Ville Hallivuori <vph@iki.fi>
-To: Paul Jakma <paul@clubi.ie>
-Cc: Toon van der Pas <toon@hout.vanvergehaald.nl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial of Service Attack
-Message-ID: <20040913201113.GA5453@vph.iki.fi>
-Reply-To: vph@iki.fi
-References: <002301c498ee$1e81d4c0$0200a8c0@wolf> <1095008692.11736.11.camel@localhost.localdomain> <20040912192331.GB8436@hout.vanvergehaald.nl> <Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org> <Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org>
-User-Agent: Mutt/1.3.28i
+	Mon, 13 Sep 2004 16:19:02 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:15086 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S268915AbUIMUSy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 16:18:54 -0400
+Date: Mon, 13 Sep 2004 22:18:26 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Tonnerre <tonnerre@thundrix.ch>
+cc: Hugh Dickins <hugh@veritas.com>, Alex Zarochentsev <zam@namesys.com>,
+       Paul Jackson <pj@sgi.com>, William Lee Irwin III <wli@holomorphy.com>,
+       Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: 2.6.9-rc1-mm4 sparc reiser4 build broken - undefined
+ atomic_sub_and_test
+In-Reply-To: <20040913200359.GE19399@thundrix.ch>
+Message-ID: <Pine.LNX.4.61.0409132212480.877@scrub.home>
+References: <Pine.LNX.4.44.0409131545100.17907-100000@localhost.localdomain>
+ <Pine.LNX.4.61.0409131731400.877@scrub.home> <20040913200359.GE19399@thundrix.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Mon, Sep 13, 2004 at 04:30:36AM +0100, Paul Jakma wrote:
+On Mon, 13 Sep 2004, Tonnerre wrote:
 
-> More specifically, BGP should have treated TCP resets as a transient 
-> error, to be expected (indeed, they /cant/ be a sign that a link is 
+> On Mon, Sep 13, 2004 at 06:03:28PM +0200, Roman Zippel wrote:
+> > +#define atomic_add_and_test(i,v) (atomic_add_return((i), (v)) == 0)
+> > +#define atomic_sub_and_test(i,v) (atomic_sub_return((i), (v)) == 0)
+> 
+> This is no longer atomic, is it? I mean, there's no guarantee that the
+> atomic_add_return   and   the    comparison   are   executed   without
+> interruption, is there?
 
-Actually you can treat TCP session failure as transient error. Just
-use BGP graceful restart (witch basically allows re-opening TCP
-connection without losing routing tables).
+Only the read/write access needs to be atomic, when the comparison happens 
+is irrelevant.
 
-http://www.ietf.org/internet-drafts/draft-ietf-idr-restart-10.txt
-
--- 
-[Ville Hallivuori][vph@iki.fi][http://www.iki.fi/vph/]
-[ID 8E1AD461][FP16=C9 50 E2 DF 48 F6 33 62  5D 87 47 9D 3F 2B 07 5D]
-[ID 58543419][FP20=8731 941D 15AB D4A0 88A0  FC8F B55C F4C4 5854 3419]
-[ID 8061C24E][FP20=C722 12DA 841E D811 DBFE  2FB3 174C E291 8061 C24E]
+bye, Roman

@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbUKIPVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbUKIPWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbUKIPVU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 10:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUKIPVU
+	id S261554AbUKIPWT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 10:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUKIPWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 10:21:20 -0500
-Received: from rt.gnu.org ([199.232.76.167]:15236 "EHLO rt.gnu.org")
-	by vger.kernel.org with ESMTP id S261544AbUKIPVQ (ORCPT
+	Tue, 9 Nov 2004 10:22:18 -0500
+Received: from mail.kroah.org ([69.55.234.183]:50614 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261554AbUKIPWE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 10:21:16 -0500
-Subject: Re: [gnu.org #214016] GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
-From: "Shawn Starr via RT" <license-violation@fsf.org>
-Reply-To: license-violation@fsf.org
-In-Reply-To: <rt-214016@gnu.org>
-Message-ID: <rt-3.0.8-214016-682840.2.97900455292528@rt.gnu.org>
-X-RT-Loop-Prevention: gnu.org
-RT-Ticket: gnu.org #214016
-Managed-by: RT 3.0.8 (http://www.bestpractical.com/rt/)
-RT-Originator: shawn.starr@rogers.com
-Cc: license-violation@gnu.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-RT-Original-Encoding: utf-8
-Date: Tue, 09 Nov 2004 10:21:22 -0500
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 9 Nov 2004 10:22:04 -0500
+Date: Tue, 9 Nov 2004 07:21:45 -0800
+From: Greg KH <greg@kroah.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [BK PATCH] I2C update for 2.6.10-rc1
+Message-ID: <20041109152145.GB27269@kroah.com>
+References: <20041109052229.GA5117@kroah.com> <vYBFH9gE.1099992539.9943000.khali@gcu.info>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <vYBFH9gE.1099992539.9943000.khali@gcu.info>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-They won't be distributing the source because of their new 
-anti-distribution methods, they aren't providing the source because they 
-don't want people to distribute the binaries any more either or know now the 
-anti-distribution mechanism will work (which requires the user to enter a 
-value to unlock the binary firmware and send a request to their servers).
+On Tue, Nov 09, 2004 at 10:29:00AM +0100, Jean Delvare wrote:
+> 
+> Hi Greg,
+> 
+> >Greg Kroah-Hartman:
+> >  o I2C: delete normal_i2c_range logic from sensors as there are no more
+> >         users
+> >  o I2C: moved from all sensor drivers from normal_i2c_range to normal_i2c
+> >  o I2C: fix i2c_detect to allow NULL fields in adapter address structure
+> >  o I2C: remove normal_isa_range from I2C sensor drivers, as it's not used
+> >  o I2C: remove ignore_range from I2C sensor drivers, as it's not used
+> >  o I2C: remove probe_range from I2C sensor drivers, as it's not used
+> 
+> I'm very happy with that :) A documentation update will be needed though.
 
-It is this action that they are violating the GPL and that needs to be 
-enforced. 
+Doh, ok, I'll go do that, forgot that...
 
-If they want to relicense their changes they need to not use GPL existing code 
-which they are not doing. They have not added written any of this code from 
-scratch and thus must distribute the source on request to those who get the 
-binaries which they are not doing anymore.
+> Also, while we're at it, is there any reason why I2C_CLIENT_END and
+> I2C_CLIENT_ISA_END are two different constants?
 
-What was true before of redistribution and being kicked out of the program is 
-now not happening anymore as there is no code to distribute of the resulting 
-binaries.
+unsigned short vs unsigned int, right?
 
-Shawn.
+thanks,
 
-On November 9, 2004 07:07, Alan Cox via RT wrote:
-> On Maw, 2004-11-09 at 00:11, novalis@fsf.org via RT wrote:
-> > But if you distribute binaries, you must either include or offer source
-> > code.  Do they do this?  What software do they include that FSF holds
-> > copyright on?   Where can I check this?
-> >
-> > Do they include a copy of the GPL with the software?
->
-> They include the GPL, they include the source nothing I can find they do
-> violates the GPL.  They do appear to annoy a few people because their
-> policy is that while you may join their early access process and get
-> source if you redistribute that source then you get kicked off their
-> program, but you are still allowed to distribute that source.
-
-
+greg k-h

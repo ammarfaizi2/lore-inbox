@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbTL1V4q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 16:56:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTL1V4q
+	id S262128AbTL1Vtc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 16:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTL1Vtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 16:56:46 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:33412 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S262094AbTL1V4p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 16:56:45 -0500
-Date: Sun, 28 Dec 2003 22:56:44 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Best Low-cost IDE RAID Solution For 2.6.x? (OT?)
-Message-ID: <20031228215644.GA32140@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>,
-	Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-	linux-kernel@vger.kernel.org
-References: <20031228180424.GA16622@mail-infomine.ucr.edu> <Pine.LNX.4.44.0312281032350.21070-100000@twin.uoregon.edu> <20031228213535.GA21459@mail-infomine.ucr.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031228213535.GA21459@mail-infomine.ucr.edu>
-User-Agent: Mutt/1.3.28i
+	Sun, 28 Dec 2003 16:49:32 -0500
+Received: from cafe.hardrock.org ([142.179.182.80]:40410 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S262128AbTL1Vta
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 16:49:30 -0500
+Date: Sun, 28 Dec 2003 14:49:25 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+To: Arnaud Fontaine <dsdebian@free.fr>
+cc: Xose Vazquez Perez <xose@wanadoo.es>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops with 2.4.23
+In-Reply-To: <20031228140039.GA1545@scrappy>
+Message-ID: <Pine.LNX.4.51.0312281448050.1031@cafe.hardrock.org>
+References: <3FE732A7.60402@wanadoo.es> <20031223150704.GA19243@scrappy>
+ <3FE8A3D3.9090100@wanadoo.es> <20031228140039.GA1545@scrappy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28, 2003 at 01:35:35PM -0800, Johannes Ruscheinski wrote:
+On Sun, 28 Dec 2003, Arnaud Fontaine wrote:
 
-> Fisrt of all: thanks for the advice Joel!  Two questions: why not use the
-> hardware raid capability of the Promise tx4000 and if we'd use software
-> raid instead, what would be the CPU overhead?
+> On Tue, Dec 23, 2003 at 09:21:39PM +0100, Xose Vazquez Perez wrote:
+> > next steps :
+> > 
+> > - run burnP5 for 30 min.
+> > - try 2.4.24-pre2
+> 
+> Hello,
+> 
+> So, i have compiled 2.4.24-pre2 as you say. In addition, i had this Oops
+> after every reboot on 2.4.23 (nothing with 2.4.18 which works fine).
+> 
+> Then, I reboot again on 2.4.24-pre2 and ran `burnP5` during 40 minutes
+> to be sure. I had nothing and no oops at the moment. If i see this Oops
+> with 2.4.24 (nothing now ;)), i'll run burnP5 on this and i'll say you
+> what i have.
 
-For the cost differential between linux native RAID and an external device
-of similar capabilities, outfit yourself with an additional CPU. I don't use
-RAID5 a lot but to a modern CPU, checksumming dozens of megabytes/second is
-child's play:
+Could you please try 2.4.23 with the patch at
+http://www.hardrock.org/kernel/current-updates/linux-2.4.23-updates.patch
 
-raid5: measuring checksumming speed
-   8regs     :  1479.600 MB/sec
-   32regs    :   744.400 MB/sec
-   pIII_sse  :  1649.200 MB/sec
-   pII_mmx   :  1806.000 MB/sec
-   p5_mmx    :  1915.200 MB/sec
-raid5: using function: pIII_sse (1649.200 MB/sec)
+I would like to know if that helps or not.
 
-This is on a 800MHz Celeron, so a recent >2Ghz system will do lots better
-still.
+Thanks and regards
+James
+
+> 
+> Thanks for your help...
+> ++ Arnaud
+> 
+> 
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  

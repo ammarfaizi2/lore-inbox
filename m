@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315593AbSFYQcs>; Tue, 25 Jun 2002 12:32:48 -0400
+	id <S315595AbSFYQhv>; Tue, 25 Jun 2002 12:37:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315595AbSFYQcr>; Tue, 25 Jun 2002 12:32:47 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:65248 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315593AbSFYQcq>; Tue, 25 Jun 2002 12:32:46 -0400
-Date: Tue, 25 Jun 2002 11:30:52 -0500
-From: Amos Waterland <apw@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: O_ASYNC question
-Message-ID: <20020625113052.A7510@kvasir.austin.ibm.com>
+	id <S315606AbSFYQhu>; Tue, 25 Jun 2002 12:37:50 -0400
+Received: from revdns.flarg.info ([213.152.47.19]:24713 "EHLO noodles.internal")
+	by vger.kernel.org with ESMTP id <S315595AbSFYQht>;
+	Tue, 25 Jun 2002 12:37:49 -0400
+Date: Tue, 25 Jun 2002 17:38:24 +0100
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.24-dj2
+Message-ID: <20020625163824.GA20888@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The man page for fcntl() says:
+Just some small bits for now (other than 40kb of bits from 2.4),
+more stuff pending will probably wait until after I get back from
+KS/OLS/UKUUG conferences.
 
-    If you set the O_ASYNC status flag on a file descriptor (either by
-    providing this flag with the open(2) call, or by using the F_SETFL
-    command of fcntl), a SIGIO signal is sent whenever input or output
-    becomes possible on that file descriptor.
+As usual,..
 
-On a 2.4.18 kernel, this test program waits forever in sigwaitinfo():
+Patch against 2.5.24 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-    #include <fcntl.h>
-    #include <signal.h>
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <unistd.h>
+Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
 
-    int main(int argc, char *argv[])
-    {
-      const int BYTES = 5000000;
-      int i, fd;
-      char buff[BYTES];
-      char name[] = "/tmp/aio8.XXXXXX";
-      sigset_t sigset;
-      siginfo_t siginfo;
+Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
+known bugs that are also in mainline.
 
-      if ((fd = open(name, O_CREAT|O_WRONLY|O_NONBLOCK|O_ASYNC, 0600)) < 0 ||
-          unlink(name)) {
-        perror("creating temp file"); exit(1);
-      }
+ -- Davej.
 
-      for (i = 0; i < BYTES; i++) buff[i] = 'Z';
+2.5.24-dj2
+o   Drop some more bad bits that were found whilst splitting.
+o   Merge various changes from 2.4.19-rc1
+o   More x86 cpufreq updates.				(Dominik Brodowski)
+o   Fix up iounmap issues from the pageattr changes.	(Andi Kleen)
+o   Small x86 microcode driver cleanup.			(Tigran Aivazian)
 
-      if (sigemptyset(&sigset) || sigaddset(&sigset, SIGIO) ||
-          sigprocmask(SIG_BLOCK, &sigset, NULL)) {
-        perror("setting up signal mask"); exit(2);
-      }
 
-      if (write(fd, buff, BYTES) < 0) {
-        perror("writing to temp file"); exit(3);
-      }
+2.5.24-dj1
+o   Fix broken config.in that made xconfig barf.
+o   Drop some ISDN bits.
+o   Updated SAA7110 i2c patch.				(Frank Davis)
+o   Allow x86 cpufreq to be built modular.		(Dominik Brodowski)
+o   Make modular builds of agpgart work again.		(Kai Germaschewski)
+o   Fix MTRR compile on SMP.				(Patrick Mochel)
+o   Various SCSI generic driver janitor items.		(William Stinson)
+o   Fix oops in UHCI driver unload function.		(Andries Brouwer)
+o   Fix various missing includes (tqueue.h & init.h).	(Adrian Bunk)
+o   Make max number of CPUs compile time configurable.	(Robert Love)
+o   Various pidhash cleanups.				(William Lee Irwin)
 
-      printf("recv sig: %i\n", sigwaitinfo(&sigset, &siginfo));
-
-      return 0;
-    }
-
-Shouldn't SIGIO be raised when the write() completes?  (Is O_ASYNC only
-valid for sockets, maybe?)  Thanks in advance.
-
-Amos Waterland
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264966AbUFWFdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264909AbUFWFvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264966AbUFWFdG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 01:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265907AbUFWFdG
+	id S264909AbUFWFvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 01:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265716AbUFWFvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 01:33:06 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:7571 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S264966AbUFWFdD
+	Wed, 23 Jun 2004 01:51:16 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:20841 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S264909AbUFWFpm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 01:33:03 -0400
-Date: Wed, 23 Jun 2004 08:32:59 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: Kalin KOZHUHAROV <kalin@ThinRope.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] sch_ooo - Out-of-order packet queue discipline
-In-Reply-To: <40D885B0.5080000@ThinRope.net>
-Message-ID: <Pine.LNX.4.60.0406230829490.5968@hosting.rdsbv.ro>
-References: <Pine.LNX.4.58.0404021023140.18886@hosting.rdsbv.ro>
- <40D885B0.5080000@ThinRope.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 23 Jun 2004 01:45:42 -0400
+Date: Wed, 23 Jun 2004 07:57:57 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Ricky Beam <jfbeam@bluetronic.net>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kbuild: Improve Kernel build with separated output
+Message-ID: <20040623055757.GA2848@mars.ravnborg.org>
+Mail-Followup-To: Ricky Beam <jfbeam@bluetronic.net>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+References: <20040622212100.GA9346@mars.ravnborg.org> <Pine.GSO.4.33.0406221749270.25702-100000@sweetums.bluetronic.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.33.0406221749270.25702-100000@sweetums.bluetronic.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I risk on me:=dumb, but can you give at least one practical application for 
-> sch_ooo?
-> I suppose you have something on your mind...
+On Tue, Jun 22, 2004 at 06:04:28PM -0400, Ricky Beam wrote:
+> On Tue, 22 Jun 2004, Sam Ravnborg wrote:
+> >1) A Makefile is generated in the output directory allowing
+> >   one to execute make in both the source and the output directory.
+> 
+> I would vote against doing that.  Or at the very least don't overwrite one
+> that might already be there.  I, for one, have a very specific makefile in
+> my build (object) directories.  Anyone sufficiently skilled to be building
+> kernels outside the source tree, and/or those with the specific need to be
+> doing so will already have makefiles and/or shell scripts to suit their
+> needs.  Making the option a user specified target ala "make makefiles"
+> would be a better/safer choice; if the user wants or needs a makefile in
+> their object directory, then they have a simple option to make themselves
+> one -- no knowledge of GNU Make necessary.
 
-It's a bit hard to generate out-of-order packets. You must have 2 links 
-and some bakancing between them.
-With sch_ooo you can test network protocols (including TCP) how they 
-behave when out-of-order packets are received.
-Another application is when you develop a network monitoring application 
-(userspace) that must reports out-of-order packets.
+You cold just rename your Makefile to makefile. Then GNU Make will select that one
+as first choice.
 
->
-> Kalin.
->
-> -- 
-> ||///_ o  *****************************
-> ||//'_/>     WWW: http://ThinRope.net/
->
+Today kbuild unconditionally overwrite the Makefile, because it depends on the following:
+- Top level Makefile (VERSION)
+- scripts/mkmakefile script
+- Source directory
+- Output directory
 
----
-Catalin(ux aka Dino) BOIE
-catab at deuroconsult.ro
-http://kernel.umbrella.ro/
+In total too many factors to check for so the more brutal approach used.
+
+Do you use your specific Makefile for something others could benefit from?
+
+	Sam

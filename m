@@ -1,86 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129840AbRBAMxK>; Thu, 1 Feb 2001 07:53:10 -0500
+	id <S129119AbRBANZ4>; Thu, 1 Feb 2001 08:25:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129835AbRBAMxA>; Thu, 1 Feb 2001 07:53:00 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:6407 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S129714AbRBAMw4>; Thu, 1 Feb 2001 07:52:56 -0500
-Date: Thu, 1 Feb 2001 04:51:03 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: David Riley <oscar@the-rileys.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VT82C686A corruption with 2.4.x
-In-Reply-To: <3A786E7E.781C910@the-rileys.net>
-Message-ID: <Pine.LNX.4.21.0102010442070.15634-100000@ns-01.hislinuxbox.com>
+	id <S129278AbRBANZq>; Thu, 1 Feb 2001 08:25:46 -0500
+Received: from ckmso1.att.com ([12.20.58.69]:56216 "EHLO ckmso1.proxy.att.com")
+	by vger.kernel.org with ESMTP id <S129119AbRBANZf>;
+	Thu, 1 Feb 2001 08:25:35 -0500
+Message-ID: <0DDEC5E8B4C3D311BE0800902799EC360388FFB3@mo3980po04.ems.att.com>
+From: "Willson, Wayne M, NTCOM" <wwillson@att.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Different L2 cache size - will it hurt stability?
+Date: Thu, 1 Feb 2001 07:25:19 -0600 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah, I'm seriously beginning to think it's a board specific issue. If I
-drop the RAM count down to 768MB I get far less drops in app deaths
-now. I'm living in Sunnyvale CA which is part of the Rolling Blackouts
-designated spots in CA. Ever since the power companies have been
-instituting this I've seen equipment that otherwise ran great all of a
-sudden start flaking.
+All,
 
-I've got this particular machine connected to a UPS so I figured the
-voltage regulation would be right on the money. Now, I'm not so sure since
-a number of people have brought this up. I'm going to drop her down to
-768MB and then try a 128MB DIMM in there. I want to see if it can handle
-that. Since the 128s have less draw than the 256s do, maybe this will
-work.
+I just noticed that one of my production boxes has one CPU with 256K L2
+cache and the other has 512K L2 cache.  Will this make the server any less
+stable?  If it reduced performance I don't really care, but stability is
+paramount.
 
-Right now I've got the full 1GB in there. What I'm seeing now is
-application deaths, occational X11 lockups, but SUPRIZE! SUPRIZE! no more
-drive corruptions since I removed the DMA flag from the drives, disabled
-DMA use in the BIOS and replaced the ATA66 cable with an ATA33.
+[root@il05037a /proc]# more cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 1
+model name      : Pentium Pro
+stepping        : 7
+cpu MHz         : 199.455
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov
+bogomips        : 398.13
 
-For everyone out there that's assisted in tracking this down and assisted
-in getting a working fix going.. .THANK YOU!
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 1
+model name      : Pentium Pro
+stepping        : 9
+cpu MHz         : 199.455
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov
+bogomips        : 397.31
 
-For now, I'm going to have to play keep in step with the kernel, patches,
-and the VIA driver. Voj, can you directly add me to whatever ANNOUNCE list
-you use for announcing the latest release of the driver?
 
-Once again thanks folks. It's still not totally stable here, but it's a
-DAMN sight farther than it was before. While not TOTALLY convinced that
-it's a local hardware issue, I do thank folks for their 2 cents. :-)
+Thanks in advance,
 
-
-On Wed, 31 Jan 2001, David Riley
-wrote:
-
-> Mark Hahn wrote:
-> > 
-> > >>From what I gather this chipset on 2.4.x is only stable if you cripple just about everything that makes
-> > > it worth having (udma, 2nd ide channel  etc etc)  ?    does it even work when all that's done now or is
-> > > it fully functional?
-> > 
-> > it seems to be fully functional for some or most people,
-> > with two, apparently, reporting major problems.
-> > 
-> > my via (kt133) is flawless in 2.4.1 (a drive on each channel,
-> > udma enabled and in use) and has for all the 2.3's since I got it.
-> 
-> Not to make a "mee too" post but...
-> 
-> It's worked flawlessly for me.  Always.  Since it seems to work fine for
-> just about everyone else, I'd venture to say that it's a board specific
-> issue, quite likely with the BIOS.  Some other problems seem to have to
-> do with the memory; I remember the KX133 had some definite problems with
-> memory timing, especially with large amounts (3 DIMMS were a problem on
-> some motherboards that were loosely laid out).
-> 
-> My 2 cents,
-> 	David
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
-
+Wayne Willson
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

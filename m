@@ -1,267 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132118AbRDWVfV>; Mon, 23 Apr 2001 17:35:21 -0400
+	id <S132301AbRDWVol>; Mon, 23 Apr 2001 17:44:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132224AbRDWVfM>; Mon, 23 Apr 2001 17:35:12 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:32115 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132118AbRDWVfA>; Mon, 23 Apr 2001 17:35:00 -0400
-Date: Mon, 23 Apr 2001 23:34:35 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "D . W . Howells" <dhowells@astarte.free-online.co.uk>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, dhowells@redhat.com,
-        davem@redhat.com
-Subject: Re: [PATCH] rw_semaphores, optimisations try #3
-Message-ID: <20010423233435.N19938@athlon.random>
-In-Reply-To: <01042321353400.00801@orion.ddi.co.uk>
+	id <S132316AbRDWVob>; Mon, 23 Apr 2001 17:44:31 -0400
+Received: from ns1.et.tudelft.nl ([130.161.33.17]:60936 "EHLO
+	ns1.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S132313AbRDWVoY>; Mon, 23 Apr 2001 17:44:24 -0400
+Date: Mon, 23 Apr 2001 23:44:01 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: axel <axel@rayfun.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: compile error 2.4.4pre6: inconsistent operand constraints in an `asm'
+Message-ID: <20010423234401.Q2615@arthur.ubicom.tudelft.nl>
+In-Reply-To: <Pine.LNX.4.21.0104232306020.4230-100000@neon.rayfun.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <01042321353400.00801@orion.ddi.co.uk>; from dhowells@astarte.free-online.co.uk on Mon, Apr 23, 2001 at 09:35:34PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0104232306020.4230-100000@neon.rayfun.org>; from axel@rayfun.org on Mon, Apr 23, 2001 at 11:11:14PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 23, 2001 at 11:11:14PM +0200, axel wrote:
+> after having had trouble with compilation due to old gcc version, i have
+> updated to gcc 3.0 and received the following error:
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Although bug reports about a kernel compiled with gcc-3.0 are welcome,
+this is still not the recommended compiler. The recommended compiler is
+gcc-2.91.66 (aka egcs-1.1.2), but for most people gcc-2.95.2 works as
+well.
 
-On Mon, Apr 23, 2001 at 09:35:34PM +0100, D . W . Howells wrote:
-> This patch (made against linux-2.4.4-pre6) makes a number of changes to the
-> rwsem implementation:
-> 
->  (1) Everything in try #2
-> 
-> plus
-> 
->  (2) Changes proposed by Linus for the generic semaphore code.
-> 
->  (3) Ideas from Andrea and how he implemented his semaphores.
 
-I benchmarked try3 on top of pre6 and I get this:
-
-----------------------------------------------
-RWSEM_GENERIC_SPINLOCK y in rwsem-2.4.4-pre6 + your latest #try3
-
-rw
-
-reads taken: 5842496
-writes taken: 3016649
-reads taken: 5823381
-writes taken: 3006773
-
-r1
-
-reads taken: 13309316
-reads taken: 13311722
-
-r2
-
-reads taken: 5010534
-reads taken: 5023185
-
-ro
-
-reads taken: 3850228
-reads taken: 3845954
-
-w1
-
-writes taken: 13012701
-writes taken: 13021716
-
-wo
-
-writes taken: 1825789
-writes taken: 1802560
-
-----------------------------------------------
-RWSEM_XCHGADD y in rwsem-2.4.4-pre6 + your latest #try3
-
-rw
-
-reads taken: 5789542
-writes taken: 2989478
-reads taken: 5801777
-writes taken: 2995669
-
-r1
-
-reads taken: 16922653
-reads taken: 16946132
-
-r2
-
-reads taken: 5650211
-reads taken: 5647272
-
-ro
-
-reads taken: 4956250
-reads taken: 4959828
-
-w1
-
-writes taken: 15431139
-writes taken: 15439790
-
-wo
-
-writes taken: 813756
-writes taken: 816005
-
-graph updated attached. so in short my fast path is still quite faster (r1/w1),
-slow path is comparable now (I still win in all tests but wo which is probably
-the less interesting one in real life [write contention]). I still have room to
-improve the wo test [write contention] by spending more icache btw but it
-probably doesn't worth.
-
-Andrea
-
---a8Wt8u1KmwUX3Y2C
-Content-Type: image/png
-Content-Disposition: attachment; filename="rwsem2.png"
-Content-Transfer-Encoding: base64
-
-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
-vVjXKAAAAABJRU5ErkJggg==
-
---a8Wt8u1KmwUX3Y2C--
+Erik
+ 
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

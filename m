@@ -1,80 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315784AbSFJTD1>; Mon, 10 Jun 2002 15:03:27 -0400
+	id <S315792AbSFJTFB>; Mon, 10 Jun 2002 15:05:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315785AbSFJTD0>; Mon, 10 Jun 2002 15:03:26 -0400
-Received: from [209.237.59.50] ([209.237.59.50]:38451 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S315784AbSFJTDX>; Mon, 10 Jun 2002 15:03:23 -0400
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Oliver Neukum <oliver@neukum.name>, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-In-Reply-To: <52d6v19r9n.fsf@topspin.com> <523cvv9laj.fsf@topspin.com>
-	<20020610170309.GC14252@opus.bloom.county>
-	<200206101922.26985.oliver@neukum.name>
-	<20020610172909.GE14252@opus.bloom.county>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 10 Jun 2002 12:03:19 -0700
-Message-ID: <52ptyz7y88.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	id <S315785AbSFJTFB>; Mon, 10 Jun 2002 15:05:01 -0400
+Received: from firewall.embl-grenoble.fr ([193.49.43.1]:65447 "HELO
+	out.esrf.fr") by vger.kernel.org with SMTP id <S315792AbSFJTE7>;
+	Mon, 10 Jun 2002 15:04:59 -0400
+Date: Mon, 10 Jun 2002 21:03:58 +0200
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: Hank Leininger <hlein@progressive-comp.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: /usr/bin/df reports false size on big NFS shares
+Message-ID: <20020610210358.A16994@pcmaftoul.esrf.fr>
+In-Reply-To: <200206101839.g5AIdDo29997@marc2.theaimsgroup.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
-
-    Tom> No.  We should just make it come out to a nop for arches that
-    Tom> don't need it.  Otherwise we'll end up with ugly things like:
-    Tom> #ifdef CONFIG_NOT_CACHE_COHERENT ...  #else ...  #endif
-    Tom> All over things like USB...
-
-Good point.  How about the following: add a file to each arch named
-say, <asm/dma_buffer.h>, that defines a macro __dma_buffer.  This
-macro would be used as follows to mark DMA buffers (example taken from
-<linux/usb.h>):
-
-struct usb_device {
-        /* ... stuff deleted ... */
-
-	struct usb_bus *bus;		/* Bus we're part of */
-
-	struct usb_device_descriptor descriptor __dma_buffer; /* Descriptor */
-	struct usb_config_descriptor *config;	/* All of the configs */
-
-        /* ... more stuff deleted ... */
-};
-
-Then cache-coherent architectures like i386 can just do
-
-#define __dma_buffer
-
-while PPC can do
-
-#ifdef CONFIG_NOT_CACHE_COHERENT
-
-#define __dma_buffer __dma_buffer_line(__LINE__)
-#define __dma_buffer_line(line) __dma_buffer_expand_line(line)
-#define __dma_buffer_expand_line(line) \
-	__attribute__ ((aligned(SMP_CACHE_BYTES))); \
-	char __dma_pad_ ## line [0] __attribute__ ((aligned(SMP_CACHE_BYTES)))
-
-#else /* CONFIG_NOT_CACHE_COHERENT */
-
-#define __dma_buffer
-
-#endif /* CONFIG_NOT_CACHE_COHERENT */
-
-C purists will point out that this is not guaranteed to work since the
-compiler can reorder structure members.  However I'm sure that there
-are many, many other places in the kernel where we are counting on gcc
-not to reorder structures.
-
-Comments?
-
-Thanks,
-  Roland
+On Mon, Jun 10, 2002 at 02:39:13PM -0400, Hank Leininger wrote:
+> Most distributions ship slightly (or heavily) patched kernels.  Above you
+> can see the 2.4.4 kernel is not stock, it is named '2.4.4-4GB' for one
+> thing, which most likely means it is tweaked for a 4GB memory system?  That
+> may be how SuSE shipped kernels for 7.2, idunno.  But the point is, it is
+> likely that stock 2.4.4 would not work either, it would have the same
+> problem as 2.4.18.  There's some added bits in  SuSE's release kernel that
+> make >1TB NFS shares happy.  I'd suggest that you try booting 2.4.4 stock
+I'm using 2.4.18 unofficial srpm from suse ftp server, we need this
+because we have hudge needs ( scientific research institute).
+I think mostly the same patche are applied.
+I'll try to find a "pirate" RH system (we don't support it) at work and
+see if the same behavious applies.
+> just to see if it misbehaves the same way 2.4.18 does, and if so, start
+> trying to figure out what SuSE patch fixes this for you (check SuSE
+> specific lists, and/or ask their support).  With luck you will find that
+> either SuSE has a newer 2.4.x kernel with firewire support, or whatever
+That's the point, their unofficial rpm's has it.
+> they've done that fixes NFS can be extracted out and added to a current
+> stock 2.4.x kernel source.
+That probably won't be the case. :)
+> --
+> Hank Leininger <hlein@progressive-comp.com> 
+        Sam

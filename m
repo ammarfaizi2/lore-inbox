@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267282AbSKPPFm>; Sat, 16 Nov 2002 10:05:42 -0500
+	id <S267285AbSKPPTr>; Sat, 16 Nov 2002 10:19:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267285AbSKPPFl>; Sat, 16 Nov 2002 10:05:41 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:5387 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S267282AbSKPPFl>; Sat, 16 Nov 2002 10:05:41 -0500
-Date: Sun, 17 Nov 2002 02:11:02 +1100
-From: john slee <indigoid@higherplane.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't Johnny compile?
-Message-ID: <20021116151102.GI19015@higherplane.net>
-References: <3DD5D93F.8070505@kegel.com> <3DD5DC77.2010406@pobox.com>
+	id <S267286AbSKPPTr>; Sat, 16 Nov 2002 10:19:47 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:29970 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S267285AbSKPPTr>; Sat, 16 Nov 2002 10:19:47 -0500
+Message-Id: <200211161526.gAGFQbq02692@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Gregoire Favre <greg@ulima.unil.ch>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re:  2.5.47-ac5:undefined reference to `boot_gdt_table'
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD5DC77.2010406@pobox.com>
-User-Agent: Mutt/1.3.25i
+Date: Sat, 16 Nov 2002 10:26:36 -0500
+From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If people want to get rivafb or an ancient ISA net driver building 
-> again... patches welcome.  But I don't think calls for the kernel to 
+>   	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/
+> head.o \ arch/i386/kernel/init_task.o  init/built-in.o --start-group
+> usr/built-in.o  \ arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
+>  \ arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o
+>  fs/built-in.o  \ ipc/built-in.o  security/built-in.o  crypto/
+> built-in.o  drivers/built-in.o  \ sound/built-in.o  arch/i386/pci/
+> built-in.o  net/built-in.o  lib/lib.a  \ arch/i386/lib/lib.a
+> --end-group  -o .tmp_vmlinux1 \ arch/i386/kernel/built-in.o(.data+0x15a
+> 5): In function `gdt_48': : undefined \
+>                 reference to `boot_gdt_table' make: ***
+> [.tmp_vmlinux1] Error 1
 
-yep, someone is maintaining ewrk3 again now :-), or at least i have seen
-a couple of patches submitted
+I think this is because -ac5 has X86_TRAMPOLINE dependent on X86_LOCAL_APIC.  
+If you change
 
-> compile 100 percent of the drivers is realistic or even reasonable. 
-> Some of the APIs, particularly SCSI, are undergoing API stabilization. 
+config X86_TRAMPOLINE
+	bool
+	depends on SMP || (VOYAGER && SMP) || X86_LOCAL_APIC
 
-the api stabilization should have been happening months ago, in view of
-the october freeze
+to
 
-> And SCSI is an excellent example of drivers where 
-> I-dont-have-test-hardware patches to fix compilation may miss subtle 
-> problems -- and then six months later when the compileable-but-broken 
-> SCSI driver is used by a real user, we have to spend more time in the 
-> long run tracking down the problem.
+	depends on SMP
 
-certainly, and sometimes i wonder if there could be a better way (than
-#error or #warning) to tag things as known broken.  currently people use
-#error during compile, but i'd like to see it show up in menuconfig
-somehow.
+in arch/i386/Kconfig
 
-been thinking about it, but i haven't thought of a palatable solution
-yet.  keeping the tag in the source files (as it is now) is probably a
-good idea, but is suboptimal for external tools.  menuconfig doesn't
-want to know about the actual source files
+does this fix the problem?
 
-j.
+Alan: I'm just getting -ac5 up and running on voyager now, so I'll send in 
+this as part of the rebased patches.
 
--- 
-toyota power: http://indigoid.net/
+James
+
+

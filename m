@@ -1,61 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbUENSlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbUENSoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUENSlK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 14:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUENSlJ
+	id S262080AbUENSoz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 14:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUENSoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 14:41:09 -0400
-Received: from main.gmane.org ([80.91.224.249]:2191 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262052AbUENSk5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 14:40:57 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Christian Riedel <sarek@nurfuerspam.de>
-Subject: [V4L] video crashes perodically
-Date: Fri, 14 May 2004 20:37:27 +0200
-Message-ID: <c833l7$963$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 14 May 2004 14:44:55 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:13742 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262052AbUENSoq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 14:44:46 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Marc Singer <elf@buici.com>
+Subject: Re: arm-lh7a40x IDE support in 2.6.6
+Date: Fri, 14 May 2004 20:45:51 +0200
+User-Agent: KMail/1.5.3
+Cc: rmk@arm.linux.org.uk, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <200405141840.04401.bzolnier@elka.pw.edu.pl> <20040514172656.GA18884@buici.com>
+In-Reply-To: <20040514172656.GA18884@buici.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: p508a64f6.dip.t-dialin.net
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+Content-Disposition: inline
+Message-Id: <200405142045.51875.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 14 of May 2004 19:26, Marc Singer wrote:
+> On Fri, May 14, 2004 at 06:40:04PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > I was just porting my patches killing <asm/arch/ide.h> for
+> > ARM to 2.6.6 when noticed that more work is needed now. :-(
+> >
+> > arch/arm/mach-lh7a40x/ide-lpd7a40x.c
+> > include/asm-arm/arch-lh7a40x/ide.h
+> >
+> > Why it couldn't be done in drivers/ide/arm
+> > (as discussed on linux-ide)?
+>
+> Your response took look enough for me to switch to another job.  I
+> haven't yet returned to dealing with this.
 
-I have a problem with getting my tv-tuner card to work ... I loaded the 
-modules with the right parameters for my card. When I start a tv 
-application (be it zapping, xawtv or tvtime) I get video and sound just 
-fine. However after a certain time (maybe 10 minutes) video starts 
-crashing periodically: first luminance seems to vbe turned up step by 
-step and after about 2 minutes video is hardly visible. Then sound 
-collapses, video gets heavy distortions and a few seconds later video 
-and sound switch back to normal. To illustrate the problem here ( 
-http://sarek.webhop.org/tv ) are some screenshots - taken each 5 seconds 
-approx.
+Yes, it took too long.
 
-I dont think that this a hardware problem, as the tv-tuner card works 
-just fine - even for serveral hours nonstop tv - under windows.
+Anyway, pushing non-working code to mainline is a bad thing
+(I can show some proofs for this statement).
 
-I had this card working several months ago (using kernel 2.4.x or even 
-earlier) but now using 2.6.x I can't get it working again
+> > Code from <asm/ide.h> is inlined into IDE core code in far too
+> > many interesting places which greatly increasing complexity/insanity
+> > to anybody trying to understand or change it.
+> >
+> > The rule is simple:
+> > 	code outside drivers/ide SHOULDN'T need to know about <linux/ide.h>.
+>
+> I am emulating what has come before.  All of my examples look like
+> what I did.
 
-The card is a Typhoon TVCapturer (CPH031, Bt848a, Tuner Temic 4002FH5)
-As module params I use card=59 tuner=0 for bttv and type=0 for tuner. 
-These settings used to work fine before.
+Please point me to some (working) code outside drivers/ide
+which knows i.e. something about 'ide_hwif_t' type.
 
-My system is debian/sid running kernel 2.6.5-3
+[ you used 'struct ide_hwif_s' in arch-lh7a40x/ide.h to workaround this 8) ]
 
-I hope anyone of you can help me.
+> > WTF everybody wants to be "smart" and abuses it?
+> > [ and then people complain why IDE is so ugly ]
+>
+> Where's the model?
 
-Thanks in advance
+drivers/ide/arm/icside.c
 
-	Christian
--- 
-To reply to this posting directly use the following address and
-remove the 'NO-SPAM' part: Riedel.Christian.NO-SPAM@gmx.net
+My main concerns are:
+
+- ide-lpd7a40x.c should go into drivers/ide/arm/
+
+- you are setting IDE_NO_IRQ in ide_init_hwif_ports() which is used
+  in many places in generic IDE code - anybody wanting to understand
+  interactions with your code + generic code will have serious
+  problems (especially if knows _nothing_ about lpd7a40x)
+
+- hwif->mmio is set to 2 but resource handling is missed
+
+- ide_init_default_hwifs() is OBSOLETE and shouldn't be used
+
+> > BTW does it even work as IDE polling code is not merged yet?
+>
+> Huh?
+>
+> aThe solution isn't really that complex.  I need two things.  First, I
+> must override the register-level access routines in order to do a
+> little hardware workaround cha-cha-cha.  There's nothing I can do to
+> fix the hardware.  Second, I need to be able to poll the interface
+> after initiating a command.  IIRC, you said that I missed at least one
+> place where this needed to be done.
+
+Yes, idea isn't complex but spotting all places needing change is.
+
+> There are also some very important code (hacks) in
+>
+>   arch/arm/mach-lh7a40x/ide-lpd7a40x.c
+>
+> to deal with the fact that I didn't want to touch the SELECT_DRIVE
+> call from the IDE driver.  The problem was that the SELECT_DRIVE call
+> in ide-iops.c does this:
+>
+>   void SELECT_DRIVE (ide_drive_t *drive)
+>   {
+> 	  if (HWIF(drive)->selectproc)
+> 		  HWIF(drive)->selectproc(drive);
+> 	  HWIF(drive)->OUTB(drive->select.all, IDE_SELECT_REG);
+>   }
+>
+>
+> instead of this:
+>
+>   void SELECT_DRIVE (ide_drive_t *drive)
+>   {
+> 	  if (HWIF(drive)->selectproc)
+> 		  HWIF(drive)->selectproc(drive);
+> 	  else
+> 		  HWIF(drive)->OUTB(drive->select.all, IDE_SELECT_REG);
+>   }
+>
+> The OUTB breaks my interface because I don't really have byte-level
+> access to the resgisters.  So, is selectproc a pre-select procedure or
+> should it be a substitute?
+
+pre-select but you can change it to be substitute if you need
+(just remember to update all users if you decide to do this)
+
+IMO it is better to fix it correctly than to do hacks like this
+in lpd7a40x_ide_outb() (which is minor performance hit btw)
+
+> Anyway, that is what I did in a nutshell.  I plan to get back to this
+> in a week or so.  Since Russell King already integrated the lh7a40x
+> code into the kernel, this stuff should be easy to test.
+
+That's what I'm talking about - it shouldn't have been integrated. :-)
+
+Cheers.
 

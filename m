@@ -1,75 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292902AbSB0TwA>; Wed, 27 Feb 2002 14:52:00 -0500
+	id <S292581AbSB0Trw>; Wed, 27 Feb 2002 14:47:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292881AbSB0Tv3>; Wed, 27 Feb 2002 14:51:29 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59919 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292832AbSB0TuC>; Wed, 27 Feb 2002 14:50:02 -0500
-Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
-To: texas@ludd.luth.se (texas)
-Date: Wed, 27 Feb 2002 20:04:51 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSU.4.33.0202272021090.23682-100000@father.ludd.luth.se> from "texas" at Feb 27, 2002 08:29:21 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292918AbSB0TrR>; Wed, 27 Feb 2002 14:47:17 -0500
+Received: from web12308.mail.yahoo.com ([216.136.173.106]:12 "HELO
+	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S292579AbSB0Tq0>; Wed, 27 Feb 2002 14:46:26 -0500
+Message-ID: <20020227194620.69620.qmail@web12308.mail.yahoo.com>
+Date: Wed, 27 Feb 2002 11:46:20 -0800 (PST)
+From: Raghu Angadi <raghuangadi@yahoo.com>
+Subject: Re: Fw: memory corruption in tcp bind hash buckets on SMP?
+To: kuznet@ms2.inr.ac.ru, "David S. Miller" <davem@redhat.com>
+Cc: raghuangadi@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200202271904.WAA09439@ms2.inr.ac.ru>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gAJn-0005fo-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> However, while booting 2.2.20, the following messages appear:
 
-Make sure you have all the pnp os settings disabled in the bios - the 
-below looks awfully like the IRQ routing wasnt set up by the bios
+--- kuznet@ms2.inr.ac.ru wrote:
+> Hello!
+> 
+> > I think his analysis is alright but he patch is questionable.
+> 
+> Yes. "if (tb) tcp_tw_put(tw)" cannot be right, no doubts.
 
-> failure to boot issue in 2.2 can be related to the random lockups in 2.4,
-> could that be the case?
+In timewait_kill(), tb is set only _after_ it has been removed from the
+established (if it exist there). In _hashdance() tw is inserted into
+established _before_ it is inserted into bindhash. So the above is one way of
+saying do tw_put() when it has been deleted from _both_ the lists.
+Also note that patch removes "if (!tw->pprev) return;" thingy. Infact this
+return sort of implied you never thought tw could be deleted from ehash and
+not from bind hash.
 
-Who knows. "Random lockup" you can start at the power supply and work right
-through the software - without any more info its very hard to debug
+> Seems, it is enough to remove from bind hash _before_ established.
+> 
+> The idea was that bind hash is pure slave of another state, so that
+> it need not refcounting at all. Note that adding the second increment
+> does not help: when we verify that leakage (the situation, when
+> bucket is in bind hash, but has no timer running) is impossible
+> we immediately arrive to elimination of the refcount.
+> 
+> Raghu, could you check the variant with inverted order of removal?
+> Do you see holes? From my side... I need to think more. :-)
 
-> Feb 27 18:33:22 db2 kernel: hm, page 000f5000 reserved twice.
-> Feb 27 18:33:22 db2 kernel: hm, page 000f6000 reserved twice.
-> Feb 27 18:33:22 db2 kernel: hm, page 000f1000 reserved twice.
-> Feb 27 18:33:22 db2 kernel: hm, page 000f2000 reserved twice.
+Just the inteverted order of removal will fix _this_ perticular case.
+But we still end up doing tw_put() in timewait_kill() even though tw is still
+in the bind list (just got inserted on the other processor). This seems
+conceptually incorrect or confusing. The refcnt increment in tw_hashdance()
+is for these two lists and tw_put() in timewait_kill() should correspond to
+the deletion from _both_ the lists. 
+ 
+If you want to avoid timewait_kill() getting called twice altogether.. then
+its a different issue.
 
-These are OK
+Raghu.
 
-> Feb 27 18:33:22 db2 kernel: OEM ID: OEM00000 Product ID: PROD00000000 APIC
-> at: 0xFEE00000
+> Alexey
 
-Your BIOS vendor didn't even fill in the MP1.1 table with their info - 
-confidence level in BIOS _zero_
 
-> Feb 27 18:33:22 db2 kernel: Processor #0 Unknown CPU [15:2] APIC version
-> 17
-
-Curious but should be harmless
-
-> Feb 27 18:33:22 db2 kernel: WARNING: No sibling found for CPU 0.
-> Feb 27 18:33:22 db2 kernel: WARNING: No sibling found for CPU 1.
-
-HT but not hyperthreading activated in the kernel (acpismp=force). Again
-harmless just might be costing performance if your box is HT capable
-
-> What looks weird here to my untrained eyes are the "Unknown bridge
-> resource" messages and that my harddisks run on UDMA33 (the MPS v1.1
-> instead of 1.4 is due to running the BIOS in "failsafe" mode - nothing
-> that fixed the lockups though).
-
-The unknown resource should be fine. The UDMA33 may well be because the
-ide code in the base tree isnt up on i860 hardware yet.
-
-Starting points I'd suggest:
-	=	Try a non highmem kernel
-	=	See if a single CPU kernel is reliable
-		If it is consider swapping the cpus over and retesting
-		(might point to software or hardware)
-	=	Ensure your ventilation is fine and your PSU is approved
-		and to spec for the system
-
-You might want to run a memory test but thats normally seen as random
-corruption/oopses not a hang and if you have ECC ram life should be fine
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Greetings - Send FREE e-cards for every occasion!
+http://greetings.yahoo.com

@@ -1,86 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265636AbSLCUWa>; Tue, 3 Dec 2002 15:22:30 -0500
+	id <S265628AbSLCUUs>; Tue, 3 Dec 2002 15:20:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265637AbSLCUW3>; Tue, 3 Dec 2002 15:22:29 -0500
-Received: from [155.33.205.203] ([155.33.205.203]:30848 "EHLO joehill")
-	by vger.kernel.org with ESMTP id <S265636AbSLCUW0>;
-	Tue, 3 Dec 2002 15:22:26 -0500
-Date: Tue, 3 Dec 2002 15:32:50 -0500
-From: Adam Kessel <adam@bostoncoop.net>
+	id <S265633AbSLCUUs>; Tue, 3 Dec 2002 15:20:48 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49669 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265628AbSLCUUr>; Tue, 3 Dec 2002 15:20:47 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Widespread hda lost interrupt problem on laptops
-Message-ID: <20021203203249.GA747@joehill>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Quad ethernet card getting assigned different channels every
+ install
+Date: 3 Dec 2002 20:26:58 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <asj42i$6vi$1@gatekeeper.tmr.com>
+References: <3DECBCA7.2010502@earthlink.net> <3DECC289.2050500@vgertech.com>
+X-Trace: gatekeeper.tmr.com 1038947218 7154 192.168.12.62 (3 Dec 2002 20:26:58 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please cc: me on responses.
+In article <3DECC289.2050500@vgertech.com>,
+Nuno Silva  <nuno.silva@vgertech.com> wrote:
+| Hi!
+| 
+| You can load the module and specify the I/O address of each mii. This 
+| way you'll allways get the same eth for a given I/O. Read the module's 
+| fine manual :)
 
-The following problem has been discussed on many different mailing lists
-(including this one) over the past couple of years, although I believe
-there are many of us for whom none of the posted suggestions have worked.
-Hopefully I'm not out of line for venturing onto this list as a
-non-expert: 
+| Ian S. Nelson wrote:
 
-When switching from power to battery on the HP OmniBook 500 laptop (and
-many other laptops, apparently) the following appears in syslog:
+| > The kernel is 2.4.18, from Redhat. I've looked at some of the code and I 
+| > think this might actually be a hardware bug.  I'm helping setup a 3 port 
+| > firewall, I'm remote so I haven't been hands on,  the guy has a quad 
+| > ethernet card in it.  Between kernel installs eth0, eth1, eth2, and eth3 
+| > seem to change which socket on the card they are.
 
-kernel: ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-kernel: hda: lost interrupt
+It's not clear if the association of the name (ethN) to the io address
+changes or the association of the io address to the connector. If Ian
+will clarify, and perhaps check the ifconfig after a few boots...
 
-This also occurs when suspending/resuming,  sleeping/resuming, or
-switching from battery to power.
-
-Sometimes it results in severe hard disk corruption, and usually causes a
-system crash if the error occurred during intensive disk activity (no
-further disk access is possible).  It occurs equally when the drive is
-mounted read-only and/or in runlevel 1.
-
-My current hard drive is a Toshiba MK2016GAP[1], although the same problem
-occurs to varying degrees with other hard drives I have tried in the same
-laptop, and other OB500 laptops with different hard drives.  
-
-The problem occurs in the 2.2 and 2.4 series, and I have a report that it
-also occurs in the latest of the 2.5 series.
-
-I have tried every possible combination of hdparm parameters that has
-been publicly suggested.  Turning off dma (hdparm -d0) does remove the
-"ide_dma" part, but the "lost interrupt" error and crash remain. Turning
-on or off interrupt-unmask flag (hdparm -u0/1) makes no difference in the
-error. Enabling PIO makes no difference either.
-
-I have tried all possible combinations of APM_ALLOW_INTS and
-IDEDISK_MULTI_MODE in compiling the kernel, with no apparent effect on
-this problem.  
-
-I have tried changing the apm events on suspend/resume to include various
-hdparm switches suggested elsewhere, to no avail.  
-
-Finally, these laptops all seem to perform fine when switching from power
-to battery or suspending/resuming under various versions of MS Windows.  
-
-I have checked out nearly every hit on google for "hda lost interrupt"
-and have not found anything that worked.  
-
-I have yet to find an OB500 on which this problem does *not* occur.
-
-I hope this is enough information! Thanks for any troubleshooting
-suggestions.
----
-Adam Kessel (adam@bostoncoop.net)
-
-[1] Here is the dmesg description of the drive:
-
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-ide0: BM-DMA at 0x1000-0x1007, BIOS settings: hda:DMA, hdb:pio
-hda: TOSHIBA MK2016GAP, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: 39070080 sectors (20004 MB), CHS=2584/240/63, UDMA(33))
+If it's the name to io address mapping, and I assume it is, then Nuno
+has the right idea, an options statement in modules.conf or on a command
+line. If it's the latter the the BIOS is NOT doing deterministic
+assignment. That would show in lspci with -vv, I believe. You could
+still fix this, but it would be ugly, parsing lspci output and building
+a command line for insmod.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

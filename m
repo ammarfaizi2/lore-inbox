@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTKMTXs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 14:23:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTKMTXs
+	id S264379AbTKMTRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 14:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTKMTRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 14:23:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30104 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264372AbTKMTXr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 14:23:47 -0500
-Date: Thu, 13 Nov 2003 11:34:04 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Maneesh Soni <maneesh@in.ibm.com>
-cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, Greg KH <greg@kroah.com>,
-       Christian Borntraeger <CBORNTRA@de.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [RFC 0/5] Backing Store for sysfs (Overhauled)
-In-Reply-To: <20031112122344.GD14580@in.ibm.com>
-Message-ID: <Pine.LNX.4.44.0311131127170.11822-100000@cherise>
+	Thu, 13 Nov 2003 14:17:15 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:64667 "HELO
+	cenedra.office") by vger.kernel.org with SMTP id S264379AbTKMTRO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 14:17:14 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel.bkbits.net off the air
+Date: Thu, 13 Nov 2003 19:17:11 +0000
+User-Agent: KMail/1.5.4
+References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311131010.27315.andrew@walrond.org> <20031113162712.GA2462@work.bitmover.com>
+In-Reply-To: <20031113162712.GA2462@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311131917.11773.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is degenerating, but I don't want anyone mistaking my position, so...
 
-> The main complaint was of over bloating kobject structure which becomes more
-> painful when kobject is not part of sysfs. So now I have changed the data
-> structures entirely. There is _no_ increase in the size of kobject structure.
-> The kobject hierarchy is represented in the form of a new structure called
-> sysfs_dirent (size 48 - bytes). sysfs_dirent will be there only for kobject
-> elements (kobject, attribute, attribute group, symlink) which are represented 
-> in sysfs. kobject structre has just one change. Now kobject has a field
-> pointing to its sysfs_dirent instead of dentry.
-> 
-> struct sysfs_dirent {
->         struct list_head        s_sibling;
->         struct list_head        s_children;
->         void                    * s_element;
->         struct dentry           * s_dentry;
->         int                     s_type;
->         struct rw_semaphore     s_rwsem;
-> };
-> 
-> The concept is still the same that in this prototype also we create dentry and 
-> inode on the fly when they are first looked up. This is done for both leaf or 
-> non-leaf dentries. The generic nature of sysfs_dirent makes it easy to do for 
-> both leaf or non-leaf dentries. 
+For the record and so nobody gets the the wrong end of the stick; I am a bk 
+advocate. I use it for my open source activities, and urge others to do so as 
+well.
 
-I still don't like it, though I think things are gradually getting better. 
+But... There are tiny minority of people (who work on other SCM projects) who 
+cannot access my sources because they can't use BK.
 
-I still think that keeping the directories static and only creating the 
-leaf (file) dentries dynamically is the best tradeoff between complexity 
-and memory consumption. 
+I don't particularly care, and I'm still using bk, but that particular clause 
+of the bk license has caused Larry ridiculous amounts of grief for no 
+discernable return.
 
-It will require some minor infrastructural modification to associate a
-kobject with all of its leaf nodes, but the result will be cleaner, and
-the worst-case memory consumption will be less than your patches with a 
-per-attribute-per-kobject data structure (which there currently isn't).
+And I still maintain that a stripped out, redistributable, clone/pull only 
+binary tool without the restrictive license would be a real smart business 
+move.
 
-Thanks,
+But it ain't my business, so I'll leave it there :)
 
-
-	Pat
+Andrew Walrond
 

@@ -1,32 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbTIKLDh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 07:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbTIKLDh
+	id S261215AbTIKLGl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 07:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbTIKLGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 07:03:37 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:16024 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261210AbTIKLDg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 07:03:36 -0400
-Date: Thu, 11 Sep 2003 13:03:34 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6] USB oops
-In-Reply-To: <20030910163919.GA3061@kroah.com>
-Message-ID: <Pine.LNX.4.51.0309111302290.17138@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0309101720540.14731@dns.toxicfilms.tv>
- <20030910163919.GA3061@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Sep 2003 07:06:41 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:27413 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261215AbTIKLGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 07:06:38 -0400
+Date: Thu, 11 Sep 2003 12:04:35 +0100
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Message-ID: <20030911110435.GA1225@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@fs.tum.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200309071647.h87Glp4t014359@harpo.it.uu.se> <20030907174341.GA21260@mail.jlokier.co.uk> <1062958188.16972.49.camel@dhcp23.swansea.linux.org.uk> <20030911062816.GX27368@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911062816.GX27368@fs.tum.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What kernel version are you using?
-ARrgh, i didn't write the version, sorry, it's 2.6.0-test4-mm5.
-I'll check with newer (i thought i had test5 on this machine)
+On Thu, Sep 11, 2003 at 08:28:16AM +0200, Adrian Bunk wrote:
 
-> This looks like a scsi error that has been recently fixed.
-I'll find out.
+ > - Does the Cyrix III support 686 instructions?
 
-> greg k-h
+Depends on your definition of 686. If you follow the Intel
+definition (where CMOV is optional), yes. If you follow the gcc
+definition (where CMOV is assumed), no.
+Except for the latest Nehemiah cores (which now have CMOV).
+
+ > - Do -march=winchip{2,-c6} and -march=c3{,-2} add anything not in
+ >   -march=i686 (except optimizations of otherwise compatible code)?
+
+Not afaik.
+
+ > - Which CPUs exactly need X86_ALIGNMENT_16?
+
+Unsure. This could use testing on a few systems.
+
+ > - X86_GOOD_APIC: Are there really that many processors with a bad APIC?
+
+Mikael ?
+
+		Dave
+
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

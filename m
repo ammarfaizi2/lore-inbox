@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289491AbSAOK5Y>; Tue, 15 Jan 2002 05:57:24 -0500
+	id <S289496AbSAOLAz>; Tue, 15 Jan 2002 06:00:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289494AbSAOK5O>; Tue, 15 Jan 2002 05:57:14 -0500
-Received: from i030-063.nv.iinet.net.au ([203.59.30.63]:62962 "HELO
-	aeonline.net") by vger.kernel.org with SMTP id <S289491AbSAOK46>;
-	Tue, 15 Jan 2002 05:56:58 -0500
-From: crispin@iinet.net.au
-Date: Tue, 15 Jan 2002 19:13:05 +0800
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Hardwired drivers are going away?
-Message-ID: <20020115191305.P1928@earth>
-In-Reply-To: <david.lang@digitalinsight.com> <200201151045.g0FAjduU002847@tigger.cs.uni-dortmund.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200201151045.g0FAjduU002847@tigger.cs.uni-dortmund.de>; from brand@jupiter.cs.uni-dortmund.de on Tue, Jan 15, 2002 at 11:45:39AM +0100
+	id <S289497AbSAOLAp>; Tue, 15 Jan 2002 06:00:45 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:55977 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S289496AbSAOLAY>; Tue, 15 Jan 2002 06:00:24 -0500
+Message-Id: <200201151100.g0FB0Gok002873@tigger.cs.uni-dortmund.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution) 
+In-Reply-To: Message from "Eric S. Raymond" <esr@thyrsus.com> 
+   of "Mon, 14 Jan 2002 13:54:12 EST." <20020114135412.D17522@thyrsus.com> 
+Date: Tue, 15 Jan 2002 12:00:16 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 11:45:39AM +0100, Horst von Brand wrote:
-> > On Mon, 14 Jan 2002, Alan Cox wrote:
-> 
-> > > > 1. security, if you don't need any modules you can disable modules
-> > > > entirly and then it's impossible to add a module without patching
-> > > > the kernel first (the module load system calls aren't there)
-> 
-> > > Urban legend.
-> 
-> > If this is the case then why do I get systemcall undefined error messages
-> > when I make a mistake and attempt to load a module on a kernel without
-> > modules enabled?
-> 
-> AFAIU the security improvement of no-modules are way overrated.
+"Eric S. Raymond" <esr@thyrsus.com> said:
+> Charles Cazabon <charlesc@discworld.dyndns.org>:
+> > Yes, and yes.  Aunt Tillie is running Linux because someone installed a
+> > distribution for her.
 
-insmod knark.o
+> You don't know that.  Maybe she installed it herself.
 
-Crispin
+Linux-from-scratch or some such? In which case she'd better be able to
+configure a custom kernel without help...
+
+> > She is never going to need anything out of her kernel that her
+> > vendor-shipped update kernels do not provide.
+
+> *You can't know that.*  
+
+Right. But 99.9% of Aunt Tillies won't need anything else. To have
+_everybody_ go through a lot of pain for the sake of 0.02% of Linux users
+is silly. Better let Nephew Mervin keep the junkheap, and give Tilly a new
+machine for her birthday.
+
+> And your belief that you *can* know it is a key part of the elitist
+> developer psychology and implicit assumptions that keeps Linux mostly
+> inaccessible to the Aunt Tillies of the world.
+
+Have you ever tried f.ex. Red Hat's installer and updater for the latest
+versions (Just because it is the one I know best; other distribuctions have
+similar facilities)? Have you tried a machine with Linux preinstalled?
+
+Have you ever battled with Windows "autoconfiguration"?! _It doesn't
+work_. At all. _Ever_. And that hasn't been an impediment to Aunt Tilly to
+get a WinPC...
+
+I just think that your idea is cool. You are just wasting effort on trying
+to solve a non-problem, when there are lots of problems that could use your
+talents.
+
+But again, it's your own time.
+-- 
+Horst von Brand			     http://counter.li.org # 22616

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTIYNL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 09:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbTIYNL5
+	id S261162AbTIYNPo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 09:15:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbTIYNPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 09:11:57 -0400
-Received: from [170.180.5.203] ([170.180.5.203]:43783 "EHLO
-	e151000n0.edmonson.k12.ky.us") by vger.kernel.org with ESMTP
-	id S261151AbTIYNL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 09:11:56 -0400
-Message-ID: <9A8F8D67DC8ED311BF3E0008C7B9A0ADBAA86E@E151000N0>
-From: "Norris, Brent" <bnorris@Edmonson.k12.ky.us>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: 128G Limit in Reiserfs? Or the Kernel? Or something else?
-Date: Thu, 25 Sep 2003 08:08:16 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+	Thu, 25 Sep 2003 09:15:44 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23754 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261162AbTIYNPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 09:15:43 -0400
+Date: Thu, 25 Sep 2003 15:15:36 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.4 patch] fix USB_MOUSE help text
+Message-ID: <20030925131536.GU15696@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I seem to have hit an odd limit, that I didn't think existed.  I have a 250G
-WD IDE hard drive that I have just installed.  Since I couldn't put a Ext3
-filesystem on it (mount wouldn't recognize it) I decided to put a ReiserFS
-filesystem on it.  Since I have done that I have added 128G of data to the
-drive.  Now when I attempt to copy more data to it I get an error that there
-is no more space on the drive.
+The USB_MOUSE help text was obviously copied from the USB_KBD help text.
+The patch below does a s/keyboard/mouse/g
 
-I can touch a 0 byte file and delete it, but as soon as I attempt to move
-anything over there with any size it errors out.  df shows me as having 112G
-free on that drive so I am a little confused as to what is giving me this
-error.  Is it the kernel that is not letting me write to the rest of the
-drive or reiserfs or something completely different?  Any help would be
-welcome.  Thanks.
+Please apply
+Adrian
+
+--- linux-2.4.23-pre5/Documentation/Configure.help.old	2003-09-25 15:13:23.000000000 +0200
++++ linux-2.4.23-pre5/Documentation/Configure.help	2003-09-25 15:14:27.000000000 +0200
+@@ -14742,8 +14742,8 @@
+ USB HIDBP Mouse (basic) support
+ CONFIG_USB_MOUSE
+   Say Y here only if you are absolutely sure that you don't want
+-  to use the generic HID driver for your USB keyboard and prefer
+-  to use the keyboard in its limited Boot Protocol mode instead.
++  to use the generic HID driver for your USB mouse and prefer
++  to use the mouse in its limited Boot Protocol mode instead.
  
-Brent Norris
-Assistant DTC, Edmonson County Schools
-
-Ps. Please CC me on replies.
+   This is almost certainly not what you want.
+ 

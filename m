@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279166AbRKINkG>; Fri, 9 Nov 2001 08:40:06 -0500
+	id <S279798AbRKINmF>; Fri, 9 Nov 2001 08:42:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279798AbRKINj7>; Fri, 9 Nov 2001 08:39:59 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:46720 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S279166AbRKINjm>; Fri, 9 Nov 2001 08:39:42 -0500
-Date: Fri, 9 Nov 2001 08:39:33 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: System Attendant <f5-exchange3-sa@f5.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ScanMail Message: To Sender virus found and action taken.
-In-Reply-To: <C18AF98DFF16D411925000508BA5547903FE130C@f5-exchange3.win.net>
-Message-ID: <Pine.LNX.3.95.1011109083657.4187A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279903AbRKINl6>; Fri, 9 Nov 2001 08:41:58 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:12418 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S279798AbRKINlV>;
+	Fri, 9 Nov 2001 08:41:21 -0500
+Date: Fri, 09 Nov 2001 05:41:10 -0800 (PST)
+Message-Id: <20011109.054110.104033787.davem@redhat.com>
+To: ak@suse.de
+Cc: alan@lxorguk.ukuu.org.uk, anton@samba.org, mingo@elte.hu,
+        linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011109143930.C30575@wotan.suse.de>
+In-Reply-To: <20011109141755.A30575@wotan.suse.de>
+	<20011109.052554.41631501.davem@redhat.com>
+	<20011109143930.C30575@wotan.suse.de>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Nov 2001, System Attendant wrote:
+   From: Andi Kleen <ak@suse.de>
+   Date: Fri, 9 Nov 2001 14:39:30 +0100
 
-> ScanMail for Microsoft Exchange has detected virus-infected attachment(s).
-> 
-> Sender = root@chaos.analogic.com
-> Recipient(s) = chandler@grammatech.com;linux-kernel@vger.kernel.org
-> Subject = Re: Bug Report: Dereferencing a bad pointer
-> Scanning Time = 11/09/2001 05:36:16
-> 
-> Action on virus found:
-> The attachment grok.sh matched file blocking settings.
-> ScanMail has Deleted it. 
-> 
-> Warning to sender. ScanMail detected a virus in an email attachment you sent.
-> 
+   On Fri, Nov 09, 2001 at 05:25:54AM -0800, David S. Miller wrote:
+   > Why in the world do we need indirection function call pointers
+   > in TCP to handle that?
+   
+   To handle the case of not having a separate TIME-WAIT table
+   (sorry for being unclear). Or alternatively several conditionals. 
+   
+The TIME-WAIT half of the hash table is most useful on
+clients actually.
 
-You are an idiot! You have deleted a correctly-written important
-shell-script. You, again, are an IDIOT, IDIOT, IDIOT, IDIOT, creep.
+I mean, just double the amount you "downsize" the TCP established
+hash table if it bothers you that much.
 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

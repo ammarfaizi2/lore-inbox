@@ -1,54 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130169AbRBTUxv>; Tue, 20 Feb 2001 15:53:51 -0500
+	id <S129066AbRBTU7L>; Tue, 20 Feb 2001 15:59:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130030AbRBTUxc>; Tue, 20 Feb 2001 15:53:32 -0500
-Received: from ns2.cypress.com ([157.95.67.5]:41966 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S130169AbRBTUxS>;
-	Tue, 20 Feb 2001 15:53:18 -0500
-Message-ID: <3A92D930.6F11B505@cypress.com>
-Date: Tue, 20 Feb 2001 14:53:04 -0600
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
+	id <S129069AbRBTU7B>; Tue, 20 Feb 2001 15:59:01 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3846 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129066AbRBTU6t>; Tue, 20 Feb 2001 15:58:49 -0500
+Subject: Re: can somebody explain barrier() macro ?
+To: hiren_mehta@agilent.com
+Date: Tue, 20 Feb 2001 21:02:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B74779718809AB@xsj02.sjs.agilent.com> from "hiren_mehta@agilent.com" at Feb 20, 2001 12:50:54 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: kernel/printk.c: increasing the buffer size to capture 
- devfsd debug messages.
-In-Reply-To: <3A92A99E.2F255CB3@yk.rim.or.jp> <20010220111542.A4106@tenchi.datarithm.net> <3A92C76C.6519DF1A@cypress.com> <20010220121727.B4106@tenchi.datarithm.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14VJvH-0000gc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Read wrote:
+> barrier() is defined in kernel.h as follows :
 > 
-> On Tue, Feb 20, 2001 at 01:37:16PM -0600, Thomas Dodd wrote:
-> > Robert Read wrote:
-> > >
-> > > On Wed, Feb 21, 2001 at 02:30:08AM +0900, Ishikawa wrote:
-> > > >
-> > > > Has anyone tried 128K buffer size in kernel/printk.c
-> > > > and still have the kernel boot (without
-> > > > hard to notice memory corruption problems  and other subtle bugs)?
-> > > > Any hints and tips will be appreciated.
-> > >
-> > > I have used 128k and larger buffer sizes, and I just noticed this
-> > > fragment in the RedHat Tux Webserver patch.  It creates a 2MB buffer:
-> >
-> > I think this should be a config option.
+> #define barrier() __asm__ __volatile__("": : :"memory")
 > 
-> Ok, here is a simple patch to add a config option, I'm compiling it
-> now, so it's not tested yet.  One question: what is the best way to
-> force this option to be a power of 2?
+> what does this mean ? is this like "nop" ?
 
-Why not just make the config option in Kbytes.
-and do:
-
-#define LOG_BUF_LEN (CONFIG_PRINTK_BUF_LEN * 1024)
-
-since the config option has a default option and will
-always be defined, is the #ifdef check really needed?
-
-	-Thomas
+Its adds an empty piece of assembler (ie no code) and declares that this
+non code causes effects on memory. That forces gcc to writeback before the
+barrier and reload cached values afterwards

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263156AbTCTAUY>; Wed, 19 Mar 2003 19:20:24 -0500
+	id <S263174AbTCTA2J>; Wed, 19 Mar 2003 19:28:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263164AbTCTAUY>; Wed, 19 Mar 2003 19:20:24 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9867
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263156AbTCTAUW>; Wed, 19 Mar 2003 19:20:22 -0500
-Subject: Re: Hardlocks with 2.4.21-pre5, pdc202xx_new (PDC20269) and shared
-	IRQs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wolfram Schlich <lists@schlich.org>
-Cc: Linux-Kernel mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030319221608.ALLYOURBASEAREBELONGTOUS.A29767@bla.fasel.org>
-References: <20030319221608.ALLYOURBASEAREBELONGTOUS.A29767@bla.fasel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048124539.647.18.camel@irongate.swansea.linux.org.uk>
+	id <S263183AbTCTA2J>; Wed, 19 Mar 2003 19:28:09 -0500
+Received: from inet-mail1.oracle.com ([148.87.2.201]:13448 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S263174AbTCTA2I>; Wed, 19 Mar 2003 19:28:08 -0500
+Date: Wed, 19 Mar 2003 16:38:58 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WimMark I report for 2.5.65-mm2
+Message-ID: <20030320003858.GM2835@ca-server1.us.oracle.com>
+References: <20030319232812.GJ2835@ca-server1.us.oracle.com> <20030319175726.59d08fba.akpm@digeo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 20 Mar 2003 01:42:20 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030319175726.59d08fba.akpm@digeo.com>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-19 at 22:16, Wolfram Schlich wrote:
-> When one of the Promise controllers is sharing the same IRQ with one of
-> the NICs (don't matter which, I tried all) and data is copied *to* the
-> machine over the network, the system deadlocks. When data is copied
-> *from* the system over the network, it works all ok. Unfortunately the
-> system BIOS doesn't give me any possibility of setting the IRQ
-> channels by hand, so all I can do is put the cards into other slots.
+On Wed, Mar 19, 2003 at 05:57:26PM -0800, Andrew Morton wrote:
+> Joel Becker <Joel.Becker@oracle.com> wrote:
+> >
+> > WimMark I report for 2.5.65-mm2
+> > 
+> > Runs:  1374.22 1487.19 1437.26
+> > 
 > 
+> That is with elevator=as?
 
-Thats very useful information. There certain have been (and it seems
-still are) some cases with shared IRQ that are not quite handled right.
-The 2.4.21pre5/pre5-ac work has partly been about fixing it. Deadlocks
-suprise me however, since the problems I've seen have been I/O
-errors.
+	Yes, it is as.  On Nick's recommendation I didn't consider a
+deadline run a priority.  The regular deadline runs have been 1550-1590,
+which is indeed statistically significant.
 
-However there is another known problem that does cause deadlocks with
-the AMD76x, especially if the onboard IDE is used. Shove a PS/2 mouse
-in the box, reboot and retest - if you dont already have one
+Joel
 
+-- 
+
+"In the beginning, the universe was created. This has made a lot 
+ of people very angry, and is generally considered to have been a 
+ bad move."
+        - Douglas Adams
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

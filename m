@@ -1,48 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264120AbRFROnv>; Mon, 18 Jun 2001 10:43:51 -0400
+	id <S264067AbRFROhL>; Mon, 18 Jun 2001 10:37:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264122AbRFROnl>; Mon, 18 Jun 2001 10:43:41 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:28175 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S264120AbRFROnb>;
-	Mon, 18 Jun 2001 10:43:31 -0400
-Date: Mon, 18 Jun 2001 16:43:22 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Pete Wyckoff <pw@osc.edu>, nick@snowman.net, Kip Macy <kmacy@netapp.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 3com Driver and the 3XP Processor
-Message-ID: <20010618164322.A28377@pcep-jamie.cern.ch>
-In-Reply-To: <15145.11935.992736.767777@pizda.ninka.net> <Pine.LNX.4.21.0106141739140.16013-100000@ns> <15145.12192.199302.981306@pizda.ninka.net> <20010615111213.C2245@osc.edu> <15146.11179.315190.615024@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15146.11179.315190.615024@pizda.ninka.net>; from davem@redhat.com on Fri, Jun 15, 2001 at 08:37:15AM -0700
+	id <S264120AbRFROhB>; Mon, 18 Jun 2001 10:37:01 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:40715 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S264067AbRFROgv>; Mon, 18 Jun 2001 10:36:51 -0400
+To: linux-kernel@vger.kernel.org
+Subject: problem with write() to a socket and EPIPE
+From: oliver.kowalke@t-online.de
+Date: Mon, 18 Jun 2001 16:36:23 +0200 (MEST)
+Message-ID: <992874658.3b2e10a2ef441@webmail.t-online.de>
+X-Priority: 3 (Normal)
+X-Mailer: T-Online WebMail 2.00
+X-Complaints-To: abuse#webmail@t-online.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> Pete Wyckoff writes:
->  > We're currently working on using both processors
->  > of the Tigon in parallel.
-> 
-> It is my understanding that on the Tigon2, the second processor is
-> only for working around hw bugs in the DMA controller of the board and
-> cannot be used for other tasks.
+Hello,
 
-It certainly can be used for other tasks.  At CERN we have programmed
-both processors on the Tigon2 to act as a traffic generator &
-measurement tool to test switches.  We use lots of cards in parallel to
-drive all ports on a switch.  It's given us much more useful results
-than the expensive S*******s tester.
+I've the following problem.
+If the peer has closed its socket connection the second write to this 
+socket should return -1 and errno should be set to EPIPE (if SIGPIPE is 
+set  
+to be ignored). This never happens with my code. Why?
 
-We even went so far as to build a Tigon2 development kit for Linux, and
-got about 5% better performance just from using a better version of GCC and
-linker tricks.
+OS: Linux (Debian 2.2r3)
+kernel: 2.4.4
+compiler: gcc-2.95.2
+c-lib: libc-2.1.3
 
-The Tigon2 cards are wonderful because of our ability to program it
-however we like, and I really hope we can build similar interesting devices
-from a crop of someone's Tigon3 cards.
+with best regards,
+Oliver
 
--- Jamie
+(writen() is a member function of my socket C++-class)
+
+ssize_t
+sock::writen( const void * vptr, size_t n)
+{
+        size_t          nleft;
+        ssize_t         nwritten;
+        const char      *ptr;
+
+        ptr = static_cast< char * >( vptr);
+        nleft = n;
+
+        struct sigaction new_sa;
+        struct sigaction old_sa;
+        
+        new_sa.sa_handler = SIG_IGN;
+        ::sigemptyset( & new_sa.sa_mask);
+        new_sa.sa_flags = 0;
+        ::sigaction( SIGPIPE, & new_sa, & old_sa);              
+
+        while ( nleft > 0)
+        {
+                if ( ( nwritten = ::write( m_handle, ptr, nleft) ) <= 
+0) 
+                {
+                        if ( errno == EINTR)
+
+                                nwritten = 0;           /* and call 
+write() again */ 
+
+                        else if ( errno == EPIPE)
+
+                                return EOF;             /* write to 
+socket with no readers */ 
+
+                        else
+
+                                throw net_io_ex( ::strerror( errno), 
+"writen()", __FILE__);     /* error */ 
+
+                }
+
+                nleft -= nwritten;
+                ptr   += nwritten;
+        }
+        /* set to its previous action */
+        ::sigaction( SIGPIPE, & old_sa, 0);
+
+        return n;
+}

@@ -1,483 +1,368 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVDDCP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVDDCQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbVDDCP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 22:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVDDCPa
+	id S261974AbVDDCQY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 22:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVDDCNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 22:15:30 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:56750 "EHLO
+	Sun, 3 Apr 2005 22:13:36 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:59822 "EHLO
 	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261973AbVDDCJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 22:09:10 -0400
-Subject: [RFC 3/6]init call cleanup
+	id S261981AbVDDCJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 22:09:30 -0400
+Subject: [RFC 5/6]clean cpu state after hotremove CPU
 From: Li Shaohua <shaohua.li@intel.com>
 To: lkml <linux-kernel@vger.kernel.org>,
        ACPI-DEV <acpi-devel@lists.sourceforge.net>
 Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>,
        Pavel Machek <pavel@suse.cz>
 Content-Type: text/plain
-Message-Id: <1112580360.4194.340.camel@sli10-desk.sh.intel.com>
+Message-Id: <1112580367.4194.344.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 04 Apr 2005 10:06:47 +0800
+Date: Mon, 04 Apr 2005 10:07:02 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trival patch for CPU hotplug. In CPU identify part, only did cleanup for intel
-CPUs. Need do for other CPUs if they support S3 SMP.
+Clean up all CPU states including its runqueue and idle thread, 
+so we can use boot time code without any changes.
+Note this makes /sys/devices/system/cpu/cpux/online unworkable.
 
 Thanks,
 Shaohua
 
 ---
 
- linux-2.6.11-root/arch/i386/kernel/apic.c                |   14 +++----
- linux-2.6.11-root/arch/i386/kernel/cpu/common.c          |   30 +++++++--------
- linux-2.6.11-root/arch/i386/kernel/cpu/intel.c           |   10 ++---
- linux-2.6.11-root/arch/i386/kernel/cpu/intel_cacheinfo.c |    4 +-
- linux-2.6.11-root/arch/i386/kernel/cpu/mcheck/mce.c      |    4 +-
- linux-2.6.11-root/arch/i386/kernel/cpu/mcheck/p4.c       |    4 +-
- linux-2.6.11-root/arch/i386/kernel/cpu/mcheck/p5.c       |    2 -
- linux-2.6.11-root/arch/i386/kernel/cpu/mcheck/p6.c       |    2 -
- linux-2.6.11-root/arch/i386/kernel/process.c             |    2 -
- linux-2.6.11-root/arch/i386/kernel/smpboot.c             |   18 ++++-----
- linux-2.6.11-root/arch/i386/kernel/timers/timer_tsc.c    |    2 -
- 11 files changed, 46 insertions(+), 46 deletions(-)
+ linux-2.6.11-root/arch/i386/kernel/cpu/common.c |   12 ++++
+ linux-2.6.11-root/arch/i386/kernel/irq.c        |    5 +
+ linux-2.6.11-root/arch/i386/kernel/process.c    |   20 +++++++
+ linux-2.6.11-root/arch/i386/kernel/smpboot.c    |   44 ++++++++++++++++-
+ linux-2.6.11-root/include/asm-i386/irq.h        |    2 
+ linux-2.6.11-root/kernel/exit.c                 |   59 +++++++++++++++++++++++
+ linux-2.6.11-root/kernel/sched.c                |   61 +++++++++++++++++++++---
+ 7 files changed, 195 insertions(+), 8 deletions(-)
 
-diff -puN arch/i386/kernel/process.c~init_call_cleanup arch/i386/kernel/process.c
---- linux-2.6.11/arch/i386/kernel/process.c~init_call_cleanup	2005-03-31 10:48:40.721107104 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/process.c	2005-03-31 10:48:40.745103456 +0800
-@@ -242,7 +242,7 @@ static void mwait_idle(void)
- 	}
- }
+diff -puN arch/i386/kernel/process.c~cpu_state_clean arch/i386/kernel/process.c
+--- linux-2.6.11/arch/i386/kernel/process.c~cpu_state_clean	2005-03-31 10:50:27.000000000 +0800
++++ linux-2.6.11-root/arch/i386/kernel/process.c	2005-04-04 09:07:29.172936768 +0800
+@@ -144,12 +144,32 @@ static void poll_idle (void)
  
--void __init select_idle_routine(const struct cpuinfo_x86 *c)
-+void __devinit select_idle_routine(const struct cpuinfo_x86 *c)
+ #ifdef CONFIG_HOTPLUG_CPU
+ #include <asm/nmi.h>
++
++#ifdef CONFIG_STR_SMP
++extern void cpu_exit_clear(int);
++#endif
++
+ /* We don't actually take CPU down, just spin without interrupts. */
+ static inline void play_dead(void)
  {
- 	if (cpu_has(c, X86_FEATURE_MWAIT)) {
- 		printk("monitor/mwait feature present.\n");
-diff -puN arch/i386/kernel/smpboot.c~init_call_cleanup arch/i386/kernel/smpboot.c
---- linux-2.6.11/arch/i386/kernel/smpboot.c~init_call_cleanup	2005-03-31 10:48:40.722106952 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/smpboot.c	2005-03-31 10:48:40.746103304 +0800
-@@ -59,7 +59,7 @@
- #include <smpboot_hooks.h>
++#ifdef CONFIG_STR_SMP
++	cpu_exit_clear(_smp_processor_id());
++#endif
++
+ 	/* Ack it */
+ 	__get_cpu_var(cpu_state) = CPU_DEAD;
  
- /* Set if we find a B stepping CPU */
--static int __initdata smp_b_stepping;
-+static int __devinitdata smp_b_stepping;
++#ifdef CONFIG_STR_SMP
++	/*
++	 * With physical CPU hotplug, we should halt the CPU
++	 * Note: release idle task struct requires the CPU doesn't
++	 * touch stack or anything else.
++	 */
++	local_irq_disable();
++	while (1)
++		__asm__ __volatile__ ("hlt": : :"memory");
++#endif
++
+ 	/* We shouldn't have to disable interrupts while dead, but
+ 	 * some interrupts just don't seem to go away, and this makes
+ 	 * it "work" for testing purposes. */
+diff -puN arch/i386/kernel/smpboot.c~cpu_state_clean arch/i386/kernel/smpboot.c
+--- linux-2.6.11/arch/i386/kernel/smpboot.c~cpu_state_clean	2005-03-31 10:50:27.000000000 +0800
++++ linux-2.6.11-root/arch/i386/kernel/smpboot.c	2005-04-04 09:05:41.699275248 +0800
+@@ -794,8 +794,13 @@ static int __devinit do_boot_cpu(int api
+ 	int timeout, cpu;
+ 	unsigned long start_eip;
+ 	unsigned short nmi_high = 0, nmi_low = 0;
++	cpumask_t	tmp_map;
  
- /* Number of siblings per CPU package */
- int smp_num_siblings = 1;
-@@ -103,7 +103,7 @@ DEFINE_PER_CPU(int, cpu_state) = { 0 };
-  * has made sure it's suitably aligned.
-  */
- 
--static unsigned long __init setup_trampoline(void)
-+static unsigned long __devinit setup_trampoline(void)
- {
- 	memcpy(trampoline_base, trampoline_data, trampoline_end - trampoline_data);
- 	return virt_to_phys(trampoline_base);
-@@ -133,7 +133,7 @@ void __init smp_alloc_memory(void)
-  * a given CPU
-  */
- 
--static void __init smp_store_cpu_info(int id)
-+static void __devinit smp_store_cpu_info(int id)
- {
- 	struct cpuinfo_x86 *c = cpu_data + id;
- 
-@@ -327,7 +327,7 @@ extern void calibrate_delay(void);
- 
- static atomic_t init_deasserted;
- 
--static void __init smp_callin(void)
-+static void __devinit smp_callin(void)
- {
- 	int cpuid, phys_id;
- 	unsigned long timeout;
-@@ -423,7 +423,7 @@ extern void enable_sep_cpu(void *);
- /*
-  * Activate a secondary processor.
-  */
--static void __init start_secondary(void *unused)
-+static void __devinit start_secondary(void *unused)
- {
- 	int siblings = 0;
- 	int i;
-@@ -486,7 +486,7 @@ static void __init start_secondary(void 
-  * from the task structure
-  * This function must not return.
-  */
--void __init initialize_secondary(void)
-+void __devinit initialize_secondary(void)
- {
+-	cpu = ++cpucount;
++	cpus_complement(tmp_map, cpu_present_map);
++	cpu = first_cpu(tmp_map);
++	if (cpu >= NR_CPUS)
++		return -ENODEV;
++	++cpucount;
  	/*
- 	 * We don't actually need to load the full TSS,
-@@ -600,7 +600,7 @@ static inline void __inquire_remote_apic
-  * INIT, INIT, STARTUP sequence will reset the chip hard for us, and this
-  * won't ... remember to clear down the APIC, etc later.
-  */
--static int __init
-+static int __devinit
- wakeup_secondary_cpu(int logical_apicid, unsigned long start_eip)
- {
- 	unsigned long send_status = 0, accept_status = 0;
-@@ -646,7 +646,7 @@ wakeup_secondary_cpu(int logical_apicid,
- #endif	/* WAKE_SECONDARY_VIA_NMI */
- 
- #ifdef WAKE_SECONDARY_VIA_INIT
--static int __init
-+static int __devinit
- wakeup_secondary_cpu(int phys_apicid, unsigned long start_eip)
- {
- 	unsigned long send_status = 0, accept_status = 0;
-@@ -782,7 +782,7 @@ wakeup_secondary_cpu(int phys_apicid, un
- 
- extern cpumask_t cpu_initialized;
- 
--static int __init do_boot_cpu(int apicid)
-+static int __devinit do_boot_cpu(int apicid)
- /*
-  * NOTE - on most systems this is a PHYSICAL apic ID, but on multiquad
-  * (ie clustered apic addressing mode), this is a LOGICAL apic ID.
-diff -puN arch/i386/kernel/cpu/common.c~init_call_cleanup arch/i386/kernel/cpu/common.c
---- linux-2.6.11/arch/i386/kernel/cpu/common.c~init_call_cleanup	2005-03-31 10:48:40.724106648 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/cpu/common.c	2005-03-31 10:48:40.747103152 +0800
-@@ -21,9 +21,9 @@
- DEFINE_PER_CPU(struct desc_struct, cpu_gdt_table[GDT_ENTRIES]);
- EXPORT_PER_CPU_SYMBOL(cpu_gdt_table);
- 
--static int cachesize_override __initdata = -1;
--static int disable_x86_fxsr __initdata = 0;
--static int disable_x86_serial_nr __initdata = 1;
-+static int cachesize_override __devinitdata = -1;
-+static int disable_x86_fxsr __devinitdata = 0;
-+static int disable_x86_serial_nr __devinitdata = 1;
- 
- struct cpu_dev * cpu_devs[X86_VENDOR_NUM] = {};
- 
-@@ -56,7 +56,7 @@ static int __init cachesize_setup(char *
- }
- __setup("cachesize=", cachesize_setup);
- 
--int __init get_model_name(struct cpuinfo_x86 *c)
-+int __devinit get_model_name(struct cpuinfo_x86 *c)
- {
- 	unsigned int *v;
- 	char *p, *q;
-@@ -86,7 +86,7 @@ int __init get_model_name(struct cpuinfo
- }
- 
- 
--void __init display_cacheinfo(struct cpuinfo_x86 *c)
-+void __devinit display_cacheinfo(struct cpuinfo_x86 *c)
- {
- 	unsigned int n, dummy, ecx, edx, l2size;
- 
-@@ -127,7 +127,7 @@ void __init display_cacheinfo(struct cpu
- /* in particular, if CPUID levels 0x80000002..4 are supported, this isn't used */
- 
- /* Look up CPU names by table lookup. */
--static char __init *table_lookup_model(struct cpuinfo_x86 *c)
-+static char __devinit *table_lookup_model(struct cpuinfo_x86 *c)
- {
- 	struct cpu_model_info *info;
- 
-@@ -148,7 +148,7 @@ static char __init *table_lookup_model(s
- }
- 
- 
--void __init get_cpu_vendor(struct cpuinfo_x86 *c, int early)
-+void __devinit get_cpu_vendor(struct cpuinfo_x86 *c, int early)
- {
- 	char *v = c->x86_vendor_id;
- 	int i;
-@@ -199,7 +199,7 @@ static inline int flag_is_changeable_p(u
- 
- 
- /* Probe for the CPUID instruction */
--static int __init have_cpuid_p(void)
-+static int __devinit have_cpuid_p(void)
- {
- 	return flag_is_changeable_p(X86_EFLAGS_ID);
- }
-@@ -242,7 +242,7 @@ static void __init early_cpu_detect(void
- 	early_intel_workaround(c);
- }
- 
--void __init generic_identify(struct cpuinfo_x86 * c)
-+void __devinit generic_identify(struct cpuinfo_x86 * c)
- {
- 	u32 tfms, xlvl;
- 	int junk;
-@@ -289,7 +289,7 @@ void __init generic_identify(struct cpui
+ 	 * We can't use kernel_thread since we must avoid to
+ 	 * reschedule the child.
+@@ -867,13 +872,16 @@ static int __devinit do_boot_cpu(int api
+ 			inquire_remote_apic(apicid);
+ 		}
  	}
+-	x86_cpu_to_apicid[cpu] = apicid;
++
+ 	if (boot_error) {
+ 		/* Try to put things back the way they were before ... */
+ 		unmap_cpu_to_logical_apicid(cpu);
+ 		cpu_clear(cpu, cpu_callout_map); /* was set here (do_boot_cpu()) */
+ 		cpu_clear(cpu, cpu_initialized); /* was set by cpu_init() */
+ 		cpucount--;
++	} else {
++		x86_cpu_to_apicid[cpu] = apicid;
++		cpu_set(cpu, cpu_present_map);
+ 	}
+ 
+ 	/* mark "stuck" area as not stuck */
+@@ -882,6 +890,37 @@ static int __devinit do_boot_cpu(int api
+ 	return boot_error;
  }
  
--static void __init squash_the_stupid_serial_number(struct cpuinfo_x86 *c)
-+static void __devinit squash_the_stupid_serial_number(struct cpuinfo_x86 *c)
++#ifdef CONFIG_STR_SMP
++extern void do_exit_idle(void);
++extern void cpu_uninit(void);
++void cpu_exit_clear(int cpu)
++{
++	int sibling;
++	cpucount --;
++
++	cpu_uninit();
++
++	irq_ctx_exit(cpu);
++
++	cpu_clear(cpu, cpu_callout_map);
++	cpu_clear(cpu, cpu_callin_map);
++	cpu_clear(cpu, cpu_present_map);
++
++	x86_cpu_to_apicid[cpu] = BAD_APICID;
++
++	for_each_cpu_mask(sibling, cpu_sibling_map[cpu])
++		cpu_clear(cpu, cpu_sibling_map[sibling]);
++	cpus_clear(cpu_sibling_map[cpu]);
++
++	phys_proc_id[cpu] = BAD_APICID;
++
++	cpu_clear(cpu, smp_commenced_mask);
++
++	unmap_cpu_to_logical_apicid(cpu);
++
++	do_exit_idle();
++}
++#endif
+ static void smp_tune_scheduling (void)
  {
- 	if (cpu_has(c, X86_FEATURE_PN) && disable_x86_serial_nr ) {
- 		/* Disable processor serial number */
-@@ -317,7 +317,7 @@ __setup("serialnumber", x86_serial_nr_se
- /*
-  * This does the hard work of actually picking apart the CPU stuff...
-  */
--void __init identify_cpu(struct cpuinfo_x86 *c)
-+void __devinit identify_cpu(struct cpuinfo_x86 *c)
+ 	unsigned long cachesize;       /* kB   */
+@@ -1104,6 +1143,7 @@ void __devinit smp_prepare_boot_cpu(void
  {
- 	int i;
- 
-@@ -428,7 +428,7 @@ void __init identify_cpu(struct cpuinfo_
+ 	cpu_set(smp_processor_id(), cpu_online_map);
+ 	cpu_set(smp_processor_id(), cpu_callout_map);
++	cpu_set(smp_processor_id(), cpu_present_map);
  }
  
- #ifdef CONFIG_X86_HT
--void __init detect_ht(struct cpuinfo_x86 *c)
-+void __devinit detect_ht(struct cpuinfo_x86 *c)
- {
- 	u32 	eax, ebx, ecx, edx;
- 	int 	index_lsb, index_msb, tmp;
-@@ -471,7 +471,7 @@ void __init detect_ht(struct cpuinfo_x86
+ #ifdef CONFIG_HOTPLUG_CPU
+diff -puN arch/i386/kernel/cpu/common.c~cpu_state_clean arch/i386/kernel/cpu/common.c
+--- linux-2.6.11/arch/i386/kernel/cpu/common.c~cpu_state_clean	2005-03-31 10:50:27.000000000 +0800
++++ linux-2.6.11-root/arch/i386/kernel/cpu/common.c	2005-03-31 10:50:27.000000000 +0800
+@@ -621,3 +621,15 @@ void __devinit cpu_init (void)
+ 	clear_used_math();
+ 	mxcsr_feature_mask_init();
  }
++
++#ifdef CONFIG_STR_SMP
++void __devinit cpu_uninit(void)
++{
++	int cpu = smp_processor_id();
++	cpu_clear(cpu, cpu_initialized);
++
++	/* lazy TLB state */
++	per_cpu(cpu_tlbstate, cpu).state = 0;
++	per_cpu(cpu_tlbstate, cpu).active_mm = &init_mm;
++}
++#endif
+diff -puN include/asm-i386/irq.h~cpu_state_clean include/asm-i386/irq.h
+--- linux-2.6.11/include/asm-i386/irq.h~cpu_state_clean	2005-03-31 10:50:27.000000000 +0800
++++ linux-2.6.11-root/include/asm-i386/irq.h	2005-03-31 10:50:27.000000000 +0800
+@@ -29,9 +29,11 @@ extern void release_vm86_irqs(struct tas
+ 
+ #ifdef CONFIG_4KSTACKS
+   extern void irq_ctx_init(int cpu);
++  extern void irq_ctx_exit(int cpu);
+ # define __ARCH_HAS_DO_SOFTIRQ
+ #else
+ # define irq_ctx_init(cpu) do { } while (0)
++# define irq_ctx_exit(cpu) do { } while (0)
  #endif
  
--void __init print_cpu_info(struct cpuinfo_x86 *c)
-+void __devinit print_cpu_info(struct cpuinfo_x86 *c)
- {
- 	char *vendor = NULL;
- 
-@@ -494,7 +494,7 @@ void __init print_cpu_info(struct cpuinf
- 		printk("\n");
+ #ifdef CONFIG_IRQBALANCE
+diff -puN arch/i386/kernel/irq.c~cpu_state_clean arch/i386/kernel/irq.c
+--- linux-2.6.11/arch/i386/kernel/irq.c~cpu_state_clean	2005-03-31 10:50:27.000000000 +0800
++++ linux-2.6.11-root/arch/i386/kernel/irq.c	2005-03-31 10:50:27.000000000 +0800
+@@ -153,6 +153,11 @@ void irq_ctx_init(int cpu)
+ 		cpu,hardirq_ctx[cpu],softirq_ctx[cpu]);
  }
  
--cpumask_t cpu_initialized __initdata = CPU_MASK_NONE;
-+cpumask_t cpu_initialized __devinitdata = CPU_MASK_NONE;
++void irq_ctx_exit(int cpu)
++{
++	hardirq_ctx[cpu] = NULL;
++}
++
+ extern asmlinkage void __do_softirq(void);
  
- /* This is hacky. :)
-  * We're emulating future behavior.
-@@ -541,7 +541,7 @@ void __init early_cpu_init(void)
-  * and IDT. We reload them nevertheless, this function acts as a
-  * 'CPU state barrier', nothing should get across.
-  */
--void __init cpu_init (void)
-+void __devinit cpu_init (void)
- {
- 	int cpu = smp_processor_id();
- 	struct tss_struct * t = &per_cpu(init_tss, cpu);
-diff -puN arch/i386/kernel/timers/timer_tsc.c~init_call_cleanup arch/i386/kernel/timers/timer_tsc.c
---- linux-2.6.11/arch/i386/kernel/timers/timer_tsc.c~init_call_cleanup	2005-03-31 10:48:40.725106496 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/timers/timer_tsc.c	2005-03-31 10:48:40.747103152 +0800
-@@ -33,7 +33,7 @@ static struct timer_opts timer_tsc;
- 
- static inline void cpufreq_delayed_get(void);
- 
--int tsc_disable __initdata = 0;
-+int tsc_disable __devinitdata = 0;
- 
- extern spinlock_t i8253_lock;
- 
-diff -puN arch/i386/kernel/apic.c~init_call_cleanup arch/i386/kernel/apic.c
---- linux-2.6.11/arch/i386/kernel/apic.c~init_call_cleanup	2005-03-31 10:48:40.727106192 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/apic.c	2005-03-31 10:48:40.748103000 +0800
-@@ -364,7 +364,7 @@ void __init init_bsp_APIC(void)
- 	apic_write_around(APIC_LVT1, value);
+ asmlinkage void do_softirq(void)
+diff -puN kernel/exit.c~cpu_state_clean kernel/exit.c
+--- linux-2.6.11/kernel/exit.c~cpu_state_clean	2005-03-31 10:50:27.000000000 +0800
++++ linux-2.6.11-root/kernel/exit.c	2005-03-31 10:50:27.000000000 +0800
+@@ -845,6 +845,65 @@ fastcall NORET_TYPE void do_exit(long co
+ 	for (;;) ;
  }
  
--void __init setup_local_APIC (void)
-+void __devinit setup_local_APIC (void)
++#ifdef CONFIG_STR_SMP
++void do_exit_idle(void)
++{
++	struct task_struct *tsk = current;
++	int group_dead;
++
++	BUG_ON(tsk->pid);
++	BUG_ON(tsk->mm);
++
++	if (tsk->io_context)
++		exit_io_context();
++	tsk->flags |= PF_EXITING;
++ 	tsk->it_virt_expires = cputime_zero;
++ 	tsk->it_prof_expires = cputime_zero;
++	tsk->it_sched_expires = 0;
++
++	acct_update_integrals(tsk);
++	update_mem_hiwater(tsk);
++	group_dead = atomic_dec_and_test(&tsk->signal->live);
++	if (group_dead) {
++ 		del_timer_sync(&tsk->signal->real_timer);
++		acct_process(-1);
++	}
++	exit_mm(tsk);
++
++	exit_sem(tsk);
++	__exit_files(tsk);
++	__exit_fs(tsk);
++	exit_namespace(tsk);
++	exit_thread();
++	exit_keys(tsk);
++
++	if (group_dead && tsk->signal->leader)
++		disassociate_ctty(1);
++
++	module_put(tsk->thread_info->exec_domain->module);
++	if (tsk->binfmt)
++		module_put(tsk->binfmt->module);
++
++	tsk->exit_code = -1;
++	tsk->exit_state = EXIT_DEAD;
++
++	/* in release_task */
++	atomic_dec(&tsk->user->processes);
++	write_lock_irq(&tasklist_lock);
++	__exit_signal(tsk);
++	__exit_sighand(tsk);
++	write_unlock_irq(&tasklist_lock);
++	release_thread(tsk);
++	put_task_struct(tsk);
++
++	tsk->flags |= PF_DEAD;
++#ifdef CONFIG_NUMA
++	mpol_free(tsk->mempolicy);
++	tsk->mempolicy = NULL;
++#endif
++}
++#endif
++
+ NORET_TYPE void complete_and_exit(struct completion *comp, long code)
  {
- 	unsigned long oldvalue, value, ver, maxlvt;
- 
-@@ -635,7 +635,7 @@ static struct sys_device device_lapic = 
- 	.cls	= &lapic_sysclass,
- };
- 
--static void __init apic_pm_activate(void)
-+static void __devinit apic_pm_activate(void)
- {
- 	apic_pm_state.active = 1;
+ 	if (comp)
+diff -puN kernel/sched.c~cpu_state_clean kernel/sched.c
+--- linux-2.6.11/kernel/sched.c~cpu_state_clean	2005-03-31 10:50:27.000000000 +0800
++++ linux-2.6.11-root/kernel/sched.c	2005-04-04 09:06:40.362357104 +0800
+@@ -4028,6 +4028,58 @@ void __devinit init_idle(task_t *idle, i
  }
-@@ -856,7 +856,7 @@ fake_ioapic_page:
-  * but we do not accept timer interrupts yet. We only allow the BP
-  * to calibrate.
-  */
--static unsigned int __init get_8254_timer_count(void)
-+static unsigned int __devinit get_8254_timer_count(void)
- {
- 	extern spinlock_t i8253_lock;
- 	unsigned long flags;
-@@ -875,7 +875,7 @@ static unsigned int __init get_8254_time
- }
- 
- /* next tick in 8254 can be caught by catching timer wraparound */
--static void __init wait_8254_wraparound(void)
-+static void __devinit wait_8254_wraparound(void)
- {
- 	unsigned int curr_count, prev_count;
- 
-@@ -895,7 +895,7 @@ static void __init wait_8254_wraparound(
-  * Default initialization for 8254 timers. If we use other timers like HPET,
-  * we override this later
-  */
--void (*wait_timer_tick)(void) __initdata = wait_8254_wraparound;
-+void (*wait_timer_tick)(void) __devinitdata = wait_8254_wraparound;
  
  /*
-  * This function sets up the local APIC timer, with a timeout of
-@@ -931,7 +931,7 @@ static void __setup_APIC_LVTT(unsigned i
- 	apic_write_around(APIC_TMICT, clocks/APIC_DIVISOR);
- }
- 
--static void __init setup_APIC_timer(unsigned int clocks)
-+static void __devinit setup_APIC_timer(unsigned int clocks)
- {
- 	unsigned long flags;
- 
-@@ -1044,7 +1044,7 @@ void __init setup_boot_APIC_clock(void)
- 	local_irq_enable();
- }
- 
--void __init setup_secondary_APIC_clock(void)
-+void __devinit setup_secondary_APIC_clock(void)
- {
- 	setup_APIC_timer(calibration_result);
- }
-diff -puN arch/i386/kernel/cpu/intel.c~init_call_cleanup arch/i386/kernel/cpu/intel.c
---- linux-2.6.11/arch/i386/kernel/cpu/intel.c~init_call_cleanup	2005-03-31 10:48:40.729105888 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/cpu/intel.c	2005-03-31 10:48:40.748103000 +0800
-@@ -28,7 +28,7 @@ extern int trap_init_f00f_bug(void);
- struct movsl_mask movsl_mask;
++ * Initial dummy domain for early boot and for hotplug cpu. Being static,
++ * it is initialized to zero, so all balancing flags are cleared which is
++ * what we want.
++ */
++static struct sched_domain sched_domain_dummy;
++
++#ifdef CONFIG_STR_SMP
++static void __devinit exit_idle(int cpu)
++{
++	runqueue_t *rq = cpu_rq(cpu);
++	struct task_struct *p = rq->idle;
++	int j, k;
++	prio_array_t *array;
++
++	/* init runqueue */
++	spin_lock_init(&rq->lock);
++	rq->active = rq->arrays;
++	rq->expired = rq->arrays + 1;
++	rq->best_expired_prio = MAX_PRIO;
++
++	rq->prev_mm = NULL;
++	rq->curr = rq->idle = NULL;
++	rq->expired_timestamp = 0;
++
++	rq->sd = &sched_domain_dummy;
++	rq->cpu_load = 0;
++	rq->active_balance = 0;
++	rq->push_cpu = 0;
++	rq->migration_thread = NULL;
++	INIT_LIST_HEAD(&rq->migration_queue);
++	atomic_set(&rq->nr_iowait, 0);
++
++	for (j = 0; j < 2; j++) {
++		array = rq->arrays + j;
++		for (k = 0; k < MAX_PRIO; k++) {
++			INIT_LIST_HEAD(array->queue + k);
++			__clear_bit(k, array->bitmap);
++		}
++		// delimiter for bitsearch
++		__set_bit(MAX_PRIO, array->bitmap);
++	}
++	/* Destroy IDLE thread.
++	 * it's safe now, the CPU is in busy loop
++	 */
++	if (p->active_mm)
++		mmdrop(p->active_mm);
++	p->active_mm = NULL;
++	put_task_struct(p);
++}
++#endif
++
++/*
+  * In a system that switches off the HZ timer nohz_cpu_mask
+  * indicates which cpus entered this state. This is used
+  * in the rcu update to wait only for active cpus. For system
+@@ -4432,6 +4484,9 @@ static int migration_call(struct notifie
+ 			complete(&req->done);
+ 		}
+ 		spin_unlock_irq(&rq->lock);
++#ifdef CONFIG_STR_SMP
++		exit_idle(cpu);
++#endif
+ 		break;
  #endif
+ 	}
+@@ -4834,12 +4889,6 @@ static void __devinit arch_destroy_sched
  
--void __init early_intel_workaround(struct cpuinfo_x86 *c)
-+void __devinit early_intel_workaround(struct cpuinfo_x86 *c)
- {
- 	if (c->x86_vendor != X86_VENDOR_INTEL)
- 		return;
-@@ -43,7 +43,7 @@ void __init early_intel_workaround(struc
-  *	This is called before we do cpu ident work
-  */
-  
--int __init ppro_with_ram_bug(void)
-+int __devinit ppro_with_ram_bug(void)
- {
- 	/* Uses data from early_cpu_detect now */
- 	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL &&
-@@ -61,7 +61,7 @@ int __init ppro_with_ram_bug(void)
-  * P4 Xeon errata 037 workaround.
-  * Hardware prefetcher may cause stale data to be loaded into the cache.
-  */
--static void __init Intel_errata_workarounds(struct cpuinfo_x86 *c)
-+static void __devinit Intel_errata_workarounds(struct cpuinfo_x86 *c)
- {
- 	unsigned long lo, hi;
+ #endif /* ARCH_HAS_SCHED_DOMAIN */
  
-@@ -77,7 +77,7 @@ static void __init Intel_errata_workarou
- }
+-/*
+- * Initial dummy domain for early boot and for hotplug cpu. Being static,
+- * it is initialized to zero, so all balancing flags are cleared which is
+- * what we want.
+- */
+-static struct sched_domain sched_domain_dummy;
  
- 
--static void __init init_intel(struct cpuinfo_x86 *c)
-+static void __devinit init_intel(struct cpuinfo_x86 *c)
- {
- 	unsigned int l2 = 0;
- 	char *p = NULL;
-@@ -181,7 +181,7 @@ static unsigned int intel_size_cache(str
- 	return size;
- }
- 
--static struct cpu_dev intel_cpu_dev __initdata = {
-+static struct cpu_dev intel_cpu_dev __devinitdata = {
- 	.c_vendor	= "Intel",
- 	.c_ident 	= { "GenuineIntel" },
- 	.c_models = {
-diff -puN arch/i386/kernel/cpu/intel_cacheinfo.c~init_call_cleanup arch/i386/kernel/cpu/intel_cacheinfo.c
---- linux-2.6.11/arch/i386/kernel/cpu/intel_cacheinfo.c~init_call_cleanup	2005-03-31 10:48:40.730105736 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/cpu/intel_cacheinfo.c	2005-03-31 10:48:40.748103000 +0800
-@@ -15,7 +15,7 @@ struct _cache_table
- };
- 
- /* all the cache descriptor types we care about (no TLB or trace cache entries) */
--static struct _cache_table cache_table[] __initdata =
-+static struct _cache_table cache_table[] __devinitdata =
- {
- 	{ 0x06, LVL_1_INST, 8 },	/* 4-way set assoc, 32 byte line size */
- 	{ 0x08, LVL_1_INST, 16 },	/* 4-way set assoc, 32 byte line size */
-@@ -58,7 +58,7 @@ static struct _cache_table cache_table[]
- 	{ 0x00, 0, 0}
- };
- 
--unsigned int __init init_intel_cacheinfo(struct cpuinfo_x86 *c)
-+unsigned int __devinit init_intel_cacheinfo(struct cpuinfo_x86 *c)
- {
- 	unsigned int trace = 0, l1i = 0, l1d = 0, l2 = 0, l3 = 0; /* Cache sizes */
- 
-diff -puN arch/i386/kernel/cpu/mcheck/mce.c~init_call_cleanup arch/i386/kernel/cpu/mcheck/mce.c
---- linux-2.6.11/arch/i386/kernel/cpu/mcheck/mce.c~init_call_cleanup	2005-03-31 10:48:40.732105432 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/cpu/mcheck/mce.c	2005-03-31 10:48:40.748103000 +0800
-@@ -16,7 +16,7 @@
- 
- #include "mce.h"
- 
--int mce_disabled __initdata = 0;
-+int mce_disabled __devinitdata = 0;
- int nr_mce_banks;
- 
- EXPORT_SYMBOL_GPL(nr_mce_banks);	/* non-fatal.o */
-@@ -31,7 +31,7 @@ static fastcall void unexpected_machine_
- void fastcall (*machine_check_vector)(struct pt_regs *, long error_code) = unexpected_machine_check;
- 
- /* This has to be run for each processor */
--void __init mcheck_init(struct cpuinfo_x86 *c)
-+void __devinit mcheck_init(struct cpuinfo_x86 *c)
- {
- 	if (mce_disabled==1)
- 		return;
-diff -puN arch/i386/kernel/cpu/mcheck/p4.c~init_call_cleanup arch/i386/kernel/cpu/mcheck/p4.c
---- linux-2.6.11/arch/i386/kernel/cpu/mcheck/p4.c~init_call_cleanup	2005-03-31 10:48:40.733105280 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/cpu/mcheck/p4.c	2005-03-31 10:48:40.749102848 +0800
-@@ -78,7 +78,7 @@ fastcall void smp_thermal_interrupt(stru
- }
- 
- /* P4/Xeon Thermal regulation detect and init */
--static void __init intel_init_thermal(struct cpuinfo_x86 *c)
-+static void __devinit intel_init_thermal(struct cpuinfo_x86 *c)
- {
- 	u32 l, h;
- 	unsigned int cpu = smp_processor_id();
-@@ -232,7 +232,7 @@ static fastcall void intel_machine_check
- }
- 
- 
--void __init intel_p4_mcheck_init(struct cpuinfo_x86 *c)
-+void __devinit intel_p4_mcheck_init(struct cpuinfo_x86 *c)
- {
- 	u32 l, h;
- 	int i;
-diff -puN arch/i386/kernel/cpu/mcheck/p5.c~init_call_cleanup arch/i386/kernel/cpu/mcheck/p5.c
---- linux-2.6.11/arch/i386/kernel/cpu/mcheck/p5.c~init_call_cleanup	2005-03-31 10:48:40.735104976 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/cpu/mcheck/p5.c	2005-03-31 10:48:40.749102848 +0800
-@@ -29,7 +29,7 @@ static fastcall void pentium_machine_che
- }
- 
- /* Set up machine check reporting for processors with Intel style MCE */
--void __init intel_p5_mcheck_init(struct cpuinfo_x86 *c)
-+void __devinit intel_p5_mcheck_init(struct cpuinfo_x86 *c)
- {
- 	u32 l, h;
- 	
-diff -puN arch/i386/kernel/cpu/mcheck/p6.c~init_call_cleanup arch/i386/kernel/cpu/mcheck/p6.c
---- linux-2.6.11/arch/i386/kernel/cpu/mcheck/p6.c~init_call_cleanup	2005-03-31 10:48:40.736104824 +0800
-+++ linux-2.6.11-root/arch/i386/kernel/cpu/mcheck/p6.c	2005-03-31 10:48:40.749102848 +0800
-@@ -80,7 +80,7 @@ static fastcall void intel_machine_check
- }
- 
- /* Set up machine check reporting for processors with Intel style MCE */
--void __init intel_p6_mcheck_init(struct cpuinfo_x86 *c)
-+void __devinit intel_p6_mcheck_init(struct cpuinfo_x86 *c)
- {
- 	u32 l, h;
- 	int i;
+ #ifdef CONFIG_HOTPLUG_CPU
+ /*
 _
 
 

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRADG3D>; Thu, 4 Jan 2001 01:29:03 -0500
+	id <S129348AbRADGeY>; Thu, 4 Jan 2001 01:34:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRADG2x>; Thu, 4 Jan 2001 01:28:53 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:34564 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129348AbRADG2j>;
-	Thu, 4 Jan 2001 01:28:39 -0500
-Date: Wed, 3 Jan 2001 22:11:49 -0800
-Message-Id: <200101040611.WAA01811@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: zaitcev@metabyte.com
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <3A541361.65942CB3@metabyte.com> (message from Pete Zaitcev on
-	Wed, 03 Jan 2001 22:08:33 -0800)
-Subject: Re: So, what about kwhich on RH6.2?
-In-Reply-To: <3A541361.65942CB3@metabyte.com>
+	id <S129436AbRADGeO>; Thu, 4 Jan 2001 01:34:14 -0500
+Received: from smtpgw.bnl.gov ([130.199.3.16]:10257 "EHLO smtpgw.sec.bnl.local")
+	by vger.kernel.org with ESMTP id <S129348AbRADGd7>;
+	Thu, 4 Jan 2001 01:33:59 -0500
+Date: Thu, 4 Jan 2001 01:33:40 -0500
+From: Tim Sailer <sailer@bnl.gov>
+To: linux-kernel@vger.kernel.org
+Subject: Network Performance?
+Message-ID: <20010104013340.A20552@bnl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Wed, 03 Jan 2001 22:08:33 -0800
-   From: Pete Zaitcev <zaitcev@metabyte.com>
+This may not be the right forum to ask this. If not, please let me know
+where to ask.
 
-   Are we going to use Miquel's patch? I cannot build fresh 2.2.x on
-   plain RH6.2 without it. The 2.2.19-pre6 comes out without it.  Or
-   is "install new bash" the official answer? Alan?
+I have a Debian box with 2 NICs. Both 100/full duplex. This machine is 
+running as a ftp proxy (T.Rex suite). As part of the traffic going through the
+box, some streams have 1000k window size for a certain reason. How do
+I tune the NICs to handle the streams better? There are ways of doing this
+on other OSs. Right now, the box only does about 1.8Mb when it should be doing
+80+Mb.
 
-I do not understand, I just got a working 2.2.19-pre6 build on one of
-my 6.2 Sparc64 systems, what kind of failure do you see?
+Thanks,
+Tim
 
-Later,
-David S. Miller
-davem@redhat.com
+PS: This is really something to do with the window size and WAN latency.
+The ultimate source and destination points are either Solaris or AIX
+boxes. The files being sent are > 1GB in size.
+The box does well when traffic goes in one NIC and out the other, as long
+as the end point is local When it hits the WAN, it all dies. Traffic not
+going through the box just flies right along, as long as both the end points
+have the large tcp window size. Putting the Linux box in the middle is a 
+severe choke point. :(
+
+
+-- 
+Tim Sailer <sailer@bnl.gov> Cyber Security Operations
+Brookhaven National Laboratory  (631) 344-3001
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312706AbSCVPQr>; Fri, 22 Mar 2002 10:16:47 -0500
+	id <S312708AbSCVPUQ>; Fri, 22 Mar 2002 10:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312705AbSCVPQg>; Fri, 22 Mar 2002 10:16:36 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:6395 "EHLO
-	host140.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S312706AbSCVPQY>; Fri, 22 Mar 2002 10:16:24 -0500
-Date: Fri, 22 Mar 2002 15:15:21 +0000 (GMT)
-From: Bernd Schmidt <bernds@redhat.com>
-X-X-Sender: <bernds@host140.cambridge.redhat.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Chris Friesen <cfriesen@nortelnetworks.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: last write to drive issued with write cache off?
-In-Reply-To: <200203221128.g2MBSnX13073@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.33.0203221513430.21505-100000@host140.cambridge.redhat.com>
+	id <S312711AbSCVPT7>; Fri, 22 Mar 2002 10:19:59 -0500
+Received: from s99eagle01.okdhs.org ([204.87.68.21]:29205 "HELO
+	dhshost.okdhs.org") by vger.kernel.org with SMTP id <S312708AbSCVPTl>;
+	Fri, 22 Mar 2002 10:19:41 -0500
+Message-ID: <E7B0663E34409F45B77EFDB62AE0E4D2022360BD@s99mail02.okdhs.org>
+From: "Little, John" <JOHN.LITTLE@okdhs.org>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: fork() DoS?
+Date: Fri, 22 Mar 2002 09:16:00 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Mar 2002, Denis Vlasenko wrote:
+I'm really not a programmer, just learning, but was able to bring the system
+to it's knees.  This is a redhat 7.2 kernel.  Is there anyway of preventing
+this?
 
-> Re spindown: I don't see a reason why spindown via IDE 'sleep' command
-> should sound differently from spindown due to poweroff.
-> 
-> So it is interesting to understand why Bernd's system started to emit
-> 'funny noises'.
-> 
-> Maybe shutdown script does not realize that drives are spun down and cause 
-> disk accesses which lead to spinup? That will be
-> 
-> normal -> spin down -> spin up -> poweroff and spindown
-> 
-> and indeed may sound funny :-)
+#include <unistd.h>
 
-I think the explanation may be that the drives are not spun down at the
-same time, but with a one or two second delay, making it sound different
-than usual.
+void do_fork()
+{
+   pid_t p;
 
+   p = fork();
+   do_fork();
+}
 
-Bernd
+void main()
+{
+   for(;;)
+      do_fork();
+}
 

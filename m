@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269968AbSISGFC>; Thu, 19 Sep 2002 02:05:02 -0400
+	id <S269969AbSISGKJ>; Thu, 19 Sep 2002 02:10:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269969AbSISGFC>; Thu, 19 Sep 2002 02:05:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10764 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S269968AbSISGFB>; Thu, 19 Sep 2002 02:05:01 -0400
-Date: Wed, 18 Sep 2002 23:10:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: William Lee Irwin III <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
-In-Reply-To: <Pine.LNX.4.44.0209190344280.3935-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0209182304040.4563-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269977AbSISGKJ>; Thu, 19 Sep 2002 02:10:09 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:64752 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269969AbSISGKI>; Thu, 19 Sep 2002 02:10:08 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Thu, 19 Sep 2002 00:13:01 -0600
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: sct@redhat.com, akpm@digeo.com, Con Kolivas <conman@kolivas.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] EXT3 vs EXT2 results with rmap14a and testing with contest 0.34
+Message-ID: <20020919061301.GB13929@clusterfs.com>
+Mail-Followup-To: Shawn Starr <spstarr@sh0n.net>, sct@redhat.com,
+	akpm@digeo.com, Con Kolivas <conman@kolivas.net>,
+	linux-kernel@vger.kernel.org
+References: <200209182118.12701.spstarr@sh0n.net> <200209182140.30364.spstarr@sh0n.net> <1032403983.3d893c0f8986b@kolivas.net> <200209190016.26609.spstarr@sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209190016.26609.spstarr@sh0n.net>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 19 Sep 2002, Ingo Molnar wrote:
+On Sep 19, 2002  00:16 -0400, Shawn Starr wrote:
+> These results compare EXT3 against EXT2 with rmap using the contest tool
+> you can get it at: http://contest.kolivas.net
 > 
-> the attached patch is a significantly cleaned up version of the generic
-> pidhash patch, against BK-curr.
+> These tests are from a Athlon MP 2000+ w/ 512MB RAM
+> 
+> noload:
+> 
+> Kernel					Time            	CPU
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            259.47		99%
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            267.66          	97%
+> 
+> process_load:
+> 
+> Kernel                  			Time            	CPU
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            318.91          	80%
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            324.44          	79%
+> 
+> io_halfmem:
+> 
+> Kernel                  			Time			CPU
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            306.82          	87%
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            461.74          	57%
+> 
+> io full mem:
+> 
+> Kernel					Time			CPU
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            325.39          	82%
+> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            411.47          	64%
 
-Hmm.. I think I like it. One big improvement is just the renaming of
-"struct idtag" to "struct pid", which makes it look a lot less abstract to
-me. Maybe that's just me.
+I don't see this as hugely surprising.  ext3 uses more CPU than ext2.
+If you are using up the CPU doing other things, then naturally ext3
+will take a longer wall-clock time to complete the same tasks as ext2.
 
-However:
+I know that Andrew has been doing a bunch of work to reduce ext3 CPU
+usage/locking/etc., but I think that is all in 2.5 kernels.
 
->  	read_lock(&tasklist_lock);
-> - 	for_each_process(p) {
-> -		if ((tty->session > 0) && (p->session == tty->session) &&
-> -		    p->leader) {
-> -			send_sig(SIGHUP,p,1);
-> -			send_sig(SIGCONT,p,1);
-> +	if (tty->session > 0)
-> +		for_each_task_pid(tty->session, PIDTYPE_SID, p, l, pid) {
-> +			if (p->tty == tty)
-> +				p->tty = NULL;
-> +			if (!p->leader)
-> +				continue;
-> +			send_sig(SIGHUP, p, 1);
-> +			send_sig(SIGCONT, p, 1);
->  			if (tty->pgrp > 0)
->  				p->tty_old_pgrp = tty->pgrp;
->  		}
-> -		if (p->tty == tty)
-> -			p->tty = NULL;
-> -	}
-
-This looks a bit wrong. In particular, the old code used to set "p->tty" 
-to NULL if it matched any process, while the new code only does that for 
-processes in the right session. Hmm?
-
-Can you double-check some of these things?
-
-		Linus
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

@@ -1,90 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270437AbTGPIdE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 04:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270426AbTGPIbo
+	id S270543AbTGPIgd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 04:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270460AbTGPIeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 04:31:44 -0400
-Received: from dp.samba.org ([66.70.73.150]:15779 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S270437AbTGPI0k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 04:26:40 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] module.h to use local_t
-Date: Wed, 16 Jul 2003 18:40:52 +1000
-Message-Id: <20030716084132.377502C226@lists.samba.org>
+	Wed, 16 Jul 2003 04:34:18 -0400
+Received: from p15108950.pureserver.info ([217.160.128.7]:54167 "EHLO
+	pluto.schiffbauer.net") by vger.kernel.org with ESMTP
+	id S270420AbTGPIdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 04:33:13 -0400
+Date: Wed, 16 Jul 2003 10:43:14 +0200
+From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: modules problems with 2.6.0
+Message-ID: <20030716084314.GB31074@lisa>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3F147B8F.5000103@mail.usfq.edu.ec>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F147B8F.5000103@mail.usfq.edu.ec>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.20-hpt i686
+X-Editor: vim 6.1.018-1
+X-Homepage: http://www.links2linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  module.h defined local_inc/dec for arch
-overriding, now it's generic.
+* Fernando Sanchez schrieb am 16.07.03 um 00:09 Uhr:
+> Hi,
+> 
+> I've been trying to get 2.6.0 to work, I've enabled modules support, but 
+> I get this error on my logs:
+> 
+> Jul 15 15:38:36 Darakemba kernel: No module symbols loaded - kernel 
+> modules not enabled.
+> 
+> Is there any thing like a new modutils that should be used with 2.6.x 
+> family?
+> 
+> The kernel does boot, but not having any modules I can't do much, and 
+> also, I never get to really see the messages on screen, on logs I have 
+> this line:
+> 
+> Jul 15 15:38:36 Darakemba kernel: Video mode to be used for restore is ffff
+> 
+> What does it mean?
+> 
+> I disabled all the framebuffer things so I can just use vga, on lilo, 
+> vga mode is set to normal, but still can't see anything.
+> 
+> 
 
-Name: Use local_t for module reference counts
-Author: Rusty Russell
-Depends: Percpu/local_t.patch.gz
-Status: Booted on 2.6.0-test1
+Fernando,
 
-D: Uses local_t for module reference counts.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .4869-2.5.75-bk3-refcnt_local_t.pre/include/linux/module.h .4869-2.5.75-bk3-refcnt_local_t/include/linux/module.h
---- .4869-2.5.75-bk3-refcnt_local_t.pre/include/linux/module.h	2003-07-03 09:44:00.000000000 +1000
-+++ .4869-2.5.75-bk3-refcnt_local_t/include/linux/module.h	2003-07-14 11:32:11.000000000 +1000
-@@ -16,6 +16,7 @@
- #include <linux/kmod.h>
- #include <linux/elf.h>
- #include <linux/stringify.h>
-+#include <asm/local.h>
- 
- #include <asm/module.h>
- 
-@@ -171,7 +172,7 @@ void *__symbol_get_gpl(const char *symbo
- 
- struct module_ref
- {
--	atomic_t count;
-+	local_t count;
- } ____cacheline_aligned;
- 
- enum module_state
-@@ -283,12 +284,6 @@ void __symbol_put(const char *symbol);
- #define symbol_put(x) __symbol_put(MODULE_SYMBOL_PREFIX #x)
- void symbol_put_addr(void *addr);
- 
--/* We only need protection against local interrupts. */
--#ifndef __HAVE_ARCH_LOCAL_INC
--#define local_inc(x) atomic_inc(x)
--#define local_dec(x) atomic_dec(x)
--#endif
--
- /* Sometimes we know we already have a refcount, and it's easier not
-    to handle the error case (which only happens with rmmod --wait). */
- static inline void __module_get(struct module *module)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .4869-2.5.75-bk3-refcnt_local_t.pre/kernel/module.c .4869-2.5.75-bk3-refcnt_local_t/kernel/module.c
---- .4869-2.5.75-bk3-refcnt_local_t.pre/kernel/module.c	2003-07-03 09:44:01.000000000 +1000
-+++ .4869-2.5.75-bk3-refcnt_local_t/kernel/module.c	2003-07-14 11:32:11.000000000 +1000
-@@ -374,9 +374,9 @@ static void module_unload_init(struct mo
- 
- 	INIT_LIST_HEAD(&mod->modules_which_use_me);
- 	for (i = 0; i < NR_CPUS; i++)
--		atomic_set(&mod->ref[i].count, 0);
-+		local_set(&mod->ref[i].count, 0);
- 	/* Hold reference count during initialization. */
--	atomic_set(&mod->ref[smp_processor_id()].count, 1);
-+	local_set(&mod->ref[smp_processor_id()].count, 1);
- 	/* Backwards compatibility macros put refcount during init. */
- 	mod->waiter = current;
- }
-@@ -599,7 +599,7 @@ unsigned int module_refcount(struct modu
- 	unsigned int i, total = 0;
- 
- 	for (i = 0; i < NR_CPUS; i++)
--		total += atomic_read(&mod->ref[i].count);
-+		total += local_read(&mod->ref[i].count);
- 	return total;
- }
- EXPORT_SYMBOL(module_refcount);
+read http://www.codemonkey.org.uk/post-halloween-2.5.txt
+(but hsving DNS problems from germany right now)
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-Marc
+
+-- 
+BUGS My programs  never  have  bugs.  They  just  develop  random
+     features.  If you discover such a feature and you want it to
+     be removed: please send an email to bug at links2linux.de 

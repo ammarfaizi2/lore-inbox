@@ -1,55 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267504AbUIOVB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUIOVW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267504AbUIOVB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 17:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUIOVA0
+	id S267509AbUIOVW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 17:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUIOVUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 17:00:26 -0400
-Received: from [66.35.79.110] ([66.35.79.110]:1477 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S267433AbUIOU4w (ORCPT
+	Wed, 15 Sep 2004 17:20:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32164 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267509AbUIOVTC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:56:52 -0400
-Date: Wed, 15 Sep 2004 13:56:43 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Robert Love <rml@novell.com>
-Cc: Greg KH <greg@kroah.com>, Kay Sievers <kay.sievers@vrfy.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel sysfs events layer
-Message-ID: <20040915205643.GA19875@hockin.org>
-References: <1095211167.20763.2.camel@localhost> <20040915034455.GB30747@kroah.com> <20040915194018.GC24131@kroah.com> <1095279043.23385.102.camel@betsy.boston.ximian.com> <20040915202234.GA18242@hockin.org> <1095279985.23385.104.camel@betsy.boston.ximian.com> <20040915203133.GA18812@hockin.org> <1095280414.23385.108.camel@betsy.boston.ximian.com> <20040915204754.GA19625@hockin.org> <1095281358.23385.109.camel@betsy.boston.ximian.com>
+	Wed, 15 Sep 2004 17:19:02 -0400
+Date: Wed, 15 Sep 2004 14:22:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: hari@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org, suparna@in.ibm.com,
+       mbligh@aracnet.com, ebiederm@xmission.com, litke@us.ibm.com
+Subject: Re: [PATCH][2/6]Memory preserving reboot using kexec
+Message-Id: <20040915142242.2d3f7cba.akpm@osdl.org>
+In-Reply-To: <20040915125322.GC15450@in.ibm.com>
+References: <20040915125041.GA15450@in.ibm.com>
+	<20040915125145.GB15450@in.ibm.com>
+	<20040915125322.GC15450@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095281358.23385.109.camel@betsy.boston.ximian.com>
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 04:49:18PM -0400, Robert Love wrote:
-> On Wed, 2004-09-15 at 13:47 -0700, Tim Hockin wrote:
-> 
-> > Are you not sending it with some specific device as the source?  Or is it
-> > just coming from some abstract root kobject?
-> 
-> It comes the the physical device.
-> 
-> Is there really a specific issue that you are seeing?
 
-Well, two.
+I'll add these to -mm.  Minor things:
 
-1) If you send me an event "/dev/hda3 mounted", but it was for some other
-namespace, you just leaked potentially useful information.
 
-I'm no security expert, but that seems to me to be a gratuitous leak.
-Maybe it's just another example of why namespaces need to go away.
+> +config BACKUP_BASE
+> +	int "location of the crash dumps backup region"
+> +	depends on CRASH_DUMP
+> +	default 16
+> +	help
+> +	This is the location where the second kernel will boot from.
+> +
+> +config BACKUP_SIZE
+> +	int "Size of the crash dumps backup region"
+> +	depends on CRASH_DUMP
+> +	range 16 64
+> +	default 32
+> +	help
+> +	The size of the second kernel's memory.
 
-2) If you send me an event "/dev/hda3 mounted" do I also get an event when
-I loopback mount /tmp/rh9.0-1.iso or when I bind mount /foo to /bar or
-when I mount server:/export/home on /home?
+You should tell the user the units of the parameter.  So
 
-If you're notifying me of mounts and unmounts, I really want to know about
-all of them, not just mounts that have a hard local device.  I'd rather
-get "something was mounted" and be forced to probe that (that's a leak,
-too, but less important).
+	"location of the crash dumps backup region (MB)"
 
-Tim
+would be nice.
+
+> +++ linux-2.6.9-rc1-hari/include/asm-i386/crash_dump.h	2004-09-15 17:36:30.000000000 +0530
+> @@ -0,0 +1,44 @@
+> +/* asm-i386/crash_dump.h */
+> +#include <linux/bootmem.h>
+> +
+> +extern unsigned int dump_enabled;
+> +
+> +void __crash_relocate_mem(unsigned long, unsigned long);
+> +unsigned long __init find_max_low_pfn(void);
+> +void __init find_max_pfn(void);
+> +
+> +extern unsigned int crashed;
+
+Should the above declarations be inside CONFIG_CRASH_DUMP?  We don't want
+to leave them in scope if they don't exist.
+
+> +static inline void crash_machine_kexec(void)
+> +{
+> +	struct kimage *image;
+> +
+> +	if ((!crash_dump_on) || (crashed))
+> +		return;
+> +
+> +	image = xchg(&kexec_image, 0);
+> +	if (image) {
+> +		crashed = 1;
+> +		device_shutdown();
+> +		printk(KERN_EMERG "kexec: opening parachute\n");
+> +		machine_kexec(image);
+> +		while (1);
+> +	} else {
+> +		printk(KERN_EMERG "kexec: No kernel image loaded!\n");
+> +	}
+> +}
+
+I don't see why this is inlined??
+
+> +#ifdef CONFIG_CRASH_DUMP
+> +/*
+> + * Enable kexec reboot upon panic; for dumping
+> + */
+> +static ssize_t write_crash_dump_on(struct file *file, const char __user *buf,
+> +					size_t count, loff_t *ppos)
+> +{
+> +	if (count) {
+> +		if (get_user(crash_dump_on, buf))
+> +			return -EFAULT;
+> +	}
+> +	return count;
+> +}
+> +
+> +static struct file_operations proc_crash_dump_on_operations = {
+> +	.write		= write_crash_dump_on,
+> +};
+> +#endif
+> +
+>  struct proc_dir_entry *proc_root_kcore;
+>  
+>  static void create_seq_entry(char *name, mode_t mode, struct file_operations *f)
+> @@ -663,6 +683,11 @@ void __init proc_misc_init(void)
+>  	if (entry)
+>  		entry->proc_fops = &proc_sysrq_trigger_operations;
+>  #endif
+> +#ifdef CONFIG_CRASH_DUMP
+> +	entry = create_proc_entry("kexec-dump", S_IWUSR, NULL);
+> +	if (entry)
+> +		entry->proc_fops = &proc_crash_dump_on_operations;
+> +#endif
+>  #ifdef CONFIG_LOCKMETER
+>  	entry = create_proc_entry("lockmeter", S_IWUSR | S_IRUGO, NULL);
+>  	if (entry) {
+
+Please do all the above in a crashdump-specific file, not inside proc_misc.c
+
+

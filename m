@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbTJNQca (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 12:32:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbTJNQca
+	id S262587AbTJNQjr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 12:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTJNQjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 12:32:30 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:128 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S262589AbTJNQc3 (ORCPT
+	Tue, 14 Oct 2003 12:39:47 -0400
+Received: from [80.88.36.193] ([80.88.36.193]:24040 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262587AbTJNQjp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 12:32:29 -0400
-Date: Tue, 14 Oct 2003 18:32:26 +0200
-From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: Vortex 3c900 passing driver parameters
-Message-ID: <20031014183226.A188@beton.cybernet.src>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Orientation: Gay
+	Tue, 14 Oct 2003 12:39:45 -0400
+Date: Tue, 14 Oct 2003 18:39:40 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Thomas Winischhofer <thomas@winischhofer.net>
+cc: Meelis Roos <mroos@linux.ee>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: gcc -msoft-float [Was: Linux 2.6.0-test7 - stability freeze]
+In-Reply-To: <3F8BF859.2050806@winischhofer.net>
+Message-ID: <Pine.GSO.4.21.0310141839130.15051-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Tue, 14 Oct 2003, Thomas Winischhofer wrote:
+> Meelis Roos wrote:
+> > TW> This is a framebuffer driver and like all fbdev-related stuff it is 
+> > TW> properly maintained in the fbdev-tree, waiting to merged into mainline.
+> > 
+> > Since James seems busy, someone should step up, split these changes into
+> > patches, test (or let people test) them separately and submit to kernel.
+> > Of course in coordination with James, he knows hat should be stable and
+> > what not. I would take this myself by have not enough time.
+> 
+> That sounds a little like "Linus is busy, let someone else quickly hop 
+> in"... :)
+> 
+> The fbdev tree is quite well tested AFAIK, and I am sure James will 
+> respond soon. He can't be too busy, as he was working on the tree yesterday.
 
-How do I do a ether=... (kernel boot-time) equivalent of
-insmod 3c59x.o options=0x201 full_duplex=1 ?
+Indeed. James said he was going to submit the patches after he has fixed a
+critical problem with the soft cursor code.
 
-I have been looking in Documentation/networking/vortex.txt
-and make htmldocs, also on the driver homepage at Scyld and found
-it on none of these places.
+Gr{oetje,eeting}s,
 
-Cl<
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

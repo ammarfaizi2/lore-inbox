@@ -1,34 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUJOWWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUJOWWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbUJOWWx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 18:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJOWWw
+	id S264098AbUJOWWm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 18:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUJOWWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 18:22:52 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:17165 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264386AbUJOWWO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 18:22:14 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: alain@parkautomat.net (Alain Schroeder)
-Subject: Re: tun.c patch to fix "smp_processor_id() in preemptible code"
-Cc: linux-kernel@vger.kernel.org, jbglaw@lug-owl.de
-Organization: Core
-In-Reply-To: <1097876587.4170.16.camel@marvin.home.parkautomat.net>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1CIaSa-0000hB-00@gondolin.me.apana.org.au>
-Date: Sat, 16 Oct 2004 08:22:04 +1000
+	Fri, 15 Oct 2004 18:22:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3477 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264098AbUJOWVC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 18:21:02 -0400
+Subject: Re: [Ext2-devel] Ext3 -mm reservations code: is this fix really
+	correct?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1097872144.4591.54.camel@localhost.localdomain>
+References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
+	 <1097856114.4591.28.camel@localhost.localdomain>
+	 <1097858401.1968.148.camel@sisko.scot.redhat.com>
+	 <1097872144.4591.54.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1097878826.1968.162.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Oct 2004 23:20:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alain Schroeder <alain@parkautomat.net> wrote:
-> 
-> The (very) little attached patch fixes this.
+Hi,
 
-Your change should be moved into netif_rx_ni itself.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+On Fri, 2004-10-15 at 21:29, mingming cao wrote:
+
+> How about this? Haven't test it, will do it shortly.:)
+
+                if ((my_rsv->rsv_start <= group_end_block) &&
+-                               (my_rsv->rsv_end > group_end_block))
++                               (my_rsv->rsv_end > group_end_block) &&
++                               (start_block <= my_rsv->rsv_start))
+                        return -1;
+ 
+That new "<=" should be a ">=", shouldn't it?
+
+Otherwise, looks OK.
+
+--Stephen
+

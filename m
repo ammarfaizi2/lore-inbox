@@ -1,71 +1,204 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUFCPnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264664AbUFCPqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbUFCPnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 11:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUFCPnY
+	id S264664AbUFCPqy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 11:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264658AbUFCPqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 11:43:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48109 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264836AbUFCPmA
+	Thu, 3 Jun 2004 11:46:34 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:54354 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264108AbUFCPqB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 11:42:00 -0400
-Message-ID: <40BF46BB.1080909@pobox.com>
-Date: Thu, 03 Jun 2004 11:41:47 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [PATCH] CRIS architecture update
-References: <200406031419.i53EJgVI027812@hera.kernel.org>
-In-Reply-To: <200406031419.i53EJgVI027812@hera.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 3 Jun 2004 11:46:01 -0400
+Subject: [PATCH] 2.6.6 synclinkmp.c driver init modifications
+From: Paul Fulghum <paulkf@microgate.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1086277559.2014.55.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 Jun 2004 10:46:00 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> ChangeSet 1.1726.1.144, 2004/06/01 08:52:29-07:00, akpm@osdl.org
-> 
-> 	[PATCH] CRIS architecture update
-> 	
-> 	From: "Mikael Starvik" <mikael.starvik@axis.com>
-> 	
-> 	- Lots of fixes from 2.4.
-> 	
-> 	- Updated for 2.6.6.
-> 	
-> 	- Added IDE driver
-> 	
-> 	Signed-off-by: Andrew Morton <akpm@osdl.org>
-> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Changelog:
 
-Who reviewed the ethernet driver?
-Who reviewed the IDE driver?
-Has Bart seen this new driver?
-Why was this committed without first being run by the subsystem maintainers?
+* Fix cleanup on driver init failure
+  (call pci_unregister_driver if necessary)
 
-In ethernet, the MII phy probe is wrong (don't need at id 0 first), it 
-should be using linux/mii.h bits rather than inventing its own, 
-del_timer versus del_timer_sync is questionable, the newly-added full 
-duplex handling seems to be incorrect (ref drivers/net/mii.c and drivers 
-that use mii_if->full_duplex), and cosmetic issues I won't bother to 
-mention.
+* Keep driver loaded if no hardware found (for dynid support)
 
-In IDE, it uses virt_to_page() when building the scatter/gather list -- 
-something that IMO should not have been allowed in -mm much less 
-mainline -- and other yuckiness.  In the same function, it's 
-questionable whether or not it breaks with lba48.  etrax_dma_intr 
-doesn't appear to check for some DMA engine conditions that code 
-comments elsewhere in the driver indicate _do_ occur.  The 
-ATAPI-specific e100_start_dma code doesn't look like it will work with 
-all current ATAPI drivers (ide-{cdrom,floppy,tape,scsi,...}.c).
 
-I'm happy that the CRIS people resurfaced, too, but that's no reason to 
-just shove an unreviewed patch into mainline.
+--
+Paul Fulghum
+paulkf@microgate.com
 
-	Jeff
+
+--- linux-2.6.6/drivers/char/synclinkmp.c	2004-06-03 09:50:24.641488118 -0500
++++ linux-2.6.6-mg1/drivers/char/synclinkmp.c	2004-06-03 09:50:49.370219104 -0500
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: synclinkmp.c,v 4.19 2004/03/08 15:29:23 paulkf Exp $
++ * $Id: synclinkmp.c,v 4.22 2004/06/03 14:50:10 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink Multiport
+  * high speed multiprotocol serial adapter.
+@@ -494,7 +494,7 @@
+ MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink MultiPort driver";
+-static char *driver_version = "$Revision: 4.19 $";
++static char *driver_version = "$Revision: 4.22 $";
+ 
+ static int synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
+ static void synclinkmp_remove_one(struct pci_dev *dev);
+@@ -3781,56 +3781,7 @@
+ 	.tiocmset = tiocmset,
+ };
+ 
+-/* Driver initialization entry point.
+- */
+-
+-static int __init synclinkmp_init(void)
+-{
+-	if (break_on_load) {
+-	 	synclinkmp_get_text_ptr();
+-  		BREAKPOINT();
+-	}
+-
+- 	printk("%s %s\n", driver_name, driver_version);
+-
+-	synclinkmp_adapter_count = -1;
+-	pci_register_driver(&synclinkmp_pci_driver);
+-
+-	if ( !synclinkmp_device_list ) {
+-		printk("%s(%d):No SyncLink devices found.\n",__FILE__,__LINE__);
+-		return -ENODEV;
+-	}
+-
+-	serial_driver = alloc_tty_driver(synclinkmp_device_count);
+-	if (!serial_driver)
+-		return -ENOMEM;
+-
+-	/* Initialize the tty_driver structure */
+-
+-	serial_driver->owner = THIS_MODULE;
+-	serial_driver->driver_name = "synclinkmp";
+-	serial_driver->name = "ttySLM";
+-	serial_driver->major = ttymajor;
+-	serial_driver->minor_start = 64;
+-	serial_driver->type = TTY_DRIVER_TYPE_SERIAL;
+-	serial_driver->subtype = SERIAL_TYPE_NORMAL;
+-	serial_driver->init_termios = tty_std_termios;
+-	serial_driver->init_termios.c_cflag =
+-		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+-	serial_driver->flags = TTY_DRIVER_REAL_RAW;
+-	tty_set_operations(serial_driver, &ops);
+-	if (tty_register_driver(serial_driver) < 0)
+-		printk("%s(%d):Couldn't register serial driver\n",
+-			__FILE__,__LINE__);
+-
+- 	printk("%s %s, tty major#%d\n",
+-		driver_name, driver_version,
+-		serial_driver->major);
+-
+-	return 0;
+-}
+-
+-static void __exit synclinkmp_exit(void)
++static void synclinkmp_cleanup(void)
+ {
+ 	unsigned long flags;
+ 	int rc;
+@@ -3839,10 +3790,12 @@
+ 
+ 	printk("Unloading %s %s\n", driver_name, driver_version);
+ 
+-	if ((rc = tty_unregister_driver(serial_driver)))
+-		printk("%s(%d) failed to unregister tty driver err=%d\n",
+-		       __FILE__,__LINE__,rc);
+-	put_tty_driver(serial_driver);
++	if (serial_driver) {
++		if ((rc = tty_unregister_driver(serial_driver)))
++			printk("%s(%d) failed to unregister tty driver err=%d\n",
++			       __FILE__,__LINE__,rc);
++		put_tty_driver(serial_driver);
++	}
+ 
+ 	info = synclinkmp_device_list;
+ 	while(info) {
+@@ -3882,6 +3835,69 @@
+ 	pci_unregister_driver(&synclinkmp_pci_driver);
+ }
+ 
++/* Driver initialization entry point.
++ */
++
++static int __init synclinkmp_init(void)
++{
++	int rc;
++
++	if (break_on_load) {
++	 	synclinkmp_get_text_ptr();
++  		BREAKPOINT();
++	}
++
++ 	printk("%s %s\n", driver_name, driver_version);
++
++	if ((rc = pci_register_driver(&synclinkmp_pci_driver)) < 0) {
++		printk("%s:failed to register PCI driver, error=%d\n",__FILE__,rc);
++		return rc;
++	}
++
++	serial_driver = alloc_tty_driver(128);
++	if (!serial_driver) {
++		rc = -ENOMEM;
++		goto error;
++	}
++
++	/* Initialize the tty_driver structure */
++
++	serial_driver->owner = THIS_MODULE;
++	serial_driver->driver_name = "synclinkmp";
++	serial_driver->name = "ttySLM";
++	serial_driver->major = ttymajor;
++	serial_driver->minor_start = 64;
++	serial_driver->type = TTY_DRIVER_TYPE_SERIAL;
++	serial_driver->subtype = SERIAL_TYPE_NORMAL;
++	serial_driver->init_termios = tty_std_termios;
++	serial_driver->init_termios.c_cflag =
++		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
++	serial_driver->flags = TTY_DRIVER_REAL_RAW;
++	tty_set_operations(serial_driver, &ops);
++	if ((rc = tty_register_driver(serial_driver)) < 0) {
++		printk("%s(%d):Couldn't register serial driver\n",
++			__FILE__,__LINE__);
++		put_tty_driver(serial_driver);
++		serial_driver = NULL;
++		goto error;
++	}
++
++ 	printk("%s %s, tty major#%d\n",
++		driver_name, driver_version,
++		serial_driver->major);
++
++	return 0;
++
++error:
++	synclinkmp_cleanup();
++	return rc;
++}
++
++static void __exit synclinkmp_exit(void)
++{
++	synclinkmp_cleanup();
++}
++
+ module_init(synclinkmp_init);
+ module_exit(synclinkmp_exit);
+ 
+
 
 

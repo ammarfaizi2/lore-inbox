@@ -1,31 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbUFJT2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUFJTdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262459AbUFJT2e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 15:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUFJT2e
+	id S262585AbUFJTdO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 15:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUFJTdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 15:28:34 -0400
-Received: from inett.biz ([62.92.76.9]:46799 "EHLO skynet")
-	by vger.kernel.org with ESMTP id S262459AbUFJT2c convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 15:28:32 -0400
-Date: Thu, 10 Jun 2004 21:27:52 +0200
-From: =?iso-8859-1?Q?B=E5rd?= Kalbakk <baard@inett.biz>
-To: linux-kernel@vger.kernel.org
-Cc: stian@nixia.no
-Subject: Re: timer + fpu stuff locks my console race
-Message-ID: <20040610192752.GA18267@inett.biz>
+	Thu, 10 Jun 2004 15:33:14 -0400
+Received: from mail.kroah.org ([65.200.24.183]:57022 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262585AbUFJTdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 15:33:11 -0400
+Date: Thu, 10 Jun 2004 12:32:08 -0700
+From: Greg KH <greg@kroah.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: sensors@stimpy.netroedge.com,
+       "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Finding user/kernel pointer bugs [no html]
+Message-ID: <20040610193207.GA1904@kroah.com>
+References: <1086838266.32059.320.camel@dooby.cs.berkeley.edu> <20040610044903.GE12308@parcelfarce.linux.theplanet.co.uk> <20040610165821.GB32577@kroah.com> <20040610191004.GA1661@kroah.com> <20040610191359.GJ12308@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.3.28i
-X-Editor: Vim http://www.vim.org/ > Please keep me in CC as I'm not on the mailinglist. I'm currently on a > vaccation, so I can't hook my linux-box to the Internet, but I came > across a race condition in the "old" 2.4.26-rc1 vanilla kernel. > I'm doing some code tests when I came across problems with my program > locking my console (even X if I'm using a xterm). > I think first of all gcc triggers the problem, so the full report is here: > http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15905 > Stian Skjelstad
+In-Reply-To: <20040610191359.GJ12308@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACK on 2.6.7-rc2 singel CPU. 
+On Thu, Jun 10, 2004 at 08:14:00PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Thu, Jun 10, 2004 at 12:10:04PM -0700, Greg KH wrote:
+> > @@ -170,8 +170,11 @@
+> >  static int DIV_TO_REG(int val)
+> >  {
+> >  	int answer = 0;
+> > -	while ((val >>= 1))
+> > +	val >>= 1;
+> > +	while (val) {
+> >  		answer++;
+> > +		val >>= 1;
+> > +	}
+> >  	return answer;
+> 
+> That's less readable than the original...
 
-But, with 2.4.23 SMP it seems to be okay. I can't kill the process or attach to it with strace, but it doesn't lock the machine.
+Hm, so we should ignore the sparse warning about the original then?
 
-Bård Kalbakk
+> > -		data_ptrs = (u8 **) kmalloc(rdwr_arg.nmsgs * sizeof(u8 *),
+> > -					    GFP_KERNEL);
+> > +		data_ptrs = kmalloc(rdwr_arg.nmsgs * sizeof(u8 __user *), GFP_KERNEL);
+> 
+> While we are at it, what's the type of ->nmsgs?
+
+include/linux/i2c-dev.h states it is __u32.  Any problems with that?
+
+thanks,
+
+greg k-h

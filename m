@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318009AbSIES2G>; Thu, 5 Sep 2002 14:28:06 -0400
+	id <S318038AbSIESns>; Thu, 5 Sep 2002 14:43:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318020AbSIES2G>; Thu, 5 Sep 2002 14:28:06 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:41198
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318009AbSIES2D>; Thu, 5 Sep 2002 14:28:03 -0400
-Subject: Re: IO-APIC in SMP dual Athlon XP1800
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: scorpionlab@ieg.com.br
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200209051453.54728.scorpionlab@ieg.com.br>
-References: <Pine.LNX.4.44.0207292151420.20701-100000@linux-box.realnet.co.sz> 
-	<200209051453.54728.scorpionlab@ieg.com.br>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 05 Sep 2002 19:33:30 +0100
-Message-Id: <1031250810.7367.0.camel@irongate.swansea.linux.org.uk>
+	id <S318047AbSIESns>; Thu, 5 Sep 2002 14:43:48 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:11015 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318038AbSIESnr>; Thu, 5 Sep 2002 14:43:47 -0400
+Date: Thu, 5 Sep 2002 19:48:24 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, lord@sgi.com
+Subject: Re: 2.4.20pre5aa1
+Message-ID: <20020905194824.A11974@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+	lord@sgi.com
+References: <20020904233528.GA1238@dualathlon.random> <20020905134414.A1784@infradead.org> <20020905165307.GC1254@dualathlon.random> <20020905180904.A8406@infradead.org> <20020905184125.GA1657@dualathlon.random>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020905184125.GA1657@dualathlon.random>; from andrea@suse.de on Thu, Sep 05, 2002 at 08:41:25PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-05 at 18:53, Scorpion wrote:
-> Hi All,
-> I got my Dual Athlon XP1800 working now. 
-> Everything gonna well after changed MP 1.4 Support to disable in BIOS, and 
-> leaving MP table enabled.
-> Anyone knows if linux 2.4.19 has not yet a full implemantation of MP 1.4 or if 
-> it is just a BIOSes bug?
+On Thu, Sep 05, 2002 at 08:41:25PM +0200, Andrea Arcangeli wrote:
+> other fs, if you're not holding the i_sem (and you certainly aren't
+> holding the i_sem that frequently, you don't even for writes).
 
-On the 1004 BIOS with the ASUS it seems to be a bios table error. Later
-BIOSes fixed it, then removed the option, then broke lots of other
-stuff. I went back to 1004 so I dont know how the newest fare
+Except of O_DIRECT writes we _do_ hold i_sem, btw.
 

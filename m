@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVAFQG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVAFQMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262899AbVAFQG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 11:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVAFQGZ
+	id S262890AbVAFQMT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 11:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVAFQMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 11:06:25 -0500
-Received: from dhost001-17.intermedia.net ([64.78.61.64]:32418 "EHLO
-	DHOST001-17.DEX001.intermedia.net") by vger.kernel.org with ESMTP
-	id S262892AbVAFQGD convert rfc822-to-8bit (ORCPT
+	Thu, 6 Jan 2005 11:12:15 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:55988 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262890AbVAFQL5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 11:06:03 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ARP routing issue
-Date: Thu, 6 Jan 2005 08:06:00 -0800
-Message-ID: <B8561865DB141248943E2376D0E85215846787@DHOST001-17.DEX001.intermedia.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ARP routing issue
-Thread-Index: AcT0BzpArmlpjjWGTsOmJlB/oPkNFgAAeoWA
-From: "Steve Iribarne" <steve.iribarne@dilithiumnetworks.com>
-To: "Jan De Luyck" <lkml@kcore.org>, <linux-kernel@vger.kernel.org>
-Cc: <linux-net@vger.kernel.org>
+	Thu, 6 Jan 2005 11:11:57 -0500
+Date: Thu, 6 Jan 2005 10:08:44 -0600
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE 0/4][RFC] Genetic Algorithm Library
+Message-ID: <20050106100844.53a762a0@localhost>
+Organization: LTC
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jan,
+I'm pleased to announce a new in-kernel library to do kernel tuning
+using a genetic algorithm.  
 
- 
--> default gateway is set to 10.0.22.1, on eth0.
--> 
--> Problem is, if I try to ping from another network 
--> (10.216.0.xx) to 10.0.24.xx, i see the following ARP request:
--> 
--> arp who-has 10.0.22.1 tell 10.0.24.xx
-->
+This library provides hooks for kernel components to take advantage of a
+genetic algorithm.  There are patches to hook the different schedulers
+included.
 
-You see that coming out the eth0 interface??  
+The basic flow of the genetic algorithm is as follows:
 
-If that is the case it is most definately wrong.  Assuming that your
-masks are setup properly.  But I haven't worked on the 2.4 kernel for a
-long time so I'm not so sure if what you are seeing is a bug that has
-been fixed.
+1.) Start w/ a broad list of initial tunable values (each set of
+	tunables is called a child) 
+2.) Let each child run for a timeslice. 
+3.) Once the timeslice is up, calculate the fitness of the child (how
+well performed).
+4.) Run the next child in the list.
+5.) Once all the children have run, compare the fitnesses of each child
+	and throw away the bottom-half performers. 
+6.) Create new children to take the place of the bottom-half performers
+	using the tunables from the top-half performers.
+7.) Mutate a set number of children to keep variance.
+8.) Goto step 2.
 
--stv
+Over time the tunables should converge toward the optimal settings for
+that workload.  If the workload changes, the tunables should converge to
+the new optimal settings (this is part of the reason for mutation). 
+This algorithm is used extensively in AI.
+
+Using these patches, there are small gains (1-3%) in Unixbench &
+SpecJBB.  I am hoping a scheduler guru will able to rework them to give
+higher gains.
+
+The main area that could use reworking is the fitness calculation.  The
+problem is that the kernel is looking more at the micro of what's going
+on, instead of the macro.  I am thinking of moving the fitness
+calculation to outside the kernel.
+
+However, I would advocate keeping the number of layers needed to communicate
+between the genetic library and the hooked component down in order to
+keep it as lightweight as possible.
+
+The patches are based on 2.6.9 and still a little rough, but here is the
+descriptions:
+
+[1/4 genetic-lib]: This is the base patch for the genetic algorithm. 
+	It's based against 2.6.9.
+
+[2/4 genetic-io-sched]: The base patch for the IO schedulers to use the
+	genetic library.
+
+[3/4 genetic-as-sched]: A genetic-lib hooked anticipatory IO scheduler.
+
+[4/4 genetic-zaphod-cpu-sched]: A hooked zaphod CPU scheduler.  Depends
+	on the zaphod-v6 patch.
+
+Please send comments,
+Jake Moilanen

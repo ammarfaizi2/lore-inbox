@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261877AbSJDUBd>; Fri, 4 Oct 2002 16:01:33 -0400
+	id <S261798AbSJDSbX>; Fri, 4 Oct 2002 14:31:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbSJDUB0>; Fri, 4 Oct 2002 16:01:26 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:19974 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261877AbSJDUAL>; Fri, 4 Oct 2002 16:00:11 -0400
-Date: Fri, 4 Oct 2002 15:58:04 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: v2.6 vs v3.0
-In-Reply-To: <20021001123838.GA15537@merlin.emma.line.org>
-Message-ID: <Pine.LNX.3.96.1021004155456.14175A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261804AbSJDSbX>; Fri, 4 Oct 2002 14:31:23 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:9982 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261798AbSJDSbX>; Fri, 4 Oct 2002 14:31:23 -0400
+Subject: Re: 3DNOW Question/MMX Support in 2.4.X tree
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021004121543.A29145@vger.timpanogas.org>
+References: <20021004121543.A29145@vger.timpanogas.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 04 Oct 2002 19:45:27 +0100
+Message-Id: <1033757127.31839.49.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Oct 2002, Matthias Andree wrote:
+On Fri, 2002-10-04 at 20:15, Jeff V. Merkey wrote:
+> I noticed that the MMX libraries seem tied to CYRIX and AMD builds 
+> in the config scripts.  I am wondering if MMX support for Intel 
+> is not supported in 2.4.X kernels except for these processor types.
+> The code appears to be usable on Intel.
 
-> On Mon, 30 Sep 2002, Bill Davidsen wrote:
-> 
-> > I do that, but it doesn't make for a storage medium I can easily use on
-> > another system. The cost of DVD writers is coming down, and non-magnetic
-> > media may have some advantages as well. Still, thay're small compared to
-> > disk sizes.
-> 
-> There are big drives available if you really want one (and can afford
-> one, which is the bigger problem usually).
-
-The real problem is that the media is expensive. DVD media is <$10 and
-encourages taking backups fairly often. In the long run that's most
-important, not the initial cost. Trying to get a client to take an
-incremental and store it off-site daily is easier at $5-8 than $50+.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+MMX copies are only a win on some processors, so we only use it in
+kernel there. MMX itself works on all processors
 

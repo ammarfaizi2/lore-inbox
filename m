@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262087AbRE0PSN>; Sun, 27 May 2001 11:18:13 -0400
+	id <S262536AbRE0Pt5>; Sun, 27 May 2001 11:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262389AbRE0PSD>; Sun, 27 May 2001 11:18:03 -0400
-Received: from mail.alphalink.com.au ([203.24.205.7]:47210 "EHLO
-	mail.alphalink.com.au") by vger.kernel.org with ESMTP
-	id <S262087AbRE0PRz>; Sun, 27 May 2001 11:17:55 -0400
-Message-ID: <3B111C31.9B36DDA7@alphalink.com.au>
-Date: Mon, 28 May 2001 01:24:33 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-X-Mailer: Mozilla 4.07 [en] (X11; I; Linux 2.2.1 i586)
+	id <S262641AbRE0Ptr>; Sun, 27 May 2001 11:49:47 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49926 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262536AbRE0Ptd>;
+	Sun, 27 May 2001 11:49:33 -0400
+Date: Sun, 27 May 2001 12:49:15 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: cesar.da.silva@cyberdude.com
+Cc: kernellist <linux-kernel@vger.kernel.org>
+Subject: Re: Please help me fill in the blanks.
+In-Reply-To: <20010527021808.80979.qmail@web13407.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.21.0105271248280.1907-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Jaswinder Singh <jaswinder.singh@3disystems.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Configure.help entries wanted
-In-Reply-To: <E153pEG-0008RL-00@the-village.bc.nu> <3B106F40.B86382E6@alphalink.com.au> <030601c0e65a$8ff33620$52a6b3d0@Toshiba>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaswinder Singh wrote:
-> 
-> 
-> i even face problem in xscribble too , i think it donot likes my handwriting
-> ;)
+On Sun, 27 May 2001, [iso-8859-1] Cesar Da Silva wrote:
 
-  Or anyone else's.
+> I am doing a thesis about comparing the Linux kernel
+> against HP-UX, AIX, Tru64 UNIX, and Solaris (as you
+> probably alredy know).
+> I'm stuck now (and the thesis has to bee ready until
+> tomorow)
 
-> Are you having sources of Calligrapher ?
+Aren't you the same guy who posted this question last
+week?
 
-  No.
+And the same guy who asked us to "fill in the blanks"
+on an essentially EMPTY work? ;)
 
-> If no , i know that you can write better version then Calligrapher in Linux
-> :)
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-  This would seem a perfect opportunity for sarcasm.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Greg.
--- 
-If it's a choice between being a paranoid, hyper-suspicious global
-village idiot, or a gullible, mega-trusting sheep, I don't look
-good in mint sauce.                      - jd, slashdot, 11Feb2000.
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

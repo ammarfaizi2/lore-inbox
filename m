@@ -1,62 +1,96 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154114AbQC1Pf2>; Tue, 28 Mar 2000 10:35:28 -0500
-Received: by vger.rutgers.edu id <S153994AbQC1Pa0>; Tue, 28 Mar 2000 10:30:26 -0500
-Received: from field.videotron.net ([205.151.222.108]:65222 "EHLO field.videotron.net") by vger.rutgers.edu with ESMTP id <S154040AbQC1P1x>; Tue, 28 Mar 2000 10:27:53 -0500
-Date: Tue, 28 Mar 2000 10:29:15 -0500
-From: Karim Yaghmour <karym@opersys.com>
-Subject: [UPDATE/RFC/PATCH] Linux Trace Toolkit
-To: linux-kernel@vger.rutgers.edu
-Message-id: <38E0CFCB.CE6EB317@opersys.com>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.13 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: French/France, fr-FR, French/Canada, fr-CA, en
+Received: by vger.rutgers.edu via listexpand id <S153876AbQC2E5Z>; Tue, 28 Mar 2000 23:57:25 -0500
+Received: by vger.rutgers.edu id <S153902AbQC2E5R>; Tue, 28 Mar 2000 23:57:17 -0500
+Received: from [209.128.87.2] ([209.128.87.2]:1531 "EHLO cyclades.com") by vger.rutgers.edu with ESMTP id <S153901AbQC2E5D>; Tue, 28 Mar 2000 23:57:03 -0500
+Date: Tue, 28 Mar 2000 20:58:44 -0800 (PST)
+From: Ivan Passos <lists@cyclades.com>
+To: Linux Kernel List <linux-kernel@vger.rutgers.edu>
+Subject: Modules and "Relocation overflow of type 4" (??)
+Message-ID: <Pine.LNX.4.10.10003282058220.29457-100000@main.cyclades.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
 
-UPDATE:
-This is to inform you that a new version of the Linux Trace Toolkit has
-been released. Version 0.9.1 marks a mile-stone because of it's ability
-to manipulate very large traces and it's usage of memory mapping to reduce
-data transfers from the kernel to user-space. Most of the changes are
-not visible (the command-line options and interface have not changed),
-but the underlying mechanisms have been completely re-written. Yet, the
-architecture remains the same.
+Hello,
 
-RFC:
-Given the insight LTT allows into Linux' functionnality, it's low-overhead,
-it's modularity and it's flexibility, it would be very interesting to see
-the trace functionnality incorporated into the standard kernel tree. That said,
-the modifications into the kernel's code are minimal and completely
-configurable. That is, you only need to enable or disable the kernel tracing
-option in the configuration menu in order to include or remove the tracing
-facilities from the kernel. The said patch has not been included with this
-message because of it's size (mainly due to files added), but it can be
-retrieved from LTT's web site (given below). It would be important to stress
-that unlike the kernel debugger patch or a profiling patch, this patch does
-not strictly serve kernel developers. It is actually meant to be used by
-developpers and system administrators who would like to get more insight into
-the system's behavior. Therefore the public is quite broad. As has been
-suggested by many, this patch can also serve as a basis for an enhanced
-security auditing system or an intrusion detection scheme. The hooks are there
-or are quite easy to implement. I would very much like to hear what members of
-the list think about this issue. (I have no specific kernel version in sight for
-including this patch. 2.4 would be ideal and it would actually be easy since the
-patch doesn't have that much influence on it's surroundings, but I'll leave this
-one for Linus.)
+I'm trying to run syncppp on Cobalt Qube2 boxen and it runs fine when I
+build it as static (i.e., built-in to the kernel).
 
-Take a look at LTT's web page :
-  http://www.opersys.com/LTT
+However, if I try to run it as a module ...
 
-Best Regards.
+# gcc -D__KERNEL__ -I/usr/src/linux-2.0.34C52_SK/include -Wall
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strength-reduce -G 0
+-mno-abicalls -fno-pic -mcpu=r8000 -mips2 -mmad -pipe -DMODULE  -c -o
+syncppp.o syncppp.c
 
-===================================================
-                 Karim Yaghmour
-               karym@opersys.com
-          Operating System Consultant
- (Linux kernel, real-time and distributed systems)
-===================================================
+(no compilation errors)
+
+# insmod syncppp.o
+
+syncppp.o: Relocation overflow of type 4 for add_timer
+syncppp.o: Relocation overflow of type 4 for del_timer
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for netif_rx
+syncppp.o: Relocation overflow of type 4 for kfree_skb
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for add_timer
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for alloc_skb
+syncppp.o: Relocation overflow of type 4 for memcpy
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for dev_queue_xmit
+syncppp.o: Relocation overflow of type 4 for alloc_skb
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for dev_queue_xmit
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for add_timer
+syncppp.o: Relocation overflow of type 4 for del_timer
+syncppp.o: Relocation overflow of type 4 for kmalloc
+syncppp.o: Relocation overflow of type 4 for memcpy
+syncppp.o: Relocation overflow of type 4 for kfree
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for sprintf
+syncppp.o: Relocation overflow of type 4 for sprintf
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for printk
+syncppp.o: Relocation overflow of type 4 for dev_add_pack
+syncppp.o: Relocation overflow of type 4 for dev_remove_pack
+
+
+The kernel for the Cobalt Qube2 boxen is a Cobalt-crafted 2.0.34.
+
+Does anybody have a clue on what could be the problem here???
+
+Thanks in advance for your help.
+
+Regards,
+Ivan
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

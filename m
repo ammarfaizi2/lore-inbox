@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129279AbRBVEDI>; Wed, 21 Feb 2001 23:03:08 -0500
+	id <S129419AbRBVEEI>; Wed, 21 Feb 2001 23:04:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129323AbRBVEC6>; Wed, 21 Feb 2001 23:02:58 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:7688 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129279AbRBVECt>; Wed, 21 Feb 2001 23:02:49 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-Date: 21 Feb 2001 20:02:18 -0800
-Organization: Transmeta Corporation
-Message-ID: <97230a$16k$1@penguin.transmeta.com>
-In-Reply-To: <200102220203.f1M237Z20870@webber.adilger.net> <3A947C54.E4750E74@transmeta.com> <3A948ACB.7B55BEAE@innominate.de>
+	id <S129283AbRBVEDu>; Wed, 21 Feb 2001 23:03:50 -0500
+Received: from SMTP1.ANDREW.CMU.EDU ([128.2.10.81]:53951 "EHLO
+	smtp1.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S129419AbRBVEDc>; Wed, 21 Feb 2001 23:03:32 -0500
+Date: Wed, 21 Feb 2001 23:03:13 -0500
+From: "Eloy A. Paris" <eparis@andrew.cmu.edu>
+To: Billy.Harvey@thrillseeker.net, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.2
+Message-ID: <20010221230313.A750@antenas>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A948ACB.7B55BEAE@innominate.de>,
-Daniel Phillips  <phillips@innominate.de> wrote:
+Billy Harvey wrote:
+
+> I get the following error in a make bzImage:
 >
->I mentioned this earlier but it's worth repeating: the desire to use a
->small block size is purely an artifact of the fact that ext2 has no
->handling for tail block fragmentation.  That's a temporary situation -
->once we've dealt with it your 2,000,000 file directory will be happier
->with 4K filesystem blocks.
+> nm vmlinux | grep -v '\(compiled\)\|\(\.o$\)\|\( [aUw]\)\|\(\.\.ng$\)\|\(LASH[RL]DI\)' | sort > System.map
+> make[1]: Entering directory `/usr/src/linux/arch/i386/boot'
+> ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
+> ld: cannot open binary: No such file or directory
+> make[1]: *** [bbootsect] Error 1
+> make[1]: Leaving directory `/usr/src/linux/arch/i386/boot'
+> make: *** [bzImage] Error 2
 
-I'd rather see a whole new filesystem than have ext2 do tail-block
-fragmentation. 
+Are you running Debian and follow unstable? I think ldso got updated
+today or yesterday and probably the problems started after that.
 
-Once you do tail fragments, you might as well do the whole filesystem
-over and have it do fancier stuff than just handling sub-blocking. 
+I solved the problem by changing all calls to ld in
+/usr/src/linux/arch/i386/boot/Makefile from "ld ... -oformat ..." to
+"ld ... --oformat ..."
 
-Another way of saying this: if you go to the complexity of no longer
-being a purely block-based filesystem, please go the whole way. Make the
-thing be extent-based, and get away from the notion that you have to
-allocate blocks one at a time. Make the blocksize something nice and
-big, not just 4kB or 8kB or something.
+Cheers,
 
-And don't call it ext2. 
-
-		Linus
+Eloy.-

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286154AbRLZETk>; Tue, 25 Dec 2001 23:19:40 -0500
+	id <S286148AbRLZE0k>; Tue, 25 Dec 2001 23:26:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286150AbRLZET3>; Tue, 25 Dec 2001 23:19:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3850 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286148AbRLZETU>; Tue, 25 Dec 2001 23:19:20 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
+	id <S286150AbRLZE03>; Tue, 25 Dec 2001 23:26:29 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51925 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S286148AbRLZE0T>;
+	Tue, 25 Dec 2001 23:26:19 -0500
+Date: Tue, 25 Dec 2001 23:26:18 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.5.2-pre2 forces ramfs on
-Date: Wed, 26 Dec 2001 04:17:11 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <a0bj07$18l$1@penguin.transmeta.com>
 In-Reply-To: <2452.1009338062@ocs3.intra.ocs.com.au>
-X-Trace: palladium.transmeta.com 1009340342 20846 127.0.0.1 (26 Dec 2001 04:19:02 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 26 Dec 2001 04:19:02 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+Message-ID: <Pine.GSO.4.21.0112252319300.1105-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <2452.1009338062@ocs3.intra.ocs.com.au>,
-Keith Owens  <kaos@ocs.com.au> wrote:
->
->Why is ramfs forced on?
 
-Because it's small, and if it wasn't there, we'd have to have the small
-"rootfs" anyway (which basically duplicated ramfs functionality).
 
->And why is Al Viro's email address not in CREDITS or MAINTAINERS?  We
->should have somewhere to complain to ;).
+On Wed, 26 Dec 2001, Keith Owens wrote:
 
-He didn't want to be in either file at some point (yes, I asked him),
-some day I'll put him in anyway (he's been the effective maintainer of
-the VFS interface for the last year or so, regardless of whether he
-wants to be in the MAINTAINTERS file or not).
+> Index: 2-pre1.1/fs/Config.in
+> --- 2-pre1.1/fs/Config.in Sat, 24 Nov 2001 05:28:08 +1100 kaos (linux-2.5/F/d/27_Config.in 1.1 644)
+> +++ 2-pre2.1/fs/Config.in Wed, 26 Dec 2001 14:32:39 +1100 kaos (linux-2.5/F/d/27_Config.in 1.2 644)
+> @@ -45,7 +45,7 @@ if [ "$CONFIG_JFFS2_FS" = "y" -o "$CONFI
+>  fi
+>  tristate 'Compressed ROM file system support' CONFIG_CRAMFS
+>  bool 'Virtual memory file system support (former shm fs)' CONFIG_TMPFS
+> -tristate 'Simple RAM-based file system support' CONFIG_RAMFS
+> +define_bool CONFIG_RAMFS y
+> 
+> Why is ramfs forced on?
 
-		Linus
+Because it's always used for rootfs - notice a bunch of crap disappearing
+from the end of fs/namespace.c.  In principle, we can keep the config item
+and make the first DECLARE_FSTYPE in ramfs/inode.c conditional, but that
+will only make ramfs invisible - code still needs to be compiled in.
+ 
+> And why is Al Viro's email address not in CREDITS or MAINTAINERS?  We
+> should have somewhere to complain to ;).
+
+<shrug>  I _do_ read l-k.
+

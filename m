@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbUK0G0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbUK0GbC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbUK0G0f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 01:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbUK0G0a
+	id S261248AbUK0GbC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 01:31:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUK0G2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 01:26:30 -0500
-Received: from mail17.bluewin.ch ([195.186.18.64]:29174 "EHLO
-	mail17.bluewin.ch") by vger.kernel.org with ESMTP id S262032AbUKZTNW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:13:22 -0500
-Date: Thu, 25 Nov 2004 17:16:19 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 PATCH] visor: Make URB limit error more visible
-Message-ID: <20041125161619.GD18567@k3.hellgate.ch>
-References: <20041116154943.GA13874@k3.hellgate.ch> <20041119174405.GE20162@kroah.com> <20041123193604.GA12605@k3.hellgate.ch> <20041124232527.GB4394@kroah.com>
+	Sat, 27 Nov 2004 01:28:06 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:49599 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261891AbUKZTMh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:12:37 -0500
+Message-Id: <200411252234.iAPMYgoC016311@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove pointless <0 comparison for unsigned variable in fs/fcntl.c 
+In-Reply-To: Your message of "Tue, 23 Nov 2004 17:03:10 CST."
+             <41A3C1AE.5060604@ammasso.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.61.0411212351210.3423@dragon.hygekrogen.localhost> <20041122010253.GE25636@parcelfarce.linux.theplanet.co.uk> <41A30612.2040700@dif.dk> <Pine.LNX.4.58.0411230958260.20993@ppc970.osdl.org> <41A38BF1.9060207@ammasso.com> <Pine.LNX.4.61.0411240003300.3389@dragon.hygekrogen.localhost>
+            <41A3C1AE.5060604@ammasso.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041124232527.GB4394@kroah.com>
-X-Operating-System: Linux 2.6.10-rc2 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed; boundary="==_Exmh_1357138564P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 25 Nov 2004 17:34:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is only one call to dev_dbg in all of visor.c, the rest is dbg or
-dev_err. It already bit us once when warnings didn't turn up in a debug
-log. I would argue that a flood of those warnings will warrant report
-and inspection anyway (broken app, broken driver, or lame DoS attempt),
-so I replaced the dev_dbg with dev_err.
+--==_Exmh_1357138564P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-off-by: Roger Luethi <rl@hellgate.ch>
+On Tue, 23 Nov 2004 17:03:10 CST, Timur Tabi said:
+> Jesper Juhl wrote:
+> 
+> > if pid_t is 16 bit, then the value can never be greater than 0xffff but, 
+> > if pid_t is greater than 16 bit, say 32 bit, then the argument "a" could 
+> > very well contain a value greater than 0xffff and then the comparison 
+> > makes perfect sense.
+> 
+> If pid_t is 32-bit, then what's wrong with the value being greater than 
+> 0xFFFF?  After all, if pid_t a 32-bit number, that implies that 32-bit 
+> values are acceptable.
 
---- linux-2.6.10-rc2-bk8/drivers/usb/serial/visor.c.orig	2004-11-25 17:03:18.056410624 +0100
-+++ linux-2.6.10-rc2-bk8/drivers/usb/serial/visor.c	2004-11-25 17:05:04.113287528 +0100
-@@ -494,7 +494,7 @@ static int visor_write (struct usb_seria
- 	spin_lock_irqsave(&priv->lock, flags);
- 	if (priv->outstanding_urbs > URB_UPPER_LIMIT) {
- 		spin_unlock_irqrestore(&priv->lock, flags);
--		dev_dbg(&port->dev, "write limit hit\n");
-+		dev_err(&port->dev, "write limit hit\n");
- 		return 0;
- 	}
- 	spin_unlock_irqrestore(&priv->lock, flags);
+Try setting max_pid to 256K or so on an i386 - although the result fits
+nicely in a pid_t with plenty of bits to spare, Very Bad Things happen.
+
+Long thread starting at http://marc.theaimsgroup.com/?l=linux-kernel&m=109497978724424&w=2
+
+--==_Exmh_1357138564P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBpl4CcC3lWbTT17ARAh4xAJ4hrHylYx9lsyJK+U3WRbJPP1TAEQCg7UWg
+Yaik+XTKAfZ5ojDGBZ/v5Qw=
+=E1j0
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1357138564P--

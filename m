@@ -1,98 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbUJZOM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbUJZORc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262277AbUJZOM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 10:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUJZOM5
+	id S262276AbUJZORc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 10:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUJZORc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 10:12:57 -0400
-Received: from anor.ics.muni.cz ([147.251.4.35]:49372 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S262271AbUJZOMP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 10:12:15 -0400
-Date: Tue, 26 Oct 2004 16:11:48 +0200
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: linux-kernel@vger.kernel.org
-Cc: nfs@lists.sourceforge.net, trond.myklebust@fys.uio.no,
-       neilb@cse.unsw.edu.au, torvalds@osdl.org
-Subject: [PATCH] NFS mount hang fix
-Message-ID: <20041026141148.GM6408@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Virus-Test: Clean
+	Tue, 26 Oct 2004 10:17:32 -0400
+Received: from nwkea-mail-2.sun.com ([192.18.42.14]:51372 "EHLO
+	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
+	id S262271AbUJZORQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 10:17:16 -0400
+Date: Tue, 26 Oct 2004 10:16:51 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH 15/28] VFS: Mountpoint file descriptor umount support
+In-reply-to: <20041026102838.GB12026@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       raven@themaw.net
+Message-id: <417E5C53.7040903@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <10987155332448@sun.com> <10987155691365@sun.com>
+ <20041026102838.GB12026@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The attached patch fixes the problem where Linux NFS server is not
-able to serve clients with FQDN longer than 49 characters (altough
-FQDN can be up to 255 characters, and I am not counting exports to
-subnet or wildcard, which can add to the total length). The patch
-also fixes at least the following two bugs from RH bugzilla:
+Christoph Hellwig wrote:
+> On Mon, Oct 25, 2004 at 10:46:09AM -0400, Mike Waychison wrote:
+> 
+>>This patch adds functionality to mountfd so that a user can perform the
+>>various types of umount (forced umount, not-busy umount, lazy-umount).
+>>
+>>Signed-off-by: Mike Waychison <michael.waychison@sun.com>
+>>---
+>>
+>> fs/mountfd.c       |   20 ++++++++++++++++++++
+>> fs/namespace.c     |    2 +-
+>> include/linux/fs.h |    5 ++++-
+>> 3 files changed, 25 insertions(+), 2 deletions(-)
+>>
+>>Index: linux-2.6.9-quilt/fs/mountfd.c
+>>===================================================================
+>>--- linux-2.6.9-quilt.orig/fs/mountfd.c	2004-10-22 17:17:40.736271288 -0400
+>>+++ linux-2.6.9-quilt/fs/mountfd.c	2004-10-22 17:17:41.367175376 -0400
+>>@@ -11,6 +11,8 @@
+>> 
+>> #define VFSMOUNT(filp) ((struct vfsmount *)((filp)->private_data))
+>> 
+>>+extern int do_umount(struct vfsmount *mnt, int flags);
+>>+
+>> static struct vfsmount *mfdfs_mnt;
+>> 
+>> static void mfdfs_read_inode(struct inode *inode);
+>>@@ -72,6 +74,18 @@ static int mfd_release(struct inode *ino
+>> 	return 0;
+>> }
+>> 
+>>+static long mfd_umount(struct file *mountfilp, int flags)
+>>+{
+>>+	struct vfsmount *mnt;
+>>+	int error;
+>>+	
+>>+	mnt = mntget(VFSMOUNT(mountfilp));
+>>+
+>>+	error = do_umount(mnt, flags);
+>>+
+>>+	return error;
+>>+}
+>>+
+>> static int mfd_ioctl(struct inode *inode, struct file *filp,
+>> 		     unsigned int cmd, unsigned long arg);
+>> static struct file_operations mfd_file_ops = {
+>>@@ -243,6 +257,12 @@ static int mfd_ioctl(struct inode *inode
+>> 	switch (cmd) {
+>> 	case MOUNTFD_IOC_GETDIRFD:
+>> 		return mfd_getdirfd(filp);
+>>+	case MOUNTFD_IOC_DETACH:
+>>+		return mfd_umount(filp, MNT_DETACH);
+>>+	case MOUNTFD_IOC_UNMOUNT:
+>>+		return mfd_umount(filp, 0);
+>>+	case MOUNTFD_IOC_FORCEDUNMOUNT:
+>>+		return mfd_umount(filp, MNT_FORCE);
+> 
+> 
+> Urgg, you don't want to add gazillions of strange ioctls, do you?
+> 
 
-http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=127521
-http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=135109
+Only a couple million ;)
 
-I am sorry to repost this, but I have got no feedback from NFS maintainers,
-while I've got postitive feedback from three people whose problems
-was fixed by this patch. NFS maintaners - are you alive? If not,
-Linus, please apply this patch. Thanks,
+I have toyed with different interfaces.  I have older patches that would
+allow you to read/write on the fd to perform ops, but the code is a mess
+of parsing/data checks.  I also toyed with a multiplexed syscall, but
+realized real quick that it was an ioctl with a different name, that
+only worked on mountfds.
 
--Yenya
+ioctl ended up being the cleanest solution (I came up with) in the end.
 
-Patch relative to 2.6.9:
+Alternatives?
 
-Signed-Off-By: Jan "Yenya" Kasprzak <kas@fi.muni.cz>
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
---- linux-2.6.9/net/sunrpc/svcauth_unix.c.orig	2004-10-26 15:47:51.497924576 +0200
-+++ linux-2.6.9/net/sunrpc/svcauth_unix.c	2004-10-26 16:01:20.121995032 +0200
-@@ -150,11 +150,13 @@
- }
- 
- static struct ip_map *ip_map_lookup(struct ip_map *, int);
-+#define DOMAINNAME_MAX  1024    /* FQDN + possible aliases/subnets/wildcards */
-+#define CLASS_MAX    50
- static int ip_map_parse(struct cache_detail *cd,
- 			  char *mesg, int mlen)
- {
- 	/* class ipaddress [domainname] */
--	char class[50], buf[50];
-+	static char class[CLASS_MAX], buf[DOMAINNAME_MAX];
- 	int len;
- 	int b1,b2,b3,b4;
- 	char c;
-@@ -167,13 +169,13 @@
- 	mesg[mlen-1] = 0;
- 
- 	/* class */
--	len = qword_get(&mesg, class, 50);
-+	len = qword_get(&mesg, class, CLASS_MAX);
- 	if (len <= 0) return -EINVAL;
- 	if (len >= sizeof(ipm.m_class))
- 		return -EINVAL;
- 
- 	/* ip address */
--	len = qword_get(&mesg, buf, 50);
-+	len = qword_get(&mesg, buf, DOMAINNAME_MAX);
- 	if (len <= 0) return -EINVAL;
- 
- 	if (sscanf(buf, "%u.%u.%u.%u%c", &b1, &b2, &b3, &b4, &c) != 4)
-@@ -184,7 +186,7 @@
- 		return -EINVAL;
- 
- 	/* domainname, or empty for NEGATIVE */
--	len = qword_get(&mesg, buf, 50);
-+	len = qword_get(&mesg, buf, DOMAINNAME_MAX);
- 	if (len < 0) return -EINVAL;
- 
- 	if (len) {
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-> Whatever the Java applications and desktop dances may lead to, Unix will <
-> still be pushing the packets around for a quite a while.      --Rob Pike <
+iD8DBQFBflxTdQs4kOxk3/MRAq0NAJ9leUcfelicGndvtqGXqGgMlNoREACfXmXe
+XsmXEDdefmJi7L8XmuKrQSk=
+=xWa5
+-----END PGP SIGNATURE-----

@@ -1,114 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266718AbRHFE40>; Mon, 6 Aug 2001 00:56:26 -0400
+	id <S266723AbRHFFeR>; Mon, 6 Aug 2001 01:34:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266723AbRHFE4G>; Mon, 6 Aug 2001 00:56:06 -0400
-Received: from redbull.speedroad.net ([195.139.232.25]:52234 "HELO
-	redbull.speedroad.net") by vger.kernel.org with SMTP
-	id <S266718AbRHFE4D>; Mon, 6 Aug 2001 00:56:03 -0400
-Date: Mon, 06 Aug 2001 06:53:58 +0200
-From: Arnvid Karstad <arnvid@karstad.org>
-To: Arnvid Karstad <arnvid@karstad.org>
-Subject: Re: Problems with 2.4.7-ac6 + SMP + FastTrak100
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, arnvid@karstad.org (Arnvid Karstad),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010806013245.B877.ARNVID@karstad.org>
-In-Reply-To: <E15TX8D-00005G-00@the-village.bc.nu> <20010806013245.B877.ARNVID@karstad.org>
-Message-Id: <20010806065148.A600.ARNVID@karstad.org>
+	id <S266797AbRHFFeI>; Mon, 6 Aug 2001 01:34:08 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:9747 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S266723AbRHFFd4>; Mon, 6 Aug 2001 01:33:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] using writepage to start io
+Date: Mon, 6 Aug 2001 07:39:47 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-mm@kvack.org, torvalds@transmeta.com
+In-Reply-To: <276480000.997054344@tiny>
+In-Reply-To: <276480000.997054344@tiny>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.06
+Message-Id: <01080607394704.00294@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tested more now
+On Monday 06 August 2001 01:32, Chris Mason wrote:
+> On Monday, August 06, 2001 12:38:01 AM +0200 Daniel Phillips
+>
+> <phillips@bonn-fries.net> wrote:
+> > On Sunday 05 August 2001 20:34, Chris Mason wrote:
+> >> I wrote:
+> >> > Note that the fact that buffers dirtied by ->writepage are
+> >> > ordered by time-dirtied means that the dirty_buffers list really
+> >> > does have indirect knowledge of page aging.  There may well be
+> >> > benefits to your approach but I doubt this is one of them.
+> >>
+> >> A problem is that under memory pressure, we'll flush a buffer that
+> >> has been dirty for a long time, even if we are constantly
+> >> redirtying it and have it more or less pinned.  This might not be
+> >> common enough to cause problems, but it still isn't optimal.  Yes,
+> >> it is a good idea to flush that page at some time, but under memory
+> >> pressure we want to do the least amount of work that will lead to a
+> >> freeable page.
+> >
+> > But we don't have a choice.  The user has set an explicit limit on
+> > how long a dirty buffer can hang around before being flushed.  The
+> > old-buffer rule trumps the need to allocate new memory.  As you
+> > noted, it doesn't cost a lot because if the system is that heavily
+> > loaded then the rate of dirty buffer production is naturally
+> > throttled.
+>
+> there are at least 3 reasons to write buffers to disk
+>
+> 1) they are too old
+> 2) the percentage of dirty buffers is too high
+> 3) you need to reclaim them due to memory pressure
+>
+> There are 3 completely different things; there's no trumping of
+> priorities.
 
-It spits one of these msgs during the init script... but continues on
-2.4.5 SMP
+There is.  If your heavily loaded machine goes down and you lose edits 
+from 1/2 an hour ago even though your bdflush parms specify a 30 second 
+update cycle you'll call the system broken, whereas if it runs 5% slower 
+under heavy write+swap load that's just life.
 
-But on 2.4.7UP + ac6 + the promise driver enabled it works like a charm
-if I go back to 2.2.19 it still works like a charm.. Time to  test more
-tho.. I still cannot make the kernel see my raid drive .. since I've
-raided the 4 disks in bios to 1 large drive.. it stil shows me 4 drives
-all being 75GB.. wierd ?
+> Under memory pressure you write buffers you have a high
+> chance of freeing, during write throttling you write buffers that
+> won't get dirty again right away, and when writing old buffers you
+> write the oldest first.
+>
+> This doesn't mean you can always make the right decision on all 3
+> cases, or that making the right decision is worth the effort ;-)
 
+If we need to do write throttling we should do it at the point where we 
+still know its a write, i.e., somewhere in sys_write.  Some time after 
+writes are throttled (specified by bdflush parms) all the old write 
+buffers will have worked their way through to the drives and your case 
+(3) gets all the bandwidth.  I don't see a conflict, except that we 
+don't have such an upstream write throttling mechanism yet.  We sort-of 
+have one in that a writer will busy itself trying to help out with lru 
+scanning when it can't get a free page for the page cache.  This has the 
+ugly result that we have bunches of processes spinning on the lru lock 
+and we have no idea what the queue scanning rates really are.  We can do 
+something much more intelligent and predictable there and we'll be a lot 
+closer to being able to balance intelligently between your cases.
 
+By the way, I think you should combine (2) and (3) using an and, which 
+gets us back to the "kupdate thing" vs the "bdflush thing".
 
-On Mon, 06 Aug 2001 01:33:38 +0200
-Arnvid Karstad <arnvid@karstad.org> wrote:
-
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c010bef8>]
-> EFLAGS: 00010206
-> eax: 0183fbff   ebx: cb648000   ecx: 40238cc0   edx: cb648000
-> esi: bffff3a0   edi: 0808dce8   ebp: 00000014   esp: cb649fb8
-> ds: 0018   es: 0018   ss: 0018
-> Process sshd (pid: 77, stackpage=cb649000)
-> Stack: c0107c69 cb648000 c0106d0c 400fb9d4 40238cc0 0808de50 bffff3a0 0808dce8 
->        00000014 00000000 0000002b 0000002b ffffffff 400978a8 00000023 00010246 
->        bffff374 0000002b 
-> Call Trace: [<c0107c69>] [<c0106d0c>] 
-> 
-> Code: 0f ae 8a 90 03 00 00 c3 dd a2 90 03 00 00 c3 90 8b 54 24 04 
-> 
-> 
-> 00000000c010bee8 T restore_fpu
-> 00000000c0107c50 T math_state_restore
-> 00000000c0106d0c t ret_from_exception
-> 
-> That's with 2.4.5 but it continues..
-> 
-> Gonna try 2.4.4 and 2.4.6 now
-> 
-> 2.2.19 still works
-> 
-> On Mon, 6 Aug 2001 00:16:25 +0100 (BST)
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> 
-> > > Even the 2.4.7 vanilla did die.. I booted a 2.4.5 perfectly before.. and
-> > > 2.2.19 SMP
-> > > Gonna try them both again now
-> > 
-> > Does 2.4.6 fail ?
-> > 
-> > > CPU:    0
-> > > EIP:    0010:[<c010bef8>]
-> > > EFLAGS: 00010206
-> > 
-> > Crashed doing FPU setup
-> > 
-> > Your boot CPU ends "cmov mmx" (ie Pentium II)
-> > 
-> > > bogomips        : 614.40
-> > 
-> > > flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca =
-> > > cmov pat pse36 mmx fxsr
-> > > bogomips        : 616.03
-> > 
-> > And the second processor has fxsr (ie SSE - preventium III)
-> > 
-> > It looks like that is tripping a bug that got re-introduced in 2.4.6 or
-> > 2.4.7 (hence I asked which failed). That would explain why there haven't
-> > been millions of reports
-> > 
-> > Alan
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> Mvh, 
-> 
-> Arnvid Karstad,
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+--
+Daniel

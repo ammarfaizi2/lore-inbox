@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269219AbRHGR3G>; Tue, 7 Aug 2001 13:29:06 -0400
+	id <S269222AbRHGRgG>; Tue, 7 Aug 2001 13:36:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269212AbRHGR2t>; Tue, 7 Aug 2001 13:28:49 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:40326 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S269218AbRHGR2Z>; Tue, 7 Aug 2001 13:28:25 -0400
-Date: Tue, 7 Aug 2001 11:28:28 -0600
-Message-Id: <200108071728.f77HSSj05556@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <3B7024EE.D58E6BF@redhat.com>
-In-Reply-To: <200108070517.f775HEw30547@vindaloo.ras.ucalgary.ca>
-	<Pine.SOL.3.96.1010807111835.6737A-100000@draco.cus.cam.ac.uk>
-	<200108071709.f77H9GD05198@vindaloo.ras.ucalgary.ca>
-	<3B7024EE.D58E6BF@redhat.com>
+	id <S269231AbRHGRf4>; Tue, 7 Aug 2001 13:35:56 -0400
+Received: from acmez.gatech.edu ([130.207.165.24]:3267 "EHLO acmez.gatech.edu")
+	by vger.kernel.org with ESMTP id <S269229AbRHGRfi>;
+	Tue, 7 Aug 2001 13:35:38 -0400
+Message-Id: <5.1.0.14.2.20010807133852.00a8ed90@pop.prism.gatech.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 07 Aug 2001 13:43:58 -0400
+To: linux-kernel@vger.kernel.org
+From: David Maynor <david.maynor@oit.gatech.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven writes:
-> Richard Gooch wrote:
->  
-> > Finally, a spinlock is less code (0) and faster on UP.
-> 
-> Ehm not if you require protection against IRQ events......
 
-Obviously. But I don't, in this case.
+>What you are saying above suspiciously sounds like:
+>
+>         "I want an onion, lets leave out the layers!"
+>
+>If you really want an onion, I suspect encrypted
+>swap will be a useful layer to have as part of your
+>onion...
+>
+>Rik
 
-				Regards,
+Not at all, I am saying if you are worried about such things, then start 
+with projects that would not require a hardware crypto card to make i 
+useable. I thought this was focusing on keeping laptops secure, and I don't 
+know anybody that makes a crypto co-processor in the pcmcia variety. There 
+are things you can do to harden the kernel against such things with out 
+encrypting everything is site. My view on encryption is like chocolate, its 
+good, to much will make you sick.......
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

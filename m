@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265612AbTB0QPK>; Thu, 27 Feb 2003 11:15:10 -0500
+	id <S265457AbTB0QXS>; Thu, 27 Feb 2003 11:23:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265675AbTB0QPK>; Thu, 27 Feb 2003 11:15:10 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:37340 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id <S265612AbTB0QPJ>; Thu, 27 Feb 2003 11:15:09 -0500
-To: Kevin Corry <corryk@us.ibm.com>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface
-References: <200302262104.h1QL4aiC001941@eeyore.valparaiso.cl>
-	<03022708205903.05199@boiler> <03022708365304.05199@boiler>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 27 Feb 2003 08:25:25 -0800
-In-Reply-To: <03022708365304.05199@boiler>
-Message-ID: <52y941pu6i.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	id <S265470AbTB0QXS>; Thu, 27 Feb 2003 11:23:18 -0500
+Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:38155 "EHLO
+	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S265457AbTB0QXR>; Thu, 27 Feb 2003 11:23:17 -0500
+Date: Thu, 27 Feb 2003 16:33:04 +0000
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 7/8] dm: __LOW macro fix no. 2
+Message-ID: <20030227163304.GA7464@fib011235813.fsnet.co.uk>
+References: <20030227095522.GA6312@fib011235813.fsnet.co.uk> <200302271617.h1RGH5CA012080@eeyore.valparaiso.cl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 27 Feb 2003 16:25:27.0703 (UTC) FILETIME=[D6927A70:01C2DE7C]
+Content-Disposition: inline
+In-Reply-To: <200302271617.h1RGH5CA012080@eeyore.valparaiso.cl>
+User-Agent: Mutt/1.5.3i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   > +	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
-   > +	if (!name) {
-   > +		return -ENOMEM;
-   > +	}
+On Thu, Feb 27, 2003 at 01:17:05PM -0300, Horst von Brand wrote:
+> I'd add () around r and l just for paranoia's sake. Plus make sure they
+> aren't ever going to be called with sideeffects... why not inline functions?
 
-Also, kmalloc() needs a second "GFP_xxx" parameter (I guess GFP_KERNEL
-in this case, although I don't know the context this function is
-called from).
+because the types vary :(
 
- - Roland
+> Besides, I'd call them args a and b (no real reason for l and r, and l is
+> almost 1 for some fonts...)
 
+l and r stood for left and right from when it was a compare and assign
+operator.
+
+- Joe

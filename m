@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbTFOVPx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 17:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTFOVPx
+	id S262878AbTFOVfX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 17:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTFOVfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 17:15:53 -0400
-Received: from m239.net195-132-57.noos.fr ([195.132.57.239]:5003 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S262874AbTFOVPw
+	Sun, 15 Jun 2003 17:35:23 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:57101 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S262878AbTFOVfU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 17:15:52 -0400
-Date: Sun, 15 Jun 2003 23:29:35 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Michael Buesch <fsdeveloper@yahoo.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.21] meye driver update
-Message-ID: <20030615212935.GA1582@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Michael Buesch <fsdeveloper@yahoo.de>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030615163138.GD1857@deep-space-9.dsnet> <200306151906.57099.fsdeveloper@yahoo.de>
+	Sun, 15 Jun 2003 17:35:20 -0400
+Date: Sun, 15 Jun 2003 23:49:09 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Christoph Hellwig <hch@infradead.org>,
+       =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org, Brian Jackson <brian@mdrx.com>,
+       Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: [PATCH] make cramfs look less hostile
+Message-ID: <20030615234909.A11481@pclin040.win.tue.nl>
+References: <20030615160524.GD1063@wohnheim.fh-wedel.de> <20030615182642.A19479@infradead.org> <20030615173926.GH1063@wohnheim.fh-wedel.de> <20030615184417.A19712@infradead.org> <20030615175815.GI1063@wohnheim.fh-wedel.de> <20030615190349.A21931@infradead.org> <20030615181424.GJ1063@wohnheim.fh-wedel.de> <20030615191853.A22150@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200306151906.57099.fsdeveloper@yahoo.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030615191853.A22150@infradead.org>; from hch@infradead.org on Sun, Jun 15, 2003 at 07:18:53PM +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 15, 2003 at 07:06:56PM +0200, Michael Buesch wrote:
-
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Sun, Jun 15, 2003 at 07:18:53PM +0100, Christoph Hellwig wrote:
+> On Sun, Jun 15, 2003 at 08:14:24PM +0200, Jörn Engel wrote:
+> > Yes, I agree.  It is any the "Cramfs didn't find it's magic number,
+> > now we'll try another filesystem instead.
 > 
-> On Sunday 15 June 2003 18:31, Stelian Pop wrote:
-> > Hi,
-> 
-> Hi Stelian,
-> 
-> > +void dma_free_coherent(struct pci_dev *dev, size_t size,
->                           ^^^^^^^^^^^^^^^^^^^
-> > +                         void *vaddr, dma_addr_t dma_handle)
->                                          ^^^^^^^^^^^^^^^^^^^^^
-> Why do you define these unused parameters?
+> The only places where this should happen is mounting the rootfs.
+> mount(8) has it's own filesystem type detection code and doesn't
+> call mount(2) unless it found a matching filesystem type.
 
-Because it's backported from 2.5, and I took it as it, without 
-editing.
+Too optimistic a description.
+Any person who likes reliable results will give mount a -t option.
+If someone likes to gamble, and doesnt mind system crashes, he'll
+omit the -t and let mount guess what the type should have been.
+Mount has a battery of heuristics for a handful of filesystems.
+If any of these succeeds mount will try that type.
+If none succeeds, mount will try consecutively all types listed
+in /proc/filesystems for which no heuristic is present.
 
-> > +{
-> > +        free_pages((unsigned long)vaddr, get_order(size));
-> > +}
-> 
-> And why are they defined in 2.5, too, althought unused.
-> Is there some reason?
+(Reality is more complicated, but the above is a good first
+approximation.)
 
-Unused of ix86 because bus addresses are the same as virtual addresses.
-This is not however the case on other architetures, see 
-Documentation/DMA-mapping.txt.
+Andries
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292045AbSBTQ5P>; Wed, 20 Feb 2002 11:57:15 -0500
+	id <S292021AbSBTRAp>; Wed, 20 Feb 2002 12:00:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292036AbSBTQ5I>; Wed, 20 Feb 2002 11:57:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39698 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292031AbSBTQ4x>;
-	Wed, 20 Feb 2002 11:56:53 -0500
-Message-ID: <3C73D548.648C5D64@mandrakesoft.com>
-Date: Wed, 20 Feb 2002 11:56:40 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S292027AbSBTRAf>; Wed, 20 Feb 2002 12:00:35 -0500
+Received: from magic.adaptec.com ([208.236.45.80]:17308 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S292021AbSBTRAU>; Wed, 20 Feb 2002 12:00:20 -0500
+Message-ID: <F8D30FF32B23D61198B9009027D61DB32FC1D8@otcexc01.otc.adaptec.com>
+From: "Bonds, Deanna" <Deanna_Bonds@adaptec.com>
+To: "'Jordan Breeding'" <ledzep37@attbi.com>, linux-kernel@vger.kernel.org
+Subject: RE: Adaptec dpt_i20.c broken in 2.5?
+Date: Wed, 20 Feb 2002 11:59:06 -0500
 MIME-Version: 1.0
-To: "Peter J. Braam" <braam@clusterfs.com>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, phil@off.net
-Subject: Re: tmpfs, NFS, file handles
-In-Reply-To: <20020220094649.X25738@lustre.cfs>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-15"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter J. Braam" wrote:
-> 
-> Hi,
-> 
-> At present one can probably not run NFS (or InterMezzo) on top of
-> tmpfs.
-> 
-> Is there a suggested solution for fh_to_dentry and dentry_to_fh for
-> tmpfs?
-> 
-> An "iget" based solution might work but at present tmpfs inodes are
-> not hashed.
+I will be getting to this soon.  
 
-I talked to neil brown about NFS and ramfs... he mentioned using
-iunique()
+Deanna
 
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+> -----Original Message-----
+> From: Jordan Breeding [mailto:ledzep37@attbi.com]
+> Sent: Wednesday, February 20, 2002 6:38 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Adaptec dpt_i20.c broken in 2.5?
+> 
+> 
+> I will most likely be purchasing a system soon which will 
+> make use of an
+> Adaptec Zero Channel raid card and so it will require the use of the
+> dpt_i2o Adaptec driver.  However, currently in 2.5.5 if you select
+> Adaptec i2o to be compiled it gives an error caused by this line:
+> 
+> #error Please convert me to Documentation/DMA-mapping.txt
+> 
+> Will this be fixed in a -pre version any time soon?  Thanks 
+> for any info
+> on the situation with this scsi driver.
+> 
+> Jordan
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

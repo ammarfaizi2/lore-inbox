@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbTLLTWN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 14:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTLLTV6
+	id S261825AbTLLTTo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 14:19:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTLLTTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 14:21:58 -0500
-Received: from mail.directfb.org ([212.84.236.4]:26784 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S261850AbTLLTVb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 14:21:31 -0500
-Date: Fri, 12 Dec 2003 20:21:32 +0100
-From: Johannes Stezenbach <js@convergence.de>
-To: Greg KH <greg@kroah.com>
-Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11: i2c-dev.h for userspace
-Message-ID: <20031212192132.GC32169@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	Greg KH <greg@kroah.com>, sensors@stimpy.netroedge.com,
-	linux-kernel@vger.kernel.org
-References: <20031212145652.GA30747@convergence.de> <20031212175656.GA2933@kroah.com> <20031212185357.GB32169@convergence.de> <20031212190105.GB3038@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031212190105.GB3038@kroah.com>
-User-Agent: Mutt/1.5.4i
+	Fri, 12 Dec 2003 14:19:44 -0500
+Received: from imag.imag.fr ([129.88.30.1]:21936 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S261825AbTLLTTl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 14:19:41 -0500
+Date: Fri, 12 Dec 2003 20:16:06 +0100
+Mime-Version: 1.0 (Apple Message framework v482)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: PCI lib for 2.4
+From: =?ISO-8859-1?Q?Damien_Courouss=E9?= <damien.courousse@imag.fr>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Message-Id: <A2ABB06A-2CD7-11D8-8839-00039344321E@imag.fr>
+X-Mailer: Apple Mail (2.482)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 11:01:05AM -0800, Greg KH wrote:
-> On Fri, Dec 12, 2003 at 07:53:57PM +0100, Johannes Stezenbach wrote:
-> > 
-> > I think you create a mess here. Other drivers have usable
-> > API include files in /usr/include/linux, why are i2c.h and i2c-dev.h
-> > special?
-> 
-> They aren't.  The rule is:
-> 	DO NOT INCLUDE KERNEL HEADER FILES IN USERSPACE TOOLS.
-> Please read the archives for lkml on why this is true.
+Hi all,
 
-I've read this statement multiple times on lkml, from Linus
-and others. And you won't believe it: I'm all for a separation
-of driver API includes and kernel includes.
+I'm a rookie in Linux development, and I have to develop a small driver 
+for a data-acquisition card on PCI port.
 
-But:
+My problem is that my compiler does not recognize some functions such as 
+'pci_resource_start()', or 'pci_find_device()' ...
 
-> Yeah, we do need a way to have "sanitized" kernel headers so that
-> userspace can include them, but for now, use what your libc provides.
+I used option  'gcc [...] -lpci' in order to link with pci lib, but 
+that's not better. It seems that I have many different versions of the  
+pci.h file : /usr/src/linux2.4.18-14/include/linux/pci/h is much bigger 
+and much more complete, and more interesting (or it seems to be) than my 
+/usr/include/linux/pci.h one, or even /usr/include/driver/pci/pci.h one.
 
-IMHO the problem is that Linux 2.6.0 is about to be released with some
-broken driver API include files, and without a clear policy how driver
-authors, glibc and distribution maintainers and should handle
-the situation in a consistent way.
+If I do a 'locate pci.a', and then a 'grep pci_resource 
+filed-returned-by-locate', I do not have anything. That could mean the 
+functions I look for do not exist in my lib.
 
+What do I have to do if I wan't to use the .../src/linux2.4.18... one?
 
-> > I think that sucks.
-> 
-> Sorry you feel that way, but the i2c header is not going to be any
-> different than any other kernel header at this time.
+Thanks for any help.
 
-I think they are different now.
+Please tell me if linux-kernel list does not directly concern my problem 
+or if there others that fit better.
 
+Damien
 
-Johannes

@@ -1,69 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVCFKcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVCFKcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVCFKcA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 05:32:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVCFKcA
+	id S261358AbVCFKcS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 05:32:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVCFKcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 05:32:00 -0500
-Received: from coderock.org ([193.77.147.115]:50344 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261357AbVCFKb5 (ORCPT
+	Sun, 6 Mar 2005 05:32:18 -0500
+Received: from coderock.org ([193.77.147.115]:52136 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261358AbVCFKcD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 05:31:57 -0500
-Subject: [patch 1/6] cdrom/sonycd535: replace schedule_timeout() with msleep()
+	Sun, 6 Mar 2005 05:32:03 -0500
+Subject: [patch 2/6] 12/34: cdrom/cdu31a: replace interruptible_sleep_on() with wait_event_interruptible()
 To: emoenke@gwdg.de
 Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
 From: domen@coderock.org
-Date: Sun, 06 Mar 2005 11:31:51 +0100
-Message-Id: <20050306103152.15B771E46E@trashy.coderock.org>
+Date: Sun, 06 Mar 2005 11:31:54 +0100
+Message-Id: <20050306103155.4AC7D1F202@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Use msleep() instead of schedule_timeout() to guarantee the task
-delays as expected. Although TASK_INTERRUPTIBLE is used in the original code,
-the schedule_timeout() return conditions for such a state are not checked
-appropriately; therefore, TASK_UNINTERRUPTIBLE should be ok (and, hence,
-msleep()).
+Use wait_event_interruptible() instead of the deprecated
+interruptible_sleep_on(). The patch is straight-forward as the macros should 
+result in the same execution. Patch is compile-tested (still throws out warnings
+regarding {save,restore}_flags()).
 
 Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/drivers/cdrom/sonycd535.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ kj-domen/drivers/cdrom/cdu31a.c |   40 +++++++++++++++++-----------------------
+ 1 files changed, 17 insertions(+), 23 deletions(-)
 
-diff -puN drivers/cdrom/sonycd535.c~msleep-drivers_cdrom_sonycd535 drivers/cdrom/sonycd535.c
---- kj/drivers/cdrom/sonycd535.c~msleep-drivers_cdrom_sonycd535	2005-03-05 16:10:47.000000000 +0100
-+++ kj-domen/drivers/cdrom/sonycd535.c	2005-03-05 16:10:47.000000000 +0100
-@@ -129,6 +129,7 @@
- #include <linux/mm.h>
+diff -puN drivers/cdrom/cdu31a.c~int_sleep_on-drivers_cdrom_cdu31a drivers/cdrom/cdu31a.c
+--- kj/drivers/cdrom/cdu31a.c~int_sleep_on-drivers_cdrom_cdu31a	2005-03-05 16:11:33.000000000 +0100
++++ kj-domen/drivers/cdrom/cdu31a.c	2005-03-05 16:11:33.000000000 +0100
+@@ -166,6 +166,7 @@
  #include <linux/slab.h>
  #include <linux/init.h>
-+#include <linux/delay.h>
+ #include <linux/interrupt.h>
++#include <linux/wait.h>
  
- #define REALLY_SLOW_IO
  #include <asm/system.h>
-@@ -896,9 +897,8 @@ do_cdu535_request(request_queue_t * q)
- 					}
- 					if (readStatus == BAD_STATUS) {
- 						/* Sleep for a while, then retry */
--						set_current_state(TASK_INTERRUPTIBLE);
- 						spin_unlock_irq(&sonycd535_lock);
--						schedule_timeout(RETRY_FOR_BAD_STATUS*HZ/10);
-+						msleep(RETRY_FOR_BAD_STATUS*100);
- 						spin_lock_irq(&sonycd535_lock);
- 					}
- #if DEBUG > 0
-@@ -1478,8 +1478,7 @@ static int __init sony535_init(void)
- 	/* look for the CD-ROM, follows the procedure in the DOS driver */
- 	inb(select_unit_reg);
- 	/* wait for 40 18 Hz ticks (reverse-engineered from DOS driver) */
--	set_current_state(TASK_INTERRUPTIBLE);
--	schedule_timeout((HZ+17)*40/18);
-+	msleep(2222);
- 	inb(result_reg);
- 
- 	outb(0, read_status_reg);	/* does a reset? */
+ #include <asm/io.h>
+@@ -865,15 +866,13 @@ do_sony_cd_cmd(unsigned char cmd,
+ 	save_flags(flags);
+ 	cli();
+ 	if (current != has_cd_task) {	/* Allow recursive calls to this routine */
+-		while (sony_inuse) {
+-			interruptible_sleep_on(&sony_wait);
+-			if (signal_pending(current)) {
+-				result_buffer[0] = 0x20;
+-				result_buffer[1] = SONY_SIGNAL_OP_ERR;
+-				*result_size = 2;
+-				restore_flags(flags);
+-				return;
+-			}
++		wait_event_interruptible(sony_wait, !sony_inuse);
++		if (signal_pending(current)) {
++			result_buffer[0] = 0x20;
++			result_buffer[1] = SONY_SIGNAL_OP_ERR;
++			*result_size = 2;
++			restore_flags(flags);
++			return;
+ 		}
+ 		sony_inuse = 1;
+ 		has_cd_task = current;
+@@ -1372,16 +1371,13 @@ static void do_cdu31a_request(request_qu
+ 	 */
+ 	save_flags(flags);
+ 	cli();
+-	while (sony_inuse) {
+-		interruptible_sleep_on(&sony_wait);
+-		if (signal_pending(current)) {
+-			restore_flags(flags);
++	wait_event_interruptible(sony_wait, !sony_inuse);
++	if (signal_pending(current)) {
++		restore_flags(flags);
+ #if DEBUG
+-			printk("Leaving do_cdu31a_request at %d\n",
+-			       __LINE__);
++		printk("Leaving do_cdu31a_request at %d\n", __LINE__);
+ #endif
+-			return;
+-		}
++		return;
+ 	}
+ 	sony_inuse = 1;
+ 	has_cd_task = current;
+@@ -2326,12 +2322,10 @@ static int read_audio(struct cdrom_read_
+ 	 */
+ 	save_flags(flags);
+ 	cli();
+-	while (sony_inuse) {
+-		interruptible_sleep_on(&sony_wait);
+-		if (signal_pending(current)) {
+-			restore_flags(flags);
+-			return -EAGAIN;
+-		}
++	wait_event_interruptible(sony_wait, sony_inuse);
++	if (signal_pending(current)) {
++		restore_flags(flags);
++		return -EAGAIN;
+ 	}
+ 	sony_inuse = 1;
+ 	has_cd_task = current;
 _

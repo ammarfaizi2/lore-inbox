@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130537AbRBTUFl>; Tue, 20 Feb 2001 15:05:41 -0500
+	id <S130152AbRBTUEv>; Tue, 20 Feb 2001 15:04:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130308AbRBTUFY>; Tue, 20 Feb 2001 15:05:24 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:56845 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S130588AbRBTUFJ>; Tue, 20 Feb 2001 15:05:09 -0500
-Date: Tue, 20 Feb 2001 21:04:37 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: hiren_mehta@agilent.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: can somebody explain barrier() macro ?
-Message-ID: <20010220210437.A20058@arthur.ubicom.tudelft.nl>
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B74779718809AB@xsj02.sjs.agilent.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B74779718809AB@xsj02.sjs.agilent.com>; from hiren_mehta@agilent.com on Tue, Feb 20, 2001 at 12:50:54PM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S130308AbRBTUEl>; Tue, 20 Feb 2001 15:04:41 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44554 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130152AbRBTUEb>; Tue, 20 Feb 2001 15:04:31 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+Date: 20 Feb 2001 12:03:59 -0800
+Organization: Transmeta Corporation
+Message-ID: <96uijf$uer$1@penguin.transmeta.com>
+In-Reply-To: <01022020011905.18944@gimli>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 20, 2001 at 12:50:54PM -0700, hiren_mehta@agilent.com wrote:
-> barrier() is defined in kernel.h as follows :
-> 
-> #define barrier() __asm__ __volatile__("": : :"memory")
-> 
-> what does this mean ? is this like "nop" ?
+In article <01022020011905.18944@gimli>,
+Daniel Phillips  <phillips@innominate.de> wrote:
+>Earlier this month a runaway installation script decided to mail all its
+>problems to root.  After a couple of hours the script aborted, having
+>created 65535 entries in Postfix's maildrop directory.  Removing those
+>files took an awfully long time.  The problem is that Ext2 does each
+>directory access using a simple, linear search though the entire
+>directory file, resulting in n**2 behaviour to create/delete n files. 
+>It's about time we fixed that.
 
-It's a write barrier. It prevents the compiler from optimising writes
-to memory: all outstanding writes should be done before the program
-flow crosses the barrier().
+Interesting.
 
+However, if you're playing with the directory structure, please consider
+getting rid of the "struct buffer_head"-centricity, and using the page
+cache instead.  The page cache has much nicer caching semantics, and
+looking up data in the page cache is much faster because it never needs
+to do the "virtual->physical" translation. 
 
-Erik
+Talk to Al Viro about this - he's already posted patches to move the
+regular ext2 directory tree into the page cache, and they weren't
+applied to 2.4.x only because there was no great feeling of "we _must_
+do this for correctness".
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+I see that you already considered this issue, but I wanted to bring it
+up again simply because something like this certainly looks like a
+potential candidate for 2.5.x, but I will _refuse_ to add code that
+increases our reliance of "struct buffer_head" as a caching entity.  So
+I'd rather see the page cache conversion happen sooner rather than
+later... 
+
+Also, just out of interest: if you've already been worrying about
+hashes, what's the verdict on just using the native dentry hash value
+directly? It has other constraints (_really_ low latency and absolutely
+performance critical to calculate for the common case, which is not
+needing a real lookup at all), but maybe it is good enough? And if not,
+and you have done some statistics on it, I'd love to hear about it ;)
+
+			Linus

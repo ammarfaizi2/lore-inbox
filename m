@@ -1,63 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264353AbTIITfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 15:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbTIITfQ
+	id S263968AbTIITp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 15:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTIITp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 15:35:16 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:21223 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S264353AbTIITfF convert rfc822-to-8bit
+	Tue, 9 Sep 2003 15:45:59 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:38155 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S263968AbTIITpz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 15:35:05 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [Patch] asm workarounds in generic header files
-Date: Tue, 9 Sep 2003 12:34:56 -0700
-Message-ID: <A609E6D693908E4697BF8BB87E76A07A022114C0@fmsmsx408.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch] asm workarounds in generic header files
-Thread-Index: AcN2nWCaheacrtpkTP+pVNRjvC6baQAasFJg
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: "Christoph Hellwig" <hch@infradead.org>,
-       "Jes Sorensen" <jes@wildopensource.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       <linux-kernel@vger.kernel.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-X-OriginalArrivalTime: 09 Sep 2003 19:34:56.0737 (UTC) FILETIME=[732EE510:01C37709]
+	Tue, 9 Sep 2003 15:45:55 -0400
+Date: Tue, 9 Sep 2003 20:45:53 +0100
+From: John Levon <levon@movementarian.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6][CFT] rmmod floppy kills box fixes + default_device_remove
+Message-ID: <20030909194553.GA75492@compsoc.man.ac.uk>
+References: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com> <20030908155048.GA10879@kroah.com> <Pine.LNX.4.53.0309081722270.14426@montezuma.fsmlabs.com> <20030908230852.GA3320@kroah.com> <Pine.LNX.4.53.0309090739270.14426@montezuma.fsmlabs.com> <Pine.LNX.4.53.0309091142550.14426@montezuma.fsmlabs.com> <20030909171354.GC5928@kroah.com> <Pine.LNX.4.53.0309091359450.14426@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0309091359450.14426@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19woR0-00054J-Ej*74cPaKq0b9E*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Jes and Christoph for your comments. As you have noticed, 
-this patch is not a workaround/hack for any C standard violation. 
+On Tue, Sep 09, 2003 at 03:18:20PM -0400, Zwane Mwaikambo wrote:
 
-We believe that we are trying to improve the code by localizing 
-the compiler issues (including the ones for gcc3 and Intel complier)
-and by introducing use of compiler intrinsics (e.g. for barrier()).
+> > Any thoughts on how to solve this?
+> 
+> How about something like the following, the kobj_type.done is passed from 
+> the driver so the driver's presence can maintain it's persistence and 
 
-> Could you try to test your RELOC_HIDE version with various 
-> gcc versions
-> and maybe as some gcc gurus whether it's fine?  
+This works. Repeat ad infinitum for all the other platform devices in
+pcmcia etc, 99% of which don't need to release anything extra.
 
-RELOC_HIDE is handling a specific gcc version behaviour. 
-There was a discussion on this sometime back
-http://gcc.gnu.org/ml/gcc/2002-01/msg00484.html
+Alternatively why don't we do something like the below ? This still
+allows platform devices to clean up if necessary, but solves the "wait
+for last reference" on a sensible level IMHO.
 
-Richard Henderson mentioned that asm stmt is the only escape 
-hitch for the current compiler behaviour. But as Linus suggested 
-in the above mail thread, non-same-type cast(which is the current 
-solution for Intel compiler) is the way to go for gcc also.
-
-As far as barrier() is concerned, a cleaner approach would be  
-a compiler-specific intrinsic(something like the one implemented by  
-Intel compiler) that can tell the programmer's intention explicitly.
-
-Once gcc has a cleaner solution for both these macros, we can 
-do-away with these changes.
-
-thanks,
-suresh
+Index: platform.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/base/platform.c,v
+retrieving revision 1.11
+diff -u -p -r1.11 platform.c
+--- platform.c	16 Aug 2003 05:00:10 -0000	1.11
++++ platform.c	9 Sep 2003 18:02:22 -0000
+@@ -18,6 +18,16 @@ struct device legacy_bus = {
+ 	.bus_id		= "legacy",
+ };
+ 
++
++static void platform_device_release(struct device * dev)
++{
++	struct platform_device * pdev = to_platform_device(dev);
++	if (pdev->release)
++		pdev->release(pdev);
++	complete(&pdev->done);
++}
++
++
+ /**
+  *	platform_device_register - add a platform-level device
+  *	@dev:	platform device we're adding
+@@ -32,6 +42,12 @@ int platform_device_register(struct plat
+ 		pdev->dev.parent = &legacy_bus;
+ 
+ 	pdev->dev.bus = &platform_bus_type;
++
++	if (pdev->dev.release) {
++		printk("use the other release dude\n");
++	}
++	pdev->dev.release = platform_device_release;
++	init_completion(&pdev->done);
+ 	
+ 	snprintf(pdev->dev.bus_id,BUS_ID_SIZE,"%s%u",pdev->name,pdev->id);
+ 
+@@ -44,6 +60,7 @@ void platform_device_unregister(struct p
+ {
+ 	if (pdev)
+ 		device_unregister(&pdev->dev);
++	wait_for_completion(&pdev->done);
+ }
+ 
+ 
+-- 
+Khendon's Law:
+If the same point is made twice by the same person, the thread is over.

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbULUAoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbULUApJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbULUAoq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 19:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbULUAoH
+	id S261554AbULUApJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 19:45:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbULUApB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 19:44:07 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5389 "HELO
+	Mon, 20 Dec 2004 19:45:01 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4365 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261491AbULUAl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 19:41:56 -0500
-Date: Tue, 21 Dec 2004 01:41:51 +0100
+	id S261323AbULUAlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 19:41:53 -0500
+Date: Tue, 21 Dec 2004 01:41:48 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI megaraid_mm.c: make some code static (fwd)
-Message-ID: <20041221004150.GH21288@stusta.de>
+Subject: [2.6 patch] SCSI mca_53c9x.c: make 2 functions static (fwd)
+Message-ID: <20041221004148.GG21288@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -32,28 +32,37 @@ Please apply.
 
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Mon, 15 Nov 2004 03:14:57 +0100
+Date:	Mon, 15 Nov 2004 03:13:34 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: James.Bottomley@SteelEye.com
 Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI megaraid_mm.c: make some code static
+Subject: [2.6 patch] SCSI mca_53c9x.c: make 2 functions static
 
-The patch below makes some needlessly global code static.
+The patch below makes two functions without external users static.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/megaraid/megaraid_mm.c.old	2004-11-13 22:43:49.000000000 +0100
-+++ linux-2.6.10-rc1-mm5-full/drivers/scsi/megaraid/megaraid_mm.c	2004-11-13 22:43:58.000000000 +0100
-@@ -65,7 +65,7 @@
- static int adapters_count_g;
- static struct list_head adapters_list_g;
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/mca_53c9x.c.old	2004-11-13 22:42:09.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/mca_53c9x.c	2004-11-13 22:42:22.000000000 +0100
+@@ -103,7 +103,7 @@
+ static struct ESP_regs eregs;
  
--wait_queue_head_t wait_q;
-+static wait_queue_head_t wait_q;
+ /***************************************************************** Detection */
+-int mca_esp_detect(Scsi_Host_Template *tpnt)
++static int mca_esp_detect(Scsi_Host_Template *tpnt)
+ {
+ 	struct NCR_ESP *esp;
+ 	static int io_port_by_pos[] = MCA_53C9X_IO_PORTS;
+@@ -283,7 +283,7 @@
  
- static struct file_operations lsi_fops = {
- 	.open	= mraid_mm_open,
+ /******************************************************************* Release */
+ 
+-int mca_esp_release(struct Scsi_Host *host)
++static int mca_esp_release(struct Scsi_Host *host)
+ {
+ 	struct NCR_ESP *esp = (struct NCR_ESP *)host->hostdata;
+ 	unsigned char tmp_byte;
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

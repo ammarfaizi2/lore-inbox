@@ -1,42 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129038AbQJ3L71>; Mon, 30 Oct 2000 06:59:27 -0500
+	id <S129053AbQJ3MAr>; Mon, 30 Oct 2000 07:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129083AbQJ3L7R>; Mon, 30 Oct 2000 06:59:17 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:14094 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129038AbQJ3L7C>; Mon, 30 Oct 2000 06:59:02 -0500
-Date: Mon, 30 Oct 2000 05:58:59 -0600
+	id <S129290AbQJ3MAh>; Mon, 30 Oct 2000 07:00:37 -0500
+Received: from jalon.able.es ([212.97.163.2]:41963 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129053AbQJ3MA2>;
+	Mon, 30 Oct 2000 07:00:28 -0500
+Date: Mon, 30 Oct 2000 13:00:06 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
 To: Linux Kernel Developer <linux_developer@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Recommended compiler? - Re: [patch] kernel/module.c (plus gratuitous rant)
-Message-ID: <20001030055859.C9175@wire.cadcamlab.org>
-In-Reply-To: <4309.972694843@ocs3.ocs-net> <20001029232347.D4EB081F9@halfway.linuxcare.com.au> <20001030050821.B9175@wire.cadcamlab.org> <OE43voFOAmEaJswFCHO000004ac@hotmail.com>
+Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17
+Message-ID: <20001030130006.B1555@werewolf.cps.unizar.es>
+In-Reply-To: <OE58erOc0Ne0PaLI9mK000004a6@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OE43voFOAmEaJswFCHO000004ac@hotmail.com>; from linux_developer@hotmail.com on Mon, Oct 30, 2000 at 06:19:16AM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <OE58erOc0Ne0PaLI9mK000004a6@hotmail.com>; from linux_developer@hotmail.com on Mon, Oct 30, 2000 at 12:09:49 +0100
+X-Mailer: Balsa 1.0.pre2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> So which is the recommended compiler for each kernel version 2.2.x,
-> 2.4.x(pre?) nowadays?
+On Mon, 30 Oct 2000 12:09:49 Linux Kernel Developer wrote:
+> The goal of this project is to clean up the kernel headers so as they are
+> useable/compatible with those who wish to program their kernel modules in
+> C++.  It is not my goal to rewrite the kernel in C++ or anything like that,
 
-* 2.91.66 aka egcs 1.1.2.  It has been officially blessed for 2.4 and
-  has been given an informal thumbs-up by Alan for 2.2.  (It does NOT
-  work for 2.0, if you still care about that.)
+Fist of all, there is even one other goal, to MAKE PEOPLE PROGRAMMING IN C++
+TO BE ABLE TO USE KERNEL HEADERS; it is more likely that someone programs
+something in C++ that accesses kernel info that anyone programming a C++
+module.
 
-* 2.7.2.3 works for 2.2 (and 2.0) but NOT for 2.4.
+The generated patch has to be usable by someone that has only kernel headers
+and kernel binaries, no kernel source tree (situation 1). 
+You get the standard kernel
+headers, apply the patch and make them C++-friendly. There is a similar
+workaround done in X, that I will comment below.
 
-* 2.95.2 seems to work with both 2.2 and 2.4 (no known bugs, AFAIK) and
-  many of us use it, but it is a little riskier than egcs.
+> updated.  A couple of C files had to be updated as well due to parameters,
+> defined in the header files, being called "new".  All of these were
+> straightforward fixes and should be correct, testing is welcome.
+..
+>     Ok now on to the questions I have.  In include/linux/joystick.h,
+> include/linux/raid5.h, and include/linux/adfs_fs.h I've found members of
+> structures and a union which were called "new".  The datastructures in
+> question are union adfs_dirtail::new, struct stripe_head::new, struct
+> js_dev::new.  My questions are basically this.  If I update these data
+> structure members' names along with the references to them in various C
+> files in the kernel will all be happy in Linuxland.  Can any external
 
-* Red Hat "2.96" or CVS 2.97 will probably break any known kernel.
+Why do you need to touch any existing kernel .c source file ? If you make
+that patch, this breaks "situation 1" above.
+AFAIK, ANSI C does not require that prototype (declaration) parameter names and 
+definition parameter names match, only types. So, this snippet is correct:
 
-Peter
+int f(int onename);
+
+int f(int othername)
+{
+}
+
+and compiled both under egcs-1.1.2 and gcc-2.95.2. So you don't have to touch
+kernel .c source files, only change headers to make them not break C++.
+
+And what about struct fields ? It is the same. If you change the name of a field
+permanently, you have to modify the C source that uses it. But names are not
+important for binary compatability, so you can make things like:
+struct data {
+	int field1;
+#ifndef __cplusplus
+	double 	new;
+	int	class;
+#else
+	double	dnew;
+	int	klass;
+#endif
+};
+
+The "klass" example is directly taken from XFree header files, look at
+vi +239 /usr/X11R6/include/X11/Xlib.h
+vi +898 /usr/X11R6/include/X11/Xlib.h
+
+So the core X internals, written in C, use the "class" field, but anyone using 
+X in C++ programs has to use the field as "klass" or "c_class".
+
+I think X is a good example to provide C++ friendlyness with the minimal
+internal
+change. Perhaps this is a way to make kernel programmers-mantainers to accept
+the 
+headers patch, they can continue working the same...
+
+-- 
+Juan Antonio Magallon Lacarta                          mailto:jamagallon@able.es
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

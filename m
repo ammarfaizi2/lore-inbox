@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbTFJUmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 16:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTFJUmX
+	id S262827AbTFJUr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 16:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbTFJUpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 16:42:23 -0400
-Received: from wmail.atlantic.net ([209.208.0.84]:57519 "HELO
-	wmail.atlantic.net") by vger.kernel.org with SMTP id S264095AbTFJUmN
+	Tue, 10 Jun 2003 16:45:51 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:13952 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263938AbTFJShR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 16:42:13 -0400
-Message-ID: <3EE648D8.7000500@techsource.com>
-Date: Tue, 10 Jun 2003 17:08:40 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Schwartz <davids@webmaster.com>
-CC: xyko_ig@ig.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Wrong number of cpus detected/reported
-References: <MDEHLPKNGKAHNMBLJOLKGECIDJAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jun 2003 14:37:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10552709682643@kroah.com>
+Subject: Re: [PATCH] Yet more PCI fixes for 2.5.70
+In-Reply-To: <10552709683543@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 10 Jun 2003 11:49:28 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1357, 2003/06/09 16:04:35-07:00, greg@kroah.com
+
+PCI: remove pci_present() from drivers/scsi/gdth.c
 
 
-David Schwartz wrote:
-
-> 
-> 	This is correct. The machine has 8 logical CPUs implemented inside 4
-> physical CPUs. For more information, search Intel's web pages about
-> 'hyperthreading'.
-> 
+ drivers/scsi/gdth.c |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
 
 
-But if the kernel doesn't have HT support, then it won't necessarily 
-balance loads properly.
-
+diff -Nru a/drivers/scsi/gdth.c b/drivers/scsi/gdth.c
+--- a/drivers/scsi/gdth.c	Tue Jun 10 11:19:14 2003
++++ b/drivers/scsi/gdth.c	Tue Jun 10 11:19:14 2003
+@@ -4460,9 +4460,7 @@
+     }
+ 
+     /* scanning for PCI controllers */
+-#if LINUX_VERSION_CODE >= 0x2015C
+-    if (pci_present())
+-#else
++#if LINUX_VERSION_CODE < 0x2015C
+     if (pcibios_present())
+ #endif
+     {
 

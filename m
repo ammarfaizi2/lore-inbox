@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266676AbSKZThL>; Tue, 26 Nov 2002 14:37:11 -0500
+	id <S266633AbSKZTca>; Tue, 26 Nov 2002 14:32:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266678AbSKZTgm>; Tue, 26 Nov 2002 14:36:42 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:18642 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266676AbSKZTgh>;
-	Tue, 26 Nov 2002 14:36:37 -0500
-Date: Tue, 26 Nov 2002 19:41:29 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, alan@redhat.com
-Subject: Re: A new Athlon 'bug'.
-Message-ID: <20021126194129.GA24152@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com, alan@redhat.com
-References: <200211211556.gALFunG3014402@noodles.internal> <20021125213447.GB12236@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021125213447.GB12236@elf.ucw.cz>
-User-Agent: Mutt/1.4i
+	id <S266626AbSKZTcA>; Tue, 26 Nov 2002 14:32:00 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:29392 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S266627AbSKZTbx>; Tue, 26 Nov 2002 14:31:53 -0500
+Message-ID: <3DE3CDD7.1040202@nortelnetworks.com>
+Date: Tue, 26 Nov 2002 14:39:03 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "Richard B. Tilley (Brad)" <rtilley@vt.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Compiler & Statically Linked Question
+References: <1038336619.7793.28.camel@oubop4.bursar.vt.edu> 	<3DE3C79C.20306@nortelnetworks.com> <1038338424.7794.43.camel@oubop4.bursar.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 25, 2002 at 10:34:47PM +0100, Pavel Machek wrote:
+Richard B. Tilley (Brad) wrote:
 
- > > Very recent Athlons (Model 8 stepping 1 and above) (XPs/MPs and mobiles)
- > > have an interesting problem.  Certain bits in the CLK_CTL register need
- > > to be programmed differently to those in earlier models. The problem arises
- > > when people plug these new CPUs into boards running BIOSes that are unaware
- > > of this fact.
- > What happens when bit is programed wrongly?
+> So, if the compiler on the build system was gcc-3.2 and the c library
+> was glibc-2.2.x, then it would not matter if the compiler and c library 
+> on the install systems were of differing versions? Is this what you
+> mean?
 
-The documentation I have says nothing other than "...platforms are more
-robust..." with the fix. It's purely a reliability thing, but as it's
-fiddling with the CPU clock, it's possible that it may *slightly*
-affect performance too.
+Correct.  The kernel is totally self-sufficient and does not use the C 
+library.
 
-		Dave
+Chris
+
+
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

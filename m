@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270202AbUJTLvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269917AbUJTLlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270202AbUJTLvw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 07:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270077AbUJTLsZ
+	id S269917AbUJTLlg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 07:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270055AbUJTLFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 07:48:25 -0400
-Received: from A.painless.aaisp.net.uk ([81.187.81.51]:3028 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S267648AbUJTLoi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 07:44:38 -0400
-Message-ID: <4176537A.6070301@rgadsdon2.giointernet.co.uk>
-Date: Wed, 20 Oct 2004 13:00:58 +0100
-From: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.8a2) Gecko/20040604
-X-Accept-Language: en-gb, en, en-us
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.9-bk3 - compile error
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 07:05:19 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:8617 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264085AbUJTKzI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 06:55:08 -0400
+Date: Wed, 20 Oct 2004 12:56:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041020105630.GB2614@elte.hu>
+References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <4176403B.5@stud.feec.vutbr.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4176403B.5@stud.feec.vutbr.cz>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-..............
-GEN     .version
-   CHK     include/linux/compile.h
-   UPD     include/linux/compile.h
-   CC      init/version.o
-   LD      init/built-in.o
-   LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0xb8658): In function `i2o_pci_interrupt':
-: undefined reference to `i2o_msg_out_to_virt'
-drivers/built-in.o(.text+0xb8efa): In function `i2o_exec_reply':
-: undefined reference to `i2o_msg_in_to_virt'
-make: *** [.tmp_vmlinux1] Error 1
 
-(GCC version 3.4.1)
+* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
 
-Robert Gadsdon
+> I'm getting these BUGs when I use netconsole with Real-Time Preemption
+> (but netconsole works):
 
-...........
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GOMMCONFIG is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-# CONFIG_PCI_MSI is not set
-# CONFIG_PCI_LEGACY_PROC is not set
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-# CONFIG_SCx200 is not set
+you are getting them because interrupts get disabled somewhere in the
+path. Do your changes perhaps introduce a local_irq_save() or
+local_irq_disable()?
 
-...........
-#
-# I2O device support
-#
-CONFIG_I2O=y
-# CONFIG_I2O_CONFIG is not set
-# CONFIG_I2O_BLOCK is not set
-# CONFIG_I2O_SCSI is not set
-# CONFIG_I2O_PROC is not set
+(in PREEMPT_REALTIME spin_lock_irq*() does not disable interrupts for
+mutex-based spinlocks, so the only way to get irqs disabled is
+explicitly.)
 
-........
-
+	Ingo

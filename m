@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315810AbSEJFLt>; Fri, 10 May 2002 01:11:49 -0400
+	id <S315811AbSEJFWU>; Fri, 10 May 2002 01:22:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315811AbSEJFLs>; Fri, 10 May 2002 01:11:48 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:14334 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S315810AbSEJFLs>;
-	Fri, 10 May 2002 01:11:48 -0400
-To: linux-kernel@vger.kernel.org
-Subject: maximum block size in buffer_head
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-to: davidm@hpl.hp.com
-Message-Id: <E1762h0-00086K-00@wailua.hpl.hp.com>
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Date: Thu, 09 May 2002 22:11:46 -0700
+	id <S315812AbSEJFWT>; Fri, 10 May 2002 01:22:19 -0400
+Received: from [62.240.94.4] ([62.240.94.4]:57478 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S315811AbSEJFWS>;
+	Fri, 10 May 2002 01:22:18 -0400
+Date: Fri, 10 May 2002 08:22:15 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Kingsley Foreman <kingsley@uglypunk.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Confidential Proposal
+Message-ID: <20020510082215.P1442@mea-ext.zmailer.org>
+In-Reply-To: <20020510042958Z315804-22652+3640@vger.kernel.org> <008e01c1f7dd$3a79d2e0$460fa8c0@Sabine>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current Linux kernel (both 2.4.xx and 2.5.xx) declare the b_size
-member in struct buffer_head as an "unsigned short".  This obviously
-limits the maximum block size to something less than 65536.  This is
-bad because on some platforms (e.g., ia64), the page size can be up to
-64KB large.
+On Fri, May 10, 2002 at 02:13:23PM +0930, Kingsley Foreman wrote:
+> ive got this 4 times today does someone want to ban it from the list
 
-Two questions:
 
- - does anyone object to widening b_size to "unsigned int"?
+  Good morning.
 
- - does anyone know of any other code paths where the block
-   size is assumed to fit into 16 bits?
+Yeah, I entered something of that  into TABOO-patterns, lets
+see how well it bites..
 
-Thanks,
-
-	--david
+/Matti Aarnio

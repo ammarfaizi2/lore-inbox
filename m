@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268801AbTCDOpT>; Tue, 4 Mar 2003 09:45:19 -0500
+	id <S269154AbTCDOsh>; Tue, 4 Mar 2003 09:48:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268861AbTCDOpT>; Tue, 4 Mar 2003 09:45:19 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:783 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S268801AbTCDOpT>; Tue, 4 Mar 2003 09:45:19 -0500
-Date: Tue, 4 Mar 2003 15:53:59 +0100
-From: DervishD <raul@pleyades.net>
-To: Kasper Dupont <kasperd@daimi.au.dk>
-Cc: Miles Bader <miles@gnu.org>, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: About /etc/mtab and /proc/mounts
-Message-ID: <20030304145359.GB967@DervishD>
-References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk> <buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030302125315.GH45@DervishD> <3E620E71.B74C2191@daimi.au.dk> <20030304110213.GA42@DervishD> <3E649774.9DB3868D@daimi.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E649774.9DB3868D@daimi.au.dk>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	id <S269161AbTCDOsg>; Tue, 4 Mar 2003 09:48:36 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:18617 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S269154AbTCDOsf>;
+	Tue, 4 Mar 2003 09:48:35 -0500
+Date: Tue, 4 Mar 2003 08:35:05 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Dominik Brodowski <linux@brodo.de>
+cc: <torvalds@transmeta.com>, <jt@hpl.hp.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       <mika.penttila@kolumbus.fi>
+Subject: Re: [PATCH] pcmcia: get initialization ordering right [Was: [PATCH
+ 2.5] : i82365 & platform_bus_type]
+In-Reply-To: <20030304095447.GA1408@brodo.de>
+Message-ID: <Pine.LNX.4.33.0303040831120.992-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Kasper :)
 
- Kasper Dupont dixit:
-> > > > but after a while I made it a symlink to
-> > > > /var/run/mtab. It worked OK, AFAIK.
-> > > Did mount actually update the mtab file? The version of mount on
-> > > my system would not.
-> >     Of course not, it is just a symlink to a proc file
-> But you just said it was a symlink to /var/run/mtab.
+On Tue, 4 Mar 2003, Dominik Brodowski wrote:
 
-    Excuse me, I thought that you was talking about the /proc/mounts
-symlink, and not /var/run/mtab. When the symlink was /var/run/mtab I
-don't remeber if it was updated, but it should, because all worked
-OK, I mean, all filesystems were correctly mounted. But anyway the
-info provided by me is not reliable: we used the 'mount' command from
-'asmutils' and I don't know how it managed /etc/mtab. All that
-happened more than two years ago :(((, sorry. AFAIK, at some point of
-the research, the mount command from busybox was used, too.
+> Hi Pat,
+> 
+> How is it supposed to work then? I thought adding a platform_device and
+> platform_driver with the same name and bus_id causes the platform_driver to
+> be bound to the platform_device?
 
-    Raúl
+Erm yes. Color me lazy, I just hadn't implemented that yet.. You've hit 
+something else no one had used before. 
+
+This patch is completley untested, but it should work. 
+
+	-pat
+
+===== drivers/base/platform.c 1.5 vs edited =====
+--- 1.5/drivers/base/platform.c	Fri Oct 18 13:27:29 2002
++++ edited/drivers/base/platform.c	Tue Mar  4 08:34:10 2003
+@@ -41,9 +41,29 @@
+ 	if (pdev)
+ 		device_unregister(&pdev->dev);
+ }
+-	
++
++
++/**
++ *	platform_match - bind platform device to platform driver.
++ *	@dev:	device.
++ *	@drv:	driver.
++ *
++ *	Platform device IDs are assumed to be encoded like this: 
++ *	"<name><instance>", where <name> is a short description of the 
++ *	type of device, like "pci" or "floppy", and <instance> is the 
++ *	enumerated instance of the device, like '0' or '42'.
++ *	Driver IDs are simply "<name>". 
++ *	So, extract the <name> from the device, and compare it against 
++ *	the name of the driver. Return whether they match or not.
++ */
++
+ static int platform_match(struct device * dev, struct device_driver * drv)
+ {
++	char name[BUS_ID_SIZE];
++
++	if (sscanf(dev->bus_id,"%s",name))
++		return (strcmp(name,drv->name) == 0);
++
+ 	return 0;
+ }
+ 
+

@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288731AbSANJSk>; Mon, 14 Jan 2002 04:18:40 -0500
+	id <S288752AbSANJXM>; Mon, 14 Jan 2002 04:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288752AbSANJSa>; Mon, 14 Jan 2002 04:18:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3857 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288731AbSANJSQ>; Mon, 14 Jan 2002 04:18:16 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: ISA hardware discovery -- the elegant solution
-Date: 14 Jan 2002 01:17:57 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a1u7o5$p11$1@cesium.transmeta.com>
-In-Reply-To: <20020113205839.A4434@thyrsus.com> <m1k7ulpbf7.fsf@frodo.biederman.org> <20020114034831.A5780@thyrsus.com>
+	id <S288780AbSANJXC>; Mon, 14 Jan 2002 04:23:02 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31760 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288752AbSANJW7>; Mon, 14 Jan 2002 04:22:59 -0500
+Subject: Re: Oops in kswapd (Kernel 2.4.17)
+To: patrickb@vrlaw.com.au (Patrick Burns)
+Date: Mon, 14 Jan 2002 09:34:44 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C423A90.2E34D426@vrlaw.com.au> from "Patrick Burns" at Jan 14, 2002 12:55:28 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Q3Vs-00019y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020114034831.A5780@thyrsus.com>
-By author:    "Eric S. Raymond" <esr@thyrsus.com>
-In newsgroup: linux.dev.kernel
-> 
-> But the kernel itself has to know how to probe and initialize these devices
-> at boot time, correct?  That information is implicitly exported via
-> /var/log/dmesg -- I'm simply suggesting that it be a little more explicit.
-> 
+> that people were getting oopses in kswapd. I also had the same problem
+> this morning. The kernel froze up totally. Not even SysRq keys would
+> work. I am running 2x400mhz PII in an SMP machine with 512mb RAM. I have
+> attatched the syslog of the oops and what I got when I ran it past
 
-dmesg is lossy.  Don't assume it is complete.
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+With 2.4.17 apply Ben LaHaise's LRU patch posted to the kernel list or
+grab 2.4.18pre3. I saw all sorts of interesting occssional oopses without
+that. It might not be the problem you see but its showing up so much that
+its worth checking first

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271995AbRH2PbH>; Wed, 29 Aug 2001 11:31:07 -0400
+	id <S272002AbRH2PgH>; Wed, 29 Aug 2001 11:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271996AbRH2Pa7>; Wed, 29 Aug 2001 11:30:59 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:45777 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S271995AbRH2Pap>; Wed, 29 Aug 2001 11:30:45 -0400
-Date: Wed, 29 Aug 2001 17:30:57 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: <bunk@mimas.fachschaften.tu-muenchen.de>
-To: John Levon <moz@compsoc.man.ac.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VM: Bad swap entry 0044cb00
-In-Reply-To: <20010828012308.A36433@compsoc.man.ac.uk>
-Message-ID: <Pine.NEB.4.33.0108291730300.21364-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S272003AbRH2Pf5>; Wed, 29 Aug 2001 11:35:57 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:33041 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272002AbRH2Pfi>; Wed, 29 Aug 2001 11:35:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Date: Wed, 29 Aug 2001 17:42:39 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108281812200.978-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0108281812200.978-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010829153552Z16100-32383+2289@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Aug 2001, John Levon wrote:
+On August 29, 2001 03:13 am, Linus Torvalds wrote:
+> On Wed, 29 Aug 2001, Daniel Phillips wrote:
+> >
+> >     min(host->scsi.SCp.this_residual, (unsigned) DMAC_BUFFER_SIZE / 2);
+> 
+> Sure.
+> 
+> If you put the type information explicitly, you can get it right.
+> 
+> Which is, btw, _exactly_ why the min() function takes the type explicitly.
 
-> fwiw, this seems to be a common characteristic of hardware problems with
-> 2.4 kernels. I've had bad RAM (discovered by memtest86) which was producing
-> this error without any swapoff. Once it only occurred after an entire night
-> of kernel compiles (memtest86 found it easily however)
+My point is that proper programming discipline would have prevented the 
+problem from arising in the first place.  It would be far more appropriate 
+for kernel programmers to exercise such discpline than to treat them like 
+babies, breaking well-known syntax in the process.
 
-memtest86 didn't find any errors in my RAM.
+It seems trivial to pick up all potential min/max problems with the Stanford 
+Checker in the case some programmer has been too clueless to think about 
+their code as they write it.  A simple policy statement for users of min/max 
+would have avoided this entire mess.
 
-> regards
-> john
+Not that I you're going to back down, it just made me feel better to get this 
+off my chest ;-)
 
-cu
-Adrian
-
--- 
-
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
-
+--
+Daniel

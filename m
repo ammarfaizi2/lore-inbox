@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274235AbRISWgJ>; Wed, 19 Sep 2001 18:36:09 -0400
+	id <S274239AbRISWi3>; Wed, 19 Sep 2001 18:38:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272282AbRISWgA>; Wed, 19 Sep 2001 18:36:00 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44886 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S274235AbRISWfo>; Wed, 19 Sep 2001 18:35:44 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: phillips@bonn-fries.net (Daniel Phillips),
-        rfuller@nsisoftware.com (Rob Fuller), linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <E15jpRy-0003yt-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Sep 2001 16:26:40 -0600
-In-Reply-To: <E15jpRy-0003yt-00@the-village.bc.nu>
-Message-ID: <m166aeg6lb.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S274238AbRISWiT>; Wed, 19 Sep 2001 18:38:19 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26374 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272282AbRISWiL>; Wed, 19 Sep 2001 18:38:11 -0400
+Subject: Re: 2.4 Success story
+To: jhingber@ix.netcom.com (Jeffrey Ingber)
+Date: Wed, 19 Sep 2001 23:43:27 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1000938233.2152.10.camel@DESK-2> from "Jeffrey Ingber" at Sep 19, 2001 06:23:49 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15jq3z-000467-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> I agree.  This is a fantastic kernel - so good infact, it'll probably be
+> awhile before I try out a new one unless some other issue(s) comes up.=20
+> I had a nagging problem with XF864 dying with Sig'11 on SMP and this has
+> completely cleared it up. =20
 
-> Much of this goes away if you get rid of both the swap and anonymous page
-> special cases. Back anonymous pages with the "whoops everything I write here
-> vanishes mysteriously" file system and swap with a swapfs
+As far as I can tell the XFree problem was almost certainly the LDT thing, 
+and if so then it was fixed when I merged Linus changes, so should also be
+fine in Linux tree now.
 
-Essentially.  Though that is just the strategy it doesn't cut to the heart of the
-problems that need to be addressed.  The trickiest part is to allocate persistent
-id's to the pages that don't require us to fragment the VMA's.  
-
-> Reverse mappings make linear aging easier to do but are not critical (we
-> can walk all physical pages via the page map array). 
-
-Agreed.  
-
-What I find interesting about the 2.4.x VM is that most of the large
-problems people have seen were not stupid designs mistakes in the VM
-but small interaction glitches, between various pieces of code.
-
-Eric
+If not then some hard looking is needed to make sure whatever was the fix
+is definitely in Linus tree

@@ -1,114 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbTBOOW4>; Sat, 15 Feb 2003 09:22:56 -0500
+	id <S262040AbTBOOUF>; Sat, 15 Feb 2003 09:20:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262446AbTBOOW4>; Sat, 15 Feb 2003 09:22:56 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:48416
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262425AbTBOOWy>; Sat, 15 Feb 2003 09:22:54 -0500
-Date: Sat, 15 Feb 2003 09:29:19 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
-cc: linux-kernel@vger.kernel.org, "" <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH][2.5][8/14] smp_call_function_on_cpu - s390
-In-Reply-To: <Pine.LNX.4.50.0302142111560.3518-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0302150924250.3518-100000@montezuma.mastecende.com>
-References: <200302142230.XAA13431@faui11.informatik.uni-erlangen.de>
- <Pine.LNX.4.50.0302142111560.3518-100000@montezuma.mastecende.com>
+	id <S262190AbTBOOUF>; Sat, 15 Feb 2003 09:20:05 -0500
+Received: from services.cam.org ([198.73.180.252]:28962 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S262040AbTBOOUF>;
+	Sat, 15 Feb 2003 09:20:05 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.61-mm1
+Date: Sat, 15 Feb 2003 09:29:51 -0500
+User-Agent: KMail/1.5.9
+References: <20030214231356.59e2ef51.akpm@digeo.com>
+In-Reply-To: <20030214231356.59e2ef51.akpm@digeo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200302150929.51856.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Feb 2003, Zwane Mwaikambo wrote:
+On February 15, 2003 02:13 am, Andrew Morton wrote:
+>   Turns out that some parts of KDE (kmail, at least) were indeed using this
+>   hint, and it triggers a nasty bug in (at least) kmail: it is reading the
+>   same 128k of the file again and again and again.  It runs like a dog.
+>   Ed Tomlinson upgraded his KDE/kmail version and this problem went away.
 
-> Correct again, thanks i'll fix that.
+The versions of kmail involved were 3.04, which manifests the bug when switching
+between folders with lots of entries (10,000+).  The kmail in kde 3.1 does not
+have this problem.
 
-Rediffed;
+Ed Tomlinson
 
-Index: linux-2.5.60/arch/s390/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/s390/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.60/arch/s390/kernel/smp.c	10 Feb 2003 22:15:54 -0000	1.1.1.1
-+++ linux-2.5.60/arch/s390/kernel/smp.c	15 Feb 2003 12:26:50 -0000
-@@ -102,27 +102,34 @@
-  * in the system.
-  */
- 
--int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
--			int wait)
- /*
-- * [SUMMARY] Run a function on all other CPUs.
-- * <func> The function to run. This must be fast and non-blocking.
-- * <info> An arbitrary pointer to pass to the function.
-- * <nonatomic> currently unused.
-- * <wait> If true, wait (atomically) until function has completed on other CPUs.
-- * [RETURNS] 0 on success, else a negative status code. Does not return until
-- * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-+ * smp_call_function_on_cpu - Runs func on all processors in the mask
-+ *
-+ * @func: The function to run. This must be fast and non-blocking.
-+ * @info: An arbitrary pointer to pass to the function.
-+ * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask: The bitmask of CPUs to call the function
-+ * 
-+ * Returns 0 on success, else a negative status code. Does not return until
-+ * remote CPUs are nearly ready to execute func or have executed it.
-  *
-  * You must not call this function with disabled interrupts or from a
-  * hardware interrupt handler or from a bottom half handler.
-  */
-+
-+int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
- {
- 	struct call_data_struct data;
--	int cpus = num_online_cpus()-1;
-+	int i, cpu, num_cpus;
- 
--	/* FIXME: get cpu lock -hc */
--	if (cpus <= 0)
-+	cpu = get_cpu();
-+	mask &= ~(1UL << cpu);
-+	num_cpus = hweight32(mask);
-+	if (num_cpus == 0) {
-+		put_cpu_no_resched();
- 		return 0;
-+	}
- 
- 	data.func = func;
- 	data.info = info;
-@@ -134,18 +141,26 @@
- 	spin_lock(&call_lock);
- 	call_data = &data;
- 	/* Send a message to all other CPUs and wait for them to respond */
--        smp_ext_bitcall_others(ec_call_function);
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (cpu_online(i) && ((1UL << i) && mask))
-+			smp_ext_bitcall(i, ec_call_function);
-+	}
- 
- 	/* Wait for response */
--	while (atomic_read(&data.started) != cpus)
-+	while (atomic_read(&data.started) != num_cpus)
- 		barrier();
- 
- 	if (wait)
--		while (atomic_read(&data.finished) != cpus)
-+		while (atomic_read(&data.finished) != num_cpus)
- 			barrier();
- 	spin_unlock(&call_lock);
--
-+	put_cpu_no_resched();
- 	return 0;
-+}
-+
-+int smp_call_function (void (*func) (void *info), void *info, int nonatomic, int wait)
-+{
-+	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
- }
- 
- static inline void do_send_stop(void)

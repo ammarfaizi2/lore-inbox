@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316607AbSEUVVy>; Tue, 21 May 2002 17:21:54 -0400
+	id <S316612AbSEUVY4>; Tue, 21 May 2002 17:24:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316608AbSEUVVx>; Tue, 21 May 2002 17:21:53 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:14287 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316607AbSEUVVw>;
-	Tue, 21 May 2002 17:21:52 -0400
-Date: Tue, 21 May 2002 16:21:38 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: george anzinger <george@mvista.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] POSIX personality
-Message-ID: <79630000.1022016098@baldur.austin.ibm.com>
-In-Reply-To: <3CEAB85D.1532F5A2@mvista.com>
-X-Mailer: Mulberry/2.2.0 (Linux/x86)
+	id <S316615AbSEUVY4>; Tue, 21 May 2002 17:24:56 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23305 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316612AbSEUVYy>; Tue, 21 May 2002 17:24:54 -0400
+Subject: Re: Kernel BUG 2.4.19-pre8-ac1 + preempt
+To: camhanaich99@yahoo.com (Erik McKee)
+Date: Tue, 21 May 2002 22:38:08 +0100 (BST)
+Cc: wli@holomorphy.com (William Lee Irwin III), linux-kernel@vger.kernel.org
+In-Reply-To: <20020521202351.42147.qmail@web14202.mail.yahoo.com> from "Erik McKee" at May 21, 2002 01:23:51 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E17AHKa-0000Hr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It's preempt-kernel-rml-2.4.19-pre8-ac1-1.patch from
+> http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/linux-2.4/preempt-kernel-rml-2.4.19-pre8-ac1-1.patch
+> 
+> It applied cleanly with no mods needed and had been running fine untill this
+> decided to happen.  Seems like slocate's updatedb decided to jack the load up
+> which triggered oom?  However, the chosen process was unkillable since its the
+> same process listed in the oom report over and over again?
 
---On Tuesday, May 21, 2002 02:13:01 PM -0700 george anzinger
-<george@mvista.com> wrote:
-
-> What you are proposing seem a bit vague.  I think that
-> CLONE_THREAD should group all the thread related stuff under
-> the one flag.  IMHO POSIX compatibility should not be off in
-> the corner as a step child, but rather should be the norm. 
-> The CLONE_THREAD flag would indicate to fork that it should
-> create a POSIX thread and set up the needed shared stuff.  I
-> rather image this to be a structure that each task_struct
-> points to, possibly with a usage count (but that is a
-> detail).  Each thread_struct would point to such a
-> structure, but processes that are not threaded would not be
-> sharing this area with other threads.
-
-That's a possibility I've considered, but I gather most of the kernel
-community would prefer to see each resource have its own flag to clone() so
-applications can pick and choose which ones to share.  I'm guessing that in
-most cases multithreaded apps will choose all flags.
-
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+Can you repeat the problem without pre-empt ?

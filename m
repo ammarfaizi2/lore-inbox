@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135675AbRDSNyv>; Thu, 19 Apr 2001 09:54:51 -0400
+	id <S135673AbRDSNzu>; Thu, 19 Apr 2001 09:55:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135673AbRDSNyl>; Thu, 19 Apr 2001 09:54:41 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:38415 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S135700AbRDSNyY>;
-	Thu, 19 Apr 2001 09:54:24 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200104191354.f3JDs7C27006@oboe.it.uc3m.es>
-Subject: Re: block devices don't work without plugging in 2.4.3
-In-Reply-To: <20010419152443.B22517@suse.de> from "Jens Axboe" at "Apr 19, 2001
- 03:24:43 pm"
-To: "Jens Axboe" <axboe@suse.de>
-Date: Thu, 19 Apr 2001 15:54:07 +0200 (MET DST)
-CC: "linux kernel" <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S135676AbRDSNzq>; Thu, 19 Apr 2001 09:55:46 -0400
+Received: from athena.intergrafix.net ([206.245.154.69]:37515 "HELO
+	athena.intergrafix.net") by vger.kernel.org with SMTP
+	id <S135673AbRDSNze>; Thu, 19 Apr 2001 09:55:34 -0400
+Date: Thu, 19 Apr 2001 09:55:32 -0400 (EDT)
+From: Admin Mailing Lists <mlist@intergrafix.net>
+To: linux-kernel@vger.kernel.org
+Subject: quota problems 2.4.2->2.4.3
+Message-ID: <Pine.LNX.4.10.10104190944001.5773-100000@athena.intergrafix.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK - agreed. But while I have your attention...
 
-"Jens Axboe wrote:"
-> On the contrary, you are now given an exceptional opportunity to clean
-> up your code and get rid of blk_queue_pluggable and your noop plugging
-> function.
+Hi,
 
-In summary: blk_queue_pluggable can be removed for all driver codes
-aimed at all 2.4.* kernels, because the intended effect can be obtained
-through merge_reqeusts function controls.
+WHen i upgrade from 2.2 to 2.4, my first version was 2.4.1,
+in which i upgraded my quota utils to 3.00 and then converted to the new
+quota formats for 2.4.
+my last 2.4 upgrade was 2.4.2ac23, quotas work fine on that.
+but when i run 2.4.3 they dont. quota -v on a user shows just blank space
+next to the user name, edquota shows the quota numbers, but that's it,
+changing them and redoing quota -v is the same.
+everything puts the users over quota. doing a quotacheck shows the quota
+files corrupted..yet boot back to 2.4.2ac23 and they work fine again.
+did something change in 2.4.3? or does quota utils need to be upgraded
+again? if so, where can i can them (i forget where i got them last time)
 
-My unease derives, I think, from the fact that I have occasionally used
-plugging for other purposes. Namely for throttling the device. These
-uses have always been experimental and uniformly unsuccessful, because
-throttling that way backs up the VFS with dirty buffers and provokes
-precisely the deadlock against VFS that I was trying to avoid. So ..
+Thanx,
 
- ... how can I tell when VFS is nearly full?  In those circumstances I
-want to sync every _other_ device, thus giving me enough buffers at
-least to flush something to the net with, thus freeing a request of
-mine, plus its buffers.
+-Tony
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Anthony J. Biacco                       Network Administrator/Engineer
+thelittleprince@asteroid-b612.org       Intergrafix Internet Services
 
-Peter
+    "Dream as if you'll live forever, live as if you'll die today"
+http://www.asteroid-b612.org                http://www.intergrafix.net
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+
+

@@ -1,53 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278968AbRKFLUO>; Tue, 6 Nov 2001 06:20:14 -0500
+	id <S277094AbRKFLLe>; Tue, 6 Nov 2001 06:11:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279013AbRKFLUE>; Tue, 6 Nov 2001 06:20:04 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:55968 "EHLO
-	mailout.plan9.de") by vger.kernel.org with ESMTP id <S278968AbRKFLTx>;
-	Tue, 6 Nov 2001 06:19:53 -0500
-Date: Tue, 6 Nov 2001 12:19:47 +0100
-From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
+	id <S278968AbRKFLLZ>; Tue, 6 Nov 2001 06:11:25 -0500
+Received: from rafiu.psi-domain.co.uk ([212.87.84.199]:58374 "HELO
+	rafiu.psi-domain.co.uk") by vger.kernel.org with SMTP
+	id <S277094AbRKFLLQ>; Tue, 6 Nov 2001 06:11:16 -0500
+Date: Tue, 6 Nov 2001 11:12:30 +0000
+From: James Chivers <chiversj@psi-domain.co.uk>
 To: linux-kernel@vger.kernel.org
-Subject: ip_conntrack & timing out of connections
-Message-ID: <20011106121947.A678@schmorp.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+Subject: kernel: RPC: garbage, exit EIO
+Message-ID: <20011106111230.C1294@unimatrix001>
+Reply-To: chiversj@psi-domain.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-Operating-System: Linux version 2.4.13-ac5 (root@cerebro) (gcc version 2.95.4 20010319 (prerelease)) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-2.4.13-ac5 (other versions untested) has this peculiar behaviour: If I
-"killall -STOP thttpd", I, of course, still get connection requests which
-usually time out:
+Dear All,
 
-tcp      238      0 217.227.148.85:80       213.76.191.129:3120 CLOSE_WAIT  
-tcp      162      0 217.227.148.85:80       213.76.191.129:3128 CLOSE_WAIT  
-tcp      238      0 217.227.148.85:80       213.76.191.129:3136 CLOSE_WAIT  
-tcp      162      0 217.227.148.85:80       213.76.191.129:3152 CLOSE_WAIT  
-tcp      134      0 217.227.148.85:80       66.42.121.15:3305 CLOSE_WAIT  
-tcp      162      0 217.227.148.85:80       213.76.191.129:3160 CLOSE_WAIT  
-tcp      279      0 217.227.148.85:80       62.83.11.19:2742 CLOSE_WAIT  
+I have recently deployed a Linux server running SuSE 7.2, with kernel
+2.4.7-64GB-SMP, and are getting a string of entries in /var/log/messages
+like -
 
-however, after some time, I get many of these messages:
+Nov  4 20:16:49 myserver kernel: RPC: garbage, exit EIO
+Nov  4 20:17:20 myserver last message repeated 251 times
+Nov  4 20:18:21 myserver last message repeated 556 times
+Nov  4 20:19:22 myserver last message repeated 442 times
+Nov  4 20:20:23 myserver last message repeated 650 times
+Nov  4 20:21:24 myserver last message repeated 598 times
+Nov  4 20:22:25 myserver last message repeated 394 times
+Nov  4 20:23:26 myserver last message repeated 724 times
+Nov  4 20:24:27 myserver last message repeated 702 times
+Nov  4 20:25:28 myserver last message repeated 380 times
+Nov  4 20:25:31 myserver last message repeated 34 times
 
-Nov  6 02:39:55 doom kernel: ip_conntrack: table full, dropping packet. 
+The box is configured as an nfs client, but not server.
 
-/proc/net/ip_conntrack has lots of connections like these:
+The nfs servers to which it mounts have no /var/log/messages entries like
+Nov  4 20:00:00 nfs_server: bad getargs
+ - as was previously suggested on a thread many moons ago.
 
-tcp      6 430665 ESTABLISHED src=213.76.191.129 dst=217.227.148.85 sport=3881 dport=80 src=217.227.148.85 dst=213.76.191.129 sport=80 dport=388 1 [ASSURED] use=1 
+I'm having trouble re-producing the errors at will, just seem to be random.
 
-that is, connections to port 80. a grep dport=80 in ip_conntrack gives me
-3768 lines, where netstat -t only shows 159 connections, so it seems that
-conntrack has a problems with time-outs (or something similar).
+I am running a continuous kernel compilation script on the box -
+http://sdb.suse.de/en/sdb/html/hmeyer_memtest-sig11.html
+ - and when the above errors do strike, I get (compilation) log file entry
+errors like -
+
+make: execvp: /bin/pwd: Permission denied
+t@t@re/locale/en_US/LC_MESSAGES/make.momake: /bin/sh: Command not found
+ t@ t@Rules.make:288: .depend: No such file or directory
+make: *** No rule to make target `/usr/src/linux-2.4.4.SuSE/include/linux/proc_fs.h',
+needed by `init/main.o'.
+make: *** No rule to make target `/usr/src/linux-2.4.4.SuSE/include/linux/bootmem.h',
+needed by `init/main.o'.
+/bin/sh: .ver: No such file or directory
+
+Almost as if the file system gets messed up, btw - the kernel compilation
+script and kernel sources are on the server's local filesystem (i.e. not
+mounted on a remote server).
+
+Is there anything that I can do to:
+
+<1> Reproduce the error(s) found in /var/log/messages (so, at least I'll be
+in a better position to find a fix for it)?
+<2> Fix the issue by either reconfiguring my setup, or applying a know
+fix/patch?
+
+The server is a dual PIII 1GHz, 2GB memory on an Asus CUV4-DLS (we've
+recently swapped out the memory as we did get the odd sig 11, but it seems
+to be fine now).
+
+I thank you in advance for any help or suggestions.
 
 -- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+Kind regards,
+
+James Chivers
+

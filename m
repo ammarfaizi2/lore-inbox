@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262702AbVCCW2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262677AbVCCWgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262702AbVCCW2B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 17:28:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262699AbVCCWYg
+	id S262677AbVCCWgW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 17:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVCCWe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 17:24:36 -0500
-Received: from pat.uio.no ([129.240.130.16]:6061 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262643AbVCCWVh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 17:21:37 -0500
-Subject: Re: x86_64: 32bit emulation problems
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andi Kleen <ak@muc.de>
-Cc: Bernd Schubert <bernd-schubert@web.de>, Andreas Schwab <schwab@suse.de>,
+	Thu, 3 Mar 2005 17:34:56 -0500
+Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:39135 "EHLO
+	bastet.signetmail.com") by vger.kernel.org with ESMTP
+	id S262708AbVCCWcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 17:32:23 -0500
+Date: Thu, 3 Mar 2005 17:32:03 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050303214622.GA1497@muc.de>
-References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de>
-	 <20050302081858.GA7672@muc.de>
-	 <1109754818.10407.48.camel@lade.trondhjem.org>
-	 <200503021233.57341.bernd-schubert@web.de>
-	 <1109782387.9667.11.camel@lade.trondhjem.org>
-	 <20050303091908.GC5215@muc.de>
-	 <1109885846.10094.21.camel@lade.trondhjem.org>
-	 <20050303214622.GA1497@muc.de>
-Content-Type: text/plain
-Date: Thu, 03 Mar 2005 14:21:25 -0800
-Message-Id: <1109888485.11609.18.camel@lade.trondhjem.org>
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050303223203.GA24966@havoc.gtf.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <1109888144.21780.53.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.597, required 12,
-	autolearn=disabled, AWL 1.40, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109888144.21780.53.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to den 03.03.2005 Klokka 22:46 (+0100) skreiv Andi Kleen:
+On Thu, Mar 03, 2005 at 10:15:46PM +0000, Alan Cox wrote:
+> We still need 2.6.x.y updates on a more official footing and with more
+> than one person as the "2.6.x.y" maintainer. I think that is actually
+> more important.
 
-> > As far as the kernel is concerned, asm/posix_types defines
-> > __kernel_ino_t as "unsigned long" on most platforms (except a few which
-> > define is as "unsigned int). We don't care what size type glibc itself
-> > uses.
-> 
-> That could easily be changed and even pass out 64bit inodes
-> on 32bit systems.  The stat64 syscall ABI allows this.
-> 
-> Perhaps that should be done and then you could drop the truncation
-> code. 
+That appears to be the consensus conclusion we've arrived at.
 
-That would be the ideal solution. I don't see that the current system of
-truncating is helping anyone.
+	Jeff
 
-> Of couse this would expose the glibc Bug Bernd ran into on 32bit
-> too, but at some point they have to fix that bogosity anyways.
 
-Right.
-
-Cheers,
-  Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
 

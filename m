@@ -1,64 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276779AbRJHHIk>; Mon, 8 Oct 2001 03:08:40 -0400
+	id <S276787AbRJHHNb>; Mon, 8 Oct 2001 03:13:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276781AbRJHHIb>; Mon, 8 Oct 2001 03:08:31 -0400
-Received: from rj.sgi.com ([204.94.215.100]:22162 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S276779AbRJHHIW>;
-	Mon, 8 Oct 2001 03:08:22 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: Kernel Build for 2.5, Release 1.4 is available.
-Date: Mon, 08 Oct 2001 17:08:43 +1000
-Message-ID: <3169.1002524923@kao2.melbourne.sgi.com>
+	id <S276785AbRJHHNV>; Mon, 8 Oct 2001 03:13:21 -0400
+Received: from [203.94.130.164] ([203.94.130.164]:23306 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id <S276782AbRJHHNL>;
+	Mon, 8 Oct 2001 03:13:11 -0400
+Date: Mon, 8 Oct 2001 17:28:53 +1000 (EST)
+From: brett <brett@bad-sports.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Toshiba driver compilation error
+Message-ID: <Pine.LNX.4.33.0110081723010.17228-100000@bad-sports.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Content-Type: text/plain; charset=us-ascii
+Hey,
 
-Release 1.4 of kernel build for kernel 2.5 (kbuild 2.5) is available.
-http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
-release 1.34
+The patch to drivers/char/toshiba.c in 2.4.10-ac6 added in an #ifdef that
+shouldn't be there.  It caused the following compilation error when
+toshiba.c was built in.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99725412902968&w=2
-contains information about the base release.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.10-ac7/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=i586   -c -o drivers/char/toshiba.o
+drivers/char/toshiba.c
 
-Changes from Release 1.3
+drivers/char/toshiba.c:87: parse error before string constant
+drivers/char/toshiba.c:87: warning: type defaults to `int' in
+declaration of `MODULE_PARM'
+drivers/char/toshiba.c:87: warning: function declaration isn't a
+prototype
+drivers/char/toshiba.c:87: warning: data definition has no type or
+storage classdrivers/char/toshiba.c:89: parse error before string
+constant
+drivers/char/toshiba.c:89: warning: type defaults to `int' in
+declaration of `MODULE_LICENSE'
+drivers/char/toshiba.c:89: warning: function declaration isn't a
+prototype
+drivers/char/toshiba.c:89: warning: data definition has no type or
+storage classdrivers/char/toshiba.c:98: `THIS_MODULE' undeclared here
+(not in a function)
+drivers/char/toshiba.c:98: initializer element is not constant
+drivers/char/toshiba.c:98: (near initialization for `tosh_fops.owner')
+make: *** [drivers/char/toshiba.o] Error 1
 
-  Upgrade to kernel 2.4.11-pre5.
+Of course, the simple solution is
 
-  As suggested by Christoph Hellwig, ensure that the kernel does not
-  depend on user space include files.
+--- drivers/char/toshiba.c~	Mon Oct  8 16:55:23 2001
++++ drivers/char/toshiba.c	Sun Oct  7 23:07:23 2001
+@@ -56,10 +56,8 @@
+ #define TOSH_VERSION "1.11 26/9/2001"
+ #define TOSH_DEBUG 0
 
-  Yet more aic7xxx fixes, I wish that Makefile followed the rules :(.
+-#ifdef MODULE
+ #include <linux/module.h>
+ #include <linux/version.h>
+-#endif
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/types.h>
 
-  Expand $(ARCH) in pp_makefile, reduces special cases.
 
-  Tweaks to arch/i386/asm-offsets.h.
+Alan, I think this can safely be applied, as opposed to the patch I gave
+you on a napkin at LCA last year, which I think you were correct in
+rejecting :)
 
-  vmlinux.lds* (linkage editor scripts) are now called vmlinux.lds.S
-  (input) and vmlinux.lds.i (post-processed output, input to linker).
-  Using .S and .i let me plug it into the full dependency system
-  instead of being a special case.
+thanks,
 
-  Add expsyms() for several objects that are not in 2.4 export-objs.
-
-  Add -DEXPORT_SYMTAB for expsyms(), to check for entries missing from
-  expsyms().
-
-  Add CONFIG_KBUILD_2_5, always defined for kbuild 2.5.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE7wVD5i4UHNye0ZOoRAo+nAKC9DqTKD/79PB38doGgG+d4nUTWBQCgvqgi
-FYmuheRQX9iw2RCQg0/s0ZE=
-=R5en
------END PGP SIGNATURE-----
+	/ Brett
 

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268373AbTBNMjM>; Fri, 14 Feb 2003 07:39:12 -0500
+	id <S268379AbTBNMlo>; Fri, 14 Feb 2003 07:41:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268375AbTBNMjM>; Fri, 14 Feb 2003 07:39:12 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:1113
+	id <S268376AbTBNMlo>; Fri, 14 Feb 2003 07:41:44 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:4441
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268373AbTBNMjI>; Fri, 14 Feb 2003 07:39:08 -0500
-Date: Fri, 14 Feb 2003 07:47:40 -0500 (EST)
+	id <S268379AbTBNMkt>; Fri, 14 Feb 2003 07:40:49 -0500
+Date: Fri, 14 Feb 2003 07:49:16 -0500 (EST)
 From: Zwane Mwaikambo <zwane@holomorphy.com>
 X-X-Sender: zwane@montezuma.mastecende.com
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5][2/14] smp_call_function_on_cpu - i386
-In-Reply-To: <Pine.LNX.4.50.0302140348530.3518-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0302140745370.3518-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0302140348530.3518-100000@montezuma.mastecende.com>
+cc: Anton Blanchard <anton@samba.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5][7/14] smp_call_function_on_cpu - PPC64
+In-Reply-To: <Pine.LNX.4.50.0302140404300.3518-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.50.0302140748450.3518-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0302140404300.3518-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,24 +22,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 One liner to fix num_cpus == 0 on SMP kernel w/ UP box
 
-Index: linux-2.5.60/arch/i386/kernel/smp.c
+Index: linux-2.5.60/arch/ppc64/kernel/smp.c
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/i386/kernel/smp.c,v
+RCS file: /build/cvsroot/linux-2.5.60/arch/ppc64/kernel/smp.c,v
 retrieving revision 1.1.1.1
 diff -u -r1.1.1.1 smp.c
---- linux-2.5.60/arch/i386/kernel/smp.c	10 Feb 2003 22:14:16 -0000	1.1.1.1
-+++ linux-2.5.60/arch/i386/kernel/smp.c	14 Feb 2003 12:21:33 -0000
-@@ -495,31 +495,33 @@
- static struct call_data_struct * call_data;
+--- linux-2.5.60/arch/ppc64/kernel/smp.c	10 Feb 2003 22:15:14 -0000	1.1.1.1
++++ linux-2.5.60/arch/ppc64/kernel/smp.c	14 Feb 2003 12:23:03 -0000
+@@ -452,29 +452,34 @@
+ #define SMP_CALL_TIMEOUT (1UL << (30 + 3))
  
  /*
-- * this function sends a 'generic call function' IPI to all other CPUs
+- * This function sends a 'generic call function' IPI to all other CPUs
 - * in the system.
-- */
--
--int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
--			int wait)
--/*
++ * smp_call_function_on_cpu - Runs func on all processors in the mask
+  *
 - * [SUMMARY] Run a function on all other CPUs.
 - * <func> The function to run. This must be fast and non-blocking.
 - * <info> An arbitrary pointer to pass to the function.
@@ -47,12 +44,10 @@ diff -u -r1.1.1.1 smp.c
 - * <wait> If true, wait (atomically) until function has completed on other CPUs.
 - * [RETURNS] 0 on success, else a negative status code. Does not return until
 - * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-+ * smp_call_function_on_cpu - Runs func on all processors in the mask
-+ *
 + * @func: The function to run. This must be fast and non-blocking.
 + * @info: An arbitrary pointer to pass to the function.
 + * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask: The bitmask of CPUs to call the function
++ * @mask The bitmask of CPUs to call the function
 + * 
 + * Returns 0 on success, else a negative status code. Does not return until
 + * remote CPUs are nearly ready to execute func or have executed it.
@@ -60,133 +55,95 @@ diff -u -r1.1.1.1 smp.c
   * You must not call this function with disabled interrupts or from a
   * hardware interrupt handler or from a bottom half handler.
   */
+-int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
+-		       int wait)
 +
-+int smp_call_function_on_cpu (void (*func) (void *info), void *info,
-+				int wait, unsigned long mask)
- {
++int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
++				unsigned long mask)
+ { 
  	struct call_data_struct data;
--	int cpus = num_online_cpus()-1;
-+	int num_cpus, cpu;
+-	int ret = -1, cpus = num_online_cpus()-1;
++	int ret, cpu, i, num_cpus;
+ 	unsigned long timeout;
  
 -	if (!cpus)
 +	cpu = get_cpu();
 +	mask &= ~(1UL << cpu);
-+	num_cpus = hweight32(mask);
++	num_cpus = hweight64(mask);
 +	if (num_cpus == 0) {
 +		put_cpu_no_resched();
  		return 0;
--
 +	}
+ 
  	data.func = func;
  	data.info = info;
- 	atomic_set(&data.started, 0);
-@@ -530,19 +532,33 @@
- 	spin_lock(&call_lock);
+@@ -487,11 +492,18 @@
  	call_data = &data;
  	wmb();
--	/* Send a message to all other CPUs and wait for them to respond */
--	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
-+
-+	/* Send a message to the CPUs in the mask and wait for them to respond */
-+	if (mask == (cpu_online_map & ~(1UL << cpu)))
-+		send_IPI_allbutself(CALL_FUNCTION_VECTOR);
-+	else
-+		send_IPI_mask_sequence(mask, CALL_FUNCTION_VECTOR);
+ 	/* Send a message to all other CPUs and wait for them to respond */
+-	smp_message_pass(MSG_ALL_BUT_SELF, PPC_MSG_CALL_FUNCTION, 0, 0);
++	if (mask == (cpu_online_map & ~(1UL << cpu))) {
++		smp_message_pass(MSG_ALL_BUT_SELF, PPC_MSG_CALL_FUNCTION, 0, 0);
++	} else {
++		for (i = 0; i < NR_CPUS; i++) {
++			if (cpu_online(i) && ((1UL << i) & mask))
++				smp_message_pass(i, PPC_MSG_CALL_FUNCTION, 0, 0);
++		}
++	}
  
  	/* Wait for response */
--	while (atomic_read(&data.started) != cpus)
--		barrier();
-+	while (atomic_read(&data.started) != num_cpus)
-+		cpu_relax();
+ 	timeout = SMP_CALL_TIMEOUT;
+-	while (atomic_read(&data.started) != cpus) {
++	while (atomic_read(&data.started) != num_cpus) {
+ 		HMT_low();
+ 		if (--timeout == 0) {
+ #ifdef CONFIG_DEBUG_KERNEL
+@@ -499,15 +511,16 @@
+ 				debugger(0);
+ #endif
+ 			printk("smp_call_function on cpu %d: other cpus not "
+-			       "responding (%d)\n", smp_processor_id(),
++			       "responding (%d)\n", cpu,
+ 			       atomic_read(&data.started));
++			ret = -EIO;
+ 			goto out;
+ 		}
+ 	}
  
- 	if (wait)
--		while (atomic_read(&data.finished) != cpus)
--			barrier();
-+		while (atomic_read(&data.finished) != num_cpus)
-+			cpu_relax();
- 	spin_unlock(&call_lock);
+ 	if (wait) {
+ 		timeout = SMP_CALL_TIMEOUT;
+-		while (atomic_read(&data.finished) != cpus) {
++		while (atomic_read(&data.finished) != num_cpus) {
+ 			HMT_low();
+ 			if (--timeout == 0) {
+ #ifdef CONFIG_DEBUG_KERNEL
+@@ -516,20 +529,27 @@
+ #endif
+ 				printk("smp_call_function on cpu %d: other "
+ 				       "cpus not finishing (%d/%d)\n",
+-				       smp_processor_id(),
++				       cpu,
+ 				       atomic_read(&data.finished),
+ 				       atomic_read(&data.started));
++				ret = -EIO;
+ 				goto out;
+ 			}
+ 		}
+ 	}
+ 
+ 	ret = 0;
 -
+ out:
+ 	HMT_medium();
+ 	spin_unlock(&call_lock);
 +	put_cpu_no_resched();
- 	return 0;
+ 	return ret;
 +}
 +
-+/*
-+ * this function sends a 'generic call function' IPI to all other CPUs
-+ * in the system.
-+ */
-+
-+int smp_call_function (void (*func) (void *info), void *info, int nonatomic, int wait)
++int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
++			int wait)
 +{
 +	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
  }
  
- static void stop_this_cpu (void * dummy)
-Index: linux-2.5.60/arch/i386/mach-voyager/voyager_smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/i386/mach-voyager/voyager_smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 voyager_smp.c
---- linux-2.5.60/arch/i386/mach-voyager/voyager_smp.c	10 Feb 2003 22:14:24 -0000	1.1.1.1
-+++ linux-2.5.60/arch/i386/mach-voyager/voyager_smp.c	14 Feb 2003 12:42:43 -0000
-@@ -1091,23 +1091,26 @@
- /* Call this function on all CPUs using the function_interrupt above 
-     <func> The function to run. This must be fast and non-blocking.
-     <info> An arbitrary pointer to pass to the function.
--    <retry> If true, keep retrying until ready.
-     <wait> If true, wait until function has completed on other CPUs.
-+    <mask> a bitmask of cpus to IPI to, this shouldn't contain the current cpu.
-     [RETURNS] 0 on success, else a negative status code. Does not return until
-     remote CPUs are nearly ready to execute <<func>> or are or have executed.
- */
-+
- int
--smp_call_function (void (*func) (void *info), void *info, int retry,
--		   int wait)
-+smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
- {
- 	struct call_data_struct data;
--	__u32 mask = cpu_online_map;
--
--	mask &= ~(1<<smp_processor_id());
-+	int cpu, num_cpus;
- 
--	if (!mask)
-+	cpu = get_cpu();
-+	mask &= ~(1UL << cpu);
-+	num_cpus = hweight32(mask);
-+	if (num_cpus == 0) {
-+		put_cpu_no_resched();
- 		return 0;
--
-+	}
- 	data.func = func;
- 	data.info = info;
- 	data.started = mask;
-@@ -1118,8 +1121,8 @@
- 	spin_lock(&call_lock);
- 	call_data = &data;
- 	wmb();
--	/* Send a message to all other CPUs and wait for them to respond */
--	send_CPI_allbutself(VIC_CALL_FUNCTION_CPI);
-+	/* Send a message to CPUs and wait for them to respond */
-+	send_CPI(mask, VIC_CALL_FUNCTION_CPI);
- 
- 	/* Wait for response */
- 	while (data.started)
-@@ -1130,8 +1133,14 @@
- 			barrier();
- 
- 	spin_unlock(&call_lock);
--
-+	put_cpu_no_resched();
- 	return 0;
-+}
-+
-+int
-+smp_call_function (void (*func) (void *info), void *info, int wait)
-+{
-+	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
- }
- 
- /* Sorry about the name.  In an APIC based system, the APICs
+ void smp_call_function_interrupt(void)

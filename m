@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272897AbRISTsP>; Wed, 19 Sep 2001 15:48:15 -0400
+	id <S274149AbRISTuz>; Wed, 19 Sep 2001 15:50:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274149AbRISTsF>; Wed, 19 Sep 2001 15:48:05 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6404 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272897AbRISTr6>; Wed, 19 Sep 2001 15:47:58 -0400
-Subject: Re: [PATCH] fbdev config fixes (ac edition)
-To: geert@linux-m68k.org (Geert Uytterhoeven)
-Date: Wed, 19 Sep 2001 20:52:49 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-fbdev-devel@lists.sourceforge.net (Linux Frame Buffer Device
-	Development),
-        linux-kernel@vger.kernel.org (Linux Kernel Development)
-In-Reply-To: <Pine.GSO.4.21.0109190816360.14079-100000@mullein.sonytel.be> from "Geert Uytterhoeven" at Sep 19, 2001 08:19:40 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S274150AbRISTup>; Wed, 19 Sep 2001 15:50:45 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:61703 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S274149AbRISTuh>; Wed, 19 Sep 2001 15:50:37 -0400
+Date: Wed, 19 Sep 2001 15:50:45 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
+In-Reply-To: <3BA8EA04.E55BAA02@redhat.com>
+Message-ID: <Pine.LNX.4.33.0109191548080.29593-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15jnOr-0003iD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fix fbdev config glitches that were introduced recently:
->   - Remove duplicate CONFIG_* section for DECstation
->   - Remove duplicate initialization code for pmagbafb, pmagbbfb, and maxinefb
+On Wed, 19 Sep 2001, Arjan van de Ven wrote:
 
-Please send those to Ralf@gnu.org not me
+> Ok but that part is simple:
+>
+> run
+>
+> http://www.fenrus.demon.nl/athlon.c
 
->   - Sstfb doesn't use resource management, so move its initialization to the
->     correct section (why do people never read comments in source code?)
+>From an Athlon 1050/KT133 (middle 3 of 5):
 
-Grin - it will be doing that soon
+Clear:
+warm up run: 16653.33
+2.4 non MMX: 10803.33
+2.4 MMX fallback: 10576.67
+2.4 MMX version: 9824.33
+faster_copy: 4416.67
+even_faster: 4316.67
+
+Copy:
+warm up run: 15268.33
+2.4 non MMX: 23765.33
+2.4 MMX fallback: 23629.33
+2.4 MMX version: 15316.67
+faster_copy: 9352.00
+even_faster: 9333.33
+
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+
+

@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263444AbSIUF1j>; Sat, 21 Sep 2002 01:27:39 -0400
+	id <S263511AbSIUFaT>; Sat, 21 Sep 2002 01:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263460AbSIUF1j>; Sat, 21 Sep 2002 01:27:39 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:44301 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263444AbSIUF1h>;
-	Sat, 21 Sep 2002 01:27:37 -0400
-Date: Fri, 20 Sep 2002 22:32:15 -0700
+	id <S263835AbSIUFaT>; Sat, 21 Sep 2002 01:30:19 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:45837 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263511AbSIUFaQ>;
+	Sat, 21 Sep 2002 01:30:16 -0400
+Date: Fri, 20 Sep 2002 22:34:53 -0700
 From: Greg KH <greg@kroah.com>
 To: "Rhoads, Rob" <rob.rhoads@intel.com>, linux-kernel@vger.kernel.org,
        hardeneddrivers-discuss@lists.sourceforge.net,
        cgl_discussion@lists.osdl.org
-Message-ID: <20020921053214.GA26254@kroah.com>
+Subject: my review of the Device Driver Hardening Design Spec
+Message-ID: <20020921053452.GB26254@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20020921014054.GA25665@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cgl_discussion@lists.osdl.org, hardeneddrivers-discuss@lists.sourceforge.net
-Cc: 
-Bcc: 
-Subject: 
-Reply-To: 
-
-hardeneddrivers-discuss@lists.sourceforge.net,
-cgl_discussion@lists.osdl.org
-Bcc: 
-Subject: my review of the Device Driver Hardening Design Spec
-Reply-To: 
-In-Reply-To: <20020921014054.GA25665@kroah.com>
+<sorry for the mangled header on the first send of this>
 
 On Fri, Sep 20, 2002 at 06:40:54PM -0700, Greg KH wrote:
 > Hi,

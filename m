@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273108AbRJETt0>; Fri, 5 Oct 2001 15:49:26 -0400
+	id <S272620AbRJETyH>; Fri, 5 Oct 2001 15:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273115AbRJETtR>; Fri, 5 Oct 2001 15:49:17 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:54280 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S273108AbRJETtI>; Fri, 5 Oct 2001 15:49:08 -0400
-Date: Fri, 5 Oct 2001 15:27:02 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: pre4 oom too soon
-In-Reply-To: <Pine.LNX.4.21.0110051945080.1199-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0110051518110.2744-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272549AbRJETx5>; Fri, 5 Oct 2001 15:53:57 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:6016 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S271741AbRJETxp>;
+	Fri, 5 Oct 2001 15:53:45 -0400
+Date: Fri, 5 Oct 2001 20:51:37 +0200
+From: Pavel Machek <pavel@Elf.ucw.cz>
+To: Jeremy Elson <jelson@circlemud.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
+Message-ID: <20011005205136.A1272@elf.ucw.cz>
+In-Reply-To: <20011002204836.B3026@bug.ucw.cz> <200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu>
+User-Agent: Mutt/1.3.22i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Fri, 5 Oct 2001, Hugh Dickins wrote:
+> >> Sorry to follow-up to my own post.  A few people pointed out that
+> >> v1.00 had some Makefile problems that prevented it from building.
+> >> I've released v1.02, which should be fixed.
+> >
+> >This should be forwared to linmodem list... Killing all those
+> >binary-only modem drivers from kernel modules would be good
+> >thing... Hmm, and maybe we can just hack telephony API over ltmodem
+> >and be done with that. That would be good.
+[snip]
+> Perhaps I don't understand how linmodems work to understand well
+> enough how FUSD would apply - do you talk to linmodems through the
+> serial driver?  If so, sounds like a good application - but we might
 
-> 2.4.11-pre4 gives me oom_kill I never got before.
-> All numbers decimal in 4kB pages:
-> 
-> num_physpages         65520
-> free or freeable      56000	(from MemFree after swapoff afterwards)
-> total_swap_pages     132526
-> prog tries to hog    153600
-> 
-> At oom_kill time:
-> 
-> all_zones_low           yes    (DMA & Normal well above min, no Highmem)
-> nr_swap_pages             0
-> page_cache_size       59013
-> swapper_space.nrpages 58202
-> 
-> I'm not sure exactly what to blame in out_of_memory(), but it does
-> look wrong to depend so much on whether nr_swap_pages happens to be
-> 0 at that instant or not, and a lot of that full swap is duplicated
-> in the swap cache.  Probably that should be taken into consideration?
-
-The issue is that right now we're going to _check_ for OOM each time
-kswapd_balance_pgdat is not able to make all zones have enough free
-pages: That is way too fragile (I submitted the patch to Linus saying that
-it was just a previa, and he included it anyway.. :))
-
-
-
-        do {
-                need_more_balance = 0;
-                pgdat = pgdat_list;
-                do
-                        need_more_balance |= kswapd_balance_pgdat(pgdat);
-                while ((pgdat = pgdat->node_next));
-                if (need_more_balance && out_of_memory()) {
-                        oom_kill();
-                }
-        } while (need_more_balance);
-
-Note that a full kswapd_balance_pgdat() is going to scan only a small
-portion of the lists. I'm pretty sure we have to guarantee kswapd scanned
-at least all lists (maybe scanned all lists twice), before checking for
-OOM.
-
-I guess I'll not be able to write a patch to give us that behaviour
-_today_, but I'll do so Monday if nobody else does.
+Yep. And linmodem driver does signal processing, so it is big and
+ugly. And up till now, it had to be in kernel. With your patches, such
+drivers could be userspace (where they belong!). Of course, it would be 
+very good if your interface did not change...
+								Pavel
 

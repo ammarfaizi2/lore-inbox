@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292777AbSCDTBw>; Mon, 4 Mar 2002 14:01:52 -0500
+	id <S292778AbSCDTBk>; Mon, 4 Mar 2002 14:01:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292768AbSCDTBa>; Mon, 4 Mar 2002 14:01:30 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:46261 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292770AbSCDTA2>; Mon, 4 Mar 2002 14:00:28 -0500
-Date: Mon, 04 Mar 2002 10:56:11 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre1aa1
-Message-ID: <204440000.1015268171@flay>
-In-Reply-To: <20020304191942.M20606@dualathlon.random>
-In-Reply-To: <Pine.LNX.4.44L.0203041116120.2181-100000@imladris.surriel.com> <190330000.1015261149@flay> <20020304191942.M20606@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S292777AbSCDTB0>; Mon, 4 Mar 2002 14:01:26 -0500
+Received: from mg02.austin.ibm.com ([192.35.232.12]:57293 "EHLO
+	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S292768AbSCDTAL>; Mon, 4 Mar 2002 14:00:11 -0500
+Date: Mon, 4 Mar 2002 12:58:39 -0600 (CST)
+From: Kent Yoder <key@austin.ibm.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: <linux-kernel@vger.kernel.org>, <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
+In-Reply-To: <3C83A925.F93BF448@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0203041230180.11370-100000@janetreno.austin.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 1) We can balance between zones easier by "swapping out"
->> pages to another zone.
-> 
-> Yes, operations like "now migrate and bind this task to a certain
-> cpu/mem pair" pretty much needs rmap or it will get the same complexity
-> of swapout, that may be very very slow with lots of vm address space
-> mapped. But this has nothing to do with the swap_out pass we were
-> talking about previously.
+Thus Spake Jeff Garzik:
 
-If we're out of memory on one node, and have free memory on another,
-during the swap-out pass it would be quicker to transfer the page to
-another node, ie "swap out the page to another zone" rather than swap
-it out to disk. This is what I mean by the above comment (though you're
-right, it helps with the more esoteric case of deliberate page migration too),
-though I probably phrased it badly enough to make it incomprehensible ;-)
+>I agree to the first part :)
+>
+>Set cache line size just like drivers/net/acenic.c does, and enable
+>memory-write-invalidate...
+>
 
-I guess could this help with non-NUMA architectures too - if ZONE_NORMAL
-is full, and ZONE_HIGHMEM has free pages, it would be nice to be able
-to scan ZONE_NORMAL, and transfer pages to ZONE_HIGHMEM. In
-reality, I suspect this won't be so useful, as there shouldn't be HIGHEM
-capable page data sitting in ZONE_NORMAL unless ZONE_HIGHMEM
-had been full at some point in the past? And I'm not sure if we keep a bit
-to say where the page could have been allocated from or not ?
+  Ok, hopefully below is the section you were referring to:
 
-M.
+-------
 
-PS. The rest of your email re: striping twisted my brain out of shape - I'll
-have to think about it some more.
+  pci_read_config_byte(pdev, PCI_CACHE_LINE_SIZE, &cls);
+  cls <<= 2;
+  if (cls != SMP_CACHE_BYTES) {
+         printk(KERN_INFO "  PCI cache line size set incorrectly "
+                "(%i bytes) by BIOS/FW, ", cls);
+         if (cls > SMP_CACHE_BYTES)
+                printk("expecting %i\n", SMP_CACHE_BYTES);
+         else {
+                printk("correcting to %i\n", SMP_CACHE_BYTES);
+                pci_write_config_byte(pdev, PCI_CACHE_LINE_SIZE,
+                                      SMP_CACHE_BYTES >> 2);
+         }
+  }
+  
+  pci_read_config_word (pdev, PCI_COMMAND, &pcr);
+
+  /* Turn off Fast B2B enable */
+  pcr &= ~PCI_COMMAND_FAST_BACK;
+  /* Turn on SERR# enable and others */
+  pcr |= (PCI_COMMAND_SERR | PCI_COMMAND_INVALIDATE | PCI_COMMAND_PARITY |
+          PCI_COMMAND_IO   | PCI_COMMAND_MEMORY);
+
+  pci_write_config_word (pdev, PCI_COMMAND, pcr);
+  pci_read_config_word (pdev, PCI_COMMAND, &pcr);
+
+------
+
+ Out of curiosity, does it in fact make sense to use memory write and 
+invalidate and set cache line size to 0 in some cases?  This seems to go 
+against the PCI spec, which, if I'm reading it correctly, says that memory 
+write and invalidate is the same as a memory write, but it guarantees that
+at least 1 cache line will be written.  So, setting cacheline size =0 would 
+negate this effect(?)  
+
+Kent
+
+>
+>	Jeff
+>
+>
+>
+

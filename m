@@ -1,61 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbTFZXWL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 19:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTFZXWL
+	id S262367AbTFZX1U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 19:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTFZX1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 19:22:11 -0400
-Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:36283 "EHLO
-	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S262373AbTFZXWI
+	Thu, 26 Jun 2003 19:27:20 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:41437 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262367AbTFZX1T convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 19:22:08 -0400
-Date: Thu, 26 Jun 2003 19:36:21 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix inlining with gcc3
-Message-ID: <20030626233621.GC20094@kurtwerks.com>
-References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva> <20030626230824.GM3827@werewolf.able.es>
+	Thu, 26 Jun 2003 19:27:19 -0400
+Date: Thu, 26 Jun 2003 16:41:16 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Diego Calleja =?ISO-8859-1?B?R2FyY+1h?= <diegocg@teleline.es>
+Cc: dgp85@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: PPP Modem connection impossible with 2.5.73-bk2
+Message-Id: <20030626164116.1bfbad1e.shemminger@osdl.org>
+In-Reply-To: <20030626195238.673bcffd.diegocg@teleline.es>
+References: <1056567978.931.8.camel@laurelin>
+	<20030626195238.673bcffd.diegocg@teleline.es>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030626230824.GM3827@werewolf.able.es>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-krw
-X-Woot: Woot!
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[CCs slightly trimmed]
+On Thu, 26 Jun 2003 19:52:38 +0200
+Diego Calleja García <diegocg@teleline.es> wrote:
 
-Quoth J.A. Magallon:
-
-[snippety]
- 
-> This fixes inlining (really, not-inlining) with gcc3. How about next -pre ?
+> On 25 Jun 2003 21:06:18 +0200
+> Flameeyes <dgp85@users.sourceforge.net> wrote:
 > 
-> --- 25/include/linux/compiler.h~gcc3-inline-fix	2003-03-06 03:02:43.000000000 -0800
-> +++ 25-akpm/include/linux/compiler.h	2003-03-06 03:11:42.000000000 -0800
-> @@ -1,6 +1,13 @@
->  #ifndef __LINUX_COMPILER_H
->  #define __LINUX_COMPILER_H
->  
-> +#if __GNUC__ >= 3
-> +#define inline		__inline__ __attribute__((always_inline))
-> +#define inline__	__inline__ __attribute__((always_inline))
-> +#define __inline	__inline__ __attribute__((always_inline))
-> +#define __inline__	__inline__ __attribute__((always_inline))
-> +#endif
-> +
->  /* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
->     a mechanism by which the user can annotate likely branch directions and
->     expect the blocks to be reordered appropriately.  Define __builtin_expect
+> > Hi,
+> > After the upgrade from 2.5.73-bk1 to bk2 the pppd daemon is killed, so
+> > the ppp connection is impossible.
+> > After the reverse of the patch I can connect.
+> > I also applied the bk2-bk3 patch (without the bk2), and I have no
+> > problems.
+> > So the problem is in bk2.
+> 
+> 
+> I can confirm it.
+> Jun 25 00:11:09 estel chat[13737]:  -- got it 
+> Jun 25 00:11:09 estel chat[13737]: send (\d)
+> Jun 25 00:11:10 estel pppd[13734]: Serial connection established.
+> Jun 25 00:11:10 estel pppd[13734]: using channel 8
+> Jun 25 00:11:10 estel pppd[13734]: Using interface ppp0
+> Jun 25 00:11:10 estel pppd[13734]: Connect: ppp0 <--> /dev/ttyS1
+> Jun 25 00:11:11 estel pppd[13734]: sent [LCP ConfReq id=0x1 <asyncmap 0x0> <magi
+> c 0x54b41996> <pcomp> <accomp>]
+> Jun 25 00:11:11 estel pppd[13734]: rcvd [LCP ConfReq id=0x1 <mru 1514> <asyncmap
+>  0x0> <auth chap MD5> <magic 0xf1833c0e> <mrru 1514> <endpoint [null]>]
+> Jun 25 00:11:11 estel pppd[13734]: sent [LCP ConfRej id=0x1 <mrru 1514>]
+> Jun 25 00:11:11 estel pppd[13734]: rcvd [LCP ConfRej id=0x1 <pcomp>]
+> Jun 25 00:11:11 estel pppd[13734]: sent [LCP ConfReq id=0x2 <asyncmap 0x0> <magi
+> c 0x54b41996> <accomp>]
+> Jun 25 00:11:11 estel pppd[13734]: Modem hangup
+> Jun 25 00:11:11 estel pppd[13734]: Connection terminated.
+> Jun 25 00:11:12 estel pppd[13734]: tcsetattr: Invalid argument
+> Jun 25 00:11:12 estel pppd[13734]: Exit.
+> 
+> 
+> Plain 2.5.73 works.
 
-I'm willing to give this a shot. Where, or perhaps what, should I test
-to evaluate best the effects, if any, of this patch? 
+What is your ppp configuration, anything special? 
+Is serial line fat or slow? Is this on SMP or UP system?
 
-Kurt
--- 
-Decision maker, n.:
-	The person in your office who was unable to form a task force
-before the music stopped.
+I can't reproduce this over a null modem cable so trying to see what could
+be different.

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129397AbRCEQWX>; Mon, 5 Mar 2001 11:22:23 -0500
+	id <S129393AbRCEQhT>; Mon, 5 Mar 2001 11:37:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129393AbRCEQWN>; Mon, 5 Mar 2001 11:22:13 -0500
-Received: from t2.redhat.com ([199.183.24.243]:60917 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129397AbRCEQVz>; Mon, 5 Mar 2001 11:21:55 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3AA0CF0D.CB9D544C@mandrakesoft.com> 
-In-Reply-To: <3AA0CF0D.CB9D544C@mandrakesoft.com>  <15008.17278.154154.210086@pizda.ninka.net> <19350125195650.22439@mailhost.mipsys.com> 
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        "David S. Miller" <davem@redhat.com>, linuxppc-dev@lists.linuxppc.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: The IO problem on multiple PCI busses 
+	id <S129417AbRCEQg7>; Mon, 5 Mar 2001 11:36:59 -0500
+Received: from danielle.hinet.hr ([195.29.254.157]:40976 "EHLO
+	danielle.hinet.hr") by vger.kernel.org with ESMTP
+	id <S129393AbRCEQgu>; Mon, 5 Mar 2001 11:36:50 -0500
+Date: Mon, 5 Mar 2001 17:37:21 +0100
+From: Mario Mikocevic <mozgy@hinet.hr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.3-pre2: Can't build md.o as module: unresolved symbol
+Message-ID: <20010305173721.A14760@danielle.hinet.hr>
+In-Reply-To: <ysdn1b0lbtl.fsf@tuborg.ibr.cs.tu-bs.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 05 Mar 2001 16:20:58 +0000
-Message-ID: <11639.983809258@redhat.com>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <ysdn1b0lbtl.fsf@tuborg.ibr.cs.tu-bs.de>; from thuerman@ibr.cs.tu-bs.de on Mon, Mar 05, 2001 at 12:00:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-jgarzik@mandrakesoft.com said:
->  You can map and unmap for each call :)  Ugly and slow, but hey, it's
-> I/O...
+I've got a bit more ->
 
-	outb(bus *bus, u8 val, u16 addr);
+depmod: *** Unresolved symbols in /lib/modules/2.4.3-pre2/kernel/drivers/i2o/i2o_scsi.o
+depmod:         i2o_install_handler
+depmod:         i2o_remove_handler
+depmod:         i2o_find_controller
+depmod:         i2o_query_scalar
+depmod:         i2o_num_controllers
+depmod: *** Unresolved symbols in /lib/modules/2.4.3-pre2/kernel/drivers/md/md.o
+depmod:         md_autodetect_dev
 
-#ifdef ONE_TRUE_BUS_SPACE
-#define outb(bus, val, addr) __outb(val, addr)
-#else
-#define outb(bus, val, addr) bus->out8(bus, val, addr)
-#endif
-
-
-
-
---
-dwmw2
-
-
+-- 
+Mario Mikoèeviæ (Mozgy)
+My favourite FUBAR ...

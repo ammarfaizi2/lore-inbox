@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbUCVTBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 14:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbUCVTBL
+	id S262257AbUCVTDy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 14:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbUCVTDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 14:01:11 -0500
-Received: from waste.org ([209.173.204.2]:33232 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262260AbUCVTA6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 14:00:58 -0500
-Date: Mon, 22 Mar 2004 13:00:50 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Matt Miller <mmiller@hick.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6: mmap complement, fdmap
-Message-ID: <20040322190047.GC8366@waste.org>
-References: <Pine.LNX.4.58.0403212157110.31106@jethro.hick.org> <20040322053025.GR31500@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0403212346330.24801@jethro.hick.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403212346330.24801@jethro.hick.org>
-User-Agent: Mutt/1.3.28i
+	Mon, 22 Mar 2004 14:03:54 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:64387 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262257AbUCVTCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 14:02:03 -0500
+Date: Mon, 22 Mar 2004 19:02:01 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: VMA_MERGING_FIXUP and patch
+In-Reply-To: <20040322175216.GJ3649@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403221842060.12658-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 12:14:56AM -0600, Matt Miller wrote:
-> > On Sun, Mar 21, 2004 at 10:43:07PM -0600, Matt Miller wrote:
-> > > 	``flags'' can be one of O_RDONLY, O_WRONLY, or O_RDWR.
-> > >
-> > > I have verified functionality on ia32 and sparc as these are the only
-> > > architectures I currently have some type of access to.  To test, start the
-> > > kernel configuration process and go under File systems/Pseudo filesystems
-> > > and select this option:
-> > >
-> > > 	[*] Virtual memory file descriptor mapping support
-> > >
-> > > Please let me know about any and all suggestions/bugs/flames.  I tried to
-> >
-> > *boggle*
-> >
-> > a) what the hell for?
+On Mon, 22 Mar 2004, Andrea Arcangeli wrote:
 > 
-> It's targetted mainly as a performance enhancer.  Some of the specific
-> scenarios where it would be useful are:
+> what about this?
 > 
-> a) When one cannot afford to take the performance hit of synchronizing
->    a memory range to disk due to disk size limitations or speed
->    requirements.
-> b) Some things can benefit from the ability to interface with memory as a
->    file.
-> 
-> The specific reason for implementing this was to allow for loading dynamic
-> libraries in the context of a process without having to write them to
-> disk.
+> @@ -344,6 +360,10 @@ void fastcall page_remove_rmap(struct pa
+>    
+>   out_unlock:
+>  	page_map_unlock(page);
+> +
+> +	if (page_test_and_clear_dirty(page) && !page_mapped(page))
+> +		set_page_dirty(page);
+> +
+>  	return;
+>  }
 
-How about tmpfs/ramfs instead? Open a file on tmpfs and mmap it and
-you've got the same thing without any of the nasty corner cases.
- 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+No, it has to be
+	if (!page_mapped(page) && page_test_and_clear_dirty(page))
+		set_page_dirty(page);
+but the positioning is fine.
+
+> @@ -523,6 +543,11 @@ int fastcall try_to_unmap(struct page * 
+>  		dec_page_state(nr_mapped);
+>  		ret = SWAP_SUCCESS;
+>  	}
+> +	page_map_unlock(page);
+> +
+> +	if (page_test_and_clear_dirty(page) && ret == SWAP_SUCCESS)
+> +		set_page_dirty(page);
+> +
+>  	return ret;
+>  }
+
+No, it has to be
+	if (ret == SWAP_SUCCESS && page_test_and_clear_dirty(page))
+		set_page_dirty(page);
+
+Personally, I'd prefer we leave try_to_unmap with the lock we
+had on entry, and do this at the shrink_list end - though I
+can see that the way you've done it actually reduces the code.
+
+(The s390 header file comments that the page_test_and_clear_dirty
+needs to be done while not mapped, because of race with referenced
+bit, and we are opening up to a race now; but unless s390 is very
+different, I see nothing wrong with a rare race on referenced -
+whereas everything wrong with any race that might lose dirty.)
+
+Excited by that glimpse of find_pte_nonlinear you just gave us;
+disappointed to find it empty ;-)
+
+Hugh
+

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265661AbTGDCxn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 22:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbTGDCxn
+	id S265686AbTGDC5d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 22:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265726AbTGDC5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 22:53:43 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:52403 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265661AbTGDCxl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 22:53:41 -0400
-Date: Thu, 3 Jul 2003 20:08:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Sipek <jeffpc@optonline.net>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
-In-Reply-To: <200307032231.39842.jeffpc@optonline.net>
-Message-ID: <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org>
+	Thu, 3 Jul 2003 22:57:33 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:65014 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265686AbTGDC5c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 22:57:32 -0400
+Message-ID: <3F04F403.2000809@kegel.com>
+Date: Thu, 03 Jul 2003 20:26:59 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: chroot bug if arg not absolute path?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On my Debian 3.0 system running the 2.4.18 kernel, I
+ran into a funny problem: /usr/sbin/chroot, or the chroot()
+system call followed by the chdir() system call,
+seem to work if their argument is not an absolute path;
+that is, scandir("/bin") can see the files in the jail,
+but execlp("/bin/sh", "/bin/sh", 0) fails to find the /bin/sh
+in the jail, and sets errno to ENOENT.
 
-On Thu, 3 Jul 2003, Jeff Sipek wrote:
-> 
-> The variables for network statistics (in struct net_device_stats) are unsigned 
-> longs. On 32-bit architectures, this makes them overflow every 4GB or 2^32 
-> packets. The following series of patches [against 2.5.74] makes the 
-> statistics variable type configurable. The default is to leave everything the 
-> way it was (unsigned long). However, when NETSTATS64 is set in the config, 
-> the statistics use 64-bit variables (u_int64_t) - this works only on 32-bit 
-> architectures.
+Is this a bug, or do I have a screw loose behind the wheel?
+- Dan
 
-Please do this in user space. The "overflow every 2^32 packets" thing is 
-_not_ a problem, if you just gather the statistics at any kind of 
-reasonable interval.
-
-I'd hate to penalise performance for something like this. We have
-generally avoided locking _entirely_ for statistics, exactly because
-people felt that there are major performance issues wrt network packet
-handling, and that "perfect statistics" aren't important enough to
-penalize performance over.
-
-Remember: "perfect is the enemy of good". 
-
-		Linus
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 

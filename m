@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131665AbRDJMem>; Tue, 10 Apr 2001 08:34:42 -0400
+	id <S131730AbRDJMhf>; Tue, 10 Apr 2001 08:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131666AbRDJMeb>; Tue, 10 Apr 2001 08:34:31 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:11026 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S131638AbRDJMct>; Tue, 10 Apr 2001 08:32:49 -0400
-Message-Id: <200104101232.f3ACWes28977@aslan.scsiguy.com>
-To: e-double@iname.com
-cc: linux-kernel@vger.kernel.org, eweinstein@cya.com
-Subject: Re: AIC7XXX oddities 
-In-Reply-To: Your message of "Mon, 09 Apr 2001 23:14:29 EDT."
-             <0104092314299F.00428@weba8.iname.net> 
-Date: Tue, 10 Apr 2001 06:32:40 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S131669AbRDJMfM>; Tue, 10 Apr 2001 08:35:12 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19973 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131666AbRDJMey>; Tue, 10 Apr 2001 08:34:54 -0400
+Subject: Re: No 100 HZ timer !
+To: ak@suse.de (Andi Kleen)
+Date: Tue, 10 Apr 2001 13:36:27 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
+        mbs@mc.com (Mark Salisbury), jdike@karaya.com (Jeff Dike),
+        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010410143216.A15880@gruyere.muc.suse.de> from "Andi Kleen" at Apr 10, 2001 02:32:16 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14mxNm-0004BT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->An invocation of hdparm -Tt /dev/sda (id 5) does this:
->
->(scsi1:A:1): 5.000MB/s transfers (5.000MHz, offset 15)
->(scsi1:A:6): 20.000MB/s transfers (20.000MHz, offset 15)
->(scsi0:A:5): 3.300MB/s transfers
+> It's also all interrupts, not only syscalls, and also context switch if you
+> want to be accurate.
 
-The situation might be clearer if you run with aic7xxx=verbose.
-My guess is that the target detected a CRC error a transaction
-and negotiated async as an indication that the initiator should
-perform domain validation on this bus segment again.  Unfortunatly,
-the driver doesn't yet support domain validation, so you end up
-being stuck at 3.3MB/s.  I would suggest looking for problems with
-your cabling or termination on that controller.
+We dont need to be that accurate. Our sample rate is currently so low the
+data is worthless anyway
 
---
-Justin

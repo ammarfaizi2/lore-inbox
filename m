@@ -1,191 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269096AbUIBUnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269097AbUIBUpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269096AbUIBUnd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 16:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269091AbUIBUlW
+	id S269097AbUIBUpT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 16:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269090AbUIBUpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 16:41:22 -0400
-Received: from pegasus.allegientsystems.com ([208.251.178.236]:46606 "EHLO
-	pegasus.lawaudit.com") by vger.kernel.org with ESMTP
-	id S269043AbUIBUiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 16:38:25 -0400
-Message-ID: <413784C0.9010007@optonline.net>
-Date: Thu, 02 Sep 2004 16:38:24 -0400
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040806
+	Thu, 2 Sep 2004 16:45:12 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:58862 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S269021AbUIBUkY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 16:40:24 -0400
+Message-ID: <4137851D.5050406@mvista.com>
+Date: Thu, 02 Sep 2004 13:39:57 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: prototype "handle broken IRQ routing" patch
-References: <20040902201648.GA31340@devserv.devel.redhat.com>
-In-Reply-To: <20040902201648.GA31340@devserv.devel.redhat.com>
+To: john stultz <johnstul@us.ibm.com>
+CC: Tim Schmielau <tim@physik3.uni-rostock.de>, Andrew Morton <akpm@osdl.org>,
+       Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
+       albert@users.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
+       nicolas.george@ens.fr, david+powerix@blue-labs.org
+Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
+References: <87smcf5zx7.fsf@devron.myhome.or.jp>	 <20040816124136.27646d14.akpm@osdl.org>	 <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>	 <412285A5.9080003@mvista.com>	 <1092782243.2429.254.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>	 <1092787863.2429.311.camel@cog.beaverton.ibm.com>	 <1092781172.2301.1654.camel@cube>	 <1092791363.2429.319.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>	 <20040819191537.GA24060@elektroni.ee.tut.fi>	 <20040826040436.360f05f7.akpm@osdl.org>	 <Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de>	 <Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>	 <1093916047.14662.144.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.53.0408310757430.6523@gockel.physik3.uni-rostock.de>	 <4134D11B.7050800@mvista.com> <1093985817.14662.155.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1093985817.14662.155.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Alan Cox wrote:
-> This works a treat on several boxes that otherwise simply won't run Linux
-> in any useful form. The theory is simple - if an IRQ is delivered to the wrong 
-> place then someone somewhere in our IRQ handler lists knows what to do with it.
-
-Wow, this is a crime against humanity! Good job.
-
-There is one problem, it doesn't increment irqs_unhandled when nobody 
-handled anything. I'm sure these broken boxes are still capable of 
-having screaming interrupts too ;)
-
-
+john stultz wrote:
+> On Tue, 2004-08-31 at 12:27, George Anzinger wrote:
 > 
-> Its if(1) for now, obviously its a boot option and if(my_computer_sucks) in
-> a final version.
+>>Tim Schmielau wrote:
+>>
+>>>On Mon, 30 Aug 2004, john stultz wrote:
+>>>
+>>>>On Mon, 2004-08-30 at 16:00, Tim Schmielau wrote:
+>>>>
+>>>>
+>>>>>George, please excuse my lack of understanding. What again where the
+>>>>>precise reasons to have an ntp-corrected uptime?
+>>>>
+>>>>Ah, here's the thread with the first mention of it that I could find.
+>>>>
+>>>>http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.1/1471.html
+>>
+>>As I recall the problem was that jiffies since boot was being converted to get 
+>>uptime base on 1/HZ = 1 jiffie.  Since it is really not quite that, there was an 
+>>error.  Using clock_monotonic seemed like the right answer as it eliminated the 
+>>error AND made the result consistant with get_clock(CLOCK_MONOTONIC,..).
+>>
+>>The alternate answer is, of course, to directly convert the elapsed jiffies. 
+>>The main problem with this is that this can be a BIG number and, therefor, the 
+>>math needs to be carefully.  And, of course, it is inconsistant with 
+>>get_clock(), but that is a new interface...
 > 
 > 
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.8.1/arch/i386/kernel/irq.c linux-2.6.8.1.ac/arch/i386/kernel/irq.c
-> --- linux-2.6.8.1/arch/i386/kernel/irq.c	2004-08-14 11:54:48.000000000 +0100
-> +++ linux-2.6.8.1.ac/arch/i386/kernel/irq.c	2004-09-03 09:15:17.000000000 +0100
-> @@ -280,6 +280,38 @@
->  __setup("noirqdebug", noirqdebug_setup);
->  
->  /*
-> + *	Recovery handler for misrouted interrupts
-> + */
-> +
-> +static int misrouted_irq(int irq, irq_desc_t *desc, struct pt_regs *regs)
-> +{
-> +	int i;
-> +	for(i = 1; i < NR_IRQS; i++)
-> +	{
-> +		struct irqaction *action;
-> +		if(i == irq)	/* Already tried */
-> +			continue;
-> +		spin_lock(&irq_desc[i].lock);
-> +		if(irq_desc[i].status & IRQ_INPROGRESS)
-> +		{
-> +			spin_unlock(&irq_desc[i].lock);
-> +			continue;
-> +		}
-> +		action = irq_desc[i].action;
-> +		while(action)
-> +		{
-> +			if(action->flags & SA_SHIRQ)
-> +			{
-> +				if(action->handler(irq, action->dev_id, regs) == IRQ_HANDLED)
-> +					desc->irqs_unhandled = 0;
-> +			}
-> +			action = action->next;
-> +		}
-> +		spin_unlock(&irq_desc[i].lock);
-> +	}
-> +}
-> +
-> +/*
->   * If 99,900 of the previous 100,000 interrupts have not been handled then
->   * assume that the IRQ is stuck in some manner.  Drop a diagnostic and try to
->   * turn the IRQ off.
-> @@ -289,13 +321,68 @@
->   *
->   * Called under desc->lock
->   */
-> -static void note_interrupt(int irq, irq_desc_t *desc, irqreturn_t action_ret)
-> +static void note_interrupt(int irq, irq_desc_t *desc, irqreturn_t action_ret, struct pt_regs *regs)
->  {
->  	if (action_ret != IRQ_HANDLED) {
->  		desc->irqs_unhandled++;
->  		if (action_ret != IRQ_NONE)
->  			report_bad_irq(irq, desc, action_ret);
->  	}
-> +	if(1)
-> +	{
-> +#ifdef CONFIG_4KSTACKS
-> +		irqreturn_t action_ret;
-> +		u32 *isp;
-> +		union irq_ctx * curctx;
-> +		union irq_ctx * irqctx;
-> +
-> +		curctx = (union irq_ctx *) current_thread_info();
-> +		irqctx = hardirq_ctx[smp_processor_id()];
-> +
-> +		spin_unlock(&desc->lock);
-> +
-> +		/*
-> +		 * this is where we switch to the IRQ stack. However, if we are already using
-> +		 * the IRQ stack (because we interrupted a hardirq handler) we can't do that
-> +		 * and just have to keep using the current stack (which is the irq stack already
-> +		 * after all)
-> +		 */
-> +
-> +		if (curctx == irqctx)
-> +			misrouted_irq(irq, desc, regs);
-> +		else {
-> +			/* build the stack frame on the IRQ stack */
-> +			isp = (u32*) ((char*)irqctx + sizeof(*irqctx));
-> +			irqctx->tinfo.task = curctx->tinfo.task;
-> +			irqctx->tinfo.previous_esp = current_stack_pointer();
-> +
-> +			*--isp = (u32) regs;
-> +			*--isp = (u32) desc;
-> +			*--isp = (u32) irq;
-> +
-> +			asm volatile(
-> +				"       xchgl   %%ebx,%%esp     \n"
-> +				"       call    misrouted_irq   \n"
-> +				"       xchgl   %%ebx,%%esp     \n"
-> +				: "=a"(action_ret)
-> +				: "b"(isp)
-> +				: "memory", "cc", "edx", "ecx"
-> +			);
-> +
-> +
-> +		}
-> +		spin_lock(&desc->lock);
-> +		if (curctx != irqctx)
-> +			irqctx->tinfo.task = NULL;
-> +#else
-> +		irqreturn_t action_ret;
-> +		spin_unlock(&desc->lock);
-> +
-> +		misrouted_irq(irq, desc, regs);
-> +
-> +		spin_lock(&desc->lock);
-> +#endif
-> +	}
->  
->  	desc->irq_count++;
->  	if (desc->irq_count < 100000)
-> @@ -487,7 +574,7 @@
->  	 * useful for irq hardware that does not mask cleanly in an
->  	 * SMP environment.
->  	 */
-> -#ifdef CONFIG_4KSTACKS
-> + #ifdef CONFIG_4KSTACKS
->  
->  	for (;;) {
->  		irqreturn_t action_ret;
-> @@ -532,7 +619,7 @@
->  		}
->  		spin_lock(&desc->lock);
->  		if (!noirqdebug)
-> -			note_interrupt(irq, desc, action_ret);
-> +			note_interrupt(irq, desc, action_ret, &regs);
->  		if (curctx != irqctx)
->  			irqctx->tinfo.task = NULL;
->  		if (likely(!(desc->status & IRQ_PENDING)))
-> @@ -551,7 +638,7 @@
->  
->  		spin_lock(&desc->lock);
->  		if (!noirqdebug)
-> -			note_interrupt(irq, desc, action_ret);
-> +			note_interrupt(irq, desc, action_ret, &regs);
->  		if (likely(!(desc->status & IRQ_PENDING)))
->  			break;
->  		desc->status &= ~IRQ_PENDING;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Hmmm. Well, I may be starting to lean in Tim's direction of pulling the
+> clock_monotonic based uptime and going back to the jiffies based uptime.
+> Atleast until we can make all the /proc/ output consistent. 
 > 
+> I just worry that it actually fixed a problem for someone, and backing
+> it out would just reopen that.
+> 
+> Thoughts?
+
+Well, it was done in reaction to some complaint.  I don't, at this point, recall 
+who or why.  If it is done with the correct values (i.e. NOT 1/HZ, but what the 
+wall clock uses) I think it will not reopen that complaint.
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265832AbTL3WIt (ORCPT <rfc822;willy@w.ods.org>);
+	id S265853AbTL3WIt (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 30 Dec 2003 17:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265853AbTL3WHc
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbTL3WHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:07:32 -0500
-Received: from mail.kroah.org ([65.200.24.183]:46785 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265280AbTL3WG2 convert rfc822-to-8bit
+	Tue, 30 Dec 2003 17:07:48 -0500
+Received: from mail.kroah.org ([65.200.24.183]:47809 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265852AbTL3WG3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:06:28 -0500
+	Tue, 30 Dec 2003 17:06:29 -0500
 Subject: Re: [PATCH] i2c driver fixes for 2.6.0
-In-Reply-To: <10728219702169@kroah.com>
+In-Reply-To: <10728219712881@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Tue, 30 Dec 2003 14:06:10 -0800
-Message-Id: <10728219704116@kroah.com>
+Date: Tue, 30 Dec 2003 14:06:12 -0800
+Message-Id: <1072821972731@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,92 +22,136 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1496.6.3, 2003/12/04 00:44:29-08:00, khali@linux-fr.org
+ChangeSet 1.1496.8.40, 2003/12/30 12:10:39-08:00, khali@linux-fr.org
 
-[PATCH] I2C: i2c documentation (2 of 2)
+[PATCH] I2C: lm83 driver updates
 
-This is a patch to writing-clients. The current version in Linux 2.6
-still mentions the old module reference counting mechanism. The patch
-brings it to the same version we have in i2c CVS, where that section has
-been updated.
-
-
- Documentation/i2c/writing-clients |   57 ++++++--------------------------------
- 1 files changed, 10 insertions(+), 47 deletions(-)
+Here is a patch for the lm83 driver, to be applied on top of your
+pending patches stack. What it does:
+* Remove limit initialisation by the driver. This is a backport from
+  CVS.
+* A few whitespace changes inspired by my recent porting of the lm90
+  driver.
 
 
-diff -Nru a/Documentation/i2c/writing-clients b/Documentation/i2c/writing-clients
---- a/Documentation/i2c/writing-clients	Tue Dec 30 12:32:43 2003
-+++ b/Documentation/i2c/writing-clients	Tue Dec 30 12:32:43 2003
-@@ -24,16 +24,14 @@
- routines, a client structure specific information like the actual I2C
- address.
+ drivers/i2c/chips/lm83.c |   37 ++++++++++++-------------------------
+ 1 files changed, 12 insertions(+), 25 deletions(-)
+
+
+diff -Nru a/drivers/i2c/chips/lm83.c b/drivers/i2c/chips/lm83.c
+--- a/drivers/i2c/chips/lm83.c	Tue Dec 30 12:27:57 2003
++++ b/drivers/i2c/chips/lm83.c	Tue Dec 30 12:27:57 2003
+@@ -41,7 +41,7 @@
  
--  struct i2c_driver foo_driver
--  {  
--    /* name           */  "Foo version 2.3 and later driver",
--    /* id             */  I2C_DRIVERID_FOO,
--    /* flags          */  I2C_DF_NOTIFY,
--    /* attach_adapter */  &foo_attach_adapter,
--    /* detach_client  */  &foo_detach_client,
--    /* command        */  &foo_command,   /* May be NULL */
--    /* inc_use        */  &foo_inc_use,   /* May be NULL */
--    /* dec_use        */  &foo_dec_use    /* May be NULL */
-+  static struct i2c_driver foo_driver = {
-+    .owner          = THIS_MODULE,
-+    .name           = "Foo version 2.3 driver",
-+    .id             = I2C_DRIVERID_FOO, /* usually from i2c-id.h */
-+    .flags          = I2C_DF_NOTIFY,
-+    .attach_adapter = &foo_attach_adapter,
-+    .detach_client  = &foo_detach_client,
-+    .command        = &foo_command /* may be NULL */
-   }
-  
- The name can be chosen freely, and may be upto 40 characters long. Please
-@@ -50,43 +48,8 @@
- All other fields are for call-back functions which will be explained 
- below.
+ static unsigned short normal_i2c[] = { I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[] = { 0x18, 0x1a, 0x29, 0x2b,
+-    0x4c, 0x4e, I2C_CLIENT_END };
++	0x4c, 0x4e, I2C_CLIENT_END };
+ static unsigned int normal_isa[] = { I2C_CLIENT_ISA_END };
+ static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
  
--
--Module usage count
--==================
--
--If your driver can also be compiled as a module, there are moments at 
--which the module can not be removed from memory. For example, when you
--are doing a lengthy transaction, or when you create a /proc directory,
--and some process has entered that directory (this last case is the
--main reason why these call-backs were introduced).
--
--To increase or decrease the module usage count, you can use the
--MOD_{INC,DEC}_USE_COUNT macros. They must be called from the module
--which needs to get its usage count changed; that is why each driver
--module has to implement its own callback.
--
--  void foo_inc_use (struct i2c_client *client)
--  {
--  #ifdef MODULE
--    MOD_INC_USE_COUNT;
--  #endif
--  }
--
--  void foo_dec_use (struct i2c_client *client)
--  {
--  #ifdef MODULE
--    MOD_DEC_USE_COUNT;
--  #endif
--  }
--
--Do not call these call-back functions directly; instead, use one of the
--following functions defined in i2c.h:
--  void i2c_inc_use_client(struct i2c_client *);
--  void i2c_dec_use_client(struct i2c_client *);
--
--You should *not* increase the module count just because a device is
--detected and a client created. This would make it impossible to remove
--an adapter driver! 
-+There use to be two additional fields in this structure, inc_use et dec_use,
-+for module usage count, but these fields were obsoleted and removed.
+@@ -78,16 +78,13 @@
+ #define LM83_REG_W_TCRIT		0x5A
  
+ /*
+- * Conversions, initial values and various macros
++ * Conversions and various macros
+  * The LM83 uses signed 8-bit values.
+  */
  
- Extra client data
+ #define TEMP_FROM_REG(val)	((val > 127 ? val-256 : val) * 1000)
+ #define TEMP_TO_REG(val)	((val < 0 ? val+256 : val) / 1000)
+ 
+-#define LM83_INIT_HIGH		100
+-#define LM83_INIT_CRIT		120
+-
+ static const u8 LM83_REG_R_TEMP[] = {
+ 	LM83_REG_R_LOCAL_TEMP,
+ 	LM83_REG_R_REMOTE1_TEMP,
+@@ -114,9 +111,7 @@
+  */
+ 
+ static int lm83_attach_adapter(struct i2c_adapter *adapter);
+-static int lm83_detect(struct i2c_adapter *adapter, int address,
+-    int kind);
+-static void lm83_init_client(struct i2c_client *client);
++static int lm83_detect(struct i2c_adapter *adapter, int address, int kind);
+ static int lm83_detach_client(struct i2c_client *client);
+ static void lm83_update_client(struct i2c_client *client);
+ 
+@@ -137,8 +132,7 @@
+  * Client data (each client gets its own)
+  */
+ 
+-struct lm83_data
+-{
++struct lm83_data {
+ 	struct semaphore update_lock;
+ 	char valid; /* zero until following fields are valid */
+ 	unsigned long last_updated; /* in jiffies */
+@@ -233,8 +227,7 @@
+  * The following function does more than just detection. If detection
+  * succeeds, it also registers the new chip.
+  */
+-static int lm83_detect(struct i2c_adapter *adapter, int address,
+-    int kind)
++static int lm83_detect(struct i2c_adapter *adapter, int address, int kind)
+ {
+ 	struct i2c_client *new_client;
+ 	struct lm83_data *data;
+@@ -290,6 +283,7 @@
+ 		    LM83_REG_R_MAN_ID);
+ 		chip_id = i2c_smbus_read_byte_data(new_client,
+ 		    LM83_REG_R_CHIP_ID);
++
+ 		if (man_id == 0x01) { /* National Semiconductor */
+ 			if (chip_id == 0x03) {
+ 				kind = lm83;
+@@ -315,8 +309,10 @@
+ 	if ((err = i2c_attach_client(new_client)))
+ 		goto exit_free;
+ 
+-	/* Initialize the LM83 chip */
+-	lm83_init_client(new_client);
++	/*
++	 * Initialize the LM83 chip
++	 * (Nothing to do for this one.)
++	 */
+ 
+ 	/* Register sysfs hooks */
+ 	device_create_file(&new_client->dev, &dev_attr_temp_input1);
+@@ -338,17 +334,6 @@
+ 	return err;
+ }
+ 
+-static void lm83_init_client(struct i2c_client *client)
+-{
+-	int nr;
+-
+-	for (nr = 0; nr < 4; nr++)
+-		i2c_smbus_write_byte_data(client, LM83_REG_W_HIGH[nr],
+-	            TEMP_TO_REG(LM83_INIT_HIGH));
+-	i2c_smbus_write_byte_data(client, LM83_REG_W_TCRIT,
+-	    TEMP_TO_REG(LM83_INIT_CRIT));
+-}
+-
+ static int lm83_detach_client(struct i2c_client *client)
+ {
+ 	int err;
+@@ -373,6 +358,7 @@
+ 	    (jiffies < data->last_updated) ||
+ 	    !data->valid) {
+ 		int nr;
++
+ 		dev_dbg(&client->dev, "Updating lm83 data.\n");
+ 		for (nr = 0; nr < 4 ; nr++) {
+ 			data->temp_input[nr] =
+@@ -388,6 +374,7 @@
+ 		    i2c_smbus_read_byte_data(client, LM83_REG_R_STATUS1)
+ 		    + (i2c_smbus_read_byte_data(client, LM83_REG_R_STATUS2)
+ 		    << 8);
++
+ 		data->last_updated = jiffies;
+ 		data->valid = 1;
+ 	}
 

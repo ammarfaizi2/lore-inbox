@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbUK1AC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbUK1ARd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbUK1AC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 19:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbUK1AC2
+	id S261376AbUK1ARd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 19:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUK1ARd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 19:02:28 -0500
-Received: from natnoddy.rzone.de ([81.169.145.166]:2791 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S261370AbUK1ACR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 19:02:17 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Date: Sun, 28 Nov 2004 00:56:20 +0100
-User-Agent: KMail/1.6.2
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
-       Tonnerre <tonnerre@thundrix.ch>, dhowells <dhowells@redhat.com>,
-       torvalds@osdl.org, hch@infradead.org, aoliva@redhat.com,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-References: <19865.1101395592@redhat.com> <41A90D66.4020204@osdl.org> <1101598348.5278.8.camel@localhost.localdomain>
-In-Reply-To: <1101598348.5278.8.camel@localhost.localdomain>
+	Sat, 27 Nov 2004 19:17:33 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:23710 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261376AbUK1ARb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 19:17:31 -0500
+Message-ID: <41A9190D.5020108@yahoo.com.au>
+Date: Sun, 28 Nov 2004 11:17:17 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_kQRqBs/RWwxHAsG";
-  charset="iso-8859-15"
+To: Tomas Carnecky <tom@dbservice.com>
+CC: Marcel Sebek <sebek64@post.cz>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document kfree and vfree NULL usage
+References: <1101565560.9988.20.camel@localhost> <20041127171357.GA5381@penguin.localdomain> <41A9148E.6070501@dbservice.com>
+In-Reply-To: <41A9148E.6070501@dbservice.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411280056.20757.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tomas Carnecky wrote:
+> Marcel Sebek wrote:
+> 
+>> On Sat, Nov 27, 2004 at 04:26:00PM +0200, Pekka Enberg wrote:
+>>
+>>> Hi,
+>>>
+>>> This patch adds comments for kfree() and vfree() stating that both 
+>>> accept
+>>> NULL pointers.  I audited vfree() callers and there seems to be lots of
+>>> confusion over this in the kernel.
+>>>
+>> I've cleaned up sound/ directory from "if (x) {k/v}free(x);" and similar
+>> constructions. I'm going to to this for most of the kernel if I found
+>> some time.
+> 
+> 
+> Isn't 'if (x) { free(x); }' faster than the call to free() with a NULL
+> pointer?
+> What about a macro ?
+> #define fast_free(x) if (x) { free(x); }
+> Or even
+> #define kfree(x) if (x) { _kfree(x); }
+> Or maybe a inline function so it doesn't break existing code.
+> inline void kfree(x) { if (x) { _kfree(x); } }
+> 
 
---Boundary-02=_kQRqBs/RWwxHAsG
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Well if a NULL parameter is the exceptional case, then you don't want to
+litter the L1 cache with the extra code that will only save a function
+call in rare cases.
 
-On S=FCnndag 28 November 2004 00:32, David Woodhouse wrote:
-> On Sat, 2004-11-27 at 15:27 -0800, Randy.Dunlap wrote:
-> > That's addressing a different problem.  I agree with
-> > David W. that we need to clean the kernel headers up.
-> > Let libc or libxyz provide the missing functionality.
-> > The borken programs were stealing something that wasn't
-> > promised to them AFAIK.
->=20
-> Not only wasn't it promised; it wasn't even working on some
-> architectures anyway.
->=20
-Well, at least on s390 some effort was spent on making it work
-(see e.g. asm-s390/spinlock.h). I don't really mind removing
-that functionality, but I'd prefer still installing some files
-into /usr/include/asm/spinlock.h et.al that contain an #error
-and a pointer to an explanation, so users can complain to the
-right people (i.e. not me ;-).
-
-	Arnd <><
-
---Boundary-02=_kQRqBs/RWwxHAsG
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBqRQk5t5GS2LDRf4RAqj7AKCkDP26WIql0prgx/h2XJ6Awbz4gQCfaYs3
-VrTljigvQmDLxKIlUvFCHkA=
-=kK5w
------END PGP SIGNATURE-----
-
---Boundary-02=_kQRqBs/RWwxHAsG--
+And I think it should be the exceptional case, because it shouldn't really
+be used for much other than streamline error handling or cleanup functions
+to cope with failed allocations without adding checks everywhere. If you're
+doing lots of kfree(NULL) as part of normal operation, then that may
+suggest you aren't tracking your memory very well.

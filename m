@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274841AbTGaRNA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 13:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274840AbTGaRM0
+	id S270437AbTGaRYI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 13:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274832AbTGaRYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 13:12:26 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:55531 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S274822AbTGaRMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 13:12:07 -0400
-Message-ID: <3F294DE3.9020304@RedHat.com>
-Date: Thu, 31 Jul 2003 13:12:03 -0400
-From: Steve Dickson <SteveD@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Neil F. Brown" <neilb@cse.unsw.edu.au>
-CC: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: nfs-utils-1.0.5 is not backwards compatible with 2.4
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 31 Jul 2003 13:24:07 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:52878 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270437AbTGaRYD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 13:24:03 -0400
+Subject: Re: [PATCH] Merge the changes from siimage 2.4.22-pre9 to
+	2.6.0-test2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcelo Penna Guerra <eu@marcelopenna.org>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307311632.56813.eu@marcelopenna.org>
+References: <Pine.SOL.4.30.0307311710440.8394-100000@mion.elka.pw.edu.pl>
+	 <200307311632.56813.eu@marcelopenna.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059671993.17454.1.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 31 Jul 2003 18:19:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2003-07-31 at 20:32, Marcelo Penna Guerra wrote:
+> I mean it doesn't crash the system during intensive read/write operations. It 
+> has something to do with limiting the max bk per request to 7.5 (hwif-
+> >rqsize=15).
 
+Already handled in 2.4.22pre-ac
 
-Hey Neil,
+> 	if(is_sata(hwif))
+> 	{
+> +		drive->id->hw_config |= 0x6000;
+> 		if(strstr(drive->id->model, "Maxtor"))
+> 			return 3;
+> 		return 4;
+>  	}
 
-It seems in nfs-utils-1.05 (actually it happen in 1.0.4)
-the NFSEXP_CROSSMNT define was changed to 0x4000 and the
-NFSEXP_NOHIDE define (which is not supported in 2.4) took
-over the 0x0200 bit.. This breaks backwards compatibly with
-1.0.3 and the 2.4 kernels...
-
-So could please add this patch that simply switchs the bits
-so NFSEXP_CROSSMNT stays the same and the new NFSEXP_NOHIDE define
-gets the higher bit?
-
---- support/include/nfs/export.h.diff   Mon Jul 14 18:14:01 2003
-+++ support/include/nfs/export.h        Thu Jul 31 11:58:05 2003
-@@ -20,11 +20,11 @@
-#define NFSEXP_UIDMAP          0x0040
-#define NFSEXP_KERBEROS                0x0080          /* not available */
-#define NFSEXP_SUNSECURE       0x0100
--#define NFSEXP_NOHIDE          0x0200
-+#define NFSEXP_CROSSMNT                0x0200
-#define NFSEXP_NOSUBTREECHECK  0x0400
-#define NFSEXP_NOAUTHNLM       0x0800
-#define NFSEXP_FSID            0x2000
--#define        NFSEXP_CROSSMNT         0x4000
-+#define        NFSEXP_NOHIDE           0x4000
-#define NFSEXP_NOACL           0x8000 /* reserved for possible ACL
-related use */
-#define NFSEXP_ALLFLAGS                0xFFFF
-
-
-SteveD.
-
+We never check the cable bits for SATA so this is a no-op
 
 

@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264724AbRFUDNz>; Wed, 20 Jun 2001 23:13:55 -0400
+	id <S264733AbRFUD0n>; Wed, 20 Jun 2001 23:26:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264730AbRFUDNp>; Wed, 20 Jun 2001 23:13:45 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:50197 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264724AbRFUDNh>; Wed, 20 Jun 2001 23:13:37 -0400
-Date: Wed, 20 Jun 2001 23:13:35 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200106210313.f5L3DZ124717@devserv.devel.redhat.com>
-To: landley@webofficenow.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Threads, inelegance, and Java
-In-Reply-To: <mailman.993083762.1429.linux-kernel2news@redhat.com>
-In-Reply-To: <20010620042544.E24183@vitelus.com> <01062007252301.00776@localhost.localdomain> <20010621000725.A24672@werewolf.able.es> <mailman.993083762.1429.linux-kernel2news@redhat.com>
+	id <S264734AbRFUD0d>; Wed, 20 Jun 2001 23:26:33 -0400
+Received: from smtp1.Stanford.EDU ([171.64.14.23]:20475 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S264733AbRFUD0X>; Wed, 20 Jun 2001 23:26:23 -0400
+From: "Zack Weinberg" <zackw@stanford.edu>
+Date: Wed, 20 Jun 2001 20:26:21 -0700
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: 2.2 PATCH: check return from copy_*_user in fs/pipe.c
+Message-ID: <20010620202621.C12387@stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Then again JavaOS was an abortion on top of Slowaris. [...]
+Linus Torvalds wrote:
+> If somebody passes in a bad pointer to a system call, you've just
+> invoced the rule of "the kernel _may_ be nice to you, but the kernel
+> might just consider you a moron and tell you it worked".
+> 
+> There is no "lost data" or anything else. You've screwed yourself, and
+> you threw the data away. Don't blame the kernel.
+> 
+> And before you say "it has to return EFAULT", check the standards, and
+> think about the case of libraries vs system calls - and how do you tell
+> them apart?
 
-This is a false statemenet, Rob. It was an abortion, all right,
-but not related to Solaris in any way at all.
+My reading of the standard is that it has to either return EFAULT or
+raise SIGSEGV.  But I am not expert in XPG4-ese.
 
-JavaOS existed in two flavours minimum, which had very little
-in common. The historically first of them (Luna), was a home-made
-executive with pretty rudimentary abilities. I must admit I am
-not intimately familiar with its genesis. A part of it was related
-to the JavaOS running on Sun 701 chip, but what came first,
-I cannot tell. Second flavour of JavaOS was made on top of
-Chorus, and, _I think_, used large parts of Luna in the the
-JVM department, but it had decent kernel, with such novations
-as a device driver interface :)
+Whether or not the standard requires anything, I would much rather
+that the kernel not silently discard error conditions.
 
-> make a DPMI DOS port with an SVGA AWT and say "hey, we're done, and it boots 
-> off a single floppy", I'll never know.
-
-Such a thing existed. I do not remember its proper name,
-but I remember that it booted from hard disk. Floppy
-was too small for it.
-
-> Porting half of Solaris to Power PC for JavaOS has got to be one of the most 
-> peverse things I've seen in my professional career.
-
-I never heard of PPC port of either of JavaOSes, although
-Chorus runs on PPC. Perhaps this is what you mean.
-
-Solaris for PPC existed, but never was widespread.
-It did not have JVM bundled.
-
-> I'm upset that Red Hat 7.1 won't install on that old laptop because it only 
-> has 24 megs of ram and RedHat won't install in that. [...]
-
-You blew adding a swap partition, I suspect...
-
--- Pete
+zw

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311737AbSCNTEC>; Thu, 14 Mar 2002 14:04:02 -0500
+	id <S311739AbSCNTHn>; Thu, 14 Mar 2002 14:07:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311738AbSCNTDw>; Thu, 14 Mar 2002 14:03:52 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:50425 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S311737AbSCNTDk>;
-	Thu, 14 Mar 2002 14:03:40 -0500
-Date: Thu, 14 Mar 2002 19:58:35 +0100
-From: Dave Jones <davej@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Martin Dalecki <martin@dalecki.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Actually hide x86 IDE chipsets on !CONFIG_X86
-Message-ID: <20020314195835.A24996@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Martin Dalecki <martin@dalecki.de>,
-	LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020314165018.GE706@opus.bloom.county> <20020314181106.J19636@suse.de> <20020314172402.GG706@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020314172402.GG706@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Mar 14, 2002 at 10:24:02AM -0700
+	id <S311740AbSCNTHd>; Thu, 14 Mar 2002 14:07:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4367 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S311739AbSCNTHV>; Thu, 14 Mar 2002 14:07:21 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+Date: Thu, 14 Mar 2002 19:05:50 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a6qsae$6er$1@penguin.transmeta.com>
+In-Reply-To: <20020313085217.GA11658@krispykreme> <460695164.1016001894@[10.10.2.3]> <20020314112725.GA2008@krispykreme> <87wuwfxp25.fsf@fadata.bg>
+X-Trace: palladium.transmeta.com 1016132822 8120 127.0.0.1 (14 Mar 2002 19:07:02 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 14 Mar 2002 19:07:02 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14, 2002 at 10:24:02AM -0700, Tom Rini wrote:
- > >  I've a PCI card with one of these. It could in theory work on any arch
- > >  with a PCI slot.
- > A 640 and not a 646?
+In article <87wuwfxp25.fsf@fadata.bg>,
+Momchil Velikov  <velco@fadata.bg> wrote:
+>
+>Out of curiousity, why there's a need to update the linux page tables ?
+>Doesn't pte/pmd/pgd family functions provide enough abstraction in
+>order to maintain _only_ the hashed page table ?
 
- Yup, though its too brain damaged to use.
- I believe they also appeared in some Alphas too.
+No.  The IBM hashed page tables are not page tables at all, they are
+really just a bigger 16-way set-associative in-memory TLB. 
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+You can't actually sanely keep track of VM layout in them.
+
+Those POWER4 machines are wonderful things, but they have a few quirks:
+
+ - it's so expensive that anybody who is slightly price-conscious gets a
+   farm of PC's instead. Oh, well.
+
+ - the CPU module alone is something like .5 kilowatts (translation:
+   don't expect it in a nice desktop factor, even if you could afford
+   it). 
+
+ - IBM nomenclature really is broken. They call disks DASD devices, and
+   they call their hash table a page table, and they just confuse
+   themselves and everybody else for no good reason.  They number bits
+   the wrong way around, for example (and big-endian bitordering really
+   _is_ clearly inferior to little-endian, unlike byte-ordering.  Watch
+   the _same_ bits in the _same_ register change name in the 32 vs
+   64-bit architecture manuals, and puke)
+
+But with all their faults, they do have this really studly setup with 8
+big, fast CPU's on a single module. A few of those modules and you get
+some ass-kick performance numbers. As you can see.
+
+		Linus

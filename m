@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbTJCDZV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 23:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTJCDZV
+	id S263638AbTJCD3V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 23:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTJCD3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 23:25:21 -0400
-Received: from dsl-177.3.240.220.lns02-kent-syd.dsl.comindico.com.au ([220.240.3.177]:47758
-	"EHLO lifelesslap.robertcollins.net") by vger.kernel.org with ESMTP
-	id S263625AbTJCDZT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 23:25:19 -0400
-Subject: Re: [ACPI-sppt] Re: Broken ACPI in kernels > 2.5.69, blows up upon
-	boot
-From: Robert Collins <robertc@squid-cache.org>
-To: Len Brown <len.brown@intel.com>
-Cc: Paulo Andre <fscked@netvisao.pt>, acpi-support@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1065150392.5327.106.camel@dhcppc4>
-References: <20031002214729.11c85558.fscked@netvisao.pt>
-	 <1065150392.5327.106.camel@dhcppc4>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Tr6X7of/Dor/vtysoj8g"
-Message-Id: <1065151472.776.51.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 03 Oct 2003 13:24:32 +1000
+	Thu, 2 Oct 2003 23:29:21 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:13525 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263638AbTJCD3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 23:29:19 -0400
+Message-ID: <3F7CED08.9080200@nortelnetworks.com>
+Date: Thu, 02 Oct 2003 23:29:12 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: rusty@rustcorp.com.au
+Subject: compiling futex-2.2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-Tr6X7of/Dor/vtysoj8g
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I tried downloading and compiling the futex-2.2 package, and ran into 
+some snags.
 
-On Fri, 2003-10-03 at 13:06, Len Brown wrote:
-> > I've tried to look into the code but newbie as I am, no conclusion was
-> > reached. Is there any idea what may have provoked this sudden break up?
-> >=20
-> > Feel free to ask me for more details if need be.
+The linux/futex.h file uses a number of nonstandard data types but does 
+not itself include any other headers.  IN addition, the "u32" data type 
+  is problematic, since it is only defined in the kernel headers if 
+__KERNEL__ is defined.  Perhaps it should be defined as "__u32"?
 
-I have a very similar thing, but no serial port on my fujitsu C-series
-2010.
+Also, there is a definition of sys_futex in the package headers that 
+does not match the definition in the latest kernel headers.  Any plans 
+to update the package?
 
-Rob
---=20
-GPG key available at: <http://members.aardvark.net.au/lifeless/keys.txt>.
+Chris
 
---=-Tr6X7of/Dor/vtysoj8g
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/fOvwI5+kQ8LJcoIRAsreAJ41nkFDL/4BdD6kwycEGVAH0MKrZACeOG25
-pwG+Qn/QT5J4BjXh1xIuIX4=
-=K5Yg
------END PGP SIGNATURE-----
-
---=-Tr6X7of/Dor/vtysoj8g--
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

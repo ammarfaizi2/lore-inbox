@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264129AbUGYP0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUGYP0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbUGYP0E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 11:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUGYPZu
+	id S264058AbUGYP0P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 11:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbUGYP0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 11:25:50 -0400
-Received: from pop.gmx.de ([213.165.64.20]:61884 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264085AbUGYPZj (ORCPT
+	Sun, 25 Jul 2004 11:26:15 -0400
+Received: from main.gmane.org ([80.91.224.249]:50627 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264054AbUGYPY4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 11:25:39 -0400
-X-Authenticated: #1489797
-Date: Sun, 25 Jul 2004 17:25:33 +0200
-From: Nesimi Buelbuel <nesimi.buelbuel@gmx.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: High CPU usage for disk I/O while DMA is enabled
-Message-Id: <20040725172533.672ad447@gasmaske>
-In-Reply-To: <20040725145027.GB9404@ss1000.ms.mff.cuni.cz>
-References: <20040725130502.6e7f92f4@gasmaske>
-	<20040725145027.GB9404@ss1000.ms.mff.cuni.cz>
-X-Mailer: nc (Brain)
+	Sun, 25 Jul 2004 11:24:56 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+Subject: Re: [PATCH] Delete cryptoloop
+Date: Sun, 25 Jul 2004 15:24:46 +0000 (UTC)
+Message-ID: <loom.20040725T171924-629@post.gmane.org>
+References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <1090672906.8587.66.camel@ghanima> <41039CAC.965AB0AA@users.sourceforge.net> <1090761870.10988.71.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 80.139.254.199 (Mozilla/5.0 (compatible; Konqueror/3.2; Linux) (KHTML, like Gecko))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jul 2004 16:50:27 +0200
-Rudo Thomas <rudo@matfyz.cz> wrote:
-
-> Maybe you don't have the right IDE driver configured
-> (CONFIG_BLK_DEV_*)...
-
-actually I have compiled it into the Kernel.
-
-here is a grep from all DMA related Kernel options:
-
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_IDEDMA_ONLYDISK=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-
-
-Nesimi
+Fruhwirth Clemens <clemens-dated-1091625872.c783 <at> endorphin.org> writes: 
+ 
+>  
+> On Sun, 2004-07-25 at 13:42, Jari Ruusu wrote: 
+> > Fruhwirth Clemens wrote: 
+> > > Second, modern ciphers like Twofish || AES are designed to resist 
+> > > known-plaintext attacks. This is basically the FUD spread by Jari Rusuu. 
+> >  
+> > Ciphers are good, but both cryptoloop and dm-crypt use ciphers in insecure 
+> > and exploitable way. 
+> >  
+> > This is not FUD. Fruhwirth, did you even try run the exploit code? 
+> >  
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=107719798631935&w=2 
+>  
+> There is no use in running your code. It does not decipher any block 
+> without the proper key. Where is the exploit?  
+>  
+ 
+Well, the obvious flaw is that an attacker can detect the presence of a 
+watermarked file on an encrypted volume. This is not about decrypting files, 
+merely proving their existence. 
+ 
+Wheter this can be called an exploit does not matter. It definitely is a major 
+hole. 
+ 
+Marc 
+ 
+ 
 

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289579AbSAOOZm>; Tue, 15 Jan 2002 09:25:42 -0500
+	id <S289573AbSAOO0m>; Tue, 15 Jan 2002 09:26:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289573AbSAOOZd>; Tue, 15 Jan 2002 09:25:33 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:25047 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S289642AbSAOOZU>; Tue, 15 Jan 2002 09:25:20 -0500
-Date: Tue, 15 Jan 2002 06:25:07 -0800 (PST)
-From: David Lang <dlang@diginsite.com>
+	id <S289642AbSAOO0X>; Tue, 15 Jan 2002 09:26:23 -0500
+Received: from delrom.ro ([193.231.234.28]:56214 "EHLO delrom.ro")
+	by vger.kernel.org with ESMTP id <S289573AbSAOO0N>;
+	Tue, 15 Jan 2002 09:26:13 -0500
+Date: Tue, 15 Jan 2002 16:26:47 +0200
+From: Silviu Marin-Caea <silviu@delrom.ro>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Hardwired drivers are going away? 
-In-Reply-To: <200201151045.g0FAjduU002847@tigger.cs.uni-dortmund.de>
-Message-ID: <Pine.LNX.4.40.0201150620430.23491-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Ramdisk doesn't work well in 2.4.17
+Message-Id: <20020115162647.35f57d4f.silviu@delrom.ro>
+Organization: Delta Romania
+X-Mailer: Sylpheed version 0.7.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-one other thing re: simplicity.
+I'm trying to make a pair of custom boot/root diskettes (for partimage).
 
-bootloaders
-
-I know that many of you who are advocating this new approach despise lilo,
-but for many people it does the job just fine. with the new approach when
-switching between kernels you now not only need to switch the kernel
-images, but also the initrd (or equivalent) images.
-
-also don't forget that the current way of storing modules can have
-problems when some kernel comile options change (SMP for example, but IIRC
-there are others) if you make modules mandatory you will have to fix this
-first.
-
-David Lang
+The kernel I have compiled the kernel for bootdisk loads fine, reads the
+rootdisk (gzipped image) to the end, and then, it says:
 
 
->
-> > > > 3. simplicity in building kernels for other machines. with a monolithic
-> > > > kernel you have one file to move (and a bootloader to run) with modules
-> > > > you have to move quite a few more files.
->
+Kernel panic: no init found.  Try passing init= option to kernel.
+
+
+
+The root disk is good, because I have built a 2.4.9 in a similar
+fashion, and it works with it.  The problem is I need NTFS support, and
+that doesn't compile in 2.4.9.
+
+
+
+-- 
+Silviu Marin-Caea - Network & Systems Administrator - Delta Romania
+Phone +4093-267961
+

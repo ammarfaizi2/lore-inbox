@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbUBUBzo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 20:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUBUBzo
+	id S261482AbUBUB6s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 20:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUBUB6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 20:55:44 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:57798 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261476AbUBUBzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 20:55:42 -0500
-Date: Fri, 20 Feb 2004 20:55:26 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-Cc: Andreas Schwab <schwab@suse.de>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: RE: [PATCH]2.6.3-rc2 MSI Support for IA64
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E5024040580FB@orsmsx404.jf.intel.com>
-Message-ID: <Pine.LNX.4.58.0402202054050.7734@montezuma.fsmlabs.com>
-References: <C7AB9DA4D0B1F344BF2489FA165E5024040580FB@orsmsx404.jf.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Feb 2004 20:58:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14539 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261484AbUBUB6q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 20:58:46 -0500
+Date: Fri, 20 Feb 2004 17:58:41 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: John Levin <levin@gamebox.net>, linux-kernel@vger.kernel.org, pavel@ucw.cz
+Subject: Re: 2.6.2-rc3 messages  BUG
+Message-ID: <20040220175841.G22989@build.pdx.osdl.net>
+References: <20040221075308.161992c7.levin@gamebox.net> <20040220174616.30d73718.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040220174616.30d73718.akpm@osdl.org>; from akpm@osdl.org on Fri, Feb 20, 2004 at 05:46:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Feb 2004, Nguyen, Tom L wrote:
+* Andrew Morton (akpm@osdl.org) wrote:
+> > [root@mdk9 root]# lsmod
+> > Module                  Size  Used by
+> > uhci_hcd               31752  0
+> > cdc_acm                10784  3
+> > usbcore               111828  4 uhci_hcd,cdc_acm
+> > [root@mdk9 root]# rmmod uhci_hcd
+> > [root@mdk9 root]# insmod
+> > /lib/modules/2.6.3-rc2/kernel/drivers/usb/host/uhci-hcd.ko
+> 
+> You missed out an important piece of info.  The kernel should have printed
+> out "kmem_cache_create: duplicate cache <name>" before going BUG.
+> 
+> What was "<name>"?  uhci_urb_priv?
+> 
+> I suggest you go into drivers/usb/host/uhci-hcd.c:uhci_hcd_cleanup() and
+> replace
+> 
+> 	warn("not all urb_priv's were freed!");
+> 
+> with
+> 
+> 	BUG();
+> 
+> because failure to destroy that slab cache is fatal, and it points at a bug
+> in this driver.
 
-> Friday, Feb. 20, 2004 8:55 AM, Andreas Schwab wrote:
->
-> >> @@ -316,6 +310,19 @@
-> >>  	return current_vector;
-> >>  }
-> >>
-> >> +int ia64_alloc_vector(void)
-> >> +{
-> >> +	static int next_vector = IA64_FIRST_DEVICE_VECTOR;
-> >> +
-> >> +	if (next_vector > IA64_LAST_DEVICE_VECTOR)
-> >> +		/* XXX could look for sharable vectors instead of panic'ing... */
-> >> +		panic("ia64_alloc_vector: out of interrupt vectors!");
-> >> +
-> >> +	nr_alloc_vectors++;
-> >> +
-> >> +	return next_vector++;
-> >> +}
-> >> +
->
-> > IMHO this should be CONFIG_IA64 only.
->
-> To avoid some #ifdef statements as possible, "ia64_platform"
-> defined in the header file "msi.h" is set to TRUE only if
-> setting CONFIG_IA64 to 'Y'. The setting of ia64_platform
-> to TRUE will execute function ia64_alloc_vector.
->
-> This API is only used in assign_msi_vector()in msi.c:
->
-> 	vector = (ia64_platform ? ia64_alloc_vector() :
-> 		assign_irq_vector(MSI_AUTO));
+True, I mentioned this to Greg earlier.  But in this case that BUG() is
+only going to show the rmmod attempt, right?  Problem is that rmmod
+works when the driver is in use, and this only happens after
+suspend/resume.
 
-I think we should just come up with a standard name here, i'm biased and
-think it should be assign_irq_vector ;)
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

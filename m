@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271734AbTGXUzW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 16:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271737AbTGXUzW
+	id S271731AbTGXUxn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 16:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271732AbTGXUxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 16:55:22 -0400
-Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:17312
-	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with SMTP id S271734AbTGXUzP (ORCPT
+	Thu, 24 Jul 2003 16:53:43 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:32018 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S271731AbTGXUxl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 16:55:15 -0400
-Message-ID: <3F204B3B.3040802@tupshin.com>
-Date: Thu, 24 Jul 2003 14:10:19 -0700
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030710
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: Daniel Egger <degger@fhm.edu>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-References: <3F1EF7DB.2010805@namesys.com>	<1059062380.29238.260.camel@sonja> <16160.4704.102110.352311@laputa.namesys.com>
-In-Reply-To: <16160.4704.102110.352311@laputa.namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jul 2003 16:53:41 -0400
+Date: Thu, 24 Jul 2003 23:08:48 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: yiding_wang@agilent.com
+Cc: rddunlap@osdl.org, sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.72 module loading issue
+Message-ID: <20030724210848.GB1176@mars.ravnborg.org>
+Mail-Followup-To: yiding_wang@agilent.com, rddunlap@osdl.org,
+	sam@ravnborg.org, linux-kernel@vger.kernel.org
+References: <334DD5C2ADAB9245B60F213F49C5EBCD05D55226@axcs03.cos.agilent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <334DD5C2ADAB9245B60F213F49C5EBCD05D55226@axcs03.cos.agilent.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
+On Thu, Jul 24, 2003 at 11:11:24AM -0600, yiding_wang@agilent.com wrote:
+> Hello Randy,
+> 
+> Thanks for the response.  I did not get time to look into this till now.  The way you suggested is to add module build process into kernel build.  This requires a user to build a loadable module with kernel together.  What I really want to is to have module build alone but include kernel symbols and variables so it will not have problem when loading.  The benefit of doing it is to make user and developer easy to change the code and rebuild without experiencing the kernel rebuild process every time.  I read those two documents and they mainly talking about how to build module with kernel together.
 
->Daniel Egger writes:
-> > 
-> > How failsafe is it to switch off the power several times? When the
-> > filesystem really works atomically I should have either the old or the
-> > new version but no mixture. Does it still need to fsck or is the
-> > transaction replay done at mount time? In case one still needs fsck,
-> > what's the probability of needing user interaction? How long does it
-> > need to get a filesystem back into a consistent state after a powerloss
-> > (approx. per MB/GB)?
->
->I should warn everybody that reiser4 is _highly_ _experimental_ at this
->moment. Don't use it for production.
->
-I'd like to ask this question differently: How failsafe is reiserfs4 
-*theoretically*. Assuming no bugs in implementation, what is the true 
-import of its atomic nature? Strengths and potential weaknesses?
+Please break your lines - they are very long..
 
--Thanks
--Tupshin
+It is well known that building drivers outside the kernel tree is not
+supported in 2.6.0-test yet. This is one of the two issues remaining before
+kbuild is ready. You will see them present on Andrew Morton's must-fix
+list.
 
+> In2.4.x, there is a "Rules.make" which has all needed symbols and variables defined.  I just includes that file for my module build and everything works perfectly.  Now in 2.5.x, those structure has been changed and the "rule" files seem to be relocated under "scripts" and being changed too.  I am trying to make use of those "rules" to make module build and load simpler compare with build module with kernel each time.
+> 
+> Any ideas?
+
+Wait a little more, and it will be possible to build modules in a clean
+way outside the kernel tree.
+
+	Sam

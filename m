@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263741AbTDNVAc (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263737AbTDNVAb (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 17:00:31 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:55473 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S263814AbTDNU7O (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 16:59:14 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: Greg KH <greg@kroah.com>
-Subject: Re: [RFC] /sbin/hotplug multiplexor
-Date: Mon, 14 Apr 2003 23:11:01 +0200
-User-Agent: KMail/1.5
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20030414190032.GA4459@kroah.com> <200304142209.56506.oliver@neukum.org> <20030414203328.GA5191@kroah.com>
-In-Reply-To: <20030414203328.GA5191@kroah.com>
+	id S263686AbTDNVA5 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263739AbTDNVAh (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 17:00:37 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15365 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263686AbTDNVA1 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:00:27 -0400
+Message-ID: <3E9B242A.9080201@zytor.com>
+Date: Mon, 14 Apr 2003 14:12:10 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped files question
+References: <002101c30239$fc0ae630$fe64a8c0@webserver> <8180000.1050330998@[10.10.2.4]> <20030414150759.GA14552@wind.cocodriloo.com> <11640000.1050332688@[10.10.2.4]> <b7etcd$s0n$1@cesium.transmeta.com> <3E9B1C8E.5030707@nortelnetworks.com>
+In-Reply-To: <3E9B1C8E.5030707@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304142311.01245.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Friesen wrote:
+> 
+>> munmap() and fsync() or msync() will flush it to disk; there is no reason
+>> munmap() should unless perhaps the file was opened O_SYNC.
+> 
+> Wait a minute.  Shouldn't a file opened O_SYNC flush the writes as they
+> happen,
+> removing the requirement for any explicit syncing?  If it doesn't there
+> are some very broken apps around.
+> 
 
-> > Now let's be conservative and assume 16KB unswappable memory
-> > per task. Now we take the famous 4000 disk case. 64MB. A lot
-> > but probably not deadly. But multiply this by 15 and the machine is
-> > absolutely dead.
->
-> Ok, then the "Enterprise Edition" of the distros that expect to handle
-> 4000 disks will have to add the following patch to their version of the
-> hotplug package.
->
-> In the meantime, the other 99% of current Linux users will exist just
-> fine :)
+Not for mmap().
 
-Well, for a little elegance you might introduce subdirectories for each type
-of hotplug event and use only them.
+	-hpa
 
-	Regards
-		Oliver
 

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267013AbTBXNUs>; Mon, 24 Feb 2003 08:20:48 -0500
+	id <S266996AbTBXN0r>; Mon, 24 Feb 2003 08:26:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbTBXNUs>; Mon, 24 Feb 2003 08:20:48 -0500
-Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:62989 "EHLO
-	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
-	id <S267013AbTBXNUr>; Mon, 24 Feb 2003 08:20:47 -0500
-Date: Mon, 24 Feb 2003 14:30:59 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-ac1 not seeing IDE disk on PIIX host adapter
-Message-ID: <20030224133058.GA25483@torres.ka0.zugschlus.de>
-References: <20030222085102.GA23966@torres.ka0.zugschlus.de> <1045946551.5484.2.camel@irongate.swansea.linux.org.uk>
+	id <S267049AbTBXN0r>; Mon, 24 Feb 2003 08:26:47 -0500
+Received: from barclay.balt.net ([195.14.162.78]:7350 "EHLO barclay.balt.net")
+	by vger.kernel.org with ESMTP id <S266996AbTBXN0q>;
+	Mon, 24 Feb 2003 08:26:46 -0500
+Date: Mon, 24 Feb 2003 15:35:58 +0200
+From: Zilvinas Valinskas <zilvinas@gemtek.lt>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.62-mm3 - no X for me
+Message-ID: <20030224133558.GA6690@gemtek.lt>
+Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+References: <20030223230023.365782f3.akpm@digeo.com> <3E5A0F8D.4010202@aitel.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1045946551.5484.2.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <3E5A0F8D.4010202@aitel.hist.no>
+User-Agent: Mutt/1.4i
+X-Attribution: Zilvinas
+X-Url: http://www.gemtek.lt/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 08:42:31PM +0000, Alan Cox wrote:
-> On Sat, 2003-02-22 at 08:51, Marc Haber wrote:
-> > Linux 2.4.20-ac1 sees the PIIX chip, but not the disks connected to
-> > it. This of course results in a kernel panic "unable to mount root
-> > fs". Same thing happens with 2.4.20-ac2. Vanilla 2.4.20 works fine. Of
-> > course, all kernels have been built with the same configuration.
+On Mon, Feb 24, 2003 at 01:26:53PM +0100, Helge Hafting wrote:
+> 2.5.62-mm3 boots up fine, but won't run X.  Something goes
+> wrong switching to graphics so my monitor says "no signal"
 > 
-> I'd like to know if 2.4.21pre4-ac6 sees the disks. You don't even need
-> to run it beyond the boot, just to check this is the legacy port
-> problem.
+> Using radeonfb:
+> Switching to the framebuffer console almost works, but
+> the video mode is messed up so parts of the text appear
+> all over the screen.  Switching back to X again shows
+> X in a very messed up video mode, some sort
+> of resolution mismatch.
+> 
+> Using plain vga console:
+> Nothing happens on the screen after I get "no signal",
+> console switching has no effect.  Sync&Reboot via
+> sysrq works though.
+> 
+> The kernel uses UP, preempt, no module support, devfs configured
+> but not used.
+> 
+> Hardware:
+> 2.4GHz P4, 512M
+> 01:00.0 VGA compatible controller: ATI Technologies Inc Radeon VE QY
+> 00:01.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
 
-It probably is, since 2.4.21pre4-ac6 sees the disks. Thanks for your
-help.
-
-Since we run 2.4.20ac1 on a bunch of production boxes (needing promise
-20277 support), is the bug you are talking about a problem that should
-make us upgrade before 2.4.21 release?
-
-Greetings
-Marc
-
--- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29
+Same is here. Radeon too, only it is Radeon M7 LY 8)
+> 
+> Helge Hafting
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267796AbUIAW0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUIAWaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267796AbUIAW0r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 18:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267758AbUIAVgp
+	id S267451AbUIAWaP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 18:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267681AbUIAW3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:36:45 -0400
-Received: from research.rutgers.edu ([128.6.25.145]:45818 "EHLO
-	research.rutgers.edu") by vger.kernel.org with ESMTP
-	id S267935AbUIAVcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 17:32:31 -0400
-Date: Wed, 1 Sep 2004 17:32:25 -0400 (EDT)
-From: Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>
-To: linux-kernel@vger.kernel.org
-Subject: NFS returns EBADCOOKIE (523) to user space
-Message-ID: <Pine.GSO.4.21.0409011713360.28492-100000@research.rutgers.edu>
-Return-Rcpt-To: gsuresh@rutgers.edu
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Sep 2004 18:29:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48822 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268089AbUIAW06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 18:26:58 -0400
+Date: Wed, 1 Sep 2004 15:30:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: janitor@sternwelten.at
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 21/25]  hvc_console: replace schedule_timeout() with
+ msleep()
+Message-Id: <20040901153034.35104957.akpm@osdl.org>
+In-Reply-To: <E1C2cAg-0007UH-3I@sputnik>
+References: <E1C2cAg-0007UH-3I@sputnik>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+janitor@sternwelten.at wrote:
+>
+> -#define TIMEOUT		((HZ + 99) / 100)
+> +#define TIMEOUT		10
+>  
+>  static struct tty_driver *hvc_driver;
+>  static int hvc_offset;
+> @@ -276,8 +277,7 @@ int khvcd(void *unused)
+>  			for (i = 0; i < MAX_NR_HVC_CONSOLES; ++i)
+>  				hvc_poll(i);
+>  		}
+> -		set_current_state(TASK_INTERRUPTIBLE);
+> -		schedule_timeout(TIMEOUT);
+> +		msleep(TIMEOUT);
 
-When a process is doing a readdir in a directory and another process is
-deleting objects in the same directory, sometimes EBADCOOKIE seems to be
-returned to the first process.
+This one is wrong: we need to sleep in interruptible state here, otherwise
+this kernel thread will contribute to the system load average.
 
-The following messages were seen when nfs tracing was turned on.
-kernel: NFS: find_dirent() returns -523
-kernel: NFS: find_dirent_page() returns -523
-kernel: NFS: readdir_search_pagecache() returned -523 
+Several other of your msleep conversion patches actually fix bugs.  You've
+found drivers which want to sleep for a fixed period, but they do that with
+TASK_INTERRUPTIBLE.  If someone sends the calling process a signal, these
+drivers will end up not sleeping at all and may fail.
 
-Here is the analysis: In nfs_readdir, when readdir_search_pagecache()
-returns -EBADCOOKIE, uncached_readdir() is called. This sets desc->error
-to -EBADCOOKIE, and status to -EIO. In nfs_readdir(), the status (res) is
-reset to 0. Then desc->error is returned as is to user space.
-
---suresh
+I'll going through these patches and shall apply the ones which look right.
+Please consider them all to have been handled, thanks.
 

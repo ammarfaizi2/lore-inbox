@@ -1,66 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263376AbUDBAfm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 19:35:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbUDBAfm
+	id S263032AbUDBAfc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 19:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263379AbUDBAfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 19:35:42 -0500
-Received: from alcor.twinsun.com ([198.147.65.9]:47006 "EHLO alcor.twinsun.com")
-	by vger.kernel.org with ESMTP id S263376AbUDBAfi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 19:35:38 -0500
-From: Paul Eggert <eggert@gnu.org>
-To: Andi Kleen <ak@suse.de>
-CC: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, bug-coreutils@gnu.org
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de>
-	<20040401220957.5f4f9ad2.ak@suse.de>
-Date: Thu, 01 Apr 2004 16:35:20 -0800
-Message-ID: <7w3c7nb4jb.fsf@sic.twinsun.com>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (usg-unix-v)
-MIME-Version: 1.0
+	Thu, 1 Apr 2004 19:35:32 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:40338
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263032AbUDBAfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 19:35:20 -0500
+Date: Fri, 2 Apr 2004 02:35:20 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: Properly stop kernel threads on aic7xxx
+Message-ID: <20040402003520.GH18585@dualathlon.random>
+References: <20040401170808.GA696@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040401170808.GA696@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 10:09:57PM +0200, Andi Kleen wrote:
+On Thu, Apr 01, 2004 at 07:08:08PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> This is totally untested patch that should make aic7xxx one step
+> closer to working with software suspend... Plus it kills ugly #if in
+> the process.
+> 								Pavel 
+> 
+> --- tmp/linux/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-03-11 18:11:12.000000000 +0100
+> +++ linux/drivers/scsi/aic7xxx/aic79xx_osm.c	2004-04-01 19:01:29.000000000 +0200
+> @@ -2581,17 +2581,8 @@
+>  	 * Complete thread creation.
+>  	 */
+>  	lock_kernel();
+> -#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,60)
+> -	/*
+> -	 * Don't care about any signals.
+> -	 */
+> -	siginitsetinv(&current->blocked, 0);
+> -
+> -	daemonize();
+> -	sprintf(current->comm, "ahd_dv_%d", ahd->unit);
+> -#else
+>  	daemonize("ahd_dv_%d", ahd->unit);
+> -#endif
+> +	current->flags |= PF_IOTHREAD;
+>  	unlock_kernel();
+>  
+>  	while (1) {
+> --- tmp/linux/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-03-11 18:11:12.000000000 +0100
+> +++ linux/drivers/scsi/aic7xxx/aic7xxx_osm.c	2004-04-01 19:01:08.000000000 +0200
+> @@ -2286,17 +2286,8 @@
+>  	 * Complete thread creation.
+>  	 */
+>  	lock_kernel();
+> -#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+> -	/*
+> -	 * Don't care about any signals.
+> -	 */
+> -	siginitsetinv(&current->blocked, 0);
+> -
+> -	daemonize();
+> -	sprintf(current->comm, "ahc_dv_%d", ahc->unit);
+> -#else
+>  	daemonize("ahc_dv_%d", ahc->unit);
+> -#endif
+> +	current->flags |= PF_IOTHREAD;
+>  	unlock_kernel();
+>  
+>  	while (1) {
 
-> just round up to the next second instead of rounding down when going
-> from 1s resolution to ns.
+This fixed the hang, I can reproduce the oops now.
 
-Please don't do that.  Longstanding tradition in timestamp code is to
-truncate toward minus infinity when converting from a
-higher-resolution timestamp to a lower-resolution timestamp.  This
-is consistent behavior, and is easy to explain: let's stick to it as a
-uniform practice.
+Pavel the current CVS would work fine if only you wouldn't try to do I/O
+on compound pages via rw_page_swap_sync. That thing now collides with
+anon-vma (though it should work fine if you would backout anon-vma since
+the rw_page_swap_sync wouldn't touch page->private anymore).
 
-There are two basic principles here.  First, ordinary files should not
-change spontaneously: hence a file's timestamp should not change
-merely because its inode is no longer cached.  Second, a file's
-timestamp should never be "in the future": hence one should never
-round such timestamps up.
+I'm not exactly sure how to fix this collision right now. there are
+various ways, probably something that will work perfectly is to just clear
+PG_compound in rw_swap_page_sync and to set it back before returning (if
+it was set at the entry point), though I'd take it as last resort...
+thinking about it. Comments welcome.
 
-The only way I can see to satisfy these two principles is to truncate
-the timestamp right away, when it is first put into the inode cache.
-That way, the copy in main memory equals what will be put onto disk.
-This is the approach taken by other operating systems like Solaris,
-and it explains why parallel GCC builds won't have this problem on
-these other systems.
-
-Switching subjects slightly, in
-<http://mail.gnu.org/archive/html/bug-coreutils/2004-03/msg00095.html>
-I recently contributed code to coreutils that fixes some bugs with "cp
---update" and "mv --update" when files are copied from
-high-resolution-timestamp file systems to low-resolution-timestamp
-file systems.  This code dynamically determines the timestamp
-resolution of a file system by examining (and possibly mutating) its
-timestamps.  The current Linux+ext3 behavior (which I did not know
-about) breaks this code, because it can cause "cp" to falsely think
-that ext3 has nanosecond-resolution timestamps.
-
-How long has the current Linux+ext3 behavior been in place?  If it's
-widespread, I'll probably have to think about adding a workaround to
-coreutils.  Does the behavior affect all Linux filesystems, or just
-ext3?
-
-I'll CC: this message to bug-coreutils to give them a heads-up.
+I'm also unsure why _all_ multipage allocations really need this
+compound thing setup and why can't the owner of the page take care of
+the refcounting itself by always using the head page. I may actually
+add a GFP bitflag asking for a multipage but w/o a compound setup. There
+are million ways to fix this, none of which is obvious.

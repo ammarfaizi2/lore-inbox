@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269334AbTGURQL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 13:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270629AbTGUROC
+	id S270656AbTGURQI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 13:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269334AbTGURN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 13:14:02 -0400
-Received: from [128.2.206.88] ([128.2.206.88]:54985 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S270655AbTGURMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 13:12:45 -0400
-Date: Mon, 21 Jul 2003 13:27:06 -0400
-To: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suggestion for a new system call: convert file handle to a cookie for transfering file handles between processes.)
-Message-ID: <20030721172656.GA32597@delft.aura.cs.cmu.edu>
-Mail-Followup-To: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>,
-	linux-kernel@vger.kernel.org
-References: <5df3060bad.60bad5df30@teleline.es>
+	Mon, 21 Jul 2003 13:13:57 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:41225
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S270629AbTGURKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 13:10:31 -0400
+Date: Mon, 21 Jul 2003 10:24:53 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre7
+Message-ID: <20030721172453.GB1158@matchmail.com>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1058569601.544.1.camel@teapot.felipe-alfaro.com> <20030719092103.A19754@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5df3060bad.60bad5df30@teleline.es>
+In-Reply-To: <20030719092103.A19754@infradead.org>
 User-Agent: Mutt/1.5.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 07:04:29PM +0200, RAMON_GARCIA_F wrote:
-> And that is exactly the reason why I like the interface that I designed.
-> As opposed to transfer of handles through unix domain sockets, that is
-> tied to unix sockets, my interface is more primitive. It is not tied to
-> anything. You get a representation of a file handle, and then you can
-> transfer it through a regular file, a pipe, ...
+On Sat, Jul 19, 2003 at 09:21:03AM +0100, Christoph Hellwig wrote:
+> On Sat, Jul 19, 2003 at 01:06:41AM +0200, Felipe Alfaro Solana wrote:
+> > > Here goes -pre7.
+> > 
+> > Will ACL/xattr support get its way onto mainstream 2.4 soon?
+> 
+> xattr support is in 2.4 mainline although only JFS currently support
+> it.
 
-There are many arguments against it.
-
-- Cookies are only useful on the local system, files, pipes, tcpsockets
-  etc. are cross-platform.
-
-- Refcounting issues, a rogue application can quickle use up kernel
-  resources by requesting thousands of cookies, he isn't even limited by
-  per-process resource limits, as it is possible to open a file, grab a
-  cookie, and close the file. The only 'solution' you have is a timeout
-  on the cookie, possibly this could be extended by some scheme where
-  cookies are dropped more agressivly. But any such solution will either
-  not be sufficient to protect the system from resource exhaustion or
-  provide the opportunity for denial of service attacks.
-
-- Technically the SCM_RIGHTS message that is passed across the
-  socketpair(2) or Unix domain socket contains pretty much the cookie
-  you are talking about, but it has several useful properties. The
-  process is required to keep the filehandle open until the message is
-  passed, so it has to obey per-process resource limits. There is strict
-  refcounting and no workarounds required to expire handles, the
-  SCM_RIGHTS method is portable across pretty much all Unix systems.
-
-- It is trivial to implement your proposal in userspace based on the
-  existing primitives (simple library + daemon solution). But it is not
-  possible to implement the exact semantics of the existing primitives
-  in userspace if they are replaced by your proposed cookies in the
-  kernel.
-
-Jan
+Does that include ACL Support?

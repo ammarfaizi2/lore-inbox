@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269621AbTHLKTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 06:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269628AbTHLKTc
+	id S269602AbTHLKSt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 06:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269621AbTHLKSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 06:19:32 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:18692 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S269621AbTHLKT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 06:19:26 -0400
-Date: Tue, 12 Aug 2003 06:19:13 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>, Greg KH <greg@kroah.com>,
-       Matthew Wilcox <willy@debian.org>, Robert Love <rml@tech9.net>,
-       CaT <cat@zip.com.au>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-Message-ID: <20030812061913.G28314@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <Pine.LNX.4.51.0308121100200.17669@dns.toxicfilms.tv> <Pine.GSO.4.21.0308121202470.20533-100000@vervain.sonytel.be>
+	Tue, 12 Aug 2003 06:18:49 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:51592 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S269602AbTHLKSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 06:18:47 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 12 Aug 2003 12:18:44 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: maney@pobox.com
+Cc: maney@two14.net, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
+Message-Id: <20030812121844.521dcca3.skraw@ithnet.com>
+In-Reply-To: <20030812035803.GA17921@furrr.two14.net>
+References: <20030812035803.GA17921@furrr.two14.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0308121202470.20533-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Tue, Aug 12, 2003 at 12:03:21PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 12:03:21PM +0200, Geert Uytterhoeven wrote:
-> > > I sure would.  Oh, you can drop the .class, .class_mask, and
-> > > .driver_data lines, and then it even looks cleaner.
-> > Just a quick question. if we drop these, will they _always_
-> > be initialised 0 ? I have made a test to see, and it seemed as though,
-> > but I would like to be 100% sure.
+On Mon, 11 Aug 2003 22:58:03 -0500
+maney@two14.net (Martin Maney) wrote:
+
 > 
-> For globals and static locals: yes.
-> For non-static locals: no.
+> Okay, further testing is clearly indicated (and I'm recompiling a test
+> kernel while writing this to try to narrow it down a little), but I've
+> got a very repeatable file corruption under 2.4.22-rc2 that does not
+> manifest under 2.4.21.  My repeatable test case only (so far?) causes
+> the data in the file to be corrupted, but I suspect metadata can get
+> hit as well, and I have seen some filesystem errors that were probably
+> caused by this, but not so that I can say so with certainty.
 
-No, for all initializers members which are not explicitely initialized are
-zero initialized.
-Only if you provide no initializer at all, globals/static locals will
-still be zero initializers while non-static locals may contain anything.
-So, if you write:
+Did you do a long check of your system memory with memtest? long meaning some
+days...
 
-struct A { int a; int b; int c; int d; };
-void bar (void *);
-void foo (void)
-{
-  struct A a = { .a = 21 };
-  bar (&a);
-}
-
-then it is the same as:
-
-struct A { int a; int b; int c; int d; };
-void bar (void *);
-void foo (void)
-{
-  struct A a = { .a = 21, .b = 0, .c = 0, .d = 0 };
-  bar (&a);
-}
-
-	Jakub
+Regards,
+Stephan

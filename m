@@ -1,39 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263808AbTKXRvP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 12:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263812AbTKXRvP
+	id S263828AbTKXRyy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 12:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263830AbTKXRyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 12:51:15 -0500
-Received: from lvs00-fl-n05.valueweb.net ([216.219.253.151]:42641 "EHLO
-	ams005.ftl.affinity.com") by vger.kernel.org with ESMTP
-	id S263808AbTKXRvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 12:51:13 -0500
-Message-ID: <3FC244C7.4030002@coyotegulch.com>
-Date: Mon, 24 Nov 2003 12:49:59 -0500
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.0 and Checkpointing
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 24 Nov 2003 12:54:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14017 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263828AbTKXRyw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 12:54:52 -0500
+Date: Mon, 24 Nov 2003 10:00:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC] Make balance_dirty_pages zone aware (1/2)
+Message-Id: <20031124100043.5416ed4c.akpm@osdl.org>
+In-Reply-To: <1034580000.1069688202@[10.10.2.4]>
+References: <3FBEB27D.5010007@us.ibm.com>
+	<20031123143627.1754a3f0.akpm@osdl.org>
+	<1034580000.1069688202@[10.10.2.4]>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've recently run across CHPOX, Checkpointing for Linux 
-(http://www.cluster.kiev.ua/tasks/chpx_eng.html). I was wondering if 
-anyone else could illuminate me further about using this module with 
-2.6.0? I'll probably try this myself later today, after I get test10 
-running.
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> >> Currently the VM decides to start doing background writeback of pages if 
+> >>  10% of the systems pages are dirty, and starts doing synchronous 
+> >>  writeback of pages if 40% are dirty.  This is great for smaller memory 
+> >>  systems, but in larger memory systems (>2GB or so), a process can dirty 
+> >>  ALL of lowmem (ZONE_NORMAL, 896MB) without hitting the 40% dirty page 
+> >>  ratio needed to force the process to do writeback. 
+> > 
+> > Yes, it has been that way for a year or so.  I was wondering if anyone
+> > would hit any problems in practice.  Have you hit any problem in practice?
+> > 
+> > I agree that the per-zonification of this part of the VM/VFS makes some
+> > sense, although not _complete_ sense, because as you've seen, we need to
+> > perform writeout against all zones' pages if _any_ zone exceeds dirty
+> > limits.  This could do nasty things on a 1G highmem machine, due to the
+> > tiny highmem zone.  So maybe that zone should not trigger writeback.
+> > 
+> > However the simplest fix is of course to decrease the default value of the
+> > dirty thresholds - put them back to the 2.4 levels.  It all depends upon
+> > the nature of the problems which you have been observing?
+> 
+> I'm not sure that'll fix the problem for NUMA boxes, which is where we 
+> started.
 
-Has any condieration been made for integrating checkpointing directly 
-into the main kernel build? I'm thinking 2.7, not 2.6, of course.
+What problems?
 
--- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-Software Invention for High-Performance Computing
-In development: Alex, a database for common folk
+> When any node fills up completely with dirty pages (which would
+> only require one process doing a streaming write (eg an ftp download),
+> it seems we'll get into trouble.
+
+What trouble?
+
+> If we change the thresholds from 40% to
+> 20%, that just means you need a slightly larger system to trigger it,
+> it never fixes the problem ;-(
+
+What problem?
+
+
+If we make the dirty threshold a proportion of the initial amount of free
+memory in ZONE_NORMAL, as is done in 2.4 it will not be possible to fill
+any node with dirty pages.
 

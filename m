@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289098AbSAJA03>; Wed, 9 Jan 2002 19:26:29 -0500
+	id <S289103AbSAJAmg>; Wed, 9 Jan 2002 19:42:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289099AbSAJA0T>; Wed, 9 Jan 2002 19:26:19 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:14239
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S289098AbSAJA0N>; Wed, 9 Jan 2002 19:26:13 -0500
-Date: Wed, 9 Jan 2002 17:25:07 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>, Greg KH <greg@kroah.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <20020110002507.GU13931@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <20020109214022.GE21963@kroah.com> <5.1.0.14.2.20020109215335.02cfc780@pop.cus.cam.ac.uk> <20020109231528.B25786@devcon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020109231528.B25786@devcon.net>
-User-Agent: Mutt/1.3.25i
+	id <S289104AbSAJAmQ>; Wed, 9 Jan 2002 19:42:16 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:7558 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S289103AbSAJAmG>;
+	Wed, 9 Jan 2002 19:42:06 -0500
+Date: Thu, 10 Jan 2002 01:41:16 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Daniel J Blueman <daniel.blueman@btinternet.com>
+cc: "'Ville Herva'" <vherva@niksula.hut.fi>,
+        "'Andrew Morton'" <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+        "'Jani Forssell'" <jani.forssell@viasys.com>
+Subject: RE: Via KT133 pci corruption: stock 2.4.18pre2 oopses as well
+In-Reply-To: <001401c1996c$7d8dd790$0100a8c0@icarus>
+Message-ID: <Pine.LNX.4.21.0201100139080.14829-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 11:15:28PM +0100, Andreas Ferber wrote:
-> On Wed, Jan 09, 2002 at 09:55:34PM +0000, Anton Altaparmakov wrote:
-> > 
-> > I would think that is a good idea but I am not sure that is what is planned 
-> > / will happen. Keeping it outside would have the advantage that a newer 
-> > partition recognizer (or whatever other code) can be applied to any 
-> > existing kernel version (that supports initramfs).
-> 
-> This could be done anyway: just replace the initramfs image built by 
-> the kernel build with anotherone built from another source tree. It
-> would be helpful though if the tools were distributed both standalone
-> and included into the kernel tree.
+On Thu, 10 Jan 2002, Daniel J Blueman wrote:
 
-If the kernel is going to build an initramfs option, it also needs a way
-to be given one.  The issue I'm thinking of is I know of a few platforms
-where the initramfs archive will have to be part of the 'zImage' file
-(much like they do for ramdisks now).
+> There are known issues with the VIA 82C686A/B chipset south-bridge and
+> IDE in particular. Make sure you have the latest BIOS and latest VIA
+> 4in1 drivers to workaround the IDE corruption and other known issues
+> (sound problems with certain soundcards).
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Yes I'm aware of these problems, I thought that the VIA 4in1 driver where
+wintendo drivers. And I also thought that there are workarounds for these
+bugs in the kernel. 
+
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
+

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278695AbRKFIrM>; Tue, 6 Nov 2001 03:47:12 -0500
+	id <S278690AbRKFI4M>; Tue, 6 Nov 2001 03:56:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278701AbRKFIrC>; Tue, 6 Nov 2001 03:47:02 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:20964 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S278673AbRKFIqt>; Tue, 6 Nov 2001 03:46:49 -0500
-Date: Tue, 6 Nov 2001 10:57:28 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: <matt@eee.nott.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: PCI interrupts 
-Message-ID: <Pine.LNX.4.33.0111061041001.7663-100000@netfinity.realnet.co.sz>
+	id <S278701AbRKFI4C>; Tue, 6 Nov 2001 03:56:02 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:21127 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S278690AbRKFIzp>;
+	Tue, 6 Nov 2001 03:55:45 -0500
+Message-ID: <3BE7A58F.7BFEAAEE@pobox.com>
+Date: Tue, 06 Nov 2001 00:55:43 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "James A. Hillyerd" <james@hillyerd.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: TCP Connections stuck in SYN_SENT state with 2.4.12, 2.4.13, 2.4.14
+In-Reply-To: <1005036240.978.6.camel@makita>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Clark said...
->(b) if it shouldn't have a unique number do I have to share the
->interrupt (with the usb controller) or can I change it to
->another address (by writing to the config space?)?
->If I have to share it how do I do this- (my card will generate a
->lot of interrupt traffic)?.
-Assuming i386
+"James A. Hillyerd" wrote:
 
->From my limited knowledge about the IRQ handling subsystems, you would
-call arch/i386/irq.c:request_irq() with the appropriate flags, ie
-SA_SHIRQ and any others you may require. I *think* you might also be able
-to do dev->irq = irq_num and then do your request_irq() but you might
-require a bit of voodoo inbetween.
+> I have a strange problem, outgoing TCP packets get stuck at the SYN_SENT
+> point for certain websites.  Two of the sites I have this problem with
+> are zdnet.com and compusa.com.  When I try to telnet to port 80, the
+> connection will never be established, and netstat shows it in the
+> SYN_SENT state.
 
-Regards,
-	Zwane Mwaikambo
+Did you by chance enable ecn in the kernel?
+
+Try:
+
+echo "0" > /proc/sys/net/ipv4/tcp_ecn
+
+This is a FAQ IIRC -
+
+cu
+
+jjs
 

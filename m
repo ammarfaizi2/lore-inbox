@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTJNM6G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 08:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTJNM6F
+	id S262534AbTJNNCj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 09:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbTJNNCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 08:58:05 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:1690 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262352AbTJNM6A (ORCPT
+	Tue, 14 Oct 2003 09:02:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18957 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262534AbTJNNCi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 08:58:00 -0400
-Date: Tue, 14 Oct 2003 14:57:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andi Kleen <ak@muc.de>
+	Tue, 14 Oct 2003 09:02:38 -0400
+Date: Tue, 14 Oct 2003 14:02:22 +0100
+From: Dave Jones <davej@redhat.com>
+To: John Madden <weez@freelists.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ide barrier support, #2
-Message-ID: <20031014125723.GR1107@suse.de>
-References: <GurO.7cg.43@gated-at.bofh.it> <m3zng4ou90.fsf@averell.firstfloor.org>
+Subject: Re: agpgart and SiS 5591/5592 - ever?
+Message-ID: <20031014130222.GA11453@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	John Madden <weez@freelists.org>, linux-kernel@vger.kernel.org
+References: <200310132234.45163.weez@freelists.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m3zng4ou90.fsf@averell.firstfloor.org>
+In-Reply-To: <200310132234.45163.weez@freelists.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 14 2003, Andi Kleen wrote:
-> Jens Axboe <axboe@suse.de> writes:
-> 
-> This adds support for XFS for log writes (not for fsync).
-> Based on the 2.4 XFS patch for write barriers I did some time ago.
-> 
-> It just does a flush, not a barrier. I think that's enough for
-> log writes because XFS waits until the log write has hit disk.
-> 
-> It doesn't do anything special when the flush fails - just
-> shuts down the file system as usual. 
-> 
-> diff -u linux/fs/xfs/pagebuf/page_buf.c-o linux-2.6.0test6-work/fs/xfs/pagebuf/page_buf.c
-> --- linux/fs/xfs/pagebuf/page_buf.c-o	2003-09-28 10:52:55.000000000 +0200
-> +++ linux/fs/xfs/pagebuf/page_buf.c	2003-10-14 14:48:44.000000000 +0200
-> @@ -1403,12 +1403,12 @@
->  
->  submit_io:
->  	if (likely(bio->bi_size)) {
-> -		if (pb->pb_flags & PBF_READ) {
-> -			submit_bio(READ, bio);
-> -		} else {
-> -			submit_bio(WRITE, bio);
-> -		}
-> -
-> +		int cmd = WRITE; 
-> +		if (pb->pb_flags & PBF_READ)
-> +			cmd = READ;
-> +		else if (pb->pb_flags & PBF_FLUSH)
-> +			cmd = WRITESYNC;
+On Mon, Oct 13, 2003 at 10:34:45PM -0500, John Madden wrote:
+ > I seem to be unfortunate enough to be the owner of a motherboard with an 
+ > SiS 5591/5592 AGP chipset.  It seems to be a common-enough chipset that 
+ > there would be a driver for it by now (checked 2.4.23-pre and 2.6.0-test7) 
+ > -- bad vendor?
 
-Uh be careful! It must be WRITEBARRIER, not WRITESYNC. I think I'll kill
-WRITEBARRIER and just call it WRITESYNC, it's more logical. I've added
-the modified variant, thanks.
+No specs + no hardware = no support. For someone with both, it's
+possibly not much work to bend one of the existing drivers to fit.
+
+ > Am I SoL here?  Time to get another motherboard?  I'd be happy to lend my 
+ > hardware to testing.
+
+You're SoL for now at least. See if you can chase up a contact at SiS.
+
+		Dave
 
 -- 
-Jens Axboe
-
+ Dave Jones     http://www.codemonkey.org.uk

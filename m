@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278690AbRKALEB>; Thu, 1 Nov 2001 06:04:01 -0500
+	id <S278701AbRKALKK>; Thu, 1 Nov 2001 06:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278692AbRKALDv>; Thu, 1 Nov 2001 06:03:51 -0500
-Received: from castle.nmd.msu.ru ([193.232.112.53]:65298 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S278690AbRKALDj>;
-	Thu, 1 Nov 2001 06:03:39 -0500
-Message-ID: <20011101141111.A27180@castle.nmd.msu.ru>
-Date: Thu, 1 Nov 2001 14:11:11 +0300
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Juergen Hasch <Hasch@t-online.de>
-Cc: linux-kernel@vger.kernel.org,
-        =?koi8-r?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>,
-        J Sloan <jjs@pobox.com>
-Subject: Re: Intel EEPro 100 with kernel drivers
-In-Reply-To: <20011029021339.B23985@stud.ntnu.no> <3BDCD06E.8AF8FF69@pobox.com> <20011031090125.B10751@stud.ntnu.no> <15yzpC-26N6dEC@fwd04.sul.t-online.com>
-Mime-Version: 1.0
+	id <S278700AbRKALJu>; Thu, 1 Nov 2001 06:09:50 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:49413 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S278697AbRKALJj>; Thu, 1 Nov 2001 06:09:39 -0500
+Message-ID: <3BE12D46.780477E@idb.hist.no>
+Date: Thu, 01 Nov 2001 12:08:54 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.14-pre6 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+Subject: Re: graphical swap comparison of aa and rik vm
+In-Reply-To: <Pine.LNX.4.10.10111010056100.31484-100000@coffee.psychology.mcmaster.ca>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <15yzpC-26N6dEC@fwd04.sul.t-online.com>; from "Juergen Hasch" on Wed, Oct 31, 2001 at 07:10:49PM
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 07:10:49PM +0100, Juergen Hasch wrote:
+Mark Hahn wrote:
 > 
-> I had some trouble with an Intel STL 2 board and the onboard EEPRO100.
-> Samba worked OK but it always got stuck on NFS transfers.
+> > Here is the graph   http://safemode.homeip.net/vm_swapcomparison.png   . It's
 > 
-> There was a bug in the older BMC firmware, so the eepro100 detected
-> some NFS frames as "TCO" packets.
-> (http://support.intel.com/support/motherboards/server/ta_353-1.htm)
-> 
-> If you use the e100 driver, you can look at 
-> /proc/net/PRO_LAN_ADAPTERS/eth0.info
-> If the "Tx_TCO_Packets" entry isn't zero after NFS times out,
-> this may be your problem.
-> With the eepro100 driver you will only see overruns with ifconfig.
+> here's my munge of the same data:
+>         http://mhahn.mcmaster.ca/~hahn/foo.png
+> the measures I find interesting are the SI/SO rates.  first, the most obvious
+> feature is that Rik-VM has a serious problem knowing when to *stop* swapping
+> out.  but SO isn't a bad thing unless it's obsessive: it's when you see high
+> *swap-in* that you know the VM has previously chosen bad pages to SO.
 
-It should be Rx_TCO_Packets, not Tx.
-The problem described in Intel's advisory is related to incorrect processing
-of receiving packets.
+Sure.  SO isn't bad for the benchmark, but think of the guy trying 
+to use the machine after the test finished.  It probably swapped out
+a lot of other processes which is why you didn't see it swap in again.
+These things weren't needed for the bench, but daily use don't
+look like that.  If my big job takes a long time - no problem
+if I can work on something else with nice performance.
 
-	Andrey
+> and this is the second big difference: Rik-VM doesn't make nearly as many
+> mistakes - especially look at Andrea-VM thrashing out-in-out at ~ samples 26-32.
+> 
+> also, if you merely sum the SI and SO columns for each:
+>                 sum(SI)         sum(SO)         sum(SI+SO)
+>       Rik-VM    43564           317448          290032
+>       AA-VM     118284          171748          361012
+> to me, this looks like the same point: Rik being SO-happy,
+> Andrea having to SI a lot more.  interesting also that Andrea wins the race,
+> in spite of poorer SO choices and more swap traffic overall.
+
+It'd be real interesting to know wether or not the "excessive" swapping 
+caused extra seeks. Readahead or simply reading more consecutive blocks 
+don't hurt - while seeks do.  Perhaps this is why it didn't hurt so
+much?
+
+Also consider the multiuser aspect - punishing a memory pig with
+extra swapin isn't necessarily so bad, if it keeps more memory around
+for others.  Could possibly be bad for a dedicated box, but Andrea won 
+on speed anyway.
+
+Helge Hafting

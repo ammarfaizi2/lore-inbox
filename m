@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280988AbRKTIV6>; Tue, 20 Nov 2001 03:21:58 -0500
+	id <S280996AbRKTIeS>; Tue, 20 Nov 2001 03:34:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280992AbRKTIVs>; Tue, 20 Nov 2001 03:21:48 -0500
-Received: from mailer.zib.de ([130.73.108.11]:10920 "EHLO mailer.zib.de")
-	by vger.kernel.org with ESMTP id <S280988AbRKTIVf>;
-	Tue, 20 Nov 2001 03:21:35 -0500
-Date: Tue, 20 Nov 2001 09:21:23 +0100
-From: Sebastian Heidl <heidl@zib.de>
-To: Akshat Kapoor <akshat@mercurykr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Query - How to Send Signal to application from kernel module !
-Message-ID: <20011120092123.R5446@csr-pc1.zib.de>
-In-Reply-To: <001401c17192$ebf8ce80$150d85a5@mercurykr.com>
+	id <S280997AbRKTIeI>; Tue, 20 Nov 2001 03:34:08 -0500
+Received: from are.twiddle.net ([64.81.246.98]:7367 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S280996AbRKTIdy>;
+	Tue, 20 Nov 2001 03:33:54 -0500
+Date: Tue, 20 Nov 2001 00:33:38 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jan Hubicka <jh@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: i386 flags register clober in inline assembly
+Message-ID: <20011120003338.A24717@twiddle.net>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Jan Hubicka <jh@suse.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011118020957.A10674@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0111171844001.899-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <001401c17192$ebf8ce80$150d85a5@mercurykr.com>; from akshat@mercurykr.com on Tue, Nov 20, 2001 at 12:43:52PM +0530
-X-www.distributed.net: 27 OGR packets (3.56 Tnodes) [4.21 Mnodes/s]
+In-Reply-To: <Pine.LNX.4.33.0111171844001.899-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 17, 2001 at 06:48:22PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 20, 2001 at 12:43:52PM +0530, Akshat Kapoor wrote:
-> Is it possible in Linux to send  a signal to an application from a driver ?
-> I've done this in Windows NT but Idont know how to do it in Linux. I
-have a look at kernel/signal.c
-I think you can use all the send_* force_* and kill_* functions but I'm not sure
-with this. Currently I used kill_proc_info and force_sig and they worked just
-fine.
+On Sat, Nov 17, 2001 at 06:48:22PM -0800, Linus Torvalds wrote:
+> That sounds pretty ideal - have some way of telling gcc to add a "seta
+> %reg", while at the same time telling gcc that if it can elide the "seta"
+> and use a direct jump instead, do so..
 
-HTH,
-_sh_
+Hmm.  It appears to be easy to do with machine-dependent builtins.  E.g.
 
+	int x;
+	__asm__ __volatile__(LOCK "subl %1,%0"
+			     : "=m"(v->counter) : "ir"(i) : "memory");
+	x = __builtin_ia32_sete();
+	if (x) {
+		...
+	}
+
+Now, you'd have to be careful in where that __builtin_ia32_sete
+gets placed, but I'd guess that immediately after an asm would
+be relatively safe.  No 100% guarantees on that, unfortunately.
+
+And the sete _ought_ to get merged with the if test by combine
+or cse with no extra code.
+
+It wouldn't take too much effort to try this out either...
+
+
+r~

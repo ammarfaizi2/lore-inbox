@@ -1,62 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267164AbUJVT5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267298AbUJVToa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267164AbUJVT5a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUJVTpq
+	id S267298AbUJVToa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUJVTlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:45:46 -0400
-Received: from mproxy.gmail.com ([216.239.56.249]:27300 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267370AbUJVTnW (ORCPT
+	Fri, 22 Oct 2004 15:41:45 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:21204 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267298AbUJVTjN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:43:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=S/knCT1+CYDyySPRipklkm2KzsOf97EYmnfRo26s4fuCvm+a6pmK/jVYNLgk7fCyRkDhrPVaCJdfm19DmiKLPYnb/yV/sH1yGFOQFOfBDnJdglMVRdVGt02I8W+j9HEeuJ1Iv8lnRThVAt/oTIapCRjCE2dZrEIybhINuYHcMPY=
-Message-ID: <90c25f270410221242255e3329@mail.gmail.com>
-Date: Sat, 23 Oct 2004 01:12:32 +0530
-From: Arvind Kalyan <base16@gmail.com>
-Reply-To: Arvind Kalyan <base16@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: GPRS on Linux fails due to 255.255.255.255 remote address.
-In-Reply-To: <1098469639.19435.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <90c25f2704102211212031af71@mail.gmail.com>
-	 <1098469639.19435.29.camel@localhost.localdomain>
+	Fri, 22 Oct 2004 15:39:13 -0400
+Date: Fri, 22 Oct 2004 12:38:50 -0700 (PDT)
+From: John Hawkes <hawkes@google.engr.sgi.com>
+Message-Id: <200410221938.MAA52152@google.engr.sgi.com>
+To: John Hawkes <hawkes@oss.sgi.com>, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH, 2.6.9] improved load_balance() tolerance for pinned tasks
+Cc: Ingo Molnar <mingo@elte.hu>, hawkes@sgi.com, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <200410201936.i9KJa4FF026174@oss.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know how windows handles 255.255.255.255 ip addresses. When I
-do ipconfig under Windows XP, I see a 255.255.255.255 as remote IP.
-And also in the Properties (or status) dialog that pops up when I
-double click on the blinking icon in the taskbar.
+> John and I also discussed a slightly more sophisticated algorithm
+> for this that would try to be a bit smarter about the reason for
+> balance failures (described in the changelog).
+> 
+> John, this works quite well here, would you have any objections
+> using it instead? Does it cure your problems there?
 
-When I dial in Linux , the remote server announces itself to be
-255.255.255.255 from what I see in the /var/log/messages - which I
-posted to the list as well..
+No, your variation doesn't solve the problem.  This variation of your
+patch does, however, solve the problem.  The difference is in
+move_tasks():
 
-And about DHCP, I don't have DHCP enabled. The ppp is supposed to give
-me a new IP address upon connection establishment, which is successful
-(I do get a 10.* ip address each time I dial). The only thing that
-doesn't seem to be working right is the thing about remote IP. It says
-peer is not authorized to use 255.255.255.255 and then it quits.
-
-There are other networking devices present in the system (ipw2100,
-ethernet, ieee1394, IrDA) but I did a `/etc/init.d/network stop` to
-make sure existing routes and network setup didn't affect this dialup.
-
-If anyone needs any more information, I am willing to provide.
-
-Thanks...
+Signed-off-by: John Hawkes <hawkes@sgi.com>
 
 
+ linux-2.6-npiggin/kernel/sched.c |   34 +++++++++++++++++++++++-----------
+ 1 files changed, 23 insertions(+), 11 deletions(-)
 
-On Fri, 22 Oct 2004 19:27:20 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Gwe, 2004-10-22 at 19:21, Arvind Kalyan wrote:
-> > c. remote IP address: 255.255.255.255
-> You sure that in fact doesn't mean "pick one" to windows ?
-
--- 
-Arvind Kalyan
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c	2004-10-22 09:11:12.000000000 -0700
++++ linux/kernel/sched.c	2004-10-22 11:45:10.000000000 -0700
+@@ -1770,7 +1770,7 @@
+  */
+ static inline
+ int can_migrate_task(task_t *p, runqueue_t *rq, int this_cpu,
+-		     struct sched_domain *sd, enum idle_type idle)
++		     struct sched_domain *sd, enum idle_type idle, int *pinned)
+ {
+ 	/*
+ 	 * We do not migrate tasks that are:
+@@ -1780,8 +1780,10 @@
+ 	 */
+ 	if (task_running(rq, p))
+ 		return 0;
+-	if (!cpu_isset(this_cpu, p->cpus_allowed))
++	if (!cpu_isset(this_cpu, p->cpus_allowed)) {
++		*pinned++;
+ 		return 0;
++	}
+ 
+ 	/* Aggressive migration if we've failed balancing */
+ 	if (idle == NEWLY_IDLE ||
+@@ -1802,11 +1804,11 @@
+  */
+ static int move_tasks(runqueue_t *this_rq, int this_cpu, runqueue_t *busiest,
+ 		      unsigned long max_nr_move, struct sched_domain *sd,
+-		      enum idle_type idle)
++		      enum idle_type idle, int *all_pinned)
+ {
+ 	prio_array_t *array, *dst_array;
+ 	struct list_head *head, *curr;
+-	int idx, pulled = 0;
++	int idx, examined = 0, pulled = 0, pinned = 0;
+ 	task_t *tmp;
+ 
+ 	if (max_nr_move <= 0 || busiest->nr_running <= 1)
+@@ -1850,7 +1852,8 @@
+ 
+ 	curr = curr->prev;
+ 
+-	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle)) {
++	examined++;
++	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle, &pinned)) {
+ 		if (curr != head)
+ 			goto skip_queue;
+ 		idx++;
+@@ -1876,6 +1879,8 @@
+ 		goto skip_bitmap;
+ 	}
+ out:
++	if (unlikely(examined && examined == pinned))
++		*all_pinned = 1;
+ 	return pulled;
+ }
+ 
+@@ -2056,7 +2061,7 @@
+ 	struct sched_group *group;
+ 	runqueue_t *busiest;
+ 	unsigned long imbalance;
+-	int nr_moved;
++	int nr_moved, all_pinned;
+ 
+ 	spin_lock(&this_rq->lock);
+ 	schedstat_inc(sd, lb_cnt[idle]);
+@@ -2095,11 +2100,16 @@
+ 		 */
+ 		double_lock_balance(this_rq, busiest);
+ 		nr_moved = move_tasks(this_rq, this_cpu, busiest,
+-						imbalance, sd, idle);
++						imbalance, sd, idle,
++						&all_pinned);
+ 		spin_unlock(&busiest->lock);
+ 	}
+-	spin_unlock(&this_rq->lock);
++	/* All tasks on this runqueue were pinned by CPU affinity */
++	if (unlikely(all_pinned))
++		goto out_balanced;
+ 
++	spin_unlock(&this_rq->lock);
++	
+ 	if (!nr_moved) {
+ 		schedstat_inc(sd, lb_failed[idle]);
+ 		sd->nr_balance_failed++;
+@@ -2154,7 +2164,7 @@
+ 	struct sched_group *group;
+ 	runqueue_t *busiest = NULL;
+ 	unsigned long imbalance;
+-	int nr_moved = 0;
++	int nr_moved = 0, all_pinned;
+ 
+ 	schedstat_inc(sd, lb_cnt[NEWLY_IDLE]);
+ 	group = find_busiest_group(sd, this_cpu, &imbalance, NEWLY_IDLE);
+@@ -2174,7 +2184,7 @@
+ 
+ 	schedstat_add(sd, lb_imbalance[NEWLY_IDLE], imbalance);
+ 	nr_moved = move_tasks(this_rq, this_cpu, busiest,
+-					imbalance, sd, NEWLY_IDLE);
++			imbalance, sd, NEWLY_IDLE, &all_pinned);
+ 	if (!nr_moved)
+ 		schedstat_inc(sd, lb_failed[NEWLY_IDLE]);
+ 
+@@ -2236,6 +2246,7 @@
+ 		cpumask_t tmp;
+ 		runqueue_t *rq;
+ 		int push_cpu = 0;
++		int all_pinned;
+ 
+ 		if (group == busy_group)
+ 			goto next_group;
+@@ -2261,7 +2272,8 @@
+ 		if (unlikely(busiest == rq))
+ 			goto next_group;
+ 		double_lock_balance(busiest, rq);
+-		if (move_tasks(rq, push_cpu, busiest, 1, sd, IDLE)) {
++		if (move_tasks(rq, push_cpu, busiest, 1,
++				sd, IDLE, &all_pinned)) {
+ 			schedstat_inc(busiest, alb_lost);
+ 			schedstat_inc(rq, alb_gained);
+ 		} else {

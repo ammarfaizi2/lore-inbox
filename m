@@ -1,40 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129199AbRBLPUC>; Mon, 12 Feb 2001 10:20:02 -0500
+	id <S130642AbRBLPWB>; Mon, 12 Feb 2001 10:22:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129351AbRBLPTv>; Mon, 12 Feb 2001 10:19:51 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:24964 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129199AbRBLPTd>; Mon, 12 Feb 2001 10:19:33 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010212161347.A28981@win.tue.nl> 
-In-Reply-To: <20010212161347.A28981@win.tue.nl>  <Pine.GSO.4.21.0102121118580.10132-100000@acms23> <20010212133324.B15688@mea-ext.zmailer.org> 
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: lkml subject line 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Feb 2001 15:19:08 +0000
-Message-ID: <6195.981991148@redhat.com>
+	id <S130682AbRBLPVv>; Mon, 12 Feb 2001 10:21:51 -0500
+Received: from cse.unl.edu ([129.93.33.1]:39237 "EHLO cse.unl.edu")
+	by vger.kernel.org with ESMTP id <S130642AbRBLPVn>;
+	Mon, 12 Feb 2001 10:21:43 -0500
+Date: Mon, 12 Feb 2001 09:21:39 -0600
+From: Ben Rush <brush@cse.unl.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Error Communicating With Module
+Message-ID: <Pine.SGI.4.05.10102120911460.4669542-100000@cse.unl.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hello, first of all I must tell you that I do not belong to this
+mailing list as of yet, so, please respond to me via brush@cse.unl.edu.
+Thank you very much in advance!
 
-dwguest@win.tue.nl said:
->  There are advantages: distinguish personal messages from mailing list
-> messages, and distinguish between different mailing lists. And
-> disadvantages - maybe only one: sacrificing valuable Subject: line
-> space. 
+	My problem is as follows: 
 
-The advantages can all be gained without that disadvantage by just learning 
-to filter mail on other headers instead of the subject line.
+	I have added a variable named bens_variable to ksyms.c as follows: 
 
---
-dwmw2
+	extern int bens_variable=10; 
+
+	I have then exported the variable in ksyms.c as follows: 
+
+	EXPORT_SYMBOL(bens_variable); 
+
+	I then recompiled the kernel as bzImage and everything went
+perfectly fine. I then wrote a module for that particular kernel which
+is simple and looks as follows: 
+
+	#define MODULE
+	#define __KERNEL__
+	#include <linux/module.h>
+
+	int init_module(void){
+		printk(bens_variable); 
+		return 0; 
+	}
+	
+	void cleanup_module(void){
+		printk("<1>Module Unloaded\n"); 
+	}
+
+	But, of course, whenever I try and compile the module to load it
+using gcc it tells me that bens_variable is undefined - which makes sense,
+however I don't see how I can compile this without typing in 
+
+	extern int bens_variable; 
+
+	again. How do I get my module to compile and print out the value
+of bens_variable as defined within ksyms.c? 
+
+	Again, please respond to me via brush@cse.unl.edu. Thanks again in
+advance!!!
+
+	~Ben
+	brush@cse.unl.edu
+
+	******************************************************
+		    Benjamin Rush (brush@cse.unl.edu)
+			http://cse.unl.edu/~brush/
+		  Undergradute Computer Scientist @ UNL
+	*******************************************************
 
 
 -

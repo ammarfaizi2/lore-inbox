@@ -1,62 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317107AbSG1Swm>; Sun, 28 Jul 2002 14:52:42 -0400
+	id <S317148AbSG1SzI>; Sun, 28 Jul 2002 14:55:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317114AbSG1SwQ>; Sun, 28 Jul 2002 14:52:16 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:48656 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317191AbSG1Sur>;
-	Sun, 28 Jul 2002 14:50:47 -0400
-Date: Sun, 28 Jul 2002 11:53:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.28
-Message-ID: <20020728185310.GC5767@kroah.com>
-References: <1027553482.11881.5.camel@sonja.de.interearth.com> <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com> <20020727235726.GB26742@win.tue.nl> <20020728024739.GA28873@kroah.com> <20020728155626.GC26862@win.tue.nl>
+	id <S317152AbSG1SzI>; Sun, 28 Jul 2002 14:55:08 -0400
+Received: from mail15.speakeasy.net ([216.254.0.215]:29913 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S317148AbSG1SzG>; Sun, 28 Jul 2002 14:55:06 -0400
+Subject: RE: About the need of a swap area
+From: Ed Sweetman <safemode@speakeasy.net>
+To: Buddy Lumpkin <b.lumpkin@attbi.com>
+Cc: Ville Herva <vherva@niksula.hut.fi>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <FJEIKLCALBJLPMEOOMECOEAPDAAA.b.lumpkin@attbi.com>
+References: <FJEIKLCALBJLPMEOOMECOEAPDAAA.b.lumpkin@attbi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 28 Jul 2002 14:58:25 -0400
+Message-Id: <1027882706.4228.138.camel@psuedomode>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020728155626.GC26862@win.tue.nl>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Sun, 30 Jun 2002 17:04:30 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 05:56:26PM +0200, Andries Brouwer wrote:
-> On Sat, Jul 27, 2002 at 07:47:39PM -0700, Greg KH wrote:
+On Sun, 2002-07-28 at 14:48, Buddy Lumpkin wrote:
 > 
-> > On Sun, Jul 28, 2002 at 01:57:26AM +0200, Andries Brouwer wrote:
-> > > My third candidate is USB. Systems without USB are clearly more stable.
-> > 
-> > Hm, then that would imply that all of my systems are unstable :)
-> > 
-> > Seriously, I don't know of any outstanding 2.5 USB issues that cause
-> > oopses right now, or effect stability.  Any problems that people are
-> > having, they sure are not telling me, or the other USB developers
-> > about...
+> On Sat, Jul 27, 2002 at 03:39:41PM -0700, you [Buddy Lumpkin] wrote:
+> >>
+> >> Why would you want to push *anything* to swap until you have to?
 > 
-> I reported an oops at shutdown and provided the trivial fix.
-> It is the the standard kernel since 2.5.26, I think.
-
-That patch should be in the latest kernel, thanks.  Let me know if you
-are still having that problem in .29
-
-> But there are still other oopses at shutdown for 2.5.27.
+> >If you have idle io time in your hands, you can choose to back up some
+> dirty
+> >anonymous pages to the swap device. This way, when pages really needs to
+> get
+> >freed, you can just drop the pages (just like you would drop clean file
+> >backed pages.) This obviously eliminates a great latency (somebody said
+> >something about a "swap storm"), because the write happened beforehand.
 > 
-> For 2.5.29 I reported
-> "> I booted 2.5.29 earlier this evening and was greeted by
->  > kernel BUG at transport.c: 351 and
->  > kernel BUG at scsiglue.c: 150.
->  > (And the usb-storage module now hangs initializing; rmmod fails,
->  > reboot is necessary.)"
+> >There's nothing wrong with the swap being in use (and the pages may still
+> be
+> >in memory). If you have swap, it makes sense to use it. What doesn't make
+> >sense is to waste time waiting for paging to happen.
 > 
-> Further improvement of usb-storage is possible.
+> 
+> This just flat out doesn't make sense to me ...
+> 
+> The system I showed stats on earlier has been up for 57 days. Periodically
+> file system I/O pushes
+> freemem below lotsfree and wakes up the scanner. The scanner wakes up and
+> finds some filesystem
+> pages that haven't been referenced or modified in a really long, long time
+> and frees a few of them, then
+> it goes back to sleep. This keeps a ton of pages in RAM strictly for caching
+> value (although dirty pages
+> are flushed periodically, they are kept in RAM too). Then when a shared
+> mapping to a file occurs or a file
+> is opened, and accessed with read or write, it can use the page fault
+> mechanism (minor fault) to retrieve
+> those pages (using vnode + offset of the page) as apposed to going to disk.
+> 
+> By looking at it, at one of more rare occasions, it must have pushed some
+> anonymous
+> pages to the swap devices, and there they sit pretty much doing nothing. But
+> thats the
+> nice thing about it ... Why would I want I/O going all the time in
+> anticipation
+> of a memory shortage that will rarely happen, or might not happen at all! If
+> I understand
+> you correctly, your imagining all of the up front work you could be doing in
+> anticipation
+> of the crawling system that could benefit from pages already pushed to the
+> swap device,
+> but that would only be one case.
+> 
+> If im willing to spend the money for tons of RAM I shouldn't have to incur
+> the overhead of going
+> out to the swap device at all unless I truly get short on memory.
+> Don't just assume that it's inevitable that I will have to swap at some
+> point.
+> 
+> And when you refer to idle I/O time, do you mean I/O to the swap device(s)
+> or all I/O on the system (IO to all disks, network, etc..) ?
+> 
+> --Buddy
 
-Oh yeah, I'm not saying that this is not true at all :)
-Matt added a BUG_ON() that seems to be hitting a lot of people, but I
-guess that was his intention.
+If you bother to do any real tests you'd see that linux will swap when
+nothing is going on and this doesn't hinder anything.  This overhead
+you're imagining doesn't occur because Overhead only exists when you're
+trying to do something.  There is no drawback to how linux puts pages
+into swap except what rik van riel said about battery powered boxes. 
+Even so I believe that's just a /proc tunable fix.   Otherwise there is
+a situation where it's advantageous to do what linux does and none where
+it isn't.  
 
-thanks,
+It's not like your swap device is growing and using more swap means less
+space for programs.  You have X amount of swap space..  like other
+people have said,  might as well make use of it if you can.  Who cares
+if that situation may not occur, it's not detrimental to anything.
 
-greg k-h

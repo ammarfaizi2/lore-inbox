@@ -1,53 +1,215 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267780AbTBRNOz>; Tue, 18 Feb 2003 08:14:55 -0500
+	id <S267797AbTBRNSj>; Tue, 18 Feb 2003 08:18:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267791AbTBRNOz>; Tue, 18 Feb 2003 08:14:55 -0500
-Received: from elixir.e.kth.se ([130.237.48.5]:53769 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S267780AbTBRNOz>;
-	Tue, 18 Feb 2003 08:14:55 -0500
-To: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-Cc: <axp-kernel-list@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Module problems (WAS: RE: 2.5.62 on Alpha SUCCESS (2.6 release soon!?))
-References: <001401c2d74f$785bb720$020b10ac@pitzeier.priv.at>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 18 Feb 2003 14:24:52 +0100
-In-Reply-To: "Oliver Pitzeier"'s message of "Tue, 18 Feb 2003 14:12:58 +0100"
-Message-ID: <yw1xof59202j.fsf@bamse.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id <S267793AbTBRNSj>; Tue, 18 Feb 2003 08:18:39 -0500
+Received: from [212.122.164.10] ([212.122.164.10]:31134 "EHLO
+	pechkin.minfin.bg") by vger.kernel.org with ESMTP
+	id <S267805AbTBRNSg>; Tue, 18 Feb 2003 08:18:36 -0500
+Reply-To: <larry@minfin.bg>
+From: "Kostadin Karaivanov" <larry@minfin.bg>
+To: <linux-kernel@vger.kernel.org>
+Subject: XFS problem 2.5.6{0,1,2}
+Date: Tue, 18 Feb 2003 15:28:32 +0200
+Message-ID: <002c01c2d751$a279a880$1504a8c0@minfin.bg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Oliver Pitzeier" <o.pitzeier@uptime.at> writes:
+Oftenly I get errors something like ...
+"In memory data corruption ..... shuting down filesystem ide(0,3)" and
+linux halts. Reboot fixes the things.
+Sorry can't paste the proper error output.
+It happens when I try to erase a lots of small files or on shutdown.
+I can't reproduce this, but it happens for at least once a day.
+My whole linux partition is on XFS.
+As long as I can tell this is not present in 2.5.5{7,8,9}
 
-> > I just wanted to tell everybody that 2.5.62 works great for 
-> > me on Alpha... Thanks a lot to the alpha kernel developers!!! 
-> > You did a great job...
-> [ ... ]
-> 
-> OK... Make modules_install still has problems:
-> 
-> [root@track linux]# make modules_install
-> make -rR -f scripts/Makefile.modinst
->   mkdir -p /lib/modules/2.5.62/kernel/net/8021q; cp net/8021q/8021q.ko
-> /lib/modules/2.5.62/kernel/net/8021q
->   mkdir -p /lib/modules/2.5.62/kernel/fs/autofs4; cp fs/autofs4/autofs4.ko
-> /lib/modules/2.5.62/kernel/fs/autofs4
->   mkdir -p /lib/modules/2.5.62/kernel/drivers/net; cp drivers/net/bonding.ko
-> /lib/modules/2.5.62/kernel/drivers/net
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.62; fi
-> depmod: Unhandled relocation of type 10 for .text
-> depmod: Unhandled relocation of type 10 for .text
-> depmod: Unhandled relocation of type 10 for .text
-> depmod: Unhandled relocation of type 10 for .text
-> depmod: depmod obj_relocate failed
+my .config is as follows
 
-Which versions of binutils and gcc do you have?  I get similar
-problems with binutils 2.13 and 2.4 kernels.
+root@larry:/usr/src/linux-2.5.62# grep ^CONFIG .config
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_SWAP=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_PREEMPT=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_INET_ECN=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_XFRM_USER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IRC=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_PKTTYPE=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_HELPER=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_MATCH_CONNTRACK=y
+CONFIG_IP_NF_MATCH_UNCLEAN=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_MIRROR=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_IRC=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_MARK=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_SIS=y
+CONFIG_DRM=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_RAMFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_XFS_FS=y
+CONFIG_XFS_POSIX_ACL=y
+CONFIG_SMB_FS=y
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_1251=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_2=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=y
+CONFIG_SND_CS46XX=y
+CONFIG_SND_CS46XX_NEW_DSP=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_AES=y
+CONFIG_CRC32=y
+CONFIG_X86_BIOS_REBOOT=y
 
--- 
-Måns Rullgård
-mru@users.sf.net

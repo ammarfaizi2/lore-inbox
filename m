@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbUKCMik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbUKCMk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbUKCMik (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 07:38:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbUKCMij
+	id S261577AbUKCMk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 07:40:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbUKCMk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 07:38:39 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:25578 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261575AbUKCMii (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 07:38:38 -0500
-Date: Wed, 3 Nov 2004 13:39:35 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       LKML <linux-kernel@vger.kernel.org>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
-Message-ID: <20041103123935.GA7865@elte.hu>
-References: <OF9F489E60.B8B3EA93-ON86256F40.007C1401-86256F40.007C1430@raytheon.com> <20041103083900.GA27211@elte.hu> <20041103084217.GA27404@elte.hu> <20041103100053.GA32680@elte.hu>
+	Wed, 3 Nov 2004 07:40:58 -0500
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:30986 "EHLO
+	cyclades.com.br") by vger.kernel.org with ESMTP id S261577AbUKCMkv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 07:40:51 -0500
+Subject: Re: patch for sysfs in the cyclades driver
+From: Germano <germano.barreiro@cyclades.com>
+Reply-To: germano.barreiro@cyclades.com
+To: greg@kroah.com
+Cc: Scott_Kilau@digi.com, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Content-Type: text/plain
+Organization: Cyclades Latin America
+Message-Id: <1099487348.1428.16.camel@tsthost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041103100053.GA32680@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 03 Nov 2004 11:09:08 -0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-> > the patch below should fix this deadlock but there might be others
-> > around ...
-> 
-> the patch doesnt work. Working on a better solution.
+I will have to study again the code I tried first (it was long ago), but
+the main problem was that due to that class be (somehow) derived from
+class_simple, I can one export using it the major and minor numbers for
+the device. Tosatti, maybe you can complete my answer with details,
+since it was you that advised me about this limitation.
+However, this was some time ago (kernel 2.6.7 was going to be released),
+and I didn't check how much sysfs for the tty drivers has changed since
+them. If I can attach this data (signalling states) to the port, it
+would be very preferable than attaching to the board as me and Scott are
+trying. Even because his advise about the possibility of my patch be
+overwritting one channel data with other's make a lot of sense and I
+will have to test it (I'm grateful for you, Scott).
 
-this hopefully better solution is included in -V0.7.1.
+Cheers :)
+Germano
 
-	Ingo
+On Tue, Nov 02, 2004 at 02:51:33PM -0600, Kilau, Scott wrote:
+> > I know you have done work on USB serial drivers with devices with
+> > multiple ports...
+> > Is there any way to create a file in sys that can point back to a port,
+> > and NOT the port's
+> > parent (ie, the board) WITHOUT having to create a new kobject per port?
+What's wrong with the kobject in /sys/class/tty/ which has one object
+per port?  I think we might not be exporting that class_device
+structure, but I would not have a problem with doing that.
+
+thanks,
+
+greg k-h
+
+

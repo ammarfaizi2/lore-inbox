@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280426AbRK1TmU>; Wed, 28 Nov 2001 14:42:20 -0500
+	id <S280467AbRK1Tm7>; Wed, 28 Nov 2001 14:42:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280365AbRK1TmK>; Wed, 28 Nov 2001 14:42:10 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:17422 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S280456AbRK1Tlv>; Wed, 28 Nov 2001 14:41:51 -0500
-Date: Wed, 28 Nov 2001 16:24:42 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Ahmed Masud <masud@googgun.com>,
-        "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: Unresponiveness of 2.4.16
-In-Reply-To: <3C03FE2F.63D7ACFD@zip.com.au>
-Message-ID: <Pine.LNX.4.21.0111281604390.15571-100000@freak.distro.conectiva>
+	id <S280456AbRK1Tmu>; Wed, 28 Nov 2001 14:42:50 -0500
+Received: from mail.myrio.com ([63.109.146.2]:9722 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S280257AbRK1Tmk>;
+	Wed, 28 Nov 2001 14:42:40 -0500
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CAE2@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'Andrew Morton'" <akpm@zip.com.au>,
+        Torrey Hoffman <torrey.hoffman@myrio.com>
+Cc: =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: RE: Unresponiveness of 2.4.16
+Date: Wed, 28 Nov 2001 11:42:03 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Yes, I just looked at the code in /fs/reiserfs/bitmap.c and 
+the comment block above the warning message specifically mentions 
+the low-latency patches.
 
-On Tue, 27 Nov 2001, Andrew Morton wrote:
+I feel better now, looks like my filesystem is safe...
 
-> Mike Fedyk wrote:
+Torrey
+
+Andrew Morton wrote:
+[...]
+
+> > fall over, and during the run I got the following error/
+> > warning message printed about 20 times on the console
+> > and in the kernel log:
 > > 
-> > >   I'll send you a patch which makes the VM less inclined to page things
-> > >   out in the presence of heavy writes, and which decreases read
-> > >   latencies.
-> > >
-> > Is this patch posted anywhere?
+> > vs-4150: reiserfs_new_blocknrs, block not free<4>
+> > 
 > 
-> I sent it yesterday, in this thread.  Here it is again.
+> uh-oh.  I probably broke reiserfs in the low-latency patch.
 > 
-> Description:
+> It's fairly harmless - we drop the big kernel lock, schedule
+> away.  Upon resumption, the block we had decided to allocate
+> has been allocated by someone else.  The filesystem emits a
+> warning and goes off to find a different block.
 > 
-> - Account for locked as well as dirty buffers when deciding
->   to throttle writers.
-
-Just one thing: If we have lots of locked buffers due to reads we are
-going to may unecessarily block writes, and thats not any good.
-
-But well, I prefer to fix interactivity than to care about that one kind
-of workload, so I'm ok with it.
-
-> - Tweak VM to make it work the inactive list harder, before starting
->   to evict pages or swap.
-
-I would like to see he interactivity problems get fixed on block layer
-side first: Its not a VM issue initially. Actually, the thing is that if
-you tweak VM this way you're going to break some workloads.
-
-> - Change the elevator so that once a request's latency has
->   expired, we can still perform merges in front of that
->   request.  But we no longer will insert new requests in
->   front of that request.  
-
-Sounds fine... I've received quite many success reports already, right ? 
+> Will fix.
 

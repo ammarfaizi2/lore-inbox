@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264960AbTFQWP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 18:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbTFQWOT
+	id S264968AbTFQWOL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbTFQWOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 18:14:19 -0400
-Received: from [62.75.136.201] ([62.75.136.201]:8578 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S264960AbTFQWN7 (ORCPT
+	Tue, 17 Jun 2003 18:14:10 -0400
+Received: from aneto.able.es ([212.97.163.22]:23237 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S264959AbTFQWN7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Jun 2003 18:13:59 -0400
-Message-ID: <3EEF95E8.5040109@g-house.de>
-Date: Wed, 18 Jun 2003 00:27:52 +0200
-From: Christian Kujau <evil@g-house.de>
-Reply-To: evil@g-house.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.71 compile error on alpha
-References: <3EEE4A14.4090505@g-house.de> <wrpr85te3fa.fsf@hina.wild-wind.fr.eu.org> <3EEF585E.9030404@g-house.de> <yw1xk7bk36hw.fsf@zaphod.guide> <20030617202221.GH6353@lug-owl.de> <3EEF7B20.5030208@g-house.de> <yw1xptlcs8ng.fsf@zaphod.guide>
-In-Reply-To: <yw1xptlcs8ng.fsf@zaphod.guide>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Date: Wed, 18 Jun 2003 00:27:50 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCHES] 2.4.x net driver updates
+Message-ID: <20030617222750.GE13990@werewolf.able.es>
+References: <20030612194926.GA7653@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030612194926.GA7653@gtf.org>; from jgarzik@pobox.com on Thu, Jun 12, 2003 at 21:49:26 +0200
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård schrieb:
->>lila:~# cat /proc/cpuinfo
-[...]
->>kernel unaligned acc	: 32 (pc=fffffc0000478394,va=fffffc0002dbf176)
+
+On 06.12, Jeff Garzik wrote:
 > 
-> That's not good.  Do you know what is causing it.
+> BK users may issue a
+> 
+> 	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.4
+> 
+> Others may download the patch from
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.21-rc8-netdrvr2.patch.bz2
+> 
 
-i did not even know that this one is bad. the only weird thing which 
-comes into my mind when thinking about this alpha is: it is filled up 
-whith fine 128 MB RAM -- but it is only seeing 64 MB. when we inserted 
-64 MB RAM, only 32 MB are recognized. with 32 MB working with it was no 
-fun, working with 64 MB is quite good. must be the type of RAM but i 
-don't really know much about the different RAM types.
+Any info about the RX_POLLING (NAPI) option for e1000 ?
+What is that for ?
 
-> Good, what's it like performance-wise?  2.5.68 had trouble with my IDE
-> disks, and I wonder if it's been fixed since.
-
-can't tell about IDE, since it has only scsi in it. i used to run 
-benchmarks (tiobench) on the alpha, with different loop-mounted 
-filesystems, but the alpha has been frozen very often during these 
-benchmarks...will redo with 2.5.72 later.
-
-Thanks,
-Christian.
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))

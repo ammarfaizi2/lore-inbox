@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288733AbSADThl>; Fri, 4 Jan 2002 14:37:41 -0500
+	id <S288736AbSADTiL>; Fri, 4 Jan 2002 14:38:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288732AbSADThc>; Fri, 4 Jan 2002 14:37:32 -0500
-Received: from lsanca1-ar27-4-63-187-072.vz.dsl.gtei.net ([4.63.187.72]:4736
-	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
-	id <S288737AbSADThV>; Fri, 4 Jan 2002 14:37:21 -0500
-Date: Fri, 4 Jan 2002 11:37:11 -0800 (PST)
-From: Ben Clifford <benc@hawaga.org.uk>
-To: Doug Ledford <dledford@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: i810_audio]
-In-Reply-To: <3C35CCB1.8040900@redhat.com>
-Message-ID: <Pine.LNX.4.33.0201040929060.1742-100000@barbarella.hawaga.org.uk>
+	id <S288735AbSADTiC>; Fri, 4 Jan 2002 14:38:02 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:17653 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S288732AbSADTht>; Fri, 4 Jan 2002 14:37:49 -0500
+Date: Fri, 4 Jan 2002 20:36:06 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
+        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020104200410.E21887@suse.cz>
+Message-ID: <Pine.GSO.3.96.1020104202932.829H-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Jan 2002, Vojtech Pavlik wrote:
 
-> Ben Clifford wrote:
+> And of course, there will be a huge amount of false positives, because
+> all the new chipsets have an ISA bridge built into the southbridge chip
+> and it is there even when no ISA slots are present.
 
-> Your particular report sounds like the recording bugs that have already been
-> fixed by my 0.13 version of the driver.  Please download that and see if
-> recording works better for you.  It can be found at
-> http://people.redhat.com/dledford/i810_audio.c.gz
-
-I dumped that into my kernel source directory - it seems to have pretty
-much inverted the problem:
-rec now doesn't crash.
-
-However, playback *does* now crash the machine.
-
-It crashes at the same time as rec was crashing, at the end of the
-playback, although this time it locks up on something as simple as:
-
-cat anything > /dev/dsp
-
-It manages to display the shell prompt again before crashing.
-
-Its been several years since I attempted to do any kernel debugging - can
-someone advise what I can do to get more info?
-
-Ben
+ A false positive is less painful than a false negative.  Then if a system
+has a PCI-ISA bridge, it's surely for purpose there (otherwise what is the
+justification for the additional cost of unused silicon?).  Maybe for an
+on-board ISA serial or parallel port or an ISA floppy controller...
 
 -- 
-Ben Clifford     benc@hawaga.org.uk
-http://www.hawaga.org.uk/ben/  GPG: 30F06950
-telnet/ssh guest@barbarella.hawaga.org.uk password guest to talk
-webcam: http://barbarella.hawaga.org.uk/benc-cgi/watchers.cgi
-Job Required - Will do most things unix or IP for money.
-
-
-
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266219AbUGOPcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266215AbUGOPit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266219AbUGOPcd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 11:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUGOPcc
+	id S266215AbUGOPit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 11:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266220AbUGOPit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 11:32:32 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:25710 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266203AbUGOPcU (ORCPT
+	Thu, 15 Jul 2004 11:38:49 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:46530 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S266215AbUGOPis (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 11:32:20 -0400
-Date: Thu, 15 Jul 2004 08:31:06 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: davidm@hpl.hp.com
-cc: john stultz <johnstul@us.ibm.com>, george anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>, ia64 <linux-ia64@vger.kernel.org>
-Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
- posix-timer functions to return higher accuracy)
-In-Reply-To: <16629.56037.120532.779793@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.58.0407150810290.21314@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
- <1089835776.1388.216.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.58.0407141323530.15874@schroedinger.engr.sgi.com>
- <1089839740.1388.230.camel@cog.beaverton.ibm.com>
- <Pine.LNX.4.58.0407141703360.17055@schroedinger.engr.sgi.com>
- <1089852486.1388.256.camel@cog.beaverton.ibm.com> <16629.56037.120532.779793@napali.hpl.hp.com>
+	Thu, 15 Jul 2004 11:38:48 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: bugghy <bugghy@SAFe-mail.net>
+Date: Thu, 15 Jul 2004 17:38:30 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: address of int80 idt
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <C32704C118F@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jul 2004, David Mosberger wrote:
+On 15 Jul 04 at 18:27, bugghy wrote:
+> 
+> The problem is that on some kernels 2.4.22 (and I think on 2.6.7, 2.2.26
+> and 2.4.26 too) on vmware sidt returns a bogus address for idtr.base:
+> idtr.base=0xffc6a370 (2.4.22) 
+> 
+> If I try to read from /dev/kmem from this address it doesn't work.
 
-> >>>>> On Wed, 14 Jul 2004 17:48:06 -0700, john stultz <johnstul@us.ibm.com> said:
->
->   John> Although you still have the issue w/ NTP adjustments being
->   John> ignored, but last time I looked at the time_interpolator code,
->   John> it seemed it was being ignored there too, so at least your not
->   John> doing worse then the ia64 do_gettimeofday(). [If I'm doing the
->   John> time_interpolator code a great injustice with the above,
->   John> someone please correct me]
->
-> The existing time-interpolator code for ia64 never lets time go
-> backwards (in the absence of a settimeofday(), of course).  There is
-> no need to special-case NTP.
->
-> With Christoph's changes, NTP is an issue again, however.
+It is feature, not a bug... Well, it is bug, but not easily fixable.
+Either check 'Disable acceleration' checkbox in VM configuration, or,
+if you want portable solution (if your program has root privileges), call 
+iopl(3) before issuing sidt. Or issue sidt in the kernel, not in userspace.
+                                                        Best regards,
+                                                            Petr Vandrovec
+                                                            
 
-The new code gains scalability and speed by avoiding the cmpxchg in the
-old code. No check is done anymore that the resulting offset is really
-later than the last time returned. In order to insure monotonic time the
-underlying clock used must also be monotonic. The new code cannot handle
-fluctuating time sources like unsynchronized ITCs. If the time source is
-fluctuating then a function may be defined to be the source of time. This
-function may do a compare to the last value returned in order to insure
-that the clock stays monotonic and does not go backward. Doing so may slow
-things down to the way they were before.
-
-The old code only insured that the interpolated offset in nanoseconds
-after a timer tick never goes backward. Negative corrections to xtime
-could also result in time going backward since the offset is
-always added to xtime. Both the old and the new code use the logic in
-time_interpolator_update (invoked when xtime is advanced) to compensate
-for this situation.

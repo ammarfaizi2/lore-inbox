@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262029AbREPRz5>; Wed, 16 May 2001 13:55:57 -0400
+	id <S262027AbREPR4R>; Wed, 16 May 2001 13:56:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262047AbREPRzh>; Wed, 16 May 2001 13:55:37 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:9438 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S262040AbREPRzf>;
-	Wed, 16 May 2001 13:55:35 -0400
-Message-ID: <3B02BF14.89695966@mandrakesoft.com>
-Date: Wed, 16 May 2001 13:55:32 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre2 i686)
-X-Accept-Language: en
+	id <S262033AbREPR4H>; Wed, 16 May 2001 13:56:07 -0400
+Received: from fandango.cs.unitn.it ([193.205.199.228]:17939 "EHLO
+	fandango.cs.unitn.it") by vger.kernel.org with ESMTP
+	id <S262040AbREPRzt>; Wed, 16 May 2001 13:55:49 -0400
+From: Massimo Dal Zotto <dz@cs.unitn.it>
+Message-Id: <200105161205.OAA13638@nikita.dz.net>
+Subject: [PATCH] move aic7xxx ld in drivers/scsi/Makefile
+To: alan@redhat.com
+Date: Wed, 16 May 2001 14:05:16 +0200 (MEST)
+CC: linux-kernel@vger.kernel.org, tmm@image.dk
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-To: Christoph Rohland <cr@sap.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rootfs (part 1)
-In-Reply-To: <Pine.LNX.4.21.0105161010200.4738-100000@penguin.transmeta.com> <m3ofst5gs5.fsf@linux.local>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Rohland wrote:
-> 
-> Hi Linus,
-> 
-> On Wed, 16 May 2001, Linus Torvalds wrote:
-> > Looks ok, but it also feels like 2.5.x stuff to me.
-> >
-> > Also, there's the question of whether to make ramfs just built-in,
-> > or make _tmpfs_ built in - ramfs is certainly simpler, but tmpfs
-> > does the same things and you need that one for shared mappings etc.
-> >
-> > Comments?
-> 
-> cr:/speicher/src/u4ac9 $ ls -l mm/shmem.o*
-> -rw-r--r--    1 cr       users      154652 Mai 16 19:27 mm/shmem.o-tmpfs
-> -rw-r--r--    1 cr       users      180764 Mai 16 19:24 mm/shmem.o+tmpfs
-> cr:/speicher/src/u4ac9 $ ls -l fs/ramfs/ramfs.o
-> -rw-r--r--    1 cr       users      141452 Mai 16 19:27 fs/ramfs/ramfs.o
-> 
-> So CONFIG_TMPFS adds 26k and ramfs 140k.
+Hi,
 
-On what system?  I don't think this is a good measure...
-> [jgarzik@rum linux_2_4]$ ls -l fs/ramfs/ramfs.o 
-> -rw-r--r--    1 jgarzik  jgarzik      5830 May 15 09:29 fs/ramfs/ramfs.o
-> [jgarzik@rum linux_2_4]$ ls -l mm/shmem.o (includes tmpfs)
-> -rw-r--r--    1 jgarzik  jgarzik     17496 May 15 09:28 mm/shmem.o
+while examining the makefiles of kernel-2.4.4 I noticed that the top Makefile
+contains a specific reference to the aic7xxx driver which should IMHO be
+referenced only by the drivers/scsi/Makefile.
+While this is not a real bug I suggest anyway the following patch which moves
+the aic7xxx compilation entirely in the drivers/scsi makefile:
+
+--- Makefile.orig	Sat May  5 11:58:47 2001
++++ Makefile	Wed May 16 09:39:37 2001
+@@ -155,7 +155,6 @@
+ DRIVERS-$(CONFIG_ATM) += drivers/atm/atm.o
+ DRIVERS-$(CONFIG_IDE) += drivers/ide/idedriver.o
+ DRIVERS-$(CONFIG_SCSI) += drivers/scsi/scsidrv.o
+-DRIVERS-$(CONFIG_SCSI_AIC7XXX) += drivers/scsi/aic7xxx/aic7xxx_drv.o
+ DRIVERS-$(CONFIG_IEEE1394) += drivers/ieee1394/ieee1394drv.o
+ 
+ ifneq ($(CONFIG_CD_NO_IDESCSI)$(CONFIG_BLK_DEV_IDECD)$(CONFIG_BLK_DEV_SR)$(CONFIG_PARIDE_PCD),)
+--- drivers/scsi/Makefile.orig	Tue Mar 27 01:36:30 2001
++++ drivers/scsi/Makefile	Wed May 16 13:30:47 2001
+@@ -33,6 +33,10 @@
+ 
+ obj-$(CONFIG_SCSI)		+= scsi_mod.o
+ 
++ifeq ($(CONFIG_SCSI_AIC7XXX),y)
++  obj-$(CONFIG_SCSI_AIC7XXX)	+= aic7xxx/aic7xxx_mod.o
++endif
++
+ obj-$(CONFIG_A4000T_SCSI)	+= amiga7xx.o	53c7xx.o
+ obj-$(CONFIG_A4091_SCSI)	+= amiga7xx.o	53c7xx.o
+ obj-$(CONFIG_BLZ603EPLUS_SCSI)	+= amiga7xx.o	53c7xx.o
+@@ -184,3 +188,6 @@
+ sim710_u.h: sim710_d.h
+ 
+ sim710.o : sim710_d.h
++
++aic7xxx/aic7xxx_mod.o:
++	make -C aic7xxx
+
 
 -- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+Massimo Dal Zotto
+
++----------------------------------------------------------------------+
+|  Massimo Dal Zotto               email: dz@cs.unitn.it               |
+|  Via Marconi, 141                phone: ++39-0461534251              |
+|  38057 Pergine Valsugana (TN)      www: http://www.cs.unitn.it/~dz/  |
+|  Italy                             pgp: see my www home page         |
++----------------------------------------------------------------------+

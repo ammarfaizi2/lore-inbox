@@ -1,70 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbUKWEcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbUKWEcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262204AbUKWEcL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 23:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbUKVQkL
+	id S262167AbUKWEcM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 23:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUKVQj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:40:11 -0500
-Received: from port-83-236-152-146.static.qsc.de ([83.236.152.146]:50816 "EHLO
-	heck.convergence.de") by vger.kernel.org with ESMTP id S262170AbUKVQNh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:13:37 -0500
-Date: Mon, 22 Nov 2004 17:09:55 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Michael Hunold <hunold@linuxtv.org>,
-       linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-Subject: Re: [linux-dvb-maintainer] [patch] 2.6.10-rc2-mm3: DVB: philips_tdm1316l_config multiple definition
-Message-ID: <20041122160955.GA18255@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	Michael Hunold <hunold@linuxtv.org>, linux-kernel@vger.kernel.org,
-	linux-dvb-maintainer@linuxtv.org
-References: <20041121223929.40e038b2.akpm@osdl.org> <20041122155123.GE19419@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041122155123.GE19419@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 22 Nov 2004 11:39:59 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:24797 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S262163AbUKVQM2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 11:12:28 -0500
+To: pavel@ucw.cz
+CC: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <20041121181345.GB729@openzaurus.ucw.cz> (message from Pavel
+	Machek on Sun, 21 Nov 2004 19:13:45 +0100)
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <20041117190055.GC6952@openzaurus.ucw.cz> <E1CUVkG-0005sV-00@dorka.pomaz.szeredi.hu> <20041117204424.GC11439@elf.ucw.cz> <E1CUhTd-0006c8-00@dorka.pomaz.szeredi.hu> <20041118144634.GA7922@openzaurus.ucw.cz> <E1CVmN5-0007qq-00@dorka.pomaz.szeredi.hu> <20041121181345.GB729@openzaurus.ucw.cz>
+Message-Id: <E1CWGnc-0001MB-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 22 Nov 2004 17:12:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 04:51:23PM +0100, Adrian Bunk wrote:
-> On Sun, Nov 21, 2004 at 10:39:29PM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.10-rc2-mm2:
-> >...
-> > +dvb-follow-frontend-changes-in-drivers.patch
-> >...
-> > +dvb-follow-changes-in-dvb-ttpci-and-budget-drivers.patch
-> > 
-> >  Big DVB update
-> >...
-> 
-> <--  snip  -->
-> 
-> ...
->   LD      drivers/media/dvb/built-in.o
-> drivers/media/dvb/ttusb-budget/built-in.o(.data+0x3364): multiple 
-> definition of `philips_tdm1316l_config'
-> drivers/media/dvb/ttpci/built-in.o(.data+0x8c8): first defined here
-> make[3]: *** [drivers/media/dvb/built-in.o] Error 1
-> 
-> <--  snip  -->
-> 
-> 
-> Since none of them has a good reason for being global, the patch below 
-> makes both static.
 
-Thanks, patch applied to linuxtv.org CVS.
+> Ugh, this is going to be "interesting". Perhaps it can have little
+> overhead, but hacking pagefault handlers is going to be hard.
 
-BTW, like I said in some previous mail I think this "Big DVB update"
-isn't ready for prime time yet. It breaks support for some
-DVB cards (partially fixed in linuxtv.org CVS), so I think
-this should not go into the mainline kernel now. IMHO it's better
-to wait until 2.6.10 is out.
+Well yes.  The third option (mentioned by Jan Hudec) of backing dirty
+pages with a disk file is also appealing, but does not seem to me any
+simpler.
 
-Michael: Do you think differently?
+Miklos
 
 
-Johannes

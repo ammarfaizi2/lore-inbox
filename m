@@ -1,74 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbTDNNNU (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbTDNNNU (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 09:13:20 -0400
-Received: from ms-smtp-03.tampabay.rr.com ([65.32.1.41]:65000 "EHLO
-	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S262993AbTDNNNS (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 09:13:18 -0400
-Message-ID: <001301c3028a$25374f30$6801a8c0@epimetheus>
-From: "Timothy Miller" <tmiller10@cfl.rr.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <nicoya@apia.dhs.org>
-Subject: Re: Quick question about hyper-threading (also some NUMA stuff)
-Date: Mon, 14 Apr 2003 09:31:24 -0400
+	id S263012AbTDNNQ6 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 09:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbTDNNQ6 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 09:16:58 -0400
+Received: from dialup-12.156.221.203.acc50-nort-cbr.comindico.com.au ([203.221.156.12]:63748
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S263012AbTDNNQ4 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 09:16:56 -0400
+Message-ID: <3E9AB77F.5000506@cyberone.com.au>
+Date: Mon, 14 Apr 2003 23:28:31 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Benefits from computing physical IDE disk geometry?
+References: <Pine.LNX.4.44.0304140244020.7922-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.44.0304140244020.7922-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Tony 'Nicoya' Mantler (nicoya@apia.dhs.org)
 
 
+Mark Hahn wrote:
 
-> Perhaps the same effect could be obtained by preferentially scheduling
-processes
-> to execute on the "node" (a node being a single cpu in an SMP system, or
-an HT
-> virtual CPU pair, or a NUMA node) that they were last running on.
+>>>>The benefit I see is knowing the seek time itself (not geometry), which
+>>>>can be used to tune the IO scheduler. This is something that I'll
+>>>>
+>
+>but seek time is some combination of headswitch time, rotational 
+>latency, and actual head motion.  the first three are basically
+>not accessible in any practical way.  the latter is easy, and the 
+>
+Yep which is one reason why I don't think being fancy will pay
+off (the other reason being that even if you did know the parameters
+I don't think they would help a lot).
 
+I just want to know the average seek time.
 
-> I think the ideal semantics would probably be something along the lines
-of:
+>
+>current approximation (seek time is a linear function of block distance)
+>is very reasonable.
+>
+Well, strictly, not linear. But yes it does provide a good ordering.
+That is besides the point though: I can decide if one request will
+have a shorter seek time than another just fine. I would still like
+to know the aproximate seek _time_ for higher level tuning stuff
+eg. will anticipation be worth it, and how soon should requests
+expire.
 
+>
+>
+>adjusting the cost function would be interesting: I'm guessing that 
+>handling short seeks (which are quite fast) would be more important
+>than adjusting for zones.  given that the current queueing code 
+>handles starvation, I wonder if we could actually permit backward
+>seeks of, say, 0-2 cylinders.
+>
+There is (in AS) no cost function further than comparing distance
+from the head. Closest forward seek wins.
 
->  - a newly fork()ed thread executes on the same node as the creating
-thread
->  - calling exec() sets a "feel free to shuffle me elsewhere" flag
->  - threads are otherwise only shuffled to other nodes when a certain load
-ratio
-> is exceeded (current-node:idle-node)
+If by the queueing code you mean the actual IO schedulers? Then
+yes, they do handle starvation, however they (AS, deadline)
+handle _fairness_ by not seeking backward. Well actually
+AS does allow a process to seek upto IIRC 256MB backward
+which is a couple of ext2 blockgroups while maintaining quite
+good fairness.
 
-
-This sounds like the most sensible approach.  I like considering the
-extremes of performance, but sometimes, the time for math required for some
-optimization can be worse than any benefit you get out of it.  Your
-suggestion is simple.  It increases the likelihood (10% better for little
-extra effort is better than 10% worse) of related processes being run on the
-same node, while not impacting the system's ability to balance load.  This,
-as you say, is also very important for NUMA.
-
-
-
-Does the NUMA support migrate pages to the node which is running a process?
-Or would processes jump nodes often enough to make that not worth the
-effort?
-
-
-
-In order for page migration to be worth it, node affinity would have to be
-fairly strong.  It's particularly important when a process maps pages which
-belong to another node.  Is there any logic there to duplicate pages in
-cases where there is enough free memory for it?  We'd have to tag the pages
-as duplicates so the VM could reclaim them.
-
-
-
-
+>
+>
+>>Well using the assumption that |head sector - target sector| gives
+>>an ordering correstponding to seek time, we do sort the queue optimally.
+>>I personally feel that being trickier than that is too much complexity.
+>>
+>
+>exactly.
+>  
+>
 

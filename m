@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbSLLLEv>; Thu, 12 Dec 2002 06:04:51 -0500
+	id <S262457AbSLLLFC>; Thu, 12 Dec 2002 06:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262457AbSLLLEv>; Thu, 12 Dec 2002 06:04:51 -0500
-Received: from mxintern.kundenserver.de ([212.227.126.204]:60919 "EHLO
-	mxintern.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S262425AbSLLLEu>; Thu, 12 Dec 2002 06:04:50 -0500
-Date: Thu, 12 Dec 2002 12:12:37 +0100
-From: Anders Henke <anders.henke@sysiphus.de>
+	id <S262464AbSLLLFC>; Thu, 12 Dec 2002 06:05:02 -0500
+Received: from mail.hometree.net ([212.34.181.120]:55256 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S262457AbSLLLFA>; Thu, 12 Dec 2002 06:05:00 -0500
 To: linux-kernel@vger.kernel.org
-Subject: using 2 TB  in real life
-Message-ID: <20021212111237.GA12143@schlund.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Schlund + Partner AG
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Is this going to be true ?
+Date: Thu, 12 Dec 2002 11:12:47 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <at9qvf$ds4$1@forge.intermeta.de>
+References: <001801c2a0a9$02613f40$2e863841@joe> <yw1xvg1zfspi.fsf@tophat.e.kth.se>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1039691567 3712 212.34.181.4 (12 Dec 2002 11:12:47 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 12 Dec 2002 11:12:47 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just added a 1.9 TB array to one of my servers (running 2.4.20,
-the device is an 12bay-IFT IDE-to-Fibre-RAID connected via a 
-Qlogic 2300 HBA):
+mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=) writes:
 
-Disk /dev/sdb: 255 heads, 63 sectors, 247422 cylinders
-Units = cylinders of 16065 * 512 bytes
+>> comparing unices and Windoze, is the question "What is an operating
+>> system"? Is the kernel the OS? Are the libraries part of it as well?
 
-   Device Boot    Start       End    Blocks   Id  System
-/dev/sdb1             1    247422 1987417183+  83  Linux
-[...]
-Attached scsi disk sdb at scsi2, channel 0, id 0, lun 0
-SCSI device sdb: -320126976 512-byte hdwr sectors (-163904 MB)
- sdb: sdb1
+>IMHO, the operating system is whatever is reached through system
+>calls, i.e traps.  MS seems to define it as whatever they bundle on
+>the CD.
 
+99,95+% of the computer users base out there tend to differ. This
+makes your point rather moot :-) (To me, the "OS" consists at least of
+the kernel, c standard library/ies with their support files and enough
+infrastructure to start programs without having to hard code them on a
+kernel boot line or in code. Which is at least /sbin/init and might
+even contain a simple user command shell).
 
-Another array (1.2 TB) gives almost the same effect:
-Disk /dev/sdb: 255 heads, 63 sectors, 157450 cylinders
-Units = cylinders of 16065 * 512 bytes
+This definition could fit on a floppy, though. Might even fit on an
+720k diskette. :-) Kernel + /sbin/init + busybox is IMHO an OS.
 
-   Device Boot    Start       End    Blocks   Id  System
-/dev/sdb1             1    157450 1264717093+  83  Linux
-[...]
-Attached scsi disk sdb at scsi2, channel 0, id 0, lun 0
-SCSI device sdb: -1765523456 512-byte hdwr sectors (195564 MB)
- sdb: sdb1
+If you define "OS" at the syscall layer you end up with what we
+started.  Two threads printing 1 0 1 0 1 0 on your screen.
 
-These issues arise when using arrays larger than around 0.5 T;
-nevertheless, these devices do work fine with both xfs or ext3, 
-it's "just" a cosmetical issue. However, this negative
-values make one feel like Linux isn't truely capable of using up to
-2 TB of disk devices and so this should be resolved.
-To me it seems that sd.c doesn't know how to calculate the
-correct values for such beasts - any ideas?
+	Regards
+		henning
 
 
-Regards
-
-Anders
 -- 
-http://sysiphus.de/
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

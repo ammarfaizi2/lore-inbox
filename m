@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274142AbRISTXo>; Wed, 19 Sep 2001 15:23:44 -0400
+	id <S274147AbRISTaY>; Wed, 19 Sep 2001 15:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274143AbRISTXf>; Wed, 19 Sep 2001 15:23:35 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12563 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274142AbRISTX2>; Wed, 19 Sep 2001 15:23:28 -0400
-Subject: Re: Request: removal of fs/fs.h/super_block.u to enable partition locking
-To: swansma@yahoo.com (Mark Swanson)
-Date: Wed, 19 Sep 2001 20:28:43 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BA7FF92.D6477904@yahoo.com> from "Mark Swanson" at Sep 18, 2001 10:14:42 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S274148AbRISTaO>; Wed, 19 Sep 2001 15:30:14 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:1008
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S274147AbRIST37>; Wed, 19 Sep 2001 15:29:59 -0400
+Date: Wed, 19 Sep 2001 12:30:18 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: the Gimp and pre11
+Message-ID: <20010919123018.B12820@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010919034412.092EB9CF9@oscar.casa.dyndns.org> <1000907347.6897.8.camel@sonja>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15jn1X-0003cU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <1000907347.6897.8.camel@sonja>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm trying to look out for tired sys-admins who might 
-> destroy my application's partition not knowing
-> what a particular empty-looking partition is used for.
+On Wed, Sep 19, 2001 at 03:48:57PM +0200, Daniel Egger wrote:
+> On Mit, 2001-09-19 at 05:44, Ed Tomlinson wrote:
+> 
+> > I am editing 6 Megapixel files (2800x2048) and things like rotations seem to 
+> > have delays that were not happening with previous kernels.  My box has 320M.
+> > Seems that pre11 does not swap out as much as pre10 so Gimp has less to work
+> > with.
+> 
+> Since GIMP uses it's own memory management using a tile approach I
+> hardly doubt this is caused by swap usage if you defined the maximum
+> amount of memory GIMP should use correctly; though it may be that the
+> kernel swaps out tiles that the tilemanager considers to be active (and
+> thus in memory) this behaviour should not happen as long as the kernel
+> is not to eagerly swapping out memory and considering that the tiles
+> are referenced quite often it should not swap them to disc at all IF
+> the recently introduced algorithms work correctly.
+> 
+> Anyhow, just to make sure, would you please mention much memory you
+> assigned to GIMP and what else is running on the system?
+> 
 
-You are not going to stop a tired sysadmin doing something daft. You can
-certainly create a GPL'd raw partition as a file fs (I believe someone did
-that so INN could mmap raw on a device)
+Also, try a test with pre11 with swap turned off, and see how that affects
+your system.
 
-However you don't need to remove anything for that
+Please note: I am not recommending running without swap under normal
+circumstances...

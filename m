@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275053AbTHQGS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 02:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275029AbTHQGR6
+	id S275024AbTHQGNl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 02:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275053AbTHQGNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 02:17:58 -0400
-Received: from codepoet.org ([166.70.99.138]:58767 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S275201AbTHQGNu (ORCPT
+	Sun, 17 Aug 2003 02:13:40 -0400
+Received: from codepoet.org ([166.70.99.138]:53903 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S275024AbTHQGNK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 02:13:50 -0400
-Date: Sun, 17 Aug 2003 00:13:52 -0600
+	Sun, 17 Aug 2003 02:13:10 -0400
+Date: Sun, 17 Aug 2003 00:13:12 -0600
 From: Erik Andersen <andersen@codepoet.org>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries Brouwer <aebr@win.tue.nl>,
        Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 6/8 Backport recent 2.6 IDE updates to 2.4.x
-Message-ID: <20030817061352.GG17621@codepoet.org>
+Subject: [PATCH] 2/8 Backport recent 2.6 IDE updates to 2.4.x
+Message-ID: <20030817061312.GC17621@codepoet.org>
 Reply-To: andersen@codepoet.org
 Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
 	Marcelo Tosatti <marcelo@conectiva.com.br>,
@@ -33,10 +33,8 @@ X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch further refines IDE geometry detection, and takes an
-easier path toward detecting when a drive happens to support
-things like lba48, making the code more readable and more
-consistant.
+This patch fixes some accounting problems where values were
+unconditionally incremented,
 
  -Erik
 
@@ -44,175 +42,43 @@ consistant.
 Erik B. Andersen             http://codepoet-consulting.com/
 --This message was written using 73% post-consumer electrons--
 
-
---- linux/drivers/ide/ide-disk.c.orig	2003-08-16 20:51:58.000000000 -0600
-+++ linux/drivers/ide/ide-disk.c	2003-08-16 20:56:49.000000000 -0600
-@@ -106,11 +106,6 @@
- {
- 	unsigned long lba_sects, chs_sects, head, tail;
- 
--	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400)) {
--		printk("48-bit Drive: %llu \n", id->lba_capacity_2);
--		return 1;
--	}
--
- 	/*
- 	 * The ATA spec tells large drives to return
- 	 * C/H/S = 16383/16/63 independent of their size.
-@@ -1139,11 +1134,29 @@
- 	return n;
+--- linux-2.4.22-pre.orig/drivers/ide/ide-disk.c	2003-06-13 08:51:33.000000000 -0600
++++ linux/drivers/ide/ide-disk.c	2003-08-16 19:52:24.000000000 -0600
+@@ -1029,8 +1029,8 @@
+ 		     | ((args.tfRegister[  IDE_HCYL_OFFSET]       ) << 16)
+ 		     | ((args.tfRegister[  IDE_LCYL_OFFSET]       ) <<  8)
+ 		     | ((args.tfRegister[IDE_SECTOR_OFFSET]       ));
++		addr++;	/* since the return value is (maxlba - 1), we add 1 */
+ 	}
+-	addr++;	/* since the return value is (maxlba - 1), we add 1 */
+ 	return addr;
  }
  
-+/*
-+ * Bits 10 of command_set_1 and cfs_enable_1 must be equal,
-+ * so on non-buggy drives we need test only one.
-+ * However, we should also check whether these fields are valid.
-+ */
-+static inline int idedisk_supports_hpa(const struct hd_driveid *id)
-+{
-+	return (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
-+}
-+
-+/*
-+ * The same here.
-+ */
-+static inline int idedisk_supports_lba48(const struct hd_driveid *id)
-+{
-+	return (id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400);
-+}
-+
- static inline void idedisk_check_hpa_lba28(ide_drive_t *drive)
- {
- 	unsigned long capacity, set_max;
- 
--	capacity = drive->id->lba_capacity;
-+	capacity = drive->capacity;
- 	set_max = idedisk_read_native_max_address(drive);
- 
- 	if (set_max <= capacity)
-@@ -1158,7 +1171,7 @@
- #ifdef CONFIG_IDEDISK_STROKE
- 	set_max = idedisk_set_max_address(drive, set_max);
- 	if (set_max) {
--		drive->id->lba_capacity = set_max;
-+		drive->capacity = set_max;
- 		printk(KERN_INFO "%s: Host Protected Area disabled.\n",
- 				 drive->name);
+@@ -1057,8 +1057,8 @@
+ 			   ((args.tfRegister[IDE_LCYL_OFFSET])<<8) |
+ 			    (args.tfRegister[IDE_SECTOR_OFFSET]);
+ 		addr = ((__u64)high << 24) | low;
++		addr++;	/* since the return value is (maxlba - 1), we add 1 */
  	}
-@@ -1169,7 +1182,7 @@
- {
- 	unsigned long long capacity_2, set_max_ext;
- 
--	capacity_2 = drive->id->lba_capacity_2;
-+	capacity_2 = drive->capacity48;
- 	set_max_ext = idedisk_read_native_max_address_ext(drive);
- 
- 	if (set_max_ext <= capacity_2)
-@@ -1184,7 +1197,8 @@
- #ifdef CONFIG_IDEDISK_STROKE
- 	set_max_ext = idedisk_set_max_address_ext(drive, set_max_ext);
- 	if (set_max_ext) {
--		drive->id->lba_capacity_2 = set_max_ext;
-+		drive->capacity48 = set_max_ext;
-+		drive->capacity = (unsigned long) set_max_ext;
- 		printk(KERN_INFO "%s: Host Protected Area disabled.\n",
- 				 drive->name);
- 	}
-@@ -1212,32 +1226,21 @@
- 	 * If this drive supports the Host Protected Area feature set,
- 	 * then we may need to change our opinion about the drive's capacity.
- 	 */
--	int hpa = (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
-+	int hpa = idedisk_supports_hpa(id);
- 
--	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400)) {
-+	if (idedisk_supports_lba48(id)) {
- 		/* drive speaks 48-bit LBA */
--		unsigned long long capacity_2;
--
- 		drive->select.b.lba = 1;
-+		drive->capacity48 = id->lba_capacity_2;
-+		drive->capacity = (unsigned long) drive->capacity48;
- 		if (hpa)
- 			idedisk_check_hpa_lba48(drive);
--		capacity_2 = id->lba_capacity_2;
--		drive->head		= drive->bios_head = 255;
--		drive->sect		= drive->bios_sect = 63;
--		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
--		drive->bios_cyl		= drive->cyl;
--		drive->capacity48	= capacity_2;
--		drive->capacity		= (unsigned long) capacity_2;
- 	} else if ((id->capability & 2) && lba_capacity_is_ok(id)) {
- 		/* drive speaks 28-bit LBA */
--		unsigned long capacity;
--
- 		drive->select.b.lba = 1;
-+		drive->capacity = id->lba_capacity;
- 		if (hpa)
- 			idedisk_check_hpa_lba28(drive);
--		capacity = id->lba_capacity;
--		drive->cyl = capacity / (drive->head * drive->sect);
--		drive->capacity = capacity;
- 	} else {
- 		/* drive speaks boring old 28-bit CHS */
- 		drive->capacity = drive->cyl * drive->head * drive->sect;
-@@ -1246,7 +1249,7 @@
- 
- static u64 idedisk_capacity (ide_drive_t *drive)
- {
--	if (drive->id->cfs_enable_2 & 0x0400)
-+	if (idedisk_supports_lba48(drive->id))
- 		return (drive->capacity48 - drive->sect0);
- 	return (drive->capacity - drive->sect0);
+-	addr++;	/* since the return value is (maxlba - 1), we add 1 */
+ 	return addr;
  }
-@@ -1572,7 +1575,7 @@
- 	if (HWIF(drive)->addressing)
- 		return 0;
  
--	if (!(drive->id->cfs_enable_2 & 0x0400))
-+	if (!idedisk_supports_lba48(drive->id))
-                 return -EIO;
- 	drive->addressing = arg;
- 	return 0;
-@@ -1696,19 +1699,28 @@
- 	 * by correcting bios_cyls:
- 	 */
- 	capacity = idedisk_capacity (drive);
--	if (!drive->forced_geom && drive->bios_sect && drive->bios_head) {
--		unsigned int cap0 = capacity;	/* truncate to 32 bits */
--		unsigned int cylsz, cyl;
--
--		if (cap0 != capacity)
--			drive->bios_cyl = 65535;
--		else {
--			cylsz = drive->bios_sect * drive->bios_head;
--			cyl = cap0 / cylsz;
--			if (cyl > 65535)
--				cyl = 65535;
--			if (cyl > drive->bios_cyl)
--				drive->bios_cyl = cyl;
-+	if (!drive->forced_geom) {
-+
-+		if (idedisk_supports_lba48(drive->id)) {
-+			/* compatibility */
-+			drive->bios_sect = 63;
-+			drive->bios_head = 255;
-+		}
-+
-+		if (drive->bios_sect && drive->bios_head) {
-+			unsigned int cap0 = capacity; /* truncate to 32 bits */
-+			unsigned int cylsz, cyl;
-+
-+			if (cap0 != capacity)
-+				drive->bios_cyl = 65535;
-+			else {
-+				cylsz = drive->bios_sect * drive->bios_head;
-+				cyl = cap0 / cylsz;
-+				if (cyl > 65535)
-+					cyl = 65535;
-+				if (cyl > drive->bios_cyl)
-+					drive->bios_cyl = cyl;
-+			}
- 		}
+@@ -1089,8 +1089,8 @@
+ 			 | ((args.tfRegister[  IDE_HCYL_OFFSET]       ) << 16)
+ 			 | ((args.tfRegister[  IDE_LCYL_OFFSET]       ) <<  8)
+ 			 | ((args.tfRegister[IDE_SECTOR_OFFSET]       ));
++		addr_set++;
  	}
- 	printk(KERN_INFO "%s: %llu sectors (%llu MB)",
+-	addr_set++;
+ 	return addr_set;
+ }
+ 
+@@ -1124,6 +1124,7 @@
+ 			   ((args.tfRegister[IDE_LCYL_OFFSET])<<8) |
+ 			    (args.tfRegister[IDE_SECTOR_OFFSET]);
+ 		addr_set = ((__u64)high << 24) | low;
++		addr_set++;
+ 	}
+ 	return addr_set;
+ }

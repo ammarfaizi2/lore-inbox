@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266523AbUHBNml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266525AbUHBNob@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266523AbUHBNml (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 09:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266526AbUHBNml
+	id S266525AbUHBNob (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 09:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266521AbUHBNob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 09:42:41 -0400
-Received: from tristate.vision.ee ([194.204.30.144]:59104 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S266523AbUHBNmi (ORCPT
+	Mon, 2 Aug 2004 09:44:31 -0400
+Received: from holomorphy.com ([207.189.100.168]:34476 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266525AbUHBNnU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 09:42:38 -0400
-Message-ID: <410E44CC.2080004@vision.ee>
-Date: Mon, 02 Aug 2004 16:42:36 +0300
-From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
-Organization: Vision
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: mingo@redhat.com, Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
-References: <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
-In-Reply-To: <20040801193043.GA20277@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Aug 2004 09:43:20 -0400
+Date: Mon, 2 Aug 2004 06:42:57 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
+Subject: Re: [PATCH] V-3.0 Single Priority Array O(1) CPU Scheduler Evaluation
+Message-ID: <20040802134257.GE2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Peter Williams <pwil3058@bigpond.net.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
+References: <410DDFD2.5090400@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <410DDFD2.5090400@bigpond.net.au>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+On Mon, Aug 02, 2004 at 04:31:46PM +1000, Peter Williams wrote:
+> 3. Priority based O(1) scheduler with active/expired arrays replaced by 
+> a single array and an O(1) promotion mechanism plus scheduling 
+> statistics with new interactive bonus mechanism and throughput bonus 
+> mechanism:
 
->here's the latest version of the voluntary-preempt patch:
->  
->  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-O2
->  
->
-Rediff against 2.6.8-rc2-mm2 would be nice if possible (there are some 
-rejects right now).
+Hmm. Given do_promotions() I'd expect fenceposts, not iteration over
+the priority levels of the runqueue.
 
-Lenar
 
+-- wli

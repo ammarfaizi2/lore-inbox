@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVBGL5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVBGMJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbVBGL5t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 06:57:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVBGL5t
+	id S261401AbVBGMJK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 07:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVBGMJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 06:57:49 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:11924 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261402AbVBGL5p (ORCPT
+	Mon, 7 Feb 2005 07:09:10 -0500
+Received: from styx.suse.cz ([82.119.242.94]:11150 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261401AbVBGMJG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 06:57:45 -0500
-Date: Mon, 7 Feb 2005 12:57:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       rml@novell.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050207115736.GB22948@elte.hu>
-References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124121729.GA29392@infradead.org>
+	Mon, 7 Feb 2005 07:09:06 -0500
+Date: Mon, 7 Feb 2005 13:09:58 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] twiddler compile fix.
+Message-ID: <20050207120958.GA16865@ucw.cz>
+References: <200502062207.49276.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050124121729.GA29392@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <200502062207.49276.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 06, 2005 at 10:07:48PM -0500, Dmitry Torokhov wrote:
+> Hi,
+> 
+> Somehow this part of one of the earlier patches was lost...
+> 
+> -- 
+> Dmitry
+> 
+> 
+> ===================================================================
+> 
+> 
+> ChangeSet@1.2122, 2005-02-06 20:25:21-05:00, dtor_core@ameritech.net
+>   Input: fix compie error in twidjoy.c
+>   
+>   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> 
+> 
+>  twidjoy.c |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> 
+> ===================================================================
+ 
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+Thanks; applied.
 
-> > inotify.patch
-> >   inotify
-
-> Also ioctl is not an acceptable interface for adding new core
-> functionality.
-
-seconded. Robert?
-
-	Ingo
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261949AbSJITfd>; Wed, 9 Oct 2002 15:35:33 -0400
+	id <S261855AbSJITd5>; Wed, 9 Oct 2002 15:33:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261951AbSJITfd>; Wed, 9 Oct 2002 15:35:33 -0400
-Received: from packet.digeo.com ([12.110.80.53]:32657 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261949AbSJITfc>;
-	Wed, 9 Oct 2002 15:35:32 -0400
-Message-ID: <3DA48655.82A5E044@digeo.com>
-Date: Wed, 09 Oct 2002 12:41:09 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] CONFIG_DEBUG_SLAB broken on SMP
-References: <20021009191335.GB3045@clusterfs.com>
+	id <S261920AbSJITd5>; Wed, 9 Oct 2002 15:33:57 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:63247 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261855AbSJITd4>;
+	Wed, 9 Oct 2002 15:33:56 -0400
+Date: Wed, 9 Oct 2002 21:39:37 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Peter Samuelson <peter@cadcamlab.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.8
+Message-ID: <20021009213937.A12901@mars.ravnborg.org>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	Peter Samuelson <peter@cadcamlab.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	kbuild-devel <kbuild-devel@lists.sourceforge.net>
+References: <20021009185203.GK4182@cadcamlab.org> <Pine.LNX.4.33L2.0210091225100.1001-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Oct 2002 19:41:09.0159 (UTC) FILETIME=[D0C7BB70:01C26FCB]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33L2.0210091225100.1001-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Wed, Oct 09, 2002 at 12:28:44PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Wed, Oct 09, 2002 at 12:28:44PM -0700, Randy.Dunlap wrote:
 > 
-> We were tracking down a strange bug in our code that only appeared on
-> SMP and not UP, and we thought that CONFIG_DEBUG_SLAB (and the ensuing
-> FORCED_DEBUG which enables SLAB_POISON and SLAB_REDZONE) was going to
-> catch problems with slab objects, so we were very very confused when a
-> test like:
-> 
->         struct foo *obj;
-> 
->         cache = kmem_cache_create("test_cache", sizeof(struct foo))
->         obj = kmem_cache_alloc(cache, GFP_KERNEL);
->         kmem_cache_free(cache, obj);
->         // print out contents of obj
-> 
-> was not poisoning obj, or setting the redzone fields on obj to "free".
-> 
+> The kernel would still have the text-mode configurator.
+The way I read the original post by Christoph Hellwig - nope.
+If the kernel config library is outside the kernel then the
+text-mode versions will fail as well.
+Recall that the text-mode version are no longer shell scripts,
+but based on a nice YACC grammar and coded in C.
 
-Linus recently changed the 2.5 slab allocator to stamp that out.
+I do not want to go somewhere for special tools just to configure
+the kernel.
+Basic stuff such as make and gcc is ok to locate elsewhere - in
+specific versions as well. But not some basic kernel only configurator.
 
---- mm/slab.c	18 Sep 2002 03:48:34 -0000	1.28
-+++ mm/slab.c	20 Sep 2002 16:22:53 -0000	1.29
-@@ -1727,8 +1728,13 @@
- 	return 0;
- }
- 
-+/* 
-+ * If slab debugging is enabled, don't batch slabs
-+ * on the per-cpu lists by defaults.
-+ */
- static void enable_cpucache (kmem_cache_t *cachep)
- {
-+#ifndef CONFIG_DEBUG_SLAB
- 	int err;
- 	int limit;
- 
-@@ -1746,6 +1752,7 @@
- 	if (err)
- 		printk(KERN_ERR "enable_cpucache failed for %s, error %d.\n",
- 					cachep->name, -err);
-+#endif
- }
- 
- static void enable_all_cpucaches (void)
+	Sam

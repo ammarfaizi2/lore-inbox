@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136496AbREIOgS>; Wed, 9 May 2001 10:36:18 -0400
+	id <S136500AbREIOi6>; Wed, 9 May 2001 10:38:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136499AbREIOgI>; Wed, 9 May 2001 10:36:08 -0400
-Received: from host-64-65-206-13.choiceone.net ([64.65.206.13]:24872 "EHLO
-	isaiah.tpr-east.com") by vger.kernel.org with ESMTP
-	id <S136496AbREIOfz>; Wed, 9 May 2001 10:35:55 -0400
-Message-ID: <3AF9558F.9C76953C@tpr.com>
-Date: Wed, 09 May 2001 10:34:55 -0400
-From: Mark Bratcher <bratcher@tpr.com>
-Organization: Torrey Pines Research
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
+	id <S136501AbREIOit>; Wed, 9 May 2001 10:38:49 -0400
+Received: from [63.95.13.242] ([63.95.13.242]:16931 "EHLO
+	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
+	id <S136500AbREIOif>; Wed, 9 May 2001 10:38:35 -0400
+Message-ID: <001101c0d895$8bfe27f0$2d040a0a@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: "Jeff Garzik" <jgarzik@mandrakesoft.com>,
+        "Bill Nottingham" <notting@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>, <tytso@mit.edu>,
+        "Alessandro Suardi" <alessandro.suardi@oracle.com>
+In-Reply-To: <20010509093733.C18911@devserv.devel.redhat.com> <3AF94ACB.F3688AB@mandrakesoft.com>
+Subject: Re: [PATCH] make Xircom cardbus modems work
+Date: Wed, 9 May 2001 10:37:12 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ATAPI Tape Driver Failure in Kernel 2.4.4
-Content-Type: multipart/mixed;
- boundary="------------29ABB5C20748E793E24EAF0A"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------29ABB5C20748E793E24EAF0A
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+> Does the attached patch work for you?
+>
+> serial.c still has the basic problem that there is a logical disconnect
+> between the pci_boards list and the pci-device-id list:  any device
+> which is not PCI_CLASS_COMMUNICATION_SERIAL or
+> PCI_CLASS_COMMUNICATION_MODEM will not get scanned.  The solution is to
+> move the PCI ids into the probe list, before the class listing.  Ideally
+> I would like to merge the Xircom cardbus fix with this fix, since they
+> are both modifying the pci_board list and thus conflict.
+>
+> Except for the Xircom Cardbus update (based on your patch, Bill), this
+> patch has been tested and is known to solve the problems reported to me
+> which were caused by the logical disconnect.
+>
+> (Alessandro, Tom, tytso: the attached patch is updated for the changes
+> in Bill's patch, so you haven't seen this version yet)
+>
+> Jeff
 
-Hi,
+Just wanted to report that this patch finally fixes my Xircom Cardbus
+adapter.  Works like a charm.
 
-I just upgraded from kernel 2.2.17 to 2.4.4. I use a Seagate ATAPI tape drive,
-model STT20000A. I use dump to do backups (probably not relevant).
+Thanks!!
 
-In version 2.2.17 kernel, backups worked fine. In 2.4.4, I get the following
-error message:
+Later,
+Tom
 
-ide-tape: bh == NULL in idetape_copy_stage_to_user.
-
-Anyone know what causes this problem?
-
-Please reply directly, as I'm not a member of this list.
-
-Thanks :-)
-Mark Bratcher
---------------29ABB5C20748E793E24EAF0A
-Content-Type: text/x-vcard; charset=us-ascii;
- name="bratcher.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Mark Bratcher
-Content-Disposition: attachment;
- filename="bratcher.vcf"
-
-begin:vcard 
-n:Bratcher;Mark
-tel;fax:716/288-4604
-tel;work:716/288-7220
-x-mozilla-html:FALSE
-url:www.tpr.com
-org:Torrey Pines Research
-version:2.1
-email;internet:bratcher@tpr.com
-title:Director of Software Development
-adr;quoted-printable:;;565 Blossom Road=0D=0ASuite A;Rochester;New York;14610;USA
-x-mozilla-cpt:;19472
-fn:Bratcher, Mark
-end:vcard
-
---------------29ABB5C20748E793E24EAF0A--
 

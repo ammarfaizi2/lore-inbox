@@ -1,155 +1,272 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVB1E0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVB1Elr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVB1E0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 23:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVB1E0H
+	id S261552AbVB1Elr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 23:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVB1Elr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 23:26:07 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:43818
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261551AbVB1EZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 23:25:46 -0500
-Date: Mon, 28 Feb 2005 05:25:44 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: two pipe bugfixes
-Message-ID: <20050228042544.GA8742@opteron.random>
+	Sun, 27 Feb 2005 23:41:47 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:42199 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261552AbVB1Ele (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 23:41:34 -0500
+Subject: Re: Update suspend-to-RAM vs. video documentation
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050228012218.GA2014@elf.ucw.cz>
+References: <20050228012218.GA2014@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1109565762.16374.9.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 28 Feb 2005 15:42:43 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi.
 
-This testcase from Thomas Crhak:
+A few corrections, nothing major.
 
-#include <unistd.h>
-#include <sys/select.h>
+Nigel
 
-int
-main(int argv, char **argc) {
-  int inout[2];
-  fd_set readfds, writefds, exceptfds;
-  struct timeval timeout;
+On Mon, 2005-02-28 at 12:22, Pavel Machek wrote:
+> Hi!
+> 
+> We got quite long list of machines and tricks needed to get them
+> working. Please apply,
+> 							Pavel
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
+> 
+> --- clean-mm/Documentation/power/video.txt	2004-12-25 13:34:57.000000000 +0100
+> +++ linux-mm/Documentation/power/video.txt	2005-02-28 02:01:39.000000000 +0100
+> @@ -1,7 +1,7 @@
+>  
+>  		Video issues with S3 resume
+>  		~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> -		  2003-2004, Pavel Machek
+> +		  2003-2005, Pavel Machek
+>  
+>  During S3 resume, hardware needs to be reinitialized. For most
+>  devices, this is easy, and kernel driver knows how to do
+> @@ -11,33 +11,159 @@
+>  driver -- vesafb and vgacon are widely used).
+>  
+>  This is not problem for swsusp, because during swsusp resume, BIOS is
+> -run normally so video card is normally initialized.
+> +run normally so video card is normally initialized. S3 has absolutely
+> +no change to work with SMP/HT. Be sure it to turn it off before
+> +testing (swsusp should work ok, OTOH).
 
-  timeout.tv_sec = 0;
-  timeout.tv_usec = 0;
-
-  FD_ZERO(&readfds);
-  FD_ZERO(&writefds);
-  FD_ZERO(&exceptfds);
-
-  pipe(inout);
-  write(inout[1], "qqqqqqqq", 5);
-
-  FD_SET(inout[1], &readfds);
-  FD_SET(inout[1], &writefds);
-  FD_SET(inout[1], &exceptfds);
-
-  select(inout[1] + 1, &readfds, &writefds, &exceptfds, &timeout);
-
-  close(inout[0]);
-
-  write(inout[1], "qqqqqqqq", 5);
-  return 0;
-}
-
-was returning this in 2.6.9:
-
-pipe([3, 4])                            = 0
-write(4, "qqqqq", 5)                    = 5
-select(5, [4], [4], [4], {0, 0})        = 1 (in [4], left {0, 0})
-close(3)                                = 0
-write(4, "qqqqq", 5)                    = -1 EPIPE (Broken pipe)
-
-and it started to return this since 2.6.11-rc:
-
-pipe([3, 4])                            = 0
-write(4, "qqqqq", 5)                    = 5
-select(5, [4], [4], [4], {0, 0})        = 2 (in [4], out [4], left {0,
-0})
-close(3)                                = 0
-write(4, "qqqqq", 5)                    = 5
-
-There are two separate bugs: the first is that it doesn't return
--EPIPE because the input side has been closed already, the second is
-that it returns POLLIN|POLLOUT. I heard POLLIN|POLLOUT is sometime
-detected as a special case that means the input side has disconnected.
-But anyway POLLIN|POLLOUT at the same time seems wrong to me (at least I
-didn't find anything in SUS specs mentioning this magic for pipes) and
-2.6.11-rc definitely breaks python-twisted (which apparently understand
-the magic I've heard). But clearly the change in 2.6.11-rc that sets
-POLLOUT if not all buffers are full makes plenty of sense for
-performance reasons.
-
-IMHO the really wrong thing is that we always set POLLIN (even for
-output filedescriptors that will never allow any data to be read).
-
-So now I check if the file is open in read or write mode, and I return
-POLLIN or POLLOUT and never both of them at the same time. I've no idea
-if this is the correct semantics that all applications expects, but
-since we use the same pipe_poll callback for all read/write/rdwr cases,
-I believe this is the most correct one and it certainly looks better
-than the 2.6.11-rc code that breaks twisted, and this new logic still
-allows the optimizations in the 2.6.11-rc to work.
-
-Current output of strace with this patch applied is this:
-
-pipe([3, 4])                            = 0
-write(4, "qqqqq", 5)                    = 5
-select(5, [4], [4], [4], {0, 0})        = 1 (out [4], left {0, 0})
-close(3)                                = 0
-write(4, "qqqqq", 5)                    = -1 EPIPE (Broken pipe)
---- SIGPIPE (Broken pipe) @ 0 (0) ---
-+++ killed by SIGPIPE +++
-
-which is different from 2.6.9 but it makes a lot more sense to me for a
-"write-only" fd IMHO, and I had no pratical problems with this patch
-yet (not that I've run any big stress test though, just normal misc
-usage with all sort of desktop apps and twisted). Comments welcome thanks!
-
-Patch is against 2.6.11-rc5.
-
-Signed-off-by: Andrea Arcangeli <andrea@suse.de>
-
---- xx/fs/pipe.c.~1~	2005-02-28 00:43:42.000000000 +0100
-+++ xx/fs/pipe.c	2005-02-28 04:47:26.000000000 +0100
-@@ -235,6 +235,12 @@ pipe_writev(struct file *filp, const str
- 	down(PIPE_SEM(*inode));
- 	info = inode->i_pipe;
+I think this should be "no chance of working".
  
-+	if (!PIPE_READERS(*inode)) {
-+		send_sig(SIGPIPE, current, 0);
-+		ret = -EPIPE;
-+		goto out;
-+	}
-+
- 	/* We try to merge small writes */
- 	if (info->nrbufs && total_len < PAGE_SIZE) {
- 		int lastbuf = (info->curbuf + info->nrbufs - 1) & (PIPE_BUFFERS-1);
-@@ -398,8 +404,15 @@ pipe_poll(struct file *filp, poll_table 
- 
- 	/* Reading only -- no need for acquiring the semaphore.  */
- 	nrbufs = info->nrbufs;
--	mask = (nrbufs > 0) ? POLLIN | POLLRDNORM : 0;
--	mask |= (nrbufs < PIPE_BUFFERS) ? POLLOUT | POLLWRNORM : 0;
-+	mask = 0;
-+	/*
-+	 * Returning POLLIN|POLLOUT for a output channel has special semantics 
-+	 * and it's used by some app to detect when the input has been closed.
-+	 */
-+	if (filp->f_mode & FMODE_READ && nrbufs > 0)
-+		mask |= POLLIN | POLLRDNORM;
-+	if (filp->f_mode & FMODE_WRITE && nrbufs < PIPE_BUFFERS)
-+		mask |= POLLOUT | POLLWRNORM;
- 
- 	if (!PIPE_WRITERS(*inode) && filp->f_version != PIPE_WCOUNTER(*inode))
- 		mask |= POLLHUP;
+> -There are three types of systems where video works after S3 resume:
+> +There are few types of systems where video works after S3 resume:
 
-PS. this still can return POLLIN|POLLOUT if somebody opens a fifo in RDWRITE
-mode, but I guess that's ok and the above beahviour still should make sense
-for such a corner case usage too.
+"...a few types..."
+ 
+> -* systems where video state is preserved over S3. (Athlon HP Omnibook xe3s)
+> +(1) systems where video state is preserved over S3.
+>  
+> -* systems where it is possible to call video bios during S3
+> +(2) systems where it is possible to call video bios during S3
+
+"...call the video bios..."
+
+>    resume. Unfortunately, it is not correct to call video BIOS at that
+>    point, but it happens to work on some machines. Use
+> -  acpi_sleep=s3_bios (Athlon64 desktop system)
+> +  acpi_sleep=s3_bios.
+>  
+> -* systems that initialize video card into vga text mode and where BIOS
+> +(3) systems that initialize video card into vga text mode and where BIOS
+
+"...where the BIOS..."
+
+>    works well enough to be able to set video mode. Use
+> -  acpi_sleep=s3_mode on these. (Toshiba 4030cdt)
+> +  acpi_sleep=s3_mode on these.
+>  
+> -* on some systems s3_bios kicks video into text mode, and
+> -  acpi_sleep=s3_bios,s3_mode is needed (Toshiba Satellite P10-554)
+> +(4) on some systems s3_bios kicks video into text mode, and
+> +  acpi_sleep=s3_bios,s3_mode is needed.
+>  
+> -* radeon systems, where X can soft-boot your video card. You'll need
+> +(5) radeon systems, where X can soft-boot your video card. You'll need
+>    patched X, and plain text console (no vesafb or radeonfb), see
+> -  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html. (Acer TM 800)
+> +  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html. Actually you
+> +  should probably use vbetool (6) instead.
+> +
+> +(6) other radeon systems, where vbetool is enough to bring system back
+> +  to life. It needs text console to work. Do vbetool vbestate save >
+
+"...the text console to be working."
+
+> +  /tmp/delme; echo 3 > /proc/acpi/sleep; vbetool post; vbetool
+> +  vbestate restore < /tmp/delme; setfont <whatever>, and your video
+> +  should work.
+> +
+> +(7) on some system, it is possible to boot most of kernel, and then
+
+"on some systems..."
+
+> +  POSTing bios works. Ole Rohne has patch to do just that at
+> +  http://dev.gentoo.org/~marineam/patch-radeonfb-2.6.11-rc2-mm2.
+>  
+>  Now, if you pass acpi_sleep=something, and it does not work with your
+> -bios, you'll get hard crash during resume. Be carefull.
+> +bios, you'll get hard crash during resume. Be carefull. Also it is
+
+"...a hard crash... careful...
+
+> +safest to do your experiments with plain old VGA console. vesafb and
+
+"... The vesafb..."
+
+> +radeonfb (etc) drivers have tendency to crash the machine during resume.
+
+"...have a tendency..."
+ 
+>  You may have system where none of above works. At that point you
+
+"...have a system..."
+
+>  either invent another ugly hack that works, or write proper driver for
+>  your video card (good luck getting docs :-(). Maybe suspending from X
+>  (proper X, knowing your hardware, not XF68_FBcon) might have better
+>  chance of working.
+> +
+> +Table of known working systems:
+> +
+> +Model                           hack (or "how to do it")
+> +------------------------------------------------------------------------------
+> +Acer Aspire 1406LC		ole's late BIOS init (7), turn off DRI
+> +Acer TM 242FX			vbetool (6)
+> +Acer TM 4052LCi		        s3_bios (2)
+> +Acer TM 636Lci			s3_bios vga=normal (2)
+> +Acer TM 650 (Radeon M7)		vga=normal plus boot-radeon (5) gets text console back
+> +Acer TM 660			??? (*)
+> +Acer TM 800			vga=normal, X patches, see webpage (5)
+> +Arima W730a			vbetool needed (6)
+> +Asus L2400D                     s3_mode (3)(***) (S1 also works OK)
+> +Asus L3800C (Radeon M7)		s3_bios (2) (S1 also works OK)
+> +Asus M6NE			??? (*)
+> +Athlon64 desktop prototype	s3_bios (2)
+> +Compal CL-50			??? (*)
+> +Compaq Armada E500 - P3-700     none (1) (S1 also works OK)
+> +Dell 600m, ATI R250 Lf		none (1), but needs xorg-x11-6.8.1.902-1
+> +Dell D600, ATI RV250            vga=normal (**), or try vbestate (6)
+> +Dell Inspiron 4000		??? (*)
+> +Dell Inspiron 500m		??? (*)
+> +Dell Inspiron 600m		??? (*)
+> +Dell Inspiron 8200		??? (*)
+> +Dell Inspiron 8500		??? (*)
+> +Dell Inspiron 8600		??? (*)
+> +eMachines athlon64 machines	vbetool needed (6) (someone please get me model #s)
+> +HP NC6000			s3_bios, may not use radeonfb (2)
+> +HP NX7000			??? (*)
+> +HP Pavilion ZD7000		vbetool post needed, need open-source nv driver for X
+> +HP Omnibook XE3	  		none (1)
+
+Which XE3? My 4304 revision with an i830 video card doesn't meet this
+category.
+
+> +HP Omnibook XE3GC w/S3 Savage/IX-MV  none (1)
+> +IBM TP A31 / Type 2652-M5G      s3_mode (3) [works ok with BIOS 1.04 2002-08-23, but not at all with BIOS 1.11 2004-11-05 :-(]
+> +IBM TP R32 / Type 2658-MMG      none (1)
+> +IBM TP R40 2722B3G		??? (*)
+> +IBM TP R50p / Type 1832-22U     s3_bios (2)
+> +IBM TP R51			??? (*)
+> +IBM TP T30	236681A		??? (*)
+> +IBM TP T40 / Type 2373-MU4      none (1)
+> +IBM TP T40p			??? (*)
+> +IBM TP T41p			none (1)
+> +IBM TP T42			??? (*)
+> +IBM ThinkPad T42p (2373-GTG)	s3_bios (2)
+> +IBM TP X20			??? (*)
+> +IBM TP X30			??? (*)
+> +IBM TP X31 / Type 2672-XXH      none (1), use radeontool (http://fdd.com/software/radeon/) to turn off backlight.
+> +IBM TP X40			??? (*)
+> +Medion MD4220			??? (*)
+> +Samsung P35			vbetool needed (6)
+> +Sharp PC-AR10 (ATI rage)	none (1)
+> +Sony Vaio PCG-F403		??? (*)
+> +Sony Vaio PCG-N505SN		??? (*)
+> +Sony Vaio vgn-s260		X or boot-radeon can init it (5)
+> +Toshiba Satellite 4030CDT	s3_mode (3)
+> +Toshiba Satellite 4080XCDT      s3_mode (3)
+> +Toshiba Satellite 4090XCDT      ??? (*)
+> +Toshiba Satellite P10-554       s3_bios,s3_mode (4)(****)
+> +Uniwill 244IIO			??? (*)
+> +
+> +
+> +(*) from http://www.ubuntulinux.org/wiki/HoaryPMResults, not sure
+> +    which options to use. If you know, please tell me.
+> +
+> +(**) Text console is "strange" after resume. Backlight is switched on again
+> +     by the X server. X server is:
+> +     | X Window System Version 6.8.1.904 (6.8.2 RC 4)
+> +     | Release Date: 2 February 2005
+> +     | X Protocol Version 11, Revision 0, Release 6.8.1.904
+> +     | Build Operating System: SuSE Linux [ELF] SuSE
+> +     as present in SUSE 9.3preview3.
+> +
+> +(***) To be tested with a newer kernel.
+> +
+> +(****) Not with SMP kernel, UP only.
+> +
+> +VBEtool details
+> +~~~~~~~~~~~~~~~
+> +(with thanks to Carl-Daniel Hailfinger)
+> +
+> +First, boot into X and run the following script ONCE:
+> +#!/bin/bash
+> +statedir=/root/s3/state
+> +mkdir -p $statedir
+> +chvt 2
+> +sleep 1
+> +vbetool vbestate save >$statedir/vbe
+> +
+> +
+> +To suspend and resume properly, call the following script as root:
+> +#!/bin/bash
+> +statedir=/root/s3/state
+> +curcons=`fgconsole`
+> +fuser /dev/tty$curcons 2>/dev/null|xargs ps -o comm= -p|grep -q X && chvt 2
+> +cat /dev/vcsa >$statedir/vcsa
+> +sync
+> +echo 3 >/proc/acpi/sleep
+> +sync
+> +vbetool post
+> +vbetool vbestate restore <$statedir/vbe
+> +cat $statedir/vcsa >/dev/vcsa
+> +rckbd restart
+> +chvt $[curcons%6+1]
+> +chvt $curcons
+> +
+> +
+> +Unless you change your grahics card or other hardware configuration,
+
+"...graphics..."
+
+> +the state once saved will be OK for every resume afterwards.
+> +NOTE: The "rckbd restart" command may be different for your
+> +distribution. Simply replace it with the command you would use to
+> +set the fonts on screen.
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://softwaresuspend.berlios.de
+
+

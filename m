@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272650AbTHELRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 07:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272651AbTHELRQ
+	id S272653AbTHEL3r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 07:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272655AbTHEL3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 07:17:16 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:33993 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S272650AbTHELRP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 07:17:15 -0400
-Date: Tue, 5 Aug 2003 13:16:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Wes Felter <wesley@felter.org>
-Cc: Xavier Bestel <xavier.bestel@free.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HELP: cpufreq on HT and/or SMP systems
-Message-ID: <20030805111647.GB329@elf.ucw.cz>
-References: <200307312353.54735.gallir@uib.es> <pan.2003.08.01.22.36.19.940443@felter.org> <1059778307.1537.173.camel@bip.parateam.prv> <1059778865.23307.42.camel@arlx248.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Aug 2003 07:29:47 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:36510
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272653AbTHEL3q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 07:29:46 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [PATCH] O13int for interactivity
+Date: Tue, 5 Aug 2003 21:34:55 +1000
+User-Agent: KMail/1.5.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+References: <200308050207.18096.kernel@kolivas.org> <200308052112.12553.kernel@kolivas.org> <3F2F93A7.4070808@cyberone.com.au>
+In-Reply-To: <3F2F93A7.4070808@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1059778865.23307.42.camel@arlx248.austin.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Message-Id: <200308052134.55542.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 5 Aug 2003 21:23, Nick Piggin wrote:
+> I know you haven't been just tweaking numbers ;) But in the case of the
+> patch that provides different behaviour depending on whether a sleep is
+> interruptible or not really smelt of papering over symptoms. Now it might
+> be that nothing better can be done without move invasive changes, but I
+> just thought I'd voice my concerns.
 
-> > > AFAIK no SMP systems have voltage/frequency scaling (SpeedStep/PowerNow).
-> > > I've heard that ACPI P-states works on SMP, but if it's not doing
-> > > voltage/frequency scaling then I don't know what it's doing.
-> > 
-> > I've got an ABit VP6 (VIA686, dual P3), and the processors speed and
-> > voltage can be set in the BIOS. Does it count ?
-> 
-> I meant dynamic voltage/frequency scaling, so that doesn't count.
+Indeed and the more discussion on the topic the better we can nut it out. 
+Especially on lkml where having the last word is important ;-D
 
-If his bios can change voltage/frequency, kernel can probably do the
-same. So his hardware probably can be supported by cpufreq.
-								Pavel
+> Oh, and remember that your desktop load is devoid of make -j big compiles,
+> so that is not a requisite for good interactivity.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Thank goodness ;-). It's an easy way to reproduce a problem on a grander 
+scale.
+
+Con
+

@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289730AbSAWIoh>; Wed, 23 Jan 2002 03:44:37 -0500
+	id <S289735AbSAWIwH>; Wed, 23 Jan 2002 03:52:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289735AbSAWIo2>; Wed, 23 Jan 2002 03:44:28 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:33554 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S289730AbSAWIoU>; Wed, 23 Jan 2002 03:44:20 -0500
-Date: Wed, 23 Jan 2002 09:44:14 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Torrey Hoffman <thoffman@arnor.net>, vojtech@ucw.cz,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: depmod problem for 2.5.2-dj4
-Message-ID: <20020123094414.D5170@suse.cz>
-In-Reply-To: <1011744752.2440.0.camel@shire.arnor.net> <20020123045405.GA12060@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020123045405.GA12060@kroah.com>; from greg@kroah.com on Tue, Jan 22, 2002 at 08:54:05PM -0800
+	id <S289737AbSAWIv5>; Wed, 23 Jan 2002 03:51:57 -0500
+Received: from skiathos.physics.auth.gr ([155.207.123.3]:20676 "EHLO
+	skiathos.physics.auth.gr") by vger.kernel.org with ESMTP
+	id <S289735AbSAWIvo>; Wed, 23 Jan 2002 03:51:44 -0500
+Date: Wed, 23 Jan 2002 10:51:38 +0200 (EET)
+From: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+To: Nils Rennebarth <nils@ipe.uni-stuttgart.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17: Hang after IDE detection
+In-Reply-To: <20020122173815.GH900@ipe.uni-stuttgart.de>
+Message-ID: <Pine.GSO.4.21.0201231050390.11266-100000@skiathos.physics.auth.gr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 22, 2002 at 08:54:05PM -0800, Greg KH wrote:
-> On Tue, Jan 22, 2002 at 04:12:30PM -0800, Torrey Hoffman wrote:
-> > 
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.5.2-dj4/kernel/drivers/usb/hid.o
-> > depmod: 	usb_make_path
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.5.2-dj4/kernel/drivers/usb/usbkbd.o
-> > depmod: 	usb_make_path
-> > depmod: *** Unresolved symbols in
-> > /lib/modules/2.5.2-dj4/kernel/drivers/usb/usbmouse.o
-> > depmod: 	usb_make_path
-> > make: *** [_modinst_post] Error 1
-> 
-> Looks like you need to add a:
-> 	EXPORT_SYMBOL(usb_make_path);
-> to the usb.c file.
+On Tue, 22 Jan 2002, Nils Rennebarth wrote:
 
-Correct.
+> On Tue, Jan 22, 2002 at 05:18:27PM +0200, Liakakis Kostas wrote:
+> > SIS5513: chipset revision 208
+> > SIS5513: not 100% native mode: will probe irqs later
+> > SIS5597
+> >     ide0: BM-DMA at 0x4000-0x4007, BIOS settings hda:pio, hdb:pio
+> >     ide1: BM-DMA at 0x4008-0x400f, BIOS settings hdc:pio, hdb:pio
+> for me the hang happens here. Other symptoms are about the same.
 
-> Vojtech, is this a USB function that you want added to usb.c?
+I had this happen too. The readout was for 2.4.17 behaviour with the given
+config. I remember another kernel crash at this poit too.
 
-Yes, please. This will change later when Pat Mochels devicefs kicks in,
-but for the time being, it'd be very useful.
+-K.
 
-> Didn't you (or someone else) propose a function like this in the past?
 
-I'm not sure, I may have proposed it. I'm not sure of the outcome
-either. The input subsystem needs to use the bus topology for matching
-the devices - there is no other way to differentiate between two
-identical USB mice.
-
-Do you think it could be added?
-
--- 
-Vojtech Pavlik
-SuSE Labs

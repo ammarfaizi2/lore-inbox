@@ -1,87 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUF0VDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263827AbUF0V1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUF0VDi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 17:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbUF0VDi
+	id S263827AbUF0V1n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 17:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbUF0V1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 17:03:38 -0400
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:11229 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S262380AbUF0VDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 17:03:33 -0400
-Date: Sun, 27 Jun 2004 14:03:21 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>,
-       arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
-       linux-kernel@vger.kernel.org, david-b@pacbell.net, oliver@neukum.org
+	Sun, 27 Jun 2004 17:27:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38870 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263827AbUF0V1l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 17:27:41 -0400
+Date: Sun, 27 Jun 2004 14:26:28 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: zaitcev@redhat.com, greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
+       tburke@redhat.com, linux-kernel@vger.kernel.org,
+       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
+       david-b@pacbell.net
 Subject: Re: drivers/block/ub.c
-Message-ID: <20040627210321.GA12839@one-eyed-alien.net>
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
-	Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>,
-	arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
-	linux-kernel@vger.kernel.org, david-b@pacbell.net,
-	oliver@neukum.org
-References: <20040627050201.GA24788@kroah.com> <Pine.LNX.4.44L0.0406271120520.10357-100000@netrider.rowland.org> <20040627132945.70350f2a@lembas.zaitcev.lan>
+Message-Id: <20040627142628.34b60c82.davem@redhat.com>
+In-Reply-To: <200406271242.22490.oliver@neukum.org>
+References: <20040626130645.55be13ce@lembas.zaitcev.lan>
+	<200406270631.41102.oliver@neukum.org>
+	<20040626233423.7d4c1189.davem@redhat.com>
+	<200406271242.22490.oliver@neukum.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
-Content-Disposition: inline
-In-Reply-To: <20040627132945.70350f2a@lembas.zaitcev.lan>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 27 Jun 2004 12:42:21 +0200
+Oliver Neukum <oliver@neukum.org> wrote:
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> OK, then it shouldn't be used in this case. However, shouldn't we have
+> an attribute like __nopadding__ which does exactly that?
 
-On Sun, Jun 27, 2004 at 01:29:45PM -0700, Pete Zaitcev wrote:
-> On Sun, 27 Jun 2004 11:23:10 -0400 (EDT)
-> Alan Stern <stern@rowland.harvard.edu> wrote:
->=20
-> > + * -- use serial numbers to hook onto same hosts (same minor) after
-> > disconnect
->=20
-> It was a poor wording by me. It refers to the drift of naming due to
-> increments in usb_host_id. After a disconnect and reconnect, /dev/uba1
-> refers to the device, but /proc/partitions says "ubb".
->=20
-> To correct this, I have to set gendisk->fist_minor before calling
-> add_disk(), but in order to do that, a driver has to track devices
-> somehow. A serial number looks like an obvious candidate for a key.
-
-Serial numbers are unreliable for this.  We've had a long history with this
-issue.  Many devices do not provide a serial number.  Many devices provide
-a serial number, but it is not a constant.  Many devices provide invalid
-serial numbers.
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-IT KEEPS ASKING ME WHERE I WANT TO GO TODAY! I DONT WANT TO GO ANYWHERE!
-					-- Greg
-User Friendly, 11/28/97
-
---MGYHOYXEY6WxJCY8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA3zYZIjReC7bSPZARAtJpAKCYsjsEB0MbYsQGPm6b/QOcB/bJ9QCfVijX
-aEtWgu0EhUxkecCvJw9u/PY=
-=Oxao
------END PGP SIGNATURE-----
-
---MGYHOYXEY6WxJCY8--
+It would have the same effect.  CPU structure layout rules don't pack
+(or using other words, add padding) exactly in cases where it is
+needed to obtain the necessary alignment.

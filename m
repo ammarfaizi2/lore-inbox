@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbTILFZV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 01:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbTILFZV
+	id S261676AbTILFUo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 01:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbTILFUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 01:25:21 -0400
-Received: from [63.205.85.133] ([63.205.85.133]:44275 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S261685AbTILFZQ (ORCPT
+	Fri, 12 Sep 2003 01:20:44 -0400
+Received: from [66.241.84.54] ([66.241.84.54]:1664 "EHLO bigred.russwhit.org")
+	by vger.kernel.org with ESMTP id S261676AbTILFUn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 01:25:16 -0400
-Date: Thu, 11 Sep 2003 22:33:35 -0700
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
-Cc: mc@cs.stanford.edu
-Subject: Re: [PATCH 2/3] netpoll: netconsole
-Message-ID: <20030912053335.GJ41254@gaz.sfgoth.com>
-References: <20030910074256.GD4489@waste.org.suse.lists.linux.kernel> <p73znhdhxkx.fsf@oldwotan.suse.de> <20030910082435.GG4489@waste.org> <20030910082908.GE29485@wotan.suse.de> <20030910090121.GH4489@waste.org> <20030910160002.GB84652@gaz.sfgoth.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910160002.GB84652@gaz.sfgoth.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 Sep 2003 01:20:43 -0400
+Date: Mon, 8 Sep 2003 12:35:46 -0700 (PDT)
+From: Russell Whitaker <russ@ashlandhome.net>
+X-X-Sender: russ@bigred.russwhit.org
+To: Ricky Beam <jfbeam@bluetronic.net>
+cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0: module char_10_135
+In-Reply-To: <Pine.GSO.4.33.0309021727440.13584-100000@sweetums.bluetronic.net>
+Message-ID: <Pine.LNX.4.53.0309030009380.183@bigred.russwhit.org>
+References: <Pine.GSO.4.33.0309021727440.13584-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mitchell Blank Jr wrote:
-> The netconsole problem is only if the net driver calls printk() with
-> its spinlock held (but when not called from netconsole).  Then printk()
-> won't know that it's unsafe to re-enter the network driver.
 
-BTW, this isn't neccesarily a netconsole-only thing.  For instance, has
-anyone ever audited all of the serial and lp drivers to make sure that
-nothing they call can call printk() while holding a lock?  This sounds
-fairly serious - we could have any number of simple error cases that would
-cause a deadlock with the right "console=" setting.
 
-It'd be interesting if we could do something like:
-  1. For every function that appears as a "struct console -> write()" call,
-     follow every possible code path and make a list of every lock that they
-     can try to acquire exclusively.
-  2. Then scan the entire code base see if we ever call can printk() while
-     holding that same lock.
+On Tue, 2 Sep 2003, Ricky Beam wrote:
 
-I'm cc:'ing the Stanford Checker team... maybe they'd be interested in adding
-something like this to their automated tests.
+> On Sat, 30 Aug 2003, Russell Whitaker wrote:
+> >module-init-tools 0.9.13-pre 2
+> >
+> >That was the latest version I could find on Aug 3rd. Please let me know
+> >if there is a later version I should try.
+>
+> Check the order of calls during boot.  In most cases, the rtc will be
+> required before modules are setup -- /proc/sys/kernel/modprobe isn't
+> set yet.
 
--Mitch
+**update**  Had written the following and then updated to 2.6.0-test4-bk8
+and found the module_char_10_135 problem has gone away.
+  Thanks,
+    Russ
+
+Had changed "Enhanced Real Time Clock" from module to built-in so next
+itteration will change it back and check it out. In the meanwhile here's
+a recap of what I've done:
+
+Started with a Slackware 9.0 installation, booting kernel 2.4.xx.
+Custom kernel, these (amoung others) are modules: lp, floppy, and
+"Enhanced Real Time Clock". Have this line in fstab so can mount floppy
+as user:
+  /dev/fd0   /mnt/floppy   auto   noauto,user
+
+Everything works as expected. Then kernel-2.6 came out. So I "cp /vmlinuz
+/vmlinuz.4", changed lilo's first entry to lin6, adding 2nd entry lin4,
+installed lilo, edited lilo.config to change the 2nd vmlinuz to vmlinuz.4
+and recycled lilo.
+

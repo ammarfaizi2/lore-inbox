@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265467AbUGMQgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUGMQic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265467AbUGMQgO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 12:36:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUGMQgO
+	id S265489AbUGMQic (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 12:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUGMQic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 12:36:14 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:53988 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S265467AbUGMQgM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 12:36:12 -0400
-Message-ID: <40F40F86.5030201@colorfullife.com>
-Date: Tue, 13 Jul 2004 18:36:22 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Tue, 13 Jul 2004 12:38:32 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:23347 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265482AbUGMQia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 12:38:30 -0400
+Date: Tue, 13 Jul 2004 18:15:04 +0100 (BST)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@localhost.localdomain
+To: Ricky Beam <jfbeam@bluetronic.net>
+cc: "Eric D. Mudama" <edmudama@bounceswoosh.org>,
+       "Robert M. Stockmann" <stock@stokkie.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: SATA disk device naming ?
+In-Reply-To: <Pine.GSO.4.33.0407131221000.25702-100000@sweetums.bluetronic.net>
+Message-ID: <Pine.LNX.4.44.0407131812340.30340-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rmaplock 2/6 SLAB_DESTROY_BY_RCU
-References: <Pine.LNX.4.44.0407122250390.4005-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0407122250390.4005-100000@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
+On Tue, 13 Jul 2004, Ricky Beam wrote:
 
->It's okay to take anon_vma->lock after it's freed, so long as it remains
->a struct anon_vma (its list would become empty, or perhaps reused for an
->unrelated anon_vma: but no problem since we always check that the page
->located is the right one); but corruption if that memory gets reused for
->some other purpose.
->
->  
->
-An interesting idea:
-The slab caches are object caches. If a rcu user only needs a valid 
-object but doesn't care which one then there is no need to wait for a 
-quiescent cycle after free - the quiescent cycle can be delayed until 
-the destructor is called.
+> On Tue, 13 Jul 2004, Eric D. Mudama wrote:
+> >... "root=LABEL=/" ...
+> 
+> I've seen the LABEL method not work at all. (2.6.7-rc3 on the wikipedia
+> servers.)
 
-But there are two flaws in your patch:
-- you must disable poisoning and unmapping if SLAB_DESTROY_BY_RCU is set.
-- either delay the dtor calls a well or fail if an object has a non-NULL 
-dtor and SLAB_DESTROY_BY_RCU is set.
+right, the LABEL=/ never works for me so I always replace it with explicit 
+"root=/dev/sda2" thing, but this is problematic if "/dev/sda2" becomes 
+"/dev/hda2" if you boot with IDE driver compiled in, as opposed to SATA 
+driver.
 
---
-    Manfred
+I assumed that "LABEL=/" thing is a RedHat-specific kernel's feature but 
+never bothered to check. The reason I assumed so was that the problems 
+always happen after installation, i.e. as soon as I replace the vendor's 
+generic kernel with the one properly optimized for my specific needs.
+
+Kind regards
+Tigran
+

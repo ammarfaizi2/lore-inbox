@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265013AbTF2WfW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 18:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbTF2WfW
+	id S265029AbTF2XDA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 19:03:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbTF2XDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 18:35:22 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:13325 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S265013AbTF2WfR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 18:35:17 -0400
-Date: Mon, 30 Jun 2003 00:49:34 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, greearb@candelatech.com, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-Message-ID: <20030629224934.GA15108@win.tue.nl>
-References: <1056755070.5463.12.camel@dhcp22.swansea.linux.org.uk> <20030629.141528.74734144.davem@redhat.com> <20030629214558.GA15089@win.tue.nl> <20030629.145114.115923819.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 29 Jun 2003 19:03:00 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:18561 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S265029AbTF2XC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 19:02:59 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [RFC] My research agenda for 2.7
+Date: Sun, 29 Jun 2003 01:18:18 +0200
+User-Agent: KMail/1.5.2
+Cc: Mel Gorman <mel@csn.ul.ie>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <200306250111.01498.phillips@arcor.de> <200306282354.43153.phillips@arcor.de> <20030629220756.GB26348@holomorphy.com>
+In-Reply-To: <20030629220756.GB26348@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030629.145114.115923819.davem@redhat.com>
-User-Agent: Mutt/1.3.25i
+Message-Id: <200306290118.18266.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 29, 2003 at 02:51:14PM -0700, David S. Miller wrote:
->    From: Andries Brouwer <aebr@win.tue.nl>
->    Date: Sun, 29 Jun 2003 23:45:58 +0200
->    
->    Will you babysit them, check whether later snapshots correct this
->    flaw, resubmit your report every month if not?  Maybe you will. I
->    certainly don't - send the report and that's it.
-> 
-> As a result, your bug reports will tend to not be tended to,
+On Monday 30 June 2003 00:07, William Lee Irwin III wrote:
+> On Sunday 29 June 2003 23:26, Mel Gorman wrote:
+> > ...I will occupy myself with the
+> > gritty details of how to move pages without making the system crater.
+>
+> This sounds like it's behind dependent on physically scanning slabs,
+> since one must choose slab pages for replacement on the basis of their
+> potential to restore contiguity, not merely "dump whatever's replaceable
+> and check how much got freed".
 
-Maybe that is the wrong answer. It seems they have a bug tracking system.
+Though I'm not sure what "behind dependent" means, and I'm not the one 
+advocating slab for this, it's quite correct that scanning strategy would 
+need to change, at least when the system runs into cross-order imbalances.  
+But this isn't much different from the kinds of things we do already.
 
-> People who expect that, for free, one bug submission will get
-> their bug fixed
+Regards,
 
-See, you think you are doing the submitter a favour.
-I prefer the point of view that the submitter does us a favour.
-
-Something is wrong, and people work around it.
-But they tell us about it. If we want we can try to fix.
-Or we can store the information for later examination.
-Very often it is needed later - fortunately Google helps.
-A more focused data base might help even better.
+Daniel
 

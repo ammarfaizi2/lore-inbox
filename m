@@ -1,106 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290820AbSAaBoS>; Wed, 30 Jan 2002 20:44:18 -0500
+	id <S290819AbSAaBsi>; Wed, 30 Jan 2002 20:48:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290819AbSAaBoH>; Wed, 30 Jan 2002 20:44:07 -0500
-Received: from [208.29.163.248] ([208.29.163.248]:63160 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S290830AbSAaBni>; Wed, 30 Jan 2002 20:43:38 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Stuart Young <sgy@amc.com.au>
-Cc: linux-kernel@vger.kernel.org, Daniel Egger <degger@fhm.edu>,
-        Linus Torvalds <torvalds@transmeta.com>
-Date: Wed, 30 Jan 2002 17:42:56 -0800 (PST)
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <5.1.0.14.0.20020131115023.02652d60@mail.amc.localnet>
-Message-ID: <Pine.LNX.4.44.0201301741250.11519-100000@dlang.diginsite.com>
+	id <S290821AbSAaBs2>; Wed, 30 Jan 2002 20:48:28 -0500
+Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:12184 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290819AbSAaBsN>;
+	Wed, 30 Jan 2002 20:48:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Joe Thornber <thornber@fib011235813.fsnet.co.uk>,
+        linux-kernel@vger.kernel.org, linux-lvm@sistina.com,
+        lvm-devel@sistina.com
+Subject: Re: [ANNOUNCE] LVM reimplementation ready for beta testing
+Date: Thu, 31 Jan 2002 02:53:10 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk>
+In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16W6PW-0000K0-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric posted a proposal to split the maintainers info across all
-directories/files sometime last year and got shouted down to the point of
-not mentioning it anymore (which as we know takes quite a bit for him :-)
+On January 30, 2002 09:22 pm, Joe Thornber wrote:
+> The new kernel driver (known as "device-mapper") supports volume
+> management in general and is no longer Linux LVM specific.
+> As such it is a separate package from LVM2 which you will need
+> to download and install before building LVM2.
+> 
+>  ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper-beta1.tgz
 
-does someone want to dig up that proposal and recirculate it rather then
-starting from scratch again?
+Hi, thanks a lot for this fine gift.  One small point: I downloaded these
+files right away of course, then I renamed device-mapper-beta1.tgz as
+LVM2-mapper-beta1.tgz, so I'd be able to find these things in my (very
+full) download directory.  What do you think about doing it that way at
+source?
 
-David Lang
+> The userland tools are available from here:
+> 
+>  ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.0-beta1.tgz
 
-
- On Thu, 31 Jan 2002, Stuart Young wrote:
-
-> Date: Thu, 31 Jan 2002 12:16:29 +1100
-> From: Stuart Young <sgy@amc.com.au>
-> To: linux-kernel@vger.kernel.org
-> Cc: Daniel Egger <degger@fhm.edu>, Linus Torvalds <torvalds@transmeta.com>
-> Subject: Re: A modest proposal -- We need a patch penguin
->
-> At 02:13 PM 30/01/02 +0100, Daniel Egger wrote:
-> >Am Mit, 2002-01-30 um 00.50 schrieb Linus Torvalds:
-> >
-> > > Or look at USB: I get the USB patches from Greg, and he gets them from
-> > > various different people. Johannes Erdfelt is the maintainer for uhci.c,
-> > > and he sends them to Greg, not to me.
-> >
-> >What about creating a small document that states who's the correct
-> >recipient for a subsystem? This would prevent dotzends of questions
-> >like "Where do I send my patches?" and turn them into a RTFF.
->
-> A reworking of MAINTAINERS could be beneficial and help achieve this.
->
-> Linus mentioned that he prefers to look at the code to see who to talk to.
-> Others have mentioned this may be nice, but makes it hard to get some sort
-> of overall view, plus since programmers can be inconsistent in stuff like
-> this, it may not always happen. How about we turn the problem upside down,
-> and figure out how to get the code easily referenced in MAINTAINERS?
->
-> What I'm thinking is that we could add (multiple?) lines into MAINTAINERS
-> that specify the actual FILES in the kernel (in reference to linux/) that
-> someone works on or maintains. We don't have to list every file (wildcards,
-> regex's, etc, can work too), plus you can list the maintainers of various
-> areas of the code (such as generic maintainers of all the files under a
-> part of the kernel file tree) by just listing what directories they
-> control. Something so that it's dead simple to extract who maintains this file.
->
-> Here's a possible example:
->
-> Say I'm looking at the SiS/Trident Audio Driver, and I have a patch I want
-> to send to a maintainer. The file I'm working on is:
->
-> linux/drivers/sound/trident.*
->
-> If I could easily search MAINTAINERS for who maintains this file, I'm made.
-> If I can't find that, I start trimming the search (to say
-> linux/drivers/sound/, which would be the sound maintainer).
->
-> If we say add an F: field to maintainers (at the end of the maintainers
-> record), you can easily do things like...
->
-> grep -B 10 "F: linux/drivers/sound/trident" /usr/src/linux/MAINTAINERS
->
-> ...and get some sort of results (-B is "before context, which displays
-> lines before the found line, and is quite useful in this sort of situation)
-> that help. This is just a quick and dirty example, and I'm sure someone
-> could easily write a small script that could parse the output better, do
-> things like automatically cut the search back till it finds a match, etc.
->
-> This could also be used to figure out a tree of who does what, which is
-> probably not a bad idea.
->
-> Just an idea of course. *grin*
->
->
-> Stuart Young - sgy@amc.com.au
-> (aka Cefiar) - cefiar1@optushome.com.au
->
-> [All opinions expressed in the above message are my]
-> [own and not necessarily the views of my employer..]
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+Daniel

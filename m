@@ -1,58 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265633AbSK1Q2N>; Thu, 28 Nov 2002 11:28:13 -0500
+	id <S265643AbSK1Q20>; Thu, 28 Nov 2002 11:28:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265643AbSK1Q2N>; Thu, 28 Nov 2002 11:28:13 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:57058 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S265633AbSK1Q2L>; Thu, 28 Nov 2002 11:28:11 -0500
-X-Envelope-From: kraxel@bytesex.org
-From: Gerd Knorr <kraxel@bytesex.org>
-Message-Id: <200211281616.gASGGOE6012229@bytesex.org>
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RELEASE] module-init-tools 0.8
-In-Reply-To: <20021128023017.91FAC2C250@lists.samba.org>
-References: <20021128023017.91FAC2C250@lists.samba.org>
-Date: Thu, 28 Nov 2002 17:16:24 +0100
+	id <S265649AbSK1Q20>; Thu, 28 Nov 2002 11:28:26 -0500
+Received: from bgp996345bgs.nanarb01.mi.comcast.net ([68.40.49.89]:9089 "EHLO
+	syKr0n.mine.nu") by vger.kernel.org with ESMTP id <S265643AbSK1Q2Z>;
+	Thu, 28 Nov 2002 11:28:25 -0500
+Subject: Re: [OOPS] IDE-SCSI module corrupts further module loading on 2.5.50
+From: Mohamed El Ayouty <melayout@umich.edu>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0211280306400.14410-100000@montezuma.mastecende.com>
+References: <1038383730.1526.0.camel@syKr0n.mine.nu> 
+	<Pine.LNX.4.50.0211280306400.14410-100000@montezuma.mastecende.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 27 Nov 2002 11:36:19 -0500
+Message-Id: <1038414979.1564.3.camel@syKr0n.mine.nu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Please report any bugs to rusty@rustcorp.com.au.
+I have an Intel i815.
 
-System (SuSE 8.1) still doesn't boot up cleanly.  After logging in as
-root I can see a number of modprobe processes hanging around in the
-process table:
-
-bogomips root ~# ps -ax | grep modprobe
-  621 ?        S      0:00 /sbin/modprobe -- char-major-6
-  622 ?        D      0:00 /sbin/modprobe -- parport_lowlevel
-  805 ?        D      0:00 /sbin/modprobe -- autofs
-  809 ?        D      0:00 /sbin/modprobe -- autofs
-  867 ?        D      0:00 /sbin/modprobe -- autofs
-  872 ?        D      0:00 /sbin/modprobe -- net-pf-17
- 1184 ttyS0    S      0:00 grep modprobe
-bogomips root ~# grep char-major-6 /etc/modprobe.conf
-alias char-major-6 lp
-alias char-major-67 coda
-bogomips root ~# grep parport_lowlevel /etc/modprobe.conf
-alias parport_lowlevel parport_pc
-
-Smells like a deadlock due to request_module() in some modules init
-function or something like this.
-
-lsmod doesn't work at this point (hangs too, likely the same lock).
-The deadlock prevents any further module loading (autofs, nfs and
-others) and makes the system unusable.
-
-
-Module debugging is next to impossible right now.  The apm.o module
-oopses for me in 2.5.50.  ksymoops isn't able to translate any symbol
-located in modules.  The in-kernel symbol decoder (CONFIG_KALLSYMS)
-doesn't work too.
-
-  Gerd
-
--- 
-You can't please everybody.  And usually if you _try_ to please
-everybody, the end result is one big mess.
-				-- Linus Torvalds, 2002-04-20
+Mohamed

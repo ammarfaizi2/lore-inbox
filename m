@@ -1,77 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261690AbTCaPgr>; Mon, 31 Mar 2003 10:36:47 -0500
+	id <S261693AbTCaPrG>; Mon, 31 Mar 2003 10:47:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261692AbTCaPgq>; Mon, 31 Mar 2003 10:36:46 -0500
-Received: from almesberger.net ([63.105.73.239]:787 "EHLO host.almesberger.net")
-	by vger.kernel.org with ESMTP id <S261690AbTCaPgp>;
-	Mon, 31 Mar 2003 10:36:45 -0500
-Date: Mon, 31 Mar 2003 12:48:00 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PTRACE_KILL doesn't (2.5.44 and others)
-Message-ID: <20030331124800.H7414@almesberger.net>
-References: <20030330205126.G7414@almesberger.net> <20030331145519.GA12984@win.tue.nl>
+	id <S261694AbTCaPrG>; Mon, 31 Mar 2003 10:47:06 -0500
+Received: from in02-fes2.whowhere.com ([209.202.220.219]:58760 "HELO
+	whowhere.com") by vger.kernel.org with SMTP id <S261693AbTCaPrF>;
+	Mon, 31 Mar 2003 10:47:05 -0500
+To: linux-kernel@vger.kernel.org
+Date: Mon, 31 Mar 2003 15:58:11  0000
+From: "Dean McEwan" <dean.mcewan@eudoramail.com>
+Message-ID: <CJMOJMHEJLJPPBAA@whowhere.com>
 Mime-Version: 1.0
+X-Sent-Mail: off
+Reply-To: dean.mcewan@eudoramail.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: I compiled the kernel but it doesn't do any thing, its a bit like typing "halt".
+X-Sender-Ip: 195.195.129.3
+Organization: Lycos Mail  (http://www.mail.eudoramail.com)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030331145519.GA12984@win.tue.nl>; from aebr@win.tue.nl on Mon, Mar 31, 2003 at 04:55:19PM +0200
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
-> First of all, it is dangerous to depend on subtle properties
-> of obscure calls like ptrace.
+Of course its probably something to do with init,
+but does anyone know whats going wrong? whats system.map
+actually for, Im using a vanilla 2.5.54 and MDK9.0.
+:(
+Of course im probably opening my self up to lines like
+"thick twat wouldn't know a devel kernel if he was electrocuted from pissing on the pc that held one.."
 
-Indeed ;-) Well, there are worse things, e.g. DWARF2
-information versus optimization.
+Now i know why I preferred 2.4, I could get it working.
+:)
+---
+Cheers, Dean.
 
-> The Linux man page says
 
-It also says (man-pages-1.56):
 
-| For requests other than  PTRACE_KILL,  the  child  process
-| must be stopped.
-
-Of course, it doesn't explicitly say that PTRACE_KILL will do
-anything in this case, but the wording kind of suggests that.
-
-> Since it is not clear what the right behaviour is, it is not clear
-> whether there is something to fix.
-
-Yes, that's my question. If we're trying to emulate the exact
-behaviour of some other OS or some specification, that would
-give the answer. If not, we can decide what makes sense, and,
-if a change would be needed for the semantics to make sense,
-whether it's worth making that change.
-
-At least it seems that existing code is fine with how
-PTRACE_KILL works, given how long it has behaved like that.
-(But then, existing code may rarely use PTRACE_KILL, and may
-not be particularly picky about the result.)
-
-What puzzles me a little is that kill(2) seems to do precisely
-what I would have expected PTRACE_KILL to do, i.e. kill the
-process no matter whether it's stopped or not, and detach from
-it. So why is there a PTRACE_KILL in the first place ?
-
-The non-Linux man page you quote says:
-
-|    8     This request causes the child to  terminate  with  the
-|          same consequences as exit(2).
-
-Then it would make sense. Of course, this isn't what
-PTRACE_KILL does under Linux. Does that non-Linux man page
-also say anything about the exit status ?
-
-Another subtlety, seen under 2.5.44: if PTRACE_ATTACH is
-immediately followed by PTRACE_KILL, PTRACE_KILL is silently
-ignored (no error).
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Need a new email address that people can remember
+Check out the new EudoraMail at
+http://www.eudoramail.com

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132825AbREHQQH>; Tue, 8 May 2001 12:16:07 -0400
+	id <S132909AbREHQqT>; Tue, 8 May 2001 12:46:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132850AbREHQP6>; Tue, 8 May 2001 12:15:58 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:13513 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132825AbREHQPq>; Tue, 8 May 2001 12:15:46 -0400
-Date: Tue, 8 May 2001 18:01:12 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Edward Spidre <beamz_owl@yahoo.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible PCI subsystem bug in 2.4
-In-Reply-To: <m1u230mjxo.fsf@frodo.biederman.org>
-Message-ID: <Pine.GSO.3.96.1010508174820.26399A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S132895AbREHQqJ>; Tue, 8 May 2001 12:46:09 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:39690 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132886AbREHQp6>; Tue, 8 May 2001 12:45:58 -0400
+Date: Tue, 8 May 2001 09:45:34 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Brian Gerst <bgerst@didntduck.org>, nigel@nrg.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 page fault handler not interrupt safe
+In-Reply-To: <E14x4zi-0005RA-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0105080944380.1831-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 May 2001, Eric W. Biederman wrote:
 
-> The example that sticks out in my head is we rely on the MP table to
-> tell us if the local apic is in pic_mode or in virtual wire mode.
-> When all we really have to do is ask it.
+On Tue, 8 May 2001, Alan Cox wrote:
+> 
+> I dont see where the alternative patch ensures the user didnt flip the
+> direction flag for one
 
- You can't.  IMCR is write-only and may involve chipset-specific
-side-effects.  Then even if IMCR exists, a system's firmware might have
-chosen the virtual wire mode for whatever reason (e.g. broken hardware). 
+Yeah. 
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+We might as well just make it "eflags & IF", none of the other flags
+should matter (or we explicitly want them cleared).
+
+		Linus
 

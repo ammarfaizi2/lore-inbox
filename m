@@ -1,159 +1,157 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273823AbRIXMKC>; Mon, 24 Sep 2001 08:10:02 -0400
+	id <S273888AbRIXMRw>; Mon, 24 Sep 2001 08:17:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273867AbRIXMJw>; Mon, 24 Sep 2001 08:09:52 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:18180 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S273823AbRIXMJq>; Mon, 24 Sep 2001 08:09:46 -0400
-Date: Mon, 24 Sep 2001 05:08:49 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.10 VM vs. 2.4.9-ac14 (+ ac14-aging)
-Message-ID: <Pine.LNX.4.33.0109232255250.14107-100000@loke.as.arizona.edu>
+	id <S273881AbRIXMRf>; Mon, 24 Sep 2001 08:17:35 -0400
+Received: from ns1.system-techniques.com ([199.33.245.254]:15882 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S273867AbRIXMRa>; Mon, 24 Sep 2001 08:17:30 -0400
+Date: Mon, 24 Sep 2001 08:16:42 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: <tip@prs.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        <laughing@shared-source.org>
+Subject: Re: [PATCH] 2.4.10-pre13: ATM drivers cause panic
+In-Reply-To: <3BAF0133.573EF0B7@internetwork-ag.de>
+Message-ID: <Pine.LNX.4.33.0109240814240.31525-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+	Hello All ,  Isn't the linux-atm list the more appropriate list
+	for this discussion ?  ie:
 
-Well, things are looking up.  The split trees of 2.4 VM seem to be both
-performing "pretty well" here.  Following are some tests and comments
-about recent kernels that I hope will be vaguely illuminative toward
-further improvement.
+	linux-atm-general@lists.sourceforge.net
 
-Description of tests:
+	The people there would definately like to know of these
+	discussions & troubles & fixes that are being shared .
+		Tia ,  JimL
 
-- Streaming IO test:
-  dbench, 'dd if=/dev/zero of=dummy.dat bs=1024k count=512' and
-  'cat dummy.dat > /dev/null' while performing streaming tasks like
-  mp3's and general interactive use.  This is obscene, but dirty
-  page overloading needs to be handled at least *acceptably*, without
-  resorting to low-latency or preemptible patches
+On Mon, 24 Sep 2001, Till Immanuel Patzschke wrote:
 
-- Common user application test: the idea is to load a mix of applications
-  to drive the system into different kinds of memory loads.  [sequential]
+> Hmm - patch works fine for me - no sleeps! The only spin_lock(&atm_dev_lock)
+> statement in my resource.c (the original from 2.4.10-pre13) is in free_atm_dev
+> BUT the problem is the unmatched spin_unlock(&atm_dev_lock) statements in
+> atm_dev_register...
+> Why not just protecting the atm_dev_queue in alloc_atm_dev, atm_find_dev, and
+> atm_free_dev individually PLUS removing the two spin_unlock statements in
+> atm_dev_register.
+>
+> What do you think
+>
+> (This is diffs from 2.4.10-pre13 ! BTW: Still the same in 2.4.10)
+>
+> --- resources.c.bug     Fri Dec 29 23:35:47 2000
+> +++ resources.c.new     Mon Sep 24 11:39:42 2001
+> @@ -36,13 +36,16 @@
+>         if (!dev) return NULL;
+>         memset(dev,0,sizeof(*dev));
+>         dev->type = type;
+> -       dev->prev = last_dev;
+>         dev->signal = ATM_PHY_SIG_UNKNOWN;
+>         dev->link_rate = ATM_OC3_PCR;
+>         dev->next = NULL;
+> +
+> +       spin_lock(&atm_dev_lock);
+> +       dev->prev = last_dev;
+>         if (atm_devs) last_dev->next = dev;
+>         else atm_devs = dev;
+>         last_dev = dev;
+> +       spin_unlock(&atm_dev_lock);
+>         return dev;
+>  }
+>
+> @@ -65,9 +68,13 @@
+>  {
+>         struct atm_dev *dev;
+>
+> +       spin_lock(&atm_dev_lock);
+>         for (dev = atm_devs; dev; dev = dev->next)
+> -               if (dev->ops && dev->number == number) return dev;
+> -       return NULL;
+> +               if (dev->ops && dev->number == number) goto done;
+> +       dev=(atm_dev *)NULL;
+> + done:
+> +       spin_unlock(&atm_dev_lock);
+> +       return dev;
+>  }
+>
+>
+> @@ -105,12 +112,10 @@
+>                 if (atm_proc_dev_register(dev) < 0) {
+>                         printk(KERN_ERR "atm_dev_register: "
+>                             "atm_proc_dev_register failed for dev %s\n",type);
+> -                       spin_unlock (&atm_dev_lock);
+>                         free_atm_dev(dev);
+>                         return NULL;
+>                 }
+>  #endif
+> -       spin_unlock (&atm_dev_lock);
+>         return dev;
+>  }
+>
+>
+>
+> Alan Cox wrote:
+>
+> > > seems a couple of spin_lock(s) and a spin_unlock was missing.
+> > > Why didn't this problem show up with earlier releases ???
+> > > Anyways, please find a (quick) patch below. It would be great if this patch or
+> > > any other similar could make it into the next release!
+> >
+> > How about
+> >
+> > static struct atm_dev *alloc_atm_dev(const char *type)
+> > {
+> >         struct atm_dev *dev;
+> >
+> >         dev = kmalloc(sizeof(*dev),GFP_KERNEL);
+> >         if (!dev) return NULL;
+> >         memset(dev,0,sizeof(*dev));
+> >         dev->type = type;
+> >         dev->signal = ATM_PHY_SIG_UNKNOWN;
+> >         dev->link_rate = ATM_OC3_PCR;
+> >         dev->next = NULL;
+> >
+> >         spin_lock(&atm_dev_lock);
+> >
+> >         dev->prev = last_dev;
+> >
+> >         if (atm_devs) last_dev->next = dev;
+> >         else atm_devs = dev;
+> >         last_dev = dev;
+> >         spin_unlock(&atm_dev_lock);
+> >         return dev;
+> > }
+> >
+> > instead. That seems to fix alloc_atm_dev safely. Refcounting wants adding
+> > to atm_dev objects too, its impossible currently to make atm_find_dev
+> > remotely safe
+> >
+> > Alan
+>
+> --
+> Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
+> interNetwork AG                         Phone:  +49-(0)611-1731-121
+> Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
+> D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-	a) fill dentry/inode caches with slocate
-	b) create lots of anonymous pages w/ a large blank image in GIMP
-	   [make sure GIMP's tile cache is set to a high value to test
-	     kernel VM and not GIMP's 'temp' file handling]
-	c) loading StarOffice w/file creates lots of disk i/o,
-	   stretches VM cache and then allocates lots of user
-	   memory... [report loading time]
-	d) load suite of apps to drive the system into mild
-	   swap *activity* (not just swap allocation in 2.4.9-ac)
-	e) Now that some pages have aged a bit, try to rotate that GIMP
-	   image (major use of "older" anon pages and creation of many
-	   more)   [time the rotation]
-	f) note WHO's paged out w/ ps, log to file
-	g) close all apps sequentially, sorta LIFO, note swap-ins
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 
-	vmstat & periodic dumps from /proc/meminfo and /proc/slabinfo log
-	all statistics throughout the tests
-
-
-Summary of Results:
-
-- Test machines ranged from 32 MB to 192 MB, the latter is described
-  here.
-
-- 2.4.8 and 2.4.9 were poor, degenerating to _awful_ somewhere in
-  2.4.10-pre. Example: it was darn near impossible to evict dentry and
-  inode caches in 2.4.8.  Also, freshly loaded apps were paged out under
-  load, then repeatedly paged back in, then back out... (poor interaction
-  and/or balancing between the various inactive lists, coupled presumably
-  w/ broken aging).
-
-2.4.8 streaming IO test: failed (stutters, huge gaps in playback)
-2.4.8 app test:  45524 kB swapped out; 29638 kB swapped in (cumulative)
-		 28 second StarOffice load time; 10 sec GIMP img rotate
-
-
-- 2.4.10-pre11 changed the nature of the VM problems, but most major
-  issues seem to have been fixed by pre14 (certainly 2.4.10 final).  pre11
-  would spin in kswapd & 'somewhere else' (balance classzone?) --
-  sometimes loading StarOffice 5.2 would take 50% longer due partly to
-  kswapd; no pages were actually swapped out.  Fixed by/before pre14.
-  Even in 2.4.10 final, choice of evicted pages is not always good (many
-  more cumulative swapins than ac14 when apps are closed).  Performance is
-  otherwise pretty impressive.
-
-2.4.10 streaming IO test: failed (stutters, frequent gaps in playback)
-2.4.10 app test: 30020 kB swapped out; 22308 kB swapped in (cumulative)
-		 22 second StarOffice load time; 6-7 sec GIMP img rotate
-
-
-- 2.4.9-ac1* has pretty consistent, functioning VM.  Looks like aging is
-  still mildly broken. Performance however is quite excellent for the most
-  part; cache contains the "right pages" and what is paged out is "mostly
-  the right pages".  Recent 2.4.9-ac (ac14 tested) had the best streaming
-  I/O interactivity; it also outperforms everything else until lots of
-  anonymous pages have to be allocated in swapcache (esp. when you're
-  talking about a large scientific simulation on a HIGHMEM box; see Dirk
-  Wetter's posts from around 12 July 2001 and Marcelo's comments).
-
-2.4.9-ac14 streaming IO test:  passed, skip-less playback
-			       (ac14-aging patch results identical)
-2.4.9-ac14 app test: 30968 kB swapped out; 12900 kB swapped back in
-		 18 second StarOffice load time; 8 sec GIMP img rotate
-ac14+aging, app test: 31664 kB swapped out; 14604 kB swapped back in
-		 18 second StarOffice load time; 8 sec GIMP img rotate
-
-
-As above, Rik's latest ac14-aging was tested.  It, like ac12-aging, has
-performed pretty well.  I'm not sure that it's doing all the right things
-in detail.  For example, plain ac14 swapped out just as many pages,
-but swapped fewer of them back in when the apps were closed.  Inactive
-daemons loaded at boot time are among the oldest pages on the system;
-ac14 swapped them entirely out.  2.4.10 and ac14+aging had similar
-behavior and only paged them a little (ex. out of 2 MB=SIZE, 0.5 MB was
-still RSS) and hit loaded 'younger' loaded apps (with big RSS)
-somewhat harder instead.  Not sure if that's right; pure aging should
-presumably page the unused daemons first, but drawing from big, idle hogs
-might be more fruitful?  The aging patch simplifies the code a bit, and I
-think that's a good thing.
-
-ac14-aging easily collapses the dentry and inode caches under load.  This
-works well here, but others might want to check to see if it's _too_
-aggressive.  Suspect it's okay...
-
-Rik's page launder patch for ac12 was also applied to ac14; it failed
-the streaming IO test.  ac14 and ac14+aging were the only tested
-kernels to pass.  No preemptive kernel patches were applied.
-
-
-Comments:
-
-I dunno what to think about the split VM trees.  The traditional
-2.4 VM looks quite good in latest 2.4.9-ac, could stand addn'l careful
-analysis & pruning.  I suspect most of the problems relate to inactive
-lists interacting/balancing badly with each other, but the overall design
-seems sensible.  Much of it is pretty well documented (even *I* can
-follow it in some kind of coarse sense) & that effort is deeply
-appreciated.  Andrea's classzone approach reduces inactive list
-complexity, but I remain confused about the classzone design itself.
-[Have to look at it more; rather new at this.]
-
-I mean, I look at 'traditional' 2.4 VM and wonder why it sometimes
-doesn't work like it should; in contrast, I look at classzone and wonder
-how/why it manages to work so well. :)
-
-Totally IMHO, my VM wishlist for 2.5 would be to see the return of some
-aspects of 2.4 VM that got nixed.  I liked the overall design, although
-implementation of inactive-lists/anon-pages needs to be made more
-maintainable.  In particular, so-called 'anonymous' pages *have* to be
-handled in a more sensible way.  Dump them in the active list (?),
-allocate them in a separate fs from what-will-hopefully-become-swapfs-in-
-2.5, or *something*.  Improved get_swap_page(), swap_out() & associates
-probably should be on that list somewhere.
-
-But things are looking *much* better now -- a real huge 'thank you' is in
-order. :)  And looking forward to testing patches, and 2.5...
-
-Best regards to all,
-
-Craig Kulesa
-Univ. of Arizona, Steward Observatory
 

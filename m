@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267527AbUHSXgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267528AbUHSXmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267527AbUHSXgD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 19:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267531AbUHSXgD
+	id S267528AbUHSXmS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 19:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUHSXmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 19:36:03 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:30342 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267527AbUHSXgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 19:36:00 -0400
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Julien Oster <usenet-20040502@usenet.frodoid.org>
-Cc: Miles Lane <miles.lane@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <87hdqyogp4.fsf@killer.ninja.frodoid.org>
-References: <200408191822.48297.miles.lane@comcast.net>
-	 <87hdqyogp4.fsf@killer.ninja.frodoid.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092954824.28931.9.camel@localhost.localdomain>
+	Thu, 19 Aug 2004 19:42:18 -0400
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:56728 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S267528AbUHSXmQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 19:42:16 -0400
+Date: Thu, 19 Aug 2004 16:38:37 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, hawkes@sgi.com,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com
+Subject: Re: kernbench on 512p
+Message-ID: <20040819233837.GA2723@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <200408191216.33667.jbarnes@engr.sgi.com> <253460000.1092939952@flay> <200408191711.04776.jbarnes@engr.sgi.com> <200408191724.04422.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 19 Aug 2004 23:33:45 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408191724.04422.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-08-20 at 00:23, Julien Oster wrote:
-> Come on, it's profiling. As presented by that article, it is even more
-> micro optimization than one would think. What with tweaking the disk
-> I/O improvements and all... If my harddisk accesses were a microsecond
-> more immediate or my filesystem giving a quantum more transfer rate,
-> it would be nice, but I certainly wouldn't get enthusiastic and I bet
-> nobody would even notice.
+On Thu, Aug 19, 2004 at 05:24:04PM -0400, Jesse Barnes wrote:
+> On Thursday, August 19, 2004 5:11 pm, Jesse Barnes wrote:
+> > The output is attached (my mailer insists on wrapping it if I inline it). 
+> > I used 'lockstat -w'.
+> 
+> The highlights:
+> 
+>  nw   spin   rjct  lock & function
+> 19.0% 81.0%    0%  dcache_lock
+>  3.3% 96.7%    0%    d_alloc+0x270
+>  2.7% 97.3%    0%    d_delete+0x40
+> 18.3% 81.7%    0%    d_instantiate+0x90
+>  4.7% 95.3%    0%    d_move+0x60
+> 34.6% 65.4%    0%    d_rehash+0xe0
+> 19.1% 80.9%    0%    dput+0x40
+> 10.5% 89.5%    0%    link_path_walk+0xef0
+>    0%  100%    0%    sys_getcwd+0x210
+> 
+> 41.4% 58.6%    0%  rcu_state
+> 61.3% 38.7%    0%    __rcu_process_callbacks+0x260
+> 41.4% 58.6%    0%    rcu_check_quiescent_state+0xf0
+> 
+> So it looks like the dcache lock is the biggest problem on this system with 
+> this load.  And although the rcu stuff has improved tremendously for this 
+> system, it's still highly contended.
 
-Yes and no. LTT is just profiling too. Both of them are making people
-notice because they allow that system profiling work to be done by 
-two-banana grade operations staff not by the company wizard.
+Was this run using all of Manfred's RCU patches?  If not, it would be
+interesting to see what you get with full RCU_HUGE patchset.
 
-Neither are perfect - users want a "why is it going slow button"
-with a "make it work" and "beat the crap out of the user who caused it"
-option set.
-
-"Profiling for the people" as it were.. (as opposed to the current
-fad of 'profiling the people')
-
-Alan
-
+							Thanx, Paul

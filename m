@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132028AbQLJVCw>; Sun, 10 Dec 2000 16:02:52 -0500
+	id <S132432AbQLJVFw>; Sun, 10 Dec 2000 16:05:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132900AbQLJVCm>; Sun, 10 Dec 2000 16:02:42 -0500
-Received: from ja.ssi.bg ([193.68.177.189]:35591 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S132028AbQLJVC3>;
-	Sun, 10 Dec 2000 16:02:29 -0500
-Date: Sun, 10 Dec 2000 22:32:43 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-To: "Victor J. Orlikowski" <v.j.orlikowski@gte.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18pre25, S3, AMD K6-2, and MTRR....
-In-Reply-To: <14898.50377.593756.7641@critterling.garfield.home>
-Message-ID: <Pine.LNX.4.21.0012102150490.2089-100000@u>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132900AbQLJVFm>; Sun, 10 Dec 2000 16:05:42 -0500
+Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:9669 "EHLO
+	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
+	id <S132432AbQLJVF0>; Sun, 10 Dec 2000 16:05:26 -0500
+Date: Sun, 10 Dec 2000 21:35:00 +0100
+From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test11 EXT2 corruption (3)
+Message-ID: <20001210213500.A17413@iapetus.localdomain>
+In-Reply-To: <20001210161723.A1060@iapetus.localdomain> <20001210183101.A6947@iapetus.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20001210183101.A6947@iapetus.localdomain>; from F.vanMaarseveen@inter.NL.net on Sun, Dec 10, 2000 at 06:31:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hmm, not only I see files stuffed with random data but sometimes also with
+a block of zeroes (about 3600 consecutive zero bytes in a .depend file)
+At one time /var/log/messages said while doing rm -rf:
 
-	Hello,
+Dec 10 21:23:04 iapetus kernel: EXT2-fs error (device ide0(3,4)): ext2_readdir: bad entry in directory #152149: rec_len is smaller than minimal - offset=0, inode=0, rec_len=0, name_len=0
+Dec 10 21:23:04 iapetus kernel: EXT2-fs warning (device ide0(3,4)): empty_dir: bad directory (dir #152149) - no `.' or `..'
+Dec 10 21:23:05 iapetus kernel: EXT2-fs error (device ide0(3,4)): ext2_readdir: bad entry in directory #332361: rec_len is smaller than minimal - offset=0, inode=0, rec_len=0, name_len=0
+Dec 10 21:23:05 iapetus kernel: EXT2-fs warning (device ide0(3,4)): empty_dir: bad directory (dir #332361) - no `.' or `..'
 
-On Sat, 9 Dec 2000, Victor J. Orlikowski wrote:
+Maybe it is a hardware problem?
 
-> After doing some googling....
-> It would appear that, in Family 5, Model 8, Stepping 12 of the K6-2,
-> AMD used a different CPU core, that was more similar to the K6-3, and
-> that there is a slightly odd way of doing write-combining.
-
-	I'm now investigating the problem. It seems it is related
-to XF86_SVGA (3.3.6):
-
-S3VGEReset called from s3v_accel.c line 300
-
-	Hm, what can trigger this reset
-
-	On total lockup I can't activate ikd nor to use sysrq.
-I can reproduce the temporary lockups afetr 1 minute of testing and
-usually receive the above message. I have a ktrace output (not
-sure if I catch the problem in this output) and this strace -r for
-the XF86_SVGA program:
-
-     0.001019 brk(0x851a000)            = 0x851a000
-     0.009577 gettimeofday({976474616, 24017}, NULL) = 0
-     4.865610 write(2, "\tS3VGEReset called from s3v_acce"..., 45) = 45
-     0.000410 nanosleep({0, 10000000}, NULL) = 0
-     0.012520 nanosleep({0, 10000000}, NULL) = 0
-     0.019712 nanosleep({0, 10000000}, NULL) = 0
-     0.019997 nanosleep({0, 10000000}, NULL) = 0
-
-	What means 4.8 seconds between gettimeofday() and write() ?
-Can this be a problem raised from gettimeofday? I have CONFIG_RTC=y
-in all tests.
-
-> Perhaps this is the problem?
-> Anyone with more knowledge on the AMD cores care to comment?
->
-> Victor
-
-	So, I'm not sure whether the problem is in XFree or is
-hardware/kernel related. IMO, it is not related to the MTRR
-support. Any ideas for testing are welcome!
-
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
-
+-- 
+Frank
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

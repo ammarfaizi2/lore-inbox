@@ -1,95 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUDCAKh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 19:10:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbUDCAKh
+	id S261430AbUDCAYd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 19:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbUDCAYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 19:10:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52457 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261451AbUDCAKc (ORCPT
+	Fri, 2 Apr 2004 19:24:31 -0500
+Received: from mail.kroah.org ([65.200.24.183]:137 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261422AbUDCAYW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 19:10:32 -0500
-Date: Fri, 2 Apr 2004 16:10:22 -0800
-From: Mark Wong <markw@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: 2.6.5-rc3-mm4
-Message-ID: <20040402161022.A26902@osdlab.pdx.osdl.net>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Jens Axboe <axboe@suse.de>
-References: <20040401020512.0db54102.akpm@osdl.org> <200404021904.i32J4M215682@mail.osdl.org> <20040402115601.24912093.akpm@osdl.org> <406DFABD.8070400@yahoo.com.au>
+	Fri, 2 Apr 2004 19:24:22 -0500
+Date: Fri, 2 Apr 2004 16:24:04 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] udev 024 release
+Message-ID: <20040403002404.GA9285@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <406DFABD.8070400@yahoo.com.au>; from nickpiggin@yahoo.com.au on Sat, Apr 03, 2004 at 09:43:57AM +1000
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 03, 2004 at 09:43:57AM +1000, Nick Piggin wrote:
-> Andrew Morton wrote:
-> > markw@osdl.org wrote:
-> > 
-> >>I reran DBT-2 to with ext2 and ext3 (in case you were still interested)
-> >> on my 4-way Xeon system with 60+ drives:
-> >> 	http://developer.osdl.org/markw/fs/dbt2_project_results.html
-> >>
-> >> Aside from the from the drop you're already aware of since 2.6.3, it
-> >> looks like DBT-2 takes another smaller hit after 2.6.5-rc3-mm2.  Here's
-> >> a brief summary from the link above:
-> > 
-> > 
-> > The profile is interesting:
-> > 
-> > 3671973 poll_idle                                63309.8793
-> >  77750 __copy_from_user_ll                      637.2951
-> >  64788 generic_unplug_device                    487.1278
-> >  62968 DAC960_LP_InterruptHandler               336.7273
-> >  53908 finish_task_switch                       361.7987
-> >  52947 __copy_to_user_ll                        441.2250
-> >  29419 dm_table_unplug_all                      439.0896
-> >  25947 __make_request                            17.9938
-> >  18564 dm_table_any_congested                   199.6129
-> >  13785 update_queue                             104.4318
-> >  13498 try_to_wake_up                            20.3590
-> >  12736 __wake_up                                114.7387
-> >  12560 kmem_cache_alloc                         163.1169
-> >  12221 .text.lock.sched                          40.7367
-> > 
-> > - There's a ton of idle time there.
-> > 
-> > - The CPU scheduler is hurting.  Nick and Ingo are patching up a storm to
-> >   fix a similar problem which Jeremy Higdon is observing at 200,000
-> >   IOs/sec.  This will get better.
-> 
-> Versus this for 2.6.3:
-> 
-> 12825181 poll_idle                                221123.8103
-> 219606 schedule                                 126.7201
-> 194233 __copy_from_user_ll                      1541.5317
-> 191707 __copy_to_user_ll                        1597.5583
-> 149704 DAC960_LP_InterruptHandler               800.5561
-> 120972 generic_unplug_device                    822.9388
->   87891 __make_request                            60.9931
->   49207 try_to_wake_up                            74.5561
->   42647 do_anonymous_page                         65.5100
-> 
-> Which looks like it is taking a lot longer (is it the same test?)
-> It is difficult to tell how idle each one is due to lack of total
-> ticks reported, but, copy_to/from_user is 3% the amount of idle
-> time in 2.6.3, while being 3.5% the amount of idle time in your
-> profile.
+I've released the 024 version of udev.  It can be found at:
+ 	kernel.org/pub/linux/utils/kernel/hotplug/udev-024.tar.gz
 
-Whoops, I changed when the sample is take.  This 2.6.3 results samples
-when the test is ramping up, while all the subsequent tests are sampling
-after the test ramps up.  I can redo this one.
+rpms built against Red Hat FC2-test2 are available at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-024-1.i386.rpm
+with the source rpm at:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-024-1.src.rpm
 
-> So 2.6.3 could be relatively more idle than -mm.
-> 
-> Do we know what the 2.6.3 regression is caused by? Or is it
-> likely to be the CPU scheduler?
+udev allows users to have a dynamic /dev and provides the ability to
+have persistent device names.  It uses sysfs and /sbin/hotplug and runs
+entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
+enabled to run.  Please see the udev FAQ for any questions about it:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
 
-Yeah, I did tests previously to determine what might be the cause and Andrew
-believes it's the CPU scheduler.
+For any udev vs devfs questions anyone might have, please see:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
+
+
+Changes in this release (along with a lot of good bugfixes):
+	- more network device fixes and reworks.  We now handle network
+	  devices better.
+	- updated the udev.rules files based on a bunch of new devices
+	  that the 2.6 kernel is now exporting through sysfs.
+	- resynced up the Gentoo config files
+	- added a /etc/dev.d/net/hotplug.dev file that allows udev to
+	  rename network devices, and then have the main hotplug scripts
+	  bring it up in the proper manner.  Before this, renamed
+	  network devices would not work with the hotplug script system
+	  properly.
+	- rename the DEVNODE environment var to DEVNAME as it didn't
+	  make much sense for network devices.
+	- new helper program called chassis_id has been added to the
+	  extras/ directory.
+
+Thanks to everyone who has send me patches for this release, a full list
+of everyone, and their changes is below.
+
+udev development is done in a BitKeeper repository located at:
+	bk://linuxusb.bkbits.net/udev
+
+Daily snapshots of udev from the BitKeeper tree can be found at:
+	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
+If anyone ever wants a tarball of the current bk tree, just email me.
+
+thanks,
+
+greg k-h
+
+
+Summary of changes from v023 to v024
+============================================
+
+<atul.sabharwal:intel.com>:
+  o Add README for chassis_id
+  o Add chassis_id program to extras directory
+
+<chris_friesen:sympatico.ca>:
+  o udevd race conditions and performance,  assorted cleanups
+
+<hare:suse.de>:
+  o fix SEGV in libsysfs/dlist.c
+
+<maryedie:osdl.org>:
+  o add OSDL documentation for persistent naming
+
+<md:linux.it>:
+  o small ide-devfs.sh fix
+
+Greg Kroah-Hartman:
+  o remove compiler warning from udevd.c
+  o only generate udev.8 on the fly, not all other man pages
+  o update bk ignore list some more
+  o update bk ignore list
+  o switch to generate the man pages during the normal build, not during the install
+  o convert udev.8.in to use @udevdir@ macro for make install
+  o first step of making man pages dynamically generated
+  o add install and uninstall the etc/dev.d/net/hotplug.dev file to the Makefile
+  o tweak net_test a bit
+  o fix some segfaults when running udevtest for network devices
+  o make a net_test test script using udevtest
+  o handle the subsytem if provided in udevtest
+  o add hotplug.dev script to handle renamed network devices
+  o add a bunch of network class devices to the test sysfs tree
+  o add udevruler to the bk ignore list
+  o update RFC-dev.d docs due to DEVNODE to DEVNAME change
+  o clean up chassis_id coding style
+  o clean up the OSDL document formatting a bit
+  o add netlink rules to devfs and gentoo rules files
+  o added USB device rules to rules files
+  o clean up the gentoo rules file a bit more, adding dri rules
+  o fix up udev.rules to handle oss rules better
+  o 023_bk mark
+  o fix udev.spec file for where udevtest should be placed
+  o v023 release TAG: v023
+
+Kay Sievers:
+  o tweak node unlink handling
+  o switch udevd's msg_dump() to #define
+  o handle netdev in udevruler
+  o man page cleanup
+  o put config info in db for netdev
+  o increase udevd event timeout
+  o udevstart fix
+  o put netdev handling and dev.d/ in manpages
+  o DEVPATH for netdev
+  o netdev - udevdb+dev.d changes
+  o udevd race conditions and performance,  assorted cleanups - take 2
+  o udevinfo patch
+  o dev_d.c file sorting and cleanup
+  o apply all_partitions rule to main block device only
+

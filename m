@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272340AbRH3RCX>; Thu, 30 Aug 2001 13:02:23 -0400
+	id <S272341AbRH3RID>; Thu, 30 Aug 2001 13:08:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272341AbRH3RCO>; Thu, 30 Aug 2001 13:02:14 -0400
-Received: from smtp5.us.dell.com ([143.166.83.100]:27657 "EHLO
-	smtp5.us.dell.com") by vger.kernel.org with ESMTP
-	id <S272340AbRH3RB4>; Thu, 30 Aug 2001 13:01:56 -0400
-Date: Thu, 30 Aug 2001 12:02:13 -0500 (CDT)
-From: Michael E Brown <michael_e_brown@dell.com>
-X-X-Sender: <mebrown@blap.linuxdev.us.dell.com>
-Reply-To: Michael E Brown <michael_e_brown@dell.com>
-To: Ben LaHaise <bcrl@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blkgetsize64 ioctl
-In-Reply-To: <Pine.LNX.4.33.0108301247130.12593-100000@toomuch.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.33.0108301150460.1213-100000@blap.linuxdev.us.dell.com>
+	id <S272342AbRH3RHx>; Thu, 30 Aug 2001 13:07:53 -0400
+Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:37087 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S272341AbRH3RHj>; Thu, 30 Aug 2001 13:07:39 -0400
+Importance: Normal
+Subject: Re: lcs ethernet driver source
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OFD37F6EF4.433973B0-ONC1256AB8.005BE510@de.ibm.com>
+From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
+Date: Thu, 30 Aug 2001 18:58:53 +0200
+X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 30/08/2001 18:58:56
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-And your response to the rest of the points I raised would be?
+David Woodhouse wrote:
 
-I'm sorry about e2fsprogs. If I had known a bit better (this was my first
-kernel patch), I would have added a magic number to the struct you pass
-in, and that would have prevented this little bit of braindamage.
+>Erm, Linux on S/390 runs as a virtual machine, doesn't it? Does a lack of
+>network drivers not render it completely useless?
+
+Well, you're right that without network connection, there's not much
+useful you can do.  However, LCS and QETH are not the only options;
+you can also use a CTC or IUCV network interface (and those drivers *are*
+open source and in the tree); there's also a third-party open source driver
+to access CLAW network devices (not in the official tree, but e.g. part of
+the SuSE kernel).
+
+Especially in a virtual machine, you can simply define a virtual CTC or
+IUCV
+connection and access your network via those devices.
+
+If you are running Linux native on the S/390 (not in a virtual machine)
+and have *only* physical LCS or QETH devices, you must use the binary-only
+modules; but this doesn't appear to be fundamentally different from other
+devices where only binary drivers exist ...
+
+
+Mit freundlichen Gruessen / Best Regards
+
+Ulrich Weigand
+
 --
-Michael
-
-On Thu, 30 Aug 2001, Ben LaHaise wrote:
-
-> On Thu, 30 Aug 2001, Michael E Brown wrote:
->
-> > And your last point about risking unexpected disk-io due to an incorrect
-> > IOCTL, I would say that is a pretty unlikely in practice. First, I do
-> > parameter checking on what was passed to the IOCTL, and if things don't
-> > match, no io is done. Second, how likely is it that you a) call ioctl with
-> > a (disk) block device, b) pass the wrong ioctl, c) pass along enough data
-> > to pass the checks in the ioctl, and d) pass along a valid pointer to 512
-> > bytes of data to overwrite something?
->
-> e2fsprogs-1.23 on x86 does this.
->
-> 		-ben
->
->
-
--- 
-Michael Brown
-Linux OS Development
-Dell Computer Corp
-
-  If each of us have one object, and we exchange them,
-     then each of us still has one object.
-  If each of us have one idea,   and we exchange them,
-     then each of us now has two ideas.
-
+  Dr. Ulrich Weigand
+  Linux for S/390 Design & Development
+  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
+  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
 

@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129321AbRCWCGy>; Thu, 22 Mar 2001 21:06:54 -0500
+	id <S129346AbRCWCGO>; Thu, 22 Mar 2001 21:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129282AbRCWCGp>; Thu, 22 Mar 2001 21:06:45 -0500
-Received: from zrtps06s.nortelnetworks.com ([47.140.48.50]:13284 "EHLO
-	zrtps06s.us.nortel.com") by vger.kernel.org with ESMTP
-	id <S129321AbRCWCG3>; Thu, 22 Mar 2001 21:06:29 -0500
-Message-ID: <3ABAABF9.294E89BD@asiapacificm01.nt.com>
-Date: Fri, 23 Mar 2001 01:50:49 +0000
-From: "Andrew Morton" <morton@nortelnetworks.com>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.2-ac19 i686)
-X-Accept-Language: en
+	id <S129282AbRCWCFz>; Thu, 22 Mar 2001 21:05:55 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:38550 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129242AbRCWCFn>; Thu, 22 Mar 2001 21:05:43 -0500
+Date: Thu, 22 Mar 2001 21:04:15 -0500 (EST)
+From: Alexander Viro <aviro@redhat.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>,
+        Linux FS development list <linux-fsdevel@vger.kernel.org>,
+        Alexander Viro <aviro@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [linux-lvm] EXT2-fs panic (device lvm(58,0)):
+In-Reply-To: <20010323013914.M7756@redhat.com>
+Message-ID: <Pine.LNX.4.33.0103222100370.18794-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Frank de Lange <frank@unternet.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2-ac21
-In-Reply-To: <4514.985311303@kao2.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <morton@asiapacificm01.nt.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> Am I the only person who is annoyed that nmi watchdog is now off by
-> default and the only way to activate it is by a boot parameter?  You
-> cannot even patch the kernel to build a version that has nmi watchdog
-> on because the startup code runs out of the __setup routine, no boot
-> parameter, no watchdog.
+On Fri, 23 Mar 2001, Stephen C. Tweedie wrote:
 
-It was causing SMP boxes to crash mysteriously after
-several hours or days.  Quite a lot of them.  Nobody
-was able to explain why, so it was turned off.
+> Hi,
+>
+> On Wed, Mar 07, 2001 at 01:35:05PM -0700, Andreas Dilger wrote:
+>
+> > The only remote possibility is in ext2_free_blocks() if block+count
+> > overflows a 32-bit unsigned value.  Only 2 places call ext2_free_blocks()
+> > with a count != 1, and ext2_free_data() looks to be OK.  The other
+> > possibility is that i_prealloc_count is bogus - that is it!  Nowhere
+> > is i_prealloc_count initialized to zero AFAICS.
+> >
+> Did you ever push this to Alan and/or Linus?  This looks pretty
+> important!
+
+It isn't. Check fs/inode.c::clean_inode(). Specifically,
+        memset(&inode->u, 0, sizeof(inode->u));
+The thing is called both by get_empty_inode() and by get_new_inode() (the
+former - just before returning, the latter - just before calling
+->read_inode()).
+								Cheers,
+									Al
+

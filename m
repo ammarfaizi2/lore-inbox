@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130575AbRAaNaC>; Wed, 31 Jan 2001 08:30:02 -0500
+	id <S129375AbRAaNgw>; Wed, 31 Jan 2001 08:36:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130924AbRAaN3v>; Wed, 31 Jan 2001 08:29:51 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13063 "EHLO
+	id <S130924AbRAaNgn>; Wed, 31 Jan 2001 08:36:43 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16903 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130575AbRAaN3a>; Wed, 31 Jan 2001 08:29:30 -0500
-Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
-To: tleete@mountain.net (Tom Leete)
-Date: Wed, 31 Jan 2001 13:29:38 +0000 (GMT)
-Cc: david@linux.com (David Ford), sfrost@snowman.net (Stephen Frost),
-        linux-kernel@vger.kernel.org (LKML)
-In-Reply-To: <3A77C6E7.606DDA67@mountain.net> from "Tom Leete" at Jan 31, 2001 03:03:51 AM
+	id <S129375AbRAaNge>; Wed, 31 Jan 2001 08:36:34 -0500
+Subject: Re: Kernel 2.2.18: Protocol 0008 is buggy
+To: lists@cyclades.com (Ivan Passos)
+Date: Wed, 31 Jan 2001 13:37:04 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <Pine.LNX.4.10.10101301831460.24409-100000@main.cyclades.com> from "Ivan Passos" at Jan 30, 2001 06:58:43 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14NxKP-0002KH-00@the-village.bc.nu>
+Message-Id: <E14NxRb-0002Ku-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's not an incompatibility with the k7 chip, just bad code in
-> include/asm-i386/string.h. in_interrupt() cannot be called from there.
+> The msg comes from net/core/dev.c, and this device is using the Cisco HDLC 
+> protocol in drivers/net/hdlc.c . However, AFAIK, 0008 and 0608 represent
+> IP and ARP (respectively), not Cisco HDLC. So ...
+> 
+> What I'd like to know is: what exactly causes this msg?? It seems that
+> it's printed when someone sends a packet without properly setting 
+> skb->nh.raw first, but who's supposed to set skb->nh.raw?? The HW driver??
+> The data link (HDLC) driver?? The kernel protocol drivers? How should I go
+> about fixing this problem, where should I start??
 
-The string.h code was fine, someone came along and put in a ridiculous loop
-in the include dependancies and broke it. Nobody has had the time to untangle
-it cleanly since
+It should be set before netif_rx() is called on the packet. Typically that
+means the driver or its support code sets protocol and nh.raw and if a
+second header is pulled up then they are set again by whichever code does that
+and calls netif_rx again
 
-> I have posted a patch here many times since last May. Most recent was
-> Saturday.
-
-uninlining the code is too high a cost.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

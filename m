@@ -1,96 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290730AbSBOTe1>; Fri, 15 Feb 2002 14:34:27 -0500
+	id <S290741AbSBOTkP>; Fri, 15 Feb 2002 14:40:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290715AbSBOTd3>; Fri, 15 Feb 2002 14:33:29 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:41248 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S290688AbSBOTdG>; Fri, 15 Feb 2002 14:33:06 -0500
-Date: Fri, 15 Feb 2002 14:33:01 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200202151933.g1FJX1S16673@devserv.devel.redhat.com>
-To: dalecki@evision-ventures.com
+	id <S290720AbSBOTkF>; Fri, 15 Feb 2002 14:40:05 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:18449
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S290729AbSBOTjz>; Fri, 15 Feb 2002 14:39:55 -0500
+Date: Fri, 15 Feb 2002 14:14:33 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Arjan van de Ven <arjan@fenrus.demon.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: cleanup for i810 chipset for 2.5.5-pre1. Second...
-In-Reply-To: <mailman.1013758321.20800.linux-kernel2news@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0202141819080.30210-100000@Expansa.sns.it> <mailman.1013758321.20800.linux-kernel2news@redhat.com>
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020215141433.B11369@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Arjan van de Ven <arjan@fenrus.demon.nl>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020215135557.B10961@thyrsus.com> <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com>; from arjan@fenrus.demon.nl on Fri, Feb 15, 2002 at 07:29:36PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> diff -ur linux-2.5.4/sound/oss/i810_audio.c linux/sound/oss/i810_audio.c
-> --- linux-2.5.4/sound/oss/i810_audio.c	Thu Feb 14 23:26:47 2002
-> +++ linux/sound/oss/i810_audio.c	Thu Feb 14 23:09:50 2002
-> @@ -66,7 +66,7 @@
->   *
->   *	This driver is cursed. (Ben LaHaise)
->   */
-> - 
-> +
->  #include <linux/module.h>
->  #include <linux/version.h>
->  #include <linux/string.h>
+Arjan van de Ven <arjan@fenrus.demon.nl>:
+> A "I don't like don't like <FOO> and won't apply it" is not a communications problem in general. When the person trying to submit <FOO> keeps submitting it without listening to suggestions or to reasons why it's not applied.... THEN there is a one sided communcation problem.
+> 
+> Not saying that's the case here, but it starts to appear to be so.
 
-Leave the syntax sugar out, will you? It's dledford's job to clean it.
+Arjan, I would dearly love to get useful feedback on why things like my 
+Configure.help patches weren't applied.  It would be a delight like 
+water in the desert to *hear* some reasons!
 
-> @@ -135,14 +135,17 @@
->  
->  /* the 810's array of pointers to data buffers */
->  
-> +/* Since this structure get's accessed by the AC'97 codec device, we fixup the
-> + * in core layout of it by adding the packed attribute here. */
-> +
->  struct sg_item {
->  #define BUSADDR_MASK	0xFFFFFFFE
-> -	u32 busaddr;	
-> -#define CON_IOC 	0x80000000 /* interrupt on completion */
-> +	u32 bus_addr;
-> +#define CON_IOC		0x80000000 /* interrupt on completion */
->  #define CON_BUFPAD	0x40000000 /* pad underrun with last sample, else 0 */
->  #define CON_BUFLEN_MASK	0x0000ffff /* buffer length in samples */
->  	u32 control;
-> -};
-> +} __attribute__ ((packed));
->  
->  /* an instance of the i810 channel */
->  #define SG_LEN 32
+But I think you know very well that the usual flow looks like this:
 
-Sounds like a nonsense to me. Show me one architecture that
-does not pack the structure correctly without ((packed)).
-You got Linux on CRAY-1 going?
+1. You throw a patch over the wall to Linus.
 
-> -			sg->busaddr=virt_to_bus(dmabuf->rawbuf+dmabuf->fragsize*i);
-> +			sg->bus_addr= dmabuf->dma_handle + dmabuf->fragsize * i;
+2. Either it shows up in the next release...
 
-Close, but no cigar, see below.
-
-> @@ -954,7 +957,7 @@
->  		}
->  		spin_lock_irqsave(&state->card->lock, flags);
->  		outb(2, state->card->iobase+c->port+OFF_CR);   /* reset DMA machine */
-> -		outl(virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-> +		outl(isa_virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
->  		outb(0, state->card->iobase+c->port+OFF_CIV);
->  		outb(0, state->card->iobase+c->port+OFF_LVI);
->  
-
-Why not to use pci_alloc_consistent here? I did it in 10 minutes,
-even posted a patch here.
-
-> @@ -1669,7 +1672,7 @@
->  	if (size > (PAGE_SIZE << dmabuf->buforder))
->  		goto out;
->  	ret = -EAGAIN;
-> -	if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
-> +	if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
->  			     size, vma->vm_page_prot))
->  		goto out;
->  	dmabuf->mapped = 1;
-
-OK
-
-> -			outl(virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-> +			outl(isa_virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-
-Same as above - must be reworked.
-
--- Pete
+3. ...or you hear a vast and echoing silence.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUIDNUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269916AbUIDNUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267923AbUIDNUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 09:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269916AbUIDNUZ
+	id S269916AbUIDNUt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 09:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269918AbUIDNUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 09:20:25 -0400
-Received: from znx208-2-156-007.znyx.com ([208.2.156.7]:14603 "EHLO
-	lotus.znyx.com") by vger.kernel.org with ESMTP id S267923AbUIDNUX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 09:20:23 -0400
-Subject: Re: [PATCH 2.6] watch64: generic variable monitoring system
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-In-Reply-To: <200409031744.32970.jeffpc@optonline.net>
-References: <200409031307.01240.jeffpc@optonline.net>
-	 <200409031319.24863.jeffpc@optonline.net>
-	 <20040903121657.355a6a8b@dell_ss3.pdx.osdl.net>
-	 <200409031744.32970.jeffpc@optonline.net>
-Organization: jamalopolis
-Message-Id: <1094303999.1633.116.camel@jzny.localdomain>
+	Sat, 4 Sep 2004 09:20:49 -0400
+Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:17295 "HELO
+	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S269917AbUIDNUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 09:20:44 -0400
+In-Reply-To: <200409040227.i842R7io003637@localhost.localdomain>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: The argument for fs assistance in handling archives 
+Cc: helge.hafting@hist.no, oliverhunt@gmail.com, reiser@namesys.com,
+       torvalds@osdl.org, ninja@slaphack.com, jamie@shareable.org,
+       bunk@fs.tum.de, viro@parcelfarce.linux.theplanet.co.uk, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com, spam@tnonline.net
+X-Mailer: BeMail - Mail Daemon Replacement 2.3.1 Final
+From: "Alexander G. M. Smith" <agmsmith@rogers.com>
+Date: Sat, 04 Sep 2004 09:20:47 -0400 EDT
+Message-Id: <89955622176-BeMail@cr593174-a>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 04 Sep 2004 09:19:59 -0400
-X-MIMETrack: Itemize by SMTP Server on Lotus/Znyx(Release 5.0.11  |July 24, 2002) at 09/04/2004
- 06:21:52 AM,
-	Serialize by Router on Lotus/Znyx(Release 5.0.11  |July 24, 2002) at 09/04/2004
- 06:21:55 AM,
-	Serialize complete at 09/04/2004 06:21:55 AM
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Horst von Brand wrote on Fri, 03 Sep 2004 22:27:07 -0400:
+> Great. Then everything is a firectory (or dile?). And a firectory points at
+> other firectories and contains data. I just don't see how you are supposed
+> to distinguish the data from further firectories...
 
-I have a feeling this was discussed somewhere(other than netdev) and i
-missed it. Why isnt this watch64 being done in user space?
+I like to call them fildirutes (file/directory/attribute).  A file
+typing system would tell you the intended purpose of a particular
+fildurute.  So if a fildurute called X has X/..metas/mimefiletype
+containing "application/x-directory" then you know that it should be
+treated as being primarily a container for other fildirutes and shown
+to the user as a folder in a GUI view.  If it said it was
+"application/x-text-document" then the GUI system would default to
+opening it in a word processor.  Either way, that's only a hint about
+how it should be presented to the user, not something the kernel
+enforces.
 
-cheers,
-jamal
+For efficiency, the file type might just be stored in the fildirute's
+inode as a code number (since most things would have a file type) that
+the file system exposes as a file called ..metas/mimefiletype.
 
-On Fri, 2004-09-03 at 17:44, Josef 'Jeff' Sipek wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Friday 03 September 2004 15:16, Stephen Hemminger wrote:
-> > - Code doesn't match the kernel style (read Documentation/CodingStyle)
-> 
-> Sorry about the white space, KMail apparently likes to butcher the text. These 
-> are the same patches with the little cleanup update.
-> 
-> Jeff.
-> 
-> - -- 
-> Reality is merely an illusion, albeit a very persistent one.
->   - Albert Einstein
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.5 (GNU/Linux)
-> 
-> iD4DBQFBOOW+wFP0+seVj/4RAgSiAJj54qcqdEx66lbMW9ik0XviupTNAKC82an1
-> R0pGX0pTBZ78NWrZpxJm+w==
-> =EesC
-> -----END PGP SIGNATURE-----
-
+- Alex

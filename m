@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129261AbRBDGdE>; Sun, 4 Feb 2001 01:33:04 -0500
+	id <S129601AbRBDGeY>; Sun, 4 Feb 2001 01:34:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129601AbRBDGcy>; Sun, 4 Feb 2001 01:32:54 -0500
-Received: from www.wen-online.de ([212.223.88.39]:17936 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129261AbRBDGcl>;
-	Sun, 4 Feb 2001 01:32:41 -0500
-Date: Sun, 4 Feb 2001 07:32:34 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch?] RAMFS
-In-Reply-To: <Pine.Linu.4.10.10102031945190.396-100000@mikeg.weiden.de>
-Message-ID: <Pine.Linu.4.10.10102040713280.663-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130060AbRBDGeO>; Sun, 4 Feb 2001 01:34:14 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:64795 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129601AbRBDGeB>; Sun, 4 Feb 2001 01:34:01 -0500
+Message-Id: <200102040727.f147RAQ14787@513.holly-springs.nc.us>
+Subject: Re: "kaweth" usb ethernet driver in 2.4?
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Eric Sandeen <sandeen@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A7C686A.2B69D222@sgi.com>
+Content-Type: text/plain
+X-Mailer: Evolution (0.8 - Preview Release)
+Date: 04 Feb 2001 01:32:34 -0500
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Feb 2001, Mike Galbraith wrote:
+On 03 Feb 2001 14:22:02 -0600, Eric Sandeen wrote:
 
-> Hi,
-> 
-> With the patch below...
+> The driver is included with the USB stuff for 2.2, but not in 2.4.
 
-However, tmpfs appears to cover the functionality provided by ramfs.
-Are there any uses for ramfs which can't be handled by tmpfs?
 
-The only thing I could think of was "what if you don't have a
-swap device up and running".  Seems it doesn't need one :))
+That's because we stopped fooling with 2.4 around the middle of the
+pre-test-ac series of releases. We'll probably pick it back up around
+2.4.7 or so.
 
-	-Mike
+
+> It also doesn't seem to work in 2.2.  :)  The original development of
+> this driver was going on at http://drivers.rd.ilan.net/kaweth/ but there
+> have been no updates for quite some time.
+
+
+Well, it doesn't work you _you_ on 2.2, obviously. But it works for us
+and other people. Can you provide any information to diagnose the
+problem you're having?
+
+And, truthfully, you'd be better off tossing it in the trash and buying
+a better product. It's VERY lossy with packets and slow. And it's not
+just our driver; it's the device itself. It sucks on Windows as well. :)
+
+However, if you post some info about your experience with it, perhaps we
+can get it working for you. But not on 2.4 for awhile.
+
+-M
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

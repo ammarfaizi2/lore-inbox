@@ -1,108 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbTKLW6n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 17:58:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTKLW6n
+	id S261683AbTKLXAh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 18:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTKLXAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 17:58:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64952 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261680AbTKLW6k (ORCPT
+	Wed, 12 Nov 2003 18:00:37 -0500
+Received: from www.wotug.org ([194.106.52.201]:31571 "EHLO ivimey.org")
+	by vger.kernel.org with ESMTP id S261683AbTKLXAe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 17:58:40 -0500
-Date: Wed, 12 Nov 2003 14:54:12 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: mfedyk@matchmail.com, info@avistor.com, linux-kernel@vger.kernel.org
-Subject: Re: 2 TB partition support
-Message-Id: <20031112145412.226c789f.rddunlap@osdl.org>
-In-Reply-To: <16304.23206.924374.529136@wombat.chubb.wattle.id.au>
-References: <16304.9647.994684.804486@wombat.chubb.wattle.id.au>
-	<HBEHKOEIIJKNLNAMLGAOIECPDKAA.info@avistor.com>
-	<20031111022140.GE2014@mis-mike-wstn.matchmail.com>
-	<16304.23206.924374.529136@wombat.chubb.wattle.id.au>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 12 Nov 2003 18:00:34 -0500
+Message-ID: <3FB2BB7E.7090905@ivimey.org>
+Date: Wed, 12 Nov 2003 23:00:14 +0000
+From: Ruth Ivimey-Cook <ruth.ivimey-cook@ivimey.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jh@oobleck.astro.cornell.edu
+CC: solt@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+Subject: Re: Via KT600 support?
+References: <200311111921.hABJLur16428@oobleck.astro.cornell.edu> <Pine.LNX.4.51.0311121016130.30003@dns.toxicfilms.tv> <200311121509.hACF9HG20967@oobleck.astro.cornell.edu>
+In-Reply-To: <200311121509.hACF9HG20967@oobleck.astro.cornell.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Nov 2003 14:42:30 +1100 Peter Chubb <peter@chubb.wattle.id.au> wrote:
+Joe Harrington wrote:
 
-| >>>>> "Mike" == Mike Fedyk <mfedyk@matchmail.com> writes:
-| 
-| > On Mon, Nov 10, 2003 at 06:12:06PM -0800, Joseph Shamash wrote:
-| >> 
-| >> What is the maximum partition size for a patched 2.4.x kernel, and
-| >> where are those patches?
-| 
-| Mike> I believe it is now 16TB per block device in 2.6, and patched
-| Mike> 2.4.
-| 
-| That's right for 32-bit systems with 4k pages.  For 64 bit systems the
-| limit is over 8 Exabytes.
-| 
-| You should note that software raid has smaller limits, as does the
-| LVM.  Also the 2.4 patches have seen *much* less testing than the 2.6
-| mainline (except possibly on the SGI Altix).
-| 
-| What exactly are you trying to do?
+>Yes, thanks, I did that before I posted.  The problem exists with both
+>the original BIOS (1004) and the latest (1005).
+>
+>Is anyone aware of similar problems with other manufacturers' KT600
+>boards that were fixed in recent BIOS updates?  Perhaps Asus has a
+>BIOS bug they haven't fixed yet.
+>
+>By the way, I also underclocked both the CPU and the memory as far
+>down as they would go, just to check, and the problem persisted.
+>  
+>
+I have an A7V600 too, with a Athlon 2100+. I found that the 2.4 kernel 
+support (2.4.20 ... 22) was not up to it also, and switched to try the 
+2.6.0-t9 kernel; this has, so far, proved fairly stable, with the 
+exception of a might_sleep problem on the plug-in PCI IEEE1394 card I have.
 
+I noticed that, with 2.4, the kernel was treating the KT600 chipset as a 
+KT400 chipset: I don't know if this has changed in later editions of 
+2.4, but it seemed to be an undesireable thing to do, which partly 
+prompted my shift to 2.6
 
-I made the table below for LinuxWorld Expo/Conference in Aug. 2002,
-for Linux 2.4.x on 32-bit architectures, so it is a bit out of date,
-but it might be helpful or useful.
+I too tried updating the BIOS to 1005; it does seem to fix a power-up 
+problem (originally the BIOS would sometimes claim that a hardware fault 
+had happened which hadn't hapened) but there still seem to be issues 
+with the SATA ports: drives on them are never listed in the BIOS boot 
+sequence, and unless I do a cold-boot (i.e. cable-unplugged, not just 
+'off') the SATA drives aren't visible at all to the BIOS or to Linux.
 
---
-~Randy
-MOTD:  Always include version info.
+One of these days I'll get around to filing a bug report about the SATA 
+stuff with ASUS. Should it make a difference, the drives I@m using are 
+Seagate 7200.7 120GB/8MB.
 
+Regards,
 
-
-
-
-Linux 2.4 filesystem limits on 32-bit architectures,
-with 4 KB block sizes:
-
-
-                     ext2/3fs    reiserfs     JFS       XFS#
-max filesize:          4 TB&      16 TB$     16 TB$%  16 TB$
-max filesystem size:  16 TB&      16 TB&     16 TB$   16 TB$
-		                              4 PB&    8 EB&
-kernel bldev limit:    2 TB        2 TB       2 TB     2 TB 
+Ruth
 
 
-Notes:
-#: all kernel limits
-$: kernel limit
-%: 4 KB pages
-@: block device limit: 2 TB (or 1 TB if signed)
-&: fs limit
-
-
-
-Another look at ext2/3fs limits:
-
-  Assumes using 4 KB block sizes on a 32-bit architecture
-  (64-bit architecture isn't very limiting).
-
-Largest limiting factor
-           |
-	   v
-Smallest limiting factor
-
-
-1.  64-bit API limit:  8 EiB
-
-2.  kernel page cache index limit (32 bits) == filesystem block number:
-    2^32 * 4 KB = 16 TiB
-
-3.  ext2fs triple-indirect block limit:  4 TiB
-
-4.  kernel block device limit (device sector number):  2 TiB
-    (or 1 TiB if signed)
-
-###

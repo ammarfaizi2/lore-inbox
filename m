@@ -1,98 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUINX14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUINXg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267376AbUINX14 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 19:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266733AbUINXZw
+	id S264286AbUINXg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 19:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUINXg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 19:25:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3751 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266304AbUINXYx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 19:24:53 -0400
-Date: Tue, 14 Sep 2004 18:41:58 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swapping and the value of /proc/sys/vm/swappiness
-Message-ID: <20040914214158.GA363@logos.cnet>
-References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <1095186713.6309.15.camel@stantz.corp.sgi.com> <20040914201558.GA32254@logos.cnet> <41477661.9030204@kolivas.org>
+	Tue, 14 Sep 2004 19:36:58 -0400
+Received: from trantor.org.uk ([213.146.130.142]:47805 "EHLO trantor.org.uk")
+	by vger.kernel.org with ESMTP id S264286AbUINXft (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 19:35:49 -0400
+Subject: Re: udev is too slow creating devices
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Greg KH <greg@kroah.com>, "Marco d'Itri" <md@Linux.IT>,
+       "Giacomo A. Catenazzi" <cate@pixelized.ch>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040914232011.GG3365@dualathlon.random>
+References: <41473972.8010104@debian.org>
+	 <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com>
+	 <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com>
+	 <20040914214552.GA13879@wonderland.linux.it>
+	 <20040914215122.GA22782@kroah.com>
+	 <20040914224731.GF3365@dualathlon.random>
+	 <20040914230409.GA23474@kroah.com>
+	 <20040914232011.GG3365@dualathlon.random>
+Content-Type: text/plain
+Date: Wed, 15 Sep 2004 00:34:40 +0100
+Message-Id: <1095204880.8493.153.camel@sherbert>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41477661.9030204@kolivas.org>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 1.5.9.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 08:53:21AM +1000, Con Kolivas wrote:
-> Marcelo Tosatti wrote:
-> >On Tue, Sep 14, 2004 at 11:31:53AM -0700, Florin Andrei wrote:
-> >
-> >>On Mon, 2004-09-06 at 16:27, Andrew Morton wrote:
-> >>
-> >>>Con Kolivas <kernel@kolivas.org> wrote:
-> >>
-> >>>>The change was not deliberate but there have been some other people 
-> >>>>report significant changes in the swappiness behaviour as well (see 
-> >>>>archives). It has usually been of the increased swapping variety 
-> >>>>lately. It has been annoying enough to the bleeding edge desktop users 
-> >>>>for a swag of out-of-tree hacks to start appearing (like mine).
-> >>>
-> >>>All of which is largely wasted effort.
-> >>
-> >>>From a highly-theoretical, ivory-tower perspective, maybe; i am not the
-> >>one to pass judgement.
-> >>>From a realistic, "fix it 'cause it's performing worse than MSDOS
-> >>without a disk cache" perspective, definitely not true.
-> >>
-> >>I've found a situation where the vanilla kernel has a behaviour that
-> >>makes no sense:
-> >>
-> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=109237941331221&w=2
-> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=109237959719868&w=2
-> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=109238126314192&w=2
-> >>
-> >>A patch by Con Kolivas fixed it:
-> >>
-> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=109410526607990&w=2
-> >>
-> >>I cannot offer more details, i have no time for experiments, i just need
-> >>a system that works. The vanilla kernel does not.
-> >
-> >
-> >Have you tried to decrease the value of /proc/sys/vm/swappiness 
-> >to say 30 and see what you get?
-> >
-> >Andrew's point is that we should identify the problem - Con's patch
-> >rewrites swapping policy.  
+On Wed, 2004-09-15 at 01:20 +0200, Andrea Arcangeli wrote:
+> On Tue, Sep 14, 2004 at 04:04:09PM -0700, Greg KH wrote:
+> > On Wed, Sep 15, 2004 at 12:47:31AM +0200, Andrea Arcangeli wrote:
+> > > On Tue, Sep 14, 2004 at 02:51:22PM -0700, Greg KH wrote:
+> > > > True, so sit and spin and sleep until you see the device node.  That's
+> > > > how a number of distros have fixed the fsck startup issue.
+> > > 
+> > > that's more a band-aid than a fix (I can imagine a userspace hang if the
+> > > device isn't created for whatever reason), if there's no way to do
+> > > better than this if you've to run fsck (or if it's not the best to run
+> > > the fsck inside the dev.d scripts), then probably this needs better
+> > > fixing. is such a big problem to execute a sys_wait4 to wait the udev
+> > > userspace to return before returning from the insmod syscall?
+> > 
+> > But how do you know what to wait for?
 > 
-> I already answered this. That hard swappiness patch does not really 
-> rewrite swapping policy. It identifies exactly what has changed because 
-> it does not count "distress in the swap tendency". Therefore if the 
-> swappiness value is the same, the mapped ratio is the same (in the 
-> workload) yet the vm is swappinig more, it is getting into more 
-> "distress". The mapped ratio is the same but the "distress" is for some 
-> reason much higher in later kernels, meaning the priority of our 
-> scanning is getting more and more intense. This should help direct your 
-> searches.
-
-> These are the relevant lines of code _from mainline_:
+> the kernel sure can know about it, by passing a waitqueue into the
+> registration routine and calling wake_up once the discovery is over.
 > 
-> distress = 100 >> zone->prev_priority
-> mapped_ratio = (sc->nr_mapped * 100) / total_memory;
-> swap_tendency = mapped_ratio / 2 + distress + vm_swappiness
-> if (swap_tendency >= 100)
-> -		reclaim_mapped = 1;
+> > Sitting and waiting is a band-aid, I agree.  That's why we created the
+> > /etc/dev.d/ notifier system to fix this issue (that is there for systems
+> > that don't even use udev.)
 > 
+> if the fsck can run from there ok, if for some reason it's not feasible
+> to run it from there (like if it would create a bus congestion by
+> running all the fsck in parallel if you attach multiple devices at the
+> same time), and/or you need some other seriaization, then probably
+> having a way to run things serially without a
+> spin-and-sleep-and-risk-to-hang could be needed. I guess in the worst
+> case one could serialize things by using file locking in /var/run
+> and by creating an API between the dev.d and the init.d scripts, is that
+> how the long term is supposed to work?
 > 
-> That hard swappiness patch effectively made "distress == 0" always.
+> So it's more a question if the current interface is complete for all
+> usages, and if the fsck spin-and-sleep is just a temporary band-aid, or
+> if the spin-and-sleep is supposed to last longer than a few month
+> release cycle.
 
-OK. 
+Surely fsck can be done on top of /etc/dev.d/ by just writing to a FIFO?
+That'll serialize up the fsck caller...
 
-So isnt it true that decreasing vm_swappiness should compensate 
-distress and have the same effect of your patch? 
-
-To be fair I'm just arguing, haven't really looked at the code.
-
-
+-- 
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
 

@@ -1,218 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130277AbRANIDw>; Sun, 14 Jan 2001 03:03:52 -0500
+	id <S129867AbRANIcP>; Sun, 14 Jan 2001 03:32:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130219AbRANIDl>; Sun, 14 Jan 2001 03:03:41 -0500
-Received: from smtp-rt-10.wanadoo.fr ([193.252.19.59]:23019 "EHLO
-	camelia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S130070AbRANIDa>; Sun, 14 Jan 2001 03:03:30 -0500
-Message-ID: <3A615D6D.AF2E8982@wanadoo.fr>
-Date: Sun, 14 Jan 2001 09:03:57 +0100
-From: LAMBERT Bernard <bga.lambert@wanadoo.fr>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: fr, en
+	id <S130378AbRANIcF>; Sun, 14 Jan 2001 03:32:05 -0500
+Received: from [64.160.188.242] ([64.160.188.242]:25099 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S129867AbRANIb4>; Sun, 14 Jan 2001 03:31:56 -0500
+Date: Sun, 14 Jan 2001 00:31:54 -0800 (PST)
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: Tony Parsons <mpsons@cix.compulink.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <memo.318705@cix.compulink.co.uk>
+Message-ID: <Pine.LNX.4.21.0101140010470.17798-100000@ns-01.hislinuxbox.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: lp with kernel 2.2.18
-Content-Type: multipart/mixed;
- boundary="------------1703EB9E6B043B583627FE56"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------1703EB9E6B043B583627FE56
-Content-Type: multipart/alternative;
- boundary="------------508301085F7843201D5D1A00"
+> >   /dev/ide/host0/bus0/target0/lun0:hda: dma_intr: status=0x51 { 
+> > DriveReady SeekComplete Error }   hda: dma_intr: error=0x84 { 
+> > DriveStatusError BadCRC }   hda: dma_intr: status=0x51 { DriveReady 
+> > SeekComplete Error }   hda: dma_intr: error=0x84 { DriveStatusError 
+> > BadCRC }   hda: dma_intr: status=0x51 { DriveReady SeekComplete Error } 
+> ...
+> >   00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 
+> > 02)
+> >   00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305
+> >   00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] 
+> > (rev 22)
+> >   00:04.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] 
+> > (rev 10)
+> >   00:04.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
+> >   00:04.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
+> >   00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super 
+> > ACPI] (rev 30)
 
+Good! I'm not the only ome getting this error! Mine is also a VT82C686
+though mine is a VT82C686A (352 BGA). This is on an MSI Model 694D Pro
+motherboard running dual PIII-733 FC-PGA 133MHz Coppermines. RAM is 4
+256MB PC133 unbuffered 7ns non mixed-cell DIMMs. I bring up the RAM and
+CPU info because this board is also giving me random SIG11 errors even
+though all equipment passes lab testing.
 
---------------508301085F7843201D5D1A00
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+I was beginning to think the board was flaky until i saw this
+posting.  Almost exactly matche smy errors. Also, since I'm using the
+Promise PDC20265 (rev 2) ATA33/66 + 100 controller on the mobo, I wasn't sure
+if my errors were stemming from that. The 2.4.0 kernel driver picks up
+the controller fine and it's only under heavy I/O (aka dd if=/dev/hdc
+of=/root/testdd.img bs=1024M count=2k ) that it REALLY goes nuts and
+drops loses it's lunch all over the floor. Accessing a standard 48X CDROM 
+in the same manner doesn't kill the kernel but I get quite a few
+DriveReady errors like you got. I'm wondering if this is just a flaky
+chipset or if this is a Promise controller issue. This is one reason i'm
+extremely interested in what controller you have on your board, and if you
+are using it. 
 
-Hi,
+I also had to remove the USB support totally since it would stream errors
+at me about usb devices not accepting new addresses. 
+Funny thing is, I don't have any USB devices attached to the machine!
+Thought address assignments were only when you attached devices.
 
-i don't know if it is a bug but I report it
+Anyone else out there with troubles with either of these 3 items?
 
-Mother board gigabytes GA 7ZX (via chipset)
-Duron 700 Mhz
-
-I have attached file which give information to kernel, modules and so on
-
-The initial version of kernel whas built with Suse 6.4 distrib and it is
-a 2.2.14 kernel patched for Dvd
-
-Kde is 1.1
-XFree is 4.01
-
-description of bug :
-
-If i use kernel 2.2.14 at boot i can use lpd without problems, all
-queues are working
-
-if i use my new kernel 2.2.18 , i can print and /dev/lp0, lp1 are
-présent
-
-It looks like kernel  dont communicate with the socket printer ?
-the error message at boot time is in the attached file boot.txt
-
-regards
-
-
---------------508301085F7843201D5D1A00
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-
-<pre>Hi,
-
-i don't know if it is a bug but I report it</pre>
-Mother board gigabytes GA 7ZX (via chipset)
-<br>Duron 700 Mhz
-<p>I have attached file which give information to kernel, modules and so
-on
-<p>The initial version of kernel whas built with Suse 6.4 distrib and it
-is a 2.2.14 kernel patched for Dvd
-<p>Kde is 1.1
-<br>XFree is 4.01
-<p>description of bug :
-<p>If i use kernel 2.2.14 at boot i can use lpd without problems, all queues
-are working
-<p>if i use my new kernel 2.2.18 , i can print and /dev/lp0, lp1 are pr&eacute;sent
-<p>It looks like kernel&nbsp; dont communicate with the socket printer
-?
-<br>the error message at boot time is in the attached file boot.txt
-<p>regards
-<br>&nbsp;</html>
-
---------------508301085F7843201D5D1A00--
-
---------------1703EB9E6B043B583627FE56
-Content-Type: text/plain; charset=us-ascii;
- name="boot.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="boot.txt"
-
-Jan 14 07:53:47 bl modprobe: modprobe: Can't locate module char-major-5
-Jan 14 08:00:51 bl modprobe: modprobe: Can't locate module char-major-6 
-
---------------1703EB9E6B043B583627FE56
-Content-Type: text/plain; charset=us-ascii;
- name="cpu.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cpu.txt"
-
-processor	: 0
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 3
-model name	: AMD Athlon(tm) Processor
-stepping	: 0
-cpu MHz		: 701.614
-cache size	: 64 KB
-fdiv_bug	: no
-hlt_bug		: no
-sep_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 psn mmxext mmx fxsr 3dnowext 3dnow
-bogomips	: 1399.19
-
-
---------------1703EB9E6B043B583627FE56
-Content-Type: text/plain; charset=us-ascii;
- name="linux.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux.txt"
-
--- Versions installed: (if some fields are empty or looks
--- unusual then possibly you have very old versions)
-Linux bl 2.2.18 #13 sam jan 13 21:46:04 CET 2001 i686 unknown
-Kernel modules         2.3.9
-Gnu C                  2.95.2
-Binutils               2.9.5.0.24
-Linux C Library        x   1 root     root      4060896 Sep  5 13:57 /lib/libc.so.6
-Dynamic linker         ldd (GNU libc) 2.1.3
-Procps                 2.0.6
-Mount                  2.10f
-Net-tools              1.54
-Kbd                    0.99
-Sh-utils               2.0
-Modules Loaded         usb-uhci usbcore ne2k-pci 8390 hisax isdn slhc apci97 audiobuf pnp midi ac97 soundbase sndshield
-
---------------1703EB9E6B043B583627FE56
-Content-Type: text/plain; charset=us-ascii;
- name="modules.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="modules.txt"
-
-usb-uhci               19044   0 (unused)
-usbcore                26436   0 [usb-uhci]
-ne2k-pci                4232   1 (autoclean)
-8390                    6228   0 (autoclean) [ne2k-pci]
-hisax                 135488   3
-isdn                  113716   4 [hisax]
-slhc                    4500   1 [isdn]
-apci97                 13784   0
-audiobuf               10792   0 [apci97]
-pnp                    49552   0 [apci97]
-midi                   28228   0 [apci97 pnp]
-ac97                    5256   0 [apci97]
-soundbase             313956   0 [apci97 audiobuf pnp midi ac97]
-sndshield               5684   0 [apci97 audiobuf pnp midi ac97 soundbase]
-
---------------1703EB9E6B043B583627FE56
-Content-Type: text/plain; charset=us-ascii;
- name="scsi.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="scsi.txt"
-
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-  Vendor: Seagate  Model: STT8000N         Rev: 3.22
-  Type:   Sequential-Access                ANSI SCSI revision: 02
-
---------------1703EB9E6B043B583627FE56
-Content-Type: text/plain; charset=us-ascii;
- name="version.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="version.txt"
-
-Linux version 2.2.18 (root@bl) (gcc version 2.95.2 19991024 (release)) #13 sam jan 13 21:46:04 CET 2001
-
---------------1703EB9E6B043B583627FE56
-Content-Type: text/x-vcard; charset=us-ascii;
- name="bga.lambert.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for LAMBERT Bernard
-Content-Disposition: attachment;
- filename="bga.lambert.vcf"
-
-begin:vcard 
-n:LAMBERT;Bernard
-tel;cell:0680177210
-tel;home:0169833795
-x-mozilla-html:FALSE
-adr:;;4 rue des primeveres;YERERS;;91330;FRANCE
-version:2.1
-email;internet:bga.lambert@wanadoo.fr
-note;quoted-printable:Close the windows and the gate,=0D=0AOpen you mind ,=0D=0Athink innovation=0D=0Athink linux or Unix
-x-mozilla-cpt:;-16160
-fn:LAMBERT bernard
-end:vcard
-
---------------1703EB9E6B043B583627FE56--
+David D.W. Downey
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

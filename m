@@ -1,96 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281488AbRLMI6U>; Thu, 13 Dec 2001 03:58:20 -0500
+	id <S282861AbRLMJA3>; Thu, 13 Dec 2001 04:00:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280771AbRLMI6K>; Thu, 13 Dec 2001 03:58:10 -0500
-Received: from imag.imag.fr ([129.88.30.1]:44486 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id <S281488AbRLMI5w>;
-	Thu, 13 Dec 2001 03:57:52 -0500
-Date: Thu, 13 Dec 2001 09:57:49 +0100
-From: Pierre Lombard <pierre.lombard@imag.fr>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] small doc update for /proc/sys/net/ipv4/icmp_rate{mask,limit}
-Message-ID: <20011213085749.GA8332@sci41.imag.fr>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011212122722.GA21997@sci41.imag.fr> <20011212.163726.38712274.davem@redhat.com>
+	id <S282848AbRLMJAT>; Thu, 13 Dec 2001 04:00:19 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:19396
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S282805AbRLMJAF>; Thu, 13 Dec 2001 04:00:05 -0500
+Date: Thu, 13 Dec 2001 03:49:30 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] CML2 1.9.7 is available
+Message-ID: <20011213034930.A8337@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011212023556.A8819@thyrsus.com> <16992.1008153373@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011212.163726.38712274.davem@redhat.com>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <16992.1008153373@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Wed, Dec 12, 2001 at 09:36:13PM +1100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens <kaos@ocs.com.au>:
+> OUCH!  The output from make menuconfig has significantly more options
+> than make oldconfig when given exactly the same input.  I thought one
+> of the selling points for CML2 was different front ends but with
+> identical back end processing.  I don't like the way that the resulting
+> config varies when fed to different front ends.
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Not a big deal -- all the produced config.outs are logically equivalent.
+Your differences all consist of symbols saved out as n in one version and not
+saved at all in the other.  It *would* be serious cause for alarm if that
+were not the case.
 
-On Wed, Dec 12, 2001 at 04:37:26PM -0800, David S. Miller wrote:
-
-> Your patch does not apply, did you edit this patch by hand
-> before submitting it?  The "#lines" in the patch chunks are
-> inaccurate.
-
-Yes.  I didn't thought it would break since it applied cleanly
-here but it did :)
-
-A fresh & unedited version against a vanilla 2.4.17-pre8 is
-text-attached.
-
+The simplification in the saveability-predicate logic I just did for
+1.9.8 made may help solve this problem.
 -- 
-Best regards,
-  Pierre Lombard
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="20011213-icmpmask.diff"
-
-diff -urN linux-2.4.17-pre8/Documentation/networking/ip-sysctl.txt linux/Documentation/networking/ip-sysctl.txt
---- linux-2.4.17-pre8/Documentation/networking/ip-sysctl.txt	Wed May 16 19:21:45 2001
-+++ linux/Documentation/networking/ip-sysctl.txt	Thu Dec 13 09:40:03 2001
-@@ -309,13 +309,20 @@
- 	ICMP ECHO requests sent to it or just those to broadcast/multicast
- 	addresses, respectively.
- 
--icmp_destunreach_rate - INTEGER
--icmp_paramprob_rate - INTEGER
--icmp_timeexceed_rate - INTEGER
--icmp_echoreply_rate - INTEGER (not enabled per default)
--	Limit the maximal rates for sending ICMP packets to specific targets.
-+icmp_ratelimit - INTEGER
-+	Limit the maximal rates for sending ICMP packets whose type matches
-+	icmp_ratemask (see below) to specific targets.
- 	0 to disable any limiting, otherwise the maximal rate in jiffies(1)
--	See the source for more information.
-+	Default: 1
-+
-+icmp_ratemask - INTEGER
-+	Mask made of ICMP types for which rates are being limited.
-+	Default: 6168
-+	Note: 6168 = 0x1818 = 1<<ICMP_DEST_UNREACH + 1<<ICMP_SOURCE_QUENCH +
-+	      1<<ICMP_TIME_EXCEEDED + 1<<ICMP_PARAMETERPROB, which means
-+	      dest unreachable (3), source quench (4), time exceeded (11)
-+	      and parameter problem (12) ICMP packets are rate limited
-+	      (check values in icmp.h)
- 
- icmp_ignore_bogus_error_responses - BOOLEAN
- 	Some routers violate RFC 1122 by sending bogus responses to broadcast
-diff -urN linux-2.4.17-pre8/net/ipv4/icmp.c linux/net/ipv4/icmp.c
---- linux-2.4.17-pre8/net/ipv4/icmp.c	Wed Nov  7 23:39:36 2001
-+++ linux/net/ipv4/icmp.c	Thu Dec 13 09:40:03 2001
-@@ -154,8 +154,8 @@
-  * 	it's bit position.
-  *
-  *	default: 
-- *	dest unreachable (0x03), source quench (0x04),
-- *	time exceeded (0x11), parameter problem (0x12)
-+ *	dest unreachable (3), source quench (4),
-+ *	time exceeded (11), parameter problem (12)
-  */
- 
- int sysctl_icmp_ratelimit = 1*HZ;
-
---UugvWAfsgieZRqgk--
+.. a government and its agents are under no general duty to 
+provide public services, such as police protection, to any 
+particular individual citizen...
+        -- Warren v. District of Columbia, 444 A.2d 1 (D.C. App.181)

@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269143AbUIXUrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269140AbUIXUys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269143AbUIXUrL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 16:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269142AbUIXUrG
+	id S269140AbUIXUys (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 16:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269144AbUIXUys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 16:47:06 -0400
-Received: from smtp.knology.net ([24.214.63.101]:45756 "HELO smtp.knology.net")
-	by vger.kernel.org with SMTP id S269121AbUIXUoJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 16:44:09 -0400
-Message-ID: <4154871D.2090209@coyotegulch.com>
-Date: Fri, 24 Sep 2004 16:44:13 -0400
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
+	Fri, 24 Sep 2004 16:54:48 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:59612 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S269140AbUIXUyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 16:54:46 -0400
+Message-ID: <41548989.8040107@nortelnetworks.com>
+Date: Fri, 24 Sep 2004 14:54:33 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-CC: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-References: <20040923234340.GF28317@certainkey.com> <20040924043851.GA3611@thunk.org> <20040924125457.GO28317@certainkey.com> <20040924174301.GB20320@thunk.org> <20040924175929.GU28317@certainkey.com>
-In-Reply-To: <20040924175929.GU28317@certainkey.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Chris Wright <chrisw@osdl.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: mlock(1)
+References: <41547C16.4070301@pobox.com> <20040924132247.W1973@build.pdx.osdl.net> <4154867F.7030108@nortelnetworks.com> <20040924134602.U1924@build.pdx.osdl.net>
+In-Reply-To: <20040924134602.U1924@build.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean-Luc Cooke wrote:
-> If I submitted a patch that gave users the choice of swapping my Fortuna for
-> the current /dev/random, would you be cool with that then?
+Chris Wright wrote:
 
-I would certainly appreciate this option, given that my customers often 
-have very different ideas of what they need. I don't see how it hurts 
-the kernel to have a choice for /dev/random.
+> The info is stored in the memory mapping info that's necessarily blown
+> away at execve(2) because that's where you are overlaying a new image.
 
--- 
-Scott Robert Ladd
-site: http://www.coyotegulch.com
-blog: http://chaoticcoyote.blogspot.com
+Yeah, I just saw that on the man page for mlockall.
+
+I though maybe it was stored on the task struct or something.
+
+Chris

@@ -1,56 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284335AbRL1XS6>; Fri, 28 Dec 2001 18:18:58 -0500
+	id <S284289AbRL1XPI>; Fri, 28 Dec 2001 18:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284285AbRL1XSv>; Fri, 28 Dec 2001 18:18:51 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:58331
+	id <S284285AbRL1XPA>; Fri, 28 Dec 2001 18:15:00 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:55003
 	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284301AbRL1XS2>; Fri, 28 Dec 2001 18:18:28 -0500
-Date: Fri, 28 Dec 2001 18:02:12 -0500
+	id <S284335AbRL1XOn>; Fri, 28 Dec 2001 18:14:43 -0500
+Date: Fri, 28 Dec 2001 17:58:32 -0500
 From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Larry McVoy <lm@bitmover.com>, Keith Owens <kaos@ocs.com.au>,
-        Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>,
         Marcelo Tosatti <marcelo@conectiva.com.br>,
         linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system
-Message-ID: <20011228180212.E20254@thyrsus.com>
+Subject: Re: [kbuild-devel] Re: State of the new config & build system
+Message-ID: <20011228175832.C20254@thyrsus.com>
 Reply-To: esr@thyrsus.com
 Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Martin Dalecki <dalecki@evision-ventures.com>,
-	Larry McVoy <lm@bitmover.com>, Keith Owens <kaos@ocs.com.au>,
-	Dave Jones <davej@suse.de>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>,
 	Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
 	Marcelo Tosatti <marcelo@conectiva.com.br>,
 	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011227173739.U25698@work.bitmover.com> <18754.1009503708@ocs3.intra.ocs.com.au> <20011227174723.V25698@work.bitmover.com> <3C2CF2A8.9010406@evision-ventures.com>
+In-Reply-To: <20011228170840.A20254@thyrsus.com> <Pine.LNX.4.33.0112281429010.23445-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C2CF2A8.9010406@evision-ventures.com>; from dalecki@evision-ventures.com on Fri, Dec 28, 2001 at 11:31:04PM +0100
+In-Reply-To: <Pine.LNX.4.33.0112281429010.23445-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 28, 2001 at 02:29:44PM -0800
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki <dalecki@evision-ventures.com>:
-> >>At the moment kbuild 2.5 ranges from 10% faster on small builds to 100%
-> >>slower on a full kernel build.  
-> >
-> >I don't understand why it would be slower. 
-> >
-> Thank's go to basically to python and other excessfull overengineering 
-> there.
+Linus Torvalds <torvalds@transmeta.com>:
+> Eric, this is the _wrong_approach_. I want /local/ files, not global ones.
 
-Bzzzt!  Thank you for playing.
+I hear you.  There are some problems with that, however.
 
-kbuild-2.5 doesn't use Python.
+First: where should the prompt-string definitions for capability
+symbols that occur in multiple port trees live?
+
+(This is an important question. Right now, most options are low-level
+and platform-specific, which makes it easy to decide what directory
+their symbol declaration(s) should live in.  But that's not good;
+there are lots of excellent reasons we want there to be *more*
+cross-platform capability symbols rather than fewer.  So the
+percentage of "roving" symbols without an obvious home is likely
+to go up over time.)
+
+Second: Forward references, and references across the tree, mean that
+there is a class of symbols that have theoretically natural home directories
+but which would have to be declared elsewhere in order to be defined at
+the point of first reference.
+
+(A potential solution to this would be to improve the CML2 compiler's
+handling of forward references.)
+
+Third: I could hack my installer to break Configure.help up into
+a bunch of little component CML files distributed through the tree...
+but Configure.help doesn't currently contain any markup that says
+where to direct each entry to.
+
+(The logical time to split up symbols.cml would be immediately after
+CML2 goes into the tree, because at that point Configure.help won't
+be an issue any more.)
+
+Fourth: There's still the localization issue.  If it's your ukase 
+that this is not an important problem, then I'll accept that -- but
+I haven't heard you say that yet, so I'm not sure you've considered 
+it enough.
+
+So, I can and will put this in the transition plan if that's what you 
+direct.  But you need to be aware that it's not a snap-of-the-fingers
+change, and not something best done before CML1 goes away.
 -- 
 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-The possession of arms by the people is the ultimate warrant
-that government governs only with the consent of the governed.
-        -- Jeff Snyder
+"As to the species of exercise, I advise the gun. While this gives [only]
+moderate exercise to the body, it gives boldness, enterprise, and independence
+to the mind.  Games played with the ball and others of that nature, are too
+violent for the body and stamp no character on the mind. Let your gun,
+therefore, be the constant companion to your walks."
+        -- Thomas Jefferson, writing to his teenaged nephew.

@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVBZNdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVBZNgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVBZNdm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 08:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVBZNdm
+	id S261195AbVBZNgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 08:36:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVBZNgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 08:33:42 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:40970 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261191AbVBZNdk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 08:33:40 -0500
-Date: Sat, 26 Feb 2005 14:33:37 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] deprecate EXPORT_SYMBOL(do_settimeofday)
-Message-ID: <20050226133337.GK3311@stusta.de>
-References: <20050224233742.GR8651@stusta.de> <20050224212448.367af4be.akpm@osdl.org>
+	Sat, 26 Feb 2005 08:36:24 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:41996 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261195AbVBZNgV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 08:36:21 -0500
+Date: Sat, 26 Feb 2005 22:37:42 +0900 (JST)
+Message-Id: <20050226.223742.103439510.yoshfuji@linux-ipv6.org>
+To: bunk@stusta.de
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [2.6 patch] deprecate EXPORT_SYMBOL(do_settimeofday)
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20050226133337.GK3311@stusta.de>
+References: <20050224233742.GR8651@stusta.de>
+	<20050224212448.367af4be.akpm@osdl.org>
+	<20050226133337.GK3311@stusta.de>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050224212448.367af4be.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+In article <20050226133337.GK3311@stusta.de> (at Sat, 26 Feb 2005 14:33:37 +0100), Adrian Bunk <bunk@stusta.de> says:
 
---- linux-2.6.11-rc4-mm1-full/Documentation/feature-removal-schedule.txt.old	2005-02-26 12:24:43.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/Documentation/feature-removal-schedule.txt	2005-02-26 12:27:18.000000000 +0100
-@@ -32,3 +32,10 @@
- 	/sys/devices/system/cpu/cpu%n/cpufreq/.
- Who:	Dominik Brodowski <linux@brodo.de>
- 
-+---------------------------
-+
-+What:	EXPORT_SYMBOL(do_settimeofday)
-+When:	26 Aug 2005
-+Files:	arch/*/kernel/time.c
-+Why:	not used in the kernel
-+Who:	Adrian Bunk <bunk@stusta.de>
---- linux-2.6.11-rc4-mm1-full/include/linux/time.h.old	2005-02-26 12:24:03.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/include/linux/time.h	2005-02-26 12:24:31.000000000 +0100
-@@ -93,7 +93,7 @@
- #define CURRENT_TIME_SEC ((struct timespec) { xtime.tv_sec, 0 })
- 
- extern void do_gettimeofday(struct timeval *tv);
--extern int do_settimeofday(struct timespec *tv);
-+extern int __deprecated_in_modules do_settimeofday(struct timespec *tv);
- extern int do_sys_settimeofday(struct timespec *tv, struct timezone *tz);
- extern void clock_was_set(void); // call when ever the clock is set
- extern int do_posix_clock_monotonic_gettime(struct timespec *tp);
+
+> +
+> +What:	EXPORT_SYMBOL(do_settimeofday)
+> +When:	26 Aug 2005
+                   ~~~ Feb?
+> +Files:	arch/*/kernel/time.c
+> +Why:	not used in the kernel
+> +Who:	Adrian Bunk <bunk@stusta.de>
+
+--yoshfuji

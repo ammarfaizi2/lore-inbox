@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317331AbSFLDaM>; Tue, 11 Jun 2002 23:30:12 -0400
+	id <S317341AbSFLDcC>; Tue, 11 Jun 2002 23:32:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317341AbSFLDaL>; Tue, 11 Jun 2002 23:30:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:44492 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317331AbSFLDaH>;
-	Tue, 11 Jun 2002 23:30:07 -0400
-Date: Tue, 11 Jun 2002 20:25:53 -0700 (PDT)
-Message-Id: <20020611.202553.28822742.davem@redhat.com>
-To: david-b@pacbell.net
+	id <S317344AbSFLDcB>; Tue, 11 Jun 2002 23:32:01 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:42372 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S317341AbSFLDbX>;
+	Tue, 11 Jun 2002 23:31:23 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH] tmpfs 2/4 mknod times
+Date: Tue, 11 Jun 2002 20:31:20 -0700
+User-Agent: KMail/1.4.5
+In-Reply-To: <Pine.LNX.4.21.0206120423200.1290-100000@localhost.localdomain>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D061363.70500@pacbell.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200206112031.23257.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Brownell <david-b@pacbell.net>
-   Date: Tue, 11 Jun 2002 08:12:35 -0700
-   
-   Should the dma mapping APIs try to detect the "DMA buffer starts in
-   middle of non-coherent cacheline" case, and fail?  That might be
-   worth checking, catching some of these errors, even if it ignores
-   the corresponding "ends in middle of non-coherent cacheline" case.
-   And it'd handle that "it's a runtime issue on some HW" concern.
-   
-This brings back another issue, returning failure from pci_map_*()
-and friends which currently cannot happen.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-   Or then there's David Woodhouse's option (disable caching on those
-   pages while the DMA mapping is active) which seems good, except for
-   the fact that this issue is most common for buffers that are a lot
-   smaller than one page ... so lots of otherwise cacheable data would
-   suddenly get very slow. :)
-   
-Remember please that specifically the DMA mapping APIs encourage use
-of consistent memory for small data objects.  It is specifically
-because non-consistent DMA accesses to small bits are going to be very
-slow (ie. the PCI controller is going to prefetch further cache lines
-for no reason, for example).  The non-consistent end of the APIs is
-meant for long contiguous buffers, not small chunks.
+On June 11, 2002 20:25, Hugh Dickins wrote:
+> On Tue, 11 Jun 2002, Ryan Cumming wrote:
+> > On June 11, 2002 19:54, Hugh Dickins wrote:
+> > > +               dir->i_ctime = dir->i_mtime = CURRENT_TIME;
+> >
+> > I'm probably misreading this, but why does shmem_mknod modify the
+> > directory's ctime?
+>
+> Hmmm, good question.  Perhaps I'll have dreamt up an answer by morning.
+Well, lets see if the list has any ideas while you're sleeping.
 
-This is one of the reasons I want to fix this by making people use
-either consistent memory or PCI pools (which is consistent memory
-too).
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9BsCLLGMzRzbJfbQRAic3AJ9hh76od28Ic5OzB2PU8hLsV5vogACfbITB
+8FyDd6i5BeMtk3xLzt1Y5ns=
+=7+h9
+-----END PGP SIGNATURE-----

@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316585AbSGVI0h>; Mon, 22 Jul 2002 04:26:37 -0400
+	id <S316832AbSGVLjP>; Mon, 22 Jul 2002 07:39:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316586AbSGVI0h>; Mon, 22 Jul 2002 04:26:37 -0400
-Received: from verein.lst.de ([212.34.181.86]:44040 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S316585AbSGVI0h>;
-	Mon, 22 Jul 2002 04:26:37 -0400
-Date: Mon, 22 Jul 2002 10:29:30 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Val Henson <val@nmt.edu>
-Cc: Andreas Schuldei <andreas@schuldei.org>, linux-kernel@vger.kernel.org
-Subject: Re: using bitkeeper to backport subsystems?
-Message-ID: <20020722102930.A14802@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, Val Henson <val@nmt.edu>,
-	Andreas Schuldei <andreas@schuldei.org>,
-	linux-kernel@vger.kernel.org
-References: <20020721233410.GA21907@lukas> <20020722071510.GG16559@boardwalk>
+	id <S316833AbSGVLjP>; Mon, 22 Jul 2002 07:39:15 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:52221 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316832AbSGVLjO>; Mon, 22 Jul 2002 07:39:14 -0400
+Subject: Re: SMP Problem with 2.4.19-rc2 on Asus A7M266-D
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Shirley <dave@cs.curtin.edu.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.1.6.0.20020722111310.0356ed70@pop.cs.curtin.edu.au>
+References: <5.1.1.6.0.20020722111310.0356ed70@pop.cs.curtin.edu.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 22 Jul 2002 13:53:32 +0100
+Message-Id: <1027342412.31787.23.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020722071510.GG16559@boardwalk>; from val@nmt.edu on Mon, Jul 22, 2002 at 01:15:10AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 01:15:10AM -0600, Val Henson wrote:
-> Sigh.  I hate this question: "How will BitKeeper make it easier to
-> port something between 2.4 and 2.5?"  Answer: "Bk won't help - at
-> least not as much as it would help if 2.5 had been cloned from 2.4."
+On Mon, 2002-07-22 at 04:13, David Shirley wrote:
+> OK I just put on 2.4.19-rc3 and it works fine, so maybe its something in
+> the ac patch?
 
-2.5 _is_ cloned from 2.4..
+The -ac patch has the summit SMP work in it. This means it can boot on
+the ultra high end cool IBM stuff. It should also boot on the normal SMP
+stuff too but in a few cases right now does not.
+
+There are IBM folks looking into this so I've left the problem in my
+tree while it gets sorted. Ultimately it does need to be solved for real
 

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262485AbSJDQzP>; Fri, 4 Oct 2002 12:55:15 -0400
+	id <S261781AbSJDTKM>; Fri, 4 Oct 2002 15:10:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262486AbSJDQzP>; Fri, 4 Oct 2002 12:55:15 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:61095 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262485AbSJDQzO>;
-	Fri, 4 Oct 2002 12:55:14 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 1/4: evms.c
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF9683DE97.19D23CC6-ON85256C48.005CD740@pok.ibm.com>
-From: "Mark Peloquin" <peloquin@us.ibm.com>
-Date: Fri, 4 Oct 2002 12:07:05 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 10/04/2002 01:00:41 PM
+	id <S261848AbSJDTKM>; Fri, 4 Oct 2002 15:10:12 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:16513 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261781AbSJDTKK>;
+	Fri, 4 Oct 2002 15:10:10 -0400
+Message-ID: <3D9DE8E1.6030105@colorfullife.com>
+Date: Fri, 04 Oct 2002 21:15:45 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: [PATCH] patch-slab-split-03-tail
+References: <3D9DCA1D.7070400@colorfullife.com> <3D9DE69C.C6E88C9F@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> 
+> Makes sense.  It would be nice to get this confirmed in 
+> targetted testing ;)
+ >
+Not yet done.
 
-On Friday 04 October 2002 09:56, Christoph Hellwig wrote:
+The right way to test it would be to collect data in kernel about 
+alloc/free, and then run that data against both versions, and check 
+which version gives less internal fragmentation.
 
-> > +/**
-> > + * find_next_volume - locates first or next logical volume
-> > + * @lv:            current logical volume
-> > + *
-> > + * returns the next logical volume or NULL
-> > + **/
->
-> All user of this look like they better used list_for_each?
->
-> > +
-> > +/**
-> > + * find_next_volume_safe - locates first or next logical volume (safe
-> > for removes) + * @next_lv:      ptr to next logical volume
-> > + *
-> > + * returns the next logical volume or NULL
-> > + **/
->
-> Dito with list_for_each_safe
+Or perhaps Bonwick has done that for his slab paper, but I don't have it :-(
 
-This was done to abstract the storage/lookup
-method. Currently with only 256 minors per major
-a simply kernel list is adequate, however once
-the kernel goes to 20-bit minors a list will not
-be sufficient.
+* An implementation of the Slab Allocator as described in outline in;
+*      UNIX Internals: The New Frontiers by Uresh Vahalia
+*      Pub: Prentice Hall      ISBN 0-13-101908-2
+* or with a little more detail in;
+*      The Slab Allocator: An Object-Caching Kernel Memory Allocator
+*      Jeff Bonwick (Sun Microsystems).
+*      Presented at: USENIX Summer 1994 Technical Conference
+
+
+--
+	Manfred
 
 

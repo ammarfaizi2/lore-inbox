@@ -1,63 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264337AbUEDNOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264365AbUEDNff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264337AbUEDNOM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 09:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbUEDNOM
+	id S264365AbUEDNff (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 09:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbUEDNff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 09:14:12 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:19864 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264337AbUEDNOG
+	Tue, 4 May 2004 09:35:35 -0400
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:24517 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S264365AbUEDNfc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 09:14:06 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [PATCH] remove dead drivers/ide/ppc/swarm.c
-Date: Tue, 4 May 2004 15:10:41 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       macro@ds2.pg.gda.pl
-References: <200405040134.22092.bzolnier@elka.pw.edu.pl> <200405041428.50592.bzolnier@elka.pw.edu.pl> <20040504124349.GA15664@linux-mips.org>
-In-Reply-To: <20040504124349.GA15664@linux-mips.org>
+	Tue, 4 May 2004 09:35:32 -0400
+Message-ID: <40979C71.8060608@cs.auc.dk>
+Date: Tue, 04 May 2004 15:36:49 +0200
+From: Mikkel Christiansen <mixxel@cs.auc.dk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: workqueue and pending
+References: <40962F75.8000200@cs.auc.dk>	<20040503162719.54fb7020.akpm@osdl.org>	<1083639081.20092.294.camel@gaston> <20040503201616.6f3b8700.akpm@osdl.org>
+In-Reply-To: <20040503201616.6f3b8700.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405041510.41731.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 of May 2004 14:43, Ralf Baechle wrote:
-> On Tue, May 04, 2004 at 02:28:50PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > It is not integrated into -mm (2.6.6-rc3-mm1) yet so I couldn't see it.
-> > [ Please cc: me on IDE patches. ]
+I tried the patch and it works fine
+
+-Mikkel
+
+Andrew Morton wrote:
+
+>Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+>  
 >
-> Will do.
-
-Thanks.
-
-> > If it looks the same as in linux-mips CVS it won't work because I've
-> > killed ide_init_default_hwifs() recently (except ARM but patch is
-> > pending).
-> >
-> > Sorry, this is what you get when using hacks. 8)
-> >
-> > While at swarm.c ...
-> >
-> > > * Boards with SiByte processors so far have supported IDE devices via
-> > > * the Generic Bus, PCI bus, and built-in PCMCIA interface.  In all
-> > > * cases, byte-swapping must be avoided for these devices (whereas
-> > > * other PCI devices, for example, will require swapping).
-> >
-> > Why does byte-swapping must be avoided for PCI IDE
-> > but not for other PCI devices?
+>>    
+>>
+>>> 
+>>>@@ -75,8 +76,11 @@ extern void init_workqueues(void);
+>>>  */
+>>> static inline int cancel_delayed_work(struct work_struct *work)
+>>> {
+>>>-	return del_timer_sync(&work->timer);
+>>>+	int ret;
+>>>+
+>>>+	ret = del_timer_sync(&work->timer);
+>>>+	clear_bit(0, &work->pending);
+>>>+	return ret;
+>>> }
+>>> 
+>>>      
+>>>
+>>Looks wrong to me. The time may have fired already and queued the
+>>work. Clearing pending is an error in this case since the work is
+>>indeed pending for execution.... 
+>>    
+>>
 >
-> Simply a result of the way the IDE bus is hooked up to the generic bus of
-> the Sibyte chip.  I'd have to research details if you're interested ...
-
-The basic question is whether disk used on SiByte can be read i.e. on x86.
-If not than we may have serious problems with some special commands with
-current implementation (similar problem as on Atari Q40/Q60).
-
-Bartlomiej
+>OK...
+>
+>--- 25/include/linux/workqueue.h~cancel_delayed_work-fix	2004-05-03 20:14:26.796321416 -0700
+>+++ 25-akpm/include/linux/workqueue.h	2004-05-03 20:15:41.010039216 -0700
+>@@ -7,6 +7,7 @@
+> 
+> #include <linux/timer.h>
+> #include <linux/linkage.h>
+>+#include <linux/bitops.h>
+> 
+> struct workqueue_struct;
+> 
+>@@ -75,8 +76,12 @@ extern void init_workqueues(void);
+>  */
+> static inline int cancel_delayed_work(struct work_struct *work)
+> {
+>-	return del_timer_sync(&work->timer);
+>+	int ret;
+>+
+>+	ret = del_timer_sync(&work->timer);
+>+	if (ret)
+>+		clear_bit(0, &work->pending);
+>+	return ret;
+> }
+> 
+> #endif
+>-
+>
+>_
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 

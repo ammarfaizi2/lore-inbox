@@ -1,89 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263214AbUDPO22 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 10:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbUDPO22
+	id S263205AbUDPOig (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 10:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbUDPOig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 10:28:28 -0400
-Received: from canalmusic.webnext.com ([213.161.194.17]:57361 "HELO
-	www.canalmusic.com") by vger.kernel.org with SMTP id S263214AbUDPO2Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 10:28:25 -0400
-Message-ID: <407FED4A.8040307@canalmusic.com>
-Date: Fri, 16 Apr 2004 16:27:22 +0200
-From: Gilles May <gilles@canalmusic.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+	Fri, 16 Apr 2004 10:38:36 -0400
+Received: from fork4.mail.Virginia.EDU ([128.143.2.194]:17876 "EHLO
+	cms.mail.virginia.edu") by vger.kernel.org with ESMTP
+	id S263205AbUDPOie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 10:38:34 -0400
+Message-ID: <407FEFCA.5070602@virginia.edu>
+Date: Fri, 16 Apr 2004 10:38:02 -0400
+From: Aaron Smith <aws4y@virginia.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: PDC20376 PATA?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: ANNOUNCE: AISF and ASTRIX
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody::
+Hello, 
+    For the past few months the Virginia Astronomical Instrumentation
+Laboratory has been working on a piece of software to control its
+observing systems. These systems are built on the GNU/Linux Operating
+System. The system we have designed is a new form of modular instrument
+control. In the spirit of the GNU/Linux operating system we are making
+this framework open source. 
+    The framework called the Astronomical Instrumentation Software
+Framework, or AISF. The goal of the framework is to provide simple
+functions for observing tasks, such as exposing a CCD frame or writing a
+FITS image to the disk. These tasks are handled with one or two uniform
+function calls for all instruments. This makes it easy for even novice
+programmers to automate data acquisition tasks. 
+    The ASTRIX program is built on top of this framework and is designed
+to take full advantage of this system. With the creation an environment
+that competes with most commercial software packages like MaximDL/CCD or
+CCDsoft, ASTRIX will hopefully give the community the opportunity to
+build a tailored easy to use graphical image acquisition system that
+utilizes all modern commercial CCD cameras. 
+    Though the development of this software is in its early stages we
+believe that the software and the framework it uses could allow the
+observer much more flexibility. We encourage the community to help in
+development by giving us feedback on the functions you would like
+software like this to perform and your feedback on how it looks and or
+functions. For those of you with programming experience we would like
+for you to help by contributing some of your time and energy in
+improving the software, by submitting patches and taking care bug
+reports and documentation issues. 
 
-I have got a problem getting my onboard FastTrak 376 Controller to work. 
-The motherboard is an Asus A7V8X.
+Thank you for reading this email, the project website is: 
+http://aisf.sourceforge.net 
+Please feel free to email me at aws4y@astsun.astro.virginia.edu if you
+have any questions about the project or how you may get involved. 
 
-Kernels 2.6.1 to 2.6.5 do detect the controller, but not the harddisk 
-connected to it.
-During bootup of 2.6.5 stock kernel I get the following:
+-Aaron Smith
 
-
-libata version 1.02 loaded.
-sata_promise version 0.91
-ata1: SATA max UDMA/133 cmd 0xE0A5F200 ctl 0xE0A5F238 bmdma 0x0 irq 10
-ata2: SATA max UDMA/133 cmd 0xE0A5F280 ctl 0xE0A5F2B8 bmdma 0x0 irq 10
-ata1: no device found (phy stat 00000000)
-ata1: thread exiting
-scsi0 : sata_promise
-ata2: no device found (phy stat 00000000)
-ata2: thread exiting
-scsi1 : sata_promise
-
-I assume it is only trying to detect SATA devices while my HDD is 
-connected as PATA.. With Windows it works like a charm.
-
-Do I have to pass some parameters to sata_promise or are there any 
-patches to try for the PATA HDD to work?
-
-
-lspci:
-
-0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400 AGP] Host 
-Bridge
-0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8235 PCI Bridge
-0000:00:07.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host 
-Controller (rev 46)
-0000:00:08.0 RAID bus controller: Promise Technology, Inc. PDC20376 (rev 02)
-0000:00:09.0 Ethernet controller: Broadcom Corporation BCM4401 100Base-T 
-(rev 01)
-0000:00:0f.0 Multimedia video controller: Brooktree Corporation Bt878 
-Video Capture (rev 02)
-0000:00:0f.1 Multimedia controller: Brooktree Corporation Bt878 Audio 
-Capture (rev 02)
-0000:00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
-0000:00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
-0000:00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
-0000:00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-0000:00:11.1 IDE interface: VIA Technologies, Inc. 
-VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. 
-VT8233/A/8235 AC97 Audio Controller (rev 50)
-0000:01:00.0 VGA compatible controller: nVidia Corporation NV25 
-[GeForce4 Ti 4200] (rev a3)
-
-Thanks for your time.
-
-Gilles
-
-
-
--- 
-If you don't live for something you'll die for nothing!
-
-
-
+PS I understand this is slightly OT but this project has a lot to do 
+with interfacing kernel modules with userland applications.

@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263592AbUEWVJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263596AbUEWVPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbUEWVJX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 17:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUEWVJX
+	id S263596AbUEWVPr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 17:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbUEWVPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 17:09:23 -0400
-Received: from [82.228.82.76] ([82.228.82.76]:58095 "EHLO
-	paperstreet.colino.net") by vger.kernel.org with ESMTP
-	id S263592AbUEWVJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 17:09:22 -0400
-Date: Sun, 23 May 2004 23:09:04 +0200
-From: Colin Leroy <colin@colino.net>
-To: linuxppc-dev@lists.linuxppc.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.6-bk9, quick test
-Message-Id: <20040523230904.26e7c77c@jack.colino.net>
-Organization: 
-X-Mailer: Sylpheed version 0.9.10claws67.4 (GTK+ 2.4.0; powerpc-unknown-linux-gnu)
+	Sun, 23 May 2004 17:15:47 -0400
+Received: from holomorphy.com ([207.189.100.168]:8581 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263596AbUEWVPq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 17:15:46 -0400
+Date: Sun, 23 May 2004 14:11:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.7-rc1
+Message-ID: <20040523211154.GC1833@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200405231619.i4NGJBe18903@pincoya.inf.utfsm.cl> <40B0EE6C.70400@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40B0EE6C.70400@pobox.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi people,
+On Sun, May 23, 2004 at 02:33:16PM -0400, Jeff Garzik wrote:
+> Linux has a tradition of completely rewriting the VM in the middle of a 
+> stable series, why not again?  :)
+> /me is joking, but similarly annoyed...
+> The VM, like the rest of the kernel, will _always_ be a work in 
+> progress.  A stable series should freeze us for bug fixing and 
+> stabilization...
 
-I gave a shot at linux 2.6.6-bk9 on PPC32 (ibook G4) today, noticed two
-problems. First, pbbuttonsd complains about /dev/adb missing and indeed,
-it isn't there. Looks like related to Ben's changes to
-drivers/macintosh/adb.c, but maybe due to some devfs (I know, outdated
-;-)) configuration problem?
+I wouldn't qualify either of the major VM patch series merged as
+rewrites. I saw:
+(1) move unmapping function/helpers to different algorithm to save space
+(2) NUMA API and support functions
 
-Second problem, tried to mount an usb key, and it failed: mount hung.
-(ehci driver).
+At the risk of trivializing the large amount of work that went into
+minimizing the risk of merging these things, the VM hasn't been changed
+in any fundamental way by either of them.
 
-I didn't have time to investigate this stuff, but thought it could help
-to mention it ?
 
-Thanks,
--- 
-Colin
+-- wli

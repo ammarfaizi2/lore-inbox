@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVCYOew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVCYOfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbVCYOew (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 09:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVCYOew
+	id S261649AbVCYOfu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 09:35:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVCYOfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 09:34:52 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:42391 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261645AbVCYOet (ORCPT
+	Fri, 25 Mar 2005 09:35:50 -0500
+Received: from mail.dif.dk ([193.138.115.101]:1159 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261649AbVCYOfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 09:34:49 -0500
-Date: Fri, 25 Mar 2005 15:34:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [patch] xfrm_policy destructor fix
-Message-ID: <20050325143440.GA4516@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 25 Mar 2005 09:35:37 -0500
+Date: Fri, 25 Mar 2005 15:37:28 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: ecashin@noserose.net, linux-kernel <linux-kernel@vger.kernel.org>,
+       Greg K-H <greg@kroah.com>, axboe@suse.de
+Subject: Re: [PATCH 2.6.11] aoe [5/12]: don't try to free null bufpool
+In-Reply-To: <1111684626.6290.103.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.62.0503251534540.2498@dragon.hyggekrogen.localhost>
+References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com> 
+ <1111677437.28285@geode.he.net>  <1111679884.6290.93.camel@laptopd505.fenrus.org>
+  <1111683853.31205@geode.he.net> <1111684626.6290.103.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 24 Mar 2005, Arjan van de Ven wrote:
 
-the patch below fixes a bug that i encountered while running a 
-PREEMPT_RT kernel, but i believe it should be fixed in the generic 
-kernel too. xfrm_policy_kill() queues a destroyed policy structure to 
-the GC list, and unlocks the policy->lock spinlock _after_ that point.  
-This created a scenario where GC processing got to the new structure 
-first, and kfree()d it - then the write_unlock_bh() was done on the 
-already kfreed structure. There is no guarantee that GC processing will 
-be done after policy->lock has been dropped and softirq processing has 
-been enabled.
+> On Thu, 2005-03-24 at 09:04 -0800, ecashin@noserose.net wrote:
+> > Arjan van de Ven <arjan@infradead.org> writes:
+> > 
+> > > On Thu, 2005-03-24 at 07:17 -0800, ecashin@noserose.net wrote:
+> > >> don't try to free null bufpool
+> > >
+> > > in linux there is a "rule" that all memory free routines are supposed to
+> > > also accept NULL as argument, so I think this patch is not needed (and
+> > > even wrong)
+> > >
+> > 
+> > Hmm.  The mm/mempool.c:mempool_destroy function immediately
+> > dereferences the pointer passed to it:
+> > 
+> > void mempool_destroy(mempool_t *pool)
+> > {
+> > 	if (pool->curr_nr != pool->min_nr)
+> > 		BUG();		/* There were outstanding elements */
+> > 	free_pool(pool);
+> > }
+> > 
+> > ... so I'm not sure mempool_destroy fits the rule.  Are you suggesting
+> > that the patch should instead modify mempool_destroy?
+> 
+> hmm perhaps... Jens?
+> 
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Having mempool_destroy() be the one that checks seems safer, then callers 
+won't forget to check - easier to just check in one place.
+If that's what you want, then here's a patch. If this is acceptable I can 
+create another one that removes the (then pointless) NULL checks from all 
+callers - let me know if that's wanted.
 
---- linux/net/xfrm/xfrm_policy.c.orig
-+++ linux/net/xfrm/xfrm_policy.c
-@@ -301,18 +301,22 @@ static void xfrm_policy_gc_task(void *da
- static void xfrm_policy_kill(struct xfrm_policy *policy)
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+--- linux-2.6.12-rc1-mm3-orig/mm/mempool.c	2005-03-21 23:12:43.000000000 +0100
++++ linux-2.6.12-rc1-mm3/mm/mempool.c	2005-03-25 15:34:04.000000000 +0100
+@@ -176,6 +176,8 @@ EXPORT_SYMBOL(mempool_resize);
+  */
+ void mempool_destroy(mempool_t *pool)
  {
- 	write_lock_bh(&policy->lock);
--	if (policy->dead)
--		goto out;
--
-+	if (policy->dead) {
-+		write_unlock_bh(&policy->lock);
++	if (!pool)
 +		return;
-+	}
- 	policy->dead = 1;
- 
- 	spin_lock(&xfrm_policy_gc_lock);
- 	list_add(&policy->list, &xfrm_policy_gc_list);
-+	/*
-+	 * Unlock the policy (out of order unlocking), to make sure
-+	 * the GC context does not free it with an active lock:
-+	 */
-+	write_unlock_bh(&policy->lock);
- 	spin_unlock(&xfrm_policy_gc_lock);
--	schedule_work(&xfrm_policy_gc_work);
- 
--out:
--	write_unlock_bh(&policy->lock);
-+	schedule_work(&xfrm_policy_gc_work);
- }
- 
- /* Generate new index... KAME seems to generate them ordered by cost
+ 	if (pool->curr_nr != pool->min_nr)
+ 		BUG();		/* There were outstanding elements */
+ 	free_pool(pool);
+
+

@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263419AbUEGJsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263472AbUEGJub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263419AbUEGJsl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 05:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUEGJsl
+	id S263472AbUEGJub (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 05:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUEGJub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 05:48:41 -0400
-Received: from S01060050bfec5d4e.cg.shawcable.net ([68.144.57.107]:18304 "EHLO
-	eviltron.local.lan") by vger.kernel.org with ESMTP id S263419AbUEGJsg
+	Fri, 7 May 2004 05:50:31 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:63759 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263472AbUEGJtA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 05:48:36 -0400
-Date: Fri, 7 May 2004 03:48:24 -0600
-From: Steve Young <sdyoung@vt220.org>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] change pts allocation behaviour in tty_io.c, v2
-Message-ID: <20040507094824.GA25043@eviltron.local.lan>
-Mail-Followup-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20040507084242.GA11389@eviltron.local.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040507084242.GA11389@eviltron.local.lan>
-User-Agent: Mutt/1.5.6i
+	Fri, 7 May 2004 05:49:00 -0400
+Message-ID: <409B5BF0.6070609@aitel.hist.no>
+Date: Fri, 07 May 2004 11:50:40 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu>            <1083858033.3844.6.camel@laptop.fenrus.com> <200405061629.i46GTm2x018759@turing-police.cc.vt.edu>
+In-Reply-To: <200405061629.i46GTm2x018759@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 07, 2004 at 02:42:42AM -0600, Steve Young wrote:
->   Here is a patch to change the way ptses are allocated.  It applies against
-> 2.6.6-rc3.  Basically it tries to humour old glibc by always obtaining a pts
+Valdis.Kletnieks@vt.edu wrote:
 
-  I realized this won't properly cope when driver->num < MAX_PREFERRED_PTY.
-Use this patch instead.  I've tested it on my box.
+>On Thu, 06 May 2004 17:40:33 +0200, Arjan van de Ven said:
+>  
+>
+>>Ok I don't want to start a flamewar but... Do we want to hold linux back
+>>until all binary only module vendors have caught up ??
+>>    
+>>
+>
+>No.. I merely suggested that coordinating with as few as possibly one vendor to
+>clean their module up might minimize the pain considerably.  
+>
 
-  Thanks,
-  Steve.
+I don't see much of a problem.  So what if Linus puts 4k stacks in 2.6.6 
+tomorrow?
+It won't kill linux for all those nvidia users.  They'll simply have to 
+stop at 2.6.5
+until nvidia catch up.  Not much of a problem, considering how the majority
+still runs various versions of 2.4.x.
 
-diff -ur linux-2.6.5-virgin/drivers/char/tty_io.c linux-2.6.5-eviltron/drivers/char/tty_io.c
---- linux-2.6.5-virgin/drivers/char/tty_io.c	2004-05-07 03:39:25.085624064 -0600
-+++ linux-2.6.5-eviltron/drivers/char/tty_io.c	2004-05-07 03:37:51.697821168 -0600
-@@ -1362,14 +1362,25 @@
- #ifdef CONFIG_UNIX98_PTYS
- 	if (device == MKDEV(TTYAUX_MAJOR,2)) {
- 		/* find a device that is not in use. */
--		static int next_ptmx_dev = 0;
-+		static int next_ptmx_dev = MAX_PREFERRED_PTY;
- 		retval = -1;
- 		driver = ptm_driver;
--		while (driver->refcount < pty_limit) {
--			index = next_ptmx_dev;
--			next_ptmx_dev = (next_ptmx_dev+1) % driver->num;
--			if (!init_dev(driver, index, &tty))
--				goto ptmx_found; /* ok! */
-+		/* first, try and allocate a pty < 256 for old glibc */
-+		for (index = 0; index < MAX_PREFERRED_PTY && driver->refcount < pty_limit && index < driver->num; index++) {
-+			if (!init_dev(driver, index, &tty)) 
-+				goto ptmx_found;
-+		}
-+		/* nothing below MAX_PREFERRED_PTY, try something higher, unless
-+		 * we've already run out of options */
-+		if (index != driver->num) {
-+			while (driver->refcount < pty_limit) {
-+				index = next_ptmx_dev;
-+				next_ptmx_dev = (next_ptmx_dev+1) % driver->num;
-+				if (!next_ptmx_dev) 
-+					next_ptmx_dev = MAX_PREFERRED_PTY;
-+				if (!init_dev(driver, index, &tty)) 
-+					goto ptmx_found; /* ok! */
-+			}
- 		}
- 		return -EIO; /* no free ptys */
- 	ptmx_found:
-
-diff -ur linux-2.6.5-virgin/include/linux/tty.h linux-2.6.5-eviltron/include/linux/tty.h
---- linux-2.6.5-virgin/include/linux/tty.h	2004-05-07 03:39:26.953340128 -0600
-+++ linux-2.6.5-eviltron/include/linux/tty.h	2004-05-07 01:43:55.000000000 -0600
-@@ -35,6 +35,7 @@
- #define NR_UNIX98_PTY_DEFAULT	4096      /* Default maximum for Unix98 ptys */
- #define NR_UNIX98_PTY_MAX	(1 << MINORBITS) /* Absolute limit */
- #define NR_LDISCS		16
-+#define MAX_PREFERRED_PTY	256			/* we prefer to allocate ptys beneath this number */
- 
- /*
-  * These are set up by the setup-routine at boot-time:
+Helge Hafting

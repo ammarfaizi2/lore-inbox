@@ -1,86 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262924AbTC1LKd>; Fri, 28 Mar 2003 06:10:33 -0500
+	id <S262914AbTC1LYi>; Fri, 28 Mar 2003 06:24:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262931AbTC1LKc>; Fri, 28 Mar 2003 06:10:32 -0500
-Received: from pine.compass.com.ph ([202.70.96.37]:62479 "HELO
-	pine.compass.com.ph") by vger.kernel.org with SMTP
-	id <S262924AbTC1LKb>; Fri, 28 Mar 2003 06:10:31 -0500
-Subject: Re: [Linux-fbdev-devel] Framebuffer fixes.
-From: Antonino Daplas <adaplas@pol.net>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.GSO.4.21.0303280857240.7286-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0303280857240.7286-100000@vervain.sonytel.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1048849255.1000.36.camel@localhost.localdomain>
+	id <S262931AbTC1LYi>; Fri, 28 Mar 2003 06:24:38 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62729 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262914AbTC1LYh>; Fri, 28 Mar 2003 06:24:37 -0500
+Date: Fri, 28 Mar 2003 12:35:49 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Nigel Cunningham <ncunningham@clear.net.nz>,
+       Swsusp <swsusp@lister.fornax.hu>, Florent Chabaud <fchabaud@free.fr>,
+       Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Annouce: Initial SWSUSP 2.4 port to 2.5 available.
+Message-ID: <20030328113549.GB10121@atrey.karlin.mff.cuni.cz>
+References: <1048732097.1731.14.camel@laptop-linux.cunninghams> <Pine.LNX.4.33.0303271051350.1001-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 28 Mar 2003 19:02:00 +0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0303271051350.1001-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-28 at 16:00, Geert Uytterhoeven wrote:
-> On Fri, 28 Mar 2003, James Simmons wrote:
-> > > > > > Shouldn't these be info->var.bits_per_pixel instead of fb_logo.depth?
-> > > > > 
-> > > > > Yes, fb_logo.depth == info->var.bits_per_pixel.
-> > > > 
-> > > > Euh, now I get confused... Do you mean
-> > > > `Yes, it should be replaced by info->var.bits_per_pixel' or
-> > > > `No, logo.depth is always equal to info->var.bits_per_pixel'?
-> > > 
-> > > :)  Sorry about that. I meant:
-> > > 
-> > > 
-> > > `No, fb_logo.depth is always equal to info->var.bits_per_pixel'
-> > 
-> > No this is no longer true. For example last night I displayed the 16 color 
-> > logo perfectly fine on a 16 bpp display!!!! The mono display still has 
-> > bugs tho. The new logo tries to pick the best image to display. Say for 
-> > example we have two video cards. One running VESA fbdev at 16 bpp and a 
-> > another at vga 4 planar via vga16fb. This way we can have the both the 16 
-> > color and 224 color logo compiled in.  The correct logo will be displayed 
-> > then on the correct display. Now say we only have a mono display but all 
+Hi!
+
+> I'm glad to hear that you have completed the full port, but many people 
+> appreciate incremental patches, especially if the cumulative changes 
+> touch multiple parts of the kernel. Please consider breaking the one large 
+> patch into multiple, easily digestible, chunks. 
 > 
-> Didn't it always work like that? You got the 16 color logo on vga16fb and the
-> 224 color logo on displays with more than 256 colors (except for directcolor).
+> Finally, with either patch, there are unresolved symbols:
 > 
-
-If I'm not mistaken, I think what James meant was that the new code has
-the capability of choosing an appropriate logo even if it does not
-maximize the color range of the display.  Ie if only 4bpp logo is
-compiled, but display is set at 8bpp-pseudocolor, it would still
-display a 4bpp logo correctly.
-
-Personally, I think it's really a simple matter of choosing the
-appropriate logo type for the correct display device, instead of the
-code trying to outthink the intention of the user.   
-
-However, that was never my point.  What I see is a problem with the new
-code.  What if the display is set at 16-bpp DirectColor?  The code will
-choose clut224 for it, but that is not correct and may even crash due to
-an "out of bounds" error in the pseudo_palette.  Directcolor 565, for
-instance, will only have 32 entries for red and blue, and 64 entries for
-green, greatly exceeding 224.  Similarly, Directcolor < 12bpp, will
-actually need monochrome, not even 4bpp, and definitely not clut224. 
-There are other obvious and non-obvious examples that I can enumerate.
-
- 
-> > the cards support 8 bpp or better. That logo still gets displayed.
->                                      ^^^^
-> Which logo do you mean with `that'? On a monochrome display, it should be the
-> monochrome logo.
+> arch/i386/kernel/built-in.o: In function `do_suspend_lowlevel':
+> arch/i386/kernel/built-in.o(.data+0x1644): undefined reference to `save_processor_state'
+> arch/i386/kernel/built-in.o(.data+0x164a): undefined reference to `saved_context_esp'
+> arch/i386/kernel/built-in.o(.data+0x164f): undefined reference to `saved_context_eax'
+> arch/i386/kernel/built-in.o(.data+0x1655): undefined reference to `saved_context_ebx'
+> arch/i386/kernel/built-in.o(.data+0x165b): undefined reference to `saved_context_ecx'
+> arch/i386/kernel/built-in.o(.data+0x1661): undefined reference to `saved_context_edx'
+> arch/i386/kernel/built-in.o(.data+0x1667): undefined reference to `saved_context_ebp'
+> arch/i386/kernel/built-in.o(.data+0x166d): undefined reference to `saved_context_esi'
+> arch/i386/kernel/built-in.o(.data+0x1673): undefined reference to `saved_context_edi'
+> arch/i386/kernel/built-in.o(.data+0x167a): undefined reference to `saved_context_eflags'
 > 
+> The fix is likely trivial, but it is annoying that it happens in the first 
+> place.
 
-The patch I submitted was tested by simulating monochrome on an 8-bit
-display.  It used monochrome logo, drawn using monochrome expansion, and
-it works for me.
-
-Tony
-
-
+Thats S3 support. Likely Nigel has not S3 compiled in and you
+have. Disalbe CONFIG_ACPI_SLEEP as a workaround.
+							Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

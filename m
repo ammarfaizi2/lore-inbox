@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVCUKnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVCUKsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbVCUKnl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 05:43:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVCUKnl
+	id S261744AbVCUKsr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 05:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVCUKsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 05:43:41 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:63672 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S261743AbVCUKnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 05:43:10 -0500
-Subject: vsecurity 0.2-cvs (security fix revision)
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: narahimi@us.ibm.com,
-       "linux-security-module@wirex.com" <linux-security-module@wirex.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uAD+ZX/lQt4myNVvqRMT"
-Date: Mon, 21 Mar 2005 11:42:36 +0100
-Message-Id: <1111401756.8193.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Mon, 21 Mar 2005 05:48:47 -0500
+Received: from imag.imag.fr ([129.88.30.1]:24456 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S261744AbVCUKsq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 05:48:46 -0500
+Message-ID: <423EA611.3030409@imag.fr>
+Date: Mon, 21 Mar 2005 11:46:41 +0100
+From: Raphael Jacquot <raphael.jacquot@imag.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050304
+X-Accept-Language: en-us, en, fr-fr
+MIME-Version: 1.0
+To: Xin Zhao <uszhaoxin@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Why is NFS write so slow?
+References: <4ae3c1405032100293ff52077@mail.gmail.com>
+In-Reply-To: <4ae3c1405032100293ff52077@mail.gmail.com>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Mon, 21 Mar 2005 11:48:41 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Xin Zhao wrote:
+> Sorry for the dumb question. 
+> 
+> I am trying to develop a new filesystem based on NFS, which runs in a
+> very fast network environment. I used the source code of NFS2, but
+> noticed that NFS write is very slow. Even if I changed wsize to 8192,
+> it still can only reach 1MB/s. I don't know why. Because the network
+> is extremely fast (over 100MB/s), I don't think network is the only
+> reason. Any other reason?
+> 
+> Is the NFS write synchronous? Does that means the NFS server will not
+> return before the data is flushed to disk?  Because nfsd_write will
+> close the file every time, I will assume that the data will be flushed
+> to disk before return. However, even if I change nfsd_write to stop
+> closing file, the write speed is still very slow. Can someone give me
+> some advice about this?
+> 
+> Thanks in advance!
 
---=-uAD+ZX/lQt4myNVvqRMT
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-A week ago, some buffer overflow conditions inside the ACL handling code
-of vsecurity were fixed, more concretely in the *_read_file functions
-used within the vsecfs (sysfs) code to read ACL parameters.
-
-I apologize for the inconveniences of being away for a week and not
-announcing it before.
-
-These buffer overflow conditions were noticed at first time by Brad
-Spengler and more later by Nguyen Anh Quynh (who contributed many TPE
-related enhancements to the under-development 0.3 revision).
-
-Subsequently, the TPE code at issue, based in the first work made by IBM
-and more concretely, by Niki Rahimi, is also vulnerable, and if the user
-base makes it worthy, it should be fixed ASAP.
-
-No proof of concept code is available, at least in the public eye or
-under my knowledge, nor I have intention to prepare any as it's already
-fixed.
-
-The changes can be found in the CVS, also it's worthy to say that
-currently vsecurity is not prepared for the new API changes since
-2.6.10, and this is on-going work for the 0.3 release (among many other
-enhancements and changes).
-
-http://cvs.tuxedo-es.org/cgi-bin/viewcvs.cgi/vsecurity/
-
-Thanks for your attention,
-Cheers.
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-uAD+ZX/lQt4myNVvqRMT
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCPqUcDcEopW8rLewRAvsfAJkBP0Woxbr1YTTJGUruB1P25TeGOwCg4E1w
-5nxYy25UoTmIe9d7ONvNz/8=
-=yn1f
------END PGP SIGNATURE-----
-
---=-uAD+ZX/lQt4myNVvqRMT--
-
+because NFS is now at version 4, so you're 2 versions late ?

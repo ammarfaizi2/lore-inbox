@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbUKDAE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbUKDAMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261996AbUKDAE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 19:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUKCXoM
+	id S261993AbUKDAMT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 19:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbUKDAIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 18:44:12 -0500
-Received: from fw.osdl.org ([65.172.181.6]:42630 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261996AbUKCXkR (ORCPT
+	Wed, 3 Nov 2004 19:08:16 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:61069 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261993AbUKDAGD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 18:40:17 -0500
-Date: Wed, 3 Nov 2004 15:44:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: jgarzik@mandrakesoft.com, orinoco-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic updates for orinoco driver
-Message-Id: <20041103154407.4d9833ca.akpm@osdl.org>
-In-Reply-To: <20041103022444.GA14267@zax>
-References: <20041103022444.GA14267@zax>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Nov 2004 19:06:03 -0500
+Date: Thu, 4 Nov 2004 01:06:00 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Blaisorblade <blaisorblade_spam@yahoo.it>
+cc: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
+       julian@sektor37.de, mcr@sandelman.ottawa.on.ca, sam@ravnborg.org
+Subject: Re: [patch 2/2] kbuild: fix crossbuild base config
+In-Reply-To: <200411032132.37947.blaisorblade_spam@yahoo.it>
+Message-ID: <Pine.LNX.4.61.0411040054580.877@scrub.home>
+References: <20041102232001.370174C0BC@zion.localdomain>
+ <Pine.LNX.4.61.0411031909460.877@scrub.home> <20041103183415.GH381@smtp.west.cox.net>
+ <200411032132.37947.blaisorblade_spam@yahoo.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson <david@gibson.dropbear.id.au> wrote:
->
-> This patch reformats printk()s and some other cosmetic strings in the
-> orinoco driver.  Also moves, removes, and adds ratelimiting in some
-> places.  Behavioural changes are trivial/cosmetic only.  This reduces
-> the cosmetic/trivial differences between the current kernel version,
-> and the CVS version of the driver; one small step towards full merge.
+Hi,
 
-This produces a ghastly reject storm against Jeff's bk-netdev tree.
+On Wed, 3 Nov 2004, Blaisorblade wrote:
 
-I dunno how Jeff wants to handle that.  I stuck a copy of his current patch
-(against 2.6.10-rc1) at
-http://www.zip.com.au/~akpm/linux/patches/stuff/bk-netdev.patch and shall
-now run away.
+> You later say "If possible, I'd avoid this patch at all". Why? Is this code 
+> too intrusive, or implementing a wrong check, or bloating the source?
+
+It adds a special case to the kconfig core to make it behave differently, 
+but it shouldn't behave differently depending on how the kernel is 
+compiled.
+
+> > > E.g. if someone wrote a patch which stores the arch in .config and warns/
+> > > refuses to load it for a different configuration, I would accept it
+> > > happily.
+> Yes, this is another idea, which is also fine, while not excluding the other 
+> IMHO.
+
+This is the better solution, because it solves the more general problem, 
+when a .config doesn't match the Kconfig and not just your special case.
+
+> > We already have part of this, except I don't know for certain of
+> > CONFIG_ARCH == CONFIG_$(SUBARCH) (... to mix syntax all the hell up).
+> 
+> No warning is output. Or better, yes, you get warnings, but tons of not clear 
+> ones, like "warning, undefined symbol".
+
+I don't really expect to use CONFIG_$(SUBARCH) and rather add a real 
+CONFIG_ARCH to Kconfig.
+
+bye, Roman
 

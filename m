@@ -1,48 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbTEQOFm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 10:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTEQOFm
+	id S261506AbTEQOHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 10:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbTEQOHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 10:05:42 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:26088 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S261500AbTEQOFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 10:05:41 -0400
-Date: Sat, 17 May 2003 15:21:29 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Greg KH <greg@kroah.com>
-Cc: Manuel Estrada Sainz <ranty@debian.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>, jt@hpl.hp.com,
-       Pavel Roskin <proski@gnu.org>
-Subject: Re: request_firmware() hotplug interface, third round.
-Message-ID: <20030517152129.F626@nightmaster.csn.tu-chemnitz.de>
-References: <20030515200324.GB12949@ranty.ddts.net> <20030516223624.GA16759@kroah.com>
+	Sat, 17 May 2003 10:07:16 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:12714 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261506AbTEQOHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 10:07:14 -0400
+Subject: [PATCH] fix tuner.c and tda9887.c in 2.5.69-mm6
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: kraxel@bytesex.org
+Content-Type: multipart/mixed; boundary="=-myzHmodgHcTLtY5d6vXR"
+Organization: 
+Message-Id: <1053181206.4174.9.camel@mars.goatskin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030516223624.GA16759@kroah.com>; from greg@kroah.com on Fri, May 16, 2003 at 03:36:24PM -0700
-X-Spam-Score: -5.0 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19H2W9-0002qk-00*M3791kQn2vs*
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 May 2003 10:20:06 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 16, 2003 at 03:36:24PM -0700, Greg KH wrote:
-> Other than those very minor tweaks, I like this interface, it's looking
-> very good.  I wouldn't worry about any "checksum" calcuation crud, it's
-> up to the userspace tool dumping the firmware to the kernel to make sure
 
-Ok, if that is true, then we could also have this tool enforce a
-size. Otherwise we are reading and reading without ever ending
-and allocating a lot of kernel resources while we are at it.
+--=-myzHmodgHcTLtY5d6vXR
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-If we know the size, then we also now start and end. So the
-"loading" attribute can certainly go.
+Hi,
 
-Regards
+Attached are two patches that make bttv compile and work in 2.5.69-mm6.
+I think this broke in -mm4. The patches are probably not correct, but
+they work for me.
 
-Ingo Oeser
+Regards,
+
+Shane
+
+--=-myzHmodgHcTLtY5d6vXR
+Content-Disposition: attachment; filename=2.5.69-mm6.tda9887.diff
+Content-Type: text/x-diff; name=2.5.69-mm6.tda9887.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.5.69-mm6/drivers/media/video/tda9887.c.orig	Sat May 17 09:20:35 2003
++++ linux-2.5.69-mm6/drivers/media/video/tda9887.c	Sat May 17 09:49:01 2003
+@@ -439,9 +439,11 @@
+ };
+ static struct i2c_client client_template =
+ {
+-        .dev.name  = "tda9887",
+-	.flags     = I2C_CLIENT_ALLOW_USE,
+-        .driver    = &driver,
++	.flags  = I2C_CLIENT_ALLOW_USE,
++        .driver = &driver,
++        .dev	= {
++		.name	= "tda9887",
++	},
+ };
+ 
+ static int tda9887_init_module(void)
+
+--=-myzHmodgHcTLtY5d6vXR
+Content-Disposition: attachment; filename=2.5.69-mm6.tuner.diff
+Content-Type: text/x-diff; name=2.5.69-mm6.tuner.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.5.69-mm6/drivers/media/video/tuner.c.orig	Fri May 16 20:38:34 2003
++++ linux-2.5.69-mm6/drivers/media/video/tuner.c	Sat May 17 09:46:53 2003
+@@ -960,9 +960,11 @@
+ };
+ static struct i2c_client client_template =
+ {
+-        .dev.name   = "(tuner unset)",
+-	.flags      = I2C_CLIENT_ALLOW_USE,
+-        .driver     = &driver,
++	.flags  = I2C_CLIENT_ALLOW_USE,
++	.driver = &driver,
++	.dev  = {
++		.name   = "(tuner unset)",
++	},
+ };
+ 
+ static int tuner_init_module(void)
+
+--=-myzHmodgHcTLtY5d6vXR--
+

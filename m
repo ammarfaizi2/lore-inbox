@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290285AbSBKUIw>; Mon, 11 Feb 2002 15:08:52 -0500
+	id <S290297AbSBKUKy>; Mon, 11 Feb 2002 15:10:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290297AbSBKUIn>; Mon, 11 Feb 2002 15:08:43 -0500
-Received: from pop.gmx.net ([213.165.64.20]:48769 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S290285AbSBKUId>;
-	Mon, 11 Feb 2002 15:08:33 -0500
-Message-ID: <041a01c1b337$ee407760$4000a8c0@angband>
-Reply-To: "Andreas Happe" <andreashappe@subdimension.com>
-From: "Andreas Happe" <andreashappe@gmx.net>
-To: "lkml" <linux-kernel@vger.kernel.org>, "Oleg Drokin" <green@namesys.com>
-In-Reply-To: <000c01c1b0bf$567ab910$704e2e3e@angband> <20020208180216.H32413@suse.de> <00c301c1b0d7$d1f07ae0$4e492e3e@angband> <20020211160658.A7863@namesys.com>
-Subject: Re: boot problems using 2.5.3-dj3 || -dj4
-Date: Mon, 11 Feb 2002 21:05:08 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S290309AbSBKUKo>; Mon, 11 Feb 2002 15:10:44 -0500
+Received: from zero.tech9.net ([209.61.188.187]:30227 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S290297AbSBKUKc>;
+	Mon, 11 Feb 2002 15:10:32 -0500
+Subject: Re: [PATCH] 2.5.4 PREEMPT on UP x86 breakage
+From: Robert Love <rml@tech9.net>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, roy@karlsbakk.net, torvalds@transmeta.com
+In-Reply-To: <200202111744.SAA08449@harpo.it.uu.se>
+In-Reply-To: <200202111744.SAA08449@harpo.it.uu.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Evolution/1.0.2 
+Date: 11 Feb 2002 15:10:33 -0500
+Message-Id: <1013458234.805.442.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-02-11 at 12:44, Mikael Pettersson wrote:
+> In 2.5.4, CONFIG_PREEMPT breaks UP x86 kernels by triggering
+> the BUG in release_kernel_lock(), kernel/sched.c, line 664.
+> The patch below fixed it for me. It's a bit crude, but smp.h
+> doesn't export the #define if CONFIG_SMP is disabled.
 
-[...]
-> > the error occurs in  ./fs/reiserfs/tail-conversion.c .
-> > the kernel oops jumped to another position by now, but it is still the
-same
-> > error message. I'm using a reiserfs root position.
-> Can you please decode the oops you provided.
-> Also can you run reiserfsck on your partition and give us the log file?
-> Thank you. (you may need to boot off rescue CD or something to
-> be able to run reiserfsck on root partition).
->
+This is indeed a proper change.  Thank you,
 
-i've done this yesterday and there were a couple of errors (i rebuilt the
-tree and tried to rebuild the sb). Due to an error at rebuilding the super
-block, I reinstalled my linux system ( i'm not sure if this is related to my
-actual kernel, btw. there were some null - files on the fs )
-
-I havn't experienced any errors since then ...
-
-thx,
--Andreas
-
-> Bye,
->     Oleg
-
+	Robert Love
 

@@ -1,93 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbSKFWKA>; Wed, 6 Nov 2002 17:10:00 -0500
+	id <S266157AbSKFWA2>; Wed, 6 Nov 2002 17:00:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266162AbSKFWKA>; Wed, 6 Nov 2002 17:10:00 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:9124 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S266161AbSKFWJ6>; Wed, 6 Nov 2002 17:09:58 -0500
-From: jordan.breeding@attbi.com
-To: Cliff White <cliffw@osdl.org>
-Cc: Yury Umanets <umka@namesys.com>, Cliff White <cliffw@osdl.org>,
-       reiserfs-dev@namesys.com, Linux-Kernel@vger.kernel.org, cliffw@osdl.org
-Subject: Re: [reiserfs-dev] build failure: reiser4progs-0.1.0 
-Date: Wed, 06 Nov 2002 22:15:42 +0000
-X-Mailer: AT&T Message Center Version 1 (Aug 12 2002)
-Message-Id: <20021106221551.BZKL13074.rwcrmhc51.attbi.com@rwcrwbc55>
+	id <S266158AbSKFWA2>; Wed, 6 Nov 2002 17:00:28 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:1675 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266157AbSKFWAY>;
+	Wed, 6 Nov 2002 17:00:24 -0500
+From: "Jay Vosburgh" <fubar@us.ibm.com>
+Importance: Normal
+Sensitivity: 
+To: Davide Libenzi <davidel@xmailserver.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF1DE2DE38.9228F1D8-ON88256C69.0076552C@boulder.ibm.com>
+Date: Wed, 6 Nov 2002 15:06:45 -0700
+Subject: [PATCH] 2.5.46: epoll_wait can return too many events 
+X-MIMETrack: Serialize by Router on D03NM035/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 11/06/2002 03:06:55 PM
+MIME-Version: 1.0
+Content-type: multipart/mixed; 
+	Boundary="0__=07BBE6FADFE5D3BC8f9e8a93df938690918c07BBE6FADFE5D3BC"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try the following:
+--0__=07BBE6FADFE5D3BC8f9e8a93df938690918c07BBE6FADFE5D3BC
+Content-type: text/plain; charset=us-ascii
 
-do a search for -lreadline in ./configure, add -lncurses 
-to any line in ./configure which is a) setting an 
-environment variable and b) does not yet contain -
-lncurses but _does_ contain -lreadline
 
-then do ./configure --enable-Werror=no; make
+      The logic in fs/eventpoll.c:ep_events_transfer() to bundle events can
+return more than the requested number of events (because the event count is
+only incremented for each bundle); this will scribble on memory beyond the
+end of the user's buffer.  The fix is to test against the bundle size
+(ebufcnt) plus the event count (eventcnt).
 
-works for me
+      Also, passing maxevents <= 0 to epoll_wait() causes the system to
+lock up; the fix is to return EINVAL if maxevents is <= 0.
 
-Jordan
-> ./configure --without-readline --enable-Weror=no 
-> builds successfully
-> ----------------------------
-> ./configure --without-readline
-> -------------------------------
-> 0.lo -MD -MP -MF .deps/alloc40.TPlo  -fPIC -DPIC -o .libs/alloc40.lo
-> cc1: warnings being treated as errors
-> alloc40.c: In function `callback_fetch_bitmap':
-> alloc40.c:50: warning: signed and unsigned type in conditional expression
-> alloc40.c: In function `callback_flush_bitmap':
-> alloc40.c:209: warning: signed and unsigned type in conditional expression
-> alloc40.c: In function `callback_check_bitmap':
-> alloc40.c:376: warning: signed and unsigned type in conditional expression
-> make[3]: *** [alloc40.lo] Error 1
-> make[3]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin/all
-> oc40'
-> make[2]: *** [all-recursive] Error 1
-> make[2]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/plugin'
-> make[1]: *** [all-recursive] Error 1
-> make[1]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0'
-> make: *** [all] Error 2
-> ---------------------------------
-> ./configure  --enable-Werror=no
-> ------------------------------------
-> st -f mkfs.c || echo './'`mkfs.c
-> /bin/sh ../../libtool --mode=link gcc  -g -O2 -D_REENTRANT 
-> -D_FILE_OFFSET_BITS=64 -g -W -Wall -Wno-unused -DPLUGIN_DIR=\"/usr/local/lib/re
-> iser4\"   -o mkfs.reiser4  mkfs.o ../../libreiser4/libreiser4.la 
-> ../../progs/libmisc/libmisc.la -lreadline  -luuid
-> mkdir .libs
-> gcc -g -O2 -D_REENTRANT -D_FILE_OFFSET_BITS=64 -g -W -Wall -Wno-unused 
-> -DPLUGIN_DIR=\"/usr/local/lib/reiser4\" -o .libs/mkfs.reiser4 mkfs.o  
-> ../../libreiser4/.libs/libreiser4.so ../../progs/libmisc/.libs/libmisc.al 
-> /root/cgl/kern/reiser/reiser4progs-0.1.0/libaal/.libs/libaal.so -lreadline 
-> -luuid -Wl,--rpath -Wl,/usr/local/lib
-> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
-> reference to `tgetnum'
-> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
-> reference to `tgoto'/usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadlin
-> e.so: undefined reference to `tgetflag'
-> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
-> reference to `BC'
-> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
-> reference to `tputs'/usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadlin
-> e.so: undefined reference to `PC'
-> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
-> reference to `tgetent'
-> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
-> reference to `UP'
-> /usr/lib/gcc-lib/i386-redhat-linux/2.96/../../../libreadline.so: undefined 
-> reference to `tgetstr'
-> collect2: ld returned 1 exit status
-> make[3]: *** [mkfs.reiser4] Error 1
-> make[3]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/progs/mkfs
-> '
-> make[2]: *** [all-recursive] Error 1
-> make[2]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0/progs'
-> make[1]: *** [all-recursive] Error 1
-> make[1]: Leaving directory `/root/cgl/kern/reiser/reiser4progs-0.1.0'
-> make: *** [all] Error 2
-> ----------------------------------------
-> 
+      -J
+
+
+--- linux-2.5.46.orig/fs/eventpoll.c      Wed Nov  6 12:20:46 2002
++++ linux-2.5.46/fs/eventpoll.c     Wed Nov  6 12:48:08 2002
+@@ -457,6 +457,9 @@
+      DNPRINTK(3, (KERN_INFO "[%p] eventpoll: sys_epoll_wait(%d, %p, %d, %d)\n",
+                 current, epfd, events, maxevents, timeout));
+
++     if (maxevents <= 0)
++           return -EINVAL;
++
+      /* Verify that the area passed by the user is writeable */
+      if ((error = verify_area(VERIFY_WRITE, events, maxevents * sizeof(struct pollfd))))
+            goto eexit_1;
+@@ -1068,7 +1071,7 @@
+
+      write_lock_irqsave(&ep->lock, flags);
+
+-     for (eventcnt = 0, ebufcnt = 0; eventcnt < maxevents && !list_empty(lsthead);) {
++     for (eventcnt = 0, ebufcnt = 0; (ebufcnt + eventcnt) < maxevents && !list_empty(lsthead);) {
+            struct epitem *dpi = list_entry(lsthead->next, struct epitem, rdllink);
+
+            /* Remove the item from the ready list */
+
+(See attached file: epoll-2.5.46-maxevent.patch)
+
+
+--0__=07BBE6FADFE5D3BC8f9e8a93df938690918c07BBE6FADFE5D3BC
+Content-type: application/octet-stream; 
+	name="epoll-2.5.46-maxevent.patch"
+Content-Disposition: attachment; filename="epoll-2.5.46-maxevent.patch"
+Content-transfer-encoding: base64
+
+LS0tIGxpbnV4LTIuNS40Ni5vcmlnL2ZzL2V2ZW50cG9sbC5jCVdlZCBOb3YgIDYgMTI6MjA6NDYg
+MjAwMgorKysgbGludXgtMi41LjQ2L2ZzL2V2ZW50cG9sbC5jCVdlZCBOb3YgIDYgMTI6NDg6MDgg
+MjAwMgpAQCAtNDU3LDYgKzQ1Nyw5IEBACiAJRE5QUklOVEsoMywgKEtFUk5fSU5GTyAiWyVwXSBl
+dmVudHBvbGw6IHN5c19lcG9sbF93YWl0KCVkLCAlcCwgJWQsICVkKVxuIiwKIAkJICAgICBjdXJy
+ZW50LCBlcGZkLCBldmVudHMsIG1heGV2ZW50cywgdGltZW91dCkpOwogCisJaWYgKG1heGV2ZW50
+cyA8PSAwKQorCQlyZXR1cm4gLUVJTlZBTDsKKwogCS8qIFZlcmlmeSB0aGF0IHRoZSBhcmVhIHBh
+c3NlZCBieSB0aGUgdXNlciBpcyB3cml0ZWFibGUgKi8KIAlpZiAoKGVycm9yID0gdmVyaWZ5X2Fy
+ZWEoVkVSSUZZX1dSSVRFLCBldmVudHMsIG1heGV2ZW50cyAqIHNpemVvZihzdHJ1Y3QgcG9sbGZk
+KSkpKQogCQlnb3RvIGVleGl0XzE7CkBAIC0xMDY4LDcgKzEwNzEsNyBAQAogCiAJd3JpdGVfbG9j
+a19pcnFzYXZlKCZlcC0+bG9jaywgZmxhZ3MpOwogCi0JZm9yIChldmVudGNudCA9IDAsIGVidWZj
+bnQgPSAwOyBldmVudGNudCA8IG1heGV2ZW50cyAmJiAhbGlzdF9lbXB0eShsc3RoZWFkKTspIHsK
+Kwlmb3IgKGV2ZW50Y250ID0gMCwgZWJ1ZmNudCA9IDA7IChlYnVmY250ICsgZXZlbnRjbnQpIDwg
+bWF4ZXZlbnRzICYmICFsaXN0X2VtcHR5KGxzdGhlYWQpOykgewogCQlzdHJ1Y3QgZXBpdGVtICpk
+cGkgPSBsaXN0X2VudHJ5KGxzdGhlYWQtPm5leHQsIHN0cnVjdCBlcGl0ZW0sIHJkbGxpbmspOwog
+CiAJCS8qIFJlbW92ZSB0aGUgaXRlbSBmcm9tIHRoZSByZWFkeSBsaXN0ICovCg==
+
+--0__=07BBE6FADFE5D3BC8f9e8a93df938690918c07BBE6FADFE5D3BC--
+

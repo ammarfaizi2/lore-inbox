@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289219AbSAGOeV>; Mon, 7 Jan 2002 09:34:21 -0500
+	id <S289218AbSAGOdK>; Mon, 7 Jan 2002 09:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289223AbSAGOeQ>; Mon, 7 Jan 2002 09:34:16 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:48389 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S289219AbSAGOd4>;
-	Mon, 7 Jan 2002 09:33:56 -0500
-Date: Mon, 7 Jan 2002 15:33:48 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Petro <petro@auctionwatch.com>
-Cc: andihartmann@freenet.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-Id: <20020107153348.08a4a23f.skraw@ithnet.com>
-In-Reply-To: <20020107071531.GC20760@auctionwatch.com>
-In-Reply-To: <200201040019.BAA30736@webserver.ithnet.com>
-	<3C360D6E.9020207@athlon.maya.org>
-	<20020105092442.GC26154@auctionwatch.com>
-	<20020105164405.5d9f5232.skraw@ithnet.com>
-	<20020107071531.GC20760@auctionwatch.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S289219AbSAGOcw>; Mon, 7 Jan 2002 09:32:52 -0500
+Received: from ns.caldera.de ([212.34.180.1]:8900 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S289218AbSAGOcq>;
+	Mon, 7 Jan 2002 09:32:46 -0500
+Date: Mon, 7 Jan 2002 15:32:18 +0100
+Message-Id: <200201071432.g07EWI802933@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: perex@suse.cz (Jaroslav Kysela)
+Cc: sound-hackers@zabbo.net, linux-sound@vger.rutgers.edu,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: ALSA patch for 2.5.2pre9 kernel
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <Pine.LNX.4.31.0201061814580.545-100000@pnote.perex-int.cz>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Jan 2002 23:15:31 -0800
-Petro <petro@auctionwatch.com> wrote:
+In article <Pine.LNX.4.31.0201061814580.545-100000@pnote.perex-int.cz> you wrote:
+> The latest patch is alsa-2002-01-06-1-linux-2.5.2pre9.patch.gz and
+> contains:
 
-> On Sat, Jan 05, 2002 at 04:44:05PM +0100, Stephan von Krawczynski wrote:
-> > On Sat, 5 Jan 2002 01:24:42 -0800
-> > Petro <petro@auctionwatch.com> wrote:
-> > 
-> > > "We" (Auctionwatch.com) are experiencing problems that appear to be
-> > > related to VM, I realize that this question was not directed at me:
-> > 
-> > And how exactly do the problems look like?
-> 
->     After some time, ranging from 1 to 48 hours, mysql quits in an
->     unclean fashion (dies leaving tables improperly closed) with a dump
->     in the mysql log file that looks like: 
+> * moved linux/drivers/sound directory to linux/sound/oss
+> * moved sound core files to linux/sound
+> * integrated ALSA kernel code
+>   - linux/include/sound - sound header files
+>   - linux/sound/core	- midlevel (no hw dependent) code
+>   - linux/sound/drivers - generic drivers (no arch dependent)
+>   - linux/sound/i2c     - reduced I2C core and drivers
+>   - linux/sound/isa	- ISA sound hardware drivers
+>   - linux/sound/pci	- PCI sound hardware drivers
+>   - linux/sound/ppc	- PowerPC sound hardware drivers
+>   - linux/sound/synth	- generic synthesizer support code
 
-mysql question: is this a binary from some distro or self-compiled? If
-self-compiled can you show your ./configure paras, please?
+> We appreciate any comments regarding directory structure
 
+linux/sound is silly.  It's drivers so put it under linux/drivers/sound.
+Everything else seems to be sane to me.
 
->     Which the Mysql support team says appears to be memory corruption.
->     Since this has happened on 4 different machines, and one of them had
->     memtest86 run on it (coming up clean), they seem (witness Sasha's
->     post) to think this may have something to do with the memory
->     handling in the kernel. 
+	Christoph
 
-There is a big difference between memory _corruption_ and a VM deficiency. No
-app can cope with a _corruption_ and is perfectly allowed to core dump or exit
-(or trash your disk). But this should not happen on allocation failures.
-
-Unless all your RAM is from the same series I do not really believe in mem
-corruption. I would try Martins small VM patch, as it looks like being a bit
-more efficient in low mem conditions and this may well be the case you are
-running into. This means 2.4.17 standard + patch.
-
-Regards,
-Stephan
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

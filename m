@@ -1,126 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262890AbUDPKZF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 06:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbUDPKZF
+	id S262914AbUDPK0q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 06:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUDPK0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 06:25:05 -0400
-Received: from colino.net ([62.212.100.143]:45818 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S262890AbUDPKYz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 06:24:55 -0400
-Date: Fri, 16 Apr 2004 12:24:15 +0200
-From: Colin Leroy <colin@colino.net>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sf.net
-Subject: Re: [linux-usb-devel] 2.6.6-rc1: cdc-acm still (differently) broken
-Message-Id: <20040416122415.6f532584@jack.colino.net>
-In-Reply-To: <407EE9A5.3020305@pacbell.net>
-References: <20040415201117.11524f63@jack.colino.net>
-	<407EDA4A.2070509@pacbell.net>
-	<20040415212334.4a568c5a@jack.colino.net>
-	<407EE9A5.3020305@pacbell.net>
-Organization: 
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.4.0; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Fri__16_Apr_2004_12_24_15_+0200_bl8ExgvmNgS74/Fz"
+	Fri, 16 Apr 2004 06:26:46 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:12672 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262914AbUDPK0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 06:26:33 -0400
+Date: Fri, 16 Apr 2004 11:30:53 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200404161030.i3GAUrcB000356@81-2-122-30.bradfords.org.uk>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1082111045.9600.0.camel@laptop.fenrus.com>
+References: <Pine.LNX.4.10.10404160259480.22035-100000@master.linux-ide.org>
+ <200404161020.i3GAKSv9000256@81-2-122-30.bradfords.org.uk>
+ <1082111045.9600.0.camel@laptop.fenrus.com>
+Subject: Re: SATA support merge in 2.4.27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Quote from Arjan van de Ven <arjanv@redhat.com>:
+> 
+> --=-De0mPL9BnMYZGB8TurTV
+> Content-Type: text/plain
+> Content-Transfer-Encoding: quoted-printable
+> 
+> On Fri, 2004-04-16 at 12:20, John Bradford wrote:
+> > Quote from Andre Hedrick <andre@linux-ide.org>:
+> > > You are suggesting that 2.6 is not stable ?  How could that be ?
+> >=20
+> > It hasn't exactly been audited for security issues yet.
+> 
+> neither has the biggest part of the 2.4 codebase.
 
---Multipart=_Fri__16_Apr_2004_12_24_15_+0200_bl8ExgvmNgS74/Fz
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+A valid point, but last time I checked, there were known exploits that had
+been fixed in 2.4 but not in 2.6.
 
-On 15 Apr 2004 at 12h04, David Brownell wrote:
-
-Hi, 
-
-> Pretty much like that one, but not leaking the other urbs ... :)
-
-The joys of copy/pasting :)
-
-> There are two interfaces involved, for "control" and "data".
-> "Control" is being probed; and "data" is what gets claimed.
-
-Yup, I realized that after sending the mail.
-
-Here's another patch, which fixes the leak. It also fixes the FIXME, by looking at all interfaces to find the data one. Is it correct ?
-
-(indentation is ugly in this part, I'll send a cosmetic patch if this one is accepted)...
--- 
-Colin
-
---Multipart=_Fri__16_Apr_2004_12_24_15_+0200_bl8ExgvmNgS74/Fz
-Content-Type: application/octet-stream;
- name="cdc-acm.patch"
-Content-Disposition: attachment;
- filename="cdc-acm.patch"
-Content-Transfer-Encoding: base64
-
-LS0tIGRyaXZlcnMvdXNiL2NsYXNzL2NkYy1hY20uYy5vcmlnCTIwMDQtMDQtMTUgMjA6MDQ6NDcu
-MDAwMDAwMDAwICswMjAwCisrKyBkcml2ZXJzL3VzYi9jbGFzcy9jZGMtYWNtLmMJMjAwNC0wNC0x
-NiAxMjoyMTo0MC4xMjA4NjU1MTIgKzAyMDAKQEAgLTU4MSw0NSArNTgxLDQ3IEBACiAKIAlkZXYg
-PSBpbnRlcmZhY2VfdG9fdXNiZGV2IChpbnRmKTsKIAotCQljZmFjbSA9IGRldi0+YWN0Y29uZmln
-OwotCi0JCWZvciAoaiA9IDA7IGogPCBjZmFjbS0+ZGVzYy5iTnVtSW50ZXJmYWNlcyAtIDE7IGor
-KykgewotCQkgICAgCi0JCQlpZiAodXNiX2ludGVyZmFjZV9jbGFpbWVkKGNmYWNtLT5pbnRlcmZh
-Y2Vbal0pIHx8Ci0JCQkgICAgdXNiX2ludGVyZmFjZV9jbGFpbWVkKGNmYWNtLT5pbnRlcmZhY2Vb
-aiArIDFdKSkKLQkJCQljb250aW51ZTsKKwkJCWNmYWNtID0gZGV2LT5hY3Rjb25maWc7CisJCisJ
-CQkvKiBXZSBrbm93IHdlJ3JlIHByb2JlKClkIHdpdGggdGhlIGNvbnRyb2wgaW50ZXJmYWNlLiAq
-LworCQkJaWZjb20gPSBpbnRmLT5jdXJfYWx0c2V0dGluZzsKIAotCQkJLyogV2Uga25vdyB3ZSdy
-ZSBwcm9iZSgpZCB3aXRoIHRoZSBjb250cm9sIGludGVyZmFjZS4KLQkJCSAqIEZJWE1FIEFDTSBk
-b2Vzbid0IGd1YXJhbnRlZSB0aGUgZGF0YSBpbnRlcmZhY2UgaXMKKwkJCS8qIEFDTSBkb2Vzbid0
-IGd1YXJhbnRlZSB0aGUgZGF0YSBpbnRlcmZhY2UgaXMKIAkJCSAqIGFkamFjZW50IHRvIHRoZSBj
-b250cm9sIGludGVyZmFjZSwgb3IgdGhhdCBpZiBvbmUKLQkJCSAqIGlzIHRoZXJlIGl0J3Mgbm90
-IGZvciBjYWxsIG1hbmFnZW1lbnQgLi4uIHNvIHVzZQotCQkJICogdGhlIGNkYyB1bmlvbiBkZXNj
-cmlwdG9yIHdoZW5ldmVyIHRoZXJlIGlzIG9uZS4KKwkJCSAqIGlzIHRoZXJlIGl0J3Mgbm90IGZv
-ciBjYWxsIG1hbmFnZW1lbnQgLi4uIHNvIGZpbmQKKwkJCSAqIGl0CiAJCQkgKi8KLQkJCWlmY29t
-ID0gaW50Zi0+Y3VyX2FsdHNldHRpbmc7Ci0JCQlpZiAoaW50ZiA9PSBjZmFjbS0+aW50ZXJmYWNl
-W2pdKSB7Ci0JCQkJaWZkYXRhID0gY2ZhY20tPmludGVyZmFjZVtqICsgMV0tPmN1cl9hbHRzZXR0
-aW5nOwotCQkJCWRhdGEgPSBjZmFjbS0+aW50ZXJmYWNlW2ogKyAxXTsKLQkJCX0gZWxzZSBpZiAo
-aW50ZiA9PSBjZmFjbS0+aW50ZXJmYWNlW2ogKyAxXSkgeworCQkJZm9yIChqID0gMDsgaiA8IGNm
-YWNtLT5kZXNjLmJOdW1JbnRlcmZhY2VzOyBqKyspIHsKIAkJCQlpZmRhdGEgPSBjZmFjbS0+aW50
-ZXJmYWNlW2pdLT5jdXJfYWx0c2V0dGluZzsKIAkJCQlkYXRhID0gY2ZhY20tPmludGVyZmFjZVtq
-XTsKLQkJCX0gZWxzZSAKLQkJCQljb250aW51ZTsKLQkJCQotCQkJaWYgKGlmZGF0YS0+ZGVzYy5i
-SW50ZXJmYWNlQ2xhc3MgIT0gMTAgfHwgaWZkYXRhLT5kZXNjLmJOdW1FbmRwb2ludHMgPCAyKQot
-CQkJCWNvbnRpbnVlOwotCi0JCQllcGN0cmwgPSAmaWZjb20tPmVuZHBvaW50WzBdLmRlc2M7Ci0J
-CQllcHJlYWQgPSAmaWZkYXRhLT5lbmRwb2ludFswXS5kZXNjOwotCQkJZXB3cml0ZSA9ICZpZmRh
-dGEtPmVuZHBvaW50WzFdLmRlc2M7Ci0KLQkJCWlmICgoZXBjdHJsLT5iRW5kcG9pbnRBZGRyZXNz
-ICYgMHg4MCkgIT0gMHg4MCB8fCAoZXBjdHJsLT5ibUF0dHJpYnV0ZXMgJiAzKSAhPSAzIHx8Ci0J
-CQkgICAoZXByZWFkLT5ibUF0dHJpYnV0ZXMgJiAzKSAhPSAyIHx8IChlcHdyaXRlLT5ibUF0dHJp
-YnV0ZXMgJiAzKSAhPSAyIHx8Ci0JCQkgICAoKGVwcmVhZC0+YkVuZHBvaW50QWRkcmVzcyAmIDB4
-ODApIF4gKGVwd3JpdGUtPmJFbmRwb2ludEFkZHJlc3MgJiAweDgwKSkgIT0gMHg4MCkKLQkJCQlj
-b250aW51ZTsKLQotCQkJaWYgKChlcHJlYWQtPmJFbmRwb2ludEFkZHJlc3MgJiAweDgwKSAhPSAw
-eDgwKSB7Ci0JCQkJZXByZWFkID0gJmlmZGF0YS0+ZW5kcG9pbnRbMV0uZGVzYzsKLQkJCQllcHdy
-aXRlID0gJmlmZGF0YS0+ZW5kcG9pbnRbMF0uZGVzYzsKKworCQkJCWlmIChpZmRhdGEtPmRlc2Mu
-YkludGVyZmFjZUNsYXNzID09IDEwICYmCisJCQkJICAgIGlmZGF0YS0+ZGVzYy5iTnVtRW5kcG9p
-bnRzID09IDIpIHsKKwkJCQkJZXBjdHJsID0gJmlmY29tLT5lbmRwb2ludFswXS5kZXNjOworCQkJ
-CQllcHJlYWQgPSAmaWZkYXRhLT5lbmRwb2ludFswXS5kZXNjOworCQkJCQllcHdyaXRlID0gJmlm
-ZGF0YS0+ZW5kcG9pbnRbMV0uZGVzYzsKKworCQkJCQlpZiAoKGVwY3RybC0+YkVuZHBvaW50QWRk
-cmVzcyAmIDB4ODApICE9IDB4ODAgfHwKKwkJCQkJICAgIChlcGN0cmwtPmJtQXR0cmlidXRlcyAm
-IDMpICE9IDMgfHwKKwkJCQkJICAgIChlcHJlYWQtPmJtQXR0cmlidXRlcyAmIDMpICE9IDIgfHwg
-CisJCQkJCSAgICAoZXB3cml0ZS0+Ym1BdHRyaWJ1dGVzICYgMykgIT0gMiB8fAorCQkJCQkgICAg
-KChlcHJlYWQtPmJFbmRwb2ludEFkZHJlc3MgJiAweDgwKSBeIChlcHdyaXRlLT5iRW5kcG9pbnRB
-ZGRyZXNzICYgMHg4MCkpICE9IDB4ODApIAorCQkJCQkJZ290byBuZXh0X2ludGVyZmFjZTsKKwor
-CQkJCQlkYmcoImZvdW5kIGRhdGEgaW50ZXJmYWNlIGF0ICVkXG4iLCBqKTsKKwkJCQkJYnJlYWs7
-CisJCQkJfSBlbHNlIHsKK25leHRfaW50ZXJmYWNlOgorCQkJCQlpZmRhdGEgPSBOVUxMOworCQkJ
-CQlkYXRhID0gTlVMTDsKKwkJCQl9CisJCQl9CisKKwkJCS8qIHRoZXJlJ3MgYmVlbiBhIHByb2Js
-ZW0gKi8KKwkJCWlmICghaWZkYXRhKSB7CisJCQkJZGJnKCJpbnRlcmZhY2Ugbm90IGZvdW5kICgl
-cClcbiIsIGlmZGF0YSk7CisJCQkJcmV0dXJuIC1FTk9ERVY7CisKIAkJCX0KIAogCQkJZm9yICht
-aW5vciA9IDA7IG1pbm9yIDwgQUNNX1RUWV9NSU5PUlMgJiYgYWNtX3RhYmxlW21pbm9yXTsgbWlu
-b3IrKyk7CkBAIC02OTYsMTYgKzY5OCwyMSBAQAogCQkJYWNtLT5saW5lLmRhdGFiaXRzID0gODsK
-IAkJCWFjbV9zZXRfbGluZShhY20sICZhY20tPmxpbmUpOwogCi0JCQl1c2JfZHJpdmVyX2NsYWlt
-X2ludGVyZmFjZSgmYWNtX2RyaXZlciwgZGF0YSwgYWNtKTsKKwkJCWlmICggKGogPSB1c2JfZHJp
-dmVyX2NsYWltX2ludGVyZmFjZSgmYWNtX2RyaXZlciwgZGF0YSwgYWNtKSkgIT0gMCkgeworCQkJ
-CWVycigiY2xhaW0gZmFpbGVkIik7CisJCQkJdXNiX2ZyZWVfdXJiKGFjbS0+Y3RybHVyYik7CisJ
-CQkJdXNiX2ZyZWVfdXJiKGFjbS0+cmVhZHVyYik7CisJCQkJdXNiX2ZyZWVfdXJiKGFjbS0+d3Jp
-dGV1cmIpOworCQkJCWtmcmVlKGFjbSk7CisJCQkJa2ZyZWUoYnVmKTsKKwkJCQlyZXR1cm4gajsK
-KwkJCX0gCiAKIAkJCXR0eV9yZWdpc3Rlcl9kZXZpY2UoYWNtX3R0eV9kcml2ZXIsIG1pbm9yLCAm
-aW50Zi0+ZGV2KTsKIAogCQkJYWNtX3RhYmxlW21pbm9yXSA9IGFjbTsKIAkJCXVzYl9zZXRfaW50
-ZmRhdGEgKGludGYsIGFjbSk7CiAJCQlyZXR1cm4gMDsKLQkJfQotCi0JcmV0dXJuIC1FSU87CiB9
-CiAKIHN0YXRpYyB2b2lkIGFjbV9kaXNjb25uZWN0KHN0cnVjdCB1c2JfaW50ZXJmYWNlICppbnRm
-KQo=
-
---Multipart=_Fri__16_Apr_2004_12_24_15_+0200_bl8ExgvmNgS74/Fz--
+John.

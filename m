@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133005AbRD2XkX>; Sun, 29 Apr 2001 19:40:23 -0400
+	id <S136412AbRD2XpX>; Sun, 29 Apr 2001 19:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132993AbRD2XkM>; Sun, 29 Apr 2001 19:40:12 -0400
-Received: from p3EE3C784.dip.t-dialin.net ([62.227.199.132]:23301 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S132999AbRD2Xj7>; Sun, 29 Apr 2001 19:39:59 -0400
-Date: Mon, 30 Apr 2001 01:39:56 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect sda
-Message-ID: <20010430013956.A1578@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010428202225.D11994@emma1.emma.line.org> <PGEDKPCOHCLFJBPJPLNMCEDICMAA.denali@sunflower.com> <20010429122546.A1419@werewolf.able.es>
+	id <S136409AbRD2XpO>; Sun, 29 Apr 2001 19:45:14 -0400
+Received: from [62.81.160.68] ([62.81.160.68]:23512 "EHLO smtp2.alehop.com")
+	by vger.kernel.org with ESMTP id <S132993AbRD2XpB>;
+	Sun, 29 Apr 2001 19:45:01 -0400
+Date: Mon, 30 Apr 2001 01:36:05 -0400
+From: Ignacio Monge <ignaciomonge@navegalia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 8139too in 2.4.4 Hanging/Locking
+Message-Id: <20010430013605.1d51277c.ignaciomonge@navegalia.com>
+X-Mailer: Sylpheed version 0.4.65cvs11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010429122546.A1419@werewolf.able.es>; from jamagallon@able.es on Sun, Apr 29, 2001 at 12:25:46 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Apr 2001, J . A . Magallon wrote:
 
-> >              Command found on device queue
-> > aic7xxx_abort returns 8194
-> 
-> I have seen blaming for this error to aic7xxx new driver prior to version
-> 6.1.11. It was included in the 2.4.3-ac series, but its has not got into
-> main 2.4.4 (there is still 6.1.5). Everything needs its time.
 
-Since the official aic7xxx site doesn't carry a patch against 2.4.4 yet
-(just 2.4.3) which has cosmetic issues when being patched, I made a
-patch against 2.4.4: I took the 2.4.3-aic7xxx-6.1.12 patch, applied to
-2.4.4, bumped the version to read -ma1 in EXTRAVERSION, and made a new
-patch against vanilla 2.4.4, to be found at:
+	The same thing happens to me. I've tried to start my ethernet, but my
+system hangs and, after a forced restart, the BIOS has cleared all my
+setup configuration (!).
+	kernel 2.4.4 / modutils 2.4.5
+	VIA 868a, Athlon Thunderbidth 1 Ghz,  384 Mb RAM. Mandrake 8. Gcc 2.96.
 
-*** WARNING BELOW ***
+	cat /proc/pci
+	 [...
+		  Bus  0, device  12, function  0:
+    Ethernet controller: Accton Technology Corporation SMC2-1211TX (rev
+16).
+      IRQ 11.
+      Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
+      I/O at 0x9000 [0x90ff].
+      Non-prefetchable 32 bit memory at 0xde800000 [0xde8000ff].
 
-http://mandree.home.pages.de/kernelpatches/v2.4/v2.4.4/
- 72k linux-2.4.4-aic7xxx-to-6.1.12.patch.gz
+	...]
 
-Apply with patch -p1.
+	lspci -vv:
+	[...
+	00:0c.0 Ethernet controller: Accton Technology Corporation SMC2-1211TX
+(rev 10)
+	Subsystem: Accton Technology Corporation EN-1207D Fast Ethernet Adapter
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
+<MAbort- >SERR- <PERR-
+	Latency: 32 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at 9000 [size=256]
+	Region 1: Memory at de800000 (32-bit, non-prefetchable) [size=256]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: <available only to root>
+	...]
 
-NOTE: Do not expect this patch to last until after either Justin has a
-patch against 2.4.4 available or 2.4.5 has been released.
+	I need some help.
 
-*** WARNING *** I did not yet try to boot it, that will have to wait
-until later.
+	Thanks

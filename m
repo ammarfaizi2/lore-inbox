@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263220AbTD1Lgk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 07:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTD1Lgk
+	id S263510AbTD1Lgm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 07:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTD1Lgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 28 Apr 2003 07:36:42 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:53903
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263510AbTD1Lgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 28 Apr 2003 07:36:40 -0400
-Received: from zero.aec.at ([193.170.194.10]:54542 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263220AbTD1Lgj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 07:36:39 -0400
-Date: Mon, 28 Apr 2003 13:47:17 +0200
-From: Andi Kleen <ak@muc.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andi Kleen <ak@muc.de>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Support worst case cache line sizes as config option
-Message-ID: <20030428114717.GA6904@averell>
-References: <20030427022346.GA27933@averell> <20030428091616.GA27064@fs.tum.de>
+Subject: Re: Why DRM exists (or: Larry's cloning complaint)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1051500506.2974.69.camel@mentor.gurulabs.com>
+References: <1051500506.2974.69.camel@mentor.gurulabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051527010.15571.53.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030428091616.GA27064@fs.tum.de>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 28 Apr 2003 11:50:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 28, 2003 at 11:16:16AM +0200, Adrian Bunk wrote:
-> Your X86_GENERIC is semantically equivalent to M386.
+On Llu, 2003-04-28 at 04:28, Dax Kelson wrote:
+> Larry, you did a horrible -- horrible -- job in stating your
+> 1. Everyone agrees that using (warezing) software in violation of it's
+> license is wrong. Everyone agrees that unauthorized copying of
 
-M386 is tuning for the Intel 386
+Not quite so clear. You need a "providing the license and its
+enforcement (eg by DRM) don't violate the local law and to an 
+extent local society standards
 
-X86_GENERIC is "try to tune for all CPUs if possible" 
+> Multiple competing implementations (Open Source or otherwise) is GOOD
+> FOR THE CONSUMER!
 
-> This doesn't work. E.g. MPENTIUMIII has the semantics of "support 
-> Pentium-III and above". If you want to compile a kernel that runs on 
-> both a Pentium-III and a Pentium-4 you choose MPENTIUMIII which implies 
-> X86_L1_CACHE_SHIFT=5 ...
-
-Admittedly the other options could be changed to 
-
-default "4" if (MELAN || M486 || M386) && !X86_GENERIC
-
-but that looked a bit too ugly and it seems to work even without.
+But its not good for the Larry 8)
 
 
--Andi

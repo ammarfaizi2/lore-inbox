@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264756AbSLBVlD>; Mon, 2 Dec 2002 16:41:03 -0500
+	id <S265051AbSLBVvr>; Mon, 2 Dec 2002 16:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265092AbSLBVlD>; Mon, 2 Dec 2002 16:41:03 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11524 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264756AbSLBVlB>; Mon, 2 Dec 2002 16:41:01 -0500
-Date: Mon, 2 Dec 2002 16:46:53 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@digeo.com>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org, Con Kolivas <conman@kolivas.net>
-Subject: Re: [PATCH] 2.4.20-rmap15a
-In-Reply-To: <Pine.LNX.4.44L.0212021035130.15981-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.3.96.1021202162812.1418A-100000@gatekeeper.tmr.com>
+	id <S265058AbSLBVvr>; Mon, 2 Dec 2002 16:51:47 -0500
+Received: from snow.ball.teaser.net ([213.91.6.13]:7173 "EHLO
+	snow.ball.reliam.net") by vger.kernel.org with ESMTP
+	id <S265051AbSLBVvq>; Mon, 2 Dec 2002 16:51:46 -0500
+Date: Mon, 2 Dec 2002 22:57:28 +0100
+From: Tobias Rittweiler <inkognito.anonym@uni.de>
+X-Mailer: The Bat! (v1.60q)
+Reply-To: Tobias Rittweiler <inkognito.anonym@uni.de>
+X-Priority: 3 (Normal)
+Message-ID: <9814769328.20021202225728@uni.de>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [STATUS] fbdev api.
+In-Reply-To: <Pine.LNX.4.44.0212022051320.20834-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0212022051320.20834-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Dec 2002, Rik van Riel wrote:
+Hello James,
 
-> On Mon, 2 Dec 2002, Jens Axboe wrote:
-> > On Mon, Dec 02 2002, Andrew Morton wrote:
-> 
-> > > So rather than just keeping on calling it a "hack" could you please
-> > > describe what is actually wrong with the idea?
-> >
-> > I've never said that the idea is wrong, it's the solution that is an
-> > ugly hack.
-> 
-> OK, do you have a better idea on how to implement this thing ?
-> 
-> I could be your code monkey if you don't have the time to
-> implement something yourself.
+Monday, December 2, 2002, 10:07:33 PM, you wrote:
 
-Clearly the patch addresses the problem. However, I have some doubt that
-it can be optimal however tuned. The more we put blocking io ahead of
-non-blocking io, the greater the chance that the system will get so low on
-memory that some of the non-blocking write may act like blocking write, or
-the system may smoothly become dead slow.
 
-Ignoring all the reasons why a major change shouldn't be put into a frozen
-development, if there were a per-device and per-pid queue, then each time
-the elevator were loaded some minimum and maximum number of requests per
-pid could be queued. This would repeat until all requests were processed
-or some max number of requests was handled. 
+JS> Hi!
 
-I think the effect of this would be that under light load many requests
-from a single process would be taken, getting the benefit of sequential io
-and good throughput. If the performance gain justified the overhead the
-per-pid queue could be sorted to keep contiguous requests grouped. If
-there were a lot of processes contending for the device, it would assure
-some degree of fair scheduling without having to scan down or insert in
-one large queue.
+JS> I have a new patch avaiable. It is against 2.5.50. The patch is at
+JS> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
-Just a thought, clearly this is too large a change to put in at the
-moment, and may have some drawback I missed, or less benefit. It has the
-advantage of not having to scan down all waiting requests for a device,
-which would clearly be too much overhead. The actual decisions aren't all
-that complex at any given point, hopefully CPU usage would reflext this.
+JS> [...]
+JS> The diffstat is:
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+JS>  CREDITS                                |   10 
+
+Hunk #1 succeeded at 2836 (offset -6 lines).
+
+JS>  [...]
+JS>  arch/i386/vmlinux.lds.s                |  114
+               ^^^^^^^^^^^^^^
+really intended?
+
+JS>  [...]
+JS>  drivers/char/tty_io.c                  |    7
+
+Hunk #1 succeeded at 1503 (offset -6 lines).
+
+JS>  [...]
+JS>  drivers/video/Kconfig                  |  411 --
+
+Hunk #19 succeeded at 864 with fuzz 1 (offset -7 lines).
+
+(of course against 2.5.50 vanilla)
+--
+cheers,
+ Tobias
 

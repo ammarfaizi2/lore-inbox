@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUJSTAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270085AbUJSTAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266195AbUJSTAm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270019AbUJSSYK
+	id S270085AbUJSTAj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269647AbUJSS6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 14:24:10 -0400
-Received: from mail3.utc.com ([192.249.46.192]:40153 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S270139AbUJSSGO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 14:06:14 -0400
-Message-ID: <41755774.5050306@cybsft.com>
-Date: Tue, 19 Oct 2004 13:05:40 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Tue, 19 Oct 2004 14:58:45 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:28143 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S269655AbUJSS6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 14:58:09 -0400
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: sam@ravnborg.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+References: <52is979pah.fsf@topspin.com>
+	<20041019164449.GF6298@smtp.west.cox.net>
+	<521xfua835.fsf_-_@topspin.com>
+	<20041019182928.GA12544@smtp.west.cox.net>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 19 Oct 2004 11:58:03 -0700
+In-Reply-To: <20041019182928.GA12544@smtp.west.cox.net> (Tom Rini's message
+ of "Tue, 19 Oct 2004 11:29:28 -0700")
+Message-ID: <52wtxm8ric.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Mark_H_Johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-References: <OF684A90CB.5A611764-ON86256F32.005DA19F@raytheon.com> <20041019174050.GA18998@elte.hu>
-In-Reply-To: <20041019174050.GA18998@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH/take 2] ppc: fix build with O=$(output_dir)
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 19 Oct 2004 18:58:04.0239 (UTC) FILETIME=[9024FDF0:01C4B60D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
-> 
-> 
->>Booted to single user and was able to get some network operations
->>going with this version (w/ previously mentioned update). However, at
->>the step where I start CUPS, I got a number of traces on the display
->>referring to parport_pc related function calls [but I don't use a
->>parallel printer...]. It ended with:
-> 
-> 
-> thanks for the logs - there are some semaphore assumptions in
-> ieee1284.c, it should use completions & wait_for_completion_timeout()
-> too. The workaround is to disable CONFIG_PARPORT_1284. (or
-> CONFIG_PARPORT altogether.)
-> 
-> 	Ingo
-> 
+    Tom> This misses the bit to invoke the checker as well (when I
+    Tom> first thought this up I poked Al Viro about the general
+    Tom> question of checker on boot code, and he wanted it, so...).
+    Tom> And having 2 'magic' rules not just 1 is why I don't like
+    Tom> this too much and was hoping Sam would have some idea of a
+    Tom> good fix.
 
-If only he had been a little faster getting this in, I wouldn't have sat 
-and written the entire screen full down on paper. :) Mine wasn't making 
-it to the logs. At least he saved me from typing it all back in. Thanks 
-Mark. Disabling PARPORT fixed my problem as well.
+Hmm, good point, forgot about the checker.  I tried various magic ways
+of fixing this with vpath etc. but I couldn't mke it work.  Sam,
+you're our last hope I guess.
 
-kr
+Thanks,
+  Roland

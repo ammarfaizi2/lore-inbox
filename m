@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262838AbTATJYy>; Mon, 20 Jan 2003 04:24:54 -0500
+	id <S264610AbTATJcx>; Mon, 20 Jan 2003 04:32:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263313AbTATJYy>; Mon, 20 Jan 2003 04:24:54 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:58596 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S262838AbTATJYx>; Mon, 20 Jan 2003 04:24:53 -0500
-Message-ID: <957BD1C2BF3CD411B6C500A0C944CA2602D9D4D8@pdsmsx32.pd.intel.com>
-From: "Guo, Min" <min.guo@intel.com>
-To: stanley.wang@linux.co.intel.com, Greg KH <greg@kroah.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
-Subject: RE: [Pcihpd-discuss] How about use sysfs instead of pcihpfs?
-Date: Mon, 20 Jan 2003 17:31:24 +0800
+	id <S264620AbTATJcx>; Mon, 20 Jan 2003 04:32:53 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45330
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S264610AbTATJcv>; Mon, 20 Jan 2003 04:32:51 -0500
+Date: Mon, 20 Jan 2003 01:37:53 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Sebastian Zimmermann <S.Zimmermann@tu-harburg.de>
+cc: "Juergen \"George\"    Sawinski" <george@mpimf-heidelberg.mpg.de>,
+       "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SuperTrak SX6000 w/ kernel 2.4.20
+In-Reply-To: <1043055372.1132.7.camel@antares.et6.tu-harburg.de>
+Message-ID: <Pine.LNX.4.10.10301200137150.12087-100000@master.linux-ide.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think it is a good idea....
 
-Guo Min 
-The content of this email message solely contains my own personal views,
-and not those of my employer.
+Try the Alan Cox patch set.
+I should have fixed the mess introduced in 2.4.19 by the OEM vendor.
 
------Original Message-----
-From: stanley.wang@linux.co.intel.com
-[mailto:stanley.wang@linux.co.intel.com]
-Sent: Monday, January 20, 2003 5:22 PM
-To: Greg KH
-Cc: Linux Kernel Mailing List; PCI_Hot_Plug_Discuss
-Subject: [Pcihpd-discuss] How about use sysfs instead of pcihpfs?
+On 20 Jan 2003, Sebastian Zimmermann wrote:
 
+> Am Don, 2003-01-16 um 12.23 schrieb Juergen "George" Sawinski:
+> > It shouldn't find /dev/hde ... /dev/hdj (there's some problem with the
+> > detection mechanism), as these are I2O devices, and thus it's
+> > /dev/i2o/hd?. You have to stop the discovery process by adding 
+> > 
+> > hde=noprobe hdf=noprobe hdg=noprobe hdh=noprobe hdi=noprobe hdj=noprobe
+> > 
+> > to the lilo append variable.
+> 
+> Yes, thank you. Now I can boot. (I also had to add /dev/hdm and /dev/hdo
+> though.)
+> 
+> Nonetheless, I still consider this a kernel bug. The kernel should boot
+> without the workaround as it did with version 2.4.18.
+> 
+> Sebastian
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Hi, Greg!
-After reading the pci_hotplug_core.c, I found there are many codes 
-that are used to implement the pcihpfs. And how about using sysfs instead
-of pcihpfs ? I think it could make the pci_hotplug_core.c smaller. Another
-pro is that we will nerver be bothered by the pcihpfs' bug.
-How you think about it?
+Andre Hedrick
+LAD Storage Consulting Group
 
-Regards,
-Stanley Wang
-
--- 
-Opinions expressed are those of the author and do not represent Intel
-Corporation
-
-
-
-
--------------------------------------------------------
-This SF.NET email is sponsored by: FREE  SSL Guide from Thawte
-are you planning your Web Server Security? Click here to get a FREE
-Thawte SSL guide and find the answers to all your  SSL security issues.
-http://ads.sourceforge.net/cgi-bin/redirect.pl?thaw0026en
-_______________________________________________
-Pcihpd-discuss mailing list
-Pcihpd-discuss@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/pcihpd-discuss

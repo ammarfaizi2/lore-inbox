@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291926AbSBATpB>; Fri, 1 Feb 2002 14:45:01 -0500
+	id <S291942AbSBATtl>; Fri, 1 Feb 2002 14:49:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291934AbSBATo5>; Fri, 1 Feb 2002 14:44:57 -0500
-Received: from zero.tech9.net ([209.61.188.187]:7187 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S291926AbSBAToN>;
-	Fri, 1 Feb 2002 14:44:13 -0500
-Subject: Re: Continuing /dev/random problems with 2.4
-From: Robert Love <rml@tech9.net>
-To: Ken Brownfield <brownfld@irridia.com>
+	id <S291949AbSBATtW>; Fri, 1 Feb 2002 14:49:22 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:15270 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S291951AbSBATry>;
+	Fri, 1 Feb 2002 14:47:54 -0500
+Date: Fri, 1 Feb 2002 14:47:51 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: arjan@fenrus.demon.nl
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020201133833.B8599@asooo.flowerfire.com>
-In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com>
-	<1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> 
-	<20020201133833.B8599@asooo.flowerfire.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 01 Feb 2002 14:50:31 -0500
-Message-Id: <1012593032.1095.7.camel@phantasy>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Message-ID: <20020201144751.A32553@havoc.gtf.org>
+In-Reply-To: <20020201132953.A27508@havoc.gtf.org> <m16Wig6-000OVeC@amadeus.home.nl>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m16Wig6-000OVeC@amadeus.home.nl>; from arjan@fenrus.demon.nl on Fri, Feb 01, 2002 at 06:44:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-02-01 at 14:38, Ken Brownfield wrote:
+On Fri, Feb 01, 2002 at 06:44:50PM +0000, arjan@fenrus.demon.nl wrote:
+> In article <20020201132953.A27508@havoc.gtf.org> you wrote:
+> > On Fri, Feb 01, 2002 at 09:06:37AM -0800, Linus Torvalds wrote:
+> >> Even databases often use multiple files, and quite frankly, a database
+> >> that doesn't use mmap and doesn't try very hard to not cause extra system
+> >> calls is going to be bad performance-wise _regardless_ of any page cache
+> >> locking.
+> 
+> > I've always thought that read(2) and write(2) would in the end wind up
+> > faster than mmap(2)...  Tests in my rewritten cp/rm/mv type utilities
+> > seem to bear this out.
+> 
+> the biggest reason for this is that we *suck* at readahead for mmap....
 
-> Of course, in my case deleting the /dev/random character node still
-> doesn't allow entropy to drain in (after at least a month) so I suspect
-> the kernel's entropy generation would be sufficient if it didn't
-> artificially stall or drain from within the kernel.
+Is there not also fault overhead and similar issues related to mmap(2)
+in general, that are not present with read(2)/write(2)?
 
-Agreed, I suspect you do indeed have a problem.
+	Jeff
 
-What is the output of `/proc/sys/kernel/random/entropy_avail' when
-programs are stalled?  Is it actually 0?
 
-Can you see if any programs are perhaps draining entropy in the
-background?  See what has /dev/[u]random open ... note even /dev/urandom
-uses entropy, its the same as /dev/random, except it doesn't care when
-the entropy estimate is 0.
-
-	Robert Love
 

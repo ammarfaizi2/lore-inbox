@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270503AbRHHPPo>; Wed, 8 Aug 2001 11:15:44 -0400
+	id <S270506AbRHHPRD>; Wed, 8 Aug 2001 11:17:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270506AbRHHPPf>; Wed, 8 Aug 2001 11:15:35 -0400
-Received: from smtp1.ns.sympatico.ca ([142.177.1.91]:5092 "EHLO
-	smtp2.ns.sympatico.ca") by vger.kernel.org with ESMTP
-	id <S270503AbRHHPPP>; Wed, 8 Aug 2001 11:15:15 -0400
-Message-ID: <3B715783.F3EDEC71@yahoo.co.uk>
-Date: Wed, 08 Aug 2001 11:15:15 -0400
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] parport_pc.c PnP BIOS sanity check
+	id <S270507AbRHHPQx>; Wed, 8 Aug 2001 11:16:53 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:57732
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S270506AbRHHPQd>; Wed, 8 Aug 2001 11:16:33 -0400
+Date: Wed, 8 Aug 2001 08:16:38 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: ext3-users@redhat.com
+Cc: linux-kernel@vger.kernel.org, Carsten Otte <COTTE@de.ibm.com>
+Subject: Re: BUG: Assertion failure with ext3-0.95 for 2.4.7
+Message-ID: <20010808081638.K2399@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <OF5E574EE5.AF3B6F6F-ONC1256AA2.0026D8D3@de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <OF5E574EE5.AF3B6F6F-ONC1256AA2.0026D8D3@de.ibm.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following would seem to be required to protect against
-the case in which PnP BIOS reports an IRQ of 0 for a 
-parport with disabled IRQ.      // Thomas  jdthood_AT_yahoo.co.uk
+On Wed, Aug 08, 2001 at 10:46:41AM +0200, Christian Borntraeger wrote:
 
---- linux-2.4.7-ac2/drivers/parport/parport_pc.c        Mon Jul 30 01:18:34 2001
-+++ linux-2.4.7-ac2-jdth1/drivers/parport/parport_pc.c  Mon Jul 30 12:32:16 2001
-@@ -2797,7 +2797,8 @@
-        irq=dev->irq_resource[0].start;
-        dma=dev->dma_resource[0].start;
+> I tested ext3 on a Linux for S/390 with several stress and benchmark test
+> tests and faced a kernel bug message.
+> The console showed the following output:
+> 
+> Message from syslogd@boeaet34 at Fri Aug  3 11:34:16 2001 ...
+> boeaet34 kernel: Assertion failure in journal_forget() at
+> transaction.c:1184: "!
+> jh->b_committed_data"
 
--       if(dma==0) dma=-1;
-+       if (dma==0) dma=PARPORT_DMA_NONE;
-+       if (irq==0) irq=PARPORT_IRQ_NONE;
+Hmm.  I managed to get that oops on my PPC box too.  Can you turn on the
+buffer trace code, reproduce it and post the log of that?  I bet it looks
+a lot like the one I got...
 
-        printk(KERN_INFO "PnPBIOS: Parport found %s %s at io=%04x,%04x irq=%d dma=%d\n",
-                dev->name,dev->slot_name,io,iohi,irq,dma);
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

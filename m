@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310491AbSCCAts>; Sat, 2 Mar 2002 19:49:48 -0500
+	id <S310492AbSCCA4H>; Sat, 2 Mar 2002 19:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292574AbSCCAt2>; Sat, 2 Mar 2002 19:49:28 -0500
-Received: from trillium-hollow.org ([209.180.166.89]:28607 "EHLO
-	trillium-hollow.org") by vger.kernel.org with ESMTP
-	id <S310491AbSCCAtH>; Sat, 2 Mar 2002 19:49:07 -0500
-To: Russell King <rmk@arm.linux.org.uk>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S310493AbSCCAzy>; Sat, 2 Mar 2002 19:55:54 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:41733
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S310492AbSCCAzl>; Sat, 2 Mar 2002 19:55:41 -0500
+Message-Id: <5.1.0.14.2.20020302195020.01d0c948@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 02 Mar 2002 19:50:45 -0500
+To: erich@uruk.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Stevie O <stevie@qrpff.net>
 Subject: Re: Network Security hole (was -> Re: arp bug ) 
-In-Reply-To: Your message of "Sat, 02 Mar 2002 16:43:23 PST."
-             <E16hK5z-0000vI-00@trillium-hollow.org> 
-Date: Sat, 02 Mar 2002 16:49:05 -0800
-From: erich@uruk.org
-Message-Id: <E16hKBV-0000wK-00@trillium-hollow.org>
+Cc: ja@ssi.bg (Julian Anastasov), szekeres@lhsystems.hu (Szekeres Bela),
+        dang@fprintf.net (Daniel Gryniewicz),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <E16hFeV-0000Nj-00@trillium-hollow.org>
+In-Reply-To: <Your message of "Sat, 02 Mar 2002 19:14:55 GMT." <E16hEy7-000875-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 11:58 AM 3/2/2002 -0800, erich@uruk.org wrote:
 
-erich@uruk.org wrote;
+>I would think that making the IP stack, for each MAC/interface path
+>on reception, just check against the exact expected input address,
+>would actually be a performance improvement on machines with multiple
+>NICs.
 
-> > Linux 2.4 netfilter:
-> > 
-> > Incoming                                                 Outgoing
-> > interface                                                interface
-> >   ----+------------------- FORWARD -----------------+------->
-> >       |                                             ^
-> >       v                                             |
-> >     INPUT -------------> Application -----------> OUTPUT
-> > 
-> > The names in capitals are the names of the tables.  You can control
-> > packets that the local machine sees completely independently of what
-> > gets routed through the machine with a kernel supporting iptables
-> > by adding the appropriate rules to the input and forward tables.
-> 
-> Hmm.  This would seem to be false in the RH 7.2 kernel 2.4.9-21
-> kernel I'm working with.
-> 
-> My IP masquerading rule (which claims to be in the "forward"
-> chain, with target "MASQ"), was blocked when I did input address
-> masking.
-> 
-> I.e. Yes, I actually tested this before posting.
-> 
-> If you're calling it a bug, then so be it.  But the result would be
-> a bit better than how my Linux system works now.
+Two words: Broadcast addresses.
 
-Whoops, I am apparently using "ipchains" and not "iptables", and
-didn't note the distinction.
-
-Sorry about the spurious bug report here.  :/
 
 --
-    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
-"Reality is truly stranger than fiction; Probably why fiction is so popular"
+Stevie-O
+
+Real programmers use COPY CON PROGRAM.EXE
+

@@ -1,87 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVDEMDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVDEMJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVDEMDY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 08:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVDEMDY
+	id S261705AbVDEMJp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 08:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVDEMJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 08:03:24 -0400
-Received: from hades.almg.gov.br ([200.198.60.36]:38083 "EHLO
-	hades.almg.gov.br") by vger.kernel.org with ESMTP id S261704AbVDEMDI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 08:03:08 -0400
-Message-ID: <42527E89.4040506@almg.gov.br>
-Date: Tue, 05 Apr 2005 09:03:21 -0300
-From: Humberto Massa <humberto.massa@almg.gov.br>
-User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050224)
+	Tue, 5 Apr 2005 08:09:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28644 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261705AbVDEMJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 08:09:42 -0400
+Message-ID: <42527FF6.1080502@pobox.com>
+Date: Tue, 05 Apr 2005 08:09:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+To: Christoph Hellwig <hch@lst.de>
+CC: Arjan van de Ven <arjan@infradead.org>, Ian Campbell <ijc@hellion.org.uk>,
+       Sven Luther <sven.luther@wanadoo.fr>, "Theodore Ts'o" <tytso@mit.edu>,
+       Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
        linux-kernel@vger.kernel.org
 Subject: Re: non-free firmware in kernel modules, aggregation and unclear
  copyright notice.
-References: <h-GOHD.A.KL.s2aUCB@murphy>
-In-Reply-To: <h-GOHD.A.KL.s2aUCB@murphy>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos> <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos> <1112689164.3086.100.camel@icampbell-debian> <20050405083217.GA22724@pegasos> <1112690965.3086.107.camel@icampbell-debian> <20050405091144.GA18219@lst.de> <1112693287.6275.30.camel@laptopd505.fenrus.org> <20050405093258.GA18523@lst.de>
+In-Reply-To: <20050405093258.GA18523@lst.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
+Christoph Hellwig wrote:
+> On Tue, Apr 05, 2005 at 11:28:07AM +0200, Arjan van de Ven wrote:
+>>One of the sticking points will be how people get the firmware; I can
+>>see the point of a kernel-distributable-firmware project related to the
+>>kernel (say on kernel.org) which would provide a nice collection of
+>>distributable firmwares (and is appropriately licensed). Without such
+>>joint infrastructure things will always be a mess and in that context I
+>>can see the point of the driver authors not immediately wanting to
+>>switch exclusively. Simply because they'll get swamped with email about
+>>how the driver doesn't work...
+> 
+> 
+> I agree.  And that really doesn't need a lot of infrastructure,
+> basically just a tarball that unpacks to /lib/firmware, maybe a specfile
+> and debian/ dir in addition.
 
->  You know, the fact that Red Hat, SuSE, Ubuntu, and pretty much all
->  other commercial distributions have not been worried about getting
->  sued for this alleged GPL'ed violation makes it a lot harder for me
->  (and others, I'm sure) take Debian's concerns seriously.
 
-I said in other e-mail, and I will repeat: it's not their (Debian's) 
-fault. Their responsibility is greater. Why? Because when RedHat puts 
-something it shouldn't in their distro it's *their* assets that will 
-answer for some copyright violation damages. In Debian's case, it's the 
-assets of: some DDs, the mirror network, derived-distro distributors, CD 
-vendors, etc... This is just a case of Debian being "fiscally 
-responsible", i.e., not treating other people's money as trash.
+At the moment there is -zero- infrastructure that would allow my tg3 to 
+continue working, when I upgrade to a tg3 driver with external firmware.
 
->  The problem may be that because Debian is purely a non-profit, and so
->  it can't clearly balance the costs and benefits of trying trying to
->  avoid every single possible risks where someone might decide to file
->  a lawsuit.  Anytime you do *anything* you risk the possibility of a
->  lawsuit, and if you allow the laywers to take over your business
->  decisions, the natural avoid-risks-all-costs bias of lawyers are such
->  that it will either drive a company out of business, or drive a
->  non-profit distribution into irrelevance.....
->
->  If Debian wants to be this fanatical, then let those Debian
->  developers who care do all of the work to make this happen, and stop
->  bothering LKML.  And if it continues to remain the case that a user
->  will have to manually edit /etc/apt/sources.lists (using vi!) to
->  include a reference to non-free in order to install Debian on a
->  system that requires the tg3 device driver, then I will have to tell
->  users who ask me that they would be better off using some other
->  distribution which actually cares about their needs.
->
->  - Ted
+The user has to put a file in some location manually.
 
-In this I agree with you, and Greg KH was singing approximately the same 
-tune, if I understood correctly: this is a matter to be resolved by 
-distributors and, if someone solves this in a practical and good way, it 
-will eventually end in the pristine-blessed-Linus-kernel-tree, to the 
-benefit of others.
+That's a complete non-starter, from a usability standpoint.
 
-But, the question made here was a subtler one and you are all biting 
-around the bush: there *are* some misrepresentations of licenses to the 
-firmware blobs in the kernel (-- ok, *if* you consider that hex dumps 
-are not source code). What Sven asked was: "Hey, can I state explicitly 
-the distribution state in the source files, by means of adding some 
-comments?".
+Further, several firmwares, including tg3, are really a collection of 
+bits of information:  .text, .bss, and random variables (start addr, 
+image size, ...).  The current interface is complete crap for this sort 
+of setup.
 
-Maybe he should contact each file's maintainer individually, but it 
-seems (IMHO) that he thought "hey, they all hang around lkml anyway"...
+The firmware loader really needs to be loading -archives- not individual 
+files.
 
-I think even a clarification "this firmware hexdump is considered to be 
-the source code, and it's GPL'd" would do, but I must put my asbestos 
-suit everytime I say it. :-)
+We are a -long- way from moving the firmware out of the tg3 source code.
 
-HTH,
-
-Massa
+	Jeff
 
 

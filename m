@@ -1,99 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267446AbRGZA3V>; Wed, 25 Jul 2001 20:29:21 -0400
+	id <S267449AbRGZAbl>; Wed, 25 Jul 2001 20:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267449AbRGZA3M>; Wed, 25 Jul 2001 20:29:12 -0400
-Received: from [213.82.86.194] ([213.82.86.194]:55044 "EHLO fatamorgana.net")
-	by vger.kernel.org with ESMTP id <S267446AbRGZA3F>;
-	Wed, 25 Jul 2001 20:29:05 -0400
-Content-Type: Multipart/Mixed;
-  charset="iso-8859-1";
-  boundary="------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2"
+	id <S267458AbRGZAbb>; Wed, 25 Jul 2001 20:31:31 -0400
+Received: from [213.82.86.194] ([213.82.86.194]:57604 "EHLO fatamorgana.net")
+	by vger.kernel.org with ESMTP id <S267449AbRGZAb1>;
+	Wed, 25 Jul 2001 20:31:27 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
 From: Roberto Arcomano <berto@fatamorgana.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] net/ipv4/arp.c, kernel 2.4.6
-Date: Thu, 26 Jul 2001 02:31:47 +0200
+Subject: Re: Patch suggestion for proxy arp on shaper interface
+Date: Thu, 26 Jul 2001 02:34:07 +0200
 X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Message-Id: <01072602314701.01029@berto.casa.it>
+Message-Id: <01072602340703.01029@berto.casa.it>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Il 20:54, mercoledì 25 luglio 2001, hai scritto:
+> Hello!
+>
+> > As I said in my first message, I tested it with 2.4.6 and it "appears" (I
+> > tested it in a very little net) to work well
+>
+> The patch works right, I think. But it is so utterly ugly and its scope
+> is so narrow, that I do think this is acceptable.
+>
+> Actually, you may use CBQ instead it does not create problems of this
+> kind. Seems, scripts to setup it can be found in LRP. I can send it,
+> but I am not sure that my copy is the newest.
+>
+> Alexey
 
---------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
 
-This patch should update proxy arp feature for shaper device. Details are in 
-README file attached.
-Thank you for your support.
+Please send me script you was talking about.
+I know that CBQ is a more recent (and I guess better) method to limit 
+bandwidth, but I think also there are still many users of "shaper" device who 
+would want to avoid proxy arp problems.
+
+Thank you for all
 Best Regards
 Roberto Arcomano
---------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2
-Content-Type: text/x-c;
-  charset="iso-8859-1";
-  name="diff"
-Content-Transfer-Encoding: base64
-Content-Description: Diff file for arp.c
-Content-Disposition: attachment; filename="diff"
-
-LS0tIGxpbnV4LTIuNC42Lm9yaWcvbmV0L2lwdjQvYXJwLmMJV2VkIE1heSAxNiAxOToyMTo0NSAy
-MDAxCisrKyBsaW51eC0yLjQuNi9uZXQvaXB2NC9hcnAuYwlUaHUgSnVsIDI2IDAyOjAwOjM1IDIw
-MDEKQEAgLTExMSw2ICsxMTEsNyBAQAogCiAjaW5jbHVkZSA8YXNtL3N5c3RlbS5oPgogI2luY2x1
-ZGUgPGFzbS91YWNjZXNzLmg+CisjaW5jbHVkZSA8bGludXgvaWZfc2hhcGVyLmg+CiAKIAogCkBA
-IC03NjcsOCArNzY4LDE1IEBACiAJCQl9CiAJCQlnb3RvIG91dDsKIAkJfSBlbHNlIGlmIChJTl9E
-RVZfRk9SV0FSRChpbl9kZXYpKSB7CisgICAgICAgICAgICAgICAgICAgICAgICBjaGFyIHNoZmxh
-Zz0wOworICAgICAgICAgICAgICAgICAgICAgICAgaWYgKCAocnQtPnUuZHN0LmRldikgJiYKKwkJ
-CSAgICAgKHJ0LT51LmRzdC5kZXYtPnByaXYpICYmCisJCQkgICAgICgoKHN0cnVjdCBzaGFwZXIg
-KikgcnQtPnUuZHN0LmRldi0+cHJpdiktPmRldikgJiYKKwkJCSAgICAgKHN0cm5jbXAocnQtPnUu
-ZHN0LmRldi0+bmFtZSwic2hhcGVyIiw2KT09MCkgKQorCQkJICBzaGZsYWc9MTsKIAkJCWlmICgo
-cnQtPnJ0X2ZsYWdzJlJUQ0ZfRE5BVCkgfHwKLQkJCSAgICAoYWRkcl90eXBlID09IFJUTl9VTklD
-QVNUICAmJiBydC0+dS5kc3QuZGV2ICE9IGRldiAmJgorCQkJICAgIChhZGRyX3R5cGUgPT0gUlRO
-X1VOSUNBU1QgICYmIAorCQkJICAgICggKChzaGZsYWcpICYmICggKChzdHJ1Y3Qgc2hhcGVyICop
-IHJ0LT51LmRzdC5kZXYtPnByaXYpLT5kZXYgIT0gZGV2KSkgfHwgKCghc2hmbGFnKSAmJiAocnQt
-PnUuZHN0LmRldiAhPSBkZXYpKSApICYmCiAJCQkgICAgIChJTl9ERVZfUFJPWFlfQVJQKGluX2Rl
-dikgfHwgcG5laWdoX2xvb2t1cCgmYXJwX3RibCwgJnRpcCwgZGV2LCAwKSkpKSB7CiAJCQkJbiA9
-IG5laWdoX2V2ZW50X25zKCZhcnBfdGJsLCBzaGEsICZzaXAsIGRldik7CiAJCQkJaWYgKG4pCg==
-
---------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2
-Content-Type: text/x-c;
-  charset="iso-8859-1";
-  name="README"
-Content-Transfer-Encoding: base64
-Content-Description: Readme for proxy arp PATCH
-Content-Disposition: attachment; filename="README"
-
-U3ViamVjdDogUEFUQ0ggdG8gdXBkYXRlIHByb3h5IGFycCBmZWF0dXJlIG9uIHNoYXBlciBkZXZp
-Y2UKCkF1dGhvcjogUm9iZXJ0byBBcmNvbWFubywgYmVydG9AZmF0YW1vcmdhbmEuY29tLAogICAg
-ICAgIGh0dHA6Ly93d3cuZmF0YW1vcmdhbmEuY29tL2JlcnRvbGludXgKCkRhdGU6IDA3LzIyLzIw
-MDEKCkRlc2NyaXB0aW9uOiBTaGFwZXIgZGV2aWNlIGlzIHNlZW4gYnkgdGhlIGtlcm5lbCBsaWtl
-IGEgCiAgICAgICAgICAgICBkaWZmZXJlbnQgZGV2aWNlIHRoYW4gdGhlIHBoeXNpY2FsIG9uZSB0
-byB3aGljaAoJICAgICBpcyBhdHRhY2hlZCB0by4gU28ga2VybmVsIGFsd2F5cyBpc3N1ZXMgYW4g
-CgkgICAgICJBUlAgUkVQTFkiIChpZiBwcm94eSBhcnAgaXMgYWN0aXZlKTogdGhpcwoJICAgICBw
-cmV2ZW50IHVzIHRvIGVuYWJsZSBwcm94eSBhcnAgKG9uIGEgc2hhcGVyIGRldmljZSkKCSAgICAg
-YW5kIHR1cm4gb24gbWFjaGluZSBjYXVzZSB3ZSB3b3VsZCByZWNlaXZlCgkgICAgIGFuICJJUCBj
-b25mbGl0Ii4KCSAgICAgClNvbHV0aW9uOiBUaGUgcGF0Y2ggaW52ZXN0aWdhdGVzIGFib3V0IHRo
-ZSBzaGFwZXIgZGV2aWNlIAogICAgICAgICAgKGl0IGNvbXBhcmVzIHN0cmluZyB3aXRoICJzaGFw
-ZXIiKTogaWYgeWVzLCB3ZSAKCSAgc2VhcmNoIHRoZSByZWFsIGludGVyZmFjZSBhdHRhY2hlZCB0
-byBzaGFwZXIKCSAgKHdlIHJlYWQgdmFsdWUgb2YgcHJpdi0+ZGV2KSBhbmQgd2UgdXNlIHRoYXQg
-dG8KCSAgIG1ha2UgdGhlIGNsYXNzaWMgcHJveHkgYXJwIGRldmljZXMgY29tcGFyZS4KClByb2Js
-ZW1zOiBUaGUgcGF0Y2ggdXNlcyByb3V0aW5lICJzdHJuY21wIiB3aGljaCBpcyBub3QgdGhlCiAg
-ICAgICAgICBiZXN0IHRoaW5nIChJIGd1ZXNzKS4KCQpUZXN0czogSSB0ZXN0ZWQgbmV3IGZlYXR1
-cmUgdXNpbmcgMyBQQyBsaWtlIHRoYXQ6CgogICAgICAgICAgIENMSUVOVDEgIC0tLS0tLS0tLS0t
-IExJTlVYIC0tLS0tICBDTElFTlQyCiAgICAgCSAgICAgICAgICAgICAgICAgIHNoYXBlcjAgICBw
-cHAwCgkgICAgICAgICAgICAgICAgICAgW2V0aDBdCgkgICAKICAgICAgIExJTlVYIGhvc3QgaGFz
-IHByb3h5IGFycCBhbmQgc2hhcGVyIGVuYWJsZWQsIHdpdGgKICAgICAgIGEgcm91dGluZyAodXNp
-bmcgc2hhcGVyMCBpbnRlcmZhY2UpIHRvIENMSUVOVDEKICAgICAgIElmIEkgdXNlIG9sZCBmZWF0
-dXJlLCB3aGVuIEkgdHVybiBvbiBDTElFTlQxIEkgcmVjZWl2ZQogICAgICAgYW4gIklQIGNvbmZs
-aXQiIGJ5IGl0cyBPUywgd2hpbGUgdXNpbmcgcGF0Y2hlZCB2ZXJzaW9uCiAgICAgICBJIGhhdmUg
-bm8gcHJvYmxlbSBhbmQgcHJveHkgYXJwIGZlYXR1cmUgZm9yIENMSUVOVDIKICAgICAgIHdvcmtz
-IHdlbGwgKGFzIHJpZ2h0LCBJIGNhbm5vdCBhc3NpZ24gQ0xJRU5UMiBJUCB0bwogICAgICAgQ0xJ
-RU5UMSBob3N0KS4KICAgICAgIAogICAgICAgS2VybmVsIHZlcnNpb24gdGVzdGVkIGlzIDIuNC42
-ICAgICAgIAogICAgICAgCkZpbmFsIG5vdGVzOiBJdCBzaG91bGQgYmUgdmVyeSBzaW1wbGUgdG8g
-cG9ydCBwYXRjaCB0byBvbGRlcgogICAgICAgICAgICAga2VybmVsIHZlcnNpb24gKDIuMC54eCwg
-Mi4xLnh4LCAyLjIueHgsIDIuMy54eCkKCSAgICAKCSAgICAgICAgICAgICAKCSAgICAgCgkgICAg
-IAo=
-
---------------Boundary-00=_ZG12SZ89TOD3N2GY1FP2--

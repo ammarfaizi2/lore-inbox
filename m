@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVCZAii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVCZAin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbVCZAii (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 19:38:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVCZAih
+	id S261895AbVCZAin (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 19:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVCZAin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 19:38:37 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:15891 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261893AbVCZAib
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 19:38:31 -0500
-Date: Sat, 26 Mar 2005 11:36:02 +1100
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Kim Phillips <kim.phillips@freescale.com>,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       cryptoapi@lists.logix.cz, David McCullough <davidm@snapgear.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050326003601.GB22930@gondor.apana.org.au>
-References: <1111737496.20797.59.camel@uganda> <424495A8.40804@freescale.com> <20050325234348.GA17411@havoc.gtf.org> <20050325234745.GA22661@gondor.apana.org.au> <20050326034733.3c532f20@zanzibar.2ka.mipt.ru>
+	Fri, 25 Mar 2005 19:38:43 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:6271 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261895AbVCZAie (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 19:38:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=LPZMqvaTgs97ZCHfDCuAgYLADw6yzeCBqqo0KAqd7pTJou8Xs/XincNPp94wLSMhkr2H63CtZEOiUjwuMT4+1wJ4E4vObZBaCeHuJJiPBV8Fae4k/GSxrEa3+xx1DQsaqIAjhz9mpfljgG5GaOTwYnCWbc9O0z21As40zJ7H59c=
+Message-ID: <2a0fbc590503251638420f2f08@mail.gmail.com>
+Date: Sat, 26 Mar 2005 01:38:34 +0100
+From: Julien Wajsberg <julien.wajsberg@gmail.com>
+Reply-To: Julien Wajsberg <julien.wajsberg@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How's the nforce4 support in Linux?
+In-Reply-To: <1111792462.23430.25.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050326034733.3c532f20@zanzibar.2ka.mipt.ru>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <2a0fbc59050325145935a05521@mail.gmail.com>
+	 <1111792462.23430.25.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 26, 2005 at 03:47:33AM +0300, Evgeniy Polyakov wrote:
+On Fri, 25 Mar 2005 18:14:22 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Fri, 2005-03-25 at 23:59 +0100, Julien Wajsberg wrote:
+> > - audio works too. The only problem is that two applications can't
+> > open /dev/dsp in the same time.
 > 
-> It looks like we all misunderstand each other - 
-> why do you think that if there will be kernel <-> kernel
-> RNG dataflow, then system will continuously spent all
-> it's time to produce that data?
+> Not a problem.  ALSA does software mixing for chipsets that can't do it
+> in hardware.  Google for dmix.
+> 
+> However this doesn't (and can't be made to) work with the in-kernel OSS
+> emulation (it works fine with the alsa-lib/libaoss emulation).  So you
+> are technically correct in that two OSS apps can't open /dev/dsp at the
+> same time, but there is no problem with multiple apps sharing the sound
+> device, as long as they use the ALSA API (which they should be using
+> anyway).
 
-It doesn't matter whether it's like that or not.
+Okay, good to know. Then I'll have to find out why beep-media-player
+doesn't work with alsa :-)
 
-The point is if you do it in the kernel then either you'll have very
-coarse controls over the rate of data coming out of the hardware RNG,
-e.g., only on/off, or you'll have to put more code in to set the rate 
-appropriately.
-
-Either way it's a loss compared to doing it in user-space.
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Julien

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137082AbREKJZU>; Fri, 11 May 2001 05:25:20 -0400
+	id <S137085AbREKJmM>; Fri, 11 May 2001 05:42:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137085AbREKJZK>; Fri, 11 May 2001 05:25:10 -0400
-Received: from oxmail1.ox.ac.uk ([129.67.1.1]:41404 "EHLO oxmail.ox.ac.uk")
-	by vger.kernel.org with ESMTP id <S137082AbREKJZC>;
-	Fri, 11 May 2001 05:25:02 -0400
-Date: Fri, 11 May 2001 10:21:09 +0100
-From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-To: Jonathan Lundell <jlundell@pobox.com>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Not a typewriter
-Message-ID: <20010511102109.A18500@sable.ox.ac.uk>
-In-Reply-To: <Pine.GSO.4.21.0105102001000.3943-100000@weyl.math.psu.edu> <p0510030eb720f425344e@[10.128.7.49]>
-Mime-Version: 1.0
+	id <S137087AbREKJmC>; Fri, 11 May 2001 05:42:02 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:57238 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S137085AbREKJlu>;
+	Fri, 11 May 2001 05:41:50 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <p0510030eb720f425344e@[10.128.7.49]>; from jlundell@pobox.com on Thu, May 10, 2001 at 07:01:16PM -0700
+Content-Transfer-Encoding: 7bit
+Message-ID: <15099.46041.778542.342635@pizda.ninka.net>
+Date: Fri, 11 May 2001 02:41:45 -0700 (PDT)
+To: trond.myklebust@fys.uio.no
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.4 linearize UDP RPC requests using GFP_KERNEL...
+In-Reply-To: <15099.43446.132871.699151@charged.uio.no>
+In-Reply-To: <15099.43446.132871.699151@charged.uio.no>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Lundell writes:
-> FWIW, the comment in errno.h under Solaris 2.6 is "Inappropriate 
-> ioctl for device". I believe that's the POSIX interpretation.
 
-POSIX has
+Trond Myklebust writes:
+ >   IMHO allocating the buffer using GFP_ATOMIC is a mistake. As I said
+ > we're in a thread context, so sleeping in GFP_KERNEL is safe. In
+ > addition, the cost of dropping the request if we can't allocate the
+ > buffer is heavy in that the client has to wait for a timeout, and then
+ > retry.
+ > 
+ > I'd therefore like to propose the following change.
+ ...
+ > --- linux-2.4.4/net/sunrpc/svcsock.c.orig	Fri Apr 27 23:15:01 2001
+ > +++ linux-2.4.4/net/sunrpc/svcsock.c	Fri May 11 10:08:36 2001
+ ...
+ > -		if (skb_linearize(skb, GFP_ATOMIC) != 0) {
+ > +		if (skb_linearize(skb, GFP_KERNEL) != 0) {
 
-  [ENOTTY]  Inappropriate I/O control operation
-            A control function was attempted for a file or special file
-            for which the operation was inappropriate.
+No arguments here.
 
-which is quite a nice way of putting it.
-
---Malcolm
-
--- 
-Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-Unix Systems Programmer
-Oxford University Computing Services
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSGUJ0B>; Sun, 21 Jul 2002 05:26:01 -0400
+	id <S310190AbSGUJbw>; Sun, 21 Jul 2002 05:31:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310190AbSGUJ0B>; Sun, 21 Jul 2002 05:26:01 -0400
-Received: from ns.suse.de ([213.95.15.193]:37897 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S293203AbSGUJ0B>;
-	Sun, 21 Jul 2002 05:26:01 -0400
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -ac] Panicking in morse code v3
-References: <20020719011300.548d72d5.arodland@noln.com.suse.lists.linux.kernel> <20020720173222.3286fcbb.arodland@noln.com.suse.lists.linux.kernel> <200207211849.56076.bhards@bigpond.net.au.suse.lists.linux.kernel> <20020721100818.A22176@flint.arm.linux.org.uk.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 21 Jul 2002 11:29:06 +0200
-In-Reply-To: Russell King's message of "21 Jul 2002 11:10:18 +0200"
-Message-ID: <p73u1mttonx.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S311025AbSGUJbw>; Sun, 21 Jul 2002 05:31:52 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:43476 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S310190AbSGUJbw>; Sun, 21 Jul 2002 05:31:52 -0400
+Date: Sun, 21 Jul 2002 11:52:48 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Jos Hulzink <josh@stack.nl>
+Cc: Mike Galbraith <efault@gmx.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
+In-Reply-To: <20020721105014.U26890-100000@toad.stack.nl>
+Message-ID: <Pine.LNX.4.44.0207211150100.32636-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> writes:
+On Sun, 21 Jul 2002, Jos Hulzink wrote:
 
-> Hmm.  I thought the original idea for the "flash LEDs on panic" was
-> so you knew something had gone wrong early in the boot, at the kind
-> of places where you don't have a console initialised.  If you don't
-> have the console initialised, you sure as hell don't have the input
-> layer or keyboard drivers initialised.
+> I was willing to test the 2.5 tree, but the way IDE development is going
+> at the moment makes me keeping my hands off any 2.5 kernel. I just don't
+> have a second system that is fast enough to recomile a kernel every few
+> days.
 
-[having written the original code...]
-The idea was to distingush panic from lockup when you are in X and cannot
-see the console and X is dead so you cannot switch to the console.
+Compile on a faster machine and transfer kernel images across, using NFS 
+can simplify this quite a lot.
 
-Handling early panic is probably better done by an "early console", like
-x86-64 supports one.
+> Well... I already gave my opinion about the IDE maintenance in the early
+> 2.5 days, glad to see I was right back then.
 
--Andi
+Well i'm sure lotsa folks can say 'i told you so' but that doesn't help a 
+bit, how much you put in is directly related to what you'll get out...
+
+> Guys, see you again after 2.6.0, I probably won't compile any single
+> kernel before then.
+
+... in 2.6
+
+Cheers,
+	Zwane Mwaikambo
+
+-- 
+function.linuxpower.ca
+

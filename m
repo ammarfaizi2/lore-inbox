@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbUANSQj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 13:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUANSQj
+	id S262848AbUANSXY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 13:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbUANSXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 13:16:39 -0500
-Received: from sarvega.com ([161.58.151.164]:57105 "EHLO sarvega.com")
-	by vger.kernel.org with ESMTP id S262425AbUANSQh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 13:16:37 -0500
-Date: Wed, 14 Jan 2004 12:16:27 -0600
-From: John Lash <jkl@sarvega.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: s0095670@sms.ed.ac.uk, linux-kernel@vger.kernel.org
-Subject: Re: Catch 22
-Message-Id: <20040114121627.41cfd4b2.jkl@sarvega.com>
-In-Reply-To: <20040114091456.752ad02d.rddunlap@osdl.org>
-References: <400554C3.4060600@sms.ed.ac.uk>
-	<20040114090137.5586a08c.jkl@sarvega.com>
-	<20040114091456.752ad02d.rddunlap@osdl.org>
-X-Mailer: Sylpheed version 0.9.6claws71 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jan 2004 13:23:23 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:17808 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263002AbUANSXM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 13:23:12 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 14 Jan 2004 10:23:12 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Jeff Dike <jdike@addtoit.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] /dev/anon
+In-Reply-To: <20040114144131.GA6407@ccure.user-mode-linux.org>
+Message-ID: <Pine.LNX.4.44.0401140749100.1829-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jan 2004 09:14:56 -0800
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+On Wed, 14 Jan 2004, Jeff Dike wrote:
 
-...
- 
-> Does anyone know the reason for this (ATA ident/naming change)?
+> > I thought your goal was to release memory 
+> > to the host, that's why I proposed sys_madvise(MADV_DONTNEED).
 > 
-> I do *not* see this and I'm also using Mandrake (v9.0, not later).
-> 
+> It is, I want memory released immediately as though it were clean, and
+> MADV_DONTNEED doesn't help.
 
-I didn't see anything like that for ide disks. What I did notice is that my eth
-devices (on different busses) had new names sometime back in 2.5.x time. I wrote
-that off to differences in walking/probing of the PCI tree giving different
-enumeration of the devices. Possibly the same would hold true for the ide if
-there are multiple ide interfaces on the system.
+Strange, I didn't notice this before. If you look at the comment in 
+mm/madvise.c:madvise_dontneed, it advertises that dirty pages are actually 
+thrown away (that would be what you're actually looking for). But if you 
+go down to zap_page_range -> unmap_vmas -> unmap_page_range -> 
+zap_pmd_range -> zap_pte_range, if the page is dirty, set_page_dirty -> 
+__set_page_dirty_buffers pushes the page into the mapping dirty pages list 
+and __mark_inode_dirty push the inode inside the superblock dirty list. So 
+the comment seems to be wrong (I also verified this with a simple program, 
+and pages are actually flushed).
 
-As I recall, there's also a kernel param for "Boot off-board chipsets first
-support". Maybe that bit got flipped inadvertently???
 
---john
 
-> --
-> ~Randy
-> MOTD:  Always include version info.
-> -
+- Davide
+
+
+
+
+
+

@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271106AbUJVBsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271181AbUJVBgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271106AbUJVBsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 21:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271176AbUJVBqV
+	id S271181AbUJVBgP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 21:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271052AbUJVBcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 21:46:21 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:50307 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S271161AbUJVBjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 21:39:25 -0400
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6003287A2A@scsmsx403.amr.corp.intel.com>
-References: <88056F38E9E48644A0F562A38C64FB6003287A2A@scsmsx403.amr.corp.intel.com>
-Date: Fri, 22 Oct 2004 02:39:21 +0100
-Message-Id: <E1CKoOn-0004Jv-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Thu, 21 Oct 2004 21:32:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:218 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271158AbUJVB2q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 21:28:46 -0400
+Date: Thu, 21 Oct 2004 18:26:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
+Message-Id: <20041021182651.082e7f68.akpm@osdl.org>
+In-Reply-To: <20041022011057.GC14325@dualathlon.random>
+References: <20041021011714.GQ24619@dualathlon.random>
+	<417728B0.3070006@yahoo.com.au>
+	<20041020213622.77afdd4a.akpm@osdl.org>
+	<417837A7.8010908@yahoo.com.au>
+	<20041021224533.GB8756@dualathlon.random>
+	<41785585.6030809@yahoo.com.au>
+	<20041022011057.GC14325@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
+Andrea Arcangeli <andrea@novell.com> wrote:
+>
+> I'm still unsure if the 2.6 lower_zone_protection completely mimics the
+>  2.4 lowmem_zone_reserve algorithm if tuned by reversing the pages_min
+>  settings accordingly, but I believe it's easier to drop it and replace
+>  with a clear understandable API that as well drops the pages_min levels
+>  that have no reason to exists anymore
 
-Hi,
+I'd be OK with wapping over to the watermark version, as long as we have
+runtime-settable levels.
 
-> Even I thought so. But, with the emulator it doesn't hang. It brings 
-> back my video. I double checked this using another vm86 emulator too. 
-> No hang even there. I couldn't figure out why Ole's patch won't work 
-> though. Right now I am using call_usermodehelper() to call the 
-> emulator during resume and the video comes back just fine on this 
-> system where Ole's patch didn't work.
+But I'd be worried about making the default values anything other than zero
+because nobody seems to be hitting the problems.
 
-Is it possible to get this patch and code off you? I'd be interested in
-testing this solution on various bits of hardware I've been working on.
-
-Thanks,
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+But then again, this get discussed so infrequently that by the time it
+comes around again I've forgotten all the previous discussion.  Ho hum.

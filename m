@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314094AbSEMQRT>; Mon, 13 May 2002 12:17:19 -0400
+	id <S314101AbSEMQTi>; Mon, 13 May 2002 12:19:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314096AbSEMQRS>; Mon, 13 May 2002 12:17:18 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:23494 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S314094AbSEMQRP>; Mon, 13 May 2002 12:17:15 -0400
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0BFB7E67@orsmsx108.jf.intel.com>
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: "'Pete Zaitcev'" <zaitcev@redhat.com>,
-        "Woodruff, Robert J" <woody@co.intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Tcp/ip offload card driver
-Date: Mon, 13 May 2002 09:17:07 -0700
+	id <S314106AbSEMQTb>; Mon, 13 May 2002 12:19:31 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:20119 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S314101AbSEMQSY>; Mon, 13 May 2002 12:18:24 -0400
+Date: Mon, 13 May 2002 11:18:22 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Strange s390 code in 2.4.19-pre8
+In-Reply-To: <20020513121008.B29935@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0205131116440.19498-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 13 May 2002, Pete Zaitcev wrote:
 
->I would like to keep the BOF on practical topics of Infiniband
->implementation in Linux by any means necessary. TOE people
->are welcome to come back when they have something working,
->and when we know how fast the regular IP over Infiniband can go.
+> The old Makefile was correct, and the only failing was a namespace
+> conflict between your fsm.c and fsm.c in ISDN, when CONFIG_MODVERSIONS
+> are used. The right fix is to rename your fsm.c or to create
+> fsm_s390_ksyms.c with all EXPORT_SYMBOL's sitting in there.
+> It is fixed in 2.5 with $(MODPREFIX) in Rules.make.
 
-I agree that we should stick mainly to discussing InfiniBand 
-at the LSM BOF and let the TOE discussion happen elsewhere,
-although the issues of implementing InfiniBand SDP and 
-TOE in the kernel are similar as they both want a way to
-bypass the S/W TCP stack, but with SDP this could simply be
-a new address family, where the TOE guys want a way to dynamically
-replace the TCP stack with a TOE driver. 
+It's easily possible to backport the 2.5 Rules.make change to 2.4, so the 
+file doesn't have to be renamed - if you want me to do that, let me know.
 
+--Kai
 
-However, perhaps we should start a new email 
-thread to discuss topics of interest for the LSM BOF 
-rather than highjack this thread to do so. 
 

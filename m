@@ -1,29 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131198AbQKCSkD>; Fri, 3 Nov 2000 13:40:03 -0500
+	id <S130565AbQKCSvh>; Fri, 3 Nov 2000 13:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131305AbQKCSjx>; Fri, 3 Nov 2000 13:39:53 -0500
-Received: from palrel1.hp.com ([156.153.255.242]:25608 "HELO palrel1.hp.com")
-	by vger.kernel.org with SMTP id <S131198AbQKCSjo>;
-	Fri, 3 Nov 2000 13:39:44 -0500
-From: Scott Rhine <rhine@rsn.hp.com>
-Message-Id: <200011031839.MAA01313@hueco-e.rsn.hp.com>
-Subject: November updates to plugin scheduler policies for Linux
-To: linux-kernel@vger.kernel.org
-Date: Fri, 03 Nov 2000 12:39:33 CST
-X-Mailer: Elm [revision: 111.1]
+	id <S131204AbQKCSv1>; Fri, 3 Nov 2000 13:51:27 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:5132 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S130565AbQKCSvO>;
+	Fri, 3 Nov 2000 13:51:14 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: James Simmons <jsimmons@suse.com>
+Date: Fri, 3 Nov 2000 19:48:57 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [linux-fbdev] [PATCH] fbcon->vgacon->fbcon
+CC: linux-kernel@vger.kernel.org, linux-fbdev@vuser.vu.union.edu,
+        linuxconsole-dev@lists.sourceforge.net, geert@linux-m68k.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <BD211F66773@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://resourcemanagement.unixsolutions.hp.com/WaRM/schedpolicy.html
+On  3 Nov 00 at 17:20, James Simmons wrote:
 
-come and see the updates for November to plugin scheduler policies for Linux:
+> > > I know. I wanted for vgacon to reset the video mode itself. This way ANY
+> > > fbdev driver can go back top vgacon. 
+> > 
+> > That won't be possible because returning to VGA text mode is chip-specific.
+> 
+> From what I see in the XF4.0 tree you can. I will find out today with me
+> working on the tdfx driver. 
 
-   - support for Linux 2_4 test 9
-   - support for IA64 kernels
-   - a performance enhancement related to sched yield correctness
-   - utilities fix for format change of /proc/cpuinfo
+Yes, you can for example run BIOS initialization. In sandbox with x86
+emulator ;-) It is much easier, and much safer, require for 2.5 that 
+driver has to switch hardware to VGA mode on unload if hardware was 
+in VGA mode before start, and if it is primary device in the box. 
 
+For post-Millennium Matrox hardware, it is as simple as 
+'outw(0x0003, 0x03DE);' (if you did not ask for disable VGA I/O & disable
+VGA BIOS in matroxfb params. And if you asked... you probably know why 
+better than driver).
+                                        Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                                                                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

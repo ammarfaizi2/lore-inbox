@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262802AbSIPTtb>; Mon, 16 Sep 2002 15:49:31 -0400
+	id <S262804AbSIPTud>; Mon, 16 Sep 2002 15:50:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262803AbSIPTtb>; Mon, 16 Sep 2002 15:49:31 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:6605 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S262802AbSIPTta>; Mon, 16 Sep 2002 15:49:30 -0400
-Message-ID: <3D8636D5.5000203@myrealbox.com>
-Date: Mon, 16 Sep 2002 22:53:57 +0300
-From: Andriy Rysin <arysin@myrealbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: uk, en-us, ru
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: turning off APIC
-Content-Type: text/plain; charset=KOI8-U; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262805AbSIPTud>; Mon, 16 Sep 2002 15:50:33 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:8646 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262804AbSIPTub>;
+	Mon, 16 Sep 2002 15:50:31 -0400
+Date: Mon, 16 Sep 2002 21:55:22 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Rob Landley <landley@trommello.org>
+Cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Experimental IDE oops dumper v0.1
+Message-ID: <20020916215522.B60197@ucw.cz>
+References: <200209161239.g8GCdpgO001846@darkstar.example.net> <200209161444.g8GEhw2f017462@pimout1-ext.prodigy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200209161444.g8GEhw2f017462@pimout1-ext.prodigy.net>; from landley@trommello.org on Mon, Sep 16, 2002 at 05:43:50AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> On Sun, 15 Sep 2002 14:28:44 +0300, Andriy Rysin wrote:
-> >If APIC is compiled in the kernel (wich is the case with most
-> >distributions) when I start kernel with "noapic" option, APIC is getting
-> >enabled anyway and only later gets disabled. This causes problems on
-> >some VAIO notebooks - it seems like BIOS gets confused if APIC was
-> >turned on (particularly on my laptop when I try to reboot from Linux it
-> >hangs saying that thera problems with keyboard). That would be much
-> >better to have an option to turn it off in the boot options and not to
-> >recompile the kernel. Could somebody comment this please?
-> >Please CC me on this email address.
->
-> Which APIC? local or I/O? Please be specific.
-> "noapic" does not and never has had anything to do with the
-> local APIC, only the I/O APIC. There is currently no kernel
-> option for preventing the local APIC from being enabled if
-> the kernel was built with local APIC support.
->
-> You have four options:
-> 1. Recompile with CONFIG_SMP=n and CONFIG_X86_LOCAL_APIC=n.
-> 2. Run dmidecode on your Vaio, dig out the identification strings,
->    and add them to arch/i386/kernel/dmi_scan.c's local APIC
->    blacklist.
-> 3. Add a __setup in arch/i386/kernel/apic.c after the declaration
->    for dont_enable_local_apic, which sets it to 1.
-> 4. Tell Sony to fix the Vaio's BIOS.
->
-> /Mikael
+On Mon, Sep 16, 2002 at 05:43:50AM -0400, Rob Landley wrote:
+> On Monday 16 September 2002 08:39 am, jbradford@dial.pipex.com wrote:
+> > Talking about dumping oopsen, would there be any usefulness in outputting
+> > crash data to the PC speaker, using a slow, (~300 bps) modulation that
+> > would survive being captured on a cassette using a walkman with a
+> > microphone, then decoded using a userspace program from a sampled .au file?
+> 
+> This is easier and less error-prone than copying the oops down by hand?
 
+Works in X. Hand copying doesn't. But serial (or printer) console is
+probably easier.
 
-Thanks Mikael, item 2) seems to be most reasonable. I did not know there 
-are different APICs, though what's interesting is the line in 
-kernel-parameters.txt
- 
-    noapic        [SMP,APIC] Tells the kernel not to make use of any
-            APIC that may be present on the system.
+> I remember using 300 bps.  On a closed electrical circuit without acoustic 
+> couplers, you still got line noise.  Acoustic couplers put the speaker and 
+> microphone right on top of each other and surrounded them with a muffler to 
+> try to minimize ambient noise from the room...
 
-Note: not to make use of _ANY_ APIC that may be present......
-I would suggest either "noapic" should turn off ALL APICs as is 
-described in the doc or fix the doc. Personally I like fist option 
-better though second is much simplier.
+Well, this is simplex only, so it's a bit easier. And we could use even
+slower speed, 75 bps would also work.
 
-Andriy
+> > Just thought it might be easily implementable, as it doesn't have any
+> > pre-requisits, (other than having a PC speaker, which *almost* everybody
+> > has).
+> 
+> Not everybody has a tape recorder, though.
+> 
+> And the -ac branch already does output in morse code.  Try taping that and 
+> writing a user mode interpreter for it, if you like...
 
+-- 
+Vojtech Pavlik
+SuSE Labs

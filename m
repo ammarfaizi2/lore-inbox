@@ -1,64 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRCTX0Q>; Tue, 20 Mar 2001 18:26:16 -0500
+	id <S129166AbRCUAZR>; Tue, 20 Mar 2001 19:25:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129115AbRCTX0H>; Tue, 20 Mar 2001 18:26:07 -0500
-Received: from laurin.munich.netsurf.de ([194.64.166.1]:25052 "EHLO
-	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
-	id <S129066AbRCTX0D>; Tue, 20 Mar 2001 18:26:03 -0500
-Date: Tue, 20 Mar 2001 23:49:42 +0100
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ieee1394 pcilynx.c SMP fix
-Message-ID: <20010320234942.A3191@storm.local>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+	id <S129242AbRCUAZI>; Tue, 20 Mar 2001 19:25:08 -0500
+Received: from nrg.org ([216.101.165.106]:27242 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S129166AbRCUAYt>;
+	Tue, 20 Mar 2001 19:24:49 -0500
+Date: Tue, 20 Mar 2001 16:24:02 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <m14fHk9-001PKgC@mozart>
+Message-ID: <Pine.LNX.4.05.10103201525480.26853-100000@cosmic.nrg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Due to a brain malfunction spinlocks were used in pcilynx.c before they
-were initialized, causing SMP systems to deadlock.  The patch fixes this
-and removes one second/redundant initialization of another lock.
+On Tue, 20 Mar 2001, Rusty Russell wrote:
+> 	I can see three problems with this approach, only one of which
+> is serious.
+> 
+> The first is code which is already SMP unsafe is now a problem for
+> everyone, not just the 0.1% of SMP machines.  I consider this a good
+> thing for 2.5 though.
 
+So do I.
 
-diff -ruN linux-2.4.linus/drivers/ieee1394/pcilynx.c linux-2.4/drivers/ieee1394/pcilynx.c
---- linux-2.4.linus/drivers/ieee1394/pcilynx.c	Mon Feb 26 01:39:30 2001
-+++ linux-2.4/drivers/ieee1394/pcilynx.c	Wed Mar 14 01:00:13 2001
-@@ -470,8 +470,6 @@
-         lynx->phy_reg0 = -1;
- 
-         lynx->async.queue = NULL;
--        spin_lock_init(&lynx->async.queue_lock);
--        spin_lock_init(&lynx->phy_reg_lock);
-         
-         pcl.next = pcl_bus(lynx, lynx->rcv_pcl);
-         put_pcl(lynx, lynx->rcv_pcl_start, &pcl);
-@@ -1357,6 +1355,9 @@
-         lynx->id = num_of_cards-1;
-         lynx->dev = dev;
- 
-+        lynx->lock = SPIN_LOCK_UNLOCKED;
-+        lynx->phy_reg_lock = SPIN_LOCK_UNLOCKED;
-+
-         if (!pci_dma_supported(dev, 0xffffffff)) {
-                 FAIL("DMA address limits not supported for PCILynx hardware %d",
-                      lynx->id);
-@@ -1456,8 +1457,6 @@
-         lynx->iso_rcv.pcl_start = alloc_pcl(lynx);
- 
-         /* all allocations successful - simple init stuff follows */
--
--        lynx->lock = SPIN_LOCK_UNLOCKED;
- 
-         reg_write(lynx, PCI_INT_ENABLE, PCI_INT_DMA_ALL);
- 
+> The second is that there are "manual" locking schemes which are used
+> in several places in the kernel which rely on non-preemptability;
+> de-facto spinlocks if you will.  I consider all these uses flawed: (1)
+> they are often subtly broken anyway, (2) they make reading those parts
+> of the code much harder, and (3) they break when things like this are
+> done.
 
+Likewise.
 
--- 
- Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
-http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/
+> The third is that preemtivity conflicts with the naive
+> quiescent-period approach proposed for module unloading in 2.5, and
+> useful for several other things (eg. hotplugging CPUs).  This method
+> relies on knowing that when a schedule() has occurred on every CPU, we
+> know noone is holding certain references.  The simplest example is a
+> single linked list: you can traverse without a lock as long as you
+> don't sleep, and then someone can unlink a node, and wait for a
+> schedule on every other CPU before freeing it.  The non-SMP case is a
+> noop.  See synchonize_kernel() below.
+
+So, to make sure I understand this, the code to free a node would look
+like:
+
+	prev->next = node->next; /* assumed to be atomic */
+	synchronize_kernel();
+	free(node);
+
+So that any other CPU concurrently traversing the list would see a
+consistent state, either including or not including "node" before the
+call to synchronize_kernel(); but after synchronize_kernel() all other
+CPUs are guaranteed to see a list that no longer includes "node", so it
+is now safe to free it.
+
+It looks like there are also implicit assumptions to this approach, like
+no other CPU is trying to use the same approach simultaneously to free
+"prev".  So my initial reaction is that this approach is, like the
+manual locking schemes you commented on above, open to being subtly
+broken when people don't understand all the implicit assumptions and
+subsequently invalidate them.
+
+> This, too, is soluble, but it means that synchronize_kernel() must
+> guarantee that each task which was running or preempted in kernel
+> space when it was called, has been non-preemtively scheduled before
+> synchronize_kernel() can exit.  Icky.
+
+Yes, you're right.
+
+> Thoughts?
+
+Perhaps synchronize_kernel() could take the run_queue lock, mark all the
+tasks on it and count them.  Any task marked when it calls schedule()
+voluntarily (but not if it is preempted) is unmarked and the count
+decremented.  synchronize_kernel() continues until the count is zero.
+As you said, "Icky."
+
+> /* We could keep a schedule count for each CPU and make idle tasks
+>    schedule (some don't unless need_resched), but this scales quite
+>    well (eg. 64 processors, average time to wait for first schedule =
+>    jiffie/64.  Total time for all processors = jiffie/63 + jiffie/62...
+> 
+>    At 1024 cpus, this is about 7.5 jiffies.  And that assumes noone
+>    schedules early. --RR */
+> void synchronize_kernel(void)
+> {
+> 	unsigned long cpus_allowed, policy, rt_priority;
+> 
+> 	/* Save current state */
+> 	cpus_allowed = current->cpus_allowed;
+> 	policy = current->policy;
+> 	rt_priority = current->rt_priority;
+> 
+> 	/* Create an unreal time task. */
+> 	current->policy = SCHED_FIFO;
+> 	current->rt_priority = 1001 + sys_sched_get_priority_max(SCHED_FIFO);
+> 
+> 	/* Make us schedulable on all CPUs. */
+> 	current->cpus_allowed = (1UL<<smp_num_cpus)-1;
+> 	
+> 	/* Eliminate current cpu, reschedule */
+> 	while ((current->cpus_allowed &= ~(1 << smp_processor_id())) != 0)
+> 		schedule();
+> 
+> 	/* Back to normal. */
+> 	current->cpus_allowed = cpus_allowed;
+> 	current->policy = policy;
+> 	current->rt_priority = rt_priority;
+> }
+> 
+
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+
+MontaVista Software                             nigel@mvista.com
+

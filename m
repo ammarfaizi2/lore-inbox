@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265267AbUAPF1o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 00:27:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUAPF1l
+	id S265271AbUAPFia (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 00:38:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUAPFi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 00:27:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:14530 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265254AbUAPF1h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 00:27:37 -0500
-Date: Thu, 15 Jan 2004 21:00:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <greg@kroah.com>
-cc: Jesse Barnes <jbarnes@sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       jeremy@sgi.com
-Subject: Re: [PATCH] readX_relaxed interface
-In-Reply-To: <20040116003224.GF23253@kroah.com>
-Message-ID: <Pine.LNX.4.58.0401152057380.2631@evo.osdl.org>
-References: <20040115204913.GA8172@sgi.com> <20040116003224.GF23253@kroah.com>
+	Fri, 16 Jan 2004 00:38:29 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10042 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S265271AbUAPFi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 00:38:28 -0500
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Intel Alder IOAPIC fix
+References: <1073876117.2549.65.camel@mulgrave>
+	<Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
+	<1073948641.4178.76.camel@mulgrave>
+	<Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
+	<1073954751.4178.98.camel@mulgrave>
+	<Pine.LNX.4.58.0401121621220.14305@evo.osdl.org>
+	<1074012755.2173.135.camel@mulgrave>
+	<m1smihg56u.fsf@ebiederm.dsl.xmission.com>
+	<1074185897.1868.118.camel@mulgrave>
+	<m17jztau8l.fsf@ebiederm.dsl.xmission.com>
+	<1074196460.1868.250.camel@mulgrave>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 15 Jan 2004 22:32:23 -0700
+In-Reply-To: <1074196460.1868.250.camel@mulgrave>
+Message-ID: <m13cagbgrc.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Bottomley <James.Bottomley@steeleye.com> writes:
 
-
-On Thu, 15 Jan 2004, Greg KH wrote:
+> On Thu, 2004-01-15 at 14:26, Eric W. Biederman wrote:
+> > And end up looking like:
+> > fec00000-fec00fff : reserved
+> > fec01000-fec013ff : 0000:00:0f.0
+> > fec01400-fec08fff : reserved
 > 
-> It looks ok, but it would really be good if we could indicate if the
-> read actually was successful.  Right now some platforms can detect
-> faults and do not have a way to get that error back to the driver in a
-> sane manner.  If we were to change the read* functions to look something
-> like:
-> 	int readb(void *addr, u8 *data);
-> it would be a world easier.
+> Oh, I see you're splitting an existing resource around it.
 
-NOOOO!
+Yes, this is the extreme case.  In normal cases I would just
+expect to push to one side and probably shrink it to 0.  I guess
+I have something against implying a hierarchal relationship that
+does not exist.
+ 
+> So the e820 map requests reserved regions with tentative and
+> insert_resource is allowed to place resources into tentative regions. 
+> That works for me, but I don't see how it works for the bridge
+> case...there you really want to insert the bridge resource over
+> everything else.
 
-Please don't. 99.99% of all uses don't care one whit, and an interface 
-like the above ends up being total cr*p to use.
+Right.  To me it looks like separate cases.  What I keep envisioning
+scanning the PCI devices and then realizing they are behind
+a bridge.  Before I go to far I guess I should ask.
 
-If you care about machine check errors, use a special interface for that. 
-A _really_ special one. Especially as on many systems you'll likely have 
-to read status registers etc (and clear them before doing the IO) to see 
-the errors.
+The splitting/pushing aside looks especially useful for those
+cases where you subdivide the resource again.
 
-So that way you can get errors working, AND it won't actually make normal 
-code any uglier.
+As for the bridge case I think that is something different.  
 
-		Linus
+Eric

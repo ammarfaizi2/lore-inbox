@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262308AbSI1TIo>; Sat, 28 Sep 2002 15:08:44 -0400
+	id <S262310AbSI1TJ2>; Sat, 28 Sep 2002 15:09:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262310AbSI1TIo>; Sat, 28 Sep 2002 15:08:44 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:38564 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262308AbSI1TIn>;
-	Sat, 28 Sep 2002 15:08:43 -0400
-Date: Sat, 28 Sep 2002 21:14:04 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200209281914.VAA06013@harpo.it.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix 2.5.39 floppy driver
-Cc: viro@math.psu.edu
+	id <S262311AbSI1TJ1>; Sat, 28 Sep 2002 15:09:27 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:49650 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262310AbSI1TJ0>;
+	Sat, 28 Sep 2002 15:09:26 -0400
+Message-ID: <3D95FF8E.C808BBDC@mvista.com>
+Date: Sat, 28 Sep 2002 12:14:22 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Levon <movement@marcelothewonderpenguin.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 6/6] High-res-timers part 6 (support-man) take 2
+References: <3D95E798.EDB241DD@mvista.com> <20020928182014.GA56265@compsoc.man.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 2.5.39 floppy driver is still broken. Jens' fix to ll_rw_block
-was included in 2.5.39, so the kernel doesn't reboot at the first
-I/O operation as it did in 2.5.38, but several problems remain:
+John Levon wrote:
+> 
+> On Sat, Sep 28, 2002 at 10:32:08AM -0700, george anzinger wrote:
+> 
+> > The 4th, 5th, and 6th parts are support code and not really
+> > part of the kernel.
+> 
+> So ...
+> 
+> > This part contains man pages for the new system calls.
+> 
+> ... why are they here ?
 
-1. Accessing /dev/fd0H1440 oopses fs/block_dev.c:do_open().
-   Fixed by applying Al Viro's O100-get_gendisk-C38 patch.
+So they are easy to find :)
+> 
+> http://freshmeat.net/projects/man-pages/
+> 
+> regards
+> john
+> --
+> "When your name is Winner, that's it. You don't need a nickname."
+>         - Loser Lane
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-2. The capacity of floppies is halved.
-   Fixed by applying Al Viro's O101-floppy_sizes-C38 patch.
-
-3. /dev/fd0 size autodetection doesn't work properly. The very
-   first read or write only transmits 2K (or 4K with Al's patches)
-   of data. I/O works after a reopen of /dev/fd0.
-   Explanation: the floppy interrupt handler updates floppy_sizes[],
-   but doesn't set_capacity() on the corresponding gendisk, causing
-   the detected size for /dev/fd0 to not be applied until the next
-   time /dev/fd0 is opened.
-   Quick fix: add the missing set_capacity() calls.
-   With Al's two patches and this one floppies work reliably for me.
-
-/Mikael
-
---- linux-2.5.39/drivers/block/floppy.c.~1~	Sat Sep 28 12:42:00 2002
-+++ linux-2.5.39/drivers/block/floppy.c	Sat Sep 28 18:49:27 2002
-@@ -778,6 +778,7 @@
- 				       "disk change\n");
- 			current_type[drive] = NULL;
- 			floppy_sizes[TOMINOR(drive)] = MAX_DISK_SIZE << 1;
-+			set_capacity(&disks[drive], floppy_sizes[TOMINOR(drive)]);
- 		}
- 
- 		/*USETF(FD_DISK_NEWCHANGE);*/
-@@ -2426,6 +2427,7 @@
- 			}
- 			current_type[current_drive] = _floppy;
- 			floppy_sizes[TOMINOR(current_drive) ]= _floppy->size+1;
-+			set_capacity(&disks[current_drive], floppy_sizes[TOMINOR(current_drive)]);
- 			break;
- 	}
- 
-@@ -2435,6 +2437,7 @@
- 				_floppy->name,current_drive);
- 		current_type[current_drive] = _floppy;
- 		floppy_sizes[TOMINOR(current_drive)] = _floppy->size+1;
-+		set_capacity(&disks[current_drive], floppy_sizes[TOMINOR(current_drive)]);
- 		probing = 0;
- 	}
- 
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

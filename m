@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVDCV4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVDCWJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbVDCV4h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 17:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVDCV4d
+	id S261445AbVDCWJK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 18:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVDCWJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 17:56:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:4588 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261445AbVDCV42 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 17:56:28 -0400
-Date: Sun, 3 Apr 2005 14:56:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mathieu =?ISO-8859-1?B?QulyYXJk?= <Mathieu.Berard@crans.org>
-Cc: linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: 2.6.12-rc1-mm4 crash while mounting a reiserfs3 filesystem
-Message-Id: <20050403145606.51ffeb72.akpm@osdl.org>
-In-Reply-To: <42500F5E.9090604@crans.org>
-References: <42500F5E.9090604@crans.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 3 Apr 2005 18:09:10 -0400
+Received: from smtpout.mac.com ([17.250.248.44]:17121 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261445AbVDCWJG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 18:09:06 -0400
+In-Reply-To: <1112559934.5268.9.camel@tiger>
+References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <524d7fda64be6a3ab66a192027807f57@xs4all.nl> <1112559934.5268.9.camel@tiger>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <d5b47c419f6e5aa280cebd650e7f6c8f@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Renate Meijer <kleuske@xs4all.nl>,
+       linux-kernel@vger.kernel.org, Dag Arne Osvik <da@osvik.no>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Use of C99 int types
+Date: Sun, 3 Apr 2005 18:08:42 -0400
+To: Kenneth Johansson <ken@kenjo.org>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Bérard <Mathieu.Berard@crans.org> wrote:
->
-> Hi,
-> I get a 100% reproductible oops while booting linux 2.6.12-rc1-mm4.
-> (Everyting run smoothly using 2.6.11-mm1)
-> It seems to be related with mounting a reiserfs3 filesystem.
+On Apr 03, 2005, at 16:25, Kenneth Johansson wrote:
+> But is this not exactly what Dag Arne Osvik was trying to do ??
+> uint_fast32_t means that we want at least 32 bits but it's OK with
+> more if that happens to be faster on this particular architecture.
+> The problem was that the C99 standard types are not defined anywhere
+> in the kernel headers so they can not be used.
 
-It looks more like an IDE bug.
+Uhh, so what's wrong with "int" or "long"?  On all existing archs
+supported by linux, "int" is 32 bits, "long long" is 64 bits, and
+"long" is an efficient word-sized value that can hold a casted
+pointer.  I suppose it's theoretical that linux could be ported to
+some arch where int is 16 bits, but so much stuff implicitly depends
+on at least 32-bits in int that I think that's unlikely.  GCC will
+generally do the right thing if you just tell it "int".
 
-> ReiserFS: hdg1: checking transaction log (hdg1)
-> Unable to handle kernel paging request at virtual address 0a373138
->   printing eip:
-> df6d1211
-> *pde = 00000000
-> Oops: 0002 [#1]
-> PREEMPT
-> Modules linked in: ext2 mbcache w83627hf i2c_sensor i2c_isa ppp_generic 
-> slhc w83627hf_wdt msr cpuid
-> rtc
-> CPU:    0
-> EIP:    0060:[<df6d1211>]    Not tainted VLI
-> EFLAGS: 00010202   (2.6.12-rc1-mm4)
-> EIP is at 0xdf6d1211
-> eax: c9393266   ebx: df6d1c84   ecx: d84eab1e   edx: c155ccf8
-> esi: c039242c   edi: c039239c   ebp: 700d580a   esp: df6d1c80
-> ds: 007b   es: 007b   ss: 0068
-> Process mount (pid: 1132, threadinfo=df6d1000 task=df711a50)
-> Stack: c039242c c0229945 c039239c df6d1000 df6d1000 c039242c c155ccf8 
-> c0223051
->         00000088 00001388 c159ae28 df6d1000 c039242c c155ccf8 c039239c 
-> c022333e
->         df6d1d1c ffffffff c153d6e0 c155bd78 00000000 df6d1d1c c14007f0 
-> c0212260
-> Call Trace:
->   [<c0229945>] flagged_taskfile+0x125/0x380
->   [<c0223051>] start_request+0x1f1/0x2a0
->   [<c022333e>] ide_do_request+0x20e/0x3c0
->   [<c0212260>] __generic_unplug_device+0x20/0x30
->   [<c0212281>] generic_unplug_device+0x11/0x30
->   [<c02122ac>] blk_backing_dev_unplug+0xc/0x10
->   [<c0156336>] sync_buffer+0x26/0x40
->   [<c02a0b22>] __wait_on_bit+0x42/0x70
->   [<c0156310>] sync_buffer+0x0/0x40
->   [<c0156310>] sync_buffer+0x0/0x40
->   [<c02a0bcd>] out_of_line_wait_on_bit+0x7d/0x90
->   [<c012bf80>] wake_bit_function+0x0/0x60
->   [<c01563c9>] __wait_on_buffer+0x29/0x30
->   [<c01b0dd7>] _update_journal_header_block+0xf7/0x140
->   [<c01b290d>] journal_read+0x31d/0x470
->   [<c01b3241>] journal_init+0x4e1/0x650
->   [<c011748b>] printk+0x1b/0x20
->   [<c01a3ced>] reiserfs_fill_super+0x34d/0x770
->   [<c01c9470>] snprintf+0x20/0x30
->   [<c0189ab6>] disk_name+0x96/0xf0
->   [<c015bf75>] get_sb_bdev+0xe5/0x130
->   [<c0163945>] link_path_walk+0x65/0x140
->   [<c01a4168>] get_super_block+0x18/0x20
->   [<c01a39a0>] reiserfs_fill_super+0x0/0x770
->   [<c015c194>] do_kern_mount+0x44/0xf020 30 20 30 20 30 20 30 20 30 20 
-> 30 20 30 20 30 20 <1>general p
+Cheers,
+Kyle Moffett
 
-It appears that we might have jumped from flagged_taskfile into something
-at 0xdf6d1211, which is rather odd.
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
-You have two different low-level IDE drivers configured.  Which one is
-driving that filesystem?  VIA or Promise?
+

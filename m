@@ -1,145 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292705AbSCOO6W>; Fri, 15 Mar 2002 09:58:22 -0500
+	id <S292708AbSCOO7X>; Fri, 15 Mar 2002 09:59:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292708AbSCOO6N>; Fri, 15 Mar 2002 09:58:13 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:17937 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S292705AbSCOO56>; Fri, 15 Mar 2002 09:57:58 -0500
-To: frankeh@watson.ibm.com
-Cc: "Rajan Ravindran" <rajancr@us.ibm.com>, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] get_pid() performance fix
-In-Reply-To: <OF810580E6.8672B341-ON85256B73.005AF9B8@pok.ibm.com>
-	<20020314231733.638C03FE06@smtp.linux.ibm.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 15 Mar 2002 23:57:13 +0900
-In-Reply-To: <20020314231733.638C03FE06@smtp.linux.ibm.com>
-Message-ID: <87g031lvzq.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S292707AbSCOO7O>; Fri, 15 Mar 2002 09:59:14 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:48881 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S292702AbSCOO7C>; Fri, 15 Mar 2002 09:59:02 -0500
+Date: Fri, 15 Mar 2002 16:58:44 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: M Sweger <mikesw@ns1.whiterose.net>, linux-kernel@vger.kernel.org,
+        andre@linux-ide.org
+Subject: Re: linux 2.2.21 pre3, pre4 and rc1 problems. (fwd)
+Message-ID: <20020315145844.GK128921@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	M Sweger <mikesw@ns1.whiterose.net>, linux-kernel@vger.kernel.org,
+	andre@linux-ide.org
+In-Reply-To: <Pine.BSF.4.21.0203150904480.78417-100000@ns1.whiterose.net> <E16lt2T-0003pj-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16lt2T-0003pj-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubertus Franke <frankeh@watson.ibm.com> writes:
-
-> +	if (i == PID_MAP_SIZE) { 
-> +		if (again) {
-> +			/* we didn't find any pid , sweep and try again */
-> +			again = 0;
-> +			memset(pid_map, 0, PID_MAP_SIZE * sizeof(unsigned long));
-> +			last_pid = RESERVED_PIDS;
-> +			goto repeat;
-> +		}
-> +		next_safe = RESERVED_PIDS;
-> +		return 0;
-
-I think the bug is here.
-
-Probaly, the following is test case: ./getpid1 -r300 -c3
-
-	case 3:
-		populate_all(0, 1);
-		pid = get_pid(0);
-		printf("new pid: %d\n", pid);
-		tsk = find_task_by_pid(400);
-		del_task(tsk);
-		pid = get_pid(0);
-		printf("new pid: %d\n", pid);
-
-		break;
-
-result,
-	new pid: 0
-	new pid: 1
-
-> +	}
-> +
-> +	fpos = ffz(mask);
-> +	i &= (PID_MAX-1);
-> +	last_pid = (i << SHIFT_PER_LONG) + fpos;
-> +
-> +	/* find next save pid */
-> +	mask &= ~((1 << fpos) - 1);
-> +
-> +	while ((mask == 0) && (++i < PID_MAP_SIZE)) 
-> +		mask = pid_map[i];
-> +
-> +	if (i==PID_MAP_SIZE) 
-> +		next_safe = PID_MAX;
-> +	else 
-> +		next_safe = (i << SHIFT_PER_LONG) + ffs(mask) - 1;
-> +	return last_pid;
-> +}
-> +
->  static int get_pid(unsigned long flags)
->  {
-> -	static int next_safe = PID_MAX;
->  	struct task_struct *p;
-> -	int pid;
-> +	int pid,beginpid;
->  
->  	if (flags & CLONE_PID)
->  		return current->pid;
->  
->  	spin_lock(&lastpid_lock);
-> +	beginpid = last_pid;
->  	if((++last_pid) & 0xffff8000) {
-> -		last_pid = 300;		/* Skip daemons etc. */
-> +		last_pid = RESERVED_PIDS;		/* Skip daemons etc. */
->  		goto inside;
->  	}
->  	if(last_pid >= next_safe) {
->  inside:
->  		next_safe = PID_MAX;
->  		read_lock(&tasklist_lock);
-> +		if (nr_threads > GETPID_THRESHOLD) {
-> +			last_pid = get_pid_by_map(last_pid);
-> +		} else {
->  	repeat:
->  		for_each_task(p) {
->  			if(p->pid == last_pid	||
-> @@ -151,9 +228,11 @@
->  			   p->session == last_pid) {
->  				if(++last_pid >= next_safe) {
->  					if(last_pid & 0xffff8000)
-> -						last_pid = 300;
-> +							last_pid = RESERVED_PIDS;
->  					next_safe = PID_MAX;
->  				}
-> +					if(unlikely(last_pid == beginpid))
-> +						goto nomorepids;
->  				goto repeat;
->  			}
->  			if(p->pid > last_pid && next_safe > p->pid)
-> @@ -162,6 +241,9 @@
->  				next_safe = p->pgrp;
->  			if(p->session > last_pid && next_safe > p->session)
->  				next_safe = p->session;
-> +				if(p->tgid > last_pid && next_safe > p->tgid)
-> +					next_safe = p->tgid;
-> +			}
->  		}
->  		read_unlock(&tasklist_lock);
->  	}
-> @@ -169,6 +251,10 @@
->  	spin_unlock(&lastpid_lock);
->  
->  	return pid;
-> +nomorepids:
-
-Probably, I think the following line are required, here.
-
-  +	next_safe = RESERVED_PIDS;	or 0
-
-> +	read_unlock(&tasklist_lock);
-> +	spin_unlock(&lastpid_lock);
-> +	return 0;
->  }
->  
->  static inline int dup_mmap(struct mm_struct * mm)
+On Fri, Mar 15, 2002 at 02:50:37PM +0000, you [Alan Cox] wrote:
+> > Hopefully, linux 2.2.x will get the 160gig IDE patch that 2.4.x has.
 > 
+> Andre's 2.2 patch has been picked up and maintained (I forget by who). I
+> don't consider it ever a mainstream 2.2 candidate
 
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+I think you mean Krzysztof Oledzki (ole@ans.pl)
+
+From: Krzysztof Oledzki (ole@ans.pl)
+Subject: ANNOUNCE - 2.4.x ide backport for 2.2.21pre2 kernel 
+
+http://groups.google.com/groups?q=ANNOUNCE+-+2.4.x+ide+backport+for&hl=en&ie=ISO-8859-1&oe=ISO-8859-1&selm=linux.kernel.Pine.LNX.4.33.0201291654480.17318-100000%40dark.pcgames.pl&rnum=1
+
+
+BTW: I've heard rumours that some older ide chipsets support 48-bit
+addressing with a bios upgrade. HPT370 and Via 686B have been mentioned.
+
+Highpoint windows driver readme:
+
+  v2.1  11/15/2001
+          * Add 48bit LBA (Big Drive) support
+
+But I'm not sure whether this means HPT370 or 372 only.
+
+Is this possible and will it be possible to support that functionality in
+Linux?
+
+
+-- v --
+
+v@iki.fi

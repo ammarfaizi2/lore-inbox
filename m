@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283489AbRK3DJU>; Thu, 29 Nov 2001 22:09:20 -0500
+	id <S283491AbRK3DSM>; Thu, 29 Nov 2001 22:18:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283490AbRK3DJK>; Thu, 29 Nov 2001 22:09:10 -0500
-Received: from TK212017087078.teleweb.at ([212.17.87.78]:28925 "EHLO
-	elch.elche") by vger.kernel.org with ESMTP id <S283489AbRK3DI4>;
-	Thu, 29 Nov 2001 22:08:56 -0500
-Date: Fri, 30 Nov 2001 04:07:19 +0100
-From: Armin Obersteiner <armin@xos.net>
+	id <S283485AbRK3DSD>; Thu, 29 Nov 2001 22:18:03 -0500
+Received: from milsum.Biomed.McGill.CA ([132.206.111.48]:7691 "EHLO
+	milsum.biomed.mcgill.ca") by vger.kernel.org with ESMTP
+	id <S283484AbRK3DRs>; Thu, 29 Nov 2001 22:17:48 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Lavoie <clavoie@bmed.mcgill.ca>
 To: linux-kernel@vger.kernel.org
-Subject: usb slow in >2.4.10
-Message-ID: <20011130040719.A21515@elch.elche>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Subject: Re: Cadeaux de Noels
+Date: Thu, 29 Nov 2001 22:17:38 -0500
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011130031754Z283484-752+173@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+On Thursday 29 November 2001 21:49, Christian Lavoie wrote:
 
-all my usb devices work, but they are very slow (12 times slower) with kernels
-2.4.14 and higher. it definetly was ok with 2.4.10.
+By now you'll now me for having spammed LKML _twice_ by mistake.
 
-tested with rio500 and my digital camera. it seems fast enough for the graphics
-tablet.
+The problem is a std user = id 10 t
 
-i've seen this reported before, but no answers given. the problem persists for over
-a month now, and i tried nearly every new kernel/pre-kernel.
+Nothing to see anymore.
 
-there is no usb error in "messages", everything looks fine.
-
-MfG,
-	Armin Obersteiner
---
-armin@xos.net                        pgp public key on request        CU
+-- 
+Christian Lavoie
+clavoie@bmed.mcgill.ca

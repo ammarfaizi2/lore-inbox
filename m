@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbUCQT6h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 14:58:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUCQT6h
+	id S262040AbUCQUDK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 15:03:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUCQUC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 14:58:37 -0500
-Received: from mailgw1.bmwgroup.com ([192.109.190.190]:4273 "EHLO
-	mailgw1.bmwgroup.com") by vger.kernel.org with ESMTP
-	id S262019AbUCQT6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 14:58:35 -0500
-Message-Id: <iss.32a00e55.7ac3.4058ade9.c77e2.8c@lp0056.muc>
-Date: Wed, 17 Mar 2004 20:58:33 +0100
-From: Postmaster@bmwgroup.com
-To: linux-kernel@vger.kernel.org
-Subject: Undeliverable mail
+	Wed, 17 Mar 2004 15:02:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47034 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262027AbUCQUCx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 15:02:53 -0500
+Message-ID: <4058AEDE.10305@pobox.com>
+Date: Wed, 17 Mar 2004 15:02:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/report; report-type=delivery-status;
-              boundary="=_mh.ndn.7ac3.4058ade9_="
+To: Christoph Hellwig <hch@infradead.org>
+CC: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-raid@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: "Enhanced" MD code avaible for review
+References: <459805408.1079547261@aslan.scsiguy.com> <4058A481.3020505@pobox.com> <20040317193206.A17987@infradead.org>
+In-Reply-To: <20040317193206.A17987@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=_mh.ndn.7ac3.4058ade9_=
-Content-Type: text/plain; charset=us-ascii
+Christoph Hellwig wrote:
+> On Wed, Mar 17, 2004 at 02:18:25PM -0500, Jeff Garzik wrote:
+> 
+>>>	o Allow fully pluggable meta-data modules
+>>
+>>yep, needed
+> 
+> 
+> Well, this is pretty much the EVMS route we all heavily argued against.
+> Most of the metadata shouldn't be visible in the kernel at all.
 
-Attention: no reply address,it was generated automaticly
-
-Ihre Mail wurde an den folgenden Empfaenger nicht geliefert:
-Your message was not delivered to the following recipients:
-
-                     aier@bmw.de: Nonlocal address
-
---=_mh.ndn.7ac3.4058ade9_=
-Content-Type: message/delivery-status
-Content-Transfer-Encoding: 7bit
-
-Reporting-MTA: dns;lp0056.muc
-
-Original-Recipient: rfc822;aier@bmw.de
-Final-Recipient: rfc822;aier@bmw.de
-Action: failed
-Status: 5.1.1
-
---=_mh.ndn.7ac3.4058ade9_=
-Content-Type: text/rfc822-headers
-Content-Transfer-Encoding: 7bit
-
-Return-Path: <linux-kernel@vger.kernel.org>
-Received: from mx2.bmwgroup.com ([192.109.190.179] [192.109.190.179]) by lp0056.muc with ESMTP for aier@bmw.de; Wed, 17 Mar 2004 20:58:33 +0100
-Received: from mx.expurgate.net ([195.190.135.10] [195.190.135.10]) by mx2.bmwgroup.com with ESMTP for aier@bmw.de; Wed, 17 Mar 2004 20:58:33 +0100
-Received: from [62.46.65.169] (helo=bmw.de)
-	by mx.expurgate.net with esmtp (Exim 3.36 #3)
-	id 1B3hBI-0006J4-00
-	for aier@bmw.de; Wed, 17 Mar 2004 20:58:25 +0100
-From: linux-kernel@vger.kernel.org
-To: aier@bmw.de
-Subject: [VIRUS] You are infected. Read the details!
-Date: Wed, 17 Mar 2004 21:05:24 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-Message-Id: <E1B3hBI-0006J4-00@mx.expurgate.net>
-X-purgate-ID: expurgator21/1B3hBI-0006J4-00 0:0
-X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eXpurgate.net
-X-purgate: This mail is considered clean     (see http://www.eXpurgate.net/support/expurgate_headers for details)
-X-purgate: clean
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----=_NextPart_000_0011_000067F0.0000226E"
+_some_ metadata is required at runtime, and must be in the kernel.  I 
+agree that a lot of configuration doesn't necessarily need to be in the 
+kernel.  But stuff like bad sector and event logs, and other bits are 
+still needed at runtime.
 
 
---=_mh.ndn.7ac3.4058ade9_=--
+>>>	o Improve the ability of MD to auto-configure arrays.
+>>
+>>hmmmm.  Maybe in my language this means "improve ability for low-level 
+>>drivers to communicate RAID support to upper layers"?
+> 
+> 
+> I think he's talking about the deprecated raid autorun feature.  Again
+> something that is completely misplaced in the kernel.  (ågain EVMS light)
+
+Indeed, but I'll let him and the code illuminate the meaning :)
+
+	Jeff
+
+
+

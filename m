@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbTHYSQz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 14:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTHYSQV
+	id S262092AbTHYSOh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 14:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTHYSOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 14:16:21 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:62980 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S262049AbTHYSQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 14:16:15 -0400
-Date: Mon, 25 Aug 2003 15:24:42 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       Fox Chen <mhchen@golf.ccl.itri.org.tw>,
-       Gustavo Niemeyer <niemeyer@conectiva.com>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm1: wl3501_cs.c doesn't compile
-Message-ID: <20030825182441.GF1094@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-	Fox Chen <mhchen@golf.ccl.itri.org.tw>,
-	Gustavo Niemeyer <niemeyer@conectiva.com>,
-	linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-	linux-net@vger.kernel.org
-References: <20030824171318.4acf1182.akpm@osdl.org> <20030825173007.GT7038@fs.tum.de> <20030825174627.GA1094@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030825174627.GA1094@conectiva.com.br>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+	Mon, 25 Aug 2003 14:14:36 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:31619 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262092AbTHYSOe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 14:14:34 -0400
+Date: Mon, 25 Aug 2003 14:14:57 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0test4 ACPI with nForce2 success
+In-Reply-To: <1061834424.2599.2.camel@aurora.localdomain>
+Message-ID: <Pine.LNX.4.53.0308251412140.20628@chaos>
+References: <1061834424.2599.2.camel@aurora.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Aug 25, 2003 at 02:46:27PM -0300, Arnaldo C. Melo escreveu:
-> Em Mon, Aug 25, 2003 at 07:30:07PM +0200, Adrian Bunk escreveu:
-> > I got the following compile error in 2.6.0-test4-mm1:
-> 
-> I'm checking this now...
+On Mon, 25 Aug 2003, Trever L. Adams wrote:
 
-Problem doesn't exists in 2.6.0-test4 vanilla (ok, it has patch-2.6.0-test4-pa2
-the latest parisc patchset, but it doesn't touches what we're looking at here),
-now to test 2.6.0-test4-mm1...
+> I have been one of these people who have been having to boot with
+> pci=noacpi to get up with much of my hardware initialized.  My system is
+> now working without it.  It isn't getting shutoff on irq storms or
+> anything.
+>
+> My only possible problem is this:
+>
+>  13:59:40  up 8 min,  3 users,  load average: 0.86, 0.81, 0.36
+>            CPU0
+>   0:     516847          XT-PIC  timer
+>
 
-Ah, compiling it as a module.
+8 mins ~  8 * 60 = 480 seconds
+516847 / 480 = 1076...
 
-- Arnaldo
+Looks like your HZ value is 1024. If so, everything is fine.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135448AbRDMJGH>; Fri, 13 Apr 2001 05:06:07 -0400
+	id <S135451AbRDMJ2y>; Fri, 13 Apr 2001 05:28:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135451AbRDMJF6>; Fri, 13 Apr 2001 05:05:58 -0400
-Received: from stm.lbl.gov ([131.243.16.51]:58116 "EHLO stm.lbl.gov")
-	by vger.kernel.org with ESMTP id <S135450AbRDMJFv>;
-	Fri, 13 Apr 2001 05:05:51 -0400
-Date: Fri, 13 Apr 2001 02:05:15 -0700
-From: David Schleef <ds@schleef.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: george anzinger <george@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org,
-        high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
-Message-ID: <20010413020514.A17919@stm.lbl.gov>
-Reply-To: David Schleef <ds@schleef.org>
-In-Reply-To: <3AD66B62.23620639@mvista.com> <Pine.LNX.4.10.10104122102170.4564-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10104122102170.4564-100000@master.linux-ide.org>; from andre@linux-ide.org on Thu, Apr 12, 2001 at 09:04:28PM -0700
+	id <S135452AbRDMJ2p>; Fri, 13 Apr 2001 05:28:45 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:19213 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135451AbRDMJ2f>; Fri, 13 Apr 2001 05:28:35 -0400
+Message-ID: <3AD6C6B5.8EF5F2EE@folkwang-hochschule.de>
+Date: Fri, 13 Apr 2001 11:28:21 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Nettingsmeier 
+	<nettings@folkwang-hochschule.de>
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.4-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jgarzik@mandrakesoft.com, f1j@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: 8139too.c and 2.4.4-pre1 kernel burp
+In-Reply-To: <3AD6C572.7A9FA060@folkwang-hochschule.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 12, 2001 at 09:04:28PM -0700, Andre Hedrick wrote:
-> On Thu, 12 Apr 2001, george anzinger wrote:
+Jörn Nettingsmeier wrote:
 > 
-> > Actually we could do the same thing they did for errno, i.e.
-> > 
-> > #define jiffies get_jiffies()
-> > extern unsigned get_jiffies(void);
-> 
-> > No, not really.  HZ still defines the units of jiffies and most all the
-> > timing is still related to it.  Its just that interrupts are only "set
-> > up" when a "real" time event is due.
-> 
-> Great HZ always defines units of jiffies, but that is worthless if there
-> is not a ruleset that tells me a value to divide by to return it to a
-> specific quantity of time.
+> i'm seeing this, too.
 
-It makes more sense to start migrating drivers to macros such as
-msec_to_jiffies(), msec_to_whatever_add_timer_wants(), etc.  (Names
-changed to protect the innocent.)  And leave HZ approximately the
-way it is, because that's what the code expects.
+forgot to mention: i'm running 2.4.4-pre2 here. problem persists.
 
-A good transition is for add_timer() to be defined as
-
-  #define add_timer(a) add_timer_ns(a*1000000000/HZ)
-
-although this causes problems with timers over 4 seconds.  As much
-as I like nanoseconds, it's probably overkill here, since one should
-be requesting absolute time if it's specified in nanoseconds.
-
-
-
-
-dave...
-
+-- 
+Jörn Nettingsmeier     
+home://Kurfürstenstr.49.45138.Essen.Germany      
+phone://+49.201.491621
+http://www.folkwang-hochschule.de/~nettings/
+http://www.linuxdj.com/audio/lad/

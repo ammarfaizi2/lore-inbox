@@ -1,88 +1,249 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTDGUEQ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 16:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbTDGUEQ (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 16:04:16 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:53123 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263628AbTDGUEO (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 16:04:14 -0400
-Date: Mon, 7 Apr 2003 16:28:29 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Robert White <rwhite@casabyte.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Stupid API Question.
-In-Reply-To: <PEEPIDHAKMCGHDBJLHKGGEIHCGAA.rwhite@casabyte.com>
-Message-ID: <Pine.LNX.4.53.0304071616200.19772@chaos>
-References: <PEEPIDHAKMCGHDBJLHKGGEIHCGAA.rwhite@casabyte.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263619AbTDGUJW (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 16:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263627AbTDGUJW (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 16:09:22 -0400
+Received: from galileo.bork.org ([66.11.174.148]:31495 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S263619AbTDGUJL (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 16:09:11 -0400
+Date: Mon, 7 Apr 2003 16:13:37 -0400
+From: Martin Hicks <mort@bork.org>
+To: linux-kernel@vger.kernel.org
+Cc: hpa@zytor.com, wildos@sgi.com
+Subject: [patch] printk subsystems
+Message-ID: <20030407201337.GE28468@bork.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Apr 2003, Robert White wrote:
 
-> I have looked, but I have not found...
->
-> Is there a (safe) Kernel API for setting a processes appearance on the PS
-> listing? (e.g. it's name etc.)
->
-> I have seen the nonsense about clearing out your various argv[] elements and
-> then using strncpy to replace argv[0].  That seems neither safe nor elegant.
-> It also seems thread unsafe, or at least thread un-interesting, since all
-> the threads would be tagged with the same/last such call.
->
-> If it exists, where might it be found?
->
->
-> If it doesn't exist...
->
-> An API that could change the text for everything after argv[0] and filled a
-> pointer in the process structure for the process, would be interesting.
->
-> I say *after* argv[0] because I think having *any* means to change the
-> presentation of argv[0] is a far-too-gaping security hole.
->
-> I have no idea what the order of magnitude for this effort might be.
-> Managing a normally-null pointer that overrides the various facts if it is
-> set, and is freed back into the kernel memory pool when the process exits,
-> wouldn't be that tough.  Intercepting whatever ps(1) (etc.) does to build
-> the output might be non-trivial.
->
-> Anyway, just a thought...
->
-> Rob.
+Hello,
 
-Well `ps` does the wrong thing so users need to do the wrong thing
-to be compatible.
+In an effort to get greater control over which printk()'s are logged
+during boot and after, I've put together this patch that introduces the
+concept of printk subsystems.  The problem that some are beginning to
+face with larger machines is that certain subsystems are overly verbose
+(SCSI, USB, cpu related messages on large NUMA or SMP machines)
+and they overflow the buffer.  Making the logbuffer bigger is a stop gap
+solution but I think this is a more elegant solution.
 
-`ps` reads the command-line from the proc file-system.  Obviously
-the command-line can't be changed after a program starts executing
-because it's something that was passed to the program before execution.
-That's like making somebody un-pregnant.
+Basically, each printk is assigned to a subsystem and that subsystem has
+the same set of values that the console_printk array has.  The
+difference is that the console_printk loglevel decides if the message
+goes to the console whereas the subsystem loglevel decides if that
+message goes to the log at all.
 
-So, hacks from hackers `setproctitle` comes to mind, replace some of
-the command-line, usually overwriting the environment strings, with
-some alien text.
+This patch implements the core, but I haven't yet put in the facilities
+to change the default values that are used at compile-time.  I'm looking
+for opinions on the architecture, not the completeness.  I plan to add
+configuration through sysctl.
 
-With the current API, (Unix) the "'correct'" way to set a process
-title is for everybody to agree upon an environment string like "TITLE=".
-Then, if you want to change the process title, you change that string.
-`ps` would then look for the "TITLE=" token and use the string after that.
+To use the feature you simply add the subsystem identifier to the printk
+call, much the same way that you add the priority tag:
 
-However, it's unlikely that anybody will ever do that because of:
+printk(PRINTK_NET KERN_INFO "This is a printk from the net subsys\n");
 
-(1) Inertia.
-(2) NIH.
+Each subsystem has a default KERN_* priority, and if no subsystem is
+given then the printk is put into the PRINTK_UNASS queue (which is setup
+by default to log all messages).
 
-PS it's trivial to modify `ps` to search for "TITLE=" and display
-that, as well as the command-line strings IFF "TITLE=" is not found.
-A new `ps` would make new/old compatibility work, but again, it's
-unlikely that this 20 year-old problem will ever be fixed.
+The patch is against 2.5.66.
+
+Opinions and comments welcome
+mh
+
+-- 
+Martin Hicks  ||  mort@bork.org  || PGP/GnuPG: 0x4C7F2BEE
+plato up 6 days,  6:33, 14 users,  load average: 0.09, 0.11, 0.09
+Beer: So much more than just a breakfast drink.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 
+diff -X /home/mort/diff-exclude -uEr linux-2.5.66.pristine/include/linux/kernel.h linux-2.5.66/include/linux/kernel.h
+--- linux-2.5.66.pristine/include/linux/kernel.h	2003-03-17 16:43:37.000000000 -0500
++++ linux-2.5.66/include/linux/kernel.h	2003-04-07 14:33:05.000000000 -0400
+@@ -47,6 +47,18 @@
+ #define minimum_console_loglevel (console_printk[2])
+ #define default_console_loglevel (console_printk[3])
+ 
++/* Printk subsystem identifiers */
++#define PRINTK_UNASS    "<A>"   /* unassigned printk subsystem          */
++#define PRINTK_CORE     "<B>"   /* from the core kernel                 */
++#define PRINTK_SCSI     "<C>"   /* from the SCSI subsystem              */
++#define PRINTK_NET      "<D>"   /* from the Net subsystem               */
++#define PRINTK_USB      "<E>"   /* from the USB subsystem               */
++
++#define FIRST_PRINTK_SUBSYS PRINTK_UNASS[1]
++#define LAST_PRINTK_SUBSYS PRINTK_USB[1]
++
++extern int printk_subsystem[5][4];
++
+ struct completion;
+ 
+ #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
+@@ -102,6 +114,62 @@
+ 		console_loglevel = 15;
+ }
+ 
++static inline int decode_subsys(char *subsys) 
++{
++        if (subsys[1] >= FIRST_PRINTK_SUBSYS &&
++            subsys[1] <= LAST_PRINTK_SUBSYS)
++                return subsys[1] - FIRST_PRINTK_SUBSYS;
++        return -1;
++}
++
++/* returns the log threshold for a given subsystem.  -1 on error.  */
++static inline int get_subsys_loglevel(char *subsys)
++{
++        int index;
++        if ((index = decode_subsys(subsys)) != -1)
++                return printk_subsystem[index][0];
++        return -1;
++}
++
++/* sets the log threshold for a given subsystem.  
++ * returns 0 if everything is okay, -1 if an error is encoutered. */
++static inline int set_subsys_loglevel(char *subsys, int level)
++{
++        int index;
++        if (level < 0 || level > 8)
++                return -1;
++        if ((index = decode_subsys(subsys)) != -1) {
++                if (level < printk_subsystem[index][2])
++                        level = printk_subsystem[index][3];
++                printk_subsystem[index][0] = level;
++                return 0;
++        }
++        return -1;
++}
++
++/* returns the default message level for a given subsystem.  -1 on error */
++static inline int get_subsys_msglevel(char *subsys)
++{
++        int index;
++        if ((index = decode_subsys(subsys)) != -1)
++                return printk_subsystem[index][1];
++        return -1;
++}
++
++/* sets the default message level for a given subsystem.
++ * return 0 if everything is okay, - 1 if an error is encountered */
++static inline int set_subsys_msglevel(char *subsys, int level)
++{
++        int index;
++        if (level < 0 || level > 7)
++                return -1;
++        if ((index = decode_subsys(subsys)) != -1) {
++                printk_subsystem[index][1] = level;
++                return 0;
++        }
++        return -1;
++}
++
+ extern void bust_spinlocks(int yes);
+ extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
+ 
+Only in linux-2.5.66.pristine/include/sound: pcm_sgbuf.h
+diff -X /home/mort/diff-exclude -uEr linux-2.5.66.pristine/kernel/printk.c linux-2.5.66/kernel/printk.c
+--- linux-2.5.66.pristine/kernel/printk.c	2003-03-17 16:44:50.000000000 -0500
++++ linux-2.5.66/kernel/printk.c	2003-04-07 14:54:33.356776808 -0400
+@@ -42,6 +42,9 @@
+ #define MINIMUM_CONSOLE_LOGLEVEL 1 /* Minimum loglevel we let people use */
+ #define DEFAULT_CONSOLE_LOGLEVEL 7 /* anything MORE serious than KERN_DEBUG */
+ 
++#define MINIMUM_SUBSYS_LOGLEVEL 1
++#define DEFAULT_SUBSYS_LOGLEVEL 8
++
+ DECLARE_WAIT_QUEUE_HEAD(log_wait);
+ 
+ int console_printk[4] = {
+@@ -51,6 +54,18 @@
+ 	DEFAULT_CONSOLE_LOGLEVEL,	/* default_console_loglevel */
+ };
+ 
++int printk_subsystem[5][4] = {  /*  [][0] == subsystem log level
++                                 *  [][1] == default message loglevel
++                                 *  [][2] == minimum subsystem loglevel
++                                 *  [][3] == default subsystem loglevel */
++        [0 ... 4] = { 
++                DEFAULT_SUBSYS_LOGLEVEL,
++                DEFAULT_MESSAGE_LOGLEVEL,
++                MINIMUM_SUBSYS_LOGLEVEL,
++                DEFAULT_SUBSYS_LOGLEVEL
++        }
++};
++
+ int oops_in_progress;
+ 
+ /*
+@@ -390,10 +405,11 @@
+ {
+ 	va_list args;
+ 	unsigned long flags;
+-	int printed_len;
++	int printed_len, msg_log_level, msg_subsystem, i;
+ 	char *p;
+ 	static char printk_buf[1024];
+-	static int log_level_unknown = 1;
++	static int begin_message = 1;
++        
+ 
+ 	if (oops_in_progress) {
+ 		/* If a crash is occurring, make sure we can't deadlock */
+@@ -409,23 +425,44 @@
+ 	va_start(args, fmt);
+ 	printed_len = vsnprintf(printk_buf, sizeof(printk_buf), fmt, args);
+ 	va_end(args);
+-
++        
+ 	/*
+-	 * Copy the output into log_buf.  If the caller didn't provide
+-	 * appropriate log level tags, we insert them here
++	 * Copy the output into log_buf.
+ 	 */
+-	for (p = printk_buf; *p; p++) {
+-		if (log_level_unknown) {
+-			if (p[0] != '<' || p[1] < '0' || p[1] > '7' || p[2] != '>') {
++        p = printk_buf;
++	while (*p) {
++		if (begin_message) {
++                        /* Figure out if there is zero, one or two flags */
++                        msg_log_level = -1;
++                        msg_subsystem = 0;  /* A - Unassigned */
++                        for (i = 0; i < 2; i++) {
++				if (p[0] == '<' && p[2] == '>') {
++                                	if (p[1] >= '0' && p[1] <= '7')
++                                        	msg_log_level = p[1] - '0';
++                                	if (p[1] >= 'A' && p[1] <= 'G')
++                                        	msg_subsystem = p[1] - 'A';
++				} else 
++					break;
++				p+=3;
++			}
++
++                        /* Decide if we print this message at all */
++                        if (msg_log_level == -1)
++                                msg_log_level = printk_subsystem[msg_subsystem][1];
++                                
++                        if (msg_log_level < printk_subsystem[msg_subsystem][0]) {
++                                begin_message = 0;
+ 				emit_log_char('<');
+-				emit_log_char(default_message_loglevel + '0');
++                                emit_log_char(msg_log_level + '0');
+ 				emit_log_char('>');
++                        } else { // Get out of this loop.  Don't log anything.
++                                break;
+ 			}
+-			log_level_unknown = 0;
+ 		}
+ 		emit_log_char(*p);
+ 		if (*p == '\n')
+-			log_level_unknown = 1;
++			begin_message = 1;
++                p++;
+ 	}
+ 
+ 	if (!cpu_online(smp_processor_id())) {

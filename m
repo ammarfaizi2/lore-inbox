@@ -1,37 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbULHRur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbULHRzB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbULHRur (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 12:50:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbULHRur
+	id S261286AbULHRzB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 12:55:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbULHRy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 12:50:47 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13519 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261284AbULHRuf (ORCPT
+	Wed, 8 Dec 2004 12:54:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60368 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261286AbULHRxO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 12:50:35 -0500
-Subject: Re: Figuring out physical memory regions from a kernel module
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <C863B68032DED14E8EBA9F71EB8FE4C20596010F@azsmsx406>
-References: <C863B68032DED14E8EBA9F71EB8FE4C20596010F@azsmsx406>
-Content-Type: text/plain
-Message-Id: <1102528225.2830.30.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Wed, 08 Dec 2004 12:50:26 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Dec 2004 12:53:14 -0500
+From: David Howells <dhowells@redhat.com>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Get rid of EXPORT_SYMBOL_NOVERS from the FR-V arch
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.2
+Date: Wed, 08 Dec 2004 17:53:03 +0000
+Message-ID: <7752.1102528383@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-08 at 10:44 -0700, Hanson, Jonathan M wrote:
-> 	Is there a reliable way to tell from a kernel module (currently
-> written for 2.4 but will need to work under 2.6 in the future) which
-> regions of physical memory are actually available for the kernel and
-> processes to use? For example, the following command tells me the
-> regions of physical memory that are available to use:
 
+The attached patch gets rid of EXPORT_SYMBOL_NOVERS from the FR-V arch.
 
-ehhh what do you need it for???
-without knowing that it's hard to give recommendations
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat frv-novers-2610rc2mm3-3.diff 
+ frv_ksyms.c |   62 ++++++++++++++++++++++++++++++------------------------------
+ 1 files changed, 31 insertions(+), 31 deletions(-)
 
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/arch/frv/kernel/frv_ksyms.c linux-2.6.10-rc2-mm3-shmem/arch/frv/kernel/frv_ksyms.c
+--- linux-2.6.10-rc2-mm3-mmcleanup/arch/frv/kernel/frv_ksyms.c	2004-11-22 10:53:41.000000000 +0000
++++ linux-2.6.10-rc2-mm3-shmem/arch/frv/kernel/frv_ksyms.c	2004-11-29 11:55:14.000000000 +0000
+@@ -57,7 +57,7 @@ EXPORT_SYMBOL(memory_start);
+ EXPORT_SYMBOL(memory_end);
+ #endif
+ 
+-EXPORT_SYMBOL_NOVERS(__debug_bug_trap);
++EXPORT_SYMBOL(__debug_bug_trap);
+ 
+ /* Networking helper routines. */
+ EXPORT_SYMBOL(csum_partial_copy);
+@@ -66,27 +66,27 @@ EXPORT_SYMBOL(csum_partial_copy);
+    explicitly (the C compiler generates them).  Fortunately,
+    their interface isn't gonna change any time soon now, so
+    it's OK to leave it out of version control.  */
+-EXPORT_SYMBOL_NOVERS(memcpy);
+-EXPORT_SYMBOL_NOVERS(memset);
+-EXPORT_SYMBOL_NOVERS(memcmp);
+-EXPORT_SYMBOL_NOVERS(memscan);
+-EXPORT_SYMBOL_NOVERS(memmove);
+-EXPORT_SYMBOL_NOVERS(strtok);
++EXPORT_SYMBOL(memcpy);
++EXPORT_SYMBOL(memset);
++EXPORT_SYMBOL(memcmp);
++EXPORT_SYMBOL(memscan);
++EXPORT_SYMBOL(memmove);
++EXPORT_SYMBOL(strtok);
+ 
+ EXPORT_SYMBOL(get_wchan);
+ 
+ #ifdef CONFIG_FRV_OUTOFLINE_ATOMIC_OPS
+-EXPORT_SYMBOL_NOVERS(atomic_test_and_ANDNOT_mask);
+-EXPORT_SYMBOL_NOVERS(atomic_test_and_OR_mask);
+-EXPORT_SYMBOL_NOVERS(atomic_test_and_XOR_mask);
+-EXPORT_SYMBOL_NOVERS(atomic_add_return);
+-EXPORT_SYMBOL_NOVERS(atomic_sub_return);
+-EXPORT_SYMBOL_NOVERS(__xchg_8);
+-EXPORT_SYMBOL_NOVERS(__xchg_16);
+-EXPORT_SYMBOL_NOVERS(__xchg_32);
+-EXPORT_SYMBOL_NOVERS(__cmpxchg_8);
+-EXPORT_SYMBOL_NOVERS(__cmpxchg_16);
+-EXPORT_SYMBOL_NOVERS(__cmpxchg_32);
++EXPORT_SYMBOL(atomic_test_and_ANDNOT_mask);
++EXPORT_SYMBOL(atomic_test_and_OR_mask);
++EXPORT_SYMBOL(atomic_test_and_XOR_mask);
++EXPORT_SYMBOL(atomic_add_return);
++EXPORT_SYMBOL(atomic_sub_return);
++EXPORT_SYMBOL(__xchg_8);
++EXPORT_SYMBOL(__xchg_16);
++EXPORT_SYMBOL(__xchg_32);
++EXPORT_SYMBOL(__cmpxchg_8);
++EXPORT_SYMBOL(__cmpxchg_16);
++EXPORT_SYMBOL(__cmpxchg_32);
+ #endif
+ 
+ /*
+@@ -109,16 +109,16 @@ extern void __udivmoddi4(void);
+ extern void __umoddi3(void);
+ 
+         /* gcc lib functions */
+-//EXPORT_SYMBOL_NOVERS(__gcc_bcmp);
+-EXPORT_SYMBOL_NOVERS(__ashldi3);
+-EXPORT_SYMBOL_NOVERS(__ashrdi3);
+-//EXPORT_SYMBOL_NOVERS(__cmpdi2);
+-//EXPORT_SYMBOL_NOVERS(__divdi3);
+-EXPORT_SYMBOL_NOVERS(__lshrdi3);
+-//EXPORT_SYMBOL_NOVERS(__moddi3);
+-EXPORT_SYMBOL_NOVERS(__muldi3);
+-EXPORT_SYMBOL_NOVERS(__negdi2);
+-//EXPORT_SYMBOL_NOVERS(__ucmpdi2);
+-//EXPORT_SYMBOL_NOVERS(__udivdi3);
+-//EXPORT_SYMBOL_NOVERS(__udivmoddi4);
+-//EXPORT_SYMBOL_NOVERS(__umoddi3);
++//EXPORT_SYMBOL(__gcc_bcmp);
++EXPORT_SYMBOL(__ashldi3);
++EXPORT_SYMBOL(__ashrdi3);
++//EXPORT_SYMBOL(__cmpdi2);
++//EXPORT_SYMBOL(__divdi3);
++EXPORT_SYMBOL(__lshrdi3);
++//EXPORT_SYMBOL(__moddi3);
++EXPORT_SYMBOL(__muldi3);
++EXPORT_SYMBOL(__negdi2);
++//EXPORT_SYMBOL(__ucmpdi2);
++//EXPORT_SYMBOL(__udivdi3);
++//EXPORT_SYMBOL(__udivmoddi4);
++//EXPORT_SYMBOL(__umoddi3);

@@ -1,99 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbUJ1JeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbUJ1JcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbUJ1JeG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 05:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbUJ1Jcf
+	id S262848AbUJ1JcL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 05:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbUJ1JcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 05:32:35 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:40970 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S262854AbUJ1Jbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 05:31:52 -0400
-Date: Thu, 28 Oct 2004 11:37:52 +0200
-To: Giuliano Pochini <pochini@denise.shiny.it>
-Cc: Timothy Miller <miller@techsource.com>, Tonnerre <tonnerre@thundrix.ch>,
-       Helge Hafting <helgehaf@aitel.hist.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Message-ID: <20041028093752.GB13523@hh.idb.hist.no>
-References: <4176E08B.2050706@techsource.com> <1098442636l.17554l.0l@hh> <20041025152921.GA25154@thundrix.ch> <417D216D.1060206@techsource.com> <Pine.LNX.4.58.0410251825480.16966@denise.shiny.it>
+	Thu, 28 Oct 2004 05:32:10 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:31636 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262848AbUJ1Jbg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 05:31:36 -0400
+Date: Thu, 28 Oct 2004 11:32:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+Message-ID: <20041028093215.GA27694@elte.hu>
+References: <5225.195.245.190.94.1098880980.squirrel@195.245.190.94> <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94> <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5> <20041028063630.GD9781@elte.hu> <20668.195.245.190.93.1098952275.squirrel@195.245.190.93> <20041028085656.GA21535@elte.hu> <26253.195.245.190.93.1098955051.squirrel@195.245.190.93>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410251825480.16966@denise.shiny.it>
-User-Agent: Mutt/1.5.6+20040722i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <26253.195.245.190.93.1098955051.squirrel@195.245.190.93>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 06:32:27PM +0200, Giuliano Pochini wrote:
+
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+
+> OK. That was it. After switching off CONFIG_RWSEM_DEADLOCK_DETECT on
+> RT-V0.4.3, I can say that it's now on par to RT-U3.
+
+great!
+
+> Later today, I will conduct some extendeded testing, where I'll able
+> to compare the jackd performance between vanilla, RT-U3 and RT-V0.4.3,
+> on my UP laptop. All kernel configurations will be stripped off from
+> all the debug options.
+>
+> I will take note of xrun rate, jackd scheduling delay histogram, and
+> cpu usage. Context switch rate will be also acquainted.
 > 
-> 
-> On Mon, 25 Oct 2004, Timothy Miller wrote:
-> 
-> >
-> >
-> > Tonnerre wrote:
-> > > Salut,
-> > >
-> > > On Fri, Oct 22, 2004 at 10:57:16AM +0000, Helge Hafting wrote:
-> > >
-> > >>24-bit color
-> > >>------------
-> > >
-> > >
-> > > Why don't you use 32-bit colors?  24-bit packed pixels are a pita, and
-> > > a lot of OpenGL hardware doesn't support 24bpp. You might atcually get
-> > > better graphics/performance/etc. if you  stick to 32bpp. Only that the
-> > > framebuffer size increases by 1/3rd.
-> >
-> > It's been ages since I've encountered a GPU which could do packed 24.  I
-> > think when people talk about "24 bit color", they're also thinking "32
-> > bits per pixel".  Besides, there's the alpha channel.
-> 
-Nothing wrong with 32-bit color.  What I meant, was to
-prioritize 24-bit _or better_ - don't waste space on
-16-bit or even less stuff. 
+> Anything else?
 
-> Well, in order to save memory and bandwidth, the data can be 24bpp, but
-> the software sees it 32bpp.
-> 
-Or one could go the other way - if we use 32 bits, then
-consider 10 bits per color.  I've always wondered about the purpose
-of a 8-bit alpha channel.  what exactly is supposed to show
-in "transparent" places?  Transparency makes sense when talking about 
-windows - you see the underlying window through a transparent spot.
-But this is the frame buffer we're talking about - what is
-supposed to be behind that?  Another frame buffer?
+yeah, that's good enough. I'd still suggest to first test new kernels
+with all the debug options on, to make sure it's stable. For performance
+comparisons turn all the debug options off.
 
-> I didn't follow the whole thread, but IMHO the most important thing is 2D.
-> If you like gaming, a slow 3D card is useless. I would prefer a card with
-> excellent 2D features instead.
+i'd also suggest to turn the NMI watchdog off (if enabled), that can
+inject a 10-20 usec latency into any critical path. For the absolute
+lowest latencies i'd also suggest to turn off all the APIC options
+(possible in a UP kernel only, and only if the XT-PIC setup doesnt cause
+unacceptable IRQ-line sharing), the IO-APIC mask handling is a bit
+expensive compared to the XT-PIC.
 
-No, a slow 3D card is very useful.  Remember the original doom?  It
-ran fine on a 486 with no graphichs accelerator other than the cpu
-itself.  Then came games that used 3D acceleration - the early 3D
-accelerators were simple stuff comparted with this year's cards.
+If you find (or suspect) larger latencies anywhere then PREEMPT_TIMING +
+LATENCY_TRACE + preempt_enable=4 is the preferred variant to use. (right
+now it's not possible to do wakeup-timing without LATENCY_TRACE, i'll
+fix that.)
 
-If he can make an open card that runs most 3-year old 3D-stuff, then
-great!  There is _lots_ of such programs around.  They doesn't cease
-to exist, they doesn't stop getting used just because they're old.
-
-There is a handful of opensource 3D games that works fine with
-old 3D cards. There will likely be more with time too.
-
-Games is much more than the "latest and greatest".  Don't fall
-into the trap thinking that this month's top seller game is
-all that counts.  People still fire up their old C64's from
-time to time . . .
-
-Also, there is the fact that the closed nature of many new 3D
-cards means their potential isn't realized under linux, where
-I play _all_ my games anyway.  Competing with someone who
-have no driver is easy, and someone with a severely lacking driver
-isn't so hard to beat either.
-
-Helge Hafting
-
-
- 
+	Ingo

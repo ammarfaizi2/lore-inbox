@@ -1,119 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317787AbSGKIQO>; Thu, 11 Jul 2002 04:16:14 -0400
+	id <S317791AbSGKItJ>; Thu, 11 Jul 2002 04:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317790AbSGKIQN>; Thu, 11 Jul 2002 04:16:13 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:20893 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317787AbSGKIQM>;
-	Thu, 11 Jul 2002 04:16:12 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] bitops cleanup
-Date: Thu, 11 Jul 2002 17:55:02 +1000
-Message-Id: <20020711081915.1A4144506@lists.samba.org>
+	id <S317793AbSGKItI>; Thu, 11 Jul 2002 04:49:08 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:13289 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S317791AbSGKItH>; Thu, 11 Jul 2002 04:49:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+To: Jesse Barnes <jbarnes@sgi.com>, Daniel Phillips <phillips@arcor.de>
+Subject: Re: spinlock assertion macros
+Date: Thu, 11 Jul 2002 12:51:38 +0200
+User-Agent: KMail/1.4.2
+Cc: kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com> <E17SPsV-00028p-00@starship> <20020710233616.GA696482@sgi.com>
+In-Reply-To: <20020710233616.GA696482@sgi.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207111251.38481.arnd@bergmann-dalldorf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nomenclature tweak and move to bitops.h (also deleted redundant
-<asm/bitops.h> double include.
+On Thursday 11 July 2002 01:36, Jesse Barnes wrote:
 
-Please apply,
-Rusty.
++#define spin_assert_unlocked(lock) if (spin_is_locked(lock)) { printk("lock assertion failure: lock at %s:%d should be unlocked!\n", __FILE__, __LINE__); }
 
-Name: Bitops Cleanup
-Author: Rusty Russell
-Status: Trivial
+I suppose what would at least be as helpful is to check if _any_ 
+lock is held, e.g. when calling a potentially sleeping function.
 
-D: This renames bitmap_member to DECLARE_BITMAP, and moves it to bitops.h.
+Something along these lines:
 
-diff -urN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.24.7405/include/linux/bitops.h linux-2.5.24.7405.updated/include/linux/bitops.h
---- linux-2.5.24.7405/include/linux/bitops.h	Fri Jun  7 13:59:07 2002
-+++ linux-2.5.24.7405.updated/include/linux/bitops.h	Sat Jun 22 05:07:14 2002
-@@ -2,6 +2,9 @@
- #define _LINUX_BITOPS_H
- #include <asm/bitops.h>
- 
-+#define DECLARE_BITMAP(name,bits) 
-+	unsigned long name[((bits)+BITS_PER_LONG-1)/BITS_PER_LONG]
-+
- /*
-  * ffs: find first bit set. This is defined the same way as
-  * the libc and compiler builtin ffs routines, therefore
-@@ -106,8 +109,5 @@
-         res = (res & 0x33) + ((res >> 2) & 0x33);
-         return (res & 0x0F) + ((res >> 4) & 0x0F);
- }
--
--#include <asm/bitops.h>
--
- 
- #endif
-diff -urN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.24.7405/include/linux/types.h linux-2.5.24.7405.updated/include/linux/types.h
---- linux-2.5.24.7405/include/linux/types.h	Mon Jun 17 23:19:25 2002
-+++ linux-2.5.24.7405.updated/include/linux/types.h	Sat Jun 22 05:07:14 2002
-@@ -3,9 +3,6 @@
- 
- #ifdef	__KERNEL__
- #include <linux/config.h>
--
--#define bitmap_member(name,bits) 
--	unsigned long name[((bits)+BITS_PER_LONG-1)/BITS_PER_LONG]
- #endif
- 
- #include <linux/posix_types.h>
-diff -urN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.24.7405/include/sound/ac97_codec.h linux-2.5.24.7405.updated/include/sound/ac97_codec.h
---- linux-2.5.24.7405/include/sound/ac97_codec.h	Fri Jun 21 09:41:55 2002
-+++ linux-2.5.24.7405.updated/include/sound/ac97_codec.h	Sat Jun 22 05:21:08 2002
-@@ -25,6 +25,7 @@
-  *
-  */
- 
-+#include <linux/bitops.h>
- #include "control.h"
- #include "info.h"
- 
-@@ -169,7 +170,7 @@
- 	unsigned int rates_mic_adc;
- 	unsigned int spdif_status;
- 	unsigned short regs[0x80]; /* register cache */
--	bitmap_member(reg_accessed,0x80); /* bit flags */
-+	DECLARE_BITMAP(reg_accessed, 0x80); /* bit flags */
- 	union {			/* vendor specific code */
- 		struct {
- 			unsigned short unchained[3];	// 0 = C34, 1 = C79, 2 = C69
-diff -urN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.24.7405/sound/core/seq/seq_clientmgr.h linux-2.5.24.7405.updated/sound/core/seq/seq_clientmgr.h
---- linux-2.5.24.7405/sound/core/seq/seq_clientmgr.h	Fri Jun 21 09:41:57 2002
-+++ linux-2.5.24.7405.updated/sound/core/seq/seq_clientmgr.h	Sat Jun 22 05:20:37 2002
-@@ -53,7 +53,7 @@
- 	char name[64];		/* client name */
- 	int number;		/* client number */
- 	unsigned int filter;	/* filter flags */
--	bitmap_member(event_filter, 256);
-+	DECLARE_BITMAP(event_filter, 256);
- 	snd_use_lock_t use_lock;
- 	int event_lost;
- 	/* ports */
-diff -urN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.24.7405/sound/core/seq/seq_queue.h linux-2.5.24.7405.updated/sound/core/seq/seq_queue.h
---- linux-2.5.24.7405/sound/core/seq/seq_queue.h	Fri Jun 21 09:41:57 2002
-+++ linux-2.5.24.7405.updated/sound/core/seq/seq_queue.h	Sat Jun 22 05:08:27 2002
-@@ -26,6 +26,7 @@
- #include "seq_lock.h"
- #include <linux/interrupt.h>
- #include <linux/list.h>
-+#include <linux/bitops.h>
- 
- #define SEQ_QUEUE_NO_OWNER (-1)
- 
-@@ -51,7 +52,7 @@
- 	spinlock_t check_lock;
- 
- 	/* clients which uses this queue (bitmap) */
--	bitmap_member(clients_bitmap, SNDRV_SEQ_MAX_CLIENTS);
-+ 	DECLARE_BITMAP(clients_bitmap, SNDRV_SEQ_MAX_CLIENTS);
- 	unsigned int clients;	/* users of this queue */
- 	struct semaphore timer_mutex;
- 
+#ifdef CONFIG_DEBUG_SPINLOCK
+extern char *volatile last_spinlock[NR_CPUS];
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+#define spin_assert_unlocked_all() ({ \
+	char *lock = last_spinlock[smp_processor_id()]; \
+	if (lock) { \
+		printk (KERN_CRIT "%s:%d: lock %s is held\n", \
+			__func__, __LINE__, lock); \
+		BUG(); \
+	} \
+})
+
+#define spin_lock(lock) ({ \
+	last_spinlock[smp_processor_id()] = __stringify(lock) "@" \
+		__FILE__ ":" __stringify(__LINE__); \
+	__really_spin_lock(lock); \
+})
+#endif
+
+probably, a per-cpu lock depth should be used to also catch
+spin_lock(foo_lock); 
+spin_lock(bar_lock); 
+spin_unlock(bar_lock);
+spin_assert_unlock_all();
+
+	Arnd <><

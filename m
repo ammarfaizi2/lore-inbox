@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319476AbSH3Htt>; Fri, 30 Aug 2002 03:49:49 -0400
+	id <S319531AbSH3H7k>; Fri, 30 Aug 2002 03:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319478AbSH3Htt>; Fri, 30 Aug 2002 03:49:49 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:11277 "HELO
+	id <S319498AbSH3H7k>; Fri, 30 Aug 2002 03:59:40 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:22029 "HELO
 	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S319476AbSH3Hts>; Fri, 30 Aug 2002 03:49:48 -0400
-Message-ID: <3D6F24B3.858E59D8@aitel.hist.no>
-Date: Fri, 30 Aug 2002 09:54:27 +0200
+	id <S319531AbSH3H7k>; Fri, 30 Aug 2002 03:59:40 -0400
+Message-ID: <3D6F2704.A78F0A0@aitel.hist.no>
+Date: Fri, 30 Aug 2002 10:04:20 +0200
 From: Helge Hafting <helgehaf@aitel.hist.no>
 X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.32 i686)
 X-Accept-Language: no, en, en
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
+To: "Pering, Trevor" <trevor.pering@intel.com>
 CC: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-References: <Pine.LNX.4.44.0208281649540.27728-100000@home.transmeta.com> <1030618420.7290.112.camel@irongate.swansea.linux.org.uk> <aklq8b$220$1@penguin.transmeta.com> <3D6E90AB.FBA3BDE6@mvista.com>
+References: <C81D8E612E5DD6119653009027AE9D3EE091D0@FMSMSX36>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
+"Pering, Trevor" wrote:
 
-> How about { 50, 50, "power-save" }  where the number refers
-> to percent of full?
-> I.e. same meaning IFF full is 600, but suppose it is 800.
+> 2) To use MHz or something else? The problem is that the number here is
+> virtually meaningless. It does not translate from machine to machine,
+> processor to processor, or application to application. So, if you have to
+> pick a meaningless metric, what do you use? I would actually argue for % of
+> full capacity instead of MHz, but it doesn't really matter in the end.
 
-Percentages don't buy you anything.  Sure, a new cpu has a
-different max setting, but you may get the same problem with your
-percentages:
+Percentages don't buy you much because they are as meaningless as
+MHz numbers, or even more so.  Percentages don't translate from
+machine to machine either.  One machine might find 50% speed
+useful for power saving, another might want 33%.  A third
+one might work fine with 75% to prevent overheating.
 
-The "old" cpu ran well with 50% for power saving and 100% for
-performance.  The "new" might want 30% for power to work
-well.  So, the numbers change anyway.
+An MHz carries more meaning - it is a measurable frequency.
+Manufacturers tend to specify numbers in MHz.
+Percentage of "full" is more problematic because "full"
+isn't that well-defined.  
+
+Consider things like overclocking.  That isn't merely a
+hack - AMD specifies different max speeds for different
+temperatures.  I.e. they officially support higher
+clock speed when using liquid cooling.  The speed rating
+stored in the cpu is only for the fan-cooling case.
 
 Helge Hafting

@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265039AbTFLXBu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 19:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbTFLXBs
+	id S265036AbTFLW72 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 18:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265039AbTFLW72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 19:01:48 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:34728
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S265039AbTFLXAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 19:00:04 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
-Subject: Re: Anybody gotta list archive tarball?
-Date: Thu, 12 Jun 2003 19:16:17 -0400
-User-Agent: KMail/1.5
-References: <20030612141446.16634.qmail@eklektix.com>
-In-Reply-To: <20030612141446.16634.qmail@eklektix.com>
+	Thu, 12 Jun 2003 18:59:28 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:27036 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265036AbTFLW7U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 18:59:20 -0400
+Date: Thu, 12 Jun 2003 16:14:52 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Greg KH <greg@kroah.com>
+cc: Andrew Morton <akpm@digeo.com>, <sdake@mvista.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+In-Reply-To: <20030612230910.GA1896@kroah.com>
+Message-ID: <Pine.LNX.4.44.0306121614360.11379-100000@cherise>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306121916.17886.rob@landley.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 June 2003 10:14, Jonathan Corbet wrote:
-> Hi,
->
-> Does anybody happen to have (and is willing to share) a tarball containing
-> archives of this list going back well into the 90's?  I am, shall we say,
-> researching the activities of certain companies (when I should really be
-> working on driver books) and something greppable would be most helpful.
->
-> Thanks,
->
-> jon
 
-Dunno about a tarball, but the oldest linux list archive I know of is the one 
-the kansas city people have.
+> Pat, here's a patch to add a sequence number to kobject hotplug calls to
+> help userspace out a lot.
 
-http://www.kclug.org/old_archives/linux-activists/
+Thanks, applied.
 
-If you get a tarball of it, I'd appreciate a copy myself. :)
 
-Rob
+	-pat
 

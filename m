@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268278AbUGXEmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268276AbUGXEz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268278AbUGXEmz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 00:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268279AbUGXEmz
+	id S268276AbUGXEz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 00:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268279AbUGXEz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 00:42:55 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:23494 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S268278AbUGXEmx (ORCPT
+	Sat, 24 Jul 2004 00:55:58 -0400
+Received: from [221.2.232.138] ([221.2.232.138]:27253 "ehlo sohu.com")
+	by vger.kernel.org with ESMTP id S268276AbUGXEz4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 00:42:53 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Robert Love <rml@ximian.com>
-Cc: Dan Aloni <da-x@gmx.net>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel events layer 
-In-reply-to: Your message of "Fri, 23 Jul 2004 22:47:06 -0400."
-             <1090637226.1830.8.camel@localhost> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 24 Jul 2004 14:42:41 +1000
-Message-ID: <4956.1090644161@ocs3.ocs.com.au>
+	Sat, 24 Jul 2004 00:55:56 -0400
+From: "Tony" <zlblzm@sohu.com>
+Subject: Seeking joint-venture partners for ERW oil casing project
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: zlblzm@sohu.com
+Date: Sat, 24 Jul 2004 13:55:31 +0800
+X-Priority: 3
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+Message-Id: <S268276AbUGXEz4/20040724045556Z+417@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jul 2004 22:47:06 -0400, 
-Robert Love <rml@ximian.com> wrote:
->On Sat, 2004-07-24 at 00:32 +0300, Dan Aloni wrote:
->
->> IMHO you either should not assume anything about the length of the object 
->> string, _or_ do the complete safe string assembly e.g:
->> 
->>         len += snprintf(buffer, PAGE_SIZE, "From: %s\nSignal: %s\n", 
->>                         object, signal);
->> 
->
->Fair enough.  I guess what we want, exactly, is:
->
-> len = snprintf(buffer, PAGE_SIZE, "From: %s\n", object);
-> len += snprintf(&buffer[len], PAGE_SIZE - len "Signal: %s\n", signal);
->
->I will add that to the next revision.
+Dear Sir or Madam:
 
-man snprintf
+We are keenly interested in setting up a new factory to produce 120,000 ERW oil casings per year to meet the big market of Shengli Oilfied. Since we lack some starting-up capital, we are seeking for investments. I will give you a brief introduction to the project as follow:
 
-  "If the output was truncated due to this limit then the return value
-  is the number of characters (not including the trailing '\0') which
-  would have been written to the final string if enough space had been
-  available. Thus, a return value of size or more means that the output
-  was truncated".
+I. Background:
+Shengli Oilfield, the second largest oilfield in China and the leading company of Sinopec Corp. (http://www.sinopec.com), as well as neighboring oilfields as Dagang Oilfield, Central Plain Oilfield and Jiangsu Oilfield are potential market of ERW oil casing. It is expected that the total oil casing needed in the above area is about 400,000 tons, including 260,000 tons in Sinopec and 150,000 tons in Shengli Oilfield. To meet the great need, we plan to set up a joint venture to produce 120,000 tons of ERW casings per year in Shengli Oilfield.  With good management and market outlets, we believe that this JV also has the potential to expand beyond China to other nations. 
 
-Never use the return value from snprintf to work out the next buffer
-position, it is not reliable when the data is truncated.  The example
-above uses a second call to snprintf which will generate a warning for
-truncated data and fail safe, but not all code is that trustworthy.  I
-always use strlen to get the real buffer length.
+II. About us
+Shengli Oilfield Engineering Machinery Factory is one of sub-companies of Shengli Oilfield Co., Ltd, with total assets of 267 million yuan, net assets of 170 million yuan and 2462 staff. The factory mainly produces oilfield special equipment such as beam unit, Spiral-seam submerged-arc weldedsteel pipe, sucker rod, line pipe, casing, tubing, plastic compound pipe etc. It produces 200,000 tons of line pipes, 1 million meters of strengthened plastic compound pipes, 500 beam units, 2.5 million meters of sucker rods, 12,000 tons of PP gas pipes and 50,000 tons of oil tubings yearly, and has become important pipe base in Shandong and Shengli Oilfield. Its products have entering many areas as Shengli Oilfield, Daqing Oilfield, Liaohe Oilfield, Dagang Oilfield and so on. In 2002, the sale income amounted to over 600 million yuan.
+The Factory holds Quality accreditations as ISO9001, API and so on.
 
-  snprintf(buffer, PAGE_SIZE, "From: %s\n", object);
-  len = strlen(buffer);
-  snprintf(buffer+len, PAGE_SIZE - len, "Signal: %s\n", signal);
+III. Content of the project
+It is planned to introduce Japanese technology and equipment to set up one production line with range of casing diameter from¦Õ114 to ¦Õ339.7 and produce 120,000 tons of ERW casings and delivery pipes per year.
 
+IV. Product specifications
+For Casing: grade of steel are J55 and N80, specification ranges from ¦Õ114 to ¦Õ339.7
+For delivery: grade of steel are X52¡¢X60¡¢X70, specification ranges from ¦Õ114 to ¦Õ339.7.
+
+V. Economic Analysis
+The total investment in this project is 142.41 million yuan. After the completion of the project, it is estimated that the internal financial rate of return before paying tax is 24.9 percent with a payback period of 5.6 years, and the internal rate of return after paying tax is 21.8 percent with a payback period of 5.9 years.
+The break-even point of the project is 46.95 percent, which means the project can keep balance if the annual output amount to 42,000 tons.
+
+VI. Plans for cooperation
+We have set up a joint venture with Japan's Marubeni in the early of the year, with a registered capital of 57 million yuan. The capital structure is as follow:
+a. Shengli Oilfield Bureau of Administration          19.95 million yuan   35£¥
+b. Shengli Oilfield Engineering Machinery Facotry     17.10 million yuan   30£¥
+c. Dongying District State Assets Operation & Management Co., Ltd 5.70million yuan 10£¥
+d. Marubeni Engineering Technology Co., Ltd           14.25 million yuan   25£¥
+
+To meet our capital need for this project, we are now planned to increase our registered capital to 118.88 million yuan. Taking our added investment into consideration, we need another 34.68 million yuan to get the plan executed. So we are seeking a new joint venture partner who'd like to join this project and meet our capital requirement.
+We would like to exchange the information with the manufacturers and suppliers who are interested in this project and have discussion on raw material supply as well as jointly investing the factory establishment. And we hope we could have good cooperation in future.
+For additional information regarding this project, please feel free to contact us.
+
+Looking forward to your prompt reply.
+
+Sincerely yours, 
+
+Tony Leung
+Project officer
+
+Tel: +86-546-833 9362
+Fax:+86-546-832 9817
+Mobile: +86-133 4505 3225
+Email: tony@mpbdy.com

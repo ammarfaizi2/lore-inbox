@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265209AbUELUF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265210AbUELUHD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265209AbUELUF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 16:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUELUF7
+	id S265210AbUELUHD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 16:07:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUELUHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 16:05:59 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:35676 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S265209AbUELUF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 16:05:56 -0400
-From: Dimitri Sivanich <sivanich@sgi.com>
-Message-Id: <200405122005.i4CK5hli106052@fsgi142.americas.sgi.com>
-Subject: [PATCH] 2.6.6. runqueue lock for RT priority tasks
-To: george@mvista.com (George Anzinger)
-Date: Wed, 12 May 2004 15:05:42 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 12 May 2004 16:07:02 -0400
+Received: from main.gmane.org ([80.91.224.249]:36296 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265210AbUELUGy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 16:06:54 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: 2.6.6 breaks VMware compile..
+Date: Wed, 12 May 2004 22:06:52 +0200
+Message-ID: <yw1xd659v28z.fsf@kth.se>
+References: <407CF31D.8000101@rgadsdon2.giointernet.co.uk> <m365b15vls.fsf@ccs.covici.com>
+ <20040512200322.GA4947@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:ATpHiUNa84P4trZ7PMFTGvQTXmA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jose Luis Domingo Lopez <linux-kernel@24x7linux.com> writes:
 
-In the scheduler_tick code, the runqueue lock is currently taken before
-checking whether a task is an RT task or not.  It would be more efficient to
-take the lock only in cases where the task is not RT or the task policy is
-SCHED_RR with no timeslice left.
+> On Wednesday, 12 May 2004, at 14:49:35 -0400,
+> John Covici wrote:
+>
+>> How do Iget that patch since its still broke in 2.6.6?
+>> 
+> Maybe you forgot to "apply" the "patch" to VMware to allow it to compile
+> its interface and run OK in newer kernels. Check:
+> ftp://platan.vc.cvut.cz/pub/vmware
+>
+> for the latest version of the "patch" (vmware-any-any-update66.tar.gz).
 
-I welcome your comments on the 2.6.6 patch presented below.
+I don't know if it's just me, but I had to build the modules manually.
+The vmware-config.pl script didn't do the right thing.
 
-Thanks,
+-- 
+Måns Rullgård
+mru@kth.se
 
-Dimitri Sivanich <sivanich@sgi.com>
-
-
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c	2004-05-10 15:29:33.000000000 -0500
-+++ linux/kernel/sched.c	2004-05-10 15:29:33.000000000 -0500
-@@ -1521,7 +1521,6 @@
- 		set_tsk_need_resched(p);
- 		goto out;
- 	}
--	spin_lock(&rq->lock);
- 	/*
- 	 * The task was running during this tick - update the
- 	 * time slice counter. Note: we do not update a thread's
-@@ -1535,6 +1534,7 @@
- 		 * FIFO tasks have no timeslices.
- 		 */
- 		if ((p->policy == SCHED_RR) && !--p->time_slice) {
-+			spin_lock(&rq->lock);
- 			p->time_slice = task_timeslice(p);
- 			p->first_time_slice = 0;
- 			set_tsk_need_resched(p);
-@@ -1542,9 +1542,11 @@
- 			/* put it at the end of the queue: */
- 			dequeue_task(p, rq->active);
- 			enqueue_task(p, rq->active);
-+			goto out_unlock;
- 		}
--		goto out_unlock;
-+		goto out;
- 	}
-+	spin_lock(&rq->lock);
- 	if (!--p->time_slice) {
- 		dequeue_task(p, rq->active);
- 		set_tsk_need_resched(p);

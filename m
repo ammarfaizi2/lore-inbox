@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264393AbTFKMHN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 08:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbTFKMHN
+	id S264396AbTFKMLM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 08:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTFKMLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 08:07:13 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27818
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264393AbTFKMHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 08:07:11 -0400
-Subject: Re: Misc 2.5 Fixes: cp-user-vicam
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: dipankar@in.ibm.com
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-In-Reply-To: <20030611104823.GB3718@in.ibm.com>
-References: <20030610100643.GB2194@in.ibm.com>
-	 <20030610100746.GC2194@in.ibm.com> <20030610100905.GD2194@in.ibm.com>
-	 <20030610100950.GE2194@in.ibm.com> <20030610101035.GF2194@in.ibm.com>
-	 <20030610101121.GG2194@in.ibm.com> <20030610101318.GH2194@in.ibm.com>
-	 <20030610101503.GI2194@in.ibm.com> <20030610101801.GJ2194@in.ibm.com>
-	 <20030610102024.GK2194@in.ibm.com>  <20030611104823.GB3718@in.ibm.com>
+	Wed, 11 Jun 2003 08:11:12 -0400
+Received: from 216-42-72-151.ppp.netsville.net ([216.42.72.151]:31919 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S264396AbTFKMLL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 08:11:11 -0400
+Subject: Re: [PATCH] io stalls (was: -rc7   Re: Linux 2.4.21-rc6)
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+In-Reply-To: <20030611021030.GQ26270@dualathlon.random>
+References: <200306041235.07832.m.c.p@wolk-project.de>
+	 <20030604104215.GN4853@suse.de> <200306041246.21636.m.c.p@wolk-project.de>
+	 <20030604104825.GR3412@x30.school.suse.de>
+	 <3EDDDEBB.4080209@cyberone.com.au>
+	 <1055194762.23130.370.camel@tiny.suse.com>
+	 <20030611003356.GN26270@dualathlon.random>
+	 <1055292839.24111.180.camel@tiny.suse.com>
+	 <20030611010628.GO26270@dualathlon.random>
+	 <1055296630.23697.195.camel@tiny.suse.com>
+	 <20030611021030.GQ26270@dualathlon.random>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1055333897.2083.5.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1055334254.24111.209.camel@tiny.suse.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jun 2003 13:18:17 +0100
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 11 Jun 2003 08:24:14 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-06-11 at 11:48, Dipankar Sarma wrote:
-> The patch I sent yesterday is bad, turns out I didn't enable vicam
-> config option while compiling. Here is a replacement patch that
-> actually compiles.
+On Tue, 2003-06-10 at 22:10, Andrea Arcangeli wrote:
+> On Tue, Jun 10, 2003 at 09:57:11PM -0400, Chris Mason wrote:
+> > Ok, I see your point, we don't strictly need the waited check.  I had
+> > added it as an optimization at first, so that those who waited once were
+> > not penalized by further queue_full checks. 
+> 
+> I could taste the feeling of not penalizing while reading the code but
+> that's just a feeling, in reality if they blocked it means they set full
+> by themself and there was no request so they want to go to sleep no
+> matter ->full or not ;)
 
-This looks odd. 2.5 unlike 2.4 video4linux has the wrapper copy the
-structures in and out
+You're completely right, as the patch changed I didn't realize waited
+wasn't needed anymore ;-)
+
+Are you adding the hunk from yesterday to avoid unplugs when q->rq.count
+!= 0?
+
+-chris
+
 

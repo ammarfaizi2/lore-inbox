@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264488AbUAZTaH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 14:30:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbUAZTaH
+	id S265117AbUAZTid (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 14:38:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265150AbUAZTid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 14:30:07 -0500
-Received: from mxsf01.cluster1.charter.net ([209.225.28.201]:26640 "EHLO
-	mxsf01.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S264488AbUAZTaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 14:30:02 -0500
-Date: Mon, 26 Jan 2004 07:29:34 -0600
-From: Justin Walters <ProgramDesign@charter.net>
+	Mon, 26 Jan 2004 14:38:33 -0500
+Received: from hera.kernel.org ([63.209.29.2]:30914 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S265117AbUAZTic (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 14:38:32 -0500
 To: linux-kernel@vger.kernel.org
-Subject: think this might be a bug
-Message-Id: <20040126072934.3f689410.ProgramDesign@Charter.net>
-Organization: 
-X-Mailer: Sylpheed version 0.9.8-gtk2-20031212 (GTK+ 2.2.4; i686-pc-linux-gnu)
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: PATCH to access old-style FAT fs
+Date: Mon, 26 Jan 2004 19:38:11 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <bv3qb3$4lh$1@terminus.zytor.com>
+References: <20040126173949.GA788@frodo.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1075145891 4785 66.80.2.163 (26 Jan 2004 19:38:11 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 26 Jan 2004 19:38:11 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: hpa@smyrno.(none) (H. Peter Anvin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel 2.6.1
+Followup to:  <20040126173949.GA788@frodo.local>
+By author:    Frodo Looijaard <frodol@dds.nl>
+In newsgroup: linux.dev.kernel
+> 
+> Hi folks,
+> 
+> I have created and attached a new version of my old-style FAT filesystem
+> patch, this time for the 2.6.0 kernel. It can also be found on
+> http://debian.frodo.looijaard.name/. 
+> 
+> Some old implementation of the FAT standard mark the end of the
+> directory file index by inserting a filename beginning with a byte 00.
+> All entries after it should be ignored, even though they are not marked
+> as deleted. At least some EPOC releases (an OS used on Psion PDAs, for
+> example) still use this policy.
+> 
 
-Probelm Pentax Optio S4 Digital Camera
+It's not just "old implementations" -- it's the spec.
 
-here all i get in dmesg , when i turn the camera on 
-ehci_hcd 0000:00:02.2: GetStatus port 6 status 001803 POWER sig=j  CSC CONNECT
-hub 1-0:1.0: port 6, status 501, change 1, 480 Mb/s
-hub 1-0:1.0: debounce: port 6: delay 100ms stable 4 status 0x501
-ehci_hcd 0000:00:02.2: port 6 full speed --> companion
- ehci_hcd 0000:00:02.2: GetStatus port 6 status 003001 POWER OWNER sig=se0  CONNECT
+After reaching a filename beginning with 00, no further data should be
+assumed to be in that filesystem.  MS-DOS itself would only do that
+when formatting the filesystem, so *all* the subsequent entries would
+be assumed to start with 00, but that doesn't really seem to be to
+spec.
 
-it not giving a Device nod or nothing , i dont know if its my probelm  or your guys... thanks later 
+	-hpa

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316477AbSGGTM5>; Sun, 7 Jul 2002 15:12:57 -0400
+	id <S316491AbSGGTSE>; Sun, 7 Jul 2002 15:18:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316491AbSGGTM4>; Sun, 7 Jul 2002 15:12:56 -0400
-Received: from dsl-65-188-251-69.telocity.com ([65.188.251.69]:62927 "EHLO
-	orr.homenet") by vger.kernel.org with ESMTP id <S316477AbSGGTMz>;
-	Sun, 7 Jul 2002 15:12:55 -0400
-Date: Sun, 7 Jul 2002 15:15:17 -0400
-From: Jason Lunz <lunz@gtf.org>
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NAPI patch against 2.4.18
-Message-ID: <20020707191517.GA14331@orr.falooley.org>
-References: <3D287DA4.5090904@candelatech.com>
+	id <S316500AbSGGTSD>; Sun, 7 Jul 2002 15:18:03 -0400
+Received: from ns.suse.de ([213.95.15.193]:17931 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316491AbSGGTSC>;
+	Sun, 7 Jul 2002 15:18:02 -0400
+Date: Sun, 7 Jul 2002 21:20:41 +0200
+From: Dave Jones <davej@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] raid kdev_t cleanups (part 1)
+Message-ID: <20020707212041.A20087@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alexander Viro <viro@math.psu.edu>,
+	Neil Brown <neilb@cse.unsw.edu.au>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+References: <15653.9247.110730.4440@notabene.cse.unsw.edu.au> <Pine.GSO.4.21.0207050151060.14718-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D287DA4.5090904@candelatech.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0207050151060.14718-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Jul 05, 2002 at 01:56:38AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 05, 2002 at 01:56:38AM -0400, Alexander Viro wrote:
 
-greearb@candelatech.com said:
-> Does anyone have a working NAPI kernel and tulip driver patch against
-> 2.4.18 or so?  I will be happy to test this if so.
+ > Now, if some brave soul would sanitize the horrors
+ > in lvm*.c... (hint, hint)
 
-Yes, I backported the core last week to 2.4.19-rc1 from 2.5.24, but the
-patch ought to apply to 2.4.18 with only offset mismatches. I kept a lot
-of style cleanups in the patch, but they should be easy to remove if
-they cause problems. I'll be backporting the various napified drivers to
-2.4 this week.
+With LVM2 waiting in the wings, is it worth doing the substantial
+amount of work needed to get it into decent shape ?
+As long as the lvm2 folks can get their act together before
+the freeze (which seems quite likely if the rumours about the
+new lvm code are true), it may be better for those wanting to
+hack on LVM to help out on getting LVM2 into a mergable state.
 
-http://orr.falooley.org/pub/linux/net/
+Comments ?
 
-Jason
+        Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

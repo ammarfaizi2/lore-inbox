@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287532AbSBKITW>; Mon, 11 Feb 2002 03:19:22 -0500
+	id <S282902AbSBKIpP>; Mon, 11 Feb 2002 03:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287578AbSBKITL>; Mon, 11 Feb 2002 03:19:11 -0500
-Received: from angband.namesys.com ([212.16.7.85]:4480 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S287532AbSBKITF>; Mon, 11 Feb 2002 03:19:05 -0500
-Date: Mon, 11 Feb 2002 11:19:04 +0300
-From: Oleg Drokin <green@namesys.com>
-To: linux-kernel@vger.kernel.org
-Subject: unix sockets problems in 2.5.4-pre6?
-Message-ID: <20020211111904.A955@namesys.com>
+	id <S287631AbSBKIpG>; Mon, 11 Feb 2002 03:45:06 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:17925 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S287588AbSBKIoy>; Mon, 11 Feb 2002 03:44:54 -0500
+Date: Mon, 11 Feb 2002 08:44:42 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Netwinder forsale?
+Message-ID: <20020211084442.A20845@flint.arm.linux.org.uk>
+In-Reply-To: <20020210164149.E7975@work.bitmover.com> <3C6734E0.2070807@candelatech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C6734E0.2070807@candelatech.com>; from greearb@candelatech.com on Sun, Feb 10, 2002 at 08:05:04PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sun, Feb 10, 2002 at 08:05:04PM -0700, Ben Greear wrote:
+> Consider a cerfcube: www.cerfcube.com.
+> 
+> I've had quite an easy time with it...and they ship a
+> cross-compiler toolchain with it.  Just be wary of the
+> boot loader options like 'eraseflash', it really will,
+> with no remorse :)
 
-   Just tried 2.5.4-pre6 and got hung postfix "master" process which I cannot
-   kill in RUNNABLE state. Here is traces of all postfix processes at the time:
+Umm, there's one problem with this route - what about all the
+libraries like X11 and other stuff that BK will most likely
+require?
 
-pickup        Z C212E180    48   522    520   523       (L-TLB)
-Call Trace: [do_exit+745/784] [sys_exit+14/16] [syscall_call+7/11]
-qmgr          S F70FBF30    48   523    520   524   522 (NOTLB)
-Call Trace: [schedule_timeout+128/160] [process_timeout+0/16] [do_select+470/544] [sys_select+832/1152] [syscall_call+7/11]
-tlsmgr        S F70F5F30  8944   524    520   523 (NOTLB)
-Call Trace: [schedule_timeout+128/160] [process_timeout+0/16] [do_select+470/544] [sys_select+832/1152] [syscall_call+7/11]
-master        R F773F744    48   520    900   524               (NOTLB)
-Call Trace: [__write_lock_failed+9/32] [.text.lock.open+71/137] [unix_create+92/112] [sock_map_fd+12/304] [select_bits_free+10/16]
-   [sys_socket+29/96] [sys_socket+48/96] [sys_socketcall+99/512] [syscall_call+7/11]
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-   Hope this will help someone to nail a problem
-
-Bye,
-    Oleg

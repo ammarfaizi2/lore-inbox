@@ -1,80 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261800AbREYTvi>; Fri, 25 May 2001 15:51:38 -0400
+	id <S261802AbREYTyS>; Fri, 25 May 2001 15:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261802AbREYTv3>; Fri, 25 May 2001 15:51:29 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:4802 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S261800AbREYTvJ>;
-	Fri, 25 May 2001 15:51:09 -0400
-Message-ID: <3B0EB7A6.E0B17C79@mandrakesoft.com>
-Date: Fri, 25 May 2001 15:51:02 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
+	id <S261806AbREYTyI>; Fri, 25 May 2001 15:54:08 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14099 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S261802AbREYTyD>; Fri, 25 May 2001 15:54:03 -0400
+Date: Fri, 25 May 2001 16:53:38 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: [PATCH] highmem deadlock removal, balancing & cleanup
+Message-ID: <Pine.LNX.4.33.0105251637490.10469-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, johannes@erdfelt.com,
-        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>, randy.dunlap@intel.com
-Subject: Re: ac15 and 2.4.5-pre6, pwc format conversion
-In-Reply-To: <XFMail.010525213709.nemosoft@smcc.demon.nl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Nemosoft Unv." wrote:
-> On 25-May-01 Alan Cox wrote:
-> > It breaks apps by doing conversions, and it breaks important apps like H263
-> > codecs not silly little camera viewers, because you trash the performance
-> 
-> This is a NULL argument. First, it doesn´t break anything; I think H263 is
-> smart to pick a YUV format if it´s available. Second, conversion has to be
-> done at one point or another. If the native format of the camera is RGB,
-> H263 will have to convert to YUV. Wether or not this is done in kernel space
-> or user space doesn´t matter: it has to be done. And in case the native
-> format of the camera doesn´t resemble anything in V4L, you will have TWO
-> conversion: first, in kernel from native to V4L palette, and then in your
-> tool from V4L to whatever format you need, while maybe the driver could do
-> it all in one stage.
+Hi Linus,
 
-Sorry this is a slippery slope argument and it won't wash.
+the following patch does:
 
-The kernel is intended as the arbiter between userspace and hardware,
-and userspace and userspace.  Format conversion has nothing to do with
-arbitration.
+1) Remove GFP_BUFFER and HIGHMEM related deadlocks, by letting
+   these allocations fail instead of looping forever in
+   __alloc_pages() when they cannot make any progress there.
 
-Format conversion in kernelspace is far less flexible than userspace: 
-you cannot replace your algorithms at will nor fix bugs at will.  You
-cannot support assembly optimizations for format conversions without
-bloating the kernel.
+   Now Linux no longer hangs on highmem machines with heavy
+   write loads.
 
-Finally, the example you describe is invalid.  If your tool is doing
--two- format conversions, then [again] the tool should be fixed.  The
-kernel most definitely should not work around stupid shortcomings of
-userspace software.
+2) Clean up the __alloc_pages() / __alloc_pages_limit() code
+   a bit, moving the direct reclaim condition from the latter
+   function into the former so we run it less often ;)
 
+3) Remove the superfluous wakeups from __alloc_pages(), not
+   only are the tests a real CPU eater, they also have the
+   potential of waking up bdflush in a situation where it
+   shouldn't run in the first place.  The kswapd wakeup didn't
+   seem to have any effect either.
 
-> Anyway, I am not going to debate this any further at this point. Johannes,
-> please remove my webcam driver from the USB source tree,
+4) Do make sure GFP_BUFFER allocations NEVER eat into the
+   very last pages of the system. It is important to preserve
+   the following ordering:
+	- normal allocations
+	- GFP_BUFFER
+	- atomic allocations
+	- other recursive allocations
 
-whatever.  I don't see Alan or Linus accepting such a change, even if
-Johannes does.
+   Using this ordering, we can be pretty sure that eg. a
+   GFP_BUFFER allocation to swap something out to an
+   encrypted device won't eat the memory the device driver
+   will need to perform its functions. It also means that
+   a gigabit network flood won't eat those pages...
 
+5) Change nr_free_buffer_pages() a bit to not return pages
+   which cannot be used as buffer pages, this makes a BIG
+   difference on highmem machines (which now DO have a working
+   write throttling again).
 
-> until the software
-> YUV/RGB conversion has been removed from ALL other video devices (preferably
-> all at the same time).
+6) Simplify the refill_inactive() loop enough that it actually
+   works again. Calling page_launder() and shrink_i/d_memory()
+   by the same if condition means that the different caches
+   get balanced against each other again.
 
-Send a patch for this instead!
+   The illogical argument for not shrinking the slab cache
+   while we're under a free shortage turned out to be very
+   much illogical too.  All needed buffer heads will have been
+   allocated in page_launder() and shrink_i/d_memory() before
+   we get here and we can be pretty sure that these functions
+   will keep re-using those same buffer heads as soon as the
+   IO finishes.
 
-Format conversion should not be in the kernel...
+regards,
 
-	Jeff
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
--- 
-Jeff Garzik      | "Are you the police?"
-Building 1024    | "No, ma'am.  We're musicians."
-MandrakeSoft     |
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

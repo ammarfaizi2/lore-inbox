@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUHDQtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUHDQxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUHDQtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 12:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUHDQtZ
+	id S266274AbUHDQxv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 12:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267312AbUHDQxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 12:49:25 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:17931 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266304AbUHDQtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 12:49:24 -0400
-Date: Wed, 4 Aug 2004 17:48:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Christoph Hellwig <hch@infradead.org>, ganesh.venkatesan@intel.com,
-       jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/12 2.4] e1000 - use vmalloc for data structures not shared with h/w
-Message-ID: <20040804174856.B24545@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	ganesh.venkatesan@intel.com, jgarzik@pobox.com, netdev@oss.sgi.com,
-	linux-kernel@vger.kernel.org
-References: <20040729192519.A6235@infradead.org> <E1BqoRX-0004DH-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1BqoRX-0004DH-00@gondolin.me.apana.org.au>; from herbert@gondor.apana.org.au on Sat, Jul 31, 2004 at 05:38:11PM +1000
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 4 Aug 2004 12:53:51 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:4749 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S266274AbUHDQxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 12:53:49 -0400
+Message-ID: <411114E6.2060407@myrealbox.com>
+Date: Wed, 04 Aug 2004 09:55:02 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Realtek 8169 NIC driver version
+References: <1677288031.20040803142517@yahoo.com.cn> <20040803093606.A4911@electric-eye.fr.zoreil.com>
+In-Reply-To: <20040803093606.A4911@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 31, 2004 at 05:38:11PM +1000, Herbert Xu wrote:
-> > No, it's not.  vmalloc needs virtual space that's rather limited (e.g. 64MB
-> > on PAE x86) in addition to physical memory.  Unless you do really big
-> > allocations stay away from vmalloc.
+Francois Romieu wrote:
+> dlion <dlion2005@yahoo.com.cn> :
+> [...]
 > 
-> How big is really big? 64K? 256K? 1M?
+>>  I have read some driver codes in the Linux kernel. I noticed
+>>that the RTL-8169 driver(r8169.c) is an older version (v1.2).
+>>There is a newer drivers on Realtek's website. It's version
+>>number is v1.6 , and it is really much better than v1.2. Why
+>>not merge it into official kernel realease?
+> 
+> 
+> It has already been merged in 2.4.x and 2.6.x. That's old history,
+> really.
 
-Well, the VM deals with big-order (aka bigger than page size) allocations
-rather bad, so for allocation during any I/O I'd stick to allocation smaller
-than that (and certainly no vmalloc!), for init-time allocations order 1 is
-fine, maybe even order 2 or three.
+This one bit me awhile back, too.  Could we just remove that version 
+number?  (Especially with the latest round of changes, the in-kernel 
+driver bears little resemblance to Realtek's.)
+
+--Andy

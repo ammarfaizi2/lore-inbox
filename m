@@ -1,88 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262883AbTESVCY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 17:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTESVCY
+	id S262872AbTESVBK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 17:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTESVBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 17:02:24 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:57093 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262883AbTESVCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 17:02:22 -0400
-Date: Mon, 19 May 2003 23:15:14 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-bk1[23] kconfig loop
-In-Reply-To: <200305191821.h4JILlE12026@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.44.0305192254330.12110-100000@serv>
-References: <200305191821.h4JILlE12026@adam.yggdrasil.com>
+	Mon, 19 May 2003 17:01:10 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61192 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262872AbTESVBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 17:01:09 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Recent changes to sysctl.h breaks glibc
+Date: 19 May 2003 14:14:00 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <babheo$s9r$1@cesium.transmeta.com>
+References: <1053289316.10127.41.camel@nosferatu.lan> <20030519063813.A30004@infradead.org> <1053341023.9152.64.camel@workshop.saharact.lan> <20030519105152.GD8978@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Followup to:  <20030519105152.GD8978@holomorphy.com>
+By author:    William Lee Irwin III <wli@holomorphy.com>
+In newsgroup: linux.dev.kernel
+> 
+> IIRC you're supposed to use some sort of sanitized copy, not the things
+> directly. IMHO the current state of affairs sucks as there is no
+> standard set of ABI headers, but grabbing them right out of the kernel
+> is definitely not the way to go.
+> 
 
-On Mon, 19 May 2003, Adam J. Richter wrote:
+This "cure" sucks worse than the disease.  Now you're putting it onto
+everyone who maintains userspace to do the same repetitive task of
+"sanitizing" this.  Especially for things this trivial, this is a
+ridiculous concept.
 
->         I expect there is no input that is supposed to cause
-> "make oldconfig" to go into an infinite loop, so this must at
-> least be a kconfig bug.
+For 2.7, getting real exportable ABI headers is so bloody necessary
+it's not even funny.  However, for 2.5, breaking things randomly is
+not the way to go.
 
-Yes, it is, conf should not restart the configuration if the symbol isn't 
-changeable. The patch below fixes this and also fixes another possible 
-problem with menuconfig.
-
-bye, Roman
-
---- linux-2.5.69-bk13/scripts/kconfig/conf.c	16 Dec 2002 19:40:13 -0000
-+++ linux-2.5.69-bk13/scripts/kconfig/conf.c	19 May 2003 20:36:28 -0000
-@@ -456,29 +456,17 @@ static void check_conf(struct menu *menu
- 		return;
- 
- 	sym = menu->sym;
--	if (!sym)
--		goto conf_childs;
--
--	if (sym_is_choice(sym)) {
--		if (!sym_has_value(sym)) {
-+	if (sym) {
-+		if (sym_is_changable(sym) && !sym_has_value(sym)) {
- 			if (!conf_cnt++)
- 				printf("*\n* Restart config...\n*\n");
- 			rootEntry = menu_get_parent_menu(menu);
- 			conf(rootEntry);
- 		}
--		if (sym_get_tristate_value(sym) != mod)
-+		if (sym_is_choice(sym) && sym_get_tristate_value(sym) != mod)
- 			return;
--		goto conf_childs;
--	}
--
--	if (!sym_has_value(sym)) {
--		if (!conf_cnt++)
--			printf("*\n* Restart config...\n*\n");
--		rootEntry = menu_get_parent_menu(menu);
--		conf(rootEntry);
- 	}
- 
--conf_childs:
- 	for (child = menu->list; child; child = child->next)
- 		check_conf(child);
- }
---- linux-2.5.69-bk13/scripts/kconfig/menu.c	17 Mar 2003 23:01:29 -0000
-+++ linux-2.5.69-bk13/scripts/kconfig/menu.c	18 May 2003 22:27:39 -0000
-@@ -283,8 +283,7 @@ struct menu *menu_get_parent_menu(struct
- {
- 	enum prop_type type;
- 
--	while (menu != &rootmenu) {
--		menu = menu->parent;
-+	for (; menu != &rootmenu; menu = menu->parent) {
- 		type = menu->prompt ? menu->prompt->type : 0;
- 		if (type == P_MENU || type == P_ROOTMENU)
- 			break;
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

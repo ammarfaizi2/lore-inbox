@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287924AbSA0KIe>; Sun, 27 Jan 2002 05:08:34 -0500
+	id <S287933AbSA0KVZ>; Sun, 27 Jan 2002 05:21:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287933AbSA0KIZ>; Sun, 27 Jan 2002 05:08:25 -0500
-Received: from mx3.sac.fedex.com ([199.81.208.11]:49680 "EHLO
-	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S287924AbSA0KIR>; Sun, 27 Jan 2002 05:08:17 -0500
-Date: Sun, 27 Jan 2002 18:08:45 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Jeff Chua <jchua@fedex.com>
-Subject: 2.4.18-pre7 slow ... apm problem
-Message-ID: <Pine.LNX.4.44.0201271804160.907-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/27/2002
- 06:08:13 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/27/2002
- 06:08:15 PM,
-	Serialize complete at 01/27/2002 06:08:15 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287939AbSA0KVQ>; Sun, 27 Jan 2002 05:21:16 -0500
+Received: from natwar.webmailer.de ([192.67.198.70]:42933 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S287933AbSA0KVF>; Sun, 27 Jan 2002 05:21:05 -0500
+Date: Sun, 27 Jan 2002 11:19:17 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
+Message-Id: <20020127111917.3c019701.kristian.peters@korseby.net>
+In-Reply-To: <20020127101131.0f71e978.kristian.peters@korseby.net>
+In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
+	<000701c1a5d5$812ef580$6caaa8c0@kevin>
+	<3C53711B.F8D89811@zip.com.au>
+	<3C53A116.81432588@zip.com.au>
+	<20020127101131.0f71e978.kristian.peters@korseby.net>
+X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello again.
 
-Found the problem.
+Ok. Sorry. My fault. The second patch produces the same throughput... I didn't realized that the kernel disabled DMA during rebooting. My drives only went to DMA again after a cold boot. Don't know what's going on here. But after a normal reboot, my drives are in PIO only and don't support DMA.
 
-After disabling CONFIG_APM_CPU_IDLE, the system works fast again.
+cdparanoia on /dev/scd0 now gives the same result as with the first patch.
+real    1m8.055s
+user    0m6.740s
+sys     0m2.850s
 
-With pre6 or earlier versions, system works fine though even with
-CONFIG_APM_CPU_IDLE enabled.
+*Kristian
 
-System is IBM X22 800MHz notebook, 640MB ram.
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
----------- Forwarded message ----------
-Date: Sun, 27 Jan 2002 14:49:06 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.18-pre7 slow
-
-
-
-1) keyboard rate is a bit slow on 2.4.18-pre7 compared to 2.4.18-pre6.
-
-2) On vmware 3.0, ping localhost is very slow. 2.4.18-pre6 has not such
-problem.
-
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
-
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :.........................:: ~/$ kristian@korseby.net :

@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316616AbSE3NTr>; Thu, 30 May 2002 09:19:47 -0400
+	id <S316632AbSE3NWO>; Thu, 30 May 2002 09:22:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316617AbSE3NTq>; Thu, 30 May 2002 09:19:46 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:51443 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316616AbSE3NTp>; Thu, 30 May 2002 09:19:45 -0400
-Subject: Re: [PATCH]: kernel-api.* compilation fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Juan Quintela <quintela@mandrakesoft.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <m21ybtj02l.fsf@demo.mitica>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 30 May 2002 15:23:22 +0100
-Message-Id: <1022768602.4124.370.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S316635AbSE3NWN>; Thu, 30 May 2002 09:22:13 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:57995 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S316632AbSE3NWM>; Thu, 30 May 2002 09:22:12 -0400
+Date: Thu, 30 May 2002 08:22:10 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.19 - What's up with the kernel build?
+In-Reply-To: <3CF5E698.2020806@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44.0205300820220.16047-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-05-30 at 13:24, Juan Quintela wrote:
->         new dockbook utils are more picky about malformed SGML, I need
->         that patch to get kernel-api.* to compile, notice that this
->         really looks as the original intend.
+On Thu, 30 May 2002, Jeff Garzik wrote:
 
-Yep.. The functions got exported in the 2.4.19pre9 patch which changed
-what was needed
+> A small request to add to the list:
+> 
+> Current 2.4.x kernels build (at least on x86) with
+>      -nostdinc -I /usr/lib/gcc-lib/i586-mandrake-linux-gnu/3.0.4/include
+> added to CFLAGS...  IMOit is a good idea in general to build all kernel 
+> code this way.  (note that userland programs created during build should 
+> not use this rule, of course)
 
-Marcelo I agree with this change
+Yep, sure make sense. - It was on my list of things to look at anyway, I 
+didn't realize it's in 2.4 already, though - so that saves some testing ;)
 
-> 
-> diff -urN --exclude-from=/home/mitica/quintela/config/misc/dontdiff linux/Documentation/DocBook/kernel-api.tmpl linux-new/Documentation/DocBook/kernel-api.tmpl
-> --- linux/Documentation/DocBook/kernel-api.tmpl	2002-05-30 13:14:09.000000000 +0200
-> +++ linux-new/Documentation/DocBook/kernel-api.tmpl	2002-05-30 13:01:12.000000000 +0200
-> @@ -272,7 +272,7 @@
->  !Edrivers/video/fbcmap.c
->       </sect1>
->       <sect1><title>Frame Buffer Generic Functions</title>
-> -!Idrivers/video/fbgen.c
-> +!Edrivers/video/fbgen.c
->       </sect1>
->       <sect1><title>Frame Buffer Video Mode Database</title>
->  !Idrivers/video/modedb.c
-> 
-> 
-> -- 
-> In theory, practice and theory are the same, but in practice they 
-> are different -- Larry McVoy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--Kai
+
 

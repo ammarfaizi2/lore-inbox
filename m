@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267968AbTAHWzD>; Wed, 8 Jan 2003 17:55:03 -0500
+	id <S267977AbTAHW4c>; Wed, 8 Jan 2003 17:56:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267969AbTAHWzC>; Wed, 8 Jan 2003 17:55:02 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:14343 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267968AbTAHWzB>;
-	Wed, 8 Jan 2003 17:55:01 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301082303.h08N3bvI003752@darkstar.example.net>
-Subject: Re: Undelete files on ext3 ??
-To: Valdis.Kletnieks@vt.edu
-Date: Wed, 8 Jan 2003 23:03:37 +0000 (GMT)
-Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200301082206.h08M6pRA014912@turing-police.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Jan 08, 2003 05:06:51 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267976AbTAHW4c>; Wed, 8 Jan 2003 17:56:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13063 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267977AbTAHW4b>; Wed, 8 Jan 2003 17:56:31 -0500
+Date: Wed, 8 Jan 2003 15:04:05 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: levon@movementarian.org, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] /proc/sys/kernel/pointer_size
+In-Reply-To: <20030108.143441.31155028.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0301081502270.7688-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > | > > What I was thinking of was a virtual device that allocated a new
-> > | > > sector whenever an old one was overwritten - kind of like a journaled
-> > | > > filesystem, but without the filesystem, (I.E. just the journal) :-).
-> > | >
-> > | > $ DIR FOO.TXT;*
-> > | > FOO.TXT;1   FOO.TXT;2   FOO.TXT;2
-> > | >
-> > | > VMS-style file versioning, anybody? ;)
-> > |
-> > | Brilliant!
-> > 
-> > re-read the archives from 6-8 months ago.
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=101914252421742&w=2
 
-So basically the idea already already exists:
+On Wed, 8 Jan 2003, David S. Miller wrote:
+>    
+> Being that 32-bit is the primary (and in many ways, ONLY) userland for
+> at least 2 64-bit kernel platforms, I think this does matter.
 
-http://www.netcraft.com.au/geoffrey/katie/
+Nope.
 
-Brilliant!  :-)
+System binaries match the kernel. It's as easy as that. So what if 90% of 
+the user binaries use 32-bit mode because it's smaller and faster? We're 
+talking about a system binary that is _very_ intimate with the kernel.
 
-John.
+Just make it a compile-time option and be done with it. 
+
+			Linus
+

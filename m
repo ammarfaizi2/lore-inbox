@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269400AbUINPGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269435AbUINPGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269400AbUINPGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269379AbUINPDE
+	id S269435AbUINPGY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:06:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269421AbUINPCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:03:04 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:59046 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269380AbUINO7Z (ORCPT
+	Tue, 14 Sep 2004 11:02:34 -0400
+Received: from gprs40-135.eurotel.cz ([160.218.40.135]:50133 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S269410AbUINPAa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 10:59:25 -0400
-Date: Tue, 14 Sep 2004 17:00:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched: fix scheduling latencies in mtrr.c
-Message-ID: <20040914150012.GB13113@elte.hu>
-References: <20040914101904.GD24622@elte.hu> <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu> <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914132536.GA9742@elte.hu> <1095167722.16845.5.camel@localhost.localdomain>
+	Tue, 14 Sep 2004 11:00:30 -0400
+Date: Tue, 14 Sep 2004 17:00:14 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: seife@suse.de, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: HP/Compaq (Winbond) SD/MMC reader supported
+Message-ID: <20040914150013.GB27621@elf.ucw.cz>
+References: <41383D02.5060709@drzeus.cx> <20040913223827.GA28524@elf.ucw.cz> <41467216.6070508@drzeus.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095167722.16845.5.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <41467216.6070508@drzeus.cx>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Maw, 2004-09-14 at 14:25, Ingo Molnar wrote:
-> > caveat: one of the wbinvd() removals is correct i believe, but the other
-> > one might be problematic. It doesnt seem logical to do a wbinvd() at
-> > that point though ...
+> >Hmm, it does something here on my nx5000... It causes 2 "bad parity
+> >from KBD" errors and then freezes boot. But the chip is detected and I
+> >see 
+> >
+> >mmc0: W83L51xD id f00 at 0x248 irq 1 dma 0
+> >
+> >message. (How do I guess right values for irq? I thought that
+> >interference with keyboard means it uses irq 1, but it is probably not
+> >the case, and default values did not work, too).
+> >
+> >I'll try turning off ALSA because it actually freezes machine only
+> >after alsa is loaded.
+> > 
+> >
+> You seem to be running an old version of the driver. The ports for the 
+> driver are also often populated by SuperIO chip. The detection routine 
+> was a bit optimistic in the earlier versions so it started resetting the 
+> wrong hardware.
 > 
-> See the intel ppro manual volume 3 page 11-25. Its quite specific
-> about the sequence, so unless anything changes with AMD or later
-> processors the change seems to match the description.
+> As of writing the latest version is 0.7 and a patch can be downloaded at:
 > 
-> IRQs are required to be off far longer than this sequence according to
-> the docs however, and PGE is supposed to be cleared too.
+> http://projects.drzeus.cx/wbsd/download.php?get=files/wbsd-0.7.patch
 
-the problem is, we've had IRQs on in all of the 2.6 kernels so any
-argument about extra wbinvd brings the obvious question: 'why did it
-work so far'?
+Hmm, if I disable the check (and make id 0xf00 valid), it will freeze
+my machine during boot :-(. Where did you get documentation for this
+beast?
 
-the only wbinvd that makes sense is the one you quote:
-
-> Step 11: set CD flag
-> Step 12: wbinvd
-> Step 13: set pge in CR4 if previously cleared
-
-and i agree that the pge thing should be fixed too.
-
-	Ingo
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

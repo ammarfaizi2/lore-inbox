@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267706AbUGWNPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267708AbUGWNVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267706AbUGWNPn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 09:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267707AbUGWNPn
+	id S267708AbUGWNVz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 09:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267710AbUGWNVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 09:15:43 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:10835 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267706AbUGWNPm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 09:15:42 -0400
-Date: Fri, 23 Jul 2004 17:16:30 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Move modpost files to a new subdir [1/2]
-Message-ID: <20040723151630.GA6914@mars.ravnborg.org>
-Mail-Followup-To: Brian Gerst <bgerst@didntduck.org>,
-	Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-References: <40FFB68D.1000106@quark.didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40FFB68D.1000106@quark.didntduck.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 23 Jul 2004 09:21:55 -0400
+Received: from vhost12.digitarus.com ([194.242.150.12]:46782 "EHLO
+	vhost12.digitarus.com") by vger.kernel.org with ESMTP
+	id S267708AbUGWNVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 09:21:32 -0400
+X-ClientAddr: 212.126.40.83
+Message-ID: <410110D1.4050501@wiggly.org>
+Date: Fri, 23 Jul 2004 14:21:21 +0100
+From: Nigel Rantor <wiggly@wiggly.org>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: cdrom.c : dropping to single frame dma fix
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Digitarus-vhost12-MailScanner-Information: Please contact Digitarus for more information
+X-Digitarus-vhost12-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 08:43:57AM -0400, Brian Gerst wrote:
-> This patch simply moves modpost-related files to a seperate subdirectory.
 
-I did this in my local tree but decided for a different directory name.
-Usage of modpost would conflict with the modpost binary and I suspected
-that some systems would not allow this clash.
-I do not expect people to run make mrproper before applying a patch..
+Hi Jens,
 
-The new directory name is: scripts/mod - also signalling that this can be
-used for other module related utilities in the future.
+Well I got a patch to stop cdrom.c from dropping to single frame as long 
+as it has done multi-frame at least once and it seems to work for me but 
+I obviously am not sure what implications this will have for lots of 
+other users.
 
-	Sam
+I was wondering if there was a way for the cdrom module to know when the 
+media gets changed so that the flag can be cleared and only reset if we 
+can do multi-frame DMA with the new media?
+
+I have been digging through the code but can't see an obvious place 
+where this happens, pointers and other comments welcome.
+
+Currently I've got 2.6.7-rc3 patched, would you accept or you want me to 
+check it goes cleanly into the latest and greatest?
+
+Cheers,
+
+   Nige
+

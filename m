@@ -1,59 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270720AbTG0Kbi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 06:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270721AbTG0Kbi
+	id S270722AbTG0Kcu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 06:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270724AbTG0Kct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 06:31:38 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:29069 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S270720AbTG0Kbh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 06:31:37 -0400
-From: dan carpenter <d_carpenter@sbcglobal.net>
-To: Brad Hards <bhards@bigpond.net.au>
-Subject: Re: [bug] ieee1394/sbp2 - sleeping in invalid context
-Date: Sun, 27 Jul 2003 03:46:50 -0700
-User-Agent: KMail/1.5.1
-References: <200307262224.13705.bhards@bigpond.net.au>
-In-Reply-To: <200307262224.13705.bhards@bigpond.net.au>
-Cc: linux-kernel@vger.kernel.org, bcollins@debian.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jul 2003 06:32:49 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:38923 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S270722AbTG0KcP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 06:32:15 -0400
+Date: Sun, 27 Jul 2003 12:47:26 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
+Subject: Re: i8042 problem
+Message-ID: <20030727104726.GA1313@win.tue.nl>
+References: <20030726093619.GA973@win.tue.nl> <20030726212513.A0BD.CHRIS@heathens.co.nz> <20030727020621.A11637@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307270346.50781.d_carpenter@sbcglobal.net>
+In-Reply-To: <20030727020621.A11637@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think sbp2scsi_queuecommand is called from outside interrupt context.  The 
-obvious but possibly wrong way to fix this would be to change the calls to 
-hpsb_get_tlabel() to check in_atomic() instead of in_interrupt().
+On Sun, Jul 27, 2003 at 02:06:21AM -0400, Pete Zaitcev wrote:
+> > Date: Sat, 26 Jul 2003 21:41:32 -0400
+> > From: Chris Heath <chris@heathens.co.nz>
+> 
+> > > > drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [40] 
+> > > > drivers/input/serio/i8042.c: 60 -> i8042 (command) [50] 
+> > > > drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [50] 
+> > > > drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [51] 
+> > > > serio: i8042 KBD port at 0x60,0x64 irq 1 
+> > > > <------------- This is it, keyboard is dead. 
+> > > 
+> > > Writing 44 to the command byte disables IRQ1. 
+> > 
+> > It looks like a timeout problem.  The ack (fa) arrived 11 ticks after
+> > the byte (00) was sent, but it looks like the timeout is only 10 ticks.
+> > 
+> > Try playing with the timeout in atkbd_sendbyte (line 217 of
+> > drivers/input/keyboard/atkbd.c).
+> 
+> Playing with timeout does not help, but on second thought
+> I suspect that atkbd fails to open the port for some reason,
+> that's why interrupts stay disabled.
 
-regards,
-dan carpenter
+Well, Chris is right, of course.
 
-On Saturday 26 July 2003 05:24 am, Brad Hards wrote:
-> Debug: sleeping function called from invalid context at
-> include/asm/semaphore.h:119 Call Trace:
->  [<c011c61e>] __might_sleep+0x5e/0x62
->  [<c031bfad>] hpsb_get_tlabel+0x5d/0x230
-    calls down()
+As I said, writing 44 to the command byte disables IRQ1.
+So, the question is, who does that. Read the code:
 
->  [<c0319d97>] alloc_hpsb_packet+0xa7/0xd0
-    calls hpsb_get_tlabel(packet, in_interrupt() ? 0 : 1)
+We do i8042_init, detect a PS/2 keyboard/mouse controller, and call
+i8042_port_register() first for mouse, then for keyboard.
+This i8042_port_register() does
+	serio_register_port(port);
+and then happily reports
+	printk(KERN_INFO "serio: i8042 %s port at %#lx,%#lx irq %d\n"
 
->  [<c031c4e2>] hpsb_make_writepacket+0xa2/0x140
-    calls alloc_hpsb_packet(length + (length % 4 ? 4 - (length % 4) : 0));
-    calls hpsb_get_tlabel(packet, in_interrupt() ? 0 : 1)
+This serio_register_port(port) probes connected devices.
+It calls atkbd_connect(), which calls atkbd_probe(), and
+the latter fails.
+Now atkbd_connect() does serio_close() which does
+i8042_close() and we see
+	i8042_ctr &= ~values->irqen;
+	i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR);
+that the IRQ is disabled.
 
->  [<c032c5c6>] sbp2_link_orb_command+0x86/0x190
-    calls hpsb_make_writepacket()
+So the culprit is the failing of atkbd_probe().
+It does a ATKBD_CMD_GETID, but gets no answer, then a
+ATKBD_CMD_SETLEDS, and that command fails.
+It sends the 0xed, gets an ACK, sends the 0x00 and times out.
 
->  [<c032c773>] sbp2_send_command+0xa3/0xf0
-    calls sbp2util_allocate_command_orb(scsi_id, SCpnt, done);
+And it times out because atkbd_sendbyte has a timeout of 10 msec
+while the reply came after 11 msec.
 
->  [<c032cd70>] sbp2scsi_queuecommand+0xb0/0x210
-    calls sbp2_send_command under a spinlock
+So, apart from other things you might try, it seems to me that
+changing the timeout in atkbd_sendbyte from the 10000 that is
+there to the 100000 that the comment implies, should help.
 
+Andries
+
+
+-         int timeout = 10000; /* 100 msec */
++         int timeout = 100000; /* 100 msec */
 

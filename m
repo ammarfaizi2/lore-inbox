@@ -1,38 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266842AbSLPK2V>; Mon, 16 Dec 2002 05:28:21 -0500
+	id <S262796AbSLPKm7>; Mon, 16 Dec 2002 05:42:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266840AbSLPK2U>; Mon, 16 Dec 2002 05:28:20 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:48526 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S266842AbSLPK2T>; Mon, 16 Dec 2002 05:28:19 -0500
-Date: Mon, 16 Dec 2002 11:35:58 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 6/19
-Message-ID: <20021216103558.GA20223@louise.pinerecords.com>
-References: <20021211121749.GA20782@reti> <Pine.LNX.4.44.0212151649180.2445-100000@home.transmeta.com> <20021216100457.GA7407@reti> <20021216100947.GG7407@reti>
+	id <S263366AbSLPKm7>; Mon, 16 Dec 2002 05:42:59 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:13713 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262796AbSLPKm6>;
+	Mon, 16 Dec 2002 05:42:58 -0500
+Date: Mon, 16 Dec 2002 16:36:34 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: rusty@rustcorp.com.au
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [BUG] module-init-tools 0.9.3, rmmod modules with '-'
+Message-ID: <20021216163634.A29099@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021216100947.GG7407@reti>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	/*
-> +	 * chunk_size is a power of two
-> +	 */
-> +	if (!chunk_size || (chunk_size & (chunk_size - 1))) {
-> +		ti->error = "dm-stripe: Invalid chunk size";
-> +		return -EINVAL;
-> +	}
+Hi Rusty,
 
-Is 1 a valid chunksize then?  [It certainly is not a power of two. ;)]
-If not, you need
+It seems we cannot unload modules if they have a '-' in their name. 
+filename2modname() in rmmod.c converts a '-' in the filename
+to '_'. Why? Are dashes not allowed as part of module names?
 
-	if (chink_size < 2 || (chunk_size & (chunk_size - 1))) { ... }
+For eg: (kernel 2.5.52/module-init-tools 0.9.3)
 
+[root@llm10 test-modules]# ./insmod probe-test.o
+[root@llm10 test-modules]# ./lsmod
+Module                  Size  Used by
+probe-test               943  0
+[root@llm10 test-modules]# cat /proc/modules
+probe-test 943 0
+[root@llm10 test-modules]# ./rmmod -V
+module-init-tools version 0.9.3
+[root@llm10 test-modules]# ./rmmod probe-test
+ERROR: Module probe_test does not exist in /proc/modules
+                   ^note this
+
+Editing filename2modname() to remove this special test for
+'-' seems to fix it. But, this is done explicitly, so
+I wonder if there is a deeper meaning to this. Can you
+please take a look and explain?
+
+Thanks,
+Vamsi.
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com
+--
+--- rmmod-old.c	2002-12-13 21:11:57.000000000 +0530
++++ rmmod.c	2002-12-13 21:10:44.000000000 +0530
+@@ -157,9 +157,12 @@
+ 	else
+ 		afterslash++;
+ 
+-	/* stop at first . */
++	/* Convert to underscores, stop at first . */
+ 	for (i = 0; afterslash[i] && afterslash[i] != '.'; i++) {
+-		modname[i] = afterslash[i];
++		if (afterslash[i] == '-')
++			modname[i] = '_';
++		else
++			modname[i] = afterslash[i];
+ 	}
+ 	modname[i] = '\0';
+ }

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293521AbSCXPoJ>; Sun, 24 Mar 2002 10:44:09 -0500
+	id <S293603AbSCXP4x>; Sun, 24 Mar 2002 10:56:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293465AbSCXPn7>; Sun, 24 Mar 2002 10:43:59 -0500
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:54780 "EHLO
-	filestore.kroptech.com") by vger.kernel.org with ESMTP
-	id <S293521AbSCXPno>; Sun, 24 Mar 2002 10:43:44 -0500
-Message-ID: <025c01c1d34a$ab89f3f0$02c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E16oaKY-00012l-00@the-village.bc.nu>
-Subject: Re: Linux 2.4.19-pre3-ac6
-Date: Sun, 24 Mar 2002 10:43:40 -0500
+	id <S293635AbSCXP4n>; Sun, 24 Mar 2002 10:56:43 -0500
+Received: from smtp10.atl.mindspring.net ([207.69.200.246]:1570 "EHLO
+	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
+	id <S293603AbSCXP4b>; Sun, 24 Mar 2002 10:56:31 -0500
+Message-ID: <3C9DF7A4.5000502@mindspring.com>
+Date: Sun, 24 Mar 2002 10:58:28 -0500
+From: Chris Swiedler <ceswiedler@mindspring.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: andreas <andihartmann@freenet.de>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
+In-Reply-To: <3C9DC1F5.6010508@athlon.maya.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 24 Mar 2002 15:43:40.0217 (UTC) FILETIME=[AB8B7A90:01C1D34A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-> Again treat this with care. This mostly fixes the CD bug a lot of people hit
-so
-> that the IDE code can get further testing
+andreas wrote:
+> Hello all,
+> 
+> I've got a basic question:
+> Would it be possible to kill only the process which consumes the most 
+> memory in the last delta t?
+> Or does somebody have a better idea?
 
-FWIW, this has been running here for a little over a day with no problems.
-Machine hosts MySql and PostgreSql DBs so IDE is fairly well beat up. Also
-tested server-side NFS by exporting a directory into which I un-tarred a few
-dozen kernel trees from the client side.
+I had a patch for 2.4.something which would allow you to configure which 
+processes were killed first by the OOM killer. You basically gave 
+processes an oom_nice value, either by pid or process name, and that was 
+  taken into account by the oom killer. You could also protect a process 
+completely from the oom killer, which would be good to do for your sshd 
+process in the example you give.
 
---Adam
+Look at http://www.uwsg.iu.edu/hypermail/linux/kernel/0011.1/0453.html
 
+chris
 

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271611AbRHXWmg>; Fri, 24 Aug 2001 18:42:36 -0400
+	id <S271614AbRHXXG6>; Fri, 24 Aug 2001 19:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271613AbRHXWm1>; Fri, 24 Aug 2001 18:42:27 -0400
-Received: from web10908.mail.yahoo.com ([216.136.131.44]:13062 "HELO
-	web10908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S271611AbRHXWmQ>; Fri, 24 Aug 2001 18:42:16 -0400
-Message-ID: <20010824224232.52238.qmail@web10908.mail.yahoo.com>
-Date: Fri, 24 Aug 2001 15:42:32 -0700 (PDT)
-From: Brad Chapman <kakadu_croc@yahoo.com>
-Subject: [IDEA+RFC] Possible solution for min()/max() war
-To: linux-kernel@vger.kernel.org
+	id <S271616AbRHXXGs>; Fri, 24 Aug 2001 19:06:48 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:34577 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271614AbRHXXGn>; Fri, 24 Aug 2001 19:06:43 -0400
+Date: Fri, 24 Aug 2001 20:06:48 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Sandip Bhattacharya <sandipb@bigfoot.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Digest services anywhere and Re: LKML on Majordomo2 ?
+In-Reply-To: <20010825030029.A1899@bigfoot.com>
+Message-ID: <Pine.LNX.4.33L.0108242003520.31410-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Everyone,
+On Sat, 25 Aug 2001, Sandip Bhattacharya wrote:
 
-	At the risk of igniting another long-drawn-out flamewar over the
-min()/max() macros, I have an idea.
+> I checked the archives. There seems to a long discussion last year on
+> making a move to either Majordomo2 or Mailman. Mailman has improved a
+> lot over all this time. Is it still worth a go?
 
-	There is a section in the config dialogs labeled "Kernel hacking."
-Under it there is the SysRQ option. Why don't we put an entry under that
-dialog and label it "Use new min()/max() macros" and make it a y/n field.
-Then we can add dozens of warnings to the help dialog about it, and allow
-the user/hacker to select the macro they want.
+Mailman has the big disadvantage that it isn't able to do
+spam filtering based on the message content.
 
-	In any code which uses the macros, you can simply do this:
+Personally I'm looking at converting NL.linux.org to Listar
+(soon to be renamed to encartis), see http://www.listar.org/
 
-#include <linux/config.h>
-....
-#ifdef CONFIG_USE_NEW_MINMAX
-	minimum = min(int, number[0], number[1]);
-#else
-	minimum = min(number[0], number[1]);
-#endif
+regards,
 
-	This way, some hackers can use the two-arg min()/max() inside an #ifdef block,
-other hackers can use the three-arg min()/max() inside an #ifdef block, 
-and people who don't care can select either.
+Rik
+--
+IA64: a worthy successor to the i860.
 
-	Comments, flames, suggestions, anyone? If the output is good, I'll
-publish a patch which will add the Config.in option and default it to
-CONFIG_USE_NEW_MINMAX=y, since that was the decree of the Great Penguin Overlord ;)
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
-Brad
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-Current e-mail: kakadu@adelphia.net
-Alternate e-mail: kakadu@netscape.net
-
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/

@@ -1,67 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266459AbRGYOMc>; Wed, 25 Jul 2001 10:12:32 -0400
+	id <S266723AbRGYOpv>; Wed, 25 Jul 2001 10:45:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268576AbRGYOMW>; Wed, 25 Jul 2001 10:12:22 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:28179 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S266523AbRGYOMN>; Wed, 25 Jul 2001 10:12:13 -0400
+	id <S266938AbRGYOpb>; Wed, 25 Jul 2001 10:45:31 -0400
+Received: from secure.webhotel.net ([195.41.202.80]:62053 "HELO
+	secure.webhotel.net") by vger.kernel.org with SMTP
+	id <S266723AbRGYOpY>; Wed, 25 Jul 2001 10:45:24 -0400
+X-BlackMail: 213.237.118.153, there,  <snowwolf@one2one-networks.com>, 213.237.118.153
+X-Authenticated-Timestamp: 16:51:29(CEST) on July 25, 2001
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Patrick Dreker <patrick@dreker.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [RFC] Optimization for use-once pages
-Date: Wed, 25 Jul 2001 16:16:47 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0107241726130.29909-100000@penguin.transmeta.com> <E15PJuY-0000A3-00@wintermute>
-In-Reply-To: <E15PJuY-0000A3-00@wintermute>
+From: Allan Sandfeld Jensen <snowwolf@one2one-networks.com>
+Organization: One2one Networks A/S
+To: linux-kernel@vger.kernel.org
+Subject: Re: ps2/ new data for mouse protocol (fwd msg attached)
+Date: Wed, 25 Jul 2001 16:43:49 +0200
+X-Mailer: KMail [version 1.2.9]
+In-Reply-To: <3B5DB12D.2B9C205E@pcsystems.de> <20010725012334.L23404@arthur.ubicom.tudelft.nl> <3B5EA8F8.D8C0EDE7@t-online.de>
+In-Reply-To: <3B5EA8F8.D8C0EDE7@t-online.de>
 MIME-Version: 1.0
-Message-Id: <01072516164705.00907@starship>
 Content-Transfer-Encoding: 7BIT
+Message-Id: <20010725144531Z266723-720+6195@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wednesday 25 July 2001 10:20, Patrick Dreker wrote:
-> I did a few more test runs on each of the kernels to check if the
-> results are reproducible:
-> 2.4.7-plain:
-> 17.320u 115.100s 2:17.36 96.4%	0+0k 0+0io 110pf+0w
-> 17.200u 94.170s 1:53.14 98.4%	0+0k 0+0io 110pf+0w
-> 17.490u 113.730s 2:13.48 98.3%	0+0k 0+0io 110pf+0w
+On Wednesday 25. July 2001 13:09, Gunther Mayer wrote:
+> Erik Mouw wrote:
+> > On Tue, Jul 24, 2001 at 07:32:29PM +0200, Nico Schottelius wrote:
+> > > Have a look into the attached email before reading mine, please.
+> > >
+> > > Is it possible to find out about what those bytes are ?
+> > > And is it possible to intergrate the support for other
+> > > 3 bytes into the Linux kernel ?
+> >
+> > So they put information about four buttons in six bytes and call that
+> > proprietary? ROFL! How hard can it be? I think it will be fairly
+> > straight forward to reverse engineer the format, it can't be rocket
+> > science.
 >
-> 2.4.5-use_once:
-> 14.730u 108.310s 2:09.57 94.9%	0+0k 0+0io 203pf+0w
-> 13.880u 79.410s 1:38.64 94.5%	0+0k 0+0io 226pf+0w
-> 14.840u 78.680s 1:37.86 95.5%	0+0k 0+0io 238pf+0w
-
-Look at the CPU dropping along with the times.  Usually it goes the 
-other way.
-
-> The time under 2.4.5-use_once stays constant from the second run on
-> (I tried 3 more times), while 2.4.7 shows pretty varying performance
-> but I have never seen it getting better than the 1:53.14 from the
-> second run above. I had stopped all services which I knew to cause
-> periodic activity (exim, cron/anacron) which could disturb the tests.
+> No need for this, just read the public available documentation !
 >
-> I also noticed, that under 2.4.5 after the 3 test runs the KDE
-> Taskbasr got swapped out, while under 2.4.7 this was not the case.
+> Proprietary != Secret.
+>
+> However, some mouse secrets from various sources I hacked in here:
+> http://home.t-online.de/home/gunther.mayer/gm_psauxprint-0.01.c -
 
-Not swapping out the task bar is a different problem, only loosely 
-related.  The use-once thing is a step in the right direction because 
-it makes relatively more file IO pages available for deactivation 
-versus swap pages, and the task bar has a better chance of surviving.  
-However, it's not a really firm connection to the problem.
+Very nice. I am currently looking for some info to solve a problem with 
+thinkpads and logitech cordless mice over ps/2. Basicly the wheel doesnt 
+work. Looking closer they dont respond to the imps/2 or mousemanps/2 
+protocol. Since cordless mice are more common than thinkpads, I think the 
+problem would be solved if it was with the mouse. So I am guessing the IBM 
+defaults to just repeating standard ps/2 protocol, and you have to first 
+trick that before you trick the mouse. Since it works in windows there IS a 
+way...
 
-An additional line of attack is to look at the aging policy.  I have a 
-strong sense we can do it better.  Right now we're aging everything 
-down to a uniform zero and that really obviously throws away a lot of 
-information.
+Where do I find the public available protocols, and the secrets? :)
 
-In the 2.5 timeframe, better unification of the page cache and swap 
-paths will make it much easier to focus on the taskbar problem.
+And for the list, who should I notify that I am working on autodetecting IBM 
+thinkpad  ps/2 repeaters in mouse driver?
 
---
-Daniel
+(And yes I know some of the work belongs in XFree and gpm)
+
+-Allan Sandfeld (snowwolf)

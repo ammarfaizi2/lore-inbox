@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277293AbRJQX30>; Wed, 17 Oct 2001 19:29:26 -0400
+	id <S277298AbRJQXsw>; Wed, 17 Oct 2001 19:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277291AbRJQX3Q>; Wed, 17 Oct 2001 19:29:16 -0400
-Received: from cx739861-a.dt1.sdca.home.com ([24.5.164.61]:19205 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S277290AbRJQX3J>; Wed, 17 Oct 2001 19:29:09 -0400
-Date: Wed, 17 Oct 2001 16:29:41 -0700
-To: linux-kernel@vger.kernel.org
-Cc: Bill Huey <billh@gnuppy.monkey.org>
-Subject: Kernel Link Problems
-Message-ID: <20011017162941.A32145@gnuppy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-From: Bill Huey <billh@gnuppy.monkey.org>
+	id <S277300AbRJQXsm>; Wed, 17 Oct 2001 19:48:42 -0400
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:6362 "HELO
+	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S277298AbRJQXsc>; Wed, 17 Oct 2001 19:48:32 -0400
+Message-ID: <01A7DAF31F93D511AEE300D0B706ED9208E49B@axcs13.cos.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: kernel command line parameters/insmod cmdline parameters
+Date: Wed, 17 Oct 2001 17:49:02 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi List,
 
-Hello,
+Is there any limitation on the length of the parameter string or
+the number of parameters that can be passed to the kernel command-line
+(probably using append=".." in the lilo.conf or directly on lilo prompt)
+or the insmod command-line when loading a module ? (e.g. insmod aic7xxx
+aic7xxx="....").
 
-I'm running the 2.4.12-ac3 and I get this while linking vmlinuz:
-
-	ld -m elf_i386 -Ttext 0x100000 -e startup_32 -o bvmlinux head.o misc.o piggy.o
-	ld: bvmlinux: Not enough room for program headers (allocated 2, need 3)
-	ld: final link failed: Bad value
-
-What's going on and how do I fix this ?
-
-Thanks
-
-bill
-
-
+Thanks & regards,
+-hiren

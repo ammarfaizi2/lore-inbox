@@ -1,98 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265902AbUBJOlV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 09:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265914AbUBJOlV
+	id S265900AbUBJOgo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 09:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUBJOgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 09:41:21 -0500
-Received: from cabm.rutgers.edu ([192.76.178.143]:1545 "EHLO
-	lemur.cabm.rutgers.edu") by vger.kernel.org with ESMTP
-	id S265902AbUBJOlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 09:41:17 -0500
-Date: Tue, 10 Feb 2004 09:41:16 -0500 (EST)
-From: Ananda Bhattacharya <anandab@cabm.rutgers.edu>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Kernel Fault 2.4.20
-In-Reply-To: <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.58.0402100936050.16491@puma.cabm.rutgers.edu>
-References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
- <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be>
- <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be>
+	Tue, 10 Feb 2004 09:36:44 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:3280 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265900AbUBJOgh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 09:36:37 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three()
+Date: Tue, 10 Feb 2004 15:41:31 +0100
+User-Agent: KMail/1.5.3
+References: <1n9OA-6lu-17@gated-at.bofh.it> <1nu6y-XO-3@gated-at.bofh.it> <200402101816.28067.athol_SPIT_SPAM@idl.net.au>
+In-Reply-To: <200402101816.28067.athol_SPIT_SPAM@idl.net.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402101541.31033.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There was a kernel fault today, I am not quite sure what 
-just happened, if anyone has any ideas and can point me in 
-the right direction.
-Thanks a lot 
+On Tuesday 10 of February 2004 08:16, Athol Mullen wrote:
+> Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+> > On Monday 09 of February 2004 03:50, Athol Mullen wrote:
+>
+> (Don't CC.  I read lkml via linux.kernel newsgroup.)
+>
+> >> +     u16 cr_flag             = 0x10 << drive->dn;
+> >>
+> >> +                         pci_read_config_word(dev, 0x54, &reg54);
+> >> +                         return ((reg54 & cr_flag) ? 1 : 0);
+> >
+> > This is plain wrong, piix.c already does it for you.
+> > piix.c:init_hwif_piix():
+>
+> The penny drops...
+>
+> I missed this code because I was looking for cable detection on
+> a drive-by-drive basis, and this is taking drives in pairs.
+>
+> That's why the drive was being correctly initialised as a UDMA5
+> drive even though eighty_ninty_three() was returning zero.
+>
+> The existing code was written before the ICH5 came out, and will
+> always work for ICH4 and older, but is wrong in its method of
+> detecting 80-core cables on an ICH5, and could fail if SATA and
+> PATA drives are mixed and used in compatability mode.  The bit
+> flags should be taken on a drive-by-drive basis, because the ICH5
+> is capable of logical mapping such as:
+>
+> SATA0 -> IDE0 Master
+> SATA1 -> IDE0 Slave
+> PATA0 master -> IDE1 Master
+> PATA1 master -> IDE1 Slave
+>
+> Note that this now sees two PATA drives on different physical
+> interfaces looking like master and slave on one interface.  In this
+> scenario, if PATA1 has a 40-core and PATA0 an 80-core or vise versa,
+> both would be detected as having 80-core with the existing code.
+>
+> Why do I feel like I just pulled the lid off a can of worms?
 
-	-A
+:-)
 
-Feb 10 08:04:34 n07 kernel: Unable to handle kernel paging 
-request at virtual address b70c1040
-Feb 10 08:04:34 n07 kernel:  printing eip:
-Feb 10 08:04:34 n07 kernel: c012cf87
-Feb 10 08:04:34 n07 kernel: *pde = 00000000
-Feb 10 08:04:34 n07 kernel: Oops: 0000 
-Feb 10 08:04:34 n07 kernel: nfs lockd sunrpc autofs 3c59x 
-bcm5700 ide-cd cdrom usb-ohci usbcore ext3 jbd raid1
-Feb 10 08:04:34 n07 kernel: CPU:    0
-Feb 10 08:04:34 n07 kernel: EIP:    0010:[<c012cf87>]    Not 
-tainted
-Feb 10 08:04:34 n07 kernel: EFLAGS: 00010286
-Feb 10 08:04:34 n07 kernel: 
-Feb 10 08:04:34 n07 kernel: EIP is at find_vma [kernel] 0x37 
-(2.4.20-20.7custom)
-Feb 10 08:04:34 n07 kernel: eax: f7649540   ebx: 07217a48   
-ecx: f7649540   edx: b70c1050
-Feb 10 08:04:34 n07 kernel: esi: f7736540   edi: c0116260   
-ebp: 07217a48   esp: f7143e10
-Feb 10 08:04:34 n07 kernel: ds: 0018   es: 0018   ss: 0018
-Feb 10 08:04:34 n07 kernel: Process pbs_mom (pid: 1100, 
-stackpage=f7143000)
-Feb 10 08:04:34 n07 kernel: Stack: f7736540 00000000 
-c01162ef f7736540 07217a48 c012b321 f7217ac0 f7142000
-Feb 10 08:04:34 n07 kernel:        f7142000 00000000 
-00000000 00030001 7fffffff f6eeb580 c02562d5 f6eeb580
-Feb 10 08:04:34 n07 kernel:        00000000 00000018 
-f75c0980 f6eeb580 ffffffec c1c40030 00000286 00000282
-Feb 10 08:04:34 n07 kernel: Call Trace:   [<c01162ef>] 
-do_page_fault [kernel] 0x8f (0xf7143e18))
-Feb 10 08:04:34 n07 kernel: [<c012b321>] do_wp_page [kernel] 
-0xc1 (0xf7143e24))
-Feb 10 08:04:34 n07 kernel: [<c02562d5>] unix_stream_connect 
-[kernel] 0x3c5 (0xf7143e48))
-Feb 10 08:04:34 n07 kernel: [<c020b57c>] sk_free [kernel] 
-0x6c (0xf7143e90))
-Feb 10 08:04:34 n07 kernel: [<c012c1f4>] handle_mm_fault 
-[kernel] 0x124 (0xf7143ea8))
-Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
-[kernel] 0x0 (0xf7143ebc))
-Feb 10 08:04:34 n07 kernel: [<c0108c54>] error_code [kernel] 
-0x34 (0xf7143ec4))
-Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
-[kernel] 0x0 (0xf7143ee0))
-Feb 10 08:04:34 n07 kernel: [<c012cf87>] find_vma [kernel] 
-0x37 (0xf7143ef8))
-Feb 10 08:04:34 n07 kernel: [<c01162ef>] do_page_fault 
-[kernel] 0x8f (0xf7143f0c))
-Feb 10 08:04:34 n07 kernel: [<c0208f70>] sock_release 
-[kernel] 0x10 (0xf7143f3c))
-Feb 10 08:04:34 n07 kernel: [<c02094df>] sock_close [kernel] 
-0x2f (0xf7143f48))
-Feb 10 08:04:34 n07 kernel: [<c0143a6a>] filp_open [kernel] 
-0x3a (0xf7143f70))
-Feb 10 08:04:34 n07 kernel: [<c014eb4d>] getname [kernel] 
-0x5d (0xf7143f90))
-Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
-[kernel] 0x0 (0xf7143fb0))
-Feb 10 08:04:34 n07 kernel: [<c0108c54>] error_code [kernel] 
-0x34 (0xf7143fb8))
-Feb 10 08:04:34 n07 kernel: 
-Feb 10 08:04:34 n07 kernel: 
-Feb 10 08:04:34 n07 kernel: Code: 39 5a f0 8d 42 e8 76 f1 39 
-5a ec 89 c1 77 e2 85 c9 74 03 89
-Feb 10 09:10:49 n07 syslogd 1.4.1: restart.
+> The options are essentially that we:
+> 1. Always force the SATA interfaces into native mode and PATA
+>    into native or normal mode (desirable - the compatability mode
+>    described above make only 2 PATA drives visible),
+> 2. Modify the above code to work on a drive-by-drive basis instead
+>    of interface-by-interface (according to Intel, this is the
+>    correct answer),
+> 3. Do nothing, and hope nobody notices.  :-)
+
+Solution 1. is good also for other things, but changes order of the drives
+so it is 2.7.x thing.  For now you can just add code for ICH5 setting
+hwif->udma_four only if both drives report 80-c, something like:
+
+	if ((reg54h & mask) == mask)
+		ata66 = 1;
+
+--bart
 

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266167AbUA2SLP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 13:11:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266253AbUA2SLP
+	id S266188AbUA2SJk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 13:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266167AbUA2SJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 13:11:15 -0500
-Received: from mail.kroah.org ([65.200.24.183]:49301 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266167AbUA2SJ4 (ORCPT
+	Thu, 29 Jan 2004 13:09:39 -0500
+Received: from smtp1.xs4all.be ([195.144.64.135]:38828 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S266188AbUA2SJM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 13:09:56 -0500
-Date: Thu, 29 Jan 2004 10:09:52 -0800
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Matthew Wilcox <willy@debian.org>,
-       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@colin2.muc.de>, Andrew Morton <akpm@osdl.org>, mj@ucw.cz,
-       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
-       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-Message-ID: <20040129180951.GA5681@kroah.com>
-References: <6B09584CC3D2124DB45C3B592414FA830112C34F@bgsmsx402.gar.corp.intel.com> <20040129150925.GC18725@parcelfarce.linux.theplanet.co.uk> <20040129155911.GD18725@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0401290802370.689@home.osdl.org>
+	Thu, 29 Jan 2004 13:09:12 -0500
+Date: Thu, 29 Jan 2004 19:08:37 +0100
+From: Frank Gevaerts <frank@gevaerts.be>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
+Message-ID: <20040129180837.GA30873@gevaerts.be>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au> <40193136.4070607@techsource.com> <Pine.LNX.4.53.0401291127090.13834@chaos> <40193BAA.50905@techsource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401290802370.689@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <40193BAA.50905@techsource.com>
+User-Agent: Mutt/1.3.28i
+X-flash-is-evil: do not use it
+X-virus: If this mail contains a virus, feel free to send one back
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.89, required 5,
+	AWL, BAYES_00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2004 at 08:05:52AM -0800, Linus Torvalds wrote:
+On Thu, Jan 29, 2004 at 11:58:18AM -0500, Timothy Miller wrote:
 > 
-> That said, this patch looks perfectly acceptable to me. With some testing, 
-> I'd take it through Greg or -mm.
+> But an open-arch GPU would be NEAT, though.  :)
 
-It's looking much better.  But I _really_ want to actually test this on
-real hardware.  As no one is shipping PCI Express hardware yet, there is
-no rush to get this patch into the kernel tree.
+Some people agree:
 
-Bill Irwin and I are working on getting some PCI Express hardware to
-test this patch out on.  We've been promised some for a while, hopefully
-it turns up soon...
+http://www.opencores.org/projects/manticore/
+http://www.opencores.org/projects/vga_lcd/
 
-thanks,
+Frank
 
-greg k-h
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

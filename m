@@ -1,105 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVBBUeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVBBUeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbVBBUeG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 15:34:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVBBU3x
+	id S262370AbVBBUeg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 15:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbVBBUee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 15:29:53 -0500
-Received: from gprs215-95.eurotel.cz ([160.218.215.95]:39040 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262566AbVBBU0n (ORCPT
+	Wed, 2 Feb 2005 15:34:34 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:5830 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262370AbVBBUaf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 15:26:43 -0500
-Date: Wed, 2 Feb 2005 21:26:10 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Cc: bernard@blackham.com.au, linux-usb-devel@lists.sourceforge.net,
-       greg@kroah.com
-Subject: driver model: fix types in usb
-Message-ID: <20050202202610.GA1948@elf.ucw.cz>
+	Wed, 2 Feb 2005 15:30:35 -0500
+Date: Wed, 2 Feb 2005 21:29:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050202202953.GA9840@elte.hu>
+References: <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu> <873bwfo8br.fsf@sulphur.joq.us> <1107370770.3104.136.camel@krustophenia.net> <87pszikbcv.fsf@sulphur.joq.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <87pszikbcv.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-From: Bernard Blackham <bernard@blackham.com.au>
+* Jack O'Quin <joq@io.com> wrote:
 
-This fixes types in USB w.r.t. driver model. It should not actually
-change any code. Please apply,
+> I guess you're right, Lee.  I hadn't thought of it that way.  It just
+> looks broken to me because we have no standing in any normal kernel
+> requirements process.  That's a shame, but it does seem less like a
+> systemic issue.
 
-								Pavel
+you have just as much standing, and you certainly went to great lengths
+(writing patches, testing stuff, etc.) to address this issue - it is
+just an unfortunate situation that the issue here is _not_ clear-cut at
+all. It is a longstanding habit on lkml to try to solve things as
+cleanly and generally as possible, but there are occasional cases where
+this is just not possible.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+e.g. technically it was much harder to write all the latency-fix patches
+(and infrastructure around it) that are now in 2.6.11-rc2, but it was
+also a much clearer issue, with clean solutions; so there was no
+conflict about whether to do it and you'll reap the benefits of that in
+2.6.11.
 
-diff -ru linux-2.6.11-rc2-2.1.5.15/drivers/usb/core/hub.c linux-2.6.11-rc2-2.1.5.16/drivers/usb/core/hub.c
---- linux-2.6.11-rc2-2.1.5.15/drivers/usb/core/hub.c	2005-01-30 13:37:32.000000000 +0800
-+++ linux-2.6.11-rc2-2.1.5.16/drivers/usb/core/hub.c	2005-02-02 22:30:48.000000000 +0800
-@@ -1235,10 +1235,10 @@
- 		 */
- 		if (udev->bus->b_hnp_enable || udev->bus->is_b_host) {
- 			static int __usb_suspend_device (struct usb_device *,
--						int port1, u32 state);
-+						int port1, pm_message_t state);
- 			err = __usb_suspend_device(udev,
- 					udev->bus->otg_port,
--					PM_SUSPEND_MEM);
-+					PMSG_SUSPEND);
- 			if (err < 0)
- 				dev_dbg(&udev->dev, "HNP fail, %d\n", err);
- 		}
-@@ -1523,7 +1523,7 @@
-  * Linux (2.6) currently has NO mechanisms to initiate that:  no khubd
-  * timer, no SRP, no requests through sysfs.
-  */
--int __usb_suspend_device (struct usb_device *udev, int port1, u32 state)
-+int __usb_suspend_device (struct usb_device *udev, int port1, pm_message_t state)
- {
- 	int	status;
- 
-@@ -1621,7 +1621,7 @@
- /**
-  * usb_suspend_device - suspend a usb device
-  * @udev: device that's no longer in active use
-- * @state: PM_SUSPEND_MEM to suspend
-+ * @state: PMSG_SUSPEND to suspend
-  * Context: must be able to sleep; device not locked
-  *
-  * Suspends a USB device that isn't in active use, conserving power.
-@@ -1670,7 +1670,7 @@
- 	usb_set_device_state(udev, udev->actconfig
- 			? USB_STATE_CONFIGURED
- 			: USB_STATE_ADDRESS);
--	udev->dev.power.power_state = PM_SUSPEND_ON;
-+	udev->dev.power.power_state = PMSG_ON;
- 
-  	/* 10.5.4.5 says be sure devices in the tree are still there.
-  	 * For now let's assume the device didn't go crazy on resume,
-@@ -1871,7 +1871,7 @@
- 	return status;
- }
- 
--static int hub_suspend(struct usb_interface *intf, u32 state)
-+static int hub_suspend(struct usb_interface *intf, pm_message_t state)
- {
- 	struct usb_hub		*hub = usb_get_intfdata (intf);
- 	struct usb_device	*hdev = hub->hdev;
-@@ -1943,7 +1943,7 @@
- 		}
- 		up(&udev->serialize);
- 	}
--	intf->dev.power.power_state = PM_SUSPEND_ON;
-+	intf->dev.power.power_state = PMSG_ON;
- 
- 	hub_activate(hub);
- 	return 0;
+so forgive us this stubborness, it's not directed against you in person
+or against any group of users, it's always directed at the problem at
+hand. I think we can do the LSM thing, and if this problem comes up in
+the future again, then maybe by that time there will be a better
+solution. (e.g. it's quite possible that something nice will come out of
+the various virtualization projects, for this problem area.)
 
-
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+	Ingo

@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293277AbSBWXvc>; Sat, 23 Feb 2002 18:51:32 -0500
+	id <S293279AbSBWX62>; Sat, 23 Feb 2002 18:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293275AbSBWXvW>; Sat, 23 Feb 2002 18:51:22 -0500
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:43649 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S293277AbSBWXvH>; Sat, 23 Feb 2002 18:51:07 -0500
-Date: Sat, 23 Feb 2002 15:50:51 -0800
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] C exceptions in kernel
-Message-ID: <20020223235051.GA2412@gnuppy.monkey.org>
-In-Reply-To: <200202231011.g1NABaU10984@devserv.devel.redhat.com> <25097.1014467212@ocs3.intra.ocs.com.au> <20020223075002.A23666@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S293281AbSBWX6S>; Sat, 23 Feb 2002 18:58:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60932 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293279AbSBWX6J>;
+	Sat, 23 Feb 2002 18:58:09 -0500
+Message-ID: <3C782C34.2CC0E417@zip.com.au>
+Date: Sat, 23 Feb 2002 15:56:36 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] only irq-safe atomic ops
+In-Reply-To: <1014505987.1003.1104.camel@phantasy>,
+		<3C773C02.93C7753E@zip.com.au>,
+		<1014444810.1003.53.camel@phantasy> <3C773C02.93C7753E@zip.com.au>
+		<1014449389.1003.149.camel@phantasy> <3C774AC8.5E0848A2@zip.com.au>
+		<20020223043815.B29874@hq.fsmlabs.com> <1014488408.846.806.camel@phantasy>
+		<20020223120648.A1295@hq.fsmlabs.com> <3C781037.EA4ADEF5@linux-m68k.org> 
+		<3C781351.DCB40AD3@zip.com.au>  <1014505987.1003.1104.camel@phantasy> <1014507951.850.1140.camel@phantasy>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020223075002.A23666@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.27i
-From: Bill Huey <billh@gnuppy.monkey.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 23, 2002 at 07:50:02AM -0500, Pete Zaitcev wrote:
-> Personally, I have no problem handling current practices.
-> But I may see the point of the guy with the try/catch patch.
-> Do not make me to defend him though. I am trying to learn
-> is those exceptions are actually helpful. BTW, we all know
-> where they come from (all of Cutler's NT is written that way),
-> but let it not cloud our judgement.
+Robert Love wrote:
+> 
+> On Sat, 2002-02-23 at 18:13, Robert Love wrote:
+> > On Sat, 2002-02-23 at 17:10, Andrew Morton wrote:
+> >
+> > > ooh.  me likee.
+> > >
+> > > #define smp_get_cpuid() ({ preempt_disable(); smp_processor_id(); })
+> > > #define smp_put_cpuid() preempt_enable()
+> > >
+> > > Does rml likee?
+> >
+> > Yah, that works.
+> 
+> OK, I still likee, but I was just thinking, if we are going to add have
+> to add something why not consider the irq-safe atomic ops?  It is
+> certainly the most optimal.
+> 
 
-Uh, that's probably not right. If I've been told/remember correctly,
-it's a technique that certain old school mainframe OSes use to
-implement sophisticate fault recovery of various sorts. As you know,
-one basically rewinds to the original point before the block is
-called so that you can recover/continue from it.
+For the situation Victor described:
 
-It's not clear if an OS like Linux could really benefit from it since
-everything that is so inheritently hotwired in the kernel, nor is it
-clear how something like exceptions would conceptual map onto that
-kind of system. Maybe DB/FS stuff would be a good of that stuff if
-you have a condition that prevents a write to a disk (etc.l.) and
-because they are data structure intensive systems.
+	const int cpu = smp_get_cpuid();
 
-But what about the TCP/IP stack ? or things in the bottom half ?
+	per_cpu_array_foo[cpu] = per_cpu_array_bar[cpu] +
+					per_cpu_array_zot[cpu];
 
-Those things are a bit more sticky and seem less compatible with
-exceptions it seems.
+	smp_put_cpuid();
 
-bill
+It's a nice interface - it says "pin down and return the current
+CPU ID".
 
+-

@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132686AbRDQOr0>; Tue, 17 Apr 2001 10:47:26 -0400
+	id <S132693AbRDQOw1>; Tue, 17 Apr 2001 10:52:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132693AbRDQOrQ>; Tue, 17 Apr 2001 10:47:16 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2575 "EHLO
+	id <S132695AbRDQOwQ>; Tue, 17 Apr 2001 10:52:16 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6927 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132686AbRDQOrE>; Tue, 17 Apr 2001 10:47:04 -0400
-Subject: Re: Possible problem with zero-copy TCP and sendfile()
-To: kas@informatics.muni.cz (Jan Kasprzak)
-Date: Tue, 17 Apr 2001 15:48:58 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010417151007.F916@informatics.muni.cz> from "Jan Kasprzak" at Apr 17, 2001 03:10:07 PM
+	id <S132693AbRDQOwA>; Tue, 17 Apr 2001 10:52:00 -0400
+Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please
+To: chromi@cyberspace.org (Jonathan Morton)
+Date: Tue, 17 Apr 2001 15:51:45 +0100 (BST)
+Cc: mharris@opensourceadvocate.org (Mike A. Harris),
+        miles@megapathdsl.net (Miles Lane), lm@bitmover.com (Larry McVoy),
+        bentson@grieg.holmsjoen.com (Randolph Bentson),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <l03130302b70202006529@[192.168.239.105]> from "Jonathan Morton" at Apr 17, 2001 03:23:48 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14pWmr-0002UK-00@the-village.bc.nu>
+Message-Id: <E14pWpY-0002VI-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	The long story: My server is Athlon 850 on ASUS A7V, 256M RAM.
-> Seven IDE discs, one SCSI disc. The controllers and NIC are as follows
-> (output of lspci):
+> Not a problem.  :)  Simply fit a machine with several ALSA-compatible
+> soundcards with mic-level inputs and use it as the recording medium.
+> Actually, I forget - do OSS-type soundcard drivers handle multiple cards
+> sensibly too?
 
-See the VIA chipset report on www.theregister.co.uk about corruption problems
-with VIA chipsets. The cases seen on Linux included short and also sometimes
-stale/corrupted DMA transfers.
-
-Nothing in your report says it is or isnt going to be a VIA chipset problem
-but once a fixed BIOS is out for your board that would be a good first step.
-If it still does it then, its worth digging for kernel naughties
-
+Yes. Have done since 2.2. 

@@ -1,136 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264730AbSKDOw6>; Mon, 4 Nov 2002 09:52:58 -0500
+	id <S264729AbSKDOwc>; Mon, 4 Nov 2002 09:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264735AbSKDOw6>; Mon, 4 Nov 2002 09:52:58 -0500
-Received: from excalibur.cc.purdue.edu ([128.210.189.22]:44299 "EHLO
-	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
-	id <S264730AbSKDOwv>; Mon, 4 Nov 2002 09:52:51 -0500
-Date: Mon, 4 Nov 2002 10:00:59 -0500 (EST)
-From: Patrick Finnegan <pat@purdueriots.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Filesystem Capabilities in 2.6?
-In-Reply-To: <Pine.LNX.4.44.0211031021260.16432-100000@ibm-ps850.purdueriots.com>
-Message-ID: <Pine.LNX.4.44.0211040958530.16432-100000@ibm-ps850.purdueriots.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264730AbSKDOwc>; Mon, 4 Nov 2002 09:52:32 -0500
+Received: from ns.sysgo.de ([213.68.67.98]:13310 "EHLO dagobert.svc.sysgo.de")
+	by vger.kernel.org with ESMTP id <S264729AbSKDOwb>;
+	Mon, 4 Nov 2002 09:52:31 -0500
+Date: Mon, 4 Nov 2002 15:54:50 +0100
+From: Soewono Effendi <SEffendi@sysgo.de>
+To: linux-kernel mlist <linux-kernel@vger.kernel.org>
+Subject: [PATCH] error compiling v2.5.45 using xtreme minimal .config
+Message-Id: <20021104155450.2d0ddf6b.SEffendi@sysgo.de>
+Organization: SYSGO Real-Time Solutions GmbH
+X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Mon__4_Nov_2002_15:54:50_+0100_082263a8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see no one has responded to this yet, so I'll ask again.
+This is a multi-part message in MIME format.
 
-Does anyone have any comments about my idea outlined below?
+--Multipart_Mon__4_Nov_2002_15:54:50_+0100_082263a8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Pat
---
-Purdue Universtiy ITAP/RCS
-Information Technology at Purdue
-Research Computing and Storage
-http://www-rcd.cc.purdue.edu
-
-http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
+Hi all,
 
 
-On Sun, 3 Nov 2002, Patrick Finnegan wrote:
+this patch fixes the problem described in my earlier email.
+kernel-v2.5.45 failed to build if configured without networking support.
 
-> On 3 Nov 2002, Alan Cox wrote:
->
-> > On Sun, 2002-11-03 at 02:03, Linus Torvalds wrote:
-> > > So I'd suggest _not_ attaching that capability to the sendmail binary
-> > > itself, or to any inode number of that binary. A binary is a binary is a
-> > > binary - it's just the data. Instead, I'd attach the information to the
-> > > directory entry, either directly (ie the directory entry really has an
-> > > extra field that lists the capabilities) or indirectly (ie the directory
-> > > entry is really just an "extended symlink" that contains not just the path
-> > > to the binary, but also the capabilities associated with it).
-> >
-> > So what are the semantics for writing to the file. If I modify a setuid
-> > (or setpartlysetuid) type file then I wan't the setuidness revoked as
-> > happens now. That is done for very good reason. Your system appears to
-> > need a scan of the entire file system to find directory references to
-> > this object, done atomically.
-> >
-> > > The reason I like directory entries as opposed to inodes is that if you
-> > > work this way, you can actually give different people _different_
-> > > capabilities for the same program.  You don't need to have two different
-> > > installs, you can have one install and two different links to it.
-> >
-> > I'll trade 500K of disk space for a working security model especially as
-> > the case in question is not that common.
->
-> Here's a random idea, it has problems, but seems workable to me:
->
-> 1) Add a standardized exported data structure to your ELF executable
->    called "KERNEL_PROCESS_CAPABILITIES_v1" or another name you like, and
->    have it as a fixed-length bit-array (null terminated) of capabilities,
->    maybe 128 bits for version one.  If extensions are needed later, we can
->    fairly easily extend the length by aliasing it with another name, say
->    "KERNEL_PROCESS_CAPABILITIES_v2" and sticking the extra bits at the end
->    of the structure (or create a second structure...).
->
-> 2) SUID root the binary like normal
->
-> This is what the kernel does:
->
-> 1) Checks if the binary is SUID root (uid 0), if not go on like normal.
->
-> 2) If SUID root, and it's an ELF execuable, look for the ELF symbol(s)
->    above; if not present, set uid to 0 and execute.
->
-> 3) If caps are present, read them in, don't change UID/GID, set the caps,
->    and execute.
->
-> 4) If that process executes another process, drop all capabilities
->
-> This could (probably be) extended to a.out format.  To deal with scripts
-> and 'binfmt_misc' stuff, you can create a capability called "CAP_WRAPPER"
-> which allows capabilities to be transferred to the next process.  When you
-> execute that process, the kernel drops only that one flag, denying the
-> wrapped executable from transferring capabilities.
->
-> Here's some advantages:
->  - No huge and wierd /etc/fstab[.d], and no mounting of files to gain
->    capabilites, or other 'strange things'.
->  - If the kernel doesn't recognize capabilites, it'll just SUID root the
->    binary like normal
->  - If the binary doesn't have capabilities listed, it'll just get SUID
->    root like normal
->  - Changing the binary still drops SUID root, and thus drops the
->    capabilites
->  - User can create wrapper 'binaries' fairly simply
->  - Since the size of the bitfield for the capabilities is fixed, the user
->    can modify capabilites inside a binary with that structure.
->
-> Problems:
->  - It's binary, not text, so possibly harder to read without tools.
->  - Stripped binaries.  This could be fixed by a small change:
->
->   Instead of using a symbol to look up capabilites, use text in the
->   executable eg:
->
-> struct caps_t {
-> 	int magic;
-> 	char name[28];
-> 	char caps[8];
-> } kern_proc_caps =
-> 	{0x1234AA55, "KERNEL_PROCESS_CAPSTRING_v1", ... };
->
-> Comments?
->
-> Pat
-> --
-> Purdue Universtiy ITAP/RCS
-> Information Technology at Purdue
-> Research Computing and Storage
-> http://www-rcd.cc.purdue.edu
->
-> http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--- /usr/src/linux-2.5.45/net/socket.c  Mon Nov  4 12:12:19 2002
++++ linux-2.5.45/net/socket.c   Mon Nov  4 15:49:12 2002
+@@ -74,7 +74,6 @@
+ #include <linux/cache.h>
+ #include <linux/module.h>
+ #include <linux/highmem.h>
+-#include <linux/wireless.h>
+ #include <linux/divert.h>
 
+ #if defined(CONFIG_KMOD) && defined(CONFIG_NET)
+--- /usr/src/linux-2.5.45/net/core/skbuff.c     Mon Nov  4 12:12:19 2002
++++ linux-2.5.45/net/core/skbuff.c      Mon Nov  4 15:36:49 2002
+@@ -324,7 +324,12 @@
+        }
+
+        dst_release(skb->dst);
++#ifdef CONFIG_INET
+        secpath_put(skb->sp);
++#else
++       if (skb->sp)
++               atomic_dec(&skb->sp->refcnt);
++#endif
+        if(skb->destructor) {
+                if (in_irq())
+                        printk(KERN_WARNING "Warning: kfree_skb on "
+
+
+Best regards,
+>> S. Effendi
+
+
+--Multipart_Mon__4_Nov_2002_15:54:50_+0100_082263a8
+Content-Type: application/octet-stream;
+ name="no_networking.patch"
+Content-Disposition: attachment;
+ filename="no_networking.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIC91c3Ivc3JjL2xpbnV4LTIuNS40NS9uZXQvc29ja2V0LmMJTW9uIE5vdiAgNCAxMjoxMjox
+OSAyMDAyCisrKyBsaW51eC0yLjUuNDUvbmV0L3NvY2tldC5jCU1vbiBOb3YgIDQgMTU6NDk6MTIg
+MjAwMgpAQCAtNzQsNyArNzQsNiBAQAogI2luY2x1ZGUgPGxpbnV4L2NhY2hlLmg+CiAjaW5jbHVk
+ZSA8bGludXgvbW9kdWxlLmg+CiAjaW5jbHVkZSA8bGludXgvaGlnaG1lbS5oPgotI2luY2x1ZGUg
+PGxpbnV4L3dpcmVsZXNzLmg+CiAjaW5jbHVkZSA8bGludXgvZGl2ZXJ0Lmg+CiAKICNpZiBkZWZp
+bmVkKENPTkZJR19LTU9EKSAmJiBkZWZpbmVkKENPTkZJR19ORVQpCi0tLSAvdXNyL3NyYy9saW51
+eC0yLjUuNDUvbmV0L2NvcmUvc2tidWZmLmMJTW9uIE5vdiAgNCAxMjoxMjoxOSAyMDAyCisrKyBs
+aW51eC0yLjUuNDUvbmV0L2NvcmUvc2tidWZmLmMJTW9uIE5vdiAgNCAxNTozNjo0OSAyMDAyCkBA
+IC0zMjQsNyArMzI0LDEyIEBACiAJfQogCiAJZHN0X3JlbGVhc2Uoc2tiLT5kc3QpOworI2lmZGVm
+IENPTkZJR19JTkVUCiAJc2VjcGF0aF9wdXQoc2tiLT5zcCk7CisjZWxzZQorCWlmIChza2ItPnNw
+KQorCQlhdG9taWNfZGVjKCZza2ItPnNwLT5yZWZjbnQpOworI2VuZGlmCiAJaWYoc2tiLT5kZXN0
+cnVjdG9yKSB7CiAJCWlmIChpbl9pcnEoKSkKIAkJCXByaW50ayhLRVJOX1dBUk5JTkcgIldhcm5p
+bmc6IGtmcmVlX3NrYiBvbiAiCg==
+
+--Multipart_Mon__4_Nov_2002_15:54:50_+0100_082263a8--

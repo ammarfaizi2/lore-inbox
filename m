@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265763AbUBPPs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 10:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265769AbUBPPs4
+	id S265663AbUBPQF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 11:05:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265683AbUBPQF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 10:48:56 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44995 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265763AbUBPPsz
+	Mon, 16 Feb 2004 11:05:27 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:27274 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265663AbUBPQFV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 10:48:55 -0500
-Date: Mon, 16 Feb 2004 15:48:52 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: John Bradford <john@grabjohn.com>
-Cc: Valdis.Kletnieks@vt.edu, Eduard Bloch <edi@gmx.de>,
-       Jamie Lokier <jamie@shareable.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Message-ID: <20040216154851.GM8858@parcelfarce.linux.theplanet.co.uk>
-References: <200402121655.39709.robin.rosenberg.lists@dewire.com> <20040213003839.GB24981@mail.shareable.org> <200402130216.53434.robin.rosenberg.lists@dewire.com> <20040213022934.GA8858@parcelfarce.linux.theplanet.co.uk> <20040213032305.GH25499@mail.shareable.org> <20040214150934.GA5023@zombie.inka.de> <20040215010150.GA3611@mail.shareable.org> <20040216140338.GA2927@zombie.inka.de> <200402161518.i1GFIpn2008826@turing-police.cc.vt.edu> <200402161546.i1GFkLqx000741@81-2-122-30.bradfords.org.uk>
+	Mon, 16 Feb 2004 11:05:21 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: stty utf8
+Date: 16 Feb 2004 17:10:11 +0100
+Organization: SuSE Labs, Berlin
+Message-ID: <87fzdb57ks.fsf@bytesex.org>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216150501.GC16658@mail.shareable.org>
+NNTP-Posting-Host: localhost
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402161546.i1GFkLqx000741@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Trace: bytesex.org 1076947812 28498 127.0.0.1 (16 Feb 2004 16:10:12 GMT)
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 16, 2004 at 03:46:21PM +0000, John Bradford wrote:
-> The current situation is that so many applications simply treat
-> filenames as arbitrary sequences of bytes.  With many encodings, this
-> simply happens to work, and an encoding mis-match will result in some
-> incorrect characters being displayed for byte values > 127.  However,
-> some encodings, such as UTF-8, are simply _not_ compatible with the
-> 'you can also treat it like an arbitrary byte string model', and there
+Jamie Lokier <jamie@shareable.org> writes:
 
-Excuse me?  Would you fscking mind explaining what, in your opinion,
-UTF-8 is and what makes "simply _not_ compatible" with aforementioned
-model?
+> 2. Terminals are not all UTF-8, and some never will be.
+
+> ==> This problem would be very nicely solved with an additional
+>     terminal flag.  We have "stty ocrnl", "onlcr", "igncr" etc. to
+>     translate between terminal line endings and the unix convention of
+>     LF at the end of each line.  Why not create "stty utf8" so that
+>     non-UTF-8 terminals and UTF-8 terminals alike can work with a
+>     Linux convention that all programs enter and display UTF-8?  It
+>     would simplify a lot of things.
+
+It's probably possible to extend luit doing that too.  luit comes with
+recent xfree86 releases and does utf-8 <=> locale conversion.  Right
+now it does just the opposite:  let people use non-utf8 locales in a
+utf-8 xterm.
+
+  Gerd
+
+-- 
+Es geht darum, daß ein Haufen Scriptkiddies gerade dabei sind, USENET in
+Bunt neu zu erfinden, und sie derzeit einen Haufen Fehler neu machen,
+die schon seit 20 Jahren nicht mehr Gegenstand der Forschung sind.
+	-- Kristian Köhntopp über blogs und blogger

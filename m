@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266349AbUIOPD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266376AbUIOPHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266349AbUIOPD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 11:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUIOPD7
+	id S266376AbUIOPHU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 11:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266386AbUIOPHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 11:03:59 -0400
-Received: from mail.tmr.com ([216.238.38.203]:36624 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S266349AbUIOPD4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:03:56 -0400
-Date: Wed, 15 Sep 2004 10:56:54 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: seems to be impossible to disable CONFIG_SERIAL [2.6.7]
-In-Reply-To: <AECBE898-036B-11D9-B8B0-000393ACC76E@mac.com>
-Message-ID: <Pine.LNX.3.96.1040915105100.10950B-100000@gatekeeper.tmr.com>
+	Wed, 15 Sep 2004 11:07:20 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:56029 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S266376AbUIOPHS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:07:18 -0400
+Date: Wed, 15 Sep 2004 08:07:01 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, kkeil@suse.de
+Subject: Re: [patch] tune vmalloc size
+Message-ID: <783300000.1095260820@[10.10.2.4]>
+In-Reply-To: <m34qlzbqy6.fsf@averell.firstfloor.org>
+References: <2EHyq-5or-39@gated-at.bofh.it> <m34qlzbqy6.fsf@averell.firstfloor.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004, Kyle Moffett wrote:
+--Andi Kleen <ak@muc.de> wrote (on Wednesday, September 15, 2004 15:29:53 +0200):
 
-> On Sep 10, 2004, at 14:12, Bill Davidsen wrote:
-> > I like that a lot!
-> >   Use 8250 serial? (Y/n/m/b)
+> Ingo Molnar <mingo@elte.hu> writes:
 > 
-> What's this mean? Yes/No/Module/Butter? :-D
-
-Thought the original was clear, b=BLOCK to block the use of the feature. I
-have no strong feelings on this, although forceno isn't intuitive, people
-will forget if it mean force on or off.
+>> there are a few devices that use lots of ioremap space. vmalloc space is
+>> a showstopper problem for them.
+>> 
+>> this patch adds the vmalloc=<size> boot parameter to override
+>> __VMALLOC_RESERVE. The default is 128mb right now - e.g. vmalloc=256m
+>> doubles the size.
 > 
-> Perhaps better: (r/Y/m/n/f), for required/yes/module/no/forceno
+> Ah, Karsten Keil did a similar patch some months ago. There is 
+> clearly a need.
 > 
-> If anything contradicts required or forceno, it throws an error?
-
-I would say so, but better yet would be to grey out anything requiring the
-option. The whole idea of forcing options on behind the scenes is a
-problem in human interface.
-
-New thought: how about prompting the user with something like
-  CONFIG_DANCING_PENGUINS requires CONFIG_VESAFB, enable or skip (e/s)?
-
-or something of that flavor.
-
+> But I think this should be self tuning instead. For a machine with 
+> less than 900MB of memory the vmalloc area can be automagically increased,
+> growing into otherwise unused address space. 
 > 
-> Cheers,
-> Kyle Moffett
+> This way many users wouldn't need to specify weird options.  So far
+> most machines still don't have more than 512MB.
 
-I have no doubt that other will weigh in on this.
+It already does that, IIRC.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+M.
 

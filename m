@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133110AbRDMBdp>; Thu, 12 Apr 2001 21:33:45 -0400
+	id <S135385AbRDMCER>; Thu, 12 Apr 2001 22:04:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133112AbRDMBde>; Thu, 12 Apr 2001 21:33:34 -0400
-Received: from gear.torque.net ([204.138.244.1]:10756 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S133110AbRDMBdS>;
-	Thu, 12 Apr 2001 21:33:18 -0400
-Message-ID: <3AD65738.A0056C99@torque.net>
-Date: Thu, 12 Apr 2001 21:32:40 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac4 i586)
-X-Accept-Language: en
+	id <S135386AbRDMCEH>; Thu, 12 Apr 2001 22:04:07 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:21398 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135385AbRDMCEB>;
+	Thu, 12 Apr 2001 22:04:01 -0400
+Date: Thu, 12 Apr 2001 22:03:59 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ed Tomlinson <tomlins@cam.org>
+cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: memory usage - dentry_cacheg
+In-Reply-To: <01041221342400.27841@oscar>
+Message-ID: <Pine.GSO.4.21.0104122154560.22287-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Tim Meushaw <meushaw@pobox.com>
-Subject: Re: Problem with 2.4.1/2.4.3 and CD-RW ide-scsi drive
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Meushaw <meushaw@pobox.com> wrote:
-> I've got an update for this problem I emailled about 
-> last night (and for which I only received one reply :-) ).
->
-> Strangely enough, I'm able to actually burn a CD 
-> using the cd-rw described below, and can verify 
-> data written to it (using X-CD-Roast). I still can't 
-> actually mount a cd in the drive without getting the 
-> error described below, but at least I can burn CDs now.
-> 
-> Does this behavior sound like a kernel problem, or 
-> does it suggest a bug in the 'mount' utility?
 
-Tim,
-At the risk of Jens jumping on this post, I think
-there was some problem mounting cdroms that is
-fixed in the "ac" series, the latest of which is
-2.4.3-ac5 . Perhaps you could try it and report
-back.
 
-The fact that you can write a cd (which does not
-involve the sr driver) means that the rest of the SCSI
-subsystem and the ide-scsi driver seem to be working
-ok. I doubt that this is a problem with the mount
-command.
+On Thu, 12 Apr 2001, Ed Tomlinson wrote:
 
-Doug Gilbert
+> On Thursday 12 April 2001 11:12, Alexander Viro wrote:
+> What prompted my patch was observing situations where the icache (and dcache 
+> too) got so big that they were applying artifical pressure to the page and 
+> buffer caches. I say artifical since checking the stats these caches showed 
+> over 95% of the entries unused.  At this point there is usually another 10% 
+> or so of objects allocated by the slab caches but not accounted for in the 
+> stats (not a problem they are accounted if the cache starts using them).
+
+"Unused" as in "->d_count==0"? That _is_ OK. Basically, you will have
+positive ->d_count only on directories and currently opened files.
+E.g. during compile in /usr/include/* you will have 3-5 file dentries
+with ->d_count > 0 - ones that are opened _now_. It doesn't mean that
+everything else rest is unused in any meaningful sense. Can be freed - yes,
+but that's a different story.
+
+If you are talking about "unused" from the slab POV - _ouch_. Looks like
+extremely bad fragmentation ;-/ It's surprising, and if that's thte case
+I'd like to see more details.
+								Al
+

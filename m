@@ -1,179 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285469AbRLNTa5>; Fri, 14 Dec 2001 14:30:57 -0500
+	id <S285481AbRLNTlH>; Fri, 14 Dec 2001 14:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285471AbRLNTas>; Fri, 14 Dec 2001 14:30:48 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S285469AbRLNTai>; Fri, 14 Dec 2001 14:30:38 -0500
-Date: Fri, 14 Dec 2001 11:25:08 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Needham, Douglas" <douglas.needham@lmco.com>
-cc: "'Andrew Morton'" <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: RE: kernel performance issues 2.4.7 -> 2.4.17-pre8
-In-Reply-To: <1B7FCD9C07D3D4118FC500508BDF42E80457DFB6@emss09m02.ems.lmco.com>
-Message-ID: <Pine.LNX.4.10.10112140832500.10131-100000@master.linux-ide.org>
+	id <S285475AbRLNTks>; Fri, 14 Dec 2001 14:40:48 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:23841 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S285481AbRLNTkm> convert rfc822-to-8bit; Fri, 14 Dec 2001 14:40:42 -0500
+Date: Fri, 14 Dec 2001 17:46:37 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: =?iso-8859-1?q?Kirk=20Alexander?= <kirkalx@yahoo.co.nz>
+cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+In-Reply-To: <20011214041151.91557.qmail@web14904.mail.yahoo.com>
+Message-ID: <20011214172419.Q1591-100000@gerard>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Douglas,
 
-What is really needed is for a correct packetized ACB to be adopted.
-Second is if you would allow the driver to correctly tune the hardware,
-you could see things like this:
+On Fri, 14 Dec 2001, Kirk Alexander wrote:
 
-Device: Maxtor 5T020H2 Serial Number: T2J0HC0C
-LBA 0 DMA Read Test                      = 68.67 MB/Sec (3.64 Seconds)
-Outer Diameter Sequential DMA Read Test  = 36.68 MB/Sec (6.82 Seconds)
-Inner Diameter Sequential DMA Read Test  = 21.37 MB/Sec (11.70 Seconds)
-LBA 1 DMA Write Test                     = 65.68 MB/Sec (3.81 Seconds)
-Outer Diameter Sequential DMA Write Test = 36.91 MB/Sec (6.77 Seconds)
-Inner Diameter Sequential DMA Write Test = 21.45 MB/Sec (11.66 Seconds)
+> [cc'ed to lkml and Gerard Roudier]
+>
+> Hi Jens,
+>
+> You asked people to send in reports of which drivers
+> were broken by the removal of io_request_lock.
+>
+> My system is a clunky old Digital Pentium Pro with a
+> NCR53c810 rev 2 scsi controller, so it can't use the
+> sym driver.
 
+Use sym53c8xx_2 instead. This one uses 2 different firmwares,
 
-Wrote 19073 Meg / 39062400 blockse 0 Meg / 0 blocks
-Device length: 20000000000 Bytes / 19073 Meg / 18 Gig
-Total Diameter Sequential Pattern Write Test = 30.29 MB/Sec (629.67 Seconds)
-Read 19073Meg (39062400 blocks)
-Device length: 19999948800 Bytes / 19073 Meg / 18 Gig
-Total Diameter Sequential Pattern Read Test  = 23.50 MB/Sec (811.75 Seconds)
-Device passed CLEAN!
+- one based on sym53c8xx driver scripts called
+  'LOAD/STORE based' firmware,
+- and another one that only uses generic scripts instructions
+  and called 'GENERIC' firmware.
 
-Maybe this kind of data-transport integrity checking means something to
-you, but I have found that most do not care about making this a standard
-for storage development.
+The GENERIC firmware has worked for me witn a 810 rev. 2.
 
-Next "hdparm -X66 -d1 -u1 -m16 -c3 /dev/hda" is silly.
+I haven't this controller installed at the moment, but I can test the
+driver by forcing the driver to use the GENERIC scripts instead for any
+symbios chip.
 
-Driver will setup and time correctly -X66 -d1 -m16 -c0 -u0.
-Unless you have an old ATA1/2 drive "-c3" is meaningless.
--c describes the data_io register
+You may let me know if sym53c8xx_2 still works with 810 rev 2.
 
-drive->no_io_32bit = id->dword_io ? 1 : 0;
+> I fixed the problem by seeing what the sym
+> driver did i.e. the patch below
+> This may not be right at all, and I haven't had a
+> chance to boot the kernel - but it did build OK.
 
-Just maybe if I could put some consistance in the driver ..
+The ncr53c8xx and sym53c8xx version 1 use the obsolete scsi eh handling.
+Moving the eh code from sym53c8xx_2 (version 2) to ncr53c8xx/sym53c8xx is
+quite feasible, but may-be it is just useless given sym53c8xx_2. For now,
+it seems that sym53c8xx_2 replaces both ncr/sym53c8xx without any loss of
+reliability and performance.
 
-static ide_startstop_t drive_cmd_intr (ide_drive_t *drive)
-{
-<snip>
-                drive->io_32bit = 0;
-                ide_input_data(drive, &args[4], args[3] * SECTOR_WORDS);
-                drive->io_32bit = io_32bit;
-<snip>
-}
+  Gérard.
 
-Which is an pio-out-data of one sector == read_intr of one sector, we just
-might get a more stable platform.
+> Cheers,
+> Kirk Alexander
+>
+> P.S.
+> Please excuse me if this has already been fixed or
+> posted, or if I've broken some lkml etiquette - first
+> post I think after lurking off and on for ages. Also
+> first time I've compiled a kernel that has only been
+> out a few days!
 
-I was hoping to be some what quiet, but now it looks like the good old
-grenade launch is going to be needed -- and this is not productive -- just
-informative because people grind their heals in deeper and refuse to allow
-corrections.
-
-Maybe you should try the preferred driver of mine that one day may be
-adopted.
-
-Regards,
-
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+You are welcome and you didn't break any etiquette. The lkml is a very
+open mailing list but it gets more than 200 postings a day. Thus the
+linux-scsi@vger.kernel.org list should be preferred for topics that
+address scsi specifically.
 
 
-On Fri, 14 Dec 2001, Needham, Douglas wrote:
-
-> Thanks for the feed back. 
-> Here are my latest results re-running the same tests with the following
-> enhancements. 
-> I also added .17-rc1.
-> 
-> I did two things :
-> the first was :
-> 
-> 	echo 70 64 64 256 30000 3000 80 0 0 > /proc/sys/vm/bdflush
-> the second was : 
-> 	hdparm -X66 -d1 -u1 -m16 -c3 /dev/hda
-> 	following the document at :
-> http://linux.oreillynet.com/lpt/a//linux/2000/06/29/hdparm.html
-> 
-> I did see some performance gains, but
-> 
-> My new questions are : 
-> 	Do we(people running Linux) need to do more work on tuning the
-> hardware in the current kernels? 
-> 
-> >Note: before running the hdparm test on hda1, you should mount a 4k
-> blocksize
-> >filesystem onto hda1. 
->       Where could I find more info on how to do this? Wouldn't changing the
-> blocksize of my file system kill my existing data? Or do I just need to
-> create some filesystem on the device that has a 4k blocksize? I hate to ask
-> a dumb question, but I had not heard of this being done before. 
-> 
-> Thanks, 
-> 
-> Doug 
-> 
-> 
-> 
-> 
-> 
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@zip.com.au]
-> Sent: Thursday, December 13, 2001 2:50 PM
-> To: Needham, Douglas
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: kernel performance issues 2.4.7 -> 2.4.17-pre8
-> 
-> 
-> "Needham, Douglas" wrote:
-> > 
-> > ...
-> >         Overall I discovered that the Red Hat modified kernel beat the
-> stock
-> > kernel hands down in throughput.  Both the base Red Hat 7.2 kernel and the
-> > 7.2 update kernel (2.4.7-9, 2.4.9-13 respectively) had far better
-> throughput
-> > than the .10, .15, .14, .16, and .17-pre8 kernels.
-> > 
-> 
-> The 60% drop in bonnie throughput going from 2.4.9 to 2.4.10 indicates that
-> something strange has happened.  This hasn't been observed by others.
-> 
-> My suspicion would be that something is wrong with the IDE tuning in your
-> builds of later kernels.  Please check this with `hdparm -t /dev/hda1' -
-> make
-> sure that these numbers are consistent across kernel versions before you
-> even start.
-> 
-> Note: before running the hdparm test on hda1, you should mount a 4k
-> blocksize
-> filesystem onto hda1.  This changes the softblocksize for the device from 1k
-> to 4k and, for some devices, speeds up access to the block device by
-> a factor of thirty.  This is some bizarro kooky brokenness which the
-> 2.4.10 patch exposed and I'm still investigating...
-> 
-> For dbench, errr, just don't bother using it, unless you're using
-> a large number of clients - 64 or more.  At lower client numbers,
-> throughput is enormously dependent upon tiny changes in kernel
-> behaviour.   Try this:
-> 
-> 	echo 70 64 64 256 30000 3000 80 0 0 > /proc/sys/vm/bdflush
-> 
-> and see the numbers go up greatly.
-> 
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
-
+> --- linux/drivers/scsi/sym53c8xx_comm.h	Fri Dec 14
+> 16:46:45 2001
+> +++ linux/drivers/scsi/sym53c8xx_comm.h	Fri Dec 14
+> 16:49:19 2001
+> @@ -438,11 +438,20 @@
+>  #define	NCR_LOCK_NCB(np, flags)
+> spin_lock_irqsave(&np->smp_lock, flags)
+>  #define	NCR_UNLOCK_NCB(np, flags)
+> spin_unlock_irqrestore(&np->smp_lock, flags)
+>
+> +#if LINUX_VERSION_CODE >= LinuxVersionCode(2,5,0)
+> +
+> +#define	NCR_LOCK_SCSI_DONE(np, flags) \
+> +		spin_lock_irqsave((np)->done_list->host, flags)
+> +#define	NCR_UNLOCK_SCSI_DONE(np, flags) \
+> +		spin_unlock_irqrestore((np)->done_list->host,
+> flags)
+> +#else
+> +
+>  #define	NCR_LOCK_SCSI_DONE(np, flags) \
+>  		spin_lock_irqsave(&io_request_lock, flags)
+>  #define	NCR_UNLOCK_SCSI_DONE(np, flags) \
+>  		spin_unlock_irqrestore(&io_request_lock, flags)
+>
+> +#endif
+>  #else
+>
+>  #define	NCR_LOCK_DRIVER(flags)     do {
+> save_flags(flags); cli(); } while (0)
 

@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbTL1Oiq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 09:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbTL1Oip
+	id S261500AbTL1OgL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 09:36:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTL1OgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 09:38:45 -0500
-Received: from ms-smtp-01-qfe0.nyroc.rr.com ([24.24.2.55]:51847 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261539AbTL1Oim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 09:38:42 -0500
-From: craig duncan <duncan@nycap.rr.com>
-MIME-Version: 1.0
+	Sun, 28 Dec 2003 09:36:11 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:1288 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261500AbTL1OgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 09:36:09 -0500
+Date: Sun, 28 Dec 2003 14:36:03 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Pat Gefre <pfg@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Updating our sn code in 2.6
+Message-ID: <20031228143603.A20391@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pat Gefre <pfg@sgi.com>, akpm@osdl.org, davidm@napali.hpl.hp.com,
+	linux-kernel@vger.kernel.org
+References: <20031220122749.A5223@infradead.org> <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16366.60194.935861.592797@nycap.rr.com>
-Date: Sun, 28 Dec 2003 09:39:30 -0500
-To: linux-kernel@vger.kernel.org
-Subject: CD burn buffer underruns on 2.6
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com>; from pfg@sgi.com on Mon, Dec 22, 2003 at 08:55:10PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My first attempts at burning on 2.6 resulted in a couple of coasters
-(i'm running the "stock" 2.6 Debian kernel: kernel-image-2.6.0-test9-1-386).
-Burn speed was 8x (max speed for my PleXwrite 8/4/32A).  With the 2.4
-kernel (2.4.22-1-k7 on a 1.3 gig Athlon) i never had a problem burning
-at 8x (in fact, when burning completes, it always tells me:
-Buffer fill min 93%/max 100%.
+On Mon, Dec 22, 2003 at 08:55:10PM -0600, Pat Gefre wrote:
+> + issues before merging, it's not that much anyway..
+> 
+> I think I did. I sent another email with the changes I made for the
+> issues you raised - and updated the patches. If I missed any, please
+> let me know.
 
-At 4x, burns on 2.6 work fine, though.  At 8x, the burn always craps out
-shortly after starting.  This is completely consistent... 8x fails, 4x
-works (see cdrdao output below).  Nothing else is going on on my system.
-Running as root or regular user doesn't matter.
+Looking at oss.sgi.com/projects/sn2/sn2-update:
 
-After a few of these failed burns ("cdrdao simulate...", actually) i saw
-this in /var/log/kern.log:
+ - no change in 000-hwgfs-update.patch.inprogress, hwgraph_path_lookup
+   shall not be reintroduced.
+ - 014-cleanup-pci.c.patch:  no change apparently?
+ - 030-pciio-cleanup.patch: Dito
+ - 071-xswitch.devfunc.patch: Dito.
+ - 075-rename-reorg.patch: Dito
 
-Dec 24 08:24:44 cdw kernel: cdrom_newpc_intr: 110 residual after xfer
-Dec 24 08:24:57 cdw kernel: cdrom_newpc_intr: 104 residual after xfer
-Dec 24 08:25:43 cdw kernel: cdrom_newpc_intr: 110 residual after xfer
-Dec 24 08:25:55 cdw kernel: cdrom_newpc_intr: 104 residual after xfer
-Dec 24 08:26:52 cdw kernel: cdrom_newpc_intr: 110 residual after xfer
-Dec 24 08:27:03 cdw kernel: cdrom_newpc_intr: 104 residual after xfer
 
-As a side note, under 2.6, i see these "resid: 110", "resid: 104", etc.
-messages in the cdrdao output (below) which i never saw under 2.4.
+> David or Andrew can you take these patches ?
 
-Here's my cdrdao output:
------
-Starting write simulation resid: 110
-at speed 8...
-Pausing 10 seconds - hit CTRL-C to abort.
-Process can be aborted with QUIT signal (usually CTRL-\).
-resid: 104
-Writing CD-TEXT lead-in...
-Writing track 01 (mode AUDIO/AUDIO )...
-Writing track 02 (mode AUDIO/AUDIO )...
-?: Success.  : scsi sendcmd: no error
-CDB:  2A 00 00 00 26 80 00 00 1A 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: F0 00 03 00 00 27 18 0A 00 00 00 00 0C 09 00 00
-Sense Key: 0x3 Medium Error, Segment 0
-Sense Code: 0x0C Qual 0x09 (write error - loss of streaming) Fru 0x0
-Sense flags: Blk 10008 (valid) 
-resid: 61152
-cmd finished after 0.014s timeout 180s
-ERROR: Write data failed.
-ERROR: Writing failed - buffer under run?
-ERROR: Simulation failed.
+Really, that's not what I consider fixing.  Please fix up
+000,014 and 030 and drop 071 and 075, then it should be fine for
+merging.  071 shouldn't go in at all and 075 needs the renaming killed,
+everything else can go in although it's not nice.
 
-I looked through the kernel archives and didn't see anyone else
-reporting this problem but it seems kind of serious to me.

@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVAJPya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVAJP6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262302AbVAJPya (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 10:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVAJPy3
+	id S262303AbVAJP6X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 10:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVAJP6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 10:54:29 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:40842 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S262305AbVAJPxi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 10:53:38 -0500
-Date: Mon, 10 Jan 2005 07:53:26 -0800 (PST)
-From: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
-X-X-Sender: gowdy@antonia.sgowdy.org
-Reply-To: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
-To: Roseline Bonchamp <roseline.bonchamp@gmail.com>
-cc: linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-usb-users] USB problem with a mass storage device on
- 2.6.10
-In-Reply-To: <884a349a050110044654d75f7b@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0501100752270.5108@antonia.sgowdy.org>
-References: <884a349a050110044654d75f7b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Jan 2005 10:58:23 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:60343 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262303AbVAJP57 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 10:57:59 -0500
+Date: Mon, 10 Jan 2005 09:54:42 -0600
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: piotr@larroy.com (Pedro Larroy)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE 0/4][RFC] Genetic Algorithm Library
+Message-ID: <20050110095442.40a544fd@localhost>
+In-Reply-To: <20050108153757.GA5972@larroy.com>
+References: <20050106100844.53a762a0@localhost>
+	<20050108153757.GA5972@larroy.com>
+Organization: LTC
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is in /proc/bus/usb/devices when it doesn't work (and when it works)?
-What command fails?
+> From a quick look I've seen your algorithm tends to converge to a
+> global optimum, but also as William Lee Irwin III has commentend on
+> irc, it might miss "special points" since there's no warranty of the
+> function to minize to be continuous.
 
-On Mon, 10 Jan 2005, Roseline Bonchamp wrote:
+This is a very good point, and is something that I'm working on now.  I
+would like to be able to able to have multiple fitness rankings (ex. one
+that ranks specifically for throughput and one specifically for
+interactivity/latency).  Then tune specific genes, that actually
+impact that specific fitness check.
+ 
+> I think it's a good idea to introduce this techniques to tune the
+> kernel, but perhaps userland would be the right place for them, to be
+> able to switch them off when in need or have more controll over them.
+> But it's a nice initiative in my opinion.
 
-> Hello,
->
-> I have a PQI 1GB Intelligent Stick, which does'nt work most of the
-> time on 2.6.10 (sometime when I plug/unplug it does work, but most of
-> the time it does'nt)
->
-> When it does not work, I see this when I plug it:
->
-> kernel: usb 1-3: new high speed USB device using ehci_hcd and address 6
-> kernel: usb 3-1: new full speed USB device using uhci_hcd and address 4
-> kernel: usb 3-1: new full speed USB device using uhci_hcd and address 5
->
-> When it does work, I only see the first one (high speed), and then USB
-> mass storage stuff.
->
-> On kernel 2.6.9 it does work, but seems to produce a kernel crash (log
-> attached) (but I still can use it and mount it)
->
-> I tried on a knoppix 3.6 (2.6.7, not vanilla) kernel, and it seems to work too.
->
-> Even with 2.6.10 I have no problem with some other USB mass storage devices.
->
-> I already did a post about this, but the subject of the mail was wrong
-> (sorry), and it was not mailed to linux-usb:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0501.1/0371.html
->
-> Regards,
->
->
-> -------------------------------------------------------
-> The SF.Net email is sponsored by: Beat the post-holiday blues
-> Get a FREE limited edition SourceForge.net t-shirt from ThinkGeek.
-> It's fun and FREE -- well, almost....http://www.thinkgeek.com/sfshirt
-> _______________________________________________
-> Linux-usb-users@lists.sourceforge.net
-> To unsubscribe, use the last form field at:
-> https://lists.sourceforge.net/lists/listinfo/linux-usb-users
->
+I considered doing this in userland at first, but I went away from it
+for a couple reasons.  I wanted users of the library to have a lot of
+flexibility.  There was also a concern with the extra overhead going
+inbetween user/kernel space (important for users who's children have
+very short life-spans).
 
---
- /------------------------------------+-------------------------\
-|Stephen J. Gowdy                     | SLAC, MailStop 34,       |
-|http://www.slac.stanford.edu/~gowdy/ | 2575 Sand Hill Road,     |
-|http://calendar.yahoo.com/gowdy      | Menlo Park CA 94025, USA |
-|EMail: gowdy@slac.stanford.edu       | Tel: +1 650 926 3144     |
- \------------------------------------+-------------------------/
+Jake

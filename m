@@ -1,71 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVCCUaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVCCUaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbVCCUaO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 15:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVCCU1l
+	id S261637AbVCCUaP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 15:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVCCU1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 15:27:41 -0500
-Received: from alog0203.analogic.com ([208.224.220.218]:2432 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262169AbVCCUWs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 15:22:48 -0500
-Date: Thu, 3 Mar 2005 15:20:55 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: V P <upathiyayan@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: I/O error propagation
-In-Reply-To: <c9ad856005030311286314ebfd@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0503031506410.7559@chaos.analogic.com>
-References: <c9ad856005030311286314ebfd@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 3 Mar 2005 15:27:15 -0500
+Received: from ns.suse.de ([195.135.220.2]:25310 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262093AbVCCUXY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 15:23:24 -0500
+Date: Thu, 3 Mar 2005 21:23:19 +0100
+From: Olaf Hering <olh@suse.de>
+To: Jeff Mahoney <jeffm@suse.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/3] openfirmware: adds sysfs nodes for openfirmware	devices
+Message-ID: <20050303202319.GA30183@suse.de>
+References: <20050301211824.GC16465@locomotive.unixthugs.org> <1109806334.5611.121.camel@gaston> <42275536.8060507@suse.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <42275536.8060507@suse.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Mar 2005, V P wrote:
+ On Thu, Mar 03, Jeff Mahoney wrote:
 
-> Hi,
->
-> I have a question on how disk errors get propagated to
-> the file systems.
->
->> From looking at the SCSI/IDE drivers, it looks like there
-> could be many reasons for an I/O to fail. It could be
-> bus timeout, media errors, and so on.
->
-> Does all these errors get reported to the file system ?
-> It looks like all the different types of errors get
-> turned into a single I/O error (-EIO) and passed on to the
-> file system.
->
-> Or is there a way where we can export better error codes
-> to the file system ?
->
-> Any idea/input regarding this is greatly appreciated.
->
-> Thanks.
+> Is whitespace (in any form) allowed in the compatible value?
 
-It depends upon the disk devices, i.e., IDE SCSI, etc., but in
-general all errors reported by the hardware result in retrying
-the operation. If the retry fails after several (device dependent)
-attempts, the actual error is reported as a kernel message. These
-errors can be retrieved using the `dmesg` command and they
-will usually be retained in some kernel log in /var/log (actual
-log-name is vendor dependent).
-
-Following the Unix convention, any errors reported back upstream,
-eventually to the user, get reported ONLY as something defined
-in /usr/include/errno.h (which includes others, ultimately
-/usr/asm/errno.h).
-
-So, you don't need to reinvent anything. If you have hardware
-errors they will be reported in /var/log/messages (or whatever)
-and if you are making a new driver, you are expected to comply
-with the same protocol.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Yes, whitespace is used at least in the toplevel compatible file, like
+'Power Macintosh' in some Pismo models.

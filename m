@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290141AbSAKW0F>; Fri, 11 Jan 2002 17:26:05 -0500
+	id <S290151AbSAKW4U>; Fri, 11 Jan 2002 17:56:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290145AbSAKWZz>; Fri, 11 Jan 2002 17:25:55 -0500
-Received: from are.twiddle.net ([64.81.246.98]:47238 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S290141AbSAKWZu>;
-	Fri, 11 Jan 2002 17:25:50 -0500
-Date: Fri, 11 Jan 2002 14:25:45 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Fix fs/fat/inode.c when compiled with gcc-3.0.x
-Message-ID: <20020111142545.B9873@twiddle.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <3C3E6163.2E4ECB03@mandrakesoft.com> <Pine.LNX.4.33.0201102027500.3540-100000@penguin.transmeta.com>
+	id <S290150AbSAKW4L>; Fri, 11 Jan 2002 17:56:11 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:56837 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S290151AbSAKWzy>;
+	Fri, 11 Jan 2002 17:55:54 -0500
+Date: Fri, 11 Jan 2002 22:19:34 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Paul.Clements@steeleye.com
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: nbd request too big
+Message-ID: <20020111211933.GA371@elf.ucw.cz>
+In-Reply-To: <20020107152423.78321.qmail@web14906.mail.yahoo.com> <Pine.LNX.4.10.10201071231440.5690-300000@clements.sc.steeleye.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201102027500.3540-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jan 10, 2002 at 08:29:56PM -0800
+In-Reply-To: <Pine.LNX.4.10.10201071231440.5690-300000@clements.sc.steeleye.com>
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 08:29:56PM -0800, Linus Torvalds wrote:
-> It is, but there was a bug in the PPC machine description in 3.0.x
-> (x=0,1), or something. It's supposedly fixed in later gcc's.
+Hi!
 
-Apparently I only committed the patch to mainline.  Oops.
+> If you're using the nbd-server from Pavel Machek's web site, you'll need to patch 
+> nbd-server.c to make it work on ~2.4.3+ kernels. My patched version of nbd-server.c
+> and cliserv.h are attached. The patched files make the server's request buffer be
+> dynamically allocated, so any size request can be handled by the server. 
+> The patched version also fixes some other outdated code (e.g., llseek -> lseek64).
 
+You seem to be have used old version of nbd-server to do the
+patch. Could you port it to new version (at nbd.sourceforge.net) and
+mail me a patch?
 
-r~
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

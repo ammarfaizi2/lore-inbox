@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269643AbUICMRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269670AbUICMQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269643AbUICMRH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 08:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269632AbUICMRH
+	id S269670AbUICMQl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 08:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269666AbUICMNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 08:17:07 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:20685 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S269645AbUICMM0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 08:12:26 -0400
-Message-ID: <41385FA5.806@cs.aau.dk>
-Date: Fri, 03 Sep 2004 14:12:21 +0200
-From: =?ISO-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040619)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: umbrella-devel@lists.sourceforge.net
-Subject: Getting full path from dentry in LSM hooks
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Sep 2004 08:13:17 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:24467 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269643AbUICMKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 08:10:40 -0400
+Subject: Re: Crashed Drive, libata wedges when trying to recover data
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Brad Campbell <brad@wasp.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <87u0ugt0ml.fsf@stark.xeocode.com>
+References: <87oekpvzot.fsf@stark.xeocode.com>
+	 <4136E277.6000408@wasp.net.au>  <87u0ugt0ml.fsf@stark.xeocode.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094209696.7533.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 03 Sep 2004 12:08:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Gwe, 2004-09-03 at 05:52, Greg Stark wrote:
+> I get the same message and the same basic symptom -- any process touching the
+> bad disk goes into disk-wait for a long time. But whereas before as far as I
+> know they never came out, now they seem to come out of disk-wait after a good
+> long time. But then maybe I just never waited long enough with 2.6.6.
 
-I have a short question, concerning how to get the full path of a file 
-from a LSM hook.
+This looks hopeful. You are now seeing the IDE layer error dump. Right
+now it doesn't decode the LBA block number although that data is
+available in the taskfile so I can knock up a test patch for you to try
+if you want.
 
-- If the "file" of the dentry is located in the root filesystem: no
-   problem - simply traverse the dentrys, to generate the path.
+> This means I would be able to do the recovery in theory, but in practice it'll
+> just take an infeasible length of time. I have gigs of data to go through and
+> at the amount of time it takes to time out after each error it'll take me many
+> days (years I think) to just to figure out which blocks to avoid.
 
-- If the "file" is mounted from another partition, you do not get the
-   full path by traversing the dentrys.
+Open the disk device directly with O_DIRECT, read in something like 64K
+chunks. That won't do readahead so it gets easier to work out the
+problem areas. You can now sit in a loop doing
 
-Example:
-If we have a system with a normal root (/) and a seperate boot partition 
-(mounted on /boot :). In the LSM hook inode_permission, you get the 
-arguments (struct inode *inode, int mask, struct nameidata *nd).
-Finding the path, we traverse the dentrys from (nd->dentry). But if the 
-inode is a file in /boot we only get the filename (e.g. kernel-2.6.8.1 
-instead of /boot/kernel-2.6.8.1)
+		if(pread() failed)
+			write blank
+			log
+		else
+			write data
 
+then go back and binary search the holes it logs the next morning.
 
-Can some one reveal the trick to get the full path nomater if the 
-filesystem is root or mounted elsewhere in the filesystem?
+Alan
 
-
-Best regards,
-Kristian Sørensen.
-The Umbrella Project -- http://umbrella.sf.net

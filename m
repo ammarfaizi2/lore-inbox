@@ -1,151 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbUCVG3p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 01:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUCVG2e
+	id S261785AbUCVGhs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 01:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUCVGhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 01:28:34 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:4495 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261773AbUCVG1S (ORCPT
+	Mon, 22 Mar 2004 01:37:48 -0500
+Received: from ozlabs.org ([203.10.76.45]:60070 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261785AbUCVGhj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 01:27:18 -0500
-Date: Mon, 22 Mar 2004 12:01:53 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Carsten Otte <COTTE@de.ibm.com>,
-       Christian Borntraeger <CBORNTRA@de.ibm.com>,
-       "Martin J. Bligh" <mjbligh@us.ibm.com>
-Subject: Re: [RFC 5/6] sysfs backing store v0.3
-Message-ID: <20040322063153.GF5898@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20040318063306.GA27107@in.ibm.com> <20040320175708.GQ11010@waste.org> <20040322062842.GA5898@in.ibm.com> <20040322063012.GB5898@in.ibm.com> <20040322063034.GC5898@in.ibm.com> <20040322063058.GD5898@in.ibm.com> <20040322063124.GE5898@in.ibm.com>
+	Mon, 22 Mar 2004 01:37:39 -0500
+Subject: Re: [PATCH] cpu hotplug fix
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, Anton Blanchard <anton@samba.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040320151230.7527914a.akpm@osdl.org>
+References: <20040320063642.GF1153@krispykreme>
+	 <20040320074033.A21586@infradead.org> <1079780351.18972.48.camel@bach>
+	 <20040320151230.7527914a.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1079937377.5759.45.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040322063124.GE5898@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 22 Mar 2004 17:36:18 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2004-03-21 at 10:12, Andrew Morton wrote:
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> >
+> > Name: Remove Strange start_cpu_timer Code
+> >  Status: Untested
+> oy.
+> 
+> Program received signal SIGTRAP, Trace/breakpoint trap.
 
+Yep.  This one is better, and actually tested.
 
-=> changes in version 0.3
-  o Nil, just re-diffed
+Name: Remove Strange start_cpu_timer Code
+Status: Tested on 2.6.5-rc2-bk1
 
-=> changes in version 0.2
-  o Nil, just re-diffed
+start_cpu_timer is called once for every online CPU, then again in the
+cpu up callback, hence the rt->function re-entrance check.  Just call
+it manually for the boot cpu, and use the notifier for the others.
 
-o This patch contains changes required for bin attribute files.
+Perhaps at one stage this code was run before timers were available:
+this is no longer true (timers are initialized as part of scheduler
+startup).
 
-
- fs/sysfs/bin.c |   52 +++++++++++++++++++---------------------------------
- 1 files changed, 19 insertions(+), 33 deletions(-)
-
-diff -puN fs/sysfs/bin.c~sysfs-leaves-bin fs/sysfs/bin.c
---- linux-2.6.5-rc2/fs/sysfs/bin.c~sysfs-leaves-bin	2004-03-22 10:44:18.000000000 +0530
-+++ linux-2.6.5-rc2-maneesh/fs/sysfs/bin.c	2004-03-22 10:44:18.000000000 +0530
-@@ -17,8 +17,10 @@
- static int
- fill_read(struct dentry *dentry, char *buffer, loff_t off, size_t count)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.5-rc2-bk1/mm/slab.c working-2.6.5-rc2-bk1-start_cpu_timer-cleanup/mm/slab.c
+--- linux-2.6.5-rc2-bk1/mm/slab.c	2004-03-20 21:21:33.000000000 +1100
++++ working-2.6.5-rc2-bk1-start_cpu_timer-cleanup/mm/slab.c	2004-03-22 14:41:07.000000000 +1100
+@@ -576,13 +576,11 @@ static void __slab_error(const char *fun
  {
--	struct bin_attribute * attr = dentry->d_fsdata;
--	struct kobject * kobj = dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * sd_attr = dentry->d_fsdata;
-+	struct bin_attribute * attr = sd_attr->s_element;
-+	struct sysfs_dirent * sd_kobj = dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = sd_kobj->s_element;
+ 	struct timer_list *rt = &per_cpu(reap_timers, cpu);
  
- 	return attr->read(kobj, buffer, off, count);
- }
-@@ -60,8 +62,10 @@ read(struct file * file, char __user * u
- static int
- flush_write(struct dentry *dentry, char *buffer, loff_t offset, size_t count)
- {
--	struct bin_attribute *attr = dentry->d_fsdata;
--	struct kobject *kobj = dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * sd_attr = dentry->d_fsdata;
-+	struct bin_attribute * attr = sd_attr->s_element;
-+	struct sysfs_dirent * sd_kobj = dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = sd_kobj->s_element;
- 
- 	return attr->write(kobj, buffer, offset, count);
- }
-@@ -94,8 +98,10 @@ static ssize_t write(struct file * file,
- 
- static int open(struct inode * inode, struct file * file)
- {
--	struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
--	struct bin_attribute * attr = file->f_dentry->d_fsdata;
-+	struct sysfs_dirent * sd_kobj = file->f_dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = kobject_get(sd_kobj->s_element);
-+	struct sysfs_dirent * sd_attr = file->f_dentry->d_fsdata;
-+	struct bin_attribute * attr = sd_attr->s_element;
- 	int error = -EINVAL;
- 
- 	if (!kobj || !attr)
-@@ -122,7 +128,8 @@ static int open(struct inode * inode, st
- 
- static int release(struct inode * inode, struct file * file)
- {
--	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * sd = file->f_dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = sd->s_element;
- 	u8 * buffer = file->private_data;
- 
- 	if (kobj) 
-@@ -131,7 +138,7 @@ static int release(struct inode * inode,
- 	return 0;
+-	if (rt->function == NULL) {
+-		init_timer(rt);
+-		rt->expires = jiffies + HZ + 3*cpu;
+-		rt->data = cpu;
+-		rt->function = reap_timer_fnc;
+-		add_timer_on(rt, cpu);
+-	}
++	init_timer(rt);
++	rt->data = cpu;
++	rt->function = reap_timer_fnc;
++	rt->expires = jiffies + HZ + 3*cpu;
++	add_timer_on(rt, cpu);
  }
  
--static struct file_operations bin_fops = {
-+struct file_operations bin_fops = {
- 	.read		= read,
- 	.write		= write,
- 	.llseek		= generic_file_llseek,
-@@ -148,31 +155,10 @@ static struct file_operations bin_fops =
- 
- int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr)
+ #ifdef CONFIG_HOTPLUG_CPU
+@@ -594,11 +592,8 @@ static void stop_cpu_timer(int cpu)
  {
--	struct dentry * dentry;
--	struct dentry * parent;
--	int error = 0;
+ 	struct timer_list *rt = &per_cpu(reap_timers, cpu);
+ 
+-	if (rt->function) {
+-		del_timer_sync(rt);
+-		WARN_ON(timer_pending(rt));
+-		rt->function = NULL;
+-	}
++	del_timer_sync(rt);
++	WARN_ON(timer_pending(rt));
+ }
+ #endif
+ 
+@@ -779,35 +774,14 @@ void __init kmem_cache_init(void)
+ 	/* Done! */
+ 	g_cpucache_up = FULL;
+ 
++	start_cpu_timer(smp_processor_id());
++
+ 	/* Register a cpu startup notifier callback
+ 	 * that initializes ac_data for all new cpus
+ 	 */
+ 	register_cpu_notifier(&cpucache_notifier);
+-	
 -
--	if (!kobj || !attr)
--		return -EINVAL;
--
--	parent = kobj->dentry;
--
--	down(&parent->d_inode->i_sem);
--	dentry = sysfs_get_dentry(parent,attr->attr.name);
--	if (!IS_ERR(dentry)) {
--		dentry->d_fsdata = (void *)attr;
--		error = sysfs_create(dentry,
--				     (attr->attr.mode & S_IALLUGO) | S_IFREG,
--				     NULL);
--		if (!error) {
--			dentry->d_inode->i_size = attr->size;
--			dentry->d_inode->i_fop = &bin_fops;
--		}
--		dput(dentry);
--	} else
--		error = PTR_ERR(dentry);
--	up(&parent->d_inode->i_sem);
--	return error;
-+	if (kobj && kobj->dentry && attr) 
-+		return sysfs_add_file(kobj->dentry, &attr->attr, 
-+					SYSFS_KOBJ_BIN_ATTR);
-+	return -EINVAL;
+-	/* The reap timers are started later, with a module init call:
+-	 * That part of the kernel is not yet operational.
+-	 */
  }
  
- 
+-int __init cpucache_init(void)
+-{
+-	int cpu;
+-
+-	/* 
+-	 * Register the timers that return unneeded
+-	 * pages to gfp.
+-	 */
+-	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-		if (cpu_online(cpu))
+-			start_cpu_timer(cpu);
+-	}
+-
+-	return 0;
+-}
+-
+-__initcall(cpucache_init);
+-
+ /*
+  * Interface to system's page allocator. No need to hold the cache-lock.
+  *
 
-_
+
 -- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044999 Fax: 91-80-25268553
-T/L : 9243696
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
+

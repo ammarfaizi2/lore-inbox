@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264630AbTAJIfK>; Fri, 10 Jan 2003 03:35:10 -0500
+	id <S264646AbTAJIsd>; Fri, 10 Jan 2003 03:48:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264631AbTAJIfK>; Fri, 10 Jan 2003 03:35:10 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:46505 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S264630AbTAJIfJ>;
-	Fri, 10 Jan 2003 03:35:09 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S264647AbTAJIsd>; Fri, 10 Jan 2003 03:48:33 -0500
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:504 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S264646AbTAJIsc>; Fri, 10 Jan 2003 03:48:32 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15902.34759.187965.633490@harpo.it.uu.se>
-Date: Fri, 10 Jan 2003 09:43:51 +0100
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: "Mikael Pettersson" <mikpe@csd.uu.se>, <jamesclv@us.ibm.com>,
-       "Jason Lunz" <lunz@falooley.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: detecting hyperthreading in linux 2.4.19
-In-Reply-To: <C8C38546F90ABF408A5961FC01FDBF1912E20B@fmsmsx405.fm.intel.com>
-References: <C8C38546F90ABF408A5961FC01FDBF1912E20B@fmsmsx405.fm.intel.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Message-ID: <15902.35492.536040.298566@wombat.chubb.wattle.id.au>
+Date: Fri, 10 Jan 2003 19:56:04 +1100
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Peter Chubb <peter@chubb.wattle.id.au>,
+       Andrew McGregor <andrew@indranet.co.nz>, eric@andante.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: ISO-9660 Rock Ridge gives different links different inums
+In-Reply-To: <200301100634.h0A6Yps14454@Port.imtp.ilyichevsk.odessa.ua>
+References: <15902.14667.489252.346007@wombat.chubb.wattle.id.au>
+	<1345590000.1042169011@localhost.localdomain>
+	<15902.16227.924630.143293@wombat.chubb.wattle.id.au>
+	<200301100634.h0A6Yps14454@Port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh writes:
- > 
- > > -----Original Message-----
- > > From: Mikael Pettersson [mailto:mikpe@csd.uu.se]
- > > 
- > > My performance monitoring counters driver uses this approach 
- > > in kernel-space
- > > using smp_call_function(). I don't use the siblings tables 
- > > because they suck :-)
- > > [I don't think they distinguish between logical CPUs #0 and 
- > > #1, and they aren't
- > > exported to modules. The CPUID check is simple and portable 
- > > across kernel versions.]
- > 
- > I believe it is better to use a OS interface to find out HT, rather than 
- > using CPUID. The reason being, it is possible to have HT disabled, in OS,
- > even after processor and the BIOS supports it. 
- > 1) Consider the case when processor and BIOS supports HT, but linux
- > was booted with "noht" boot option (now I am not sure whether that option is 
- > there in 2.4.19. But is is certainly there in some other kernels).
- > 2) What about some other kernel which is totally ignorant about HT, and 
- > doesn't initialize logical processor (kernel which looks at MPS in place
- > of ACPI)
- > I think, in both these cases cpuid can still say HT is present.
+>>>>> "Denis" == Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
 
-With smp_call_function() I execute code on exactly those CPUs the kernel
-knows about. If the physical processors support HT but the kernel can't
-run on the non-#0 logical CPUs (UP kernel or "noht"), then smp_call_function()
-won't reach those logical CPUs #1 and everything's fine: my test will say
-"not HT" which is exactly what I want in this case.
+Denis> On 10 January 2003 05:34, Peter Chubb wrote:
+>> Preferably, all the inumbers for the same file would point to the
+>> same directory entry; but I can see no easy way to do that.
+>> Keeping an in-memory table for files with multiple links might be
+>> the best way, as there aren't that many on a typical filesystem.
 
-The point about checking the "local APIC physical ID" in CPUID 1, EBX,
-instead of the field in the local APIC is _exactly_ because the CPUID
-data is assigned by HW and read-only, while the local APIC field can be
-changed. I don't want to depend on possibly-broken MP or ACPI tables or
-have to know about the kernel's physical <--> virtual CPU # mapping de jour.
+Denis> And what will happen on a non-typical filesystem with 1 million
+Denis> hardlinks?
 
- > I know that sibling table is not exported. But I couldn't get your other
- > comment about sibling table "they distinguish between logical CPUs #0 and #1:"
- > Can you elaborate..
+Denis> The root of the problem is a fundamental layering violation in
+Denis> traditional Unix filesystems: inode numbers should NOT be
+Denis> visible to userspace. Userspace just needs a way to tell
+Denis> hardlinks from separate files, that's all. Exposing inumbers
+Denis> does that, but creates tons of problems for filesystems which
+Denis> do NOT have such a concept.
 
-The sibling table tells you whether two linux-numbered CPUs are siblings,
-but it doesn't tell which one is logical CPU #0 and which one is #1.
-That distinction is important in some cases.
+The problem is that in Unix the fundamental identity of a file is
+the tuple (blkdev, inum); names are merely indices (links) that resolve to
+that tuple.   Personally, I'd swap to a pair of system calls to map
+name to (blkdev, inum), and open(blkdev, inum).  Think of the inode
+number as a unique within-filesystem index.
+
+--
+Dr Peter Chubb				    peterc@gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories, all almost the same.
+

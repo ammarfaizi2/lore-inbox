@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267240AbUBMWKY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 17:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267243AbUBMWKY
+	id S267206AbUBMWVX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 17:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUBMWVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 17:10:24 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:57082 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S267240AbUBMWKU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 17:10:20 -0500
-Date: Fri, 13 Feb 2004 15:12:30 -0700
-From: Jesse Allen <the3dfxdude@hotmail.com>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is nForce2 good choice under Linux?
-Message-ID: <20040213221230.GA902@tesore.local>
-Mail-Followup-To: Jesse Allen <the3dfxdude@hotmail.com>,
-	Grzegorz Kulewski <kangur@polcom.net>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0402132048330.31906@alpha.polcom.net>
-Mime-Version: 1.0
+	Fri, 13 Feb 2004 17:21:23 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:47599 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267206AbUBMWVV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 17:21:21 -0500
+Date: Fri, 13 Feb 2004 14:18:54 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+cc: Sean Neakums <sneakums@zork.net>, Nagy Tibor <nagyt@otpbank.hu>,
+       xela@slit.de, mochel@osdl.org, bmoyle@mvista.com, orc@pell.chi.il.us,
+       linux-kernel@vger.kernel.org
+Subject: Re: HIGHMEM
+Message-ID: <46620000.1076710734@flay>
+In-Reply-To: <20040213160909.A6102@lists.us.dell.com>
+References: <402CC114.8080100@dell633.otpefo.com> <6uvfmbktrj.fsf@zork.zork.net> <64200000.1076688313@[10.10.2.4]> <20040213160909.A6102@lists.us.dell.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402132048330.31906@alpha.polcom.net>
-User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 09:10:36PM +0100, Grzegorz Kulewski wrote:
-> Hi,
+> On Fri, Feb 13, 2004 at 08:05:14AM -0800, Martin J. Bligh wrote:
+>> >> We have two Dell Poweredge servers, an older one (PowerEdge 6300) and a
+>> >> newer one (PowerEdge 6400). Both servers have 4GB RAM, but the Linux
+>> >> kernel uses about 500MB less memory in the newer machine.
+>> > 
+>> > I may be talking through my hat, but I think that in this case you
+>> > need to select the option for support of 64G highmem.  If I recall,
+>> > "4G highmem" refers not to the total amount to the memory, but to the
+>> > highest physical address that can be accessed.
+>> 
+>> That's exactly correct. Whether the gain of 500MB of RAM is worth the
+>> overhead of PAE is another question ... but that's how to do it ;-)
 > 
-> I am recently considering buying Abit AN7 motherboard with NVIDIA nForce2 
-> Ultra 400 with MCP-T bridge.
+> If the chipset and BIOS can't remap the physical RAM out of the
+> address space needed by the PCI devices and into PAE space, then PAE
+> doesn't buy you anything.  You need chipset support for RAM remapping,
+> which doesn't exist on the servers mentioned.
 
+Ah, didn't realise you had a hardware problem as well ;-)
 
-Short answer:  don't.  Nvidia sucks -- they don't support open source at all.
+M.
 
-Longer answer:  You can probably get away with it if you make a good choice with
-a board.  Read up specifically on which boards work.
-
-My suggestion, based on experience:   Get a Shuttle AN35N and flash the bios 
-to the latest to fix the lockup bug.  It's a $40 board and comes with 5 PCI
-slots and 1 AGP.  No firewire or SATA, but if you want them you could now buy
-quality, supported PCI cards instead.  This motherboard can run vanilla 2.6.2, 
-with nforce IDE, sound and net.  The sound and net nforce drivers need some work
-done, so if you don't like how they run you still have lots of PCI slots.  It
-doesn't have built on video so you have an option here too.  And you should get 
-a good supported ATI card anyway if you want 3d.
-
-I use this board. It is stable, cheap, fast, and fully functional.  Though if I
-had a choice to buy a board again, it will not be nvidia.
-
-Jesse

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264487AbRFSRp4>; Tue, 19 Jun 2001 13:45:56 -0400
+	id <S264540AbRFSRq4>; Tue, 19 Jun 2001 13:46:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264540AbRFSRpq>; Tue, 19 Jun 2001 13:45:46 -0400
-Received: from marine.sonic.net ([208.201.224.37]:1361 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S264487AbRFSRpf>;
-	Tue, 19 Jun 2001 13:45:35 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 19 Jun 2001 10:45:23 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	id <S264549AbRFSRqk>; Tue, 19 Jun 2001 13:46:40 -0400
+Received: from vp226158.uac62.hknet.com ([202.71.226.158]:26381 "EHLO
+	main.coppice.org") by vger.kernel.org with ESMTP id <S264544AbRFSRq1>;
+	Tue, 19 Jun 2001 13:46:27 -0400
+Message-ID: <3B2F91A5.49C7219C@coppice.org>
+Date: Wed, 20 Jun 2001 01:53:41 +0800
+From: Steve Underwood <steveu@coppice.org>
+Organization: Me? Organised?
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-6.2.1 i686)
+X-Accept-Language: en, zh-TW
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
 Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010619104523.B6778@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+In-Reply-To: <20010619090956.R3089@work.bitmover.com> <20010619102037.A6778@thune.mrc-home.com> <20010619103712.W3089@work.bitmover.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010619103712.W3089@work.bitmover.com>
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 10:37:12AM -0700, Larry McVoy wrote:
+Larry McVoy wrote:
+> 
 > On Tue, Jun 19, 2001 at 10:20:37AM -0700, Mike Castle wrote:
-> > Also, I could never actually find the "too fat" quote anywhere.  
+> > On Tue, Jun 19, 2001 at 09:09:56AM -0700, Larry McVoy wrote:
+> > > Another one that I can't believe I forgot is from Rob Pike:
+> > >
+> > >     "If you think you need threads then your processes are too fat"
+> >
+> > Also, I could never actually find the "too fat" quote anywhere.
 > 
 > I can personally vouch for the too fat comment, I've heard him say it in
 > person.
 
-What about the "UNIX is starting to smell bad" comment?  :->
+How about "If you think you need threads, stop programming with closed
+sourced libraries where the documentation doesn't give you a clue how
+you might make things work within a state machine way"
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+Regards,
+Steve

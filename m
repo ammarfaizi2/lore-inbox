@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVCVFgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVCVFgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbVCVFgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 00:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbVCVFdx
+	id S262483AbVCVFgt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 00:36:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbVCVFeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 00:33:53 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:21889
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262472AbVCVFbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 00:31:21 -0500
-Date: Mon, 21 Mar 2005 21:29:55 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: tony.luck@intel.com, hugh@veritas.com, akpm@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-Message-Id: <20050321212955.6a0f2b61.davem@davemloft.net>
-In-Reply-To: <1111464894.5125.34.camel@npiggin-nld.site>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F03210DD4@scsmsx401.amr.corp.intel.com>
-	<20050321150205.4af39064.davem@davemloft.net>
-	<1111464894.5125.34.camel@npiggin-nld.site>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 22 Mar 2005 00:34:11 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:20203 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262387AbVCVFa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 00:30:56 -0500
+Subject: Re: kernel bug: futex_wait hang
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, Chris Morgan <cmorgan@alum.wpi.edu>,
+       paul@linuxaudiosystems.com, seto.hidetoshi@jp.fujitsu.com
+In-Reply-To: <20050321210802.14be70cc.akpm@osdl.org>
+References: <1111463950.3058.20.camel@mindpipe>
+	 <20050321202051.2796660e.akpm@osdl.org>
+	 <20050322044838.GB32432@mail.shareable.org>
+	 <20050321210802.14be70cc.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 22 Mar 2005 00:30:53 -0500
+Message-Id: <1111469453.3563.0.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005 15:14:54 +1100
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> Question, Dave: flush_tlb_pgtables after Hugh's patch is also
-> possibly not being called with enough range to cover all page
-> tables that have been freed.
+On Mon, 2005-03-21 at 21:08 -0800, Andrew Morton wrote:
+> Jamie Lokier <jamie@shareable.org> wrote:
+> > 
+> > The most recent messages under "Futex queue_me/get_user ordering",
+> > with a patch from Jakub Jelinek will fix this problem by changing the
+> > kernel.  Yes, you should apply Jakub's most recent patch, message-ID
+> > "<20050318165326.GB32746@devserv.devel.redhat.com>".
+> > 
+> > I have not tested the patch, but it looks convincing.
 > 
-> For example, you may have a single page (start,end) address range
-> to free, but if this is enclosed by a large enough (floor,ceiling)
-> then it may free an entire pgd entry.
+> OK, thanks.  Lee && Paul, that's at
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm1/broken-out/futex-queue_me-get_user-ordering-fix.patch
 > 
-> I assume the intention of the API would be to provide the full
-> pgd width in that case?
 
-It just wants the range of page tables liberated.  I guess
-essentially PMD_SIZE is the granularity.
+Does not fix the problem.
 
-Anyways, for the record I made it only call flush_tlb_pgtables()
-when end > start, but instead of that BUG() I now get the BUG()
-on mm->nr_ptes being non-zero at the end of exit_mmap().
+Lee
 
-Something is up with the floor/ceiling stuff methinks.
-
-It's funny since this code aparently works fine on ia64 which
-is fully 3-level too.  Hmm...

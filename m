@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266582AbUBMBq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 20:46:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUBMBq3
+	id S266675AbUBMByj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 20:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUBMByj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 20:46:29 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:14598 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S266582AbUBMBq2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 20:46:28 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: Jamie Lokier <jamie@shareable.org>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Date: Fri, 13 Feb 2004 02:46:25 +0100
-User-Agent: KMail/1.6.1
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-References: <20040209115852.GB877@schottelius.org> <200402130216.53434.robin.rosenberg.lists@dewire.com> <20040213012326.GA25499@mail.shareable.org>
-In-Reply-To: <20040213012326.GA25499@mail.shareable.org>
+	Thu, 12 Feb 2004 20:54:39 -0500
+Received: from CPE-65-28-18-238.kc.rr.com ([65.28.18.238]:36518 "EHLO
+	mail.2thebatcave.com") by vger.kernel.org with ESMTP
+	id S266675AbUBMByh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 20:54:37 -0500
+Message-ID: <52417.192.168.1.12.1076637281.squirrel@mail.2thebatcave.com>
+Date: Thu, 12 Feb 2004 19:54:41 -0600 (CST)
+Subject: getting usb mass storage to finish before running init?
+From: "Nick Bartos" <spam99@2thebatcave.com>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402130246.25005.robin.rosenberg.lists@dewire.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 February 2004 02.23, Jamie Lokier wrote:
-> Robin Rosenberg wrote:
-> > Is there a place to store character set information in these file systems?
-> 
-> Please don't confuse character set with character encoding.  The
-> problem we are talking about here is about character encoding.
-> Once upon a time the two were muddled; that's why MIME and HTTP use
-> "charset" to mean character encoding.
-I shall try not to mix them in the future. The reason for the name in MIME is
-probably because a (mime)charset does specify a character set (+encoding),
-while the mime-encoding only specifies raw bytes.
+Is there any way to get the kernel to finish initializing usb mass storage
+devices before running init?
 
-> And the answer is: yes, you can store it wherever you want :)
-I was thinking of the file system meta data so mount or the kernel or the fs could 
-handle it.
+I have a problem where I am trying to boot off usb, but the storage device
+is not detected when I am trying to do fsck and mount the flash device
+from my init scripts.
 
-> > Some apps simply don't think non-ascii is relevant. Xmms is one, although
-> > is doesn't crash at least. My guess was that it was a font problem since it
-> > looks like XMMS uses some special fonts.
-> 
-> It's not a font problem.  XMMS simply displays each byte as a separate
-> character because that's what it assumes it should do.  No font will fix that.
-I assumed a font problem because my machine is using ISO-8859-1 and 
-XMMS doesn't display tose non-ascii characters I use; of course it could be both.
+I can put a sleep in there but that is sloppy, and can not really be
+relied apon (since technically there is no way I can know how long the
+detection phase will take), and also I may be waisting time (which I don't
+want to, I want a fast booting router).
 
--- robin
+I cannot poll to wait for the device to exist in /proc/partitions or in
+/dev, since some routers will boot off ide and may not even have usb
+devices.
+
+I would like to hack the kernel to wait to run init until after the usb
+stuff is done (although I don't really know where to start, I don't know
+where the usb or init stuff is ran from), or find some clean & reliable
+way of detecting when it is done (even if it doesn't need to load usb).
+
+I was sort of hoping there was some little-known kernel option that may
+help me...
+
+Ideas?

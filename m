@@ -1,171 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281716AbRKQIE1>; Sat, 17 Nov 2001 03:04:27 -0500
+	id <S281734AbRKQIJF>; Sat, 17 Nov 2001 03:09:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281715AbRKQIER>; Sat, 17 Nov 2001 03:04:17 -0500
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:43256 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S281716AbRKQIEG>; Sat, 17 Nov 2001 03:04:06 -0500
-Date: Sat, 17 Nov 2001 03:06:11 -0500
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-Cc: undisclosed-recipients:;
-Subject: I/O tests using elvtune to improve interactive performance
-Message-ID: <20011117030611.A214@earthlink.net>
-In-Reply-To: <138.49c8e42.29247804@aol.com>
-Mime-Version: 1.0
+	id <S281725AbRKQIIz>; Sat, 17 Nov 2001 03:08:55 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:38135 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S281733AbRKQIIj>; Sat, 17 Nov 2001 03:08:39 -0500
+Message-ID: <3BF61AEB.2C186512@mvista.com>
+Date: Sat, 17 Nov 2001 00:08:11 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Kravetz <kravetz@us.ibm.com>
+CC: Davide Libenzi <davidel@xmailserver.org>, lse-tech@lists.sourceforge.net,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: Real Time Runqueue
+In-Reply-To: <20011116154701.G1152@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.40.0111161620050.998-100000@blue1.dev.mcafeelabs.com> <20011116163224.H1152@w-mikek2.des.beaverton.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <138.49c8e42.29247804@aol.com>; from Dohmcap4@aol.com on Wed, Nov 14, 2001 at 08:44:36PM -0500
-From: rwhron@earthlink.net
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel:	2.4.15-pre5
+Mike Kravetz wrote:
+> 
+> On Fri, Nov 16, 2001 at 04:28:33PM -0800, Davide Libenzi wrote:
+> > On Fri, 16 Nov 2001, Mike Kravetz wrote:
+> >
+> > > Suppose you have a 2 CPU system with 4 runnable tasks.  3 of these
+> > > tasks are realtime with the same realtime priority and the other is
+> > > an ordinary SCHED_OTHER task.  The task distribution on the runqueues
+> > > looks something like this.
+> > >
+> > > CPU 0             CPU 1
+> > > ---------         ---------
+> > > RT Task A         RT Task B
+> > > Other Task C      RT Task D
+> > >
+> > > Task A and Task B are currently running on the 2 CPUs.  Now, Task A
+> > > voluntarily gives up CPU 0 and Task B is still running on CPU 1.
+> > > At this point, Task D should be chosen to run on CPU 0.  Correct?
+> > > Isn't this a required RT semantic?  I'm curious how you plan on
+> > > accomplishing this.
+> >
+> > Well I don't know how RT sematics apply to SMP systems.
+> 
+> Me either (not exactly).
+> 
+> > The easy solution ( == big common lock ) would be to have a single RT
+> > queue that is checked before the private one.
+> > Anyway, sometime it happens that the cure is worst than the disease and to
+> > solve a corner case you're going to punish common case performances (
+> > Linux is not an RT OS even with that fix ).
+> 
+> The reason I ask is that we went through the pains of a separate
+> realtime RQ in our MQ scheduler.  And yes, it does hurt the common
+> case, not to mention the extra/complex code paths.  I was hoping
+> that someone in the know could enlighten us as to how RT semantics
+> apply to SMP systems.  If the semantics I suggest above are required,
+> then it implies support must be added to any possible future
+> scheduler implementations.
+> 
+For what its worth here is my $.02 worth.  A strict following of the
+standard seems to me to mean that in a N cpu system with M>N ready real
+time tasks, the N highest priority tasks should be allocated CPUs. 
+Remember that, for real time tasks, it is MORE important to run the
+highest priority tasks than to worry about thru put or performance
+(beyond getting to the highest priority task(s) ASAP).  I assume that
+this is what a user is saying when he declares a task "real time". 
 
-Test:	Run growfiles tests from Linux Test Project that really hurt
-	interactive performance.  Simultaneously run "ls -laR /".
-	Change the elevator read latency value with elvtune.
-	Also run mp3blaster tests.
+That said, the pragmatic view is that the customer is always right. 
+After all, he paid for the machine.  We have customers who want
+decidedly non "S" SMP.  There are some who want all real time tasks to
+run on one cpu and all other tasks to run on another.  There are also
+some who want a group of tasks (real time and otherwise) to always run
+on a particular cpu while other tasks (again real time and otherwise)
+run on other cpus.
 
+What I plan to do is to have a non-affined real-time ready list and an
+affined list.  I really think all the lists should be priority ordered
+with one per priority so when I say a non-affined ready list I mean one
+for each priority (see the rtsched on source forge, for example of a
+list per priority (URL in my signature)).  I am not yet sure if the
+affined list should have the option of being shared with more than one
+cpu, but as you note, there are performance problems with multiple lists
+so I only plan to have the cpu check at most two lists, the non-affined,
+and one affined list.  With this scheme it is possible to have a case
+where a ready real time task will not get an idle cpu, however, this
+should only happen if the task has affined it self to some other
+cpu(s).  By using priority order lists or a list per priority the
+overhead and lock contention can, IMHO, be managed.
 
-Summary:	Smaller values for the I/O elevator read latency
-		have a signficant positive impact on interactive 
-		performance; and throughput is as good or better
-		than default value of 8192.
-
-The idea for this came from Andrea Arcangeli's excellent doc at
-http://tux.u-strasbg.fr/jl3/features-2.3-1.html .  That page shows 
-that dbench throughput can be good with low values for read
-latency too.
-
-My initial tests were just to run growfiles and do commands that
-were slow to respond in the past.  Things like "ls -l", "login", 
-"ps aux", etc.  I didn't time these tests, but it was amazing what 
-a difference using elvtune to set read latency to 128 or 32 made.  
-Each growfiles test prints the number of iterations for a 120 second 
-interval, and I was happy to see that the number of iterations went 
-up while interactive performance was dramatically better.
-
-Of course, running ls -l in big directories isn't exactly scientific,
-so I tried to come up with something to measure interactive performance.
-
-For these tests, the ls -laR / is running at the same time as some
-growfiles tests.  I picked ls for a couple reasons:
-
-1) It's slow to respond when I/O is high.
-2) It's easy to measure and repeat.
-3) My disk has 5 partitions and lots of files spread on each partition,
-   which will require some seeking on the disk.
-
-ls -laR / is not ideal though; it isn't interactive.
-
-Total time for the 4 growfiles tests is 8 minutes (120 seconds per test).
-The ls command finished before the last growfiles test completed in
-each run.
-
-I rebooted between each of these tests.
-
-read_latency = 2
-----------------
-The ls was the slowest here, and none of the growfiles were the fastest.
-
-ls -laR / > /var/tmp/ls-laR2
-Elapsed (wall clock) time (h:mm:ss or m:ss): 7:40.52
-Percent of CPU this job got: 4%
-
-growfiles -b -e 1 -i 0 -L 120 -u -g 4090 -T 100 -t 408990 -l -C 10 -c 1000 -S 10 -f Lgf02_
-13969 iterations to 10 files. Hit time value of 120
-
-growfiles -b -e 1 -i 0 -L 120 -u -g 5000 -T 100 -t 499990 -l -C 10 -c 1000 -S 10 -f Lgf03_
-12252 iterations to 10 files. Hit time value of 120
-
-growfiles -b -e 1 -u -r 1-49600 -I r -u -i 0 -L 120 Lgfile1
-48352 iterations to 1 files. Hit time value of 120
-
-growfiles -b -e 1 -i 0 -L 120 -w -u -r 10-5000 -I r -T 10 -l -S 2 -f Lgf04_
-59807 iterations to 2 files. Hit time value of 120
-
-
-read_latency = 32
------------------
-This value had 3 of the best results for growfiles.  ls was 16% slower than
-the default read latency though.  Interative performance was great though.
-
-ls -laR / > /var/tmp/ls-laR32
-Elapsed (wall clock) time (h:mm:ss or m:ss): 5:08.23
-Percent of CPU this job got: 6%
-
-growfiles -b -e 1 -i 0 -L 120 -u -g 4090 -T 100 -t 408990 -l -C 10 -c 1000 -S 10 -f Lgf02_
-14181 iterations to 10 files. Hit time value of 120
-
-growfiles -b -e 1 -i 0 -L 120 -u -g 5000 -T 100 -t 499990 -l -C 10 -c 1000 -S 10 -f Lgf03_
-11691 iterations to 10 files. Hit time value of 120
-
-growfiles -b -e 1 -u -r 1-49600 -I r -u -i 0 -L 120 Lgfile1
-54768 iterations to 1 files. Hit time value of 120
-
-growfiles -b -e 1 -i 0 -L 120 -w -u -r 10-5000 -I r -T 10 -l -S 2 -f Lgf04_
-68342 iterations to 2 files. Hit time value of 120
-
-
-read_latency = 8192 (default)
--------------------
-ls -laR / > /var/tmp/ls-laR8192
-Elapsed (wall clock) time (h:mm:ss or m:ss): 4:26.13
-Percent of CPU this job got: 7%
-
-growfiles -b -e 1 -i 0 -L 120 -u -g 4090 -T 100 -t 408990 -l -C 10 -c 1000 -S 10 -f Lgf02_
-11085 iterations to 10 files. Hit time value of 120
-
-growfiles -b -e 1 -i 0 -L 120 -u -g 5000 -T 100 -t 499990 -l -C 10 -c 1000 -S 10 -f Lgf03_
-13797 iterations to 10 files. Hit time value of 120
-
-growfiles -b -e 1 -u -r 1-49600 -I r -u -i 0 -L 120 Lgfile1
-53198 iterations to 1 files. Hit time value of 120
-
-growfiles -b -e 1 -i 0 -L 120 -w -u -r 10-5000 -I r -T 10 -l -S 2 -f Lgf04_
-63542 iterations to 2 files. Hit time value of 120
-
-
-mtest01 and mmap001
--------------------
-
-I also ran the mtest01 and mmap001 tests playing mp3blaster with various
-elevator settings.  These are the same tests I've run before.  Below is just
-the total time for the test, and the percentage of time the mp3 played.
-
-read_latency = 16 was best here.  Test was fastest and had the highest
-mp3 playtime.
-
-read_latency = 2
-mtest01 - mp3 played 280 seconds of 316 second run.  (88%)
-mmap001 not run because changing elvtune didn't seem to affect this test.
-
-read_latency = 16
-mtest01 - mp3 played 280 seconds of 309 second run.  (91%)
-mmap001 - mp3 played 908 seconds of 908 second run.
-
-read_latency = 64
-mtest01 - mp3 played 280 seconds of 309 second run.  (80%)
-mmap001 - mp3 played 908 seconds of 908 second run.
-
-read_latency = 8192
-mtest01 - mp3 played 262 seconds of 314 second run.  (83%)
-mmap001 - mp3 played 901 seconds of 901 second run.
-
-
-Hardware
---------
-Athlon 1333
-512 Mb RAM
-(1) 40 Gb IDE hard drive with 5 partitions 
-
-
-It's exciting to see Linux have good interactive performance under heavy
-disk load.  
-
-Have fun!
+A couple of addition points.  There should be an API to declare cpu
+affinity, and cpu affinity should be passed thru fork and exec.  You may
+need to be god (root) to use the API however.  (I think cpu affinity is
+currently passed thru fork and exec, by the way.)
 -- 
-Randy Hron
-
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265747AbSKAVNU>; Fri, 1 Nov 2002 16:13:20 -0500
+	id <S265748AbSKAVNw>; Fri, 1 Nov 2002 16:13:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265748AbSKAVNT>; Fri, 1 Nov 2002 16:13:19 -0500
-Received: from mamona.cetuc.puc-rio.br ([139.82.74.4]:52365 "EHLO
-	mamona.cetuc.puc-rio.br") by vger.kernel.org with ESMTP
-	id <S265747AbSKAVNT>; Fri, 1 Nov 2002 16:13:19 -0500
-Subject: [PATCH] 2.5.45 [TRIVIAL]: Cosmetic ide-cd error message printk
-	format
-From: Marcelo Roberto Jimenez <mroberto@cetuc.puc-rio.br>
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 01 Nov 2002 18:19:34 -0200
-Message-Id: <1036181975.2036.13.camel@genipapo>
-Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S265752AbSKAVNw>; Fri, 1 Nov 2002 16:13:52 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:35968 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265748AbSKAVNu>; Fri, 1 Nov 2002 16:13:50 -0500
+Date: Fri, 1 Nov 2002 16:21:54 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Early Christmas
+Message-ID: <Pine.LNX.3.95.1021101162027.2580A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is just part one, once I got the message. Now have I to 
-figure out WHY I got this message :-)
+     Let me get this out before Christmas (with apologies
+     for being off-topic)
 
-Regards,
+     T`Was the night before payday and all through the house,
+         Not a computer was working as I clicked the mouse;
+     The screen turned blue and out slewed some text,
+         Showing register dumps and addresses in hex;
+     The disk-light was glowing and loud were the sounds,
+         Of whip-lashing disk-seeks way out-of-bounds;
+     Then quick as a wink the screen started to flash,
+         Upon each new re-boot the system would crash;
+     I reached for the Windows CD/ROM to install,
+         The system again, from scratch all, and all;
+     I worked several hours trying to make,
+         The new Windows Operating System to take;
+     It would never complete the booting sequence,
+         Nothing I did, made any sense;
+     Then what to my wondering eyes should appear,
+         But a Linux machine to which I'd grown dear;
+     I connected the disk from the Windows box broken,
+         Into the Linux machine as a token;
+     And deleted that corrupt Windows partition,
+         So another install would allow recognition;
+     Then back to the Windows machine I did all,
+        The Windows partition completed install;
+     And recover all data, programs, and curia,
+         From my quietly running Linux server.
+     -- Richard B. Johnson --
+ 
 
-Marcelo.
-
-diff -Nru a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
---- a/drivers/ide/ide-cd.c	Fri Nov  1 18:02:36 2002
-+++ b/drivers/ide/ide-cd.c	Fri Nov  1 18:02:36 2002
-@@ -1462,7 +1462,7 @@
- 	} else {
- confused:
- 		printk ("%s: cdrom_pc_intr: The drive "
--			"appears confused (ireason = 0x%2x)\n",
-+			"appears confused (ireason = 0x%02x)\n",
- 			drive->name, ireason);
- 		rq->flags |= REQ_FAILED;
- 	}
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
 
 

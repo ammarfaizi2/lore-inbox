@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVBZXSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVBZXZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbVBZXSe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 18:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVBZXSe
+	id S261294AbVBZXZO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 18:25:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVBZXZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 18:18:34 -0500
-Received: from smtpout3.uol.com.br ([200.221.4.194]:18915 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261295AbVBZXSa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 18:18:30 -0500
-Date: Sat, 26 Feb 2005 20:18:28 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Brian Kuschak <bkuschak@yahoo.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.6.11-rc4 libata-core (irq 30: nobody cared!)
-Message-ID: <20050226231828.GB4010@ime.usp.br>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Brian Kuschak <bkuschak@yahoo.com>, linux-kernel@vger.kernel.org,
-	linux-ide@vger.kernel.org
-References: <20050224015859.55191.qmail@web40910.mail.yahoo.com> <421D3D33.9060707@pobox.com> <20050226193255.GA6256@ime.usp.br> <4220D9DE.10904@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4220D9DE.10904@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 26 Feb 2005 18:25:14 -0500
+Received: from elektron.ikp.physik.tu-darmstadt.de ([130.83.24.72]:36617 "EHLO
+	elektron.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
+	id S261294AbVBZXZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 18:25:06 -0500
+From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16929.1350.119511.746325@hertz.ikp.physik.tu-darmstadt.de>
+Date: Sun, 27 Feb 2005 00:24:54 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] partitions/msdos.c
+In-Reply-To: <Pine.LNX.4.58.0502261433431.25732@ppc970.osdl.org>
+References: <20050226213459.GA21137@apps.cwi.nl>
+	<16928.62091.346922.744462@hertz.ikp.physik.tu-darmstadt.de>
+	<Pine.LNX.4.58.0502261424430.25732@ppc970.osdl.org>
+	<Pine.LNX.4.58.0502261433431.25732@ppc970.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of all, thank you very much for your reply, Jeff.
+>>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
 
-On Feb 26 2005, Jeff Garzik wrote:
-> "irq XX: nobody cared" is a screaming interrupt situation, which could
-> have 1001 causes.
+    Linus> On Sat, 26 Feb 2005, Linus Torvalds wrote:
+    >>  Would it not make more sense to just sanity-check the size itself,
+    >> and throw it out if the partition size (plus start) is bigger than
+    >> the disk size?
 
-Ok, I didn't know that.
+    Linus> Something like this (TOTALLY UNTESTED AS USUAL!)?
 
-> Normally it's something that "pci=biosirq" or "acpi=off" will fix, but 
-> on occasion the driver itself is what needs fixing.
+Yes, no phantom partitions also with your approach.
 
-Well, I already tried both of those options (and some others too) and
-nothing seems to make my kernel quiet regarding my Promise controller (just
-as a reminder, it is a PDC20265, embedded in my Asus A7V motherboard).
+    Linus> What does fdisk and other tools do on that disk? Just out of
+    Linus> interest..
 
-If you want me to test any patches, feel free to contact me.
+To be honest:
+r50:~ # fdisk /dev/sda
 
+Command (m for help): p
 
-Thanks, Rogério Brito.
+Disk /dev/sda: 65 MB, 65536000 bytes
+17 heads, 33 sectors/track, 228 cylinders
+Units = cylinders of 561 * 512 = 287232 bytes
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1               1         229       63981+   6  FAT16
+Partition 1 has different physical/logical beginnings (non-Linux?):
+     phys=(0, 1, 1) logical=(0, 1, 5)
+Partition 1 has different physical/logical endings:
+     phys=(125, 16, 33) logical=(228, 2, 26)
+/dev/sda4         3512348     6003585   698791990+   0  Empty
+Partition 4 has different physical/logical beginnings (non-Linux?):
+     phys=(0, 0, 0) logical=(3512347, 6, 16)
+Partition 4 has different physical/logical endings:
+     phys=(0, 0, 0) logical=(6003584, 7, 6)
+Partition 4 does not end on cylinder boundary.
+
 
 -- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
+
+Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
+--------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------

@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268324AbTCCE1B>; Sun, 2 Mar 2003 23:27:01 -0500
+	id <S268341AbTCCEei>; Sun, 2 Mar 2003 23:34:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268328AbTCCE1B>; Sun, 2 Mar 2003 23:27:01 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:1734
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268324AbTCCE1A>; Sun, 2 Mar 2003 23:27:00 -0500
-Date: Sun, 2 Mar 2003 23:35:27 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5][CHECKER] rtc locking
-In-Reply-To: <20030303042725.GN1195@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0303022333200.25240-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303022317390.25240-100000@montezuma.mastecende.com>
- <20030303042725.GN1195@holomorphy.com>
+	id <S268343AbTCCEeh>; Sun, 2 Mar 2003 23:34:37 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:24455 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S268341AbTCCEec>; Sun, 2 Mar 2003 23:34:32 -0500
+Date: Sun, 2 Mar 2003 22:44:57 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Michael Buesch <freesoftwaredeveloper@web.de>
+cc: linux-kernel@vger.kernel.org, <kai@germaschewski.name>
+Subject: Re: [PATCH] compiletime-fix in isdn_ppp
+In-Reply-To: <200303021531.33678.freesoftwaredeveloper@web.de>
+Message-ID: <Pine.LNX.4.44.0303022244310.23884-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Mar 2003, William Lee Irwin III wrote:
+On Sun, 2 Mar 2003, Michael Buesch wrote:
 
-> On Sun, Mar 02, 2003 at 11:19:57PM -0500, Zwane Mwaikambo wrote:
-> > Index: linux-2.5.62-numaq/drivers/char/rtc.c
-> [... good patch]
-> 
-> Do you think some kind of API safety (e.g. removing *_lock_irq() in
-> favor of *_lock_irqsave()) would be worthwhile for catching these kinds
-> of errors?
+> Without this patch linux-2.5.63 vanilla didn't compile.
+> I don't know, if I have introduced a problem with this patch, but for me it 
+> compiles now. :)
 
-I think it may be worth checking *_lock_irq users period, however iirc 
-there is a speed argument wrt using _lock_irq since we don't save flags.
+Looks good, a similar patch is in my tree, too...
 
-	Zwane
--- 
-function.linuxpower.ca
+--Kai
+
+

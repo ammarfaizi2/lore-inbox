@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136525AbREIPGV>; Wed, 9 May 2001 11:06:21 -0400
+	id <S136526AbREIPJb>; Wed, 9 May 2001 11:09:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136526AbREIPGL>; Wed, 9 May 2001 11:06:11 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:9105 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S136525AbREIPGB>; Wed, 9 May 2001 11:06:01 -0400
-Message-ID: <3AF95D90.E294A800@kegel.com>
-Date: Wed, 09 May 2001 08:09:04 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: redhat-devel-list@redhat.com
-CC: linux-kernel@vger.kernel.org
+	id <S136534AbREIPJV>; Wed, 9 May 2001 11:09:21 -0400
+Received: from t2.redhat.com ([199.183.24.243]:1271 "HELO mail.redhat.de")
+	by vger.kernel.org with SMTP id <S136526AbREIPJO>;
+	Wed, 9 May 2001 11:09:14 -0400
+Date: Wed, 9 May 2001 17:09:11 +0200 (CEST)
+From: Bernhard Rosenkraenzer <bero@redhat.de>
+To: <redhat-devel-list@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: bug in redhat gcc 2.96
-In-Reply-To: <E14xPli-0001qP-00@the-village.bc.nu> <Pine.LNX.4.33.0105091058480.31224-100000@svea.tellus> <017iftsqpdb9j59cs5vn95mhp8mk59kgjm@4ax.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3AF95D90.E294A800@kegel.com>
+Message-ID: <Pine.LNX.4.33.0105091708310.27871-100000@bochum.redhat.de>
+X-Spam-From: abuse@localhost
+X-Spam-To: uce@ftc.gov
+X-Subliminal-Message: Microsoft sucks! Update your system to Linux today!
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Hoffmeister wrote:
-> >Since there is no kgcc in RH71,
-> 
-> There is an compat-egcs RPM (on CD2?) that contains kgcc. Took me a while
-> to find that.
+On Wed, 9 May 2001, Dan Kegel wrote:
 
-OH.  I kept looking for a package called 'kgcc'.  Silly me.
+> OH.  I kept looking for a package called 'kgcc'.  Silly me.
+>
+> Guess it's time for a "How to compile a kernel on Red Hat 7.1" FAQ.
 
-Guess it's time for a "How to compile a kernel on Red Hat 7.1" FAQ.
-- Dan
+The answer is that you can safely use gcc 2.96. No need to install kgcc or
+any other old compiler.
+
+LLaP
+bero
+
+

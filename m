@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318918AbSHEUXH>; Mon, 5 Aug 2002 16:23:07 -0400
+	id <S319007AbSHEU2P>; Mon, 5 Aug 2002 16:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318921AbSHEUXH>; Mon, 5 Aug 2002 16:23:07 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:22772 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318918AbSHEUXG>; Mon, 5 Aug 2002 16:23:06 -0400
-Subject: Re: i810 sound broken...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
-Cc: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1028578861.1894.15.camel@voyager>
-References: <200208051127.g75BRgX27554@eday-fe5.tele2.ee> 
-	<1028552057.18130.6.camel@irongate.swansea.linux.org.uk> 
-	<1028578861.1894.15.camel@voyager>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 05 Aug 2002 22:44:59 +0100
-Message-Id: <1028583899.18156.86.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319008AbSHEU2P>; Mon, 5 Aug 2002 16:28:15 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:63750 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S319005AbSHEU2N>;
+	Mon, 5 Aug 2002 16:28:13 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Andre Hedrick <andre@linux-ide.org>
+Date: Mon, 5 Aug 2002 22:31:20 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] IDE udma_status = 0x76 and 2.5.30...
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <12CB5AF43EE@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-05 at 21:21, Juergen Sawinski wrote:
-> On my Intel D845GBV board (obviously ICH4) none of 2.4 nor alsa works.
-> It's a production box, so I hestitate to try 2.5.
+On  5 Aug 02 at 13:08, Andre Hedrick wrote:
+> Bit 7: Simplex RO
+> Bit 6: Device 1 DMA Capable RW
+> Bit 5: Device 0 DMA Capable RW
+> Bit 4: Reserved "MUST RETURN ZERO ON READS" !!!     Vendor Write
+> Bit 3: Reserved "MUST RETURN ZERO ON READS" !!!     Vendor Write
+> Bit 2: Bus Master Interrupt STATUS R Clear W
+> Bit 1: Bus Master Error     STATUS R Clear W
+> Bit 0: Bus Master Active    STATUS
+> 
+> Vendor Write, is not a published or listed techincal term.
+> It is me trying to present this clearly enough so that the masses will see
+> how poorly the general understanding of the basics in 2.5.
 
-2.5 is older audio code than 2.4.19-ac
+If you'll bother with reading code, you'll find that dma status
+is reported after:
 
-If your audio isnt working then a good starting point is to grab the
-2.4.19-ac1 i810_audio (you can drop those files into 2.4.19 vanilla
-fine)
+(dma_stat & 7) != 4 ? (0x10 | dma_stat) : 0;
 
-1.	Does the mixer work, can you play a CD, control the volume etc ?
+Because of same code is used in your 2.4.x ide-dma.c (at least in
+2.4.19-rc5), I'm really happy that now I know that you are really 
+familiar with your code.
 
-If so that means we have an active codec and the AC97 bus is running
+Code ORs read value with 0x10 to make sure that it reports non-zero
+value when error happens (when chip returs dma_stat == 0x00). And 0x10 
+was choosen because of this bit should be always zero, as you know.
 
-2.	Do you get regular interrupts doing "yes oink >/dev/audio"
-
-This is a good clue to whether the bus master engine is running. If it
-is we should be getting regular interrupts (and if the audio works a
-nasty squeak)
-
-3.	Does the audio speed test report about 48Khz (expected except on some
-Dell laptops)
-
+Maybe we should print value after ANDing with 0xEF, but why? Everybody
+can read code when in doubt.
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130618AbRC0RvR>; Tue, 27 Mar 2001 12:51:17 -0500
+	id <S131461AbRC0SDS>; Tue, 27 Mar 2001 13:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131151AbRC0RvI>; Tue, 27 Mar 2001 12:51:08 -0500
-Received: from d83b5259.dsl.flashcom.net ([216.59.82.89]:11394 "EHLO
-	home.lameter.com") by vger.kernel.org with ESMTP id <S130618AbRC0RvB>;
-	Tue, 27 Mar 2001 12:51:01 -0500
-Date: Tue, 27 Mar 2001 09:50:17 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-To: Chris Mason <mason@suse.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS phenomenon with 2.4.2 ac24/ac12
-In-Reply-To: <284560000.985712917@tiny>
-Message-ID: <Pine.LNX.4.21.0103270948180.6964-100000@home.lameter.com>
+	id <S131466AbRC0SC6>; Tue, 27 Mar 2001 13:02:58 -0500
+Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:17169 "HELO
+	sh0n.net") by vger.kernel.org with SMTP id <S131461AbRC0SCt>;
+	Tue, 27 Mar 2001 13:02:49 -0500
+Date: Tue, 27 Mar 2001 13:02:26 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: James Lewis Nance <jlnance@intrex.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel QA
+In-Reply-To: <20010327085142.A982@bessie.dyndns.org>
+Message-ID: <Pine.LNX.4.30.0103271301020.2551-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Mar 2001, Chris Mason wrote:
-> On Tuesday, March 27, 2001 08:21:07 AM -0800 Christoph Lameter
-> <christoph@lameter.com> wrote:
-> 
-> >  
-> > <-------------debugreiserfs, 2000------------->
-> > reiserfsprogs 3.x.0h
-> > 9454 is free in true bitmap
-> >  
-> > ===================================================================
-> > LEAF NODE (9454) contains level=1, nr_items=11, free_space=16 rdkey
-> > -------------------------------------------------------------------------
-> > ------ |  3|1928 5204 0x0 SD, len 44, entry count 65535, fsck need 0,
-> > format new| (NEW SD), mode d---------, size 96, nlink 2, mtime 03/23/2001
-> > 20:49:37
-> > -------------------------------------------------------------------------
-> > ------ |  4|1928 5204 0x1 DIR, len 184, entry count 5, fsck need 0,
-> > format old| ###: Name                     length    Object key
-> > Hash     Gen number
-> >   0: ".                        "(  1)   1928           5204           0
-> > 1, loc b0,  state 4 ()
-> >   1: "..                       "(  2)      1              2           0
-> > 2, loc a8,  state 4 ()
-> >   2: "cache3A0F94EA0A00557.html"( 25)   5204           5334  1942043776
-> > 0, loc 88,  state 4 ()
-> >   3: "cache3A0F94EA0A00557.html"( -6) 263760           5334        5248
-> > 86, loc 88,  state 4 (BROKEN)
-> >   4: "cache3A8CCC6A0490B05.gifcache393C2B6A2CD2DF1.crumb"( 50) 263760
-> > 64136        5248   86, loc 50,  state 4 (BROKEN)
-> 
-> Ok, notice how entry 2 and 3 are the same file name?  That is a big part of
-> your problem, and it should never happen with the normal kernel code.  The
-> two lines that show up as (BROKEN) mean their hash values are incorrect.
-> 
-> So, were there errors present before you ran reiserfsck -x?  Had you run
-> any version of reiserfsck (with -x or --rebuild-tree) before that?
 
-The problems were present before I ran reiserfsck. I never ran
---rebuild-tree
+I disagree, 2.4.x is "stable" and as such we need as many people to use
+the kernels to see whats wrong with them. 2.4  *DOES* Work, I've had very
+small problems (ok, the thread hanging issue was a big one) but other then
+that It's been solid.
 
-> I'm guessing these problems were caused by reiserfsck, things caused by
-> kernel bug would tend towards much more random errors.  The solution will
-> probably be an upgrade to the latest fsck version, but I'd like to make
-> sure we've got the problem nailed down.
+It depends on the hardware.
 
-I think this is a problem with the reiserfs code in the kernel. I never
-ran reiserfsck before this problem surfaced. The problem arose in the
-netscape cache directory with lots of small files. Guess the tail handling
-is not that stable yet?
+Shawn.
 
-How do I get rid of the /a/yy directory now?
+On Tue, 27 Mar 2001, James Lewis Nance wrote:
 
+> On Tue, Mar 27, 2001 at 12:13:32AM -0800, David Konerding wrote:
+>
+> > No, the point is that the linux developers should regression test their
+> > code BEFORE
+> > releasing it to the public as a version like "2.4.2".  When I see a
+> > version like "2.4.2", I have an expectation that all the stupid little
+> > problems (like mounting loopback filesystem) have already been found.
+>
+> You bring up a good point.  We call the even branches the stable branches
+> and we do other things that promote the idea that people should be able to
+> download a 2.even.X kernel, install it on their machine, and expect it to
+> work.  I think we need to back away from this idea.  It seems to me that
+> the real (perhaps not the intended) function of kernel releases is keeping
+> kernel developers in sync.  Promoting the idea that they are thought to be
+> suitable for production use just gets us in trouble.
+>
+> Instead I think we need to encourage people who want to use Linux,
+> rather than develop it, to use kernels from a distribution.  After all,
+> the distributors put a lot of effort into doing QA and putting together a
+> compatable system, we should leverage that.  We need to ensure that people
+> know that when they install the latest kernel from Linus, they are the QA.
+>
+> Please note that I am not trying to say that we should not try and
+> make the kernels we release as good as possible.  It certainly makes
+> things a lot better for everyone if bugs dont get introduced by new
+> kernel versions.  I do think we need to be more explicit about exactly
+> what people should and should not be able to expect from a "Linus kernel".
+>
+> Thanks,
+>
+> Jim
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 

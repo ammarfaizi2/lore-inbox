@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSEaAcW>; Thu, 30 May 2002 20:32:22 -0400
+	id <S313087AbSEaAgW>; Thu, 30 May 2002 20:36:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313125AbSEaAcV>; Thu, 30 May 2002 20:32:21 -0400
-Received: from bitmover.com ([192.132.92.2]:9117 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S312973AbSEaAcU>;
-	Thu, 30 May 2002 20:32:20 -0400
-Date: Thu, 30 May 2002 17:32:19 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Ion Badulescu <ionut@cs.columbia.edu>, Keith Owens <kaos@ocs.com.au>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: KBuild 2.5 Impressions
-Message-ID: <20020530173219.X30298@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Ion Badulescu <ionut@cs.columbia.edu>,
-	Keith Owens <kaos@ocs.com.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E17DZCa-0007hI-00@starship> <Pine.LNX.4.44.0205301704550.23527-100000@dlang.diginsite.com>
+	id <S313125AbSEaAgV>; Thu, 30 May 2002 20:36:21 -0400
+Received: from jalon.able.es ([212.97.163.2]:2760 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S313087AbSEaAgV>;
+	Thu, 30 May 2002 20:36:21 -0400
+Date: Fri, 31 May 2002 02:36:15 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Dave Jones <davej@suse.de>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "J.A. Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86 cpu selection (first hack)
+Message-ID: <20020531003615.GA13206@werewolf.able.es>
+In-Reply-To: <20020530225015.GA1829@werewolf.able.es> <3CF6B3AD.6010106@mandrakesoft.com> <20020531014224.C9282@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 30, 2002 at 05:09:16PM -0700, David Lang wrote:
-> don't forget that the kbuild2.5 patch was a lot smaller before keith was
-> told to "go away and don't bother anyone until the speed problem is fixed"
-> a large part of the fix was to use the mmapped db stuff that Larry McVoy
-> made available instead of useing the standard db libraries on the system.
 
-wc mdbm.c 
-   1404    4736   32921 mdbm.c
+On 2002.05.31 Dave Jones wrote:
+>On Thu, May 30, 2002 at 07:20:13PM -0400, Jeff Garzik wrote:
+>
+> > wonder if making the CPU features selectable is useful? i.e. provide an 
+> > actual config option for MMX memcpy, F00F bug, WP, etc. Normal (current) 
+> > logic is to look at the cpu selected, and deduce these options.
+>
+>J.A's comment that most people compiling kernels shouldn't need to know
+>what bugs their CPU has before they pick it is a good one imo[1]
+>
+>Also an explosion of CONFIG_ items where they can be sanely derived
+>from others doesn't make much sense imo.
+>
 
-Just for the record.  MDBM certainly has limitations, but being too many lines
-of code is not one of them.  And it provides ndbm/dbm compat interfaces so
-you can pull it out and drop in something else if you like.
+As I see it, kernel will only see a CONFIG_CPU_[3456]86 and a bunch
+of CONFIG_X86-{foof,ppro-fence,mmx, etc}. The others will only be used
+in CPUConfig.in to derive the visible ones.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre9-jam1 #1 SMP jue may 30 00:48:49 CEST 2002 i686

@@ -1,48 +1,210 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292882AbSB0SfU>; Wed, 27 Feb 2002 13:35:20 -0500
+	id <S292837AbSB0Sia>; Wed, 27 Feb 2002 13:38:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292879AbSB0SfP>; Wed, 27 Feb 2002 13:35:15 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:55774 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292882AbSB0Ser>; Wed, 27 Feb 2002 13:34:47 -0500
-Date: Wed, 27 Feb 2002 10:34:36 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org
-cc: lse-tech@lists.sourceforge.net, viro@math.psu.edu
-Subject: Re: [Lse-tech] lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
-Message-ID: <67850000.1014834875@flay>
-In-Reply-To: <10460000.1014833979@w-hlinder.des>
-In-Reply-To: <10460000.1014833979@w-hlinder.des>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S292885AbSB0SiO>; Wed, 27 Feb 2002 13:38:14 -0500
+Received: from erasmus.off.net ([64.39.30.25]:261 "EHLO erasmus.off.net")
+	by vger.kernel.org with ESMTP id <S292883AbSB0Shz>;
+	Wed, 27 Feb 2002 13:37:55 -0500
+Date: Wed, 27 Feb 2002 13:37:55 -0500
+From: Zach Brown <zab@zabbo.net>
+To: linux-kernel@vger.kernel.org
+Cc: Jes Sorensen <jes@trained-monkey.org>
+Subject: Re: [BETA] First test release of Tigon3 driver
+Message-ID: <20020227133755.H30524@erasmus.off.net>
+In-Reply-To: <20020227125611.A20415@stud.ntnu.no> <20020227.040653.58455636.davem@redhat.com> <20020227132454.B24996@stud.ntnu.no> <20020227.042845.54186884.davem@redhat.com> <20020227.042845.54186884.davem@redhat.com>; <20020227170321.B22422@stud.ntnu.no> <3C7D0510.2C300D12@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C7D0510.2C300D12@redhat.com>; from arjanv@redhat.com on Wed, Feb 27, 2002 at 04:10:56PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.5.5: 
+> > Any programs or anything that could do a serious stresstest?  (Both hosts
+> > are Dell PowerEdge 2550, RedHat Linux 7.2).
 > 
->        8.6%  1.6us( 100ms)   30us(  86ms)( 9.4%) 783373441 91.4%  8.6% 0.00%  *TOTAL*
+> google for nttcp
+> runs a nice tcp performance test...
 
-Whilst it's great to see BKL contention going down, this:
+I dig on gensink:
 
-0.16% 0.25%  0.7us( 100ms)  252us(  86ms)(0.02%)   6077746 99.8% 0.25%    0%  inode_lock
- 0.03% 0.11%  0.6us(  55us)  2.1us( 9.9us)(0.00%)   1322338 99.9% 0.11%    0%    __mark_inode_dirty+0x48
- 0.00%    0%  0.7us( 5.9us)    0us                      391  100%    0%    0%    get_new_inode+0x28
- 0.00% 0.22%  2.5us(  50us)  495us(  28ms)(0.00%)     50397 99.8% 0.22%    0%    iget4+0x3c
- 0.03% 0.28%  0.6us(  26us)   30us(  58ms)(0.00%)   1322080 99.7% 0.28%    0%    insert_inode_hash+0x44
- 0.04% 0.29%  0.5us(  39us)  332us(  86ms)(0.01%)   2059365 99.7% 0.29%    0%    iput+0x68
- 0.03% 0.30%  0.7us(  57us)  422us(  77ms)(0.01%)   1323036 99.7% 0.30%    0%    new_inode+0x1c
- 0.03%  8.3%   63ms( 100ms)  3.8us( 3.8us)(0.00%)        12 91.7%  8.3%    0%    prune_icache+0x1c
- 0.00%    0%  1.0us( 5.2us)    0us                       34  100%    0%    0%    sync_unlocked_inodes+0x10
- 0.00%    0%  1.0us( 2.4us)    0us                       93  100%    0%    0%    sync_unlocked_inodes+0x110
+	http://jes.home.cern.ch/jes/gensink/
 
-looks a little distressing - the hold times on inode_lock by prune_icache 
-look bad in terms of latency (contention is still low, but people are still 
-waiting on it for a very long time). Is this a transient thing, or do people 
-think this is going to be a problem?
+the attached hack gives it the ability to tx with sendfile() from a
+ftruncate()ed tmpfile based on the presence of a 5th argument, which can
+be fun with scatter/csum capable cards.  I've put up some rpms for the
+lazy:
 
-Martin.
+	http://www.zabbo.net/rpms/gensink/
 
+5aa66dfd7749c77cb58de22fad96de  gensink-4.1-1sendfile.i386.rpm
+04912a63bda95a79b6b835f340c924c2  gensink-4.1-1sendfile.src.rpm
+
+enjoy.
+
+- z
+
+diff -urN gensink-4.1.orig/gen4.c gensink-4.1/gen4.c
+--- gensink-4.1.orig/gen4.c	Wed May 16 10:08:01 2001
++++ gensink-4.1/gen4.c	Wed Feb 27 10:24:27 2002
+@@ -48,20 +48,101 @@
+ 
+ #include <sys/ioctl.h>
+ 
++#include <sys/sendfile.h>
++
++void sendfile_loop(int s, int rec_len)
++{
++	char *tmpdir_default = "/tmp";
++	char template[PATH_MAX];
++	char *tmpdir;
++	int fd;
++	int i;
++	ssize_t bytes_written;
++	off_t offset;
++
++	tmpdir = getenv("TMPDIR");
++	if ( tmpdir == NULL )
++		tmpdir = tmpdir_default;
++
++	snprintf(template, PATH_MAX, "%s/XXXXXX", tmpdir);
++
++	fd = mkstemp(template);
++	if ( fd < 0 ) {
++		perror("couldn't mkstemp() sendfile() backing file");
++		exit(-1);
++	}
++
++	unlink(template);
++
++	if ( ftruncate(fd, RECORD_BUFFER_SIZE + rec_len) < 0 ) {
++		perror("frunctate() backing file");
++		exit(-1);
++	}
++
++	offset = 0;
++
++	for (i = 1; i < 4000000; i++)
++	{
++		/* loop writing blocks */
++		if ((bytes_written = sendfile(s,fd,&offset,rec_len)) < 0) 
++			oops("write");
++		if ((bytes = bytes + bytes_written) >= REPORT_FREQ) 
++		{
++			report(1, "source", bytes);
++			bytes = 0;
++		}
++
++		if ( offset >= RECORD_BUFFER_SIZE )
++			offset = 0;
++	}
++
++	close(fd);
++}
++
++void write_loop(int s, int rec_len)
++{
++	char *record_buffer, *orig_record_ptr;
++	int i, bytes_written;
++
++	record_buffer = (char *)malloc(RECORD_BUFFER_SIZE + rec_len);
++	if (!record_buffer) {
++		fprintf(stderr, "Unable to allocate memory for transmit buffer\n");
++		exit(-1);
++	}
++
++	orig_record_ptr = record_buffer;
++	memset(record_buffer, 0, RECORD_BUFFER_SIZE);
++
++	for (i = 1; i < 4000000; i++)
++	{
++		/* loop writing blocks */
++		if ((bytes_written = write(s,record_buffer,rec_len)) < 0) 
++			oops("write");
++		if ((bytes = bytes + bytes_written) >= REPORT_FREQ) 
++		{
++			report(1, "source", bytes);
++			bytes = 0;
++		}
++		record_buffer += rec_len;
++		if ((unsigned long)record_buffer > (unsigned long)(orig_record_ptr + RECORD_BUFFER_SIZE))
++			record_buffer = orig_record_ptr;
++	}
++	free(orig_record_ptr);
++}
++
+ int main(argc, argv)
+ int argc; 
+ char *argv[];
+ {
+ 	struct sockaddr_in saddr;
+-	char *record_buffer, *orig_record_ptr;
+ 	char reptext[256], *hostname;
+-	int portnum, rec_len, bytes_written;
+-	int i;
++	int portnum, rec_len;
++	int use_sendfile = 0;
+ 
+ 	/* check argument count */
+-	if(argc != 5) 
++	if(argc < 5 || argc > 6)
+ 	{
+-		fprintf(stderr,"Usage: %s server_host server_port record_length setsockopt\n", argv[0]);
++		fprintf(stderr, "Usage: %s server_host server_port record_length setsockopt [use_sendfile_boolean]\n", argv[0]);
+ 		exit(-1);
+ 	}
+ 
+@@ -73,16 +154,11 @@
+ 		exit(-1);
+ 	}
+ 
+-	record_buffer = (char *)malloc(RECORD_BUFFER_SIZE + rec_len);
+-	if (!record_buffer) {
+-		fprintf(stderr, "Unable to allocate memory for transmit buffer\n");
+-		exit(-1);
+-	}
+-	orig_record_ptr = record_buffer;
+-	memset(record_buffer, 0, RECORD_BUFFER_SIZE);
+-
+ 	max = atoi(argv[4]);
+ 
++	if ( argc == 6 ) 
++		use_sendfile = atoi(argv[5]);
++
+ 	strcpy(reptext,"");
+ 	/* get the record length */
+ 	strncat(reptext, " reclen=", 255 - strlen(reptext));
+@@ -122,24 +198,17 @@
+   
+ 	printf("Max seg TCP : %d\n",maxseg);
+ 
++	printf("sending with %s\n", 
++		use_sendfile ? "sendfile(2)" : "write(2)");
++
+ 	/* initialise reporting */
+ 	report_start(reptext,1,0,1,argv);
+ 	report(1, "source", 0); 
+ 
+-	for (i = 1; i < 4000000; i++)
+-	{
+-		/* loop writing blocks */
+-		if ((bytes_written = write(s,record_buffer,rec_len)) < 0) 
+-			oops("write");
+-		if ((bytes = bytes + bytes_written) >= REPORT_FREQ) 
+-		{
+-			report(1, "source", bytes);
+-			bytes = 0;
+-		}
+-		record_buffer += rec_len;
+-		if ((unsigned long)record_buffer > (unsigned long)(orig_record_ptr + RECORD_BUFFER_SIZE))
+-			record_buffer = orig_record_ptr;
+-	}
+-	free(orig_record_ptr);
++	if ( use_sendfile )
++		sendfile_loop(s, rec_len);
++	else
++		write_loop(s, rec_len);
++
+ 	return 0;
+ }

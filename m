@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUHJKHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263851AbUHJKH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbUHJKHj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 06:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUHJKHj
+	id S263851AbUHJKH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 06:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHJKH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 06:07:39 -0400
-Received: from pop.gmx.de ([213.165.64.20]:65454 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263795AbUHJKHh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 06:07:37 -0400
-X-Authenticated: #4512188
-Message-ID: <41189E61.2000302@gmx.de>
-Date: Tue, 10 Aug 2004 12:07:29 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-CC: David Woodhouse <dwmw2@infradead.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <1092082920.5761.266.camel@cube> <1092124796.1438.3695.camel@imladris.demon.co.uk> <20040810095223.GJ10361@merlin.emma.line.org>
-In-Reply-To: <20040810095223.GJ10361@merlin.emma.line.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 06:07:57 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:15043 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263851AbUHJKHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 06:07:52 -0400
+Date: Tue, 10 Aug 2004 12:07:51 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: [RFC] Fix Device Power Management States
+Message-ID: <20040810100751.GC9034@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net> <1092098425.14102.69.camel@gaston> <Pine.LNX.4.50.0408092131260.24154-100000@monsoon.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0408092131260.24154-100000@monsoon.he.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi!
 
-Matthias Andree wrote:
-|>That seems reasonable, but _only_ if burnfree is not enabled. If the
-|>hardware _supports_ burnfree but it's disabled, the warning should also
-|>recommend turning it on.
-|
-|
-| burnfree causes a few broken pits/lands on the CD-R so it is best
-| avoided if the hardware can do it. That you don't see these is a matter
-| of the reading drive not exporting such information and EFM and CIRC
-| usually correcting them, but it's still lower quality than a burn
-| process that hadn't needed burnfree at all.
+> > >   This is implemented by iterating through the list of struct classes,
+> > >   then through each of their struct class_device's. The class_device is
+> > >   the only argument to those functions.
+> >
+> > Hrm... I don't agree, that iteration should be done in bus ordering too.
+> >
+> > For example, if you stop operation of a USB host controller, you have to
+> > do that after you have stopped operation of child devices. Same goes
+> > with the ATA disk vs. controller. The ordering requirements for stopping
+> > operations are the same as for PM
+> 
+> It's easy enough to change which order things get stopped/started in. What
+> matters more is the conceptual shift in responsibility for who
+> stops/starts the devices, or rather their interfaces.
 
-Some addition: Even if your statement is correct, the data read is not
-different, as C1 error correction should mask it. Yes, the quality
-obviosly is lower, but most probably you won't notice it, unless the
-disk degrades with time/scratches and now more errors appear, so it
-isn't correctable anymore. But I think it is paranoic to rather have
-coasters than living with a bit less quality at some spots where buffer
-underruns occured.
+Can you explain why this class-based quiescing is good idea? It seems
+to me that "quiesce this tree" is pretty much same as "suspend this
+tree", and can be handled in the same way.
 
-Prakash
+Nigel wanted to do class-based quiescing, but if we make quiescing
+fast enough, it should be okay to do whole tree, always. (And I
+believe quiescing *can* be fast enough).
 
+> The driver core calls it in device_power_down() (as was in the patch ;),
+> in physical topological order. The ordering of the calls is up the power
+> management core, but it just wouldn't make sense to power down a device
+> that wasn't stopped. Would be easy enough to add a check for it..
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+BUG_ON() would be welcome, otherwise someone will get it wrong.
+								Pavel
 
-iD8DBQFBGJ5hxU2n/+9+t5gRAtDtAKCnOgqG+6PobYDcDuNxdA6zdjPQwACgxjxL
-Vy0KwpXHoMixCIvKeuxsZP0=
-=WEtE
------END PGP SIGNATURE-----
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

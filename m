@@ -1,44 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbTLEFFh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 00:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263853AbTLEFFg
+	id S262228AbTLEFCG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 00:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTLEFCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 00:05:36 -0500
-Received: from stinkfoot.org ([65.75.25.34]:27264 "EHLO stinkfoot.org")
-	by vger.kernel.org with ESMTP id S263522AbTLEFFc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 00:05:32 -0500
-Message-ID: <3FD012C4.3060206@stinkfoot.org>
-Date: Fri, 05 Dec 2003 00:08:20 -0500
-From: Ethan Weinstein <lists@stinkfoot.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031103
-X-Accept-Language: en-us, en
+	Fri, 5 Dec 2003 00:02:06 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:46048 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262228AbTLEFCC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 00:02:02 -0500
+Message-ID: <3FD00CD2.2020900@cyberone.com.au>
+Date: Fri, 05 Dec 2003 15:42:58 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: w83627hf watchdog
-References: <3FCF87C4.2010301@stinkfoot.org>
-In-Reply-To: <3FCF87C4.2010301@stinkfoot.org>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+CC: Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+References: <20031204235055.62846.qmail@web21503.mail.yahoo.com>	<3FCFCC3E.8050008@cyberone.com.au> <16336.2094.950232.375620@wombat.chubb.wattle.id.au>
+In-Reply-To: <16336.2094.950232.375620@wombat.chubb.wattle.id.au>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ethan Weinstein wrote:
 
-> My Supermicro X5DPL-iGM-O has a winbond w83627hf chip onboard that 
-> includes a watchdog timer.  I found a driver on freshmeat that points 
-> here: http://www.freestone.net/soft/pkg/w83627hf-wdt.tar.gz
-> but this does not seem to work correctly on 2.4.23, even with my 
-> modifications to the ioports and registers that Supermicro sent me. I 
-> have tried to contact the developer, he hasn't responded.  I also 
-> located a post to linux-kerel quite sometime ago:
-> 
-> http://seclists.org/lists/linux-kernel/2002/Dec/att-4150/w83627hf_wdt.c
 
-Thought I'd mention that the above mentioned driver apparently works
-quite well with the w83627hf, I've run some preliminary tests simulating
-lockups, and the box reboots according to the timer setttings.
+Peter Chubb wrote:
 
-Ethan
+>>>>>>"Nick" == Nick Piggin <piggin@cyberone.com.au> writes:
+>>>>>>
+>
+>Nick> Paul Adams wrote:
+>
+>
+>Nick> Seriously: What about specifically a module that includes the
+>Nick> Linux Kernel's headers and uses its APIs? I don't think you
+>Nick> could say that is definitely not a derivative work.
+>
+>As far as I know, interfacing to a published API doesn't infringe
+>copyright.
+>
+
+So binary modules don't infringe copyright and aren't derived works?
+If so then the way to control access to the kernel is to control the
+"published API" ie. the api/abi exported modules, and exceptions for
+GPL modules are useless. Hmm.
+
+>
+>Note:
+>
+>
+>Paul>   A standard filter is that you eliminate an element if "The
+>Paul> element's expression was dictated by external factors, such as
+>Paul> using an existing file format or interoperating with another
+>Paul> program."  Computer Associates v. Altai specifically discusses
+>Paul> the need to filter elements related to "compatibility
+>Paul> requirements of other programs with which a program is designed
+>Paul> to operate in conjunction." 
+>Paul> http://www.bitlaw.com/source/cases/copyright/altai.html
+>
+>
+>If you don't accept this, then maybe you have to start accepting SCO's
+>claims on JFS, XFS, &c.
+>
+
+Not quite sure what you mean here. As far as I was aware, SCO doesn't
+have any copyrights or patents on any code in the Linux Kernel so it is
+not a similar situation. I haven't followed the SCO thing closely though.
+
 

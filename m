@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUC3Wsj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:48:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUC3Wpn
+	id S261606AbUC3WsR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 17:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUC3WqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:45:43 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:22158 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261500AbUC3Wna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:43:30 -0500
-Date: Tue, 30 Mar 2004 23:43:26 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Andrea Arcangeli <andrea@suse.de>,
-       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/6] fork vma order
-Message-ID: <Pine.LNX.4.44.0403302340220.24019-100000@localhost.localdomain>
+	Tue, 30 Mar 2004 17:46:01 -0500
+Received: from [63.161.72.3] ([63.161.72.3]:64436 "EHLO
+	mail.standardbeverage.com") by vger.kernel.org with ESMTP
+	id S261505AbUC3WnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 17:43:09 -0500
+Message-ID: <fe7b2a316047cf1fd19995e24816890f@stdbev.com>
+Date: Tue, 30 Mar 2004 16:52:03 -0600
+From: "Jason Munro" <jason@stdbev.com>
+Subject: Re: 2.6.5-rc3-mm1
+To: linux-kernel@vger.kernel.org
+Reply-to: <jason@stdbev.com>
+In-Reply-To: <1080684268.3529.72.camel@watt.suse.com>
+References: <4069DC40.3070703@blueyonder.co.uk>
+            <1080681249.3547.51.camel@watt.suse.com>
+            <4069ED67.5050302@blueyonder.co.uk>
+            <1080684268.3529.72.camel@watt.suse.com>
+X-Mailer: Hastymail 1.0-rc2-CVS
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of six patches against 2.6.5-rc3, cleaning up mremap's move_vma,
-and fixing truncation orphan issues raised by Rajesh Venkatasubramanian.
-Originally done as part of the anonymous objrmap work on mremap move,
-but useful fixes now extracted for mainline.  The mremap changes need
-some exposure in the -mm tree first, but the first (fork one-liner)
-is safe enough to go straight into 2.6.5.
+On 4:04:28 pm 03/30/04 Chris Mason <mason@suse.com> wrote:
+> On Tue, 2004-03-30 at 16:57, Sid Boyce wrote:
+> >  Chris Mason wrote:
+> >
+> > > On Tue, 2004-03-30 at 15:44, Sid Boyce wrote:
+> > >
+> > >
+> > >> It builds fine on x86_64 but locks up solid at ----
+> > >> found reiserfs format "3.6" with standard journal
+> > >> Hard disk light permanently on - 2.6.5-rc2 vanilla is the last
+> > >> one to boot fully, haven't tried 2.6.5-rc3 vanilla yet.
+> > >>
+> > >>
+> > >
+> > > Have you tried booting with acpi=off?
+> > >
+> >  With acpi=off, I get a string of messages
+>
+> Try pci=noacpi
 
- include/linux/mm.h |    3 
- kernel/fork.c      |    2 
- mm/mmap.c          |   70 ++++++++++++++--
- mm/mremap.c        |  221 +++++++++++++++++++----------------------------------
- mm/rmap.c          |    3 
- 5 files changed, 149 insertions(+), 150 deletions(-)
+Having a similar problem here with 2.6.5-rc3-mm1, boot stops with:
 
-[PATCH] 1/6 fork vma order
+Unable to load interpreter
+No init found
 
->From Rajesh Venkatasubramanian: despite the comment that child vma
-should be inserted just after parent vma, 2.5.6 did exactly the reverse:
-thus a racing vmtruncate may free the child's ptes, then advance to the
-parent, and meanwhile copy_page_range has propagated more ptes from the
-parent to the child, leaving file pages still mapped after truncation.
+passing pci=noacpi or init=/bin/bash makes not difference. The hard drive
+light is off and the system still responds to keyboard events, but cannot
+continue. This is on a Toshiba laptop, updating from a working 2.6.4-mm1.
+Bios is updated to the latest version. I am also running reisers on the
+root partition if that matters.
 
---- 2.6.5-rc3/kernel/fork.c	2004-03-11 01:56:07.000000000 +0000
-+++ mremap1/kernel/fork.c	2004-03-30 21:24:25.839880544 +0100
-@@ -322,7 +322,7 @@ static inline int dup_mmap(struct mm_str
-       
- 			/* insert tmp into the share list, just after mpnt */
- 			down(&file->f_mapping->i_shared_sem);
--			list_add_tail(&tmp->shared, &mpnt->shared);
-+			list_add(&tmp->shared, &mpnt->shared);
- 			up(&file->f_mapping->i_shared_sem);
- 		}
- 
+\__ Jason Munro
+ \__ jason@stdbev.com
+  \__ http://hastymail.sourceforge.net/
+
 

@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277266AbRJQWwe>; Wed, 17 Oct 2001 18:52:34 -0400
+	id <S277288AbRJQWzE>; Wed, 17 Oct 2001 18:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277271AbRJQWwY>; Wed, 17 Oct 2001 18:52:24 -0400
-Received: from maties2.sun.ac.za ([146.232.128.10]:31886 "EHLO
-	maties2.sun.ac.za") by vger.kernel.org with ESMTP
-	id <S277266AbRJQWwT>; Wed, 17 Oct 2001 18:52:19 -0400
-Date: Thu, 18 Oct 2001 00:52:33 +0200
-From: Hugo van der Merwe <hugovdm@mail.com>
-To: Kurt Garloff <garloff@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: ps/2 mouse, keyboard conflicts
-Message-ID: <20011018005233.A17427@baboon.wilgenhof.sun.ac.za>
-Mail-Followup-To: Hugo van der Merwe <hugovdm@mail.com>,
-	Kurt Garloff <garloff@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011017144158.A6534@baboon.wilgenhof.sun.ac.za> <20011017233440.B13317@garloff.casa-etp.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011017233440.B13317@garloff.casa-etp.nl>
-User-Agent: Mutt/1.3.23i
-X-Scanner: exiscan *15tzYC-0003ei-00*SPLe7O2bz82* http://duncanthrax.net/exiscan/
+	id <S277277AbRJQWyp>; Wed, 17 Oct 2001 18:54:45 -0400
+Received: from [207.8.4.6] ([207.8.4.6]:44091 "EHLO one.interactivesi.com")
+	by vger.kernel.org with ESMTP id <S277276AbRJQWyf>;
+	Wed, 17 Oct 2001 18:54:35 -0400
+Message-ID: <3BCE0C41.7090003@interactivesi.com>
+Date: Wed, 17 Oct 2001 17:54:57 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>
+Subject: in_softirq() question
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the mouse needs to be reinitialized after being replugged. First it needs to
+I'm writing a module that needs to synchronize with its own tasklet (bottom 
+half).  Basically, I need to disable the bottom half whenever the driver has 
+been called to do some work.  The tasklet is just a periodic timer that keeps 
+the hardware awake, but it should never pre-empty the driver itself.
 
-It was plugged in at boot time, is this then still necessary?
+To do this, I have added local_bh_disable() calls at the top of every entry 
+point in my driver.  This works very well.  However, I would add to like 
+additional checks to make sure that various code is not executed whenever 
+bottom halves are disabled.
 
-> so it got disbaled. You can try reenabling by using the parammeter
-> psaux-reconnect and check whether this makes a difference.
-> 
-> I don't have the slightest clue why it affects yoiur keyboard.
+I discovered function in_softirq(), but I'm having a hard time understanding 
+it.  There's no documentation for it (not even any comments!), and the modules 
+in the kernel that do use it don't explain it either.
 
-Is there good reason to believe that this is my problem then? How can I
-find evidence that supports this theory? Especially interesting was the
-days when I could start X and use the ps/2 mouse and keyboard for a
-while, before they locked up...
+The code for in_softirq() makes me think that it returns non-zero if any 
+thread on this CPU has called local_bh_disable(), which is what I want.  But 
+what does in_softirq() means?  If I call local_bh_disable(), soft IRQs are 
+disabled, are they not?  Isn't that what a bottom-half is, a soft IRQ?
 
-Hugo van der Merwe

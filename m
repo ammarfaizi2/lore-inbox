@@ -1,96 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269695AbSISOfi>; Thu, 19 Sep 2002 10:35:38 -0400
+	id <S269665AbSISOkc>; Thu, 19 Sep 2002 10:40:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269702AbSISOfi>; Thu, 19 Sep 2002 10:35:38 -0400
-Received: from mail104.mail.bellsouth.net ([205.152.58.44]:61026 "EHLO
-	imf04bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S269695AbSISOfh>; Thu, 19 Sep 2002 10:35:37 -0400
-Date: Thu, 19 Sep 2002 10:40:34 -0400 (EDT)
-From: Burton Windle <bwindle@fint.org>
-X-X-Sender: bwindle@morpheus
+	id <S269702AbSISOkb>; Thu, 19 Sep 2002 10:40:31 -0400
+Received: from mxzilla2.xs4all.nl ([194.109.6.50]:17676 "EHLO
+	mxzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S269665AbSISOka>; Thu, 19 Sep 2002 10:40:30 -0400
+Date: Thu, 19 Sep 2002 16:45:33 +0200
+From: dvorak <dvorak@xs4all.nl>
 To: linux-kernel@vger.kernel.org
-Subject: [2.5.36] oops when reading /proc/locks
-Message-ID: <Pine.LNX.4.43.0209191037430.332-100000@morpheus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Syscall changes registers beyond %eax, on linux-i386
+Message-ID: <20020919144533.GB2976@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="5mCyUwZo2JvN/JJP"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-stock 2.5.36, non-preempt, non-smp.  After enabling and then disabling an
-ethernet sniffer, then cat'ting /proc/locks, I can reproduce this oops
-easily.
 
- <1>Unable to handle kernel NULL pointer dereference at virtual address 00000008
-c01452aa
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<c01452aa>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 00000000   ebx: 00000000   ecx: 00000400   edx: 00000400
-esi: c66c8000   edi: c8c1d894   ebp: c66c8000   esp: c7e77ea8
-ds: 0068   es: 0068   ss: 0068
-Stack: 00000000 00000001 00000000 c56b9344 00000004 00000400 c8c1d898 c8c1d894
-       c01455dc c66c8000 c8c1d894 00000001 c0267b11 00000400 00000001 c66c8000
-       00000000 00000400 00000400 00000400 c66c8000 c0155f0a c66c8000 c7e77f3c
-Call Trace: [<c01455dc>] [<c0155f0a>] [<c0153a6d>] [<c01336c8>] [<c013ab6b>]
-   [<c013389a>] [<c01071cf>]
-Code: 8b 58 08 8b 44 24 30 50 8b 4c 24 30 51 68 2a 7a 26 c0 56 e8
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Hi,
 
->>EIP; c01452aa <lock_get_status+1a/260>   <=====
+recently i came across a situation were on linux-i386 not only %eax was
+altered after a syscall but also %ebx. I tracked this problem down, to
+gcc re-using a variable passed to a function.
 
-Trace; c01455dc <get_locks_status+5c/100>
-Trace; c0155f0a <locks_read_proc+1a/40>
-Trace; c0153a6d <proc_file_read+19d/1b0>
-Trace; c01336c8 <vfs_read+98/120>
-Trace; c013ab6b <sys_fstat64+2b/30>
-Trace; c013389a <sys_read+2a/40>
-Trace; c01071cf <syscall_call+7/b>
+This was found on a debian system with a 2.4.17 kernel compiled with gcc
+2.95.2 and verified on another system, kernel 2.4.18 compiled with 2.95.4 
+Attached is small program to test for this 'bug'
 
-Code;  c01452aa <lock_get_status+1a/260>
-00000000 <_EIP>:
-Code;  c01452aa <lock_get_status+1a/260>   <=====
-   0:   8b 58 08                  mov    0x8(%eax),%ebx   <=====
-Code;  c01452ad <lock_get_status+1d/260>
-   3:   8b 44 24 30               mov    0x30(%esp,1),%eax
-Code;  c01452b1 <lock_get_status+21/260>
-   7:   50                        push   %eax
-Code;  c01452b2 <lock_get_status+22/260>
-   8:   8b 4c 24 30               mov    0x30(%esp,1),%ecx
-Code;  c01452b6 <lock_get_status+26/260>
-   c:   51                        push   %ecx
-Code;  c01452b7 <lock_get_status+27/260>
-   d:   68 2a 7a 26 c0            push   $0xc0267a2a
-Code;  c01452bc <lock_get_status+2c/260>
-  12:   56                        push   %esi
-Code;  c01452bd <lock_get_status+2d/260>
-  13:   e8 00 00 00 00            call   18 <_EIP+0x18> c01452c2
-<lock_get_status+32/260>
+a syscall gets his data off the stack, the stack looks like:
 
+saved(edx)
+saved(ecx)
+saved(ebx)
+return_addres 	(somewhere in entry.S)
 
-Linux razor 2.5.36 #0 Thu Sep 19 09:32:59 EST 2002 i686 unknown unknown
-GNU/Linux
+When the syscall is called.
 
-Gnu C                  3.0.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.15
-e2fsprogs              1.27
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.12
+the register came there through use of 'SAVE_ALL'.
+
+After the syscall returns these registers are restored using RESTORE_ALL
+and execution is transferred to userland again.
+
+A short snippet of sys_poll, with irrelavant data removed.
+
+sys_poll(struct pollfd *ufds, .. , ..) {
+    ...
+    ufds++;
+    ...
+}
+
+It seems that gcc in certain cases optimizes in such a way that it changes
+the variable ufds as placed on the stack directly. Which results in saved(ebx)
+being overwritten and thus in a changed %ebx on return from the system call.
+
+I don't know if this is considered a bug, and if it is, from whom.
+If it's not a bug it means low-level userland programs need to be rewritten
+to store all registers on a syscall and restore them on return.
+
+It shouldn't be a bug in gcc, since the C-standard doesn't talk about how to 
+pass variables and stuff. So it seems like a kernel(-gcc-interaction) bug.
+
+To solve this issue 2 solutions spring to mind
+1) add a flag to gcc to tell it that it shouldn't do this optimization, this
+   won't work with the gcc's already out there.
+2) When calling a syscall explicitly push all variable an extra time, since
+   the code in entry.S doesn't know the amount of variables to a syscall it
+   needs to push all theoretical 6 parameters every time, a not so nice
+   overhead.
 
 
---
-Burton Windle                           burton@fint.org
-Linux: the "grim reaper of innocent orphaned children."
-          from /usr/src/linux-2.4.18/init/main.c:461
+I hope someone can shed some light on this issue, i am not myself reading
+the linux-kernel mailing list, and would like to be cc'd if possible (i'll
+also check the archives so it's not 100% needed).
 
+Thanks in advance,
+  Dvorak
 
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="reg-bug.c"
+
+/*
+ * usage is easy, though not very friendly:
+ * gcc reg-bug.c
+ * ./a.out | od -tx4
+ * <ENTER>
+ * if the values outputted by hexdump are different the 'bug' is present
+ * else the bug is not present
+ * on a system without the bug:
+
+dvorak$ dmesg | head -1
+Linux version 2.2.21 (kernel@debian) (gcc version 2.95.4 20011002 (Debian prerelease)) #6 Sat Sep 7 22:48:42 CEST 2002
+dvorak$ gcc reg-bug.c
+dvorak$ ./a.out | od -tx4
+
+0000000 bff7de6c bff7de6c
+ 
+ * on a 'buggy' system:
+ *
+
+(m4xx) dmesg | head -1
+(m4xx) Linux version 2.4.18 (maxx@meuuh) (gcc version 2.95.4 20011002 (Debian
++prerelease)) #2 Mon Jul 29 17:01:30 CEST 2002
+(m4xx) $ gcc reg-bug.c
+(m4xx) $ ./a.out | od -tx4
+(m4xx) 0000000 bffffdcc bffffdbc
+
+ */
+int main(void)
+{
+    __asm__("
+        pushl   $0x00010001 
+        pushl   $0x0
+        pushl   $0x00010001 
+        pushl   $0x1
+        movl    %esp, %ebx
+        pushl   %ebx
+        movl    $0x2, %ecx
+        movl    $0xa8, %eax
+        movl    $(-1), %edx
+        int     $0x80
+        pushl   %ebx
+        movl    %esp, %ecx
+        movl    $0x08, %edx
+        movl    $0x04, %eax
+        movl    $0x01, %ebx
+        int     $0x80
+        movl    $0x01, %eax
+        xorl    %ebx, %ebx
+        int     $0x80
+   ");
+}
+
+--5mCyUwZo2JvN/JJP--

@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269206AbRHaUgn>; Fri, 31 Aug 2001 16:36:43 -0400
+	id <S269229AbRHaUlX>; Fri, 31 Aug 2001 16:41:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269229AbRHaUgd>; Fri, 31 Aug 2001 16:36:33 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:29398 "EHLO
-	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S269206AbRHaUgV>; Fri, 31 Aug 2001 16:36:21 -0400
-Message-ID: <3B8FF504.1985B0FF@vnet.ibm.com>
-Date: Fri, 31 Aug 2001 20:35:16 +0000
-From: Tom Gall <tom_gall@vnet.ibm.com>
-Reply-To: tom_gall@vnet.ibm.com
-Organization: IBM
-X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
-X-Accept-Language: en
+	id <S269254AbRHaUlN>; Fri, 31 Aug 2001 16:41:13 -0400
+Received: from unused ([12.150.234.220]:52222 "EHLO one.isilinux.com")
+	by vger.kernel.org with ESMTP id <S269229AbRHaUlH>;
+	Fri, 31 Aug 2001 16:41:07 -0400
+Message-ID: <3B8FF671.1050804@interactivesi.com>
+Date: Fri, 31 Aug 2001 15:41:21 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-CC: engebret@us.ibm.com, linuxppc64-dev@lists.linuxppc.org
-Subject: PATCH: iSeries Device Drives Update 
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel hangs in 118th call to vmalloc
+In-Reply-To: <E15cv3e-0003vf-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Alan Cox wrote:
+> vmalloc shouldnt be hanging the box, although in 2.4.2 the out of memory 
+> handling is not too reliable. You have to understand vmalloc isnt meant to 
+> be used that way and the kernel gets priority over user space for allocs so
+> is able to get itself to the point it killed off all user space.
 
-Enclosed is a patch to update/include the virtual iSeries device drivers. This
-patch is against 2.4.9-ac5.
+So you're saying it's a bug that I can't work around?
 
-Both the ppc32 and ppc64 architectures are now supported.
+It's probably a moot point.  I've come up with a different algorithm 
+that allocates all but 32MB of RAM, and it appears to work well.
 
-In these device drivers are support for:
+I heard that 2.4.9 doesn't even run "thrash".  Is this true?  If so, why 
+are these buggy VM's being released in the first place?
 
-Virtual Ethernet
-Virtual Harddrive (or DASD in IBM parlance)
-Virtual Tape
-Virtual CD
-
-Rather than clog up the email system, please pick up the patch from:
-
-ftp.kernel.org/pub/linux/kernel/people/tgall/iSeriesDDvs2.4.9-ac5.patch.gz
-
-Regards,
-
-Tom
-
--- 
-Tom Gall - PPC64 Code Monkey     "Where's the ka-boom? There was
-Linux Technology Center           supposed to be an earth
-(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
-(w) 507-253-4558                 -- Marvin Martian
-(h) tgall@rochcivictheatre.org
-http://www.ibm.com/linux/ltc/projects/ppc

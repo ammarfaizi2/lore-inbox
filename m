@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272751AbRILLNV>; Wed, 12 Sep 2001 07:13:21 -0400
+	id <S272749AbRILLSC>; Wed, 12 Sep 2001 07:18:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272749AbRILLNL>; Wed, 12 Sep 2001 07:13:11 -0400
-Received: from pat.uio.no ([129.240.130.16]:33423 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S272751AbRILLMx>;
-	Wed, 12 Sep 2001 07:12:53 -0400
-To: Marcus Sundberg <marcus@cendio.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nfs is stupid ("getfh failed")
-In-Reply-To: <002b01c136e1$3bb36a80$81d4870a@cartman>
-	<15261.47176.73283.841982@notabene.cse.unsw.edu.au>
-	<vebskgpu32.fsf@inigo.sthlm.cendio.se>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 12 Sep 2001 13:13:12 +0200
-In-Reply-To: Marcus Sundberg's message of "12 Sep 2001 12:44:01 +0200"
-Message-ID: <shsvgiohdbr.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S272758AbRILLRv>; Wed, 12 Sep 2001 07:17:51 -0400
+Received: from t2.redhat.com ([199.183.24.243]:64249 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S272755AbRILLRm>; Wed, 12 Sep 2001 07:17:42 -0400
+Message-ID: <3B9F4467.237097F1@redhat.com>
+Date: Wed, 12 Sep 2001 12:17:59 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6.4smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Mike Black <mblack@csihq.com>, linux-kernel@vger.kernel.org
+Subject: Re: Bug still on 2.4.10?
+In-Reply-To: <00d301c13b79$56982e20$e1de11cc@csihq.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Marcus Sundberg <marcus@cendio.se> writes:
+Mike Black wrote:
+> 
+> This is on 2.4.8 but I get the funny feeling this maybe hasn't been fixed
+> yet for 2.4.10:
+> 
+> Sep 11 06:58:08 yeti kernel: md: fsck.ext3(pid 151) used obsolete MD
+> ioctl(4717), upgrade your software to use new ictls.
+> I'm runing:
+> Parallelizing fsck version 1.23 (15-Aug-2001)
+> Unless maybe I just need to recompile it???
 
-     > neilb@cse.unsw.edu.au (Neil Brown) writes:
-    >> On September 10, marcus@cendio.se wrote:
-    >> > cachefs sucks. It doesn't seem to cache stat(2) information.
-    >> > Doing ls -F in a ~100-entries directory takes several seconds
-    >> > over a link with 50ms round-trip time.
-    >>
-    >> Well, I said "concept" not "implementation", but I suspect that
-    >> Solaris cachefs does cache stat information.  Maybe you just
-    >> need to increase the timeouts for the attribute cache.
-
-     > Considering that I did several ls'es on the order of
-     > milliseconds apart I doubt that would help...
-
-The NFS close-to-open cache consistency requirement forces them to
-compare the attribute cache to the server every time someone does a
-call to open(). This is true whether or not one uses cachefs.
-
-After the file has actually been opened, you can call fstat() as many
-times as you like. The cached attributes to be used, and they will
-then be checked on the server only after the cache times out.
-
-Cheers,
-   Trond
+Upgrade to 1.24 or downgrade to 1.22; 1.23 uses the wrong ioctl for some
+operations....

@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbTEKRlA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 13:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTEKRlA
+	id S261827AbTEKRrX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 13:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbTEKRrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 13:41:00 -0400
-Received: from corky.net ([212.150.53.130]:43198 "EHLO marcellos.corky.net")
-	by vger.kernel.org with ESMTP id S261798AbTEKRk7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 13:40:59 -0400
-Date: Sun, 11 May 2003 20:53:34 +0300 (IDT)
-From: Yoav Weiss <ml-lkml@unpatched.org>
-X-X-Sender: yoavw@marcellos.corky.net
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: "arjanv@redhat.com" <arjanv@redhat.com>, Ahmed Masud <masud@googgun.com>,
-       Terje Eggestad <terje.eggestad@scali.com>,
+	Sun, 11 May 2003 13:47:23 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58446 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S261827AbTEKRrV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 13:47:21 -0400
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Jamie Lokier <jamie@shareable.org>, Jos Hulzink <josh@stack.nl>,
+       Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@muc.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <200305111234_MC3-1-3865-CD21@compuserve.com>
-Message-ID: <Pine.LNX.4.44.0305112041280.17881-100000@marcellos.corky.net>
+Subject: Re: [PATCH] Use correct x86 reboot vector
+References: <Pine.LNX.4.44.0305102043320.28287-100000@home.transmeta.com>
+	<200305111137.29743.josh@stack.nl>
+	<20030511140144.GA5602@mail.jlokier.co.uk>
+	<Pine.LNX.4.50.0305111033590.7563-100000@blue1.dev.mcafeelabs.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 May 2003 11:56:42 -0600
+In-Reply-To: <Pine.LNX.4.50.0305111033590.7563-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <m1fznl74f9.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 May 2003, Chuck Ebbert wrote:
+Davide Libenzi <davidel@xmailserver.org> writes:
 
->   That code has another hole that nobody else has mentioned
-> yet: I can fill the audit log by trying to delete nonexistent files,
-> and if accused of trying to mount a DOS attack on the audit trail
-> I can reasonably claim that it was all an accident...
+> On Sun, 11 May 2003, Jamie Lokier wrote:
+> 
+> > Jos Hulzink wrote:
+> > > On Sunday 11 May 2003 05:50, Linus Torvalds wrote:
+> > > > Hmm.. Doesnt' a _real_ hardware reset actually use a magic segment that
+> > > > isn't even really true real mode? I have this memory that the reset value
+> > > > for a i386 has CS=0xf000, but the shadow base register actually contains
+> > > > 0xffff0000. In other words, the CPU actually starts up in "unreal" mode,
+> > > > and will fetch the first instruction from physical address 0xfffffff0.
+> > > >
+> > > > At least that was true on an original 386. It's something that could
+> > > > easily have changed since.
+> >
+> > I got my info from an article on the net which says that a 386 does
+> > behave as you say, but it is possible for the system designer to
+> > arrange that it boots into the 286-compatible vector at physical
+> > address 0x000ffff0.  It states that the feature is specifically so
+> > that system designers don't have to create a "memory hole" (that's as
+> > much detail as it gives).
+> 
+> Guys, mem[0xfffffff0,...] == mem[0x000ffff0,...] since the hw remaps the
+> bios. Being picky about Intel specs, it should be f000:fff0 though.
 
-No one specified what audit_log does in this case.  Usually, in such
-modules, the audit function doesn't just log everything.  It can, for
-example, rate-limit the logging and just spit a message about the user
-DoSing the log system.  If system is paranoid enough to be fail-closed
-(i.e. fears that the user is hitting the rate-limit of the logger, hoping
-to cover his real acts), it can always kill his task, kill all his
-processes, lock his account, call the authorities, etc.  Its up to the
-system to decide what audit_log does, just like in any other auditing
-system.
+The remapping is quite common but it usually happens that after bootup:
+0xf0000-0xfffff is shadowed RAM.  While 0xffff0000-0xffffffff still points
+to the rom chip.
 
->
->   How about:
->
-> long wrapped_unlink(char *userfilename)
-> {
->         char name1[len], name2[len];
->         long ret;
->
->         copy_from_user(name1, userfilename, ...);
->         ret = original_unlink(userfilename);
->         copy_from_user(name2, userfilename, ...);
->
->         if (strncmp(name1, name2, len))
->                 audit_log(name1, name2, UNLINK_NAME_CHANGED);
+Now if someone could tell me how to do a jump to 0xffff0000:0xfff0 in real
+mode I would find that very interesting.
 
-Still subject to a timing attack.  The usermode code can change it and
-change it back as soon as the file has been unlinked.  If the system is
-under heavy load (generated by the attacker), the attacking process is
-reniced to 20, and the monitoring part of it has higher priority and keeps
-stat(2)ing the file, a thread in the attack code may actually be able to
-change the filename back in time for the second check.
-
-The only way to avoid these races is to have just one copy, by either
-using set_fs (see my previous post in this thread) or by hooking inside
-the syscall (as LSM does).
-
-	Yoav Weiss
-
+Eric

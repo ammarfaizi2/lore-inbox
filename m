@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129807AbRB0UAC>; Tue, 27 Feb 2001 15:00:02 -0500
+	id <S129084AbRB0UBw>; Tue, 27 Feb 2001 15:01:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129811AbRB0T7x>; Tue, 27 Feb 2001 14:59:53 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:20996 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129807AbRB0T7i>;
-	Tue, 27 Feb 2001 14:59:38 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102271959.WAA21125@ms2.inr.ac.ru>
-Subject: Re: New net features for added performance
-To: ak@suse.DE (Andi Kleen)
-Date: Tue, 27 Feb 2001 22:59:25 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010227010336.A25816@gruyere.muc.suse.de> from "Andi Kleen" at Feb 27, 1 03:15:08 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129819AbRB0UBm>; Tue, 27 Feb 2001 15:01:42 -0500
+Received: from lightning.hereintown.net ([207.196.96.3]:19417 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S129084AbRB0UBd>; Tue, 27 Feb 2001 15:01:33 -0500
+Date: Tue, 27 Feb 2001 15:06:06 -0500 (EST)
+From: Rob <rob@hereintown.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Compilation problems
+Message-ID: <Pine.LNX.4.30.0102271442010.967-100000@robsdigs.hereintown.net>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi, I've encountered a problem compiling the 2.4.2 kernel.
 
-> > 3) Enforce correct usage of it in all the networking :-)
-> 
-> ,) -- the tricky part.
+I downloaded the source, did a make menuconfig, make dep, make bzImage;
+everything went ok, but I didn't have the NIC working correctly. I
+recompiled, it seemed to go ok but still the NIC didn't work.  Then I
+tried make clean, make mrproper, make menuconfig, make dep, make bzImage,
+and now I keep getting an error at the very end of the compile process...
 
-No tricks, IP[v6] is already enforced to be clever; all the rest are free
-to do this, if they desire. And btw, driver need not to parse anything,
-but its internal stuff and even aligning eth II header can be made
-in eth_type_trans().
+init/main.o(.text.init+0x53): undefined reference to
+`__buggy_fxsr_alignment'
+make: ***[vmlinux] Error 1
 
-Actually, it is possible now not changing anything but driver.
-Fortunately, I removed stupid tulip from alpha, so that I have
-no impetus to try this myself. 8)
+I've even tried removing the source tree and re extracting from the tar
+ball again but it always stops at the same place now.  If you have any
+ideas, please let me know.  I'm not a member of the list so a cc would
+really be great.
 
-Alexey
+-- 
+Rob Connor
+TWR Communications
+301 777 2692 x131
+rob@hereintown.net
+
+Good judgement comes from experience, and experience -
+well, that comes from poor judgement.
+
+

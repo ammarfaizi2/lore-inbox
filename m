@@ -1,73 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270099AbUJSTQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269623AbUJSTRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270099AbUJSTQX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270115AbUJSTQQ
+	id S269623AbUJSTRA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269645AbUJSTQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 15:16:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30733 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270099AbUJSTNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 15:13:55 -0400
-Date: Tue, 19 Oct 2004 20:13:50 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Message-ID: <20041019201350.B20243@flint.arm.linux.org.uk>
-Mail-Followup-To: "Jeff V. Merkey" <jmerkey@drdos.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com>
+	Tue, 19 Oct 2004 15:16:52 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:13218
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S269623AbUJSTM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 15:12:57 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U7
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041019180059.GA23113@elte.hu>
+References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+	 <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+	 <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
+	 <20041019180059.GA23113@elte.hu>
+Content-Type: multipart/mixed; boundary="=-D5IYtBC93BDE9CMe4W2n"
+Organization: linutronix
+Message-Id: <1098212697.12223.1006.camel@thomas>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <417550FB.8020404@drdos.com>; from jmerkey@drdos.com on Tue, Oct 19, 2004 at 11:38:03AM -0600
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 19 Oct 2004 21:04:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--=-D5IYtBC93BDE9CMe4W2n
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Tue, Oct 19, 2004 at 11:38:03AM -0600, Jeff V. Merkey wrote:
-> On a side note, the GPL buyout previously offered has been modified. We=
-=20
-> will be contacting
-> individual contributors and negotiating with each copyright holder for=20
-> the code we wish to
-> convert on a case by case basis. The remaining portions of code will=20
-> remain GPL
-> The 50K per copy offer still stands for the whole thing if you guys can=
-=20
-> ever figure out
-> how to set something like this up.
-> :-)
+On Tue, 2004-10-19 at 20:00, Ingo Molnar wrote:
+> i have released the -U7 Real-Time Preemption patch:
 
-Don't bother contacting me.  I'll give you my answer now.  Refused for
-all work contributed by myself.
+Another simple fix.
 
---=20
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+tglx
 
---xHFwDpU9dbj6ez1V
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+--=-D5IYtBC93BDE9CMe4W2n
+Content-Disposition: attachment; filename=rawmidi.c.diff
+Content-Type: text/x-patch; name=rawmidi.c.diff; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
 
-iD8DBQFBdWdtMsXkn0JWU2IRAr/5AJ0bWRI6EfOmggjDZz5j6Hisd9BroQCfYSdq
-bwgdT6fVwrDBfEHpvO379B8=
-=94/q
------END PGP SIGNATURE-----
+diff --exclude='*~' -urN 2.6.9-rc4-mm1-RT-U6a/sound/core/rawmidi.c 2.6.9-rc4-mm1-VP-U4-LRT1/sound/core/rawmidi.c
+--- 2.6.9-rc4-mm1-RT-U6a/sound/core/rawmidi.c	2004-10-12 09:32:23.000000000 +0200
++++ 2.6.9-rc4-mm1-VP-U4-LRT1/sound/core/rawmidi.c	2004-10-19 20:44:18.000000000 +0200
+@@ -134,7 +134,8 @@
+ 	err = 0;
+ 	runtime->drain = 1;
+ 	while (runtime->avail < runtime->buffer_size) {
+-		timeout = interruptible_sleep_on_timeout(&runtime->sleep, 10 * HZ);
++		timeout = wait_event_interruptible_timeout(runtime->sleep, 
++				runtime->avail < runtime->buffer_size, 10 * HZ);
+ 		if (signal_pending(current)) {
+ 			err = -ERESTARTSYS;
+ 			break;
 
---xHFwDpU9dbj6ez1V--
+--=-D5IYtBC93BDE9CMe4W2n--
+

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131341AbRCULcH>; Wed, 21 Mar 2001 06:32:07 -0500
+	id <S131350AbRCULjK>; Wed, 21 Mar 2001 06:39:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131346AbRCULb6>; Wed, 21 Mar 2001 06:31:58 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:51584 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S131341AbRCULbm>;
-	Wed, 21 Mar 2001 06:31:42 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S131351AbRCULjA>; Wed, 21 Mar 2001 06:39:00 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:8205 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131350AbRCULip>;
+	Wed, 21 Mar 2001 06:38:45 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Manoj Sontakke <manojs@sasken.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: initialisation code 
+In-Reply-To: Your message of "Wed, 21 Mar 2001 22:00:51 +0530."
+             <Pine.LNX.4.21.0103212147400.884-100000@pcc65.sasi.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15032.37094.204955.41554@pizda.ninka.net>
-Date: Wed, 21 Mar 2001 03:30:46 -0800 (PST)
-To: george anzinger <george@mvista.com>
-Cc: Keith Owens <kaos@ocs.com.au>, nigel@nrg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <3AB88929.D1B324F2@mvista.com>
-In-Reply-To: <Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org>
-	<22991.985166394@ocs3.ocs-net>
-	<15032.30533.638717.696704@pizda.ninka.net>
-	<3AB88929.D1B324F2@mvista.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Date: Wed, 21 Mar 2001 22:37:54 +1100
+Message-ID: <24505.985174674@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 21 Mar 2001 22:00:51 +0530 (IST), 
+Manoj Sontakke <manojs@sasken.com> wrote:
+>	I have a initlisation function (just like pktsched_init in
+>TC). Can anyone tell me, where in the kernel boot sequence should I make a
+>call to my initialisation function.
 
-george anzinger writes:
- > By the by, if a preemption lock is all that is needed the patch defines
- > it and it is rather fast (an inc going in and a dec & test comming
- > out).  A lot faster than a spin lock with its "LOCK" access.  A preempt
- > lock does not need to be "LOCK"ed because the only contender is the same
- > cpu.
+Welcome to the wonderful world of magic initialisation.
 
-So we would have to invoke this thing around every set of
-smp_processor_id() references?
+(1) Declare your initialisation function as int __init foo_init(void).
 
-Later,
-David S. Miller
-davem@redhat.com
+(2) Decide when your function needs to be called, e.g. after initialisers
+    for A, B, C but before initialisers for X, Y, Z.
+
+(3) Edit the Makefile to insert obj-$(CONFIG_FOO) after the objects
+    that contain initialisers A, B, C and before the objects for
+    initialisers X, Y, Z.
+
+(4) Document why the order of this routine is required!  Without docs
+    in the Makefile we have no idea if object order is correct or not.
+

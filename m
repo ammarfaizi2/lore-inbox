@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270370AbTHQQrv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 12:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270378AbTHQQrv
+	id S270354AbTHQQoD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 12:44:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270370AbTHQQoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 12:47:51 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:47365
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S270370AbTHQQrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 12:47:49 -0400
-Date: Sun, 17 Aug 2003 09:47:47 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Marco d'Itri" <md@Linux.IT>, linux-kernel@vger.kernel.org
-Subject: prefetchnta on athlon was: Re: an oops in 2.6-test2 (oops)
-Message-ID: <20030817164747.GW1027@matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Marco d'Itri <md@Linux.IT>,
-	linux-kernel@vger.kernel.org
-References: <20030816112719.GA1073@wonderland.linux.it> <20030816122640.69650c65.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030816122640.69650c65.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+	Sun, 17 Aug 2003 12:44:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42953 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270354AbTHQQoA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 12:44:00 -0400
+Message-ID: <3F3FB0C4.3000004@pobox.com>
+Date: Sun, 17 Aug 2003 12:43:48 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jt@hpl.hp.com
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5 IrDA] vlsi driver update
+References: <20030811210354.GD21178@bougret.hpl.hp.com>
+In-Reply-To: <20030811210354.GD21178@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 12:26:40PM -0700, Andrew Morton wrote:
-> And you'll continue to get them until someone does something about it. 
-> Discussion seemed to die off on this problem.
-> 
-> Until it is sorted, something like this is needed.
-> 
-> 
-> diff -puN include/asm-i386/processor.h~disble-athlon-prefetch include/asm-i386/processor.h
-> --- 25/include/asm-i386/processor.h~disble-athlon-prefetch	2003-08-16 12:22:32.000000000 -0700
-> +++ 25-akpm/include/asm-i386/processor.h	2003-08-16 12:23:29.000000000 -0700
-> @@ -568,6 +568,8 @@ static inline void rep_nop(void)
->  #define ARCH_HAS_PREFETCH
->  extern inline void prefetch(const void *x)
->  {
-> +	if (current_cpu_data.x86_vendor == X86_VENDOR_AMD)
-> +		return;
+Jean Tourrilhes wrote:
+> ir2603_vlsi-05.diff :
+> ~~~~~~~~~~~~~~~~~~~
+> 		<Patch from Martin Diehl>
+> * correct endianess conversion of hardware exposed fields
+> * we need to check crc16 of rx frames in SIR-mode
+>   (hardware does this in MIR/FIR modes). Use irda_calc_crc16.
+> * get rid of BUG'gers - having them in interrupt path isn't fun.
+> * don't return NET_XMIT_DROP when we drop (dev_kfree_skb_any)
+>   frames. This value is meant to ask for retransmit so we would
+>   corrupt the skb slab.
+> * locking review, corrections and improvements: particularly focus 
+>   on speed setting and start_xmit paths, but also reducing time
+>   we are staying with interrupts disabled.
+> * printk-cleanup: less/better syslog msgs, use IRDA_DEBUG and friends.
+> * default qos_mtt_bits should be 1ms or longer (0x07), not exactly 1ms
+> * rename IRENABLE_IREN -> IRENABLE_PHYANDCLOCK
+> * few minor improvements 
+> * compatibility stuff to preserve 2.4 backport path
+> * it's a pci controller, so we should depend on CONFIG_PCI
+> * DRIVER_VERSION 0.5
 
-Andrew, if you put this patch in -mm please add a nice big comment above it,
-and put it in the "must fix before 2.6.0" list.
+this patch needs splitting up
+

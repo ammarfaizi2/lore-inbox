@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262260AbUC1KP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 05:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbUC1KPz
+	id S262266AbUC1KWi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 05:22:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbUC1KWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 05:15:55 -0500
-Received: from sea1-f108.sea1.hotmail.com ([207.68.163.108]:5903 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S262260AbUC1KPy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 05:15:54 -0500
-X-Originating-IP: [203.152.107.104]
-X-Originating-Email: [s_kieu@hotmail.com]
-From: "Steve Kieu" <s_kieu@hotmail.com>
-To: maxime@tralhalla.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vmware and kernel 2.6 high cpu usage
-Date: Sun, 28 Mar 2004 22:15:51 +1200
+	Sun, 28 Mar 2004 05:22:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7296 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262266AbUC1KWh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 05:22:37 -0500
+Date: Sun, 28 Mar 2004 02:21:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: <shai@ftcon.com>
+Cc: ricklind@us.ibm.com, mbligh@aracnet.com, lse-tech@lists.sourceforge.net,
+       erikj@subway.americas.sgi.com, efocht@hpce.nec.com, pj@sgi.com,
+       xavier.bru@bull.net, linux-kernel@vger.kernel.org
+Subject: Re: FW: [Lse-tech] Re: NUMA scheduler issue
+Message-Id: <20040328022148.167a46ab.akpm@osdl.org>
+In-Reply-To: <200403281007.BHM58439@ms6.netsolmail.com>
+References: <200403281007.BHM58439@ms6.netsolmail.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea1-F108LM2ViWLEkY000116a9@hotmail.com>
-X-OriginalArrivalTime: 28 Mar 2004 10:15:51.0708 (UTC) FILETIME=[A5D16DC0:01C414AD]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi,
-
+<shai@ftcon.com> wrote:
 >
->can you try changing the value of HZ from 1000 to 100 like in a 2.4
->kernel? I bet this is it. Thanks,
->
+> Hi,
+> 
+> Very nice patch.
+> Andrew, would you consider adding this one? 
 
-yes it is fixed. Thanks. I reduce to 100 ; and try to notice the difference 
-when running with 1000 for others apps, at first things seems to be a bit 
-better (in general)
+Not really.
 
-best regards,
+--- 2.6.0-test1-ia64-0/include/linux/sched.h	2003-07-14 05:30:40.000000000 +0200
+ +++ 2.6.0-test1-ia64-na/include/linux/sched.h	2003-07-18 13:38:02.000000000 +0200
+@@ -390,6 +390,9 @@
+ 	struct list_head posix_timers; /* POSIX.1b Interval Timers */
+ 	unsigned long utime, stime, cutime, cstime;
+ 	u64 start_time;
++#ifdef CONFIG_SMP
++	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
++#endif
 
-_________________________________________________________________
-Listen to music online with the Xtra Broadband Channel  
-http://xtra.co.nz/broadband
+On 512p 64-bit that's 8 kilobytes added to the task_struct.
 

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288595AbSANJL3>; Mon, 14 Jan 2002 04:11:29 -0500
+	id <S288731AbSANJSk>; Mon, 14 Jan 2002 04:18:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288731AbSANJLT>; Mon, 14 Jan 2002 04:11:19 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:15261 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S288595AbSANJLL>; Mon, 14 Jan 2002 04:11:11 -0500
-Date: Mon, 14 Jan 2002 11:10:02 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Jim Studt <jim@federated.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts
-In-Reply-To: <200201140029.g0E0TRD7026024@core.federated.com>
-Message-ID: <Pine.LNX.4.33.0201141107230.28735-100000@netfinity.realnet.co.sz>
+	id <S288752AbSANJSa>; Mon, 14 Jan 2002 04:18:30 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3857 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288731AbSANJSQ>; Mon, 14 Jan 2002 04:18:16 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: ISA hardware discovery -- the elegant solution
+Date: 14 Jan 2002 01:17:57 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a1u7o5$p11$1@cesium.transmeta.com>
+In-Reply-To: <20020113205839.A4434@thyrsus.com> <m1k7ulpbf7.fsf@frodo.biederman.org> <20020114034831.A5780@thyrsus.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jan 2002, Jim Studt wrote:
+Followup to:  <20020114034831.A5780@thyrsus.com>
+By author:    "Eric S. Raymond" <esr@thyrsus.com>
+In newsgroup: linux.dev.kernel
+> 
+> But the kernel itself has to know how to probe and initialize these devices
+> at boot time, correct?  That information is implicitly exported via
+> /var/log/dmesg -- I'm simply suggesting that it be a little more explicit.
+> 
 
-> I have six of these machines and am holding one out as a spare.  I will
-> be happy to continue testing and prodding on that spare unit.
->
-> For reference I now have...
->
-> # cat /proc/interrupts    (eth2 is the afflicted card on the second PCI bus)
->            CPU0
->   0:      32594          XT-PIC  timer
->   1:          2          XT-PIC  keyboard
->   2:          0          XT-PIC  cascade
->   5:       1316          XT-PIC  eth2
->   7:        892          XT-PIC  aic7xxx
->  11:       2132          XT-PIC  eth0
->  15:          4          XT-PIC  ide1
-> NMI:          0
-> LOC:      32554
-> ERR:          0
-> MIS:          0
+dmesg is lossy.  Don't assume it is complete.
 
-Alan Cox pointed out this problem to me and hinted that it was an IRQ
-routing problem, i'm not sure wether it is possible to code workarounds
-which don't break normal systems though. Anyone want to use Jim as a
-guinea ping? ;)
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132084AbQLVRPA>; Fri, 22 Dec 2000 12:15:00 -0500
+	id <S132220AbQLVRSu>; Fri, 22 Dec 2000 12:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132220AbQLVROk>; Fri, 22 Dec 2000 12:14:40 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8320 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132084AbQLVROd>; Fri, 22 Dec 2000 12:14:33 -0500
-Date: Fri, 22 Dec 2000 11:43:31 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Chad Schwartz <cwslist@main.cornernet.com>,
-        Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.19pre3
-In-Reply-To: <E149Uyf-0004rg-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.95.1001222113816.1309A-100000@chaos.analogic.com>
+	id <S132236AbQLVRSa>; Fri, 22 Dec 2000 12:18:30 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:40454 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S132220AbQLVRSU>;
+	Fri, 22 Dec 2000 12:18:20 -0500
+Message-ID: <3A438545.2D9998AE@innominate.de>
+Date: Fri, 22 Dec 2000 17:45:57 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+In-Reply-To: <Pine.LNX.4.21.0012212229190.2603-100000@freak.distro.conectiva> <243950000.977493376@coffee>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Dec 2000, Alan Cox wrote:
-
-> > > why 'standard' Unix/sell/executable commands keep getting changed
-> > > to GNUisms in distributions.
-> > 
-> > I've been asking that question ever since most popular distributions
-> > started putting a copy of bash in /bin/sh.
+Chris Mason wrote:
 > 
-> And which of the versions of 'which' would you rather people had. Do you want
-> csh behaviour, tcsh behaviour, which non builtin BSD behaviour, which as alias
-> trick behaviour, which as ksh behaviour..
+> On Thursday, December 21, 2000 22:38:04 -0200 Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+> >
+> > On Thu, 21 Dec 2000, Andreas Dilger wrote:
+> >
+> >> Marcelo Tosatti writes:
+> >> > It seems your code has a problem with bh flush time.
+> >> >
+> >> > In flush_dirty_buffers(), a buffer may (if being called from kupdate) only
+> >> > be written in case its old enough. (bh->b_flushtime)
+> >> >
+> >> > If the flush happens for an anonymous buffer, you'll end up writing all
+> >> > buffers which are sitting on the same page (with block_write_anon_page),
+> >> > but these other buffers are not necessarily old enough to be flushed.
+> >>
+> >> This isn't really a "problem" however.  The page is the _maximum_ age of
+> >> the buffer before it needs to be written.  If we can efficiently write it
+> >> out with another buffer
+> >
+> >> (essentially for free if they are on the same spot on disk)
+> >
+> > Are you sure this is true for buffer pages in most cases?
 > 
-> There is no standard which command.
+> It's a good point.  block_write_anon_page could be changed to just 
+> write the oldest buffer and redirty the page (if the buffers are 
+> far apart).  If memory is tight, and we *really* need the page back,
+> it will be flushed by try_to_free_buffers.
 > 
+> It seems a bit nasty to me though...writepage should write the page.
 
-Which which would which which if which would which which? Perhaps
-which would which kwhich when it whiches which. However, many
-which which which would prefer that which not which any which
-but be left as an alias.
+Um.  Why cater to the uncommon case of 1K blocks?  Just let
+bdflush/kupdated deal with them in the normal way - it's pretty
+efficient.  Only try to do the clustering optimization when buffer size
+matches memory page size.
 
-Seasons Greetings!
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264994AbTFCNKN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 09:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbTFCNKN
+	id S264995AbTFCNHu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 09:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264996AbTFCNHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 09:10:13 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:26784 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264994AbTFCNJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 09:09:35 -0400
-Date: Tue, 3 Jun 2003 14:26:46 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: David van Hoose <davidvh@cox.net>
-Cc: Margit Schubert-While <margitsw@t-online.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21rc6-ac2
-Message-ID: <20030603132646.GA15318@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	David van Hoose <davidvh@cox.net>,
-	Margit Schubert-While <margitsw@t-online.de>,
-	linux-kernel@vger.kernel.org
-References: <5.1.0.14.2.20030603143135.00ae9d40@pop.t-online.de> <3EDC9B6B.3000809@cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EDC9B6B.3000809@cox.net>
-User-Agent: Mutt/1.5.4i
+	Tue, 3 Jun 2003 09:07:50 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:29638 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id S264995AbTFCNHt convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 09:07:49 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [NFS] Disabling Symbolic Link Content Caching in NFS Client
+Date: Tue, 3 Jun 2003 18:50:34 +0530
+Message-ID: <2BB7146B38D9CA40B215AB3DAAE24C080BA622@blr-m2-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [NFS] Disabling Symbolic Link Content Caching in NFS Client
+Thread-Index: AcMpUL9KhvUiL4HrTeav8XekvNAMkgAeeQIA
+From: "Vivek Goyal" <vivek.goyal@wipro.com>
+To: <trond.myklebust@fys.uio.no>, "Ion Badulescu" <ionut@badula.org>
+Cc: <viro@math.psu.edu>, <davem@redhat.com>, <ezk@cs.sunysb.edu>,
+       <indou.takao@jp.fujitsu.com>, <nfs@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>, "Vivek Goyal" <vivek.goyal@wipro.com>
+X-OriginalArrivalTime: 03 Jun 2003 13:20:34.0957 (UTC) FILETIME=[EA6FC3D0:01C329D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 03, 2003 at 08:58:19AM -0400, David van Hoose wrote:
- > Margit Schubert-While wrote:
- > >Alan, a few things that I think should be in (and for the next rc ?) -
- > >1) Force inline for >= gcc 3.3
- > >2) -march=  for pentium3/4
- > >3) Radeon 9k support
- > >4) Junk the chipset id'ing in agp_support.h
- > >     (Not in DRI/DRM mainline and not in 2.5)
- > >Margit
- > 
- > I agree on the march support. I've been using my own trivial patch for 
- > the i386 Makefile to have direct support for the P3 and P4. Just trying 
- > to figure out whether adding sse2 support on the compile line will 
- > create problems. GCC does not use SSE(2) unless you explicitly tell it to.
+> >>>>> " " == Ion Badulescu <ionut@badula.org> writes:
+>     >> 1. Make nfs_symlink_caching dynamically tunable using /proc and
+>     >> sysctl interface.
+>      > No. Do it on a per-mount basis, like the other OS's do.
+> 
+> As I said to Vivek in a private mail, it would be very nice to see
+> if this could be done by replacing hlfsd with namespace groups.
+> 
+> Al Viro has already done all the VFS layer work, which should be ready
+> and working in existing 2.4.20 and 2.5.x kernels. What is missing is
+> userland support for doing a CLONE_NEWNS, and then mounting the user's
+> home directory, mailspool,.... in the appropriate locations at login
+> time.
 
-and should only make a difference for floating point code.
-Which the kernel doesn't use.
+Yes, this could be a better way to tackle hlfsd issues.
 
-This was brought up a few weeks back on the list.
+<snip from Trond's mail>
 
-		Dave
+>I'm not overly keen on this proposal. IMHO we want to *maximize*
+caching >rather than reduce it. This is particularly important as the
+speed of >networks etc. starts to approach that of the PCI bus on the
+server.
+
+<end of snip>
+
+You are right. But our idea is to provide an option to disable/enable
+caching based on the nature of intended application.
+
+With this, Linux will have enhanced flexibility in NFS client like other
+operating systems. For example.
+
+1. Solaris provides dynamically tunable parameter "nfs_do_symlink_cache"
+for enabling/disabling symlink caching.
+
+2. UNIX and IRIX provide 'symttl' mount option for enabling/disabling
+symbolic link content caching in NFS client.
+
+Kindly let me know your comments.
+
+Regards,
+Vivek
 

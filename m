@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264706AbSLaS7t>; Tue, 31 Dec 2002 13:59:49 -0500
+	id <S264844AbSLaTDh>; Tue, 31 Dec 2002 14:03:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264715AbSLaS7t>; Tue, 31 Dec 2002 13:59:49 -0500
-Received: from main.gmane.org ([80.91.224.249]:50849 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S264706AbSLaS7s>;
-	Tue, 31 Dec 2002 13:59:48 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	id <S264853AbSLaTDh>; Tue, 31 Dec 2002 14:03:37 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:51374 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S264844AbSLaTDe>;
+	Tue, 31 Dec 2002 14:03:34 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 31 Dec 2002 20:11:59 +0100 (MET)
+Message-Id: <UTC200212311911.gBVJBxe03777.aeb@smtp.cwi.nl>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Jason Lunz <lunz@falooley.org>
-Subject: Re: NIC with polling support
-Date: Tue, 31 Dec 2002 19:07:21 +0000 (UTC)
-Organization: PBR Streetgang
-Message-ID: <slrnb13qop.bsm.lunz@stoli.localnet>
-References: <87el7yrvso.fsf@Login.CERT.Uni-Stuttgart.DE>
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+Subject: 2.5.50 responsiveness
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Weimer@CERT.Uni-Stuttgart.DE said:
-> Any suggestions which card I should use?  The driver has to be open
-> source, and the card shouldn't be too expensive (i.e. in the usual
-> price range of brand 100BaseTX NICs).
+Fetched Solaris 9 CDROM images yesterday, unpacked, copied, etc.
+Manipulating these 600+ MB files totally kills the machine
+(with 256 MB memory). Keystrokes are reacted to after half a minute.
+It is impossible to use the mouse since the kernel is too slow
+to accept mouse packets within its self-imposed timeout, so that
+the logs are full of
+psmouse.c: Lost synchronization, throwing 1 bytes away.
+psmouse.c: Lost synchronization, throwing 3 bytes away.
+psmouse.c: Lost synchronization, throwing 1 bytes away.
+psmouse.c: Lost synchronization, throwing 3 bytes away.
+The clock lost somewhat over 10 minutes.
 
-linux 2.4.20 supports NAPI for tg3 only. I have patches for e1000,
-3c59x, tulip, and eepro100 at:
+This is really primitive behaviour.
 
-	http://gtf.org/lunz/linux/net/
-
-The tulip patch might be a bit outdated. The only one of these patches
-that I've personally tested extensively is e1000, and it works well
-under extremely high interrupt load. e1000 cards are getting cheap
-enough to be considered as 100BaseTX NICs, and they perform well doing
-that.
-
-Napi patches also exist for dl2k and a few other drivers, but I'm not
-sure where.
-
-Jason
+Andries
 
 
+[everything vanilla - no settings changed, no hdparm used]

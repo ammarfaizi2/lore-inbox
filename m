@@ -1,80 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbULMMsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbULMMvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262249AbULMMsW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 07:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbULMMrr
+	id S262248AbULMMvh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 07:51:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbULMMt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 07:47:47 -0500
-Received: from macedonia.mhl.tuc.gr ([147.27.3.60]:18111 "HELO
-	macedonia.mhl.tuc.gr") by vger.kernel.org with SMTP id S262248AbULMMpj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 07:45:39 -0500
-Subject: PCI interrupt lost
-From: Dimitris Lampridis <labis@mhl.tuc.gr>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WKHnZLYPq1alcHw0pWMZ"
-Date: Mon, 13 Dec 2004 14:45:33 +0200
-Message-Id: <1102941933.3415.14.camel@naousa.mhl.tuc.gr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Mon, 13 Dec 2004 07:49:28 -0500
+Received: from cantor.suse.de ([195.135.220.2]:8157 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262250AbULMMtB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 07:49:01 -0500
+Message-ID: <41BD483B.1000704@suse.de>
+Date: Mon, 13 Dec 2004 08:43:55 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041104)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+       Andrea Arcangeli <andrea@suse.de>
+Subject: Re: dynamic-hz
+References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
+In-Reply-To: <41BCD5F3.80401@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Con Kolivas wrote:
 
---=-WKHnZLYPq1alcHw0pWMZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Just being devils advocate here...
+> 
+> I had variable Hz in my tree for a while and found there was one 
+> solitary purpose to setting Hz to 100; to silence cheap capacitors.
 
-Hi,
-I'm writing a device driver for an embedded USB controller (philips
-ISP116x). I'm using the evaluation board provided by philips for my
-work. This board is a PCI board featuring the Host Controller ISP1160
-and a PCI bridge by PLX.
+power savings? Having the cpu wake up 1000 times per second if the
+machine is idle cannot be better than only waking it up 100 times.
 
-The bad news (for me) is that I don't get to see any interrupts from my
-device.=20
+Yes, i am always on the quest for the 5 extra minutes on battery :-)
 
-The good news is that I've managed to narrow down the problem. Here is
-my case:
-1) The Host Controller is configured and operating and is producing
-interrupts (I used a logic Analyzer and saw it happening).
-2) The driver never services these interrupts. The exact behaviour is
-dictated by the "trigger" setting of the INT pin. If it is
-edge-triggered, the interrupts keep on coming from the HC. If it is
-level-triggered, only one interrupt happens and since it is never
-serviced, it keeps on forever, blocking any further signals.
-3) The driver IS ABLE to service interrupts. The ISR is installed and
-functioning (I was able to see that, when the device was sharing the IRQ
-and the ISR was called only to return IRQ_NONE, nevertheless showing
-that IF an interrupt was to be received, coming from the Host
-Controller, the routine would be called, thus clearing the interrupt on
-the controller).
-
-So, to make things short, my device is generating interrupts, my code
-has a functioning and registered interrupt routine (/proc/interrupts
-agrees as well but interrupt count is 0 for the specific IRQ), but no
-interrupt is ever received from the PCI card.
-
-What is wrong here? I'm having trouble coming with any new ideas, so I
-thought that maybe someone can help me.
-I would appreciate any help, please CC me personally as I'm not yet
-subscribed to the list, or find me at the linux-usb-devel list.
-
-Thanx in advance,
---=20
-Dimitris Lampridis <labis@mhl.tuc.gr>
-
---=-WKHnZLYPq1alcHw0pWMZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBvY7tgMArLfy6HHMRAlNaAKCEbUHui4JCAV3+LHNmstR1P73VgwCfXYPF
-V7payg8tLrDpVFwlfWR/z0Y=
-=9xN2
------END PGP SIGNATURE-----
-
---=-WKHnZLYPq1alcHw0pWMZ--
+Stefan
 

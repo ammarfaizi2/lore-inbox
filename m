@@ -1,79 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbUKNSNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbUKNSRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbUKNSNa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 13:13:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbUKNSNa
+	id S261325AbUKNSRL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 13:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbUKNSRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 13:13:30 -0500
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:507 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261322AbUKNSNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 13:13:24 -0500
-Message-ID: <4197A037.1020307@blueyonder.co.uk>
-Date: Sun, 14 Nov 2004 18:13:11 +0000
-From: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Sun, 14 Nov 2004 13:17:10 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:56215 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S261325AbUKNSRI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 13:17:08 -0500
+Date: Sun, 14 Nov 2004 10:16:32 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrea Arcangeli <andrea@novell.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Chris Ross <chris@tebibyte.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Nick Piggin <piggin@cyberone.com.au>,
+       Rik van Riel <riel@redhat.com>,
+       "Martin MOKREJ?" <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+Message-ID: <480430000.1100456191@[10.10.2.4]>
+In-Reply-To: <20041114170339.GB13733@dualathlon.random>
+References: <20041111112922.GA15948@logos.cnet> <4193E056.6070100@tebibyte.org> <4194EA45.90800@tebibyte.org> <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: netdev@oss.sgi.com
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when using
- SELinux and SOCK_SEQPACKET
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1A9E7CC68846B315A9689575"
-X-OriginalArrivalTime: 14 Nov 2004 18:13:47.0428 (UTC) FILETIME=[AF4D4E40:01C4CA75]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1A9E7CC68846B315A9689575
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+> My patch compared to yours will only save .text/.data/.bss bloat (i.e.
+> the opposite of what Martin was worried about) to avoid message passing
+> via global variable w/o locks from task context to kswapd.
 
-With CONFIG_SECURITY_NETWORK=y and CONFIG_SECURITY_SELINUX=y, using
-SOCK_SEQPACKET unix domain sockets causes an oops in the superfluous(?)
-call to security_unix_may_send in sock_dgram_sendmsg. This patch avoids
-making this call for SOCK_SEQPACKET sockets.
+Heh, I wasn't really worried about the code size at all ... I was just 
+pointing out that 1 page was a trivial amount to be worried about, in
+terms of when we start reclaim.
 
+M.
 
-Signed-off-by: Ross Axe <ross.axe@blueyonder.co.uk>
-
-
---- linux-2.6.10-rc1/net/unix/af_unix.c.orig	2004-11-13
-21:04:53.000000000 +0000
-+++ linux-2.6.10-rc1/net/unix/af_unix.c	2004-11-13 21:12:23.000000000 +0000
-@@ -1354,9 +1354,11 @@ restart:
-  	if (other->sk_shutdown & RCV_SHUTDOWN)
-  		goto out_unlock;
-
--	err = security_unix_may_send(sk->sk_socket, other->sk_socket);
--	if (err)
--		goto out_unlock;
-+	if (sk->sk_type != SOCK_SEQPACKET) {
-+		err = security_unix_may_send(sk->sk_socket, other->sk_socket);
-+		if (err)
-+			goto out_unlock;
-+	}
-
-  	if (unix_peer(other) != sk &&
-  	    (skb_queue_len(&other->sk_receive_queue) >
-
-
---------------enig1A9E7CC68846B315A9689575
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBl6A89bR4xmappRARAottAKCamwZt5rm2zbcOBZbZFCN1t3fvJACfUwt8
-BLHOjOb6vwerfpiZgXdI8KM=
-=TIn2
------END PGP SIGNATURE-----
-
---------------enig1A9E7CC68846B315A9689575--

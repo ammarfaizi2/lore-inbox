@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311284AbSCQDnu>; Sat, 16 Mar 2002 22:43:50 -0500
+	id <S311285AbSCQENE>; Sat, 16 Mar 2002 23:13:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311283AbSCQDnk>; Sat, 16 Mar 2002 22:43:40 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:13576 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S311285AbSCQDnV>; Sat, 16 Mar 2002 22:43:21 -0500
-Date: Sat, 16 Mar 2002 19:43:20 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
+	id <S311287AbSCQEMo>; Sat, 16 Mar 2002 23:12:44 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:11942 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S311285AbSCQEMe>;
+	Sat, 16 Mar 2002 23:12:34 -0500
+Date: Sat, 16 Mar 2002 20:12:19 -0800
+From: Chris Wedgwood <cw@f00f.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>, <mingo@redhat.com>
-Subject: Re: /dev/md0: Device or resource busy
-In-Reply-To: <E16mRYV-000853-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0203161937390.7016-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Andi Kleen <ak@suse.de>, yodaiken@fsmlabs.com,
+        Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+Message-ID: <20020317041219.GB14116@tapu.f00f.org>
+In-Reply-To: <20020317025004.GA13644@tapu.f00f.org> <E16mRZx-00085G-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16mRZx-00085G-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.27i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Mar 2002, Alan Cox wrote:
+On Sun, Mar 17, 2002 at 03:43:29AM +0000, Alan Cox wrote:
 
-> > i just tried a "linux init=/bin/sh" boot, and it's still saying Device or
-> > resource busy:
-> >
-> > init-2.05a# raidstop /dev/md0
-> > md: md0 still in use.
-> > /dev/md0: Device or resource busy
-> > init-2.05a# mount /proc
->
-> Duplicated. Seems the md code deos indeed have a bug there
+    You are labouring under the belief that processors touch the frame
+    buffer nowdays. For a current accelerated frame buffer that isnt
+    very true.
 
-ACK!  sorry.  it's not the kernel code, it's raidstop.  it seems to open
-/dev/md0 an extra time for what reason i'm not sure.  it even does it when
-you're referring to other md devices.  for example:
+/s/frame-buffer/hunk-of-memory/
 
-# strace raidstop /dev/md3
-...
-open("/dev/md0", O_RDONLY)              = 4
-ioctl(4, 0x800c0910, 0x804fd1c)         = 0
-open("/dev/md3", O_RDWR)                = 5
-fstat64(5, {st_mode=S_IFBLK|0660, st_rdev=makedev(9, 3), ...}) = 0
-ioctl(5, 0x932, 0)                      = 0
-...
+Either way, we have tens of MB of ram where we either put textures,
+options or whatever --- the CPU has to meddle with it one way or
+another.
 
-mdctl doesn't have this problem.
 
-fwiw dpkg tells me i've got raidtools 0.90.20010914-9
 
--dean
-
+  --cw

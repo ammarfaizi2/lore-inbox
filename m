@@ -1,48 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBGVsD>; Wed, 7 Feb 2001 16:48:03 -0500
+	id <S129047AbRBGVzo>; Wed, 7 Feb 2001 16:55:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129047AbRBGVry>; Wed, 7 Feb 2001 16:47:54 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:18436 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129032AbRBGVrg>; Wed, 7 Feb 2001 16:47:36 -0500
-Date: Thu, 8 Feb 2001 10:47:29 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Xuan Baldauf <xuan--reiserfs@baldauf.org>
-Cc: David Rees <dbr@spoke.nols.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
-Message-ID: <20010208104729.B4749@metastasis.f00f.org>
-In-Reply-To: <3A813A63.EBD1B768@namesys.com> <420500000.981560829@tiny> <20010207083854.F24270@spoke.nols.com> <3A818619.7C3967BC@baldauf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A818619.7C3967BC@baldauf.org>; from xuan--reiserfs@baldauf.org on Wed, Feb 07, 2001 at 06:30:01PM +0100
-X-No-Archive: Yes
+	id <S129092AbRBGVzf>; Wed, 7 Feb 2001 16:55:35 -0500
+Received: from front1.grolier.fr ([194.158.96.51]:28854 "EHLO
+	front1.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129047AbRBGVzS> convert rfc822-to-8bit; Wed, 7 Feb 2001 16:55:18 -0500
+Date: Wed, 7 Feb 2001 21:50:46 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: davej@suse.de, Alan Cox <alan@redhat.com>, becker@scyld.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Hamachi not doing pci_enable before reading resources
+In-Reply-To: <Pine.LNX.3.95.1010207144124.1258B-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.10.10102072135320.905-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 07, 2001 at 06:30:01PM +0100, Xuan Baldauf wrote:
 
-    and so on. Maybe I should write a program which automatically
-    detects and reports the zero blocks. I think the theory of tails
-    unpacking does not work out, because there are also areas
-    affected which are not between 2048 and 4096. Also the length of
-    the zeroing can be greater than 2048.  However, I did not
-    encounter a length of over 4096.
+You missed the newer statements about every piece of hardware being
+assumed to be hot-pluggable and all the hardware being under full control
+by CPU.
 
-these appear on your system every couple of days right? if so... are
-you able to run with the fs mount notails for a couple of days and
-see if you still experience these?
+You also missed the well known point that only device drivers are broken
+under Linux and that all the generic O/S code is just perfect. :-)
 
-my guess is you probably still will as most log files aren't
-candidates for tail-packing (too large) but it will help eliminate
-one more thing....
+  Gérard.
 
+On Wed, 7 Feb 2001, Richard B. Johnson wrote:
 
-  --cw
+> On Wed, 7 Feb 2001 davej@suse.de wrote:
+> 
+> > 
+> > Hi Alan,
+> > 
+> >  Another driver not doing pci_enable_device() early enough.
+> > 
+> > Dave.
+> > 
+> 
+> A PCI device does not and should not be enabled to probe for resources!
+> It is only devices that have BIOS that require the device to be enabled
+> for memory I/O prior to downloading the BIOS into RAM. The BARs are
+> read/writable (and are required to be), even when the Mem/I/O bits
+> in the cmd/status register are clear.
+> 
+> This is a required condition!  You certainly don't want to write all
+> ones to a decode (to find the resource length) of a live, on-line chip!
+> If the chip hickups (think network chips connected to networks, on a
+> warm-boot), you will trash lots of stuff in memory.
+> 
+> It looks as though you are "fixing" drivers that are not broken and,
+> in fact, are trying to do the right thing. Maybe the PCI code in the
+> kernel is preventing access to resources unless the device has been
+> enabled??? If so, it's broken and should be fixed, instead of all
+> the drivers.
+> 
+> Cheers,
+> Dick Johnson
+> 
+> Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+> 
+> "Memory is like gasoline. You use it up when you are running. Of
+> course you get it all back when you reboot..."; Actual explanation
+> obtained from the Micro$oft help desk.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

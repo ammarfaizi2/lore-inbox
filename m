@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269997AbUJNI0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269998AbUJNIeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269997AbUJNI0p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 04:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269999AbUJNI0p
+	id S269998AbUJNIeP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 04:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269999AbUJNIeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 04:26:45 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:9231 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S269997AbUJNI0g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 04:26:36 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: stsp@aknet.ru (Stas Sergeev)
-Subject: Re: [patch] allow write() on SOCK_PACKET sockets
-Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Organization: Core
-In-Reply-To: <416DF644.2070906@aknet.ru>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.net
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1CI0wC-0001j8-00@gondolin.me.apana.org.au>
-Date: Thu, 14 Oct 2004 18:26:16 +1000
+	Thu, 14 Oct 2004 04:34:15 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:39685 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269998AbUJNIeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 04:34:13 -0400
+Date: Thu, 14 Oct 2004 09:34:10 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>, chas@cmf.nrl.navy.mil,
+       greg@kroah.com
+Subject: Re: [KJ] [PATCH 2.6] fore200e.c replace pci_find_device with pci_get_device
+Message-ID: <20041014083410.GA7747@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Hanna Linder <hannal@us.ibm.com>,
+	lkml <linux-kernel@vger.kernel.org>,
+	kernel-janitors <kernel-janitors@lists.osdl.org>,
+	chas@cmf.nrl.navy.mil, greg@kroah.com
+References: <194130000.1097705759@w-hlinder.beaverton.ibm.com> <196790000.1097705910@w-hlinder.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <196790000.1097705910@w-hlinder.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stas Sergeev <stsp@aknet.ru> wrote:
->
-> I think you are looking at a wrong place.
-> You are looking into IP raw sockets code.
-> Packet sockets are really the different
-> layer. Please have a look into
-> net/packet/af_packet.c instead.
-
-Yes.  Sorry for the confusion.
-
-> But I don't seem to be able to send any
-> mail to you:
-
-Should work now.
- 
->> OTOH, write() and send() needs to know where the message is going
->> to.
->
-> That's exactly where the packet sockets are
-> different. Here's the whole point. Have a
-> look into a "struct sockaddr_pkt":
+On Wed, Oct 13, 2004 at 03:18:30PM -0700, Hanna Linder wrote:
 > 
->              struct sockaddr_pkt
->              {
->                  unsigned short  spkt_family;
->                  unsigned char   spkt_device[14];
->                  unsigned short  spkt_protocol;
->              };
+> 
+> As pci_find_device is going away soon I have converted this file to use
+> pci_get_device instead. I have compile tested it. If anyone has this ATM card
+> and could test it that would be great.
 
-I see your point.  But I don't really like the current code that
-uses the address from bind for sending.  Even though it works here
-because the packet socket is symmetric wrt sending/receiving, it
-is counter-intuitive for the socket API in general.
+Again this driver should be converted to pci_driver.  What you did didn't
+plug the hotplug races anyway.
 
-> My patch is probably dead anyway though.
-> SOCK_PACKET is mentioned to be deprecated
-> in man, so perhaps noone will apply any
-> patches on it... Just wanted to point out
 
-Indeed it is.
-
-> that there is a bug/inconsistency in it.
-
-Thanks anyway.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

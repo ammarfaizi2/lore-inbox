@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317468AbSHaMtf>; Sat, 31 Aug 2002 08:49:35 -0400
+	id <S314514AbSHaNKI>; Sat, 31 Aug 2002 09:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317471AbSHaMtf>; Sat, 31 Aug 2002 08:49:35 -0400
-Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:28351 "EHLO
+	id <S314546AbSHaNKI>; Sat, 31 Aug 2002 09:10:08 -0400
+Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:35775 "EHLO
 	leon-2.mat.uni.torun.pl") by vger.kernel.org with ESMTP
-	id <S317468AbSHaMte>; Sat, 31 Aug 2002 08:49:34 -0400
-Date: Sat, 31 Aug 2002 14:53:54 +0200 (CEST)
+	id <S314514AbSHaNKH>; Sat, 31 Aug 2002 09:10:07 -0400
+Date: Sat, 31 Aug 2002 15:14:21 +0200 (CEST)
 From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
 X-X-Sender: golbi@ultra60
 To: pwaechtler@mac.com
-cc: linux-kernel@vger.kernel.org, Michal Wronski <wrona@mat.uni.torun.pl>
+cc: Amos Waterland <apw@us.ibm.com>, <linux-kernel@vger.kernel.org>,
+       Michal Wronski <wrona@mat.uni.torun.pl>
 Subject: Re: [PATCH] POSIX message queues
-In-Reply-To: <CDB36B91-BB99-11D6-B9F3-00039387C942@mac.com>
-Message-ID: <Pine.GSO.4.40.0208311440520.7165-100000@ultra60>
+In-Reply-To: <EE7BCBB6-BCD6-11D6-87AD-00039387C942@mac.com>
+Message-ID: <Pine.GSO.4.40.0208311454260.7165-100000@ultra60>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-On Thu, 29 Aug 2002 pwaechtler@mac.com wrote:
+On Sat, 31 Aug 2002 pwaechtler@mac.com wrote:
+> > The mq_maxmsg and mq_msgsize members of the mq_attr structure required
+> > if O_CREAT is passed to mq_open() ensure that an implementation can
+> > prevent the kernel memory DoS you mention: a malicious application can
+> > only fill up the MQ memory.
+> And how many mqueues am I allowed to create?
+> You would need an extra resource limit for that.
 
-> I know that it's nowhere stated, but POSIX mqueues are perfectly
-> designed to be
-> implemented in userspace with locking facilities provided by the system.
-> ...
-> with proper locking. I am not very happy about the fact, that with
-> futexes the whole
-> cooperating system get stuck when 1 process crashes inside a critical
-> region
-> (yes, then your system is screwed anyway).
-> BUT the messages are not copied between user- and kernelspace like they
-> are
-> in SysV  msgsnd.
-Is coping between user and kernel spaces so bad? As you pointed
-out there are problems with only user space implementation.
+Some explanation about limits:
+1) POSIX states about following limits:
 
-> POSIX mqueues have "kernel persistence", i.e. they live until
-> mq_unlink() is called.
-> They do not vanish with the creator on exit().
-Yes. But I don't see what is wrong with our system? Our queues _don't_
-vanish with creator exit. (Our add on to exit() (and fork) is to keep
-track of processes that have opened mqueue. Then mq_unlink() can
-postpone deleting queue to the time when it isn't opened by anyone)
+You can specify when creating a new queue mq_maxmsg (max number of mes. in
+this queue) and mq_msgsize (max mes. size). Values of those parameters are
+limited by MQ_MAXMSG and MQ_MSGSIZE. Defaults are 40 and 16384, but you
+can change them. Max number of queues (in system) is limited by MQ_MAX
+(default=64). Anyway the problem is how to, keeping this constants at
+sensible level, prevent from DOS. (40*16384*64= ca 40Mb)
 
-> Without rlimits you can easily consume all available kernel memory (DoS)
-> by creating
-> a mqueue and filling it with garbage.
-To this I answer in an answer to your next post :)
+So we added
+2) non-POSIX limit:
 
->
-> When implemented in kernel space, you have to create a thread with the
-> brand new
-> sys_clone_startup (or whatever name it gets) as notification
-> (SIGEV_THREAD) - which
-> is SCOPE_SYSTEM, no control about this and not always what is desired.
-I don't fully understand it. Can you explain it in more details?
-
-Thanks
-
-Krzysiek Benedyczak
+MQ_MAXSYSSIZE which limits space used by all messages (NOT queues) system
+wide. Maybe it isn't POSIX but useful I think. Default is 1Mb. It can be
+given MQ_MAX*MQ_MAXMSG*MQ_MAXSIZE value; then it do nothing => and
+you have only POSIX limits if you want so.
 

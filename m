@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261349AbSKKVQ1>; Mon, 11 Nov 2002 16:16:27 -0500
+	id <S261353AbSKKVZ0>; Mon, 11 Nov 2002 16:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261353AbSKKVQ1>; Mon, 11 Nov 2002 16:16:27 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:14079 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261349AbSKKVQ0>;
-	Mon, 11 Nov 2002 16:16:26 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S261374AbSKKVZ0>; Mon, 11 Nov 2002 16:25:26 -0500
+Received: from packet.digeo.com ([12.110.80.53]:36073 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261353AbSKKVZZ>;
+	Mon, 11 Nov 2002 16:25:25 -0500
+Message-ID: <3DD021D3.B7F1C511@digeo.com>
+Date: Mon, 11 Nov 2002 13:32:03 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: alan@cotse.com
+CC: linux-kernel@vger.kernel.org, vs@namesys.com
+Subject: Re: [BENCHMARK] 2.5.46-mm1 with contest
+References: <3DD01B32.4A113A71@digeo.com> <YWxhbg==.563e560fc9743df6e2cd56ac2568e2c0@1037049066.cotse.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15824.8030.745186.6665@napali.hpl.hp.com>
-Date: Mon, 11 Nov 2002 13:21:34 -0800
-To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-Cc: "'Mario Smarduch '" <cms063@email.mot.com>,
-       "'davidm+AEA-hpl.hp.com '" <davidm@hpl.hp.com>,
-       "'Mario Smarduch '" <CMS063@motorola.com>,
-       "'linux-ia64+AEA-linuxia64.org '" <linux-ia64@linuxia64.org>,
-       "'linux-kernel+AEA-vger.kernel.org '" <linux-kernel@vger.kernel.org>
-Subject: RE: +AFs-Linux-ia64+AF0- reader-writer livelock proble 
-In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C0101F4F7@usslc-exch-4.slc.unisys.com>
-References: <3FAD1088D4556046AEC48D80B47B478C0101F4F7@usslc-exch-4.slc.unisys.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-OriginalArrivalTime: 11 Nov 2002 21:32:06.0877 (UTC) FILETIME=[C8B8A0D0:01C289C9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 11 Nov 2002 14:36:38 -0600, "Van Maren, Kevin" <kevin.vanmaren@unisys.com> said:
+Alan Willis wrote:
+> 
+> > That's an awful lot of mapped memory.  Have you been altering
+> > /proc/sys/vm/swappiness?  Has some application run berzerk
+> > and used tons of memory?
+> >
+> > Slab:             7592 kB
+> > Committed_AS:   423120 kB
+> > PageTables:       1996 kB
+> > ReverseMaps:     69425
+> > HugePages_Total:    15
+> > HugePages_Free:     15
+> > Hugepagesize:     4096 kB
+> 
+> vm.swappiness was set to 0
 
-  Van> I have not looked at this, but I don't believe it is the right
-  Van> way to solve the problem: users who +AF8-need+AF8- to use all
-  Van> the CPUs for computation would be punished just to work around
-  Van> a kernel implementation issue: that's like saying don't allow
-  Van> processes to allocate virtual memory because if the VM is
-  Van> over-committed by X amount the kernel deadlocks.
+OK ;)
 
-  Van> It would be a bad hack to limit the system-call rate just to
-  Van> prevent livelock.
+That sucker really works.  I run my desktop machines (768M and 256M)
+at swappiness=80% or 90%.   I end up with 10-20 megs in swap after a
+day or two, which seems about right.  The default of 60 is probably a
+little too unswappy.
 
-Certainly.  I didn't suggest PRM as a way to _solve_ the livelock
-problem, but since Mario asked for a method to cap CPU utilization, I
-mentiond it.
+> I'll stick to 2.5.46 for a while yet I guess, to be sure.
 
-	--david
+Thanks.

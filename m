@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293276AbSCRX0S>; Mon, 18 Mar 2002 18:26:18 -0500
+	id <S293283AbSCRX16>; Mon, 18 Mar 2002 18:27:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293245AbSCRX0I>; Mon, 18 Mar 2002 18:26:08 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:21645 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S293276AbSCRXZz>; Mon, 18 Mar 2002 18:25:55 -0500
-Message-ID: <3C967758.1010102@didntduck.org>
-Date: Mon, 18 Mar 2002 18:25:12 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S293277AbSCRX1u>; Mon, 18 Mar 2002 18:27:50 -0500
+Received: from web13305.mail.yahoo.com ([216.136.175.41]:24589 "HELO
+	web13305.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S293283AbSCRX1l>; Mon, 18 Mar 2002 18:27:41 -0500
+Message-ID: <20020318232740.39289.qmail@web13305.mail.yahoo.com>
+Date: Mon, 18 Mar 2002 15:27:40 -0800 (PST)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: gcc inline asm - short question
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Gregoire Favre <greg@ulima.unil.ch>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Re: 2.5.7 hfs modules compil error
-In-Reply-To: <20020318215221.GA942@ulima.unil.ch>
-Content-Type: multipart/mixed;
- boundary="------------050401040509010909060806"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050401040509010909060806
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+  In studying the kernel I find many gcc inline 'asm' statements,
+like so.
+	
+        asm ( assembler template
+	    : output operands			 	(optional)
+	    : input operands			 	(optional)
+	    : list of clobbered registers 	  	(optional)
+	    );	
 
-Gregoire Favre wrote:
-> Hello,
-> 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
-> -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE
-> -DKBUILD_BASENAME=super  -c -o super.o super.c
-> super.c: In function `hfs_fill_super':
-> super.c:536: `sb' undeclared (first use in this function)
+  I have read all the docs and I still can't clearly understand when it 
+is required to specify a clobberlist - a register or memory that will
+be modified and must be preserved by gcc.
 
-Typo fixed.
+  In searching the kernel source there were very few clobbers given
+and most of those were for memory.
 
--- 
+  For example in arch/i386/lib/delay.c:
 
-						Brian Gerst
+71         __asm__("mull %0"
+72         :"=d" (xloops), "=&a" (d0)
+73         :"1" (xloops),"" (current_cpu_data.loops_per_jiffy));
+74         __delay(xloops * HZ);
 
---------------050401040509010909060806
-Content-Type: text/plain;
- name="sb-hfs-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sb-hfs-2"
+  It's pretty obvious that eax gets clobbered, as I know clobber.  Why is
+it not listed as such? Does the answer to this question apply in all cases? 
+What about memory clobbers - how do they happen?
 
-diff -urN linux-2.5.7/fs/hfs/super.c linux/fs/hfs/super.c
---- linux-2.5.7/fs/hfs/super.c	Mon Mar 18 16:14:15 2002
-+++ linux/fs/hfs/super.c	Mon Mar 18 17:06:11 2002
-@@ -533,7 +533,7 @@
- 	set_blocksize(dev, BLOCK_SIZE);
- bail3:
- 	kfree(sbi);
--	sb->u.generic_sbp = NULL;
-+	s->u.generic_sbp = NULL;
- 	return -EINVAL;	
- }
- 
 
---------------050401040509010909060806--
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Sports - live college hoops coverage
+http://sports.yahoo.com/

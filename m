@@ -1,79 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261545AbTCKTRD>; Tue, 11 Mar 2003 14:17:03 -0500
+	id <S261549AbTCKTTL>; Tue, 11 Mar 2003 14:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261546AbTCKTRC>; Tue, 11 Mar 2003 14:17:02 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:59267 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S261545AbTCKTQF>; Tue, 11 Mar 2003 14:16:05 -0500
-Date: Tue, 11 Mar 2003 14:29:39 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Firewire on Linux-2.4.20
-Message-ID: <Pine.LNX.3.95.1030311142745.2204A-100000@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261553AbTCKTTL>; Tue, 11 Mar 2003 14:19:11 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9943 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261549AbTCKTTJ>; Tue, 11 Mar 2003 14:19:09 -0500
+Date: Tue, 11 Mar 2003 20:29:45 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dave Jones <davej@suse.de>, Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Would the real 82801E_9 please stand up. (fwd)
+Message-ID: <20030311192945.GA16212@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The issue described in Dave's mail below is still present:
 
-Hello FIREWIRE gurus!
+2.4.21-pre5-ac1:
+#define PCI_DEVICE_ID_INTEL_82801E_9    0x2459
+#define PCI_DEVICE_ID_INTEL_82801E_11   0x245B
 
-I am trying to get Linux-2.4.20 running!  I need the
-IEEE1394 PCILYNX module working. The configuration has
-strangely changed since linux-2.4.18 so the required
-object file becomes an 8-byte text file!
 
-Script started on Tue Mar 11 14:15:40 2003
-# pwd
-/usr/src/linux-2.4.20/drivers/ieee1394
-# ls -la pcilynx.o
--rw-r--r--   1 root     root            8 Mar 11 14:12 pcilynx.o
-# cat pcilynx.o
-!<arch>
-# exit
-exit
+2.5.64-ac3:
+#define PCI_DEVICE_ID_INTEL_82801E_9    0x245b
+#define PCI_DEVICE_ID_INTEL_82801E_11   PCI_DEVICE_ID_INTEL_82801E_9
 
-Script done on Tue Mar 11 14:16:15 2003
 
-I haven't a clue how to fix this. Does anybody know?
-Here is the relevant parts of ".config" 
+Jens:
+The patch that did the
+  #define PCI_DEVICE_ID_INTEL_82801E_11   PCI_DEVICE_ID_INTEL_82801E_9
+in 2.5 was sent by you, could you comment on this issue?
 
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-CONFIG_IEEE1394=m
+TIA
+Adrian
 
-#
-# Device Drivers
-#
-CONFIG_IEEE1394_PCILYNX=m
-CONFIG_IEEE1394_PCILYNX_LOCALRAM=y
-CONFIG_IEEE1394_PCILYNX_PORTS=y
-CONFIG_IEEE1394_OHCI1394=m
 
-#
-# Protocol Drivers
-#
-# CONFIG_IEEE1394_VIDEO1394 is not set
-CONFIG_IEEE1394_SBP2=m
-CONFIG_IEEE1394_RAWIO=m
-# CONFIG_IEEE1394_VERBOSEDEBUG is not set
 
-#
-# I2O device support
-#
-CONFIG_I2O=m
-CONFIG_I2O_PCI=m
-CONFIG_I2O_BLOCK=m
-CONFIG_I2O_LAN=m
-CONFIG_I2O_SCSI=m
-CONFIG_I2O_PROC=m
+----- Forwarded message from Dave Jones <davej@suse.de> -----
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Date: Mon, 24 Jun 2002 23:58:52 +0200
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Would the real 82801E_9 please stand up.
 
+Whilst syncing 2.4.19rc1, I spotted this problem
+in pci_ids.h
+
+2.4..
+
+#define PCI_DEVICE_ID_INTEL_82801E_9    0x2459
+
+2.5..
+
+#define PCI_DEVICE_ID_INTEL_82801E_9    0x245b
+
+In a word.. eughhh
+
+        Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
 

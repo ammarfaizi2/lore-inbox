@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275813AbRJJOF2>; Wed, 10 Oct 2001 10:05:28 -0400
+	id <S275823AbRJJOKI>; Wed, 10 Oct 2001 10:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275816AbRJJOFS>; Wed, 10 Oct 2001 10:05:18 -0400
-Received: from ns.suse.de ([213.95.15.193]:26119 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S275813AbRJJOFF>;
-	Wed, 10 Oct 2001 10:05:05 -0400
-Date: Wed, 10 Oct 2001 16:05:32 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Thomas Hood <jdthood@mail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: sysctl interface to bootflags?
-In-Reply-To: <1002667739.763.9.camel@thanatos>
-Message-ID: <Pine.LNX.4.30.0110101603430.26743-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275825AbRJJOJt>; Wed, 10 Oct 2001 10:09:49 -0400
+Received: from smtp4.hushmail.com ([64.40.111.32]:51720 "HELO
+	smtp4.hushmail.com") by vger.kernel.org with SMTP
+	id <S275818AbRJJOJf>; Wed, 10 Oct 2001 10:09:35 -0400
+Message-Id: <200110101408.f9AE87w91970@mailserver1.hushmail.com>
+From: jkniiv@hushmail.com
+To: linux-kernel@vger.kernel.org
+Subject: Dilemma: Replace Escalade with Adaptec 2400A or Promise Supertrak66?
+Date: Wed, 10 Oct 2001 07:08:07 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Oct 2001, Thomas Hood wrote:
 
-> Read current value := 0x88
-> Read updated value := 0x89
-> Here it has set bit 0, the PnP-OS bit.  Do you have any
-> plans to enhance the program to allow control of all the flags?
+-----BEGIN PGP SIGNED MESSAGE-----
 
-Could be a useful addition, if only during debugging.
-The idea iirc is that kernel should put it into a state
-where userspace only needs to clear the 'successful boot' flag.
-By the time we get to userspace, the parity should be correct also,
-so you shouldn't need to hack sbf.c to chop that test out.
+Hi folks,
 
+I'm sorry to involve you lot but I have a dilemma of how to replace a problematic 3Ware Escalade 6400 with another ATA RAID controller due to the known problem of Escalade "losing" one or several drives from my striped mirror (RAID10). It needs a reboot and juggling the drives back and forth before it rebuilds the set. Now that 3Ware seems to be discontinuing the line, this issue probably won't be resolved any time soon and I'm wondering which one of two remaining options, Adaptec 2400A or Promise Supertrak66/100 is reasonably compatible with recent (2.4.[89]) Alan Cox kernels? (compatible == hopefully reliable)
 
-regards,
+I know that both are based on an I2O architecture so there's some hope, at least, even if there is very little support officially by Adaptec or Promise. Alan himself has proclaimed that the Supertrak works for him just fine, but I presume there are no Linux-based utilities available yet. Is there then any way to find out if a drive has gone south and needs to be replaced -- kernel log messages, maybe?
 
-Dave.
+The Adaptec 2400A is presumably very much like the 2100S SCSI model. Adaptec has released some binary only drivers and utilities but none for the 2.4 kernel line. There are however some beta stage drivers (dpt_i2o) available as source for the SCSI models. Now, I happened to list the symbols of the binary only driver for the 2400A (dpt_i2o.o) and came to the conclusion that they are the very same as in the SCSI driver source! Any differences ought to be small. Now, I'm wondering whether anybody has already tested the driver with a 2400A? Alan?
 
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+Yours,
+
+  // Jarkko Kniivila, CIO, Ambientia Ltd., Finland
+
+-----BEGIN PGP SIGNATURE-----
+Version: Hush 2.0
+
+wlsEARECABsFAjvEViAUHGprbmlpdkBodXNobWFpbC5jb20ACgkQlshdxPYU0CZLvQCd
+FRTf26MRGbvJ79i6hiXdWwBO9ksAn2nROfTFKpsfOfOROgjHNWPIVmm5
+=4bKb
+-----END PGP SIGNATURE-----
 

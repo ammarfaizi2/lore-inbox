@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263703AbUJ3LhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263706AbUJ3Lix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263703AbUJ3LhA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 07:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263706AbUJ3LhA
+	id S263706AbUJ3Lix (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 07:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263707AbUJ3Lix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 07:37:00 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:14603 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S263703AbUJ3LfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 07:35:18 -0400
-Subject: Re: [Linux-fbdev-devel] Re: 2.6.10-rc1-mm2: intelfb/AGP unknown
-	symbols
-From: Arjan van de Ven <arjan@infradead.org>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Sylvain Meyer <sylvain.meyer@worldonline.fr>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200410301921.34961.adaplas@hotpop.com>
-References: <20041029014930.21ed5b9a.akpm@osdl.org>
-	 <20041030032425.GI6677@stusta.de>
-	 <1099124920.2822.3.camel@laptop.fenrus.org>
-	 <200410301921.34961.adaplas@hotpop.com>
-Content-Type: text/plain
-Message-Id: <1099136087.3883.0.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Sat, 30 Oct 2004 13:34:47 +0200
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 30 Oct 2004 07:38:53 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:8928 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S263706AbUJ3Lip (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 07:38:45 -0400
+Date: Sat, 30 Oct 2004 13:38:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Larry McVoy <lm@bitmover.com>
+cc: Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+In-Reply-To: <20041029224100.GA7222@work.bitmover.com>
+Message-ID: <Pine.LNX.4.61.0410301236390.877@scrub.home>
+References: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
+ <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com>
+ <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com>
+ <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com>
+ <Pine.LNX.4.61.0410292132560.17266@scrub.home> <20041029224100.GA7222@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Fri, 29 Oct 2004, Larry McVoy wrote:
+
+> Roman, you can have any of your data that you want, including the metadata
+> such as dates, times, user names, etc.  Nobody is hiding that from you,
+> it's all there, you don't need a license to get it, go to bkbits.net and
+> get it.
+
+I had another closer look and it seems there are good chances to 
+reconstruct the data in useable way (especially the rather recently 
+added gnupatch and constant link should help). It's not my favourite 
+solution, since it has to be pieced together from more parts than really 
+necessary, but as proof of concept it should be interesting. So far I 
+stayed away from this, because of the traffic this will cause and your 
+previous disapproval of causing such traffic, but I can assure you I do my 
+best to keep it to a minimum.
+
+> > To make this easier to understand for everyone, here is a simple example: 
+> > a very simple network protocol would be to extend the current commit mails 
+> > with the identifiers one can already find in bkcvs, so they can be put 
+> > into the correct order.
 > 
-> What's wrong with exporting the symbols back again?
+> That's not a network protocol, just change the bloody commit trigger.
+> I don't care if you get that information, if you want it, have at it.
 
-if they are the right api to use; nothing. If they aren't (and what you
-describe somehow suggests they aren't) it sounds better to make the
-frontend usable for the intelfb driver instead...
+I'm still a little confused how this matches your earlier statement, if 
+you had said this earlier, we could have cut the whole thing short and I 
+could have avoided getting roasted by Linus.
+Anyway, I don't really care and thanks for the offer, I certainly will 
+come back to it (although not immediately).
 
+bye, Roman

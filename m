@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270969AbTGPRti (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 13:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270965AbTGPRsB
+	id S270996AbTGPRvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 13:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271001AbTGPRvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 13:48:01 -0400
-Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:49351
-	"EHLO efix.biz") by vger.kernel.org with ESMTP id S271001AbTGPRr1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 13:47:27 -0400
-Subject: Re: woes with 2.6.0-test1 and xscreensaver/xlock
-From: Edward Tandi <ed@efix.biz>
-To: Nuno Monteiro <nuno.monteiro@ptnix.com>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030716172758.GA1792@hobbes.itsari.int>
-References: <20030716172758.GA1792@hobbes.itsari.int>
-Content-Type: text/plain
-Message-Id: <1058378574.16995.13.camel@wires.home.biz>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 16 Jul 2003 19:02:54 +0100
+	Wed, 16 Jul 2003 13:51:25 -0400
+Received: from smtp.netcabo.pt ([212.113.174.9]:5869 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S270996AbTGPRvP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 13:51:15 -0400
+Message-ID: <3F15F4AE.3080306@netcabo.pt>
+Date: Thu, 17 Jul 2003 01:58:22 +0100
+From: Pedro Ribeiro <deadheart@netcabo.pt>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with 2.6.0-test1 && depmod
+References: <3F15E439.70107@netcabo.pt> <20030716103517.65e146bc.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Jul 2003 18:01:19.0290 (UTC) FILETIME=[423441A0:01C34BC4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-16 at 18:27, Nuno Monteiro wrote:
-> Hi there people,
-> 
-> 
-> Is anyone else having trouble with xscreensaver/xlock under 2.6.0-test1? 
-> Whenever I lock my session using either "lock screen" from the menu (it 
-> launches 'xscreensaver lock', afaik) or "xlock", I cant seem to ever get 
-> my session back -- I type in the correct password, but they both just 
-> hang there. The exact same setup works flawlessly in 2.4.21, and just for 
-> the sake of curiosity I also tested 2.5.75, 2.5.74, 2.5.73, 2.5.72, 
-> 2.5.71 and 2.5.70, they all exhibit the same behaviour as 2.6.0-test1. I 
-> dont really have time to go on testing kernels to find out exactly where 
-> it broke, so I'm hoping anyone else is experiencing these woes.
+Randy.Dunlap wrote:
 
-Yes, I reported the same problem (and others) on the 31st may and the
-5th June.
+>On Thu, 17 Jul 2003 00:48:09 +0100 Pedro Ribeiro <deadheart@netcabo.pt> wrote:
+>
+>| I've just installed 2.6.0-test1 but whenever I try to use depmod, lsmod 
+>| or insmod I get this error:
+>| 
+>| Module                  Size  Used by    Not tainted
+>| lsmod: QM_MODULES: Function not implemented
+>| 
+>| I first noticed this when I was trying to install the nvidia drivers. 
+>| Needless to say that I was unable to install them. What can I do to 
+>| solve this problem? By the way,
+>| 
+>| depmod version 2.4.16
+>
+>Please read
+>  http://www.codemonkey.org.uk/post-halloween-2.5.txt
+>when it's back online (maybe 2 hours).
+>
+>Also, you need to use the module-init-tools for 2.6.
+>They are at
+>  http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+>
+>--
+>~Randy
+>  
+>
+I'm sorry, but what version am I supposed to download? The lastest? 
+(module-init-tools-0.9.13-pre.tar.gz)
 
-It's good to see someone has found the gnome-terminal problem. The only
-other biggie-ish is the rmmod issue.
-
-Ed-T.
-
-> Additionally, syslog spews out the following:
-> 
-> Jul 16 17:40:24 hobbes xscreensaver(pam_unix)[1501]: authentication 
-> failure; logname= uid=501 euid=501 tty=:0.0 ruser= rhost=  user=nuno
-> 
-> I upgraded to the latest pam and xscreensaver packages from mandrake 
-> cooker, but still no dice, it hangs exactly the same. And oh, this is 
-> glibc 2.3.2, if thats interesting, and gcc 3.3.
-> 
-> Interestingly enough, sometimes killing the xscreensaver process leads to 
-> a complete hang, although no oops is visible. With nmi_watchdog=1 it 
-> doesnt hang, but it seems the keyboard is dead after killing xscreensaver 
-> -- i see an error on console, something like 'xscreensaver: no interrupt 
-> data for mouse/keyb on /proc/interrupt' (i didnt copy it down, sorry). 
-> The keyboard is still useable from the console, but not from X.
-> 
-> Let me know if you need more info.
-
+PR
 

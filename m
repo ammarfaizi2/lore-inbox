@@ -1,53 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267003AbRGZLKx>; Thu, 26 Jul 2001 07:10:53 -0400
+	id <S267184AbRGZLgN>; Thu, 26 Jul 2001 07:36:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267184AbRGZLKo>; Thu, 26 Jul 2001 07:10:44 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:2564 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S267003AbRGZLKa>; Thu, 26 Jul 2001 07:10:30 -0400
-Date: Thu, 26 Jul 2001 12:08:17 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: cg14 frambuffer bug in 2.2.19 (and probably 2.4.x as well)
-Message-ID: <Pine.LNX.4.33.0107261203241.366-100000@tahallah.demon.co.uk>
+	id <S267241AbRGZLgE>; Thu, 26 Jul 2001 07:36:04 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:49413 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S267184AbRGZLfw>; Thu, 26 Jul 2001 07:35:52 -0400
+Message-ID: <3B60022D.C397D80E@zip.com.au>
+Date: Thu, 26 Jul 2001 21:42:37 +1000
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+CC: lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au>,
+		<3B5FC7FB.D5AF0932@zip.com.au> <20010726130809.D17244@emma1.emma.line.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi guys,
+Matthias Andree wrote:
+> 
+> On Thu, 26 Jul 2001, Andrew Morton wrote:
+> 
+> > data=journal
+> >
+> >   All data (as well as to metadata) is written to the journal
+> >   before it is released to the main fs for writeback.
+> >
+> >   This is a specialised mode - for normal fs usage you're better
+> >   off using ordered data, which has the same benefits of not corrupting
+> >   data after crash+recovery.  However for applications which require
+> >   synchronous operation such as mail spools and synchronously exported
+> >   NFS servers, this can be a performance win.  I have seen dbench
+> 
+> In ordered and journal mode, are meta data operations, namely creating a
+> file, rename(), link(), unlink() "synchronous" in the sense that after
+> the call has returned, the effect of this call is never lost, i. e., if
+> link(2) has returned and the machine crashes immediately, will the next
+> recovery ALWAYS recover the link?
 
-I have a patch here that fixes an annoying bug in the cg14 framebuffer
-driver on sparc32 platforms. The bug is when it never switches off the
-cursor before going into X11 mode, so you get an 'orrible cursor
-overlaying whatever you've got on the screen, in the same position as the
-consoles. Switching to any console and back to the X11 display, the cursor
-overlays the last position the cursor was in on the console. On
-investigating, discovered that the cg14 framebuffer doesn't switch off the
-cursor!
+No, they're not synchronous by default.  After recovery they
+will either be wholly intact, or wholly absent.
 
-Here's the patch:
+> Or will ext3 still need chattr +S?
 
---- linux/drivers/video/cgfourteenfb.c.orig     Thu Jul 26 11:34:00 2001
-+++ linux/drivers/video/cgfourteenfb.c  Thu Jul 26 11:48:30 2001
-@@ -234,6 +234,9 @@
-        spin_lock_irqsave(&fb->lock, flags);
-        if (c->enable)
-                cur->ccr |= CG14_CCR_ENABLE;
-+       else
-+               cur->ccr &= ~CG14_CCR_ENABLE;
-+
-        cur->cursx = ((c->cpos.fbx - c->chot.fbx) & 0xfff);
-        cur->cursy = ((c->cpos.fby - c->chot.fby) & 0xfff);
-        spin_unlock_irqrestore(&fb->lock, flags);
+Yes, if the app doesn't support O_SYNC or fsync().  I believe
+that MTA's *do* support those things.
+ 
+> Does it still support chattr +S at all?
+
+Yes.
+
+> Synchronous meta data operations are crucial for mail transfer agents
+> such as Postfix or qmail. Postfix has up until now been setting
+> chattr +S /var/spool/postfix, making original (esp. soft-updating) BSD
+> file systems significantly faster for data (payload) writes in this
+> directory than ext2.
+
+If postfix is capable of opening the files O_SYNC or of doing
+fsync() on them then the `chattr +s' is no longer necessary - unlike
+ext2, when the O_SYNC write() or the fsync() return, the directory
+contents (as well as the inode, bitmaps, data, etc) will all be tight on
+disk and will be restored after a crash.
+
+This should speed things up considerably, especially with journalled-data
+mode.  I need to test and characterise this some more to come up with some
+quantitative results and configuration recommendations.
 
 
--- 
-Hey, they *are* out to get you, but it's nothing personal.
+BTW, if you have more-than-modest throughput requirements, don't
+even *think* of mounting the fs with `mount -o sync'. Our performance
+in this mode is terrible :(
 
-http://www.tahallah.demon.co.uk
+I have a hack somewhere which fixes this as much as it can be fixed, but
+I didn't even bother committing it.  It's feasible, but tiresome.
 
+A better solution is to fix some lock inversion problems in the core
+kernel which prevent optimal implementation of data-journalling
+filesystems.  I don't really expect this to occur medium-term or ever.
+
+A middle-ground solution may be to add an fs-private `osync' mount
+option, so all files are treated similarly to O_SYNC, which would
+work well.
+
+-

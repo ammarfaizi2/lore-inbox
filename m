@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267392AbTA1PQM>; Tue, 28 Jan 2003 10:16:12 -0500
+	id <S267347AbTA1PSa>; Tue, 28 Jan 2003 10:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267393AbTA1PQM>; Tue, 28 Jan 2003 10:16:12 -0500
-Received: from home.wiggy.net ([213.84.101.140]:35777 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S267392AbTA1PQL>;
-	Tue, 28 Jan 2003 10:16:11 -0500
-Date: Tue, 28 Jan 2003 16:25:30 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Bootscreen
-Message-ID: <20030128152530.GG4868@wiggy.net>
-Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20030128130953.GW4868@wiggy.net> <1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk> <20030128143235.GY4868@wiggy.net> <20030128153533.X28781-100000@snail.stack.nl> <20030128144714.GC4868@wiggy.net> <1043765872.6760.27.camel@oubop4.bursar.vt.edu> <20030128145856.GE4868@wiggy.net> <1043766477.6794.32.camel@oubop4.bursar.vt.edu> <20030128151406.GF4868@wiggy.net> <1043767249.7615.42.camel@oubop4.bursar.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1043767249.7615.42.camel@oubop4.bursar.vt.edu>
-User-Agent: Mutt/1.3.28i
+	id <S267393AbTA1PS3>; Tue, 28 Jan 2003 10:18:29 -0500
+Received: from mail2.webart.de ([195.30.14.11]:24592 "EHLO mail2.webart.de")
+	by vger.kernel.org with ESMTP id <S267347AbTA1PS3>;
+	Tue, 28 Jan 2003 10:18:29 -0500
+Message-ID: <398E93A81CC5D311901600A0C9F2928946938E@cubuss2>
+From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
+To: "'Stefan Reinauer'" <stepan@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: AW: Bootscreen
+Date: Tue, 28 Jan 2003 16:18:32 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Richard B. Tilley  (Brad) wrote:
-> Were can I find these simple tools that modify a kernel that does not
-> support loadable modules as easily as insmod modifies a kernel that does
-> support them?
+> > Sure some of the kernel's output could be cleaned up a
+> > little, but for the most part its not "geeky" - its useful and
+> > informative.
+> They are geeky, but useful - If you got a system that causes trouble.
+> Otherwise, if your system works right, they are just some more bits 
+> flickering on your screen.
+I was the one who began with "geeky". Sorry for that, was probably a
+bit ... well, strong.
 
-Ask google. Phrack 58 for example seems to have a decent description and
-example code.
-
-Wichert.
-
--- 
-Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-A random hacker
+> Why oh why do we always need to compare ourselfes to Windows. "Windows
+> does this, windows does that" Whatever.. that is of no relevance. And if
+> it was QNX or RTOS we are cloning and the thing we cloned is a good
+> idea, what shalls...? It seems to me that everything that lacks the
+> status quo in kernel message visability is a windows clone?
+That what I wanted to say with "Can we get rid of the "stupid guy who's 
+trying to clone Windows" dogma, please?". Yours are more appropriate words.

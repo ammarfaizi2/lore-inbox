@@ -1,51 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbUBYKhH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 05:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbUBYKhH
+	id S261251AbUBYKrB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 05:47:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUBYKrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 05:37:07 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34694 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261237AbUBYKhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 05:37:04 -0500
-Date: Wed, 25 Feb 2004 11:37:04 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       Tom Rini <trini@kernel.crashing.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-Subject: Re: kgdb: rename i386-stub.c to kgdb.c
-Message-ID: <20040225103703.GB6206@atrey.karlin.mff.cuni.cz>
-References: <20040224130650.GA9012@elf.ucw.cz> <200402251303.50102.amitkale@emsyssoft.com>
+	Wed, 25 Feb 2004 05:47:01 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:62980 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261251AbUBYKq4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 05:46:56 -0500
+Date: Wed, 25 Feb 2004 21:46:22 +1100
+To: Olivier Berger <olberger@club-internet.fr>, 234631@bugs.debian.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Bug#234631: kernel-source-2.6.3: kernel fails to compile : radeon_setup_i2c_bus etc.
+Message-ID: <20040225104621.GA7893@gondor.apana.org.au>
+References: <E1AvlK2-00060c-00@rms> <20040225100458.GC3535@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="fdj2RfSjLxBAspz7"
 Content-Disposition: inline
-In-Reply-To: <200402251303.50102.amitkale@emsyssoft.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040225100458.GC3535@gondor.apana.org.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > kgdb uses really confusing names for arch-dependend parts. This fixes
-> > it. Okay to commit?
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+tags 234631 pending
+quit
+
+On Wed, Feb 25, 2004 at 09:04:58PM +1100, herbert wrote:
+> On Tue, Feb 24, 2004 at 11:46:38PM +0100, Olivier Berger wrote:
+> > Package: kernel-source-2.6.3
+> > Version: 2.6.3-2
+> > Severity: normal
+> > 
+> > I can provide the .config corresponding to this kernel if useful.
 > 
-> Why is arch/$x/kernel/$x-stub.c confusing? The name $x-stub.c is indicative of 
-> architecture dependent code in it. Err, well so is the path.
+> Please do.  Please also let me know how you arrived at the config
+> file, i.e., whether you used oldconfig/menuconfig/gconfig.
 
+Never mind, I've found the problem.  RADEON is selecting I2C_ALGOBIT
+but as kconfig currently does not propagate selects up the dependency
+chain (that is according to Roman), this can leave I2C as m while
+I2C_ALGOBIT is y.
 
-Well, looking at i386-stub.c, how do you know it is kgdb-related?
-
-> PPC and sparc stubs in present vanilla kernel use this naming convention. 
-> That's why I adopted it.
-> 
-> I find kernel/kgdbstub.c, arch/$x/kernel/$x-stub.c more consistent compared to 
-> kernel/kgdbstub.c, arch/$x/kernel/kgdb.c
-
-I actually made it kernel/kgdb.c and arch/*/kernel/kgdb.c. I believe
-there's no point where one could be confused....
-								Pavel
+This patch fixes it by explicitly selecting I2C.
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: kernel-2.5/drivers/video/Kconfig
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/video/Kconfig,v
+retrieving revision 1.11
+diff -u -r1.11 Kconfig
+--- kernel-2.5/drivers/video/Kconfig	19 Feb 2004 09:55:58 -0000	1.11
++++ kernel-2.5/drivers/video/Kconfig	25 Feb 2004 10:46:06 -0000
+@@ -463,6 +463,7 @@
+ 	tristate "Matrox acceleration"
+ 	depends on FB && PCI
+ 	select I2C_ALGOBIT if FB_MATROX_I2C
++	select I2C if FB_MATROX_I2C
+ 	---help---
+ 	  Say Y here if you have a Matrox Millennium, Matrox Millennium II,
+ 	  Matrox Mystique, Matrox Mystique 220, Matrox Productiva G100, Matrox
+@@ -628,6 +629,7 @@
+ 	tristate "ATI Radeon display support"
+ 	depends on FB && PCI
+ 	select I2C_ALGOBIT if FB_RADEON_I2C
++	select I2C if FB_RADEON_I2C
+ 	help
+ 	  Choose this option if you want to use an ATI Radeon graphics card as
+ 	  a framebuffer device.  There are both PCI and AGP versions.  You
+
+--fdj2RfSjLxBAspz7--

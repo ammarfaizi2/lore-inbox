@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316822AbSHJKsv>; Sat, 10 Aug 2002 06:48:51 -0400
+	id <S316792AbSHJKrS>; Sat, 10 Aug 2002 06:47:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316821AbSHJKsv>; Sat, 10 Aug 2002 06:48:51 -0400
-Received: from purple.csi.cam.ac.uk ([131.111.8.4]:5799 "EHLO
-	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316822AbSHJKst>; Sat, 10 Aug 2002 06:48:49 -0400
-Message-Id: <5.1.0.14.2.20020810115037.00ae1720@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 10 Aug 2002 11:52:31 +0100
-To: Tomas Szepe <szepe@pinerecords.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [patch 2/12] eyestrain relief
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020810010452.GC15080@louise.pinerecords.com>
-References: <3D5464A4.84FC2DF3@zip.com.au>
- <3D5464A4.84FC2DF3@zip.com.au>
+	id <S316795AbSHJKrS>; Sat, 10 Aug 2002 06:47:18 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:48141 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S316792AbSHJKrS>; Sat, 10 Aug 2002 06:47:18 -0400
+Date: Sat, 10 Aug 2002 11:51:00 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: klibc development release
+Message-ID: <20020810115100.A5857@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Matti Aarnio <matti.aarnio@zmailer.org>,
+	linux-kernel@vger.kernel.org
+References: <aivdi8$r2i$1@cesium.transmeta.com> <200208090934.g799YVZe116824@d12relay01.de.ibm.com> <200208091754.g79HsJkN058572@d06relay02.portsmouth.uk.ibm.com> <3D541018.4050004@zytor.com> <15700.4689.876752.886309@napali.hpl.hp.com> <3D541478.40808@zytor.com> <20020809222736.GJ32427@mea-ext.zmailer.org> <20020810114003.A5459@infradead.org> <3D54EF69.5060709@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D54EF69.5060709@zytor.com>; from hpa@zytor.com on Sat, Aug 10, 2002 at 03:48:09AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:04 10/08/02, Tomas Szepe wrote:
-> > The yellow-on-cyan hotkey, heading and positioning characters in
-> > menuconfig are practically invisible.  Blue-on-cyan is tons better.
->
->How about gray on black, all over menuconfig?
->Wouldn't that make most sense?
+On Sat, Aug 10, 2002 at 03:48:09AM -0700, H. Peter Anvin wrote:
+> Sure, but that still means the *current* ABI is consistent between 
+> platforms.
 
-No. menuconfig looks nice. Don't make it black and white please.
-
->When was the last time you didn't run mc with '-b'? :)
-
-Urgh. That is damn ugly. I would never use that switch...
-
-Admittedly colour preferences are a vecry subjective thing but still the 
-world is in colour, so programs should be, too, to appear more natural. (^-;
-
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+yes, that's why I like the way they do it.  It doesn't really impose any
+overhead and is much, much cleaner.
 

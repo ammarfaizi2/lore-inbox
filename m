@@ -1,68 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261839AbRESQAj>; Sat, 19 May 2001 12:00:39 -0400
+	id <S261847AbRESQBj>; Sat, 19 May 2001 12:01:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261843AbRESQAc>; Sat, 19 May 2001 12:00:32 -0400
-Received: from pec-95-160.tnt6.f.uunet.de ([149.225.95.160]:12548 "EHLO
-	lara.leun.net") by vger.kernel.org with ESMTP id <S261839AbRESQAX>;
-	Sat, 19 May 2001 12:00:23 -0400
-Message-ID: <XFMail.20010519175912.ml@lara.leun.net>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
+	id <S261850AbRESQBa>; Sat, 19 May 2001 12:01:30 -0400
+Received: from simba.xos.nl ([192.87.153.226]:50706 "EHLO simba.xos.nl")
+	by vger.kernel.org with ESMTP id <S261843AbRESQBO>;
+	Sat, 19 May 2001 12:01:14 -0400
+Message-Id: <200105191601.SAA04009@rabbit.xos.nl>
+To: Abramo Bagnara <abramo@alsa-project.org>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup) 
+In-Reply-To: Your message of "Sat, 19 May 2001 17:10:56 +0200."
+             <3B068D00.95338099@alsa-project.org> 
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="_=XFMail.1.4.7.Linux:20010519175912:1526=_"
-Date: Sat, 19 May 2001 17:59:12 +0200 (CEST)
-Organization: Not Organized
-From: Michael Leun <ml@lara.leun.net>
-To: linux-kernel@vger.kernel.org, mj@suse.cz
-Subject: PATCH: Make Acer Extensa 50X Sound work without hanging the whol
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <3997.990288066.1@rabbit.xos.nl>
+Date: Sat, 19 May 2001 18:01:06 +0200
+From: Willem Konynenberg <wfk@xos.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format
---_=XFMail.1.4.7.Linux:20010519175912:1526=_
-Content-Type: text/plain; charset=iso-8859-1
+Abramo Bagnara wrote:
+> Alexander Viro wrote:
+> >         Folks, before you get all excited about cramming side effects into
+> > open(2), consider the following case:
+> > 
+> > 1) opening "/dev/zero/start_nuclear_war" has a certain side effect.
+[...]
+> Can't this easily avoided if the needed action is not
+> 
+> < /dev/zero/start_nuclear_war 
+> or
+> > /dev/zero/start_nuclear_war
+> 
+> but
+> 
+> echo "I'm evil" > /dev/zero/start_nuclear_war
+> 
+> ?
 
-Hello,
+Yes, and that is exactly the difference between having a side effect
+on the open(2), versus having the effect as a result of a write(2).
 
-since ages owners of a Extensa 50X notebook apply the following diff to the
-kernel to make the sound work without hanging the whole system.
+Unfortunately, there are already some cases where an open
+on a device can have unexpected results.  If you don't want
+to get blocked waiting for the carrier-detect signal from the
+modem when opening a tty device, you had better specify the
+O_NONBLOCK option on the open.  If you don't want this flag
+to be active during the actual I/O operations, then you would
+have to do an fcntl to clear the O_NONBLOCK again after the open.
 
-I've no idea if anybody ever suggested to put this in the mainstream kernel,
-so do I.
+So I guess things have already been a bit messy in this
+area for many years, even before linux even existed, and
+in some cases you can't really do anything about it because
+the behaviour is mandated by the applicable standards, like
+POSIX, SUS, or whatever.
+(The blocking of the open on a tty device is explicitly
+ documented in my copy of the X/Open specification.)
 
-Note: I modified the original patch to work with 2.4 but I have no idea if I
-did it right, but it works for me(TM).
+Fortunately, blocking the nightly backup program by making it
+accidentally open a tty is not quite as catastrophic as having
+it start a nuclear war, or format the disks, or something,
+just because a user was playing games with symlinks.
 
 -- 
-bye,
-
-
-Michael Leun
-
---_=XFMail.1.4.7.Linux:20010519175912:1526=_
-Content-Disposition: attachment; filename="acer-24-snd-patch"
-Content-Transfer-Encoding: base64
-Content-Description: acer-24-snd-patch
-Content-Type: application/octet-stream; name=acer-24-snd-patch; SizeOnDisk=881
-
-LS0tIHF1aXJrcy5jLm9yaWcJU2F0IE1heSAxOSAxNzo0MDoxNyAyMDAxCisrKyBxdWlya3MuYwlT
-YXQgTWF5IDE5IDE3OjQzOjE0IDIwMDEKQEAgLTI5Nyw2ICsyOTcsMTMgQEAKIAkgKi8KIAl7IFBD
-SV9GSVhVUF9GSU5BTCwJUENJX1ZFTkRPUl9JRF9WSUEsCVBDSV9ERVZJQ0VfSURfVklBXzgyQzU4
-Nl8wLAlxdWlya19pc2FfZG1hX2hhbmdzIH0sCiAJeyBQQ0lfRklYVVBfRklOQUwsCVBDSV9WRU5E
-T1JfSURfVklBLAlQQ0lfREVWSUNFX0lEX1ZJQV84MkM1OTYsCXF1aXJrX2lzYV9kbWFfaGFuZ3Mg
-fSwKKwkvKgorCSAqIFRoaXMgaXMgYSBwYXRjaCBmb3IgQUNFUiBFeHRlbnNhIDVYWCBOb3RlYm9v
-a3MKKwkgKiBub3cgeW91IGNhbiBlbmFibGUgc291bmQgd2l0aG91dCBjcmFzaGVzCisJICogbmV3
-IHBhdGNoZXMgYXJlIGF2YWlsYWJsZSBhdCBodHRwOi8vdmRlMi5zb3cuZmgtb3NuYWJydWVjay5k
-ZS9+OTdldDAxMjYvYWNlci5waHAzCisJICogTW9kaWZpZWQgdG8gd29yayB3aXRoIDIuNC5YIE1M
-ZXVuIDE5LjA1LjAxCisJICovCisJeyBQQ0lfRklYVVBfRklOQUwsCVBDSV9WRU5ET1JfSURfQUws
-CVBDSV9ERVZJQ0VfSURfQUxfTTE1MzMsCXF1aXJrX2lzYV9kbWFfaGFuZ3MgfSwKIAl7IFBDSV9G
-SVhVUF9GSU5BTCwgICAgICBQQ0lfVkVORE9SX0lEX0lOVEVMLCAgICBQQ0lfREVWSUNFX0lEX0lO
-VEVMXzgyMzcxU0JfMCwgIHF1aXJrX2lzYV9kbWFfaGFuZ3MgfSwKIAl7IFBDSV9GSVhVUF9IRUFE
-RVIsCVBDSV9WRU5ET1JfSURfUzMsCVBDSV9ERVZJQ0VfSURfUzNfODY4LAkJcXVpcmtfczNfNjRN
-IH0sCiAJeyBQQ0lfRklYVVBfSEVBREVSLAlQQ0lfVkVORE9SX0lEX1MzLAlQQ0lfREVWSUNFX0lE
-X1MzXzk2OCwJCXF1aXJrX3MzXzY0TSB9LAo=
-
---_=XFMail.1.4.7.Linux:20010519175912:1526=_--
-End of MIME message
+     Willem Konynenberg <wfk@xos.nl>
+I am not able rightly to apprehend the kind of confusion of ideas
+that could provoke such a question  --  Charles Babbage

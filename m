@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265093AbSL0S0S>; Fri, 27 Dec 2002 13:26:18 -0500
+	id <S264822AbSL0SiR>; Fri, 27 Dec 2002 13:38:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265094AbSL0S0S>; Fri, 27 Dec 2002 13:26:18 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:41413 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S265093AbSL0S0R>;
-	Fri, 27 Dec 2002 13:26:17 -0500
-Date: Fri, 27 Dec 2002 19:34:34 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Pavel Machek <pavel@suse.cz>
+	id <S265094AbSL0SiR>; Fri, 27 Dec 2002 13:38:17 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:7176 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264822AbSL0SiQ>;
+	Fri, 27 Dec 2002 13:38:16 -0500
+Date: Fri, 27 Dec 2002 10:42:13 -0800
+From: Greg KH <greg@kroah.com>
+To: Djeizon Barros <djeizon@gmx.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp in 2.5.53 BUG on kernel/suspend.c line 718
-Message-ID: <20021227183432.GB10482@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-References: <20021227142032.GA6945@outpost.ds9a.nl> <20021227150929.GB16911@atrey.karlin.mff.cuni.cz>
+Subject: Re: Kernel 2.4.20 Panic Report - Panic + Ksymoops + Config
+Message-ID: <20021227184213.GB12245@kroah.com>
+References: <000901c2adc8$0801df00$ce07b1c8@pentiumii>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021227150929.GB16911@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <000901c2adc8$0801df00$ce07b1c8@pentiumii>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 27, 2002 at 04:09:30PM +0100, Pavel Machek wrote:
-> You need one-liner to fix this, search mailing lists.
+On Fri, Dec 27, 2002 at 02:50:10PM -0200, Djeizon Barros wrote:
+> Hi
+> 
+> I never had to fill a kernel bug report in 5 years using linux 
+> - so please excuse me if I missed something here.This is kernel 2.4.20
+> vanilla and unpatched. Looks like something weird in usb.c.
 
-Your patch below indeed works, except for my network adaptor which needs
-'ifconfig eth0 down', 'ifconfig eth0 up' before it works again.
+Ah, here's a patch for this problem.  It's in my list of things to send
+to Marcelo next.  If you want to fix this without patching, make the
+cpia driver a module.
 
-It says:
+thanks,
 
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: Transmit timeout, status 00000000 00000240 
-00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100
-Ethernet (rev 82)
-
-Can a non-guru add the magic handlers to network drivers to make them wake
-up again properly?
-
-Thanks!
-
---- clean/mm/page_alloc.c       2002-12-18 22:21:13.000000000 +0100
-+++ linux-swsusp/mm/page_alloc.c        2002-12-18 22:30:47.000000000 +0100
-@@ -389,7 +389,7 @@
-        unsigned long flags;
-        struct page *page = NULL;
- 
--       if (order == 0) {
-+       if ((order == 0) && !cold) {
-                struct per_cpu_pages *pcp;
- 
-                pcp = &zone->pageset[get_cpu()].pcp[cold];
+greg k-h
 
 
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-http://netherlabs.nl                         Consulting
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	Fri Dec 27 10:51:55 2002
++++ b/Makefile	Fri Dec 27 10:51:55 2002
+@@ -137,8 +137,7 @@
+ DRIVERS-y += drivers/char/char.o \
+ 	drivers/block/block.o \
+ 	drivers/misc/misc.o \
+-	drivers/net/net.o \
+-	drivers/media/media.o
++	drivers/net/net.o
+ DRIVERS-$(CONFIG_AGP) += drivers/char/agp/agp.o
+ DRIVERS-$(CONFIG_DRM_NEW) += drivers/char/drm/drm.o
+ DRIVERS-$(CONFIG_DRM_OLD) += drivers/char/drm-4.0/drm.o
+@@ -179,6 +178,7 @@
+ DRIVERS-$(CONFIG_HAMRADIO) += drivers/net/hamradio/hamradio.o
+ DRIVERS-$(CONFIG_TC) += drivers/tc/tc.a
+ DRIVERS-$(CONFIG_USB) += drivers/usb/usbdrv.o
++DRIVERS-y +=drivers/media/media.o
+ DRIVERS-$(CONFIG_INPUT) += drivers/input/inputdrv.o
+ DRIVERS-$(CONFIG_HIL) += drivers/hil/hil.o
+ DRIVERS-$(CONFIG_I2O) += drivers/message/i2o/i2o.o

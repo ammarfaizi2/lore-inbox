@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266996AbTB0U2Z>; Thu, 27 Feb 2003 15:28:25 -0500
+	id <S266888AbTB0UYh>; Thu, 27 Feb 2003 15:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266994AbTB0U2Y>; Thu, 27 Feb 2003 15:28:24 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:53391 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266996AbTB0U2M>;
-	Thu, 27 Feb 2003 15:28:12 -0500
-Date: Thu, 27 Feb 2003 12:21:26 -0800 (PST)
-Message-Id: <20030227.122126.30208201.davem@redhat.com>
-To: bcollins@debian.org
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
-       ak@suse.de, arnd@bergmann-dalldorf.de
-Subject: Re: ioctl32 consolidation -- call for testing
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030227203440.GP21100@phunnypharm.org>
-References: <20030227202739.GO21100@phunnypharm.org>
-	<20030227.121302.86023203.davem@redhat.com>
-	<20030227203440.GP21100@phunnypharm.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S266965AbTB0UYg>; Thu, 27 Feb 2003 15:24:36 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:21960 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S266888AbTB0UYe>; Thu, 27 Feb 2003 15:24:34 -0500
+Message-ID: <3E5E71EF.2030907@namesys.com>
+Date: Thu, 27 Feb 2003 23:15:43 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Cole <elenstev@mesatop.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: Results of using tar with 2.5.[60 63 62-mm3] and reiser[fs 4],
+ ext3, xfs.
+References: <1046289007.6618.220.camel@spc9.esa.lanl.gov>
+In-Reply-To: <1046289007.6618.220.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Collins <bcollins@debian.org>
-   Date: Thu, 27 Feb 2003 15:34:40 -0500
+Steven Cole wrote:
 
-   On Thu, Feb 27, 2003 at 12:13:02PM -0800, David S. Miller wrote:
-   >    From: Ben Collins <bcollins@debian.org>
-   >    Date: Thu, 27 Feb 2003 15:27:39 -0500
-   >    
-   >    Here it is. Sparc64's macros for ioctl32's assumed that cmd was u_int
-   >    instead of u_long. This look ok to you, Dave?
-   > 
-   > We would love to see that patch :-)
-   
-   It was real small...so small that it slipped through mutt's open() call
-   and never got attached :)
+>
+>Brief summary: It looks like the order of performance for this
+>particular load is reiserfs, reiser4, ext3, xfs.
+>
 
-Well, you just doubled the size of the table on sparc64.
-I don't know if I like that.
+The performance of reiserfs V3 relative to ext3 and XFS in this 
+benchmark is consistent with past experience as best I can remember it.  
+I would say that roughly speaking these results have been true without 
+major change during the period we have been testing (at least for 
+writes, ext3 does better on reads, and I won't predict which of ext3 or 
+reiserfs is currently faster for reads, ext3 has tended to have a slight 
+read speed advantage for linux kernel source code).
+
+The ~6% disadvantage of V4 compared to V3 is a bit surprising, and we 
+are still evaluating that result.  We just checked in a complete rewrite 
+of the flushing code today: give us a few weeks of analysis and we will 
+hopefully have better results for V4 versus V3.  The primary purpose of 
+the rewrite was code clarity, but rumor has it we found unnecessary work 
+being done during the rewrite and corrected it.;-)  With clear code it 
+will be easier for us to analyze what it is doing.
+
+I would advise using a larger benchmark with  30-60 kernels being 
+copied.  Filesystems sometimes perform differently for sync than for 
+memory pressure.
+
+I would be interested to understand why ext3 is slower for sync: is it 
+because it has more in its write cache, or because of something else?  
+If it has more in its write cache, then our write caching is less 
+aggressive in reiser4 than I want it to be, and if it is something else 
+then the ext3 guys need to look into it.
+
+Thanks for doing this test.
+
+-- 
+Hans
+
+

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262735AbRFCCh5>; Sat, 2 Jun 2001 22:37:57 -0400
+	id <S262742AbRFCCnH>; Sat, 2 Jun 2001 22:43:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262742AbRFCChr>; Sat, 2 Jun 2001 22:37:47 -0400
-Received: from DOMINIA.MIT.EDU ([18.208.0.43]:47625 "EHLO dominia.org")
-	by vger.kernel.org with ESMTP id <S262735AbRFCChf>;
-	Sat, 2 Jun 2001 22:37:35 -0400
-Date: Sat, 2 Jun 2001 22:37:33 -0400 (EDT)
-From: "Hayden A. James" <hjames@dominia.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Re: USB mouse problem
-Message-ID: <Pine.LNX.4.33.0106022235001.32266-100000@dominia.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262743AbRFCCm5>; Sat, 2 Jun 2001 22:42:57 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:43780 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262742AbRFCCmp>;
+	Sat, 2 Jun 2001 22:42:45 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Jeff Dike <jdike@karaya.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: What is i386 thread.trapno? 
+In-Reply-To: Your message of "Sat, 02 Jun 2001 21:31:42 EST."
+             <200106030231.VAA03708@ccure.karaya.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 03 Jun 2001 12:42:38 +1000
+Message-ID: <17271.991536158@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes I do have the same problem in console using gpm, and there is not yet
-a kernel update from redhat yet.  I thought it was a kernel problem
-originally because I saw all these messages to this list about usb mouse
-problems.
-
-> On 02 Jun 2001 21:22:46 -0400, Hayden A. James wrote:
-> > This is a followup to my last e-mail, here is some information about my
-> > mouse/usb setup from dmesg.<snip>
-
-> is the mouse jerky on the console (using the mouse via GPM)?
-
-> i ask because i wager the bug is not a kernel bug but perhaps something
-> wrong with your X server/configuration.  i dont think there is any known
-> problem with the RedHat kernel, which is fairly well tested.  is there
-> an update for it?  since this may not be a kernel bug, you may find
-> better help in a RedHat or similar forum.
-
-> you could always compile your own kernel and see if that alleviates the
-> problem :)
+On Sat, 02 Jun 2001 21:31:42 -0500, 
+Jeff Dike <jdike@karaya.com> wrote:
+>The i386 page fault handler sets trap_no to 14, so the fault isn't coming from 
+>there, but I can't see where a SIGSEGV is being delivered to a process with 
+>thread.trap_no == 1.
 >
-> --
-> Robert M. Love
-> rml@ufl.edu
-> rml@tech9.net
+>So:
+>	What do these trap numbers mean?
+>	Where can I read about them?
 
-Hayden A. James
+Intel Architecture Software Developer's Manual Volume 3: System
+Programming.  Interrupt and Exception Handling, table 5.1 (postscript
+extract of that table has been copied in separate private mail).
+intel-ia32-arch-vol3-24319202.pdf.
+
+>and
+>	Where's this segfault coming from?
+
+Probably do_debug() which sets trapno = 1 and also uses
+handle_vm86_trap(,,1).
 

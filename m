@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbTI0PyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 11:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTI0PyN
+	id S262490AbTI0P6d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 11:58:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbTI0P6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 11:54:13 -0400
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:7810
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262472AbTI0PyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 11:54:11 -0400
-Date: Sat, 27 Sep 2003 11:53:56 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Eric Balsa <eric@onewest.net>
-Subject: Re: [PATCH][2.6] fix atp870u boot oops
-In-Reply-To: <1064669135.2002.1.camel@mulgrave>
-Message-ID: <Pine.LNX.4.53.0309271152200.16940@montezuma.fsmlabs.com>
-References: <001701c3845e$f3e4b470$fad11341@corporate.onewest.net> 
- <Pine.LNX.4.53.0309270302110.16940@montezuma.fsmlabs.com>
- <1064669135.2002.1.camel@mulgrave>
+	Sat, 27 Sep 2003 11:58:33 -0400
+Received: from [65.248.106.250] ([65.248.106.250]:22718 "EHLO
+	ns1.brianandsara.net") by vger.kernel.org with ESMTP
+	id S262525AbTI0P6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 11:58:31 -0400
+From: Brian Jackson <brian@brianandsara.net>
+To: Michael Pyne <pynm0001@unf.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Bug report: intel8x0 sound
+Date: Sat, 27 Sep 2003 11:00:31 -0500
+User-Agent: KMail/1.5.4
+References: <200309270107.19516.pynm0001@unf.edu>
+In-Reply-To: <200309270107.19516.pynm0001@unf.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309271100.31104.brian@brianandsara.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Sep 2003, James Bottomley wrote:
-
-> On Sat, 2003-09-27 at 04:27, Zwane Mwaikambo wrote:
-> > The driver's probe function accesses uninitialised data. I also made it 
-> > use pci_get_device instead of pci_find_device to bump the refcount on the 
-> > pci devices it finds.
+On Saturday 27 September 2003 12:06 am, Michael Pyne wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> I don't suppose you'd like to fix this properly?  i.e. convert the
-> driver to the sysfs based pci probing infrastructure and remove its
-> dependence on MAX_ATP arrays?
+> There is a problem with sound using the ALSA intel8x0 driver, which causes 
+the 
+> rate of audio playback to fluctuate in speed.  This SEEMS to be trigged 
+every 
+> time by using alsamixer to unmute the "Digital Audio Mode" setting, but I've 
+> also had it happen all of a sudden.
 
-Sure, i can do that.
+FWIW I can confirm that I have also seen this behavior.
+
+--Brian Jackson
+
+<snip>
+

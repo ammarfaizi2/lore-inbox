@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268504AbUHLKna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268506AbUHLK5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268504AbUHLKna (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 06:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268505AbUHLKn3
+	id S268506AbUHLK5y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 06:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268508AbUHLK5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 06:43:29 -0400
-Received: from gate.crashing.org ([63.228.1.57]:7657 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268504AbUHLKn1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 06:43:27 -0400
-Subject: Re: [PATCH] SCSI midlayer power management
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Nathan Bryant <nbryant@optonline.net>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <20040812074520.GE29466@elf.ucw.cz>
-References: <4119611D.60401@optonline.net>
-	 <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net>
-	 <1092231462.2087.3.camel@mulgrave> <1092267400.2136.24.camel@gaston>
-	 <20040812074520.GE29466@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1092307081.26432.0.camel@gaston>
+	Thu, 12 Aug 2004 06:57:54 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:37855 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S268506AbUHLK5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 06:57:52 -0400
+Date: Thu, 12 Aug 2004 11:56:29 +0100
+From: Dave Jones <davej@redhat.com>
+To: "Lamont R. Peterson" <lamont@gurulabs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Transition /proc/cpuinfo -> sysfs
+Message-ID: <20040812105629.GA7359@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Lamont R. Peterson" <lamont@gurulabs.com>,
+	linux-kernel@vger.kernel.org
+References: <20040811224117.GA6450@plexity.net> <1092287009.2250.9.camel@wraith.lrp.advansoft.us>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 20:38:03 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092287009.2250.9.camel@wraith.lrp.advansoft.us>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 11, 2004 at 11:03:29PM -0600, Lamont R. Peterson wrote:
 
-> Hmm, and it can not be handled by "just remember why you were
-> suspended", because it is one suspend, two resumes...
-> 
-> Yes, I agree that argument will be usefull. Just who does all the
-> driver updating? ;-).
+ > > - On an HT setup, do we want link(s) pointing to sibling(s)?
+ > 
+ > I like this idea, even if it is not necessary because siblings should be
+ > listed sequentially together.  i.e. two physical CPUs with HT would be
+ > cpu0, cpu1, cpu2 & cpu3.  Obviously, cpu0 & cpu1 go together and cpu2 &
+ > cpu3 also go together.
 
-At this point, no driver cares, so it's just a matter of fixing the
-prototypes, I'll leave that to somebody more familiar with sed :)
+I'll bet *any* userspace code wanting to know this info would be simpler
+to write if you do the cpuid calls in the app and parse internally than
+walking sysfs to form an interpretation.
 
-Ben.
+ > > - Instead of dumping the "flags" field, should we just dump cpu
+ > >   registers as hex strings and let the user decode (as the comment
+ > >   for the x86_cap_flags implies.
+ > 
+ > I like this.  In fact, if it goes this way, then I will write a
+ > "cpuinfo" program that will do all the decoding as a generic tool.
 
+http://www.codemonkey.org.uk/projects/x86info/
+
+Ok, its x86/amd64 specific, but it does all this parsing and the like
+where it should be -- userspace.
+
+		Dave
 

@@ -1,42 +1,286 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUGHPH0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUGHPJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbUGHPH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 11:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263831AbUGHPHZ
+	id S263806AbUGHPJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 11:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUGHPIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 11:07:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60653 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263795AbUGHPGa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 11:06:30 -0400
-Date: Thu, 8 Jul 2004 11:45:06 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Leszek Koltunski <leszek@serwer.3miasto.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: the old 'Unknown HZ value' bug
-Message-ID: <20040708144506.GA6809@logos.cnet>
-References: <Pine.NEB.4.60.0407080250190.5702@serwer.3miasto.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.60.0407080250190.5702@serwer.3miasto.net>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 8 Jul 2004 11:08:15 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:9151 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S263806AbUGHPGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 11:06:43 -0400
+Date: Thu, 8 Jul 2004 18:05:32 +0300 (EAT)
+From: Asheesh Laroia <asheesh@asheesh.org>
+X-X-Sender: paulproteus@localhost
+To: linux-kernel@vger.kernel.org
+Subject: USB problems with iBook G4
+Message-ID: <Pine.LNX.4.60.0407081446590.18807@localhost>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="98048-49466522-1089288731=:18807"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 02:57:04AM +0200, Leszek Koltunski wrote:
-> 
-> I keep getting the bug at random times. My googling resulted in a bunch of 
-> posts claiming that the problem is related to SMP systems and possibly to 
-> uptime. But not in my case- I do not have a SMP system and I sometimes get 
-> the bug right after bootup. SMP support is turned off, as you can see in 
-> my config:
-> 
-> www.3miasto.net/~leszek/config.html
-> 
-> I was getting it with 2.4.17, 2.4.24, and every single 2.6.x .
-> ( I haven't tested other 2.4.x's )
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Leszek, 
+--98048-49466522-1089288731=:18807
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-Can you please your problem in more detail?
+I am running Linux (Debian Sid) on an iBook G4.  I was pleased to find 
+that kernel 2.6.7 had support for my radeon chip, unlike earlier kernels, 
+along with good support for the IDE chipset.  The iBook G4 is the newer 
+1Ghz model; lspci -vv is attached.  I'm running kernel 2.6.7 stock.
+
+The USB support has been a bit buggy.  I have two USB Mass Storage devices 
+that have been having bad interactions, sometimes giving me oopses.  When 
+the oopses occurred, I did dmesg | ksymoops to get more information about 
+it.
+
+The first time I plugged a Belkin Multi-Flash Memory Reader in to the USB 
+port, and although I had a 128MB SD card in it, Linux reported "No medium 
+found".  I tried with a CompactFlash card as well, but got the same 
+result.  The setup worked just fine on a reboot to Mac OS X.  (On further 
+examination, it seems the device also reports "No medium found" on Windows 
+2000 with a Compact Flash card in it.  I'll follow up on this later; don't 
+worry about this for now.)
+
+Next I plugged an iHP-120 iRiver portable hard drive-based music player 
+into the other USB port.  I got an oops; attached is "iriver-after-lexar", 
+the dmesg|ksymoops result.
+
+On a later boot, plugging the iRiver in caused an oops; dmesg|ksymoops 
+output is attached as "iriver-crashing-messages".  I rebooted, and the 
+iRiver worked fine as a USB mass storage device; the kernel's messages 
+after success are attached as "iriver-success-messages".
+
+I would be happy to try patches or tests if deemed necessary.  I am in 
+Uganda while I normally live in the U.S., so I may be a bit slower than I 
+would otherwise to respond.  Hopefully we can get this snag in iBook 
+support behind us.  I would like to be CC:'d on reply.
+
+I have also attached my .config as config-2.6.7take2.
+
+-- Asheesh.
+
+P.S. If there's someone (perhaps at Apple) I can bother to get the Airport 
+Extreme to work, I'd be more than happy to do so.
+
+-- 
+Be cautious in your daily affairs.
+--98048-49466522-1089288731=:18807
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=iriver-after-lexar
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.60.0407081512110.18807@localhost>
+Content-Description: iriver oops after lexar (through ksymoops)
+Content-Disposition: attachment; filename=iriver-after-lexar
+
+a3N5bW9vcHMgMi40Ljkgb24gcHBjIDIuNi43dGFrZTIuICBPcHRpb25zIHVz
+ZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC9wcm9jL2tzeW1zIChk
+ZWZhdWx0KQ0KICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQ0KICAg
+ICAtbyAvbGliL21vZHVsZXMvMi42Ljd0YWtlMi8gKGRlZmF1bHQpDQogICAg
+IC1tIC9ib290L1N5c3RlbS5tYXAtMi42Ljd0YWtlMiAoZGVmYXVsdCkNCg0K
+V2FybmluZzogWW91IGRpZCBub3QgdGVsbCBtZSB3aGVyZSB0byBmaW5kIHN5
+bWJvbCBpbmZvcm1hdGlvbi4gIEkgd2lsbA0KYXNzdW1lIHRoYXQgdGhlIGxv
+ZyBtYXRjaGVzIHRoZSBrZXJuZWwgYW5kIG1vZHVsZXMgdGhhdCBhcmUgcnVu
+bmluZw0KcmlnaHQgbm93IGFuZCBJJ2xsIHVzZSB0aGUgZGVmYXVsdCBvcHRp
+b25zIGFib3ZlIGZvciBzeW1ib2wgcmVzb2x1dGlvbi4NCklmIHRoZSBjdXJy
+ZW50IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBkbyBub3QgbWF0Y2ggdGhlIGxv
+ZywgeW91IGNhbiBnZXQNCm1vcmUgYWNjdXJhdGUgb3V0cHV0IGJ5IHRlbGxp
+bmcgbWUgdGhlIGtlcm5lbCB2ZXJzaW9uIGFuZCB3aGVyZSB0byBmaW5kDQpt
+YXAsIG1vZHVsZXMsIGtzeW1zIGV0Yy4gIGtzeW1vb3BzIC1oIGV4cGxhaW5z
+IHRoZSBvcHRpb25zLg0KDQpFcnJvciAocmVndWxhcl9maWxlKTogcmVhZF9r
+c3ltcyBzdGF0IC9wcm9jL2tzeW1zIGZhaWxlZA0KTm8gbW9kdWxlcyBpbiBr
+c3ltcywgc2tpcHBpbmcgb2JqZWN0cw0KTm8ga3N5bXMsIHNraXBwaW5nIGxz
+bW9kDQpPb3BzOiBrZXJuZWwgYWNjZXNzIG9mIGJhZCBhcmVhLCBzaWc6IDEx
+IFsjMV0NCk5JUDogRDIyQUNFMUMgTFI6IEQyMkFGNjY4IFNQOiBDRjA1QkVG
+MCBSRUdTOiBjZjA1YmU0MCBUUkFQOiAwMzAwICAgIE5vdCB0YWludGVkDQpV
+c2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLXBvd2VycGMg
+LWEgcG93ZXJwYzpjb21tb24NCk1TUjogMDAwMDkwMzIgRUU6IDEgUFI6IDAg
+RlA6IDAgTUU6IDEgSVIvRFI6IDExDQpUQVNLID0gY2Y0OGFjZjBbNDcwXSAn
+a2h1YmQnIFRIUkVBRDogY2YwNWEwMDBMYXN0IHN5c2NhbGw6IDEyMCANCkdQ
+UjAwOiAwMDAwMDAwMCBDRjA1QkVGMCBDRjQ4QUNGMCBDRjJGNjFDQyBEMjJC
+RkQ3OCAwMDM0QzMzRiBDMDJGREQ4QyBDMDJGREQyQyANCkdQUjA4OiAwMDAw
+MDAxQyBEMjJDMDAwMCBDRkZFMTAxMCA0MkMwMDAwQiA4NDAwMjI4MiAxMDAx
+REMxQyAwMDAwMDAwMCAwMDAwMDAwMCANCkdQUjE2OiAwMDAwMDAwMCAwMDAw
+MDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAxMDAwMTI5MCAxMDAzNjYxMCAwMDAw
+MDAwMCBEMjJEMDAwMCANCkdQUjI0OiBDRkZFRTNBNCAwMDAwMDAwMiBDRjA1
+QkY2RSAwMDAwMDUwMSBDRUUyQ0MyNCBDRUUyQ0MwMCBDRkZFRTQ5NCBDRjJG
+NjFDNCANCkNhbGwgdHJhY2U6DQpXYXJuaW5nIChPb3BzX3JlYWQpOiBDb2Rl
+IGxpbmUgbm90IHNlZW4sIGR1bXBpbmcgd2hhdCBkYXRhIGlzIGF2YWlsYWJs
+ZQ0KDQoNCj4+TklQOyBkMjJhY2UxYyA8X19jcmNfYmxrX3F1ZXVlX21heF9z
+ZWN0b3JzKzNiMjA3MS82NGJjMDk+ICAgPD09PT09DQoNCj4+R1BSMTsgY2Yw
+NWJlZjAgPF9fY3JjX19faWRlX2RtYV9iYWRfZHJpdmUrOTdiOTkyL2Y2MWQ3
+ND4NCj4+R1BSMjsgY2Y0OGFjZjAgPF9fY3JjX19faWRlX2RtYV9iYWRfZHJp
+dmUrZGFhNzkyL2Y2MWQ3ND4NCj4+R1BSMzsgY2YyZjYxY2MgPF9fY3JjX19f
+aWRlX2RtYV9iYWRfZHJpdmUrYzE1YzZlL2Y2MWQ3ND4NCj4+R1BSNDsgZDIy
+YmZkNzggPF9fY3JjX2Jsa19xdWV1ZV9tYXhfc2VjdG9ycyszYzRmY2QvNjRi
+YzA5Pg0KPj5HUFI1OyAwMDM0YzMzZiA8X19jcmNfZm9sbG93X3VwKzY3MTMw
+LzIxYmY5OT4NCj4+R1BSNjsgYzAyZmRkOGMgPHBlcl9jcHVfX3R2ZWNfYmFz
+ZXMrOTgvMTAwOD4NCj4+R1BSNzsgYzAyZmRkMmMgPHBlcl9jcHVfX3R2ZWNf
+YmFzZXMrMzgvMTAwOD4NCj4+R1BSOTsgZDIyYzAwMDAgPF9fY3JjX2Jsa19x
+dWV1ZV9tYXhfc2VjdG9ycyszYzUyNTUvNjRiYzA5Pg0KPj5HUFIxMDsgY2Zm
+ZTEwMTAgPF9fY3JjX2ZiX2JsYW5rKzViMGRmZi84ODYxMDI+DQo+PkdQUjEx
+OyA0MmMwMDAwYiA8X19jcmNfdW5yZWdpc3Rlcl9maWxlc3lzdGVtKzE5NzVi
+Yi8zODJhN2Q+DQo+PkdQUjEyOyA4NDAwMjI4MiA8X19jcmNfaW5fYXRvbisx
+ZjgxMjAvNDM4NjRhPg0KPj5HUFIxMzsgMTAwMWRjMWMgPF9fY3JjX19fc2ti
+X2xpbmVhcml6ZSs1MjAyNDEvNWQ0YmQ5Pg0KPj5HUFIyMDsgMTAwMDEyOTAg
+PF9fY3JjX19fc2tiX2xpbmVhcml6ZSs1MDM4YjUvNWQ0YmQ5Pg0KPj5HUFIy
+MTsgMTAwMzY2MTAgPF9fY3JjX19fc2tiX2xpbmVhcml6ZSs1MzhjMzUvNWQ0
+YmQ5Pg0KPj5HUFIyMzsgZDIyZDAwMDAgPF9fY3JjX2Jsa19xdWV1ZV9tYXhf
+c2VjdG9ycyszZDUyNTUvNjRiYzA5Pg0KPj5HUFIyNDsgY2ZmZWUzYTQgPF9f
+Y3JjX2ZiX2JsYW5rKzViZTE5My84ODYxMDI+DQo+PkdQUjI2OyBjZjA1YmY2
+ZSA8X19jcmNfX19pZGVfZG1hX2JhZF9kcml2ZSs5N2JhMTAvZjYxZDc0Pg0K
+Pj5HUFIyODsgY2VlMmNjMjQgPF9fY3JjX19faWRlX2RtYV9iYWRfZHJpdmUr
+NzRjNmM2L2Y2MWQ3ND4NCj4+R1BSMjk7IGNlZTJjYzAwIDxfX2NyY19fX2lk
+ZV9kbWFfYmFkX2RyaXZlKzc0YzZhMi9mNjFkNzQ+DQo+PkdQUjMwOyBjZmZl
+ZTQ5NCA8X19jcmNfZmJfYmxhbmsrNWJlMjgzLzg4NjEwMj4NCj4+R1BSMzE7
+IGNmMmY2MWM0IDxfX2NyY19fX2lkZV9kbWFfYmFkX2RyaXZlK2MxNWM2Ni9m
+NjFkNzQ+DQoNCg0KMiB3YXJuaW5ncyBhbmQgMSBlcnJvciBpc3N1ZWQuICBS
+ZXN1bHRzIG1heSBub3QgYmUgcmVsaWFibGUuDQo=
+
+--98048-49466522-1089288731=:18807
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=iriver-success-messages
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.60.0407081512111.18807@localhost>
+Content-Description: messages when iriver works
+Content-Disposition: attachment; filename=iriver-success-messages
+
+SW5pdGlhbGl6aW5nIFVTQiBNYXNzIFN0b3JhZ2UgZHJpdmVyLi4uDQpzY3Np
+MCA6IFNDU0kgZW11bGF0aW9uIGZvciBVU0IgTWFzcyBTdG9yYWdlIGRldmlj
+ZXMNCiAgVmVuZG9yOiBUT1NISUJBICAgTW9kZWw6IE1LMjAwNEdBTCAgICAg
+ICAgIFJldjogSkMxMA0KICBUeXBlOiAgIERpcmVjdC1BY2Nlc3MgICAgICAg
+ICAgICAgICAgICAgICAgQU5TSSBTQ1NJIHJldmlzaW9uOiAwMg0KVVNCIE1h
+c3MgU3RvcmFnZSBkZXZpY2UgZm91bmQgYXQgMg0KdXNiY29yZTogcmVnaXN0
+ZXJlZCBuZXcgZHJpdmVyIHVzYi1zdG9yYWdlDQpVU0IgTWFzcyBTdG9yYWdl
+IHN1cHBvcnQgcmVnaXN0ZXJlZC4NClNDU0kgZGV2aWNlIHNkYTogMzkwNjMw
+MjQgNTEyLWJ5dGUgaGR3ciBzZWN0b3JzICgyMDAwMCBNQikNCnNkYTogYXNz
+dW1pbmcgZHJpdmUgY2FjaGU6IHdyaXRlIHRocm91Z2gNCiAvZGV2L3Njc2kv
+aG9zdDAvYnVzMC90YXJnZXQwL2x1bjA6IHAxDQpBdHRhY2hlZCBzY3NpIGRp
+c2sgc2RhIGF0IHNjc2kwLCBjaGFubmVsIDAsIGlkIDAsIGx1biAwDQoNCg==
+
+--98048-49466522-1089288731=:18807
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=iriver-crashing-messages
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.60.0407081512112.18807@localhost>
+Content-Description: iriver oops without lexar (through ksymoops)
+Content-Disposition: attachment; filename=iriver-crashing-messages
+
+a3N5bW9vcHMgMi40Ljkgb24gcHBjIDIuNi43dGFrZTIuICBPcHRpb25zIHVz
+ZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC9wcm9jL2tzeW1zIChk
+ZWZhdWx0KQ0KICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQ0KICAg
+ICAtbyAvbGliL21vZHVsZXMvMi42Ljd0YWtlMi8gKGRlZmF1bHQpDQogICAg
+IC1tIC9ib290L1N5c3RlbS5tYXAtMi42Ljd0YWtlMiAoZGVmYXVsdCkNCg0K
+V2FybmluZzogWW91IGRpZCBub3QgdGVsbCBtZSB3aGVyZSB0byBmaW5kIHN5
+bWJvbCBpbmZvcm1hdGlvbi4gIEkgd2lsbA0KYXNzdW1lIHRoYXQgdGhlIGxv
+ZyBtYXRjaGVzIHRoZSBrZXJuZWwgYW5kIG1vZHVsZXMgdGhhdCBhcmUgcnVu
+bmluZw0KcmlnaHQgbm93IGFuZCBJJ2xsIHVzZSB0aGUgZGVmYXVsdCBvcHRp
+b25zIGFib3ZlIGZvciBzeW1ib2wgcmVzb2x1dGlvbi4NCklmIHRoZSBjdXJy
+ZW50IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBkbyBub3QgbWF0Y2ggdGhlIGxv
+ZywgeW91IGNhbiBnZXQNCm1vcmUgYWNjdXJhdGUgb3V0cHV0IGJ5IHRlbGxp
+bmcgbWUgdGhlIGtlcm5lbCB2ZXJzaW9uIGFuZCB3aGVyZSB0byBmaW5kDQpt
+YXAsIG1vZHVsZXMsIGtzeW1zIGV0Yy4gIGtzeW1vb3BzIC1oIGV4cGxhaW5z
+IHRoZSBvcHRpb25zLg0KDQpFcnJvciAocmVndWxhcl9maWxlKTogcmVhZF9r
+c3ltcyBzdGF0IC9wcm9jL2tzeW1zIGZhaWxlZA0KTm8gbW9kdWxlcyBpbiBr
+c3ltcywgc2tpcHBpbmcgb2JqZWN0cw0KTm8ga3N5bXMsIHNraXBwaW5nIGxz
+bW9kDQpPb3BzOiBrZXJuZWwgYWNjZXNzIG9mIGJhZCBhcmVhLCBzaWc6IDEx
+IFsjMV0NCk5JUDogRDIyQjE2Q0MgTFI6IEQyMkIyREQ0IFNQOiBDRUU2QkU4
+MCBSRUdTOiBjZWU2YmRkMCBUUkFQOiAwMzAwICAgIE5vdCB0YWludGVkDQpV
+c2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLXBvd2VycGMg
+LWEgcG93ZXJwYzpjb21tb24NCk1TUjogMDAwMDEwMzIgRUU6IDAgUFI6IDAg
+RlA6IDAgTUU6IDEgSVIvRFI6IDExDQpUQVNLID0gY2Y4NWY5NzBbNDY3XSAn
+a2h1YmQnIFRIUkVBRDogY2VlNmEwMDBMYXN0IHN5c2NhbGw6IC0xIA0KR1BS
+MDA6IDAwMDAwMDAzIENFRTZCRTgwIENGODVGOTcwIENGNjBGMDAwIDAwMDAw
+MDAwIDAwMDAwMDAwIDAwMDAwMDAxIDAwMDAwMDAwIA0KR1BSMDg6IEQyMkIx
+NjQ0IDAwMDAwMDAxIENGNjBGMDAwIENGNjBGMDAwIDA2NkNGRTA0IDEwMDFE
+QzFDIDAwMDAwMDAwIDAwMDAwMDAwIA0KR1BSMTY6IDAwMDAwMDAwIDAwMDAw
+MDAwIDAwMDAwMDAwIDAwMDAwMDAwIDEwMDAxMjkwIDEwMDM2NjEwIDAwMDAw
+MDAwIDAwMDAwMDAwIA0KR1BSMjQ6IDAwMDAwMDAwIDAwMDAwMDAwIENFRTk2
+ODY0IDAwMDAwMDAwIDAwMDAwMDA4IENGNjBGMDAwIDAwMDAwMDAwIDAwMDAw
+MDAwIA0KQ2FsbCB0cmFjZToNCldhcm5pbmcgKE9vcHNfcmVhZCk6IENvZGUg
+bGluZSBub3Qgc2VlbiwgZHVtcGluZyB3aGF0IGRhdGEgaXMgYXZhaWxhYmxl
+DQoNCg0KPj5OSVA7IGQyMmIxNmNjIDxfX2NyY19ibGtfcXVldWVfbWF4X3Nl
+Y3RvcnMrM2I2OTIxLzY0YmMwOT4gICA8PT09PT0NCg0KPj5HUFIxOyBjZWU2
+YmU4MCA8X19jcmNfX19pZGVfZG1hX2JhZF9kcml2ZSs3OGI5MjIvZjYxZDc0
+Pg0KPj5HUFIyOyBjZjg1Zjk3MCA8X19jcmNfZmJfcHJlcGFyZV9sb2dvKzFm
+M2Q0Zi8yMTFiMGY+DQo+PkdQUjM7IGNmNjBmMDAwIDxfX2NyY19fX2lkZV9k
+bWFfYmFkX2RyaXZlK2YyZWFhMi9mNjFkNzQ+DQo+PkdQUjg7IGQyMmIxNjQ0
+IDxfX2NyY19ibGtfcXVldWVfbWF4X3NlY3RvcnMrM2I2ODk5LzY0YmMwOT4N
+Cj4+R1BSMTA7IGNmNjBmMDAwIDxfX2NyY19fX2lkZV9kbWFfYmFkX2RyaXZl
+K2YyZWFhMi9mNjFkNzQ+DQo+PkdQUjExOyBjZjYwZjAwMCA8X19jcmNfX19p
+ZGVfZG1hX2JhZF9kcml2ZStmMmVhYTIvZjYxZDc0Pg0KPj5HUFIxMjsgMDY2
+Y2ZlMDQgPF9fY3JjX2RldmZzX3JlZ2lzdGVyX3RhcGUrY2U4ZTAvZDhmNTE+
+DQo+PkdQUjEzOyAxMDAxZGMxYyA8X19jcmNfX19za2JfbGluZWFyaXplKzUy
+MDI0MS81ZDRiZDk+DQo+PkdQUjIwOyAxMDAwMTI5MCA8X19jcmNfX19za2Jf
+bGluZWFyaXplKzUwMzhiNS81ZDRiZDk+DQo+PkdQUjIxOyAxMDAzNjYxMCA8
+X19jcmNfX19za2JfbGluZWFyaXplKzUzOGMzNS81ZDRiZDk+DQo+PkdQUjI2
+OyBjZWU5Njg2NCA8X19jcmNfX19pZGVfZG1hX2JhZF9kcml2ZSs3YjYzMDYv
+ZjYxZDc0Pg0KPj5HUFIyOTsgY2Y2MGYwMDAgPF9fY3JjX19faWRlX2RtYV9i
+YWRfZHJpdmUrZjJlYWEyL2Y2MWQ3ND4NCg0KDQoyIHdhcm5pbmdzIGFuZCAx
+IGVycm9yIGlzc3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxpYWJsZS4N
+Cg==
+
+--98048-49466522-1089288731=:18807
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=camera-crash
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.60.0407081512113.18807@localhost>
+Content-Description: Canon S30 oops through ksymoops (through ksymoops)
+Content-Disposition: attachment; filename=camera-crash
+
+a3N5bW9vcHMgMi40Ljkgb24gcHBjIDIuNi43dGFrZTIuICBPcHRpb25zIHVz
+ZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC9wcm9jL2tzeW1zIChk
+ZWZhdWx0KQ0KICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQ0KICAg
+ICAtbyAvbGliL21vZHVsZXMvMi42Ljd0YWtlMi8gKGRlZmF1bHQpDQogICAg
+IC1tIC9ib290L1N5c3RlbS5tYXAtMi42Ljd0YWtlMiAoZGVmYXVsdCkNCg0K
+V2FybmluZzogWW91IGRpZCBub3QgdGVsbCBtZSB3aGVyZSB0byBmaW5kIHN5
+bWJvbCBpbmZvcm1hdGlvbi4gIEkgd2lsbA0KYXNzdW1lIHRoYXQgdGhlIGxv
+ZyBtYXRjaGVzIHRoZSBrZXJuZWwgYW5kIG1vZHVsZXMgdGhhdCBhcmUgcnVu
+bmluZw0KcmlnaHQgbm93IGFuZCBJJ2xsIHVzZSB0aGUgZGVmYXVsdCBvcHRp
+b25zIGFib3ZlIGZvciBzeW1ib2wgcmVzb2x1dGlvbi4NCklmIHRoZSBjdXJy
+ZW50IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBkbyBub3QgbWF0Y2ggdGhlIGxv
+ZywgeW91IGNhbiBnZXQNCm1vcmUgYWNjdXJhdGUgb3V0cHV0IGJ5IHRlbGxp
+bmcgbWUgdGhlIGtlcm5lbCB2ZXJzaW9uIGFuZCB3aGVyZSB0byBmaW5kDQpt
+YXAsIG1vZHVsZXMsIGtzeW1zIGV0Yy4gIGtzeW1vb3BzIC1oIGV4cGxhaW5z
+IHRoZSBvcHRpb25zLg0KDQpFcnJvciAocmVndWxhcl9maWxlKTogcmVhZF9r
+c3ltcyBzdGF0IC9wcm9jL2tzeW1zIGZhaWxlZA0KTm8gbW9kdWxlcyBpbiBr
+c3ltcywgc2tpcHBpbmcgb2JqZWN0cw0KTm8ga3N5bXMsIHNraXBwaW5nIGxz
+bW9kDQpPb3BzOiBrZXJuZWwgYWNjZXNzIG9mIGJhZCBhcmVhLCBzaWc6IDEx
+IFsjMV0NCk5JUDogQzAwNkNFNEMgTFI6IEMwMDZFMEU0IFNQOiBDRjUwMURG
+MCBSRUdTOiBjZjUwMWQ0MCBUUkFQOiAwMzAwICAgIE5vdCB0YWludGVkDQpV
+c2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLXBvd2VycGMg
+LWEgcG93ZXJwYzpjb21tb24NCk1TUjogMDAwMDkwMzIgRUU6IDEgUFI6IDAg
+RlA6IDAgTUU6IDEgSVIvRFI6IDExDQpUQVNLID0gY2Y4M2YzMjBbOTE1XSAn
+a2h1YmQnIFRIUkVBRDogY2Y1MDAwMDBMYXN0IHN5c2NhbGw6IC0xIA0KR1BS
+MDA6IEMwMDZFMEU0IENGNTAxREYwIENGODNGMzIwIDAwMDAwMDAwIDAwMDAw
+MDAxIDAwMDAwMDAwIENGRjgwMDAwIEM3RjM4Q0U0IA0KR1BSMDg6IEMwMjNF
+MjcwIDAwMDAwMDA3IDAwMDAwMDAwIDAwMDAwMDAxIDQ0MDAyMjIyIDEwMDFE
+QzFDIDAwMDAwMDAwIDAwMDAwMDAwIA0KR1BSMTY6IDAwMDAwMDAwIDAwMDAw
+MDAwIDAwMDAwMDAwIDAwMDAwMDAwIDEwMDAxMjkwIDEwMDM2NkEwIDAwMDAw
+MDAwIEQyMkQwMDAwIA0KR1BSMjQ6IENGRkQ5RUU0IDAwMDAwMDAxIENGNTAx
+RjZFIDAwMDAwMDAwIDAwMDAwMDAwIENGNTAxRTQwIENGMTgyMkYwIENGMTgy
+MkYwIA0KQ2FsbCB0cmFjZToNCldhcm5pbmcgKE9vcHNfcmVhZCk6IENvZGUg
+bGluZSBub3Qgc2VlbiwgZHVtcGluZyB3aGF0IGRhdGEgaXMgYXZhaWxhYmxl
+DQoNCg0KPj5OSVA7IGMwMDZjZTRjIDxwZXJtaXNzaW9uKzE4LzYwPiAgIDw9
+PT09PQ0KDQo+PkdQUjA7IGMwMDZlMGU0IDxfX2xvb2t1cF9oYXNoKzJjL2Zj
+Pg0KPj5HUFIxOyBjZjUwMWRmMCA8X19jcmNfX19pZGVfZG1hX2JhZF9kcml2
+ZStlMjE4OTIvZjYxZDc0Pg0KPj5HUFIyOyBjZjgzZjMyMCA8X19jcmNfZmJf
+cHJlcGFyZV9sb2dvKzFkMzZmZi8yMTFiMGY+DQo+PkdQUjY7IGNmZjgwMDAw
+IDxfX2NyY19mYl9ibGFuays1NGZkZWYvODg2MTAyPg0KPj5HUFI3OyBjN2Yz
+OGNlNCA8X19jcmNfc3Ryc3BuKzcyMGJkLzFhMGNiNz4NCj4+R1BSODsgYzAy
+M2UyNzAgPGRlbnRyeV91bnVzZWQrMC84Pg0KPj5HUFIxMjsgNDQwMDIyMjIg
+PF9fY3JjX3NvY2tfYWxsb2Nfc2VuZF9wc2tiKzExZGJjYS8yMzcxM2E+DQo+
+PkdQUjEzOyAxMDAxZGMxYyA8X19jcmNfX19za2JfbGluZWFyaXplKzUyMDI0
+MS81ZDRiZDk+DQo+PkdQUjIwOyAxMDAwMTI5MCA8X19jcmNfX19za2JfbGlu
+ZWFyaXplKzUwMzhiNS81ZDRiZDk+DQo+PkdQUjIxOyAxMDAzNjZhMCA8X19j
+cmNfX19za2JfbGluZWFyaXplKzUzOGNjNS81ZDRiZDk+DQo+PkdQUjIzOyBk
+MjJkMDAwMCA8X19jcmNfYmxrX3F1ZXVlX21heF9zZWN0b3JzKzNkNTI1NS82
+NGJjMDk+DQo+PkdQUjI0OyBjZmZkOWVlNCA8X19jcmNfZmJfYmxhbmsrNWE5
+Y2QzLzg4NjEwMj4NCj4+R1BSMjY7IGNmNTAxZjZlIDxfX2NyY19fX2lkZV9k
+bWFfYmFkX2RyaXZlK2UyMWExMC9mNjFkNzQ+DQo+PkdQUjI5OyBjZjUwMWU0
+MCA8X19jcmNfX19pZGVfZG1hX2JhZF9kcml2ZStlMjE4ZTIvZjYxZDc0Pg0K
+Pj5HUFIzMDsgY2YxODIyZjAgPF9fY3JjX19faWRlX2RtYV9iYWRfZHJpdmUr
+YWExZDkyL2Y2MWQ3ND4NCj4+R1BSMzE7IGNmMTgyMmYwIDxfX2NyY19fX2lk
+ZV9kbWFfYmFkX2RyaXZlK2FhMWQ5Mi9mNjFkNzQ+DQoNCg0KMiB3YXJuaW5n
+cyBhbmQgMSBlcnJvciBpc3N1ZWQuICBSZXN1bHRzIG1heSBub3QgYmUgcmVs
+aWFibGUuDQo=
+
+--98048-49466522-1089288731=:18807--

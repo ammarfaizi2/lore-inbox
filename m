@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbVAQTdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262849AbVAQTh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbVAQTdi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 14:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbVAQTci
+	id S262849AbVAQTh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 14:37:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbVAQTh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 14:32:38 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:12944 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S262851AbVAQTcM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 14:32:12 -0500
-Date: Mon, 17 Jan 2005 14:32:06 -0500
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] shared subtrees
-Message-ID: <20050117193206.GH24830@fieldses.org>
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <41EC0466.9010509@sun.com> <20050117190028.GF24830@fieldses.org> <41EC1253.8080902@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41EC1253.8080902@sun.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Mon, 17 Jan 2005 14:37:58 -0500
+Received: from ms-smtp-02-lbl.southeast.rr.com ([24.25.9.101]:40107 "EHLO
+	ms-smtp-02-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
+	id S262849AbVAQThr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 14:37:47 -0500
+Message-ID: <41EC1406.6040500@kavefish.net>
+Date: Mon, 17 Jan 2005 14:37:42 -0500
+From: Chris Bookholt <kavefish@kavefish.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6 Series Mem Mgmt
+References: <g7Idbr9m.1105713630.9207120.khali@localhost>	<200501151654.46412.pioppo@ferrara.linux.it>	<20050115175545.743a39f9.khali@linux-fr.org>	<200501162332.14324.pioppo@ferrara.linux.it> <20050117201901.3e712cfa.khali@linux-fr.org>
+In-Reply-To: <20050117201901.3e712cfa.khali@linux-fr.org>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 02:30:27PM -0500, Mike Waychison wrote:
-> Well, if I understand it correctly:
-> 
-> (assuming /foo is vfsmount A)
-> 
-> $> mount --make-shared /foo
-> 
-> will make A->A
-> 
-> $> mount --bind /foo /foo/bar
-> 
-> will create a vfsmount B based off A, but because A is in a p-node,
-> A->B, B->A.
-> 
-> Then, we attach B to A in the vfsmount tree, but because A->B in the
-> propagation tree, B also gets a vfsmount C added on dentry 'bar'.
-> Recurse ad infinitum.
-> 
-> Make sense?
+I'm hoping someone can help explain part of the layout of a process' 
+virtual address space in the 2.6 series kernel.
 
-Yes, but couldn't the whole thing be avoided if we just agreed that the
-propagation wasn't set up till after B was attached to A?
+Below is the output of "cat /proc/self/maps" on Fedora Core 3 
+(2.6.9-1.6_FC2) with exec-shield[-randomize] disabled and 
+legacy_vm_layout enabled.
 
---b.
+What is being mapped in at last line (ffffe000-fffff000 ---p)?  This is 
+always there, no matter what process I run.  To my knowledge, this 
+wasn't the case on 2.4.
+
+ >$ cat /proc/self/maps
+08048000-0804c000 r-xp 00000000 03:03 2490451    /bin/cat
+0804c000-0804d000 rw-p 00003000 03:03 2490451    /bin/cat
+0804d000-0806e000 rw-p 0804d000 00:00 0
+42344000-42359000 r-xp 00000000 03:03 950351     /lib/ld-2.3.3.so
+42359000-4235a000 r--p 00014000 03:03 950351     /lib/ld-2.3.3.so
+4235a000-4235b000 rw-p 00015000 03:03 950351     /lib/ld-2.3.3.so
+4235d000-42473000 r-xp 00000000 03:03 950450     /lib/tls/libc-2.3.3.so
+42473000-42474000 r--p 00116000 03:03 950450     /lib/tls/libc-2.3.3.so
+42474000-42477000 rw-p 00117000 03:03 950450     /lib/tls/libc-2.3.3.so
+42477000-42479000 rw-p 42477000 00:00 0
+55017000-55018000 rw-p 55017000 00:00 0
+55018000-55218000 r--p 00000000 03:03 114690 
+/usr/lib/locale/locale-archive
+feffe000-ff000000 rw-p feffe000 00:00 0
+ffffe000-fffff000 ---p 00000000 00:00 0
+
+I have not had much success in my search for information via Google & 
+IRC and the books I have are specific to the 2.4 series.  Any help would 
+be greatly appreciated.
+
+-Chris

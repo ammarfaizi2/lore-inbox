@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbTHXN0y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 09:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263641AbTHXN0y
+	id S263546AbTHXOQD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 10:16:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTHXOQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 09:26:54 -0400
-Received: from baloney.puettmann.net ([194.97.54.34]:53923 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S263600AbTHXN0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 09:26:53 -0400
+	Sun, 24 Aug 2003 10:16:03 -0400
+Received: from web40508.mail.yahoo.com ([66.218.78.125]:7428 "HELO
+	web40508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263546AbTHXOQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 10:16:01 -0400
+Message-ID: <20030824141600.93849.qmail@web40508.mail.yahoo.com>
+Date: Sun, 24 Aug 2003 07:16:00 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: [RFC] patch for invalid packet time from ULOG target of iptables
 To: linux-kernel@vger.kernel.org
-From: Ruben Puettmann <ruben@puettmann.net>
-Subject: Re: 2.4.22-rc3 ACPI & thinkpad t30
-In-Reply-To: <o2Du.89x.1@gated-at.bofh.it>
-References: <o2Du.89x.1@gated-at.bofh.it>
-Reply-To: ruben@puettmann.net
-Date: Sun, 24 Aug 2003 15:25:56 +0200
-Message-Id: <E19qusW-00064m-00@baloney.puettmann.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Du schriebst in linux.kernel:
-> I can't seem to get ACPI working correctly on my thinkpad. I've
-> installed the latest BIOS and embedded controller (so no longer have the
-> bad ECDT table problem). The result is very similar to what was reported
-> in 
-> 
-> http://bugme.osdl.org/show_bug.cgi?id=793
-> 
+I've just started playing with the ULOG target in
+iptables, and I've noticed that the 'timestamp_sec'
+member of the ulog_packet_msg_t struct paseed to
+the user is always 0 for locally generated packets.
+I was thinking of patching the ipt_ulog_target
+function in net/ipv4/netfilter/ipt_ULOG.c to
+check if timestamp_sec is 0 and if so, set it
+to the current time by adding code to test
+'timestamp_sec' after it's been set. E.g;
+
+    pm->timestamp_sec = (*pskb)->stamp.tv_sec;
+    pm->timestamp_usec = (*pskb)->stamp.tv_usec;
++   if ( pm->timestamp_sec == 0 ) {
++      pm->timestamp_sec = currrent time;
++   }
+
+Any comments?
 
 
-Please take a look at 
+=====
+I code, therefore I am
 
-http://bugzilla.kernel.org/show_bug.cgi?id=1038
-
-            ruben
--- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279794AbRJ3NrS>; Tue, 30 Oct 2001 08:47:18 -0500
+	id <S279883AbRJ3Nu6>; Tue, 30 Oct 2001 08:50:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279883AbRJ3NrJ>; Tue, 30 Oct 2001 08:47:09 -0500
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:20564 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S279794AbRJ3Nq4>; Tue, 30 Oct 2001 08:46:56 -0500
-Date: Tue, 30 Oct 2001 13:46:48 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2 x process stuck in D state
-Message-ID: <20011030134648.A7850@grobbebol.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-X-OS: Linux grobbebol 2.4.13 
+	id <S279947AbRJ3Nut>; Tue, 30 Oct 2001 08:50:49 -0500
+Received: from mgw-x1.nokia.com ([131.228.20.21]:29073 "EHLO mgw-x1.nokia.com")
+	by vger.kernel.org with ESMTP id <S279883AbRJ3Nuj>;
+	Tue, 30 Oct 2001 08:50:39 -0500
+Message-ID: <3BDEAE67.140EB5DC@nokia.com>
+Date: Tue, 30 Oct 2001 15:43:03 +0200
+From: Manel Guerrero Zapata <manel.guerrero-zapata@nokia.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: ext David Ford <david@blue-labs.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 TCP caches ip route
+In-Reply-To: <3BDDB88C.1040009@blue-labs.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was playing with an old irix cd that I couldn't mount at first.
+ext David Ford wrote:
+> 
+> Try "ip route flush cache" or summarized, "ip r f c"
+> 
+> David
+> 
+> Manel Guerrero Zapata wrote:
+> 
+> >The problem seems to be that the kernel
+> >caches that the device for the connexion should be dummy0.
+> >If then, I cancel the telnet and start it again
+> >now (of course) it stablishes a telnet conexion though the ppp0.
+> >
+> [snipped]
 
-people told me that there have been some changes lately in the kernel
-regarding cd's etc. 
+Hi,
 
-anyways.
+I've tried with:
+	echo 0 > /proc/sys/net/ipv4/route/flush 
+ip route flush cache is equivalent to: 
+	cat /proc/sys/net/ipv4/route/min_delay > /proc/sys/net/ipv4/route/flush
 
-mout -t efs /dev/sr0 /cdrom didn't work and what _did_ work, was 
+It does not solve anything.
+I don't know why.
 
-mount -t efs /dev/sr0 /cdrom -o loop or something along the line. I
-could ls the cd fine.
+So not even flushing manually the cache solves
+the problem.
 
-there was a RELEASE.INFO on the cd so let's take a look at it.
+Any ideas about why?
 
-oops. bad idea :
-
-root 7429  0.0  0.0     0    0 ?   SW<  13:02   0:00 [loop0]
-root 7439  0.0  0.0  1652  712 ?   D    13:04   0:00 less RELEASE.info
-root 7445  0.0  0.1  1800  972 ?   D    13:04   0:00 file RELEASE.info
-
-so the cdrom can't be umounted; I can't kill the processes.
-
-is this a bug, or supposed to be this way ? :-)
-
--- 
-Grobbebol's Home                      |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel          | Use your real e-mail address   /\
-Linux 2.4.13 (apic) SMP 466MHz/768 MB |        on Usenet.             _\_v  
+	Manel

@@ -1,114 +1,199 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbTDUPG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 11:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbTDUPG3
+	id S261320AbTDUPM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 11:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbTDUPM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 11:06:29 -0400
-Received: from mx03.cyberus.ca ([216.191.240.24]:29452 "EHLO mx03.cyberus.ca")
-	by vger.kernel.org with ESMTP id S261309AbTDUPG1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 11:06:27 -0400
-Date: Mon, 21 Apr 2003 11:18:17 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.68 issues (X windows startup)
-Message-ID: <20030421111032.O11939@shell.cyberus.ca>
+	Mon, 21 Apr 2003 11:12:29 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:29703 "HELO
+	hemi.commfireservices.com") by vger.kernel.org with SMTP
+	id S261320AbTDUPM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 11:12:26 -0400
+Date: Mon, 21 Apr 2003 11:16:33 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.68 Fix IO_APIC IRQ assignment bug
+In-Reply-To: <200304210351_MC3-1-3544-3713@compuserve.com>
+Message-ID: <Pine.LNX.4.50.0304211008110.2085-100000@montezuma.mastecende.com>
+References: <200304210351_MC3-1-3544-3713@compuserve.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-1677142396-1050938297=:11939"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 21 Apr 2003, Chuck Ebbert wrote:
 
---0-1677142396-1050938297=:11939
+> > Yes, we need to bail out in assign_irq_vector when we wrap around, 
+> > otherwise we cause collisions when programming the IOAPIC. And we also 
+> > need to avoid overruning NR_IRQS structures in setup_IO_APIC_irqs.
+> 
+> 
+>   Do you mean the panic on running out of sources should be put
+> back in?
+
+No, something like this, although i think Linus hates something about it. 
+Note i forgot to subtract 0x80 from the total vector count in the email 
+(should be NR_IRQ_VECTORS=189).
+
+Yes i have a system which oopses due to the high irq count with mainline. 
+The NR_IRQS overrun is one, the vector collisions is another.
+
+Date: Mon, 7 Apr 2003 22:04:13 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] avoid scribbling in IDT with high interrupt count.
+In-Reply-To: <Pine.LNX.4.44.0304070818340.26364-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.50.0304071958360.21025-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0304070818340.26364-100000@home.transmeta.com>
+MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 
+On Mon, 7 Apr 2003, Linus Torvalds wrote:
 
+> Zwane - is there any reason we couldn't just start re-using irq vector
+> offsets when this happens? We already re-use the vectors themselves, so 
+> restarting the offset pointer shouldn't really _change_ anything.
 
-I havent booted 2.5.x for a while on this dusty old laptop.
-Never had this issue in the past. Have a feeling its some basic
-utility that maybe needed.
+My patch skips irq numbers > NR_IRQS and simply return error when we run 
+out of vectors, although mainline doesn't assign duplicates and cause 
+collisions, it does waste vector space. e.g. for a system with 
+NR_IRQS = 224 we have 23 vectors free, 0 collisions and 167 useable irqs 
+and assign_irq_vectors states that we're out of vectors.
 
---
-model name      : Pentium III (Coppermine)
-stepping        : 10
-cpu MHz         : 696.996
-cache size      : 256 KB
----
+> In other words, I'm wondering if this simpler patch wouldn't be sufficient 
+> instead?
+> 
+> Can you please test this, and re-submit (and if you can explain why your 
+> patch is better, please do so - I have nothing fundamentally against it, I 
+> just want to understand _why_ the complexity is needed).
 
-128M RAM.
+Your patch booted the system but there are vector collisions resulting in 
+lost irq routing when we program the IOAPIC with the duplicated vector. So 
+with your patch and NR_IRQS = 224 we have 1 vectors free (0x80), 34 collisions 
+and 225 irqs. However that isn't a fault of your patch but a fault with 
+the NR_IRQS definition. This is what the vector space looks like on i386 
+at present.
 
-When i run 2.5.68 theres a feel of highly improved interactiveness.
-Annoyingly- Starting X takes at least 3 minutes (this is about a factor of
-10 worse than older 2.5 and current 2.4.21-pre5. I have tried a few
-2.5.6x and they all seem to exhibit this problem. Havent tried going back
-beyond that.
+0________0x31__________________________0xef____________0xff
+  system	   io interrupts            resvd vectors
 
-I cleared the profile before running X; started X and captured the
-profile right after that. Dont know if its any help, but it is attached.
+0xef - 0x31 = 190 useable io interrupt vectors
 
-cheers,
-jamal
---0-1677142396-1050938297=:11939
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=j1
-Content-Transfer-Encoding: BASE64
-Content-ID: <20030421111817.A11939@shell.cyberus.ca>
-Content-Description: 
-Content-Disposition: attachment; filename=j1
+So perhaps we should, apply your patch, add a NR_IRQ_VECTORS define 
+and also add commentary in irq_vectors.h how does the following look? I 
+had to readd the NR_IRQS checks to protect against overrunning NR_IRQS sized 
+arrays and i added nr_assigned to track how many vectors were allocated so 
+taht we can bail out when we're out.
 
-IDE5NDU2IHRvdGFsICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAwLjEzMDQNCiAxNzcyMSBkZWZhdWx0X2lkbGUgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIDMxNi40NDY0DQogIDE0MTEgcnVuX3RpbWVyX3Nv
-ZnRpcnEgICAgICAgICAgICAgICAgICAgICAgICAgIDIuOTY0Mw0KICAgIDYy
-IGRvX3NvZnRpcnEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAw
-LjI5ODENCiAgICA1NSBzZXRfYml0bWFwICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgMC4yOTI2DQogICAgNTEgc3lzdGVtX2NhbGwgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIDEuMTU5MQ0KICAgIDI1IGdlbmVy
-YWxfcHJvdGVjdGlvbiAgICAgICAgICAgICAgICAgICAgICAgICAyLjA4MzMN
-CiAgICAxOCBfX3dha2VfdXAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgMC4xMzY0DQogICAgMTQgc2NoZWR1bGUgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIDAuMDEwNg0KICAgIDExIHNhdmVfdjg2X3N0
-YXRlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwLjAyODENCiAgICAx
-MCBzeXNfaW9wbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-MC4xMDQyDQogICAgIDkgZG9fc3lzX3ZtODYgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIDAuMDI5Ng0KICAgICA5IGRvX3BhZ2VfZmF1bHQgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAwLjAwODcNCiAgICAgOCBhZGRf
-d2FpdF9xdWV1ZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMC4wNjA2
-DQogICAgIDYgc3lzX2lvcGVybSAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIDAuMDIwNQ0KICAgICA1IHJlbW92ZV93YWl0X3F1ZXVlICAgICAg
-ICAgICAgICAgICAgICAgICAgICAwLjA0MzENCiAgICAgNSBoYW5kbGVfdm04
-Nl9mYXVsdCAgICAgICAgICAgICAgICAgICAgICAgICAgMC4wMDIwDQogICAg
-IDQgc3lzX3ZtODZvbGQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IDAuMDE1Mg0KICAgICA0IHJlc3RfaW5pdCAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAwLjAzNDUNCiAgICAgMyBlcnJvcl9jb2RlICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgMC4wNTM2DQogICAgIDIgc2V0
-X210cnIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAuMDA1
-NA0KICAgICAyIHNjaGVkdWxlX3RpbWVvdXQgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAwLjAxMTYNCiAgICAgMiBlbmFibGVfaXJxICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgMC4wMDg2DQogICAgIDIgZG9fZ2VuZXJh
-bF9wcm90ZWN0aW9uICAgICAgICAgICAgICAgICAgICAgIDAuMDE4NQ0KICAg
-ICAyIGRlbF90aW1lciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAwLjAwOTYNCiAgICAgMiBhZGRfdGltZXIgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgMC4wMTE0DQogICAgIDEgc3lzX2dldHRpbWVvZmRh
-eSAgICAgICAgICAgICAgICAgICAgICAgICAgIDAuMDA2Mw0KICAgICAxIHNp
-Z3Byb2NtYXNrICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwLjAw
-MzINCiAgICAgMSByZXN1bWVfdXNlcnNwYWNlICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgMC4wNDE3DQogICAgIDEgcmVsZWFzZV90YXNrICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIDAuMDAyNg0KICAgICAxIHJlbGVhc2Vf
-Y29uc29sZV9zZW0gICAgICAgICAgICAgICAgICAgICAgICAwLjAwMzQNCiAg
-ICAgMSBvbGRfbW1hcCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgMC4wMDMzDQogICAgIDEgbW1faW5pdCAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIDAuMDAzNg0KICAgICAxIG1lbV9wYXJpdHlfZXJy
-b3IgICAgICAgICAgICAgICAgICAgICAgICAgICAwLjAyMjcNCiAgICAgMSBl
-eGl0X25vdGlmeSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMC4w
-MDA2DQogICAgIDEgZG9fZ2V0dGltZW9mZGF5ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIDAuMDA2NA0KICAgICAxIGRlbF90aW1lcl9zeW5jICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAwLjAwODENCiAgICAgMSBjb3B5X3By
-b2Nlc3MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMC4wMDAzDQog
-ICAgIDEgY29weV9maWxlcyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIDAuMDAxMA0K
+Patch has been tested on a 320 interrupt system and had a maximum useable 
+irq line of 211 (ethernet).
 
---0-1677142396-1050938297=:11939--
+Thanks,
+	Zwane
+
+Index: linux-2.5.67/include/asm-i386/mach-default/irq_vectors.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.67/include/asm-i386/mach-default/irq_vectors.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 irq_vectors.h
+--- linux-2.5.67/include/asm-i386/mach-default/irq_vectors.h	8 Apr 2003 01:15:29 -0000	1.1.1.1
++++ linux-2.5.67/include/asm-i386/mach-default/irq_vectors.h	8 Apr 2003 01:34:54 -0000
+@@ -68,15 +68,22 @@
+ #define TIMER_IRQ 0
+ 
+ /*
+- * 16 8259A IRQ's, 208 potential APIC interrupt sources.
++ * 16 8259A IRQ's, MAX_IRQ_SOURCES-16 potential APIC interrupt sources.
+  * Right now the APIC is mostly only used for SMP.
+  * 256 vectors is an architectural limit. (we can have
+  * more than 256 devices theoretically, but they will
+  * have to use shared interrupts)
+  * Since vectors 0x00-0x1f are used/reserved for the CPU,
+- * the usable vector space is 0x20-0xff (224 vectors)
++ * the usable vector space is 0x20-0xff (224 vectors).
++ * Linux currently makes 189 vectors available for io interrupts
++ * starting at FIRST_DEVICE_VECTOR till FIRST_SYSTEM_VECTOR
++ * 
++ * 0________0x31__________________________0xef______0xff
++ *   system           io interrupts           resvd
++ *
+  */
+ #ifdef CONFIG_X86_IO_APIC
++#define NR_IRQ_VECTORS	189
+ #define NR_IRQS 224
+ #else
+ #define NR_IRQS 16
+Index: linux-2.5.67/arch/i386/kernel/io_apic.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.67/arch/i386/kernel/io_apic.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 io_apic.c
+--- linux-2.5.67/arch/i386/kernel/io_apic.c	8 Apr 2003 01:15:35 -0000	1.1.1.1
++++ linux-2.5.67/arch/i386/kernel/io_apic.c	8 Apr 2003 01:36:06 -0000
+@@ -1107,9 +1107,15 @@ int irq_vector[NR_IRQS] = { FIRST_DEVICE
+ 
+ static int __init assign_irq_vector(int irq)
+ {
+-	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0;
++	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0,
++		nr_assigned = 1;
++
+ 	if (IO_APIC_VECTOR(irq) > 0)
+ 		return IO_APIC_VECTOR(irq);
++
++	if (++nr_assigned > NR_IRQ_VECTORS)
++		return -ENOSPC;
++
+ next:
+ 	current_vector += 8;
+ 	if (current_vector == SYSCALL_VECTOR)
+@@ -1167,6 +1173,8 @@ void __init setup_IO_APIC_irqs(void)
+ 		}
+ 
+ 		irq = pin_2_irq(idx, apic, pin);
++		if (irq >= NR_IRQS)
++			continue;
+ 		/*
+ 		 * skip adding the timer int on secondary nodes, which causes
+ 		 * a small but painful rift in the time-space continuum
+@@ -1181,6 +1189,9 @@ void __init setup_IO_APIC_irqs(void)
+ 
+ 		if (IO_APIC_IRQ(irq)) {
+ 			vector = assign_irq_vector(irq);
++			if (vector < 0)
++				continue;
++
+ 			entry.vector = vector;
+ 
+ 			if (IO_APIC_irq_trigger(irq))
+@@ -2277,6 +2288,10 @@ int io_apic_set_pci_routing (int ioapic,
+ {
+ 	struct IO_APIC_route_entry entry;
+ 	unsigned long flags;
++	int vector;
++
++	if (irq >= NR_IRQS)
++		return -ENOSPC;
+ 
+ 	if (!IO_APIC_IRQ(irq)) {
+ 		printk(KERN_ERR "IOAPIC[%d]: Invalid reference to IRQ 0/n", 
+@@ -2301,8 +2316,11 @@ int io_apic_set_pci_routing (int ioapic,
+ 
+ 	add_pin_to_irq(irq, ioapic, pin);
+ 
+-	entry.vector = assign_irq_vector(irq);
++	vector = assign_irq_vector(irq);
++	if (vector < 0)
++		return -ENOSPC;
+ 
++	entry.vector = vector;
+ 	printk(KERN_DEBUG "IOAPIC[%d]: Set PCI routing entry (%d-%d -> 0x%x -> "
+ 		"IRQ %d)\n", ioapic, 
+ 		mp_ioapics[ioapic].mpc_apicid, pin, entry.vector, irq);
+
+-- 
+function.linuxpower.ca

@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261655AbSJAOkc>; Tue, 1 Oct 2002 10:40:32 -0400
+	id <S261656AbSJAOsW>; Tue, 1 Oct 2002 10:48:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261656AbSJAOkc>; Tue, 1 Oct 2002 10:40:32 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58461 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261655AbSJAOka>; Tue, 1 Oct 2002 10:40:30 -0400
-Date: Tue, 1 Oct 2002 10:45:52 -0400
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Eitan Ben-Nun <eitan@sangate.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       Uri Lublin <uri@sangate.com>, Marcus Barrow <mbarrow@sangate.com>
-Subject: Re: Adpter card read old memory value
-Message-ID: <20021001104552.A5475@devserv.devel.redhat.com>
-References: <B71796881E0DF7409F066FE6656BDF2906F78B@beasley>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <B71796881E0DF7409F066FE6656BDF2906F78B@beasley>; from eitan@sangate.com on Tue, Oct 01, 2002 at 05:44:07PM +0300
+	id <S261657AbSJAOsW>; Tue, 1 Oct 2002 10:48:22 -0400
+Received: from cibs9.sns.it ([192.167.206.29]:261 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S261656AbSJAOsU>;
+	Tue, 1 Oct 2002 10:48:20 -0400
+Date: Tue, 1 Oct 2002 16:52:44 +0200 (CEST)
+From: venom@sns.it
+To: Alexander Viro <viro@math.psu.edu>
+cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+In-Reply-To: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A Logical Volume Manager is needed on Unix servers, and so it is needed
+also on Linux.
+If this LVM is obsoleted, then when will LVM2 be merged?
+really we cannot have a 2.6 or 3.0 tree without a Volume Manager, it would
+be a big fault.
 
-On Tue, Oct 01, 2002 at 05:44:07PM +0300, Eitan Ben-Nun wrote:
-> ok thanks,
-> An adapter card on the pci bus send a message to pc i386 Linux to update a memory address. 
-> Then it reads the address and sees an old value, even though the pc cpu have performed an update to this memory address. Here is referance to my driver code:
-> int update_cluster_operation_mode(unsigned long new_mode, 
-> 					    unsigned long phys_addr);
-> {
->    unsigned long* vir_addr = 0;
->    vir_addr = __ioremap(phys_addr, PAGE_SIZE, _PAGE_PWT | _PAGE_PCD);
->    *vir_addr = new_mode;
->    return 0;
-> }
-> phys_addr - is always on page bonderies and the address is between 512M-640M.
+Luigi
 
-this is only a part of the source, is there a full source available?
+On Tue, 1 Oct 2002, Alexander Viro wrote:
 
-also your code is already buggy; you should use writel(); and also read up
-on PCI posting....
+> Date: Tue, 1 Oct 2002 10:15:26 -0400 (EDT)
+> From: Alexander Viro <viro@math.psu.edu>
+> To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+> Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
+>      Linus Torvalds <torvalds@transmeta.com>
+> Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+>
+>
+>
+> On Tue, 1 Oct 2002, Joe Thornber wrote:
+>
+> > bk://device-mapper.bkbits.net/2.5-remove-lvm
+> >
+> > This large patch completely removes LVM from the 2.5 tree.  Please
+> > apply.  Yes it really has spread as far as linux/list.h and
+> > linux/kdev_t.h !
+>
+> Seconded - LVM in the tree is thoroughly dead.
+>
+> Speaking of which, would Intermezzo maintainers care to port the thing
+> to 2.5?  If it's abandoned - at least say so ;-/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Greetings,
-   Arjan van de Ven

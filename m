@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276278AbRJCNhS>; Wed, 3 Oct 2001 09:37:18 -0400
+	id <S276275AbRJCNgI>; Wed, 3 Oct 2001 09:36:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276270AbRJCNhN>; Wed, 3 Oct 2001 09:37:13 -0400
-Received: from babel.spoiled.org ([217.13.197.48]:29230 "HELO a.mx.spoiled.org")
-	by vger.kernel.org with SMTP id <S276278AbRJCNg2>;
-	Wed, 3 Oct 2001 09:36:28 -0400
-From: Juri Haberland <juri@koschikode.com>
-To: Frank.dekervel@student.kuleuven.ac.Be (Frank Dekervel)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mtu problem with masquerading+pppoe(adsl) setup
-X-Newsgroups: spoiled.linux.kernel
-In-Reply-To: <200110031300.PAA17063@lambik.cc.kuleuven.ac.be>
-User-Agent: tin/1.4.5-20010409 ("One More Nightmare") (UNIX) (OpenBSD/2.9 (i386))
-Message-Id: <20011003133656.30C0D1195A@a.mx.spoiled.org>
-Date: Wed,  3 Oct 2001 15:36:56 +0200 (CEST)
+	id <S276270AbRJCNft>; Wed, 3 Oct 2001 09:35:49 -0400
+Received: from robur.slu.se ([130.238.98.12]:16135 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S276266AbRJCNfn>;
+	Wed, 3 Oct 2001 09:35:43 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15291.5314.595897.458571@robur.slu.se>
+Date: Wed, 3 Oct 2001 15:38:10 +0200
+To: jamal <hadi@cyberus.ca>
+Cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.GSO.4.30.0110030850480.4495-100000@shell.cyberus.ca>
+In-Reply-To: <Pine.LNX.4.33.0110031108550.2679-100000@localhost.localdomain>
+	<Pine.GSO.4.30.0110030850480.4495-100000@shell.cyberus.ca>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200110031300.PAA17063@lambik.cc.kuleuven.ac.be> you wrote:
-> 
->  Hello, (i am sorry if this is the wrong place to ask)
->  
->  despite the frequent discussions concerning this topic on usenet, i failed 
->  to solve my problem:
->  
->  - i have a debian potatoe box that acts as a masquerading server for a 
->  heterogenous win2k/winnt/mac LAN. pppoe works fine, and so does 
->  masquerading ... almost
->  
->  - the kernel i installed is the latest 2.2 kernel (2.2.19)
->  
->  the problem:
->  
->  i can't access some sites from the masq clients, while i can access them 
->  from the masq server. (like www.vitrine.be)
->  
->  The problem seems to be widely known, and seems to be an MTU+no-fragment 
->  packets issue. and indeed:
->  - the MTU on my LAN is 1500 bytes
->  - the MTU on my ppp connection is 1492 bytes.
->  
->  on the archives, i found the following solutions:
->  - raising the ppp MTU to 1500 bytes. it won't work. even if i specify 1500, 
->  the mtu is still 1492.
->  - lowering the mtu of the LAN to 1492 bytes. thats not an option according 
->  to my boss.
->  - upgrade to something newer than 2.2.14. i run 2.2.19 and i still have the 
->  problem.
->  
->  So my questions are:
->  
->  - are there other options ? i read some vague german things about msschamp 
->  or something like that, but i don't know if they are even related.
->  
->  - will an upgrade to linux 2.4 or the kernelspace pppoe driver fix my 
->  problem ? (i would like to keep my current setup, i don't know how 
->  difficult it is to upgrade a potatoe box to such a recent version ..)
 
-Well, upgrading to a recent 2.4 kernel gives you the possebility to use
-the TCPMSS target in iptables which resolves your problems.
 
-I'm also running a Linux masquerading box on a ADSL (T-DSL) line and I have 
-no problems at all (I can access the site you mentioned fine) with
-the following line in iptables:
+jamal writes:
 
-$IPTABLES -I FORWARD -j TCPMSS -o $FW_WORLD_DEV --clamp-mss-to-pmtu -p tcp --tcp-flags SYN,RST SYN
+ > The paper is at: http://www.cyberus.ca/~hadi/usenix-paper.tgz
+ > Robert can point you to the latest patches.
 
-Cheers,
-Juri
 
--- 
-Juri Haberland  <juri@koschikode.com> 
+ Current code... there are still some parts we like to better.
 
+ Available via ftp from robur.slu.se:/pub/Linux/net-development/NAPI/
+ 2.4.10-poll.pat
+ 
+ The original code:
+
+ ANK-NAPI-tulip-only.pat
+ ANK-NAPI-kernel-only.pat
+
+ And for GIGE there is a e1000 driver in test. 
+
+ Cheers.
+
+						--ro
+
+
+ 

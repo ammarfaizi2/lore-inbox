@@ -1,80 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280722AbRKGAe0>; Tue, 6 Nov 2001 19:34:26 -0500
+	id <S280695AbRKGAfg>; Tue, 6 Nov 2001 19:35:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280723AbRKGAeU>; Tue, 6 Nov 2001 19:34:20 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:3499 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S280709AbRKGAdo>;
-	Tue, 6 Nov 2001 19:33:44 -0500
-Date: Wed, 07 Nov 2001 00:33:40 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alexander Viro <viro@math.psu.edu>, Ricky Beam <jfbeam@bluetopia.net>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Message-ID: <812030885.1005093219@[195.224.237.69]>
-In-Reply-To: <Pine.GSO.4.21.0111061709340.29465-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0111061709340.29465-100000@weyl.math.psu.edu>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S280725AbRKGAeY>; Tue, 6 Nov 2001 19:34:24 -0500
+Received: from mail2.cableone.net ([24.116.0.54]:42768 "EHLO
+	mail2.cableone.net") by vger.kernel.org with ESMTP
+	id <S280722AbRKGAeL>; Tue, 6 Nov 2001 19:34:11 -0500
+Date: Tue, 6 Nov 2001 18:34:09 -0600
+From: James Funkhouser <news@funkhouser.org>
+To: linux-kernel@vger.kernel.org
+Cc: news@funkhouser.org
+Subject: Re: Seg fault when syncing Sony Clie 760 with USB cradle
+Message-ID: <20011106183409.A16895@cableone.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Peter A. Goodall" <pete@ximian.com> wrote:
 
+> syncing with Coldsync no longer causes a kernel panic.  It just doesn't
+> work.  It can't communicate with the Clie to get the serial number and
+> other information.  Since I'm using devfs I can't say it is the kernel. 
 
---On Tuesday, 06 November, 2001 5:14 PM -0500 Alexander Viro 
-<viro@math.psu.edu> wrote:
+ I have recently been trying to get my Sony Clie' 760 to work with
+Linux, also.  I am using coldsync 2.2.2 and kernel 2.4.13-ac3 (it
+didn't work with 2.4.12, either).  I am not using devfs.  When I
+attempt to sync, I get a segfault from coldsync and the following
+messages from the kernel:
 
-> On Tue, 6 Nov 2001, Ricky Beam wrote:
->
-> [snip]
->> And those who *will* complain that binary structures are hard to work 
-with,
->> (you're idiots too :-)) a struct is far easier to deal with than text
->> processing, esp. for anyone who knows what they are doing.  Yes, changes
->
-> Learn C, then learn some respect to your betters[1], then come back.
->
-> *PLONK*
->
-> [1] like, say it, guys who had invented UNIX and C.
+--- BEGIN dmesg output ---
+hub.c: USB new device connect on bus1/2, assigned device number 5
+usb.c: kmalloc IF d14598c0, numif 1
+usb.c: new device strings: Mfr=1, Product=2, SerialNumber=0
+usb.c: USB device number 5 default language ID 0x409
+Manufacturer: Sony Corp.
+Product: Palm Handheld
+usbserial.c: Sony Clie 4.0 converter detected
+visor.c: Sony Clie 4.0: Number of ports: 2
+visor.c: Sony Clie 4.0: port 1, is for Generic use and is bound to ttyUSB0
+visor.c: Sony Clie 4.0: port 2, is for HotSync use and is bound to ttyUSB1
+usb-uhci.c: interrupt, status 2, frame# 452
+usb_control/bulk_msg: timeout
+visor.c: visor_startup - error getting first unknown palm command
+usb_control/bulk_msg: timeout
+visor.c: visor_startup - error getting second unknown palm command
+usbserial.c: Sony Clie 4.0 converter now attached to ttyUSB0 (or usb/tts/0 for devfs)
+usbserial.c: Sony Clie 4.0 converter now attached to ttyUSB1 (or usb/tts/1 for devfs)
+usb.c: serial driver claimed interface d14598c0
+usb.c: kusbd: /sbin/hotplug add 5
+usb.c: kusbd policy returned 0xfffffffe
+Unable to handle kernel NULL pointer dereference at virtual address 00000014
+ printing eip:
+e084a110
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<e084a110>]    Not tainted
+EFLAGS: 00010202
+eax: de51de00   ebx: dbbd5894   ecx: dbbd58f0   edx: 00000000
+esi: dbbd5800   edi: 00000000   ebp: dbbd58f0   esp: d12fbeb0
+ds: 0018   es: 0018   ss: 0018
+Process coldsync (pid: 16918, stackpage=d12fb000)
+Stack: de8d8000 da72e720 dd59a900 c18862a0 e0844284 dbbd5894 da72e720 00000000 
+       00000000 c0155b2b de8d8000 da72e720 00000000 da72e720 dd59a900 c18862a0 
+       dfff7420 0002bf28 de8d8000 ded6ba40 00000000 c013507b dfff7420 00000000 
+Call Trace: [<e0844284>] [<c0155b2b>] [<c013507b>] [<c01347e7>] [<c012ca02>] 
+   [<c012bb1d>] [<c012ba5a>] [<c012bd4a>] [<c0106d07>] 
 
-What amuses me about those arguing for binary structures as a long term
-solution for communicating, on a flexible but long lived basis, is that the
-entire OS Genre they appear to be advocating (UNIX et al.) has been doing
-this, on an app to app (as opposed to kernel to app) basis, for far longer
-than most of them can remember, in situations where performance is far more
-relevant, and pitted against far more 3l33t 5tud3nt2 than we we shake a
-stick at, but /still/ they persist.
+Code: 89 42 14 8b 4e 04 0f b6 43 24 c1 e0 0f 8b 11 c1 e2 08 09 c2 
+ <7>hub.c: port 2 connection change
+hub.c: port 2, portstatus 100, change 3, 12 Mb/s
+usb.c: USB disconnect on device 5
+--- END dmesg output ---
 
-Through minor local idiocy, I had trashed my local lilo partition, and had
-to try and boot with a Debian CD-Rom with a 2.2 kernel. I forgot to ask for
-single user more. Not only did it boot first time, it booted fully, apart
-from two minor things: no iptables, and (shock horror) the sound card
-didn't work it wasn't compatible. Similarly, I've loaded 2.4 kernels with
-no problems onto 2.2 systems.
+ Everything still works fine with my USB Visor.  One of the things
+that caught my eye is "Sony Clie 4.0 converter".  Unlike the 710,
+the 760 runs PalmOS 4.1, rather than 4.0.  Perhaps this has
+something to do with it??
 
-This "dreadful" /proc interface everyone talks about has been *STAGGERINGLY
-GOOD* in terms of forward and backward compatibility. Sure, the innards may
-smell unpleasant, but I reckon the interface, in practice, whilst not in
-BNF format (BTW what is, and and, for the compsci philosophers amongst you,
-'.*' as a regexp is easilly convertible into BNF and describes the /proc
-interface completely - lexical and synatical analysis is immaterial without
-tight semantic definition), has worked well just because kernel developers
-and maintainers have showed themselves unwilling to break existing
-userspace tools, and vice versa.
+ Please CC me on replies.
 
-I think/thought we learnt our lesson on this in the fallout of the
-Net2E/Net2D 'debate'. If someone is willing to stand up and say that /proc
-external interface causes as many problems as the networking code did at
-the time, please stand up and be counted now, preferably holding your
-thesis on how to fix this for inter-app comms in Un*x in general, & forming
-an orderly queue for the exit door :-)
-
---
-Alex Bligh
+James

@@ -1,63 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290120AbSAWV0i>; Wed, 23 Jan 2002 16:26:38 -0500
+	id <S290121AbSAWV3s>; Wed, 23 Jan 2002 16:29:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290118AbSAWV03>; Wed, 23 Jan 2002 16:26:29 -0500
-Received: from [206.40.202.198] ([206.40.202.198]:15898 "EHLO
-	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
-	id <S290113AbSAWV0K>; Wed, 23 Jan 2002 16:26:10 -0500
-Date: Wed, 23 Jan 2002 13:25:01 -0800 (PST)
-From: John Heil <kerndev@sc-software.com>
-To: ertzog <ertzog@bk.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: hot IDE change
-In-Reply-To: <Pine.LNX.4.21.0201232301090.1053-100000@dial-up-2.energonet.ru>
-Message-ID: <Pine.LNX.3.95.1020123130530.824B-100000@scsoftware.sc-software.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290115AbSAWV3j>; Wed, 23 Jan 2002 16:29:39 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:57092 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S290118AbSAWV3d>;
+	Wed, 23 Jan 2002 16:29:33 -0500
+Date: Wed, 23 Jan 2002 13:24:36 -0800
+From: Greg KH <greg@kroah.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Torrey Hoffman <thoffman@arnor.net>, vojtech@ucw.cz,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: depmod problem for 2.5.2-dj4
+Message-ID: <20020123212435.GB15259@kroah.com>
+In-Reply-To: <1011744752.2440.0.camel@shire.arnor.net> <20020123045405.GA12060@kroah.com> <20020123094414.D5170@suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020123094414.D5170@suse.cz>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 26 Dec 2001 18:49:38 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, ertzog wrote:
-
-> Date: Wed, 23 Jan 2002 23:05:19 +0000 (GMT)
-> From: ertzog <ertzog@bk.ru>
-> To: linux-kernel@vger.kernel.org
-> Subject: hot IDE change
+On Wed, Jan 23, 2002 at 09:44:14AM +0100, Vojtech Pavlik wrote:
+> On Tue, Jan 22, 2002 at 08:54:05PM -0800, Greg KH wrote:
+> > Vojtech, is this a USB function that you want added to usb.c?
 > 
-> This question is more about hardware, but is also related to Linux.
-> If I have a harddisk, plugged into the motherboard (IDE cable and power),
-> can I turn it off, plugging out first power cable, then IDE cable.
-> Can it harm harddisk or motherboard?
-> If I can do it, then will Linux detect it back, if I make this 
-> operation back: i.e. plug IDE cable, then power cable.
-> 
-> Best regards.
+> Yes, please. This will change later when Pat Mochels devicefs kicks in,
+> but for the time being, it'd be very useful.
 
-Linux will do this fine but it wears on the south bridge mainly and the
-disk secondarily. Typically the disk is the sturdier of the two.
-Assuming you unmounted it first, your may get anywhere from 20 to 300+
-successful removals depending on the sb chip ie how much abuse it can
-endure. Then you start getting disk errors that are initially recovered
-but eventually hang your box. The south bridge ide channel and possibly
-the disk too, will be hosed.
+Here's a patch against 2.5.3-pre3, does it look ok to you (I fixed the
+potential memory leak in the second kmalloc call from what was in
+2.5.2-dj4)?
 
+greg k-h
 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--
------------------------------------------------------------------
-John Heil
-South Coast Software
-Custom systems software for UNIX and IBM MVS mainframes
-1-714-774-6952
-johnhscs@sc-software.com
-http://www.sc-software.com
------------------------------------------------------------------
-
+diff -Nru a/drivers/usb/usb.c b/drivers/usb/usb.c
+--- a/drivers/usb/usb.c	Wed Jan 23 13:20:28 2002
++++ b/drivers/usb/usb.c	Wed Jan 23 13:20:28 2002
+@@ -2513,6 +2513,49 @@
+ 	return err;
+ }
+ 
++/**
++ * usb_make_path - returns device path in the hub tree
++ * @dev: the device whose path is being constructed
++ * @buf: where to put the string
++ * @size: how big is "buf"?
++ *
++ * Returns length of the string (>= 0) or out of memory status (< 0).
++ */
++int usb_make_path(struct usb_device *dev, char *buf, size_t size)
++{
++	struct usb_device *pdev = dev->parent;
++	char *tmp;
++	char *port;
++	int i;
++
++	if (!(port = kmalloc(size, GFP_KERNEL)))
++		return -ENOMEM;
++	if (!(tmp = kmalloc(size, GFP_KERNEL))) {
++		kfree(port);
++		return -ENOMEM;
++	}
++
++	*port = 0;
++
++	while (pdev) {
++		for (i = 0; i < pdev->maxchild; i++)
++			if (pdev->children[i] == dev)
++				break;
++
++		if (pdev->children[i] != dev)
++			return -1;
++
++		strcpy(tmp, port);
++		snprintf(port, size, strlen(port) ? "%d.%s" : "%d", i + 1, tmp);
++
++		dev = pdev;
++		pdev = dev->parent;
++	}
++
++	snprintf(buf, size, "usb%d:%s", dev->bus->busnum, port);
++	return strlen(buf);
++}
++
+ /*
+  * By the time we get here, the device has gotten a new device ID
+  * and is in the default state. We need to identify the thing and
+@@ -2762,5 +2805,6 @@
+ EXPORT_SYMBOL(usb_set_configuration);
+ EXPORT_SYMBOL(usb_set_interface);
+ 
++EXPORT_SYMBOL(usb_make_path);
+ EXPORT_SYMBOL(usb_devfs_handle);
+ MODULE_LICENSE("GPL");
+diff -Nru a/include/linux/usb.h b/include/linux/usb.h
+--- a/include/linux/usb.h	Wed Jan 23 13:20:28 2002
++++ b/include/linux/usb.h	Wed Jan 23 13:20:28 2002
+@@ -881,6 +881,7 @@
+ 	char *buf, size_t size);
+ extern int usb_set_configuration(struct usb_device *dev, int configuration);
+ extern int usb_set_interface(struct usb_device *dev, int ifnum, int alternate);
++extern int usb_make_path(struct usb_device *dev, char *buf, size_t size);
+ 
+ /*
+  * timeouts, in seconds, used for sending/receiving control messages

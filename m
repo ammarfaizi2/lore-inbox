@@ -1,60 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVCZB5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVCZCDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVCZB5U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 20:57:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVCZB5U
+	id S261912AbVCZCDu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 21:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVCZCDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 20:57:20 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:8633 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261446AbVCZB5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 20:57:16 -0500
-Subject: Re: [ACPI] Re: 2.6.12-rc1-mm3
-From: Len Brown <len.brown@intel.com>
-To: Jason Uhlenkott <jasonuhl@sgi.com>
+	Fri, 25 Mar 2005 21:03:50 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:17044 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261912AbVCZCDt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 21:03:49 -0500
+Date: Fri, 25 Mar 2005 18:02:13 -0800
+From: Jason Uhlenkott <jasonuhl@sgi.com>
+To: Len Brown <len.brown@intel.com>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <20050326014327.GB207782@dragonfly.engr.sgi.com>
-References: <20050325002154.335c6b0b.akpm@osdl.org>
-	 <20050326014327.GB207782@dragonfly.engr.sgi.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1111802218.19916.59.camel@d845pe>
+Subject: Re: [ACPI] Re: 2.6.12-rc1-mm3
+Message-ID: <20050326020212.GC207782@dragonfly.engr.sgi.com>
+References: <20050325002154.335c6b0b.akpm@osdl.org> <20050326014327.GB207782@dragonfly.engr.sgi.com> <1111802218.19916.59.camel@d845pe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 25 Mar 2005 20:56:58 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111802218.19916.59.camel@d845pe>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-25 at 20:43, Jason Uhlenkott wrote:
-> On Fri, Mar 25, 2005 at 12:21:54AM -0800, Andrew Morton wrote:
-> >  bk-acpi.patch
-> 
-> This doesn't build for SGI sn2:
-> 
-> arch/ia64/kernel/mca.c: In function `ia64_mca_init':
-> arch/ia64/kernel/mca.c:1394: error: `ACPI_INTERRUPT_CPEI' undeclared
-> (first use in this function)
-> arch/ia64/kernel/mca.c:1394: error: (Each undeclared identifier is
-> reported only once
-> arch/ia64/kernel/mca.c:1394: error: for each function it appears in.)
-> make[1]: *** [arch/ia64/kernel/mca.o] Error 1
-> make: *** [arch/ia64/kernel] Error 2
-> 
-> This is because we lost CONFIG_ACPI_BOOT -- it now depends on
-> CONFIG_PM, which we don't have (or want) on sn2.  The following fixes
-> it, but I'm not sure what the original rationale was.  Len?
-> 
-> Signed-off-by: Jason Uhlenkott <jasonuhl@sgi.com>
-> 
+On Fri, Mar 25, 2005 at 08:56:58PM -0500, Len Brown wrote:
+> Please send me the .config you'd like to build.
 
-Please send me the .config you'd like to build.
-I believe that what we want to do is include CONFIG_PM.
-Note also that CONFIG_ACPI_BOOT will be going away --
-to be replaced simply by CONFIG_ACPI.
+arch/ia64/configs/sn2_defconfig
 
-thanks,
--Len
+> I believe that what we want to do is include CONFIG_PM.
 
-
+At first glance, it looks like that will enable suspend/resume
+functionality (which I don't think we want on SGI sn2) for a bunch of
+drivers.

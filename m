@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311831AbSCNWSn>; Thu, 14 Mar 2002 17:18:43 -0500
+	id <S311832AbSCNWVD>; Thu, 14 Mar 2002 17:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311832AbSCNWSd>; Thu, 14 Mar 2002 17:18:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:20373 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S311831AbSCNWSY>;
-	Thu, 14 Mar 2002 17:18:24 -0500
-Date: Thu, 14 Mar 2002 14:15:45 -0800 (PST)
-Message-Id: <20020314.141545.96920969.davem@redhat.com>
-To: greearb@candelatech.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compile problem in bk://linux24.bkbits.net/linux-2.4
- repository.
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C9120C7.4020709@candelatech.com>
-In-Reply-To: <3C9120C7.4020709@candelatech.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S311833AbSCNWUz>; Thu, 14 Mar 2002 17:20:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20488 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S311832AbSCNWUs>; Thu, 14 Mar 2002 17:20:48 -0500
+Message-ID: <3C912227.3080806@zytor.com>
+Date: Thu, 14 Mar 2002 14:20:23 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IO delay, port 0x80, and BIOS POST codes
+In-Reply-To: <Pine.LNX.3.95.1020314165931.715A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Greear <greearb@candelatech.com>
-   Date: Thu, 14 Mar 2002 15:14:31 -0700
+Richard B. Johnson wrote:
 
-   By the way, should I even be reporting such errors, and if so,
-   is this the right place to report them?
-   
-I told Marcelo about this last night, looks like a bad
-merge from the driver author or a forgotten bk add.
+> 
+> Yeh?  Then "how do it know?". It doesn't. I/O instructions are ordered,
+> however, that's all. There is no bus-interface state machine that exists
+> except on the addressed device. The CPU driven interface device just
+> makes sure that the data is valid before the address and I/O-read or
+> I/O-write are valid after this. The address is decoded by the device
+> and is used to enable the device. It either puts its data onto the
+> bus in the case of a read, or gets data off the bus, in the case of
+> a write. The interface timing is specified and is handled by hardware.
+> In the meantime the CPU has not waited because there is nothing to
+> wait for. On a READ, if the device cannot put its data on the bus
+> fast enough, it puts its finger io IO-chan-ready. This forces the
+> CPU (through its bus-interface) to wait.
+> 
+> Writes to nowhere are just that, writes to nowhere.
+> 
+
+
+On the ISA bus, yes.  The PCI and front side busses will be held in wait 
+until the transaction is completed.
+
+The exact requirement is a bit more complicated, something along the 
+lines of "an SMI triggered in response to an OUT will be taken before 
+the OUT is retired."
+
+	-hpa
+
+

@@ -1,362 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVCZAnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVCZAsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbVCZAnm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 19:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVCZAnm
+	id S261897AbVCZAsM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 19:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVCZAsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 19:43:42 -0500
-Received: from mx3.mail.ru ([194.67.23.23]:13583 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S261894AbVCZAnH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 19:43:07 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.12-rc1-bk1: Inconsistent kallsyms data
-Date: Sat, 26 Mar 2005 03:43:03 +0300
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_XALRCKqC/WHp6Uc"
-Message-Id: <200503260343.03342.adobriyan@mail.ru>
-X-Spam: Not detected
+	Fri, 25 Mar 2005 19:48:12 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:56963 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261897AbVCZAsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 19:48:07 -0500
+Subject: Re: How's the nforce4 support in Linux?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Julien Wajsberg <julien.wajsberg@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <2a0fbc590503251638420f2f08@mail.gmail.com>
+References: <2a0fbc59050325145935a05521@mail.gmail.com>
+	 <1111792462.23430.25.camel@mindpipe>
+	 <2a0fbc590503251638420f2f08@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 19:48:06 -0500
+Message-Id: <1111798086.24049.8.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_XALRCKqC/WHp6Uc
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sat, 2005-03-26 at 01:38 +0100, Julien Wajsberg wrote:
+> On Fri, 25 Mar 2005 18:14:22 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
+> > On Fri, 2005-03-25 at 23:59 +0100, Julien Wajsberg wrote:
+> > > - audio works too. The only problem is that two applications can't
+> > > open /dev/dsp in the same time.
+> > 
+> > Not a problem.  ALSA does software mixing for chipsets that can't do it
+> > in hardware.  Google for dmix.
+> > 
+> > However this doesn't (and can't be made to) work with the in-kernel OSS
+> > emulation (it works fine with the alsa-lib/libaoss emulation).  So you
+> > are technically correct in that two OSS apps can't open /dev/dsp at the
+> > same time, but there is no problem with multiple apps sharing the sound
+> > device, as long as they use the ALSA API (which they should be using
+> > anyway).
+> 
+> Okay, good to know. Then I'll have to find out why beep-media-player
+> doesn't work with alsa :-)
+> 
 
-While building 2.6.12-rc1-bk1 with attached config I get "Inconsistent
-kallsyms data".
+Without knowing anything about it, I'm willing to guess "programmer
+laziness/lack of time" (depending on your perspective).  As long as ALSA
+continues to provide OSS emulation, lazy developers will not update
+their apps to the (superior) ALSA API.
 
-Setting CONFIG_KALLSYMS_EXTRA_PASS or CONFIG_KALLSYMS_ALL fixes the problem.
+I just upgraded all my home machines to a Gnome 2.10 based distro and
+way shocked to find that it still uses esd via OSS emulation for system
+sounds.  So the endless user complaints about "wtf, esd is blocking my
+sound device, on windows my apps can share it" will not be going away in
+the forseeable future.
 
-Noted differences:
+Ugh.  dmix has only been available for, oh, 18 months, and the apps
+still have not caught up.
 
---- System.map
-+++ .tmp_System.map
+Lee
 
--c03cf83c D kallsyms_markers
--c03cf8d4 D kallsyms_token_table
--c03cfce4 D kallsyms_token_index
-+c03cf804 D kallsyms_markers
-+c03cf89c D kallsyms_token_table
-+c03cfcb0 D kallsyms_token_index
-
-Huge chunk of symbols in tmp_kallsyms2.S are shifted by 0x20000 wrt
-tmp_kallsyms1.S (_sinittext and _einittext being among them).
-
---- tmp_kallsyms1.S_
-+++ tmp_kallsyms2.S_
-
--T __sched_text_start 	PTR	0xc0311e9e
-+T __sched_text_start 	PTR	0xc0311ea0
-
--T _sinittext 	PTR	0xc03b5000
-+T _sinittext 	PTR	0xc03d5000
-
--T _einittext 	PTR	0xc03cc682
-+T _einittext 	PTR	0xc03ec682
-
-Gnu C                  3.4.2
-binutils               2.15.92.0.2
-Linux C Library        2.3.4
-Dynamic linker (ldd)   2.3.4
-
---Boundary-00=_XALRCKqC/WHp6Uc
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="config-stripped"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="config-stripped"
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_LOCALVERSION=""
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-CONFIG_SYSCTL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_KALLSYMS=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_BASE_SMALL=0
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MPENTIUM4=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=7
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HPET_TIMER=y
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_REGPARM=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_VIDEO=m
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_BLACKLIST_YEAR=2001
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_PCI_NAMES=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_FW_LOADER=y
-CONFIG_PNP=y
-CONFIG_PNPACPI=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_BLK_DEV_RAM_SIZE=16384
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=m
-CONFIG_INET=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IP_TCPDIAG=m
-CONFIG_NETFILTER=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_CT_ACCT=y
-CONFIG_IP_NF_CONNTRACK_MARK=y
-CONFIG_IP_NF_CT_PROTO_SCTP=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_AMANDA=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_IPRANGE=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_MATCH_ADDRTYPE=m
-CONFIG_IP_NF_MATCH_REALM=m
-CONFIG_IP_NF_MATCH_SCTP=m
-CONFIG_IP_NF_MATCH_COMMENT=m
-CONFIG_IP_NF_MATCH_CONNMARK=m
-CONFIG_IP_NF_MATCH_HASHLIMIT=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_TARGET_NETMAP=m
-CONFIG_IP_NF_TARGET_SAME=m
-CONFIG_IP_NF_NAT_SNMP_BASIC=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_NAT_AMANDA=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_CLASSIFY=m
-CONFIG_IP_NF_TARGET_CONNMARK=m
-CONFIG_IP_NF_TARGET_CLUSTERIP=m
-CONFIG_IP_NF_RAW=m
-CONFIG_IP_NF_TARGET_NOTRACK=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_ARP_MANGLE=m
-CONFIG_XFRM=y
-CONFIG_NET_DIVERT=y
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_8139TOO_PIO=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_SERIAL=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_NR_UARTS=32
-CONFIG_SERIAL_CORE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_DRM=y
-CONFIG_DRM_I915=y
-CONFIG_HPET=y
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_SENSOR=m
-CONFIG_SENSORS_IT87=m
-CONFIG_FB=y
-CONFIG_FB_CFB_FILLRECT=y
-CONFIG_FB_CFB_COPYAREA=y
-CONFIG_FB_CFB_IMAGEBLIT=y
-CONFIG_FB_SOFT_CURSOR=y
-CONFIG_FB_MODE_HELPERS=y
-CONFIG_FB_TILEBLITTING=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_INTEL=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_TIMER=m
-CONFIG_SND_PCM=m
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_AC97_CODEC=m
-CONFIG_SND_INTEL8X0=m
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=y
-CONFIG_USB_UHCI_HCD=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_XFS_FS=m
-CONFIG_DNOTIFY=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_SYSFS=y
-CONFIG_DEVPTS_FS_XATTR=y
-CONFIG_TMPFS=y
-CONFIG_HUGETLBFS=y
-CONFIG_HUGETLB_PAGE=y
-CONFIG_RAMFS=y
-CONFIG_CIFS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="utf8"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_855=m
-CONFIG_NLS_CODEPAGE_866=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ASCII=m
-CONFIG_NLS_ISO8859_5=m
-CONFIG_NLS_KOI8_R=m
-CONFIG_NLS_UTF8=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=17
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_DEBUG_SPINLOCK=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_4KSTACKS=y
-CONFIG_CRC32=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_PC=y
-
---Boundary-00=_XALRCKqC/WHp6Uc--

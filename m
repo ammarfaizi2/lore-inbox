@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262653AbTCIWfQ>; Sun, 9 Mar 2003 17:35:16 -0500
+	id <S262649AbTCIWf1>; Sun, 9 Mar 2003 17:35:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262654AbTCIWfQ>; Sun, 9 Mar 2003 17:35:16 -0500
-Received: from smtp09.iddeo.es ([62.81.186.19]:9613 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id <S262653AbTCIWfP>;
-	Sun, 9 Mar 2003 17:35:15 -0500
-Date: Sun, 9 Mar 2003 23:45:52 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: linux-kernel@vger.kernel.org
-Cc: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: Fwd: struct inode size reduction.
-Message-ID: <20030309224552.GA3047@werewolf.able.es>
-References: <20030309135402.GB32107@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262654AbTCIWf0>; Sun, 9 Mar 2003 17:35:26 -0500
+Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:4
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S262649AbTCIWfY>; Sun, 9 Mar 2003 17:35:24 -0500
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+Date: Sun, 9 Mar 2003 17:49:40 -0500
+User-Agent: KMail/1.6
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030309135402.GB32107@suse.de>; from davej@codemonkey.org.uk on Sun, Mar 09, 2003 at 14:54:03 +0100
-X-Mailer: Balsa 2.0.9
+To: linux-kernel@vger.kernel.org
+Subject: [BUG][2.5.64bk4] Weird problem with 2 PCs
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200303091749.40739.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 03.09, Dave Jones wrote:
-> Third retry, perhaps it'll make it through to the list
-> now that vger is sending mail again...
-> 
+I don't have an oops/panic to give because the box won't dump one on this 
+issue.
 
-If you do not need gcc-2.95 support, you can use anonymous unions:
+I have two PCs, an A7M266-D Athlon MP 2000+ and an IBM 300PL 6892-N2U PIII 
+(Katmai) 450Mhz.  If I leave the IBM machine on for a few hours or so, it's 
+idle and just handling my mail/dns.  The problem happens when I turn on the 
+A7M266-D the other box locks up and reboots (due to panic=80). ksyslog/klogd 
+aren't dumping any oopes to my logfile so I'm unable to capture the bug.
 
-+	union {
-+		struct pipe_inode_info	*i_pipe;
-+		struct block_device	*i_bdev;
-+		struct char_device	*i_cdev;
-+	};
+1. The PCs are connected via a router to my network.
 
-so you don't even have to change the accesses. Zero cost optimization patch.
+2. The PCs are connected via serial port together (possibly causing the oops 
+with interrupts?)
 
-I have tested on gcc-3.0, 3.2.2, RH gcc-2.96-98, and 2.95.2. Only 2.95.2
-fails.
+Note, when I turn off and on the A7M266-D the IBM will not panic. It's only 
+when the IBM is powered on for a few hours (if thats any help in narrowing 
+down things).
 
-I do not know the compiler requirements for 2.5, or if there is any agreement
-in kernel developement for not doing this. If this is the case, sorry for
-the noise.
+When It did panic, It reported __run_timers and a held spinlock by 
+linux/timer.c but the EIP was 00000000 (garbage). 
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.21-pre5-jam0 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))
+Anyone else noticing strange things like this? This is really annoying :-(
+

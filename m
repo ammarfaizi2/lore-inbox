@@ -1,47 +1,175 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbUBDVLD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 16:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUBDVLB
+	id S266509AbUBDVQI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 16:16:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUBDVPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 16:11:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43652 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264455AbUBDVIo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 16:08:44 -0500
-Date: Wed, 4 Feb 2004 13:08:39 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jfaulkne@ccs.neu.edu, linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: Re: major network performance difference between 2.4 and 2.6.2-rc2
-Message-Id: <20040204130839.1023c2f2.davem@redhat.com>
-In-Reply-To: <20040204125444.3f2b5e79.akpm@osdl.org>
-References: <Pine.GSO.4.58.0401302108560.1211@denali.ccs.neu.edu>
-	<Pine.GSO.4.58.0402041529160.7454@denali.ccs.neu.edu>
-	<20040204125444.3f2b5e79.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 4 Feb 2004 16:15:42 -0500
+Received: from imh.informatik.uni-bremen.de ([134.102.224.4]:219 "EHLO
+	imh.informatik.uni-bremen.de") by vger.kernel.org with ESMTP
+	id S266509AbUBDVNp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 16:13:45 -0500
+Date: Wed, 4 Feb 2004 22:13:38 +0100
+From: Sven Schumacher <sschu@informatik.uni-bremen.de>
+To: linux-kernel@vger.kernel.org
+Subject: DMA BadCRC, cables exchanged, problem resists, any idea?
+Message-ID: <20040204211338.GA31768@x20.informatik.uni-bremen.de>
+Reply-To: sschu@tzi.de, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.4.20-28.9 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Feb 2004 12:54:44 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+Hello,
 
-> Jim Faulkner <jfaulkne@ccs.neu.edu> wrote:
-> >   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-> >   3 root      35  19     0    0    0 S 45.9  0.0   0:46.98 ksoftirqd/0
-> >   6 root       5 -10     0    0    0 S 43.3  0.0   1:56.63 events/0
-> >   12008 dogshu 15   0  4800 2356 3828 S  5.3  0.2   0:05.98 proftpd
-> >   12 root      15   0     0    0    0 S  0.3  0.0   0:00.41 pdflush
-> >   9778 root    16   0  5888 1724 5516 R  0.3  0.2   0:00.12 sshd
-> > 
-> > the load before that network transfer was 0.01, and the load after the
-> > network transfer was 1.45.
-> 
-> Could be a networking problem, but boy that's a lot of CPU time.
+I got the following error for 3 of my 4 harddrives:
 
-Andrew maybe something bolixed in the MAX_SOFTIRQ_RESTART stuff
-we put into kernel/softirq.c?  Just a guess...
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdf: DMA disabled
+ide2: reset: success
+hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+hdg: dma_intr: error=0x84 { DriveStatusError BadCRC }
+hdg: dma_timer_expiry: dma status == 0x20
+hdg: timeout waiting for DMA
+
+and so on. First I used round IDE-Cables, 80c Ribbon, now I use
+flat 80c Ribbon. I tried with an CMD680-IDE-offboad-Controller and
+the onboard Promise PDC20276. Both show the same effect. The
+onboard-VIA VT 8233 (used for hda) never shows this error.
+
+cat /proc/interrupts:
+           CPU0
+  0:    1264293    IO-APIC-edge  timer
+  1:      23806    IO-APIC-edge  keyboard
+  2:          0          XT-PIC  cascade
+  8:          4    IO-APIC-edge  rtc
+  9:          0   IO-APIC-level  acpi
+ 12:      10688    IO-APIC-edge  PS/2 Mouse
+ 14:      14589    IO-APIC-edge  ide0
+ 15:         97    IO-APIC-edge  ide1
+ 16:        449   IO-APIC-level  ide2, ide3
+ 17:       9142   IO-APIC-level  eth0
+ 21:          0   IO-APIC-level  ehci_hcd, usb-uhci
+NMI:          0
+LOC:    1264212
+ERR:          0
+MIS:          0
+
+IRQ 16 is the CMD680, ide0 and ide1 is the onboard VIA VT8235.
+The machine acts as a fileserver, so it's worse falling back to
+PIO instead of DMA. The Mainboard is an MSI-Tech KT3 Ultra 2 with
+an VIA KT 333 Chipset (Athlon 1800 XP).
+For testing purposes I tried the CMD680 in an Intel P4-based
+Computer (same cables) but none of these nasty errors! The P4 was
+running a 2.4.23 and the Athlon a 2.4.23.
+
+Used harddrives:
+
+/dev/hda:
+ multcount    = 16 (on)
+ IO_support   =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 1232/255/63, sectors = 19807200, start = 0
+
+ Model=IBM-DTTA-351010, FwRev=T56OA73A, SerialNo=WF0WF036521
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=34
+ BuffType=DualPortCache, BuffSize=466kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=19807200
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 *udma2
+ AdvancedPM=no WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-4 T13 1153D revision 17:  1 2 3 4
+
+/dev/hde:
+ multcount    = 16 (on)
+ IO_support   =  0 (default 16-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 36024/16/63, sectors = 234493056, start = 0
+
+ Model=SAMSUNG SV1204H, FwRev=RK100-15, SerialNo=0450J1BW401217
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=34902, SectSize=554, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=234493056
+ IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 *udma4 udma5
+ AdvancedPM=no WriteCache=enabled
+ Drive conforms to: ATA/ATAPI-6 T13 1410D revision 1:
+
+/dev/hdf:
+ multcount    = 16 (on)
+ IO_support   =  0 (default 16-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 41608/16/63, sectors = 240121728, start = 0
+
+ Model=Maxtor 6Y120L0, FwRev=YAR41BW0, SerialNo=Y3K7N66E
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=240121728
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6
+ AdvancedPM=yes: disabled (255) WriteCache=enabled
+ Drive conforms to: (null):
+
+/dev/hdg:
+ multcount    =  0 (off)
+ IO_support   =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 19929/255/63, sectors = 320173056, start = 0
+
+ Model=Maxtor 6Y160P0, FwRev=YAR41BW0, SerialNo=Y42BANHE
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=DualPortCache, BuffSize=7936kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=268435455
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 udma2 udma3 udma4 udma5 *udma6
+ AdvancedPM=yes: disabled (255) WriteCache=enabled
+ Drive conforms to: (null):
+
+Any ideas, what I can change to get rid of these errors?
+
+TIA Sven
+
+(please CC)
+
+-- 
+Sven Schumacher, Department of Computer Science
+University of Bremen, Bibliothekstraﬂe 1, 28359 Bremen

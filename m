@@ -1,73 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132932AbRAVQtA>; Mon, 22 Jan 2001 11:49:00 -0500
+	id <S132889AbRAVQwA>; Mon, 22 Jan 2001 11:52:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132930AbRAVQsv>; Mon, 22 Jan 2001 11:48:51 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:32268 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S132932AbRAVQsk>; Mon, 22 Jan 2001 11:48:40 -0500
-Message-ID: <3A6C8BBE.85F94455@namesys.com>
-Date: Mon, 22 Jan 2001 19:36:30 +0000
-From: Edward <edward@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.1-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Otto Meier <gf435@gmx.net>, Holger Kiehl <Holger.Kiehl@dwd.de>,
-        Hans Reiser <reiser@namesys.com>, Ed Tomlinson <tomlins@cam.org>,
-        Nils Rennebarth <nils@ipe.uni-stuttgart.de>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        David Willmore <n0ymv@callsign.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org
-Subject: Re: [PATCH] - filesystem corruption on soft RAID5 in 2.4.0+
-In-Reply-To: <14955.19182.663691.194031@notabene.cse.unsw.edu.au>
+	id <S132873AbRAVQvu>; Mon, 22 Jan 2001 11:51:50 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:14606 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S132901AbRAVQve>;
+	Mon, 22 Jan 2001 11:51:34 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Werner Almesberger <Werner.Almesberger@epfl.ch>
+cc: David Luyer <david_luyer@pacific.net.au>, alan@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: PATCH: "Pass module parameters" to built-in drivers 
+In-Reply-To: Your message of "Mon, 22 Jan 2001 16:56:38 BST."
+             <20010122165638.E4979@almesberger.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 23 Jan 2001 03:30:36 +1100
+Message-ID: <5766.980181036@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> 
-> There have been assorted reports of filesystem corruption on raid5 in
-> 2.4.0, and I have finally got a patch - see below.
-> I don't know if it addresses everybody's problems, but it fixed a very
-> really problem that is very reproducable.
-> 
-> The problem is that parity can be calculated wrongly when doing a
-> read-modify-write update cycle.  If you have a fully functional, you
-> wont notice this problem as the parity block is never used to return
-> data.  But if you have a degraded array, you will get corruption very
-> quickly.
-> So I think this will solve the reported corruption with ext2fs, as I
-> think they were mostly on degradred arrays.  I have no idea whether it
-> will address the reiserfs problems as I don't think anybody reporting
-> those problems described their array.
- 
-But we deal with a fully functional one. 
-Nevertheless this patch fixed reiserfs corruption..
-Thanks.
-Edward.
+On Mon, 22 Jan 2001 16:56:38 +0100, 
+Werner Almesberger <Werner.Almesberger@epfl.ch> wrote:
+>Keith Owens wrote:
+>> Inconsistent methods for setting the same parameter are bad.  I can and
+>> will do this cleanly in 2.5.
+>
+>If your approach isn't overly intrusive (i.e. doesn't require changes
+>to all files containing module parameters, or such), maybe you could
+>make a patch for 2.4.x and wave it a little under Linus' nose. Maybe
+>he likes the scent ;-)
 
-> 
-> In any case, please apply, and let me know of any further problems.
-> 
-> --- ./drivers/md/raid5.c        2001/01/21 04:01:57     1.1
-> +++ ./drivers/md/raid5.c        2001/01/21 20:36:05     1.2
-> @@ -714,6 +714,11 @@
->                 break;
->         }
->         spin_unlock_irq(&conf->device_lock);
-> +       if (count>1) {
-> +               xor_block(count, bh_ptr);
-> +               count = 1;
-> +       }
-> +
->         for (i = disks; i--;)
->                 if (chosen[i]) {
->                         struct buffer_head *bh = sh->bh_cache[i];
+It is part of my total Makefile rewrite for 2.5.  A clean
+implementation of module parameters mapping to setup code requires the
+mapping of a source file to the module it is linked into.  That
+information is difficult to extract with the current Makefile system,
+my rewrite makes it easy.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

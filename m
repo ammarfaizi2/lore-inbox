@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129094AbRBBTSS>; Fri, 2 Feb 2001 14:18:18 -0500
+	id <S129278AbRBBTYw>; Fri, 2 Feb 2001 14:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129057AbRBBTSI>; Fri, 2 Feb 2001 14:18:08 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:37018 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S129094AbRBBTSC>; Fri, 2 Feb 2001 14:18:02 -0500
-Date: Fri, 2 Feb 2001 20:17:45 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: Jonathan Morton <chromi@cyberspace.org>
-cc: <linux-kernel@vger.kernel.org>, <T.Stewart@student.umist.ac.uk>
-Subject: Re: DFE-530TX with no mac address
-In-Reply-To: <l03130310b6a0ac26266f@[192.168.239.105]>
-Message-ID: <Pine.LNX.4.30.0102021953560.10971-100000@cola.teststation.com>
+	id <S129178AbRBBTYm>; Fri, 2 Feb 2001 14:24:42 -0500
+Received: from www.wen-online.de ([212.223.88.39]:17935 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129155AbRBBTYa>;
+	Fri, 2 Feb 2001 14:24:30 -0500
+Date: Fri, 2 Feb 2001 20:24:19 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: RAMFS
+In-Reply-To: <20010202185709.A753@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.Linu.4.10.10102022022300.623-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2 Feb 2001, Ingo Oeser wrote:
 
-> >I did this and compiled it into the kernel. It detects it at boot (via-
-> >rhine v1.08-LK1.1.6 8/9/2000 Donald Becker) but says the
-> >hardware address (mac address?) is 00-00-00-00-00-00.
+> No, so have to unlock it also, if you return -ENOSPC.
+> 
+> So the correct fix seems to be:
+> 
+> --- linux/fs/ramfs/inode.c~	Wed Jan 31 22:02:16 2001
+> +++ linux/fs/ramfs/inode.c	Fri Feb  2 14:51:47 2001
+> @@ -174,7 +174,6 @@
+>  		inode->i_blocks += IBLOCKS_PER_PAGE;
+>  		rsb->free_pages--;
+>  		SetPageDirty(page);
+> -		UnlockPage(page);
+>  	} else {
+>  		ClearPageUptodate(page);
+>  		ret = 0;
+> @@ -264,6 +263,9 @@
+>  
+> - 	if (! ramfs_alloc_page(inode, page))
+> + 	if (! ramfs_alloc_page(inode, page)) {
+> +		UnlockPage(page);
+>  		return -ENOSPC;
+> +	}
+> +	UnlockPage(page);
+>  	return 0;
+>  }
+> 
+> This currently works for me (but using 2.4.0 + dwg-ramfs.patch + this patch)
 
-This is a good example of what is missed by not copying the exact message.
-For example, mine says:
+Have you stressed it?  (I see leakiness)
 
-eth0: VIA VT3043 Rhine at 0xd400, 00:50:ba:a4:15:86, IRQ 19.
-eth0: MII PHY found at address 8, status 0x782d advertising 05e1 Link 0000.
-
-Does it say "VIA VT6102 Rhine-II" for both of you?
-If not, could you do an 'lspci -n'?
-
-My VT3043 survives win98, but it may be a new feature in the newer chip. 
-It may be a bios setting or something ...
-
-
-> I have an identical card, which usually works - except when I've rebooted
-> from Windows, when it shows the above symptoms.  After using Windows, I
-> have to power the machine off, including turning off the "standby power"
-> switch on the PSU, then turn it back on and boot straight into Linux.  Very
-> occasionally it also loses "identity" and requires a similar reset, even
-> when running Linux.
-
-Yes, the card is in some (for the linux driver) unknown state. Powering
-off completely resets it. Something that could help someone find out what
-is going on is running these two commands, both when the card is working
-and when it is not.
-
-via-diag -aaeemm
-lspci -vvvxxx -d 1106:3065
-
-via-diag is available from http://www.scyld.com/diag/index.html
-
-(1106:3065 is the pci id, if lspci -n gives you a different number you use 
- that of course.)
-
-/Urban
+	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

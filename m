@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbTH1P7b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 11:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264089AbTH1P7b
+	id S264114AbTH1QUq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 12:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTH1QUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 11:59:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51945 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264088AbTH1P73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 11:59:29 -0400
-Date: Thu, 28 Aug 2003 09:02:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test4-mm2
-Message-Id: <20030828090240.2cccf4d9.akpm@osdl.org>
-In-Reply-To: <1062075227.422.2.camel@lorien>
-References: <20030826221053.25aaa78f.akpm@osdl.org>
-	<1062075227.422.2.camel@lorien>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 28 Aug 2003 12:20:46 -0400
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:6043 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id S264114AbTH1QUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 12:20:44 -0400
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200308281618.h7SGIMMp014455@wildsau.idv.uni.linz.at>
+Subject: Re: usb-storage: how to ruin your hardware(?)
+In-Reply-To: <20030828154454.A2343@pclin040.win.tue.nl>
+To: Andries Brouwer <aebr@win.tue.nl>
+Date: Thu, 28 Aug 2003 18:18:22 +0200 (MET DST)
+CC: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br> wrote:
->
-> when using the hdparm program, thus:
+> On Thu, Aug 28, 2003 at 04:59:14AM +0200, H.Rosmanith (Kernel Mailing List) wrote:
 > 
->  # hdparm /dev/hda
+> > the contradiction to this is that the flashdisk can be used
+> > in a "partition-less" state where it is possible to use the
+> > whole device at one: "mke2fs /dev/sdb". you have to use the
+> > vendor formating-tool to make the flashdisk look like an USB_FDD
+> > device. but even in USB_HDD mode with partitions, the partitions
+> > still look strange, not ending on cylinder boundaries and so on.
 > 
->  I'm getting this:
-> 
->  Oops: 0000 [#1]
+> I have seen several posts from you, but all in this vague, almost
+> information-free style.
 
-This should fix it.
-
---- 25/include/linux/genhd.h~large-dev_t-12-fix	2003-08-27 10:36:32.000000000 -0700
-+++ 25-akpm/include/linux/genhd.h	2003-08-27 10:36:32.000000000 -0700
-@@ -197,7 +197,7 @@ extern void rand_initialize_disk(struct 
+the information is vague, because I don't exactly know how I manage
+to stop the drive working.
  
- static inline sector_t get_start_sect(struct block_device *bdev)
- {
--	return bdev->bd_part->start_sect;
-+	return bdev->bd_contains == bdev ? 0 : bdev->bd_part->start_sect;
- }
- static inline sector_t get_capacity(struct gendisk *disk)
- {
+> It would be of interest if you described your actions and the results
+> in detail. Or if you gave explicitly the partition table that you
+> consider strange.
 
-_
+hm, that's not so easy. I notice that the drive stops working, but
+I can't exactly tell when. Unfortunately I can't give you the
+partition table of the new drive anymore, because it's alread gone ;-)
+
+> [If you only think about cylinder boundaries: cylinders do not exist,
+> and cylinder boundaries do not exist either. So that in itself does
+> not mean a thing.]
+
+well ... I would assume that a proper "emulation" of a harddisk by a
+flashdrive would also look like a real harddisk, with correct
+cylinder boundaries. But obviously, this is not the case. Should
+I get a new drive, I will mail you the strange-looking partiotion-table:
+it will look like "physical start at (0,3,3)" or similar.
+
+best regards,
+h.rosmanith
 

@@ -1,104 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbUKIFy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUKIGST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbUKIFy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 00:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbUKIFxc
+	id S261396AbUKIGST (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 01:18:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbUKIFzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 00:53:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5791 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261393AbUKIFZD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 00:25:03 -0500
-Subject: Re: [PATCH] I2C update for 2.6.10-rc1
-In-Reply-To: <10999778573332@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 8 Nov 2004 21:24:17 -0800
-Message-Id: <1099977857196@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Tue, 9 Nov 2004 00:55:33 -0500
+Received: from motgate8.mot.com ([129.188.136.8]:46570 "EHLO motgate8.mot.com")
+	by vger.kernel.org with ESMTP id S261396AbUKIFZs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 00:25:48 -0500
+Date: Mon, 8 Nov 2004 23:25:29 -0600 (CST)
+From: Kumar Gala <galak@somerset.sps.mot.com>
+To: akpm@osdl.org
+cc: linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC32] Added MPC8555/8541 security block infrastructure
+Message-ID: <Pine.LNX.4.61.0411082319080.13565@blarg.somerset.sps.mot.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2014.1.19, 2004/11/08 16:38:32-08:00, greg@kroah.com
+Andrew,
 
-I2C: delete normal_i2c_range logic from sensors as there are no more users.
+This patch adds OCP, interrupt, and memory offset details for the security 
+block on MPC8555/8541 to support drivers.
 
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
- drivers/i2c/i2c-sensor-detect.c |   12 +-----------
- include/linux/i2c-sensor.h      |    6 ------
- 2 files changed, 1 insertion(+), 17 deletions(-)
+--
 
+diff -Nru a/arch/ppc/platforms/85xx/mpc8555.c b/arch/ppc/platforms/85xx/mpc8555.c
+--- a/arch/ppc/platforms/85xx/mpc8555.c	2004-11-08 21:33:21 -06:00
++++ b/arch/ppc/platforms/85xx/mpc8555.c	2004-11-08 21:33:21 -06:00
+@@ -77,6 +77,13 @@
+            .pm           = OCP_CPM_NA,
+          },
+          { .vendor       = OCP_VENDOR_FREESCALE,
++          .function     = OCP_FUNC_SEC2,
++          .index        = 0,
++          .paddr        = MPC85xx_SEC2_OFFSET,
++          .irq          = MPC85xx_IRQ_SEC2,
++          .pm           = OCP_CPM_NA,
++        },
++        { .vendor       = OCP_VENDOR_FREESCALE,
+            .function     = OCP_FUNC_PERFMON,
+            .index        = 0,
+            .paddr        = MPC85xx_PERFMON_OFFSET,
+diff -Nru a/include/asm-ppc/mpc85xx.h b/include/asm-ppc/mpc85xx.h
+--- a/include/asm-ppc/mpc85xx.h	2004-11-08 21:33:21 -06:00
++++ b/include/asm-ppc/mpc85xx.h	2004-11-08 21:33:21 -06:00
+@@ -81,6 +81,7 @@
+  #define MPC85xx_IRQ_DUART	(26 + MPC85xx_OPENPIC_IRQ_OFFSET)
+  #define MPC85xx_IRQ_IIC1	(27 + MPC85xx_OPENPIC_IRQ_OFFSET)
+  #define MPC85xx_IRQ_PERFMON	(28 + MPC85xx_OPENPIC_IRQ_OFFSET)
++#define MPC85xx_IRQ_SEC2	(29 + MPC85xx_OPENPIC_IRQ_OFFSET)
+  #define MPC85xx_IRQ_CPM		(30 + MPC85xx_OPENPIC_IRQ_OFFSET)
 
-diff -Nru a/drivers/i2c/i2c-sensor-detect.c b/drivers/i2c/i2c-sensor-detect.c
---- a/drivers/i2c/i2c-sensor-detect.c	2004-11-08 18:54:49 -08:00
-+++ b/drivers/i2c/i2c-sensor-detect.c	2004-11-08 18:54:49 -08:00
-@@ -45,7 +45,6 @@
- 	int adapter_id =
- 	    is_isa ? ANY_I2C_ISA_BUS : i2c_adapter_id(adapter);
- 	unsigned short *normal_i2c;
--	unsigned short *normal_i2c_range;
- 	unsigned int *normal_isa;
- 	unsigned short *probe;
- 	unsigned short *ignore;
-@@ -56,12 +55,10 @@
- 		return -1;
- 	
- 	/* Use default "empty" list if the adapter doesn't specify any */
--	normal_i2c = normal_i2c_range = probe = ignore = empty;
-+	normal_i2c = probe = ignore = empty;
- 	normal_isa = empty_isa;
- 	if (address_data->normal_i2c)
- 		normal_i2c = address_data->normal_i2c;
--	if (address_data->normal_i2c_range)
--		normal_i2c_range = address_data->normal_i2c_range;
- 	if (address_data->normal_isa)
- 		normal_isa = address_data->normal_isa;
- 	if (address_data->probe)
-@@ -119,13 +116,6 @@
- 				if (addr == normal_i2c[i]) {
- 					found = 1;
- 					dev_dbg(&adapter->dev, "found normal i2c entry for adapter %d, addr %02x", adapter_id, addr);
--				}
--			}
--			for (i = 0; !found && (normal_i2c_range[i] != I2C_CLIENT_END); i += 2) {
--				if ((addr >= normal_i2c_range[i]) &&
--				    (addr <= normal_i2c_range[i + 1])) {
--					dev_dbg(&adapter->dev, "found normal i2c_range entry for adapter %d, addr %04x\n", adapter_id, addr);
--					found = 1;
- 				}
- 			}
- 		}
-diff -Nru a/include/linux/i2c-sensor.h b/include/linux/i2c-sensor.h
---- a/include/linux/i2c-sensor.h	2004-11-08 18:54:49 -08:00
-+++ b/include/linux/i2c-sensor.h	2004-11-08 18:54:49 -08:00
-@@ -42,10 +42,6 @@
- /* A structure containing the detect information.
-    normal_i2c: filled in by the module writer. Terminated by I2C_CLIENT_ISA_END.
-      A list of I2C addresses which should normally be examined.
--   normal_i2c_range: filled in by the module writer. Terminated by 
--     I2C_CLIENT_ISA_END
--     A list of pairs of I2C addresses, each pair being an inclusive range of
--     addresses which should normally be examined.
-    normal_isa: filled in by the module writer. Terminated by SENSORS_ISA_END.
-      A list of ISA addresses which should normally be examined.
-    probe: insmod parameter. Initialize this list with I2C_CLIENT_ISA_END values.
-@@ -62,7 +58,6 @@
- */
- struct i2c_address_data {
- 	unsigned short *normal_i2c;
--	unsigned short *normal_i2c_range;
- 	unsigned int *normal_isa;
- 	unsigned short *probe;
- 	unsigned short *ignore;
-@@ -83,7 +78,6 @@
-                       "List of adapter,address pairs not to scan"); \
- 	static struct i2c_address_data addr_data = {			\
- 			.normal_i2c =		normal_i2c,		\
--			.normal_i2c_range =	normal_i2c_range,	\
- 			.normal_isa =		normal_isa,		\
- 			.probe =		probe,			\
- 			.ignore =		ignore,			\
+  /* The 12 external interrupt lines */
+@@ -120,6 +121,8 @@
+  #define MPC85xx_PCI2_SIZE	(0x01000)
+  #define MPC85xx_PERFMON_OFFSET	(0xe1000)
+  #define MPC85xx_PERFMON_SIZE	(0x01000)
++#define MPC85xx_SEC2_OFFSET	(0x30000)
++#define MPC85xx_SEC2_SIZE	(0x10000)
+  #define MPC85xx_UART0_OFFSET	(0x04500)
+  #define MPC85xx_UART0_SIZE	(0x00100)
+  #define MPC85xx_UART1_OFFSET	(0x04600)
+diff -Nru a/include/asm-ppc/ocp_ids.h b/include/asm-ppc/ocp_ids.h
+--- a/include/asm-ppc/ocp_ids.h	2004-11-08 21:33:21 -06:00
++++ b/include/asm-ppc/ocp_ids.h	2004-11-08 21:33:21 -06:00
+@@ -61,6 +61,7 @@
+  #define OCP_FUNC_PERFMON	0x00D2	/* Performance Monitor */
+  #define OCP_FUNC_RGMII		0x00D3
+  #define OCP_FUNC_TAH		0x00D4
++#define OCP_FUNC_SEC2		0x00D5	/* Crypto/Security 2.0 */
 
+  /* Network 0x0200 - 0x02FF */
+  #define OCP_FUNC_EMAC		0x0200

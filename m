@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261308AbTCYBET>; Mon, 24 Mar 2003 20:04:19 -0500
+	id <S261310AbTCYBDM>; Mon, 24 Mar 2003 20:03:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261309AbTCYBET>; Mon, 24 Mar 2003 20:04:19 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:26117 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261308AbTCYBER>; Mon, 24 Mar 2003 20:04:17 -0500
-Date: Tue, 25 Mar 2003 01:15:25 +0000
-From: John Levon <levon@movementarian.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       zwane@holomorphy.com
-Subject: Re: [PATCH] module load notification try 2
-Message-ID: <20030325011525.GA92370@compsoc.man.ac.uk>
-References: <20030318155953.GA97463@compsoc.man.ac.uk> <20030325010738.10E762C05E@lists.samba.org>
+	id <S261308AbTCYBDM>; Mon, 24 Mar 2003 20:03:12 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:17335 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261307AbTCYBDK>;
+	Mon, 24 Mar 2003 20:03:10 -0500
+Subject: [PATCH 2.5.66] md/linear oops fix
+From: Daniel McNeil <daniel@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: NeilBrown <neilb@cse.unsw.edu.au>, linux-raid <linux-raid@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>
+Content-Type: multipart/mixed; boundary="=-rPoZXeS65NOp4GXSO0ZG"
+Organization: 
+Message-Id: <1048554851.31398.7.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030325010738.10E762C05E@lists.samba.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18xd2D-000JBv-00*vSqu.sm1a8.*
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 24 Mar 2003 17:14:11 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 23, 2003 at 03:36:26PM +1100, Rusty Russell wrote:
 
-> > +static inline int register_module_notifier(struct notifier_block * nb)
-> > +{
-> > +	return -ENOSYS;
-> > +}
-> 
-> Shouldn't fail just because !CONFIG_MODULES: should just return 0.
+--=-rPoZXeS65NOp4GXSO0ZG
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Ho-de-hum, flipped a coin, lost the toss.
+This fixes an oops caused by incorrect usage of sector_div()
+in which_dev() in md/linear.c.  It was dereferencing an non-existent
+hash table entry.
 
-> Otherwise there's no way to sanely use them without wrapping in #ifdef
 
-Well, "if (err && err != -ENOSYS)". The relative sanity of that is
-debatable. I don't care either way, hence the coin toss.
+-- 
+Daniel McNeil <daniel@osdl.org>
 
-I Cc:ed Zwane who was advocating -ENOSYS on IRC ...
+--=-rPoZXeS65NOp4GXSO0ZG
+Content-Disposition: attachment; filename=patch-2.5.66-linear
+Content-Type: text/x-patch; name=patch-2.5.66-linear; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> > +static DECLARE_MUTEX(notify_mutex);
-> 
-> Hmm, yes, you need to use your own protection around
-> notifier_chain_register and notifier_call_chain.  Wierd, because
-> notifier.c does its own locking for register and unregister, but not
-> for calling, which AFAICT makes it useless...
+diff -urNp -X /home/daniel/dontdiff linux-2.5.66/drivers/md/linear.c linux-2.5.66-md/drivers/md/linear.c
+--- linux-2.5.66/drivers/md/linear.c	Mon Mar 24 14:00:20 2003
++++ linux-2.5.66-md/drivers/md/linear.c	Mon Mar 24 16:53:50 2003
+@@ -37,7 +37,11 @@ static inline dev_info_t *which_dev(mdde
+ 	linear_conf_t *conf = mddev_to_conf(mddev);
+ 	sector_t block = sector >> 1;
+ 
+-	hash = conf->hash_table + sector_div(block, conf->smallest->size);
++	/*
++	 * sector_div(a,b) returns the remainer and sets a to a/b
++	 */
++	(void)sector_div(block, conf->smallest->size);
++	hash = conf->hash_table + block;
+ 
+ 	if ((sector>>1) >= (hash->dev0->size + hash->dev0->offset))
+ 		return hash->dev1;
 
-I mentioned about this some time ago on lkml to massive indifference.
-Later on someone from OSDL reworked all the notifier stuff, dunno what
-happened to the patch.
+--=-rPoZXeS65NOp4GXSO0ZG--
 
-regards,
-john

@@ -1,162 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314584AbSGJKR4>; Wed, 10 Jul 2002 06:17:56 -0400
+	id <S315468AbSGJKij>; Wed, 10 Jul 2002 06:38:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315440AbSGJKRz>; Wed, 10 Jul 2002 06:17:55 -0400
-Received: from mail.spylog.com ([194.67.35.220]:50068 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S314584AbSGJKRx>;
-	Wed, 10 Jul 2002 06:17:53 -0400
-Date: Wed, 10 Jul 2002 14:20:31 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc1aa2
-Message-ID: <20020710102031.GA3107@an.local>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <20020708184149.GL8878@dualathlon.random>
+	id <S315479AbSGJKii>; Wed, 10 Jul 2002 06:38:38 -0400
+Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:19213 "EHLO
+	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
+	id <S315468AbSGJKih>; Wed, 10 Jul 2002 06:38:37 -0400
+Date: Wed, 10 Jul 2002 12:41:20 +0200
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: linux-kernel@vger.kernel.org
+Subject: tulip 21143 based card does not work with 10 Mbit with recent kernel
+Message-ID: <20020710124120.A11310@torres.ka0.zugschlus.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020708184149.GL8878@dualathlon.random>
-User-Agent: Mutt/1.3.28i
-Organization: SpyLOG ltd.
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrea Arcangeli,
+Hi,
 
-1. Hardware: M/B Intel "Tupelo" STL2.
-   Network card :
+I have a bunch of tulip based network cards with 21143 chipset. These
+Micronet made cards do not seem to work when connected to a 10 Mbit
+hub (as I have in the lab setup) while running with a recent kernel:
 
-(/proc/pci)
+Jul 10 11:41:52 orion kernel: Linux Tulip driver version 0.9.15-pre9 (Nov 6, 2001)
+Jul 10 11:41:52 orion kernel: PCI: Found IRQ 5 for device 00:09.0
+Jul 10 11:41:52 orion kernel: PCI: Sharing IRQ 5 with 00:04.2
+Jul 10 11:41:52 orion kernel: tulip0:  EEPROM default media type Autosense.
+Jul 10 11:41:52 orion kernel: tulip0:  Index #0 - Media 10baseT (#0) described by a 21142 Serial PHY (2) block.
+Jul 10 11:41:52 orion kernel: tulip0:  Index #1 - Media 10baseT-FDX (#4) described by a 21142 Serial PHY (2) block.
+Jul 10 11:41:52 orion kernel: tulip0:  Index #2 - Media 100baseTx (#3) described by a 21143 SYM PHY (4) block.
+Jul 10 11:41:52 orion kernel: tulip0:  Index #3 - Media 100baseTx-FDX (#5) described by a 21143 SYM PHY (4) block.
+Jul 10 11:41:52 orion kernel: eth0: Digital DS21143 Tulip rev 65 at 0xb000, 00:C0:CA:30:CD:75, IRQ 5.
 
-  Bus  0, device   3, function  0:
-    Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 8).
-      IRQ 18.
-      Master Capable.  Latency=66.  Min Gnt=8.Max Lat=56.
-      Non-prefetchable 32 bit memory at 0xfb101000 [0xfb101fff].
-      I/O at 0x5400 [0x543f].
-      Non-prefetchable 32 bit memory at 0xfb000000 [0xfb0fffff].
+The hub shows a link beat after the module has been loaded, but the
+link vanishes once the "ip link set dev eth0 up" was issued. No data
+can be transferred.
 
+|haber@orion[1/76]:~$ sudo mii-diag eth0
+|Basic registers of MII PHY #32:  1000 784c 0000 0000 01e1 0000 0000 0000.
+| Basic mode control register 0x1000: Auto-negotiation enabled.
+| You have link beat, and everything is working OK.
+| Your link partner does not do autonegotiation, and this transceiver type
+|  does not report the sensed link speed.
+|   End of basic transceiver informaion.
 
-2. from serial console:
+Please note that mii-diag claims link beat, which is not true.
 
-...
-Intel(R) PRO/100 Fast Ethernet Adapter - Loadable driver, ver 2.0.30-k1
-Copyright (c) 2002 Intel Corporation
+|haber@orion[8/83]:~$ sudo mii-tool --force=10baseT-HD
+|haber@orion[9/84]:~$ sudo mii-diag eth0
+|Basic registers of MII PHY #32:  2000 7848 0000 0000 01e1 0000 0000 0000.
+| Basic mode control register 0x2000: Auto-negotiation disabled, with
+| Speed fixed at 100 mbps, half-duplex.
+| Basic mode status register 0x7848 ... 7848.
+|   Link status: not established.
+| Link partner information information is not exchanged when in fixed speed mode.
+|   End of basic transceiver informaion.
 
-hw init failed
-Failed to initialize e100, instance #0
-...
+Please not that mii-diag report the speed that has just been forced to
+10 mbps half-duplex as 100 mbps.
 
+Using a 10/100 Mbit switch instead of the 10 Mbit hub solves this
+problem.
 
-3. 2.4.19rc1aa1 - work ok.
+|haber@orion[4/59]:~$ sudo mii-diag eth0
+|Basic registers of MII PHY #32:  1000 784c 0000 0000 0041 45e1 0000 0000.
+| The autonegotiated capability is 0040.
+|The autonegotiated media type is 10baseT-FD.
+| Basic mode control register 0x1000: Auto-negotiation enabled.
+| You have link beat, and everything is working OK.
+| Your link partner advertised 45e1: Flow-control 100baseTx-FD 100baseTx 10baseT-FD 10baseT, w/ 802.3X flow control.
+|   End of basic transceiver informaion.
 
-4. My .config
+However, the switch clearly shows the 100 Mbit light "on", so I have
+to - again - distrust mii-diag here, because the performance clearly
+shows that we are not running 10 Mbit here (10 Mbyte in approx. 2 secs).
 
-...
-# CONFIG_EEPRO100 is not set
-CONFIG_E100=y
-...
+When I use an older kernel (2.2.18 from the Linuxcare BBC), the card
+works on the hub:
 
+Jul 10 11:40:06 orion kernel: tulip.c:v0.91g-ppc 7/16/99 becker@cesdis.gsfc.nasa.gov
+Jul 10 11:40:06 orion kernel: eth0: Digital DS21143 Tulip rev 65 at 0xb000, 00:C0:CA:30:CD:75, IRQ 5.
+Jul 10 11:40:06 orion kernel: eth0:  EEPROM default media type Autosense.
+Jul 10 11:40:06 orion kernel: eth0:  Index #0 - Media 10baseT (#0) described by a 21142 Serial PHY (2) block.
+Jul 10 11:40:06 orion kernel: eth0:  Index #1 - Media 10baseT-FD (#4) described by a 21142 Serial PHY (2) block.
+Jul 10 11:40:06 orion kernel: eth0:  Index #2 - Media 100baseTx (#3) described by a 21143 SYM PHY (4) block.
+Jul 10 11:40:06 orion kernel: eth0:  Index #3 - Media 100baseTx-FD (#5) described by a 21143 SYM PHY (4) block.
 
-Once you wrote about "2.4.19rc1aa2":
-> URL:
-> 
-> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc1aa2.gz
-> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc1aa2/
-> 
-> Only in 2.4.19rc1aa2: 000_e100-2.0.30-k1.gz
-> Only in 2.4.19rc1aa2: 000_e1000-4.2.17-k1.gz
-> Only in 2.4.19rc1aa1: 07_e100-1.8.38.gz
-> Only in 2.4.19rc1aa1: 08_e100-includes-1
-> Only in 2.4.19rc1aa1: 09_e100-compilehack-1
-> 
-> 	New patch.
-> 
-> Only in 2.4.19rc1aa2: 00_drop-broken-flock-account-1
-> 
-> 	per-task flock accounting was broken across tasks sharing the same
-> 	files. Removed temporarly. This should fix sendmail. If somebody
-> 	wanted to bypass the rlimit he needed simply to use fcntl instead
-> 	so it's not going to make much difference for 2.4. Fix from
-> 	Matthew Wilcox.
-> 
-> Only in 2.4.19rc1aa1: 00_o_direct-open-check-1
-> Only in 2.4.19rc1aa2: 10_o_direct-open-check-2
-> 
-> 	Rediffed and changed some check for ->mapping that didn't made much
-> 	sense (if either mapping or a_ops are missing we shouldn't let O_DIRECT
-> 	to succeed either).
-> 
-> Only in 2.4.19rc1aa2: 00_parport_pc-compile-1
-> 
-> 	Compile parport_pc from Eyal Lebedinsky.
-> 
-> Only in 2.4.19rc1aa2: 00_poll-speedup-1
-> 
-> 	This allocates some hundred bytes from the stack to handle most
-> 	poll common cases, with a small number of fd. At least the stack hungry
-> 	places aren't going to be stacked one on top of the other (i.e. poll
-> 	cannot run under follow_link etc..). Patch from Andi Kleen.
-> 
-> Only in 2.4.19rc1aa2: 00_setfl-race-fix-1
-> 
-> 	Fix race with ->fasync and O_DIRECT fcntl F_SETFL. O_DIRECT
-> 	problem noticed by Matthew Wilcox, fasync problem noticed by
-> 	Marcus Alanen.
-> 
-> Only in 2.4.19rc1aa2: 10_o1-sched-updates-A4-3
-> Only in 2.4.19rc1aa1: 20_o1-sched-updates-A4-2
-> 
-> 	Rediffed before rcu_poll.
-> 
-> Only in 2.4.19rc1aa1: 10_rcu-poll-6
-> Only in 2.4.19rc1aa2: 20_rcu-poll-7
-> 
-> 	Fixed potential starvation if idle task was scheduled by the time
-> 	force_cpu_reschedule was executed. Also the original o1
-> 	force_cpu_reschedule implementation for 2.5 was not correct. This new
-> 	corrected one is getting merged soon into the rcu-poll for 2.5 too.
-> 
-> Only in 2.4.19rc1aa2: 50_uml-patch-2.4.18-36.gz
-> 
-> 	New update from Jeff.
-> 
-> Only in 2.4.19rc1aa1: 90_acpi-2.5.24-1.gz
-> 
-> 	Dropped, my laptop had an hardware problem so I'm not going to test it
-> 	soon. Also it needed the backport of the pci-irq enable callbacks, it
-> 	was very near to be finished. If my future laptop will deadlock at boot
-> 	again with the 2.4 ACPI I will be willing to finish it :).  If somebody
-> 	wants to contine on its own I've an unreleased -2 revision that was a
-> 	bit more uptodate than the above one too.
-> 
-> Only in 2.4.19rc1aa1: 90_init-survive-threaded-race-3
-> Only in 2.4.19rc1aa2: 90_init-survive-threaded-race-4
-> 
-> 	Fixed merging error, good spotting by by Sami Farin.
-> 
-> Only in 2.4.19rc1aa1: 93_NUMAQ-3
-> Only in 2.4.19rc1aa2: 93_NUMAQ-4
-> 
-> 	Rediffed.
-> 
-> Only in 2.4.19rc1aa1: 94_numaq-tsc-2
-> Only in 2.4.19rc1aa2: 94_numaq-tsc-3
-> 
-> 	s/==/=/. Apparently menuconfig understand the C like "==" syntax too,
-> 	because it worked as expected until somebody tried xconfig.  Fix from
-> 	J.A. Magallon. (I use menuconfig so I could hardly notice it :)
-> 
-> Andrea
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+|haber@orion[3/88]:~$ sudo mii-diag eth0
+|Basic registers of MII PHY #32:  1000 786c 0000 0000 05e1 0000 0000 0000.
+| Basic mode control register 0x1000: Auto-negotiation enabled.
+| You have link beat, and everything is working OK.
+| Your link partner does not do autonegotiation, and this transceiver type
+|  does not report the sensed link speed.
+|   End of basic transceiver informaion.
+
+Is this a known issue with the tulip driver in 2.4.18? Can I help with
+debugging?
+
+Greetings
+Marc
 
 -- 
-bye.
-Andrey Nekrasov, SpyLOG.
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29

@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261341AbSJCV7Z>; Thu, 3 Oct 2002 17:59:25 -0400
+	id <S261322AbSJCWMn>; Thu, 3 Oct 2002 18:12:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261351AbSJCV7Z>; Thu, 3 Oct 2002 17:59:25 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:31731 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261341AbSJCV7Y>; Thu, 3 Oct 2002 17:59:24 -0400
-Subject: Re: linux-2.4.20-pre8-ac3: NFS performance regression
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andreas Pfaller <apfaller@yahoo.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210032024.47664.apfaller@yahoo.com.au>
-References: <200210032024.47664.apfaller@yahoo.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Oct 2002 23:13:04 +0100
-Message-Id: <1033683184.28814.35.camel@irongate.swansea.linux.org.uk>
+	id <S261335AbSJCWMn>; Thu, 3 Oct 2002 18:12:43 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:22541 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261322AbSJCWMm>;
+	Thu, 3 Oct 2002 18:12:42 -0400
+Date: Thu, 3 Oct 2002 15:15:25 -0700
+From: Greg KH <greg@kroah.com>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: export of sys_call_table
+Message-ID: <20021003221525.GA2221@kroah.com>
+References: <20021003153943.E22418@openss7.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021003153943.E22418@openss7.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-03 at 19:32, Andreas Pfaller wrote:
-> However I noticed a significant NFS performance drop with
-> 2.4.20-pre8-ac3. Other network throughput is not affected.
+On Thu, Oct 03, 2002 at 03:39:43PM -0600, Brian F. G. Bidulock wrote:
+> I see that RH, in their infinite wisdom, have seen fit to remove
+> the export of sys_call_table in 8.0 kernels breaking any loadable
+> modules that wish to implement non-implemented system calls such
+> as LiS's or iBCS implementation of putmsg/getmsg.
+> 
+> sys_call_table is exported in current 2.4 and 2.5 kernels.
 
-I see this with all recent 2.4.20pre and 2.4.20pre-ac kernels. I've not
-had time to retest with Trond's fixes to recheck it all
+As of 2.5.40bk it is now also not exported, which is a good thing.
 
+> Until now, loadable modules have been able to just overwrite
+> the non implemented point in the sys_call_table when they load
+> and putting it back when they unload.  There is no mechanism
+> for registering system calls.
 
+That's a racy, easily breakable thing to do.  Don't do it.
+
+> What is the kernel.org take on this?
+
+It is a good thing that the sys_call_table is now not exported.
+
+thanks,
+
+greg k-h

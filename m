@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267676AbUG3VhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267677AbUG3Vmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267676AbUG3VhM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 17:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUG3VhM
+	id S267677AbUG3Vmr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 17:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267695AbUG3Vmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 17:37:12 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:37540 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267858AbUG3VgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 17:36:08 -0400
-Subject: Re: [PATCH] Configure IDE probe delays
-From: Lee Revell <rlrevell@joe-job.com>
-To: Todd Poynor <tpoynor@mvista.com>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel <linux-kernel@vger.kernel.org>, tim.bird@am.sony.com,
-       dsingleton@mvista.com
-In-Reply-To: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
-References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
-Content-Type: text/plain
-Message-Id: <1091223388.800.88.camel@mindpipe>
+	Fri, 30 Jul 2004 17:42:47 -0400
+Received: from cantor.suse.de ([195.135.220.2]:64729 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267677AbUG3Vmq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 17:42:46 -0400
+Date: Fri, 30 Jul 2004 23:42:44 +0200
+From: Andi Kleen <ak@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       James.Bottomley@HansenPartnership.com
+Subject: Re: [PATCH] Improve pci_alloc_consistent wrapper on preemptive
+ kernels
+Message-Id: <20040730234244.16e9f99f.ak@suse.de>
+In-Reply-To: <410A8E7D.2030009@pobox.com>
+References: <20040730190227.29913e23.ak@suse.de>
+	<410A826C.4000508@pobox.com>
+	<20040730194304.2c27f48c.ak@suse.de>
+	<410A8E7D.2030009@pobox.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 30 Jul 2004 17:36:28 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-30 at 15:11, Todd Poynor wrote:
-> Any comments on this suggested patch that allows kernel command line
-> parameter ide-delay=2 to set the probing delay to 2ms, or any insight
-> into the risks involved in modifying this value?  Another possibility
-> would be to configure the value in the IDE interface and device drivers
-> according to known hardware characteristics.  Thanks.
+On Fri, 30 Jul 2004 14:07:57 -0400
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-Even if the default stays at 50, this patch is an improvement because it
-replaces a magic number with a named value, which is never a bad thing. 
-I will let you know the results on my system.
 
-Lee
+> 
+> Certainly.  Therefore, changing from GFP_ATOMIC will increase likelihood 
+> of breakage, no?
 
+No, except for places that are already broken on preemptive kernels
+(and note this change only does something on preemptive kernels) 
+
+-Andi

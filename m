@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135522AbRAQTqW>; Wed, 17 Jan 2001 14:46:22 -0500
+	id <S132274AbRAQTux>; Wed, 17 Jan 2001 14:50:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135613AbRAQTqM>; Wed, 17 Jan 2001 14:46:12 -0500
-Received: from madaket.netwizards.net ([208.164.216.19]:44557 "EHLO
-	madaket.netwizards.net") by vger.kernel.org with ESMTP
-	id <S135522AbRAQTpy>; Wed, 17 Jan 2001 14:45:54 -0500
-Date: Wed, 17 Jan 2001 11:46:36 -0800
-From: hgp-linux@madaket.netwizards.net
-Message-Id: <200101171946.LAA25426@madaket.netwizards.net>
-To: linux-kernel@vger.kernel.org
-Subject: Strange mm problem??
+	id <S130999AbRAQTum>; Wed, 17 Jan 2001 14:50:42 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:58129 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S130107AbRAQTua>;
+	Wed, 17 Jan 2001 14:50:30 -0500
+Date: Wed, 17 Jan 2001 20:50:07 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+Message-ID: <20010117205007.D4979@almesberger.net>
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95195@ATL_MS1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95195@ATL_MS1>; from Venkateshr@ami.com on Tue, Jan 16, 2001 at 12:39:25PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Venkatesh Ramamurthy wrote:
+> 	[Venkatesh Ramamurthy]  The LILO boot loader and the LILO command
+> line utility should be changed for this. There are some issues when we have
 
-I'm having a crazy mm problem with the new 2.4.0 kernel. I've got a
-device in which I do DMA i/o from user space.
+Grr, I was just waiting for this ...
 
-I have a dd which allocs mem (for use as a DMA staging area)  and then
-I use remap_page_range() to map it into user land (via the mmap()
-interface). I was using __get_dma_pages(), the MAP_NR macro, and
-mem_map_reserve() to allocate and reserve the mem.
+See sections 2.6 and 3.5 of
+ftp://icaftp.epfl.ch/pub/people/almesber/booting/bootinglinux-0.ps.gz
+for my views on such things.
 
-It works great in  2.2.12 and 2.4.0-test4. Now with 2.4.0 production,
-I  borrowed the uvirt_to_kva(), uvirt_to_bus(), kvirt_to_pa()
-and rvmalloc() functions from drivers/media/video/bttv-driver.c
+- Werner
 
-Now here's the wierd part: Memory is allocated ok and I can read to and
-write from it in the dd. But in the userland application, I can write
-to it OK, but all reads return 0xff!
-
-I'm sure I'm doing something wrong but can't figure out what!
-
-Any assistance would be appreciated.
-
-REgards,
-
-Howard G Page
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

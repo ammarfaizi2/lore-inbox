@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTDII5P (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 04:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbTDII5P (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 04:57:15 -0400
-Received: from gw1.cosmosbay.com ([62.23.185.226]:57222 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262930AbTDII5N (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 04:57:13 -0400
-Message-ID: <014501c2fe77$9ef3b410$760010ac@edumazet>
-From: "dada1" <dada1@cosmosbay.com>
-To: "Andrew Morton" <akpm@digeo.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com><035401c2fdac$6e6aa400$5600a8c0@edumazet> <20030408020439.16c8322b.akpm@digeo.com>
-Subject: Re: Kernel BUG linux-2.5.67
-Date: Wed, 9 Apr 2003 11:08:43 +0200
+	id S262933AbTDIJCD (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 05:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTDIJCD (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 05:02:03 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22534
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262933AbTDIJCC (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 05:02:02 -0400
+Date: Wed, 9 Apr 2003 02:13:03 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Keith Ansell <keitha@edp.fastfreenet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: bdflush flushing memory mapped pages. 
+In-Reply-To: <007601c2fecd$12209070$230110ac@kaws>
+Message-ID: <Pine.LNX.4.10.10304090209440.12558-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew
 
-Sorry for the delay...
+Funny you mention this point!
 
-I confirm that your patch corrects the problem for me.
+I just spent 30-45 minutes on the phone talking to Jens about this very
+issue.  Jens states he can map the model in to 2.5. and will give it a
+fling in a bit.  This issue is a must; however, I had given up on the idea
+until 2.7.  However, the issues he and I addressed, in combination to your
+request jive in sync.
 
-Thanks
+Cheers,
 
-Eric
+Andre Hedrick
+LAD Storage Consulting Group
 
-From: "Andrew Morton" <akpm@digeo.com>
-> > instant oops with a small multi-threaded program using futex() & hugetlb
->
-> Was the futex placed inside a hugetlb page?  Please say yes.
->
-> There is a stunning bug.
->
-> --- 25/include/linux/mm.h~a 2003-04-08 02:03:19.000000000 -0700
-> +++ 25-akpm/include/linux/mm.h 2003-04-08 02:03:24.000000000 -0700
-> @@ -231,8 +231,8 @@ static inline void get_page(struct page
->  static inline void put_page(struct page *page)
->  {
->   if (PageCompound(page)) {
-> + page = (struct page *)page->lru.next;
->   if (put_page_testzero(page)) {
-> - page = (struct page *)page->lru.next;
->   if (page->lru.prev) { /* destructor? */
->   (*(void (*)(struct page *))page->lru.prev)(page);
->   } else {
->
-> _
->
+On Wed, 9 Apr 2003, Keith Ansell wrote:
+
+> help
+> 
+> My application uses SHARED memory mapping files for file I/O, and we have
+> observed
+> that Linux does not flush dirty pages to disk until munmap or msync are
+> called.
+> 
+> I would like to know are there any development plans which would address
+> this issue or
+> if there is a version of bdflush which flushes write required pages (dirty
+> pages) to disk?
+> 
+> Regards
+>         Keith Ansell.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

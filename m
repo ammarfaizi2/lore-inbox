@@ -1,69 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVCTTrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVCTTs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVCTTrV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 14:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVCTTrV
+	id S261271AbVCTTs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 14:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVCTTs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 14:47:21 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:39136 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261183AbVCTTrF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 14:47:05 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Greg K-H <greg@kroah.com>
-Subject: Re: PCI: remove pci_find_device usage from pci sysfs code.
-Date: Sun, 20 Mar 2005 15:53:58 +0100
-User-Agent: KMail/1.8
-References: <11099696382684@kroah.com> <11099696382576@kroah.com>
-In-Reply-To: <11099696382576@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+	Sun, 20 Mar 2005 14:48:58 -0500
+Received: from fnoeppeil48.netpark.at ([217.175.205.176]:38674 "EHLO
+	roarinelk.homelinux.net") by vger.kernel.org with ESMTP
+	id S261253AbVCTTsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 14:48:36 -0500
+Message-ID: <423DD38E.7000409@roarinelk.homelinux.net>
+Date: Sun, 20 Mar 2005 20:48:30 +0100
+From: Manuel Lauss <mano@roarinelk.homelinux.net>
+User-Agent: Thunderbird/1.0 Mnenhy/0.7
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1184857.6k3G3EXZuE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Guido Villa <piribillo@yahoo.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Error with Sil3112A SATA controller and Maxtor 300GB HDD
+References: <20050312160704.22527.qmail@gg.mine.nu>            <4233254F.3000509@roarinelk.homelinux.net> <20050316184523.30672.qmail@gg.mine.nu>
+In-Reply-To: <20050316184523.30672.qmail@gg.mine.nu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200503201554.05010.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1184857.6k3G3EXZuE
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Howdy,
 
-Greg KH wrote:
-> ChangeSet 1.1998.11.23, 2005/02/25 08:26:11-08:00, gregkh@suse.de
->
-> PCI: remove pci_find_device usage from pci sysfs code.
+Guido Villa wrote:
 
-> diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-> --- a/drivers/pci/pci-sysfs.c	2005-03-04 12:41:33 -08:00
-> +++ b/drivers/pci/pci-sysfs.c	2005-03-04 12:41:33 -08:00
-> @@ -481,7 +481,7 @@
->  	struct pci_dev *pdev = NULL;
->
->  	sysfs_initialized = 1;
-> -	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
-> +	while ((pdev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
->  		pci_create_sysfs_dev_files(pdev);
->
->  	return 0;
+>>I happen to have a SiI 3112A controller and a Maxtor 6B300S0 attached to
+>>it, formatted with ext2. Never had any problems. I just copied
+>>200GB of data to it, worked flawlessly. (Vanilla 2.6.11)
+>>Maybe its the Motherboard?
 
-Any reasons why you are not using "for_each_pci_dev(pdev)" here?
+> I was checking my kernel configuration, and some doubts arised in my mind. 
+> Would you please check if my parameters are the same as yours? 
+> 
+> set:
+> CONFIG_IDE_GENERIC
+> CONFIG_BLK_DEV_IDEPCI
+> CONFIG_SCSI
+> CONFIG_BLK_DEV_SD
+> CONFIG_SCSI_SATA
+> CONFIG_SCSI_SATA_SIL 
+> 
+> unset:
+> CONFIG_BLK_DEV_GENERIC
+> CONFIG_BLK_DEV_SIIMAGE (I'm unsure on this) 
 
-Eike
+Heres a snippet from the box's .config:
 
---nextPart1184857.6k3G3EXZuE
-Content-Type: application/pgp-signature
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SCSI_SATA=y
+CONFIG_SCSI_SATA_SIL=y
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+This is for Piix4 + promise20268 IDE
+and the Sil sata ctrl, only harddisks.
 
-iD8DBQBCPY6MXKSJPmm5/E4RAmXvAJ90lJQXw5QvxgLV02Fg6RMgPxnuDwCeLikE
-qlyy4+O+oSZ4cV3fM6jI3u0=
-=PGzp
------END PGP SIGNATURE-----
-
---nextPart1184857.6k3G3EXZuE--
+-- 
+  Manuel Lauss

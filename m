@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUFWVTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUFWVW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266560AbUFWVTY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 17:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUFWVTW
+	id S266692AbUFWVW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 17:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266682AbUFWVTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 17:19:22 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:10770 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S266701AbUFWVRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 17:17:20 -0400
-Date: Wed, 23 Jun 2004 16:18:29 -0500
-From: mikem@beardog.cca.cpqcorp.net
+	Wed, 23 Jun 2004 17:19:48 -0400
+Received: from quechua.inka.de ([193.197.184.2]:23987 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S266700AbUFWVQm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 17:16:42 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Cc: viro@www.linux.org.uk, bob.montgomery@hp.com
-Subject: problems with alloc_disk in genhd.c
-Message-ID: <20040623211829.GC16336@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+Subject: Re: I/O Confirmation/Problem under 2.6/2.4
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <1088019818.1614.33.camel@solaris.skunkware.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
+Message-Id: <E1BdF6k-0001gL-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Wed, 23 Jun 2004 23:16:38 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1088019818.1614.33.camel@solaris.skunkware.org> you wrote:
+>> The raid5 is not very good in speeding up random reads or sequential writes.
+>> Perhaps you want to try stripping on level 0.
+>> 
+> We need the data integrity and the storage so 0/1 isn't an option and 0
+> definantly isn't.
 
-We've encountered a problem using one of our internal test tools. It calls
-our CCISS_GETLUNINFO ioctl for partition info. In the *alloc_disk(int minors)
-function it only tests for the max_number_of_parts - 1.
+sure but it helps to find out if it is a limitation of the raid controller,
+the disk, pci or linux. first do a cache read, then a raid0 read and then
+start to wonder about redundancy.
 
-        if (minors > 1) {
-                int size = (minors - 1) * sizeof(struct hd_struct *);
+>> Have you tried an alternative operating system?
+> I've tried Red Hat AS 3 and Gentoo 2004.1
 
-When we allocate space we pass in
+Well, i was more refering to Windows :)
 
-        for (n = 0; n < NWD; n++) {
-                disk[n] = alloc_disk(1 << NWD_SHIFT);
+> Have actually done both for tests.  writing to the device w/o FS returns
+> about the same rate.  Raid 0 is a bit faster then 5, but not by more
+> then a couple of MB.
 
-In the  ioctl we are doing
+This clearly shows you, that the raid controller or disk is the problem.
+(However of course this can also mean the driver is not using the best
+controller mode)
 
-        /* count partitions 1 to 15 with sizes > 0 */
-        for(i=0; i <MAX_PART; i++) {
+Perhaps using 2 x PercDC is better here.
 
-
-Depending on what lies beyond the array we have seen either Oops's or
-a hard lock with a reboot about 30 seconds later. If we pass in MAX_PART - 1
-we have no problems.
-Is the entire disk no longer counted as partition zero?
-Other drivers also pass in their max part value. Have any other problems
-been reported?
-
-Thanks,
-mikem
-
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

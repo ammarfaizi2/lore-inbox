@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277201AbRJDSwu>; Thu, 4 Oct 2001 14:52:50 -0400
+	id <S277204AbRJDSzU>; Thu, 4 Oct 2001 14:55:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277207AbRJDSwl>; Thu, 4 Oct 2001 14:52:41 -0400
-Received: from are.twiddle.net ([64.81.246.98]:31904 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S277201AbRJDSwb>;
-	Thu, 4 Oct 2001 14:52:31 -0400
-Date: Thu, 4 Oct 2001 11:52:04 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Andreas Schwab <schwab@suse.de>
-Cc: James Antill <james@and.org>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.10-pre11 -- __builtin_expect
-Message-ID: <20011004115204.A11463@twiddle.net>
-Mail-Followup-To: Andreas Schwab <schwab@suse.de>,
-	James Antill <james@and.org>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org.suse.lists.linux.kernel> <E15jBLy-0008UF-00@the-village.bc.nu.suse.lists.linux.kernel> <9o6j9l$461$1@cesium.transmeta.com.suse.lists.linux.kernel> <oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de> <jeelp4rbtf.fsf@sykes.suse.de> <20010918143827.A16003@gruyere.muc.suse.de> <nn3d59qzho.fsf@code.and.org> <jezo7gu78f.fsf@sykes.suse.de> <nnvgi4prod.fsf@code.and.org> <jeofnwsinb.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <jeofnwsinb.fsf@sykes.suse.de>; from schwab@suse.de on Thu, Sep 27, 2001 at 06:28:08PM +0200
+	id <S277207AbRJDSzK>; Thu, 4 Oct 2001 14:55:10 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:37010 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S277204AbRJDSzD>;
+	Thu, 4 Oct 2001 14:55:03 -0400
+Date: Thu, 4 Oct 2001 14:55:28 -0400
+Message-Id: <200110041855.f94ItSH11421@buggy.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: jamal <hadi@cyberus.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.GSO.4.30.0110040751040.9341-100000@shell.cyberus.ca>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.8-ac9 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 27, 2001 at 06:28:08PM +0200, Andreas Schwab wrote:
-> You're right, seems like __builtin_expect is really only defined for pure
-> boolean values.
+On Thu, 4 Oct 2001 07:54:19 -0400 (EDT), jamal <hadi@cyberus.ca> wrote:
 
-I think the documentation mentions the current deficiency in that area.
-It is _supposed_ to be defined for all integral and pointer types, but
-that is hard with the current built-in infrastructure in the C front end.
+> Has nothing to do with specific hardware although i see your point.
+> send me an eepro and i'll at least add hardware flow control for you.
+> The API is simple, its up to the driver maintainers to use. This
+> discussion is good to make people aware of those drivers.
 
+A bit of documentation for the hardware flow control API would help as 
+well. The API might be fine and dandy, but if all you have is a couple of 
+modified drivers -- some of which are not even in the standard kernel -- 
+then you can bet not many driver writers are going to even be aware of it, 
+let alone care to implement it.
 
-r~
+For instance: in 2.2.19, the help text for CONFIG_NET_HW_FLOWCONTROL says 
+only tulip supports it in the standard kernel -- yet I can't find that 
+support anywhere in drivers/net/*.c, tulip.c included.
+
+In 2.4.10 tulip finally supports it (and I'm definitely going to take a 
+closer look), but that's about it. And tulip is definitely the wrong 
+example to pick if you want a nice and clean model for your driver.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

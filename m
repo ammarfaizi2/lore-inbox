@@ -1,96 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbSJZKYQ>; Sat, 26 Oct 2002 06:24:16 -0400
+	id <S262161AbSJZKhd>; Sat, 26 Oct 2002 06:37:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262062AbSJZKYP>; Sat, 26 Oct 2002 06:24:15 -0400
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:20748 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262040AbSJZKXV>; Sat, 26 Oct 2002 06:23:21 -0400
-X-Envelope-From: pavel@bug.ucw.cz
-Date: Mon, 21 Oct 2002 11:52:54 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Clean up nbd.c
-Message-ID: <20021021095254.GA8811@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S262178AbSJZKhd>; Sat, 26 Oct 2002 06:37:33 -0400
+Received: from mail.hometree.net ([212.34.181.120]:64931 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S262161AbSJZKhN>; Sat, 26 Oct 2002 06:37:13 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: One for the Security Guru's
+Date: Sat, 26 Oct 2002 10:43:29 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <apdrkh$h8n$1@forge.intermeta.de>
+References: <1035453664.1035.11.camel@syntax.dstl.gov.uk> <ap97nr$h6e$1@forge.intermeta.de> <1035479086.9935.6.camel@gby.benyossef.com> <1035539042.23977.24.camel@forge> <apcaub$ov5$1@cesium.transmeta.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1035629009 29587 212.34.181.4 (26 Oct 2002 10:43:29 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sat, 26 Oct 2002 10:43:29 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-I've never seen any of those errors, so I guess its okay to convert
-them to BUG_ONs. It makes code look better [I'm nbd
-maintainer, and approve it ;-)]. Please apply,
+>Followup to:  <1035539042.23977.24.camel@forge>
+>By author:    Henning Schmiedehausen <hps@intermeta.de>
+>In newsgroup: linux.dev.kernel
+>> > 
+>> > A. If there's a buffer overflow in the SSL Accelerator box the firewall
+>> > wont do you much good (it helps, but only a little). 
+>> 
+>> This is a hardware device. Hardware as in "silicon". I very much doubt
+>> that you can run "general purpose programs" on a device specifically
+>> designed to do crypto. And this is _not_ just an "embedded Linux on ix86
+>> with a crypto chip". 
+>> 
 
-								Pavel
+>Hardware devices have bugs, too.  Furthermore, most devices marketed
+>as "hardware" still have programmable stuff underneath.  Trust me.
 
---- clean/drivers/block/nbd.c	2002-10-20 16:22:38.000000000 +0200
-+++ linux/drivers/block/nbd.c	2002-10-20 18:25:41.000000000 +0200
-@@ -65,10 +65,8 @@
- /* #define DEBUG( s ) printk( s ) 
-  */
- 
--#ifdef PARANOIA
- static int requests_in;
- static int requests_out;
--#endif
- 
- static int nbd_open(struct inode *inode, struct file *file)
- {
-@@ -261,18 +259,8 @@
- 			printk(KERN_ALERT "req should never be null\n" );
- 			goto out;
- 		}
--#ifdef PARANOIA
--		if (lo != req->rq_disk->private_data) {
--			printk(KERN_ALERT "NBD: request corrupted!\n");
--			continue;
--		}
--		if (lo->magic != LO_MAGIC) {
--			printk(KERN_ALERT "NBD: nbd_dev[] corrupted: Not enough magic\n");
--			goto out;
--		}
--#endif
-+		BUG_ON(lo->magic != LO_MAGIC);
- 		nbd_end_request(req);
--
- 	}
-  out:
- 	return;
-@@ -282,12 +270,7 @@
- {
- 	struct request *req;
- 
--#ifdef PARANOIA
--	if (lo->magic != LO_MAGIC) {
--		printk(KERN_ERR "NBD: nbd_dev[] corrupted: Not enough magic when clearing!\n");
--		return;
--	}
--#endif
-+	BUG_ON(lo->magic != LO_MAGIC);
- 
- 	do {
- 		req = NULL;
-@@ -333,11 +316,9 @@
- 			if (lo->flags & NBD_READ_ONLY)
- 				FAIL("Write on read-only");
- 		}
--#ifdef PARANOIA
--		if (lo->magic != LO_MAGIC)
--			FAIL("nbd[] is not magical!");
-+		BUG_ON(lo->magic != LO_MAGIC);
- 		requests_in++;
--#endif
-+
- 		req->errors = 0;
- 		blkdev_dequeue_request(req);
- 		spin_unlock_irq(q->queue_lock);
+Of course they have. I'm not that dumb. :-) I won't expect any piece
+of silicon speak http, snmp and have configureable ip adresses without
+any programming. I do had my share of Cisco router fun.... :-)
+
+But my point is, that these beasts normally don't run a general
+purpose operating system and that they're much less prone to buffer
+overflow or similar attacks, simply because they don't use popular
+software with known bugs (e.g.  OpenSSL) or these functions (like
+doing crypto) are in hardware.
+
+If you have a processor that sets up an ASIC to do "insert https here,
+use this key, remove http there", you might be able to attack the IP
+stack running on the processor which gets the packets from the wire
+and puts them back onto the wire. But you won't be able to trick any
+bug or overflow in the crypto routines into opening a root shell on
+the ASIC. :-)
+
+Especially if there is no such thing as a /bin/sh binary on the
+bugger.  And even if you _do_; you still only have a shell on the
+accelerator. Not on the application server.
+
+If you ask me "how can you trust such a device if you can't look at
+the source; well, I don't have to. I can tell the customer "this
+device has been approved by <insert your certification authority here>
+and you pay gobs of cash for simply having this certified device".
+
+Replace "device" with "certificate" and you have the same thing as
+getting your web server key certification from Verisign or Thawte.
+You pay money and get a "trusted device". 
+
+	Regards
+		Henning
 
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

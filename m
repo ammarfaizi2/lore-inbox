@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUFFRkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUFFRlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbUFFRkG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 13:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUFFRkG
+	id S263881AbUFFRlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 13:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUFFRlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 13:40:06 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:50694 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S263868AbUFFRkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 13:40:02 -0400
-Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       William Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <200406070139.38433.kernel@kolivas.org>
-References: <200406070139.38433.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1086543600.1700.2.camel@teapot.felipe-alfaro.com>
+	Sun, 6 Jun 2004 13:41:06 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:1789 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263869AbUFFRkz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 13:40:55 -0400
+Date: Sun, 6 Jun 2004 10:46:27 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: mikpe@csd.uu.se, Simon.Derr@bull.net, ak@muc.de, akpm@osdl.org,
+       ashok.raj@intel.com, colpatch@us.ibm.com, hch@infradead.org,
+       jbarnes@sgi.com, joe.korty@ccur.com, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com, nickpiggin@yahoo.com.au,
+       rusty@rustcorp.com.au
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
+ implementation
+Message-Id: <20040606104627.6ef153b8.pj@sgi.com>
+In-Reply-To: <20040606164436.GW21007@holomorphy.com>
+References: <200406061507.i56F7xdS029391@harpo.it.uu.se>
+	<20040606164436.GW21007@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Sun, 06 Jun 2004 19:40:00 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-06-06 at 17:39, Con Kolivas wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> This is an update of the scheduler policy mechanism rewrite using the 
-> infrastructure of the current O(1) scheduler. Slight changes from the 
-> original design require a detailed description. The change to the original 
-> design has enabled all known corner cases to be abolished and cpu 
-> distribution to be much better maintained. It has proven to be stable in my 
-> testing and is ready for more widespread public testing now.
+William wrote:
+> I don't really care about the particular format exported to userspace,
+> but cpus_addr() is not a legitimate API.
 
-I'm impressed... I'm currently playing with linux-2.6.7-rc2-bk7 plus
-staircase plus autoswappiness and my system behaves exceptionally. It
-seems pretty responsive even when under heavy load (while true; do a=2;
-done). Nice work.
+I'd like to thank-you for pointing out cpus_addr() to me several months
+ago, when I unwittingly proposed to replace it, with something else of
+a different name, doing the same thing.
 
+I agree it is not legitimate - to the extent that it remains, the cleanup
+of cpumasks is not yet complete.  Though, with my patch set of this week,
+I think we're making good progress.
+
+I am a little puzzled at the strength of your latest objections to it.
+For all I know, it may well be your own invention.  It's been there a
+while, since before my time with this code.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

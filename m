@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271037AbTHLR4x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 13:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271043AbTHLR4x
+	id S271104AbTHLRs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 13:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271117AbTHLRs7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 13:56:53 -0400
-Received: from newpeace.netnation.com ([204.174.223.7]:32719 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP id S271037AbTHLR4w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 13:56:52 -0400
-Date: Tue, 12 Aug 2003 10:56:51 -0700
-From: Simon Kirby <sim@netnation.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]O14int
-Message-ID: <20030812175651.GA12036@netnation.com>
-References: <20030808220821.61cb7174.lista1@telia.com> <200308091036.18208.kernel@kolivas.org> <20030810084827.GA30869@netnation.com> <200308101906.34807.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308101906.34807.kernel@kolivas.org>
-User-Agent: Mutt/1.5.4i
+	Tue, 12 Aug 2003 13:48:59 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:37646 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S271104AbTHLRs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 13:48:56 -0400
+Message-ID: <3F392BE0.1060908@techsource.com>
+Date: Tue, 12 Aug 2003 14:03:12 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Adrian Bunk <bunk@fs.tum.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] add an -Os config option
+References: <20030811211145.GA569@fs.tum.de> <1060695341.21160.2.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 10, 2003 at 07:06:34PM +1000, Con Kolivas wrote:
 
-> Is this with or without my changes? The old scheduler was not very scalable; 
-> that's why we moved. The new one has other intrinsic issues that I (and 
-> others) have been trying to address, but is much much more scalable. It was 
-> not possible to make the old one more scalable, but it is possible to make 
-> this one more interactive.
 
-Without your changes.  Are you changing the design or just tuning certain
-cases?  I was talking more about the theory behind the scheduling
-decisions and not about particular cases.
+Alan Cox wrote:
+> On Llu, 2003-08-11 at 22:11, Adrian Bunk wrote:
+> 
+>>+config OPTIMIZE_FOR_SIZE
+>>+	bool "Optimize for size" if EMBEDDED
+>>+	default n
+>>+	help
+>>+	  Enabling this option will pass "-Os" instead of "-O2" to gcc
+>>+	  resulting in a smaller kernel.
+>>+
+>>+	  The resulting kernel might be significantly slower.
+> 
+> 
+> With most of the gcc's I tried -Os was faster.
 
-The O(1) scheduler changes definitely help scalability and I don't have
-any problem with that change (unless it introduced the behavior I'm
-talking about).
 
-Simon-
+Why is -Os faster?  Fewer cache misses?
+
+Wouldn't that make -O2 kinda pointless?  It seems kinda futile to 
+optimize for speed just to have it come out slower.
+
+

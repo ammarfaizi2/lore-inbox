@@ -1,42 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290236AbSBORgV>; Fri, 15 Feb 2002 12:36:21 -0500
+	id <S290302AbSBORfB>; Fri, 15 Feb 2002 12:35:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290344AbSBORgN>; Fri, 15 Feb 2002 12:36:13 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:3228 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S290236AbSBORfJ>;
-	Fri, 15 Feb 2002 12:35:09 -0500
-Date: Fri, 15 Feb 2002 12:35:03 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>,
-        "Eric S. Raymond" <esr@thyrsus.com>
-Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <Pine.LNX.4.33L.0202151501570.12554-100000@imladris.surriel.com>
-Message-ID: <Pine.GSO.4.21.0202151232360.25897-100000@weyl.math.psu.edu>
+	id <S290306AbSBORen>; Fri, 15 Feb 2002 12:34:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34830 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290302AbSBORed>; Fri, 15 Feb 2002 12:34:33 -0500
+Subject: Re: oops with 2.4.18-pre9-mjc2
+To: rj@open-net.org (Robert Jameson)
+Date: Fri, 15 Feb 2002 17:48:23 +0000 (GMT)
+Cc: rml@tech9.net (Robert Love), linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20020215102037.00cf2ad9.rj@open-net.org> from "Robert Jameson" at Feb 15, 2002 10:20:37 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16bmT9-0003m3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It's appears right after my PDA finishes syncing, so im guessing, its
+> during a device close. To answer alans question im using nVidias kernel
+> driver, therefor i tainted the kernel (tm) (c).
 
-
-On Fri, 15 Feb 2002, Rik van Riel wrote:
-
-> On Fri, 15 Feb 2002, Jeff Garzik wrote:
-> 
-> > ESR's message to the kbuild list:
-> > 	http://marc.theaimsgroup.com/?l=kbuild-devel&m=101373619625183&w=2
-> > The rest of the thread:
-> > 	http://marc.theaimsgroup.com/?t=101373623000001&r=1&w=2
-> >
-> > For an open source "guru", Eric, you sure seem to like to turn to
-> > cronyism and secret meetings when the going gets tough.
-> 
-> This makes me wonder whether Eric works in a cathedral
-> or in an ivory tower ...
-
-Judging by usual Eric's intellectual erm... output the word you are looking
-for is "outhouse".
-
+Please take your bug report to Nvidia. You'll find the binary module
+needs recompiling for pre-empt. Have fun with them 8)

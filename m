@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317072AbSHQLFh>; Sat, 17 Aug 2002 07:05:37 -0400
+	id <S317482AbSHQLPk>; Sat, 17 Aug 2002 07:15:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317306AbSHQLFh>; Sat, 17 Aug 2002 07:05:37 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:24838 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S317072AbSHQLFg>;
-	Sat, 17 Aug 2002 07:05:36 -0400
-Date: Sat, 17 Aug 2002 12:09:20 +0100 (IST)
-From: Mel <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VM Regress 0.5 - Compile error with CONFIG_HIGHMEM
-In-Reply-To: <Pine.LNX.4.44.0208150312220.20123-100000@skynet>
-Message-ID: <Pine.LNX.4.44.0208171206200.7887-100000@skynet>
+	id <S317673AbSHQLPk>; Sat, 17 Aug 2002 07:15:40 -0400
+Received: from port-212-202-184-36.reverse.qdsl-home.de ([212.202.184.36]:37393
+	"EHLO intra.cycdolphin.net") by vger.kernel.org with ESMTP
+	id <S317482AbSHQLPj>; Sat, 17 Aug 2002 07:15:39 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc Schoenborn <schoenborn@cycdolphin.net>
+To: linux-kernel@vger.kernel.org
+Subject: ps/2 probs w/ asus board
+Date: Sat, 17 Aug 2002 13:19:34 +0200
+User-Agent: KMail/1.4.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200208171319.34394.schoenborn@cycdolphin.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Aug 2002, Mel wrote:
+Hi everyone -
 
->
-> Project page: http://www.csn.ul.ie/~mel/projects/vmregress/
-> Download:     http://www.csn.ul.ie/~mel/projects/vmregress/vmregress-0.5.tar.gz
+I'm having problems using the extended ps/2 procotol (here: imps/2) on an asus 
+board.
 
-0.5 won't compile with CONFIG_HIGHMEM set. Apply the following trivial
-patch and it will compile at least. VM Regress has not been tested with
-CONFIG_HIGHMEM set at all but there is no reason for it to fail because no
-presumptions has been made about the number of nodes or zones in the
-machine
+_symptoms:_
+* Xfree86 4.2.0:
+using protocol ImPS/2 the curser jumps to the lower left corner when making 
+negative movements (left/down). Button events are happening randomly.
+gpm is disabled.
+Protocol PS/2 works fine but wheels are not responding.
+
+* gpm (just for testing purposes):
+using protocol ImPS/2 the cursor the cursor goes crazy.
+Protocol PS/2 works fine.
+
+_possible cause:_
+It seems that linux kernel is not initializing the imps/2 protocol correctly 
+with that board.
+Everything worked fine with a DFI K6BV3+, AMD K6-III 400.
+
+_hardware:_
+* asus a7a266-E board (ali magik-1 chipset, M1647 north, M1535D+ south)
+* cpu AMD XP 2000+
+* A4tech trackball; two wheels, three buttons
+
+_notes:_
+* using an XP1600+ with the same board it is possible to make use of ImPS/2 
+but with limitations:
+Right after starting up the X server the mouse curser jumps to the lower left 
+corner when making negative movements. Switching several times from console 
+to X and back _can_ solve the problem (even the mouse wheels are working, 
+wow), restarting the X server multiple times _can_ solve the problem too, but 
+there's no guarantee this would work.
+Now, using an XP2000+ this trick doesn't work anymore.
+
+* this problem was discussed in linux.debian.user.german, message ID 
+<GfumSC.A.c5E.4V478@murphy> and following.
 
 
---- vmregress-0.5/src/sense/kvirtual.c	Tue Aug 13 22:43:48 2002
-+++ vmregress-0.5-highmem/src/sense/kvirtual.c	Sat Aug 17 12:03:02 2002
-@@ -29,6 +29,11 @@
- #include <linux/mm.h>
- #include <linux/sched.h>
+is there anything I can do to make this trackball work with this board?
 
-+#ifdef CONFIG_HIGHMEM
-+#include <linux/highmem.h>
-+#include <asm/highmem.h>
-+#endif
-+
- MODULE_AUTHOR("Mel Gorman <mel@csn.ul.ie>");
- MODULE_DESCRIPTION("Prints out the kernel virtual memory area");
- MODULE_LICENSE("GPL");
+Sincerely,
+Marc
 

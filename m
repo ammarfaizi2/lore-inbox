@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265130AbSKJTbs>; Sun, 10 Nov 2002 14:31:48 -0500
+	id <S265111AbSKJT03>; Sun, 10 Nov 2002 14:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265132AbSKJTbs>; Sun, 10 Nov 2002 14:31:48 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:33288 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265130AbSKJTbr>;
-	Sun, 10 Nov 2002 14:31:47 -0500
-Date: Sun, 10 Nov 2002 20:37:17 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BOGUS: megaraid changes
-Message-ID: <20021110193717.GA2243@mars.ravnborg.org>
-Mail-Followup-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <torvalds@transmeta.com> <Pine.LNX.4.44.0211101039100.9581-100000@home.transmeta.com> <200211101904.gAAJ4RX12573@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211101904.gAAJ4RX12573@localhost.localdomain>
-User-Agent: Mutt/1.4i
+	id <S265112AbSKJT02>; Sun, 10 Nov 2002 14:26:28 -0500
+Received: from 1-064.ctame701-1.telepar.net.br ([200.181.137.64]:24026 "EHLO
+	1-064.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S265111AbSKJT0Z>; Sun, 10 Nov 2002 14:26:25 -0500
+Date: Sun, 10 Nov 2002 17:32:44 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       <marcelo@conectiva.com.br>
+Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
+In-Reply-To: <20021110024451.GE2544@x30.random>
+Message-ID: <Pine.LNX.4.44L.0211101727230.8133-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 10, 2002 at 02:04:27PM -0500, J.E.J. Bottomley wrote:
-> I don't necessarily agree.  It's easy to miss in all the build noise (most 
-> average users don't do make -s).  And the warning isn't that fierce (it 
-> complains about a prototype mismatch), so even if it's noticed, it might get 
-> ignored.
+On Sun, 10 Nov 2002, Andrea Arcangeli wrote:
+> On Sat, Nov 09, 2002 at 01:00:19PM +1100, Con Kolivas wrote:
 
-I take this opportunity to advertise for the quiet facility of kbuild:
+> > 2.4.19-ck9 [2]          78.3    88      31      8       1.10
+> > 2.4.20-rc1 [3]          105.9   69      32      2       1.48
+> > 2.4.20-rc1aa1 [1]       106.3   69      33      3       1.49
+>
+> again ck9 is faster because of elevator hacks ala read-latency.
+>
+> in short your whole benchmark seems all about interacitivy of reads
+> during write flood.
 
-Sample run:
-$> make KBUILD_VERBOSE=0
-  CC      kernel/rcupdate.o
-  CC      kernel/dma.o
-kernel/dma.c:102: warning: `proc_dma_show' defined but not used
-  CC      kernel/uid16.o
-  LD      kernel/built-in.o
+Which is a very important thing.  You have to keep in mind that
+reads and writes are fundamentally different operations since
+the majority of the writes happen asynchronously while the program
+continues running, while the majority of reads are synchronous and
+your program will block while the read is going on.
 
-Warnings really hurts the eye when using this.
-And the filename supplied should be good enough for emacs and the like.
-I have seen only a few persons actually using this and I wonder if people
-feel they loose some information when presented with this condensed format?
+Because of this it is also much easier to do writes in large chunks
+than it is to do reads in large chunks, because with writes you
+know exactly what data you're going to write while you can't know
+which data you'll need to read next.
 
-Compared to "make -s" you are able to follow the progress.
+> All the difference is there and it will hurt you badly if you do
+> async-io benchmarks,
 
-	Sam
+Why would read-latency hurt the async-io benchmark ?
+
+Whether the IO is synchronous or asynchronous shouldn't matter much,
+if you do a read you still need to wait for the data to be read in
+before you can process it while the data you write is still in memory
+and can be used over and over again.
+
+What is the big difference with asynchronous IO that removes the big
+asymetry between reads and writes ?
+
+> kernel. Either that or change the name of your project, if somebody wins
+> this context that's probably a bad I/O scheduler in many other aspects,
+> some of the reason I didn't merge read-latency from Andrew.
+
+Any reasons in particular or just a gut feeling ?
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278311AbRJMPFj>; Sat, 13 Oct 2001 11:05:39 -0400
+	id <S278312AbRJMPIj>; Sat, 13 Oct 2001 11:08:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278312AbRJMPF3>; Sat, 13 Oct 2001 11:05:29 -0400
-Received: from [204.177.156.37] ([204.177.156.37]:28350 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S278311AbRJMPFP>; Sat, 13 Oct 2001 11:05:15 -0400
-Date: Sat, 13 Oct 2001 16:07:12 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andi Kleen <andi@firstfloor.org>
-cc: Simon Kirby <sim@netnation.com>, linux-kernel@vger.kernel.org,
-        kuznet@ms2.inr.ac.ru
-Subject: Re: Really slow netstat and /proc/net/tcp in 2.4
-In-Reply-To: <20011013015726.A28065@zero.firstfloor.org>
-Message-ID: <Pine.LNX.4.21.0110131537470.931-100000@localhost.localdomain>
+	id <S278313AbRJMPI3>; Sat, 13 Oct 2001 11:08:29 -0400
+Received: from pigpen.lucentctc.com ([199.93.237.4]:30215 "EHLO
+	pigpen.lucentctc.com") by vger.kernel.org with ESMTP
+	id <S278312AbRJMPIY>; Sat, 13 Oct 2001 11:08:24 -0400
+Message-ID: <CCE8403B91E4D4119E9300A0C9DDA22401C16AFD@pigpen.lucentctc.com>
+From: "Kingsbury, Michael" <mkingsbury@avayactc.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: High Rate of Sockets ->  No buffer space availible errors
+Date: Sat, 13 Oct 2001 11:08:48 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Oct 2001, Andi Kleen wrote:
-> 
-> I attached a patch. It allows you to get some simple statistics from
-> /proc/net/sockstat (unfortunately costly too). It also adds a new kernel
-> boot argument tcpehashgoal=order. Order is the log2 of how many pages you
-> want to use for the hash table (so it needs 2^order * 4096 bytes on i386) 
-> You can experiment with various sizes and check which one gives still 
-> reasonable hash distribution under load.
+I have a network testing application that is opening & closing sockets with
+other machines at a high rate (multi-threaded,  1000 opens & closes a second
+with ~20 machines.)  There's a seperate thread per machine its connecting
+to, and each thread opens a socket, transmits 8k, and closes. 
 
-Wouldn't something like "tcpehashbuckets" make a better boot tunable
-than "tcpehashorder"?  Rounded up to next power of two before used.
+The problem lies with an error of 'No buffer space availible' within the
+first couple of seconds.  I've tried the SO_SNDBUF&  SO_RVCBUF, but that
+doesn't make sense in my head anyways.  Anyone seen problems like this under
+similar conditions & maybe any remedys?
 
-I come at this from the PAGE_SIZE angle, rather than the TCP angle:
-"order" tunables seem confusing to me (being interested in configurable
-PAGE_SIZE).  And they're confusing to code too: note that the existing
-calculation of goal from num_physpages gives you more hash buckets for
-larger PAGE_SIZE (comment says "methodology is similar to that of the
-buffer cache", but buffer cache gets it right - though for small memory,
-would do better to multiply mempages by sizeof _before_ shifting right).
-
-Hugh
-
+-mike 

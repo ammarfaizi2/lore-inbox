@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130337AbRAKU0i>; Thu, 11 Jan 2001 15:26:38 -0500
+	id <S131403AbRAKUfb>; Thu, 11 Jan 2001 15:35:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132448AbRAKU02>; Thu, 11 Jan 2001 15:26:28 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:28434 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S130337AbRAKU0O>; Thu, 11 Jan 2001 15:26:14 -0500
-Message-ID: <3A5E16EB.5F30BF70@Hell.WH8.TU-Dresden.De>
-Date: Thu, 11 Jan 2001 21:26:19 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, de-DE
+	id <S130571AbRAKUfW>; Thu, 11 Jan 2001 15:35:22 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:13323 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S130229AbRAKUfN>; Thu, 11 Jan 2001 15:35:13 -0500
+Date: Thu, 11 Jan 2001 12:35:12 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Dan Kegel <dank@alumni.caltech.edu>
+cc: <angelcode@myrealbox.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Poll and Select not scaling
+In-Reply-To: <3A5CF471.17C03480@alumni.caltech.edu>
+Message-ID: <Pine.LNX.4.30.0101111231370.1672-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Strange umount problem in latest 2.4.0 kernels
-In-Reply-To: <Pine.GSO.4.21.0101111428240.17363-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+On Wed, 10 Jan 2001, Dan Kegel wrote:
 
-> > umount: none busy - remounted read-only
-> 
-> > The "none" bit puzzles me the most. /etc/fstab and /etc/mtab
-> > look perfectly ok.
-> >
-> > Has anyone got an idea? Everything worked well with 2.4.0 and
-> > Alan's tree up to -ac4, didn't try ac5, and ac6 is what messes
-> > up now.
-> 
-> Try to revert to -ac4 fs/super.c and see if it helps
+> select() is usually limited to 1024 file descriptors
 
-That makes no difference. Still acting weird. Must be something
-else.
+oh hey, this limit is only a libc limit these days.  you can do this:
 
--Udo.
+#define MY_FD_SETSIZE (16384)
+typedef struct {
+        __fd_mask __fds_bits[MY_FD_SETSIZE / __NFDBITS];
+} my_fd_set;
+#define MY_FD_ZERO(_f)  (memset((_f), 0, sizeof(my_fd_set)))
+
+and do select()s of 16384 descriptors.
+
+> poll() is a slightly better choice.  However, although
+> it can handle 30000 file descriptors, the performance sucks;
+> see http://www.kegel.com/dkftpbench/Poller_bench.html#results
+
+poll() stops working at 16384 file descriptors (as of 2.2.14-foo original
+redhat 6.2 kernel).  at least that's where i think it is, maybe it's
+32768.  it's limited by the maximum kmalloc() size of 128k.  this is
+somewhat unfortunate.  even though we know it'll stop performing well.
+
+-dean
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

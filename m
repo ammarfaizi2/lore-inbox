@@ -1,76 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136037AbRD0OQM>; Fri, 27 Apr 2001 10:16:12 -0400
+	id <S136044AbRD0O14>; Fri, 27 Apr 2001 10:27:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136042AbRD0OP6>; Fri, 27 Apr 2001 10:15:58 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:5124 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S136037AbRD0OOY>;
-	Fri, 27 Apr 2001 10:14:24 -0400
-Message-ID: <20010427002853.A11426@bug.ucw.cz>
-Date: Fri, 27 Apr 2001 00:28:54 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Chris Mason <mason@suse.com>, viro@math.psu.edu,
-        kernel list <linux-kernel@vger.kernel.org>,
-        jack@atrey.karlin.mff.cuni.cz
-Cc: torvalds@transmeta.com
-Subject: Re: [patch] linux likes to kill bad inodes
-In-Reply-To: <20010425220120.A1540@bug.ucw.cz> <466810000.988230486@tiny>
+	id <S136045AbRD0O1r>; Fri, 27 Apr 2001 10:27:47 -0400
+Received: from [203.36.158.121] ([203.36.158.121]:50826 "EHLO
+	piro.kabuki.openfridge.net") by vger.kernel.org with ESMTP
+	id <S136044AbRD0O1o>; Fri, 27 Apr 2001 10:27:44 -0400
+Date: Sat, 28 Apr 2001 00:26:46 +1000
+From: Daniel Stone <daniel@kabuki.openfridge.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: imel96@trustix.co.id, Alexander Viro <viro@math.psu.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Single user linux
+Message-ID: <20010428002646.A30498@kabuki.openfridge.net>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>, imel96@trustix.co.id,
+	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010424225841.D5803@piro.kabuki.openfridge.net> <Pine.LNX.4.33.0104242018410.16215-100000@tessy.trustix.co.id> <20010424233801.A6067@piro.kabuki.openfridge.net> <20010426213545.A803@bug.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <466810000.988230486@tiny>; from Chris Mason on Wed, Apr 25, 2001 at 04:28:06PM -0400
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010426213545.A803@bug.ucw.cz>; from pavel@suse.cz on Thu, Apr 26, 2001 at 09:35:45PM +0200
+Organisation: Sadly lacking
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Apr 26, 2001 at 09:35:45PM +0200, Pavel Machek wrote:
+> Hi!
 
-> >> > I had a temporary disk failure (played with acpi too much). What
-> >> > happened was that disk was not able to do anything for five minutes
-> >> > or so. When disk recovered, linux happily overwrote all inodes it
-> >> > could not read while disk was down with zeros -> massive disk
-> >> > corruption.
-> >> > 
-> >> > Solution is not to write bad inodes back to disk.
-> >> > 
-> >> 
-> >> Wouldn't we rather make it so bad inodes don't get marked dirty at all?
-> > 
-> > I guess this is cheaper: we can mark inode dirty at 1000 points, but
-> > you only write it at one point.
-> 
-> Whoops, I worded that poorly.  To me, it seems like a bug to dirty a bad
-> inode.  If this patch works, it is because somewhere, somebody did
-> something with a bad inode, and thought the operation worked (otherwise,
-> why dirty it?).  
-> 
-> So yes, even if we dirty them in a 1000 different places, we need to find
-> the one place that believes it can do something worthwhile to a bad inode.
-
-Okay, so what about following patch, followed by attempt to debug it?
-[I'd really like to get patch it; killing user's data without good
-reason seems evil to me, and this did quite a lot of damage to my
-$HOME.]
-
-								Pavel
-PS: Only filesystem at use at time of problem was ext2, and it was
-ext2 iinode that got killed.
-
-
---- clean/fs/inode.c	Wed Apr  4 23:58:04 2001
-+++ linux/fs/inode.c	Fri Apr 27 00:25:46 2001
-@@ -179,6 +179,10 @@
+Hola.
  
- static inline void write_inode(struct inode *inode, int sync)
- {
-+	if (is_bad_inode(inode)) {
-+		printk(KERN_CRIT "Cowardly refusing to kill your inode\n");
-+		return;
-+	}		
- 	if (inode->i_sb && inode->i_sb->s_op && inode->i_sb->s_op->write_inode)
- 		inode->i_sb->s_op->write_inode(inode, sync);
- }
+> > > read the news! i'm programming nokia 9210 with c++, is that
+> > > computer enough?
+> > 
+> > Aah. I see. Where was this? I never saw it.
+> 
+> 9210 has qwerty keyboard.
 
+He said "read the news". I've seen the 9110 and 9210's, I was asking where
+this news was.
+ 
+> > > i bet if you programmed one, you'd wish you have posix
+> > > interface.
+> > 
+> > That may be so, so hack up your own OS. It's a MOBILE PHONE, it needs to be
+> > absolutely *rock solid*. Look at the 5110, that's just about perfect. The
+> > 7110, on the other hand ...
+> 
+> And point is?
+
+The point is that you need a known good, absolutely rock-solid OS to do it,
+and IMHO, you really need a customised job, not something like Linux, which
+is a monolith in comparison.
+
+> > > and how's stability, speed, etc. they read. is there a linux
+> > > advocate around here?
+> > 
+> > There are Linux advocates, but I'd say most of us are sane enough to use the
+> > right-tool-for-the-job approach. And UNIX on a phone is pure
+> > overkill.
+> 
+> Is it? Let's see.
+> 
+> You want your mobile phone to read mail. That's SMTP. Oh, and SMTP
+> needs to run over something. That's TCP/IP over PPP or SLIP. Oh and
+> you want web access. Add HTTP to the list.
+
+In the mobile world, that is *all* WAP.
+ 
+> [above is reasonable even for "normal" mobile phone; those below
+> require keyboard]
+> 
+> You'd like to ssh from your mobile phone. Add ssh. You'd like to ssh
+> *to* your mobile phone, because it keyboard sucks. That sshd. You'd
+> like to be able to let others to play games on your mobile phone, oh
+> that means multiuser mode.
+
+I'd *like* to, sure, but this is impractical because the mobile links suck
+so hard. Dunno about you, but it takes a few seconds to pull in a <1k page.
+Ugh. SSH? Games, sure, I point my phone at a 7110 or 6210 and I can play
+2-player Snake 2 :)
+
+> You see? Linux has much stuff you'll need.
+
+True, but you have to be wary of overkill, like I said.
+
+> > Your sister won't notice much advantage. Linux on a workstation actually has
+> > *disadvantages* (unfamiliar interface, unintuitive same, etc), as opposed to
+> > 'Doze on a workstation. Sure it's more stable, and the tiniest bit faster,
+> > but what's that really matter to your sister, if she can't even figure out
+> > how to use it?
+> 
+> My brother is 10 and he uses suse7.2 installation just fine. He likes
+> it more than windoze 2000 (I deleted) because there are more games in
+> kde than in windows. [I'd prefer gnome.]
+
+I've used RedHat since I was about 11, Debian since 13. It's not that hard,
+if you can just get used to it. But you're playing with yourself if you
+think that KDE has more games than Win2k ... Black & White? All the Star
+Wars games? etc ... I know a lot of them are being ported to Linux, most via
+Loki, but still ...
+
+(I use GNOME, and the panel giving me Bus errors is starting to annoy me).
+ 
+> > -d, who owns a 7110 and can lock it solid, or get it to do funny resetting
+> > tricks, at least once every 2 days
+> 
+> Hmm, maybe your 7110 needs memory protection so that runaway calendar
+> can not hurt basic functions? ;-).
+
+Oh, I think it's just to do with changing state, seeing as most of the
+lockups I get are when I hit keys really, really quickly in sequence, and
+one lands just as the screen's blank, and it's changing state (snake 2 can
+also kill it).
 
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Daniel Stone
+daniel@kabuki.openfridge.net

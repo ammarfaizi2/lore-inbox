@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267396AbUI0VQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267389AbUI0VSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267396AbUI0VQE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 17:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUI0VOD
+	id S267389AbUI0VSN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 17:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUI0VQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 17:14:03 -0400
-Received: from scanner2.mail.elte.hu ([157.181.151.9]:38276 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267391AbUI0VMi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 17:12:38 -0400
-Date: Mon, 27 Sep 2004 23:14:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Fulghum <paulkf@microgate.com>
+	Mon, 27 Sep 2004 17:16:37 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:31045 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S267389AbUI0VNx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 17:13:53 -0400
+Subject: Re: 2.6.9-rc2-mm4 e100 enable_irq unbalanced from
+From: Paul Fulghum <paulkf@microgate.com>
+To: scott.feldman@intel.com
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc2-mm4
-Message-ID: <20040927211412.GA24232@elte.hu>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409270053.22911.gene.heskett@verizon.net> <20040927201928.GB19257@elte.hu> <1096317273.2523.5.camel@deimos.microgate.com>
+In-Reply-To: <1096313095.2601.20.camel@deimos.microgate.com>
+References: <1096313095.2601.20.camel@deimos.microgate.com>
+Content-Type: text/plain
+Message-Id: <1096319558.3859.5.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096317273.2523.5.camel@deimos.microgate.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 27 Sep 2004 16:12:39 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Paul Fulghum <paulkf@microgate.com> wrote:
-
-> > > Checking 'hlt' instruction... OK.
-> > > -----
-> > > 2.6.9-rc2-mm4 hangs here, and never gets to the next line
-
-> > could you send me your .config?
+On Mon, 2004-09-27 at 14:24, Paul Fulghum wrote:
+> The e100 module is generating a warning:
 > 
-> I'm seeing the exact same thing at the same point.
-> Removing pre-emptable bkl option allows boot.
-> .config is attached
+> Sep 27 13:30:29 deimos kernel: e100: Intel(R) PRO/100 Network Driver, 3.1.4-NAPI
+> Sep 27 13:30:29 deimos kernel: e100: Copyright(c) 1999-2004 Intel Corporation
+> Sep 27 13:30:29 deimos kernel: e100: eth0: e100_probe: addr 0xfecfc000, irq 16, MAC addr 00:90:27:3A:C5:E3
+> Sep 27 13:30:29 deimos kernel: enable_irq(16) unbalanced from ec83ff33
+> Sep 27 13:30:29 deimos kernel:  [<c010923f>] enable_irq+0xcf/0xe0
+> Sep 27 13:30:29 deimos kernel:  [<ec83ff33>] e100_up+0xf3/0x1f0 [e100]
 
-ok, could you re-enable bkl preemption but also enable SCHED_SMT - does
-that fix the hang too?
+The following patch works for me and removes the warning.
 
-	Ingo
+The disable_irq/enable_irq is not needed because
+the ISR can't be called before calling request_irq,
+the hardware is initialized before calling request_irq,
+and request_irq itself enables the interrupt if needed.
+
+Comments?
+
+-- 
+Paul Fulghum
+paulkf@microgate.com
+
+--- a/drivers/net/e100.c	2004-09-27 09:57:35.000000000 -0500
++++ b/drivers/net/e100.c	2004-09-27 16:00:12.115482112 -0500
+@@ -1675,9 +1675,6 @@
+ 
+ 	if((err = e100_rx_alloc_list(nic)))
+ 		return err;
+-
+-	disable_irq(nic->pdev->irq);
+-
+ 	if((err = e100_alloc_cbs(nic)))
+ 		goto err_rx_clean_list;
+ 	if((err = e100_hw_init(nic)))
+@@ -1689,7 +1686,6 @@
+ 		nic->netdev->name, nic->netdev)))
+ 		goto err_no_irq;
+ 	e100_enable_irq(nic);
+-	enable_irq(nic->pdev->irq);
+ 	netif_wake_queue(nic->netdev);
+ 	return 0;
+ 
+@@ -1700,7 +1696,6 @@
+ err_rx_clean_list:
+ 	e100_rx_clean_list(nic);
+ 
+-	enable_irq(nic->pdev->irq);
+ 	return err;
+ }
+ 
+
+

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261916AbTKHSQc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 13:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTKHSQc
+	id S261909AbTKHSMu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 13:12:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTKHSMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 13:16:32 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3719 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261916AbTKHSQb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 13:16:31 -0500
-Date: Sat, 8 Nov 2003 18:16:26 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ragnar Hojland Espinosa <ragnar@linalco.com>,
-       Bill Davidsen <davidsen@tmr.com>, John Bradford <john@grabjohn.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Message-ID: <20031108181626.GD7665@parcelfarce.linux.theplanet.co.uk>
-References: <20031108150654.GA19980@linalco.com> <Pine.LNX.4.44.0311080950520.2787-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311080950520.2787-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 8 Nov 2003 13:12:50 -0500
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:39865 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S261909AbTKHSMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 13:12:48 -0500
+Message-ID: <3FAD3215.9010400@backtobasicsmgmt.com>
+Date: Sat, 08 Nov 2003 11:12:37 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: libata testing on new machine with ICH5 and PDC20318
+References: <3FACC17C.7070901@backtobasicsmgmt.com> <3FAD2CB6.5070508@pobox.com>
+In-Reply-To: <3FAD2CB6.5070508@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 08, 2003 at 09:52:52AM -0800, Linus Torvalds wrote:
-> 
-> On Sat, 8 Nov 2003, Ragnar Hojland Espinosa wrote:
-> > 
-> > Well, I hope its in better state than the Mitsumi driver, because last
-> > time I tried it was broken (oopsed in a simple cat) since a 2.3.xx
-> > IIRC [0]
-> 
-> Since 2._3_.xx?
-> 
-> > [0]  Tracked it down to a -pre if anyone is interested and its still
-> >      broken.. 
-> 
-> Quite frankly, if it's literally been broken since 2.3.x, I think the best 
-> thing to do would be to remove the driver entirely.
+Jeff Garzik wrote:
 
-... or give it to somebody on kernel-janitors and tell them to bring the
-series of *provable* cleanups and fixes, getting the driver into decent
-form.  Would be a good exercise.
+> The ICH5 should be fine.  You may need to twiddle BIOS setup options, 
+> some users have reported that both drivers/ide and libata fail in 
+> certain BIOS modes.  "Enhanced - SATA only" is usually the preferred 
+> mode, where feasible.
+
+I forgot to mention I will not be booting off of any of the SATA disks, 
+so that should cover the BIOS issues by just ignoring them.
+
+> 
+> You need to make sure you get the Promise SATA fixes I just pushed to 
+> Linus.  Presumably they will be available in the next 2.6.0-testX BK 
+> snapshot on ftp.kernel.org, tonight or the next night.
+
+I saw that message; I won't have the hardware until late next week, so 
+I'll watch to see what happens with the snapshot/-testX situation by then.
+
+I'll have about three weeks to use the machine for "whatever" before I 
+have to start preparing it for its real purpose, so if there's any 
+stress tests or anything I else I can run that would be useful let me know.
+

@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281739AbRKQWXu>; Sat, 17 Nov 2001 17:23:50 -0500
+	id <S281738AbRKQWXU>; Sat, 17 Nov 2001 17:23:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281735AbRKQWXl>; Sat, 17 Nov 2001 17:23:41 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:54516
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281739AbRKQWXc>; Sat, 17 Nov 2001 17:23:32 -0500
-Date: Sat, 17 Nov 2001 14:23:26 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        "Theodore Ts'o" <tytso@mit.edu>, Brian <hiryuu@envisiongames.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Andreas Dilger <adilger@turbolabs.com>
-Subject: Re: File server FS?
-Message-ID: <20011117142326.I21354@mikef-linux.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Jamie Lokier <lk@tantalophile.demon.co.uk>,
-	Theodore Ts'o <tytso@mit.edu>, Brian <hiryuu@envisiongames.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andreas Dilger <adilger@turbolabs.com>
-In-Reply-To: <200111132203.fADM3jW03006@demai05.mw.mediaone.net> <20011113175348.B24864@mikef-linux.matchmail.com> <20011117181253.B5003@kushida.jlokier.co.uk>, <20011117181253.B5003@kushida.jlokier.co.uk> <20011117135542.H21354@mikef-linux.matchmail.com> <3BF6E039.923E0577@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BF6E039.923E0577@zip.com.au>
-User-Agent: Mutt/1.3.23i
+	id <S281739AbRKQWXK>; Sat, 17 Nov 2001 17:23:10 -0500
+Received: from mx1out.umbc.edu ([130.85.253.51]:28877 "EHLO mx1out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S281738AbRKQWWy>;
+	Sat, 17 Nov 2001 17:22:54 -0500
+Date: Sat, 17 Nov 2001 17:22:53 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: SiS630 chipsets && linux 2.4.x kernel == snails pace?
+Message-ID: <Pine.SGI.4.31L.02.0111171716420.12044432-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 17, 2001 at 02:10:01PM -0800, Andrew Morton wrote:
-> Mike Fedyk wrote:
-> > 
-> > I haven't actually resized any ext2/3 partitions.  Didn't need to.  I'll do
-> > some tests though.
->
-> I tested it a while back - it worked OK.  If you could retest that'd be
-> neat.
-> 
 
-I'll try to do that over the next couple weeks.
+I have a few systems that use the SIS630 host bridge, the 5513 IDE bridge,
+etc, etc, etc, and they are slooooooowwww under 2.4.x, whereas 2.2.19
+performance seems to be fairly decent.
 
-> The journal shouldn't be affected - it's just a regular file.
->
+It does appear that support for the SiS5513 was added sometime recently,
+or I've just gone blind ... But trying (2 hr make dep on 2.4.14) to get a
+kernel with SiS5513 support started.
 
-That's what I meant by "as long as the inode number is the same".  Since it
-is a normal file, the only thing ext2resize might overlook would be the
-inode number for the jounal that's kept in the super block.  If, in fact
-ext2resize does decide to change inode numbers for some reason.  I don't
-know if it does. 
+Anyway, various configs, system information, dmesg, and so forth can be
+found at http://www.realityfailure.org/~jjasen/SiS630, as I'm gonna be
+here for a while. :(
 
-> mke2fs and tune2fs choose an initial journal size based
-> on the size of the fs, so if you were increasing the
-> fs size by a large ratio then there may be a case for
-> increasing the journal size.  But as you've pointed out,
-> an 8, 16 or 32 megabyte journal covers an awful lot of metadata.
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 
-Yep.  It would be more important for data=journal mode.
-
-Can ext2resize change the block size too?  If the journal is larger than
-100MB then it would need to be made smaller for 1k blocks 200MB for 2k
-blocks, and left at 400MB for 4k blocks.
-
-Mike

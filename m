@@ -1,43 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263750AbTETMMP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 08:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTETMMO
+	id S263743AbTETMI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 08:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbTETMI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 08:12:14 -0400
-Received: from smtp8.wanadoo.fr ([193.252.22.30]:62527 "EHLO
-	mwinf0103.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S263750AbTETMMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 08:12:14 -0400
-From: Duncan Sands <duncan.sands@wanadoo.fr>
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH][ATM] add reference counting to atm_dev
-Date: Tue, 20 May 2003 14:25:07 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200305151917.h4FJHbGi014157@locutus.cmf.nrl.navy.mil>
-In-Reply-To: <200305151917.h4FJHbGi014157@locutus.cmf.nrl.navy.mil>
+	Tue, 20 May 2003 08:08:59 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:641 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263743AbTETMI6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 08:08:58 -0400
+Date: Tue, 20 May 2003 08:23:29 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: Robert White <rwhite@casabyte.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: recursive spinlocks. Shoot.
+In-Reply-To: <3ECA189A.30300@aitel.hist.no>
+Message-ID: <Pine.LNX.4.53.0305200809060.3996@chaos>
+References: <PEEPIDHAKMCGHDBJLHKGGEENCMAA.rwhite@casabyte.com>
+ <3ECA189A.30300@aitel.hist.no>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305201425.07552.duncan.sands@wanadoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 May 2003 21:17, chas williams wrote:
-> In message <20030515190922.GA10161@kroah.com>,Greg KH writes:
-> >Thanks, didn't know they could be removed.  The speedtch author told me
-> >a while ago that the fops didn't protect it...
+On Tue, 20 May 2003, Helge Hafting wrote:
+
+> Robert White wrote:
+> > Er..
+> >
+> > The gnome wields a morality stick, the morality stick wields itself to the
+> > gnome's hand...
+> > ---more---
+> > The gnome hits you... you feel better...
+> >
+> >
+> > Your "moral position"...
+> >
+> > (quote) I want them to either learn to comprehend locking _properly_, or
+> > take up gardening instead. (unquote)
+> >
+> > ...is critically flawed.
+> >
+> > In point of fact, "proper" locking, when combined with "proper" definitions
+> > of an interface dictate that recursive locking is "better".  Demanding that
+> > a call_EE_ know what locks a call_ER_ (and all antecedents of caller) will
+> > have taken is not exactly good design.
 >
-> i cant see why it wouldn't but i really dont have the hardware to double
-> check this statement.
+> That depends on how big the total system is.  You can break things
+> down into independent modules and submodules that don't know each other, but
+> at some point people need to know a whole module to do it properly.
+>
+[SNIPPED...]
 
-I remember coming to the conclusion that the fops_get was not enough,
-but I can no longer see why I thought that...  Greg has already applied
-the patch to 2.5, I will send a patch for 2.4.
+Recursive locking is a misnomer. It does during run-time that which
+should have been done during design-time. In fact, there cannot
+be any recursion associated with locking. A locking mechanism that
+allows reentry or recursion is defective, both in design, and
+implementation.
 
-Ciao,
+The nature of a lock is required to be such that if the locked object
+is in use, no access to that object is allowed. Recursive locking
+implies that if the lock is in use by the same thread that locked
+it before, then access to that object is allowed. In other words,
+if the coder (as opposed to designer) screwed up, the locking
+mechanism will allow it. If this is the way students are being
+taught to write code at the present time, all software will
+be moved off-shore in the not too distant future. There is
+absolutely no possible justification for such garbage. Just
+because some idiot wrote an article and got it published,
+doesn't mean this diatribe has any value at all.
 
-Duncan.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

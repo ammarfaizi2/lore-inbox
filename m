@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132247AbQKXI2m>; Fri, 24 Nov 2000 03:28:42 -0500
+        id <S132211AbQKXIk5>; Fri, 24 Nov 2000 03:40:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132249AbQKXI2c>; Fri, 24 Nov 2000 03:28:32 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:64526
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S132247AbQKXI20>; Fri, 24 Nov 2000 03:28:26 -0500
-Date: Thu, 23 Nov 2000 23:58:02 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <Pine.GSO.4.21.0011240148410.12702-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10011232321560.4479-100000@master.linux-ide.org>
+        id <S132308AbQKXIks>; Fri, 24 Nov 2000 03:40:48 -0500
+Received: from Prins.externet.hu ([212.40.96.161]:32784 "EHLO
+        prins.externet.hu") by vger.kernel.org with ESMTP
+        id <S132211AbQKXIk3>; Fri, 24 Nov 2000 03:40:29 -0500
+Date: Fri, 24 Nov 2000 09:10:22 +0100 (CET)
+From: Boszormenyi Zoltan <zboszor@externet.hu>
+To: linux-kernel@vger.kernel.org
+Subject: Jens Axboe's blk-11 causing problems
+Message-ID: <Pine.LNX.4.02.10011240902070.4804-100000@prins.externet.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000, Alexander Viro wrote:
+Hi!
 
-> <shrug> I don't see any attempts to tag you (or ATA subsystem, for that matter)
-> in that thread. And thread is hardly bogus... I agree that changes in
+I tried 2.4.0-test11 (plain, +ac1/2) with and without
+Jens' blk-11 patch. This indeed performs (much) better
+when there is only high disk activity but cdrecord
+starts up _very_ slowly if the kernel was compiled with 
+blk-11. It does not happen if blk-11 is not applied.
 
-We agree that the "thread" is valid, trust that point.
-There was a quick pointed question that present, "Is it an IDE disk?" to
-paraphase the statement.
+I stopped cdrecord before it started writing because of
+this suspicious slowness and I did not want to create a bad CD.
 
-> drivers/ide/* are very unlikely to be the source of that, but information
-> of that kind can help to weed out some of the changes in ll_rw_blk.c.
+Other data points:
+The CD-writer is a Yamaha-6416 (SCSI version).
+The SCSI card is a Diamond Fireport-40 (Symbios 53c875j)
+I tested both the in-kernel 1.6b and 1.7.2 versions of the
+sym53c8xx driver.
 
-What may be even more helpful is when I get arround to making an option, 
-for some outstanding patches for 2.5, that would allow for user-space
-pattern pushing through the driver that gets properly inserted in to the
-list/buffer-head to make it pass through the block layer.  This kind of
-testing will allow for nibble level tracing through everything, I hope.
+The slowdown was experienced in every case where
+the kernel contained blk-11.
 
-Cheers,
+Regards,
+Zoltan Boszormenyi
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

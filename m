@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132568AbRDKMkb>; Wed, 11 Apr 2001 08:40:31 -0400
+	id <S132567AbRDKMkk>; Wed, 11 Apr 2001 08:40:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132569AbRDKMkU>; Wed, 11 Apr 2001 08:40:20 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17676 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132568AbRDKMkK>; Wed, 11 Apr 2001 08:40:10 -0400
-Subject: Re: 2.4 kernel problem
-To: dash@xdr.com (David Ashley)
-Date: Wed, 11 Apr 2001 13:41:27 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200104110530.WAA00945@dave.xdr.com> from "David Ashley" at Apr 10, 2001 10:30:41 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132569AbRDKMkb>; Wed, 11 Apr 2001 08:40:31 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:30891 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S132567AbRDKMkR>; Wed, 11 Apr 2001 08:40:17 -0400
+Date: Wed, 11 Apr 2001 14:24:44 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: David Howells <dhowells@cambridge.redhat.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 rw_semaphores fix 
+In-Reply-To: <13054.986974737@warthog.cambridge.redhat.com>
+Message-ID: <Pine.GSO.3.96.1010411142138.2984E-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14nJwA-0006Yd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> XFree86 X window updates are slower on 2.4 than 2.2, by a significant amount.
-> I've observed this comparing 2.2.18 with 2.4.1 and one of the 2.4.pre kernels.
+On Wed, 11 Apr 2001, David Howells wrote:
 
-Quite possible since we haven't really tuned it hard yet. Also there are some
-problems with VIA chipsets and 2.4 that directly impact this sort of stuff
+> Can CONFIG_X86_XADD be equated to CONFIG_X86_CMPXCHG?
+
+ Yes.  Modulo very early i486s which used incorrect opcodes for cmpxchg. 
+They can probably be safely ignored. 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

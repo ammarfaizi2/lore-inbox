@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVCACr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVCACtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261218AbVCACr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 21:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVCACr3
+	id S261221AbVCACtO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 21:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVCACtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 21:47:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24271 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261218AbVCACrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 21:47:25 -0500
-Date: Tue, 1 Mar 2005 02:47:21 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: matthew@wil.cx, James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/scsi/sym53c8xx_2/sym_hipd.c: make a function static
-Message-ID: <20050301024721.GD28741@parcelfarce.linux.theplanet.co.uk>
-References: <20050228220155.GS4021@stusta.de>
-Mime-Version: 1.0
+	Mon, 28 Feb 2005 21:49:14 -0500
+Received: from web50204.mail.yahoo.com ([206.190.38.45]:42666 "HELO
+	web50204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261221AbVCACtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 21:49:05 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=JbkaV524n7eTTO1bvWFnuBiT+OJzGABTsYY8N0IWb1ZNEjL+2o0dIJQKjDyA9DxnmkUFp6yvq2+v7Eddzh8sNfh/AUhCTaf7mqNixYmDA8bmP2qN6a6mau2xkA/ED22L7WVJ9Ct0IPUeuN4abF0/SemYPxdjAkwQh20SjibNwgU=  ;
+Message-ID: <20050301024904.48460.qmail@web50204.mail.yahoo.com>
+Date: Mon, 28 Feb 2005 18:49:04 -0800 (PST)
+From: Johan Braennlund <johan_brn@yahoo.com>
+Subject: Re: ALPS touchpad not seen by 2.6.11 kernels
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200502252217.16410.dtor_core@ameritech.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050228220155.GS4021@stusta.de>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 28, 2005 at 11:01:55PM +0100, Adrian Bunk wrote:
-> This patch makes a needlessly global function static.
+After applying your patch, I can confirm that the kernel detects the
+touchpad without the i8042.noacpi option. Thanks!
 
-Thanks, committed
+- Johan
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - Helps protect you from nasty viruses. 
+http://promotions.yahoo.com/new_mail

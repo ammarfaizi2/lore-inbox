@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269188AbUISH4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269189AbUISIIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269188AbUISH4i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 03:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269187AbUISH4i
+	id S269189AbUISIIM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 04:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269187AbUISIIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 03:56:38 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:5381 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S269190AbUISH4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 03:56:07 -0400
-Subject: RE: [Patch][RFC] conflicting device major numbers in devices.txt
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Cagle, John" <john.cagle@hp.com>
-Cc: Christian Borntraeger <linux-kernel@borntraeger.net>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Torben Mathiasen <device@lanana.org>, linux-mtd@lists.infradead.org
-In-Reply-To: <C50AB9511EE59B49B2A503CB7AE1ABD108F82153@cceexc19.americas.cpqcorp.net>
-References: <C50AB9511EE59B49B2A503CB7AE1ABD108F82153@cceexc19.americas.cpqcorp.net>
+	Sun, 19 Sep 2004 04:08:12 -0400
+Received: from gate.crashing.org ([63.228.1.57]:14776 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269189AbUISIIK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 04:08:10 -0400
+Subject: [PATCH] Fix bound checking in do_mmap_pgoff()
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Segher Boessenkool <segher@kernel.crashing.org>
 Content-Type: text/plain
-Date: Sun, 19 Sep 2004 08:50:54 +0100
-Message-Id: <1095580254.5065.172.camel@localhost.localdomain>
+Message-Id: <1095581234.26670.6.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 19 Sep 2004 18:07:15 +1000
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-18 at 18:14 -0500, Cagle, John wrote:
-> Torben -- please correct this in devices.txt and find a new block
-> major for the Linux-MTD project (if they will accept it).
+Hi !
 
-Seems reasonable.
+A small issue has been forever in do_mmap_pgoff() in the boundary checking
+in the sense that it won't let you mmap with offset+len enclosing the last
+page of the "address space". For example, an mmap of /dev/mem won't let you
+map the last page of the physical address space (which I need for a ROM dump
+tool on pmac). This fixes it:
 
--- 
-dwmw2
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+===== mm/mmap.c 1.144 vs edited =====
+--- 1.144/mm/mmap.c	2004-09-03 19:08:17 +10:00
++++ edited/mm/mmap.c	2004-09-19 18:04:34 +10:00
+@@ -801,7 +801,7 @@
+ 		return -EINVAL;
+ 
+ 	/* offset overflow? */
+-	if ((pgoff + (len >> PAGE_SHIFT)) < pgoff)
++	if ((pgoff + (len >> PAGE_SHIFT) - 1) < pgoff)
+ 		return -EINVAL;
+ 
+ 	/* Too many mappings? */
+
 

@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVC2LnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVC2LpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262225AbVC2LnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 06:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVC2LnP
+	id S262231AbVC2LpH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 06:45:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVC2LpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 06:43:15 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:29455 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262200AbVC2Llz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 06:41:55 -0500
-Date: Tue, 29 Mar 2005 21:39:21 +1000
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, cryptoapi@lists.logix.cz,
-       Jeff Garzik <jgarzik@pobox.com>, David McCullough <davidm@snapgear.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050329113921.GA20174@gondor.apana.org.au>
-References: <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda> <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <20050329102104.GB6496@elf.ucw.cz> <20050329103049.GB19541@gondor.apana.org.au> <1112093428.5243.88.camel@uganda> <20050329104627.GD19468@gondor.apana.org.au> <1112096525.5243.98.camel@uganda>
+	Tue, 29 Mar 2005 06:45:07 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:62372 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262200AbVC2Lnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 06:43:32 -0500
+Subject: Re: sched_setscheduler() and usage issues ....please help
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>,
+       Arun Srinivas <getarunsri@hotmail.com>, nickpiggin@yahoo.com.au,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0503290802170.25114@yvahk01.tjqt.qr>
+References: <BAY10-F472EE1F6A6F80FEA2F5568D9450@phx.gbl>
+	 <1112071215.3691.27.camel@localhost.localdomain>
+	 <1112071867.19014.30.camel@mindpipe>
+	 <Pine.LNX.4.61.0503290802170.25114@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 13:43:16 +0200
+Message-Id: <1112096597.6282.50.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112096525.5243.98.camel@uganda>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 03:42:05PM +0400, Evgeniy Polyakov wrote:
-> On Tue, 2005-03-29 at 20:46 +1000, Herbert Xu wrote:
-
-> > Well if you can demonstrate that you're getting a higher rate of
-> > throughput from your RNG by doing this in kernel space vs. doing
-> > it in user space please let me know.
+On Tue, 2005-03-29 at 08:03 +0200, Jan Engelhardt wrote:
+> >> > I am trying to set the SCHED_FIFO  policy for my process.I am using 
+> >> > sched_setscheduler() function to do this.
+> >> 
+> >> Attached is a little program that I use to set the priority of tasks.
+> >
+> >Why not just use chrt from schedtools?
 > 
-> While raw bits reading from hw_random on the fastest 
-> VIA boards can exceed 55mbits per second 
-> [above quite was taken from VIA C3 Nehemiah analysis], 
-> it is not evaluated in rngd and is not written 
-> back to the /dev/random.
+> Not every distro has it yet, and I like to point out that a lot of users is 
+> still using "older" distros, such as FC2, SUSE 9.1, and also olders with Linux 
+> 2.4 kernels
 
-Well when you get 55mb/s from /dev/random please get back to me.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+FC2 has this. Even FC1 had it, and I'd not be surprised if even RHL9 had
+this. I'd be very susprised if SuSE 9.1 doesn't have it either.
+
+

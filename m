@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286111AbRLTFVA>; Thu, 20 Dec 2001 00:21:00 -0500
+	id <S286129AbRLTFbA>; Thu, 20 Dec 2001 00:31:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286123AbRLTFUu>; Thu, 20 Dec 2001 00:20:50 -0500
-Received: from [139.84.194.100] ([139.84.194.100]:38554 "EHLO
-	eclipse.pheared.net") by vger.kernel.org with ESMTP
-	id <S286111AbRLTFUp>; Thu, 20 Dec 2001 00:20:45 -0500
-Date: Thu, 20 Dec 2001 00:19:41 -0500 (EST)
-From: Kevin <kevin@pheared.net>
-To: Jason Czerak <Jason-Czerak@Jasnik.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Suggestions for linux security patches
-In-Reply-To: <1008794926.842.6.camel@neworder>
-Message-ID: <Pine.GSO.4.40.0112200017280.1846-100000@eclipse.pheared.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286128AbRLTFav>; Thu, 20 Dec 2001 00:30:51 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:23939 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S286127AbRLTFaj>;
+	Thu, 20 Dec 2001 00:30:39 -0500
+Date: Wed, 19 Dec 2001 21:30:19 -0800 (PST)
+Message-Id: <20011219.213019.35013739.davem@redhat.com>
+To: hpa@zytor.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI updates - 32-bit IO support
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <9vrmea$mef$1@cesium.transmeta.com>
+In-Reply-To: <20011218235024.N13126@flint.arm.linux.org.uk>
+	<9vrmea$mef$1@cesium.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Dec 2001, Jason Czerak grunted something like:
+   From: "H. Peter Anvin" <hpa@zytor.com>
+   Date: 19 Dec 2001 19:37:46 -0800
+   
+   You probably need to verify that 32-bit support is available (both on
+   the bridge and the peripherals), but if they are, there's no reason
+   not to use it on non-x86 architectures...
 
-[Jason-] I'm running linux 2.4.16, and I"m looking to the best possibly kernel
-[Jason-] patch to harden things up a bit. Primarly I wish to have what is in
-[Jason-] openwall's and grsecurity's patches is the buffer oveflow protection,
-[Jason-] but I'm unable to use the openwall patch because it only support 2.2.X
-[Jason-] kernels ATM. I applied the grsecurity patch but for some reason when
-[Jason-] running mozilla as non-root, the GUI for mozilla is all messed up (and I
-[Jason-] enabled sysctl support so nothing was enabled by default except stuff
-[Jason-] that isn't able to use sysctl).
+Don't the PCI specs actually talk about 24-bits in fact?
 
-Has anyone tried the NSA linux security setup?  I've looked it over but
-haven't gone so far as to actually run it.
-
-BTW, mozilla gets F-ed up for me sometimes when I foolishly run Netscape 6
-and NS6 rewrites several of the config files.  Usually rm'ing ~/.mozilla
-does it.  Could be very unrelated though.
-
--[ kevin@pheared.net                 devel.pheared.net ]-
--[ Rather be forgotten, than remembered for giving in. ]-
--[ ZZ = g ^ (xb * xa) mod p      g = h^{(p-1)/q} mod p ]-
-
+Russell does you box really have the full 32-bits or is it
+really just 24-bits?

@@ -1,98 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130388AbRDBQa5>; Mon, 2 Apr 2001 12:30:57 -0400
+	id <S130873AbRDBQiH>; Mon, 2 Apr 2001 12:38:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130448AbRDBQar>; Mon, 2 Apr 2001 12:30:47 -0400
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:43269
+	id <S130834AbRDBQh5>; Mon, 2 Apr 2001 12:37:57 -0400
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:44037
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130388AbRDBQah>; Mon, 2 Apr 2001 12:30:37 -0400
-Date: Mon, 23 Apr 2001 21:57:12 -0700 (PDT)
+	id <S130448AbRDBQho>; Mon, 2 Apr 2001 12:37:44 -0400
+Date: Mon, 23 Apr 2001 22:04:23 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Padraig Brady <Padraig@AnteFacto.com>
-cc: Steffen Grunewald <steffen@gfz-potsdam.de>, linux-kernel@vger.kernel.org,
-   rsmith@bitworks.com
-Subject: Re: Cool Road Runner
-In-Reply-To: <3AC8798B.5090302@AnteFacto.com>
-Message-ID: <Pine.LNX.4.10.10104020738550.12531-100000@master.linux-ide.org>
+To: nerijusb@takas.lt
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Promise 20267 "working" but no UDMA
+In-Reply-To: <MPBBJGBJAHHNDMMBBLMIKELIGLAB.nerijus@users.sourceforge.net>
+Message-ID: <Pine.LNX.4.10.10104232157390.12531-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Apr 2001, Padraig Brady wrote:
+On Mon, 2 Apr 2001, Nerijus Baliunas wrote:
 
-> OK can we just have a technical discussion?
-
-Please, lets do, I am tired of the battles
-
->      I.E. no need for PCMCIA or any of that. I understood from your 
-> responses
->      that you didn't realise this?
-
-This valid that I do not know everything and that CFA does interesting
-things more than what was specified in the past.
-
-> 2. Compact Flash in this application (I.E. solid state hard disk) is 
-> getting very
->      popular as prices are tumbling.
+> > > PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER
+> Mode.
 > 
-> 3. Having a config parameter (uneeded kludge in my opinion), like hdx=flash
->      even if hdx is not a compact flash is confusing. Can we call it 
-> hdx=probe
->      which fits nicely with the noprobe option.
+> How does MASTER mode differ from PCI?
+
+Master mode is in BIOS RAID, and PCI is BIOS non-RAID
+What I have not thought about doing is forcing all "MASTER" modes into
+"PCI" modes.  In theory it may work because it changes the properties of
+the chips behavior.
+
+> I have:
+> PDC20267: IDE controller on PCI bus 00 dev 50
+> PDC20267: chipset revision 2
+> PDC20267: not 100% native mode: will probe irqs later
+> PDC20267: ROM enabled at 0xe8000000
+> PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
 > 
+> Another question - I have Promise Ultra100 and 2 disks:
 > 
-> > I then explained why the detection was failing and pointed where to verify.
+> hda: QUANTUM FIREBALL CX10.2A, 9787MB w/418kB Cache, CHS=19885/16/63, UDMA(33)
+> hdc: IBM-DTLA-305030, 29314MB w/380kB Cache, CHS=59560/16/63, UDMA(100)
 > 
-> No you didn't. You mentioned a 30 second timeout, but not why it
-> was caused. Have you seen this yourself or can you point us at who
-> reported this to you?
-
-Sorry phone call and email got mixed togather.
-But I did explain that there could be a failure to detect if PDIAG/DASP
-if one or the other devices was held to long and the wrong device reported
-a signature in the task register.  Also that the if you reversed the two
-device it would correctly report always.
-
->  
-> > After 3-5 attempts and I can not get the point across because the other
-> > party keeps going off in different directions to do "what about this",
+> Why Quantum is shown as UDMA 33 when Promise BIOS shows it as UDMA 66?
 > 
-> Emm, I think *you* were going off describing your application with
-> a "bazar ata-bridge", not the simple use of a compact flash as a
-> hard disk.
+> Why DMA Mode:       UDMA 4 in /proc/ide/pdc202xx for IBM disk?
+> Shouldn't it be UDMA 5?
 
-Not quite, the electronic differences and flash in native mode is
-incompatable, if you put it in to a mode that is 5V compatable then it
-does seem possible and reasonable to work.  Your imperical data points
-verify this issue.
+This is what I love about Promise.
+Mode 4 and Mode 5 have the exact same timings to the BUS; however, issuing
+a setfeatures command to jump from Mode 4 to Mode 5, the card does voodoo
+sensing.  It does internal tracking of the drive betweem these two modes
+and auto-sets things in the chip.
 
-What really needs to happen is that all the devices that are CFA-like
-which require name parsing for detecting should have the "flash" rule
-imposed.  Whereas the ones that correctly report 0x848A for word 0 of the
-identify page may be exempt.
-
-This seems like a reasonable step given that you are pointing out you
-a have modern CFA's taht are more than just CFA's.
-
-Would that work for you?
-
-> 
-> > I finally pointed out facts that distrub people, and gave up on trying to
-> > show/present/give the answer and offered to then enforce their beliefs of
-> > reality.
-> > 
-> > So I state a few facts very pointed to get their attention again and that
-> > is additude??
-> 
-> Actually I thought the final email was a little more concise/informative, thanks.
-
-Well I am glad that somebody gleened some information and providing
-feedback so that forward progress is possible, and not the classic
-battles.
+If they can put that level of logic in the chips, it would be nice to have
+it auto timing based on any setfeatures call to set the transfer rates.
 
 Cheers,
 
 Andre Hedrick
 Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 

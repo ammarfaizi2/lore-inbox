@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266846AbSKHRgk>; Fri, 8 Nov 2002 12:36:40 -0500
+	id <S266865AbSKHRxP>; Fri, 8 Nov 2002 12:53:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266845AbSKHRgC>; Fri, 8 Nov 2002 12:36:02 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:42396 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266843AbSKHRgA>; Fri, 8 Nov 2002 12:36:00 -0500
-Subject: Re: [Evms-announce] EVMS announcement
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DC9909A.6040905@zytor.com>
-References: <02110516191004.07074@boiler>	<20021106001607.GJ27832@marowsky-bree.de>	<103
-	 6590957.9803.24.camel@irongate.swansea.linux.org.uk>
-	<aqbv2d$tvd$1@cesium.transmeta.com>
-	<1036617718.9781.73.camel@irongate.swansea.linux.org.uk> 
-	<3DC9909A.6040905@zytor.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Nov 2002 18:06:10 +0000
-Message-Id: <1036778770.16651.70.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S266866AbSKHRxP>; Fri, 8 Nov 2002 12:53:15 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:8067 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S266865AbSKHRxO> convert rfc822-to-8bit; Fri, 8 Nov 2002 12:53:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+To: nwourms@netscape.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux-streams registration 2.5.46
+Date: Fri, 8 Nov 2002 17:59:52 +0000
+User-Agent: KMail/1.4.3
+References: <5.1.0.14.2.20021107145447.027905c8@localhost> <200211080637.06511.landley@trommello.org> <aqgjr9$8d4$1@main.gmane.org>
+In-Reply-To: <aqgjr9$8d4$1@main.gmane.org>
+Cc: dave@gcom.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211081759.52061.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 21:58, H. Peter Anvin wrote:
-> > ataraid is just driving dumb ide controllers in the way bios raid does
-> I guess I meant it as a more general question than those specific devices.
+On Friday 08 November 2002 15:07, Nicholas Wourms wrote:
 
-Our current software MD driver doesn't support doing that in hardware.
-It has the neccessary infrastructure to consider using hardware xor
-engines but I doubt its every actually more efficient to do so on low
-end devices. 
+> > Just a random comment, but the feature freeze was October 31st.  Is this
+> > a repost of something we saw before then?
+>
+> Seems to me that it is.
 
+That's why I asked. :)
+
+> Besides, as patches go, this is *hardly* obtrusive
+> and requires minimal changes to the kernel API.  It's not like he's asking
+> to integrate the whole streams driver into the kernel.  I don't think the
+> addition of this code will cause any new bugs to appear [the actual streams
+> driver aside], do you?
+
+The curse of 3 am posting, I thought the patch was about something else 
+(generic syscall registration for third party modules as mentioned months ago 
+on the list) in the 5 seconds I glanced at it.  Having now actually read the 
+thing with both eyes focused, it's just sticking bodies on two already 
+reserved syscalls, which is pretty low impact, yeah. :)
+
+(Although this mechanism could be USED for generic syscall registration by 
+third parties that don't intend to use streams, only want two syscalls, and 
+don't care deeply about their arguments.  But it's exported GPL so that would 
+only ever be likely to be used for debugging purposes...)
+
+To answer the original question for Dave: Alan Cox has now seen it, so life is 
+probably good for you.
+
+> Cheers,
+> Nicholas
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
+CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?

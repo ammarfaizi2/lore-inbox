@@ -1,122 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130645AbQKREY7>; Fri, 17 Nov 2000 23:24:59 -0500
+	id <S129091AbQKREcM>; Fri, 17 Nov 2000 23:32:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131384AbQKREYu>; Fri, 17 Nov 2000 23:24:50 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:21405 "EHLO
+	id <S129097AbQKREcC>; Fri, 17 Nov 2000 23:32:02 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:56485 "EHLO
 	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130645AbQKREYn>; Fri, 17 Nov 2000 23:24:43 -0500
-Message-ID: <3A15FD94.F19DA5F0@uow.edu.au>
-Date: Sat, 18 Nov 2000 14:55:00 +1100
+	id <S129091AbQKREbu>; Fri, 17 Nov 2000 23:31:50 -0500
+Message-ID: <3A15FF3F.9692D272@uow.edu.au>
+Date: Sat, 18 Nov 2000 15:02:07 +1100
 From: Andrew Morton <andrewm@uow.edu.au>
 X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] Remove tq_scheduler
+Subject: [patch] potential death in disassociate_ctty()
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch removes tq_scheduler from the kernel.  All uses of
-tq_scheduler are migrated over to use schedule_task().
+The call to disassociate_ctty() in exit_notify() is very dangerous.  If
+disassociate_ctty() calls schedule() then either:
 
-Notes:
+- a parent process who is spinning in fork.c:release() will stop
+  spinning and will proceed to deallocate the child process's kernel
+  stack.  This will probably have adverse effects when it is rewoken.
 
-- In two places: drivers/block/paride/pseudo.h and
-  drivers/net/wan/sdlamain.c we are re-adding tasks to tq_scheduler
-  within the callback.  That means that these functions are being
-  called _every_ time the machine calls schedule().
+- Or, if disassociate_ctty() sets current->state to TASK_RUNNING and
+  the timing is right, the exitting child will no longer be in state
+  TASK_ZOMBIE and will continue to run.  It hits the fake_volatile goto
+  in do_exit() and has another go at zombifying itself.
 
-  It may be a limited case for paride, but sdlamain.c appears to be
-  doing this wicked thing all the time.
+  Not sure what happens next, but you end up with every process
+  sleeping and your machine freezes halfway through your initscripts.
 
-  Now, if you do this with the current schedule_task() your machine
-  will hang up.  So schedule_task() has been changed to support this
-  practice.  If we see that the task queue has waiters on it we still
-  call schedule(), but we do it in state TASK_RUNNING.
+Basically, we mustn't sleep in disassociate_ctty().  But this function
+does all sorts of things, inclusing calling the open and close methods
+of tty drivers and ldisc drivers.  They _do_ call functions which can
+sleep.
 
-- The patch adds to context.c a new API function
-  run_schedule_tasks() which immediately runs the queued tasks.  Must
-  only be called from process context.  serial.c needs this in its
-  shutdown routines.
+I think it's safer to not call disassociate_ctty() when we're in state
+TASK_ZOMBIE.  This patch moves the parent notification and the task
+state change to _after_ the call to disassociate_ctty().  As an added
+bonus, it's a little more efficient: the later we wake the parent, the
+less time the parent has to spend spinning on current->has_cpu.
 
-- If anyone sleeps in a callback, then all other users of
-  schedule_task() also sleep.  But there's nothing new here.  Kinda
-  makes one wonder why schedule_task exists.  But what-hey, it's neat.
+I'm not particularly confident about this one.  What are the effects of
+moving the call to do_notify_parent()? None, I think - if it mattered
+we'd be racy anyway.
 
-- Note the careful massaging of module reference counts.
+Also, somewhere on the path from kernel 2.2 to 2.4 the call to
+do_notify_parent() was moved inside the tasklist lock.  Why was this?
+It seems unnecessary.  This patch backs out that change, perhaps
+wrongly...
 
-  Yes my friends, much usage of task queues in modules is racy wrt
-  module removal.  This patch fixes some of them.
 
-  The approach taken here is to increment the module refcount when we
-  enqueue a task and to decrement it in the handler:
 
-	mainline()
-	{
-		...
-		MOD_INC_USE_COUNT;
-		if (schedule_task(some_wq) == 0)
-			MOD_DEC_USE_COUNT;
-	}
-
-	handler()
-	{
-		...
-		MOD_DEC_USE_COUNT;
-		/* Wheee!  Tiny race here */
-		return;
-	}
-
-  Note that queue_task and schedule_task have been enhanced to return
-  a success indicator.  If this is non-zero you know that your task
-  will be run.  If it returns zero then your tq_struct was already
-  queued and you lose.
-
-  The patch against test11-pre7 (1043 lines) is at
-
-	http://www.uow.edu.au/~andrewm/linux/tq_scheduler.patch
-
-  It affects the following files:
-
-include/linux/tqueue.h
-include/linux/sched.h
-include/linux/compatmac.h
-arch/ppc/8xx_io/uart.c
-arch/ppc/8xx_io/fec.c
-arch/ppc/8260_io/uart.c
-drivers/net/wan/sdlamain.c
-drivers/block/paride/pseudo.h
-drivers/char/tty_io.c
-drivers/char/esp.c
-drivers/char/istallion.c
-drivers/char/riscom8.c
-drivers/char/serial.c
-drivers/char/README.epca
-drivers/char/specialix.c
-drivers/char/epca.c
-drivers/char/isicom.c
-drivers/char/moxa.c
-drivers/char/mxser.c
-drivers/char/stallion.c
-drivers/scsi/megaraid.c
-drivers/scsi/qla1280.c
-drivers/isdn/avmb1/b1capi.c
-drivers/isdn/avmb1/kcapi.c
-drivers/sbus/char/sab82532.c
-drivers/sbus/char/aurora.c
-drivers/ide/ide.c
-drivers/usb/serial/keyspan_pda.c
-drivers/usb/serial/digi_acceleport.c
-drivers/i2o/i2o_lan.c
-fs/smbfs/sock.c
-kernel/sched.c
-kernel/ksyms.c
-kernel/timer.c
-kernel/context.c
+--- linux-2.4.0-test11-pre7/kernel/exit.c	Sat Nov 18 13:55:32 2000
++++ linux-akpm/kernel/exit.c	Sat Nov 18 14:37:39 2000
+@@ -382,7 +382,6 @@
+ 	 */
+ 
+ 	write_lock_irq(&tasklist_lock);
+-	do_notify_parent(current, current->exit_signal);
+ 	while (current->p_cptr != NULL) {
+ 		p = current->p_cptr;
+ 		current->p_cptr = p->p_osptr;
+@@ -418,6 +417,10 @@
+ 
+ 	if (current->leader)
+ 		disassociate_ctty(1);
++
++	/* From now on, we must not sleep */
++	set_current_state(TASK_ZOMBIE);
++	do_notify_parent(current, current->exit_signal);
+ }
+ 
+ NORET_TYPE void do_exit(long code)
+@@ -444,7 +447,6 @@
+ 	__exit_fs(tsk);
+ 	exit_sighand(tsk);
+ 	exit_thread();
+-	tsk->state = TASK_ZOMBIE;
+ 	tsk->exit_code = code;
+ 	exit_notify();
+ 	put_exec_domain(tsk->exec_domain);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

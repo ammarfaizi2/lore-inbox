@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbUKQWko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbUKQWkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbUKQWko (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 17:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbUKQWid
+	id S262579AbUKQWkn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 17:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbUKQWil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 17:38:33 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.51]:20119 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S262596AbUKQWhx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 17:37:53 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.10-rc2 SAVAGEFB startup crash
-Date: Thu, 18 Nov 2004 06:35:32 +0800
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 17 Nov 2004 17:38:41 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:29069 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262579AbUKQWgp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 17:36:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=s5QVrgMHuGtuEhWghRa7VWKKMBgL95C6a9rOZIKhTbo721aMy7Cw+tAZSPZp4czvkMRwlm6358Be8f+Qbb6sXrxLMpfA+k3s+H+cbdgVp/Okb22DjGyPY0I+oe5yTo7fDvxhFNtftXrBuJkF+wu4NiOa7S8Akjf5P2kutHsPkAg=
+Message-ID: <58cb370e04111714366d1ce656@mail.gmail.com>
+Date: Wed, 17 Nov 2004 23:36:45 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] small IDE cleanups
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041107023336.GC14308@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411180635.32907.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+References: <20041107023336.GC14308@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Philipp Matthias Hahn <pmhahn@titan.lahn.de> wrote:
-
-> Hello!
+On Sun, 7 Nov 2004 03:33:36 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> The patch below does the following small cleanups in the IDE code:
+> - make some needlessly global code static
+> - remove two unused functions from pdc202xx_new.c
 > 
-> On Wed, Nov 17, 2004 at 05:20:58AM +0800, Antonino
-> A. Daplas wrote:
-> > -		               FBINFO_HWACCEL_XPAN;
-> > +		               FBINFO_HWACCEL_XPAN |
-> > +	                      
-> FBINFO_MISC_MODESWITCHLATE;
-> 
-> That (partly) solved the lockup: I was able start
-> XFree86, switch back
-> to Console, but on return to X11, the X11 screen
-> wasn't restored
-> correctly, the mouse left a trail behind and
-> switching to console
+> Please review and apply if it's correct.
 
-Try Option "UseBios" "False" in your /etc/X11/XF86Config, if at all possible.
-
-Tony
-
-
+applied

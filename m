@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbTIHWai (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 18:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTIHWaR
+	id S263739AbTIHWfM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 18:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263737AbTIHWfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 18:30:17 -0400
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:48527 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S263714AbTIHW2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 18:28:23 -0400
-Message-ID: <3F5D0186.4030001@upb.de>
-Date: Tue, 09 Sep 2003 00:24:06 +0200
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030827
-X-Accept-Language: de, en
+	Mon, 8 Sep 2003 18:35:11 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:57616 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S263730AbTIHWe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 18:34:57 -0400
+Message-ID: <3F5D091A.6070707@techsource.com>
+Date: Mon, 08 Sep 2003 18:56:26 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Paul Clements <Paul.Clements@SteelEye.com>, linux-kernel@vger.kernel.org
-Subject: Re: [NBD] patch and documentation
-References: <3F5CB554.5040507@upb.de> <20030908193838.GA435@elf.ucw.cz> <3F5CE0E5.A5A08A91@SteelEye.com> <3F5CE3E6.8070201@upb.de> <3F5CF045.DDDE475C@SteelEye.com> <3F5CFF0B.6080609@upb.de> <20030908222111.GG429@elf.ucw.cz>
-In-Reply-To: <20030908222111.GG429@elf.ucw.cz>
+To: Jeff Sipek <jeffpc@optonline.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Use of AI for process scheduling
+References: <3F5CD863.4020605@techsource.com> <200309081755.19777.jeffpc@optonline.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please see http://imap.upb.de for details
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-15.7, required 4,
-	IN_REP_TO -3.30, REFERENCES -6.60, USER_AGENT_MOZILLA_UA -5.80)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Another idea would be to be abled to specify the max_sectors while 
->>connecting an NBD. That would add an optional paramter to the nbd-client 
->>command line. (like it is possible for the blocksize)
-> 
-> I do not see why it should be configurable...
 
-We may regret to use a certain value, although i agree that 1MB should 
-be sufficient for the future.
+
+Jeff Sipek wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> I think that this makes sense. It would definitely help with designing the 
+> perfect scheduler. One thing tho, I wouldn't use kgdb or any other debugger, 
+> instead I would say that /proc or /sys interface would make more sense. 
+> Simply copy the weights somewhere else, dissect them, and then act 
+> accordingly.
+> 
+> Jeff.
+
+
+Well, we have this to deal with:  Someone is exercising the scheduler 
+and notices some kind of misscheduling which causes the system to crawl.
+
+How are they going to get to the /proc and /sys directories to do much 
+of anything?  The system is completely unresponsive.  Furthermore, even 
+if the system IS responsive, we need some way to for the user to hit a 
+key and freeze the current state for examination.  Some slow-downs last 
+only seconds, but we need to be able to catch them.
+
+
+You talk about weights.  Would the linux community be willing to put a 
+neural net into the kernel?  I'm sure we could optimize it to not take a 
+lot of processing overhead, but it's an "unknown".  It would be scary to 
+some people to be unable to disect the actual workings of it and have no 
+way of determining corner-case behavior from examining code.  But if we 
+have, say, only a 2-layer neural net, we might still be able to 
+reverse-engineer it.
+
+
+One thing I was thinking of is that if there is some information about a 
+process which is inconvenient to get normally but could be accessed by a 
+kernel or user-space thread, then this process could feed back info to 
+the scheduler AI for it to do automatic tuning.  Some information that 
+the scheduler doesn't have direct (or efficient) access to could be 
+inferred from information it DOES have access to, and that would be 
+learned through adjustment of weights via backpropogation.
 

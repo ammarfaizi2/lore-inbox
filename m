@@ -1,80 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262576AbTHaKkK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 06:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTHaKkK
+	id S261623AbTHaKfI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 06:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbTHaKfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 06:40:10 -0400
-Received: from AMontsouris-108-1-27-240.w81-49.abo.wanadoo.fr ([81.49.162.240]:42112
-	"EHLO paldrick.research.newtrade.nl") by vger.kernel.org with ESMTP
-	id S262576AbTHaKkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 06:40:04 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Fredrik Noring <noring@nocrew.org>
-Subject: Re: 2.6.0-test4: uhci-hcd.c: "host controller process error", slab call trace
-Date: Sun, 31 Aug 2003 12:40:55 +0200
-User-Agent: KMail/1.5.1
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Johannes Erdfelt <johannes@erdfelt.com>,
-       linux-usb-devel@lists.sourceforge.net
-References: <1062281812.3378.50.camel@h9n1fls20o980.bredband.comhem.se> <200308310136.02093.baldrick@wanadoo.fr> <1062323761.3036.31.camel@h9n1fls20o980.bredband.comhem.se>
-In-Reply-To: <1062323761.3036.31.camel@h9n1fls20o980.bredband.comhem.se>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Sun, 31 Aug 2003 06:35:08 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:53999 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261623AbTHaKfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 06:35:01 -0400
+Date: Sun, 31 Aug 2003 12:34:52 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: ghugh Song <ghugh@kjist.ac.kr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx_osm.c compilation failure in linux-2.4.22
+Message-ID: <20030831103452.GS7038@fs.tum.de>
+References: <20030828131615.A83F17497B@bellini.kjist.ac.kr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308311240.55716.baldrick@wanadoo.fr>
+In-Reply-To: <20030828131615.A83F17497B@bellini.kjist.ac.kr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 31 August 2003 11:56, Fredrik Noring wrote:
-> sön 2003-08-31 klockan 01.36 skrev Duncan Sands:
-> > Does the attached patch help?
->
-> Yes, I did some quick tests and the "host controller" error appears to
-> be gone. Thanks! There are a few other problems, probably unrelated to
-> this patch:
+On Thu, Aug 28, 2003 at 10:16:15PM +0900, ghugh Song wrote:
+> 
+> Compile failure as follows:
+> 
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.22/include -Wall -Wstrict-prototypes
+> -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe
+> -mpreferred-stack-boundary=2 -march=pentium4
+> -I/usr/src/linux-2.4.22/drivers/scsi -Werror -nostdinc -iwithprefix include
+> -DKBUILD_BASENAME=aic7xxx_osm  -c -o aic7xxx_osm.o aic7xxx_osm.c
+> In file included from /usr/src/linux-2.4.22/include/linux/blk.h:4,
+>                  from aic7xxx_osm.h:63,
+>                  from aic7xxx_osm.c:122:
+> /usr/src/linux-2.4.22/include/linux/blkdev.h: In function `blk_queue_bounce':
+> /usr/src/linux-2.4.22/include/linux/blkdev.h:194: warning: comparison between
+> signed and unsigned
+> /usr/src/linux-2.4.22/include/linux/blkdev.h: In function
+> `blk_finished_sectors':
+> /usr/src/linux-2.4.22/include/linux/blkdev.h:335: warning: comparison between
+> signed and unsigned
+> aic7xxx_osm.c: In function `ahc_linux_setup_tag_info_global':
+> aic7xxx_osm.c:1610: warning: comparison between signed and unsigned
+>...
+> make[4]: *** [aic7xxx_osm.o] Error 1
+> make[4]: Leaving directory `/usr/src/linux-2.4.22/drivers/scsi/aic7xxx'
+> make[3]: *** [first_rule] Error 2
+> make[3]: Leaving directory `/usr/src/linux-2.4.22/drivers/scsi/aic7xxx'
+> make[2]: *** [_subdir_aic7xxx] Error 2
+> make[2]: Leaving directory `/usr/src/linux-2.4.22/drivers/scsi'
+> make[1]: *** [_subdir_scsi] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.4.22/drivers'
+> make: *** [_dir_drivers] Error 2
+> 
+> 
+> =======================================================
+> 
+> 
+> However, I can't find the actual error message.  Strange.
+>...
 
-Yes, they seem unrelated.  I don't know anything about bluetooth, sorry.
+This driver is compiled with -Werror turning ever warning into an error.
 
-By the way, let me explain what the problem was with uhci-hcd.  The usb
-hardware directly accesses your computers memory.  The bug is that it
-could still be accessing a bit of memory after uhci-hcd thought it had
-finished with it and freed up the memory.  This bug has always existed,
-and I guess led to occasional mysterious data corruption, when some
-other part of the kernel started using that bit of memory while the usb
-hardware was still playing with it.  You turned on the "slab debugging"
-option, right?  With this turned on, when uhci-hcd frees the memory it
-gets filled with some garbage values.  The usb hardware reads this
-garbage and barfs, giving a "process error".  In short, you can also
-get rid of the process error messages by turning off slab debugging,
-then the data corruption will be silent again!
+Although you say you are using "linux-2.4.22" it seems you aren't using 
+the ftp.kernel.org 2.4.22 but a modified version (the real 2.4.22 
+doesn't know about -march=pentium4).
 
-> 1. Broadcom Bluetooth USB device initialization is unreliable. When it
->    fails, the following is logged. Rebooting the system and trying again
->    helps.
->
->  /etc/hotplug/usb.agent: Setup bluefw for USB product a5c/2033/a0
->  /etc/hotplug/usb.agent: Module setup bluefw for USB product a5c/2033/a0
->  bluefw[3079]: Loading firmware to usb device 0a5c:2033
->  kernel: usb 1-2: bulk timeout on ep1in
->  bluefw[3079]: Intr read #1 failed. Connection timed out (110)
->  usbfs: USBDEVFS_BULK failed dev 3 ep 0x81 len 10 ret -110
->
-> 2. The system sometimes locks up in a complete freeze when an external
->    Bluetooth device tries to connect. I'm not sure what happens and the
->    only message I've seen is this and it might be unrelated:
->
->  dund[3932]: MSDUN failed. Protocol error(71)
->
-> 3. The following messages are still logged:
->
->  kernel: l2cap_recv_acldata: Frame is too short (len 1)
->  kernel: l2cap_recv_acldata: Unexpected continuation frame (len 124)
->  kernel: l2cap_recv_acldata: Unexpected continuation frame (len 102)
->
-> 	Fredrik
+Perhaps your vendor of this modified kernel source introduced a bug 
+causing this compile error?
+ 
+> Regards,
+> 
+> Hugh
 
-Duncan.
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274973AbTHFJMW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 05:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274977AbTHFJMW
+	id S274970AbTHFJJf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 05:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274985AbTHFJJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 05:12:22 -0400
-Received: from [195.141.226.27] ([195.141.226.27]:54799 "EHLO
-	netline-mail1.netline.ch") by vger.kernel.org with ESMTP
-	id S274973AbTHFJMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 05:12:20 -0400
-Subject: Re: [Dri-devel] [trunk] Regression with latest 2.4.22-rc1 kernel
-	(r200)
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: DRI-Devel <dri-devel@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200308060725.56259.Dieter.Nuetzel@hamburg.de>
-References: <200308060725.56259.Dieter.Nuetzel@hamburg.de>
-Content-Type: text/plain; charset=UTF-8
-Organization: Debian, XFree86
-Message-Id: <1060161135.32133.26.camel@thor.holligenstrasse29.lan>
+	Wed, 6 Aug 2003 05:09:35 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:14343 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S274970AbTHFJJe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 05:09:34 -0400
+Date: Wed, 6 Aug 2003 11:09:20 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, andrea@suse.de,
+       linux-kernel@vger.kernel.org, green@namesys.com
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+Message-ID: <20030806090920.GA9492@alpha.home.local>
+References: <20030802142734.5df93471.skraw@ithnet.com> <Pine.LNX.4.44.0308051340010.2848-100000@logos.cnet> <20030806094150.4d7b0610.skraw@ithnet.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 06 Aug 2003 11:12:16 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030806094150.4d7b0610.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-08-06 at 07:25, Dieter Nützel wrote:
-> The 2.4.22-rc1 radeon.o module is outdate of course.
-> But the DRI CVS radeon.o module wouldn't load any longer.
-> 
-> Linux agpgart interface v0.99 (c) Jeff Hartmann
-> agpgart: Maximum main memory to use for agp memory: 941M
-> agpgart: Detected AMD 760MP chipset
-> agpgart: AGP aperture is 64M @ 0xe8000000
-> 
-> SunWave1 /opt/Mesa# modprobe radeon
-> /lib/modules/2.4.22-rc1-rl/kernel/drivers/char/drm/radeon.o: unresolved symbol 
-> flush_tlb_all
-> /lib/modules/2.4.22-rc1-rl/kernel/drivers/char/drm/radeon.o: insmod 
-> /lib/modules/2.4.22-rc1-rl/kernel/drivers/char/drm/radeon.o failed
-> /lib/modules/2.4.22-rc1-rl/kernel/drivers/char/drm/radeon.o: insmod radeon 
-> failed
+On Wed, Aug 06, 2003 at 09:41:50AM +0200, Stephan von Krawczynski wrote:
+ 
+> Code;  c0144b14 <__remove_from_queues+14/30>
+> 00000000 <_EIP>:
+> Code;  c0144b14 <__remove_from_queues+14/30>   <=====
+>    0:   89 02                     mov    %eax,(%edx)   <=====
+> Code;  c0144b16 <__remove_from_queues+16/30>
+>    2:   c7 41 30 00 00 00 00      movl   $0x0,0x30(%ecx)
+> Code;  c0144b1d <__remove_from_queues+1d/30>
+>    9:   89 4c 24 04               mov    %ecx,0x4(%esp,1)
+> Code;  c0144b21 <__remove_from_queues+21/30>
+>    d:   e9 7a ff ff ff            jmp    ffffff8c <_EIP+0xffffff8c>
+> Code;  c0144b26 <__remove_from_queues+26/30>
+>   12:   8d 76 00                  lea    0x0(%esi),%esi
 
-The kernel basically needs to export flush_tlb_all.
+once again, it's *pprev=next which is is causing trouble, with pprev=6 this
+time (fs/buffer.c:523). There really seems to be something playing badly with
+this...
 
-However, it's probably not really needed for your hardware (it's only
-needed for AGP bridges which don't provide direct CPU access to the
-aperture), so if somebody knows a more sophisticated way to handle this,
-I'm all ears.
+I find amazing that such widely used portions of code only trigger panics on
+your system ! either it's a rare combinations of several components/drivers, or
+a strange hardware problem, although I can't imagine which (cpu? bus locking?).
 
-
--- 
-Earthling Michel Dänzer   \  Debian (powerpc), XFree86 and DRI developer
-Software libre enthusiast  \     http://svcs.affero.net/rm.php?r=daenzer
+Cheers,
+Willy
 

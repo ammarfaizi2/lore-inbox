@@ -1,58 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274295AbRITBki>; Wed, 19 Sep 2001 21:40:38 -0400
+	id <S274211AbRITCAg>; Wed, 19 Sep 2001 22:00:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274298AbRITBk2>; Wed, 19 Sep 2001 21:40:28 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:52498 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S274295AbRITBkH>; Wed, 19 Sep 2001 21:40:07 -0400
-Date: Wed, 19 Sep 2001 21:40:08 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-In-Reply-To: <1000939458.3853.17.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0109192135360.23588-100000@terbidium.openservices.net>
+	id <S272793AbRITB7r>; Wed, 19 Sep 2001 21:59:47 -0400
+Received: from colorfullife.com ([216.156.138.34]:4115 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S272651AbRITB71>;
+	Wed, 19 Sep 2001 21:59:27 -0400
+Message-ID: <3BA8A6DB.F84C3CB3@colorfullife.com>
+Date: Wed, 19 Sep 2001 16:08:27 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-ac9 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: David Howells <dhowells@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
+        Ulrich.Weigand@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Deadlock on the mm->mmap_sem
+In-Reply-To: <Pine.LNX.4.33.0109180948260.2077-100000@penguin.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------EC47045DDDDB1F75C906F158"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm posting this in the hope that someone will find it useful.
+This is a multi-part message in MIME format.
+--------------EC47045DDDDB1F75C906F158
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Worst 20 latency times of 4647 measured in this period.
-  usec      cause     mask   start line/file      address   end line/file
- 35735  spin_lock        1   358/memory.c        c012c74a   379/memory.c
- 14003  spin_lock        1   341/vmscan.c        c013977b   362/vmscan.c
- 13701  spin_lock        1  1376/sched.c         c0118ef9   697/sched.c
- 12533        BKL        7  2689/buffer.c        c0149acc   697/sched.c
- 12459  spin_lock        7   547/sched.c         c0116ca3   697/sched.c
- 10479  spin_lock        1   703/vmscan.c        c013a213   685/vmscan.c
- 10443  spin_lock        1   669/inode.c         c015e8dd   696/inode.c
-  9163   reacqBKL        1  1375/sched.c         c0118edb  1381/sched.c
-  8727        BKL        9   164/inode.c         c0171885   188/inode.c
-  8066   usb-uhci        d    76/softirq.c       c0120cf2   119/softirq.c
-  8041        BKL        9   130/attr.c          c015fbd4   143/attr.c
-  7982  spin_lock        8   547/sched.c         c0116ca3   204/namei.c
-  6920   reacqBKL        5  1375/sched.c         c0118edb   697/sched.c
-  6720  spin_lock        0  1376/sched.c         c0118ef9  1380/sched.c
-  6567  spin_lock        0   661/vmscan.c        c013a0f2   764/vmscan.c
-  6365  spin_lock        0   703/vmscan.c        c013a213   764/vmscan.c
-  5680        BKL        1   452/exit.c          c011f6c6   697/sched.c
-  5646  spin_lock        0   227/inode.c         c015df35   696/inode.c
-  5428  spin_lock        1   710/inode.c         c015ea08   696/inode.c
-  4933  spin_lock        0   547/sched.c         c0116ca3  1380/sched.c
+Linus Torvalds wrote:
+> 
+> If the choice is between a hack to do strange and incomprehensible things
+> for a special case, and just making the semaphores do the same thing
+> rw-spinlocks do and make the problem go away naturally, Ill take #2 any
+> day. The patches already exist, after all.
+>
 
-This was taken after compiling several packages and running dbench a few
-times.
+I've attached a recursive semaphore patch against 2.4.10-pre11 - but it
+makes mmap io unusable:
 
-I also ran it previously while running 'while true ; do python -c range\(3e7\)
-; done', and the first line had minimum latencies of 10000, going as high as
-about 96000 when swapping.
+Testcase:
+* file, mmaped, 300 MB, 128 MB Ram
+* 2 threads: touch random pages 
+* third thread: calls mprotect(0xFFFF00000,0x1000, PAGE_READ)
 
-This is on an Athlon 1050/100 Asus A7V (KT133) with PC133 CL2 SDRAM running
-2.4.9-ac12-preempt1.
+Result:
+mprotect hangs forever (minutes) with recursive semaphores.
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+With fair semaphores, mprotect returns after ~80 milliseconds with 5
+worker threads, after ~380 milliseconds with 20 worker threads (slow IDE
+disk).
+
+One alternative to David's patch would be moving the locking into the
+coredump handlers - would you prefer that?
+
+--
+	Manfred
+--------------EC47045DDDDB1F75C906F158
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-recursive"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-recursive"
+
+--- 2.4/lib/rwsem-spinlock.c	Sat Apr 28 10:37:27 2001
++++ build-2.4/lib/rwsem-spinlock.c	Wed Sep 19 15:03:28 2001
+@@ -115,7 +115,7 @@
+ 
+ 	spin_lock(&sem->wait_lock);
+ 
+-	if (sem->activity>=0 && list_empty(&sem->wait_list)) {
++	if (sem->activity>=0) {
+ 		/* granted */
+ 		sem->activity++;
+ 		spin_unlock(&sem->wait_lock);
+--- 2.4/arch/i386/config.in	Wed Sep 19 14:36:35 2001
++++ build-2.4/arch/i386/config.in	Wed Sep 19 14:48:06 2001
+@@ -59,8 +59,8 @@
+    define_bool CONFIG_X86_XADD y
+    define_bool CONFIG_X86_BSWAP y
+    define_bool CONFIG_X86_POPAD_OK y
+-   define_bool CONFIG_RWSEM_GENERIC_SPINLOCK n
+-   define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM y
++   define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
++   define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
+ fi
+ if [ "$CONFIG_M486" = "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 4
+
+--------------EC47045DDDDB1F75C906F158--
 

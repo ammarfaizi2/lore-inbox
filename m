@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266381AbUGBCmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUGBCoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266381AbUGBCmh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 22:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUGBCmh
+	id S266386AbUGBCoe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 22:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUGBCoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 22:42:37 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:51633 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S266381AbUGBCmf (ORCPT
+	Thu, 1 Jul 2004 22:44:34 -0400
+Received: from holomorphy.com ([207.189.100.168]:5563 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266386AbUGBCod (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 22:42:35 -0400
-From: dth@ncc1701.cistron.net (Danny ter Haar)
-Subject: Re: SATA problems in 2.6.7-mm[1,5] vanilla works
-Date: Fri, 2 Jul 2004 02:42:35 +0000 (UTC)
-Organization: Cistron
-Message-ID: <cc2i2r$6ta$2@news.cistron.nl>
-References: <200407012352.16816.cova@ferrara.linux.it> <40E48817.3060901@pobox.com> <200407020025.02274.cova@ferrara.linux.it>
-X-Trace: ncc1701.cistron.net 1088736155 7082 62.216.30.38 (2 Jul 2004 02:42:35 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@ncc1701.cistron.net (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Thu, 1 Jul 2004 22:44:33 -0400
+Date: Thu, 1 Jul 2004 19:44:22 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: David Gibson <david@gibson.dropbear.id.au>,
+       Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [BUG] hugetlb MAP_PRIVATE mapping vs /dev/zero
+Message-ID: <20040702024422.GG21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	David Gibson <david@gibson.dropbear.id.au>,
+	Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <40E43BDE.85C5D670@tv-sign.ru> <20040702012012.GC5937@zax>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040702012012.GC5937@zax>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fabio Coatti  <cova@ferrara.linux.it> wrote:
->Alle 23:54, giovedì 1 luglio 2004, Jeff Garzik ha scritto:
->> Fabio Coatti wrote:
->> > I'm having problems with sata starting from 2.6.7-mm1:
->> > the system hangs at boot, during the sata bus scan.
->>
->> does 'acpi=off' fix the problem?
->
->Nope, just tried..I've also reverted bk-acpi patch, without any change. (on 
->mm5)
+On Thu, Jul 01, 2004 at 08:29:18PM +0400, Oleg Nesterov wrote:
+>> We can fix hugetlbfs_file_mmap() or read_zero_pagealigned()
+>> or both.
 
-Strange, since my problem (ICH5 sata controller) does function with
-acpi=off . What hardware do you have ? (mobo/controller)
+On Fri, Jul 02, 2004 at 11:20:12AM +1000, David Gibson wrote:
+> Err... surely we need to fix both, yes?
 
-Danny
+No. /dev/zero is innocent. hugetlb is demanding VM_SHARED semantics
+without actually setting VM_SHARED. /dev/zero tripping over its
+nonstandard pagetable structure is not something to be dealt with
+in /dev/zero itself.
 
--- 
-"If Microsoft had been the innovative company that it calls itself, it 
-would have taken the opportunity to take a radical leap beyond the Mac, 
-instead of producing a feeble, me-too implementation." - Douglas Adams -
 
+-- wli

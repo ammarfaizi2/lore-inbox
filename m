@@ -1,74 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136210AbREDLI2>; Fri, 4 May 2001 07:08:28 -0400
+	id <S136214AbREDLJS>; Fri, 4 May 2001 07:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136189AbREDLIS>; Fri, 4 May 2001 07:08:18 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:5104 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id <S136139AbREDLIH>;
-	Fri, 4 May 2001 07:08:07 -0400
-Message-ID: <3AF28D79.4BC0D1BE@alsa-project.org>
-Date: Fri, 04 May 2001 13:07:37 +0200
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i586)
-X-Accept-Language: it, en
+	id <S136189AbREDLJI>; Fri, 4 May 2001 07:09:08 -0400
+Received: from smtp01.web.de ([194.45.170.210]:27908 "HELO smtp.web.de")
+	by vger.kernel.org with SMTP id <S136139AbREDLIv>;
+	Fri, 4 May 2001 07:08:51 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Rene Scharfe <l.s.r@web.de>
+Reply-To: l.s.r@web.de
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] strtok -> strsep (The Easy Cases)
+Date: Fri, 4 May 2001 13:07:56 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m14vTua-001QLyC@mozart>
+In-Reply-To: <m14vTua-001QLyC@mozart>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: David Woodhouse <dwmw2@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: unsigned long ioremap()?
-In-Reply-To: <3AF10E80.63727970@alsa-project.org>
-		<Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg>
-		<15089.979.650927.634060@pizda.ninka.net>
-		<11718.988883128@redhat.com>
-		<3AF12B94.60083603@alsa-project.org>
-		<15089.63036.52229.489681@pizda.ninka.net>
-		<3AF25700.19889930@alsa-project.org> <15090.23187.739430.925103@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01050413055100.00907@golmepha>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> Abramo Bagnara writes:
->  > it's perfectly fine to have:
->  >
->  > regs = (struct reg *) ioremap(addr, size);
->  > foo = readl((unsigned long)&regs->bar);
->  >
-> 
-> I don't see how one can find this valid compared to my preference of
-> just plain readl(&regs->bar); You're telling me it's nicer to have the
-> butt ugly cast there which serves no purpose?
+Am Freitag,  4. Mai 2001 02:57 schrieb Rusty Russell:
+> In message <01050120580701.01713@golmepha> you write:
+> > Hello,
 
-It's right API a bit misused (to allow your request to use fields by
-name)
+Hi!
 
-i.e. foo = readl((unsigned long)&regs->bar);
+> >
+> > the patch at the bottom does the bulk job of strtok replacement. It's a
+> > very boring patch, containing easy cases, only. It became a bit big, too,
+> > but I trust you can digest it nevertheless. It's made against kernel
+> > version 2.4.4.
+>
+> There are two cases where the substitution is problematic:
 
-vs a wrong API that need a cast to be used correctly
+Yes, but...
 
-i.e. rme9652->iobase = (unsigned long) ioremap(rme9652->port,
-RME9652_IO_EXTENT);
+The cases which my patch modifies are of a different kind:
 
-Taken in account that the main point is to not have fake pointers here
-and there, my choice would be obvious.
+	int parse_options(char *options)
+	{
+		char *p;
 
-> One could argue btw that structure offsets are less error prone to
-> code than register offset defines out the wazoo.
+		/* for (p = strtok(options, ","); p; p = strtok(NULL, ",")) { */
+		while (p = strsep(&options, ",")) {
+			/* ... */
+		}
+		return 0;
+	}
 
-offset defines are never correct on some architecture while being
-incorrect on some other, that's the whole point: a wrong #define is
-likely squashed during the very first phase of driver development.
+No temporary array, no kfree(). Our variable "options" is used for strtsep,
+only. Notice btw. how we destoy the string content to which "options"
+points with both strtok and strsep.
 
--- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
+That said, it's possible I made a stupid mistake, of course. Or two. Do
+you agree on the correctness of the code above? If not, forget the whole
+thing and I'll try again later.
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
 
-ALSA project               http://www.alsa-project.org
-It sounds good!
+>
+> Array:
+> 	char tmparray[500];
+> 	strcpy(tmparray, str);
+>
+> 	/* for (p = strtok(tmparray, "n"); p; p = strtok(NULL, "n")) { */
+> 	while ((p = strsep(&tmparray, ","))) {
+>
+> This is clearly wrong, and invokes a compiler warning.  &tmparray ==
+> tmparray (a cute C oddity I've never really liked).  You are blowing
+> away the first few characters in tmparray, and your parser won't work
+> properly.
+>
+> Dynamic:
+>
+> 	char *tmp = strdup(str);
+>
+> 	/* for (p = strtok(tmp, "n"); p; p = strtok(NULL, "n")) { */
+> 	while ((p = strsep(&tmp, ","))) {
+> 	...
+> 	}
+>
+> 	kfree(tmp);
+>
+> Here, tmp has changed in the strsep implementation, and kfree will do
+> bad things.
+>
+> There is a real reason to avoid strtok, and that is SMP and multple
+> threads calling it at once (that said, I don't know of a problem yet).
+> But this patch is a step backwards.
+>
+> Rusty.
+> --
+> Premature optmztion is rt of all evl. --DK
+
+
+René
+

@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUFETIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbUFETM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbUFETIo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 15:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUFETIo
+	id S262170AbUFETM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 15:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUFETM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 15:08:44 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:53517 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261914AbUFETIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 15:08:41 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Pods" <pods@dodo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: lotsa oops - 2.6.5 (preempt + unable handle virutal address + more?)
-Date: Sat, 5 Jun 2004 22:00:37 +0300
-User-Agent: KMail/1.5.4
-References: <E1BWd4f-000893-00@mail.kbs.net.au>
-In-Reply-To: <E1BWd4f-000893-00@mail.kbs.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Sat, 5 Jun 2004 15:12:56 -0400
+Received: from laska.dorms.spbu.ru ([195.19.252.72]:62630 "EHLO
+	laska.dorms.spbu.ru") by vger.kernel.org with ESMTP id S262170AbUFETMx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 15:12:53 -0400
+Date: Sat, 5 Jun 2004 23:12:51 +0400
+From: Mikhail Kshevetskiy <kl@laska.dorms.spbu.ru>
+To: linux-kernel@vger.kernel.org
+Subject: framebuffer trouble with AGP MGA G450 and PCI MGA 2064W videocards.
+Message-Id: <20040605231251.1f584e87@laska>
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406052200.37404.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 June 2004 18:27, Pods wrote:
-> >> Run memtest86
-> Tried once before, didnt boot... died :( memtest page says this happens on
-> some hardware and they're not sure why.
+i have two matrox videocard. The primary is dualhead AGP MGA G450 and the
+secondary is PCI MGA 2064W. I have a 2.6 kernel compiled with options
 
-Ho hum. Looks like good starting point to debug.
-Remove RAM until you have <= 2 GB, then run memtest86
-(or modified versions of it with debug prints)
-until you know where it dies.
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_MILLENIUM=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_MATROX_MULTIHEAD=y
 
-> >> Underclock your system
-> its not over clocked :/
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
 
-I mean, underclock below normal conditions.
+In BIOS I select AGP card as primary, but framebuffer initialise PCI card
+first. So fb0 point to PCI card, fb1 and fb2 point to AGP card. As a
+result framebuffer console working on another monitor. How can I link fb0
+and fb1 with AGP card and fb2 with PCI card ?
 
-> >> lower IDE DMA mode and see whether it stops oopsing.
->
-> tried setting dma = off in hdparm, didnt work, still got crashes compiling
-> firebird.. infact, it didnt even get passed the ./configure stage :(
+Please CC me, as i am not subscribed to the list
 
-Use hdparm to set, say, udma0.
 
-> Each time (just about, didnt do it once out of 6ish times) i set the dma to
-> off (either at boot or runtime) i got a "spurious 8259A interript: IRQ 7"..
-> apparantly, iirc that debug message has been taken out of 2.6.6
-
-I have 'em too. Not a real issue on lots of systems.
-
-> Please guys, CC me your responces, otherwise i have to look at some
-> archives, and reply via webmail... it took 2 firefox crashes (one of which
-> brought down X) to just right this message... now im going to take a chance
-> and hit the submit
-> button
---
-vda
-
+Mikhail Kshevetskiy

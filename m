@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264734AbTFAV1T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 17:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264735AbTFAV1T
+	id S264735AbTFAVfO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 17:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264736AbTFAVfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 17:27:19 -0400
-Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:6807 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id S264734AbTFAV1S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 17:27:18 -0400
-Subject: Re: 2.5.70: scripts/Makefile.build fix
-From: Kenneth Johansson <ken@kenjo.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Stig Brautaset <stig@brautaset.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030601204422.GA1021@mars.ravnborg.org>
-References: <20030601184335.GA31452@brautaset.org>
-	 <20030601204422.GA1021@mars.ravnborg.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054503639.5045.2.camel@tiger>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 01 Jun 2003 23:40:39 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Jun 2003 17:35:14 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:17538
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264735AbTFAVfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 17:35:13 -0400
+Date: Sun, 1 Jun 2003 17:38:02 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+cc: Willy Tarreau <willy@w.ods.org>,
+       Daniel Podlejski <underley@underley.eu.org>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: AIC7xxx problem
+In-Reply-To: <2878250000.1054503467@aslan.scsiguy.com>
+Message-ID: <Pine.LNX.4.50.0306011730540.19313-100000@montezuma.mastecende.com>
+References: <20030531165945.GA5561@witch.underley.eu.org>
+ <20030601083656.GI21673@alpha.home.local> <2859720000.1054499680@aslan.scsiguy.com>
+ <Pine.LNX.4.50.0306011647431.19313-100000@montezuma.mastecende.com>
+ <2878250000.1054503467@aslan.scsiguy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-06-01 at 22:44, Sam Ravnborg wrote:
-> On Sun, Jun 01, 2003 at 07:43:35PM +0100, Stig Brautaset wrote:
-> > Hi, 
-> > 
-> > This patch seems to fix `make V=0' for me.
-> 
-> Thanks for the patch.
-> I do not see the broken behaviour here. Can you provide me with information
-> about your system:
-> Make version, shell, architecture, distribution.
-> 
-> I got one report in private mail about make V=0 was broken, and would like
-> to find out what is causing the problem.
+On Sun, 1 Jun 2003, Justin T. Gibbs wrote:
 
-GNU Make 3.80
-GNU bash, version 2.05b.0(1)-release (i386-pc-linux-gnu)
-Debian unstable.
+> Daniel is comparing 2.4.20-ac2 with 2.4.21-rc6.  In 2.4.20-ac2, APIC
+> routing is disabled by default and his kernel works.  In 2.4.21-rc6,
+> APIC routing is enabled by default and interrupts are not properly
+> routed to his SCSI controller.  If he boots with noapic, everything
+> works fine.  You'll have to ask Daniel for more details on his system
+> if you want to figure out why interrupts are not being delivered.
+> All I know is, from the output and his testing, it is pretty obvious
+> that interrupts are not being delivered.
 
+Ok i'll ask him about the details, but i've posted on a number of 
+occasions about aic7xxx oopsing unless i boot with noapic. Interrupts do 
+get delivered otherwise it wouldn't even get to mounting root. I can't 
+give you a 2.5.70 boot because raid is horked there too. If you want me to 
+fish out the emails again i can do that.
 
+	Zwane
 
+-- 
+function.linuxpower.ca

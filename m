@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbUL3AMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbUL3APy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbUL3AMH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 19:12:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbUL3AJx
+	id S261469AbUL3APy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 19:15:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUL3APx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 19:09:53 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:62341 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261457AbUL3AIx
+	Wed, 29 Dec 2004 19:15:53 -0500
+Received: from ridcully.inittab.de ([213.146.113.136]:15572 "EHLO
+	mail1.inittab.de") by vger.kernel.org with ESMTP id S261469AbUL3APd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 19:08:53 -0500
-Date: Thu, 30 Dec 2004 01:07:52 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.10-bk1 4/5] pci-ide: fix the incorrect returns for the generic driver
-Message-ID: <20041230000752.GC2217@electric-eye.fr.zoreil.com>
-References: <1104158258.20952.44.camel@localhost.localdomain> <20041228205553.GA18525@electric-eye.fr.zoreil.com> <58cb370e04122813152759d94f@mail.gmail.com> <20041230000302.GA4267@electric-eye.fr.zoreil.com> <20041230000455.GA2217@electric-eye.fr.zoreil.com> <20041230000622.GB2217@electric-eye.fr.zoreil.com>
+	Wed, 29 Dec 2004 19:15:33 -0500
+Date: Thu, 30 Dec 2004 01:15:27 +0100
+From: Norbert Tretkowski <tretkowski@inittab.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: 2.6.10 - CMSPAR in mxser.c undeclared
+Message-ID: <20041230001527.GA32554@rollcage.inittab.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041229081957.GA31981@rollcage.inittab.de> <1104331638.30080.14.camel@localhost.localdomain> <20041229230334.GO26051@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041230000622.GB2217@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <20041229230334.GO26051@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates ide/pci/generic.c to fix the incorrect returns
-causing PCI devices to be left reserved wrongly by the driver. It
-doesn't contain the other -ac improvements for pci/generic just these
-fixes.
+* Al Viro wrote:
+> On Wed, Dec 29, 2004 at 07:56:45PM +0000, Alan Cox wrote:
+> > On Mer, 2004-12-29 at 08:19, Norbert Tretkowski wrote:
+> > > {standard input}: Assembler messages:
+> > > {standard input}:5: Warning: setting incorrect section attributes for .got
+> > > drivers/char/mxser.c: In function `mxser_ioctl_special':
+> > > drivers/char/mxser.c:1564: error: `CMSPAR' undeclared (first use in this function)
+> > > drivers/char/mxser.c:1564: error: (Each undeclared identifier is reported only once
+> > > drivers/char/mxser.c:1564: error: for each function it appears in.)
+> > 
+> > What environment/architecture are you building this on (having built it
+> > myself just fine ?)
+> 
+> alpha or ppc, for example.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+Yes, alpha.
 
-diff -puN drivers/ide/pci/generic.c~ata-035 drivers/ide/pci/generic.c
---- linux-2.6.10-bk1/drivers/ide/pci/generic.c~ata-035	2004-12-29 23:58:27.261699983 +0100
-+++ linux-2.6.10-bk1-romieu/drivers/ide/pci/generic.c	2004-12-29 23:58:27.264699493 +0100
-@@ -100,18 +100,18 @@ static int __devinit generic_init_one(st
- 	if (dev->vendor == PCI_VENDOR_ID_UMC &&
- 	    dev->device == PCI_DEVICE_ID_UMC_UM8886A &&
- 	    (!(PCI_FUNC(dev->devfn) & 1)))
--		return 1; /* UM8886A/BF pair */
-+		return -ENODEV; /* UM8886A/BF pair */
- 
- 	if (dev->vendor == PCI_VENDOR_ID_OPTI &&
- 	    dev->device == PCI_DEVICE_ID_OPTI_82C558 &&
- 	    (!(PCI_FUNC(dev->devfn) & 1)))
--		return 1;
-+		return -EAGAIN;
- 
- 	pci_read_config_word(dev, PCI_COMMAND, &command);
- 	if(!(command & PCI_COMMAND_IO))
- 	{
- 		printk(KERN_INFO "Skipping disabled %s IDE controller.\n", d->name);
--		return 1; 
-+		return -EAGAIN; 
- 	}
- 	ide_setup_pci_device(dev, d);
- 	return 0;
-
-_
+Norbert

@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbUL0Ax3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbUL0A52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbUL0Ax3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 19:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbUL0Ax3
+	id S261535AbUL0A52 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 19:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbUL0A52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 19:53:29 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:41882 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261535AbUL0Aut (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 19:50:49 -0500
-Subject: PATCH: 2.6.10 - scsi ioctls warnings
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1104104811.16888.20.camel@localhost.localdomain>
+	Sun, 26 Dec 2004 19:57:28 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:42091 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261535AbUL0A5P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 19:57:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=n5/dVKnf3/qmDAxOySwbSULa9f1sfXLosCZF4mT55uJ2cTAYBbgWk+FCpr9Rw9x8HjVXoXSzRaHjPY1bSesG6OFPGbV23IIbxY2aVEXumT9uDgFNPTPMBS1n9AqQUhyENLZjuuJjsj85Aof8abNEf9WIZEw10gjfqtUJiF/xDNA=
+Message-ID: <58cb370e04122616577e1bd33@mail.gmail.com>
+Date: Mon, 27 Dec 2004 01:57:10 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.6.10-ac1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1104103881.16545.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 26 Dec 2004 23:46:51 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1104103881.16545.2.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SCSI ioctls can ask for a lot of memory and fail. We don't need to vomit
-in the log file for this case. Again taken from the Red Hat minor
-patches applied for FC3.
+> 2.6.10-ac1
+> o       Revert AX.25 protocol breakage                  (Alan Cox)
+> o       Remove bogus obsolete option junk from 2.6.10   (Alan Cox)
+>         ide changes
+>         | Options are often useful, so should be kept.
+>         | Especially stuff like serialize
 
-Signed-off-by: Alan Cox <alan@redhat.com>
-Original-patch: Arjan van de Ven <arjanv@redhat.com>
+IMHO this is counter productive.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.10/drivers/block/scsi_ioctl.c linux-2.6.10/drivers/block/scsi_ioctl.c
---- linux.vanilla-2.6.10/drivers/block/scsi_ioctl.c	2004-12-25 21:15:34.000000000 +0000
-+++ linux-2.6.10/drivers/block/scsi_ioctl.c	2004-12-26 17:27:50.889059496 +0000
-@@ -356,7 +356,7 @@
- 
- 	bytes = max(in_len, out_len);
- 	if (bytes) {
--		buffer = kmalloc(bytes, q->bounce_gfp | GFP_USER);
-+		buffer = kmalloc(bytes, q->bounce_gfp | GFP_USER| __GFP_NOWARN);
- 		if (!buffer)
- 			return -ENOMEM;
- 
+Most of these options are pure braindamage (they were obsoleted to
+verify what is what) and they paper over real bugs in core or host drivers.
 
+What do you need 'serialize' option for?
+
+> o       Fix bogus dma_ naming in the 2.6.10 patch       (Alan Cox)
+
+It is on purpose, we really don't need 'ide_' prefix in ide_hwif_t.
+The rest of ide_dma_* functions will lose ide_* prefix over time.
+
+Bartlomiej

@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135431AbRDMHOo>; Fri, 13 Apr 2001 03:14:44 -0400
+	id <S135432AbRDMHXl>; Fri, 13 Apr 2001 03:23:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135432AbRDMHOe>; Fri, 13 Apr 2001 03:14:34 -0400
-Received: from hood.tvd.be ([195.162.196.21]:63922 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S135431AbRDMHO1>;
-	Fri, 13 Apr 2001 03:14:27 -0400
-Date: Fri, 13 Apr 2001 09:13:27 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: lomarcan@tin.it
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI Tape Corruption - update
-In-Reply-To: <Pine.LNX.4.05.10104130858220.2653-100000@callisto.of.borg>
-Message-ID: <Pine.LNX.4.05.10104130907360.2653-100000@callisto.of.borg>
+	id <S135437AbRDMHXW>; Fri, 13 Apr 2001 03:23:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36441 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S135442AbRDMHXK>; Fri, 13 Apr 2001 03:23:10 -0400
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: george anzinger <george@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org,
+        high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
+In-Reply-To: <Pine.LNX.4.10.10104122102170.4564-100000@master.linux-ide.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Apr 2001 01:21:39 -0600
+In-Reply-To: Andre Hedrick's message of "Thu, 12 Apr 2001 21:04:28 -0700 (PDT)"
+Message-ID: <m1snjdtgcc.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Apr 2001, Geert Uytterhoeven wrote:
-> On Thu, 12 Apr 2001 lomarcan@tin.it wrote:
-> > It seems that the tape is written incorrectly. I wrote some large file
-> > (300MB)
-> > and read it back four time. The read copies are all the same. They differ
-> > from the original only in 32 consecutive bytes (the replaced values SEEM
-> > random). Of course, 32 bytes in 300MB tar.gz files are TOO MUCH to be 
-> > accepted :)
+Andre Hedrick <andre@linux-ide.org> writes:
+
+> On Thu, 12 Apr 2001, george anzinger wrote:
 > 
-> In my case, the 32 bad bytes are always a copy of the 32 bytes 10K before (10K
-> = blocksize of tar). Can you verify that's the case for you as well? For
-> reference, I have approx. 6 sequences of corrupted data when writing 256 MB to
-> tape. Reading gives no problems.
+> > Actually we could do the same thing they did for errno, i.e.
+> > 
+> > #define jiffies get_jiffies()
+> > extern unsigned get_jiffies(void);
+> 
+> > No, not really.  HZ still defines the units of jiffies and most all the
+> > timing is still related to it.  Its just that interrupts are only "set
+> > up" when a "real" time event is due.
+> 
+> Great HZ always defines units of jiffies, but that is worthless if there
+> is not a ruleset that tells me a value to divide by to return it to a
+> specific quantity of time.
 
-Forgot some things...
+Actually in rearranging it.  jiffies should probably be redefined as
+the smallest sleep we are prepared to take.  And then HZ because the
+number of those smallest sleeps per second.  So we might see HZ values
+up in the millions but otherwise things should be pretty much as
+normal.
 
-It also happens with dd, so it's not a bug in tar.
-If I set the tar blocksize to 512 bytes, the offset changes to 512 bytes as
-well.
-If I set the tar blocksize to 57*512 bytes, I didn't see a problem (however,
-could have been `good luck').
+It's an interesting question though.  How large should HZ be with
+programmable timers.
 
-The problem seems to be there since at least 2.4.0-test1-ac10, which means
-quite some people may no longer have known good backups of their valuable data
-(of course we should not run 2.[34].x kernels on our systems, right? :-)
-
-Since you have a different SCSI host adapter, the problem is most likely in
-st.c. I was thinking of writing `predictable' data (or checksummed blocks or
-so) to tape and add some data verification tests to st.c at the very last
-moment before it sends a write command to the SCSI host adapter, but I haven't
-found time for that yet.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Eric

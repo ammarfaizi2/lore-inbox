@@ -1,153 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132488AbRA3Vcm>; Tue, 30 Jan 2001 16:32:42 -0500
+	id <S132384AbRA3Vhn>; Tue, 30 Jan 2001 16:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132462AbRA3Vcd>; Tue, 30 Jan 2001 16:32:33 -0500
-Received: from fe070.worldonline.dk ([212.54.64.208]:38919 "HELO
-	fe070.worldonline.dk") by vger.kernel.org with SMTP
-	id <S132155AbRA3VcS>; Tue, 30 Jan 2001 16:32:18 -0500
-Date: Tue, 30 Jan 2001 22:29:52 +0100
-From: Torben Mathiasen <torben@kernel.dk>
-To: linux@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Acorn SCSI loading
-Message-ID: <20010130222952.G873@fry>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-OS: Linux 2.4.1 
+	id <S132462AbRA3Vhd>; Tue, 30 Jan 2001 16:37:33 -0500
+Received: from mailhost.teleline.es ([195.235.113.141]:9512 "EHLO
+	tsmtp5.mail.isp") by vger.kernel.org with ESMTP id <S132384AbRA3VhU>;
+	Tue, 30 Jan 2001 16:37:20 -0500
+Message-ID: <3A7733F6.4070505@terra.es>
+Date: Tue, 30 Jan 2001 22:36:54 +0100
+From: Miguel Rodríguez Pérez <migrax@terra.es>
+Reply-To: migras@atlas.uvigo.es
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i586; en-US; m18) Gecko/20001103
+X-Accept-Language: gl, es, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Crash using DRI with 2.4.0 and 2.4.1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, I have a Matrox G200 card installed on an Ali motherboard.
+Sometimes when I use any opengl program my box crashes. It is more 
+likely that it will crash if I have used the xvideo extension or the 
+matroxfb, but this is not a must, it simply increases the chance of a 
+crash, which is very high anyway.
+I have tried both 2.4.0 and 2.4.1 kernels with Xfree 4.0.2 both with the 
+same results.
+Another problem I am having is that if I enable dri in X I can't see 
+what I type in the fb.
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Please, if someone reports to this, please include myself in the cc, as 
+I am not suscribed to the list.
 
-Hi,
+PD: excuse my horrible English, I write much better in Spanish ;-)
 
-Just noticed the SCSI drivers for the ACORN bus weren't 
-updated to the new initialization. AFAIK these drivers couldn't 
-have been functional without this patch.
-
-
-Patch is against 2.4.1
-
-
-
--- 
-Torben Mathiasen <torben@kernel.dk>
-Linux ThunderLAN maintainer 
-http://opensource.compaq.com
-
-
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="acorn_scsi.diff"
-
-diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/acornscsi.c linux/drivers/acorn/scsi/acornscsi.c
---- /opt/kernel/kernels/linux/drivers/acorn/scsi/acornscsi.c	Tue Sep 19 00:15:22 2000
-+++ linux/drivers/acorn/scsi/acornscsi.c	Tue Jan 30 22:18:50 2001
-@@ -3118,9 +3118,7 @@
-     return pos;
- }
- 
--#ifdef MODULE
- 
- Scsi_Host_Template driver_template = ACORNSCSI_3;
- 
- #include "../../scsi/scsi_module.c"
--#endif
-diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/arxescsi.c linux/drivers/acorn/scsi/arxescsi.c
---- /opt/kernel/kernels/linux/drivers/acorn/scsi/arxescsi.c	Tue Sep 19 00:15:22 2000
-+++ linux/drivers/acorn/scsi/arxescsi.c	Tue Jan 30 22:19:06 2001
-@@ -416,8 +416,6 @@
- 	return pos;
- }
- 
--#ifdef MODULE
- Scsi_Host_Template driver_template = ARXEScsi;
- 
- #include "../../scsi/scsi_module.c"
--#endif
-diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/cumana_1.c linux/drivers/acorn/scsi/cumana_1.c
---- /opt/kernel/kernels/linux/drivers/acorn/scsi/cumana_1.c	Fri Nov 12 01:57:30 1999
-+++ linux/drivers/acorn/scsi/cumana_1.c	Tue Jan 30 22:19:29 2001
-@@ -359,9 +359,7 @@
- 
- #include "../../scsi/NCR5380.c"
- 
--#ifdef MODULE
- 
- Scsi_Host_Template driver_template = CUMANA_NCR5380;
- 
- #include "../../scsi/scsi_module.c"
--#endif
-diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/cumana_2.c linux/drivers/acorn/scsi/cumana_2.c
---- /opt/kernel/kernels/linux/drivers/acorn/scsi/cumana_2.c	Tue Sep 19 00:15:22 2000
-+++ linux/drivers/acorn/scsi/cumana_2.c	Tue Jan 30 22:19:41 2001
-@@ -541,8 +541,6 @@
- 	return pos;
- }
- 
--#ifdef MODULE
- Scsi_Host_Template driver_template = CUMANASCSI_2;
- 
- #include "../../scsi/scsi_module.c"
--#endif
-diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/ecoscsi.c linux/drivers/acorn/scsi/ecoscsi.c
---- /opt/kernel/kernels/linux/drivers/acorn/scsi/ecoscsi.c	Fri Nov 12 01:57:30 1999
-+++ linux/drivers/acorn/scsi/ecoscsi.c	Tue Jan 30 22:19:56 2001
-@@ -233,9 +233,7 @@
- 
- #include "../../scsi/NCR5380.c"
- 
--#ifdef MODULE
- 
- Scsi_Host_Template driver_template = ECOSCSI_NCR5380;
- 
- #include "../../scsi/scsi_module.c"
--#endif
-diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/eesox.c linux/drivers/acorn/scsi/eesox.c
---- /opt/kernel/kernels/linux/drivers/acorn/scsi/eesox.c	Tue Sep 19 00:15:22 2000
-+++ linux/drivers/acorn/scsi/eesox.c	Tue Jan 30 22:20:09 2001
-@@ -543,8 +543,6 @@
- 	return pos;
- }
- 
--#ifdef MODULE
- Scsi_Host_Template driver_template = EESOXSCSI;
- 
- #include "../../scsi/scsi_module.c"
--#endif
-diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/oak.c linux/drivers/acorn/scsi/oak.c
---- /opt/kernel/kernels/linux/drivers/acorn/scsi/oak.c	Fri Nov 12 01:57:30 1999
-+++ linux/drivers/acorn/scsi/oak.c	Tue Jan 30 22:20:51 2001
-@@ -226,9 +226,7 @@
- 
- #include "../../scsi/NCR5380.c"
- 
--#ifdef MODULE
- 
- Scsi_Host_Template driver_template = OAK_NCR5380;
- 
- #include "../../scsi/scsi_module.c"
--#endif
-diff -ur /opt/kernel/kernels/linux/drivers/acorn/scsi/powertec.c linux/drivers/acorn/scsi/powertec.c
---- /opt/kernel/kernels/linux/drivers/acorn/scsi/powertec.c	Tue Sep 19 00:15:22 2000
-+++ linux/drivers/acorn/scsi/powertec.c	Tue Jan 30 22:21:00 2001
-@@ -445,8 +445,6 @@
- 	return pos;
- }
- 
--#ifdef MODULE
- Scsi_Host_Template driver_template = POWERTECSCSI;
- 
- #include "../../scsi/scsi_module.c"
--#endif
-
---ReaqsoxgOBHFXBhH--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

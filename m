@@ -1,117 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265698AbUFXVFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265820AbUFXVHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265698AbUFXVFk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 17:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUFXVDu
+	id S265820AbUFXVHi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 17:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265680AbUFXVGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:03:50 -0400
-Received: from mail.dif.dk ([193.138.115.101]:29135 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S264821AbUFXVCv (ORCPT
+	Thu, 24 Jun 2004 17:06:38 -0400
+Received: from mail.kroah.org ([65.200.24.183]:15267 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265693AbUFXVDW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:02:51 -0400
-Date: Thu, 24 Jun 2004 23:01:44 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Line up CPU caps messages
-Message-ID: <Pine.LNX.4.56.0406242237330.28247@jjulnx.backbone.dif.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Jun 2004 17:03:22 -0400
+Date: Thu, 24 Jun 2004 13:59:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Jeremy Katz <jeremy.katz@gmail.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@osdl.org>,
+       Linus <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       katzj@redhat.com
+Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
+Message-ID: <20040624205936.GA2009@kroah.com>
+References: <20040618165436.193d5d35.sfr@canb.auug.org.au> <40D305B4.4030009@pobox.com> <20040618151753.GA21596@infradead.org> <cb5afee1040620125272ab9f06@mail.gmail.com> <20040621060435.GA28384@kroah.com> <cb5afee10406210914451dc6@mail.gmail.com> <cb5afee10406231415293e90c0@mail.gmail.com> <20040623220303.GD6548@kroah.com> <40DA2272.8050106@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40DA2272.8050106@pobox.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 23, 2004 at 08:38:10PM -0400, Jeff Garzik wrote:
+> >But what you can use is the MODULE_DEVICE_TABLE() information in the
+> >modules to try to help you out here.  That details a mapping of what
+> >kind of devices that specific driver supports.
+> 
+> No, it details what devices a driver supports, not what _type_ of 
+> devices the driver supports.
 
-Andrew,
+Yes, you are correct. 
 
-Here's a patch to line up the "CPU: After * identify, caps:" messages
-produced by printk's in arch/i386/kernel/cpu/common.c
-
-Numbers are easier to compare visually when they line up. Both in dmesg
-output and in logs. It's also more pleasing ro look at this way in my
-oppinion.
-
-I've posted this to lkml previously in a slightly different version that
-drew the comments below from hpa & Dave Jones. This patch makes the
-changes suggested by them - for inclusion in next -mm maybe?
-
-H. Peter Anvin wrote:
-> > Jesper Juhl wrote:
+> >>Note: this should not mean that we then go and remove currently
+> >>existing stuff in /proc.  Deprecate it and then it can go away in time
+> >>as people switch.  Having to have a flag day is very painful.  It's
+> >>far easier to deprecate in one stable series with a new interface
+> >>available and then start removing the old ones as things start to
+> >>switch over.  If it really is an improvement, then getting people to
+> >>change won't be difficult.
 > >
-> > /Very/ minor, trivial thing, yes, but those messages have been annoying my
-> > eyes for a while now so I desided to make them line up - so, here's the
-> > patch that does that (not sure if a signed-off-by line is needed even for
-> > trivial stuff like this, but I assume it should go with everything, so...)
-> > Patch is against 2.6.7-rc3-mm2
 > >
->
-> I think that's what the spaces after CPU: was for... apparently that's
-> gotten
-> forgotten somehow.  Sigh.  Please put the extra spaces all in one place.
+> >I agree, I don't think that many things have disappeared from /proc just
+> >yet, right?  You should just have more information than what you
+> >previously did, right?  Or did scsi drop their /proc support fully?
+> 
+> Concrete example:  modprobe sx8.  Now, what block devices did it detect?
 
+Could we determine this in 2.4?
 
-The patch below has all spaces in the same place as requested.
+Anyway, how about this assuming sx8 is a pci driver:
+	- look in /sys/bus/pci/drivers/sx8/
+	- for every device listed in that directory do:
+		- `tree | grep block` or however you want to search the
+		  tree for the block symlink, find is probably nicer
+		  here.
+		- that gives you the base block device, then go into the
+		  /sys/block/FOUND_BLOCK_DEVICE to find the individual
+		  partitions if needed.
 
+Or work backwards if you want to:
+	- tally up every /sys/block/*/device symlink, and see if they
+	  point to a device owned by the sx8 driver.
 
-Dave Jones wrote:
-> On Tue, Jun 15, 2004 at 11:21:44PM +0200, Jesper Juhl wrote:
->
-> > Visually it's much easier to read/compare messages such as these
-> >
-> > Jun 15 19:09:02 dragon kernel: CPU:     After generic identify, caps: 0183f9ff c1c7f9ff 00000000 00000000
-> > Jun 15 19:09:02 dragon kernel: CPU:     After vendor identify, caps: 0183f9ff c1c7f9ff 00000000 00000000
-> >
-> > if the numbers line up like this
-> >
-> > Jun 15 19:09:02 dragon kernel: CPU:     After generic identify, caps: 0183f9ff c1c7f9ff 00000000 00000000
-> > Jun 15 19:09:02 dragon kernel: CPU:     After vendor identify,  caps: 0183f9ff c1c7f9ff 00000000 00000000
->
-> I think it's pointless whilst the third 'after all inits' printk remains
-> a) unindented  and b) interrupted by other blurb, but in all honesty,
-> I don't think it really matters, so I won't object either way if it goes
-> in.
+Does that work for you?
 
+thanks,
 
-The patch below adresses 'a' by indenting the third line similar to the
-first two. 'b' I'm not able to do anything about, that's beyond my
-abillities currently.
-
-
-Here's the patch, against 2.6.7-mm2.
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
---- linux-2.6.7-mm2-orig/arch/i386/kernel/cpu/common.c	2004-06-24 22:20:43.000000000 +0200
-+++ linux-2.6.7-mm2/arch/i386/kernel/cpu/common.c	2004-06-24 22:35:27.000000000 +0200
-@@ -329,7 +329,7 @@ void __init identify_cpu(struct cpuinfo_
-
- 	generic_identify(c);
-
--	printk(KERN_DEBUG "CPU:     After generic identify, caps: %08lx %08lx %08lx %08lx\n",
-+	printk(KERN_DEBUG "CPU: After generic identify, caps: %08lx %08lx %08lx %08lx\n",
- 		c->x86_capability[0],
- 		c->x86_capability[1],
- 		c->x86_capability[2],
-@@ -338,7 +338,7 @@ void __init identify_cpu(struct cpuinfo_
- 	if (this_cpu->c_identify) {
- 		this_cpu->c_identify(c);
-
--	printk(KERN_DEBUG "CPU:     After vendor identify, caps: %08lx %08lx %08lx %08lx\n",
-+	printk(KERN_DEBUG "CPU: After vendor identify, caps:  %08lx %08lx %08lx %08lx\n",
- 		c->x86_capability[0],
- 		c->x86_capability[1],
- 		c->x86_capability[2],
-@@ -393,7 +393,7 @@ void __init identify_cpu(struct cpuinfo_
-
- 	/* Now the feature flags better reflect actual CPU features! */
-
--	printk(KERN_DEBUG "CPU:     After all inits, caps: %08lx %08lx %08lx %08lx\n",
-+	printk(KERN_DEBUG "CPU: After all inits, caps:        %08lx %08lx %08lx %08lx\n",
- 	       c->x86_capability[0],
- 	       c->x86_capability[1],
- 	       c->x86_capability[2],
-
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
-
+greg k-h

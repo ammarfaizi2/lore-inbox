@@ -1,76 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270271AbTGWNG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 09:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270272AbTGWNG7
+	id S270255AbTGWNFe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 09:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270262AbTGWNFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 09:06:59 -0400
-Received: from ns0.eris.qinetiq.com ([128.98.1.1]:27248 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S270271AbTGWNGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 09:06:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: andersen@codepoet.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Promise SATA driver GPL'd
-Date: Wed, 23 Jul 2003 14:20:28 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030722184532.GA2321@codepoet.org> <20030722185443.GB6004@gtf.org> <20030722190705.GA2500@codepoet.org>
-In-Reply-To: <20030722190705.GA2500@codepoet.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200307231420.28717.m.watts@eris.qinetiq.com>
+	Wed, 23 Jul 2003 09:05:33 -0400
+Received: from dsl2.external.hp.com ([192.25.206.7]:59399 "EHLO
+	dsl2.external.hp.com") by vger.kernel.org with ESMTP
+	id S270255AbTGWNFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 09:05:32 -0400
+Date: Wed, 23 Jul 2003 07:20:37 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: grundler@parisc-linux.org, ak@suse.de, alan@lxorguk.ukuu.org.uk,
+       James.Bottomley@SteelEye.com, axboe@suse.de, suparna@in.ibm.com,
+       linux-kernel@vger.kernel.org, alex_williamson@hp.com,
+       bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+Message-ID: <20030723132037.GA30550@dsl2.external.hp.com>
+References: <20030708213427.39de0195.ak@suse.de> <20030708.150433.104048841.davem@redhat.com> <20030708222545.GC6787@dsl2.external.hp.com> <20030708.152314.115928676.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="2B/JsCI69OhZNC5r"
+Content-Disposition: inline
+In-Reply-To: <20030708.152314.115928676.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+--2B/JsCI69OhZNC5r
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> On Tue Jul 22, 2003 at 02:54:43PM -0400, Jeff Garzik wrote:
-> > Bart, Alan, and I have been looking at this.  It uses the ancient CAM
-> > model, that we don't really want to merge directly in the kernel.  It's
-> > very close to the libata model, from the user perspective, so life is
-> > good.
->
-> I was reading over your libata driver yesterday.  Certainly a lot
-> cleaner than the cam stuff IMHO.  Given the info made available
-> via the Promise driver, I expect that I could get an initial
-> libata host adaptor driver hacked together in short order.  After
-> all, the Intel one is just 400 lines.  So unless you (or anyone
-> else) have already started or would prefer to do the honors,
-> I'll try to hack something together this evening,
->
->  -Erik
+On Tue, Jul 08, 2003 at 03:23:14PM -0700, David S. Miller wrote:
+> dbench type stuff,
 
+realizing dbench is blissfully ignorant of the system (2GB RAM),
+for grins I ran "dbench 500" to see what would happen. The throughput
+rate dbench reported continued to decline to ~20MB/s. This is about what
+I would expect for one disk a 40MB/s SCSI bus.
 
-Oooh Oooh!!!!
+Then dbench started spewing errors:
+...
+(7) ERROR: handle 13781 was not found
+(6) open clients/client428 failed for handle 13781 (No such file or
+directory)
+(7) ERROR: handle 13781 was not found
+(6) open clients/client423 failed for handle 13781 (No such file or directory)
+(7) ERROR: handle 13781 was not found
+(6) open clients/client48 failed for handle 13781 (No such file or directory)
+(7) ERROR: handle 13781 was not found
+(6) open clients/client55 failed for handle 13781 (No such file or directory)
+(7) ERROR: handle 13781 was not found
+(6) open clients/client419 failed for handle 13781 (No such file or directory)
+(7) ERROR: handle 13781 was not found
+(6) open clients/client415 failed for handle 13781 (No such file or directory)
+...
+write failed on handle 13783
+write failed on handle 13707
+write failed on handle 13808
+write failed on handle 13117
+write failed on handle 13850
+write failed on handle 14000
+write failed on handle 13767
+write failed on handle 13787
+...
 
-I have an onboard Promise SATA chip - the 30276 (its on an MSI KT4A Ultra 
-board), which gives me two SATA and one PATA ports (only use 2 at a time)...
+NFC what that's all about. sorry - I have to punt on digging deeper.
+I really need more guidance on
+	(a) how much memory I should be testing with
+	(b) how many spindles would be useful (I've got ~15 on each box)
+	(c) how to tell dbench to use the FS mounted on the target disks.
 
-If you want someone to test...  I can slap a PATA drive onto the PATA port, 
-but I've been holding off getting any SATA drives until I can use them under 
-linux, although I'm running out of drive space so this is quite timely... :)
+I've attached the iommu stats in case anyone finds that useful.
 
-Cheers,
+grant
 
-Mark
+--2B/JsCI69OhZNC5r
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=dbench-zx1-01
 
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
+Hewlett Packard zx1 IOC rev 2.2
+IO PDIR size    : 524288 bytes (65536 entries)
+IO PDIR entries : 65224 free  312 used (0%)
+Resource bitmap : 8192 bytes (65536 pages)
+  Bitmap search : 63/106/605 (min/avg/max CPU Cycles)
+pci_map_single():       139846 calls        139881 pages (avg 1000/1000)
+pci_unmap_single:       473108 calls        736788 pages (avg 1557/1000)
+pci_map_sg()    :        51256 calls        597211 pages (avg 11651/1000)
+pci_map_sg()    : 734319 entries 333551 filled
+pci_unmap_sg()  :       189496 calls        735471 pages (avg 3881/1000)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/HoucBn4EFUVUIO0RAmwjAJ9/IY3N+AdOdNmfKwPkPoXfDw+PEgCgm7XD
-tR56nTVC9b0u8aBZMhWaTag=
-=QsVB
------END PGP SIGNATURE-----
-
+--2B/JsCI69OhZNC5r--

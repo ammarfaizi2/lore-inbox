@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264364AbUBHXDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 18:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbUBHXDZ
+	id S264383AbUBHXLt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 18:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264391AbUBHXLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 18:03:25 -0500
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:24729 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S264364AbUBHXDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 18:03:22 -0500
-Date: Mon, 9 Feb 2004 00:03:14 +0100
-To: linux-kernel@vger.kernel.org, vojtech@suse.cz,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: psmouse.c, throwing 3 bytes away
-Message-ID: <20040208230314.GA21937@fubini.pci.uni-heidelberg.de>
-References: <20040208215935.GA13280@ucw.cz> <20040208221933.92D0B3F1B@latitude.mynet.no-ip.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040208221933.92D0B3F1B@latitude.mynet.no-ip.org>
-User-Agent: Mutt/1.3.28i
-From: Bernd Schubert <Bernd.Schubert@tc.pci.uni-heidelberg.de>
+	Sun, 8 Feb 2004 18:11:49 -0500
+Received: from mail2.scram.de ([195.226.127.112]:27655 "EHLO mail2.scram.de")
+	by vger.kernel.org with ESMTP id S264383AbUBHXLr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 18:11:47 -0500
+Date: Mon, 9 Feb 2004 00:11:30 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@localhost
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: tms380tr patch 2a/3 (queue fix in header)
+Message-ID: <Pine.LNX.4.58.0402090009110.1327@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 08, 2004 at 11:19:32PM +0100, aeriksson@fastmail.fm wrote:
-> 
-> > 
-> > > Problem still occurs :-(
-> > 
-> > I have good news - I've managed to reliably reproduce the bug on my
-> > machine and that means I now have a good chance to find and fix it.
-> > 
-> 
-> Another data point. I just tried switching to a non-preempt kernel as
-> was suggested by someone. The problem still occurs.
-> 
+Hi Jeff,
 
-Hello,
+this patch belongs to the queue fix tms380tr patch 2/3. It deletes the
+no longer needed stuff from the header file.
 
-on IBM Thinkpads R31 this is also easiliy to reproduce:
+--jochen
 
-For 2.6. one only needs to read from /proc/apm or /proc/acpic/...
-and the mouse becomes crazy and one gets the throwing 2 bytes away
-messages in the log files. By fast reading in an endless loop even
-input from the keyboard is ignored.
+diff -u -p -r1.7 tms380tr.h
+--- drivers/net/tokenring/tms380tr.h	25 Apr 2003 05:59:05 -0000	1.7
++++ drivers/net/tokenring/tms380tr.h	25 Jan 2004 18:40:36 -0000
+@@ -598,7 +598,6 @@ typedef struct {
+ 				 * in one RPL/TPL. (depending on TI firmware
+ 				 * version)
+ 				 */
+-#define MAX_TX_QUEUE	    10	/* Maximal number of skb's queued in driver. */
 
-For 2.4. this only happens on reading from /proc/apm, somehow acpi is not
-affected in 2.4. kernel versions.
+ /*
+  * AC (1), FC (1), Dst (6), Src (6), RIF (18), Data (4472) = 4504
+@@ -1114,9 +1113,6 @@ typedef struct net_local {
+ 	unsigned long StartTime;
+ 	unsigned long LastSendTime;
 
-Well, for R31's it is said that it is the bad bios, but maybe its
-related? Any ideas why it doesn't happen with acpi and 2.4.? 
+-	struct sk_buff_head SendSkbQueue;
+-	unsigned short QueueSkb;
+-
+ 	struct tr_statistics MacStat;	/* MAC statistics structure */
 
-My knowlege of the kernel interals is quite low and pretty much limited
-to the basic vfs area, so could you please give me some good advises how to
-debug this?
-
-Thanks,
-	Bernd
+ 	unsigned long dmalimit; /* the max DMA address (ie, ISA) */

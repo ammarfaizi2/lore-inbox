@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265628AbSKOCpM>; Thu, 14 Nov 2002 21:45:12 -0500
+	id <S265643AbSKOCrQ>; Thu, 14 Nov 2002 21:47:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265636AbSKOCpL>; Thu, 14 Nov 2002 21:45:11 -0500
-Received: from packet.digeo.com ([12.110.80.53]:38380 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265628AbSKOCpL>;
-	Thu, 14 Nov 2002 21:45:11 -0500
-Message-ID: <3DD4614B.A57EE8C5@digeo.com>
-Date: Thu, 14 Nov 2002 18:51:55 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+	id <S265647AbSKOCrP>; Thu, 14 Nov 2002 21:47:15 -0500
+Received: from blacksea.dsdns.net ([66.78.32.3]:10477 "EHLO blacksea.bsdns.net")
+	by vger.kernel.org with ESMTP id <S265643AbSKOCrJ> convert rfc822-to-8bit;
+	Thu, 14 Nov 2002 21:47:09 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Eric Northup <lkml@digitaleric.net>
+Reply-To: mailing-lists@digitaleric.net
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
 Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Date: Thu, 14 Nov 2002 21:53:56 -0500
+User-Agent: KMail/1.4.2
 References: <1037325839.13735.4.camel@rth.ninka.net> <396026666.1037298946@[10.10.2.3]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Nov 2002 02:51:56.0493 (UTC) FILETIME=[F5DCE7D0:01C28C51]
+In-Reply-To: <396026666.1037298946@[10.10.2.3]>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211142153.56373.lkml@digitaleric.net>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - blacksea.bsdns.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - digitaleric.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
-> 
-> > While I have this on my mind I want to express this now since the
-> > very first bug that hit my mailbox had this issue.
-> >
+On Thursday 14 November 2002 09:35 pm, Martin J. Bligh wrote:
 > > I DO NOT want to be working on bugs on anything other than Linus's
 > > actualy sources.  The first bug I got was a networking bug with
 > > Andrew Morton's -mm patches applied.
-> >
-> > This isn't going to work if that is what people are going to be
-> > allowed to do.
-> >
-> > I want to suggest that all reported bug in the database must be
-> > reporducable with some release done by Linus or his BK sources.
-> > And also that we can automatically close any BUG submissions that
-> > have other patches applied.
-> 
+[snip
 > Hmmm ... I'm not sure that being that restrictive is going to help.
 > Whilst bugs against any randomly patched version of the kernel
 > probably aren't that interesting, things in major trees like -mm,
@@ -46,20 +39,9 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > anyway ... wouldn't you rather know of the breakage sooner rather
 > than later?
 
-Well for that particular tree, the diff from mainline is quite
-small, and those diffs are avowedly experimental.  That's why
-it exists - the get fresh code some testing and exposure.
+Would this be an appropriate use of the "version" tag in Bugzilla?  Currently 
+the only choice is "2.5", but if that were renamed to "2.5-linus", then the 
+other heavily used patchsets could be monitored while making it easy for 
+people who only want to see bugs in Linus' tree.
 
-So people will need to use their judgement as to whether the
-problem is in 2.5.47, or in the -bk snapshot which was taken from
-Linus, or in the -mm addons.
-
-If in doubt, people should go for the mailing list first.   Because
-
-a) the response time will be better
-b) more people will see it
-c) the owners of the add-on patches can screen it quickly.
-
-But hey.  It's early days yet, and it is easy to overdesign this 
-sort of thing.  I'd say just start using the thing, and adapt
-the work processes later on, based on some experience.
+-Eric

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbSLHRd0>; Sun, 8 Dec 2002 12:33:26 -0500
+	id <S261426AbSLHRbI>; Sun, 8 Dec 2002 12:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261433AbSLHRd0>; Sun, 8 Dec 2002 12:33:26 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:42885 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261427AbSLHRdZ>;
-	Sun, 8 Dec 2002 12:33:25 -0500
-Date: Sun, 8 Dec 2002 17:38:16 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Z F <mail4me9999@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU cache problem
-Message-ID: <20021208173816.GB12941@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Z F <mail4me9999@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20021207043158.45345.qmail@web20420.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021207043158.45345.qmail@web20420.mail.yahoo.com>
-User-Agent: Mutt/1.4i
+	id <S261524AbSLHRbI>; Sun, 8 Dec 2002 12:31:08 -0500
+Received: from leon-2.mat.uni.torun.pl ([158.75.2.64]:32739 "EHLO
+	leon-2.mat.uni.torun.pl") by vger.kernel.org with ESMTP
+	id <S261426AbSLHRbH>; Sun, 8 Dec 2002 12:31:07 -0500
+Date: Sun, 8 Dec 2002 18:38:23 +0100 (CET)
+From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+X-X-Sender: golbi@anna
+To: Peter Waechtler <pwaechtler@mac.com>
+cc: linux-kernel@vger.kernel.org, <wrona@mat.uni.torun.pl>
+Subject: Re: POSIX message queues, 2.5.50
+In-Reply-To: <200212061232.28578.pwaechtler@mac.com>
+Message-ID: <Pine.GSO.4.40.0212081826390.4105-100000@anna>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 06, 2002 at 08:31:58PM -0800, Z F wrote:
- > Hello everybody
- > 
- > Sorry to bother you with such a question, but I have a 
- > Intel 1.7GHz Celeron processor with ASUS P4S533 motherboard.
- > The problem I have is that cat /proc/cpuinfo reports that
- > 
- > cache size      : 20 KB
- > 
- > As far as I know, the CPU has 128K L2 cache.
- > 
- > The kernel version installed on my computer is 2.4.18.
+On Fri, 6 Dec 2002, Peter Waechtler wrote:
+>
+> >  - our implementation does support priority scheduling which is omitted in
+> > Peter's version (meaning that if many processes wait e.g. for a message
+> > _random_ one will get it). It is important because developers could rely
+> > on this feature - and it is as I think the most difficult part of
+> > implementation
+>
+> Well, can you give an realistic and sensible example where an app design
+> really takes advantage on this?
+>
+> If I've got a thread pool listening on the queue, I _expect_ non
+> predictability on which thread gets which message:
 
-This bug is fixed in Marcelo's current tree, fix will be in 2.4.20pre1
- 
- > I tried using cachesize=128 as a boot parameter, but it did not help.
+But someone could. When you implement POSIX message queues you have to
+follow the standard and not write something similar to it.
+Even if you mention in docs that your mqueues aren't strictly POSIX,
+someone can miss it and end up with hard to explain "bug" in his program.
+BTW as your implementation will act randomly I can't see how you will
+handle multiple readers (maybe except some trivial cases).
 
-Also a fix for a different bug where this gets used too late.
+Regards,
 
-		Dave
- 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Krzysiek
+

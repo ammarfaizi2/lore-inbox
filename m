@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265857AbTATOSE>; Mon, 20 Jan 2003 09:18:04 -0500
+	id <S265885AbTATOTd>; Mon, 20 Jan 2003 09:19:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265880AbTATOSE>; Mon, 20 Jan 2003 09:18:04 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:34579 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S265857AbTATOSC>; Mon, 20 Jan 2003 09:18:02 -0500
-Date: Mon, 20 Jan 2003 14:27:03 +0000
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: size in /proc/modules
-Message-ID: <20030120142703.GA58326@compsoc.man.ac.uk>
+	id <S265886AbTATOTd>; Mon, 20 Jan 2003 09:19:33 -0500
+Received: from [209.167.240.9] ([209.167.240.9]:59635 "EHLO
+	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
+	id <S265885AbTATOTb>; Mon, 20 Jan 2003 09:19:31 -0500
+Subject: Re: Is the BitKeeper network protocol documented?
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: David Schwartz <davids@webmaster.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030120010504.AAA18836@shell.webmaster.com@whenever>
+References: <20030120010504.AAA18836@shell.webmaster.com@whenever>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 20 Jan 2003 09:28:35 -0500
+Message-Id: <1043072915.1397.17.camel@dlacoste.ottawa.loran.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18actG-0000uv-00*HHzxYJ2YXd2*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-01-19 at 20:05, David Schwartz wrote:
+> 	Don't blame me. The GPL just says the "preferred" form and leaves us 
+> to wonder. As I understand it, however, you cannot ship binaries of a 
+> GPL'd project unless you can distribute the source code in the 
+> "preferred form .. for making modifications to it".
 
-/proc/modules size field includes init_size in 2.5. Why ?
+The GPL specifically allows for multiple methods of accessing the
+'preferred form' including FTP, including the source in the
+distribution, etc.  BitKeeper is nothing more than another method
+to access that 'preferred source'.
 
-The removal of sensible values in /proc/ksyms means that oprofile can no
-longer attribute module samples reliably. The only information we have
-is module_core address, and size == core_size+init_size. Since init code
-is removed in sys_init_module, this will overestimate, and can lead to
-overlapping with the start of another module, afaics.
+Please stop this.  You're looking kind of silly here.
 
-In 2.4, we had size(.text), which could underestimate (think
-.text.exit), but that is not a big problem.
+Dana Lacoste
+Ottawa, Canada
 
-Rusty, does this fall under another one of your "corner cases" ? (what I
-would call "flaky code" ...)
+PS: nobody said 'IANAL' yet.  meaning you're just a noisy peanut gallery
+:)
 
-Or I have I just missed something obvious ?
-
-regards
-john
-
--- 
-"Anyone who quotes Rusty in their sig is an idiot."
-	- me

@@ -1,80 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130733AbRC3GMw>; Fri, 30 Mar 2001 01:12:52 -0500
+	id <S130834AbRC3GhH>; Fri, 30 Mar 2001 01:37:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130791AbRC3GMn>; Fri, 30 Mar 2001 01:12:43 -0500
-Received: from web5203.mail.yahoo.com ([216.115.106.97]:18438 "HELO
-	web5203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130733AbRC3GMb>; Fri, 30 Mar 2001 01:12:31 -0500
-Message-ID: <20010330061149.6234.qmail@web5203.mail.yahoo.com>
-Date: Thu, 29 Mar 2001 22:11:49 -0800 (PST)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Re: Original destination of transparent proxied connections?
-To: linux-kernel@vger.kernel.org
+	id <S130831AbRC3Gg5>; Fri, 30 Mar 2001 01:36:57 -0500
+Received: from mail-klh.telecentrum.de ([213.69.31.130]:52236 "EHLO
+	mail-klh.telecentrum.de") by vger.kernel.org with ESMTP
+	id <S130824AbRC3Ggo>; Fri, 30 Mar 2001 01:36:44 -0500
+Message-ID: <3AC424A2.DF6485DF@topit.de>
+Date: Fri, 30 Mar 2001 08:16:02 +0200
+From: Ronald Jeninga <rj@topit.de>
+Reply-To: rj@topit.de
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: hugang <linuxhappy@etang.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [ISDN-ERR]
+In-Reply-To: <20010330100323.791a25c8.linuxhappy@etang.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah, I found it.
+Hello,
 
-While researching replacing the 2.2 kernel with 2.4 to
-get my proxy-oid to work, I stumbled accross the
-following section in the unofficial NAT-HOWTO (which
-is not on linuxdoc's website as far as I can tell). 
-At this address:
+man isdn_cause 
+says
+E  = EDSS1
+00 = User Message
+1B = Destination out of order
 
-http://netfilter.kernelnotes.org/unreliable-guides/NAT-HOWTO/NAT-HOWTO.linuxdoc-4.html
+The other end seems to have a problem
+Doesn't seem to be a kernel issue though
 
-Under section four ("quick translation from 2.0 and
-2.2 kernels"), under the heading "Hackers may also
-notice:", item two in the list:
+Ronald Jeninga
 
->The (undocumented) `getsockname' hack, which
->transparent proxy programs could use to find out the
->real destinations of connections no longer works. 
-
-Ah!  A clue!  But no idea how to make it work under
-2.4, and no mention of what replaces it!  (I read the
-rest of the howto carefully.  Never mentioned this
-topic again.)  But there IS a way to get it to work
-under 2.2, if I can learn an undocumented (but
-functional) hack.
-
-So I jump to the contents page to see who the HOWTO
-maintainer is to ask rather pointed questions.  His
-email address isn't listed, but I do I find out that
-the netfilter mailing list is at
-netfilter@lists.samba.org.  http://list.samba.org
-turns out to have a page of hosted lists, with a link
-that eventually leads to an archive, which is not
-easily searchable except by date.  Fun.
-
-This brings us to google, which can find anything if
-you just know what to ask for.  I search for
-"lists.samba.org netfilter getsockname".  The first
-hit is just that silly howto again, but the second
-hit:
-
-http://lists.samba.org/pipermail/netfilter/2000-September/005317.html
-
-An explanation, complete with example code.  From
-september of last year.
-
-And there was much rejoicing.
-
-If I were to perhaps send linuxdoc.org a check or
-something, might a day come to pass when learning to
-do seemingly obvious things under linux does NOT
-require fairly good forensic investigation skills?  I
-ask merely for information.
-
-I need to get more caffiene now.  I'm going to be up
-REALLY late coding. :)
-
-Rob
-
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/?.refer=text
+hugang wrote:
+> 
+> Hello all:
+> 
+> ---------------------------------------
+> OPEN: 10.0.0.2 -> 202.99.16.1 UDP, port: 1024 -> 53
+> ippp0: dialing 1 86310163...
+> isdn: HiSax,ch0 cause: E001B                    <--- error !!
+> isdn_net: local hangup ippp0
+> ippp0: Chargesum is 0
+> ---------------------------------------
+>         Can someone tell me ,howto fix it ??
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

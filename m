@@ -1,55 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbULCBOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbULCBZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbULCBOg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 20:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbULCBOf
+	id S261832AbULCBZm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 20:25:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbULCBZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 20:14:35 -0500
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:35040 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261833AbULCBOa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 20:14:30 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: dma errors with sata_sil and Seagate disk
-References: <20041201115045.3ab20e03@homer.sarvega.com>
-	<1101944482.30990.74.camel@localhost.localdomain>
-	<yw1xpt1tuihe.fsf@ford.inprovide.com>
-	<1102030431.7175.9.camel@localhost.localdomain>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Fri, 03 Dec 2004 02:14:27 +0100
-In-Reply-To: <1102030431.7175.9.camel@localhost.localdomain> (Alan Cox's
- message of "Thu, 02 Dec 2004 23:33:53 +0000")
-Message-ID: <yw1xvfbkrxn0.fsf@ford.inprovide.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 2 Dec 2004 20:25:42 -0500
+Received: from gw.goop.org ([64.81.55.164]:12480 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S261832AbULCBZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 20:25:39 -0500
+Subject: Re: 32-bit syscalls from 64-bit process on x86-64?
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1102004520.8707.10.camel@localhost>
+References: <1102004520.8707.10.camel@localhost>
+Content-Type: text/plain
+Date: Thu, 02 Dec 2004 10:52:25 -0800
+Message-Id: <1102013545.8712.22.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-0.mozer.2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.ak> writes:
+On Thu, 2004-12-02 at 08:22 -0800, I wrote:
+> Hi Andi,
 
-> On Iau, 2004-12-02 at 10:01, Måns Rullgård wrote:
->> Is there some problem with Seagate drives in general?  I'm using two
->> ST3160827AS drives on an SI3114 controller, and haven't seen any
->> glitches yet.  That model is not in the blacklist, and performance is
->> what I'd usually expect.  Is it pure luck that has kept me away from
->> problems?
->
-> I've never been able to get a non NDA list of the affected drives. Got
-> to love vendors some days
+[ Or any other x86-64-heads. ]
 
-Does this mean it is the drives which are faulty, not the controller?
-These drives are both new, so I suppose known problems might have been
-fixed.  FWIW, they are reported by the kernel thusly:
+	J
 
-  Vendor: ATA       Model: ST3160827AS       Rev: 3.03
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: ATA       Model: ST3160827AS       Rev: 3.00
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-
--- 
-Måns Rullgård
-mru@inprovide.com

@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268145AbUHWVll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268010AbUHWVlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268145AbUHWVll (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268010AbUHWVj4
+	id S268010AbUHWVlm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 17:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268148AbUHWVjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:39:56 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:14301 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264443AbUHWVb5 (ORCPT
+	Mon, 23 Aug 2004 17:39:51 -0400
+Received: from cantor.suse.de ([195.135.220.2]:65237 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268010AbUHWVc4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 17:31:57 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Performance of -mm2 and -mm4
-Date: Mon, 23 Aug 2004 14:31:25 -0700
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <piggin@cyberone.com.au>
-References: <336080000.1093280286@[10.10.2.4]>
-In-Reply-To: <336080000.1093280286@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 23 Aug 2004 17:32:56 -0400
+Date: Mon, 23 Aug 2004 23:32:49 +0200
+From: Andi Kleen <ak@suse.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [patch] lazy TSS's I/O bitmap copy ...
+Message-Id: <20040823233249.09e93b86.ak@suse.de>
+In-Reply-To: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408231431.25986.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, August 23, 2004 9:58 am, Martin J. Bligh wrote:
-> The -mm4 looks more like sched stuff to me (copy_to/from_user, etc),
-> but the -mm2 stuff looks like something else. Buggered if I know what.
-> -mm3 didn't compile cleanly, so I didn't bother, but I prob can if you
-> like.
+On Mon, 23 Aug 2004 14:23:35 -0700 (PDT)
+Davide Libenzi <davidel@xmailserver.org> wrote:
 
-If you suspect the scheduler, you could try bumping SD_NODES_PER_DOMAIN in 
-kernel/sched.c to a larger value (e.g. the number of nodes in your system).  
-That'll make the scheduler balance more aggressively across the whole system.
+> 
+> The following patch implements a lazy I/O bitmap copy for the i386 
+> architecture. With I/O bitmaps now reaching considerable sizes, if the 
+> switched task does not perform any I/O operation, we can save the copy 
+> altogether. In my box X is working fine with the following patch, even if 
+> more test would be required.
 
-Jesse
+IMHO this needs benchmarks first to prove that the additional 
+exception doesn't cause too much slow down.
+
+>  asmlinkage void do_general_protection(struct pt_regs * regs, long error_code)
+>  {
+> +	int cpu = smp_processor_id();
+> +	struct tss_struct *tss = init_tss + cpu;
+> +	struct task_struct *tsk = current;
+> +	struct thread_struct *tsk_th = &tsk->thread;
+> +
+> +	/*
+> +	 * Perform the lazy TSS's I/O bitmap copy. If the TSS has an
+> +	 * invalid offset set (the LAZY one) and the faulting thread has
+> +	 * a valid I/O bitmap pointer, we copy the I/O bitmap in the TSS
+> +	 * and we set the offset field correctly. Then we let the CPU to
+> +	 * restart the faulting instruction.
+> +	 */
+
+I don't like it very much that most GPFs will be executed twice now
+when the process has ioperm enabled.
+This will confuse debuggers and could have other bad side effects.
+Checking the EIP would be better.
+
+-Andi

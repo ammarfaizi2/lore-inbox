@@ -1,75 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266083AbTLIQA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 11:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266084AbTLIQA7
+	id S266121AbTLIQQn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 11:16:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbTLIQQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 11:00:59 -0500
-Received: from out006pub.verizon.net ([206.46.170.106]:57989 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP id S266083AbTLIQA5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 11:00:57 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: Tomasz Torcz <zdzichu@irc.pl>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: sensors vs 2.6
-Date: Tue, 9 Dec 2003 11:00:47 -0500
-User-Agent: KMail/1.5.1
-References: <200312090258.01944.gene.heskett@verizon.net> <200312090741.31290.gene.heskett@verizon.net> <20031209141837.GA29636@irc.pl>
-In-Reply-To: <20031209141837.GA29636@irc.pl>
-Organization: None that appears to be detectable by casual observers
+	Tue, 9 Dec 2003 11:16:43 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:47111 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S266121AbTLIQQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 11:16:41 -0500
+Message-ID: <3FD5F9C1.5060704@nishanet.com>
+Date: Tue, 09 Dec 2003 11:35:13 -0500
+From: Bob <recbo@nishanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+References: <20031205045404.GA307@tesore.local> <16336.13962.285442.228795@alkaid.it.uu.se> <20031205085829.GL29119@mis-mike-wstn.matchmail.com> <3FD3DFEB.1010902@nishanet.com> <Pine.LNX.4.55.0312091514130.20948@jurand.ds.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.55.0312091514130.20948@jurand.ds.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312091100.47665.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.57.120] at Tue, 9 Dec 2003 10:00:47 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 December 2003 09:18, Tomasz Torcz wrote:
->On Tue, Dec 09, 2003 at 07:41:31AM -0500, Gene Heskett wrote:
->> So obviously something didn't get built, and it looks like its the
->> winbond stuff.  The question is why?  Is there some method that
->> can be used to interrogate the kernel and determine if the stuff
->> is actually in there?
+Maciej W. Rozycki wrote:
+
+>On Sun, 7 Dec 2003, Bob wrote:
 >
->Maybe related: via sensors stuff is very picky about order of module
->loading.
->It does NOT work when i2c-dev, i2c-algo-bit and rest of sensors
-> stuff (isa bus, via modules) are built INTO kernel.
->When everything is in modules, iw works ONLY when via modules are
->modprobed _before_ anything using i2c.
->Loading other i2c modules (bttv, lirc or sth else) before via
-> modules makes sensors unusable - there is no /sys/[...]/via
-> directory, or this directory is empty.
+>  
+>
+>>I have append="nmi_watchdog=1" ? Nothing "nmi" or "NMI" is logged.
+>>
+>> cat /proc/interrupts
+>>           CPU0      
+>>  0:  241105839          XT-PIC  timer...................
+>>NMI:          0...........
+>>
+> You don't have the NMI watchdog working, because the timer interrupt is
+>configured as an 8259A interrupt ("XT-PIC" for IRQ 0 in the output above).  
+>This usually means the wiring of a particular system doesn't provide any
+>other alternative or configuration data provided by the BIOS is broken.
+>The timer interrupt has to be configured as an I/O APIC interrupt for the
+>watchdog to work, or you can select "nmi_watchdog=2" for an alternative 
+>watchdog internal to processors if they support it.
+>
+>  
+>
+Using a patch that fixes a number of people's nforce2
+lockups while enabling io-apic edge timer, I can now
+use nmi_watchdog=2 but not =1
 
-Humm, I've got a bt878 tv card thats rather noisey when eeprom inits.
+turn on ioapic edge timer--
 
-This sounds like a change in the order the kernel inits this stuff 
-might be in order but I've NDI howto go about that...  According to 
-dmesg, all that bttv stuff is found about 1000 lines before the first 
-mention of i2c...  I assume that means I'd have to modularize the 
-bttv stuffs too so the init order can be conmtrolled?
+http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-apic.patch
 
-If I make all that into modules, do you have a working modules.conf I 
-can obtain so that this stuff is brought in in the proper order?
+We're all trying to get acpi, apic, lapic, io-apic working
+when turned on in cmos/bios and kernel.
 
-I tried it without the VIA686, didn't see anything missing that wasn't 
-before, then found I had both VIA and VIAPRO set=y. I don't have a 
-VIA 586 chipset, so I turned that off and its remaking now for 
-effects.  Somehow I think its gonna be a wasted reboot from what you 
-are telling me.
+The three things that each alone have achieved stability
+on somebody's system here are 1) bios update 2) cpu
+disconnect off either in cmos if available or by athcool
+or kernel patch with same 3) timing delay patch
 
-Thanks a bunch for any further assistance you can render.
+For CPU disconnect you still need athcool or this one
+http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-disconnect-quirk.patch 
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+
+Both patches are for 2.6.0-test11 kernel.
 

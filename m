@@ -1,57 +1,553 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265852AbUA1Exw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 23:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265856AbUA1Exw
+	id S265719AbUA1FWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 00:22:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265851AbUA1FWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 23:53:52 -0500
-Received: from mail.timesys.com ([65.117.135.102]:62027 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S265852AbUA1Exv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 23:53:51 -0500
-Subject: Re: RFC: Trailing blanks in source files
-From: Pragnesh Sampat <pragnesh.sampat@timesys.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org, rv@gnu.org
-In-Reply-To: <20040127195558.342dba6c.rddunlap@osdl.org>
-References: <Pine.LNX.4.58.0401271544120.27260@joel.ist.utl.pt.suse.lists.linux.kernel>
-	 <p73bropfdgl.fsf@nielsen.suse.de>
-	 <200401271251.34926.theman@josephdwagner.info>
-	 <20040127191358.GI20879@khan.acc.umu.se>
-	 <20040127111824.7f76efe6.rddunlap@osdl.org>
-	 <20040127160214.69850c9c.akpm@osdl.org> <20040128034939.GE15979@pegasys.ws>
-	 <20040127195558.342dba6c.rddunlap@osdl.org>
+	Wed, 28 Jan 2004 00:22:09 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:42472 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S265719AbUA1FVh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 00:21:37 -0500
+Subject: Re: [ACPI] RFC: ACPI table overflow handling
+From: Len Brown <len.brown@intel.com>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>, jbarnes@sgi.com,
+       steiner@sgi.com
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE001E60811@hdsmsx402.hd.intel.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE001E60811@hdsmsx402.hd.intel.com>
 Content-Type: text/plain
-Message-Id: <1075265265.15186.13.camel@mail.sampatonline.com>
+Organization: 
+Message-Id: <1075267233.2484.132.camel@dhcppc4>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 27 Jan 2004 23:53:31 -0500
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 28 Jan 2004 00:20:35 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Jan 2004 04:47:56.0640 (UTC) FILETIME=[E5C74E00:01C3E559]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> | > I frequently sneakily remove all newly-added trailing whitespace from the
-> | > patches people send me.  In 15 years it'll all be gone.
-> | 
-> | This would maybe warrant a bk option to remove trailing
-> | whitespace from modified lines.  Preferably with an
-> | notification that it is happening so if for some reason you
-> | do want trailing whitespace you could abort or override.
-> | 
-> | A patch filter that removed trailing whitespace from + lines
-> | could also be used.
+Accepted.
+
+thanks Jes, Bjorn,
+-Len
+
+On Tue, 2004-01-13 at 04:49, Jes Sorensen wrote:
+> >>>>> "Bjorn" == Bjorn Helgaas <bjorn.helgaas@hp.com> writes:
 > 
-> AFAIK Andrew already uses a script to check for trailing spaces,
-> and I do also.  Yes, it could be modified to be a conversion filter,
-> but it doesn't happen frequently, and when it does, I want to let
-> the poster know about it, so I like to have the evidence handy.  :)
-
-Recent versions of emacs, for those that use it, have whitespace.el (for
-cleaning up as you go along).  It can cleanup different kinds of
-whitespace based on settings.  Check C-h f whitespace-describe for more
-details.  Got used to that heavily at one point, these days I am kind of
-neutral, sometimes I do it, sometimes I don't bother.
-
--Pragnesh
+> Bjorn> On Sunday 11 January 2004 7:30 am, Jes Sorensen wrote:
+> >> (acpi_table_parse_madt(ACPI_MADT_IOSAPIC, acpi_parse_iosapic, 256)
+> 
+> Bjorn> The "256" looks like it's based on the "iosapic_lists[256]"
+> Bjorn> definition.  We probably should introduce a #define for those
+> Bjorn> cases (sorry, I should have noticed this the first time).
+> 
+> No problem, easy fix.
+> 
+> >> +++ linux-2.6.0-test11-ia64/arch/x86_64/kernel/acpi/boot.c Sun Jan
+> >> 11 05:31:58 2004 + result =
+> Bjorn> Is NO_IRQ_VECTORS a typo for NR_IRQ_VECTORS?
+> 
+> Yup typo, thanks for catching this one.
+> 
+> >> +++ linux-2.6.0-test11-ia64/drivers/acpi/numa.c Thu Jan 8 02:49:24
+> >> 2004 acpi_table_parse_srat ( enum acpi_srat_entry_id id, -
+> >> acpi_madt_entry_handler handler) + acpi_madt_entry_handler handler,
+> >> + int max_entries)
+> 
+> Bjorn> Should "max_entries" be unsigned?  I notice you used unsigned
+> Bjorn> types in the implementation, i.e., "count".
+> 
+> I have no strong preference since I find it unlikely that anyone will
+> want to loop it 2^31 times, but for esthetics lets make it unsigned.
+> 
+> How about this one then?
+> 
+> Cheers,
+> Jes
+> 
+> diff -urN -X /usr/people/jes/exclude-linux --exclude=io --exclude=sn
+> --exclude='qla1280.[ch]'
+> orig/linux-2.6.0-test11-ia64/arch/i386/kernel/acpi/boot.c
+> linux-2.6.0-test11-ia64/arch/i386/kernel/acpi/boot.c
+> --- orig/linux-2.6.0-test11-ia64/arch/i386/kernel/acpi/boot.c   Wed
+> Nov 26 12:45:28 2003
+> +++ linux-2.6.0-test11-ia64/arch/i386/kernel/acpi/boot.c        Sun
+> Jan 11 05:16:24 2004
+> @@ -44,8 +44,8 @@
+>  extern int acpi_irq;
+>  extern int acpi_ht;
+> 
+> -int acpi_lapic = 0;
+> -int acpi_ioapic = 0;
+> +int acpi_lapic;
+> +int acpi_ioapic;
+> 
+>  /*
+> --------------------------------------------------------------------------
+>                                Boot-time Configuration
+> @@ -418,7 +418,7 @@
+>          * and (optionally) overriden by a LAPIC_ADDR_OVR entry
+> (64-bit value).
+>          */
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_LAPIC_ADDR_OVR,
+> acpi_parse_lapic_addr_ovr);
+> +       result = acpi_table_parse_madt(ACPI_MADT_LAPIC_ADDR_OVR,
+> acpi_parse_lapic_addr_ovr, 0);
+>         if (result < 0) {
+>                 printk(KERN_ERR PREFIX "Error parsing LAPIC address
+> override entry\n");
+>                 return result;
+> @@ -426,7 +426,8 @@
+> 
+>         mp_register_lapic_address(acpi_lapic_addr);
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_LAPIC,
+> acpi_parse_lapic);
+> +       result = acpi_table_parse_madt(ACPI_MADT_LAPIC,
+> acpi_parse_lapic,
+> +                                      MAX_APICS);
+>         if (!result) {
+>                 printk(KERN_ERR PREFIX "No LAPIC entries present\n");
+>                 /* TBD: Cleanup to allow fallback to MPS */
+> @@ -438,7 +439,7 @@
+>                 return result;
+>         }
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_LAPIC_NMI,
+> acpi_parse_lapic_nmi);
+> +       result = acpi_table_parse_madt(ACPI_MADT_LAPIC_NMI,
+> acpi_parse_lapic_nmi, 0);
+>         if (result < 0) {
+>                 printk(KERN_ERR PREFIX "Error parsing LAPIC NMI
+> entry\n");
+>                 /* TBD: Cleanup to allow fallback to MPS */
+> @@ -475,8 +476,8 @@
+>                 return 1;
+>         }
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_IOAPIC,
+> acpi_parse_ioapic);
+> -       if (!result) {
+> +       result = acpi_table_parse_madt(ACPI_MADT_IOAPIC,
+> acpi_parse_ioapic, MAX_IO_APICS);
+> +       if (!result) {
+>                 printk(KERN_ERR PREFIX "No IOAPIC entries present\n");
+>                 return -ENODEV;
+>         }
+> @@ -488,14 +489,14 @@
+>         /* Build a default routing table for legacy (ISA) interrupts.
+> */
+>         mp_config_acpi_legacy_irqs();
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_INT_SRC_OVR,
+> acpi_parse_int_src_ovr);
+> +       result = acpi_table_parse_madt(ACPI_MADT_INT_SRC_OVR,
+> acpi_parse_int_src_ovr, NR_IRQ_VECTORS);
+>         if (result < 0) {
+>                 printk(KERN_ERR PREFIX "Error parsing interrupt source
+> overrides entry\n");
+>                 /* TBD: Cleanup to allow fallback to MPS */
+>                 return result;
+>         }
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_NMI_SRC,
+> acpi_parse_nmi_src);
+> +       result = acpi_table_parse_madt(ACPI_MADT_NMI_SRC,
+> acpi_parse_nmi_src, NR_IRQ_VECTORS);
+>         if (result < 0) {
+>                 printk(KERN_ERR PREFIX "Error parsing NMI SRC
+> entry\n");
+>                 /* TBD: Cleanup to allow fallback to MPS */
+> diff -urN -X /usr/people/jes/exclude-linux --exclude=io --exclude=sn
+> --exclude='qla1280.[ch]'
+> orig/linux-2.6.0-test11-ia64/arch/ia64/kernel/acpi.c
+> linux-2.6.0-test11-ia64/arch/ia64/kernel/acpi.c
+> --- orig/linux-2.6.0-test11-ia64/arch/ia64/kernel/acpi.c        Wed
+> Nov 26 12:44:07 2003
+> +++ linux-2.6.0-test11-ia64/arch/ia64/kernel/acpi.c     Tue Jan 13
+> 01:30:49 2004
+> @@ -189,8 +189,6 @@
+> 
+>         if (!lsapic->flags.enabled)
+>                 printk(" disabled");
+> -       else if (available_cpus >= NR_CPUS)
+> -               printk(" ignored (increase NR_CPUS)");
+>         else {
+>                 printk(" enabled");
+>  #ifdef CONFIG_SMP
+> @@ -393,12 +391,6 @@
+>         size = ma->length_hi;
+>         size = (size << 32) | ma->length_lo;
+> 
+> -       if (num_memblks >= NR_MEMBLKS) {
+> -               printk(KERN_ERR "Too many mem chunks in SRAT. Ignoring
+> %ld MBytes at %lx\n",
+> -                      size/(1024*1024), paddr);
+> -               return;
+> -       }
+> -
+>         /* Ignore disabled entries */
+>         if (!ma->flags.enabled)
+>                 return;
+> @@ -550,29 +542,29 @@
+> 
+>         /* Local APIC */
+> 
+> -       if (acpi_table_parse_madt(ACPI_MADT_LAPIC_ADDR_OVR,
+> acpi_parse_lapic_addr_ovr) < 0)
+> +       if (acpi_table_parse_madt(ACPI_MADT_LAPIC_ADDR_OVR,
+> acpi_parse_lapic_addr_ovr, 0) < 0)
+>                 printk(KERN_ERR PREFIX "Error parsing LAPIC address
+> override entry\n");
+> 
+> -       if (acpi_table_parse_madt(ACPI_MADT_LSAPIC, acpi_parse_lsapic)
+> < 1)
+> +       if (acpi_table_parse_madt(ACPI_MADT_LSAPIC, acpi_parse_lsapic,
+> NR_CPUS) < 1)
+>                 printk(KERN_ERR PREFIX "Error parsing MADT - no LAPIC
+> entries\n");
+> 
+> -       if (acpi_table_parse_madt(ACPI_MADT_LAPIC_NMI,
+> acpi_parse_lapic_nmi) < 0)
+> +       if (acpi_table_parse_madt(ACPI_MADT_LAPIC_NMI,
+> acpi_parse_lapic_nmi, 0) < 0)
+>                 printk(KERN_ERR PREFIX "Error parsing LAPIC NMI
+> entry\n");
+> 
+>         /* I/O APIC */
+> 
+> -       if (acpi_table_parse_madt(ACPI_MADT_IOSAPIC,
+> acpi_parse_iosapic) < 1)
+> +       if (acpi_table_parse_madt(ACPI_MADT_IOSAPIC,
+> acpi_parse_iosapic, NR_IOSAPICS) < 1)
+>                 printk(KERN_ERR PREFIX "Error parsing MADT - no
+> IOSAPIC entries\n");
+> 
+>         /* System-Level Interrupt Routing */
+> 
+> -       if (acpi_table_parse_madt(ACPI_MADT_PLAT_INT_SRC,
+> acpi_parse_plat_int_src) < 0)
+> +       if (acpi_table_parse_madt(ACPI_MADT_PLAT_INT_SRC,
+> acpi_parse_plat_int_src, ACPI_MAX_PLATFORM_INTERRUPTS) < 0)
+>                 printk(KERN_ERR PREFIX "Error parsing platform
+> interrupt source entry\n");
+> 
+> -       if (acpi_table_parse_madt(ACPI_MADT_INT_SRC_OVR,
+> acpi_parse_int_src_ovr) < 0)
+> +       if (acpi_table_parse_madt(ACPI_MADT_INT_SRC_OVR,
+> acpi_parse_int_src_ovr, 0) < 0)
+>                 printk(KERN_ERR PREFIX "Error parsing interrupt source
+> overrides entry\n");
+> 
+> -       if (acpi_table_parse_madt(ACPI_MADT_NMI_SRC,
+> acpi_parse_nmi_src) < 0)
+> +       if (acpi_table_parse_madt(ACPI_MADT_NMI_SRC,
+> acpi_parse_nmi_src, 0) < 0)
+>                 printk(KERN_ERR PREFIX "Error parsing NMI SRC
+> entry\n");
+>    skip_madt:
+> 
+> diff -urN -X /usr/people/jes/exclude-linux --exclude=io --exclude=sn
+> --exclude='qla1280.[ch]'
+> orig/linux-2.6.0-test11-ia64/arch/ia64/kernel/iosapic.c
+> linux-2.6.0-test11-ia64/arch/ia64/kernel/iosapic.c
+> --- orig/linux-2.6.0-test11-ia64/arch/ia64/kernel/iosapic.c     Wed
+> Nov 26 12:44:02 2003
+> +++ linux-2.6.0-test11-ia64/arch/ia64/kernel/iosapic.c  Tue Jan 13
+> 01:29:44 2004
+> @@ -114,7 +114,7 @@
+>         char            *addr;          /* base address of IOSAPIC */
+>         unsigned int    gsi_base;       /* first GSI assigned to this
+> IOSAPIC */
+>         unsigned short  num_rte;        /* number of RTE in this
+> IOSAPIC */
+> -} iosapic_lists[256];
+> +} iosapic_lists[NR_IOSAPICS];
+> 
+>  static int num_iosapic;
+> 
+> diff -urN -X /usr/people/jes/exclude-linux --exclude=io --exclude=sn
+> --exclude='qla1280.[ch]'
+> orig/linux-2.6.0-test11-ia64/arch/x86_64/kernel/acpi/boot.c
+> linux-2.6.0-test11-ia64/arch/x86_64/kernel/acpi/boot.c
+> --- orig/linux-2.6.0-test11-ia64/arch/x86_64/kernel/acpi/boot.c Wed
+> Nov 26 12:43:24 2003
+> +++ linux-2.6.0-test11-ia64/arch/x86_64/kernel/acpi/boot.c      Tue
+> Jan 13 00:33:45 2004
+> @@ -46,8 +46,8 @@
+>  #include <asm/proto.h>
+>  #include <asm/tlbflush.h>
+> 
+> -int acpi_lapic = 0;
+> -int acpi_ioapic = 0;
+> +int acpi_lapic;
+> +int acpi_ioapic;
+> 
+>  #define PREFIX                 "ACPI: "
+> 
+> @@ -398,7 +398,7 @@
+>          * and (optionally) overriden by a LAPIC_ADDR_OVR entry
+> (64-bit value).
+>          */
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_LAPIC_ADDR_OVR,
+> acpi_parse_lapic_addr_ovr);
+> +       result = acpi_table_parse_madt(ACPI_MADT_LAPIC_ADDR_OVR,
+> acpi_parse_lapic_addr_ovr, 0);
+>         if (result < 0) {
+>                 printk(KERN_ERR PREFIX "Error parsing LAPIC address
+> override entry\n");
+>                 return result;
+> @@ -406,7 +406,8 @@
+> 
+>         mp_register_lapic_address(acpi_lapic_addr);
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_LAPIC,
+> acpi_parse_lapic);
+> +       result = acpi_table_parse_madt(ACPI_MADT_LAPIC,
+> acpi_parse_lapic,
+> +                                      MAX_APICS);
+>         if (!result) {
+>                 printk(KERN_ERR PREFIX "No LAPIC entries present\n");
+>                 /* TBD: Cleanup to allow fallback to MPS */
+> @@ -418,7 +419,7 @@
+>                 return result;
+>         }
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_LAPIC_NMI,
+> acpi_parse_lapic_nmi);
+> +       result = acpi_table_parse_madt(ACPI_MADT_LAPIC_NMI,
+> acpi_parse_lapic_nmi, 0);
+>         if (result < 0) {
+>                 printk(KERN_ERR PREFIX "Error parsing LAPIC NMI
+> entry\n");
+>                 /* TBD: Cleanup to allow fallback to MPS */
+> @@ -455,8 +456,8 @@
+>                 return 1;
+>         }
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_IOAPIC,
+> acpi_parse_ioapic);
+> -       if (!result) {
+> +       result = acpi_table_parse_madt(ACPI_MADT_IOAPIC,
+> acpi_parse_ioapic, MAX_IO_APICS);
+> +       if (!result) {
+>                 printk(KERN_ERR PREFIX "No IOAPIC entries present\n");
+>                 return -ENODEV;
+>         }
+> @@ -468,14 +469,15 @@
+>         /* Build a default routing table for legacy (ISA) interrupts.
+> */
+>         mp_config_acpi_legacy_irqs();
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_INT_SRC_OVR,
+> acpi_parse_int_src_ovr);
+> +       result = acpi_table_parse_madt(ACPI_MADT_INT_SRC_OVR,
+> acpi_parse_int_src_ovr, NR_IRQ_VECTORS);
+>         if (result < 0) {
+>                 printk(KERN_ERR PREFIX "Error parsing interrupt source
+> overrides entry\n");
+>                 /* TBD: Cleanup to allow fallback to MPS */
+>                 return result;
+>         }
+> 
+> -       result = acpi_table_parse_madt(ACPI_MADT_NMI_SRC,
+> acpi_parse_nmi_src);
+> +       result = acpi_table_parse_madt(ACPI_MADT_NMI_SRC,
+> acpi_parse_nmi_src,
+> +                                      NR_IRQ_VECTORS);
+>         if (result < 0) {
+>                 printk(KERN_ERR PREFIX "Error parsing NMI SRC
+> entry\n");
+>                 /* TBD: Cleanup to allow fallback to MPS */
+> diff -urN -X /usr/people/jes/exclude-linux --exclude=io --exclude=sn
+> --exclude='qla1280.[ch]'
+> orig/linux-2.6.0-test11-ia64/drivers/acpi/numa.c
+> linux-2.6.0-test11-ia64/drivers/acpi/numa.c
+> --- orig/linux-2.6.0-test11-ia64/drivers/acpi/numa.c    Thu Dec 11
+> 04:22:40 2003
+> +++ linux-2.6.0-test11-ia64/drivers/acpi/numa.c Tue Jan 13 00:49:40
+> 2004
+> @@ -38,7 +38,7 @@
+>  #define Dprintk(x...)
+>  #endif
+> 
+> -extern int __init acpi_table_parse_madt_family (enum acpi_table_id
+> id, unsigned long madt_size, int entry_id, acpi_madt_entry_handler
+> handler);
+> +extern int __init acpi_table_parse_madt_family (enum acpi_table_id
+> id, unsigned long madt_size, int entry_id, acpi_madt_entry_handler
+> handler, unsigned int max_entries);
+> 
+>  void __init
+>  acpi_table_print_srat_entry (
+> @@ -156,10 +156,11 @@
+>  int __init
+>  acpi_table_parse_srat (
+>         enum acpi_srat_entry_id id,
+> -       acpi_madt_entry_handler handler)
+> +       acpi_madt_entry_handler handler,
+> +       unsigned int max_entries)
+>  {
+>         return acpi_table_parse_madt_family(ACPI_SRAT, sizeof(struct
+> acpi_table_srat),
+> -                                           id, handler);
+> +                                           id, handler, max_entries);
+>  }
+> 
+> 
+> @@ -173,9 +174,11 @@
+> 
+>         if (result > 0) {
+>                 result =
+> acpi_table_parse_srat(ACPI_SRAT_PROCESSOR_AFFINITY,
+> -                                             
+> acpi_parse_processor_affinity);
+> +                                             
+> acpi_parse_processor_affinity,
+> +                                              NR_CPUS);
+>                 result =
+> acpi_table_parse_srat(ACPI_SRAT_MEMORY_AFFINITY,
+> -                                             
+> acpi_parse_memory_affinity);
+> +                                             
+> acpi_parse_memory_affinity,
+> +                                              NR_MEMBLKS);
+>         } else {
+>                 /* FIXME */
+>                 printk("Warning: acpi_table_parse(ACPI_SRAT) returned
+> %d!\n",result);
+> diff -urN -X /usr/people/jes/exclude-linux --exclude=io --exclude=sn
+> --exclude='qla1280.[ch]'
+> orig/linux-2.6.0-test11-ia64/drivers/acpi/tables.c
+> linux-2.6.0-test11-ia64/drivers/acpi/tables.c
+> --- orig/linux-2.6.0-test11-ia64/drivers/acpi/tables.c  Thu Dec 11
+> 04:22:40 2003
+> +++ linux-2.6.0-test11-ia64/drivers/acpi/tables.c       Tue Jan 13
+> 00:52:36 2004
+> @@ -295,13 +295,14 @@
+>         enum acpi_table_id      id,
+>         unsigned long           madt_size,
+>         int                     entry_id,
+> -       acpi_madt_entry_handler handler)
+> +       acpi_madt_entry_handler handler,
+> +       unsigned int            max_entries)
+>  {
+>         void                    *madt = NULL;
+> -       acpi_table_entry_header *entry = NULL;
+> -       unsigned long           count = 0;
+> -       unsigned long           madt_end = 0;
+> -       unsigned int                    i = 0;
+> +       acpi_table_entry_header *entry;
+> +       unsigned int            count = 0;
+> +       unsigned long           madt_end;
+> +       unsigned int            i;
+> 
+>         if (!handler)
+>                 return -EINVAL;
+> @@ -335,13 +336,18 @@
+>                 ((unsigned long) madt + madt_size);
+> 
+>         while (((unsigned long) entry) < madt_end) {
+> -               if (entry->type == entry_id) {
+> -                       count++;
+> +               if (entry->type == entry_id &&
+> +                   (!max_entries || count++ < max_entries))
+>                         handler(entry);
+> -               }
+> +
+>                 entry = (acpi_table_entry_header *)
+>                         ((unsigned long) entry + entry->length);
+>         }
+> +       if (max_entries && count > max_entries) {
+> +               printk(KERN_WARNING PREFIX "[%s:0x%02x] ignored %i
+> entries of "
+> +                      "%i found\n", acpi_table_signatures[id],
+> entry_id,
+> +                      count - max_entries, count);
+> +       }
+> 
+>         return count;
+>  }
+> @@ -350,10 +356,11 @@
+>  int __init
+>  acpi_table_parse_madt (
+>         enum acpi_madt_entry_id id,
+> -       acpi_madt_entry_handler handler)
+> +       acpi_madt_entry_handler handler,
+> +       unsigned int max_entries)
+>  {
+>         return acpi_table_parse_madt_family(ACPI_APIC, sizeof(struct
+> acpi_table_madt),
+> -                                           id, handler);
+> +                                           id, handler, max_entries);
+>  }
+> 
+> 
+> @@ -578,4 +585,3 @@
+> 
+>         return 0;
+>  }
+> -
+> diff -urN -X /usr/people/jes/exclude-linux --exclude=io --exclude=sn
+> --exclude='qla1280.[ch]'
+> orig/linux-2.6.0-test11-ia64/include/asm-ia64/iosapic.h
+> linux-2.6.0-test11-ia64/include/asm-ia64/iosapic.h
+> --- orig/linux-2.6.0-test11-ia64/include/asm-ia64/iosapic.h     Wed
+> Nov 26 12:44:21 2003
+> +++ linux-2.6.0-test11-ia64/include/asm-ia64/iosapic.h  Tue Jan 13
+> 01:30:32 2004
+> @@ -52,6 +52,9 @@
+>  #ifndef __ASSEMBLY__
+> 
+>  #ifdef CONFIG_IOSAPIC
+> +
+> +#define NR_IOSAPICS                    256
+> +
+>  extern void __init iosapic_system_init (int pcat_compat);
+>  extern void __init iosapic_init (unsigned long address,
+>                                     unsigned int gsi_base);
+> diff -urN -X /usr/people/jes/exclude-linux --exclude=io --exclude=sn
+> --exclude='qla1280.[ch]'
+> orig/linux-2.6.0-test11-ia64/include/linux/acpi.h
+> linux-2.6.0-test11-ia64/include/linux/acpi.h
+> --- orig/linux-2.6.0-test11-ia64/include/linux/acpi.h   Wed Nov 26
+> 12:42:43 2003
+> +++ linux-2.6.0-test11-ia64/include/linux/acpi.h        Tue Jan 13
+> 00:51:02 2004
+> @@ -355,8 +355,8 @@
+>  int acpi_table_init (void);
+>  int acpi_table_parse (enum acpi_table_id id, acpi_table_handler
+> handler);
+>  int acpi_get_table_header_early (enum acpi_table_id id, struct
+> acpi_table_header **header);
+> -int acpi_table_parse_madt (enum acpi_madt_entry_id id,
+> acpi_madt_entry_handler handler);
+> -int acpi_table_parse_srat (enum acpi_srat_entry_id id,
+> acpi_madt_entry_handler handler);
+> +int acpi_table_parse_madt (enum acpi_madt_entry_id id,
+> acpi_madt_entry_handler handler, unsigned int max_entries);
+> +int acpi_table_parse_srat (enum acpi_srat_entry_id id,
+> acpi_madt_entry_handler handler, unsigned int max_entries);
+>  void acpi_table_print (struct acpi_table_header *header, unsigned
+> long phys_addr);
+>  void acpi_table_print_madt_entry (acpi_table_entry_header *madt);
+>  void acpi_table_print_srat_entry (acpi_table_entry_header *srat);
+> 
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.net email is sponsored by: Perforce Software.
+> Perforce is the Fast Software Configuration Management System offering
+> advanced branching capabilities and atomic changes on 50+ platforms.
+> Free Eval! http://www.perforce.com/perforce/loadprog.html
+> _______________________________________________
+> Acpi-devel mailing list
+> Acpi-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/acpi-devel
+> 
+> 
 

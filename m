@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261207AbSIYXZH>; Wed, 25 Sep 2002 19:25:07 -0400
+	id <S261208AbSIYXZp>; Wed, 25 Sep 2002 19:25:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261208AbSIYXZH>; Wed, 25 Sep 2002 19:25:07 -0400
-Received: from thunk.org ([140.239.227.29]:21663 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S261207AbSIYXZH>;
-	Wed, 25 Sep 2002 19:25:07 -0400
-Date: Wed, 25 Sep 2002 19:29:49 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Message-ID: <20020925232949.GA15765@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jeff Garzik <jgarzik@pobox.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org> <3D923E88.30104@pobox.com>
+	id <S261228AbSIYXZo>; Wed, 25 Sep 2002 19:25:44 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:30725 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id <S261208AbSIYXZn>;
+	Wed, 25 Sep 2002 19:25:43 -0400
+Subject: Mouse/Keyboard problems with 2.5.38
+From: Stian Jordet <liste@jordet.nu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 26 Sep 2002 01:31:12 +0200
+Message-Id: <1032996672.11642.6.camel@chevrolet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D923E88.30104@pobox.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 25, 2002 at 06:54:00PM -0400, Jeff Garzik wrote:
-> 
-> Can you post a GNU patch too, for public lookover and independent 
-> integration?
-> 
+Hello,
+I haven't really tried a 2.5 kernel for a very long time. I used some of
+the earliest, but then I suddenly had problems booting one of them, and
+haven't really taken much effort in getting it boot lately.
 
-Sure.  The patch is a bit big for e-mail, but you can find it at:
+But now I decided I should try again. I got 2.5.38 booted after some
+initial trouble. But, I have a couple of weird problems. First, the
+mouse. I have a Logitech Cordless Optical mouse. With kernel 2.4.x I use
+MouseManPlusPS/2 as the XFree mouse-driver. Then I can use the wheel and
+the fourth button just as expected. But with kernel 2.5.38 neither the
+wheel or the fourth button works. I change protocol to IMPS/2 in XFree,
+and everything works like expected, but the fourth button works just
+like pussing the wheel (third button). This is excactly the same
+behavior as with 2.4.20-pre7 (that's why I use MouseManPlusPS/2). Anyone
+have a clue why this doesn't work with kernel 2.5.38?
 
-	http://thunk.org/tytso/linux/ext3-dxdir/patch-ext3-dxdir-2.5.38
+Second problem, if I press SHIFT+PAGEUP, my computer freezes. It spits
+out this message: "input: AT Set 2 keyboard on isa0060/serio0, and then
+it's dead. I have a Logitech cordless keyboard. 
 
-There is also a 2.4.19 patch available as well:
+Anyone else experienced this?
 
-	http://thunk.org/tytso/linux/ext3-dxdir/patch-ext3-dxdir-2.4.19-2
+Best regards,
+Stian Jordet
 
-							- Ted
+
+
+

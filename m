@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVAQJto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVAQJyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbVAQJto (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 04:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbVAQJtc
+	id S262752AbVAQJyS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 04:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbVAQJyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 04:49:32 -0500
-Received: from ppsw-2.csi.cam.ac.uk ([131.111.8.132]:26588 "EHLO
-	ppsw-2.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262750AbVAQJtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 04:49:23 -0500
-Subject: Re: [RFC] Ext3 nanosecond timestamps in big inodes
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Andreas Gruenbacher <agruen@suse.de>, linux-fsdevel@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>, Alex Tomas <alex@clusterfs.com>,
-       Andrew Tridgell <tridge@samba.org>
-In-Reply-To: <20050116054604.GI22715@schnapps.adilger.int>
-References: <200501142216.12726.agruen@suse.de>
-	 <20050116054604.GI22715@schnapps.adilger.int>
+	Mon, 17 Jan 2005 04:54:18 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:19469 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262752AbVAQJyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 04:54:14 -0500
+Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Jan Hubicka <jh@suse.cz>,
+       Jack F Vogel <jfv@bluesong.net>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0501170909040.4593@ezer.homenet>
+References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet>
+	 <20050114205651.GE17263@kam.mff.cuni.cz>
+	 <Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>
+	 <cs9v6f$3tj$1@terminus.zytor.com>
+	 <Pine.LNX.4.61.0501170909040.4593@ezer.homenet>
 Content-Type: text/plain
-Organization: University of Cambridge Computing Service, UK
-Date: Mon, 17 Jan 2005 09:49:12 +0000
-Message-Id: <1105955352.22856.5.camel@imp.csi.cam.ac.uk>
+Date: Mon, 17 Jan 2005 10:53:27 +0100
+Message-Id: <1105955608.6304.60.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-01-15 at 22:46 -0700, Andreas Dilger wrote:
-> On Jan 14, 2005  22:16 +0100, Andreas Gruenbacher wrote:
-> > +static inline struct timespec ext3_current_time(struct inode *inode)
-> > +{
-> > +	return (inode->i_sb->s_time_gran == 1) ?
-> > +	       CURRENT_TIME : CURRENT_TIME_SEC;
-> > +}
-> 
-> If "s_time_gran" (I haven't seen this before but it doesn't appear to
-> be a part of your patch) had some useful meaning we could use it to e.g.
-> shift the nsec part of the timestamps as Andy requested so as not to make
-> the timestamps change too often.
+On Mon, 2005-01-17 at 09:30 +0000, Tigran Aivazian wrote:
+> I cc'd Linus as I cannot believe he agreed with allowing such an 
+> optimization to be a default and standard thing accepted by the Linux 
+> kernel. (But I may be wrong, especially since Linus isn't particularly 
+> fond of kdb anyway :)
 
-sb->s_time_gran is the granularity used for the time in each fs in
-nanoseconds.  So, for example in NTFS it is set to 100 as NTFS stores
-time as 100ns intervals.  This means the kernel time can be rounded
-appropriately when the fs inode times are being updated.  Without this
-you can see inode time jumping backwards in time if the inode is thrown
-out of memory and then read in again and in the process it had some of
-the time bits truncated...
+I don't see a problem, have you ever seen ia64??
+> Actually, having cc'd Linus made me think very _carefully_ about what I 
+> say and I went and checked how the userspace does it, as I couldn't 
+> believe that such fine piece of software as gdb would be broken as well. 
+> And to my surprize I discovered that gdb (when a program is compiled with 
+> -g) works fine! I.e. it shows the function arguments correctly. And 
 
-See the original post of the patch from Andi Kleen for details:
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110134111125012&w=2
+so why don't you use kgdb instead of kdb ?
 
-Best regards,
-
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

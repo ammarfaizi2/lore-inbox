@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265883AbUGEA56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265884AbUGEBD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265883AbUGEA56 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 20:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265884AbUGEA55
+	id S265884AbUGEBD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 21:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265885AbUGEBD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 20:57:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20189 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265883AbUGEA54
+	Sun, 4 Jul 2004 21:03:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35549 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265884AbUGEBD0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 20:57:56 -0400
-Date: Sun, 4 Jul 2004 21:28:46 -0300
+	Sun, 4 Jul 2004 21:03:26 -0400
+Date: Sun, 4 Jul 2004 21:34:13 -0300
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4] lockup on boot with 2.4.26
-Message-ID: <20040705002845.GB20847@logos.cnet>
-References: <1088979352.9568.9.camel@nosferatu.lan>
+To: Chris Mason <mason@suse.com>
+Cc: Rob Mueller <robm@fastmail.fm>, linux-kernel@vger.kernel.org
+Subject: Re: Processes stuck in unkillable D state (2.4 and 2.6)\
+Message-ID: <20040705003413.GC20847@logos.cnet>
+References: <006a01c45de6$e4442930$62afc742@ROBMHP> <1088604723.1589.1387.camel@watt.suse.com> <007901c45ebc$5dc0b730$62afc742@ROBMHP> <1088614262.1589.1395.camel@watt.suse.com> <20040704173936.GA19545@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1088979352.9568.9.camel@nosferatu.lan>
+In-Reply-To: <20040704173936.GA19545@logos.cnet>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 05, 2004 at 12:15:52AM +0200, Martin Schlemmer wrote:
-> Hi
+On Sun, Jul 04, 2004 at 02:39:36PM -0300, Marcelo Tosatti wrote:
+> On Wed, Jun 30, 2004 at 12:51:02PM -0400, Chris Mason wrote:
+> > On Wed, 2004-06-30 at 10:58, Rob Mueller wrote:
+> > > > Hi, could you please post the full sysrq-t output?
+> > > 
+> > > Sure. The 2 procs stuck in D state were 5873 and 15071.
+> > 
+> > Well, you've got two procs waiting for pages but it isn't entirely clear
+> > why they aren't getting them.  There have been quite a few fixes in this
+> > area since 2.6.4, how hard is it for you to upgrade?
 > 
-> I have tried to update my gateway's kernel to 2.4.26 (Been running
-> happily on 2.4.17, but a bit _old_, so finally decided this weekend
-> to try and update it).   At boot though it only gets to:
+> Chris,
 > 
-> --
-> Uncompressing kernel... booting linux...
-> --
-> 
-> and then locks hard (the capslock and scroll lock leds lids)
-> 
-> Its an old P3 450 on an Asus P2B (BX440 chipset).  .config is pretty
-> much the same as for the 2.4.17 kernel.
-> 
-> I did have grsecurity initially applied, but I tried on an vanilla
-> kernel as well (besides some netfiler POM patches, but they are all
-> modules).  I also tried to disable acpi.
-> 
-> Any suggestions would be appreciated.  .config attached.
+> However the said should not be present in v2.4, right?
 
-Hi Martin, 
-
-I do not know the answer for your problem but I'll try to help.
-
-Can you do a binary search and find out which v2.4 kernel stops working? 
-
-You can start with 2.4.21, see if that works, if so, try 2.4.23, etc? 
+Ugh, I meant, "however said bug (which affects v2.6.4-earlier) did not 
+exist in v2.4", so, what would be causing the eternal "D" processes on v2.4 ?
 

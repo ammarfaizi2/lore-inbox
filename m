@@ -1,48 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUHIPp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266001AbUHIPwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266692AbUHIPp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 11:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbUHIPm4
+	id S266001AbUHIPwT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 11:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUHIPwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 11:42:56 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:57041 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266303AbUHIPkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 11:40:31 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: David Woodhouse <dwmw2@infradead.org>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, James.Bottomley@steeleye.com,
-       eric@lammerts.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200408091421.i79ELiPS010580@burner.fokus.fraunhofer.de>
-References: <200408091421.i79ELiPS010580@burner.fokus.fraunhofer.de>
-Content-Type: text/plain
-Message-Id: <1092066015.4383.5344.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Mon, 09 Aug 2004 16:40:15 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 9 Aug 2004 11:52:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16522 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266703AbUHIPsF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 11:48:05 -0400
+Date: Mon, 9 Aug 2004 11:47:48 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
+To: David Howells <dhowells@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <arjanv@redhat.com>,
+       <dwmw2@infradead.org>, <greg@kroah.com>, <chrisw@osdl.org>,
+       <sfrench@samba.org>, <mike@halcrow.us>, <trond.myklebust@fys.uio.no>,
+       <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] implement in-kernel keys & keyring management [try #2]
+In-Reply-To: <32470.1092062111@redhat.com>
+Message-ID: <Xine.LNX.4.44.0408091124460.3322-100000@dhcp83-76.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-09 at 16:21 +0200, Joerg Schilling wrote:
-> Please try again after you had a look into the cdrtools sources.
+On Mon, 9 Aug 2004, David Howells wrote:
 
-Jrg, you are making a fool of yourself.
+> > I figured you would write to the file (a keyring id?) and it would return 
+> > a key id.
+> 
+> What do you mean by return? You can't pass it back as write()'s return
+> value. I suppose you could then arrange for the fd to be read():-/
 
-> Cdrecord also needs privilleges to lock memory and to raise prioirity.
+You write and then read, like the transaction based IO methods in 
+selinuxfs (TA_write, TA_read).
 
-Wrong. Cdrecord does not always _need_ to lock memory or to raise its
-priority.
+> > > What are these? Files containing keyring ID numbers? If so, better to just
+> > > have one file from whence you can read all the IDs, and since
+> > > /proc/pid/status has to grab the requisite lock anyway...
+> > 
+> > They would contain symlinks to keyring IDs.
+> 
+> Yes, but given that the targets of the symlinks would not be in /proc, how do
+> you concoct the symlink. I suppose you could assume "/sysfs/keys/<keyid>" as
+> the target, but that's not very nice.
 
-To do so may be useful when using older drives without buffer underrun
-protection, but is not strictly necessary on current hardware. 
+Not sure how to do this.
 
-> Jrg
+> > > Besides, the search _has_ to be available in kernel space. A filesystem
+> > > such as AFS or NFS would need to be able to call it during file->open(),
+> > > and maybe at other times. Would you suggest that it should call out to
+> > > userspace to do the keyring search?
+> > 
+> > No.  The reason for suggesting this was because with a filesystem API, the 
+> > information is already available in userspace, and it would be quite 
+> > simple to enumerate it.  As you said, it's not something that would happen 
+> > all the time, so it's not performance critical.  But if you need a kernel 
+> > API for the same thing, it's a moot point.
+> 
+> It would be quite an involved process to do this in userspace. You'd have to
+> walk through a nest of keyrings, and you'd have to do a lot of file opening,
+> and closing (possibly 2 per key: type and description, though these could be
+> available through the same file) and reading of dirs and symlinks.
 
+It might be possible to do clever things with symlinks so that you can 
+access the keys simply in a variety of common ways (e.g. per-session 
+directory, all keys directory etc.)
+
+> Maintaining access controls would be fun though... How does the kernel then
+> distinguish between a read and a search?
+
+I guess you'd use normal filsystem access controls instead of storing them
+with the keys themselves.  i.e. keyrings are directories, and keys are
+files (or directories with files including metadata and key data).  Then
+xattrs could be used to integrate with things like SELinux.  A user could
+then use chmod to specify whether a kerying can be searched, for example.
+
+The main point is that a filesystem API provides several useful framework
+components by default:access control, creat/open/read/write etc. syscalls,
+hierarchical structure and xattrs.  Using a filesystem API means not
+inventing yet another class of API.
+
+
+- James
 -- 
-dwmw2
+James Morris
+<jmorris@redhat.com>
+
+
+
 

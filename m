@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266058AbUF2VIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266056AbUF2VLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266058AbUF2VIU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 17:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266056AbUF2VIU
+	id S266056AbUF2VLE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 17:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUF2VLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 17:08:20 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:36006 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S266058AbUF2VID (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 17:08:03 -0400
-Date: Tue, 29 Jun 2004 13:41:43 -0700
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com, "David S. Miller" <davem@redhat.com>
-Subject: Re: Updated Wireless Extension patches
-Message-ID: <20040629204143.GA11782@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20040629162339.GA4356@bougret.hpl.hp.com> <20040629194525.GF23191@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040629194525.GF23191@havoc.gtf.org>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Tue, 29 Jun 2004 17:11:03 -0400
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:42228 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S266056AbUF2VK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 17:10:59 -0400
+Date: Tue, 29 Jun 2004 17:10:21 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: per-process namespace?
+In-reply-to: <1088534826.2816.38.camel@dyn319623-009047021109.beaverton.ibm.com>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Message-id: <40E1DABD.9000202@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <1088534826.2816.38.camel@dyn319623-009047021109.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 03:45:25PM -0400, Jeff Garzik wrote:
-> 
-> Regardless of our recent discussions, I do want to emphasize that I wish
-> to maintain the current WE, and its backwards compatibility, for the
-> current 2.6.x stable series at the very least.
-> 
-> So please don't be discouraged from submitting WE patches...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	No problem Jeff ;-) Because of my wife, I have learned to
-compromise (I just wish she had learned that as well). I already told
-you that the actual delivery mechanism to the driver doesn't matter to
-me, what matter to me is the vocabulary and gramar of the API. And
-also I want to satisfy the need of both driver authors and userspace.
-	So, we are aiming for the same goal, just having slightly
-different methods.
-	I plan to submit WE-17 to you somewhat soon, because Jouni
-needs it, and I've postponed it far too much. There is actually one
-change in WE-17 that you should appreciate. WPA and RtNetlink will go
-when they are ready, for WPA it depends on Jouni, for RtNetlink on me.
+Ram Pai wrote:
+> Is there a way for an application to
+> 1. fork its own namespace and modify it, and
+> 2. still be able to see changes to the system namespace?
+>
+> Al Viro's Per-process namespace implementation provides the first
+> feature.  But is there any work done to do the second part? Is it worth
+> doing?
+>
+> RP
 
-> 	Jeff
-> 
-> 
-> P.S. do associated userland wireless-tools patches exist to make use of
-> netlink?  i.e. how have you been testing it?
+In what sense?
 
-	Good catch ;-)
-	There are some advantage to RtNetlink. Unfortunately,
-simplicity is not one. Dealing with RtNetlink is a lot of work
-compared to ioctl, as you may discover if you migrate your API to it.
-	I have a pretty simple test app. I'm working on a version of
-iwlib that would go through RtNetlink, that would enable the full
-Wireless Tools to use RtNetlink. I'll try to release that soon.
+The current model has no definition for a 'system namespace'.
 
-	Have fun...
+Accessing /proc/<pid>/mounts where <pid> is running in a different
+namespace appears to work.  As well, you can always fchdir back into
+another namespace temporarily.  As long as you don't reference any
+file/directories using absolute paths (including following symlinks),
+then you can already navigate the entire namespace.
 
-	Jean
+This falls apart though when there are no longer any processes keeping
+that namespace alive.  When this happens, the vfsmount's are unstitched
+and you end up 'stuck' on a given mount :(.
 
+Another caveat is that the current system disallows you from doing any
+mount/umount's in another namespace (bogus security?).
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+http://www.sun.com
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA4dq9dQs4kOxk3/MRApkaAKCPe0Nw9QBZH425SZeOIvIzSzksUACfQk5D
+xLgBDN/dsmVMkAAD73mugiY=
+=8OEy
+-----END PGP SIGNATURE-----

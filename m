@@ -1,52 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314376AbSDRPjL>; Thu, 18 Apr 2002 11:39:11 -0400
+	id <S314334AbSDRPiO>; Thu, 18 Apr 2002 11:38:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314377AbSDRPjK>; Thu, 18 Apr 2002 11:39:10 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:11529 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S314376AbSDRPjJ>;
-	Thu, 18 Apr 2002 11:39:09 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] 2.5.8 sort kernel tables 
-In-Reply-To: Your message of "Thu, 18 Apr 2002 23:02:11 +1000."
-             <15550.50131.489249.256007@nanango.paulus.ozlabs.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 19 Apr 2002 01:38:59 +1000
-Message-ID: <3112.1019144339@ocs3.intra.ocs.com.au>
+	id <S314347AbSDRPiN>; Thu, 18 Apr 2002 11:38:13 -0400
+Received: from [213.250.49.39] ([213.250.49.39]:61316 "EHLO godzila.nuedi.com")
+	by vger.kernel.org with ESMTP id <S314334AbSDRPiN>;
+	Thu, 18 Apr 2002 11:38:13 -0400
+Message-ID: <025e01c1e6ef$03600080$0201a8c0@nuedi.com>
+From: "Vasja J Zupan" <vasja@nuedi.com>
+To: "Andy Jeffries" <lkml@andyjeffries.co.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <001d01c1e6e3$c2ef1e60$b4a6a8c0@si> <20020418161217.5bcccbb2.lkml@andyjeffries.co.uk>
+Subject: Re: HPT372 on KR7A-133R (ATA133) on production server
+Date: Thu, 18 Apr 2002 17:37:56 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Apr 2002 23:02:11 +1000 (EST), 
-Paul Mackerras <paulus@samba.org> wrote:
->We already sort the kernel exception table on PPC using an insertion
->sort.  We have chrp, pmac, prep sections as well as init, which is why
->we had to do that.
+Thanks!!!!
+Can you tell me if it was crashing only if raid controller was used, or did
+it crash on normal ide too?
+I could wait until stable kernel is out, living only with software raid and
+use HW afterwards. or use your patch of course!
 
-Good, I will pinch that code and use it on all architectures.
+Does this motherboard have any other (Linux or any other) performance and
+stability issues?
 
->BTW, do you have any valid examples of use of copy_to/from_user or
->get/put_user in an init section?
+Rgds,
+Vasja
 
-No, I was using those functions as an example.  The problem is
-__ex_table, there is other code that uses __ex_table besides
-copy_to_user.  It is quite legal for an arch setup routine to use a
-.fixup/__ex_table wrapper around code that might fail on some platforms
-and to have that setup routine marked __init.
+----- Original Message -----
+From: "Andy Jeffries" <lkml@andyjeffries.co.uk>
+To: "Vasja J Zupan" <vasja@nuedi.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, April 18, 2002 5:12 PM
+Subject: Re: HPT372 on KR7A-133R (ATA133) on production server
 
-For example, arm #defines get8_unaligned_check which uses __ex_table.
-__get_qspan_pci_config in ppc also uses __ex_table.  Use of any of
-these macros (and others) in an __init section will generate unsorted
-tables.  One table has already broken because of out of order text
-sections.  Other tables may be broken, depending on what __init code an
-architecture uses.
 
-The real nasty is that we do not know if the table is broken until an
-exception table entry is used and we fail to find an entry because the
-table is not sorted.  Some exception table entries will work, others
-will not, but there is no mechanism to test if the table is valid, we
-blindly assume that it is.  It is far safer to sort the tables at boot
-time than to hope that they are always sorted.
+> On Thu, 18 Apr 2002 16:16:47 +0200, "Vasja J Zupan" <vasja@nuedi.com>
+> wrote:
+> > Hi,
+> > I'm buying a production server for webservices for mobile operators.
+> >
+> > My HW provider suggested Abit's KR7A-133R (ATA133)  with HPT372.
+> >
+> > Is this motherboard already fully supported and when will stable kernel
+> > be ready for production use on these motherboards? (btw - any advice on
+> > good amd combo is appreciated)
+> >
+> > Thank you for your help and I'd appreciate a personal cc: cos I'm not a
+> > member of this list.
+>
+> It was crashing the Kernel, I helped a friend get his working with a patch
+> which he has uploaded on his website.  To date, I haven't had a reply when
+> I tried to ask who to submit it to on here (2.4.18 isn't fixed AFAIK).
+>
+> http://www.timj.co.uk/linux/
+>
+> Cheers,
+>
+>
+>
+>
+> --
+> Andy Jeffries
+> Linux/PHP Programmer
+> http://www.andyjeffries.co.uk/
+>
+> - Windows Crash HOWTO: compile the code below in VC++ and run it!
+> main (){for(;;){printf("Hung up\t\b\b\b\b\b\b");}}
+>
 

@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317421AbSG3Xhx>; Tue, 30 Jul 2002 19:37:53 -0400
+	id <S317424AbSG3Xo3>; Tue, 30 Jul 2002 19:44:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317423AbSG3Xhx>; Tue, 30 Jul 2002 19:37:53 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:51080 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S317421AbSG3Xhw>; Tue, 30 Jul 2002 19:37:52 -0400
-Date: Tue, 30 Jul 2002 17:41:13 -0600
-Message-Id: <200207302341.g6UNfDF11136@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Greg KH <greg@kroah.com>, <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>
+	id <S317429AbSG3Xo3>; Tue, 30 Jul 2002 19:44:29 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:16646 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317424AbSG3Xo2>;
+	Tue, 30 Jul 2002 19:44:28 -0400
+Date: Tue, 30 Jul 2002 16:46:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: [BK PATCH] devfs cleanups for 2.5.29
-In-Reply-To: <Pine.LNX.4.44.0207310121470.8911-100000@serv>
-References: <200207302312.g6UNC7Z10529@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.44.0207310121470.8911-100000@serv>
+Message-ID: <20020730234630.GA17979@kroah.com>
+References: <20020730225359.GA17826@kroah.com> <200207302312.g6UNC7Z10529@vindaloo.ras.ucalgary.ca> <20020730231841.GA17955@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020730231841.GA17955@kroah.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Tue, 02 Jul 2002 22:24:53 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel writes:
-> Hi,
+On Tue, Jul 30, 2002 at 04:18:41PM -0700, Greg KH wrote:
+> On Tue, Jul 30, 2002 at 05:12:07PM -0600, Richard Gooch wrote:
+> > 
+> > Your patch misses the reason why I created those functions: some
+> > drivers had to always register with the major table. With your
+> > "fixups", those drivers will break when "devfs=only" is passed in. If
+> > you first fix the drivers so that they work without an entry in the
+> > major table, then your patch is safe to apply.
 > 
-> On Tue, 30 Jul 2002, Richard Gooch wrote:
-> 
-> > With your
-> > "fixups", those drivers will break when "devfs=only" is passed in.
-> 
-> That feature is broken by design already anyway. devfs has
-> absolutely no business managing that device pointer. You're
-> duplicating code and it only makes it harder to properly protect
-> it. As far as I can see it's still broken wrt to module unloading.
+> Ah, then this "feature" should be written down somewhere.  Which drivers
+> does this happen for?  And why penalize _all_ of the kernel drivers for
+> only the few that need this?
 
-No, it's not. Look more closely.
+Actually, in reading through the devfs documentation some more about the
+"devfs=only" option, I think this patch should be accepted.  Just
+because you have not fixed up some remaining drivers for the (to quote
+you) "dedicated souls" who want to use this option.
 
-				Regards,
+Don't force such a large and intrusive API change into loads of drivers
+that do not want anything to do with devfs, just because your feature is
+not yet complete.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+If nothing else, it would force you (or people who actually use
+"devfs=only") to fix those remaining drivers, which I would expect you
+to view as a good thing :)
+
+thanks,
+
+greg k-h

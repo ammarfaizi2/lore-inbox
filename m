@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVBJSpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVBJSqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVBJSpS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 13:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVBJSpS
+	id S261226AbVBJSqK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 13:46:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVBJSqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 13:45:18 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17160 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261239AbVBJSpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 13:45:13 -0500
-Date: Thu, 10 Feb 2005 18:45:08 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adam Belay <abelay@novell.com>
-Cc: Greg KH <greg@kroah.com>, rml@novell.com, linux-kernel@vger.kernel.org
+	Thu, 10 Feb 2005 13:46:10 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:44746 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261226AbVBJSqE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 13:46:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=g4A2/jWptLcFurmDKQfKNsBzfb1Tl0QWrQ/Ijn8mbEAo/J3Cyk7hsOa/aR7+4wZ1hLr95wtpwKO5uu1ToXLUt1GO1mem2rwug+kGrIDprbJ4zquLtBz8Q7jvfHRfgEChna2Ix9NwTuUafBrfjGT4DW7YZWG7BUTlEzmkOAaJ5g0=
+Message-ID: <d120d5000502101046d87d13f@mail.gmail.com>
+Date: Thu, 10 Feb 2005 13:46:02 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Greg KH <greg@kroah.com>
 Subject: Re: [RFC][PATCH] add driver matching priorities
-Message-ID: <20050210184508.B5800@flint.arm.linux.org.uk>
-Mail-Followup-To: Adam Belay <abelay@novell.com>, Greg KH <greg@kroah.com>,
-	rml@novell.com, linux-kernel@vger.kernel.org
-References: <1106951404.29709.20.camel@localhost.localdomain> <20050210084113.GZ32727@kroah.com> <1108055918.3423.23.camel@localhost.localdomain>
+Cc: Adam Belay <abelay@novell.com>, rml@novell.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050210183338.GA9308@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1108055918.3423.23.camel@localhost.localdomain>; from abelay@novell.com on Thu, Feb 10, 2005 at 12:18:37PM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1106951404.29709.20.camel@localhost.localdomain>
+	 <20050210084113.GZ32727@kroah.com>
+	 <1108055918.3423.23.camel@localhost.localdomain>
+	 <20050210183338.GA9308@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 12:18:37PM -0500, Adam Belay wrote:
-> > I think the issue that Al raises about drivers grabbing devices, and
-> > then trying to unbind them might be a real problem.
+On Thu, 10 Feb 2005 10:33:38 -0800, Greg KH <greg@kroah.com> wrote:
+> On Thu, Feb 10, 2005 at 12:18:37PM -0500, Adam Belay wrote:
+> >
+> > The second "*match" function in "struct device_driver" gives the driver
+> > a chance to evaluate it's ability of controlling the device and solves a
+> > few problems with the current implementation.  (ex. it's not possible to
+> > detect ISA Modems with only a list of PnP IDs, and some PCI devices
+> > support a pool of IDs that is too large to put in an ID table).
 > 
-> I agree.  Do you think registering every in-kernel driver before probing
-> hardware would solve this problem?
+> What deficiancy in the current id tables do you see?  What driver has a
+> id table that is "too big"?  Is there some way we can change it to make
+> it work better?
+> 
 
-In which case, consider whether we should be tainting the kernel if
-someone loads a device driver, it binds to a device, and then they
-unload that driver.
-
-It's precisely the same situation, and precisely the same mechanics
-as what I've suggested should be going on here.  If one scenario is
-inherently buggy, so is the other.
-
+Stepping a bit farther away - sometimes generinc matching is not
+enough to determine if driver suits for a device - actual probing is
+needed (consider atkbd and psmouse - they can both attach to the same
+port but we can't determine if it is a keyboard or mouse until we
+started probing)
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Dmitry

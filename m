@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129831AbQKRRsA>; Sat, 18 Nov 2000 12:48:00 -0500
+	id <S129835AbQKRRuK>; Sat, 18 Nov 2000 12:50:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129835AbQKRRrv>; Sat, 18 Nov 2000 12:47:51 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20232 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129831AbQKRRrf>; Sat, 18 Nov 2000 12:47:35 -0500
-Subject: Re: Freeze on FPU exception with Athlon
-To: sorisor@Hell.WH8.TU-Dresden.De (Udo A. Steinberg)
-Date: Sat, 18 Nov 2000 17:17:44 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <3A16346B.CF99DF5F@Hell.WH8.TU-Dresden.De> from "Udo A. Steinberg" at Nov 18, 2000 08:48:59 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129955AbQKRRuB>; Sat, 18 Nov 2000 12:50:01 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:5409 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129835AbQKRRto>; Sat, 18 Nov 2000 12:49:44 -0500
+Date: Sat, 18 Nov 2000 18:19:37 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Errors in aa2
+Message-ID: <20001118181937.I2512@athlon.random>
+In-Reply-To: <20001118033609.C4381@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13xBcX-0001sY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20001118033609.C4381@werewolf.able.es>; from jamagallon@able.es on Sat, Nov 18, 2000 at 03:36:09AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linus Torvalds wrote:
-> > 
-> > I sure as hell hope this isn't an Athlon issue.  Can other people try
-> > the test-program and see if we have a pattern (ie "it happens only on
-> > Athlons", or "Linus is on drugs and it happens for everybody else").
+On Sat, Nov 18, 2000 at 03:36:09AM +0100, J . A . Magallon wrote:
+> Hi everyone.
 > 
-> I've tried both variants (fesetenv and inline-asm) with glibc-2.1.3,
-> 2.4.0-test11pre7 and an AMD Thunderbird. Neither does freeze, but
-> both yield:
+> When compiling Andreas aa2 patch I got:
 > 
-> Floating point exception (core dumped)
+> /usr/bin/kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+> -O4 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe
+> -fno-strength-reduce -march=i686 -malign-loops=2 -malign-jumps=2
+> -malign-functions=2 -DCPU=686   -c -o time.o time.c
+> time.c: In function `do_gettimeofday':
+> time.c:727: fixed or forbidden register 0 (ax) was spilled for class AREG.
+> This may be due to a compiler bug or to impossible asm
+> statements or clauses.
 
-Compiler specific ?
+That's compiler bug obviously.
 
+Anyways I guess you're triggering compiler bugs because of the weird
+optimizations (-O4). Note also that everything over -O2 is _wrongly_ used to
+inline everything and that will trash away all your icache (I remeber
+also Linus complained about that bad behaviour of >-O2 in the past and
+it's also trivial to fix [shouldn't be more than a one liner], but nobody on
+the gcc side seems to care to fix it since it's still impling the
+inline-functions in gcc CVS of a few weeks ago).
 
+I triggered various compiler bugs both in 2.7.2.3 and egcs in the past but
+they're should be sorted out in 18pre21aa2 patchkit. If you can still trigger
+compiler bugs with the _default_ compiler options please let me know and I'll
+work around them. 2.95.2 compiles it fine for me.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

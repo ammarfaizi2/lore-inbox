@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267320AbUHIWZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267316AbUHIWZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267320AbUHIWZR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 18:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267318AbUHIWXY
+	id S267316AbUHIWZi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 18:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267318AbUHIWZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 18:23:24 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36062 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267316AbUHIWWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 18:22:48 -0400
-Date: Tue, 10 Aug 2004 00:22:38 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: ralf@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove bouncing address of Kip Walker
-Message-ID: <20040809222238.GH26174@fs.tum.de>
+	Mon, 9 Aug 2004 18:25:37 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:23994 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S267316AbUHIWXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 18:23:32 -0400
+Date: Mon, 9 Aug 2004 15:23:28 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Dan Malek <dan@embeddededge.com>
+Cc: Kumar Gala <kumar.gala@freescale.com>, LKML <linux-kernel@vger.kernel.org>,
+       Greg Weeks <greg.weeks@timesys.com>,
+       LinuxPPC-dev Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [BUG] PPC math-emu multiply problem
+Message-ID: <20040809222328.GB22109@smtp.west.cox.net>
+References: <4108F845.7080305@timesys.com> <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com> <A46787F8-E194-11D8-B8DB-003065F9B7DC@embeddededge.com> <410A5F08.90103@timesys.com> <410A67EA.80705@timesys.com> <20040809165650.GA22109@smtp.west.cox.net> <6FBD1B21-EA2B-11D8-8382-003065F9B7DC@embeddededge.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <6FBD1B21-EA2B-11D8-8382-003065F9B7DC@embeddededge.com>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unless someone knows a non-bouncing email address of Kip Walker, I'd 
-suggest the following patch to remove his bouncing address from 
-sound/oss/swarm_cs4297a.c .
+On Mon, Aug 09, 2004 at 01:42:08PM -0400, Dan Malek wrote:
 
+> 
+> On Aug 9, 2004, at 12:56 PM, Tom Rini wrote:
+> 
+> >Has anyone had a problem with this?  If not, I'll go and pass it
+> >along...
+> 
+> The default rounding mode should be whatever is defined
+> by IEEE.  I thought the emulator used the proper default value
+> and if want something different it should be selected by
+> the control register.  Maybe the emulator isn't implementing
+> the control register properly.
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+Or we had the wrong default?  Greg, any chance you've looked into this
+more?  Thanks.
 
---- linux-2.6.8-rc3-mm2-full/sound/oss/swarm_cs4297a.c.old	2004-08-10 00:12:13.000000000 +0200
-+++ linux-2.6.8-rc3-mm2-full/sound/oss/swarm_cs4297a.c	2004-08-10 00:13:35.000000000 +0200
-@@ -10,7 +10,7 @@
- *               (audio@crystal.cirrus.com).
- *            -- adapted from cs4281 PCI driver for cs4297a on
- *               BCM1250 Synchronous Serial interface
--*               (kwalker@broadcom.com)
-+*               (Kip Walker)
- *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
-@@ -2732,7 +2732,7 @@
- 
- EXPORT_NO_SYMBOLS;
- 
--MODULE_AUTHOR("Kip Walker, kwalker@broadcom.com");
-+MODULE_AUTHOR("Kip Walker");
- MODULE_DESCRIPTION("Cirrus Logic CS4297a Driver for Broadcom SWARM board");
- 
- // --------------------------------------------------------------------- 
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

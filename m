@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129458AbRBSS1k>; Mon, 19 Feb 2001 13:27:40 -0500
+	id <S129995AbRBSS3a>; Mon, 19 Feb 2001 13:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129995AbRBSS1a>; Mon, 19 Feb 2001 13:27:30 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:42500 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129458AbRBSS1Q>;
-	Mon, 19 Feb 2001 13:27:16 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102191826.VAA12894@ms2.inr.ac.ru>
-Subject: Re: MTU and 2.4.x kernel
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Mon, 19 Feb 2001 21:26:38 +0300 (MSK)
-Cc: alan@lxorguk.ukuu.org.uk, roger@kea.GRace.CRi.NZ,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E14UfN9-000279-00@the-village.bc.nu> from "Alan Cox" at Feb 19, 1 01:44:12 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S130828AbRBSS3U>; Mon, 19 Feb 2001 13:29:20 -0500
+Received: from pompeiu.imar.ro ([193.226.4.7]:57732 "HELO pompeiu.imar.ro")
+	by vger.kernel.org with SMTP id <S129995AbRBSS3D>;
+	Mon, 19 Feb 2001 13:29:03 -0500
+Date: Mon, 19 Feb 2001 20:29:24 +0200
+From: Ionut Dumitrache <Ionut.Dumitrache@imar.ro>
+To: linux-kernel@vger.kernel.org
+Subject: support for i815 audio ?
+Message-ID: <20010219202924.6160015318@pompeiu.imar.ro>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> We are implementing an IP stack.
+        Should this onboard audio work with the i810 driver, in 2.2.x
+and 2.4.x ?
+  The card is detected as ICH2, although the driver supports only ICH.
 
-Alan, please, tell me what is wrong. And we will repair this.
+----
+Intel 810 + AC97 Audio, version 0.17, 17:24:05 Feb 17 2001
+PCI: Increasing latency timer of device 00:fd to 64
+i810: Intel ICH2 found at IO 0xef00 and 0xe800, IRQ 9
+ac97_codec: AC97 Audio codec, vendor id1: 0x4144, id2: 0x5360 (Analog
+Devices AD1885)
+i810_audio: Codec refused to allow VRA, using 48Khz only.
+i810_audio: Found 1 audio device(s).
+----
 
-The implementation follows RFCs and even relaxes their requirements
-in the cases, when they are far from reality.
+As seen above, playback is supported only for 48khz samples.
 
-Alexey
+ If this is supposed to happen, is there a plan to support this
+version as well ?
+
+P.S. Please cc-me, i'm not subscribed to this list.

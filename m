@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbUAUVyk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 16:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266076AbUAUVyk
+	id S266094AbUAUVzU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 16:55:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266076AbUAUVzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 16:54:40 -0500
-Received: from smtp.netcabo.pt ([212.113.174.9]:34379 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S265823AbUAUVwi convert rfc822-to-8bit
+	Wed, 21 Jan 2004 16:55:19 -0500
+Received: from 101.24.177.216.inaddr.g4.Net ([216.177.24.101]:53948 "EHLO
+	sparrow.stearns.org") by vger.kernel.org with ESMTP id S266094AbUAUVzH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 16:52:38 -0500
-Subject: Re: [ACPI] Re: PROBLEM: ACPI freezes 2.6.1 on boot
-From: =?ISO-8859-1?Q?S=E9rgio?= Monteiro Basto <sergiomb@netcabo.pt>
-To: "Georg C. F. Greve" <greve@gnu.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       acpi-devel <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <m3d69dhukz.fsf@reason.gnu-hamburg>
-References: <Pine.LNX.4.58.0401211051530.2123@home.osdl.org> 
-	<m3d69dhukz.fsf@reason.gnu-hamburg>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9.7x.1) 
-Date: 21 Jan 2004 21:51:27 +0000
-Message-Id: <1074721887.3672.12.camel@darkstar.portugal>
-Mime-Version: 1.0
-X-OriginalArrivalTime: 21 Jan 2004 21:52:29.0486 (UTC) FILETIME=[DD8EF4E0:01C3E068]
+	Wed, 21 Jan 2004 16:55:07 -0500
+Date: Wed, 21 Jan 2004 16:55:04 -0500 (EST)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Esben Stien <executiv@online.no>
+cc: ML-linux-kernel <linux-kernel@vger.kernel.org>,
+       William Stearns <wstearns@pobox.com>
+Subject: Re: logging all input and output on a tty
+In-Reply-To: <87ad4h5juk.fsf@online.no>
+Message-ID: <Pine.LNX.4.44.0401211651130.2713-100000@sparrow>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And disable apic (lopic and io-pic) options from kernel compilation ?
+Good afternoom, Esben,
 
+On 21 Jan 2004, Esben Stien wrote:
 
-On Wed, 2004-01-21 at 21:15, Georg C. F. Greve wrote:
-> || On 2004-01-21 18:56:59, Linus Torvalds wrote:
-> 
->  > Does it go away if you just make "acpi_pic_set_level_irq()" do
->  > nothing (ie just remove the "outb()" call
->  > 
->  > 	arch/i386/kernel/acpi/boot.c line 273
->  > 
->  > or just make the if-statement be always false).
-> 
->  > It's entirely possible that the SCI is just horribly broken, and
->  > can't be level-triggered.
-> 
-> Just tried removing the outb() call both from plain vanilla 2.6.1 and
-> one with the latest ACPI patch. No change. The system freezes with the
-> same message at the same point during bootup.
-> 
-> Any other ideas?
-> 
-> Regards,
-> Georg
+> I've been trying to get an answer to tty logging for a long time without
+> anyone able to answer. I want to log everything that is written to and
+> from a certain tty. I expect this to be a kernel module. Anyone have any
+> pointers where I can look?. Is there an existing module?
 
--- 
-Sérgio M B
+	User-Mode Linux can log all traffic to or from a tty to files 
+stored on the host.
+	http://user-mode-linux.sourceforge.net/tty_logging.html
 
+	Any questions about this feature should be directed to: 
+User-mode-linux-user@lists.sourceforge.net
+	Cheers,
+	- Bill
+
+---------------------------------------------------------------------------
+	How's my programming?  Call 1-800-DEV-NULL
+(Courtesy of http://www.tux.org/~ricdude/)
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
+rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
+Linux articles at:                         http://www.opensourcedigest.com
+--------------------------------------------------------------------------
 

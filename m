@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264591AbTL0VAB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 16:00:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTL0VAA
+	id S264583AbTL0UxL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 15:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264588AbTL0UxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 16:00:00 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:6235 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264591AbTL0U77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 15:59:59 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-Subject: Re: Synaptics problems in -mm1
-Date: Sat, 27 Dec 2003 15:59:52 -0500
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, GCS <gcs@lsc.hu>,
-       linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>,
-       Tomas Szepe <szepe@pinerecords.com>
-References: <20031224095921.GA8147@lsc.hu> <20031227113848.GA10491@louise.pinerecords.com> <Pine.LNX.4.58.0312271755500.29577@student.dei.uc.pt>
-In-Reply-To: <Pine.LNX.4.58.0312271755500.29577@student.dei.uc.pt>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 27 Dec 2003 15:53:11 -0500
+Received: from mail.kroah.org ([65.200.24.183]:15566 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264583AbTL0UxJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 15:53:09 -0500
+Date: Sat, 27 Dec 2003 12:51:10 -0800
+From: Greg KH <greg@kroah.com>
+To: Sid Boyce <sboyce@blueyonder.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hotplug and 2.6.0-mm1
+Message-ID: <20031227205110.GB21933@kroah.com>
+References: <3FEA7192.6020004@blueyonder.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312271559.52155.dtor_core@ameritech.net>
+In-Reply-To: <3FEA7192.6020004@blueyonder.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 December 2003 12:56 pm, Marcos D. Marado Torres wrote:
-> It kills the mouse tap on an Asus M3700N laptop too...
+On Thu, Dec 25, 2003 at 05:11:46AM +0000, Sid Boyce wrote:
+> I get failures with hotplug on SuSE 9.0 and found out it is expecting 
+> /proc/bus/usb/drivers/ to exist. Modding /etc/hotplug/usb.rc to point to 
+> /sys/bus/usb/drivers/ does not fix it.
+> Downloaded and built hotplug-2003_08_05.tar.gz (latest I could find), 
+> but the file looks just the same and I'm getting "hotplug: can't 
+> synthesize events" messages.
+> Is there a 2.6.0 hotplug to be had?
 
-Mousedev PS/2 emulation for touchpads in absolute mode does not support
-taps. You will either have to use Peter Osterlund's XFree86 driver at:
-http://w1.894.telia.com/~u89404340/touchpad/index.html
-and an updated version of GPM at http://www.geocities.com/dt_or/gpm
-or disable native Synaptics support using psmouse_proto option
-(bare, imps or exps; any of them should do the trick).
+The latest version should work just fine on a Red Hat based machine.
+Since you are using SuSE, I'd ask them if there are any tweaks that need
+to be made for that system.
 
-Dmitry
+Good luck,
+
+greg k-h

@@ -1,101 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265955AbUFTVuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265959AbUFTVwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265955AbUFTVuU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 17:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265957AbUFTVuU
+	id S265959AbUFTVwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 17:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265960AbUFTVwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 17:50:20 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:13209 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S265955AbUFTVuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 17:50:06 -0400
+	Sun, 20 Jun 2004 17:52:25 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:10901 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265959AbUFTVwC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 17:52:02 -0400
+Date: Mon, 21 Jun 2004 00:03:19 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Andreas Gruenbacher <agruen@suse.de>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Kai Germaschewski <kai@germaschewski.name>
+Subject: Re: [PATCH 0/2] kbuild updates
+Message-ID: <20040620220319.GA10407@mars.ravnborg.org>
+Mail-Followup-To: Martin Schlemmer <azarah@nosferatu.za.org>,
+	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+	Andreas Gruenbacher <agruen@suse.de>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Kai Germaschewski <kai@germaschewski.name>
+References: <20040620211905.GA10189@mars.ravnborg.org> <1087767034.14794.42.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MIME::Lite 1.4  (F2.72; T1.001; A1.62; B3.01; Q3.01)
-Cc: "Ron Day" <ronmon@bellsouth.net>
-References: <20040620121101.34274f68@mimi.ronmon.shacknet.nu>
-Subject: Re: SCSI related hang on boot
-In-Reply-To: <20040620121101.34274f68@mimi.ronmon.shacknet.nu>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 20 Jun 2004 16:50:04 -0500
-From: "Kai OM" <epimetreus@fastmail.fm>
-X-Sasl-Enc: 6wkWBc+nh1de/k1JEMNFxQ 1087768204
-Message-Id: <1087768204.30717.198812673@webmail.messagingengine.com>
+In-Reply-To: <1087767034.14794.42.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got an LSIU160 controller, which means that it has two actual
-controllers, an exterior and an interior one.
-The exterior one is disabled in the controller's BIOS, because I have no
-use for it.
-The interior on is terminated immediately after the drive I have
-connected to it.
-I'm wondering if the driver is somehow ignoring(at least in my case)
-fact that the disabled controller is, in fact, disabled, and is getting
-thrown off because I never bothered to buy a terminator for it, when
-it's not supposed to ever be active.
-I'm not a SCSI expert, though, so I'm prolly wrong.
+On Sun, Jun 20, 2004 at 11:30:34PM +0200, Martin Schlemmer wrote:
+> 
+> I know Sam's mta blocks my mail at least (lame isp), but for the rest,
+> please reconsider using this.
+Hmm, got your mail.
 
------ Original message -----
-From: "Ron Day" <ronmon@bellsouth.net>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 20 Jun 2004 12:11:01 -0400
-Subject: Re: SCSI related hang on boot
+> Many external modules, libs, etc use
+> /lib/modules/`uname -r`/build to locate the _source_, and this will
+> break them all.
+Examples please. What I have seen so far is modules that was not
+adapted to use kbuild when being build.
+If they fail to do so they are inherently broken.
 
-Please CC me on this, since I'm not a list member.
+If I get just one good example I will go for the object directory, but
+what I have seen so far is whining - no examples.
 
-I've been following this thread and hoping for an answer. The problem
-I'm having, as well as my hardware, is very similar to this. 
-
-For the record, my equipment:
-
-ASUS A7M-266D, 2 x Athlon MP1800+, 1024MB ECC registered
-
-Tekram DC-390U3W, Symbios Logic (LSI) 53c1010 chipset.
-	Running for 2+ years with sym53c8xx_2 driver. It
-	replaced a Fireport40 that ran for 2-3 years with
-	the same driver and the earlier sym53c8xx (v1)
-	with older/slower/smaller HDD's.
-
-Bus0, terminated in-line after second HDD
-2 x U160 HDD's, id 0 and 1 (2+ years running)
-
-Bus1, terminated in-line at scanner
-An internal Yamaha SCSI CD-RW, id 2 (3-4 years running)
-A UMAX S-12 scanner, id 5 (8+ years running)
-
-Everything goes as expected through sym0, where the
-two HDD's reside, but problems arise at sym1. Compared
-to successful dmesg output, it seems that the scanner
-(and hence the termination for that bus) is not seen.
-
-My conclusion is that sym2.1.18i works and sym2.1.18j
-does not. I say this because I have made a copy of the 
-drivers/scsi/sym53c8xx_2 directory from 2.6.5 (the latest
-that I'm aware of with the .i drivers). By replacing the
-files in current kernels with these, I have compiled and
-run several newer versions sucessfully, the latest being
-2.6.7, which I'm running now.
-
-Rather than post everything here, I'll link to some files that should be
-relevant.
-
-The error (written down and typed in, no serial console):
-http://ronmon.shacknet.nu/configs/scsi_boot_error
-
-Output from a good dmesg (sym2.1.18.i driver):
-http://ronmon.shacknet.nu/configs/dmesg_good-2.6.7-rc3
-
-Brief system layout courtesy of phpsysinfo:
-http://ronmon.shacknet.nu/phpsysinfo/
-
-Output from 'lspci -vvx':
-http://ronmon.shacknet.nu/configs/lspci-vvx
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+	Sam

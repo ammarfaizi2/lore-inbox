@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269813AbRHIO3B>; Thu, 9 Aug 2001 10:29:01 -0400
+	id <S269815AbRHIOgn>; Thu, 9 Aug 2001 10:36:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269817AbRHIO2m>; Thu, 9 Aug 2001 10:28:42 -0400
-Received: from ffmdi5-212-144-149-114.arcor-ip.net ([212.144.149.114]:21748
-	"EHLO merv") by vger.kernel.org with ESMTP id <S269813AbRHIO2h>;
-	Thu, 9 Aug 2001 10:28:37 -0400
-Date: Thu, 9 Aug 2001 16:27:29 +0200
-To: Per Jessen <per@computer.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Mark H. Wood" <mwood@IUPUI.Edu>
-Subject: Re: how to tell Linux *not* to share IRQs ?
-Message-ID: <20010809162728.A2854@bombe.modem.informatik.tu-muenchen.de>
-Reply-To: Andreas Bombe <andreas.bombe@munich.netsurf.de>
-Mail-Followup-To: Per Jessen <per@computer.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"Mark H. Wood" <mwood@IUPUI.Edu>
-Mime-Version: 1.0
+	id <S269817AbRHIOgd>; Thu, 9 Aug 2001 10:36:33 -0400
+Received: from camus.xss.co.at ([194.152.162.19]:55307 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id <S269815AbRHIOgO>;
+	Thu, 9 Aug 2001 10:36:14 -0400
+Message-ID: <3B729FD7.7D8BCA5F@xss.co.at>
+Date: Thu, 09 Aug 2001 16:36:07 +0200
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S - *x Software + Systeme
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Dirk W. Steinberg" <dws@dirksteinberg.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Swapping for diskless nodes
+In-Reply-To: <E15Ulnx-0006zZ-00@the-village.bc.nu> <3B729B96.D306185C@dirksteinberg.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B6E44EE000F26DC@mta1n.bluewin.ch>
-User-Agent: Mutt/1.3.18i
-From: Andreas Bombe <andreas@bombe.modem.informatik.tu-muenchen.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 08, 2001 at 09:03:14PM +0200, Per Jessen wrote:
-> On Wed, 8 Aug 2001 12:13:40 -0500 (EST), Mark H. Wood wrote:
+Hi!
+
+"Dirk W. Steinberg" wrote:
 > 
-> >On Wed, 8 Aug 2001, Andrew McNamara wrote:
-> >[snippage]
-> >> The problem is largely historical - each interrupt traditionally had a
-> >> physically line associated with it, and lines on your backplane were a
-> >> limited resource.
-> >>
-> >> If you were to do it again these days, you might have some sort of
-> >> shared serial bus, so devices could give detailed data to the cpu
-> >> (not only to uniquely identify the interrupting device, but also
-> >> identify sub-devices - say a USB peripheral).
-> >
-> >See for example "vectored interrupts" on the PDP10.  The device driver
-> >tells the device where the driver's ISR is, and when the device
-> >interrupts, it puts that address on the bus.  The interrupt logic jumps
-> >directly to the ISR, which "knows" it is the only driver that would be
-> >interested in this interrupt.  (You could set up a jump table if you
-> >wanted to, so that each device of the same type could identify itself
-> >uniquely, but that typically wasn't a big problem in '10 installations
-> >where multiples were most likely in a PDP11 on the other side of a DTE20,
-> >or Massbus devices on a single RH20.)
-> >
-> >Apparently this idea is now so old that it is new. :-)
+> Alan,
 > 
-> Yeah - I believe the same was possible on the Z80 - though I'd have to 
-> go read the manual to be certain.
+> what you say sound a lot like a hacker solution ("check that it uses the
+> right GFP_ levels"). I think it's about time that this deficit of linux
+> as compared to SunOS or *BSD should be removed. Network paging should be
+> supported as a standard feature of a stock kernel compile.
+> 
+We have swapping over NBD running for some time now on
+our "xS+S Diskless Client" system, and it works really
+fine! No problem running StarOffice, Netscape, The Gimp
+and KDE on a 128MB Diskless Client and 250MB swap over a 
+100MBit switched ethernet!
 
-And with the m68k, too.  In fact, that's what it always tries to do.  It
-runs an interrupt acknowledge cycle when an interrupt is raised so that
-the interrupting device can respond with an 8 bit vector number which is
-used to load the address of the handler from the vector table.
+Check <http://www.xss.co.at/linux/NBD/Applications.html>
+to find our solution for that.
 
-When the /AVEC (autovector) input is true it generates a vector number
-automatically depending on the interrupt level.  So it supports both
-modes of operation.
+Kernel patches are a little bit outdated, but we have NBD swap
+for 2.2.19 running internally since this week, and we will
+update our web-page soon.
 
-So it's not like the PDP-10 was the only to do that.  If only a better
-design would have become standard instead of the ugly IBM PC
-architecture...
+Let us hear if it works for you.
+
+Regards,
+
+- andreas
 
 -- 
-Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71

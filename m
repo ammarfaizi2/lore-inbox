@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbUKBV25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbUKBVcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbUKBV25 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 16:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbUKBV25
+	id S261815AbUKBVcs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 16:32:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUKBVcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:28:57 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:60623 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261412AbUKBV2t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 16:28:49 -0500
-Date: Tue, 2 Nov 2004 22:28:36 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 504] m68k: smp_lock.h: Avoid recursive include
-In-Reply-To: <Pine.GSO.4.61.0411020923590.23843@waterleaf.sonytel.be>
-Message-ID: <Pine.GSO.4.61.0411022228030.21010@waterleaf.sonytel.be>
-References: <200411020249_MC3-1-8DAD-7CF5@compuserve.com>
- <Pine.GSO.4.61.0411020923590.23843@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Nov 2004 16:32:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:35495 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261900AbUKBVam (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 16:30:42 -0500
+Date: Tue, 2 Nov 2004 22:25:39 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Kasprzak <kas@fi.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SWsuspend in 2.6.9 - sound card does not work
+Message-ID: <20041102212539.GC996@openzaurus.ucw.cz>
+References: <20041027111830.GD4724@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027111830.GD4724@fi.muni.cz>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Nov 2004, Geert Uytterhoeven wrote:
-> On Tue, 2 Nov 2004, Chuck Ebbert wrote:
-> > Linus Torvalds wrote:
-> > > This one is _totally_ broken. 
-> > > 
-> > > Not only is that include not recursive, but it immediately breaks any SMP 
-> > > compile because that header file _needs_ the definition of "task_struct".
-> > >
-> > > On Sun, 31 Oct 2004, Geert Uytterhoeven wrote:
-> > > > smp_lock.h: Avoid recursive include
-> > > > 
-> > > > --- linux-2.6.10-rc1/include/linux/smp_lock.h       2004-04-28 15:47:31.000000000 +0200
-> > > > +++ linux-m68k-2.6.10-rc1/include/linux/smp_lock.h  2004-10-20 22:24:05.000000000 +0200
-> > > > @@ -2,7 +2,6 @@
-> > > >  #define __LINUX_SMPLOCK_H
-> > > >  
-> > > >  #include <linux/config.h>
-> > > > -#include <linux/sched.h>
-> > 
-> > 
-> > Shouldn't you also revert cset 1.2405, also by Geert, which added
-> > <linux/sched.h> to reiserfs_fs.h?  Looks like that was done to fix
-> > breakage caused by this change.
+Hi!
+
+> I have an Asus M6R laptop (http://www.fi.muni.cz/~kas/m6r/) with ATI IXP
+> integrated sound card. Under 2.6.8.1 I was able to use the sound card
+> after software suspend (just had to restore mixer settings using alsactl).
+> With 2.6.9 the sound card does not work after suspend/restore: No output no
+> matter how I change mixer settings, and the playback is not timed properly
+> (e.g. when mplayer tries to synchronize audio and video stream, the video
+> goes too fast using all CPU time and no output to speakers/phones.
 > 
-> You can discuss about that: reiserfs_fs.h used current including sched.h.
-                                                        ^
-Oops, there's a missing `without' here...
+> 	I will do a binary search over 2.6.9-pre patches, but I want to ask
+> whether this problem looks familiar to anybody.
+> 
 
-Gr{oetje,eeting}s,
+Are there any changes in the sound module?
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

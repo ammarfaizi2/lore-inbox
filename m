@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbUL0A52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbUL0BB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbUL0A52 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 19:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbUL0A52
+	id S261462AbUL0BB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 20:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbUL0BBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 19:57:28 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:42091 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261535AbUL0A5P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 19:57:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=n5/dVKnf3/qmDAxOySwbSULa9f1sfXLosCZF4mT55uJ2cTAYBbgWk+FCpr9Rw9x8HjVXoXSzRaHjPY1bSesG6OFPGbV23IIbxY2aVEXumT9uDgFNPTPMBS1n9AqQUhyENLZjuuJjsj85Aof8abNEf9WIZEw10gjfqtUJiF/xDNA=
-Message-ID: <58cb370e04122616577e1bd33@mail.gmail.com>
-Date: Mon, 27 Dec 2004 01:57:10 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.6.10-ac1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1104103881.16545.2.camel@localhost.localdomain>
+	Sun, 26 Dec 2004 20:01:25 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:39062 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261462AbUL0BBT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 20:01:19 -0500
+Message-ID: <41CF5EDB.5010806@drzeus.cx>
+Date: Mon, 27 Dec 2004 02:01:15 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1104103881.16545.2.camel@localhost.localdomain>
+Content-Type: multipart/mixed; boundary="=_hades.drzeus.cx-20139-1104109347-0001-2"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH] Fix warning in wbsd
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.6.10-ac1
-> o       Revert AX.25 protocol breakage                  (Alan Cox)
-> o       Remove bogus obsolete option junk from 2.6.10   (Alan Cox)
->         ide changes
->         | Options are often useful, so should be kept.
->         | Especially stuff like serialize
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-IMHO this is counter productive.
+--=_hades.drzeus.cx-20139-1104109347-0001-2
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Most of these options are pure braindamage (they were obsoleted to
-verify what is what) and they paper over real bugs in core or host drivers.
+Cleanup that fixes a warning in the wbsd module.
 
-What do you need 'serialize' option for?
+--=_hades.drzeus.cx-20139-1104109347-0001-2
+Content-Type: text/x-patch; name="wbsd-warning-fix.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="wbsd-warning-fix.patch"
 
-> o       Fix bogus dma_ naming in the 2.6.10 patch       (Alan Cox)
+Index: linux-wbsd/drivers/mmc/wbsd.c
+===================================================================
+--- linux-wbsd/drivers/mmc/wbsd.c	(revision 109)
++++ linux-wbsd/drivers/mmc/wbsd.c	(working copy)
+@@ -205,8 +205,6 @@
+ 
+ static inline void wbsd_init_sg(struct wbsd_host* host, struct mmc_data* data)
+ {
+-	struct request* req = data->req;
+-	
+ 	/*
+ 	 * Get info. about SG list from data structure.
+ 	 */
 
-It is on purpose, we really don't need 'ide_' prefix in ide_hwif_t.
-The rest of ide_dma_* functions will lose ide_* prefix over time.
-
-Bartlomiej
+--=_hades.drzeus.cx-20139-1104109347-0001-2--

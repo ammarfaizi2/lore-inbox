@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267532AbRGMTel>; Fri, 13 Jul 2001 15:34:41 -0400
+	id <S267533AbRGMTlX>; Fri, 13 Jul 2001 15:41:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267533AbRGMTeb>; Fri, 13 Jul 2001 15:34:31 -0400
-Received: from cs666822-222.austin.rr.com ([66.68.22.222]:5514 "HELO
-	igor.taral.net") by vger.kernel.org with SMTP id <S267532AbRGMTe1>;
-	Fri, 13 Jul 2001 15:34:27 -0400
-Date: Fri, 13 Jul 2001 14:34:26 -0500
-From: Taral <taral@taral.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tty->name conversion?
-Message-ID: <20010713143426.B7873@taral.net>
-In-Reply-To: <200107131743.f6DHhGc186373@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dc+cDN39EJAMEtIO"
-Content-Disposition: inline
-In-Reply-To: <200107131743.f6DHhGc186373@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.18i
+	id <S267534AbRGMTlN>; Fri, 13 Jul 2001 15:41:13 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:30873 "EHLO
+	e33.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267533AbRGMTlC>; Fri, 13 Jul 2001 15:41:02 -0400
+Message-Id: <200107131939.f6DJdb921665@eng2.sequent.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Mike Kravetz <mkravetz@sequent.com>, lse-tech@lists.sourceforge.net,
+        Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+        Larry McVoy <lm@bitmover.com>
+Reply-To: Gerrit Huizenga <gerrit@us.ibm.com>
+From: Gerrit Huizenga <gerrit@us.ibm.com>
+Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency 
+In-Reply-To: Your message of Fri, 13 Jul 2001 12:17:37 PDT.
+             <XFMail.20010713121737.davidel@xmailserver.org> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <21660.995053177.1@eng2.sequent.com>
+Date: Fri, 13 Jul 2001 12:39:37 PDT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Fri, 13 Jul 2001 12:17:37 PDT, Davide Libenzi wrote:
+> 
+> The problem, IMHO, is that we're trying to extend what is a correct
+> behaviour on the UP scheduler ( pickup the best task to run ) to SMP
+> machines.  Global scheduling decisions should be triggered in response
+> of load unbalancing and not at each schedule() run otherwise we're
+> going to introduce a common lock that will limit the overall
+> scalability.  My idea about the future of the scheduler is to have a
+> config options users can chose depending upon the machine use.
+> 
+> By trying to keep a unique scheduler for both UP and MP is like going
+> to give the same answer to different problems and the scaling factor
+> (of the scheduler itself) on SMP will never improve.  The code inside
+> kernel/sched.c should be reorganized ( it contains even not scheduler
+> code ) so that the various CONFIG_SCHED* will not introduce any messy
+> inside the code ( possibly by having the code in separate files
+> kernel/sched*.c ).
+> 
+> - Davide
 
---dc+cDN39EJAMEtIO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In a lot of cases, UP is just a simplified, degenerate case of SMP (which
+is itself often a degenerate case of NUMA).  Wouldn't it make a lot of
+sense to have a single scheduler which 1) was relively simple, 2) was as
+good as the current scheduler (or better) on UP, and 3) scaled well on SMP (and
+NUMA)?  I think the current lse scheduler meets all of those goals pretty
+well.
 
-On Fri, Jul 13, 2001 at 01:43:16PM -0400, Albert D. Cahalan wrote:
-> Taral writes:
->=20
-> > I noticed that ps still relies on device numbers to determine tty, since
-> > /proc/*/stat only exports the device number. Is there any way to get the
-> > device name? I noticed that it is not present in tty_struct anywhere
-> > (proc_pid_stat() uses task->tty->device, which is a kdev_t).
-> >
-> > This would be useful to consider if we ever intend to create real
-> > unnumbered character/block devices.
->=20
-> This isn't quite true, at least for the version shipped with Debian.
+Config options means the user has to choose, I have too many important
+choices to make already when building a kernel.
 
-<snip>
+Others have proposed loadable scheduler modules, but the overhead doesn't
+seem to justify the separation.  Config options mean more testing, more
+stable APIs for low level scheduling (or more times when one or the other
+is broken).
 
-Thanks for your reply. It still remains, however, that for processes
-that you do not own, it has to guess, viz:
-
-  319 taral    vc/1     S    Jul12 -zsh
-  320 root     tty2     S    Jul12 /sbin/getty 38400 vc/2
-
-Notice that the getty is listed as tty2, even though it opened
-/dev/vc/2.
-
---=20
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Any technology, no matter how primitive, is magic to those who don't
-understand it." -- Florence Ambrose
-
---dc+cDN39EJAMEtIO
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjtPTUIACgkQ7rh4CE+nYEmx0ACg3BzluBcpENivYes4njlk+Cj5
-laQAnRszbKvMLMyOeOwzlmKkY7yKfhvV
-=NJ3T
------END PGP SIGNATURE-----
-
---dc+cDN39EJAMEtIO--
+gerrit

@@ -1,84 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVADUbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbVADUbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbVADUbL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 15:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVADU2d
+	id S262146AbVADUbM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 15:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVADU1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 15:28:33 -0500
-Received: from dfw-gate1.raytheon.com ([199.46.199.230]:65222 "EHLO
-	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S262114AbVADUYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 15:24:10 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Mark_H_Johnson@raytheon.com, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, perex@suse.cz,
-       Takashi Iwai <tiwai@suse.de>, alsa-devel@alsa-project.org
-From: Mark_H_Johnson@raytheon.com
-Subject: Re: 2.6.10-mm1: ALSA ac97 compile error with CONFIG_PM=n
-Date: Tue, 4 Jan 2005 11:01:47 -0600
-Message-ID: <OF0F545DFC.B5D4268B-ON86256F7F.005D8C3B-86256F7F.005D8C69@raytheon.com>
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 01/04/2005 11:02:51 AM
-MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=09BBE5ECDFCE0AAB8f9e8a93df938690918c09BBE5ECDFCE0AAB"
+	Tue, 4 Jan 2005 15:27:51 -0500
+Received: from gprs214-202.eurotel.cz ([160.218.214.202]:57829 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262100AbVADUZl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 15:25:41 -0500
+Date: Tue, 4 Jan 2005 21:22:45 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Power management of old ISA devices (Re: mark older power managment as deprecated)
+Message-ID: <20050104202245.GB7924@elf.ucw.cz>
+References: <20050104124659.GA22256@elf.ucw.cz> <s5h3bxhgncy.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-SPAM: 0.00
+In-Reply-To: <s5h3bxhgncy.wl@alsa2.suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=09BBE5ECDFCE0AAB8f9e8a93df938690918c09BBE5ECDFCE0AAB
-Content-type: text/plain; charset=US-ASCII
+Hi!
 
->That's not the problem, since function and definition are in the same
->module.
->
->You didn't send your .config, but looking at the code it seems
->CONFIG_PM=n was the culprit.
-Yes. CONFIG_PM=N in my .config.
+> > What about this patch? It marks old power managemnt as obsolete (and
+> > also adds some sparse-style type checking; typedefs were already there
+> > so why not use them?). I think it should go in, so that we can get a
+> > rid of old power managment infrastructure post-2.6.11.
+> 
+> ALSA core part still includes pm_register/unregister() for old
+> (non-PnP) ISA devices.
+> 
+> What is the proper way to register/unregister PM hooks for such
+> devices?
 
->As a workaround, it should work after enabling the following option:
->  Power management options (ACPI, APM)
->    Power Management support
-Hmm. I don't want to do that for my real time testing. I turned that off
-to eliminate a class of possible latencies.
+How are PnP ISA devices handled?
 
->This is only a workaround, I've Cc'ed the ALSA maintainers for a real
->fix.
+Right solution for ISA devices is probably to create an ISA bus in
+driver model, and hook such devices there....
 
-How about the attached patch instead (which moves the #ifdef CONFIG_PM
-and snd_ac97_suspend after the two functions I am having problems with).
-Apparently the use of snd_ac97_restore_status and snd_ac97_restore_iec958
-is in ac97_patch.c as well as in the power management code. I have not
-run the code yet a quick build didn't find any problems with it. I have
-a full build / test coming later today.
+Alternatively, you might just hang them onto platform bus, in similar
+way i8042 uses...
 
-  --Mark
+Imagine this configuration:
 
-PS: On the other message you sent related to [add|del]_mtd_partitions
-applies with the 2nd hunk failing (that code not present) but the first
-hunk makes the build problem I had go away. Thanks.
---0__=09BBE5ECDFCE0AAB8f9e8a93df938690918c09BBE5ECDFCE0AAB
-Content-type: application/octet-stream; 
-	name="ac97-fix-nopm.patch"
-Content-Disposition: attachment; filename="ac97-fix-nopm.patch"
-Content-transfer-encoding: base64
+cpu -- PCI #1 -- PCI to PCI bridge -- PCI #2 -- PCI to ISA bridge -- sound card #1 on 0x100
+              \- PCI to PCI bridge -- PCI #3 -- PCI to ISA bridge -- sound card #2 on 0x100
 
-LS0tIGtlcm5lbC0yLjYuMTBtbTEvc291bmQvcGNpL2FjOTcvYWM5N19jb2RlYy5jLm9yaWcJMjAw
-NS0wMS0wNCAwNzo0MDoyNy4wMDAwMDAwMDAgLTA2MDAKKysrIGtlcm5lbC0yLjYuMTBtbTEvc291
-bmQvcGNpL2FjOTcvYWM5N19jb2RlYy5jCTIwMDUtMDEtMDQgMTA6NDg6MjEuMDAwMDAwMDAwIC0w
-NjAwCkBAIC0yMjAxLDE4ICsyMjAxLDYgQEAKIH0KIAogCi0jaWZkZWYgQ09ORklHX1BNCi0vKioK
-LSAqIHNuZF9hYzk3X3N1c3BlbmQgLSBHZW5lcmFsIHN1c3BlbmQgZnVuY3Rpb24gZm9yIEFDOTcg
-Y29kZWMKLSAqIEBhYzk3OiB0aGUgYWM5NyBpbnN0YW5jZQotICoKLSAqIFN1c3BlbmRzIHRoZSBj
-b2RlYywgcG93ZXIgZG93biB0aGUgY2hpcC4KLSAqLwotdm9pZCBzbmRfYWM5N19zdXNwZW5kKGFj
-OTdfdCAqYWM5NykKLXsKLQlzbmRfYWM5N19wb3dlcmRvd24oYWM5Nyk7Ci19Ci0KIC8qCiAgKiBy
-ZXN0b3JlIGFjOTcgc3RhdHVzCiAgKi8KQEAgLTIyNTMsNiArMjI0MSwxOCBAQAogCX0KIH0KIAor
-I2lmZGVmIENPTkZJR19QTQorLyoqCisgKiBzbmRfYWM5N19zdXNwZW5kIC0gR2VuZXJhbCBzdXNw
-ZW5kIGZ1bmN0aW9uIGZvciBBQzk3IGNvZGVjCisgKiBAYWM5NzogdGhlIGFjOTcgaW5zdGFuY2UK
-KyAqCisgKiBTdXNwZW5kcyB0aGUgY29kZWMsIHBvd2VyIGRvd24gdGhlIGNoaXAuCisgKi8KK3Zv
-aWQgc25kX2FjOTdfc3VzcGVuZChhYzk3X3QgKmFjOTcpCit7CisJc25kX2FjOTdfcG93ZXJkb3du
-KGFjOTcpOworfQorCiAvKioKICAqIHNuZF9hYzk3X3Jlc3VtZSAtIEdlbmVyYWwgcmVzdW1lIGZ1
-bmN0aW9uIGZvciBBQzk3IGNvZGVjCiAgKiBAYWM5NzogdGhlIGFjOTcgaW5zdGFuY2UK
+...would you say that's supported? If yes you'd need to create ISA
+buses and do it properly, otherwise hooking to platform bus is
+probably acceptable.
 
---0__=09BBE5ECDFCE0AAB8f9e8a93df938690918c09BBE5ECDFCE0AAB--
 
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

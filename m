@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289752AbSBKOYZ>; Mon, 11 Feb 2002 09:24:25 -0500
+	id <S289776AbSBKOZF>; Mon, 11 Feb 2002 09:25:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289757AbSBKOYG>; Mon, 11 Feb 2002 09:24:06 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:62734 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S289752AbSBKOYE>;
-	Mon, 11 Feb 2002 09:24:04 -0500
-Date: Mon, 11 Feb 2002 15:23:51 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Oleg Drokin <green@namesys.com>
-cc: Alex Riesen <fork0@users.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
-In-Reply-To: <20020211160948.B7863@namesys.com>
-Message-ID: <Pine.LNX.4.44.0202111522130.2643-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289757AbSBKOY6>; Mon, 11 Feb 2002 09:24:58 -0500
+Received: from angband.namesys.com ([212.16.7.85]:16768 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S289766AbSBKOYq>; Mon, 11 Feb 2002 09:24:46 -0500
+Date: Mon, 11 Feb 2002 17:24:45 +0300
+From: Oleg Drokin on behalf of Hans Reiser <reiser@namesys.com>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com
+Subject: [PATCH] 2.5 [2 of 8] 02-savelink_nospace_nowarning.diff
+Message-ID: <20020211172445.B1768@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
+   Do not print a warning if savelink was not created due to lack of space.
 
-On Mon, 11 Feb 2002, Oleg Drokin wrote:
-
-> Hello!
->
-> On Mon, Feb 11, 2002 at 01:17:13PM +0100, Alex Riesen wrote:
-> > > I got the same with 2.5.4-pre1 on a  ATA66 disk,
-> > > chipset i810, PentiumIII with 256 MBRAM,
-> > > and then on Athlon 1300 Mhz, scsi disk, adaptec
-> > > 2940UW, 512MB RAM.
-> > >
-> > > I saw then just after a reboot.
-> > > Those file has been opened three or four days before the reboot expect of
-> > > .history.
-> > > I got no messages, and, that is the most interesting thing, this
-> > > corruption was just for text file. I also edited some binary file with
-> > > kexedit and them have not been corrupted after the reboot.
-> Hm. Strange. This message have not appeared in my mailbox for some
-> reason.
-> .history may be corrupted if your partition was not unmounted properly
-> before reboot.
-other files corrupted were
-/etc/rc.d/rc.local /etc/rc.d/rc.inet2
-/etc/lilo.conf on the PIII
-
-/scratch/root/<some .c source file> on the Athlon
-
-/ partition is not the same of /home.
-
->
-> Bye,
->     Oleg
->
-
+--- linux/fs/reiserfs/super.c.orig	Mon Feb 11 09:55:00 2002
++++ linux/fs/reiserfs/super.c	Mon Feb 11 09:55:58 2002
+@@ -296,10 +296,11 @@
+ 
+     /* put "save" link inot tree */
+     retval = reiserfs_insert_item (th, &path, &key, &ih, (char *)&link);
+-    if (retval)
+-	reiserfs_warning ("vs-2120: add_save_link: insert_item returned %d\n",
++    if (retval) {
++	if (retval != -ENOSPC)
++	    reiserfs_warning ("vs-2120: add_save_link: insert_item returned %d\n",
+ 			  retval);
+-    else {
++    } else {
+ 	if( truncate )
+ 	    REISERFS_I(inode) -> i_flags |= i_link_saved_truncate_mask;
+ 	else

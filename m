@@ -1,82 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266981AbSLKMkq>; Wed, 11 Dec 2002 07:40:46 -0500
+	id <S266986AbSLKMnx>; Wed, 11 Dec 2002 07:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266986AbSLKMkp>; Wed, 11 Dec 2002 07:40:45 -0500
-Received: from elin.scali.no ([62.70.89.10]:13836 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S266981AbSLKMko>;
-	Wed, 11 Dec 2002 07:40:44 -0500
-Subject: Re: Intel P6 vs P7 system call performance
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-Content-Type: text/plain
-Organization: Scali AS
-Message-Id: <1039610907.25187.190.camel@pc-16.office.scali.no>
+	id <S267003AbSLKMnx>; Wed, 11 Dec 2002 07:43:53 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6106 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S266986AbSLKMnv>; Wed, 11 Dec 2002 07:43:51 -0500
+Date: Wed, 11 Dec 2002 13:51:33 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.4.21-pre1 compile failure: drivers/net/pcmcia/fmvj18x_cs.c
+Message-ID: <20021211125133.GU17522@fs.tum.de>
+References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> <3DF7075E.CB1C7201@eyal.emu.id.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 11 Dec 2002 13:48:27 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DF7075E.CB1C7201@eyal.emu.id.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It get even worse with Hammer. When you run hammer in compatibility mode
-(32 bit app on a 64 bit OS) the sysenter is an illegal instruction.
-Since Intel don't implement syscall, there is no portable sys*
-instruction for 32 bit apps. You could argue that libc hides it for you
-and you just need libc to test the host at startup (do I get a sigill if
-I try to do getpid() with sysenter? syscall? if so we uses int80 for
-syscalls).  But not all programs are linked dyn.
+On Wed, Dec 11, 2002 at 08:37:34PM +1100, Eyal Lebedinsky wrote:
+> gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
+> -malign-functions=4  -DMODULE -DMODVERSIONS -include
+> /data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
+> -nostdinc -iwithprefix include -DKBUILD_BASENAME=fmvj18x_cs  -c -o
+> fmvj18x_cs.o fmvj18x_cs.c
+> fmvj18x_cs.c: In function `fmvj18x_config':
+> fmvj18x_cs.c:489: `PRODID_TDK_GN3410' undeclared (first use in this
+> function)
+> fmvj18x_cs.c:489: (Each undeclared identifier is reported only once
+> fmvj18x_cs.c:489: for each function it appears in.)
+> fmvj18x_cs.c:529: `MANFID_UNGERMANN' undeclared (first use in this
+> function)
+> make[3]: *** [fmvj18x_cs.o] Error 1
+> make[3]: Leaving directory
+> `/data2/usr/local/src/linux-2.4-pre/drivers/net/pcmcia'
+>...
 
-Too bad really, I tried the sysenter patch once, and the gain (on PIII
-and athlon) was significant.
+The pcmcia networking updates that came from -ac didn't include the 
+changes to ciscode.h. The patch below (stolen from -ac) fixes this 
+problem.
 
-Fortunately the 64bit libc for hammer uses syscall. 
+cu
+Adrian
 
+--- linux.vanilla/include/pcmcia/ciscode.h	2001-12-21 17:42:04.000000000 +0000
++++ linux.20-ac1/include/pcmcia/ciscode.h	2002-11-15 16:42:06.000000000 +0000
+@@ -1,5 +1,5 @@
+ /*
+- * ciscode.h 1.48 2001/08/24 12:16:12
++ * ciscode.h 1.57 2002/11/03 20:38:14
+  *
+  * The contents of this file are subject to the Mozilla Public License
+  * Version 1.1 (the "License"); you may not use this file except in
+@@ -60,6 +60,10 @@
+ #define PRODID_INTEL_DUAL_RS232		0x0301
+ #define PRODID_INTEL_2PLUS		0x8422
+ 
++#define MANFID_KME			0x0032
++#define PRODID_KME_KXLC005_A		0x0704
++#define PRODID_KME_KXLC005_B		0x2904
++
+ #define MANFID_LINKSYS			0x0143
+ #define PRODID_LINKSYS_PCMLM28		0xc0ab
+ #define PRODID_LINKSYS_3400		0x3341
+@@ -94,6 +98,8 @@
+ #define PRODID_OSITECH_JACK_336		0x0007
+ #define PRODID_OSITECH_SEVEN		0x0008
+ 
++#define MANFID_OXSEMI			0x0279
++
+ #define MANFID_PIONEER			0x000b
+ 
+ #define MANFID_PSION			0x016c
+@@ -103,6 +109,7 @@
+ #define PRODID_QUATECH_SPP100		0x0003
+ #define PRODID_QUATECH_DUAL_RS232	0x0012
+ #define PRODID_QUATECH_DUAL_RS232_D1	0x0007
++#define PRODID_QUATECH_DUAL_RS232_D2	0x0052
+ #define PRODID_QUATECH_QUAD_RS232	0x001b
+ #define PRODID_QUATECH_DUAL_RS422	0x000e
+ #define PRODID_QUATECH_QUAD_RS422	0x0045
+@@ -120,9 +127,12 @@
+ 
+ #define MANFID_TDK			0x0105
+ #define PRODID_TDK_CF010		0x0900
++#define PRODID_TDK_GN3410		0x4815
+ 
+ #define MANFID_TOSHIBA			0x0098
+ 
++#define MANFID_UNGERMANN		0x02c0
++
+ #define MANFID_XIRCOM			0x0105
+ 
+ #endif /* _LINUX_CISCODE_H */
 
-PS:  rdtsc on P4 is also painfully slow!!!
-
-TJ
-
-On man, 2002-12-09 at 20:46, H. Peter Anvin wrote: 
-> Followup to:  <20021209193649.GC10316@suse.de>
-> By author:    Dave Jones <davej@codemonkey.org.uk>
-> In newsgroup: linux.dev.kernel
-> >
-> > On Mon, Dec 09, 2002 at 05:48:45PM +0000, Linus Torvalds wrote:
-> > 
-> >  > P4's really suck at system calls.  A 2.8GHz P4 does a simple system call
-> >  > a lot _slower_ than a 500MHz PIII. 
-> >  > 
-> >  > The P4 has problems with some other things too, but the "int + iret"
-> >  > instruction combination is absolutely the worst I've seen.  A 1.2GHz
-> >  > Athlon will be 5-10 times faster than the fastest P4 on system call
-> >  > overhead. 
-> > 
-> > Time to look into an alternative like SYSCALL perhaps ?
-> > 
-> 
-> SYSCALL is AMD.  SYSENTER is Intel, and is likely to be significantly
-> faster.  Unfortunately SYSENTER is also extremely braindamaged, in
-> that it destroys *both* the EIP and the ESP beyond recovery, and
-> because it's allowed in V86 and 16-bit modes (where it will cause
-> permanent data loss) which means that it needs to be able to be turned
-> off for things like DOSEMU and WINE to work correctly.
-> 
-> 	-hpa
-
-
-
--- 
-_________________________________________________________________________
-
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
 

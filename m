@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbUDQDLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 23:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbUDQDLJ
+	id S262027AbUDQDOp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 23:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbUDQDOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 23:11:09 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16844 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261672AbUDQDLF (ORCPT
+	Fri, 16 Apr 2004 23:14:45 -0400
+Received: from ozlabs.org ([203.10.76.45]:27832 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262027AbUDQDOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 23:11:05 -0400
-Date: Fri, 16 Apr 2004 23:08:56 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] oops when loading ehci_hcd
-Message-ID: <20040417030856.GA3805@nostromo.devel.redhat.com>
-Mail-Followup-To: David Brownell <david-b@pacbell.net>,
-	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-References: <20040416082311.GA2756@nostromo.devel.redhat.com> <4080229B.4020307@pacbell.net>
+	Fri, 16 Apr 2004 23:14:44 -0400
+Subject: Re: module_param() doesn't seem to work in 2.6.6-rc1
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Pavel Roskin <proski@gnu.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0404161735560.5025@marabou.research.att.com>
+References: <Pine.LNX.4.58.0404161735560.5025@marabou.research.att.com>
+Content-Type: text/plain
+Message-Id: <1082171676.1390.2.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4080229B.4020307@pacbell.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 17 Apr 2004 13:14:37 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell (david-b@pacbell.net) said: 
-> Looks like a cleanup path needs to handle early failure a bit better;
-> likely just having ehci_stop test for ehci->async non-null (before
-> calling scan-async to clean up any pending work) would suffice.
+On Sat, 2004-04-17 at 08:24, Pavel Roskin wrote:
+> Hello!
+> 
+> I know that module_param is supposed to obsolete MODULE_PARM in 2.6
+> kernels.  However, module_param doesn't seem to work in Linux 2.6.6-rc1 (I
+> didn't test older kernels, so I don't know if it's a new bug).
 
-This patch solves the oops for me - thanks!
+You can't mix old and new: only the old will work in that case.
 
-Bill
-
-> --- 1.75/drivers/usb/host/ehci-hcd.c	Wed Apr 14 20:20:58 2004
-> +++ edited/drivers/usb/host/ehci-hcd.c	Fri Apr 16 11:03:50 2004
-> @@ -592,7 +592,8 @@
->  
->  	/* root hub is shut down separately (first, when possible) */
->  	spin_lock_irq (&ehci->lock);
-> -	ehci_work (ehci, NULL);
-> +	if (ehci->async)
-> +		ehci_work (ehci, NULL);
->  	spin_unlock_irq (&ehci->lock);
->  	ehci_mem_cleanup (ehci);
->  
+Sorry for the confusion,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266120AbSLVLCH>; Sun, 22 Dec 2002 06:02:07 -0500
+	id <S265002AbSLVLAg>; Sun, 22 Dec 2002 06:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266256AbSLVLCH>; Sun, 22 Dec 2002 06:02:07 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:19643 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S266120AbSLVLCF>; Sun, 22 Dec 2002 06:02:05 -0500
-Date: Sun, 22 Dec 2002 12:10:14 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: torvalds@transmeta.com
-Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] cpufreq: compile fix for !CONFIG_CPU_FREQ
-Message-ID: <20021222111013.GA11988@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S265058AbSLVLAg>; Sun, 22 Dec 2002 06:00:36 -0500
+Received: from ore.jhcloos.com ([64.240.156.239]:20996 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id <S265002AbSLVLAe>;
+	Sun, 22 Dec 2002 06:00:34 -0500
+To: <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: Intel P6 vs P7 system call performance
+References: <Pine.LNX.4.44.0212191412180.1629-100000@penguin.transmeta.com>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <Pine.LNX.4.44.0212191412180.1629-100000@penguin.transmeta.com>
+Date: 22 Dec 2002 06:08:24 -0500
+Message-ID: <m3el8awbtj.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch depends on the x86-loops-per-jiffy notifier patch sent yesterday.
+Linus> The system call entry becomes a simple
 
-diff -ruN linux-original/arch/i386/kernel/cpu/common.c linux/arch/i386/kernel/cpu/common.c
---- linux-original/arch/i386/kernel/cpu/common.c	2002-12-22 11:13:11.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/common.c	2002-12-22 12:06:29.000000000 +0100
-@@ -387,9 +387,11 @@
- 		for ( i = 0 ; i < NCAPINTS ; i++ )
- 			boot_cpu_data.x86_capability[i] &= c->x86_capability[i];
- 	}
-+#ifdef CONFIG_CPU_FREQ
- 	if (c == &boot_cpu_data) {
- 			cpufreq_register_notifier(&loops_per_jiffy_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
- 	}
-+#endif
- 
- 	printk(KERN_DEBUG "CPU:             Common caps: %08lx %08lx %08lx %08lx\n",
- 	       boot_cpu_data.x86_capability[0],
+Linus> 	call *%gs:constant-offset
+
+Linus> Not mmap. No magic system calls. No relinking. Not
+Linus> _nothing_. One instruction, that's it.
+
+I presume *%gs:0x18 is only for shared objects?
+
+A naïve:
+
+-               asm volatile("call 0xffffe000"
++               asm volatile("call *%%gs:0x18"
+
+in the trivial getppid benchmark code gives a SEGV, since
+(according to gdb's info all-registers) %gs == 0 when it runs.
+
+Is it just that my glibc is too old, or is there a shared vs static difference?
+
+-JimC
+
+P.S.    On a (1 Gig) mobile p3 the getppid bench gives ~333 cycles for
+        int $0x80 and ~215 for call 0xffffe000, before yesterday's push.
+

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264654AbSKTKDp>; Wed, 20 Nov 2002 05:03:45 -0500
+	id <S264859AbSKTKN5>; Wed, 20 Nov 2002 05:13:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264859AbSKTKDp>; Wed, 20 Nov 2002 05:03:45 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:41416 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264654AbSKTKDp>; Wed, 20 Nov 2002 05:03:45 -0500
-Message-Id: <4.3.2.7.2.20021120110545.00b53a30@mail.dns-host.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 20 Nov 2002 11:11:02 +0100
-To: linux-kernel@vger.kernel.org
-From: Margit Schubert-While <margit@margit.com>
-Subject: Patch 2.5.48 ALSA Cirrus Logic 4281
+	id <S264983AbSKTKN5>; Wed, 20 Nov 2002 05:13:57 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:33038
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S264859AbSKTKN5>; Wed, 20 Nov 2002 05:13:57 -0500
+Subject: Re: [patch] remove magic numbers in block queue initialization
+From: Robert Love <rml@tech9.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20021120084401.GH11884@suse.de>
+References: <1037747198.1252.2259.camel@phantasy>
+	 <20021120084401.GH11884@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1037787670.1254.3140.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 20 Nov 2002 05:21:10 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- cs4281.c    2002-11-18 05:29:56.000000000 +0100
-+++ /tmp/cs4281.c       2002-11-20 11:03:16.000000000 +0100
-@@ -2109,7 +2109,7 @@
-         snd_cs4281_pokeBA0(chip, BA0_HICR, BA0_HICR_CHGM);
+On Wed, 2002-11-20 at 03:44, Jens Axboe wrote:
 
-         /* remember the status registers */
--       for (i = 0; number_of(saved_regs); i++)
-+       for (i = 0; i < number_of(saved_regs); i++)
-                 if (saved_regs[i])
-                         chip->suspend_regs[i] = snd_cs4281_peekBA0(chip, 
-saved_regs[i]);
+> No, please leave these alone, testing is on-going in these parts right
+> now.
 
-@@ -2153,7 +2153,7 @@
-         snd_cs4281_chip_init(chip, 0);
+Did you look at the patch?  It just pulls the magic numbers out and uses
+defines.  Should make testing easier.
 
-         /* restore the status registers */
--       for (i = 0; number_of(saved_regs); i++)
-+       for (i = 0; i < number_of(saved_regs); i++)
-                 if (saved_regs[i])
-                         snd_cs4281_pokeBA0(chip, saved_regs[i], 
-chip->suspend_regs[i]);
+	Robert Love
 

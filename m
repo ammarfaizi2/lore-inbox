@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbQKFOzU>; Mon, 6 Nov 2000 09:55:20 -0500
+	id <S129043AbQKFO5b>; Mon, 6 Nov 2000 09:57:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKFOzK>; Mon, 6 Nov 2000 09:55:10 -0500
-Received: from mean.netppl.fi ([195.242.208.16]:5894 "EHLO mean.netppl.fi")
-	by vger.kernel.org with ESMTP id <S129047AbQKFOyz>;
-	Mon, 6 Nov 2000 09:54:55 -0500
-Date: Mon, 6 Nov 2000 16:54:53 +0200
-From: Pekka Pietikainen <pp@evil.netppl.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux support for TCP/IP Task Offload ....
-Message-ID: <20001106165452.A19367@netppl.fi>
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971A3D977@xsj02.sjs.agilent.com> <3A0351D7.39F0FB14@mandrakesoft.com>
+	id <S129061AbQKFO5V>; Mon, 6 Nov 2000 09:57:21 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:37135 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S129043AbQKFO5N>; Mon, 6 Nov 2000 09:57:13 -0500
+Date: Mon, 6 Nov 2000 15:57:02 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Catalin BOIE <util@deuroconsult.ro>
+Cc: linux-kernel@vger.kernel.org, linux-admin@vger.kernel.org
+Subject: Re: Kernel hook for open
+Message-ID: <20001106155702.F12348@arthur.ubicom.tudelft.nl>
+In-Reply-To: <Pine.LNX.4.20.0011061547590.1080-100000@marte.Deuroconsult.ro>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <3A0351D7.39F0FB14@mandrakesoft.com>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.20.0011061547590.1080-100000@marte.Deuroconsult.ro>; from util@deuroconsult.ro on Mon, Nov 06, 2000 at 03:55:41PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
+X-Loop: erik@arthur.ubicom.tudelft.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2000 at 07:01:27PM -0500, Jeff Garzik wrote:
-> sunol_handa@non.agilent.com wrote:
-> > 
-> > thanx for the information
-> > 
-> > this ftp site
-> > ftp://ftp.inr.ac.ru/ip-routing/zerocopy-sendfile-*.dif
-> > is password protected.
-> > 
+On Mon, Nov 06, 2000 at 03:55:41PM +0200, Catalin BOIE wrote:
+> I wish to know if there is something like a kernel hook for open function.
+> I want to monitor a file (someting like watchdog on Solaris) and to read
+> from my own process (module?) and from the file.
 
-> This site is not password-protected, I just downloaded the referenced
-> diff.  Are you trying to download the above URL directly?  You cannot...
-> URLs do not have wildcards in them.  Download the following files:
-The site also used to require the use of passive-mode ftp, which might
-be your problem.
+I don't know what watchdog is, but maybe strace is what you want (man
+strace for more info).
 
-You might want to try 
-ftp://ftp.funet.fi/pub/mirrors/ftp.inr.ac.ruk/ip-routing which is
-probably a lot faster anyway.
+> I tried with LD_SO_PRELOAD but it haven't any effect on the so libraries.
+> For example:
+> If I use function getpwent (that is in a so library) and my home
+> made .so library that overwrite "open" function and is in
+> /etc/ld.so.preload file it doesn't work.
+> Of course, if I use open ("/etc/hosts") the so library execute my
+> function. 
 
-great for me.
+Use LD_PRELOAD instead.
+
+
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

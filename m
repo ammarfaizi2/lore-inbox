@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130304AbQKPQSZ>; Thu, 16 Nov 2000 11:18:25 -0500
+	id <S131006AbQKPQU0>; Thu, 16 Nov 2000 11:20:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131006AbQKPQSP>; Thu, 16 Nov 2000 11:18:15 -0500
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:21262 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S130304AbQKPQSG>; Thu, 16 Nov 2000 11:18:06 -0500
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200011161547.QAA23000@green.mif.pg.gda.pl>
-Subject: Re: PCI configuration changes
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Thu, 16 Nov 2000 16:47:46 +0100 (CET)
-Cc: peter@cadcamlab.org (Peter Samuelson),
-        linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <3A13FD32.2E0C6721@mandrakesoft.com> from "Jeff Garzik" at Nov 16, 2000 10:28:50 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S131025AbQKPQUQ>; Thu, 16 Nov 2000 11:20:16 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:6155 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131006AbQKPQUF>; Thu, 16 Nov 2000 11:20:05 -0500
+Date: Thu, 16 Nov 2000 07:49:26 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
+cc: viro@math.psu.edu, linux-kernel@vger.kernel.org,
+        Eric Paire <paire@ri.silicomp.fr>
+Subject: Re: [BUG] Inconsistent behaviour of rmdir
+In-Reply-To: <Pine.LNX.4.21.0011161400290.24271-100000@sisley.ri.silicomp.fr>
+Message-ID: <Pine.LNX.4.10.10011160747260.2184-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Peter Samuelson wrote:
-> > [Andrzej Krzysztofowicz]
-> > > Note, that as CONFIG_MCA is defined only for i386 the dependencies on
-> > > $CONFIG_MCA are no-op for other architectures (in
-> > > Configure/Menuconfig).  Either CONFIG_MCA should be defined for all
-> > > architectures or there should be if ... fi around these lines.
-> > 
-> > Looks good to me.  Anything to remove clutter from config menus....
+
+
+On Thu, 16 Nov 2000, Jean-Marc Saffroy wrote:
 > 
-> Patch looks ok to me, applied.
+> As you see, it looks like the rmdir fails simply because the dir name ends
+> with a dot !! This is confirmed by sys_rmdir in fs/namei.c, around line
+> 1384 :
+> 
+>         switch(nd.last_type) {
+>                 case LAST_DOTDOT:
+>                         error = -ENOTEMPTY;
+>                         goto exit1;
+>                 case LAST_ROOT: case LAST_DOT:
+>                         error = -EBUSY;
+>                         goto exit1;
+>         }
+> 
+> Should we rip off the offending "case LAST_DOT" ? Or do we need a smarter
+> patch ? Is it really a problem that a process has its current directory
+> deleted ? How about the root ?
 
-I think the following i386 chunk should be added to the patch:
+The cwd is not the problem. The '.' is.
 
+The reason for that check is that allowing "rmdir(".")" confuses a lot of
+UNIX programs, because it wasn't traditionally allowed.
 
---- arch/i386/config.in.old	Tue Nov 14 23:18:12 2000
-+++ arch/i386/config.in	Tue Nov 14 23:19:10 2000
-@@ -198,6 +198,8 @@
- 
- if [ "$CONFIG_VISWS" != "y" ]; then
-    bool 'MCA support' CONFIG_MCA
-+else
-+   define_bool CONFIG_MCA n
- fi
- 
- bool 'Support for hot-pluggable devices' CONFIG_HOTPLUG
+> The man page for rmdir(2) should be updated as well, the current one
+> states :
+>        EBUSY  pathname is the current working directory  or  root
+>               directory of some process.
 
+That's definitely wrong. You can do 
 
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+	rmdir `pwd`
+
+and that's fine (not all filesystems will let you do that, but that's a
+low-level filesystem issue). It's really only the special names "." and
+".." that cannot be removed.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

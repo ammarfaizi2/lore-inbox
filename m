@@ -1,35 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266676AbTAPQyt>; Thu, 16 Jan 2003 11:54:49 -0500
+	id <S267150AbTAPRGC>; Thu, 16 Jan 2003 12:06:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266760AbTAPQyt>; Thu, 16 Jan 2003 11:54:49 -0500
-Received: from angband.namesys.com ([212.16.7.85]:7552 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S266676AbTAPQys>; Thu, 16 Jan 2003 11:54:48 -0500
-Date: Thu, 16 Jan 2003 20:03:41 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Chris Mason <mason@suse.com>
-Cc: Nikita Danilov <Nikita@Namesys.COM>, linux-kernel@vger.kernel.org,
-       eazgwmir@umail.furryterror.org, viro@math.psu.edu
-Subject: Re: [2.4] VFS locking problem during concurrent link/unlink
-Message-ID: <20030116200341.A1002@namesys.com>
-References: <20030116140015.A17612@namesys.com> <1042731580.31099.2195.camel@tiny.suse.com> <20030116184352.A32192@namesys.com> <1042732927.31100.2205.camel@tiny.suse.com> <15910.55436.680525.450310@laputa.namesys.com> <1042734151.31095.2211.camel@tiny.suse.com>
+	id <S267160AbTAPRGC>; Thu, 16 Jan 2003 12:06:02 -0500
+Received: from pd208.katowice.sdi.tpnet.pl ([213.76.228.208]:20864 "EHLO finwe")
+	by vger.kernel.org with ESMTP id <S267150AbTAPRGA>;
+	Thu, 16 Jan 2003 12:06:00 -0500
+Date: Thu, 16 Jan 2003 18:14:51 +0100
+From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
+To: linux-kernel@vger.kernel.org, mdharm-usb@one-eyed-alien.net
+Subject: Re: 2.4.20/2.4.21-pre3 usb Oops
+Message-ID: <20030116171451.GA1647@finwe.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	mdharm-usb@one-eyed-alien.net
+References: <20030115111234.GA1322@finwe.eu.org> <20030115233303.GA26255@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1042734151.31095.2211.camel@tiny.suse.com>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <20030115233303.GA26255@kroah.com>
+Organization: Kreatorzy Kreacji Bialej
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Greg KH wrote:
 
-On Thu, Jan 16, 2003 at 11:22:32AM -0500, Chris Mason wrote:
+> > I've got ide disk connected as usb-storage device.
 
-> They inc the link count in ext2_link before scheduling.  The patch below
-> is what I had in mind, but is untested.
+> > Oops is reproductable (output from ksymoops below). 
+> > I had to copy it from screen (I hope effects are 
+> > reliable).
+> Can you switch UHCI drivers and see if the problem is still there?
 
-It does not change anything.
+Hello! 
 
-Bye,
-    Oleg
+It's better (no oops anyway). I'm not sure if problem
+it's still usb-related now (?). 
+
+BTW. I booted to 2.5.58 (CONFIG_USB_UHCI_HCD=m)
+and there was no oops, but fdisk fell in 'D' state. I can
+try to extract something more from logs if it could be helpful.
+
+2.4.20, uhci:
+-------------
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+scsi0 : SCSI emulation for USB Mass Storage devices
+Vendor:           Model:                   Rev:     
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+WARNING: USB Mass Storage data integrity not assured
+USB Mass Storage device found at 2
+usb.c: usb-storage driver claimed interface ce462700
+USB Mass Storage support registered.
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+SCSI device sda: 80043265 512-byte hdwr sectors (40982 MB)
+sda: Write Protect is off
+ sda: sda1 sda2 sda3 sda4
+
+after fdisk /dev/sda
+--------------------
+hub.c: port 1, portstatus 103, change 0, 12 Mb/s
+usb.c: ignoring set_interface for dev 2, iface 0, alt 0
+scsi: device set offline - not ready or command retry failed after bus reset: host 0 channel 0 id 0 lun 0
+ I/O error: dev 08:00, sector 0
+
+bye
+
+PS 
+
+-- 
+Jacek Kawa

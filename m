@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271722AbRIGLPN>; Fri, 7 Sep 2001 07:15:13 -0400
+	id <S271719AbRIGLPc>; Fri, 7 Sep 2001 07:15:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271721AbRIGLPC>; Fri, 7 Sep 2001 07:15:02 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:35343 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S271719AbRIGLOu>; Fri, 7 Sep 2001 07:14:50 -0400
-Date: Fri, 7 Sep 2001 13:15:10 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-Message-ID: <20010907131510.E13826@emma1.emma.line.org>
-Mail-Followup-To: hps@intermeta.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20010906203646.A11741@gruyere.muc.suse.de> <20010906185124.42C37BC06C@spike.porcupine.org> <9na43a$dk$1@forge.intermeta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <9na43a$dk$1@forge.intermeta.de>
-User-Agent: Mutt/1.3.22.1i
+	id <S271721AbRIGLPW>; Fri, 7 Sep 2001 07:15:22 -0400
+Received: from [203.199.83.142] ([203.199.83.142]:60049 "HELO
+	mailweb18.rediffmail.com") by vger.kernel.org with SMTP
+	id <S271719AbRIGLPJ> convert rfc822-to-8bit; Fri, 7 Sep 2001 07:15:09 -0400
+Date: 7 Sep 2001 11:29:14 -0000
+Message-ID: <20010907112914.18117.qmail@mailweb18.rediffmail.com>
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: sm 56 driver
+From: "tushar  korde" <tushar_k5@rediffmail.com>
+Content-ID: <Fri_Sep__7_16_59_14_IST_2001_0@mailweb18.rediffmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Description: Body
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henning P. Schmiedehausen schrieb am Freitag, den 07. September 2001:
+sir,
+i have undertaken " building driver for motorola sm56(data fax) soft modem in linux" as my project.
+pls provide me the necessary specifications of the 
+modem required to build the driver.
+also i am not getting any guidelines pls suggest the necessary steps to build the driver.
 
-> wietse@porcupine.org (Wietse Venema) writes:
-> 
-> % cd /home/distribution/RedHat-5.2/i386/
-> % ls -la kernel*
-> -r--r--r--    1 root     root      2216232 Oct 14  1998 kernel-2.0.36-0.7.i386.rpm
+yours truly
+ tushar.
 
-> You don't _WANT_ to listen, do you? Andi told you many times, that
-> this is an Linux 2.1+ API. RH 5.2 is a 2.0 distribution. Of course,
+ 
 
-So Postfix would still need the code for the -2.0 (BSD) API...
+
+

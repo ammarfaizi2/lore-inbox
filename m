@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266016AbUE1Jez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265879AbUE1Jip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266016AbUE1Jez (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 05:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUE1Jez
+	id S265879AbUE1Jip (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 05:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265874AbUE1Jim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 05:34:55 -0400
-Received: from mail1.asahi-net.or.jp ([202.224.39.197]:59483 "EHLO
+	Fri, 28 May 2004 05:38:42 -0400
+Received: from mail1.asahi-net.or.jp ([202.224.39.197]:51037 "EHLO
 	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S266017AbUE1JdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 05:33:22 -0400
-Message-ID: <40B7065B.7090804@ThinRope.net>
-Date: Fri, 28 May 2004 18:28:59 +0900
+	id S262398AbUE1Jh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 05:37:57 -0400
+Message-ID: <40B7086D.9010904@ThinRope.net>
+Date: Fri, 28 May 2004 18:37:49 +0900
 From: Kalin KOZHUHAROV <kalin@ThinRope.net>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
 X-Accept-Language: bg, en, ja, ru, de

@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318777AbSG0Pxm>; Sat, 27 Jul 2002 11:53:42 -0400
+	id <S318779AbSG0QAI>; Sat, 27 Jul 2002 12:00:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318776AbSG0Pxm>; Sat, 27 Jul 2002 11:53:42 -0400
-Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:8832 "EHLO
-	DervishD.pleyades.net") by vger.kernel.org with ESMTP
-	id <S318777AbSG0Pxm>; Sat, 27 Jul 2002 11:53:42 -0400
-Date: Sat, 27 Jul 2002 18:03:32 +0200
-Organization: Pleyades
-To: matti.aarnio@zmailer.org, raul@pleyades.net
-Subject: Re: Censorship
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <3D42C454.mail5XQ2VLCWA@viadomus.com>
-References: <3D429D2C.mail5SY11TME8@viadomus.com>
- <20020727164229.J1237@mea-ext.zmailer.org>
-In-Reply-To: <20020727164229.J1237@mea-ext.zmailer.org>
-User-Agent: nail 9.31 6/18/02
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-From: DervishD <raul@pleyades.net>
-Reply-To: DervishD <raul@pleyades.net>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S318778AbSG0QAI>; Sat, 27 Jul 2002 12:00:08 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:20646 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S318779AbSG0QAH>;
+	Sat, 27 Jul 2002 12:00:07 -0400
+Date: Sat, 27 Jul 2002 18:03:25 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: sisfb driver irq fixups
+Message-ID: <20020727160325.GA29221@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Matti :)
+Already sent to Thomas,
 
->>     Who is 'warden.diginsite.com'?
->  Smells of some M$ system -- which even isn't a subscriber
->  of  linux-kernel  list (at least with that name).
->  Perhaps some ISP ?
+--- sis_main.c~	Thu Jul  4 17:58:26 2002
++++ sis_main.c	Sat Jul 27 17:40:48 2002
+@@ -651,6 +651,7 @@
+ 	struct fb_fix_screeninfo fix;
+ 	struct display *display;
+ 	struct display_switch *sw;
++	static spinlock_t driver_lock = SPIN_LOCK_UNLOCKED;
+ 	long flags;
+ 
+ 	if (con >= 0)
+@@ -674,7 +675,7 @@
+ 	display->inverse = sisfb_inverse;
+ 	display->var = *var;
+ 
+-	save_flags(flags);
++	spin_lock_irqsave(&driver_lock, flags);
+ 	switch (ivideo.video_bpp) {
+ #ifdef FBCON_HAS_CFB8
+ 	   case 8:
+@@ -706,7 +707,7 @@
+ 	}
+ 	memcpy(&sisfb_sw, sw, sizeof(*sw));
+ 	display->dispsw = &sisfb_sw;
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&driver_lock, flags);
+ 
+ 	display->scrollmode = SCROLL_YREDRAW;
+ 	sisfb_sw.bmove = fbcon_redraw_bmove;
 
-    Its MTA is IIS, so you are right, is a M$ system. And the name
-smells like an ISP. Just I don't know how the message got thru its
-system, my MTA sends mail directly to destination (that is, to vger).
 
-    Maybe a subscriber is client of warden.diginsite.com
-
-    Raúl
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

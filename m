@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbTILJ7R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 05:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTILJ7R
+	id S261421AbTILKoN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 06:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbTILKoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 05:59:17 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:63698 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261360AbTILJ7M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 05:59:12 -0400
-To: <linux-kernel@vger.kernel.org>
-Cc: andrew.grover@intel.com
-Subject: 2.4.23-pre2 BUG() - ACPI + sysrq power_off
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 12 Sep 2003 11:47:05 +0200
-Message-ID: <m33cf2z6cm.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Sep 2003 06:44:13 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:51350 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261421AbTILKoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 06:44:11 -0400
+Subject: Re: [RFC] Enabling other oom schemes
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robert Love <rml@tech9.net>
+Cc: rusty@linux.co.intel.com, riel@conectiva.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1063342229.700.240.camel@localhost>
+References: <200309120219.h8C2JANc004514@penguin.co.intel.com>
+	 <1063342229.700.240.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063363361.5379.3.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Fri, 12 Sep 2003 11:42:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Gwe, 2003-09-12 at 05:50, Robert Love wrote:
+> But I think its a lot more useful if we have alternative overcommit
+> modes to use with it.
+> 
+> An oom_nop might be a good idea.  But some different policies, i.e. ones
+> with more determinism but less smarts, are interesting.
 
-With 2.4.23-pre2 (and with some older kernels as well) I get BUG()
-after pressing sysrq+Off (power off) with ACPI.
+The overcommit is currently handled by the security layer. It is
+possible the oom callback should at least in part go that way so 
+a security policy can for example kill only student tasks 8)
 
-kernel/pm.c (line 159):
-
-int pm_send(struct pm_dev *dev, pm_request_t rqst, void *data)
-{
-        int status = 0;
-        int prev_state, next_state;
-
-        if (in_interrupt())
-                BUG();    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-        switch (rqst) {
-        case PM_SUSPEND:
-        case PM_RESUME:
-                prev_state = dev->state;
-                next_state = (unsigned long) data;
-                if (prev_state != next_state) {
-                        if (dev->callback)
-                                status = (*dev->callback)(dev, rqst, data);
-                        if (!status) {
-                                dev->state = next_state;
-                                dev->prev_state = prev_state;
-                        }
-                }
-                else {
-                        dev->prev_state = prev_state;
-                }
-                break;
-        default:
-                if (dev->callback)
-                        status = (*dev->callback)(dev, rqst, data);
-                break;
-        }
-        return status;
-}
-
-It seems sysrq-O routine (acpi_sysrq_power_off() -> acpi_power_off() ->
-acpi_suspend(ACPI_STATE_S5)) calls pm_send() from keyboard interrupt,
-which isn't exactly what pm_send() like.
-
-Details available on request, if needed.
-Not checked with 2.6test yet.
-
-
-Another thing: on my notebook, /sbin/poweroff doesn't power the machine
-off with 2.4 (it worked with older 2.4 kernels). echo 5 > /proc/acpi/sleep
-does the job. Any ideas?
--- 
-Krzysztof Halasa, B*FH

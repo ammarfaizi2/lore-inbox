@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135353AbQLOA3J>; Thu, 14 Dec 2000 19:29:09 -0500
+	id <S129780AbQLOAd6>; Thu, 14 Dec 2000 19:33:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135352AbQLOA3B>; Thu, 14 Dec 2000 19:29:01 -0500
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:33694 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S135292AbQLOA2w>; Thu, 14 Dec 2000 19:28:52 -0500
-Date: Thu, 14 Dec 2000 18:58:23 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: <ionut@cs.columbia.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
-In-Reply-To: <Pine.LNX.4.30.0012141746380.1220-100000@viper.haque.net>
-Message-ID: <Pine.LNX.4.30.0012141856530.1368-100000@viper.haque.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130529AbQLOAds>; Thu, 14 Dec 2000 19:33:48 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:16648 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129780AbQLOAdf>;
+	Thu, 14 Dec 2000 19:33:35 -0500
+Date: Fri, 15 Dec 2000 01:03:07 +0100
+From: Andi Kleen <ak@suse.de>
+To: Adam Scislowicz <adams@fourelle.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Non-Blocking socket (SOCK_STREAM send)
+Message-ID: <20001215010307.A26507@gruyere.muc.suse.de>
+In-Reply-To: <3A3953DB.CDA2DF4E@fourelle.com> <20001215002032.A24018@gruyere.muc.suse.de> <3A39573D.BB731C8@fourelle.com> <20001215003533.A26106@gruyere.muc.suse.de> <3A395DA8.312BC23@fourelle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A395DA8.312BC23@fourelle.com>; from adams@fourelle.com on Thu, Dec 14, 2000 at 03:54:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem only happens when ip_conntrack is loaded.
+On Thu, Dec 14, 2000 at 03:54:16PM -0800, Adam Scislowicz wrote:
+> > From your subject you seem not to.
+> >
+> Im sorry for the subject I just wanted to give the environmental factors, and it is a
+> non-blocking socket. At this point I am not sure if that is relavent or not.
+> 
+> > To the best of my knowledge the receiver side EPIPE reporting has not changed,
+> > so it must be something in the sender that causes it to close the connection
+> > earlier. What you have to find out.
+> >
+> We simply rerun the same binary in the same environment, first with 2.2.x, and then
+> with 2.4.x. We have verified that socket(), and connect() calls are successfull, and
+> all of our problems arise when we go to send().
+> We do not send() until our main select() loop sets the writeable flag on our socket
+> descriptor, so our problem should not be related to a pre-mature send().
+> I dont expect this to be a kernel bug, but I was hopeing from the pseudo-code I posted
+> to get a "you are doing this wrong" response.
 
-On Thu, 14 Dec 2000, Mohammad A. Haque wrote:
+It is hard to be sure with a tcpdump log of the incident. If you send me one I'll look
+at it.
 
-> I do the following....
->
-> sudo modprobe iptable_nat
->
-> Module                  Size  Used by
-> iptable_nat            17440   0 (unused)
-> ip_conntrack           19808   1 [iptable_nat]
-> ip_tables              12320   3 [iptable_nat]
->
->
-> Oops start flying by when I access via NFS.
->
-> If you need the actual Oops messages we're gonna have to get someone
-> who can setup a serial console.
->
 
--- 
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

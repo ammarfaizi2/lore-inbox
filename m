@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264949AbTLKNwc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 08:52:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbTLKNwc
+	id S264959AbTLKOH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 09:07:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbTLKOHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 08:52:32 -0500
-Received: from ee.oulu.fi ([130.231.61.23]:33458 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S264949AbTLKNw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 08:52:29 -0500
-Date: Thu, 11 Dec 2003 15:52:24 +0200 (EET)
-From: Tuukka Toivonen <tuukkat@ee.oulu.fi>
-X-X-Sender: tuukkat@stekt37
-To: James Bourne <jbourne@hardrock.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: computer hangs with 2.4.23 (2.4.22 works)
-In-Reply-To: <Pine.LNX.4.51.0312090752320.31228@cafe.hardrock.org>
-Message-ID: <Pine.GSO.4.58.0312111544310.17042@stekt37>
-References: <Pine.GSO.4.58.0312091309090.15061@stekt37>
- <Pine.LNX.4.51.0312090752320.31228@cafe.hardrock.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Dec 2003 09:07:25 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:57541 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264959AbTLKOHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 09:07:24 -0500
+Date: Thu, 11 Dec 2003 08:54:22 -0500
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       Erik Andersen <andersen@codepoet.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031211135422.GA4315@pimlott.net>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
+	Erik Andersen <andersen@codepoet.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
+References: <20031204235055.62846.qmail@web21503.mail.yahoo.com> <20031205004653.GA7385@codepoet.org> <Pine.LNX.4.58.0312041956530.27578@montezuma.fsmlabs.com> <20031205010349.GA9745@codepoet.org> <20031205012124.GB15799@work.bitmover.com> <Pine.LNX.4.58.0312041750270.6638@home.osdl.org> <1071146277.5712.589.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1071146277.5712.589.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.3.28i
+From: Andrew Pimlott <andrew@pimlott.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Dec 2003, James Bourne wrote:
+On Thu, Dec 11, 2003 at 12:37:58PM +0000, David Woodhouse wrote:
+> Your conditions for granting that permission do _not_ have to be
+> restricted to licensing of derived works. You can even ask for _money_
+> in return, if you like. Or you could require that the lucky recipient
+> bathe in creosote daily, in order to receive your licence.
 
->On Tue, 9 Dec 2003, Tuukka Toivonen wrote:
->> Computer hangs after few hours of uptime
+NAL, but look up "misuse of copyright".  You can't just require
+whatever pleases your fancy.
 
->You have CONFIG_IP_NF_COMPAT_IPCHAINS as a module, are you using ipchains
->compatibility?
+Eg,
 
-Yes indeed I am.
+    http://www.digital-law-online.com/lpdi1.0/cases/15PQ2D1846.htm
 
->http://www.hardrock.org/kernel/current-updates/linux-2.4.23-updates.patch
->and see if that makes a difference for you.  It contains the ipchains compat
->oops amoung other patches.
+> I could write a piece of software and tell you that you're only allowed
+> to use it if you release _all_ future software you write under the GPL.
+> Even stuff which isn't at all related, let alone non-derived.
 
-Looks like this patch fixed the problem. Since I applied this patch two
-days ago, the computer hasn't crashed (yesterday or today).
+Highly doubtful.
 
->http://www.kernel.org/pub/linux/kernel/v2.4/snapshots/patch-2.4.23-bk5.bz
-
-I can't get this link to work... but I don't then need it.
-
-Some more facts which clearly point into ipchains problem:
-This computer has two network cards, another connected to the Internet,
-another to a laptop. The ipchains is used to allow the laptop to access
-Internet. The laptop generally doesn't do that, except at 13:00 when a cron
-job runs ntpdate, and now that I think it, the crash happened probably
-every day soon after 13:00 (but not exactly, I believe).
-
-Thanks.
+Andrew
 

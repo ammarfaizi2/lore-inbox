@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263146AbUDHIDL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 04:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264128AbUDHIDL
+	id S264159AbUDHIHT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 04:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263973AbUDHIHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 04:03:11 -0400
-Received: from quimby.programmfabrik.de ([193.108.181.138]:28690 "EHLO
-	quimby.programmfabrik.de") by vger.kernel.org with ESMTP
-	id S263146AbUDHIDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 04:03:08 -0400
-Subject: Re: cp fails in this symlink case, kernel 2.4.25, reiserfs + ext2
-From: Martin Rode <martin.rode@zeroscale.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1081365374.11164.24.camel@shaggy.austin.ibm.com>
-References: <1081359310.1212.537.camel@marge.pf-berlin.de>
-	 <1081365374.11164.24.camel@shaggy.austin.ibm.com>
-Content-Type: text/plain
-Organization: Zeroscale GmbH & Co.
-Message-Id: <1081410996.3770.1405.camel@marge.pf-berlin.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 08 Apr 2004 09:56:37 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Apr 2004 04:07:19 -0400
+Received: from [69.133.187.210] ([69.133.187.210]:55713 "EHLO
+	d10systems.homelinux.com") by vger.kernel.org with ESMTP
+	id S264211AbUDHIHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 04:07:04 -0400
+Date: Wed, 7 Apr 2004 23:06:40 -0400 (EDT)
+From: Dhruv Gami <gami@d10systems.com>
+X-X-Sender: gami@d10systems.homelinux.com
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: setgid - its current use
+In-Reply-To: <200404081041.25006.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.58.0404072304500.14350@d10systems.homelinux.com>
+References: <Pine.LNX.4.58.0404072140070.14350@d10systems.homelinux.com>
+ <200404081041.25006.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-yoursite-MailScanner-Information: Please contact the ISP for more information
+X-yoursite-MailScanner: Found to be clean
+X-MailScanner-From: gami@d10systems.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-07 at 21:16, Dave Kleikamp wrote:
-> On Wed, 2004-04-07 at 12:35, Martin Rode wrote:
-> > 5) cp fails
-> > apu:/home/martin/tmp/bug# (cd alpha/beta; cp ../latest/myfile .)
-> > cp: cannot stat `../latest/myfile': No such file or directory
+On Thu, 8 Apr 2004, Denis Vlasenko wrote:
+
+> On Thursday 08 April 2004 04:46, Dhruv Gami wrote:
+> > I'd like to know the possibility of using setgid for users to switch their
+> > groups and work as a member of a particular group. Essentially, if i want
+> > one user, who belongs to groups X, Y and Z to create a file as a member of
+> > group Y while he's logged on as a member of group X, would it be possible
+> > through setgid() ?
 > 
-> When you cd to alpha/beta, your current directory is really
-> .../tmp/bug/beta.  Your shell may remember that you got there through
-> the symlink in alpha, but cp will follow .., which is really bug.
+> it is possible through chmod
 
-Bug in "cp", "bash" or in the kernel fs-layer? 
+but that would be an explicit way of doing it, right ? I'm looking for 
+doing this via some system calls or something transparent to the user. At 
+most I'd like to query the user for the group as which he wants to work. 
+Which would essentially be a question I ask at login or beginning of a 
+session.
 
-Martin
+regards,
+Gami 
 
 -- 
-Zeroscale GmbH & Co.
-Game Development
+Dhruv Gami
+D10 Systems
+http://d10systems.com
+http://d10systems.com/gami
 

@@ -1,123 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVBBSgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbVBBShg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbVBBSgR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 13:36:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbVBBSgR
+	id S262388AbVBBShg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 13:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVBBShU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 13:36:17 -0500
-Received: from alog0123.analogic.com ([208.224.220.138]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262512AbVBBSfm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 13:35:42 -0500
-Date: Wed, 2 Feb 2005 13:35:55 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Joe User DOS kills Linux-2.6.10
-In-Reply-To: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0502021330270.5447@chaos.analogic.com>
-References: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 2 Feb 2005 13:37:20 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:13722 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262574AbVBBSgW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 13:36:22 -0500
+Subject: Re: [RFC] shared subtrees
+From: Ram <linuxram@us.ibm.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050201232106.GA22118@fieldses.org>
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050116160213.GB13624@fieldses.org>
+	 <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050116184209.GD13624@fieldses.org>
+	 <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050117173213.GC24830@fieldses.org> <1106687232.3298.37.camel@localhost>
+	 <20050201232106.GA22118@fieldses.org>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1107369381.5992.73.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 02 Feb 2005 10:36:22 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-02-01 at 15:21, J. Bruce Fields wrote:
+> On Tue, Jan 25, 2005 at 01:07:12PM -0800, Ram wrote:
+> > If there exists a private subtree in a larger shared subtree, what
+> > happens when the larger shared subtree is rbound to some other place? 
+> > Is a new private subtree created in the new larger shared subtree? or
+> > will that be pruned out in the new larger subtree?
+> 
+> "mount --rbind" will always do at least all the mounts that it did
+> before the introduction of shared subtrees--so certainly it will copy
+> private subtrees along with shared ones.  (Since subtrees are private by
+> default, anything else would make --rbind do nothing by default.) My
+> understanding of Viro's RFC is that the new subtree will have no
+> connection with the preexisting private subtree (we want private
+> subtrees to stay private), but that the new copy will end up with
+> whatever propagation the target of the "mount --rbind" had.  (So the
+> addition of the copy of the private subtree to the target vfsmount will
+> be replicated on any vfsmount that the target vfsmount propogates to,
+> and those copies will propagate among themselves in the same way that
+> the copies of the target vfsmount propagate to each other.)
 
-Additional information:
-My swap-file is also on /dev/sdb2. It appears as though swap
-is being written beyond the end of the SCSI device and the
-device doesn't like it. Also on a subsequent re-boot the
-signature in the swap file had been destroyed so that swapon
-didn't like it. I needed to use `mkswap` again.
+ok. that makes sense. As you said the private subtree shall get copied
+to the new location, however propogations wont be set in either
+directions. However I have a rather unusual requirement which forces 
+multiple rbind of a shared subtree within the same shared subtree.
 
-On Wed, 2 Feb 2005, linux-os wrote:
+I did the calculation and found that the tree simply explodes with
+vfsstructs.  If I mark a subtree within the larger shared tree as
+private, then the number of vfsstructs grows linearly O(n). However if
+there was a way of marking a subtree within the larger shared tree as
+unclonable than the increase in number of vfsstruct is constant.
 
->
-> When I compile and run the following program:
->
-> #include <stdio.h>
-> int main(int x, char **y)
-> {
->    pause();
-> }
-> ... as:
->
-> ./xxx `yes`
->
-> ... the following occurs after about 30 seconds (your mileage
-> may vary):
->
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 34605780
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x2100101, Deferred sdb: sense key Medium Error
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 34603748
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x2100103, Deferred sdb: sense key Medium Error
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 34606804
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x213d5cd, Deferred sdb: sense key Medium Error
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 33943668
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x213d5ce, Deferred sdb: sense key Medium Error
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 33943676
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x213d5cf, Deferred sdb: sense key Medium Error
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 33943684
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x213d5d0, Deferred sdb: sense key Medium Error
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 33943692
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x2149672, Deferred sdb: sense key Medium Error
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 9437375
-> Buffer I/O error on device sdb1, logical block 1179664
-> lost page write due to I/O error on sdb1
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x2149673, Deferred sdb: sense key Medium Error
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 34903668
-> SCSI error : <0 0 1 0> return code = 0x8000002
-> Info fld=0x214967c, Current sdb: sense key Medium Error
-> Additional sense: Peripheral device write fault
-> end_request: I/O error, dev sdb, sector 34903676
->
-> This device, /dev/sdb1 is one of the mounted file-systems.
-> It is not being accessed. The root filesystem is on
-> an IDE drive (/proc/mounts):
->
-> rootfs / rootfs rw 0 0
-> /dev/root.old /initrd ext2 rw 0 0
-> /dev/root / ext3 rw 0 0
-> /proc /proc proc rw,nodiratime 0 0
-> /sys /sys sysfs rw 0 0
-> none /dev/pts devpts rw 0 0
-> none /dev/shm tmpfs rw 0 0
-> /dev/sdb1 /home/project ext2 rw 0 0
-> /dev/sda1 /dos/drive_C msdos rw,nodiratime,fmask=0022,dmask=0022 0 0
-> /dev/sda5 /dos/drive_D msdos rw,nodiratime,fmask=0022,dmask=0022 0 0
-> sunrpc /var/lib/nfs/rpc_pipefs rpc_pipefs rw 0 0
->
-> This continues until the system is too sick to even be re-booted
-> from the console. It requires the reset switch.
->
-> It looks like the command-line argument is probably overflowing
-> something in the kernel, resulting in non-related problems.
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-> Notice : All mail here is now cached for review by Dictator Bush.
->                 98.36% of all statistics are fiction.
+What I am essentially driving at is, can we add another feature which 
+allows me to mark a subtree as unclonable?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+
+Read below to see how the tree explodes:
+
+to run you through an example: 
+
+(In case the tree pictures below gets garbled, it can also be seen at 
+ http://www.sudhaa.com/~ram/readahead/sharedsubtree/subtree )
+
+step 1:
+   lets say the root tree has just two directories with one vfsstruct. 
+                    root
+                   /    \
+                  tmp    usr
+    All I want is to be able to see the entire root tree 
+   (but not anything under /root/tmp) to be viewable under /root/tmp/m* 
+
+step2:
+      mount --make-shared /root
+
+      mkdir -p /tmp/m1
+
+      mount --rbind /root /tmp/m1
+
+      the new tree now looks like this:
+
+                    root
+                   /    \
+                 tmp    usr
+                /
+               m1
+              /  \ 
+             tmp  usr
+             /
+            m1
+
+          it has two vfsstructs
+
+step3: 
+            mkdir -p /tmp/m2
+            mount --rbind /root /tmp/m2
+
+the new tree now looks like this:
+
+                      root
+                     /    \ 
+                   tmp     usr
+                  /    \
+                m1       m2
+               / \       /  \
+             tmp  usr   tmp  usr
+             / \          / 
+            m1  m2      m1 
+                / \     /  \
+              tmp usr  tmp   usr
+              /        / \
+             m1       m1  m2
+            /  \
+          tmp   usr
+          /  \
+         m1   m2
+
+       it has 6 vfsstructs
+
+step 4:
+          mkdir -p /tmp/m3
+          mount --rbind /root /tmp/m3 
+
+          I wont' draw the tree..but it will have 24 vfstructs
+
+
+at step i the number of vfsstructs V[i] = i*V[i-1] which is an
+exponential function.
+
+This is a issue in general if somebody does a --rbind of shared tree
+within the same shared tree multiple times.
+
+However this issue can be alleviated if we mark the subtree as private.
+In the above example, if I mark the tree under /root/tmp as private the
+number of vfsstructs will reduce drastically to O(n). 
+
+But if there is a way of marking a subtree unclonable, this entire issue
+can be resolved. 
+
+RP
+
+>    
+> --Bruce Fields
+
+
+

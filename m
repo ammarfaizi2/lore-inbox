@@ -1,83 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265791AbTB0RUs>; Thu, 27 Feb 2003 12:20:48 -0500
+	id <S266161AbTB0R2p>; Thu, 27 Feb 2003 12:28:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265711AbTB0RUs>; Thu, 27 Feb 2003 12:20:48 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:21703 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265791AbTB0RUr>; Thu, 27 Feb 2003 12:20:47 -0500
-Date: Thu, 27 Feb 2003 09:31:03 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 417] New: htree much slower than regular ext3 
-Message-ID: <11490000.1046367063@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S266175AbTB0R2p>; Thu, 27 Feb 2003 12:28:45 -0500
+Received: from tao.natur.cuni.cz ([195.113.56.1]:61702 "EHLO tao.natur.cuni.cz")
+	by vger.kernel.org with ESMTP id <S266161AbTB0R2o>;
+	Thu, 27 Feb 2003 12:28:44 -0500
+X-Obalka-From: mmokrejs@natur.cuni.cz
+X-Obalka-To: <linux-kernel@vger.kernel.org>
+Date: Thu, 27 Feb 2003 18:39:02 +0100 (CET)
+From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Cannot compile 2.4.21-pre5/drivers/raw1394.c
+Message-ID: <Pine.OSF.4.51.0302271835260.283763@tao.natur.cuni.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=417
+Hi,
+  I can't compile latest linus kernel on ASUS L3000C P4m laptop with
+gcc-3.2.1:
 
-           Summary: htree much slower than regular ext3
-    Kernel Version: 2.5.63-bk3
-            Status: NEW
-          Severity: normal
-             Owner: akpm@digeo.com
-         Submitter: bwindle-kbt@fint.org
+$ make dep
+$ make bzImage
+$ make modules
+[...]
+make -C ieee1394 modules
+make[2]: Entering directory `/usr/src/linux-2.4.21-pre5/drivers/ieee1394'
+ld -m elf_i386 -e stext -r -o ieee1394.o ieee1394_core.o ieee1394_transactions.o hosts.o highlevel.o csr.o nodemgr.o dma.o
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.21-pre5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.21-pre5/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=raw1394  -c -o raw1394.o raw1394.c
+In file included from raw1394.c:50:
+raw1394.h:167: field `tq' has incomplete type
+raw1394.c: In function `__alloc_pending_request':
+raw1394.c:110: warning: implicit declaration of function `HPSB_INIT_WORK'
+raw1394.c:118: confused by earlier errors, bailing out
+make[2]: *** [raw1394.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.21-pre5/drivers/ieee1394'
 
-
-Distribution: Debian Testing
-
-Hardware Environment: x86, 256mb RAM, PIIX4, Maxtor 91728D8 ATA DISK drive
-
-Software Environment: 
-Linux razor 2.5.63bk3 #25 Thu Feb 27 10:13:35 EST 2003 i686 Pentium II 
-(Klamath) GenuineIntel GNU/Linux
-
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-module-init-tools      implemented
-e2fsprogs              1.30-WIP
-reiserfsprogs          3.6.3
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               4.5.2
-
-Problem Description:
-I created a directory ("test") with 32000 (ok, 31998) directories in it,
-and  put a file called 'foo' in each of them (for i in `ls`; do cd $i &&
-touch bar  && cd .. ; done). Then I took that ext3 partion, umounted it,
-did a 'tune2fs -O  dir_index', then 'fsck -fD', and remounted. I then did a
-'time du -hs' on the  test directory, and here are the results.
-
-ext3+htree:     
-bwindle@razor:/giant/inodes$ time du -hs
-126M    .
-
-real    7m21.756s
-user    0m2.021s
-sys     0m22.190s
-
-I then unmounted, tune2fs -O ^dir_index, e2fsck -fD /dev/hdb1, remounted,
-and  did another du -hs on the test directory. It took 1 minute, 48 seconds.
-
-bwindle@razor:/giant/test$ time du -hs
-126M    .
-
-real    1m48.760s
-user    0m1.986s
-sys     0m21.563s
-
-
-I thought htree was supposed to speed up access with large numbers of 
-directories?
-
-
+Please Cc: me in replies. Thanks.
+-- 
+Martin Mokrejs <mmokrejs@natur.cuni.cz>, <m.mokrejs@gsf.de>
+PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
+MIPS / Institute for Bioinformatics <http://mips.gsf.de>
+GSF - National Research Center for Environment and Health
+Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+tel.: +49-89-3187 3683 , fax: +49-89-3187 3585

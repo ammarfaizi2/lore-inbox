@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUH0Wuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUH0XBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUH0Wuh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 18:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUH0Wuh
+	id S265932AbUH0XBn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 19:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUH0XBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 18:50:37 -0400
-Received: from grendel.firewall.com ([66.28.58.176]:58509 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id S265909AbUH0Wts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 18:49:48 -0400
-Date: Sat, 28 Aug 2004 00:49:37 +0200
-From: Marek Habersack <grendel@caudium.net>
-To: "Nemosoft Unv." <webcam@smcc.demon.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>, Craig Milo Rogers <rogers@isi.edu>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Christoph Hellwig <hch@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-Message-ID: <20040827224937.GA5107@beowulf.thanes.org>
-Reply-To: grendel@caudium.net
-References: <20040826233244.GA1284@isi.edu> <20040827185541.GC24018@isi.edu> <Pine.LNX.4.58.0408271157540.14196@ppc970.osdl.org> <200408272342.30619@smcc.demon.nl>
+	Fri, 27 Aug 2004 19:01:43 -0400
+Received: from gate.firmix.at ([80.109.18.208]:43500 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S265932AbUH0XBf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 19:01:35 -0400
+Subject: Re: Summarizing the PWC driver questions/answers
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Kenneth Lavrsen <kenneth@lavrsen.dk>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <6.1.2.0.2.20040827233253.01c36210@inet.uni2.dk>
+References: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
+	 <Pine.LNX.4.61.0408272259450.2771@dragon.hygekrogen.localhost>
+	 <6.1.2.0.2.20040827233253.01c36210@inet.uni2.dk>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Message-Id: <1093647676.17366.14.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
-Content-Disposition: inline
-In-Reply-To: <200408272342.30619@smcc.demon.nl>
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 01:01:19 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2004-08-28 at 00:08, Kenneth Lavrsen wrote:
+> >  I have boxes where I can't run the latest version
+> >of AIX any more since the hardware is no longer supported, but you don't
+> >see me ripping IBM's head off for that reason.
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+BTW Sun did similar things with Solaris somewhere aroung 2.6 IIRC.
 
-On Fri, Aug 27, 2004 at 11:42:30PM +0200, Nemosoft Unv. scribbled:
-[snip]
-> > So I'd personally much prefer the user mode approach. At that point it's
-> > still closed-source, but at least there is not even a whiff of a "hook"
-> > inside the kernel.
->=20
-> My problem with that is that it makes using such cams a lot harder for bo=
-th=20
-> users and developers of webcam tools. Basicly, every tool that wanted to=
-=20
-> use webcam X that has some binary-only library would need to specifically=
-=20
-> support it, use probing routines, check which formats are supported, set =
-up=20
-> the decompressor, push the data through it, etc. Conversely, every user=
-=20
-> that wanted to use webcams X, Y and Z would need to check first if they a=
-re=20
-> all supported by the program(s) he would like to use.
-Forgive me if I'm talking bullshit, but wouldn't it be possible for you to
-route the stream through a device with an entry in /dev/ which would be
-opened by a userspace daemon which would take the stream from the in-kernel
-pwc driver, apply all the codec magic to it, and then give it back to the
-driver in the kernel so that the application that grabs the frames would get
-the processed data? That way you would need only one userlevel daemon to
-support the codecs and all the other apps would just read the data from the
-framebuffer.
+> Ehhh????? No comment.
 
-regards,
+Why?
 
-marek
+[...]
+> Why not let the current driver be and then work on the alternative?
+> Why is it so important that it is removed now?
 
---17pEHd4RhPHOinZp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Because the driver's maintainer wanted it.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+> Linus indicated that since Nemosoft had asked for his driver to be removed 
+> noone else could take the sources as they are and add them again. So any 
+> altertive would be a start from scratch? Or did I misunderstand this?
 
-iD8DBQFBL7qBq3909GIf5uoRAsqeAJ9Ku82tiB+o8HisF3qO6tZQA72u/wCeOegk
-ui3Qn7ldatMfye5JQ8/Yjqk=
-=arjn
------END PGP SIGNATURE-----
+Yes, anyone - including you - can take over the maintanance of the
+GPL-part of driver. Even if the former maintainer does not like it.
 
---17pEHd4RhPHOinZp--
+> That can take years. So I cannot update my kernel for years?
+> How many normal users knows even how to compile their own kernel?
+> You guys on this list talk as if anyone knows how to write a kernel module. 
+> I think most of you have lost contact with the real users.
+
+No, they complain all around all the time. I don't think one can loose
+contact eeven if he wishes.
+The point is: This is GPL software - either you do something, or someone
+else does something or nothing is done. Whining doesn't help that much
+compared to writing code.
+
+> >And why is it you expect open source developers to assist in supporting
+> >binary only drivers?
+> 
+> I am just asking for you guys to not DESTROY what is already there without 
+> an alternative.
+
+It is not destroyed, it is only in another place. Find it and put it
+back whereever you need it.
+
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+
+

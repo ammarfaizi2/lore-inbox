@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbTHTUYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 16:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbTHTUY3
+	id S262244AbTHTUWT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 16:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbTHTUWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 16:24:29 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:58347 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262246AbTHTUY2
+	Wed, 20 Aug 2003 16:22:19 -0400
+Received: from pop3.infonegocio.com ([213.4.129.150]:32510 "EHLO
+	telesmtp4.mail.isp") by vger.kernel.org with ESMTP id S262244AbTHTUWR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 16:24:28 -0400
-Subject: Re: Dumb question: BKL on reboot ?
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Hannes.Reinecke@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030820113520.281fe8bb.davem@redhat.com>
-References: <3F434BD1.9050704@suse.de>
-	 <20030820112918.0f7ce4fe.akpm@osdl.org>
-	 <20030820113520.281fe8bb.davem@redhat.com>
+	Wed, 20 Aug 2003 16:22:17 -0400
+Subject: [PATCH] Build Broken for 2.6.0-test3-bk8
+From: Emilio =?ISO-8859-1?Q?Jes=FAs?= Gallego Arias 
+	<egallego@telefonica.net>
+To: agoddard@purdue.edu
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Organization: 
-Message-Id: <1061411024.9371.33.camel@nighthawk>
+Message-Id: <1061410952.568.8.camel@ellugar>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Aug 2003 13:23:44 -0700
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 20 Aug 2003 22:22:32 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-08-20 at 11:35, David S. Miller wrote:
-> On Wed, 20 Aug 2003 11:29:18 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Where exactly does the rebooting CPU get stuck in machine_restart()?  If
-> > someone has done lock_kernel() with local interrupts disabled then yes,
-> > it'll deadlock.  But that's unlikely?  Confused.
+I got the same error, and applied this patch. Don't know if it's the way
+to go:
 
-I thought it was legal to do that.  The normal interrupts-off spinlock
-deadlock happens because a thread does a spin_lock() with no irq
-disable, then gets interrupted.  The interrupt handler tries to take the
-lock, and gets stuck.  
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or
+higher.
+# This patch includes the following deltas:
+#                  ChangeSet    1.1279  -> 1.1280
+#       arch/i386/kernel/setup.c        1.92    -> 1.93
+#       arch/i386/kernel/acpi/boot.c    1.27    -> 1.28
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/08/20      emilio@ellugar.(none)   1.1280
+# - Fix build error due a missing include.
+# --------------------------------------------
+#
+diff -Nru a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
+--- a/arch/i386/kernel/acpi/boot.c      Wed Aug 20 22:18:04 2003
++++ b/arch/i386/kernel/acpi/boot.c      Wed Aug 20 22:18:04 2003
+@@ -34,6 +34,7 @@
+ #if defined (CONFIG_X86_LOCAL_APIC)
+ #include <mach_apic.h>
+ #include <mach_mpparse.h>
++#include <asm/io_apic.h>
+ #endif
+  
+ #define PREFIX                 "ACPI: "
+diff -Nru a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
+--- a/arch/i386/kernel/setup.c  Wed Aug 20 22:18:04 2003
++++ b/arch/i386/kernel/setup.c  Wed Aug 20 22:18:04 2003
+@@ -43,6 +43,7 @@
+ #include <asm/setup.h>
+ #include <asm/arch_hooks.h>
+ #include <asm/sections.h>
++#include <asm/io_apic.h>
+ #include "setup_arch_pre.h"
+ #include "mach_resources.h"
 
-If the BKL is put in that situation, the interrupt handler will see
-current->lock_depth > 0, and not actually take the spinlock; it will
-just increment the lock_depth.  It won't deadlock.
-
-Or, are you saying that a CPU could have the BKL, and have
-stop_this_cpu() called on it?  I guess we could add
-release_kernel_lock() to stop_this_cpu().
--- 
-Dave Hansen
-haveblue@us.ibm.com
 

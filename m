@@ -1,51 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbTL2Q6O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 11:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbTL2Q6N
+	id S263642AbTL2REs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 12:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbTL2REs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 11:58:13 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:44514 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S263711AbTL2Q41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 11:56:27 -0500
-Date: Mon, 29 Dec 2003 17:56:20 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: DervishD <raul@pleyades.net>
-Cc: Eugene <spamacct11@yahoo.com>, linux-kernel@vger.kernel.org,
-       "ynezz @ hysteria. sk" <ynezz@hysteria.sk>
-Subject: Re: best AMD motherboard for Linux
-Message-ID: <20031229165620.GF30794@louise.pinerecords.com>
-References: <3FEF0AFD.4040109@yahoo.com> <20031228172008.GA9089@c0re.hysteria.sk> <3FEF0AFD.4040109@yahoo.com> <20031228174828.GF3386@DervishD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031228174828.GF3386@DervishD>
-User-Agent: Mutt/1.4.1i
+	Mon, 29 Dec 2003 12:04:48 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:15010 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S263793AbTL2REn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 12:04:43 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: "Guldo K" <guldo@tiscali.it>
+Subject: Re: speedtouch for 2.6.0
+Date: Mon, 29 Dec 2003 18:04:40 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <16366.61517.501828.389749@gargle.gargle.HOWL> <200312291714.10152.baldrick@free.fr> <16368.23199.717051.15982@gargle.gargle.HOWL>
+In-Reply-To: <16368.23199.717051.15982@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_o6F8/UhxajOEAfe"
+Message-Id: <200312291804.40544.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec-28 2003, Sun, 18:48 +0100
-DervishD <raul@pleyades.net> wrote:
 
-> > planning to get GeForce FX graphics card, if it makes a difference.
-> 
->     Ask here before if you are planning to change your video card.
+--Boundary-00=_o6F8/UhxajOEAfe
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-nVidia translates to "trouble" around here.  Selected Radeon cards,
-on the other hand, work perfectly with opensource drivers and should
-perform comparably.
+On Monday 29 December 2003 17:47, Guldo K wrote:
+> Duncan Sands writes:
+>  > Hi Guldo, from your email I had understood that your setup worked under
+>  > 2.4.  Is that right?
+>
+> It's not. I didn't tell you that my previous setup (2.4)
+> was about the user driver, not the kernel one.
+>
+>  > Anyway, the speedbundle (
+>  > http://linux-usb.sourceforge.net/SpeedTouch/download/index.html
+>  > ) contains source code for an appropriate pppd + ATM library.
+>
+> Thanks.
+> I tried to compile just ppp, but "make" resulted in:
 
->     I would make my bet for the Gigabyte one...
+Yeah, I was a bit brief :)  Look in the top-level Makefile (in
+speedbundle) to see how to compile.  The easiest thing to
+do though is probably to use the attached top-level Makefile,
+which is the same as the current one except that it doesn't
+compile the kernel module.  I didn't test it but it should work.
 
-Me too.
+Ciao,
 
-> expresión de estulticia. Ahora a ver si encuentras quien te traduzca
-> esto, and sorry to the list for the flame bit, but I can't stand such
-> gilipollas.
+Duncan.
 
-Ignore the idiots if possible, it will make your life easier.
+--Boundary-00=_o6F8/UhxajOEAfe
+Content-Type: text/x-makefile;
+  charset="iso-8859-1";
+  name="Makefile"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Makefile"
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+all: build
+
+configure: configure-stamp
+configure-stamp:
+	./configure
+
+build: configure-stamp build-stamp
+build-stamp:
+#	cd kernel_module && $(MAKE)
+	cd linux-atm/src/lib && $(MAKE)
+	cd ppp/pppd && $(MAKE)
+	cd ppp/pppd/plugins && $(MAKE) C_INCLUDE_PATH=../../../linux-atm/src/include LIBRARY_PATH=../../../linux-atm/src/lib/.libs
+	cd firmware && $(MAKE)
+	cd firmware_loader && $(MAKE)
+	cd hotplug_scripts && $(MAKE)
+	cd ppp_scripts && $(MAKE)
+	touch build-stamp
+
+clean:
+	rm -f build-stamp configure-stamp
+	cd firmware && $(MAKE) clean
+	cd firmware_loader && $(MAKE) clean
+	cd hotplug_scripts && $(MAKE) clean
+#	cd kernel_module && $(MAKE) clean
+	cd linux-atm/src/lib && $(MAKE) clean
+	cd ppp/pppd/plugins && $(MAKE) clean
+	cd ppp/pppd && $(MAKE) clean
+	cd ppp_scripts && $(MAKE) clean
+
+install: build
+#	cd kernel_module && $(MAKE) install
+	cd firmware && $(MAKE) install
+	cd firmware_loader && $(MAKE) modem_run
+	cd hotplug_scripts && $(MAKE) install
+	cd linux-atm/src/lib && $(MAKE) install
+	cd ppp/pppd && $(MAKE) install
+	cd ppp/pppd/plugins && $(MAKE) install
+	cd ppp_scripts && $(MAKE) install
+
+--Boundary-00=_o6F8/UhxajOEAfe--

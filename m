@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262857AbTCWG5O>; Sun, 23 Mar 2003 01:57:14 -0500
+	id <S262914AbTCWHGr>; Sun, 23 Mar 2003 02:06:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262859AbTCWG5O>; Sun, 23 Mar 2003 01:57:14 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:40064 "EHLO
+	id <S262915AbTCWHFi>; Sun, 23 Mar 2003 02:05:38 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:44928 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262857AbTCWG5J>; Sun, 23 Mar 2003 01:57:09 -0500
-Date: Sun, 23 Mar 2003 16:07:20 +0900
+	id <S262914AbTCWHEe>; Sun, 23 Mar 2003 02:04:34 -0500
+Date: Sun, 23 Mar 2003 16:14:44 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.5.65-ac3] Additionals for support PC-9800 (2/10) misc core
-Message-ID: <20030323070720.GB2951@yuzuki.cinet.co.jp>
+Subject: [PATCH 2.5.65-ac3] Additionals for support PC-9800 (8/10) PCI
+Message-ID: <20030323071444.GH2951@yuzuki.cinet.co.jp>
 References: <20030323065928.GF2851@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,84 +22,114 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.65-ac3. (2/10)
+against 2.5.65-ac3. (8/10)
 
-Small patches for PC98 core support.
-io.h: Using ioport 0x5f to wait is recomended by vendor.
-irq.h: Cascade IRQ is 7 for PC98 not 2.
-pc98*.h: Add macros to access BIOS parameters.
-kernel.h: define "pc98" for other files.
+Small changes for PCI support.
+Fix for difference of IRQ numbers and IO addresses.
 
 Regards,
 Osamu Tomita
 
-diff -Nru linux/include/asm-i386/io.h linux98/include/asm-i386/io.h
---- linux/include/asm-i386/io.h	2002-10-12 13:22:45.000000000 +0900
-+++ linux98/include/asm-i386/io.h	2002-10-12 19:25:19.000000000 +0900
-@@ -27,6 +27,8 @@
-  *		Linus
+diff -Nru linux/arch/i386/pci/irq.c linux98/arch/i386/pci/irq.c
+--- linux/arch/i386/pci/irq.c	2002-10-12 13:22:46.000000000 +0900
++++ linux98/arch/i386/pci/irq.c	2002-10-12 14:18:52.000000000 +0900
+@@ -5,6 +5,7 @@
   */
  
-+#include <linux/config.h>
+ #include <linux/config.h>
++#include <linux/pci_ids.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/pci.h>
+@@ -25,6 +26,7 @@
+ 
+ static struct irq_routing_table *pirq_table;
+ 
++#ifndef CONFIG_X86_PC9800
+ /*
+  * Never use: 0, 1, 2 (timer, keyboard, and cascade)
+  * Avoid using: 13, 14 and 15 (FP error and IDE).
+@@ -36,6 +38,20 @@
+ 	1000000, 1000000, 1000000, 1000, 1000, 0, 1000, 1000,
+ 	0, 0, 0, 0, 1000, 100000, 100000, 100000
+ };
++#else
++/*
++ * Never use: 0, 1, 2, 7 (timer, keyboard, CRT VSYNC and cascade)
++ * Avoid using: 8, 9 and 15 (FP error and IDE).
++ * Penalize: 4, 5, 11, 12, 13, 14 (known ISA uses: serial, floppy, sound, mouse
++ *                                 and parallel)
++ */
++unsigned int pcibios_irq_mask = 0xff78;
 +
-  /*
-   *  Bit simplified and optimized by Jan Hubicka
-   *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999.
-@@ -288,7 +290,11 @@
- #ifdef SLOW_IO_BY_JUMPING
- #define __SLOW_DOWN_IO "jmp 1f; 1: jmp 1f; 1:"
- #else
-+#ifdef CONFIG_X86_PC9800
-+#define __SLOW_DOWN_IO "outb %%al,$0x5f;"
-+#else
- #define __SLOW_DOWN_IO "outb %%al,$0x80;"
++static int pirq_penalty[16] = {
++	1000000, 1000000, 1000000, 0, 1000, 1000, 0, 1000000,
++	100000, 100000, 0, 1000, 1000, 1000, 1000, 100000
++};
 +#endif
- #endif
  
- static inline void slow_down_io(void) {
-diff -Nru linux/include/asm-i386/irq.h linux98/include/asm-i386/irq.h
---- linux/include/asm-i386/irq.h	2002-09-21 00:20:16.000000000 +0900
-+++ linux98/include/asm-i386/irq.h	2002-09-21 07:17:56.000000000 +0900
-@@ -17,7 +17,11 @@
+ struct irq_router {
+ 	char *name;
+@@ -612,6 +628,17 @@
+ 		r->set(pirq_router_dev, dev, pirq, 11);
+ 	}
  
- static __inline__ int irq_cannonicalize(int irq)
- {
 +#ifdef CONFIG_X86_PC9800
-+	return ((irq == 7) ? 11 : irq);
-+#else
- 	return ((irq == 2) ? 9 : irq);
++	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_CARDBUS) {
++		if (pci_find_device(PCI_VENDOR_ID_INTEL,
++				PCI_DEVICE_ID_INTEL_82439TX, NULL) != NULL) {
++			if (mask & 0x0040) {
++				mask &= 0x0040;	/* assign IRQ 6 only */
++				printk("pci-irq: Use IRQ6 for CardBus controller\n");
++			}
++		}
++	}
 +#endif
+ 	/*
+ 	 * Find the best IRQ to assign: use the one
+ 	 * reported by the device if possible.
+diff -Nru linux/drivers/pcmcia/yenta.c linux98/drivers/pcmcia/yenta.c
+--- linux/drivers/pcmcia/yenta.c	2002-11-18 13:29:48.000000000 +0900
++++ linux98/drivers/pcmcia/yenta.c	2002-11-19 11:02:09.000000000 +0900
+@@ -8,6 +8,7 @@
+  * 	Dynamically adjust the size of the bridge resource
+  * 	
+  */
++#include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/sched.h>
+@@ -510,6 +511,7 @@
+ 	add_timer(&socket->poll_timer);
  }
  
- extern void disable_irq(unsigned int);
-diff -Nru linux/include/asm-i386/pc9800.h linux98/include/asm-i386/pc9800.h
---- linux/include/asm-i386/pc9800.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/include/asm-i386/pc9800.h	2002-08-17 21:50:18.000000000 +0900
-@@ -0,0 +1,27 @@
-+/*
-+ *  PC-9800 machine types.
-+ *
-+ *  Copyright (C) 1999	TAKAI Kosuke <tak@kmc.kyoto-u.ac.jp>
-+ *			(Linux/98 Project)
-+ */
-+
-+#ifndef _ASM_PC9800_H_
-+#define _ASM_PC9800_H_
-+
-+#include <asm/pc9800_sca.h>
-+#include <asm/types.h>
-+
-+#define __PC9800SCA(type, pa)	(*(type *) phys_to_virt(pa))
-+#define __PC9800SCA_TEST_BIT(pa, n)	\
-+	((__PC9800SCA(u8, pa) & (1U << (n))) != 0)
-+
-+#define PC9800_HIGHRESO_P()	__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 3)
-+#define PC9800_8MHz_P()		__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 7)
-+
-+				/* 0x2198 is 98 21 on memory... */
-+#define PC9800_9821_P()		(__PC9800SCA(u16, PC9821SCA_ROM_ID) == 0x2198)
-+
-+/* Note PC9821_...() are valid only when PC9800_9821_P() was true. */
-+#define PC9821_IDEIF_DOUBLE_P()	__PC9800SCA_TEST_BIT(PC9821SCA_ROM_FLAG4, 4)
-+
++#ifndef CONFIG_X86_PC9800
+ /*
+  * Only probe "regular" interrupts, don't
+  * touch dangerous spots like the mouse irq,
+@@ -520,6 +522,10 @@
+  * Default to 11, 10, 9, 7, 6, 5, 4, 3.
+  */
+ static u32 isa_interrupts = 0x0ef8;
++#else
++/* Default to 12, 10, 6, 5, 3. */
++static u32 isa_interrupts = 0x1468;
 +#endif
+ 
+ static unsigned int yenta_probe_irq(pci_socket_t *socket, u32 isa_irq_mask)
+ {
+diff -Nru linux/include/asm-i386/pci.h linux98/include/asm-i386/pci.h
+--- linux/include/asm-i386/pci.h	2002-06-09 14:29:24.000000000 +0900
++++ linux98/include/asm-i386/pci.h	2002-06-10 20:49:15.000000000 +0900
+@@ -17,7 +17,11 @@
+ #endif
+ 
+ extern unsigned long pci_mem_start;
++#ifdef CONFIG_X86_PC9800
++#define PCIBIOS_MIN_IO		0x4000
++#else
+ #define PCIBIOS_MIN_IO		0x1000
++#endif
+ #define PCIBIOS_MIN_MEM		(pci_mem_start)
+ 
+ void pcibios_config_init(void);

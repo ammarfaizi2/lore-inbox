@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136062AbRAGUwE>; Sun, 7 Jan 2001 15:52:04 -0500
+	id <S136047AbRAGUwE>; Sun, 7 Jan 2001 15:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136047AbRAGUvz>; Sun, 7 Jan 2001 15:51:55 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42512 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136082AbRAGUvk>; Sun, 7 Jan 2001 15:51:40 -0500
-Subject: Re: Ext2 (dma ?) error
-To: m.duelli@web.de (Michael Duelli)
-Date: Sun, 7 Jan 2001 20:53:32 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010107214838.A1086@Unimatrix01.surf-callino.de> from "Michael Duelli" at Jan 07, 2001 09:48:38 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135762AbRAGUvy>; Sun, 7 Jan 2001 15:51:54 -0500
+Received: from iq.sch.bme.hu ([152.66.226.168]:19116 "EHLO iq.rulez.org")
+	by vger.kernel.org with ESMTP id <S136096AbRAGUvl>;
+	Sun, 7 Jan 2001 15:51:41 -0500
+Date: Sun, 7 Jan 2001 21:55:58 +0100 (CET)
+From: Sasi Peter <sape@iq.rulez.org>
+To: Chris Wedgwood <cw@f00f.org>
+cc: <sourav@cs.cmu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Speed of the network card
+In-Reply-To: <20010108015421.B2575@metastasis.f00f.org>
+Message-ID: <Pine.LNX.4.30.0101072152090.4602-100000@iq.rulez.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14FMop-0003Ic-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fsck discovered an error it wasn't able to fix. This error never
-> appeared before and my Seagate HD actually should be alright.
+On Mon, 8 Jan 2001, Chris Wedgwood wrote:
 
-Umm the error says not
+>     I would like to determine the banwidth the card is getting from
+>     the network.
+> /proc/net/dev exports counters; you can monitor those -- I'm sure
+> there are perfomance program that do exactly this.
 
-> hda: dma_intr: status=0x51 { DriveReady SeekCompleteError }
-> hda: dma_intr: error=0x40 { UncorrectableError } LBAsect = 2421754, sector
-> 210048
-> end_request: I/O error, dev 03:03 (hda), sector 2100448
+I have this little script for monitoring interfaces' speed on 132
+wide textmode console w/ niche histogram. It is not perfect but 'it
+works for me' (tm).
 
-Thats a media error. It may go away if the block is rewritten , on a reformat
-etc. But its the disk reporting a bad block. Now that could be a 2.4 artifact
-(incredibly unlikely) so try fscking with 2.2 just to be sure is not an error
-reporting bug.
+--------------------------> cut here
+if [ "$1" = "" ]
+then
+  echo "Please specify the sampling rate."
+  exit
+fi
+
+while true
+do
+  cat /proc/net/ip_fwnames &
+  sleep $1
+done |
+  awk '
+    BEGIN {
+     s=0
+     d='$1'*1024*1024
+     wd=d/15
+    }
+
+    /^input /	{o=s
+		 s=$7}
+    /^output /	{s+=$7
+                 w=(s-o)/wd
+		 if(w>130)w=0
+                 printf "%fMB/s %0*c\n",(s-o)/d,w,">"}
+  '
+--------------------------> cut here
+
+-- 
+SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

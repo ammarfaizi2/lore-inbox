@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbTEVPzF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 11:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbTEVPzF
+	id S262590AbTEVQAi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 12:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbTEVQAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 11:55:05 -0400
-Received: from pop.gmx.de ([213.165.64.20]:11727 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261998AbTEVPzD (ORCPT
+	Thu, 22 May 2003 12:00:38 -0400
+Received: from [208.186.192.194] ([208.186.192.194]:181 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262590AbTEVQAh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 11:55:03 -0400
-Message-Id: <5.2.0.9.2.20030522173254.00cd21b8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Thu, 22 May 2003 18:12:37 +0200
-To: Valdis.Kletnieks@vt.edu
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: web page on O(1) scheduler 
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200305221447.h4MElAKx003511@turing-police.cc.vt.edu>
-References: <Your message of "Thu, 22 May 2003 07:52:44 +0200." <5.2.0.9.2.20030522063421.00cc3e90@pop.gmx.net>
- <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
- <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
- <5.2.0.9.2.20030522063421.00cc3e90@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Thu, 22 May 2003 12:00:37 -0400
+Date: Thu, 22 May 2003 09:14:26 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Manuel Estrada Sainz <ranty@debian.org>
+cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, <jt@hpl.hp.com>,
+       Pavel Roskin <proski@gnu.org>, Oliver Neukum <oliver@neukum.org>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Re: request_firmware() hotplug interface, third round
+ and a halve
+In-Reply-To: <20030522153154.GD13224@ranty.ddts.net>
+Message-ID: <Pine.LNX.4.44.0305220911290.5889-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:47 AM 5/22/2003 -0400, Valdis.Kletnieks@vt.edu wrote:
->On Thu, 22 May 2003 07:52:44 +0200, Mike Galbraith said:
->
-> > It does consider cpu usage though.  Your run history is right there in 
-> your
-> > accumulated sleep_avg.  Unfortunately (in some ways, fortunate in others..
-> > conflict) that information can be diluted down to nothing instantly by new
-> > input from one wakeup.
->
->Maybe there should be a scheduler tunable that says how much it should be
->diluted?
 
-I hope not.  Once you use a knob, you _have_ to use it again when you 
-change workloads.
+I don't have any problems with the interface, and am ok with the driver 
+core and sysfs changes. I have the sysfs binary file patch, but would you 
+mind sending me the class device release() patch separately? 
 
-         -Mike 
+Also, what about just creating a drivers/firmware/ directory (or 
+drivers/base/firmware/) for the core code? 
+
+Thanks,
+
+
+	-pat
 

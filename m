@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132504AbRAJMFv>; Wed, 10 Jan 2001 07:05:51 -0500
+	id <S135270AbRAJMIv>; Wed, 10 Jan 2001 07:08:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135270AbRAJMFl>; Wed, 10 Jan 2001 07:05:41 -0500
-Received: from picard.csihq.com ([204.17.222.1]:31500 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S132504AbRAJMFb>;
-	Wed, 10 Jan 2001 07:05:31 -0500
-Message-ID: <069d01c07afd$95143d20$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: 2.4.0,2.2.18 and epic100 broke
-Date: Wed, 10 Jan 2001 07:05:11 -0500
+	id <S135421AbRAJMIb>; Wed, 10 Jan 2001 07:08:31 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:61708 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S135270AbRAJMIX>;
+	Wed, 10 Jan 2001 07:08:23 -0500
+Date: Wed, 10 Jan 2001 13:07:53 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <3A5C4FAC.CA6E46A9@colorfullife.com>
+Message-ID: <Pine.LNX.4.30.0101101304330.1681-100000@e2>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI -- the epic100 SMC EtherPower II card does NOT work in SMP mode on 2.4.0
-(or 2.2.18 either).
 
-Donald Becker's most recent version hasn't been forward-ported to 2.4 and
-the 2.2.17 drivers won't compile either.
-The SMC card DOES work in non-SMP machines.  So...I'm putting in a 3com905
-until this gets fixed.
-Don said that locking was broken in the 1.1.5 release.
+On Wed, 10 Jan 2001, Manfred Spraul wrote:
 
-The last SMP kernel that ran with the SMC was 2.2.17 -- it's been broke
-since (i.e. 2.2.18 does'nt work either -- that's where 1.1.5 was
-introduced).
+> > well, this is a performance problem if you are using threads. For normal
+> > processes there is no need for a SMP cross-call, there TLB flushes are
+> > local only.
+> >
+> But that would be ugly as hell:
+> so apache 2.0 would become slower with MSG_NOCOPY, whereas samba 2.2
+> would become faster.
 
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
+there *is* a cost of having a shared VM - and this is i suspect
+unavoidable.
+
+> Is is possible to move the responsibility for maitaining the copy to
+> the caller?
+
+this needs a completion event i believe.
+
+> e.g. use msg_control, and then the caller can request either that a
+> signal is sent when that data is transfered, or that a variable is set
+> to 0.
+
+i believe a signal-based thing would be the right (and scalable) solution
+- the signal handler could free() the buffer.
+
+this makes sense even in the VM-assisted MSG_NOCOPY case, since one wants
+to do garbage collection of these in-flight buffers anyway. (not for
+correctness but for performance reasons - free()-ing and immediately
+reusing such a buffer would generate a COW.)
+
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

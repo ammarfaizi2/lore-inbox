@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266200AbTABRYq>; Thu, 2 Jan 2003 12:24:46 -0500
+	id <S266228AbTABRbY>; Thu, 2 Jan 2003 12:31:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266203AbTABRYp>; Thu, 2 Jan 2003 12:24:45 -0500
-Received: from [65.39.167.210] ([65.39.167.210]:10508 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S266200AbTABRYj>;
-	Thu, 2 Jan 2003 12:24:39 -0500
-Date: Thu, 2 Jan 2003 12:33:22 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Milosz Tanski <mtanski@wideopenwest.com>
-cc: Hell.Surfers@cwctv.net, <billh@gnuppy.monkey.org>, <paul@clubi.ie>,
-       <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <20030102020644.7c23fbd7.mtanski@wideopenwest.com>
-Message-ID: <Pine.LNX.4.44.0301021222240.2244-100000@innerfire.net>
+	id <S266246AbTABRbY>; Thu, 2 Jan 2003 12:31:24 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:22205 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266228AbTABRbW> convert rfc822-to-8bit; Thu, 2 Jan 2003 12:31:22 -0500
+Date: Thu, 02 Jan 2003 09:39:40 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: uaca@alumni.uv.es,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_X86_TSC_DISABLE question
+Message-ID: <124500000.1041529180@titus>
+In-Reply-To: <20030102144409.GB8309@pusa.informat.uv.es>
+References: <20030102144409.GB8309@pusa.informat.uv.es>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hes trolling... these sorts of things are such a muddy mess in the US that
-it's a coin toss whether any lawsuit will win.
+Depends on your box. Most standard SMP boxes are all clocked off the
+same clock, so it's not an issue.
 
-He should stop talking about it and just do it and in the meantime
-us would be better off just black holing his email.  I doubt hes going to
-go through with it and I question how much money someone who has to get
-his internet access off a TV settop box really has enough money to pay for
-the planned lawsuit anyhow.
+--On Thursday, January 02, 2003 15:44:09 +0100 uaca@alumni.uv.es wrote:
 
-Can we all stop feeding the trolls now?
-
-Gerhard
-
-cat >> ~/.procmailrc << _END_
-:0 W
-* ^X-Mailing-List.*linux-kernel@vger\.kernel\.org
-* ^(((From):)|( )).*Hell.Surfers@cwctv\.net
-/dev/null
-
-_END_
-
-
-On Thu, 2 Jan 2003, Milosz Tanski wrote:
-
-> Date: Thu, 2 Jan 2003 02:06:44 -0500
-> From: Milosz Tanski <mtanski@wideopenwest.com>
-> To:	Hell.Surfers@cwctv.net.billh@gnuppy.monkey.org, paul@clubi.ie,
->    riel@conectiva.com.br, linux-kernel@vger.kernel.org, rms@gnu.org
-> Subject: Re: Why is Nvidia given GPL'd code to use in closed source
->     drivers?
+> Hi all
 >
-> Well, i dunno how i got drawed into to (well i do). Your right, but i'm
-> just trying to find a usefull solution for me having to download and
-> shift though a ~500kb discussion leading noware (drawing my conclusion
-> from the past here). I don't think Hell.Surfers is going to accomplish
-> anything here, besides angering a whole bunch of people (am i right?).
-> Sooner or later, some one is going to come up with the idea of
-> --attempting to-- banning him from the mailing list (just like RMS
-> before), and thats again accompilished nothing. And damn it, i'd love to
-> have opensource (or freesoftware, whatever the politicaly correct thing
-> is :) ) nvidia drivers, so i could attempt to fix the Twin view
-> flakinies, have the nvidia drivers use the kernel nvidia fb, and have
-> dual head console, etc.
+> I would like to know if in wich degree the issue of unsynced TSCs also
+> applies  on x86 SMP.
+>
+> Thanks
+>
+> 	Ulisses
+>
+>                 Debian GNU/Linux: a dream come true
+> -------------------------------------------------------------------------
+> ---- "Computers are useless. They can only give answers."
+> Pablo Picasso
+>
+> --->	Visita http://www.valux.org/ para saber acerca de la	<---
+> --->	Asociación Valenciana de Usuarios de Linux		<---
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 >
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
 

@@ -1,36 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262885AbVCDLPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbVCDLVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbVCDLPm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 06:15:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbVCDLNp
+	id S262850AbVCDLVa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 06:21:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbVCDLQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:13:45 -0500
-Received: from fire.osdl.org ([65.172.181.4]:37848 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262798AbVCDLEn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:04:43 -0500
-Date: Fri, 4 Mar 2005 03:04:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, mjg59@scrf.ucam.org, hare@suse.de
-Subject: Re: swsusp: allow resume from initramfs
-Message-Id: <20050304030410.3bc5d4dc.akpm@osdl.org>
-In-Reply-To: <20050304101631.GA1824@elf.ucw.cz>
-References: <20050304101631.GA1824@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 4 Mar 2005 06:16:21 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:65296 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S262855AbVCDLLu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 06:11:50 -0500
+Subject: Re: RFD: Kernel release numbering
+From: Ian Campbell <icampbell@arcom.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050304105247.B3932@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+	 <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com>
+	 <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
+	 <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org>
+	 <20050304105247.B3932@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Organization: Arcom Control Systems
+Date: Fri, 04 Mar 2005 11:11:38 +0000
+Message-Id: <1109934698.7304.2.camel@icampbell-debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Mar 2005 11:17:14.0500 (UTC) FILETIME=[B7CBA440:01C520AB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote:
->
-> When using a fully modularized kernel it is necessary to activate
->  resume manually as the device node might not be available during
->  kernel init.
+On Fri, 2005-03-04 at 10:52 +0000, Russell King wrote:
 
-I don't understand how this can be affected by the modularness of the
-kernel.  Can you explain a little more?
+> Unfortunately, http://l4x.org/k/ doesn't save any build logs for
+> investigation.
 
-Would it not be simpler to just add "resume=03:02" to the boot command line?
+If you click the 'Fail' then it seems to keep the make output etc.
+
+Ian.
+-- 
+Ian Campbell, Senior Design Engineer
+                                        Web: http://www.arcom.com
+Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
+Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
+

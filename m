@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVCML4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVCML5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVCML4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 06:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVCML4Z
+	id S261164AbVCML5D (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 06:57:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVCML5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 06:56:25 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:26355 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261158AbVCML4X (ORCPT
+	Sun, 13 Mar 2005 06:57:03 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:34291 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261164AbVCML46 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 06:56:23 -0500
-Date: Sun, 13 Mar 2005 12:56:11 +0100 (MET)
-Message-Id: <200503131156.j2DBuBFv015778@harpo.it.uu.se>
+	Sun, 13 Mar 2005 06:56:58 -0500
+Date: Sun, 13 Mar 2005 12:56:51 +0100 (MET)
+Message-Id: <200503131156.j2DBup8X015801@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org
-Subject: Re: [PATCH][2.6.11-mm3] perfctr ia32 syscalls on x86-64 fix
-Cc: linux-kernel@vger.kernel.org
+To: hacksaw@hacksaw.org, linux-kernel@vger.kernel.org
+Subject: Re: indirect lcall without `*'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Mar 2005 21:55:49 -0800, Andrew Morton wrote:
->It would be nice to start folding these patches together a bit to reduce
->such problems, but that's rather non-trivial because there is no way to
->simply join these patches together which maintains a sensible sequencing.
+On Sun, 13 Mar 2005 00:46:24 -0500, Hacksaw <hacksaw@hacksaw.org> wrote:
+>In compiling 2.4.29 I get this during the compilation of pci-pc.c:
 >
->If we're going to do anything then it's either a major refactoring, or
->simply wham the entire feature into a single diff.  That diff could then be
->split into four patches: core, ppc, x86 and x86_64.  We would lose the
->layering between ye olde perfctr, the inheritance implementation, the syfs
->API, etc.  I could live with that.
+>Warning: indirect lcall without `*'
 >
->What do you think?
+>I note from looking around the net that this is an old "problem", dating back 
+>at least to 2.4.18, if not earlier.
+>
+>What does it mean? Should I care? If I shouldn't, shouldn't there be a message 
+>somewhere in the build process that says "This isn't a problem" so people 
+>don't write to lkml and ask about it?
 
-At my end there is already just "the current version"
-(with history in cvs) so merging is fine with me.
+It's a binutils version issue. Older binutils didn't
+require the '*', while newer ones print a warning when
+it's missing. Adding the missing '*'s breaks old binutils,
+which isn't considered acceptable in the stable 2.4 series.
+
+So just live with the warnings, or apply personal patches
+to silence them (like I've been doing for ages).
 
 /Mikael

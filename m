@@ -1,75 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319407AbSHNVp7>; Wed, 14 Aug 2002 17:45:59 -0400
+	id <S319279AbSHNV7b>; Wed, 14 Aug 2002 17:59:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319408AbSHNVp7>; Wed, 14 Aug 2002 17:45:59 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:38660 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S319407AbSHNVp6>;
-	Wed, 14 Aug 2002 17:45:58 -0400
-Date: Wed, 14 Aug 2002 14:45:40 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] Yet more USB changes for 2.5.31
-Message-ID: <20020814214540.GA29006@kroah.com>
+	id <S319340AbSHNV7b>; Wed, 14 Aug 2002 17:59:31 -0400
+Received: from crack.them.org ([65.125.64.184]:57098 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S319279AbSHNV7b>;
+	Wed, 14 Aug 2002 17:59:31 -0400
+Date: Wed, 14 Aug 2002 18:03:17 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
+Message-ID: <20020814220317.GA22207@nevyn.them.org>
+Mail-Followup-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+References: <3D56B13A.D3F741D1@zip.com.au> <Pine.NEB.4.44.0208132322340.1351-100000@mimas.fachschaften.tu-muenchen.de> <ajc095$hk1$1@cesium.transmeta.com> <20020814194019.A31761@bitwizard.nl> <3D5AB250.3070104@zytor.com> <20020814205709.E26404@kushida.apsleyroad.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20020814205709.E26404@kushida.apsleyroad.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a compile time error in your latest BK tree, and has some USB
-API cleanups for the upcoming struct device_driver changes.
+On Wed, Aug 14, 2002 at 08:57:09PM +0100, Jamie Lokier wrote:
+> H. Peter Anvin wrote:
+> > Yes.  This is a gcc-specific wart, a bad idea from the start, and 
+> > apparently one which has caught up with them to the point that they've 
+> > had to abandon it.
+> 
+> It's still there in GCC 3.1.
 
+Yes.  If you check out the tree-ssa-branch, however (and use
+appropriate commandline arguments), I think you'll find that it's no
+longer there.  That's the future of GCC's optimizer, but most of it
+won't make even GCC 3.3.
 
-Pull from:  http://linuxusb.bkbits.net/linus-2.5
-
-thanks,
-
-greg k-h
-
- drivers/usb/core/devio.c       |   20 +++---
- drivers/usb/core/hcd.h         |   10 +++
- drivers/usb/core/hub.h         |    4 +
- drivers/usb/core/message.c     |    2 
- drivers/usb/core/usb.c         |  135 ++++++++++++++++-------------------------
- drivers/usb/host/ehci-dbg.c    |    4 -
- drivers/usb/serial/usbserial.c |    2 
- drivers/usb/storage/scsiglue.c |    2 
- include/linux/usb.h            |   20 +-----
- 9 files changed, 92 insertions(+), 107 deletions(-)
-------
-
-ChangeSet@1.522, 2002-08-14 14:30:03-07:00, greg@kroah.com
-  USB: changed usb_match_id to not need the usb_device pointer.
-
- drivers/usb/core/usb.c         |   18 +++++++++---------
- drivers/usb/serial/usbserial.c |    2 +-
- drivers/usb/storage/scsiglue.c |    2 +-
- include/linux/usb.h            |    3 +--
- 4 files changed, 12 insertions(+), 13 deletions(-)
-------
-
-ChangeSet@1.521, 2002-08-14 14:11:37-07:00, david-b@pacbell.net
-  [PATCH] USB core cleanups
-  
-  Moves some functions that are only used by usbfs to be private, and
-  documents some of the interface issues that need to be cleaned up.
-
- drivers/usb/core/devio.c   |   20 +++++--
- drivers/usb/core/hcd.h     |   10 +++
- drivers/usb/core/hub.h     |    4 +
- drivers/usb/core/message.c |    2 
- drivers/usb/core/usb.c     |  117 +++++++++++++++++----------------------------
- include/linux/usb.h        |   17 +-----
- 6 files changed, 78 insertions(+), 92 deletions(-)
-------
-
-ChangeSet@1.520, 2002-08-14 14:10:56-07:00, greg@kroah.com
-  USB: fixed DEVICE_ATTR usage in the ehci driver
-
- drivers/usb/host/ehci-dbg.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-------
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUI1Jfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUI1Jrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266195AbUI1Jfa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 05:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUI1Jfa
+	id S264299AbUI1Jrr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 05:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266835AbUI1Jrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 05:35:30 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:16526 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S266195AbUI1JfT (ORCPT
+	Tue, 28 Sep 2004 05:47:47 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:64254 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S264299AbUI1JrT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 05:35:19 -0400
-Date: Tue, 28 Sep 2004 02:33:50 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       csa@oss.sgi.com, akpm@osdl.org, guillaume.thouvenin@bull.net,
-       tim@physik3.uni-rostock.de, corliss@digitalmages.com
-Subject: Re: [PATCH 2.6.9-rc2 2/2] enhanced MM accounting data collection
-Message-Id: <20040928023350.611c84d8.pj@sgi.com>
-In-Reply-To: <41589927.5080803@engr.sgi.com>
-References: <4158956F.3030706@engr.sgi.com>
-	<41589927.5080803@engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Sep 2004 05:47:19 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: kernel tuning
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Tue, 28 Sep 2004 15:19:37 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB34811108067@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kernel tuning
+Thread-Index: AcSlLP03qfdl08GCRA+G1MoI7NPq9AAEn4EQ
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: "Ankit Jain" <ankitjain1580@yahoo.com>,
+       "linux" <linux-kernel@vger.kernel.org>,
+       "newbie" <linux-newbie@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nits:
+What r going to tune in the kernel.
 
-1) I'm not sure the "no-op if CONFIG_CSA not set" comments
-   are worthwhile - it does not seem to be a common practice
-   to mark macros that collapse under certain CONFIG's with
-   such comments, and some code, such as in fork.c, would
-   become quite a bit less readable if such comments were
-   widely used.
+Be specific & clear
+Mukund jampala
 
-2) Three of the added csa_update_integrals() lines have
-   leading spaces, instead of a tab char, such as in:
 
-===================================================================
---- linux.orig/fs/exec.c	2004-09-27 11:57:40.201435722 -0700
-+++ linux/fs/exec.c	2004-09-27 14:05:41.266160725 -0700
-@@ -1163,6 +1164,9 @@
- 
- 		/* execve success */
- 		security_bprm_free(&bprm);
-+		/* no-op if CONFIG_CSA not set */
-+                csa_update_integrals();		<=========
-+                update_mem_hiwater();			<=========
- 		return retval;
- 	}
- 
-3) Is it always the case that csa_update_integrals() and
-   update_mem_hiwater() are used together?  If so, perhaps
-   they could be collapsed into one?  Even the current->mm
-   test inside them could be made one test, perhaps?
-
-4) What kind of kernel text size expansion does this cause?
-   There seem to be about a dozen of these calls.  What are
-   the pros and cons of inlining csa_update_integrals() and
-   update_mem_hiwater()?  Are these on hot enough kernel code
-   paths that we should benchmark with and without these hooks
-   enabled, both inline and out-of-line?
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+> -----Original Message-----
+> From: linux-newbie-owner@vger.kernel.org [mailto:linux-newbie-
+> owner@vger.kernel.org] On Behalf Of Ankit Jain
+> Sent: Tuesday, September 28, 2004 12:58 PM
+> To: linux; newbie
+> Subject: kernel tuning
+> 
+> hi
+> 
+> i want some guidence for kernel tuning
+> 
+> if somebody knows any document for that
+> 
+> i want to tune redhat kernel 2.4 v
+> 
+> thanks
+> 
+> ankit
+> 
+>
+________________________________________________________________________
+> Yahoo! Messenger - Communicate instantly..."Ping"
+> your friends today! Download Messenger Now
+> http://uk.messenger.yahoo.com/download/index.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-newbie" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at http://www.linux-learn.org/faqs

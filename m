@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293092AbSCWNUd>; Sat, 23 Mar 2002 08:20:33 -0500
+	id <S293071AbSCWNZN>; Sat, 23 Mar 2002 08:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293071AbSCWNUP>; Sat, 23 Mar 2002 08:20:15 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:29970 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S293060AbSCWNUB>; Sat, 23 Mar 2002 08:20:01 -0500
-Message-ID: <3C9C80AA.1080800@evision-ventures.com>
-Date: Sat, 23 Mar 2002 14:18:34 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Patch to split kmalloc in sd.c in 2.4.18+
-In-Reply-To: <20020322215809.A17173@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S293076AbSCWNZE>; Sat, 23 Mar 2002 08:25:04 -0500
+Received: from mailhost.teleline.es ([195.235.113.141]:50227 "EHLO
+	tsmtp10.mail.isp") by vger.kernel.org with ESMTP id <S293071AbSCWNYx>;
+	Sat, 23 Mar 2002 08:24:53 -0500
+Date: Sat, 23 Mar 2002 14:25:24 +0100
+From: Diego Calleja <DiegoCG@teleline.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reproducible oops in 2.5.7-pre2
+Message-Id: <20020323142524.17331624.DiegoCG@teleline.es>
+In-Reply-To: <20020323141920.2ccd858e.DiegoCG@teleline.es>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-> Hello:
-> 
-> One problem I see when trying to use a box with 128 SCSI disks
-> is that sd_mod sometimes refuses to load. Earlier kernels simply
-> oopsed when it happened, but that is fixed in 2.4.18. The root
-> of the evil is the enormous array sd[] that sd_init allocates.
-> Alan suggested to split the allocation, which is what I did.
-> 
-> Arjan said that it may be easier to use vmalloc, and sure it is.
-> However, I heard that vmalloc space is not too big, so it may
-> make sense to conserve it (especially on non-x86 32-bitters).
+> This oops happens _always_ when I try to boot with 2.4.7-pre2. It happens just after:
+> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0
+> found reiserfs format "3.6" with standard journal
 
-kmalloc is spare - the vmalloc space is *HUUUUUGE*.
-(The v stands for virtual as in virtual memmory...)
+OK, this problem has been reported, and it seems there's a patch. I'm sorry for not reading all messages of the list ;)
 
+
+
+> Another thing with 2.5.7-pre2 kernel is that i can't compile it without having nfs server sopport enabled.
+> This is the error:
+> arch/i386/kernel/kernel.o: In function 'sys_call_table':
+> arch/i386/kernel/kernel.o(.data+0x304): undefined reference to 'sys_nfsservctl'
+> make: *** [vmlinux] Error 1
+> 
+> I think the problem is in include/linux/nfsd/syscall.h:
+> 
+> /*
+>  * Kernel syscall implementation
+>  */
+> #if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
+> extern asmlinkage long sys_nfsservctl(int, struct nfsctl_arg *, void);
+> #else
+> #define sys_nsfservctl		sys_ni_syscall
+> #endif
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

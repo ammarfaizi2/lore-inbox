@@ -1,68 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbUDZPvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUDZPyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262634AbUDZPvN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 11:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUDZPvN
+	id S262648AbUDZPyY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 11:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbUDZPyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 11:51:13 -0400
-Received: from mail.tmr.com ([216.238.38.203]:32787 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S262634AbUDZPvL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 11:51:11 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Unable to read UDF fs on a DVD
-Date: Mon, 26 Apr 2004 11:52:25 -0400
-Organization: TMR Associates, Inc
-Message-ID: <408D3039.6090604@tmr.com>
-References: <20040423195004.GA1885@dreamland.darkstar.lan> <1082751675.3163.106.camel@patibmrh9> <20040424194727.GA3353@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1082994507 24391 192.168.12.100 (26 Apr 2004 15:48:27 GMT)
-X-Complaints-To: abuse@tmr.com
-Cc: Pat LaVarre <p.lavarre@ieee.org>, linux_udf@hpesjro.fc.hp.com,
-       linux-kernel@vger.kernel.org
-To: kronos@kronoz.cjb.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <20040424194727.GA3353@dreamland.darkstar.lan>
+	Mon, 26 Apr 2004 11:54:24 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:54791 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262648AbUDZPyU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 11:54:20 -0400
+To: David Johnson <dj@david-web.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 8139too not working in 2.6
+References: <opr62ahdvlpsnffn@mail.mcaserta.com>
+	<200404261241.41818.dj@david-web.co.uk>
+	<200404261526.00971.dj@david-web.co.uk>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 27 Apr 2004 00:53:39 +0900
+In-Reply-To: <200404261526.00971.dj@david-web.co.uk>
+Message-ID: <873c6qrb0c.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kronos wrote:
-> Il Fri, Apr 23, 2004 at 02:21:15PM -0600, Pat LaVarre ha scritto: 
-> 
->>P.S. Five postscripts:
->>
->>1)
->>
->>
->>>even with ide-scsi, though.
->>
->>Whoa.  You weren't engaging in the taboo act of running ide-scsi in 2.6
->>back when ls failed, were you?
-> 
-> 
-> No, I wasn't. I'm aware that ide-scsi is not needed with 2.6. I had to
-> recompile the kernel with ide-scsi to make Philips fsck happy.
+--=-=-=
 
-I believe that it would be more correct to say that ide-scsi is not 
-required to burn CDs and DVDs, providing you use cdrecord which has been 
-modified to work with ide-cd. Since that's the major use it equates to 
-"not needed" if that's all you do.
+David Johnson <dj@david-web.co.uk> writes:
 
-As you seem to note, some DVD burners don't work without ide-scsi unless 
-you have some tricks and/or patches, but do work with ide-scsi. Yes, 
-even in 2.6.
+> Attached is my dmesg, lspci and the output of dump_pirq.pl.
+> This was when running 2.6.6-rc1.
 
-I totally agree you should try to run without it, but I'd compile it as 
-a module in case you need some additional data points.
+Looks like 8139too still isn't loaded. Could you apply the attached
+patch, and send the output of dmesg after the problem was happened?
 
+I'd like to see the debugging message of rtl8139_tx_timeout().
 
+Thanks.
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment;
+  filename=8139too-useful-txtimeout.patch
+
+
+[PATCH] 8139too: more useful debug info for tx_timeout
+
+	/* disable Tx ASAP, if not already */
+	tmp8 = RTL_R8 (ChipCmd);
+	if (tmp8 & CmdTxEnb)
+		RTL_W8 (ChipCmd, CmdRxEnb);
+
+The above will clear the Tx Descs. So, this prints the debugging info
+before rtl8139_tx_timeout() does it. And IntrStatus etc. also prints
+anytime for the debug.
+
+
+---
+
+ drivers/net/8139too.c |   26 +++++++++++---------------
+ 1 files changed, 11 insertions(+), 15 deletions(-)
+
+diff -puN drivers/net/8139too.c~8139too-useful-txtimeout drivers/net/8139too.c
+--- linux-2.6.6-rc2/drivers/net/8139too.c~8139too-useful-txtimeout	2004-04-22 02:14:42.000000000 +0900
++++ linux-2.6.6-rc2-hirofumi/drivers/net/8139too.c	2004-04-22 02:14:42.000000000 +0900
+@@ -1677,11 +1677,17 @@ static void rtl8139_tx_timeout (struct n
+ 	u8 tmp8;
+ 	unsigned long flags;
+ 
+-	DPRINTK ("%s: Transmit timeout, status %2.2x %4.4x "
+-		 "media %2.2x.\n", dev->name,
+-		 RTL_R8 (ChipCmd),
+-		 RTL_R16 (IntrStatus),
+-		 RTL_R8 (MediaStatus));
++	printk (KERN_DEBUG "%s: Transmit timeout, status %2.2x %4.4x %4.4x "
++		"media %2.2x.\n", dev->name, RTL_R8 (ChipCmd),
++		RTL_R16(IntrStatus), RTL_R16(IntrMask), RTL_R8(MediaStatus));
++	/* Emit info to figure out what went wrong. */
++	printk (KERN_DEBUG "%s: Tx queue start entry %ld  dirty entry %ld.\n",
++		dev->name, tp->cur_tx, tp->dirty_tx);
++	for (i = 0; i < NUM_TX_DESC; i++)
++		printk (KERN_DEBUG "%s:  Tx descriptor %d is %8.8lx.%s\n",
++			dev->name, i, RTL_R32 (TxStatus0 + (i * 4)),
++			i == tp->dirty_tx % NUM_TX_DESC ?
++				" (queue head)" : "");
+ 
+ 	tp->xstats.tx_timeouts++;
+ 
+@@ -1694,15 +1700,6 @@ static void rtl8139_tx_timeout (struct n
+ 	/* Disable interrupts by clearing the interrupt mask. */
+ 	RTL_W16 (IntrMask, 0x0000);
+ 
+-	/* Emit info to figure out what went wrong. */
+-	printk (KERN_DEBUG "%s: Tx queue start entry %ld  dirty entry %ld.\n",
+-		dev->name, tp->cur_tx, tp->dirty_tx);
+-	for (i = 0; i < NUM_TX_DESC; i++)
+-		printk (KERN_DEBUG "%s:  Tx descriptor %d is %8.8lx.%s\n",
+-			dev->name, i, RTL_R32 (TxStatus0 + (i * 4)),
+-			i == tp->dirty_tx % NUM_TX_DESC ?
+-				" (queue head)" : "");
+-
+ 	/* Stop a shared interrupt from scavenging while we are. */
+ 	spin_lock_irqsave (&tp->lock, flags);
+ 	rtl8139_tx_clear (tp);
+@@ -1714,7 +1711,6 @@ static void rtl8139_tx_timeout (struct n
+ 		netif_wake_queue (dev);
+ 	}
+ 	spin_unlock(&tp->rx_lock);
+-	
+ }
+ 
+ 
+
+_
+
+--=-=-=--

@@ -1,78 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286521AbSCKSg4>; Mon, 11 Mar 2002 13:36:56 -0500
+	id <S287149AbSCKSfQ>; Mon, 11 Mar 2002 13:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285424AbSCKSfS>; Mon, 11 Mar 2002 13:35:18 -0500
-Received: from [217.79.102.244] ([217.79.102.244]:21998 "EHLO
-	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
-	id <S286521AbSCKSfE>; Mon, 11 Mar 2002 13:35:04 -0500
-Subject: Re: Sun GEM card looses TX on x86 32bit PCI
-From: Beezly <beezly@beezly.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020311.042124.103955441.davem@redhat.com>
-In-Reply-To: <20020310.164350.107967417.davem@redhat.com>
-	<1015834777.1802.8.camel@monkey> <1015849164.2153.3.camel@monkey> 
-	<20020311.042124.103955441.davem@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-2WTo7g6NxiSiUQwrMa/C"
-X-Mailer: Evolution/1.0.2 
-Date: 11 Mar 2002 18:35:01 +0000
-Message-Id: <1015871701.2832.1.camel@monkey>
+	id <S286959AbSCKSe5>; Mon, 11 Mar 2002 13:34:57 -0500
+Received: from smtp2.vol.cz ([195.250.128.42]:6671 "EHLO smtp2.vol.cz")
+	by vger.kernel.org with ESMTP id <S285424AbSCKSev>;
+	Mon, 11 Mar 2002 13:34:51 -0500
+Date: Sun, 10 Mar 2002 21:27:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+Message-ID: <20020310202745.GB173@elf.ucw.cz>
+In-Reply-To: <3C87FD12.8060800@greshamstorage.com> <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com> <3C880541.E04EFAB3@zip.com.au> <15496.6235.723025.422239@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15496.6235.723025.422239@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-2WTo7g6NxiSiUQwrMa/C
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > The problem I find is that I often want to take (file1+patch) -> file2,
+> > when I don't have file1.  But merge tools want to take (file1|file2) -> file3.
+> > I haven't seen a graphical tool which helps you to wiggle a patch into
+> > a file.
+> 
+> If your saying what I think you're saying, I completely agree.
+> I often run "patch" and it drops some chunk because it doesn't match,
+> and it turns out that the miss-match is just one or two lines in a
+> chunk that could be very big.
+> I would like a tool (actually an emacs mode) that would show me exactly
+> why a patch fails, and allow me to edit bits until it fits, and then
+> apply it.  I assume that is what you mean by "wiggle a patch into a file".
 
-Hi David,
-
-Sorry it took so long for me to get back to you. Sadly it also hung with
-this patch ;) I was unable to get an oops out of it (machine was
-completely hosed and in X so I couldn't even note the oops on paper :(
-).
-
-Beezly
-
-On Mon, 2002-03-11 at 12:21, David S. Miller wrote:
->    From: Beezly <beezly@beezly.org.uk>
->    Date: 11 Mar 2002 12:19:24 +0000
->=20
->    I managed to run the latest patch, but it appears to Oops when the
->    overflow condition occurs. Sadly I was not able to get the output of t=
-he
->    oops... but it was at exactly the same time that I was run my "test"
->    which causes the RX to halt.
->=20
-> Duh, this will fix it:
->=20
-> --- drivers/net/sungem.c.~1~	Mon Mar 11 04:18:58 2002
-> +++ drivers/net/sungem.c	Mon Mar 11 04:24:13 2002
-> @@ -317,7 +317,7 @@
->  	}
-> =20
->  	/* Second, disable RX DMA. */
-> -	writel(0, RXDMA_CFG);
-> +	writel(0, gp->regs + RXDMA_CFG);
->  	for (limit =3D 0; limit < 5000; limit++) {
->  		if (!(readl(gp->regs + RXDMA_CFG) & RXDMA_CFG_ENABLE))
->  			break;
-
-
---=-2WTo7g6NxiSiUQwrMa/C
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8jPjVXu4ZFsMQjPgRAmSWAKDH0+GZdRbMNpVoh4VBvJElwiucpACeJWJE
-wpiSQy0j0v0Z9wp+YvOqJpI=
-=yVYr
------END PGP SIGNATURE-----
-
---=-2WTo7g6NxiSiUQwrMa/C--
+Yes, this would be [: very very :] nice.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

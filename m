@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131408AbRAVBb1>; Sun, 21 Jan 2001 20:31:27 -0500
+	id <S131159AbRAVBvH>; Sun, 21 Jan 2001 20:51:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131533AbRAVBbS>; Sun, 21 Jan 2001 20:31:18 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:16792 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131408AbRAVBbH>;
-	Sun, 21 Jan 2001 20:31:07 -0500
-Date: Mon, 22 Jan 2001 02:31:04 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200101220131.CAA176461.aeb@vlet.cwi.nl>
-To: aia21@cam.ac.uk
-Subject: Re: Getting the number of 512-byte sectors?
-Cc: linux-kernel@vger.kernel.org
+	id <S131533AbRAVBu5>; Sun, 21 Jan 2001 20:50:57 -0500
+Received: from renoir.op.net ([207.29.195.4]:20750 "EHLO renoir.op.net")
+	by vger.kernel.org with ESMTP id <S131159AbRAVBur>;
+	Sun, 21 Jan 2001 20:50:47 -0500
+Message-Id: <200101220150.UAA29623@renoir.op.net>
+To: nigel@nrg.org
+cc: yodaiken@fsmlabs.com, Andrew Morton <andrewm@uow.edu.au>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0 
+In-Reply-To: Your message of "Sun, 21 Jan 2001 16:54:47 PST."
+             <Pine.LNX.4.05.10101211652360.509-100000@cosmic.nrg.org> 
+Date: Sun, 21 Jan 2001 20:49:05 -0500
+From: Paul Barton-Davis <pbd@Op.Net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Anton Altaparmakov <aia21@cam.ac.uk>
-    Subject: Getting the number of 512-byte sectors?
+>Let me just point out that Victor has his own commercial axe to grind in
+>his continual bad-mouthing of IRIX, the internals of which he knows
+>nothing about.
 
-    My question is how to get the _real_ number of sectors of a partition from 
-    within a file system. I.e. we are starting only with the knowledge of the 
-    struct super_block for the partition.
+1) do you actually disagree with victor ?
 
-As you conjectured already, you find this info in the gendisk->part[] array,
-in the start_sect and nr_sects fields.
+2) victor is not the only person who has expressed this opinion. the
+   most prolific irix critic seems to be larry mcvoy, who certainly
+   claims to know quite a bit about the internals.
 
-    Locate the correct gendisk structure by performing a walk of gendisk_head 
-    as done in drivers/block/blkpg.c::get_gendisk(kdev_t), (Could we make this 
-    function to not be private to blkpg.c?), then get the hd_struct for the 
-    partition and obtain the values from that. In code:
+this discussion has the hallmarks of turning into a personal
+bash-fest, which is really pointless. what is *not* pointless is a
+considered discussion about the merits of the IRIX "RT" approach over
+possible approaches that Linux might take which are dissimilar to the
+IRIX one. on the other hand, as Victor said, a large part of that
+discussion ultimately comes down to a design style rather than hard
+factual or logical reasoning.
 
-    struct gendisk *g = get_gendisk(my_super_block->s_dev)
-    struct hd_struct *hd = &g->part[MINOR(my_super_block->s_dev)];
+Paul Davis <pbd@op.net>                                 Bala Cynwyd, PA, USA
+Linux Audio Systems                                             610-667-4807
+----------------------------------------------------------------------------
+hybrid rather than pure; compromising rather than clean;
+distorted rather than straightforward; ambiguous rather than
+articulated; both-and rather than either-or; the difficult
+unity of inclusion rather than the easy unity of exclusion.   Robert Venturi
+----------------------------------------------------------------------------
 
-    wanted "subtracted" values:
-             hd->start_sect
-             hd->nr_sects
 
-    Am I missing something?
-
-No, I agree completely.
-
-    Note: I know I can normally get the number of sectors from the boot sector 
-    of the partition
-
-Not necessarily. The partition table need not be of DOS type.
-Or, even if it is, the kernel's tables may be set up dynamically.
-
-> Could we make this function to not be private to blkpg.c?
-
-I think this area will change rather drastically in 2.5.*.
-
-Andries
+   
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265262AbUFWAug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264916AbUFWBFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265262AbUFWAug (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 20:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265750AbUFWAug
+	id S264916AbUFWBFm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 21:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUFWBFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 20:50:36 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:28099 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S265262AbUFWAuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 20:50:35 -0400
-Date: Tue, 22 Jun 2004 20:50:34 -0400
-From: Tom Vier <tmv@comcast.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7: preempt + sysfs = BUG on ppc
-Message-ID: <20040623005034.GA29120@zero>
-Reply-To: Tom Vier <tmv@comcast.net>
-References: <20040620153922.GA20103@zero> <20040620144906.095a4f93.akpm@osdl.org> <20040621234425.GA24935@zero> <20040621172611.420ff9f9.akpm@osdl.org>
+	Tue, 22 Jun 2004 21:05:42 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:20718 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264916AbUFWBFl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 21:05:41 -0400
+Message-Id: <200406230105.i5N15QFf031491@zeus.kernel.org>
+From: "Info" <shop123@bvimailbox.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Government Grants and Loans
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040621172611.420ff9f9.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Date: Tue, 22 Jun 2004 21:05:39 -0400
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 21, 2004 at 05:26:11PM -0700, Andrew Morton wrote:
-> > here ya go. it's /sys/class/net/eth1/wireless/beacon. that's for my airport
-> > card (apple branded lucent chip). i would look at its sysfs code, but i'm
-> > not familiar with it at all (and i'm busy).
-> 
-> What device driver is this thing using?
 
-hermes.
+Our latest publication is now available.
+This publication contains more than 2600 listings of grants
+and loans offered by government departments, foundations
+and associations.
 
--- 
-Tom Vier <tmv@comcast.net>
-DSA Key ID 0x15741ECE
+You can obtain a copy for: $69.95
+To obtain a copy please call: 4 5 0 - 2 2 4 - 9 2 7 5
+

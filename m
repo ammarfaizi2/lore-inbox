@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280609AbRKBIvn>; Fri, 2 Nov 2001 03:51:43 -0500
+	id <S280603AbRKBIwx>; Fri, 2 Nov 2001 03:52:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280608AbRKBIvd>; Fri, 2 Nov 2001 03:51:33 -0500
-Received: from 112.ppp1-1.hob.worldonline.dk ([212.54.84.112]:30080 "EHLO
-	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S280603AbRKBIv0>; Fri, 2 Nov 2001 03:51:26 -0500
-Date: Fri, 2 Nov 2001 09:51:15 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Dan Podeanu <pdan@spiral.extreme.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi bug, or..?
-Message-ID: <20011102095114.K607@suse.de>
-In-Reply-To: <20011102082314.E607@suse.de> <Pine.LNX.4.33L2.0111021246490.1987-100000@spiral.extreme.ro>
+	id <S280607AbRKBIwo>; Fri, 2 Nov 2001 03:52:44 -0500
+Received: from mailer.zib.de ([130.73.108.11]:31106 "EHLO mailer.zib.de")
+	by vger.kernel.org with ESMTP id <S280603AbRKBIwc>;
+	Fri, 2 Nov 2001 03:52:32 -0500
+Date: Fri, 2 Nov 2001 09:52:28 +0100
+From: Sebastian Heidl <heidl@zib.de>
+To: Lost Logic <lostlogic@toughguy.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: how to create the right kind of diffs to submit
+Message-ID: <20011102095228.F528@csr-pc1.zib.de>
+In-Reply-To: <3BE2599A.1090405@toughguy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0111021246490.1987-100000@spiral.extreme.ro>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BE2599A.1090405@toughguy.net>; from lostlogic@toughguy.net on Fri, Nov 02, 2001 at 02:30:18AM -0600
+X-www.distributed.net: 27 OGR packets (3.56 Tnodes) [4.21 Mnodes/s]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 02 2001, Dan Podeanu wrote:
-> > You are trying to mount /dev/hdc and that is handled by ide-scsi. Mount
-> > /dev/sr0 instead. For that you must also remember to configure SCSI
-> > CD-ROM support, which you haven't done:
-> >
-> > # CONFIG_BLK_DEV_SR is not set
-> >
-> 
-> That config was after several attempts of getting a functional kernel in
-> that aspect.
+On Fri, Nov 02, 2001 at 02:30:18AM -0600, Lost Logic wrote:
+>     Ok, this may seem pathetic... but I'd like to start fixing my own 
+> bugs in the kernel as I find them, but as my education thus far has been 
+> coding and not *nix related, I do not know how to create a diff to 
+> submit in the correct format for inclusion in the kernel, any help, or 
+> suggestions where to get help or any such?  TIA
 
-A failed attempt :-)
+http://www.tux.org/lkml/#s1-14
 
-> With CONFIG_BLK_DEV_SR=y, the same result. Also note that mount/cat/etc.
-> on hdc _should_ work, but it fails both there and on /dev/sg0, etc.
-
-No it should not, not if you are passing control to ide-scsi. /dev/sg0
-is the sg char device, you cannot mount that. Look at your messages:
-
-ide-scsi: hdc: unsupported command in request queue (0)
-end_request: I/O error, dev 16:01 (hdc), sector 64
-isofs_read_super: bread failed, dev=16:01, iso_blknum=16, block=32
-mount: wrong fs type, bad option, bad superblock on /dev/hdc1,
-
-You are mounting major 16h (22, hdc), not /dev/scd0. This is a user
-error, not a bug.
-
--- 
-Jens Axboe
+;-)
+_sh_
 

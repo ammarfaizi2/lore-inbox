@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbTIYSog (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTIYSo1
+	id S261757AbTIYSV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbTIYSVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:44:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25321 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261827AbTIYSn7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 14:43:59 -0400
-Date: Thu, 25 Sep 2003 11:44:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: ext3 panic on test4 running dbench
-Message-Id: <20030925114404.4e30a8d4.akpm@osdl.org>
-In-Reply-To: <20610000.1064504990@flay>
-References: <20610000.1064504990@flay>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Sep 2003 14:21:30 -0400
+Received: from adsl-67-122-122-226.dsl.pltn13.pacbell.net ([67.122.122.226]:56872
+	"EHLO siamese.engr.3ware.com") by vger.kernel.org with ESMTP
+	id S261757AbTIYSTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 14:19:32 -0400
+Message-ID: <A1964EDB64C8094DA12D2271C04B8126F8C68B@tabby>
+From: Adam Radford <aradford@3WARE.com>
+To: "'Nick Piggin'" <piggin@cyberone.com.au>,
+       Aaron Lehmann <aaronl@vitelus.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: RE: Complete I/O starvation with 3ware raid on 2.6
+Date: Thu, 25 Sep 2003 11:19:20 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+You should set CONFIG_3W_XXXX_CMD_PER_LUN in your .config to 16 or 32.
+
+-Adam
+
+-----Original Message-----
+From: Nick Piggin [mailto:piggin@cyberone.com.au]
+Sent: Thursday, September 25, 2003 3:29 AM
+To: Aaron Lehmann
+Cc: Andrew Morton; linux-kernel@vger.kernel.org
+Subject: Re: Complete I/O starvation with 3ware raid on 2.6
+
+
+
+
+Aaron Lehmann wrote:
+
+>On Thu, Sep 25, 2003 at 07:13:32PM +1000, Nick Piggin wrote:
 >
-> maybe this is fixed already ... but:
+>>But the load average will be 11 because there are processes stuck in the
+>>kernel somewhere in D state. Have a look for them. They might be things
+>>like pdflush, kswapd, scsi_*, etc.
+>>
+>
+>They're pdflush and kjournald. I don't have sysrq support compiled in
+>at the moment.
+>
 
-No.
+OK, it would be good if you could get a couple of sysrq T snapshots then
+and post them to the list.
 
-> Sep 24 02:26:14 elm3b67 kernel: invalid operand: 0000 [#1]
-> Sep 24 02:26:14 elm3b67 kernel: CPU:    11
-> Sep 24 02:26:14 elm3b67 kernel: EIP:    0060:[_end+404081921/1069412752]    Not tainted
-> Sep 24 02:26:14 elm3b67 kernel: EFLAGS: 00010206
-> Sep 24 02:26:14 elm3b67 kernel: EIP is at 0xd857bb71
+>
+>I've noticed the problem does not occur when the raid can absorb data
+>faster than the other drive can throw data at it. My naive mind is
+>pretty sure that this is just an issue of way too much being queued
+>
 
-Your EIP looks like it is in modules space.
+Although your system (usr, lib, bin etc) is on the IDE disk, right?
+And that is only doing reads?
 
-> Sep 24 02:26:14 elm3b67 kernel: eax: 00038815   ebx: 00000002   ecx: cbe4ab20   edx: 00000011
-> Sep 24 02:26:14 elm3b67 kernel: esi: 00000000   edi: d82c6690   ebp: d4ecd1b0   esp: d857bb80
-> Sep 24 02:26:14 elm3b67 kernel: ds: 007b   es: 007b   ss: 0068
-> Sep 24 02:26:14 elm3b67 kernel: Process dbench (pid: 20747, threadinfo=d857a000 task=d4015900)
-> Sep 24 02:26:14 elm3b67 kernel: Stack: cf768ea4 00000000 d82c6690 d857bc1c d8841400 d5f0a180 00000000 00000000 
-> Sep 24 02:26:14 elm3b67 kernel:        00818006 d8841400 00000000 d5489310 cf768ea4 c017f65f cc218280 c01892b9 
-> Sep 24 02:26:14 elm3b67 kernel:        cf768ea4 d82c6690 00000000 00000000 d4ecd1b0 00000000 d4ecd1b0 cf768ea4 
-> Sep 24 02:26:14 elm3b67 kernel: Call Trace:
-> Sep 24 02:26:14 elm3b67 kernel:  [ext3_get_inode_loc+87/572] ext3_get_inode_loc+0x57/0x23c
-> Sep 24 02:26:14 elm3b67 kernel:  [journal_get_write_access+33/52] journal_get_write_access+0x21/0x34
-> Sep 24 02:26:14 elm3b67 kernel:  [ext3_reserve_inode_write+52/152] ext3_reserve_inode_write+0x34/0x98
-> Sep 24 02:26:14 elm3b67 kernel:  [ext3_mark_inode_dirty+26/52] ext3_mark_inode_dirty+0x1a/0x34
-> Sep 24 02:26:14 elm3b67 kernel:  [ext3_splice_branch+209/388] ext3_splice_branch+0xd1/0x184
+How does your system behave if you are doing just the read side (ie.
+going to /dev/null), or just the write side (coming from /dev/zero).
 
-But syslogd has conveniently gone and futzed with the oops trace so I
-cannot tell what address your ext3 driver was loaded at.  Sigh.  Please add
-`-x' to your syslogd invokation and shoot whoever first thought of this.
+>
+>for writing. If someone could tell me how to control this parameter,
+>I'd definately give it a try [tomorrow]. All I've found on my own is
+>#define TW_Q_LENGTH 256 in 3w-xxxx.h and am not sure if this is the
+>right thing to change or safe to change.
+>
 
+That looks like it, try it at 4.
 
-If, as I suspect, your ext3 is not loaded as a module then weird.  There
-are no indirect jumps around there which I can think of, so how did EIP get
-that value?  Maybe an overwritten return address?
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

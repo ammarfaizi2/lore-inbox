@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267415AbSLRWBd>; Wed, 18 Dec 2002 17:01:33 -0500
+	id <S267359AbSLRVz6>; Wed, 18 Dec 2002 16:55:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267410AbSLRWBK>; Wed, 18 Dec 2002 17:01:10 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54801
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267407AbSLRWA7>; Wed, 18 Dec 2002 17:00:59 -0500
-Date: Wed, 18 Dec 2002 14:06:30 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Chua <jchua@fedex.com>, "Adam J. Richter" <adam@yggdrasil.com>,
-       axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.51 ide module problem
-In-Reply-To: <1040251422.26521.6.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10212181404180.8350-100000@master.linux-ide.org>
+	id <S267365AbSLRVz5>; Wed, 18 Dec 2002 16:55:57 -0500
+Received: from vsmtp3.tin.it ([212.216.176.223]:30905 "EHLO smtp3.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S267359AbSLRVza>;
+	Wed, 18 Dec 2002 16:55:30 -0500
+Message-ID: <3E00F161.8090501@tin.it>
+Date: Wed, 18 Dec 2002 23:06:25 +0100
+From: AnonimoVeneziano <voloterreno@tin.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021210 Debian/1.2.1-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: John Reiser <jreiser@BitWagon.com>
+CC: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       black666@inode.at
+Subject: Re: IDE-CD and VT8235 issue!!!
+References: <3DFB7B21.7040004@tin.it> <3DFBC4F3.2070603@tin.it> <20021215215057.A12689@ucw.cz> <200212152256.25266.black666@inode.at> <20021216113458.A31837@ucw.cz> <3DFDD2FC.2030700@tin.it> <20021216141945.A32729@ucw.cz> <3DFDDF8C.8030609@tin.it> <20021218100338.B15267@ucw.cz> <3E00EE72.1020506@BitWagon.com>
+In-Reply-To: <3E00EE72.1020506@BitWagon.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+John Reiser wrote:
 
-Jeff,
+> Vojtech Pavlik wrote:
+>
+>> One more here, if you can try it (and remove the two previous ones
+>> first).
+>
+>
+> The earlier vt8235-dvd patch worked for me, but the later vt8235-min 
+> did not.
+>
+> Mitsumi FX4830T ATAPI CD-ROM, MSI KT3 Ultra2 (KT333) mainboard, vt8235.
+> -----
+> kernel: hdc: status error: status=0x58 { DriveReady SeekComplete 
+> DataRequest }
+> kernel: hdc: drive not ready for command
+> kernel: hdc: status timeout: status=0xd1 { Busy }
+> kernel: hdc: DMA disabled
+> kernel: hdc: drive not ready for command
+> kernel: hdc: ATAPI reset complete
+> kernel: hdc: status timeout: status=0xd1 { Busy }
+> kernel: hdc: drive not ready for command
+> -----
 
-Everybody cried screamed an whinned about making the chipsets modular.
-Now that we are going do that path, you have no choice but to wait.
-Use 2.4.20 and be happy.  Or have FedEX write the check for it to be
-worked on fulltime.  I do not care which, but don't bitch about progress.
+Hunks error? during the patching?
 
+byez
 
-On 18 Dec 2002, Alan Cox wrote:
+Marcello
 
-> On Wed, 2002-12-18 at 19:50, Jeff Chua wrote:
-> > 
-> > On 18 Dec 2002, Alan Cox wrote:
-> > 
-> > > I'll get back to 2.5 IDE things next year. For the moment I'm only
-> > > concerned in getting the modular stuff sorted out completely in 2.4.
-> > > Hopefully that will be mostly valid for 2.5 as well.
-> > 
-> > I can't even boot 2.4.21-pre1 with IDE as modules. Works fine under 2.4.20
-> > 
-> > Looks like the IDE patch for 2.4.21-pre1 broke up the modules very similar
-> > to 2.5.51
-> 
-> Yes it did, and I plan to fix it there first
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
 

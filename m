@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317653AbSGJWrK>; Wed, 10 Jul 2002 18:47:10 -0400
+	id <S317657AbSGJWrl>; Wed, 10 Jul 2002 18:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317659AbSGJWrJ>; Wed, 10 Jul 2002 18:47:09 -0400
-Received: from zeke.inet.com ([199.171.211.198]:23938 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S317653AbSGJWrH>;
-	Wed, 10 Jul 2002 18:47:07 -0400
-Message-ID: <3D2CBA08.6000604@inet.com>
-Date: Wed, 10 Jul 2002 17:49:44 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
+	id <S317658AbSGJWrk>; Wed, 10 Jul 2002 18:47:40 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:53521 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S317657AbSGJWrj>; Wed, 10 Jul 2002 18:47:39 -0400
+Date: Wed, 10 Jul 2002 15:49:50 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Emmanuel Fuste <fuste@worldnet.fr>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-m68k@lists.linux-m68k.org>
+Subject: RE: Info on dn_keyb.c
+In-Reply-To: <1012554508.3c5a5b0cbd627@webmail.worldnet.net>
+Message-ID: <Pine.LNX.4.44.0207101547420.11248-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: Andrew Morton <akpm@zip.com.au>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-References: <Pine.LNX.4.44.0207101640340.5067-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the hill wrote:
-> Hi,
-> 
-> On Wed, 10 Jul 2002, Thunder from the hill wrote:
-> 
->>Want a config option? Either int or bool (CONFIG_LOW_HZ). It's not too 
->>much effort.
-> 
-> 
-> I guess I forgot the half of it...
-> 
-> What arches do we want?
-> 
-> Index: arch/i386/Config.help
-> ===================================================================
-> RCS file: /var/cvs/thunder-2.5/arch/i386/Config.help,v
-> retrieving revision 1.4
-> diff -p -u -r1.4 Config.help
-> --- arch/i386/Config.help	7 Jul 2002 09:59:46 -0000	1.4
-> +++ arch/i386/Config.help	10 Jul 2002 22:40:17 -0000
-> @@ -991,3 +991,13 @@ CONFIG_X86_EARLY_PRINTK
->    to the console  much earlier in the boot  process than printk.  This
->    is useful when  debugging fatal problems early in  the boot sequence
->    (e.g. within setup_arch).  If unsure, say N.
-> +
-> +Low kernel scheduler rate
-> +CONFIG_SCHED_LOW_HZ
-> +  Enable this  if you care about  your CPU sleeping  time. The current
-> +  interval for  scheduling processes in  the kernel has  recently been
-> +  increased. The advantage is less latency for many things that depend
 
-Perhaps s/increased/shortened/ ?
+> >How is in charge of it and where can I get docs on the hardware so I can
+> >port the driver to the input api?
+>
+> It was Peter De Schrijver who made the M68K Apollo DN port.
+> I have the hardware docs on paper. I could try to send you the relevant parts
+> or help you to port it.
 
-> +  on the  timer, the disadvantage is  that your cpu  will probably not
-> +  go to sleep in time (so  CPU power management will possibly not work
-> +  at all)
-> +
-> Index: include/asm-i386/param.h
-[snip]
+Could you send me the docs. Its time to port the keyboard driver over to
+the input api.
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+> I no longuer have Apollo DN hardware on hand but if someone in France who
+> read LKML want to made a donation, he can contact me.
+
+Did someone send you anything.
+
 

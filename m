@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264617AbSKCVwE>; Sun, 3 Nov 2002 16:52:04 -0500
+	id <S262525AbSKCVx6>; Sun, 3 Nov 2002 16:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264001AbSKCVwD>; Sun, 3 Nov 2002 16:52:03 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:34346 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S264617AbSKCVwB>;
-	Sun, 3 Nov 2002 16:52:01 -0500
-Date: Sun, 3 Nov 2002 22:58:33 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Jos Hulzink <josh@stack.nl>,
-       linux-kernel@vger.kernel.org
+	id <S263320AbSKCVx6>; Sun, 3 Nov 2002 16:53:58 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:25243 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262525AbSKCVx5>;
+	Sun, 3 Nov 2002 16:53:57 -0500
+Date: Sun, 3 Nov 2002 21:59:20 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Jos Hulzink <josh@stack.nl>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
 Subject: Re: Petition against kernel configuration options madness...
-Message-ID: <20021103215833.GA946@win.tue.nl>
-References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103200704.A8377@ucw.cz>
+Message-ID: <20021103215920.GB733@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>, Jos Hulzink <josh@stack.nl>,
+	linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021103200704.A8377@ucw.cz>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <3DC56270.8040305@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 08:07:05PM +0100, Vojtech Pavlik wrote:
+On Sun, Nov 03, 2002 at 12:52:48PM -0500, Jeff Garzik wrote:
 
-> > Unfortunately I don't have any concrete suggestions for Vojtech (input 
-> > subsystem maintainer), just a request that it becomes easier and more 
-> > obvious how to configure the keyboard and mouse that is found on > 90% 
-> > of all Linux users computers [IMO]...
-> 
-> Too bad you don't have any suggestions. I completely agree this should
-> be simplified, while I wouldn't be happy to lose the possibility of not
-> compiling AT keyboard support in.
+ > This is potentially becoming a FAQ...  I ran into this too, as did 
+ > several people in the office.  People who compile custom kernels seem to 
+ > run into this when they first jump into 2.5.x.  AT Keyboard support is 
+ > definitely buried :/
 
-Last month or so I suggested adding a hint for Appletalk, and I see
-that it is there now:
+Documentation isn't enough. It _has_ to be made simpler.
+Its obvious that this is the #1 stumbling block to a 2.5 virgin right now.
+I fell over it myself when I merged it, as did Linus I believe.
+It's just not obvious enough.
 
-config LLC
-        tristate "ANSI/IEEE 802.2 Data link layer protocol (IPX, Appletalk)"
+Having it documented obviously isn't enough too. I covered this in
+the document[*] I wrote last week, which got ~3000 direct hits, ~7000
+or so on Linux-today, and god knows how many elsewhere.
+(Either that, or my description of the problem sucked).
 
-Such parenthetical remarks will no doubt help a little.
-You might try
+		Dave
 
---- Kconfig~    Thu Oct 31 14:15:06 2002
-+++ Kconfig     Sun Nov  3 22:51:45 2002
-@@ -5,7 +5,7 @@
- menu "Input device support"
- 
- config INPUT
--       tristate
-+       tristate "Input devices (needed for mouse, keyboard, ...)"
-        default y
-        ---help---
-          Say Y here if you have any input device (mouse, keyboard, tablet,
+[*] http://www.codemonkey.org.uk/post-halloween-2.5.txt
 
-and
-
---- Kconfig~    Thu Oct 31 14:15:06 2002
-+++ Kconfig     Sun Nov  3 22:54:28 2002
-@@ -2,7 +2,7 @@
- # Input core configuration
- #
- config SERIO
--       tristate "Serial i/o support"
-+       tristate "Serial i/o support (needed for keyboard and mouse)"
-        ---help---
-          Say Yes here if you have any input device that uses serial I/O to
-          communicate with the system. This includes the 
-
-(and maybe also sth under keyboard, to tell people that what they have
-is called an AT keyboard).
-
-Andries
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

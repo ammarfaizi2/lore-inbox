@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbTEEXK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 19:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbTEEXK0
+	id S261450AbTEEXXp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 19:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTEEXXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 19:10:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12751 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262056AbTEEXKU
+	Mon, 5 May 2003 19:23:45 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:499 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261450AbTEEXXo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 19:10:20 -0400
-Message-ID: <3EB6F23C.9030006@pobox.com>
-Date: Mon, 05 May 2003 19:22:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Mon, 5 May 2003 19:23:44 -0400
+Message-ID: <3EB6F546.6010802@mvista.com>
+Date: Mon, 05 May 2003 16:35:34 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] PATCH: fix qlogicisp leaks
-References: <200305052311.h45NBYVe017478@hera.kernel.org>
-In-Reply-To: <200305052311.h45NBYVe017478@hera.kernel.org>
+To: Aniruddha M Marathe <aniruddha.marathe@wipro.com>
+CC: linux-kernel@vger.kernel.org,
+       Chandrashekhar RS <chandra.smurthy@wipro.com>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [BUG] problem with timer_create(2) for SIGEV_NONE ??
+References: <E935C89216CC5D4AB77D89B253ADED2A92257F@blr-m2-msg.wipro.com>
+In-Reply-To: <E935C89216CC5D4AB77D89B253ADED2A92257F@blr-m2-msg.wipro.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> ChangeSet 1.1164, 2003/05/05 15:30:53-03:00, alan@lxorguk.ukuu.org.uk
+Aniruddha M Marathe wrote:
+> George,
 > 
-> 	[PATCH] PATCH: fix qlogicisp leaks
+>  timer_create(2) fails in the case where sigev_notify parameter of
+> sigevent structure is SIGEV_NONE. I believe this should not happen.
+> 
+  ~snip~
 
-
-> @@ -1396,13 +1396,6 @@
->  		return 1;
->  	}
 >  
-> -#ifdef __alpha__
-> -	/* Force ALPHA to use bus I/O and not bus MEM.
-> -	   This is to avoid having to use HAE_MEM registers,
-> -	   which is broken on some platforms and with SMP.  */
-> -	command &= ~PCI_COMMAND_MEMORY; 
-> -#endif
-> -
->  	if (!(command & PCI_COMMAND_MASTER)) {
->  		printk("qlogicisp : bus mastering is disabled\n");
->  		return 1;
+> Line 377:
+> SIGEV_NONE & ~(SIGEV_SIGNAL | SIGEV_THREAD_ID)
+> = 001 & ~(000 | 100)
+> = 001 & ~(100)
+> = 001 & 011
+> = 001
+> therefore the if condition is true
+> therefore the function returns NULL from line 378.
+>  
+> Now in sys_timer_create() at line number 462
+> Process = NULL
+>  
+> Now at line 489
+> if (!process) becomes TRUE
+> and function returns with EINVAL
+> 
+> Is my analysis right? If so can you comment on this behaviour?
+> 
+Looks like a bug :(  I feel a patch coming on...
 
-
-Um.  Why did this "leak fix" just break alpha?
-
-	Jeff
-
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

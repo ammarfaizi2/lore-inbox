@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281726AbRLFR7E>; Thu, 6 Dec 2001 12:59:04 -0500
+	id <S281754AbRLFSAY>; Thu, 6 Dec 2001 13:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281754AbRLFR6z>; Thu, 6 Dec 2001 12:58:55 -0500
-Received: from femail45.sdc1.sfba.home.com ([24.254.60.39]:41659 "EHLO
-	femail45.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S281726AbRLFR6j>; Thu, 6 Dec 2001 12:58:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
+	id <S281772AbRLFSAL>; Thu, 6 Dec 2001 13:00:11 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:28422 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S281754AbRLFR7r>; Thu, 6 Dec 2001 12:59:47 -0500
+Date: Thu, 6 Dec 2001 10:10:51 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
 To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Date: Thu, 6 Dec 2001 04:57:17 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>,
-        <kbuild-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva>
+cc: Rusty Russell <rusty@rustcorp.com.au>,
+        "David S. Miller" <davem@redhat.com>, <lm@bitmover.com>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, <lars.spam@nocrew.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <hps@intermeta.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: SMP/cc Cluster description
+In-Reply-To: <Pine.LNX.4.33L.0112061551220.2283-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.40.0112061009291.1603-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011206175837.IRKQ15590.femail45.sdc1.sfba.home.com@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 December 2001 11:49 am, Rik van Riel wrote:
+On Thu, 6 Dec 2001, Rik van Riel wrote:
 
-> > It's insidious, isn't it?
+> On Thu, 6 Dec 2001, Davide Libenzi wrote:
 >
-> Yes, I agree the method you're using to smuggle CML2 into
-> a stable kernel is insidious. Please stop it.
-
-1) I'm not.  You're getting your players confused.
-
-2) I don't think Marcelo would take it, so I wouldn't even bother offering it 
-to him.
-
-3) I'm suggesting that if it does go in the old method doesn't go away, so 
-that people who don't want to use the new stuff don't have to.  I think 
-making the old pile of cruft disappear in a stable series IS a bad thing.  
-However, if adding new modular subsystems which people don't have to use (and 
-which require newer tools if you DO want to use them) was a bad thing...  
-Reiser, ext3, and the new vm circa 2.4.10 broke several GUI system monitors...
-
-> regards,
+> > > Machines get dragged down by _uncontended_ locks, simply
+> > > due to cache line ping-pong effects.
+> >
+> > Rik, i think you're confused about lockless algos.
+> > It's not an rwlock where the reader has to dirty a cacheline in any case,
+> > the reader simply does _not_ write any cache line accessing the
+> > list/hash/tree or whatever you use.
 >
-> Rik
+> Hmmm indeed, so the cache lines can be shared as long
+> as the data is mostly read-only. I think I see it now.
+>
+> However, this would only work for data which is mostly
+> read-only, not for anything else...
 
-Rob
+yes of course, but in such case these methods could help solving cache
+issues over traditional rwlocks.
+
+
+
+- Davide
+
+

@@ -1,101 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUCCNIe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 08:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbUCCNIc
+	id S261577AbUCCNOj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 08:14:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbUCCNOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 08:08:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:28569 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261474AbUCCNIY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 08:08:24 -0500
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] Distributed mmap API
-Date: Wed, 3 Mar 2004 08:06:20 -0500
-User-Agent: KMail/1.5.4
-Cc: paulmck@us.ibm.com, sct@redhat.com, hch@infradead.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20040216190927.GA2969@us.ibm.com> <200403022200.39633.phillips@arcor.de> <20040302191539.6bffc687.akpm@osdl.org>
-In-Reply-To: <20040302191539.6bffc687.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200403030800.35612.phillips@arcor.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 3 Mar 2004 08:14:39 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:1543 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261577AbUCCNOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 08:14:37 -0500
+Subject: RE: Desktop Filesystem Benchmarks in 2.6.3
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Mike Gigante <mg@sgi.com>
+Cc: Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       David Weinehall <david@southpole.se>,
+       Andrew Ho <andrewho@animezone.org>, Dax Kelson <dax@gurulabs.com>,
+       Peter Nelson <pnelson@andrew.cmu.edu>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+In-Reply-To: <KHEHKKKAAILFJGJCHDCAAEFFEKAA.mg@sgi.com>
+References: <KHEHKKKAAILFJGJCHDCAAEFFEKAA.mg@sgi.com>
+Content-Type: text/plain
+Message-Id: <1078319654.1113.10.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Wed, 03 Mar 2004 14:14:16 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 March 2004 22:15, Andrew Morton wrote:
-> Daniel Phillips <phillips@arcor.de> wrote:
-> > Here is a rearranged zap_pte_range that avoids any operations for
-> > out-of-range pfns.
->
-> Please remind us why Linux needs this patch?
+On Wed, 2004-03-03 at 11:24, Mike Gigante wrote:
+> On Wednesday 03 March 2004 10:43, Felipe Alfaro Solana wrote:
+> > But XFS easily breaks down due to media defects. Once ago I used XFS,
+> > but I lost all data on one of my volumes due to a bad block on my hard
+> > disk. XFS was unable to recover from the error, and the XFS recovery
+> > tools were unable to deal with the error.
+> 
+> A single bad-block rendered the entire filesystem non-recoverable 
+> for XFS? Sounds difficult to believe since there is redundancy such
+> as multiple copies of the superblock etc.
 
-The is purely to support mmap, including MAP_PRIVATE, accurately on 
-distributed filesystems, where "accurately" is defined as "with local 
-filesystem semantics".
+You should believe it... It was a combination of a power failure and
+some bad disk sectors. Maybe it was just a kernel bug, after all, as
+this happened with 2.5 kernels: during kernel bootup, the kernel invoked
+XFS recovery but it failed due to media errors.
 
-If the same file region is mmapped by more than one node, only one of them is 
-allowed to have a given page of the mmap valid in the page tables at any 
-time.  When a memory write occurs on one of the other nodes, it must fault so 
-that the distributed filesystem can arrange for exclusive ownership of the 
-file page (or as GFS currently implements it, the whole file) to change from 
-one node to the other.  At this time, any pages already faulted in must be 
-unmapped so that future memory accesses will properly fault.  This unmapping 
-is done by zap_page_range, which has nearly the semantics we want except that 
-it will also unmap private pages of a MAP_PRIVATE mapping, destroying the 
-only copy of that data.  A user would observe the privately written data 
-spontaneously revert to the current file contents.  The purpose of this patch 
-is to fix that.
+> I can believe you lost *some* data, but "lost all my data"??? -- I 
+> believe that you'd have to had had *considerably* more than 
+> "a bad block" :-)
 
-This patch allows a distributed filesystem to unmap file-backed memory without 
-unmapping anonymous pages or deleting swap cache, avoiding the above data 
-destruction.  Since zap_page_range is the only function that knows how to 
-unmap memory, it needs to be taught how to skip anonymous pages.
+It was exactly one disk block, at least that's what the low-level HDD
+diagnostic program for my IBM/Hitachi laptop drive told me. In fact, the
+HDD diagnostic was able to recover the media defects.
 
-An alternative to this patch is simply to export zap_page_range, then the 
-distributed filesystem can walk the lists of mmapped vmas itself, skipping 
-any that are MAP_PRIVATE.  This achieves Posix local filesystem semantics, 
-but not Linux local filesystem semantics, because updates to the mmap from 
-other nodes become visible unpredictably.  Earlier this year, Linus said that 
-he wants tighter semantics for distributed MAP_PRIVATE.
+That could have been one of those very improbable cases, but I lost the
+entire volume. Neither the kernel nor XFS tools were able to recover the
+XFS volume. However, I must say that I didn't try every single known way
+of performing the recovery, but recovery with ext2/3 is pretty
+straightforward.
 
-This patch presses zap_page_range into service in a way that was not 
-originally intended, that is, for invalidation as opposed to destruction of 
-memory regions.  The requirements are identical except for the MAP_PRIVATE 
-detail.  Forking the whole zap_ chain would be even more distasteful than 
-grafting on this option flag.  It's also impractical to implement a zap_ 
-variant within a dfs module because of the heavy use of per-arch APIs.  As
-far I can see, this patch is the minimum cost of having accurate semantics
-for distributed MAP_PRIVATE mmap.
-
-I'll take the opportunity to beat my chest a once again about the fact that 
-this doesn't benefit anything other than distributed filesystems.  On the 
-other hand, the cost is  miniscule: 54 bytes, a little stack and likely no 
-measureable cpu.
-
-> I forget what `all' does?  anon+swapcache as well as pagecache?
-
-Yes
-
-> A bit of API documentation here would be appropriate.
-
-Oops, sorry:
-
-/**
- * zap_page_range - remove user pages in a given range
- * @vma: vm_area_struct holding the applicable pages
- * @address: starting address of pages to zap
- * @size: number of bytes to zap
- * @all: also unmap anonymous pages
- */
-void zap_page_range(struct vm_area_struct *vma,
-                    unsigned long address, unsigned long size, int all)
-
-Regards,
-
-Daniel
+As I said, it could have been a kernel bug, or maybe I simply didn't
+understand the implications of recovery, but xfs_repair was totally
+unable to fix the problem. It instructed me to use "dd" to move the
+volume to a healthy disk and retry the operation, but it was not easy to
+do that as I explained before.
 

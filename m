@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbUDLINC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 04:13:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbUDLIL2
+	id S262709AbUDLIXf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 04:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbUDLIXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 04:11:28 -0400
-Received: from mx15.sac.fedex.com ([199.81.195.17]:5642 "EHLO
-	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S262766AbUDLIKF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 04:10:05 -0400
-From: enetgfastv@decibel.com.br
-Message-Id: <200404120809.i3C89ru8029892@mx13.sac.fedex.com>
-To: <linux-kernel@silk.corp.fedex.com>
-Subject: Jantar de  =?ISO-8859-1?Q?=20Neg=F3cios?=
+	Mon, 12 Apr 2004 04:23:35 -0400
+Received: from stingr.net ([212.193.32.15]:23518 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id S262709AbUDLIXe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 04:23:34 -0400
+Date: Mon, 12 Apr 2004 12:22:15 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.5-mm4
+Message-ID: <20040412082215.GP14129@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20040410200551.31866667.akpm@osdl.org> <20040412064605.GO14129@stingr.net> <20040412004244.0f50a7d4.akpm@osdl.org>
 Mime-Version: 1.0
-Date: Mon, 12 Apr 2004 05:10:05 -0300
-X-MIME-Autoconverted: from 8bit to quoted-printable by mx12.sac.fedex.com id i3C89uM5036151
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 04/12/2004
- 04:09:59 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 04/12/2004
- 04:10:02 PM,
-	Serialize complete at 04/12/2004 04:10:02 PM
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20040412004244.0f50a7d4.akpm@osdl.org>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convite para - Jantar de Negócios.
-Buscamos Pessoas, Profissionais e Empresários, para Trabalho e Parceria
-com E-Business, usando a Internet.
+Replying to Andrew Morton:
+> I added a might_sleep() to generic_unplug_device(), because some drivers'
+> unplug functions can sleep.
+> 
+> It appears that either the EVMS or the udm2 patch is calling
+> generic_unplug_device() under a lock.  Probably spin_lock_irq(q->lock).
 
-Visite: http://www.rendaforte.com/jantar/
+can it be thisi (raid1.c):
 
-Gilmar P. Santos
-NGTCorp - Dúvidas pelo email wtrcorp@ibest.com.br
+static void unplug_slaves(mddev_t *mddev)
+{
+        conf_t *conf = mddev_to_conf(mddev);
+        int i;
+        unsigned long flags;
+
+        spin_lock_irqsave(&conf->device_lock, flags);
+        for (i=0; i<mddev->raid_disks; i++) {
+                mdk_rdev_t *rdev = conf->mirrors[i].rdev;
+                if (rdev && !rdev->faulty) {
+                        request_queue_t *r_queue = bdev_get_queue(rdev->bdev);
+
+                        if (r_queue->unplug_fn)
+                                r_queue->unplug_fn(r_queue);
+                }
+        }
+        spin_unlock_irqrestore(&conf->device_lock, flags);
+}
 
 
-
-
-
-Para ser removido de futuros correios, por favor, envie email para
-ngtcad@ibest.com.br, com o assunto REMOVER. Obrigado.
-
+-- 
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

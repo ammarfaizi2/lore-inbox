@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266649AbUAWTP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 14:15:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266654AbUAWTP1
+	id S266655AbUAWTQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 14:16:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266656AbUAWTQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 14:15:27 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49137 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266649AbUAWTPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 14:15:16 -0500
-Date: Fri, 23 Jan 2004 20:15:09 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jan Ischebeck <mail@jan-ischebeck.de>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.2-rc1-mm2
-Message-ID: <20040123191509.GT6441@fs.tum.de>
-References: <1074870538.5122.9.camel@JHome.uni-bonn.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1074870538.5122.9.camel@JHome.uni-bonn.de>
-User-Agent: Mutt/1.4.1i
+	Fri, 23 Jan 2004 14:16:25 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:29145 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S266655AbUAWTQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 14:16:20 -0500
+Message-ID: <401172D8.8040507@nortelnetworks.com>
+Date: Fri, 23 Jan 2004 14:15:36 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Mariusz Mazur <mmazur@kernel.pl>, linux-kernel@vger.kernel.org,
+       debian-glibc@lists.debian.org
+Subject: Re: Userland headers available
+References: <200401231907.17802.mmazur@kernel.pl> <20040123184755.GA2138@nevyn.them.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 23, 2004 at 04:08:58PM +0100, Jan Ischebeck wrote:
+Daniel Jacobowitz wrote:
 
->...
-> Only the radeon dri driver cannot be inserted because of an missing
-> symbol: 
-> radeon: Unknown symbol cmpxchg
+ > I would really like to come up with an approach to maintain this 
+interface
+ > definition in the kernel source.  I'm still trying to think of a
+ > way to do it without breaking compatibility or kernel builds.
 
-This is a known problem if your .config includes support for the 386
-cpu.
+The obvious way is to have the kernel headers include the userland
+headers, then everything below that be wrapped in "#ifdef __KERNEL__". 
+Userland then includes the normal kernel headers, but only gets the 
+userland-safe ones.
 
-Unselect
+This sounds too easy though--I'm sure I've missed something, but I can't 
+think what....
 
-  Processor type and features
-    Processor support
-      386
+Chris
 
-and recompile your kernel.
-
-> Thx for the frequent releases,
-> Jan
-
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

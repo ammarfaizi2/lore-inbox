@@ -1,145 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284902AbSALFJ7>; Sat, 12 Jan 2002 00:09:59 -0500
+	id <S284987AbSALFmN>; Sat, 12 Jan 2002 00:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284966AbSALFJu>; Sat, 12 Jan 2002 00:09:50 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:40977 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284902AbSALFJc>; Sat, 12 Jan 2002 00:09:32 -0500
-Message-ID: <3C3FC3B2.352EDF36@zip.com.au>
-Date: Fri, 11 Jan 2002 21:03:46 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rob Landley <landley@trommello.org>
-CC: yodaiken@fsmlabs.com, Robert Love <rml@tech9.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020111195018.A2008@hq.fsmlabs.com>,
-		<20020111195018.A2008@hq.fsmlabs.com> <20020112042404.WCSI23959.femail47.sdc1.sfba.home.com@there>
+	id <S285017AbSALFmE>; Sat, 12 Jan 2002 00:42:04 -0500
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:58752 "EHLO
+	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S284987AbSALFls>; Sat, 12 Jan 2002 00:41:48 -0500
+Date: Sat, 12 Jan 2002 00:45:28 -0500
+To: linux-kernel@vger.kernel.org
+Cc: andrea@suse.de
+Subject: [PATCH] 1-2-3 GB 
+Message-ID: <20020112004528.A159@earthlink.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> 
-> On Friday 11 January 2002 09:50 pm, yodaiken@fsmlabs.com wrote:
-> > On Fri, Jan 11, 2002 at 03:33:22PM -0500, Robert Love wrote:
-> > > On Fri, 2002-01-11 at 07:37, Alan Cox wrote:
-> > > The preemptible kernel plus the spinlock cleanup could really take us
-> > > far.  Having locked at a lot of the long-held locks in the kernel, I am
-> > > confident at least reasonable progress could be made.
-> > >
-> > > Beyond that, yah, we need a better locking construct.  Priority
-> > > inversion could be solved with a priority-inheriting mutex, which we can
-> > > tackle if and when we want to go that route.  Not now.
-> >
-> > Backing the car up to the edge of the cliff really gives us
-> > good results. Beyond that, we could jump off the cliff
-> > if we want to go that route.
-> > Preempt leads to inheritance and inheritance leads to disaster.
-> 
-> I preempt leads to disaster than Linux can't do SMP.  Are you saying that's
-> the case?
 
-Victor is referring to priority inheritance, to solve priority inversion.
+Patch to have 1-3 GB of virtual memory and not show up as highmem:
 
-Priority inheritance seems undesirable for Linux - these applications are
-already in the minority.   A realtime application on Linux should simply
-avoid complex system calls which can lead to blockage on a SCHED_OTHER
-thread.
+Tested on uniprocessor Athlon with 1024 MB RAM and 1027 MB swap.
+Caused no LTP (ltp-20020108) regressions.
+Did a test like http://marc.theaimsgroup.com/?l=linux-kernel&m=101064072924424&w=2
+This time the test completed in 51 minutes (11% faster) and I had setiathome running
+the whole time and listened to 12 mp3s sampled at 128k.
 
-If the app is well-designed, the only place in which it is likely to
-be unexpectedly blocked inside the kernel is in the page allocator.
-My approach to this problem is to cause non-SCHED_OTHER processes
-to perform atomic (non-blocking) memory allocations, with a fallback
-to non-atomic.
+dmesg|grep Mem
+Memory: 1029848k/1048512k available (1054k kernel code, 18276k reserved, 260k data, 240k init, 0k highmem)
 
-> The preempt patch is really "SMP on UP".  If pre-empt shows up a problem,
-> then it's a problem SMP users will see too.  If we can't take advantage of
-> the existing SMP locking infrastructure to improve latency and interactive
-> feel on UP machines, than SMP for linux DOES NOT WORK.
-> 
-> > All the numbers I've seen show Morton's low latency just works better. Are
-> > there other numbers I should look at.
-> 
-> This approach is basically a collection of heuristics.  The kernel has been
-> profiled and everywhere a latency spike was found, a band-aid was put on it
-> (an explicit scheduling point).  This doesn't say there aren't other latency
-> spikes, just that with the collection of hardware and software being
-> benchmarked, the latency spikes that were found have each had a band-aid
-> individually applied to them.
+egrep '^CONFIG_HIGH|GB' /usr/src/linux/.config
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+# CONFIG_1GB is not set
+CONFIG_2GB=y
+# CONFIG_3GB is not set
+# CONFIG_05GB is not set
 
-The preempt patch needs all this as well.
- 
-> This isn't a BAD thing.  If the benchmarks used to find latency spikes are at
-> all like real-world use, then it helps real-world applications.  But of
-> COURSE the benchmarks are going to look good, since tuning the kernel to
-> those benchmarks is the way the patch was developed!
-> 
-> The majority of the original low latency scheduling point work is handled
-> automatically by the SMP on UP kernel.
+uname -a
+Linux rushmore 2.4.18pre2aa2-2g #2 Fri Jan 11 22:25:55 EST 2002 i686 unknown
 
-No it is not.
+Derived from:
+htty://kernelnewbies.org/kernels/rh72/SOURCES/linux-2.4.2-vm-1-2-3-gbyte.patch
+Some parts of the patch above are already in the mainline trees.
 
-The preempt code only obsoletes a handful of the low-latency patch's
-resceduling.  The most trivial ones.  generic_file_read, generic_file_write
-and a couple of /proc functions.
+Patch below applies to 2.4.18pre2aa2:
 
-Of the sixty or so rescheduling points in the low-latency patch, about
-fifty are inside locks.  Many of these are just lock_kernel().  About
-half are not.
+diff -nur linux.aa2/Rules.make linux/Rules.make
+--- linux.aa2/Rules.make        Tue Mar  6 22:31:01 2001
++++ linux/Rules.make    Fri Jan 11 22:00:57 2002
+@@ -212,6 +212,7 @@
+ #
+ # Added the SMP separator to stop module accidents between uniprocessor
+ # and SMP Intel boxes - AC - from bits by Michael Chastain
++# Added separator for different PAGE_OFFSET memory models - Ingo.
+ #
 
->  You don't NEED to insert scheduling
-> points anywhere you aren't inside a spinlock.
+ ifdef CONFIG_SMP
+@@ -220,6 +221,22 @@
+        genksyms_smp_prefix :=
+ endif
 
-I know of only four or five places in the kernel where large amount of
-time are spent in unlocked code.  All the other problem areas are inside locks.
++ifdef CONFIG_2GB
++ifdef CONFIG_SMP
++       genksyms_smp_prefix := -p smp_2gig_
++else
++       genksyms_smp_prefix := -p 2gig_
++endif
++endif
++
++ifdef CONFIG_3GB
++ifdef CONFIG_SMP
++       genksyms_smp_prefix := -p smp_3gig_
++else
++       genksyms_smp_prefix := -p 3gig_
++endif
++endif
++
+ $(MODINCL)/%.ver: %.c
+        @if [ ! -r $(MODINCL)/$*.stamp -o $(MODINCL)/$*.stamp -ot $< ]; then \
+                echo '$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -E -D__GENKSYMS__ $<'; \
+diff -nur linux.aa2/arch/i386/config.in linux/arch/i386/config.in
+--- linux.aa2/arch/i386/config.in       Fri Jan 11 20:57:58 2002
++++ linux/arch/i386/config.in   Fri Jan 11 22:20:32 2002
+@@ -169,7 +169,11 @@
+ if [ "$CONFIG_HIGHMEM64G" = "y" ]; then
+    define_bool CONFIG_X86_PAE y
+ else
+-   bool '3.5GB user address space' CONFIG_05GB
++   choice 'Maximum Virtual Memory' \
++       "3GB            CONFIG_1GB \
++        2GB            CONFIG_2GB \
++        1GB            CONFIG_3GB \
++        05GB           CONFIG_05GB" 3GB
+ fi
+ if [ "$CONFIG_NOHIGHMEM" = "y" ]; then
+    define_bool CONFIG_NO_PAGE_VIRTUAL y
+@@ -179,6 +183,7 @@
+    bool 'HIGHMEM I/O support (EXPERIMENTAL)' CONFIG_HIGHIO
+ fi
 
->  So the SMP on UP patch makes
-> most of the explicit scheduling point patch go away,
++
+ bool 'Math emulation' CONFIG_MATH_EMULATION
+ bool 'MTRR (Memory Type Range Register) support' CONFIG_MTRR
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+diff -nur linux.aa2/include/asm-i386/page_offset.h linux/include/asm-i386/page_offset.h
+--- linux.aa2/include/asm-i386/page_offset.h    Fri Jan 11 20:57:58 2002
++++ linux/include/asm-i386/page_offset.h        Fri Jan 11 21:20:48 2002
+@@ -1,6 +1,10 @@
+ #include <linux/config.h>
+-#ifndef CONFIG_05GB
+-#define PAGE_OFFSET_RAW 0xC0000000
+-#else
++#ifdef CONFIG_05GB
+ #define PAGE_OFFSET_RAW 0xE0000000
++#elif defined(CONFIG_1GB)
++#define PAGE_OFFSET_RAW 0xC0000000
++#elif defined(CONFIG_2GB)
++#define PAGE_OFFSET_RAW 0x80000000
++#elif defined(CONFIG_3GB)
++#define PAGE_OFFSET_RAW 0x40000000
+ #endif
 
-s/most/a trivial minority/
+-- 
+Randy Hron
 
-> accomplishing the same
-> thing in a less intrusive manner.
-
-s/less/more/
-
-> (Yes, it makes all kernels act like SMP
-> kernels for debugging purposes.  But you can turn it off for debugging if you
-> want to, that's just another toggle in the magic sysreq menu.  And this isn't
-> entirely a bad thing: applying the enormous UP userbase to the remaining SMP
-> bugs is bound to squeeze out one or two more obscure ones, but those bugs DO
-> exist already on SMP.)
-
-Saying "it's a config option" is a cop-out.  The kernel developers should
-be aiming at producing a piece of software which can be shrink-wrap
-deployed to millions of people.
-
-Arguably, enabling it on UP and disabling it on SMP may be a sensible
-approach, meraly because SMP tends to map onto applications which
-do not require lower latencies.
-  
-> However, what's left of the explicit scheduling work is still very useful.
-> When you ARE inside a spinlock, you can't just schedule, you have to save
-> state, drop the lock(s), schedule, re-acquire the locks, and reload your
-> state in case somebody else diddled with the structures you were using.  This
-> is a lot harder than just scheduling, but breaking up long-held locks like
-> this helps SMP scalability, AND helps latency in the SMP-on-UP case.
-
-Yes, it _may_ help SMP scalability.  But a better approach is to replace
-spinlocks with rwlocks when a lock is fond to have this access pattern.
- 
-> So the best approach is a combination of the two patches.  SMP-on-UP for
-> everything outside of spinlocks, and then manually yielding locks that cause
-> problems.
-
-Well the ideal approach is to simply make the long-running locked code
-faster, by better choice of algorithm and data structure.  Unfortunately,
-in the majority of cases, this isn't possible.
-
--

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277123AbRJDEbj>; Thu, 4 Oct 2001 00:31:39 -0400
+	id <S277117AbRJDEa7>; Thu, 4 Oct 2001 00:30:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277120AbRJDEbW>; Thu, 4 Oct 2001 00:31:22 -0400
-Received: from zok.sgi.com ([204.94.215.101]:61863 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S277119AbRJDEbJ>;
-	Thu, 4 Oct 2001 00:31:09 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH - gameport_{,un}register_port must be static when inline 
-In-Reply-To: Your message of "Thu, 04 Oct 2001 14:19:13 +1000."
-             <15291.58177.900493.276071@notabene.cse.unsw.edu.au> 
+	id <S277119AbRJDEat>; Thu, 4 Oct 2001 00:30:49 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:30420 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S277117AbRJDEam>; Thu, 4 Oct 2001 00:30:42 -0400
+Date: Thu, 4 Oct 2001 00:31:11 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: no counters in /proc/net/dev with the ns83820 driver?
+Message-ID: <20011004003110.A12680@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0110032111510.1941-100000@twin.uoregon.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Oct 2001 14:31:29 +1000
-Message-ID: <11147.1002169889@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0110032111510.1941-100000@twin.uoregon.edu>; from joelja@darkwing.uoregon.edu on Wed, Oct 03, 2001 at 09:29:41PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Oct 2001 14:19:13 +1000 (EST), 
-Neil Brown <neilb@cse.unsw.edu.au> wrote:
->Linus,
-> 2.4.11-pre2 wont compile with some combinations of sound card drivers
-> if CONFIG_INPUT_GAMEPORT is not defined, as every driver than include
-> gameport.h causes "gameport_register_port" to be defined as a symbol
-> and there is a conflict.
->
-> This patch makes the relevant inline functions "static" to avoid this
-> problem.
+On Wed, Oct 03, 2001 at 09:29:41PM -0700, Joel Jaeggli wrote:
+> this strike me as a bit odd.
+> 
+> with the driver version 1.34 (kernel is 2.4.9ac7) no statistics are
+> collected in /proc/net/dev, output follows
 
-Please don't.  This was fixed in the -ac trees several weeks ago, the
-correct fix is to move the input rewrite from -ac to Linus's tree.
-That is up to the maintainer, Vojtech Pavlik.
+Upgrade to a newer kernel.  Version 0.12 (some other cvs version) has 
+statistics counters.
 
+		-ben

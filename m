@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261640AbSKRIOe>; Mon, 18 Nov 2002 03:14:34 -0500
+	id <S261661AbSKRIYB>; Mon, 18 Nov 2002 03:24:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261642AbSKRIOe>; Mon, 18 Nov 2002 03:14:34 -0500
-Received: from holomorphy.com ([66.224.33.161]:63453 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261640AbSKRIOd>;
-	Mon, 18 Nov 2002 03:14:33 -0500
-Date: Mon, 18 Nov 2002 00:18:54 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@elte.hu, rml@tech9.net, riel@surriel.com, akpm@zip.com.au
-Subject: unusual scheduling performance
-Message-ID: <20021118081854.GJ23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, mingo@elte.hu, rml@tech9.net,
-	riel@surriel.com, akpm@zip.com.au
+	id <S261663AbSKRIYB>; Mon, 18 Nov 2002 03:24:01 -0500
+Received: from ppp-217-133-216-163.dialup.tiscali.it ([217.133.216.163]:14721
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S261661AbSKRIX7>; Mon, 18 Nov 2002 03:23:59 -0500
+Subject: Re: [patch] threading fix, tid-2.5.47-A3
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DD8657E.7020203@redhat.com>
+References: <Pine.LNX.4.44.0211171938250.8451-100000@home.transmeta.com> 
+	<3DD8657E.7020203@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-fEqkSyDls3szuijykhzm"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Nov 2002 09:30:52 +0100
+Message-Id: <1037608252.1774.49.camel@ldb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16x, 2.5.47 kernel compiles take about 26s when the machine is
-otherwise idle.
 
-On 32x, 2.5.47 kernel compiles take about 48s when the machine is 
-otherwise idle.
+--=-fEqkSyDls3szuijykhzm
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-When a single-threaded task consumes an entire cpu, kernel compiles
-take 36s on 32s when the machine is idle aside from the task consuming
-that cpu and the kernel compile itself.
+> I don't walk the thread descriptors.  I don't write into them.  I move
+> entire double-linked lists with a dozen or so instructions.  Regardless
+> of how many threads were active in the parent.
+However this would cause a lot of copy-on-write faults on thread stacks
+when other thread resume execution.
 
-I suspect the scheduler, because cpu reporting in top(1) shows that a
-two or more cpu-intensive tasks are concentrated on the same cpu, and
-some long-lived tasks appear to be "bouncing" across cpus. If someone
-with knowledge and/or expertise with respect to scheduling semantics
-could look into this, I would be much obliged. Resolving this would
-likely address many SMP and/or NUMA scheduling performance issues.
+How about adding a MAP_DONTCOPY flag to mmap, using it for the thread
+stacks and then adding yet another flag and pointer to the clone
+syscall, pointing to a userspace array of addresses and flags, allowing
+to specify whether vmas should be copied, ignored (or maybe shared, as a
+future extension) so that userspace could specify that the current
+thread stack should be copied anyway?
 
 
-Thanks,
-Bill
+--=-fEqkSyDls3szuijykhzm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA92KU8djkty3ft5+cRAvZfAKCUpHBHbMCBHgmjYETJgZW/1LjPHwCggZ8M
+OAPFJoMDIDiFdoW3wOc9SF0=
+=mWrE
+-----END PGP SIGNATURE-----
+
+--=-fEqkSyDls3szuijykhzm--

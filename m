@@ -1,48 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265494AbUFXULO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265508AbUFXURt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265494AbUFXULO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 16:11:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265501AbUFXULO
+	id S265508AbUFXURt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 16:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265501AbUFXURt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 16:11:14 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:23309 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S265494AbUFXULL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 16:11:11 -0400
-Message-ID: <40DB39E7.3060904@techsource.com>
-Date: Thu, 24 Jun 2004 16:30:31 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
-       "lkml >> Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: Elastic Quota File System (EQFS)
-References: <40d9ac40.674.0@eth.net> <200406231853.35201.mrwatts@fast24.co.uk> <1088016048.15211.10.camel@sage.kitchen> <001901c459cd_bc436e40_868209ca@home> <20040624115019.GA3614@suse.de> <20040624141742.GD698@openzaurus.ucw.cz> <40DB3263.40600@dynextechnologies.com>
-In-Reply-To: <40DB3263.40600@dynextechnologies.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jun 2004 16:17:49 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:4761 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S265508AbUFXURp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 16:17:45 -0400
+Date: Thu, 24 Jun 2004 22:30:43 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: RFC: Testing for kernel features in external modules
+Message-ID: <20040624203043.GA4557@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The last couple of kbuild patches has put attention to testing for
+features in the kernel so an external modules can stay compatible
+with a broad range of kernels.
+Since vendors backport patches then testing for the kernel version is not
+an option, so other means are reqired.
+
+Two approaches are in widespread use:
+a) grep kernel headers
+b) Try to compile a small .c file (nvidia is a good example)
+
+The a) approach is not robust for changes in .h files, mainly when contant
+is moved from one file to another. This will happen when the linuxabi
+project is kicked off.
+
+The b) approach required glibc headers to be in full sync with the kernel,
+this cannot be guaranteed. And will fail when building for another kernel
+version than the running one.
 
 
-Fao, Sean wrote:
+How about the following approach where the kbuild system is used to compile
+a few sample programs? 
+If compile succeeeds -> feature is present.
+If compile fails -> feature not implemented.
 
-> I fail to understand the point you're trying to make.  Are you 
-> suggesting that a feature doesn't necessarily have to be implemented, 
-> just because it's there?  If so, the proposed idea on the "elastic" file 
-> system differs greatly.  Cached content, for instance, speeds up the 
-> browsing experience *without* hindering the ability of the application 
-> to function normally.  Caching is a true enhancement --in most 
-> circumstances.  I can personally see no way to implement EQFS without 
-> greatly exasperating end users with its shortcomings.
+The files needs to be in a separate directory.
+Use: dir/feature.sh /lib/modules/`uname -r`/build ../feature.h
 
+The script usually used to build the module can call feature.sh, and afterwards
+the module can include the feature.h file.
 
-What you need is a small number of fast, expensive drives, and a large 
-array of cheap drives, and use the fast drives as a cache for user files.
+Comments welcome...
 
-But this is completely different from elastic quotas.
-
-My solution to this would be to have large arrays of cheap disks and put 
-lots of RAM in the server and let RAM be the cache.
+	Sam
 
 
+--- /dev/null	2003-09-23 19:59:22.000000000 +0200
++++ features.sh	2004-06-24 22:23:10.475441120 +0200
+@@ -0,0 +1,19 @@
++# Check for presence of certain kernel features
++# $1 = kernel dir
++# $2 = output file
++
++# 
++dir=`dirname $0`
++cd $dir
++
++
++make -C $1 M=`pwd`
++
++if [ -f remap4.o ]; then
++	echo "#define REMAP4 1" > $2
++elif [ -f remap5.o ]; then
++	echo "#define REMAP5 1" > $2
++fi
++
++make -C $1 M=`pwd` clean
++
+--- /dev/null	2003-09-23 19:59:22.000000000 +0200
++++ Makefile	2004-06-24 21:55:45.071580528 +0200
+@@ -0,0 +1,5 @@
++MAKEFLAGS += -k
++
++obj-y := remap4.o remap5.o
++
++
+--- /dev/null	2003-09-23 19:59:22.000000000 +0200
++++ remap4.c	2004-06-24 21:44:28.022507632 +0200
+@@ -0,0 +1,7 @@
++#include <linux/mm.h>
++        
++int do_test_remap_page_range(void)
++{
++           pgprot_t pgprot;
++           remap_page_range(0L, 0L, 0L, pgprot);
++}
+--- /dev/null	2003-09-23 19:59:22.000000000 +0200
++++ remap5.c	2004-06-24 21:44:10.033242416 +0200
+@@ -0,0 +1,7 @@
++#include <linux/mm.h>
++        
++int do_test_remap_page_range(void)
++{
++           pgprot_t pgprot;
++           remap_page_range(NULL, 0L, 0L, 0L, pgprot);
++}

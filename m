@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268429AbUHTRpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268503AbUHTRsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268429AbUHTRpH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 13:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268448AbUHTRpH
+	id S268503AbUHTRsE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 13:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268592AbUHTRsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 13:45:07 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:9433 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S268429AbUHTRpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 13:45:04 -0400
-Subject: 2.6.8.1-mm, programs crashing on x86_64
-From: Alexander Nyberg <alexn@telia.com>
-To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de
+	Fri, 20 Aug 2004 13:48:04 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:39621 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268503AbUHTRsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 13:48:01 -0400
+Subject: Re: ketchup versus patch-kernel
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040820193835.GB7298@mars.ravnborg.org>
+References: <1093021608.15662.1228.camel@nighthawk>
+	 <20040820193835.GB7298@mars.ravnborg.org>
 Content-Type: text/plain
-Message-Id: <1093023902.908.8.camel@boxen>
+Message-Id: <1093024052.15662.1245.camel@nighthawk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 19:45:02 +0200
+Date: Fri, 20 Aug 2004 10:47:32 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This does not happen in linus -bk. I noticed it happens in
-2.6.8-mm2 also, but not sure about earlier. I'll try some earlier
--mm's and if noone knows what could be it I'll do a binary search.
+On Fri, 2004-08-20 at 12:38, Sam Ravnborg wrote:
+> On Fri, Aug 20, 2004 at 10:06:48AM -0700, Dave Hansen wrote:
+> > Since 2.6.8.1 came out, I'm sure a lot of automated tools stopped
+> > working, ketchup included. 
+> 
+> Can someone please explain to me what is the difference between
+> patch-kernel and ketchup?
 
-Must be quite newly introduced though...
-
-boxen:~# chroot /mnt/store/x86/ bash
-bash[911] bad frame in 32bit signal deliver frame:00000000ffffd220 rip:556605d6 rsp:ffffd500 orax:ffffffffffffffff
-bash[910] bad frame in 32bit signal deliver frame:00000000ffffd220 rip:556605d6 rsp:ffffd500 orax:ffffffffffffffff
-bash[910]: segfault at 00000000ffffd51c rip 00000000556605d6 rsp 00000000ffffd500 error 7
-bash[911]: segfault at 00000000ffffd51c rip 00000000556605d6 rsp 00000000ffffd500 error 7
-
-
-
+In my view, there's no basic difference in their intention: turn one
+kernel version into another.  Although, ketchup does handle a few more
+things like downloads, gpg, and a wider variety of trees like -mm, -mjb
+and -tiny.  
+-- Dave
 

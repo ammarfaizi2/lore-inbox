@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289363AbSA2KRf>; Tue, 29 Jan 2002 05:17:35 -0500
+	id <S289375AbSA2KQz>; Tue, 29 Jan 2002 05:16:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289379AbSA2KR0>; Tue, 29 Jan 2002 05:17:26 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:13831 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S289363AbSA2KRQ>;
-	Tue, 29 Jan 2002 05:17:16 -0500
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-        linux-kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com,
-        reiserfs-dev@namesys.com
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <Pine.LNX.4.44.0201281918050.18405-100000@waste.org>
-	<87lmehft5b.fsf@fadata.bg> <E16VU2h-00009Y-00@starship.berlin>
-	<20020129012007.H899@holomorphy.com>
-X-No-CC: Reply to lists, not to me.
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20020129012007.H899@holomorphy.com>
-Date: 29 Jan 2002 12:18:42 +0200
-Message-ID: <87ofjd794t.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S289363AbSA2KQp>; Tue, 29 Jan 2002 05:16:45 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:23682 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289375AbSA2KQg>;
+	Tue, 29 Jan 2002 05:16:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Tue, 29 Jan 2002 11:21:35 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200201282213.g0SMDcU25653@snark.thyrsus.com> <20020129095504.GC5485@emma1.emma.line.org>
+In-Reply-To: <20020129095504.GC5485@emma1.emma.line.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VVOR-00009n-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "William" == William Lee Irwin <wli@holomorphy.com> writes:
+On January 29, 2002 10:55 am, Matthias Andree wrote:
+> On Mon, 28 Jan 2002, Rob Landley wrote:
+> 
+> > The holder of the patch penguin would feed Linus good patches, by Linus's 
+> > standards. Not just tested ones, but small bite-sized patches, one per email 
+> > as plain text includes, with an explanation of what each patch does at the 
+> > top of the mail. (Just the way Linus likes them. :) Current pending patches 
+> > from the patch penguin tree could even be kept at a public place (like 
+> > kernel.org) so Linus could pull rather than push, and grab them when he has 
+> > time. The patch penguin tree would make sure that when Linus is ready for a 
+> > patch, the patch is ready for Linus.
+> 
+> Looks like a manual re-implementation of a bug/request/patch tracker
+> like sourceforge's, bugzilla or whatever, with some additions.
 
-William> On Tue, Jan 29, 2002 at 09:55:02AM +0100, Daniel Phillips wrote:
->> It's only touching the ptes on tables that are actually used, so if a parent
->> with a massive amount of mapped memory forks a child that only instantiates
->> a small portion of it (common situation) then the saving is pretty big.
+And you load a patch into it by emailing to the bot, not via the web
+interface.  The web interface is just for a) reporting b) maintainance, i.e., 
+closing out a patch that got applied in some altered form, or applied with no 
+notification to the bot, or obsoleted.
 
-William> Please correct my attempt at clarifying this:
-William> The COW markings are done at the next higher level of hierarchy above
-William> the pte's themselves, and so experience the radix tree branch factor
-William> reduction in the amount of work done at fork-time in comparison to a
-William> full pagetable copy on fork.
+> A patch
+> is added to the system, it gets a version tag, and you just pull it, and
+> mark it closed if applied to Linus' tree. If Linus releases a new tree,
+> the patch is marked stale until the maintainer uploads an updated patch
+> or just reopens it to mark "still applies unchanged to new version". (No
+> CVS involved, BTW.)
 
-COW at pgd/pmd level is ia32-ism, unlike COW at pte level.
+Yes, very much yes.  This way it just looks like regular email to Linus - 
+except for some hopefully useful bookkeeping gack prepended to the top of the 
+mail by the bot - and doesn't change the way he works at all.
 
-Regards,
--velco
-
-PS. Well, the whole pgd/pmd/ptb stuff is ia32-ism, but that's another
-story.
-
+-- 
+Daniel

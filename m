@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313819AbSDQMaw>; Wed, 17 Apr 2002 08:30:52 -0400
+	id <S313784AbSDQMaZ>; Wed, 17 Apr 2002 08:30:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313830AbSDQMav>; Wed, 17 Apr 2002 08:30:51 -0400
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:13822 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S313819AbSDQMat>;
-	Wed, 17 Apr 2002 08:30:49 -0400
-Date: Wed, 17 Apr 2002 08:30:44 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org,
-        davej@suse.de
-Subject: Re: 2.5.8-dj1 : arch/i386/kernel/smpboot.c error
-Message-ID: <20020417123044.GA8833@www.kroptech.com>
-In-Reply-To: <20020417024707.GA24105@www.kroptech.com> <2635845054.1018994347@[10.10.2.3]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S313819AbSDQMaY>; Wed, 17 Apr 2002 08:30:24 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:27098 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S313784AbSDQMaX>; Wed, 17 Apr 2002 08:30:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: "Anthony J. Breeds-Taurima" <tony@cantech.net.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Change "return EBLAH" to "return -EBLAH in drivers/*
+Date: Wed, 17 Apr 2002 15:29:35 +0300
+X-Mailer: KMail [version 1.4]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0204171223370.14274-100000@thor.cantech.net.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200204171529.35613.nahshon@actcom.co.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 09:59:08PM -0700, Martin J. Bligh wrote:
-> xquad_portio is indeed only for CONFIG_MULTIQUAD. However, you
-> shouldn't need the #ifdef's in the code to make this work -
-> clustered_apic_mode isn't a variable at all, it's a magic
-> trick that's actually 1 or 0 depending on CONFIG_MULTIQUAD.
-> 
-> Look at 2.5.8 virgin, it has the same code.
+On Wednesday 17 April 2002 07:42 am, Anthony J. Breeds-Taurima wrote:
+> --- linux-2.4.19-pre6.clean/drivers/net/plip.c  Mon Oct 22 16:05:31 2001
+> +++ linux-2.4.19-pre6/drivers/net/plip.c        Wed Apr 17 11:08:35 2002
+...
+> -                       return ERROR;
+> +                       return -ERROR;
 
-Not quite.
+At least the changes to plip.c are wrong.
 
-As I said, -dj has an optimization in asm-i386/io.o:
+ERROR is not an errno value:
+	#define ERROR     2
+and the return from this function is propgated to a test
+                if (error != ERROR) { /* Timeout */
+Which will go wrong with the suggested patch.
 
-> #ifdef CONFIG_MULTIQUAD
-> extern void *xquad_portio;    /* Where the IO area was mapped */
-> #else
-> #define xquad_portio (0)
-> #endif
-
-So the preprocessed smpboot.c contains gems like:
-
-> void *(0) = ((void *)0);
-
-...and...
-
-> (0) = ioremap (0xfe400000,
->         numnodes * 0x80000);
-
-Even though clustered_apic_mode is 0, the compiler still complains
-about the second one and the first one doesn't depend on
-clustered_apic_mode at all.
-
-I don't like spreading around more #ifdef's, but the spirit of the
-changes seemed to be to get rid of the declaration of xquad_portio
-when !CONFIG_MULTIQUAD. Suggestions for improvement welcome.
-
---Adam
+-- Itai
 

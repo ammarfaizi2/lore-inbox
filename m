@@ -1,94 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbUKCWkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbUKCWkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbUKCWkc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 17:40:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbUKCWh3
+	id S261917AbUKCWkd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 17:40:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbUKCWgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 17:37:29 -0500
-Received: from zcamail03.zca.compaq.com ([161.114.32.103]:28686 "EHLO
-	zcamail03.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S261908AbUKCWda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 17:33:30 -0500
-Date: Wed, 3 Nov 2004 16:33:08 -0600
-From: mike.miller@hp.com
+	Wed, 3 Nov 2004 17:36:33 -0500
+Received: from out010pub.verizon.net ([206.46.170.133]:10466 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP id S261947AbUKCWec
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 17:34:32 -0500
+From: james4765@verizon.net
 To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Subject: problems with ACPI on 2.4.28-rc1
-Message-ID: <20041103223308.GA3588@beardog.cca.cpqcorp.net>
-Reply-To: mike.miller@hp.com, mikem@beardog.cca.cpqcorp.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Cc: akpm@osdl.org, roms@lievin.net, james4765@verizon.net
+Message-Id: <20041103223430.25508.36023.26676@localhost.localdomain>
+Subject: [PATCH] tipar: Documentation/tipar.txt cleanup
+X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [68.238.31.6] at Wed, 3 Nov 2004 16:34:30 -0600
+Date: Wed, 3 Nov 2004 16:34:31 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-Can anyone assist with this problem? I'm seeing a hang very early in boot under both 2.4.27 & 2.4.28-rc1.
-When the kernel begins to execute the system hangs with ERROR: Invalid Checksum. This seems to be ACPI related. The HW is HP DL360G4. Any help is appreciated. Here is the console output:
+Minor cleanup of Documentation/tipar.txt.
 
-GRUB Loading stage2...
-  Booting command-list
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-root (hd0,0)
- Filesystem type is ext2fs, partition type 0x83
-kernel /vmlinuz-2427 ro root=LABEL=/ console=ttyS0,115200 console=tty1
-   [Linux-bzImage, setup=0x1400, size=0x10b8d4]
-initrd /initrd-2427
-   [Linux-initrd @ 0x37f45000, 0xaaafb bytes]
-
-ok
-Bootdata ok (command line is ro root=LABEL=/ console=ttyS0,115200 console=tty1)
-Linux version 2.4.27 (root@orange-rh3u4) (gcc version 3.2.3 20030502 (Red Hat Linux 3.2.3-46)) #1 SMP Wed Nov 3 14:40:24 CST 2004
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009f400 (usable)
- BIOS-e820: 000000000009f400 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000003fff3000 (usable)
- BIOS-e820: 000000003fff3000 - 000000003fffb000 (ACPI data)
- BIOS-e820: 000000003fffb000 - 0000000040000000 (reserved)
- BIOS-e820: 00000000fec00000 - 00000000fed00000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee10000 (reserved)
- BIOS-e820: 00000000ffc00000 - 0000000100000000 (reserved)
-kernel direct mapping tables upto 10100000000 @ 8000-c000
-No NUMA configuration found
-Faking a node at 0000000000000000-000000003fff3000
-Bootmem setup node 0 0000000000000000-000000003fff3000
-Scan SMP from 0000010000000000 for 1024 bytes.
-Scan SMP from 000001000009fc00 for 1024 bytes.
-Scan SMP from 00000100000f0000 for 65536 bytes.
-found SMP MP-table at 00000000000f4fa0
-hm, page 000f4000 reserved twice.
-hm, page 000f5000 reserved twice.
-hm, page 000f2000 reserved twice.
-hm, page 000f3000 reserved twice.
-setting up node 0 0-3fff3
-On node 0 totalpages: 262131
-zone(0): 4096 pages.
-zone(1): 258035 pages.
-zone(2): 0 pages.
-ACPI: RSDP (v002 HP                                        ) @ 0x00000000000f4f20
-  >>> ERROR: Invalid checksum
-Intel MultiProcessor Specification v1.4
-    Virtual Wire compatibility mode.
-OEM ID: HP       Product ID: PROLIANT     APIC at: 0xFEE00000
-Processor #0 15:3 APIC version 20
-I/O APIC #8 Version 17 at 0xFEC00000.
-I/O APIC #9 Version 17 at 0xFEC10000.
-Processors: 1
-Checking aperture...
-Kernel command line: ro root=LABEL=/ console=ttyS0,115200 console=tty1
-Initializing CPU#0
-time.c: Detected 1.193182 MHz PIT timer.
-time.c: Detected 3000.220 MHz TSC timer.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 5989.99 BogoMIPS
-Memory: 1021296k/1048524k available (1612k kernel code, 0k reserved, 703k data, 152k init)
-Dentry cache hash table entries: 131072 (order: 9, 2097152 bytes)
-Inode cache hash table entries: 65536 (order: 8, 1048576 bytes)
-Mount cache hash table entries: 256 (order: 0, 4096 bytes)
-
-I've tried several different things including disabling ACPI in the kernel, erasing NVRAM, etc. No luck.
-
-Thanks,
-mikem
+diff -urN --exclude='*~' linux-2.6.9-original/Documentation/tipar.txt linux-2.6.9/Documentation/tipar.txt
+--- linux-2.6.9-original/Documentation/tipar.txt	2004-10-18 17:53:06.000000000 -0400
++++ linux-2.6.9/Documentation/tipar.txt	2004-11-03 10:54:22.532837902 -0500
+@@ -4,7 +4,7 @@
+ 
+ 
+ Author: Romain Lievin
+-Homepage: http://lpg.ticalc.org/prj_dev
++Homepage: http://lpg.ticalc.org/prj_tidev/index.html
+ 
+ 
+ INTRODUCTION:
+@@ -12,31 +12,30 @@
+ This is a driver for the very common home-made parallel link cable, a cable 
+ designed for connecting TI8x/9x graphing calculators (handhelds) to a computer
+ or workstation (Alpha, Sparc). Given that driver is built on parport, the 
+-parallel port abstraction layer, this driver is independent of the platform.
++parallel port abstraction layer, this driver is architecture-independent.
+ 
+ It can also be used with another device plugged on the same port (such as a
+-ZIP drive). I have a 100MB ZIP and both of them work fine !
++ZIP drive). I have a 100MB ZIP and both of them work fine!
+ 
+ If you need more information, please visit the 'TI drivers' homepage at the URL
+ above.
+ 
+ WHAT YOU NEED:
+ 
+-A TI calculator of course and a program capable to communicate with your 
+-calculator.
+-TiLP will work for sure (since I am his developer !). yal92 may be able to use
++A TI calculator and a program capable of communicating with your calculator.
++
++TiLP will work for sure (since I am its developer!). yal92 may be able to use
+ it by changing tidev for tipar (may require some hacking...).
+ 
+ HOW TO USE IT:
+ 
+ You must have first compiled parport support (CONFIG_PARPORT_DEV): either 
+ compiled in your kernel, either as a module. 
+-This driver supports the new device hierarchy (devfs).
+ 
+-Next, (as root) from your appropriate modules directory (lib/modules/2.5.XX):
++Next, (as root):
+ 
+        modprobe parport
+-       insmod tipar.o
++       modprobe tipar
+ 
+ If it is not already there (it usually is), create the device:
+ 
+@@ -47,14 +46,14 @@
+ You will have to set permissions on this device to allow you to read/write
+ from it:
+ 
+-       chmod 666 /dev/tipar?
++       chmod 666 /dev/tipar[0..2]
+        
+ Now you are ready to run a linking program such as TiLP. Be sure to configure 
+ it properly (RTFM).
+        
+ MODULE PARAMETERS:
+ 
+-  You can set these with:  insmod tipar NAME=VALUE
++  You can set these with:  modprobe tipar NAME=VALUE
+   There is currently no way to set these on a per-cable basis.
+ 
+   NAME: timeout
+@@ -66,11 +65,12 @@
+   NAME: delay
+   TYPE: integer
+   DEFAULT: 10
+-  DESC: Inter-bit delay in micro-seconds. An lower value gives an higher data 
++  DESC: Inter-bit delay in micro-seconds. A lower value gives an higher data 
+ 	rate but makes transmission less reliable.
+ 
+ These parameters can be changed at run time by any program via ioctl(2) calls 
+-as listed in ./include/linux/ticable.h
++as listed in ./include/linux/ticable.h.
++
+ Rather than write 50 pages describing the ioctl() and so on, it is
+ perhaps more useful you look at ticables library (dev_link.c) that demonstrates
+ how to use them, and demonstrates the features of the driver. This is

@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276561AbRJMGze>; Sat, 13 Oct 2001 02:55:34 -0400
+	id <S276675AbRJMH37>; Sat, 13 Oct 2001 03:29:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276675AbRJMGzY>; Sat, 13 Oct 2001 02:55:24 -0400
-Received: from [212.17.18.2] ([212.17.18.2]:37386 "EHLO gw.ac-sw.com")
-	by vger.kernel.org with ESMTP id <S276561AbRJMGzL> convert rfc822-to-8bit;
-	Sat, 13 Oct 2001 02:55:11 -0400
-Message-Id: <200110130655.f9D6tfX00768@gw.ac-sw.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Stepan Kalichkin <step@ac-sw.com>
-Organization: NGTS
-To: linux-kernel@vger.kernel.org
-Subject: Re: qsbench on old kernels
-Date: Sat, 13 Oct 2001 13:56:34 +0700
-X-Mailer: KMail [version 1.3.5]
-In-Reply-To: <3.0.6.32.20011011104544.01e9bea0@pop.tiscalinet.it>
-In-Reply-To: <3.0.6.32.20011011104544.01e9bea0@pop.tiscalinet.it>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S276591AbRJMH3t>; Sat, 13 Oct 2001 03:29:49 -0400
+Received: from [202.135.142.195] ([202.135.142.195]:46350 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S276675AbRJMH3j>; Sat, 13 Oct 2001 03:29:39 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion 
+Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org,
+        paul.mckenney@us.ibm.com
+In-Reply-To: Your message of "Fri, 12 Oct 2001 09:56:58 PDT."
+             <Pine.LNX.4.33.0110120948540.31692-100000@penguin.transmeta.com> 
+Date: Sat, 13 Oct 2001 17:25:27 +1000
+Message-Id: <E15sJAm-0005JL-00@wagner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-I compiled qsbench under windows 2000
-And get some interesting results:
+In message <Pine.LNX.4.33.0110120948540.31692-100000@penguin.transmeta.com> you
+ write:
+> Yes. With maybe
+> 
+> 	non_preempt()
+> 	..
+> 	preempt()
+> 
+> around it for the pre-emption patches.
 
-Under my linux kernel  2.4.9-ac18
- 
-localhost:~/test/qs_bench > time ./qsbench -n 90000000 -p 1 -s 14538
-seed = 14538
- 
-real    1m50.442s
-user    1m48.410s
-sys     0m1.660s
+Sure, if they want pre-emption on SMP.  Of course, then they'll want
+priority inheritence.
 
-And under windows with same parameters:
-seed = 14538
-time = 48s
+> However, you also need to make your free _free_ be aware of the count.
+> Which means that the current RCU patch is really unusable for this. You
+> need to have the "count" always in a generic place (put it with the hash),
+> and your schedule-time free needs to do
+> 
+> 	if (atomic_read(&count))
+> 		skip_this_do_it_next_time
 
+WTF?  I'll spell it out for you again:
+
+	static inline void foo_put(struct foo *foo)
+	{
+		if (atomic_dec_and_test(foo->use))
+			kfree(foo);
+	}
+
+Write side normal:
+
+	lock
+	unhash(foo)
+	unlock
+	foo_put(foo)
+
+Write side RCU:
+
+	lock
+	unhash(foo)
+	unlock
+	rcu_call(foo_put, foo);
+		/* ie. call foo_put(foo) "later". */
+
+That's all.  Really.
+
+> Do that, and the RCU patches may start looking usable for the real world.
+
+I know you're under strain, but think harder please.
+
+Rusty.
 --
-seed = 14538
-time = 47s
-
---
-seed = 14538
-time = 48s
-
-May be this comparison is't correctly
-but so large difference!
-Any comments?
+Premature optmztion is rt of all evl. --DK

@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVAGMW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVAGMYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVAGMW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 07:22:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVAGMW7
+	id S261385AbVAGMYq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 07:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVAGMYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 07:22:59 -0500
-Received: from fest.stud.feec.vutbr.cz ([147.229.9.16]:55819 "EHLO
-	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
-	id S261386AbVAGMW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 07:22:58 -0500
-Message-ID: <41DE7F20.4010502@stud.feec.vutbr.cz>
-Date: Fri, 07 Jan 2005 13:22:56 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Park Lee <parklee_sel@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to understand and turn off such a oops
-References: <20050107115011.24897.qmail@web51510.mail.yahoo.com>
-In-Reply-To: <20050107115011.24897.qmail@web51510.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 07:24:46 -0500
+Received: from colin2.muc.de ([193.149.48.15]:30988 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261385AbVAGMYg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 07:24:36 -0500
+Date: 7 Jan 2005 13:24:34 +0100
+Date: Fri, 7 Jan 2005 13:24:34 +0100
+From: Andi Kleen <ak@muc.de>
+To: YhLu <YhLu@tyan.com>
+Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, jamesclv@us.ibm.com, suresh.b.siddha@intel.com
+Subject: Re: 256 apic id for amd64
+Message-ID: <20050107122434.GA64665@muc.de>
+References: <3174569B9743D511922F00A0C9431423072912FA@TYANWEB>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3174569B9743D511922F00A0C9431423072912FA@TYANWEB>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Park Lee wrote:
-> Hi,
->   Sometimes, when I call kmalloc() in Linux kernel,
-> the kernel always bring out a oops shown as following:
+On Thu, Jan 06, 2005 at 06:53:11PM -0800, YhLu wrote:
+> static unsigned int phys_pkg_id(int index_msb)
+> {
+>         return hard_smp_processor_id() >> index_msb;
+> }
 > 
+> In arch/x86_64/kernel/genapic_cluster.c
 > 
-> Debug: sleeping function called from invalid context
-> at mm/slab.c:1980
-> in_atomic():1, irqs_disabled():0
+> Should be changed to 
+> 
+> static unsigned int phys_pkg_id(int index_msb)
+> {
+>         /* physical apicid, so we need to substract offset */
+>         return (hard_smp_processor_id() - boot_cpu_id) >> index_msb;
+> }
 
-You're calling kmalloc in a context where sleeping is not allowed. And 
-kmalloc with the GFP_KERNEL flag can sleep. Use GFP_ATOMIC in that context.
+Why? 
 
-Michal
+If you want a patch merged you need to supply some more explanation
+please.
+
+Also cc Suresh & James for comment.
+
+-Andi
+

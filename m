@@ -1,160 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264604AbTLVXzh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 18:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264867AbTLVXzh
+	id S264867AbTLVX4d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 18:56:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264875AbTLVX4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 18:55:37 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:60324 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264604AbTLVXz1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 18:55:27 -0500
-Date: Mon, 22 Dec 2003 16:26:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: colpatch@us.ibm.com, linux-kernel@vger.kernel.org
-cc: Andrew Morton <akpm@digeo.com>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: Re: [TRIVIAL PATCH] Ensure pfn_to_nid() is always defined for i386
-Message-ID: <1814780000.1072139199@flay>
-In-Reply-To: <3FE74984.3000602@us.ibm.com>
-References: <3FE74984.3000602@us.ibm.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 22 Dec 2003 18:56:33 -0500
+Received: from sole.infis.univ.trieste.it ([140.105.134.1]:51865 "EHLO
+	sole.infis.univ.trieste.it") by vger.kernel.org with ESMTP
+	id S264867AbTLVX41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 18:56:27 -0500
+Date: Tue, 23 Dec 2003 00:56:23 +0100
+From: Andrea Barisani <lcars@infis.univ.trieste.it>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.6.0, wrong Kconfig directives
+Message-ID: <20031222235622.GA17030@sole.infis.univ.trieste.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+X-GPG-Key: 0x864C9B9E
+X-GPG-Fingerprint: 0A76 074A 02CD E989 CE7F  AC3F DA47 578E 864C 9B9E
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> pfn_to_nid() is defined for *almost* all configurations for i386.  
-> There is a small bug in that for CONFIG_X86_PC it is not.  This 
-> just sets up a generic definition so that this function is always 
-> defined in a reasonable manner.
 
-I'd prefer to fix the current ungodly mess in the current fashion ...
-I know it's longer, but I'd prefer to clean it up more if we're 
-going to touch it. This has been sitting in my tree for a while, 
-waiting for the code freeze to slush out a bit.
+Hi folks,
 
-M.
+Installing 2.6.0 I've found that some kernel options directives are wrong,
+in fact the option turns out to be always enabled. I don't think this is 
+a desired behaviour.
+
+Sorry for the format, yes I know it's ugly :) but I'll leave to you the proper 
+solution :) so I can't make a proper patch.
 
 
-diff -purN -X /home/mbligh/.diff.exclude 276-per_node_rss/include/asm-i386/mmzone.h 278-pfn_to_nid/include/asm-i386/mmzone.h
---- 276-per_node_rss/include/asm-i386/mmzone.h	2003-10-01 11:48:22.000000000 -0700
-+++ 278-pfn_to_nid/include/asm-i386/mmzone.h	2003-12-11 17:16:48.000000000 -0800
-@@ -10,7 +10,49 @@
- 
- #ifdef CONFIG_DISCONTIGMEM
- 
-+#ifdef CONFIG_NUMA
-+	#ifdef CONFIG_X86_NUMAQ
-+		#include <asm/numaq.h>
-+	#else	/* summit or generic arch */
-+		#include <asm/srat.h>
-+	#endif
-+#else /* !CONFIG_NUMA */
-+	#define get_memcfg_numa get_memcfg_numa_flat
-+	#define get_zholes_size(n) (0)
-+#endif /* CONFIG_NUMA */
-+
- extern struct pglist_data *node_data[];
-+#define NODE_DATA(nid)		(node_data[nid])
-+
-+/*
-+ * generic node memory support, the following assumptions apply:
-+ *
-+ * 1) memory comes in 256Mb contigious chunks which are either present or not
-+ * 2) we will not have more than 64Gb in total
-+ *
-+ * for now assume that 64Gb is max amount of RAM for whole system
-+ *    64Gb / 4096bytes/page = 16777216 pages
-+ */
-+#define MAX_NR_PAGES 16777216
-+#define MAX_ELEMENTS 256
-+#define PAGES_PER_ELEMENT (MAX_NR_PAGES/MAX_ELEMENTS)
-+
-+extern u8 physnode_map[];
-+
-+static inline int pfn_to_nid(unsigned long pfn)
-+{
-+#ifdef CONFIG_NUMA
-+	return(physnode_map[(pfn) / PAGES_PER_ELEMENT]);
-+#else
-+	return 0;
-+#endif
-+}
-+
-+static inline struct pglist_data *pfn_to_pgdat(unsigned long pfn)
-+{
-+	return(NODE_DATA(pfn_to_nid(pfn)));
-+}
-+
- 
- /*
-  * Following are macros that are specific to this numa platform.
-@@ -43,11 +85,6 @@ extern struct pglist_data *node_data[];
-  */
- #define kvaddr_to_nid(kaddr)	pfn_to_nid(__pa(kaddr) >> PAGE_SHIFT)
- 
--/*
-- * Return a pointer to the node data for node n.
-- */
--#define NODE_DATA(nid)		(node_data[nid])
--
- #define node_mem_map(nid)	(NODE_DATA(nid)->node_mem_map)
- #define node_start_pfn(nid)	(NODE_DATA(nid)->node_start_pfn)
- #define node_end_pfn(nid)						\
-@@ -93,40 +130,6 @@ extern struct pglist_data *node_data[];
-  */ 
- #define pfn_valid(pfn)          ((pfn) < num_physpages)
- 
--/*
-- * generic node memory support, the following assumptions apply:
-- *
-- * 1) memory comes in 256Mb contigious chunks which are either present or not
-- * 2) we will not have more than 64Gb in total
-- *
-- * for now assume that 64Gb is max amount of RAM for whole system
-- *    64Gb / 4096bytes/page = 16777216 pages
-- */
--#define MAX_NR_PAGES 16777216
--#define MAX_ELEMENTS 256
--#define PAGES_PER_ELEMENT (MAX_NR_PAGES/MAX_ELEMENTS)
--
--extern u8 physnode_map[];
--
--static inline int pfn_to_nid(unsigned long pfn)
--{
--	return(physnode_map[(pfn) / PAGES_PER_ELEMENT]);
--}
--static inline struct pglist_data *pfn_to_pgdat(unsigned long pfn)
--{
--	return(NODE_DATA(pfn_to_nid(pfn)));
--}
--
--#ifdef CONFIG_X86_NUMAQ
--#include <asm/numaq.h>
--#elif CONFIG_ACPI_SRAT
--#include <asm/srat.h>
--#elif CONFIG_X86_PC
--#define get_zholes_size(n) (0)
--#else
--#define pfn_to_nid(pfn)		(0)
--#endif /* CONFIG_X86_NUMAQ */
--
- extern int get_memcfg_numa_flat(void );
- /*
-  * This allows any one NUMA architecture to be compiled
-diff -purN -X /home/mbligh/.diff.exclude 276-per_node_rss/include/linux/mmzone.h 278-pfn_to_nid/include/linux/mmzone.h
---- 276-per_node_rss/include/linux/mmzone.h	2003-10-14 15:50:34.000000000 -0700
-+++ 278-pfn_to_nid/include/linux/mmzone.h	2003-12-11 17:16:48.000000000 -0800
-@@ -303,7 +303,7 @@ extern struct pglist_data contig_page_da
- #define NODE_DATA(nid)		(&contig_page_data)
- #define NODE_MEM_MAP(nid)	mem_map
- #define MAX_NODES_SHIFT		0
--
-+#define pfn_to_nid(pfn)		(0)
- #else /* CONFIG_DISCONTIGMEM */
- 
- #include <asm/mmzone.h>
+- IPV6_SCTP___ option is always turned on
 
+./net/sctp/Kconfig:
+
+8:  config IPV6_SCTP__
+9: 	    tristate
+10:         default y if IPV6=n
+11:	    default IPV6 if IPV6
+12:
+13: config IP_SCTP
+14:	    tristate "The SCTP Protocol (EXPERIMENTAL)"
+15:	    depends on IPV6_SCTP__
+
+
+I think something is wrong here, why the 'default y if IPV6=n' ???
+
+ 
+- INPUT_MOUSEDEV option is always turned on
+
+./drivers/input/Kconfig:
+
+27: config INPUT_MOUSEDEV
+28:	    tristate "Mouse interface" if EMBEDDED
+29:	    default y
+30:	    depends on INPUT
+
+43: config INPUT_MOUSEDEV_PSAUX
+44:         bool "Provide legacy /dev/psaux device" if EMBEDDED
+45:         default y
+46:         depends on INPUT_MOUSEDEV
+
+
+the tristate directive is ignored in most default configurations since EMBEDDED
+is not set, however this doesn't allow to disable INPUT_MOUSEDEV and 
+INPUT_MOUSEDEV_PSAUX. I don't suppose this is right.
+
+
+- SOUND_GAMEPORT option is always turned on
+
+./drivers/input/gameport/Kconfig
+
+22: config SOUND_GAMEPORT
+23:         tristate
+24:         default y if GAMEPORT!=m
+25:         default m if GAMEPORT=m
+
+line 24 is definetly wrong, option is enabled if GAMEPORT=n.
+
+
+Bye 
+
+P.S.
+I'm not subscribed to this list so CC me if it's needed
+
+--
+------------------------------------------------------------
+INFIS Network Administrator & Security Officer         .*. 
+Department of Physics       - University of Trieste     V 
+lcars@infis.univ.trieste.it - GPG Key 0x864C9B9E      (   )
+----------------------------------------------------  (   )
+"How would you know I'm mad?" said Alice.             ^^-^^
+"You must be,'said the Cat,'or you wouldn't have come here."
+------------------------------------------------------------

@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbUCAQbT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 11:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbUCAQbT
+	id S261361AbUCAQio (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 11:38:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbUCAQio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 11:31:19 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:58812 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S261358AbUCAQbR
+	Mon, 1 Mar 2004 11:38:44 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:19616 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261361AbUCAQil
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 11:31:17 -0500
-Date: Mon, 1 Mar 2004 09:31:16 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: George Anzinger <george@mvista.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect / detach
-Message-ID: <20040301163116.GS1052@smtp.west.cox.net>
-References: <20040225213626.GF1052@smtp.west.cox.net> <200402261344.49261.amitkale@emsyssoft.com> <403E8180.1060008@mvista.com> <200403011406.17015.amitkale@emsyssoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Mar 2004 11:38:41 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Christophe Saout <christophe@saout.de>
+Subject: Re: Worrisome IDE PIO transfers...
+Date: Mon, 1 Mar 2004 17:45:34 +0100
+User-Agent: KMail/1.5.3
+Cc: Jeff Garzik <jgarzik@pobox.com>, Matt Mackall <mpm@selenic.com>,
+       Jens Axboe <axboe@suse.de>, Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <4041232C.7030305@pobox.com> <200403010147.47808.bzolnier@elka.pw.edu.pl> <1078147381.7497.15.camel@leto.cs.pocnet.net>
+In-Reply-To: <1078147381.7497.15.camel@leto.cs.pocnet.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200403011406.17015.amitkale@emsyssoft.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200403011745.34068.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 01, 2004 at 02:06:17PM +0530, Amit S. Kale wrote:
-> On Friday 27 Feb 2004 5:00 am, George Anzinger wrote:
-> > Amit S. Kale wrote:
-> > > On Thursday 26 Feb 2004 3:23 am, Tom Rini wrote:
-> > >>- Don't try and look for a connection in put_packet, after we've tried
-> > >>  to put a packet.  Instead, when we receive a packet, GDB has
-> > >>  connected.
-> > >
-> > > We have to check for gdb connection in putpacket or else following
-> > > problem occurs.
-> > >
-> > > 1. kgdb console messages are to be put.
-> > > 2. gdb dies
-> > > 3. putpacket writes the packet and waits for a '+'
+On Monday 01 of March 2004 14:23, Christophe Saout wrote:
+> Am Mo, den 01.03.2004 schrieb Bartlomiej Zolnierkiewicz um 01:47:
+> > http://www.kernel.org/pub/linux/kernel/people/bart/dm-byteswap-2.6.4-rc1.
+> >patch
 > >
-> > Oops!  Tom, this '+' will be sent under interrupt and while kgdb is not
-> > connected.  Looks like it needs to be passed through without causing a
-> > breakpoint.  Possible salvation if we disable interrupts while waiting for
-> > the '+' but I don't think that is a good idea.
-> 
-> Yes. That's why I added a paramter to putpacket to skip causing a breakpoint 
-> when not required.
+> > Guess what's this? :)
+>
+> The thieves... they've stolen my precioussss. ;)
+>
+> > It is simply a stripped down dm-crypt.c, so all credits go to Christophe.
+> > I have tested it quickly with loop device and it seems to work.
+>
+> Yes, it's not that complicated. Looks good.
+> BTW: You don't need the km_types voodoo as the conversion routine is
+> never called from a softirq context and you are allowed (but should try
+> to avoid it) to sleep. You could add a conditional reschedule after
+> kunmapping the buffers to keep the latency low on non-preempt kernels.
 
-The problem, and I think I've fixed it, is you always need to look for a
-packet when you're sending one (think of gdb going away on you, you
-don't really know what you'll be sending when it does), and you can only
-look for a '$'.  That's what I've committed now does.
+Yes, you are of course right.  I will remove "km_types voodoo".
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+> BTW: I've got some cleanups and a small fix in Andrew's latest tree
+> (using a #define for the log prefix and I bvec array thingy).
+
+Yep, I've seen them already.
+
+Thanks,
+Bartlomiej
+

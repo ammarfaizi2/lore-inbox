@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUDWAv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263676AbUDWA43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbUDWAv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 20:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbUDWAv4
+	id S263676AbUDWA43 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 20:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUDWA43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 20:51:56 -0400
-Received: from adsl-209-204-138-32.sonic.net ([209.204.138.32]:33667 "EHLO
-	server.home") by vger.kernel.org with ESMTP id S263147AbUDWAvy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 20:51:54 -0400
-Date: Thu, 22 Apr 2004 17:51:53 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.home
-To: Urban Widmark <urban@teststation.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: CIFS/SMBFS failing under load in 2.6.X
-In-Reply-To: <Pine.LNX.4.44.0404221935090.32465-100000@cola.local>
-Message-ID: <Pine.LNX.4.58.0404221750070.14856@server.home>
-References: <Pine.LNX.4.44.0404221935090.32465-100000@cola.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Apr 2004 20:56:29 -0400
+Received: from gprs214-221.eurotel.cz ([160.218.214.221]:19584 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263676AbUDWA40 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 20:56:26 -0400
+Date: Fri, 23 Apr 2004 02:56:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SOFTWARE_SUSPEND as a module
+Message-ID: <20040423005617.GA414@elf.ucw.cz>
+References: <20040422120417.GA2835@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040422120417.GA2835@gondor.apana.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well the server is under very high load in this test (up to 200) and the
-response times are also extremely high. Are timeouts new in 2.6.x? SMBFS
-in 2.4.X does not seem to timeout.
+Hi!
 
-Also are there any fixes for the 4KB size limitation? Windows allows 64K
-writes and reads in one request. SMBFS only 4K.
+> This is a quick hack to modularise SOFTWARE_SUSPEND.  I've successfully
+> suspended to/resumed from LVM using this.
 
-On Thu, 22 Apr 2004, Urban Widmark wrote:
+Uh, oh.
 
-> On Mon, 12 Apr 2004, Christoph Lameter wrote:
->
-> > Whenever I put a high load on CIFS or SMBFS requests timeout and then the
-> > benchmark or whatever I run fails. I ran the same tests successfully with
-> > a 2.4.25 kernel. This is a connection to a samba 3.0.2 server.
-> >
-> > SMBFS logs the following:
-> >
-> > Apr 12 15:59:25 testbox kernel: smb_add_request: request [ca7b7280,
-> > mid=12891] timed out!
-> > Apr 12 15:59:25 testbox kernel: smb_writepage_sync: failed write,
-> > wsize=4096, result=-5
-> ...
->
-> > CIFS logs:
-> >
-> > Apr 12 17:02:00 testbox kernel:  CIFS VFS: Send error in write = -6
-> > Apr 12 17:02:29 testbox kernel:  CIFS VFS: Send error in write = -5
-> > Apr 12 17:02:29 testbox last message repeated 8 times
-> > Apr 12 17:02:39 testbox kernel:  CIFS VFS: Need to reconnect after session
-> > died to server
->
-> smbfs and cifs does not share any code although I believe both of them
-> will send multiple requests in parallel. Any chance that this is the
-> server or network?
->
->
-> smbfs at least does not limit the number of requests it sends. It could be
-> a problem if the server has a low limit (should be the maxmux field in the
-> smb_conn_opt struct).
->
-> I could send a patch for this, but unless cifs does the same then that is
-> probably not it.
->
-> /Urban
->
->
+I can't see actual code changes because you do lots of renames... Is
+there way to keep them down?
+
+What is the point of this? Do you want launch resume after you
+prepared for it in userland? In such case you need to add
+freeze_processes() to resume path.
+
+[And please inline your patches. l-k policy says so and my mail filter
+learned that attachment == virus. (At 500 viruses a day, its
+unfortunately close to right).
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

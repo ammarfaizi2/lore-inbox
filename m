@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265320AbTAEVyd>; Sun, 5 Jan 2003 16:54:33 -0500
+	id <S265336AbTAEV6V>; Sun, 5 Jan 2003 16:58:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265321AbTAEVyd>; Sun, 5 Jan 2003 16:54:33 -0500
-Received: from mail.hometree.net ([212.34.181.120]:64149 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S265320AbTAEVyc>; Sun, 5 Jan 2003 16:54:32 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Honest does not pay here ...
-Date: Sun, 5 Jan 2003 22:03:07 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <avaa2r$ggr$1@forge.intermeta.de>
-References: <200301041809.KAA06893@adam.yggdrasil.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1041804187 25779 212.34.181.4 (5 Jan 2003 22:03:07 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 5 Jan 2003 22:03:07 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S265325AbTAEV6U>; Sun, 5 Jan 2003 16:58:20 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:56726 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S265321AbTAEV6O> convert rfc822-to-8bit; Sun, 5 Jan 2003 16:58:14 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <hps@intermeta.de>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Sun, 5 Jan 2003 14:06:46 -0800
+In-Reply-To: <ava93t$gdp$1@forge.intermeta.de>
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20030105220647.AAA2025@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> writes:
+On Sun, 5 Jan 2003 21:46:37 +0000 (UTC), Henning P. Schmiedehausen 
+wrote:
 
->	I believe that the illegality of proprietary kernel modules
->has resulting in more GPL-compatible kernel code than without such
->a restriction.
+>Wrong. You buy a license from Microsoft and a media (CD/DVD). Read
+>the
+>end user license agreement (EULA).  You're allowed to resell the
+>media
+>but not the license. "Unfortunately" for Microsoft, this distinction
+>is illegal in free countries like Germany [1]. So M$ lost in court
+>and
+>you can legally buy "OEM" versions for a fraction of the "boxed"
+>price
+>and resell your licenses.
 
-What people like you don't understand is, that there no such thing as
-a "illegal proprietary kernel module" according to the GPL.
+>AFAIK, in the U.S. you cannot resell the license legally once you
+>accepted the EULA (i.e. opened the box). And dealers must not resell
+>unbundled OEM software.
 
-There is only an "illegal distribution of a proprietary binary kernel
-module with the linux kernel" under the GPL.
+>Now, who's living in a free country again?
 
-If Andres' customers are happy with getting a binary only module for
-use with their kernel, there is no violation of the GPL by Andre.
+	We are. Freedom includes the freedom to set whatever terms you want 
+on what other people do with what is yours. Of course, it also 
+includes the freedom not to buy things that come with restrictive 
+licenses.
 
-	Regards
-		Henning (writing this on a computer with the nvidia
-                         module loaded and happy about it.  And
-                         completely within the boundaries of the
-                         GPL. No matter what RMS says).
+	DS
 
 
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUIHN3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268328AbUIHOIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267238AbUIHN3p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 09:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUIHN1f
+	id S268328AbUIHOIx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 10:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268049AbUIHOHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 09:27:35 -0400
-Received: from holomorphy.com ([207.189.100.168]:63655 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267709AbUIHNJX (ORCPT
+	Wed, 8 Sep 2004 10:07:48 -0400
+Received: from cantor.suse.de ([195.135.220.2]:56287 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269003AbUIHNnd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 09:09:23 -0400
-Date: Wed, 8 Sep 2004 06:09:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Scott Wood <scott@timesys.com>
-Subject: Re: [patch] generic-hardirqs.patch, 2.6.9-rc1-bk14
-Message-ID: <20040908130908.GE3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Scott Wood <scott@timesys.com>
-References: <20040908120613.GA16916@elte.hu> <20040908133445.A31267@infradead.org> <20040908124547.GA19231@elte.hu> <20040908125755.GC3106@holomorphy.com> <20040908140146.A31601@infradead.org>
+	Wed, 8 Sep 2004 09:43:33 -0400
+Date: Wed, 8 Sep 2004 15:40:28 +0200
+From: Olaf Hering <olh@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] CONFIG_CMDLINE broken on ppc
+Message-ID: <20040908134028.GB15209@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20040908140146.A31601@infradead.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 05:57:55AM -0700, William Lee Irwin III wrote:
->> It may be time for a __weak define to abbreviate __attribute__((weak));
->> we seem to use it in enough places.
 
-On Wed, Sep 08, 2004 at 02:01:46PM +0100, Christoph Hellwig wrote:
-> Personally I'm extremly unhappy with that week model for things like
-> this.  There's no reason why architectures could implement irq handling
-> as inlines.  Or in case of s390 not at all.
-
-If there's a question of "not at all" that probably rules out weak
-symbols as a method of handling it.
+CONFIG_CMDLINE can not work on ppc.
+machine_init() copies the string to cmd_line, then platform_init() is
+called. It truncates the string to length zero.
 
 
--- wli
+
+--- ./arch/ppc/kernel/setup.c.kaputt    2004-09-08 14:23:36.000000000 +0200
++++ ./arch/ppc/kernel/setup.c   2004-09-08 15:30:42.000000000 +0200
+@@ -418,7 +418,9 @@ platform_init(unsigned long r3, unsigned
+         * are used for initrd_start and initrd_size,
+         * otherwise they contain 0xdeadbeef.
+         */
++#if 0  
+        cmd_line[0] = 0;
++#endif 
+        if (r3 >= 0x4000 && r3 < 0x800000 && r4 == 0) {
+                strlcpy(cmd_line, (char *)r3 + KERNELBASE,
+                        sizeof(cmd_line));
+
+
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

@@ -1,90 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267310AbUIEWiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267323AbUIEWlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267310AbUIEWiE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 18:38:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267330AbUIEWhz
+	id S267323AbUIEWlG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 18:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267311AbUIEWif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 18:37:55 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:65401 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S267319AbUIEWgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 18:36:42 -0400
-Date: Sun, 5 Sep 2004 23:36:30 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Brent Casavant <bcasavan@sgi.com>, Christoph Rohland <cr@sap.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/7] shmem: don't SLAB_HWCACHE_ALIGN
-Message-ID: <Pine.LNX.4.44.0409052331240.3218-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 5 Sep 2004 18:38:35 -0400
+Received: from imap.nuit.ca ([66.11.160.83]:40127 "EHLO smtp.nuit.ca")
+	by vger.kernel.org with ESMTP id S267323AbUIEWgx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 18:36:53 -0400
+Date: Sun, 5 Sep 2004 22:36:44 +0000
+From: simon@nuit.ca
+To: linux-kernel@vger.kernel.org
+Cc: simon@nuit.ca
+Subject: sig11 with sch_ingress in 2.6.8.1
+Message-ID: <20040905223644.GB19153@nuit.ca>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="R3G7APHDIzY6R/pk"
+Content-Disposition: inline
+X-Operating-System: Debian GNU/Linux
+X-GPG-Key-Server: x-hkp://subkeys.pgp.net
+User-Agent: Mutt/1.5.6+20040818i
+X-Scan-Signature: smtp.nuit.ca 1C45cq-0003qb-HN 0a2f6a544f009e953df4c70d5e63f261
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton recently removed SLAB_HWCACHE_ALIGN from the fs inode caches, now
-do the same for tmpfs inode cache: fits 9 per page where 7 before.
 
-Was saying SLAB_RECLAIM_ACCOUNT too, but that's wrong: tmpfs inodes are
-not reclaimed under pressure; and hugetlbfs had copied that too.
+--R3G7APHDIzY6R/pk
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 
-Rearrange shmem_inode_info fields so those most likely to be needed are
-most likely to be in the same cacheline as the spinlock guarding them.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+kernel oops in sch_ingress
 
- fs/hugetlbfs/inode.c     |    3 +--
- include/linux/shmem_fs.h |   14 +++++++-------
- mm/shmem.c               |    3 +--
- 3 files changed, 9 insertions(+), 11 deletions(-)
+when the network comes up, the whole achine locks up hard, making it
+impossible to use the network and the machine.
 
---- 2.6.9-rc1-bk12/fs/hugetlbfs/inode.c	2004-09-05 12:58:34.000000000 +0100
-+++ shmem1/fs/hugetlbfs/inode.c	2004-09-05 17:05:45.865559696 +0100
-@@ -800,8 +800,7 @@ static int __init init_hugetlbfs_fs(void
- 
- 	hugetlbfs_inode_cachep = kmem_cache_create("hugetlbfs_inode_cache",
- 					sizeof(struct hugetlbfs_inode_info),
--					0, SLAB_RECLAIM_ACCOUNT,
--					init_once, NULL);
-+					0, 0, init_once, NULL);
- 	if (hugetlbfs_inode_cachep == NULL)
- 		return -ENOMEM;
- 
---- 2.6.9-rc1-bk12/include/linux/shmem_fs.h	2004-06-16 06:20:44.000000000 +0100
-+++ shmem1/include/linux/shmem_fs.h	2004-09-05 17:05:45.867559392 +0100
-@@ -10,14 +10,14 @@
- 
- struct shmem_inode_info {
- 	spinlock_t		lock;
--	unsigned long		next_index;
--	swp_entry_t		i_direct[SHMEM_NR_DIRECT]; /* for the first blocks */
--	struct page	       *i_indirect; /* indirect blocks */
--	unsigned long		alloced;    /* data pages allocated to file */
--	unsigned long		swapped;    /* subtotal assigned to swap */
- 	unsigned long		flags;
--	struct shared_policy     policy;
--	struct list_head	list;
-+	unsigned long		alloced;	/* data pages alloced to file */
-+	unsigned long		swapped;	/* subtotal assigned to swap */
-+	unsigned long		next_index;	/* highest alloced index + 1 */
-+	struct shared_policy	policy;		/* NUMA memory alloc policy */
-+	struct page		*i_indirect;	/* top indirect blocks page */
-+	swp_entry_t		i_direct[SHMEM_NR_DIRECT]; /* first blocks */
-+	struct list_head	list;		/* chain of all shmem inodes */
- 	struct inode		vfs_inode;
- };
- 
---- 2.6.9-rc1-bk12/mm/shmem.c	2004-09-05 12:58:41.000000000 +0100
-+++ shmem1/mm/shmem.c	2004-09-05 17:05:45.869559088 +0100
-@@ -1897,8 +1897,7 @@ static int init_inodecache(void)
- {
- 	shmem_inode_cachep = kmem_cache_create("shmem_inode_cache",
- 				sizeof(struct shmem_inode_info),
--				0, SLAB_HWCACHE_ALIGN|SLAB_RECLAIM_ACCOUNT,
--				init_once, NULL);
-+				0, 0, init_once, NULL);
- 	if (shmem_inode_cachep == NULL)
- 		return -ENOMEM;
- 	return 0;
+networking, modules
 
+version 2.6.8.1
+
+the most i was abe to get from it was:
+
+sig11 ing_hook+0x48/0x50 sch_ingress
+
+and something about nf_iterate and nf_hook_slow
+
+cat /proc/cpuinfo
+processor       : 0
+cpu             : 740/750
+temperature     : 35-37 C (uncalibrated)
+clock           : 195MHz
+revision        : 2.2 (pvr 0008 0202)
+bogomips        : 602.11
+machine         : Power Macintosh
+motherboard     : AAPL,8500 MacRISC
+detected as     : 16 (PowerMac 8500/8600)
+pmac flags      : 00000000
+memory          : 448MB
+pmac-generation : OldWorld
+
+the other stuff (/proc/modules, ver_linux script, etc.) is only relevant to the
+FUBAR kernel, therefore i won't post it - only upon request, as it isn't always
+convenient for me to reboot the machine to the FUBAR kernel (it serves as the
+LAN's router as well).
+
+i rebuilt the kernel something like 6 times or more thinking some config
+changed and i was building it all wrong. guess not :)
+
+thanks
+
+
+--R3G7APHDIzY6R/pk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQGVAwUBQTuU+WqIeuJxHfCXAQJORgv+JzDyEs7SUt26zwYNJsAOrmvh1jqaaMZW
+0u1TtEcoR4oJDgb/hfa2G3wj5Qobamw7pd7Rp7KAVIQuP1upTqDdSNjvGkxufRDA
+J+LEy09kB7GALnGcm8R4aZEcNXJtoyO/vhfP0FiFzYSlMScO5Mmut6g/y/dSohYt
+ek7MKDVWrXYOcU6/gCZ89WJfJn4h05eG4G+3ycElda2zcbOMjFRUgIQYsW8Ly3bp
+ZXJQ8TZfwjTuEN21ZZFCFGUbb5dPryt7xkbwF08DrfBvhxHcqQfjrXYfF9vf1Kz8
+TDd0AmQ9RmaKL3cZTq99uJV0DnJZTB5pQPPaqp9vMWQOdvKyX3pmuKkvTdb3Iewk
+vde4qHeE2lgtaR7/1A1hP1exuucpQImx8qvjOGeSVDTrVCBpbiAo9UAmBWJ6Wf94
+PXXrvfuVSFfaF4o3z7uXSEJAhIauLRbipu11NQgd4lySrAgtP207lYk7eIV7BQZb
+lViaciSoL+wVczLM7seyVuUvcfUnmhLv
+=kAY9
+-----END PGP SIGNATURE-----
+
+--R3G7APHDIzY6R/pk--

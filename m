@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278597AbRJaAzu>; Tue, 30 Oct 2001 19:55:50 -0500
+	id <S278549AbRJaAwj>; Tue, 30 Oct 2001 19:52:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278653AbRJaAzk>; Tue, 30 Oct 2001 19:55:40 -0500
-Received: from modem-4092.leopard.dialup.pol.co.uk ([217.135.159.252]:28682
-	"EHLO Mail.MemAlpha.cx") by vger.kernel.org with ESMTP
-	id <S278597AbRJaAzW>; Tue, 30 Oct 2001 19:55:22 -0500
-Posted-Date: Wed, 31 Oct 2001 00:51:29 GMT
-Date: Wed, 31 Oct 2001 00:51:29 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Marko Rauhamaa <marko@pacujo.nu>
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Need blocking /dev/null
-In-Reply-To: <20011030035221.6E5611FE7D@varmo.pacujo.nu>
-Message-ID: <Pine.LNX.4.21.0110310046000.19579-100000@Consulate.UFP.CX>
+	id <S278597AbRJaAw3>; Tue, 30 Oct 2001 19:52:29 -0500
+Received: from gateway.digeo.com ([209.100.206.194]:59027 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S278549AbRJaAwN>; Tue, 30 Oct 2001 19:52:13 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Identify IDE device?
+From: Mark Atwood <mra@pobox.com>
+Date: 30 Oct 2001 16:52:46 -0800
+In-Reply-To: Linus Torvalds's message of "Tue, 30 Oct 2001 15:04:04 -0800 (PST)"
+Message-ID: <m3pu74k4v5.fsf@khem.blackfedora.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marko.
 
-> PS Are /dev/null and /dev/zero also redundant?
+Is there a way, via an ioctl call, or something to identify what
+specific IDE hard disk or other IDE device is hooked up to the IDE
+controller?
 
-I regularly use both...
+I'm really hoping to be able to determine something like "/dev/hda is
+a Maxtor 96147H6".
 
- 1. Find a download that doesn't appear where one expected it...
-
-	find / -name "wanted-but-lost-download" 2> /dev/null
-
- 2. Create a loop-mounted partition to populate as a CD image before
-    burning the CD in question.
-
-	dd if=/dev/zero bs=1048576 count=750 of=/tmp/cd.img
-	mke2fs /tmp/cd.img
-	mount -o loop /tmp/cd.img /img/cd
-
- 3. Create a loop-mounted partition to populate as a floppy image.
-
-	dd if=/dev/zero bs=1024 count=1440 of=/tmp/floppy.img
-	mke2fs /tmp/floppy.img
-	mount -o loop /tmp/floppy.img /img/floppy
-
-Neither has alternatives that make sense as far as I can see.
-
-Best wishes from Riley.
-
+-- 
+Mark Atwood   | I'm wearing black only until I find something darker.
+mra@pobox.com | http://www.pobox.com/~mra

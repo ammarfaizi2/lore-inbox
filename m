@@ -1,69 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314783AbSEZKGk>; Sun, 26 May 2002 06:06:40 -0400
+	id <S315893AbSEZKIX>; Sun, 26 May 2002 06:08:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315893AbSEZKGj>; Sun, 26 May 2002 06:06:39 -0400
-Received: from unthought.net ([212.97.129.24]:54180 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S314783AbSEZKGj>;
-	Sun, 26 May 2002 06:06:39 -0400
-Date: Sun, 26 May 2002 12:06:38 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: xavier.bestel@free.fr, dent@cosy.sbg.ac.at, alan@lxorguk.ukuu.org.uk,
-        tori@ringstrom.mine.nu, imipak@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux crypto?
-Message-ID: <20020526120638.B12646@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	"David S. Miller" <davem@redhat.com>, xavier.bestel@free.fr,
-	dent@cosy.sbg.ac.at, alan@lxorguk.ukuu.org.uk,
-	tori@ringstrom.mine.nu, imipak@yahoo.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.05.10205241932260.11037-100000@mausmaki.cosy.sbg.ac.at> <20020524.102137.04012600.davem@redhat.com> <1022276970.4174.153.camel@bip> <20020524.144305.88932392.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
+	id <S315924AbSEZKIW>; Sun, 26 May 2002 06:08:22 -0400
+Received: from [80.120.128.82] ([80.120.128.82]:19716 "EHLO hofr.at")
+	by vger.kernel.org with ESMTP id <S315893AbSEZKIV>;
+	Sun, 26 May 2002 06:08:21 -0400
+From: Der Herr Hofrat <der.herr@mail.hofr.at>
+Message-Id: <200205260913.g4Q9DPT20434@hofr.at>
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]y
+In-Reply-To: <20020525204542.A10392@stm.lbl.gov> from David Schleef at "May 25,
+ 2002 08:45:42 pm"
+To: David Schleef <ds@schleef.org>
+Date: Sun, 26 May 2002 11:13:25 +0200 (CEST)
+CC: Larry McVoy <lm@work.bitmover.com>, Karim Yaghmour <karim@opersys.com>,
+        Larry McVoy <lm@bitmover.com>, Wolfgang Denk <wd@denx.de>,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 02:43:05PM -0700, David S. Miller wrote:
->    From: Xavier Bestel <xavier.bestel@free.fr>
->    Date: 24 May 2002 23:49:29 +0200
->    
->    Why ? You can make all edits you like, they just won't be folded back to
->    their tree. You can retrieve all their fixes, just if you have an
->    important change to do in their core, do it as free speech on their
->    public mailing list, do not provide a patch.
->    
-> I can't edit their code because effectively I could contaminate
-> their sources.
+> > > 
+> > > There was one more match that was publicly claimed as copying by
+> > > the maintainer of RTLinux -- a few fields in the scheduler structure.
+> > > The script caught those, too, once I set the threshhold down to 3
+> > > lines, which also picked up hundreds of mismatches.  
+> > 
+> > Good luck making that stick in court.  First of all, the RTAI guys have
+> > admitted over and over that RTAI is a fork of the RTLinux source base.
+> 
+> Paolo (the maintainer) hasn't.  I (the second largest contributor)
+> hasn't.  I understand why others talk about RTAI and RTLinux forking,
+> since the _projects_ forked, and the _ideas_ forked, but the _code_
+> was always separate.  At some point, a person gives up trying to
+> argue the point, and just says "it forked".  But when you get down
+> to brass tacks, there was no code fork, because there was never one
+> code base.
+> 
+> There was some sharing of code in the beginning, typically code that
+> was sent to the RTLinux mailing list by third parties.  In that case,
+> the code was copyrighted by the individual.  The fact that it later
+> showed up in RTLinux as "copyright VJY associates" does not change
+> the fact that Paolo got it from the original author.
+>
 
-Could there be issued a general license for export of the Linux kernel from the
-U.S. ?
+david - you know the code.
 
-It seems that even though the politics/politicians may not be entirely up to
-par with reality, that there is also some understanding of the need to share
-and cooperate in development of a secure operating system kernel.  Most
-notably, the NSA Secure Linux Project.  While this doesn't include crypto, it
-includes a number of other technologies which are (like crypto) necessary for a
-secure environment, but (like crypto) not any magic secret technology that it
-would make sense to restrict exports on.
+rtai-24.1.6a/fifo/rtai_fifos.c:line 25-31:
 
-Could someone from "inside" give an oppinion on this ?
+*/ 
+ACKNOWLEDGEMENT NOTE: besides naming conventions and the idea of a fifo handler
+function, the only remaining code from RTL original fifos, as written and 
+copyrighted by Michael Barabanov, should be the function "check_blocked" 
+(modified to suite my style). However I like to remark that I owe to that code 
+my first understanding of Linux devices drivers (Paolo Mantegazza).
+/*
 
-As far as I know, it should be possible to get a general license for the export
-of the Linux kernel (by some definition thereof).  It works like this in my
-country too, and probably many others.
+in rtai-1.6:oldfifos/rtai_fifos.c:line 1-9:
 
-If this could be done with the U.S. perhaps other countries with export/import
-controls would be more willing to negotiatiate similar deals.  "First we take
-Manhattan, then we take Berlin"  ;)
+/*          Modification of RTL-FIFO devices by Paolo Mantegazza            */
+/* The original RTL_FIFOS are developped and copyrighted by Michael         */
+/* Barabanov, 1997, who derived them from fs/pipe.c in Linux, which is in   */
+/* turn copyrighted with "Copyright (C) 1991, 1992 Linus Torvalds".         */
+/* This modified version is for use with the RTAI module. It works in the   */
+/* same way as its original counterpart, but now you can chose either a     */
+/* task queue for bottom halves or an immediate wake up, plus assigning a   */
+/* static user buffer.                                                      */
+/* See functions: rtf_create_using_bh and rtf_create_using_bh_and_usr_buf.  */
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+
+In my opinion it is obvious that the RT comunity that was RTLinux and RTAI for
+quite a while was "stealing" ideas and code from each other - and that is a 
+very good thing to happen in GPL'ed environments, there was for a long time 
+one mailing list and that was being shared in a productive manner by both
+groups. The fact that the two groups splitt up and are fighting each 
+other is what is really hurting both sides a lot and probably also hurting 
+Linux in the market that has interest in hard-realtime. 
+
+hofrat

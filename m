@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265637AbSLSPlt>; Thu, 19 Dec 2002 10:41:49 -0500
+	id <S262452AbSLSQDE>; Thu, 19 Dec 2002 11:03:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265727AbSLSPlt>; Thu, 19 Dec 2002 10:41:49 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:3039
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265637AbSLSPls>; Thu, 19 Dec 2002 10:41:48 -0500
-Date: Thu, 19 Dec 2002 10:52:06 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: parport_serial link order bug, NetMos support
-In-Reply-To: <E18OxWK-0004w8-00@alf.amelek.gda.pl>
-Message-ID: <Pine.LNX.4.50.0212191049020.2159-100000@montezuma.mastecende.com>
-References: <E18OxWK-0004w8-00@alf.amelek.gda.pl>
+	id <S265773AbSLSQDE>; Thu, 19 Dec 2002 11:03:04 -0500
+Received: from server.ehost4u.biz ([209.51.155.18]:48315 "EHLO
+	host.ehost4u.biz") by vger.kernel.org with ESMTP id <S262452AbSLSQDE>;
+	Thu, 19 Dec 2002 11:03:04 -0500
+Message-ID: <1040314254.3e01ef8e3f7b1@209.51.155.18>
+Date: Thu, 19 Dec 2002 11:10:54 -0500
+From: billyrose@billyrose.net
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel P6 vs P7 system call performance
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 65.132.64.69
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host.ehost4u.biz
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32001 32001] / [32001 32001]
+X-AntiAbuse: Sender Address Domain - host.ehost4u.biz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2002, Marek Michalkiewicz wrote:
+Richard B. Johnson wrote:
 
-> Hello,
->
-> I've been trying (for quite a long time now, starting around the
-> time when 2.4.19 was released) to submit the following patches into
-> the 2.4.x kernel:
->
-> http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/00_parport_serial
-> http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/01_netmos
->
-> (generated for 2.4.20-pre9, but apply cleanly to 2.4.20-final too,
-> 00_parport_serial needs to be applied before 01_netmos).
+> Because the number pushed onto the stack is a displacement, not
+> an address, i.e., -4095. To have the address act as an address,
+> you need to load a full-pointer, i.e. SEG:OFFSET (like the old
+> 16-bit days). The offset is 32-bits and the segment is whatever
+> the kernel has set up for __USER_CS (0x23). All the 'near' calls
+> are calls to a signed displacement, same for jumps.
 
-I have local patches which do the same and have been using them for about
-a year too (also at 115k). Regarding the parallel port aspect of the card,
-i have tested using shared IRQs by running an epat cdrom via said port and
-generating a high amount of serial i/o
-
-00:10.0 Communication controller: NetMos Technology 222N-2 I/O Card (2S+1P) (rev 01)
-
-Last time i posted regarding this, Tim Waugh says that the cards brought
-about a number of issues, of which i am unable to recollect.
-
-	Zwane
--- 
-function.linuxpower.ca
+call's and jmp's use displacement, ret's are _always_ absolute.

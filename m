@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263489AbTDCTOW 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 14:14:22 -0500
+	id S263437AbTDCTde 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 14:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263495AbTDCTMs 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 14:12:48 -0500
-Received: from LION-S12.SEAS.UPENN.EDU ([158.130.12.194]:60033 "EHLO
-	lion.seas.upenn.edu") by vger.kernel.org with ESMTP
-	id S263494AbTDCTLI 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 14:11:08 -0500
-Date: Thu, 3 Apr 2003 14:24:57 -0500
-From: Nicholas Henke <henken@seas.upenn.edu>
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH: eepro100 oops on 2.4.20
-Message-Id: <20030403142457.14227434.henken@seas.upenn.edu>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id S263472AbTDCTdZ 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 14:33:25 -0500
+Received: from intranet.resilience.com ([12.36.124.2]:14483 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id S263437AbTDCTbh 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 14:31:37 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-Id: <p05210605bab23f34f677@[10.2.0.101]>
+Date: Thu, 3 Apr 2003 11:42:56 -0800
+To: linux-kernel@vger.kernel.org
+From: Jonathan Lundell <linux@lundell-bros.com>
+Subject: Re: ISA vs PCI interrupt handling
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is the patch that fixes an oops on 2.4.20 when insmod'ing eepro100.
- Looks like a trivial 'oops forgot to replace those' case.
+At 1:20am +0200 4/3/03, Krzysztof Halasa wrote:
+>I mean, in situation where the handler terminates with the IRQ line
+>being still active, will the handler be called again, or will the
+>driver deadlock? Does is behave differently on ISA and PCI?
+>...
+>My experiments with ISA devices show that after the handler terminates
+>without i.e. handling all requests, the IRQ line is stuck at +5V
+>(= logical "active" level) and the handler isn't called anymore.
+>
+>Or does that mean the IRQ is edge-triggered, and the handler is being
+>called just once a low-to-high edge is detected?
 
----------------------start patch----------------------------------
-diff -urN clean/drivers/net/eepro100.c linux-2.4/drivers/net/eepro100.c
---- clean/drivers/net/eepro100.c	Thu Apr  3 23:21:47 2003
-+++ linux-2.4/drivers/net/eepro100.c	Thu Apr  3 23:25:09 2003
-@@ -788,10 +788,10 @@
- 					   ((option & 0x20) ? 0x2000 : 0) | 	/* 100mbps? */
- 					   ((option & 0x10) ? 0x0100 : 0)); /* Full duplex? */
- 		} else {
--			int mii_bmcrctrl = mdio_read(ioaddr, eeprom[6] & 0x1f, 0);
-+			int mii_bmcrctrl = mdio_read(dev, eeprom[6] & 0x1f, 0);
- 			/* Reset out of a transceiver left in 10baseT-fixed mode. */
- 			if ((mii_bmcrctrl & 0x3100) == 0)
--				mdio_write(ioaddr, eeprom[6] & 0x1f, 0, 0x8000);
-+				mdio_write(dev, eeprom[6] & 0x1f, 0, 0x8000);
- 		}
- 
- 		/* Perform a system self-test. */
-------------------end----------------------------------------------------------
-Nic
+The "legacy" ISA interrupt controller has various modes, but the 
+legacy mode is to be edge-sensitive. Edge-sensitivity here isn't 
+quite what a hardware engineer would mean by it, but it does mean 
+that, once an interrupt has been triggered, it has to go low before 
+another interrupt can be recognized. That's consistent with your 
+experiments. In general, an ISA interrupt service loop needs to be of 
+the form: while (device is interrupting) { service the interrupt }
 
-P.S Please cc me on any replies to lkml -- I am not on the list
+Shared interrupts (eg PCI) are different, of course. Because they're 
+shared, the interrupt controller can't be edge-sensitive. One problem 
+would be that another (interrupt sharing) device can hold the 
+interrupt line active (low for PCI), so two devices could in 
+principle interrupt alternately and the interrupt line itself never 
+go inactive, and no edges would be seen by the interrupt controller.
+
+The same service loop should work just fine, but the penalty for not 
+servicing a PCI interrupt should just be that the ISR will get 
+invoked again. Of course, that will go on forever unless the 
+interrupt *is* serviced, but you can get away with servicing one at a 
+time, and taking an interrupt for each event. Not necessarily 
+efficient, but it should work.
+
+Depending on the interrupt controller, an interrupt may need to be 
+ACKed; this is definitely true for legacy ISA interrupt controllers. 
+That's not typically a driver function, as I recall.
 -- 
-Nicholas Henke
-Penguin Herder & Linux Cluster System Programmer
-Liniac Project - Univ. of Pennsylvania
+/Jonathan Lundell.

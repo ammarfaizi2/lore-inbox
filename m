@@ -1,221 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbTJ1XJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 18:09:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTJ1XJ1
+	id S261862AbTJ1XOx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 18:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTJ1XOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 18:09:27 -0500
-Received: from adsl-66-159-224-106.dslextreme.com ([66.159.224.106]:1810 "EHLO
-	zork.ruvolo.net") by vger.kernel.org with ESMTP id S261801AbTJ1XJM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 18:09:12 -0500
-Date: Tue, 28 Oct 2003 15:09:10 -0800
-From: Chris Ruvolo <chris+lkml@ruvolo.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-scsi@vger.kernel.org
-Subject: ide-scsi "lost interrupt" (2.6.0-test9)
-Message-ID: <20031028230910.GM32594@ruvolo.net>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
-	linux-scsi@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x+RZeZVNR8VILNfK"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Tue, 28 Oct 2003 18:14:53 -0500
+Received: from genericorp.net ([69.56.190.66]:64959 "EHLO
+	narbuckle.genericorp.net") by vger.kernel.org with ESMTP
+	id S261862AbTJ1XOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 18:14:51 -0500
+Date: Tue, 28 Oct 2003 17:12:35 -0600 (CST)
+From: Dave O <cxreg@pobox.com>
+X-X-Sender: count@narbuckle.genericorp.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: ppp - Badness in local_bh_enable at kernel/softirq.c:113
+In-Reply-To: <Pine.LNX.4.58.0310281607150.19873@narbuckle.genericorp.net>
+Message-ID: <Pine.LNX.4.58.0310281710400.21622@narbuckle.genericorp.net>
+References: <Pine.LNX.4.58.0310281607150.19873@narbuckle.genericorp.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---x+RZeZVNR8VILNfK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sorry, the line number under test9 is kernel/softirq.c:121, it was 113
+under test1.  Stack trace is mostly the same, however.
 
-Hello.
+BTW this is pppd version 2.4.2b3 on Debian sid using gcc version 3.3.2
 
-When attempting to use cdrecord under 2.6.0-test9 with a ide-scsi ATAPI
-device, the burn fails and I get the following kernel output.  This has
-happened both times I tried to burn a CD, at both 4x and 2x write.  This is
-with DMA disabled via "/sbin/hdparm -d 0 /dev/hdc".
-
-Any advise here?  (cdrecord with -dev=ATAPI doesn't seem to work)
-
-BTW, there doesn't seem to be a maintainer for the ide-scsi module.  Is that
-correct?
-
-Also, there's another ide-scsi problem I just noticed.  When unloading the
-ide-scsi module and reloading it, it gets assigned a new bus.  On the
-initial load my CD device as -dev=0,0,0.  Now it is -dev=2,0,0.  The code to
-unregister the bus seems to have been removed between -test1 and -test9.
-Can anyone say why?
-
-Thanks,
-
--Chris
-
-
-hdc: lost interrupt
+Badness in local_bh_enable at kernel/softirq.c:121
 Call Trace:
- [<c0116525>] schedule+0x595/0x5a0
- [<c01c4dc1>] vt_console_print+0x61/0x2f0
- [<c0108305>] __down+0x85/0x100
- [<c0116580>] default_wake_function+0x0/0x30
- [<c010852f>] __down_failed+0xb/0x14
- [<c897a2df>] .text.lock.scsi_error+0x37/0x48 [scsi_mod]
- [<c8979ac0>] scsi_sleep_done+0x0/0x20 [scsi_mod]
- [<c8935918>] idescsi_abort+0xf8/0x110 [ide_scsi]
- [<c897940d>] scsi_try_to_abort_cmd+0x5d/0x80 [scsi_mod]
- [<c897954a>] scsi_eh_abort_cmds+0x4a/0x80 [scsi_mod]
- [<c8979f82>] scsi_unjam_host+0xa2/0xd0 [scsi_mod]
- [<c897a080>] scsi_error_handler+0xd0/0x110 [scsi_mod]
- [<c8979fb0>] scsi_error_handler+0x0/0x110 [scsi_mod]
- [<c0107479>] kernel_thread_helper+0x5/0xc
+ [<c011d991>] local_bh_enable+0x85/0x87
+ [<e090cb34>] ppp_async_push+0x9e/0x180 [ppp_async]
+ [<e090c458>] ppp_asynctty_wakeup+0x2d/0x5e [ppp_async]
+ [<c0293a8b>] pty_unthrottle+0x58/0x5a
+ [<c02906b5>] check_unthrottle+0x39/0x3b
+ [<c0290757>] n_tty_flush_buffer+0x13/0x55
+ [<c0293e4c>] pty_flush_buffer+0x66/0x68
+ [<c028d023>] do_tty_hangup+0x47a/0x4db
+ [<c028e5e0>] release_dev+0x6d8/0x704
+ [<c013d451>] unmap_page_range+0x43/0x69
+ [<c028e95c>] tty_release+0x0/0x66
+ [<c028e989>] tty_release+0x2d/0x66
+ [<c014cdcf>] __fput+0x110/0x122
+ [<c014b4b5>] filp_close+0x59/0x86
+ [<c011b3d1>] put_files_struct+0x84/0xe9
+ [<c011bfd6>] do_exit+0x165/0x400
+ [<c013f9ba>] sys_brk+0xd8/0xfd
+ [<c011c2f8>] do_group_exit+0x3a/0xac
+ [<c0108fd7>] syscall_call+0x7/0xb
 
-Call Trace:
- [<c0116525>] schedule+0x595/0x5a0
- [<c01c4dc1>] vt_console_print+0x61/0x2f0
- [<c01166a2>] __wake_up_locked+0x22/0x30
- [<c0108305>] __down+0x85/0x100
- [<c0116580>] default_wake_function+0x0/0x30
- [<c010852f>] __down_failed+0xb/0x14
- [<c897a2df>] .text.lock.scsi_error+0x37/0x48 [scsi_mod]
- [<c8979ac0>] scsi_sleep_done+0x0/0x20 [scsi_mod]
- [<c8935918>] idescsi_abort+0xf8/0x110 [ide_scsi]
- [<c897940d>] scsi_try_to_abort_cmd+0x5d/0x80 [scsi_mod]
- [<c897954a>] scsi_eh_abort_cmds+0x4a/0x80 [scsi_mod]
- [<c8979f82>] scsi_unjam_host+0xa2/0xd0 [scsi_mod]
- [<c897a080>] scsi_error_handler+0xd0/0x110 [scsi_mod]
- [<c8979fb0>] scsi_error_handler+0x0/0x110 [scsi_mod]
- [<c0107479>] kernel_thread_helper+0x5/0xc
+On Tue, 28 Oct 2003, Dave O wrote:
 
-Call Trace:
- [<c0116525>] schedule+0x595/0x5a0
- [<c01c4dc1>] vt_console_print+0x61/0x2f0
- [<c01166a2>] __wake_up_locked+0x22/0x30
- [<c0108305>] __down+0x85/0x100
- [<c0116580>] default_wake_function+0x0/0x30
- [<c010852f>] __down_failed+0xb/0x14
- [<c897a2df>] .text.lock.scsi_error+0x37/0x48 [scsi_mod]
- [<c8979ac0>] scsi_sleep_done+0x0/0x20 [scsi_mod]
- [<c8935918>] idescsi_abort+0xf8/0x110 [ide_scsi]
- [<c897940d>] scsi_try_to_abort_cmd+0x5d/0x80 [scsi_mod]
- [<c897954a>] scsi_eh_abort_cmds+0x4a/0x80 [scsi_mod]
- [<c8979f82>] scsi_unjam_host+0xa2/0xd0 [scsi_mod]
- [<c897a080>] scsi_error_handler+0xd0/0x110 [scsi_mod]
- [<c8979fb0>] scsi_error_handler+0x0/0x110 [scsi_mod]
- [<c0107479>] kernel_thread_helper+0x5/0xc
-
-Call Trace:
- [<c0116525>] schedule+0x595/0x5a0
- [<c01c4dc1>] vt_console_print+0x61/0x2f0
- [<c01166a2>] __wake_up_locked+0x22/0x30
- [<c0108305>] __down+0x85/0x100
- [<c0116580>] default_wake_function+0x0/0x30
- [<c010852f>] __down_failed+0xb/0x14
- [<c897a2df>] .text.lock.scsi_error+0x37/0x48 [scsi_mod]
- [<c8979ac0>] scsi_sleep_done+0x0/0x20 [scsi_mod]
- [<c8935918>] idescsi_abort+0xf8/0x110 [ide_scsi]
- [<c897940d>] scsi_try_to_abort_cmd+0x5d/0x80 [scsi_mod]
- [<c897954a>] scsi_eh_abort_cmds+0x4a/0x80 [scsi_mod]
- [<c8979f82>] scsi_unjam_host+0xa2/0xd0 [scsi_mod]
- [<c897a080>] scsi_error_handler+0xd0/0x110 [scsi_mod]
- [<c8979fb0>] scsi_error_handler+0x0/0x110 [scsi_mod]
- [<c0107479>] kernel_thread_helper+0x5/0xc
-
-Call Trace:
- [<c0116525>] schedule+0x595/0x5a0
- [<c01c4dc1>] vt_console_print+0x61/0x2f0
- [<c01166a2>] __wake_up_locked+0x22/0x30
- [<c0108305>] __down+0x85/0x100
- [<c0116580>] default_wake_function+0x0/0x30
- [<c010852f>] __down_failed+0xb/0x14
- [<c897a2df>] .text.lock.scsi_error+0x37/0x48 [scsi_mod]
- [<c8979ac0>] scsi_sleep_done+0x0/0x20 [scsi_mod]
- [<c8935918>] idescsi_abort+0xf8/0x110 [ide_scsi]
- [<c897940d>] scsi_try_to_abort_cmd+0x5d/0x80 [scsi_mod]
- [<c897954a>] scsi_eh_abort_cmds+0x4a/0x80 [scsi_mod]
- [<c8979f82>] scsi_unjam_host+0xa2/0xd0 [scsi_mod]
- [<c897a080>] scsi_error_handler+0xd0/0x110 [scsi_mod]
- [<c8979fb0>] scsi_error_handler+0x0/0x110 [scsi_mod]
- [<c0107479>] kernel_thread_helper+0x5/0xc
-
-Call Trace:
- [<c0116525>] schedule+0x595/0x5a0
- [<c01c4dc1>] vt_console_print+0x61/0x2f0
- [<c01166a2>] __wake_up_locked+0x22/0x30
- [<c0108305>] __down+0x85/0x100
- [<c0116580>] default_wake_function+0x0/0x30
- [<c010852f>] __down_failed+0xb/0x14
- [<c897a2df>] .text.lock.scsi_error+0x37/0x48 [scsi_mod]
- [<c8979ac0>] scsi_sleep_done+0x0/0x20 [scsi_mod]
- [<c8935918>] idescsi_abort+0xf8/0x110 [ide_scsi]
- [<c897940d>] scsi_try_to_abort_cmd+0x5d/0x80 [scsi_mod]
- [<c897954a>] scsi_eh_abort_cmds+0x4a/0x80 [scsi_mod]
- [<c8979f82>] scsi_unjam_host+0xa2/0xd0 [scsi_mod]
- [<c897a080>] scsi_error_handler+0xd0/0x110 [scsi_mod]
- [<c8979fb0>] scsi_error_handler+0x0/0x110 [scsi_mod]
- [<c0107479>] kernel_thread_helper+0x5/0xc
-
-Call Trace:
- [<c0116525>] schedule+0x595/0x5a0
- [<c01c4dc1>] vt_console_print+0x61/0x2f0
- [<c01166a2>] __wake_up_locked+0x22/0x30
- [<c0108305>] __down+0x85/0x100
- [<c0116580>] default_wake_function+0x0/0x30
- [<c010852f>] __down_failed+0xb/0x14
- [<c897a2df>] .text.lock.scsi_error+0x37/0x48 [scsi_mod]
- [<c8979ac0>] scsi_sleep_done+0x0/0x20 [scsi_mod]
- [<c8935918>] idescsi_abort+0xf8/0x110 [ide_scsi]
- [<c897940d>] scsi_try_to_abort_cmd+0x5d/0x80 [scsi_mod]
- [<c897954a>] scsi_eh_abort_cmds+0x4a/0x80 [scsi_mod]
- [<c8979f82>] scsi_unjam_host+0xa2/0xd0 [scsi_mod]
- [<c897a080>] scsi_error_handler+0xd0/0x110 [scsi_mod]
- [<c8979fb0>] scsi_error_handler+0x0/0x110 [scsi_mod]
- [<c0107479>] kernel_thread_helper+0x5/0xc
-
-Call Trace:
- [<c0116525>] schedule+0x595/0x5a0
- [<c01c4dc1>] vt_console_print+0x61/0x2f0
- [<c01166a2>] __wake_up_locked+0x22/0x30
- [<c0108305>] __down+0x85/0x100
- [<c0116580>] default_wake_function+0x0/0x30
- [<c010852f>] __down_failed+0xb/0x14
- [<c897a2df>] .text.lock.scsi_error+0x37/0x48 [scsi_mod]
- [<c8979ac0>] scsi_sleep_done+0x0/0x20 [scsi_mod]
- [<c8935918>] idescsi_abort+0xf8/0x110 [ide_scsi]
- [<c897940d>] scsi_try_to_abort_cmd+0x5d/0x80 [scsi_mod]
- [<c897954a>] scsi_eh_abort_cmds+0x4a/0x80 [scsi_mod]
- [<c8979f82>] scsi_unjam_host+0xa2/0xd0 [scsi_mod]
- [<c897a080>] scsi_error_handler+0xd0/0x110 [scsi_mod]
- [<c8979fb0>] scsi_error_handler+0x0/0x110 [scsi_mod]
- [<c0107479>] kernel_thread_helper+0x5/0xc
-
-Call Trace:
- [<c0116525>] schedule+0x595/0x5a0
- [<c01165ea>] __wake_up_common+0x3a/0x70
- [<c0121dae>] schedule_timeout+0x5e/0xb0
- [<c0121d40>] process_timeout+0x0/0x10
- [<c8935a33>] idescsi_reset+0x103/0x120 [ide_scsi]
- [<c89795d6>] scsi_try_bus_device_reset+0x56/0x90 [scsi_mod]
- [<c8979687>] scsi_eh_bus_device_reset+0x77/0x130 [scsi_mod]
- [<c8979e08>] scsi_eh_ready_devs+0x28/0x80 [scsi_mod]
- [<c8979f9f>] scsi_unjam_host+0xbf/0xd0 [scsi_mod]
- [<c897a080>] scsi_error_handler+0xd0/0x110 [scsi_mod]
- [<c8979fb0>] scsi_error_handler+0x0/0x110 [scsi_mod]
- [<c0107479>] kernel_thread_helper+0x5/0xc
-
-hdc: ATAPI reset complete
-
---x+RZeZVNR8VILNfK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/nvcWKO6EG1hc77ERAnQ2AKDgdn0BCD88qqwxqHp9/BMGfmkn5wCgu0ia
-fni91qsK4T785MEznzaUjEM=
-=JnLq
------END PGP SIGNATURE-----
-
---x+RZeZVNR8VILNfK--
+>
+> I reported this almost 3 months ago in test1, and it still happens in
+> test9
+>
+> Simply running the command "/usr/sbin/pppd updetach pty /bin/false" will
+> cause a "Badness" message and this trace:
+>

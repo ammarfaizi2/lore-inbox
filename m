@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313807AbSDIAwA>; Mon, 8 Apr 2002 20:52:00 -0400
+	id <S313808AbSDIA7N>; Mon, 8 Apr 2002 20:59:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313808AbSDIAv7>; Mon, 8 Apr 2002 20:51:59 -0400
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:46855 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S313807AbSDIAv5>;
-	Mon, 8 Apr 2002 20:51:57 -0400
-Date: Mon, 8 Apr 2002 20:51:52 -0400 (EDT)
-From: Rob Radez <rob@osinvestor.com>
-X-X-Sender: <rob@pita.lan>
-To: <linux-kernel@vger.kernel.org>
-Subject: New (Final?) Watchdog Updates
-Message-ID: <Pine.LNX.4.33.0204082047060.17511-100000@pita.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313809AbSDIA7M>; Mon, 8 Apr 2002 20:59:12 -0400
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:25767 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S313808AbSDIA7L>; Mon, 8 Apr 2002 20:59:11 -0400
+Date: Tue, 9 Apr 2002 01:56:57 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@zip.com.au>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>, nahshon@actcom.co.il,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, joeja@mindspring.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+Message-ID: <20020409015657.A28889@kushida.apsleyroad.org>
+In-Reply-To: <200204080048.g380mt514749@lmail.actcom.co.il> <200204080057.g380vbO00868@vindaloo.ras.ucalgary.ca> <3CB0EF0B.14D48619@zip.com.au> <20020408095717.GB27999@atrey.karlin.mff.cuni.cz> <20020408174333.A28116@kushida.apsleyroad.org> <20020408124803.A14935@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First off, thanks to all those who have commented on or pointed out my
-idiocy in this patch.  I've put up a new version of the watchdog updates
-at http://osinvestor.com/bigwatchdog-7.diff against 2.4.19-pre5-ac3.
-Diff is 101k, 3800 lines with context, diffstat:
+Benjamin LaHaise wrote:
+> > > Well, noflushd already seems to work pretty well ;-). But I see kernel
+> > > support may be required for SCSI.
+> > 
+> > I've had no luck at all with noflushd on my Toshiba Satellite 4070CDT.
+> > It would spin down every few minutes, and then spin up _immediately_,
+> > every time.  I have no idea why.
+> 
+> Were you using the console?  Any activity on ttys causes device inode 
+> atime/mtime updates which trigger disk spin ups.  The easiest way to 
+> work around this is to run X while using devpts for the ptys.
 
- Documentation/pcwd-watchdog.txt       |  132 -----------
- Documentation/watchdog-api.txt        |  390 ----------------------------------
- Documentation/watchdog.txt            |  113 ---------
- Documentation/watchdog/api.txt        |  139 ++++++++++++
- Documentation/watchdog/howtowrite.txt |   62 +++++
- Documentation/watchdog/status.txt     |  137 +++++++++++
- drivers/char/acquirewdt.c             |  100 +++++---
- drivers/char/advantechwdt.c           |   88 ++++---
- drivers/char/alim7101_wdt.c           |   85 ++++---
- drivers/char/eurotechwdt.c            |   65 +++--
- drivers/char/i810-tco.c               |   68 +++--
- drivers/char/ib700wdt.c               |   87 ++++---
- drivers/char/machzwd.c                |   96 ++++----
- drivers/char/mixcomwd.c               |   24 --
- drivers/char/pcwd.c                   |   26 +-
- drivers/char/sbc60xxwdt.c             |   77 ++++--
- drivers/char/sc1200wdt.c              |   68 +++--
- drivers/char/sc520_wdt.c              |   81 ++++---
- drivers/char/shwdt.c                  |   86 ++++---
- drivers/char/softdog.c                |   30 +-
- drivers/char/w83877f_wdt.c            |   73 ++++--
- drivers/char/wafer5823wdt.c           |   65 ++++-
- drivers/char/wdt.c                    |   33 ++
- drivers/char/wdt285.c                 |   26 --
- drivers/char/wdt977.c                 |  137 ++++++++---
- drivers/char/wdt_pci.c                |   23 --
- drivers/sbus/char/riowatchdog.c       |    6
- 27 files changed, 1188 insertions(+), 1129 deletions(-)
+I was using X, nodiratime on all /dev/hda mounts.  My friend who has the
+small VAIO with a Crusoe chip also reports the same problem: noflushd
+doesn't work with 2.4 kernels (versions that we tried), and the problem
+is the same: it spins down and then spins up immediately afterward.
 
-Again, I'd love some comments on the documentation changes.
+That just gave me a small idea: maybe the log message to say "disk spun
+down" was triggering a write to disk which spun the disk up again... :-)
+My syslog.conf is quite clear about having - in front of the paths for
+/var/log/messages and /var/log/kernel though, so syslogd should not be
+calling fsync.
 
-Regards,
-Rob Radez
+If someone knows that noflushd has been since version 2.5 for
+2.4.current (or 2.5.current) kernels, then I'll give it another spin as
+it were, and report the results.  I'd much prefer "proper" kernel
+support as is being discussed in this thread though, i.e. writeout of
+dirty pages prior to spin down, that sort of thing.  noflushd always
+seemed to me a rather questionable hack.
 
-
+cheers,
+-- Jamie

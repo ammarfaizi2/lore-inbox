@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266609AbUHQTB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUHQTBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266609AbUHQTB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 15:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266604AbUHQTB1
+	id S266582AbUHQTBf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 15:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266604AbUHQTBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 15:01:27 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:52172 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266609AbUHQTAz (ORCPT
+	Tue, 17 Aug 2004 15:01:35 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:59091 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266582AbUHQTBa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 15:00:55 -0400
-Message-ID: <2a4f155d04081712005fdcdd9b@mail.gmail.com>
-Date: Tue, 17 Aug 2004 22:00:55 +0300
-From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Subject: Re: 2.6.8.1-mm1 Tty problems?
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4122501B.7000106@microgate.com>
+	Tue, 17 Aug 2004 15:01:30 -0400
+Subject: Re: boot time, process start time, and NOW time
+From: john stultz <johnstul@us.ibm.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: Andrew Morton OSDL <akpm@osdl.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       tim@physik3.uni-rostock.de, george anzinger <george@mvista.com>,
+       david+powerix@blue-labs.org
+In-Reply-To: <1092698648.2301.1250.camel@cube>
+References: <1087948634.9831.1154.camel@cube>
+	 <87smcf5zx7.fsf@devron.myhome.or.jp>
+	 <20040816124136.27646d14.akpm@osdl.org>  <1092698648.2301.1250.camel@cube>
+Content-Type: text/plain
+Message-Id: <1092769231.2429.115.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 17 Aug 2004 12:00:31 -0700
 Content-Transfer-Encoding: 7bit
-References: <2a4f155d040817070854931025@mail.gmail.com> <412247FF.5040301@microgate.com> <2a4f155d0408171116688a87f1@mail.gmail.com> <4122501B.7000106@microgate.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Aug 2004 13:36:11 -0500, Paul Fulghum <paulkf@microgate.com> wrote:
-> Even if a feature is not be enabled,
-> backing out a patch can verify it does not
-> touch code outside of the feature.
+On Mon, 2004-08-16 at 16:24, Albert Cahalan wrote:
+> On Mon, 2004-08-16 at 15:41, Andrew Morton wrote:
 > 
+> > Where did this all end up?  Complaints about
+> > wandering start times are persistent, and it'd
+> > be nice to get some fix in place...
+> 
+> If you're interested in reducing (not solving)
+> the problem for the 2.6.x series, you might change
+> HZ to something that works better with the PIT.
+> 
+> Here is a table showing % error for various HZ choices:
+> 
+> wrongness_%   HZ_diff   PIT_#   HZ     actual_HZ   
+> -0.00150855  -0.001509  11932   100    99.998491  
+> -0.00150855  -0.009474   1900   628   627.990526  
+> -0.00083809  -0.003051   3278   364   363.996949  
+> -0.00083809  -0.008389   1192  1001  1000.991611  
+> +0.00000000  +0.000000  14551    82    82.000000  
+> +0.00008381  +0.000304   3287   363   363.000304  
+> +0.00008381  +0.000435   2299   519   519.000435  
+> +0.00008381  +0.000525   1903   627   627.000525  
+> +0.01525566  +0.152557   1193  1000  1000.152557  
+> +0.01860917  +0.190558   1165  1024  1024.190558
+> 
+> As you can see, 1000 HZ and 1024 HZ are really bad.
+> They're worse than typical quartz crystal variation.
+> 
+> The old 100 HZ tick was just barely tolerable.
+> While 82 is perfect, it's a bit low. :-(
+> 
+> Some of the other choices are nice. How about 363,
+> 519, or 627?
 
-Indeed backing up selinux-revalidate-access-to-controlling-tty.patch
-fixed "less" problem. But some other problems remain and the real
-issue is /dev/tty is a directory now! :
+What about 1001? That looks reasonably accurate.
+
+thanks
+-john
 
 
-cartman@southpark:~$ ls -al /dev/tty
-total 0
-drwxr-xr-x   2 root root     0 2004-08-18 00:52 ./
-drwxr-xr-x  15 root root     0 2004-08-17 21:53 ../
-crw-------   1 root root 3, 10 2004-08-18 00:52 s
-crw-------   1 root root 3,  0 2004-08-18 00:52 s0
-crw-------   1 root root 3,  1 2004-08-18 00:52 s1
-crw-------   1 root root 3,  2 2004-08-18 00:52 s2
-crw-------   1 root root 3,  3 2004-08-18 00:52 s3
-crw-------   1 root root 3,  4 2004-08-18 00:52 s4
-crw-------   1 root root 3,  5 2004-08-18 00:52 s5
-crw-------   1 root root 3,  6 2004-08-18 00:52 s6
-crw-------   1 root root 3,  7 2004-08-18 00:52 s7
-crw-------   1 root root 3,  8 2004-08-18 00:52 s8
-crw-------   1 root root 3,  9 2004-08-18 00:52 s9
-
-
-And this breaks many applications. Any idea why /dev/tty is a directory now?
-
-Cheers,
-ismail
-
--- 
-Time is what you make of it

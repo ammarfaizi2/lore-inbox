@@ -1,78 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129596AbQKGOB2>; Tue, 7 Nov 2000 09:01:28 -0500
+	id <S129649AbQKGOHr>; Tue, 7 Nov 2000 09:07:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129649AbQKGOBT>; Tue, 7 Nov 2000 09:01:19 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129596AbQKGOBH>; Tue, 7 Nov 2000 09:01:07 -0500
-Date: Tue, 7 Nov 2000 09:00:48 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Keith Owens <kaos@ocs.com.au>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux 2.4.0-test9 
-In-Reply-To: <Pine.LNX.3.95.1001107082650.13989A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.95.1001107085622.246A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129666AbQKGOHh>; Tue, 7 Nov 2000 09:07:37 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:34574 "EHLO
+	enterprise.cistron.net") by vger.kernel.org with ESMTP
+	id <S129649AbQKGOHZ>; Tue, 7 Nov 2000 09:07:25 -0500
+From: reneb@orac.aais.nl (Rene Blokland)
+Subject: Re: PCI oddness with Ali 1541 chipset
+Date: Tue, 7 Nov 2000 14:44:39 +0100
+Organization: Cistron Internet Services B.V.
+Message-ID: <slrn90g1q7.c3.reneb@orac.aais.nl>
+In-Reply-To: <20001107012205.M12348@arthur.ubicom.tudelft.nl>
+Reply-To: reneb@cistron.nl
+X-Trace: enterprise.cistron.net 973606045 8705 62.216.0.161 (7 Nov 2000 14:07:25 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2000, Richard B. Johnson wrote:
-
-> On Tue, 7 Nov 2000, Keith Owens wrote:
-> 
-> > On Mon, 6 Nov 2000 16:31:23 -0500 (EST), 
-> > "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> > >However when running, the new kernel 2.4.0-test9, can't be used to
-> > >make a usable initrd ram disk. The result being that 2.4.0-test9
-> > >can't, itself, build an "initrd" bootable system.
-> > >
-> > >Before everybody screams that I don't know what I'm doing, let me
-> > >assure you that I know that the two kernels put their modules in
-> > >different directories and the new directory scheme seems to require
-> > >the latest and greatest version of modutils.
-> > 
-> > You also need the latest version of mkinitrd to handle the modules
-> > directory structure.
-> > 
-> No. I have my own script(s) that have been appropriately modified
-> for both test floppies and boot from the hard disk.
-> 
-> I have found the problem. A patch will follow after I get some
-> breakfast. It's an obviously-correct one too.
-> 
-
-Depending upon some name-space polution, inflate was executing junk
-instead of its correct memzero().
-
-Here's the patch....
-
---- /usr/src/linux-2.4.0/lib/inflate.c.orig	Tue Nov  7 08:52:59 2000
-+++ /usr/src/linux-2.4.0/lib/inflate.c	Mon Nov  6 18:01:54 2000
-@@ -147,6 +147,7 @@
- STATIC int inflate_dynamic OF((void));
- STATIC int inflate_block OF((int *));
- STATIC int inflate OF((void));
-+STATIC void *memzero OF((char *, size_t));
- 
- /* The inflate algorithm uses a sliding 32 K byte window on the uncompressed
-    stream to find repeated byte strings.  This is implemented here as a
-
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+On  Tue, 7 Nov 2000 01:22:06 +0100, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> wrote:
+>
+>Hi,
+>
+>I'm running 2.4.0-test10 on my desktop machine. The system works
+>perfectly well, but I get some strange PCI messages at boot time. Here
+>is part it:
+I've the same motherboard
+part of my syslog:
+ orac kernel: ALI15X3: IDE controller on PCI bus 00 dev 78
+ orac kernel: PCI: No IRQ known for interrupt pin A of device 00:0f.0.
+ orac kernel: ALI15X3: chipset revision 193
+ orac kernel: ALI15X3: not 100% native mode: will probe irqs later
+But  then:
+orac kernel: trident: unable to allocate irq 0
+orac modprobe: modprobe: Can't locate module sound-slot-0
+orac modprobe: modprobe: Can't locate module sound-service-0-0
+amd there isn't any sound anymore!!
+It was a nice working Trident Microsystems 4DWave DX (rev 01)
+in pre-10
+-
+Groeten / Regards, Rene Blokland                                    -o)
+1073KA 13ii the Netherlands                                         /\\
+Microsoft - "Creative non-fulfilment of your lowest expectations"  _\_v
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

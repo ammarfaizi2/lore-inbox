@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265511AbUAZFGO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 00:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265514AbUAZFGO
+	id S265508AbUAZFF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 00:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265511AbUAZFF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 00:06:14 -0500
-Received: from hive.scnr.net ([80.190.231.103]:51375 "HELO hive.scnr.net")
-	by vger.kernel.org with SMTP id S265511AbUAZFGL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 00:06:11 -0500
-Date: Mon, 26 Jan 2004 06:05:43 +0100
-From: Hans Spath <ml-lkml@hans-spath.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1: data corrupton when recieving files > 1GB over network
-Message-ID: <20040126050543.GA11649@hive>
-Reply-To: Hans Spath <ml-lkml@hans-spath.de>
-References: <5.1.0.14.2.20040111161640.014ad6c0@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20040111161640.014ad6c0@localhost>
-User-Agent: Mutt/1.5.4i
+	Mon, 26 Jan 2004 00:05:56 -0500
+Received: from adsl-b3-72-49.telepac.pt ([213.13.72.49]:55965 "EHLO
+	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
+	id S265508AbUAZFFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 00:05:55 -0500
+Message-ID: <4014A058.9080206@vgertech.com>
+Date: Mon, 26 Jan 2004 05:06:32 +0000
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en-us, pt
+MIME-Version: 1.0
+To: JustFillBug <mozbugbox@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Cooperative Linux
+References: <20040125193518.GA32013@callisto.yi.org> <40148C1C.5040102@vgertech.com> <slrnc193vo.42h.mozbugbox@mozbugbox.somehost.org>
+In-Reply-To: <slrnc193vo.42h.mozbugbox@mozbugbox.somehost.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 05:36:32PM +0100, I wrote:
-> When I transfer files to my linux 2.6.1 box their content changes
-> (tested via md5 sums).
-> [no problem with Knoppix 3.2 (Linux 2.4.21-xfs)] 
+Hi!
 
-I've finally found the problem. It was a *hardware* problem.
+JustFillBug wrote:
+> 
+> 
+> How about a bare bone OS whose sole purpose is to run multiple OS on top
+> of it? A pure VM OS. 
+> 
 
-The problem occured only with DMA activated for harddisks and the
-Knoppix kernel doesn't do this by default.
-(It was a bit strange, because it happend only when writing to disk
-while having high network traffic, even after switching NIC and IDE
-controler.)
+That's xen. You can learn more here:
 
-I've exchanged the mainboard and now everything is working perfectly.
+	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/
 
-Sorry for wasting your time, folks.
+Regards,
+Nuno Silva
+
+
+

@@ -1,219 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUFRMB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUFRMF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbUFRMB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 08:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265124AbUFRMB3
+	id S265124AbUFRMF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 08:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUFRMF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 08:01:29 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:34537 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S265131AbUFRMBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 08:01:19 -0400
-Date: Fri, 18 Jun 2004 21:02:35 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
-In-reply-to: <20040617121356.GA24338@elte.hu>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andi Kleen <ak@muc.de>
-Message-id: <D3C4552C24A60Aindou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.55
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <20040617121356.GA24338@elte.hu>
+	Fri, 18 Jun 2004 08:05:56 -0400
+Received: from linuxhacker.ru ([217.76.32.60]:60650 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S265124AbUFRMFx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 08:05:53 -0400
+Date: Fri, 18 Jun 2004 15:05:14 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Helge Hafting <helge.hafting@hist.no>, Petter Larsen <pla@morecom.no>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       ext3 <ext3-users@redhat.com>
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+Message-ID: <20040618120513.GA2394@linuxhacker.ru>
+References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan> <1087322976.1874.36.camel@pla.lokal.lan> <200406160734.i5G7YZwV002051@car.linuxhacker.ru> <1087460837.2765.31.camel@pla.lokal.lan> <20040617170939.GO2659@linuxhacker.ru> <40D2B8C3.8090908@hist.no> <20040618101520.GA2389@linuxhacker.ru> <1087558255.25904.14.camel@pmarqueslinux>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1087558255.25904.14.camel@pmarqueslinux>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004 14:13:56 +0200, Ingo Molnar wrote:
+Hello!
 
->but there's another possible method (suggested by Alan Cox) that
->requires no changes to the timer API hotpaths: 'clear' all timer lists
->upon a crash [once all CPUs have stopped and irqs are disabled] and just
->let the drivers use the normal timer APIs. Drive timer execution via a
->polling method.
->
->this basically approximates your polling based implementation but uses
->the existing kernel timer data structures and timer mechanism so should
->be robust and compatible. It doesnt rely on any previous state (because
->all currently pending timers are discarded) so it's as crash-safe as
->possible.
+On Fri, Jun 18, 2004 at 12:30:55PM +0100, Paulo Marques wrote:
+> > > Hard to _produce_, but consider:
+> > > 1. Write data to an existing file
+> > > 2. Sync metadata
+> > > 3. data is forced out because of ordered mode, a powerout crash happens
+> > >    in the middle of this. The file now has a block with a mix of new 
+> > > and old,
+> > Well, this is not much worse than having two blocks, one from old file
+> > and one from new after a crash.
+> Agree. If the application needs consistency it must do some journaling
+> itself. At least, until the time when an application can say "start
+> transaction" "commit transaction" to the file system itself.
 
-This is a test patch for clearing timer/tasklet and executing it
-during dumping.
-This patch does not work yet. I tried dumping using this patch, but
-aic7xxx is unstable...
+Right, this is my point.
 
+> > >    it may even be unreadable due to a bad sector checksum.
+> > Well, in data journaled mode you may get unreadable journal, is this much
+> > better? (Also original question was about CF flash media, so no bad sector
+> > problems I presume).
+> You got it wrong here. The sentence was "bad sector checksum", not "bad
+> sector". If the sector was "half written", then the checksum would not
+> match.
 
-diff -Nur linux-2.6.6.org/include/linux/interrupt.h linux-2.6.6/include/linux/interrupt.h
---- linux-2.6.6.org/include/linux/interrupt.h	2004-06-04 21:22:09.000000000 +0900
-+++ linux-2.6.6/include/linux/interrupt.h	2004-06-18 20:53:59.000000000 +0900
-@@ -246,4 +246,8 @@
- extern int probe_irq_off(unsigned long);	/* returns 0 or negative on failure */
- extern unsigned int probe_irq_mask(unsigned long);	/* returns mask of ISA interrupts */
- 
-+
-+extern void diskdump_clear_tasklet(void);
-+extern void diskdump_run_tasklet(void);
-+
- #endif
-diff -Nur linux-2.6.6.org/include/linux/timer.h linux-2.6.6/include/linux/timer.h
---- linux-2.6.6.org/include/linux/timer.h	2004-06-04 21:22:06.000000000 +0900
-+++ linux-2.6.6/include/linux/timer.h	2004-06-18 20:53:59.000000000 +0900
-@@ -96,4 +96,7 @@
- extern void run_local_timers(void);
- extern void it_real_fn(unsigned long);
- 
-+extern void diskdump_clear_timers(void);
-+extern void diskdump_run_timers(void);
-+
- #endif
-diff -Nur linux-2.6.6.org/include/linux/workqueue.h linux-2.6.6/include/linux/workqueue.h
---- linux-2.6.6.org/include/linux/workqueue.h	2004-06-04 21:22:09.000000000 +0900
-+++ linux-2.6.6/include/linux/workqueue.h	2004-06-18 20:53:59.000000000 +0900
-@@ -84,4 +84,7 @@
- 	return ret;
- }
- 
-+extern void diskdump_clear_workqueue(void);
-+extern void diskdump_run_workqueue(void);
-+
- #endif
-diff -Nur linux-2.6.6.org/kernel/softirq.c linux-2.6.6/kernel/softirq.c
---- linux-2.6.6.org/kernel/softirq.c	2004-06-04 21:21:58.000000000 +0900
-+++ linux-2.6.6/kernel/softirq.c	2004-06-18 20:53:59.000000000 +0900
-@@ -314,6 +314,37 @@
- 
- EXPORT_SYMBOL(tasklet_kill);
- 
-+struct tasklet_head saved_tasklet;
-+void diskdump_clear_tasklet(void)
-+{
-+	saved_tasklet.list = __get_cpu_var(tasklet_vec).list;
-+	__get_cpu_var(tasklet_vec).list = NULL;
-+}
-+
-+EXPORT_SYMBOL(diskdump_clear_tasklet);
-+
-+void diskdump_run_tasklet(void)
-+{
-+	struct tasklet_struct *list;
-+
-+	list = __get_cpu_var(tasklet_vec).list;
-+	__get_cpu_var(tasklet_vec).list = NULL;
-+
-+	while (list) {
-+		struct tasklet_struct *t = list;
-+		list = list->next;
-+
-+		if (!atomic_read(&t->count) &&
-+		    (test_and_clear_bit(TASKLET_STATE_SCHED, &t->state)))
-+				t->func(t->data);
-+
-+		t->next = __get_cpu_var(tasklet_vec).list;
-+		__get_cpu_var(tasklet_vec).list = t;
-+	}
-+}
-+
-+EXPORT_SYMBOL(diskdump_run_tasklet);
-+
- void __init softirq_init(void)
- {
- 	open_softirq(TASKLET_SOFTIRQ, tasklet_action, NULL);
-diff -Nur linux-2.6.6.org/kernel/timer.c linux-2.6.6/kernel/timer.c
---- linux-2.6.6.org/kernel/timer.c	2004-06-04 21:21:58.000000000 +0900
-+++ linux-2.6.6/kernel/timer.c	2004-06-18 20:53:59.000000000 +0900
-@@ -31,6 +31,7 @@
- #include <linux/time.h>
- #include <linux/jiffies.h>
- #include <linux/cpu.h>
-+#include <linux/delay.h>
- 
- #include <asm/uaccess.h>
- #include <asm/div64.h>
-@@ -1070,6 +1071,12 @@
- 	struct timer_list timer;
- 	unsigned long expire;
- 
-+	if (unlikely(crashdump_mode())) {
-+		mdelay(timeout);
-+		set_current_state(TASK_RUNNING);
-+		return timeout;
-+	}
-+
- 	switch (timeout)
- 	{
- 	case MAX_SCHEDULE_TIMEOUT:
-@@ -1292,6 +1299,25 @@
- 	base->timer_jiffies = jiffies;
- }
- 
-+tvec_base_t saved_tvec_base;
-+void diskdump_clear_timers(void)
-+{
-+	tvec_base_t *base = &per_cpu(tvec_bases, smp_processor_id());
-+
-+	memcpy(&saved_tvec_base, base, sizeof(saved_tvec_base));
-+	init_timers_cpu(smp_processor_id());
-+}
-+
-+EXPORT_SYMBOL(diskdump_clear_timers);
-+
-+void diskdump_run_timers(void)
-+{
-+	tvec_base_t *base = &__get_cpu_var(tvec_bases);
-+	__run_timers(base);
-+}
-+
-+EXPORT_SYMBOL(diskdump_run_timers);
-+
- #ifdef CONFIG_HOTPLUG_CPU
- static int migrate_timer_list(tvec_base_t *new_base, struct list_head *head)
- {
-diff -Nur linux-2.6.6.org/kernel/workqueue.c linux-2.6.6/kernel/workqueue.c
---- linux-2.6.6.org/kernel/workqueue.c	2004-06-04 21:21:58.000000000 +0900
-+++ linux-2.6.6/kernel/workqueue.c	2004-06-18 20:53:59.000000000 +0900
-@@ -420,6 +420,36 @@
- 
- }
- 
-+struct cpu_workqueue_struct saved_cwq;
-+void diskdump_clear_workqueue(void)
-+{
-+	int cpu = smp_processor_id();
-+	struct cpu_workqueue_struct *cwq = keventd_wq->cpu_wq + cpu;
-+
-+	memcpy(&saved_cwq, cwq, sizeof(saved_cwq));
-+	spin_lock_init(&cwq->lock);
-+	INIT_LIST_HEAD(&cwq->worklist);
-+	init_waitqueue_head(&cwq->more_work);
-+	init_waitqueue_head(&cwq->work_done);
-+}
-+
-+void diskdump_run_workqueue(void)
-+{
-+	struct cpu_workqueue_struct *cwq;
-+
-+	cwq = keventd_wq->cpu_wq + smp_processor_id();
-+	while (!list_empty(&cwq->worklist)) {
-+		struct work_struct *work = list_entry(cwq->worklist.next,
-+						struct work_struct, entry);
-+		void (*f) (void *) = work->func;
-+		void *data = work->data;
-+
-+		list_del_init(cwq->worklist.next);
-+		clear_bit(0, &work->pending);
-+		f(data);
-+	}
-+}
-+
- #ifdef CONFIG_HOTPLUG_CPU
- /* Take the work from this (downed) CPU. */
- static void take_over_work(struct workqueue_struct *wq, unsigned int cpu)
-@@ -503,3 +533,6 @@
- EXPORT_SYMBOL(schedule_delayed_work);
- EXPORT_SYMBOL(flush_scheduled_work);
- 
-+EXPORT_SYMBOL(diskdump_clear_workqueue);
-+EXPORT_SYMBOL(diskdump_run_workqueue);
-+
+In any case bad sector checksum is hardware bug. Sector write is supposed to be
+atomic, it either happens or not.
+
+> If the journal is "half written" then it is just discarded (or at least
+> it should be).
+
+Well, if there is bad sector checksum inside journal block, ext3 won't be
+all that happy about this for sure (and most of other journaling filesystems as
+well, I am sure).
+
+> > > With data journalling you either get the old data (because the crash 
+> > > happened
+> > > during a write to the journal) or new data (crash happened during data 
+> > > write,
+> > Well, while with data journaling mode your granularity is one block,
+> > with data ordered it is one sector.
+> Imagine that you request a 2Mb write to an ext3 filesystem with an 1Mb
+> journal. There is *no way* the filesystem can do the write in an atomic
+> operation. (there would be if the filesystem wrote the data to free
+> blocks and updated the metadata through the journal)
+
+True.
+Even if you write 512K of data and have 1Mb journal, still there is no atomicity
+guarantee.
+
+> The point is, there is no concept of "atomic operation" at the file
+> system level, so the application must do journaling itself if it wants
+> to have some concept of "transactions".
+
+Well, if you go with less than 1 block size updates (that do not cross block
+boundaries), this can be done atomically. (with help of fsync and stuff).
+
+> >From my experience with CF cards, there are some brands that do
+> wear-leveling (I know that at least the TwinMOS ones do, and probably
+> SanDisk too) and others that don't (Kingmax). 
+> With a bad CF card and an ext3 filesystem you can get bad sectors in a
+> couple of hours doing some intensive writing. 
+
+Well, for flash memory there is jffs2, it does (data) journalling and supports
+compression. And it can even work over conventional block devices via mtd block
+emulation, I think. Basically jffs2 is one large fs-sized journal as I
+understand it.
+
+Bye,
+    Oleg

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbTICI73 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 04:59:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbTICI73
+	id S261265AbTICJTH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 05:19:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbTICJTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 04:59:29 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:39090 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261666AbTICI71 (ORCPT
+	Wed, 3 Sep 2003 05:19:07 -0400
+Received: from mail3.bluewin.ch ([195.186.1.75]:1738 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S261265AbTICJTF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 04:59:27 -0400
-Date: Wed, 3 Sep 2003 10:57:35 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>, Andre Tomt <andre@tomt.net>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, mingo@redhat.com
-Subject: Re: md: bug in file md.c, line 1440 (2.4.22)
-Message-ID: <20030903085735.GB5762@marowsky-bree.de>
-References: <3F5017CA.4080700@tomt.net> <16213.14893.955734.797630@gargle.gargle.HOWL>
+	Wed, 3 Sep 2003 05:19:05 -0400
+Date: Wed, 3 Sep 2003 11:17:29 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Damian Kolkowski <deimos@deimos.one.pl>,
+       Danny ter Haar <dth@ncc1701.cistron.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx doesn't work
+Message-ID: <20030903091729.GA28495@k3.hellgate.ch>
+Mail-Followup-To: Arjan van de Ven <arjanv@redhat.com>,
+	Damian Kolkowski <deimos@deimos.one.pl>,
+	Danny ter Haar <dth@ncc1701.cistron.net>,
+	linux-kernel@vger.kernel.org
+References: <bj447c$el6$1@news.cistron.nl> <20030903074902.GA1786@deimos.one.pl> <1062576819.5058.2.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <16213.14893.955734.797630@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+In-Reply-To: <1062576819.5058.2.camel@laptop.fenrus.com>
+X-Operating-System: Linux 2.6.0-test4 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-09-03T10:47:41,
-   Neil Brown <neilb@cse.unsw.edu.au> said:
+On Wed, 03 Sep 2003 10:13:39 +0200, Arjan van de Ven wrote:
+> if you enable APIC (and not ACPI) then you start using a different BIOS
+> table for IRQ routing. Several BIOSes have bugs in this table since it's
+> not a table that is generally used by Windows on UP boxes. Saying that
+> it's the kernel's fault is rather unfair; most (if not all) distros for
 
-> I have not idea how it got the failed flag.
+What I've been seeing lately is people complaining it used to work with
+previous kernels but later ones don't. One possible explanation would be
+that VIA chip sets (explicitly or through one of their specific properties)
+used to be blacklisted before (and thus APIC silently disabled).
 
-What's proven very helpful to figure out these things is to run a
-test script against md, and just trying all the various possible actions
-via mdadm or raidtools randomly.
+The reports I get indicate that _something_ in the kernel changed. I
+suspect it's the ACPI code (best viewed with Intel chipsets), but that's
+speculation.
 
-I've done that for m-p, and while it's not pretty, it is _really_
-helpful and has found all sorts of weird accounting bugs in the md code
-(2.4 has many): ftp://ftp.suse.com/pub/people/lmb/md-mp/mp-test.sh - if
-anyone feels like extending it to include raid5/raid1 etc, that would be
-cool ;-)
-
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering		ever tried. ever failed. no matter.
-SuSE Labs				try again. fail again. fail better.
-Research & Development, SuSE Linux AG		-- Samuel Beckett
-
+Roger

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267848AbTBVUPU>; Sat, 22 Feb 2003 15:15:20 -0500
+	id <S267878AbTBVUYg>; Sat, 22 Feb 2003 15:24:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267854AbTBVUPU>; Sat, 22 Feb 2003 15:15:20 -0500
-Received: from holomorphy.com ([66.224.33.161]:43689 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267848AbTBVUPT>;
-	Sat, 22 Feb 2003 15:15:19 -0500
-Date: Sat, 22 Feb 2003 12:24:28 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Larry McVoy <lm@work.bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       "David S. Miller" <davem@redhat.com>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030222202428.GE10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Mark Hahn <hahn@physics.mcmaster.ca>,
-	"David S. Miller" <davem@redhat.com>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0302221417120.2686-100000@coffee.psychology.mcmaster.ca> <1510000.1045942974@[10.10.2.4]> <20030222195642.GI1407@work.bitmover.com>
+	id <S267901AbTBVUYg>; Sat, 22 Feb 2003 15:24:36 -0500
+Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:55561 "EHLO
+	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
+	id <S267878AbTBVUYf>; Sat, 22 Feb 2003 15:24:35 -0500
+Date: Sat, 22 Feb 2003 21:34:44 +0100
+From: Marc Haber <mh+linux-kernel@zugschlus.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-ac1 not seeing IDE disk on PIIX host adapter
+Message-ID: <20030222203443.GA27734@torres.ka0.zugschlus.de>
+References: <20030222085102.GA23966@torres.ka0.zugschlus.de> <1045946551.5484.2.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030222195642.GI1407@work.bitmover.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <1045946551.5484.2.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 11:56:42AM -0800, Larry McVoy wrote:
-> Err, here's a news flash.  Dell has just one server with more than
-> 4 CPUS and it tops out at 8.  Everything else is clusters.  And they
-> call any machine that doesn't have a head a server, they have servers
-> starting $299.  Yeah, that's right, $299.
-> http://www.dell.com/us/en/bsd/products/series_pedge_servers.htm
+On Sat, Feb 22, 2003 at 08:42:31PM +0000, Alan Cox wrote:
+> On Sat, 2003-02-22 at 08:51, Marc Haber wrote:
+> > Linux 2.4.20-ac1 sees the PIIX chip, but not the disks connected to
+> > it. This of course results in a kernel panic "unable to mount root
+> > fs". Same thing happens with 2.4.20-ac2. Vanilla 2.4.20 works fine. Of
+> > course, all kernels have been built with the same configuration.
+> 
+> I'd like to know if 2.4.21pre4-ac6 sees the disks. You don't even need
+> to run it beyond the boot, just to check this is the legacy port
+> problem.
 
-Sounds like low-capacity boxen meant to minimize colocation costs via
-rackspace minimization.
+It will be monday before I get near the machine, but I will do it then.
 
+Greetings
+Marc
 
-On Sat, Feb 22, 2003 at 11:56:42AM -0800, Larry McVoy wrote:
-> How much do you want to bet that more than 95% of their server revenue
-> comes from 4CPU or less boxes?  I wouldn't be surprised if it is more
-> like 99.5%.  And you can configure yourself a pretty nice quad xeon box
-> for $25K.  Yeah, there is some profit in there but nowhere near the huge
-> margins you are counting on to make your case.
-
-Ask their marketing dept. or something. I can maximize utility
-integrals and find Nash equilibria, but can't tell you Dell's secrets.
-
-
--- wli
+-- 
+-----------------------------------------------------------------------------
+Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
+Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
+Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29

@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262970AbVDBCav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262971AbVDBCbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262970AbVDBCav (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 21:30:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbVDBCau
+	id S262971AbVDBCbM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 21:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbVDBCbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 21:30:50 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:44234 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262970AbVDBCal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 21:30:41 -0500
-Date: Fri, 01 Apr 2005 21:30:39 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
-In-reply-to: <1112406342.20579.6.camel@mindpipe>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
-       Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>
-Message-id: <200504012130.39679.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050325145908.GA7146@elte.hu>
- <200504011834.22600.gene.heskett@verizon.net>
- <1112406342.20579.6.camel@mindpipe>
-User-Agent: KMail/1.7
+	Fri, 1 Apr 2005 21:31:12 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:7522 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262971AbVDBCbG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 21:31:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=srPBpSLwW9Z1L5pv2mCmeWiTGDTVBan8UEqX7VWEQBDlxTskr/b0AA54jxhByom6E2G5do8Ju6k5CB7qtvRQ+fWJ4Br7U6UpKd2ncarakQnBYq1F2Ia/AQmBuGxr3KtZkoNm/MG3hGuUwLY2/M7Yv4CfOTOx+CDZZbj3i2owP6w=
+Message-ID: <9e47339105040118312ba5b356@mail.gmail.com>
+Date: Fri, 1 Apr 2005 21:31:05 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Subject: Re: 2.6.12-rc1 won't boot if SCSI drivers are selected as modules
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <424D3BDD.5010001@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <424D3BDD.5010001@cybsft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 April 2005 20:45, Lee Revell wrote:
->On Fri, 2005-04-01 at 18:34 -0500, Gene Heskett wrote:
->> No one has commented about the loss of video in the
->> tvtime/pcHDTV-3000 card situation, am I on my own, basicly
->> reverting to the
->> pcHDTV-2.0.tar.gz stuff to overwrite the kernel stuff?
->
->You didn't really give much of a clue as to where to start looking.
->
->If you report a bug of the "hardware foo stopped working with kernel
->bar" type, and that's all the information you provide, the bug
-> report is useless to anyone who does not have the exact same
-> hardware.
->
->Lee
+On Apr 1, 2005 7:17 AM, K.R. Foley <kr@cybsft.com> wrote:
+> I have an old Dell Precision 620 workstation with dual PIII 933's and
+> 512 Mb memory. It also uses AIC-7899P U160/m SCSI controllers with one
+> U160 drive (boot drive) and one slower 18 Gb. I have been running many
+> different variants of the kernel on this system for quite some time with
+> much success. However, no amount of gnashing of teeth or pulling of hair
+> have been able to get this system to boot ANY 2.6.12-rc1 (including
+> 2.6.12-rc1 vanilla, 2.6.12-rc1-mm3 and various RT patches) variant when
+> the SCSI drivers are selected as modules (which is the way that I have
+> always done it). Last night I built all of the necessary drivers into
+> the kernel and the system boots fine.
 
-I did, in a previous incarnation of this thread 2-3 days ago, post the 
-lsmod output and a section of the log showing (I believe) rampant dma 
-failures.  It also didn't generate any comments.
+I am also seeing this but not on every boot. My work around is to add
+a 'sleep 2' to the nash script after the modules are loaded. Compling
+everything in also worked.
 
-FWIW, I have reinstalled the tarballs version of the drivers, but that 
-was of no use, so its definitely something in the RT patch itself I 
-believe.  2.6.12-rc1 works great.  By default.
-
-As far as my being able to fix that, I'm afraid I'll have to plead 
-NDI.  The last time I dealt with dma, was on an rca 1802 cpu, which 
-had its own builtin dma controller that took care of everything but 
-the pointer reload for the next 6 byte fetch, and which I used for 6 
-bytes per field of video to feed a homebrewed character generator I 
-made out of ttl chips, to generate the academy leader on a 
-commercial.  The year was 1978.  A bit far back up the log for even 
-me, altho I may still have a copy of the machine code I wrote that 
-ran it at KRCR-TV in Redding CA for a decade that I know of, maybe 
-longer.
-
-That is neither here nor there now of course, just shining a light 
-back up the calendar about 27 years for illustration.
+This is discussed in the thread: "current linus bk, error mounting
+root". I believe the answer is that it is not a kernel problem,
+instead the init scripts have to be fixed.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Jon Smirl
+jonsmirl@gmail.com

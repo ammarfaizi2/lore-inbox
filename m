@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311588AbSCNLMK>; Thu, 14 Mar 2002 06:12:10 -0500
+	id <S311585AbSCNLPK>; Thu, 14 Mar 2002 06:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311586AbSCNLMA>; Thu, 14 Mar 2002 06:12:00 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:22020 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S311585AbSCNLLm>; Thu, 14 Mar 2002 06:11:42 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, rth@twiddle.net
-Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas 
-In-Reply-To: Your message of "Thu, 14 Mar 2002 00:05:41 CDT."
-             <3C902FA5.5010208@mandrakesoft.com> 
-Date: Thu, 14 Mar 2002 22:14:53 +1100
-Message-Id: <E16lTC9-0003uL-00@wagner.rustcorp.com.au>
+	id <S311586AbSCNLPA>; Thu, 14 Mar 2002 06:15:00 -0500
+Received: from ns.suse.de ([213.95.15.193]:20485 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311585AbSCNLO5>;
+	Thu, 14 Mar 2002 06:14:57 -0500
+Date: Thu, 14 Mar 2002 12:14:56 +0100
+From: Andi Kleen <ak@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@suse.de>, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, rth@twiddle.net
+Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas
+Message-ID: <20020314121456.A15050@wotan.suse.de>
+In-Reply-To: <p73bsdrsftu.fsf@oldwotan.suse.de> <E16lT7I-0003uC-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16lT7I-0003uC-00@wagner.rustcorp.com.au>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3C902FA5.5010208@mandrakesoft.com> you write:
-> Your other changes look good, but RELOC_HIDE really does belong in 
-> compiler.h... and percpu.h is a particularly poor choice of destination. 
+On Thu, Mar 14, 2002 at 10:09:52PM +1100, Rusty Russell wrote:
+> Sorry, I think one macro to get the address, one to get the contents
+> is a *horrible* interface.  per_cpu() and per_cpu_ptr() or something?
 
-How?  compiler.h is for things which vary based on compiler versions.
-It was an arbitrary and relatively crappy place to put it: I only put
-it there so PPC could use it...
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+It is not pretty, but I have no choice. See include/asm-x86_64/pda.h on what I 
+have currently. Supporting the address in the same macro would 
+double to overhead of accesing it. 
+
+> I think you'll find that per_cpu_ptr would be fairly common, so we're
+> forced into a bad interface for little gain.  You might be better off
+> using another method to implement per-cpu areas.
+
+Nope, the segment register has to stay for other reasons, and it would
+be a shame to not use it for cpu data too.
+
+I don't see it as that bad. Is it really that difficult to write _ptr
+if you want the address? You can also write _noptr or _direct or whatever
+if you don't want the address if you prefer that, but I want to keep
+the option to do direct access even for generic code. 
+
+
+-Andi

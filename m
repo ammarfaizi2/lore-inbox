@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293245AbSC2S1h>; Fri, 29 Mar 2002 13:27:37 -0500
+	id <S310252AbSC2Sfj>; Fri, 29 Mar 2002 13:35:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310252AbSC2S1X>; Fri, 29 Mar 2002 13:27:23 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:20710 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293245AbSC2S0q>;
-	Fri, 29 Mar 2002 13:26:46 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15524.45530.685067.889695@napali.hpl.hp.com>
-Date: Fri, 29 Mar 2002 10:26:34 -0800
+	id <S310504AbSC2Sf2>; Fri, 29 Mar 2002 13:35:28 -0500
+Received: from imladris.infradead.org ([194.205.184.45]:4360 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S310252AbSC2SfM>; Fri, 29 Mar 2002 13:35:12 -0500
+Date: Fri, 29 Mar 2002 18:34:57 +0000
+From: Christoph Hellwig <hch@infradead.org>
 To: Andrew Morton <akpm@zip.com.au>
-Cc: davidm@hpl.hp.com, Christoph Hellwig <hch@infradead.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
+Cc: davidm@hpl.hp.com, Marcelo Tosatti <marcelo@conectiva.com.br>,
         linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] generic show_stack facility
-In-Reply-To: <3CA4A61A.A844E21B@zip.com.au>
-X-Mailer: VM 7.01 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Message-ID: <20020329183457.A4087@phoenix.infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch>, Andrew Morton <akpm@zip.com.au>,
+	davidm@hpl.hp.com, Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020329160618.A25410@phoenix.infradead.org> <15524.40817.306204.292158@napali.hpl.hp.com> <3CA4A61A.A844E21B@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 29 Mar 2002 09:36:26 -0800, Andrew Morton <akpm@zip.com.au> said:
+On Fri, Mar 29, 2002 at 09:36:26AM -0800, Andrew Morton wrote:
+> Here's the diff.  Comments?
 
-  Andrew> The way I ended up resolving these sorts of issues was to
-  Andrew> make the generic function
+I don't see who having to independand declaration in the same kernel
+image are supposed to work..
 
-  Andrew> 	void dump_stack(void);
+I think you really want some HAVE_ARCH_SHOW_STACK define to disable
+the generic version..
 
-  Andrew> under the (hopefully valid) assumption that all
-  Andrew> architectures can somehow, in some manner, manage to spit
-  Andrew> out something useful.
+	Christoph
 
-  Andrew> For a transitional/compatibility think, there's
-  Andrew> lib/dump_stack.c which just prints "I'm broken".
-
-  Andrew> Here's the diff.  Comments?
-
-Looks good to me.
-
-Thanks,
-
-	--david

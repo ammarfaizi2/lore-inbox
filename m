@@ -1,104 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271564AbTGRKMy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 06:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271602AbTGRKL7
+	id S271742AbTGRKSI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 06:18:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271738AbTGRKQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 06:11:59 -0400
-Received: from [213.26.12.10] ([213.26.12.10]:23446 "HELO mail.robox.it")
-	by vger.kernel.org with SMTP id S271826AbTGRKJq (ORCPT
+	Fri, 18 Jul 2003 06:16:53 -0400
+Received: from mx02.qsc.de ([213.148.130.14]:59100 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S271736AbTGRKQT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 06:09:46 -0400
-Message-ID: <3F17CAE9.7070005@robox.it>
-Date: Fri, 18 Jul 2003 12:24:41 +0200
-From: Marco Lazzarotto <m.lazzarotto@robox.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030502 Debian/1.2.1-9woody3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: ext3 / USB Mass Storage (the syslog file)
-References: <3F17CA63.2050203@robox.it>
-In-Reply-To: <3F17CA63.2050203@robox.it>
-Content-Type: multipart/mixed;
- boundary="------------050808040404000102060206"
+	Fri, 18 Jul 2003 06:16:19 -0400
+Date: Fri, 18 Jul 2003 12:31:05 +0200
+From: Wiktor Wodecki <wodecki@gmx.de>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [PATCH] O6int for interactivity
+Message-ID: <20030718103105.GE622@gmx.de>
+Reply-To: Wiktor Wodecki <wodecki@gmx.net>
+References: <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net> <200307170030.25934.kernel@kolivas.org> <200307170030.25934.kernel@kolivas.org> <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net> <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1SQmhf2mF2YjsYvc"
+Content-Disposition: inline
+In-Reply-To: <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
+X-message-flag: Linux - choice of the GNU generation
+X-Operating-System: Linux 2.6.0-test1-mm1-O6 i686
+X-PGP-KeyID: 182C9783
+X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050808040404000102060206
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Sorry, I forgot the syslog file...
+--1SQmhf2mF2YjsYvc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---------------050808040404000102060206
-Content-Type: text/plain;
- name="syslog"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="syslog"
+On Fri, Jul 18, 2003 at 12:18:33PM +0200, Mike Galbraith wrote:
+> That _might_ (add salt) be priorities of kernel threads dropping too low.
+>=20
+> I'm also seeing occasional total stalls under heavy I/O in the order of=
+=20
+> 10-12 seconds (even the disk stops).  I have no idea if that's something =
+in=20
+> mm or the scheduler changes though, as I've yet to do any isolation and/o=
+r=20
+> tinkering.  All I know at this point is that I haven't seen it in stock y=
+et.
 
-Jul 18 09:16:17 marco kernel: hub.c: new USB device 00:1f.2-1, assigned address 3
-Jul 18 09:16:17 marco kernel: scsi1 : SCSI emulation for USB Mass Storage devices
-Jul 18 09:16:17 marco kernel:   Vendor: TwinMOS   Model: MOBILE Disk       Rev: 1.11
-Jul 18 09:16:17 marco kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Jul 18 09:16:17 marco kernel: Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
-Jul 18 09:16:17 marco kernel: SCSI device sda: 129024 512-byte hdwr sectors (66 MB)
+I've seen this too while doing a huge nfs transfer from a 2.6 machine to
+a 2.4 machine (sparc32). Thought it'd be something with the nfs changes
+which were recently, might be the scheduler, tho. Ah, and it is fully
+reproducable.
 
-[...]
+--=20
+Regards,
 
-Jul 18 11:38:01 marco kernel: hub.c: new USB device 00:1f.2-1, assigned address 6
-Jul 18 11:38:01 marco kernel: WARNING: USB Mass Storage data integrity not assured
-Jul 18 11:38:01 marco kernel: USB Mass Storage device found at 6
-Jul 18 11:38:05 marco identd[23178]: started
-Jul 18 11:38:13 marco kernel: kjournald starting.  Commit interval 5 seconds
-Jul 18 11:38:13 marco kernel: EXT3-fs warning: mounting fs with errors, running e2fsck is recommended
-Jul 18 11:38:13 marco kernel: EXT3 FS 2.4-0.9.19, 19 August 2002 on sd(8,1), internal journal
-Jul 18 11:38:13 marco kernel: EXT3-fs: recovery complete.
-Jul 18 11:38:13 marco kernel: EXT3-fs: mounted filesystem with ordered data mode.
-Jul 18 11:38:55 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 40963
-Jul 18 11:38:55 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 40964
+Wiktor Wodecki
 
-[All blocks between 40964 and 41215 are present...]
+--1SQmhf2mF2YjsYvc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Jul 18 11:39:24 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 41215
-Jul 18 11:39:24 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 41216
-Jul 18 11:39:35 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 49153
-Jul 18 11:39:35 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 49154
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-[Again, all blocks are here...]
+iD8DBQE/F8xp6SNaNRgsl4MRAjOFAJ9BuVukrdpgXWfazUFh2QjDwYWYNACeLXGd
+WF+BECb7xge7gFtf720BN3Y=
+=tcYj
+-----END PGP SIGNATURE-----
 
-Jul 18 11:39:55 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 49407
-Jul 18 11:39:55 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 49408
-Jul 18 11:39:57 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 57347
-Jul 18 11:39:57 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 57348
-
-[And here, too...]
-
-Jul 18 11:40:26 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 57599
-Jul 18 11:40:26 marco kernel: EXT3-fs error (device sd(8,1)): ext3_new_block: Allocating block in system zone - block = 57600
-Jul 18 11:40:40 marco kernel: EXT3-fs error (device sd(8,1)): ext3_free_blocks: Freeing blocks in system zones - Block = 57458, count = 256
-Jul 18 11:40:40 marco kernel: EXT3-fs error (device sd(8,1)): ext3_free_blocks: Freeing blocks in system zones - Block = 57457, count = 1
-Jul 18 11:40:40 marco kernel: Assertion failure in journal_forget() at transaction.c:1225: "!jh->b_committed_data"
-Jul 18 11:40:40 marco kernel: kernel BUG at transaction.c:1225!
-Jul 18 11:40:40 marco kernel: invalid operand: 0000
-Jul 18 11:40:40 marco kernel: CPU:    0
-Jul 18 11:40:40 marco kernel: EIP:    0010:[journal_forget+170/420]    Tainted: PF
-Jul 18 11:40:40 marco kernel: EFLAGS: 00010282
-Jul 18 11:40:40 marco kernel: eax: 00000058   ebx: c1c71490   ecx: c203e000   edx: cfe5bd00
-Jul 18 11:40:40 marco kernel: esi: c5da2000   edi: c9943980   ebp: cf4fb8c0   esp: c203fd2c
-Jul 18 11:40:40 marco kernel: ds: 0018   es: 0018   ss: 0018
-Jul 18 11:40:40 marco kernel: Process rm (pid: 23458, stackpage=c203f000)
-Jul 18 11:40:40 marco kernel: Stack: c02be7a0 c02bed13 c02be780 000004c9 c02bed22 00000000 c459ada0 c953ed80 
-Jul 18 11:40:40 marco kernel:        c953ed80 c5da2094 c015080b c459ada0 c9943980 0000e003 c27eea48 c459ada0 
-Jul 18 11:40:40 marco kernel:        c4991d20 0000e003 c27eea48 c459ada0 c0152490 c459ada0 00000000 c953ed80 
-Jul 18 11:40:40 marco kernel: Call Trace:    [ext3_forget+107/232] [ext3_clear_blocks+256/296] [journal_get_write_access+64/88] [ext3_free_data+251/352] [ext3_free_branches+512/528]
-Jul 18 11:40:40 marco kernel:   [bread+24/100] [ext3_free_branches+204/528] [bread+24/100] [ext3_free_branches+204/528] [ext3_truncate+200/932] [ext3_truncate+703/932]
-Jul 18 11:40:40 marco kernel:   [journal_start+149/196] [start_transaction+85/128] [ext3_delete_inode+0/292] [ext3_delete_inode+167/292] [ext3_delete_inode+0/292] [iput+259/504]
-Jul 18 11:40:40 marco kernel:   [d_delete+76/124] [vfs_unlink+340/388] [sys_unlink+153/268] [system_call+51/56]
-Jul 18 11:40:40 marco kernel: 
-Jul 18 11:40:40 marco kernel: Code: 0f 0b c9 04 80 e7 2b c0 83 c4 14 53 e8 ed 02 00 00 c7 43 14 
-Jul 18 11:41:05 marco identd[23525]: started
-
---------------050808040404000102060206--
-
+--1SQmhf2mF2YjsYvc--

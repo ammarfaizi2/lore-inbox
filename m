@@ -1,81 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVBLDTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbVBLD0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbVBLDTN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 22:19:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbVBLDTM
+	id S262381AbVBLD0G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 22:26:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbVBLD0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 22:19:12 -0500
-Received: from nevyn.them.org ([66.93.172.17]:43423 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S262380AbVBLDTG (ORCPT
+	Fri, 11 Feb 2005 22:26:05 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23722 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262381AbVBLD0B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 22:19:06 -0500
-Date: Fri, 11 Feb 2005 22:19:04 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Blocking behavior changed for pipes in 2.6.11-rc3
-Message-ID: <20050212031904.GA18380@nevyn.them.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 11 Feb 2005 22:26:01 -0500
+Date: Fri, 11 Feb 2005 19:25:54 -0800 (PST)
+From: Ray Bryant <raybry@sgi.com>
+To: Hirokazu Takahashi <taka@valinux.co.jp>, Hugh DIckins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
+       Marcello Tosatti <marcello@cyclades.com>
+Cc: Ray Bryant <raybry@sgi.com>, Ray Bryant <raybry@austin.rr.com>,
+       linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-Id: <20050212032554.18524.15452.35627@tomahawk.engr.sgi.com>
+In-Reply-To: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
+Subject: [RFC 2.6.11-rc2-mm2 3/7] mm: manual page migration -- cleanup 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This program [cribbed loosely from tst-cancel17.c in glibc] has changed
-behavior with the recent pipe changes.  It used to block; which makes sense.
-It gets the maximum buffer size for the pipe (or a page if that's larger),
-and writes that many bytes plus two to it.  It reads one back.  The write
-"shouldn't" have room to finish.
+Fix a trivial error in include/linux/mmigrate.h
 
-Checking the POSIX language for _PC_PIPE_BUF I think this is OK - it doesn't
-say that no more bytes than that can be written at once, just that this is
-the maximum which are guaranteed to be written atomically.  So I'm guessing
-this change is a feature, not a bug.  Right?
+Signed-off-by: Ray Bryant <raybry@sgi.com>
 
-[snip]
-
-#include <errno.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-void *
-tf (void *fd)
-{
-  int *fds = fd;
-  char mem[1];
-  read (fds[0], mem, 1);
-}
-
-int
-main (void)
-{
-  pthread_t th;
-  int len;
-  int fds[2];
-
-  if (pipe (fds) != 0)
-    {
-      puts ("pipe failed");
-      return 1;
-    }
-
-  size_t len2 = fpathconf (fds[1], _PC_PIPE_BUF);
-  size_t page_size = sysconf (_SC_PAGESIZE);
-  len2 = (len2 < page_size ? page_size : len2) + 1 + 1;
-  char *mem2 = malloc (len2);
-
-  pthread_create (&th, NULL, tf, fds);
-  write (fds[1], mem2, len2);
-
-  return 0;
-}
-
-[/snip]
+Index: linux-2.6.11-rc2-mm2/include/linux/mmigrate.h
+===================================================================
+--- linux-2.6.11-rc2-mm2.orig/include/linux/mmigrate.h	2005-02-11 10:08:10.000000000 -0800
++++ linux-2.6.11-rc2-mm2/include/linux/mmigrate.h	2005-02-11 11:22:34.000000000 -0800
+@@ -1,5 +1,5 @@
+-#ifndef _LINUX_MEMHOTPLUG_H
+-#define _LINUX_MEMHOTPLUG_H
++#ifndef _LINUX_MMIGRATE_H
++#define _LINUX_MMIGRATE_H
+ 
+ #include <linux/config.h>
+ #include <linux/mm.h>
+@@ -36,4 +36,4 @@ extern void arch_migrate_page(struct pag
+ static inline void arch_migrate_page(struct page *page, struct page *newpage) {}
+ #endif
+ 
+-#endif /* _LINUX_MEMHOTPLUG_H */
++#endif /* _LINUX_MMIGRATE_H */
 
 -- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+Best Regards,
+Ray
+-----------------------------------------------
+Ray Bryant                       raybry@sgi.com
+The box said: "Requires Windows 98 or better",
+           so I installed Linux.
+-----------------------------------------------

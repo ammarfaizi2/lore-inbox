@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270510AbRHHPUD>; Wed, 8 Aug 2001 11:20:03 -0400
+	id <S270511AbRHHP2O>; Wed, 8 Aug 2001 11:28:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270509AbRHHPTx>; Wed, 8 Aug 2001 11:19:53 -0400
-Received: from [203.199.83.149] ([203.199.83.149]:41956 "HELO
-	mailweb29.rediffmail.com") by vger.kernel.org with SMTP
-	id <S270508AbRHHPTm>; Wed, 8 Aug 2001 11:19:42 -0400
-Date: 8 Aug 2001 15:22:24 -0000
-Message-ID: <20010808152224.1429.qmail@mailweb29.rediffmail.com>
-MIME-Version: 1.0
-To: "vrspnet@rediffmail.com" <vrspnet@rediffmail.com>
-Subject: http:// www.bigmx.com   - Free Email Service , Communities and More...
-From: "vr  sp" <vrspnet@rediffmail.com>
-Content-ID: <Wed_Aug__8_20_52_24_IST_2001_0@mailweb29.rediffmail.com>
-Content-type: text/plain
-Content-Description: Body
-Content-Transfer-Encoding: 7bit
+	id <S270512AbRHHP2E>; Wed, 8 Aug 2001 11:28:04 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:59780
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S270511AbRHHP1w>; Wed, 8 Aug 2001 11:27:52 -0400
+Date: Wed, 8 Aug 2001 08:27:55 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Christian Borntraeger <CBORNTRA@de.ibm.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: BUG: Assertion failure with ext3-0.95 for 2.4.7
+Message-ID: <20010808082755.M2399@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <OF1F8FDF9C.400E6F0B-ONC1256AA2.004F74C5@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF1F8FDF9C.400E6F0B-ONC1256AA2.004F74C5@de.ibm.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 08, 2001 at 04:38:36PM +0200, Christian Borntraeger wrote:
 
-Hai, 
+> I also tested it with a 70GB LVM and /proc/sys/fs/jbd-debug set to 5.There
+> was also no error. After reset to 0 the error reoccured (???)
+> Next, I will try,using md instead of LVM to have a disk with a similar
+> size.
 
- we are one of the leading free email service providers in india.  We provide email service different from others.  So, we would like to call you to register email address in our service at http://www.bigmx.com .
+Sounds like my crash on PPC again :)  W/ jbd-debug set to 5 there's so much
+I/O going on (writing out the logs) that the bug doesn't happen, I suspect.
 
-Time being we have provided some common indian names and some common celebrities in our email service.   
-
-Don't wait ! Receive your perfect email at http://www.bigmx.com.
-
-
-Other Features of this Website :  Sharing Photos , Discussion Forums on Indian cinema. 
-
-yours truly,
-
-Webmaster
-www.bigmx.com
-
-P.S: - For clarifications and more information reach us at 
-
-webmaster@bigmx.com
-
-_________________________________________________________
-For Rs. 2,000,000 worth of Aptech scholarships click below
-http://clients.rediff.com/clients/aptechsch/index.htm
-
-
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

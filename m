@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVAIXjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVAIX4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbVAIXjG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 18:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVAIXjG
+	id S261984AbVAIX4S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 18:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVAIX4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 18:39:06 -0500
-Received: from are.twiddle.net ([64.81.246.98]:28800 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S261976AbVAIXjD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 18:39:03 -0500
-Date: Sun, 9 Jan 2005 15:38:52 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: removing bcopy... because it's half broken
-Message-ID: <20050109233852.GA23256@twiddle.net>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <20050109192305.GA7476@infradead.org> <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 9 Jan 2005 18:56:17 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:59558 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261984AbVAIX4L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 18:56:11 -0500
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM LTC (xSeries Solutions)
+To: YhLu <YhLu@tyan.com>
+Subject: Re: 256 apic id for amd64
+Date: Sun, 9 Jan 2005 15:56:05 -0800
+User-Agent: KMail/1.7.1
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, ak@muc.de, Matt_Domsch@dell.com,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       suresh.b.siddha@intel.com
+References: <3174569B9743D511922F00A0C943142307291365@TYANWEB>
+In-Reply-To: <3174569B9743D511922F00A0C943142307291365@TYANWEB>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200501091556.06060.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 09, 2005 at 12:19:09PM -0800, Linus Torvalds wrote:
-> Gcc _used_ to have a target-specific "do I use bcopy or memcpy" setting,
-> and I just don't know if that is still true.
+On Friday 07 January 2005 06:53 pm, YhLu wrote:
+> I mean keep the bsp physical apic id using 0.
+>
+> YH
 
-Yes, TARGET_MEM_FUNCTIONS.  It's never not set for Linux targets.
-Or for OSF/1 for that matter...  Indeed, it would take me some time
-to figure out which targets it's *not* set for.
+If you mean that Linux will require that the boot processor (BSP) will 
+always have physical APIC ID == 0, then it is already too late for 
+i386.  I've posted a message to the root of this thread on some example 
+boxes with weird APIC numbering schemes that are in our lab.
 
-(Yet another thing that ought to get cleaned up -- either invert the
-default value or simply require the target to either provide the libc
-entry point or add a version to libgcc.)
+I don't trust every single BIOS writer to _always_ make the BSP physical 
+APIC ID 0 for x86-64 either.  Why do you wish to require this anyway?
 
-I'm not sure how far back you'd have to go to find an Alpha compiler
-that needs this.  Prolly back to at least gcc 2.6, but I don't have
-sources that old handy to check.
+It is far safer to make no assumptions about APIC numbering and just 
+accept whatever the BIOS gives us in the MPS and/or ACPI tables.  A few 
+simple arrays indexed by CPU number will reveal the physical and 
+logical APIC IDs whenever we need them.
+
+So, why should Linux care about any CPU's physical APIC ID?
 
 
+> -----Original Message-----
+> From: Mikael Pettersson [mailto:mikpe@csd.uu.se]
+> Sent: Friday, January 07, 2005 6:38 PM
+> To: YhLu; ak@muc.de
+> Cc: Matt_Domsch@dell.com; discuss@x86-64.org; jamesclv@us.ibm.com;
+> linux-kernel@vger.kernel.org; suresh.b.siddha@intel.com
+> Subject: Re: 256 apic id for amd64
+>
+> On Fri, 7 Jan 2005 22:12:00 +0100, Andi Kleen wrote:
+> >On Fri, Jan 07, 2005 at 01:14:24PM -0800, YhLu wrote:
+> >> After keep the bsp using 0, the jiffies works well. Werid?
+> >
+> >Probably a bug somewhere.  But since BSP should be always
+> >0 I'm not sure it is worth tracking down.
+>
+> I hope by "0" you're referring to a Linux kernel defined
+> software value and _not_ what the HW or BIOS conjured up!
+>
+> Case in point: I was involved a while ago in tracking down
+> and fixing a local APIC enumeration bug in the x86-32 (i386)
+> kernel code, where the kernel failed miserably on some
+> dual K7 boxes because (a) only one CPU socket was populated,
+> (b) the BIOS assigned that CPU a non-zero ID, and (c) the
+> kernel (apic.c) had a bug which triggered when BSP ID != 0.
+>
+> Never trust a BIOS to DTRT.
+>
+> /Mikael
 
-r~
+-- 
+James Cleverdon
+IBM LTC (xSeries Linux Solutions)
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm

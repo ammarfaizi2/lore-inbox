@@ -1,199 +1,226 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285005AbRLKM2R>; Tue, 11 Dec 2001 07:28:17 -0500
+	id <S285016AbRLKMkS>; Tue, 11 Dec 2001 07:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285007AbRLKM2H>; Tue, 11 Dec 2001 07:28:07 -0500
-Received: from pc-e21-41.frm2.tu-muenchen.de ([129.187.179.41]:11921 "EHLO
-	sisyphos.frm2.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S285005AbRLKM2C>; Tue, 11 Dec 2001 07:28:02 -0500
-From: Jens =?iso-8859-1?q?Kr=FCger?= <jens_krueger@frm2.tu-muenchen.de>
-Reply-To: jens_krueger@frm2.tu-muenchen.de
-Organization: FRMII, TU =?iso-8859-1?q?M=FCnchen?=
-Date: Tue, 11 Dec 2001 13:26:55 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L"
-To: linux-kernel@vger.kernel.org, "Martin Mares" <mj@ucw.cz>
-Subject: PCI Subsystem
+	id <S285017AbRLKMkC>; Tue, 11 Dec 2001 07:40:02 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16401 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285016AbRLKMjr>; Tue, 11 Dec 2001 07:39:47 -0500
+Subject: Re: USB + PCI - IRQ = kernel bug??
+To: jomast@mindspring.com (Jonathan Stanford)
+Date: Tue, 11 Dec 2001 12:49:08 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C157D8A.4090200@mindspring.com> from "Jonathan Stanford" at Dec 10, 2001 10:29:14 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <01121113265507.05223@sisyphos>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16DmLM-0005Js-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> this problem appears on everything from 2.4.7 (RH7.2 kern)  to the 
+> latest and greatest (2.4.17-pre8) and probably earlier kernels as well....
+> 
+> the southbridge/usb controler is the VIA Technologies, Inc. VT82C686b chip as you can see in 
 
---------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
+Seems to be a lot of stuff where the pci routing and Linux isnt getting on
+when it comes to VIA and USB. Dunno if its wrong BIOS tables but the
+following previous patch might help you
 
-Hi, 
-I have a little problem with the PCI subsystem. I tried to use two cards of 
-the Meilhaus Co.. If I use the PCI access mode 'any' I don't get the right 
-I/O ports of the cards. Next I tried the access mode 'Direct' ( the output of 
-the lspci -v  command is listed in the attached file lspci.direct) and the 
-access mode 'BIOS' (the output is stored in the file lspci.bios). There are 
-some little differences in the output, but all seems the same except the 
-output of the two Meilhaus cards. I have no idea for this behaviour. I tried 
-these cards under DOS and I got the same information as for the BIOS access 
-mode (the programm access the BIOS too), but in this mode all other cards 
-especially network card and USB don't work, so I can't  use this mode. My 
-question: Is there any idea (or hack) to solve this problem? 
+Let Manfred and co know if it does
 
-With regards 
+Alan
 
-Jens
--- 
 
-Jens Krüger
+>From manfred@colorfullife.com Sun Nov 04 22:07:34 2001
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: jgarzik@mandrakesoft.com
+Subject: pci-irq.c
+Status: RO
 
-Technische Universität München
-ZBE FRM-II
-Lichtenberg-Str. 1
-D-85747 Garching
+Hi Alan,
 
-Tel: + 49 89 289 14 716
-Fax: + 49 89 289 14 666
-mailto:jens_krueger@frm2.tu-muenchen.de
-http://www.frm2.tu-muenchen.de
---------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L
-Content-Type: text/plain;
-  name="lspci.bios"
-Content-Transfer-Encoding: base64
-Content-Description: output  from lspci -v with PCI-BIOS access
-Content-Disposition: attachment; filename="lspci.bios"
+attached is my cleanup of pci-irq.c.
+It works with all my mobos (piix, ali, via) and should fix the vaio
+problem.
 
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gODI4MTBFIEdNQ0ggW0dyYXBo
-aWNzIE1lbW9yeSBDb250cm9sbGVyIEh1Yl0gKHJldiAwMykKCUZsYWdzOiBidXMgbWFzdGVyLCBm
-YXN0IGRldnNlbCwgbGF0ZW5jeSAwCgowMDowMS4wIFZHQSBjb21wYXRpYmxlIGNvbnRyb2xsZXI6
-IEludGVsIENvcnBvcmF0aW9uIDgyODEwRSBDR0MgW0NoaXBzZXQgR3JhcGhpY3MgQ29udHJvbGxl
-cl0gKHJldiAwMykgKHByb2ctaWYgMDAgW1ZHQV0pCglGbGFnczogYnVzIG1hc3RlciwgNjZNaHos
-IG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgMCwgSVJRIDEwCglNZW1vcnkgYXQgODAwMDAwMDAgKDMy
-LWJpdCwgcHJlZmV0Y2hhYmxlKQoJTWVtb3J5IGF0IGMwMDAwMDAwICgzMi1iaXQsIG5vbi1wcmVm
-ZXRjaGFibGUpCglDYXBhYmlsaXRpZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDEK
-CjAwOjFlLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBQQ0kgQnJpZGdl
-IChyZXYgMDIpIChwcm9nLWlmIDAwIFtOb3JtYWwgZGVjb2RlXSkKCUZsYWdzOiBidXMgbWFzdGVy
-LCBmYXN0IGRldnNlbCwgbGF0ZW5jeSAwCglCdXM6IHByaW1hcnk9MDAsIHNlY29uZGFyeT0wMSwg
-c3Vib3JkaW5hdGU9MDIsIHNlYy1sYXRlbmN5PTY0CglJL08gYmVoaW5kIGJyaWRnZTogMDAwMDkw
-MDAtMDAwMGVmZmYKCU1lbW9yeSBiZWhpbmQgYnJpZGdlOiBjMDEwMDAwMC1jMDRmZmZmZgoJUHJl
-ZmV0Y2hhYmxlIG1lbW9yeSBiZWhpbmQgYnJpZGdlOiA4NDAwMDAwMC04NDNmZmZmZgoKMDA6MWYu
-MCBJU0EgYnJpZGdlOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjgwMUFBIElTQSBCcmlkZ2UgKExQQykg
-KHJldiAwMikKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDAKCjAw
-OjFmLjEgSURFIGludGVyZmFjZTogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBJREUgKHJldiAw
-MikgKHByb2ctaWYgODAgW01hc3Rlcl0pCglTdWJzeXN0ZW06IEludGVsIENvcnBvcmF0aW9uIDgy
-ODAxQUEgSURFCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSAwCglJ
-L08gcG9ydHMgYXQgZmMwMAoKMDA6MWYuMiBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycG9yYXRp
-b24gODI4MDFBQSBVU0IgKHJldiAwMikgKHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiBJ
-bnRlbCBDb3Jwb3JhdGlvbiA4MjgwMUFBIFVTQgoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1bSBk
-ZXZzZWwsIGxhdGVuY3kgMCwgSVJRIDEwCglJL08gcG9ydHMgYXQgZjgwMAoKMDA6MWYuMyBTTUJ1
-czogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBTTUJ1cyAocmV2IDAyKQoJU3Vic3lzdGVtOiBJ
-bnRlbCBDb3Jwb3JhdGlvbiA4MjgwMUFBIFNNQnVzCglGbGFnczogbWVkaXVtIGRldnNlbCwgSVJR
-IDEwCglJL08gcG9ydHMgYXQgZjQwMAoKMDE6MDQuMCBFdGhlcm5ldCBjb250cm9sbGVyOiBJbnRl
-bCBDb3Jwb3JhdGlvbiA4MjU1OUVSIChyZXYgMDkpCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVt
-IGRldnNlbCwgbGF0ZW5jeSA2NCwgSVJRIDEwCglNZW1vcnkgYXQgYzAxMDAwMDAgKDMyLWJpdCwg
-bm9uLXByZWZldGNoYWJsZSkKCUkvTyBwb3J0cyBhdCBlZTAwCglNZW1vcnkgYXQgYzAxMjAwMDAg
-KDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkKCUNhcGFiaWxpdGllczogW2RjXSBQb3dlciBNYW5h
-Z2VtZW50IHZlcnNpb24gMgoKMDE6MDYuMCBQQ0kgYnJpZGdlOiBUZXhhcyBJbnN0cnVtZW50czog
-VW5rbm93biBkZXZpY2UgYWMyOCAocHJvZy1pZiAwMCBbTm9ybWFsIGRlY29kZV0pCglGbGFnczog
-YnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSA2NAoJQnVzOiBwcmltYXJ5PTAxLCBz
-ZWNvbmRhcnk9MDIsIHN1Ym9yZGluYXRlPTAyLCBzZWMtbGF0ZW5jeT02NAoJSS9PIGJlaGluZCBi
-cmlkZ2U6IDAwMDA5MDAwLTAwMDBkZmZmCglNZW1vcnkgYmVoaW5kIGJyaWRnZTogYzAyMDAwMDAt
-YzAzZmZmZmYKCVByZWZldGNoYWJsZSBtZW1vcnkgYmVoaW5kIGJyaWRnZTogMDAwMDAwMDA4NDEw
-MDAwMC0wMDAwMDAwMDg0MjAwMDAwCglDYXBhYmlsaXRpZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVu
-dCB2ZXJzaW9uIDEKCjAyOjA5LjAgQ29tbXVuaWNhdGlvbiBjb250cm9sbGVyOiBBcHBsaWVkIE1p
-Y3JvIENpcmN1aXRzIENvcnBvcmF0aW9uOiBVbmtub3duIGRldmljZSAwMDA1CglGbGFnczogYnVz
-IG1hc3RlciwgZmFzdCBkZXZzZWwsIGxhdGVuY3kgNjQsIElSUSAxMAoJTWVtb3J5IGF0IGMwMjAw
-MDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpCglNZW1vcnkgYXQgYzAyMDQwMDAgKDMyLWJp
-dCwgbm9uLXByZWZldGNoYWJsZSkKCU1lbW9yeSBhdCBjMDIwODAwMCAoMzItYml0LCBub24tcHJl
-ZmV0Y2hhYmxlKQoKMDI6MGEuMCBDbGFzcyBmZjAwOiBDb21wdXRlciBCb2FyZHM6IFVua25vd24g
-ZGV2aWNlIDAwMGUKCUZsYWdzOiBidXMgbWFzdGVyLCBmYXN0IGRldnNlbCwgbGF0ZW5jeSA2NCwg
-SVJRIDEwCglJL08gcG9ydHMgYXQgZGUwMAoJSS9PIHBvcnRzIGF0IGRhMDAKCUkvTyBwb3J0cyBh
-dCBkNjAwCgowMjowYi4wIENsYXNzIGZmMDA6IEFwcGxpZWQgTWljcm8gQ2lyY3VpdHMgQ29ycG9y
-YXRpb246IFVua25vd24gZGV2aWNlIDgwZmMKCUZsYWdzOiBtZWRpdW0gZGV2c2VsLCBJUlEgMTAK
-CUkvTyBwb3J0cyBhdCBkMjAwCglJL08gcG9ydHMgYXQgY2UwMAoJSS9PIHBvcnRzIGF0IGNhMDAK
-CjAyOjBlLjAgTXVsdGlwb3J0IHNlcmlhbCBjb250cm9sbGVyOiBNZWlsaGF1cyBFbGVjdHJvbmlj
-IEdtYkg6IFVua25vd24gZGV2aWNlIDkxNTQgKHJldiAwMSkKCVN1YnN5c3RlbTogVW5rbm93biBk
-ZXZpY2UgMDAwNDo5OTEyCglGbGFnczogbWVkaXVtIGRldnNlbCwgSVJRIDEwCglJL08gcG9ydHMg
-YXQgYzYwMAoJSS9PIHBvcnRzIGF0IGMyMDAKCUkvTyBwb3J0cyBhdCBiZTAwCglJL08gcG9ydHMg
-YXQgYmEwMAoKMDI6MGYuMCBTaWduYWwgcHJvY2Vzc2luZyBjb250cm9sbGVyOiBNZWlsaGF1cyBF
-bGVjdHJvbmljIEdtYkg6IFVua25vd24gZGV2aWNlIDA5NjAgKHJldiAwMSkKCVN1YnN5c3RlbTog
-VW5rbm93biBkZXZpY2UgMDBkNDo5OTAzCglGbGFnczogbWVkaXVtIGRldnNlbCwgSVJRIDEwCglN
-ZW1vcnkgYXQgYzAyMDgwODAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkKCUkvTyBwb3J0cyBh
-dCBiNjAwCglJL08gcG9ydHMgYXQgYjIwMAoJTWVtb3J5IGF0IGMwMjA4MTAwICgzMi1iaXQsIG5v
-bi1wcmVmZXRjaGFibGUpCglNZW1vcnkgYXQgYzAyMTAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNo
-YWJsZSkKCU1lbW9yeSBhdCBjMDI0MDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKQoK
+The main change is a code cleanup (do not scan first for a good irq,
+and then discard the result and use what's currently installed in
+the irq router, etc) and documentation.
 
---------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L
-Content-Type: text/plain;
-  name="lspci.direct"
-Content-Transfer-Encoding: base64
-Content-Description: output from lspci -v with PCI-DIRECT access
-Content-Disposition: attachment; filename="lspci.direct"
+Actual changes:
+* if r->set exists, then always write our idea of the irq number
+into the irq router, even if we use the bios supplied dev->irq number.
+* ignore 'dev2->irq' mismatches - if they exist (e.g. Toms vaio),
+then we must solve them by either using 'dev->irq' or 'dev2->irq'.
+Just looking away means that one device won't work.
+* bounds checking in pirq_via_set. I think I saw pirq=0x58 with my
+ali board, I must check the docu if that can be right.
 
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gODI4MTBFIEdNQ0ggW0dyYXBo
-aWNzIE1lbW9yeSBDb250cm9sbGVyIEh1Yl0gKHJldiAwMykKCUZsYWdzOiBidXMgbWFzdGVyLCBm
-YXN0IGRldnNlbCwgbGF0ZW5jeSAwCgowMDowMS4wIFZHQSBjb21wYXRpYmxlIGNvbnRyb2xsZXI6
-IEludGVsIENvcnBvcmF0aW9uIDgyODEwRSBDR0MgW0NoaXBzZXQgR3JhcGhpY3MgQ29udHJvbGxl
-cl0gKHJldiAwMykgKHByb2ctaWYgMDAgW1ZHQV0pCglGbGFnczogYnVzIG1hc3RlciwgNjZNaHos
-IG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgMCwgSVJRIDEwCglNZW1vcnkgYXQgODAwMDAwMDAgKDMy
-LWJpdCwgcHJlZmV0Y2hhYmxlKSBbc2l6ZT02NE1dCglNZW1vcnkgYXQgYzAwMDAwMDAgKDMyLWJp
-dCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9NTEyS10KCUNhcGFiaWxpdGllczogW2RjXSBQb3dl
-ciBNYW5hZ2VtZW50IHZlcnNpb24gMQoKMDA6MWUuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3Jh
-dGlvbiA4MjgwMUFBIFBDSSBCcmlkZ2UgKHJldiAwMikgKHByb2ctaWYgMDAgW05vcm1hbCBkZWNv
-ZGVdKQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIGZhc3QgZGV2c2VsLCBsYXRlbmN5IDAKCUJ1czogcHJp
-bWFyeT0wMCwgc2Vjb25kYXJ5PTAxLCBzdWJvcmRpbmF0ZT0wMiwgc2VjLWxhdGVuY3k9NjQKCUkv
-TyBiZWhpbmQgYnJpZGdlOiAwMDAwOTAwMC0wMDAwZWZmZgoJTWVtb3J5IGJlaGluZCBicmlkZ2U6
-IGMwMTAwMDAwLWMwNGZmZmZmCglQcmVmZXRjaGFibGUgbWVtb3J5IGJlaGluZCBicmlkZ2U6IDg0
-MDAwMDAwLTg0M2ZmZmZmCgowMDoxZi4wIElTQSBicmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDgy
-ODAxQUEgSVNBIEJyaWRnZSAoTFBDKSAocmV2IDAyKQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1
-bSBkZXZzZWwsIGxhdGVuY3kgMAoKMDA6MWYuMSBJREUgaW50ZXJmYWNlOiBJbnRlbCBDb3Jwb3Jh
-dGlvbiA4MjgwMUFBIElERSAocmV2IDAyKSAocHJvZy1pZiA4MCBbTWFzdGVyXSkKCVN1YnN5c3Rl
-bTogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBJREUKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRp
-dW0gZGV2c2VsLCBsYXRlbmN5IDAKCUkvTyBwb3J0cyBhdCBmYzAwIFtzaXplPTE2XQoKMDA6MWYu
-MiBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycG9yYXRpb24gODI4MDFBQSBVU0IgKHJldiAwMikg
-KHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjgwMUFB
-IFVTQgoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgMCwgSVJRIDEw
-CglJL08gcG9ydHMgYXQgZjgwMCBbc2l6ZT0zMl0KCjAwOjFmLjMgU01CdXM6IEludGVsIENvcnBv
-cmF0aW9uIDgyODAxQUEgU01CdXMgKHJldiAwMikKCVN1YnN5c3RlbTogSW50ZWwgQ29ycG9yYXRp
-b24gODI4MDFBQSBTTUJ1cwoJRmxhZ3M6IG1lZGl1bSBkZXZzZWwsIElSUSAxMAoJSS9PIHBvcnRz
-IGF0IGY0MDAgW3NpemU9MTZdCgowMTowNC4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IEludGVsIENv
-cnBvcmF0aW9uIDgyNTU5RVIgKHJldiAwOSkKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2
-c2VsLCBsYXRlbmN5IDY0LCBJUlEgMTAKCU1lbW9yeSBhdCBjMDEwMDAwMCAoMzItYml0LCBub24t
-cHJlZmV0Y2hhYmxlKSBbc2l6ZT00S10KCUkvTyBwb3J0cyBhdCBlZTAwIFtzaXplPTY0XQoJTWVt
-b3J5IGF0IGMwMTIwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTEyOEtdCglF
-eHBhbnNpb24gUk9NIGF0IGZmMDAwMDAwIFtkaXNhYmxlZF0gW3NpemU9MU1dCglDYXBhYmlsaXRp
-ZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDIKCjAxOjA2LjAgUENJIGJyaWRnZTog
-VGV4YXMgSW5zdHJ1bWVudHM6IFVua25vd24gZGV2aWNlIGFjMjggKHByb2ctaWYgMDAgW05vcm1h
-bCBkZWNvZGVdKQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgNjQK
-CUJ1czogcHJpbWFyeT0wMSwgc2Vjb25kYXJ5PTAyLCBzdWJvcmRpbmF0ZT0wMiwgc2VjLWxhdGVu
-Y3k9NjQKCUkvTyBiZWhpbmQgYnJpZGdlOiAwMDAwOTAwMC0wMDAwZGZmZgoJTWVtb3J5IGJlaGlu
-ZCBicmlkZ2U6IGMwMjAwMDAwLWMwM2ZmZmZmCglQcmVmZXRjaGFibGUgbWVtb3J5IGJlaGluZCBi
-cmlkZ2U6IDAwMDAwMDAwODQxMDAwMDAtMDAwMDAwMDA4NDIwMDAwMAoJQ2FwYWJpbGl0aWVzOiBb
-ZGNdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAxCgowMjowOS4wIENvbW11bmljYXRpb24gY29u
-dHJvbGxlcjogQXBwbGllZCBNaWNybyBDaXJjdWl0cyBDb3Jwb3JhdGlvbjogVW5rbm93biBkZXZp
-Y2UgMDAwNQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIGZhc3QgZGV2c2VsLCBsYXRlbmN5IDY0LCBJUlEg
-MTAKCU1lbW9yeSBhdCBjMDIwMDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT02
-NF0KCU1lbW9yeSBhdCBjMDIwNDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0x
-NktdCglNZW1vcnkgYXQgYzAyMDgwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9
-MzJdCglFeHBhbnNpb24gUk9NIGF0IGZmMDAwMDAwIFtkaXNhYmxlZF0gW3NpemU9MktdCgowMjow
-YS4wIENsYXNzIGZmMDA6IENvbXB1dGVyIEJvYXJkczogVW5rbm93biBkZXZpY2UgMDAwZQoJRmxh
-Z3M6IGJ1cyBtYXN0ZXIsIGZhc3QgZGV2c2VsLCBsYXRlbmN5IDY0LCBJUlEgMTAKCUkvTyBwb3J0
-cyBhdCBkZTAwIFtzaXplPTY0XQoJSS9PIHBvcnRzIGF0IGRhMDAgW3NpemU9MTZdCglJL08gcG9y
-dHMgYXQgZDYwMCBbc2l6ZT0xNl0KCjAyOjBiLjAgQ2xhc3MgZmYwMDogQXBwbGllZCBNaWNybyBD
-aXJjdWl0cyBDb3Jwb3JhdGlvbjogVW5rbm93biBkZXZpY2UgODBmYwoJRmxhZ3M6IG1lZGl1bSBk
-ZXZzZWwsIElSUSAxMAoJSS9PIHBvcnRzIGF0IGQyMDAgW3NpemU9MTI4XQoJSS9PIHBvcnRzIGF0
-IGNlMDAgW3NpemU9NF0KCUkvTyBwb3J0cyBhdCBjYTAwIFtzaXplPTRdCgowMjowZS4wIE11bHRp
-cG9ydCBzZXJpYWwgY29udHJvbGxlcjogTWVpbGhhdXMgRWxlY3Ryb25pYyBHbWJIOiBVbmtub3du
-IGRldmljZSA5MTU0IChyZXYgMDEpCglTdWJzeXN0ZW06IFVua25vd24gZGV2aWNlIDAwMDQ6OTkx
-MgoJRmxhZ3M6IG1lZGl1bSBkZXZzZWwsIElSUSAxMAoJSS9PIHBvcnRzIGF0IGM2MDAgW3NpemU9
-MTI4XQoJSS9PIHBvcnRzIGF0IGMwMjAwMTAwIFtzaXplPTI1Nl0KCUkvTyBwb3J0cyBhdCBjMDIw
-MDIwMCBbc2l6ZT0yNTZdCglJL08gcG9ydHMgYXQgYmEwMCBbc2l6ZT0yNTZdCgowMjowZi4wIFNp
-Z25hbCBwcm9jZXNzaW5nIGNvbnRyb2xsZXI6IE1laWxoYXVzIEVsZWN0cm9uaWMgR21iSDogVW5r
-bm93biBkZXZpY2UgMDk2MCAocmV2IDAxKQoJU3Vic3lzdGVtOiBVbmtub3duIGRldmljZSAwMGQ0
-Ojk5MDMKCUZsYWdzOiBtZWRpdW0gZGV2c2VsLCBJUlEgMTAKCU1lbW9yeSBhdCBjMDIwODA4MCAo
-MzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xMjhdCglJL08gcG9ydHMgYXQgYzAyMDAw
-ODAgW3NpemU9MTI4XQoJSS9PIHBvcnRzIGF0IGMwMjAwMDQwIFtzaXplPTE2XQoJTWVtb3J5IGF0
-IGMwMjA4MTAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTI1Nl0KCU1lbW9yeSBh
-dCBjMDIxMDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT02NEtdCglNZW1vcnkg
-YXQgYzAyNDAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9MjU2S10KCg==
+But I doubt that this solves your via sound problems.
+via sound interrupts are handled with special code in via_quirks,
+and that code is not pirq compatible. Do you have lspci -vxx /
+dump_pirq output?
 
---------------Boundary-00=_VKI6SBV7VAFD9D1S3E9L--
+--
+	Manfred
+
+
+--- 2.4/arch/i386/kernel/pci-irq.c	Sat Nov  3 19:51:08 2001
++++ build-2.4/arch/i386/kernel/pci-irq.c	Sun Nov  4 22:47:22 2001
+@@ -197,13 +197,24 @@
+  */
+ static int pirq_via_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
+ {
+-	return read_config_nybble(router, 0x55, pirq);
++	/* the internal devices (APCI, MC97, AC97, USB port 1 and 2
++	 * are handled by quirk_via_acpi and quirk_via_irqpic
++	 */
++	if (pirq < 6)
++		return read_config_nybble(router, 0x55, pirq);
++	return 0;
+ }
+ 
+ static int pirq_via_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
+ {
+-	write_config_nybble(router, 0x55, pirq, irq);
+-	return 1;
++	/* the internal devices (APCI, MC97, AC97, USB port 1 and 2
++	 * are handled by quirk_via_acpi and quirk_via_irqpic
++	 */
++	if (pirq < 6) {
++		write_config_nybble(router, 0x55, pirq, irq);
++		return 1;
++	}
++	return 0;
+ }
+ 
+ /*
+@@ -536,8 +547,8 @@
+ {
+ 	u8 pin;
+ 	struct irq_info *info;
+-	int i, pirq, newirq;
+-	int irq = 0;
++	int i, pirq;
++	int irq;
+ 	u32 mask;
+ 	struct irq_router *r = pirq_router;
+ 	struct pci_dev *dev2;
+@@ -570,48 +581,65 @@
+ 	mask &= pcibios_irq_mask;
+ 
+ 	/*
+-	 * Find the best IRQ to assign: use the one
+-	 * reported by the device if possible.
++	 * Find the best IRQ to assign:
++	 * 1) hardcoded into pirq 0xf?
++	 * 2) dev->irq.
++	 * 	There are 2 sources for dev->irq:
++	 * 	a) stored by the bios into PCI_INTERRUPT_LINE
++	 * 	b) multiple devices share one pirq, then the loop
++	 * 	   at the end of this function writes to dev->irq
++	 * 3) stored by the bios into the irq router
++	 * 4) only if assign is set: search for a low penalty irq
+ 	 */
+-	newirq = dev->irq;
+-	if (!newirq && assign) {
+-		for (i = 0; i < 16; i++) {
+-			if (!(mask & (1 << i)))
+-				continue;
+-			if (pirq_penalty[i] < pirq_penalty[newirq] &&
+-			    !request_irq(i, pcibios_test_irq_handler, SA_SHIRQ, "pci-test", dev)) {
+-				free_irq(i, dev);
+-				newirq = i;
+-			}
+-		}
+-	}
+-	DBG(" -> newirq=%d", newirq);
+-
+-	/* Check if it is hardcoded */
+ 	if ((pirq & 0xf0) == 0xf0) {
+ 		irq = pirq & 0xf;
+ 		DBG(" -> hardcoded IRQ %d\n", irq);
+ 		msg = "Hardcoded";
++	} else if (dev->irq) {
++		irq = dev->irq;
++		DBG(" -> preselected IRQ %d\n", irq);
++		msg = "Preselected";
++		if (!(mask & (1<<irq)))
++			printk(KERN_INFO "PCI: pirq table doesn't match preselected IRQ for %s, using preselected irq.\n", dev->slot_name);
+ 	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq))) {
+ 		DBG(" -> got IRQ %d\n", irq);
+ 		msg = "Found";
+-	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
+-		DBG(" -> assigning IRQ %d", newirq);
+-		if (r->set(pirq_router_dev, dev, pirq, newirq)) {
+-			eisa_set_level_irq(newirq);
+-			DBG(" ... OK\n");
+-			msg = "Assigned";
+-			irq = newirq;
++		if (!(mask & (1<<irq)))
++			printk(KERN_INFO "PCI: pirq table doesn't match IRQ router setting for %s, using irq router setting.\n", dev->slot_name);
++	} else if (assign) {
++		for (i = 0; i < 16; i++) {
++			if (!(mask & (1 << i)))
++				continue;
++			if (pirq_penalty[i] < pirq_penalty[irq] &&
++			    !request_irq(i, pcibios_test_irq_handler, SA_SHIRQ, "pci-test", dev)) {
++				free_irq(i, dev);
++				irq = i;
++			}
+ 		}
+-	}
++		DBG(" -> assigning irq=%d\n", irq);
++		msg = "Assigned";
++	} else
++		return 0;
++	if (!irq)
++		return 0;
+ 
+-	if (!irq) {
+-		DBG(" ... failed\n");
+-		if (newirq && mask == (1 << newirq)) {
+-			msg = "Guessed";
+-			irq = newirq;
+-		} else
+-			return 0;
++	if ((pirq & 0xf0) != 0xf0 && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
++		/* always rewrite our idea of the interrupt routing back into
++		 * the irq router
++		 */
++		if (r->set(pirq_router_dev, dev, pirq, irq)) {
++			DBG("Set succeeded\n");
++			eisa_set_level_irq(irq);
++		} else {
++			DBG("Set failed\n");
++			/* We ignore this error unless there is no way 
++			 * the irq routing could work without a successful
++			 * r->set().
++			 */
++			if (!strcmp(msg, "Assigned") && mask != (1<<irq)) {
++				return 0;
++			}
++		}
+ 	}
+ 	printk(KERN_INFO "PCI: %s IRQ %d for device %s\n", msg, irq, dev->slot_name);
+ 
+@@ -625,11 +653,13 @@
+ 		if (!info)
+ 			continue;
+ 		if (info->irq[pin].link == pirq) {
+-			/* We refuse to override the dev->irq information. Give a warning! */
++			/* Give a warning if we have to overwrite dev->irq information.
++			 * This only happens when multiple devices share one pirq, and
++			 * the bios claims that it routes them to different irq numbers.
++			 */
+ 		    	if (dev2->irq && dev2->irq != irq) {
+ 		    		printk(KERN_INFO "IRQ routing conflict for %s, have irq %d, want irq %d\n",
+ 				       dev2->slot_name, dev2->irq, irq);
+-		    		continue;
+ 		    	}
+ 			dev2->irq = irq;
+ 			pirq_penalty[irq]++;
+

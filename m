@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267306AbTBVSMx>; Sat, 22 Feb 2003 13:12:53 -0500
+	id <S267159AbTBVSfl>; Sat, 22 Feb 2003 13:35:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267315AbTBVSMx>; Sat, 22 Feb 2003 13:12:53 -0500
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:33972 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S267306AbTBVSMx>; Sat, 22 Feb 2003 13:12:53 -0500
-Date: Sat, 22 Feb 2003 14:57:28 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [ak@suse.de: Re: iosched: impact of streaming read on read-many-files]
-Message-ID: <20030222145728.L629@nightmaster.csn.tu-chemnitz.de>
-References: <20030222054307.GA22074@wotan.suse.de> <20030221230716.630934cf.akpm@digeo.com>
+	id <S267286AbTBVSfl>; Sat, 22 Feb 2003 13:35:41 -0500
+Received: from almesberger.net ([63.105.73.239]:50695 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S267159AbTBVSfk>; Sat, 22 Feb 2003 13:35:40 -0500
+Date: Sat, 22 Feb 2003 15:45:39 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
+Message-ID: <20030222154539.H2791@almesberger.net>
+References: <200302212125.h1LLPgxE001759@81-2-122-30.bradfords.org.uk> <1045874822.25411.3.camel@rth.ninka.net> <200302220048.h1M0mjCu020837@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030221230716.630934cf.akpm@digeo.com>; from akpm@digeo.com on Fri, Feb 21, 2003 at 11:07:16PM -0800
-X-Spam-Score: -3.0 (---)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18meIe-0003JP-00*RR61Kl7TmUs*
+In-Reply-To: <200302220048.h1M0mjCu020837@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Fri, Feb 21, 2003 at 07:48:45PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 11:07:16PM -0800, Andrew Morton wrote:
-> You have not defined "fix".  An IO scheduler which attempts to serve every
-> request within ten milliseconds is an impossibility.  Attempting to 
-> achieve it will result in something which seeks all over the place.
-> 
-> The best solution is to implement five or ten seconds worth of buffering
-> in the application and for the kernel to implement a high throughput general
-> purpose I/O scheduler which does not suffer from starvation.
+Valdis.Kletnieks@vt.edu wrote:
+> To be honest, we don't know.  On the other hand, there's 3 basic
+> classes of failure modes:
 
-What about implementing io-requests, which can time out? So if it will
-not be serviced in time or we know, that it will not be serviced
-in time, we can skip that.
+Another idea:
 
-This can easily be stuffed into the aio-api by cancelling
-requests, which are older than a specified time. Just attach a
-jiffie to each request and make a new syscall like io_cancel but
-with a starting time attached. Or even make it a property of the
-aio list we are currently handling and use a kernel timer.
+4) Back off quickly (i.e. disable ECN on first retry), but keep track
+of whom you had to do this for. Then use some clever user-mode
+strategy module to act on this information. (E.g. send a list of ECN
+offenders to root, or raise the threshold value for turning off ECN
+for destinations that seem to accept ECN in general, but suffer high
+losses.)
 
-That way we could help streaming applications and the kernel
-itself (by reducing its io-requests) at the same time.
+- Werner
 
-Combined with you buffering suggestion, this will help cases,
-where the system is under high load and cannot satisfy these
-applications anyway.
-
-What do you think?
-
-Regards
-
-Ingo Oeser
 -- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

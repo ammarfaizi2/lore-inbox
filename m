@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270942AbRHXE6Q>; Fri, 24 Aug 2001 00:58:16 -0400
+	id <S270947AbRHXFgv>; Fri, 24 Aug 2001 01:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270947AbRHXE6G>; Fri, 24 Aug 2001 00:58:06 -0400
-Received: from UNASSIGNED.SKYNETWEB.COM ([64.23.55.10]:5914 "HELO
-	mx.webmailstation.com") by vger.kernel.org with SMTP
-	id <S270942AbRHXE57> convert rfc822-to-8bit; Fri, 24 Aug 2001 00:57:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Perchine <dyp@perchine.com>
-Organization: AcademSoft
-To: linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Date: Fri, 24 Aug 2001 11:59:41 +0700
-X-Mailer: KMail [version 1.3.5]
-In-Reply-To: <20010822030807.N120@pervalidus> <d3k7zutw5y.fsf@lxplus051.cern.ch> <20010823124109.S14302@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20010823124109.S14302@cpe-24-221-152-185.az.sprintbbd.net>
+	id <S270948AbRHXFgm>; Fri, 24 Aug 2001 01:36:42 -0400
+Received: from node-cffb924a.powerinter.net ([207.251.146.74]:48969 "HELO
+	switchmanagement.com") by vger.kernel.org with SMTP
+	id <S270947AbRHXFgY>; Fri, 24 Aug 2001 01:36:24 -0400
+Message-ID: <3B85E7E2.7000602@switchmanagement.com>
+Date: Thu, 23 Aug 2001 22:36:34 -0700
+From: Brian Strand <bstrand@switchmanagement.com>
+Organization: Switch Management
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010824020119.42D951FD7D@mx.webmailstation.com>
+To: linux-kernel@vger.kernel.org
+CC: support@3ware.com
+Subject: 3ware: no cards found in 2.2.19, cards found in 2.4.x
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 August 2001 02:41, Tom Rini wrote:
-> On Thu, Aug 23, 2001 at 09:26:33PM +0200, Jes Sorensen wrote:
-> > >>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
-> You've said this before. :)  Just how small of an 'embedded' system are
-> you talking about?  I know of people who do compile a kernel now and
-> again on a 'small' system, for fun.  On a larger (cPCI) system, I
-> don't see your point.  If you can somehow transport the 21mb[1] bzip2
-> kernel source to your system, you can transport python.  If you're
-> porting to a brand new arch, there's still good tests before you
-> have shlib support (You've mentioned that before too I think).
+I have a quad xeon 2GB system running Oracle which I am reverting to 
+2.2.x because of 2.4.x's less than desirable VM performance (causing a 
+2x Oracle slowdown, reported about a month ago on linux-kernel).  I 
+foolishly put a 3ware card in at the same time as I "upgraded" the box 
+to 2.4.4, so now I am in the undesirable position of needing to go back 
+to 2.2.19, but that kernel cannot find the card.  I get the following 
+message during boot:
 
-There is another point why having Python installed is a problem. Usually when 
-you install a server you remove everything from it because of space, and 
-security reasons. The main security concern is the less is installed the 
-better security is. I always remove python from any servers I have. As I 
-remove guile, forth, and other useless (in terms of server) languages. Now 
-you tell me that I should have this bloat installed just to configure my 
-kernel. Do not you think that it is too much? Current kernel does not require 
-anything like this.
+3w-xxxx: tw_find_cards(): No cards found
+/lib/moduless/2.2.19-2GB-SMP/scsi/3w-xxxx.o: init_module: Device or 
+resource busy
 
--- 
-Sincerely Yours,
-Denis Perchine
+I have tried compiling the 3ware driver version 1.02.00.{004,006,007} 
+all with the same result.  Has anyone managed to use a Suse 2.2.19 
+kernel with 3ware cards with any success?  The 1.02.00.004 driver is 
+from the stock 2.2.19 kernel, the .006 driver is from 3ware's website, 
+and the .007 driver is from 2.2.20pre9.
 
-----------------------------------
-E-Mail: dyp@perchine.com
-HomePage: http://www.perchine.com/dyp/
-FidoNet: 2:5000/120.5
-----------------------------------
+Any hints appreciated,
+Brian Strand
+CTO Switch Management
+
+

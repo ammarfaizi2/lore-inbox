@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130222AbQKGIop>; Tue, 7 Nov 2000 03:44:45 -0500
+	id <S130317AbQKGIqZ>; Tue, 7 Nov 2000 03:46:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130206AbQKGIof>; Tue, 7 Nov 2000 03:44:35 -0500
-Received: from navy.csi.cam.ac.uk ([131.111.8.49]:48328 "EHLO
+	id <S130303AbQKGIqP>; Tue, 7 Nov 2000 03:46:15 -0500
+Received: from navy.csi.cam.ac.uk ([131.111.8.49]:1481 "EHLO
 	navy.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129919AbQKGIoV>; Tue, 7 Nov 2000 03:44:21 -0500
+	id <S130289AbQKGIqD>; Tue, 7 Nov 2000 03:46:03 -0500
 From: "James A. Sutherland" <jas88@cam.ac.uk>
-To: Gerhard Mack <gmack@innerfire.net>
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-Date: Tue, 7 Nov 2000 08:41:47 +0000
+Date: Tue, 7 Nov 2000 08:44:22 +0000
 X-Mailer: KMail [version 1.0.28]
 Content-Type: text/plain; charset=US-ASCII
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10011061717560.31473-100000@innerfire.net>
-In-Reply-To: <Pine.LNX.4.10.10011061717560.31473-100000@innerfire.net>
+In-Reply-To: <200011062354.eA6NsT705093@sleipnir.valparaiso.cl>
+In-Reply-To: <200011062354.eA6NsT705093@sleipnir.valparaiso.cl>
 MIME-Version: 1.0
-Message-Id: <00110708441200.01218@dax.joh.cam.ac.uk>
+Message-Id: <00110708454001.01218@dax.joh.cam.ac.uk>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Nov 2000, Gerhard Mack wrote:
-> > Then none of this is relevant to you, since you can't unload any modules! And
-> > now you're the one doing the trolling... WTF do you think module code is
-> > supposed to do when you don't use modules?!
-> > 
+On Mon, 06 Nov 2000, Horst von Brand wrote:
+> "James A. Sutherland" <jas88@cam.ac.uk> said:
+> > On Mon, 06 Nov 2000, Horst von Brand wrote:
 > 
-> Simple ... I'd rather the hardware was set to 0 on startup but I know what
-> problems that presents to modules..
+> [...]
 > 
-> And no it wasn't the driver doing it afik. Sound card starts on max volume
-> as soon as it's initialised.
+> > > The problem (AFAIU) is that if the levels aren't set on startup, they are
+> > > random in some cases.
+> 
+> > So set them on startup. NOT when the driver is first loaded. Put it in
+> > the rc.d scripts.
+> 
+> There is a noticeable delay between to moment the module is insmod(8)ed,
+> and the moment when its settings are set by the startup script. Not funny
+> if it is going full blast ATM.
 
-Which is why I want the driver to initialise the card to "known-good" settings.
-Defaulting to 0 is not good enough.
-
-With my approach, the driver is loaded as part of the kernel, but does NOT
-initialise the card, it just confirms it is there. Then, during boot, a script
-will initialise the sound card with the correct settings explicitly. That way,
-the delay between card init and the card getting the correct settings is
-minimal, even on broken hardware like this.
+Yes, I know. That's why the driver MUST NOT change the volume settings when
+insmod(8)ed, waiting instead until it gets specific settings from the script,
+at which point it can initialise the card to the correct settings without a
+delay.
 
 
 James.

@@ -1,32 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286613AbRL0UeP>; Thu, 27 Dec 2001 15:34:15 -0500
+	id <S286631AbRL0Unp>; Thu, 27 Dec 2001 15:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286615AbRL0UeG>; Thu, 27 Dec 2001 15:34:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61956 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286613AbRL0Udw>; Thu, 27 Dec 2001 15:33:52 -0500
+	id <S286646AbRL0Unf>; Thu, 27 Dec 2001 15:43:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48139 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286631AbRL0UnX>; Thu, 27 Dec 2001 15:43:23 -0500
+Date: Thu, 27 Dec 2001 12:41:15 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: The direction linux is taking
-To: lm@bitmover.com (Larry McVoy)
-Date: Thu, 27 Dec 2001 20:43:58 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <20011227121033.F25698@work.bitmover.com> from "Larry McVoy" at Dec 27, 2001 12:10:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <20011227123344.H25698@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33.0112271236120.1167-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16JhNe-0006mP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Huh.  I'm not sure I understand this.  Once you accept a patch into the
-> mainline source, are these people still supposed to maintain that patch?
-> I would think the patch is now sort of dead, and any subsequent changes
 
-The patch may be dead, but you want a likelyhood that the person who made
-the patch will continue to fix it if it added new stuff. If its a bug fix
-it may well be dead, if its a driver or a chunk of vm code then it needs
-maintaining longer term.
+On Thu, 27 Dec 2001, Larry McVoy wrote:
+> > >
+> > > Huh.  I'm not sure I understand this.  Once you accept a patch into the
+> > > mainline source, are these people still supposed to maintain that patch?
+> >
+> > [Linus stuff]
+>
+> But this didn't answer my question at all.  My question was why is this a
+> problem related to a source management system?  I can see how to exactly
+> mimic what described Al doing in BK so if that is the definition of goodness,
+> the addition (or absence) of a SCM doesn't seem to change the answer.
 
-Alan
+Ok, I see what you are asking for.
+
+No, I'm taking a bigger view. A patch is not just a "patch". A patch has a
+lot of stuff around it, one being the unknowable information on whether
+the sender of the patch is somebody who will do a good job maintaining the
+things the patch impacts.
+
+That's something a source control system doesn't give you - but that
+doesn't mean that you cannot use a SCM as a tool anyway.
+
+> I _think_ what you are saying is that an SCM where your repository is a
+> wide open black hole with no quality control is a problem, but that's
+> not the SCM's fault.  You are the filter, the SCM is simply an accounting/
+> filing system.
+
+Right. But that's true only if I use SCM as a _personal_ medium, which
+doesn't help my external patch acceptance.
+
+So even if I used CVS or BK internally, that's not what people _gripe_
+about.  People want write access, not just a SCM.
+
+> but your typical SCM has the end user doing the merges, not the maintainer.
+> If you had an SCM system which allowed the maintainer to do all or some of
+> the merging, would that help?
+
+Well, that's what the filesystem is for me right now ;)
+
+		Linus
+

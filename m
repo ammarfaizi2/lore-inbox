@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288770AbSADVSe>; Fri, 4 Jan 2002 16:18:34 -0500
+	id <S284913AbSADVTE>; Fri, 4 Jan 2002 16:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288769AbSADVSY>; Fri, 4 Jan 2002 16:18:24 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:38040 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S288767AbSADVSK>; Fri, 4 Jan 2002 16:18:10 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: Re: hashed waitqueues
-Date: Fri, 4 Jan 2002 16:17:45 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: William Lee Irwin III <wli@holomorphy.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020104211746.CF5C6D722@oscar.casa.dyndns.org>
+	id <S288769AbSADVSz>; Fri, 4 Jan 2002 16:18:55 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:36083 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S288767AbSADVSs>; Fri, 4 Jan 2002 16:18:48 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020104155912.A23345@thyrsus.com> 
+In-Reply-To: <20020104155912.A23345@thyrsus.com>  <20020104154935.F20097@thyrsus.com> <Pine.LNX.4.33.0201042208350.20620-100000@Appserv.suse.de> 
+To: esr@thyrsus.com
+Cc: Dave Jones <davej@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems? 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 04 Jan 2002 21:17:21 +0000
+Message-ID: <22396.1010179041@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-The following fixes a compile problem with agpgart:
 
--------------
---- linux/drivers/char/agp/agpgart_be.c.orig	Fri Jan  4 15:01:50 2002
-+++ linux/drivers/char/agp/agpgart_be.c	Fri Jan  4 15:22:46 2002
-@@ -30,6 +30,7 @@
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/mm.h>
-+#include <linux/mm_inline.h>
- #include <linux/string.h>
- #include <linux/errno.h>
- #include <linux/slab.h>
-@@ -830,7 +831,7 @@
- 	page = virt_to_page(pt);
- 	atomic_dec(&page->count);
- 	clear_bit(PG_locked, &page->flags);
--	wake_up(&page->wait);
-+	wake_up(page_waitqueue(page));
- 	free_page((unsigned long) pt);
- 	atomic_dec(&agp_bridge.current_memory_agp);
- }
----------------
+esr@thyrsus.com said:
+>  OK.  So can I ask ACPI if the board has ISA slots?  Does it answer
+> reliably?
 
-As a quick test of a new kernel I copy dbench to a tmpfs fs and run "time dbench 32".
-This typically takes over 512M swap (with rmap 10c and mainline).  With hashed
-waitqueues it does not reach 512M.  The machine has 512M of memory.   I observe
-about the same runtimes and datarate with all three kernels.
+Of course not. ACPI is done by BIOS engineers too, and hence has the same 
+quality standards. 
+--
+dwmw2
 
-Ed Tomlinson
+

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbTJ2Nnw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 08:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTJ2Nnw
+	id S262072AbTJ2Nsw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 08:48:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTJ2Nsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 08:43:52 -0500
-Received: from pushme.nist.gov ([129.6.16.92]:59370 "EHLO postmark.nist.gov")
-	by vger.kernel.org with ESMTP id S262068AbTJ2Nnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 08:43:51 -0500
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
-Subject: Re: APM suspend still broken in -test9
-References: <3F9D62DD.9020503@pacbell.net>
-	<9cffzhezd9i.fsf@rogue.ncsl.nist.gov>
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: Wed, 29 Oct 2003 08:43:37 -0500
-In-Reply-To: <9cffzhezd9i.fsf@rogue.ncsl.nist.gov> (Ian Soboroff's message
- of "Mon, 27 Oct 2003 14:33:45 -0500")
-Message-ID: <9cf7k2o2m7q.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Oct 2003 08:48:52 -0500
+Received: from pinguin13.kwc.at ([193.228.81.158]:57582 "EHLO
+	mail.hello-penguin.com") by vger.kernel.org with ESMTP
+	id S262072AbTJ2Nsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 08:48:51 -0500
+Date: Wed, 29 Oct 2003 14:48:48 +0100
+From: Stefan Traby <stefan@hello-penguin.com>
+To: linux-kernel@vger.kernel.org
+Subject: ACPI && vortex still broken in latest 2.4 and 2.6.0-test9
+Message-ID: <20031029134848.GA949@hello-penguin.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.6.0-test9 (i686)
+X-PGP: Key fingerprint = C090 8941 DAD8 4B09 77B1  E284 7873 9310 3BDB EA79
+X-MIL: A-6172171143
+User-Agent: Mutt/1.5.4i
+X-Lotto: Suggested Lotto numbers (Austrian 6 out of 45): 3 5 9 13 27 31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-Scratch that.  I attempted to wake up the laptop yesterday after it
-had been sleeping for several hours, and it was locked hard.  My
-success report was based on just a quick sleep of a minute or so.
+I just want to note that ACPI+3c59x is still not
+working on the latest kernels - the only solution
+is "acpi=off".
 
-The last -test kernel that works properly for APM suspend and resume
-for me is -test7.
+Affected are at least
+IBM Thinkpad T21  http://lkml.org/lkml/2003/6/15/111
+IBM Thinkpad A21p (3c556B Laptop Hurricane)
 
-Ian
+This problem is really known for a long time and
+Alan wrote on 21 Jun 2003 that it should work on -ac
+trees. http://www.cs.helsinki.fi/linux/linux-kernel/2003-24/1594.html
 
-Ian Soboroff <ian.soboroff@nist.gov> writes:
+dmesg output of my A21p (on 2.6.0-test9) can be found on
+http://www.hello-penguin.com/dmesg.txt
 
-> Yes, that patch solves it for me, and applies cleanly to -test9.
-> Ian
->
-> David Brownell <david-b@pacbell.net> writes:
->
->> Those are the same symptoms I saw in test7, fixed by:
->>
->>    http://marc.theaimsgroup.com/?l=linux-kernel&m=106606272103414&w=2
->>
->> Patrick, were you going to submit your patch to resolve this?
->> I'm thinking this kind of problem would meet Linus's test10
->> integration criteria.
->>
->> (That's not an APM problem, it's a generic PM problem that'd
->> show up with swsusp too.  And likely even some ACPI systems.)
->>
->> - Dave
+-- 
 
+  ciao - 
+    Stefan

@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314546AbSGUWsu>; Sun, 21 Jul 2002 18:48:50 -0400
+	id <S317360AbSGVN62>; Mon, 22 Jul 2002 09:58:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315168AbSGUWst>; Sun, 21 Jul 2002 18:48:49 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53515 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314546AbSGUWst>; Sun, 21 Jul 2002 18:48:49 -0400
-Date: Sun, 21 Jul 2002 23:51:54 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Alan says this needs fixing... (timer/cpu_relax)
-Message-ID: <20020721235154.M26376@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317375AbSGVN62>; Mon, 22 Jul 2002 09:58:28 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:12811 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317360AbSGVN60>; Mon, 22 Jul 2002 09:58:26 -0400
+Date: Mon, 22 Jul 2002 11:00:29 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: Andrew Morton <akpm@zip.com.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>, <bcrl@redhat.com>
+Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
+In-Reply-To: <7146496.1027297237@[10.10.2.3]>
+Message-ID: <Pine.LNX.4.44L.0207221057280.3086-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While looking at some stuff, I noticed the following.  Alan confirmed
-that this patch is probably a good idea...
+On Mon, 22 Jul 2002, Martin J. Bligh wrote:
 
---- orig/kernel/timer.c	Sun Jul  7 23:21:28 2002
-+++ linux/kernel/timer.c	Sun Jul 21 23:50:17 2002
-@@ -176,7 +176,7 @@
- #define timer_enter(t) do { running_timer = t; mb(); } while (0)
- #define timer_exit() do { running_timer = NULL; } while (0)
- #define timer_is_running(t) (running_timer == t)
--#define timer_synchronize(t) while (timer_is_running(t)) barrier()
-+#define timer_synchronize(t) while (timer_is_running(t)) cpu_relax()
- #else
- #define timer_enter(t)		do { } while (0)
- #define timer_exit()		do { } while (0)
+> > Was it purely Oracle which drove pte-highmem, or do you think
+>
+> I don't see you can get into pathalogical crap without heavy
+> sharing of large amounts of data .... without sharing, you're at
+> a fixed percentage of phys mem - with sharing, I can have more
+> PTEs needed that I have phys mem.
 
+... for which pte_highmem wouldn't fix the problem, either.
+
+>From what I can see we really want/need 2 complementary
+solutions to fix this problem:
+
+1) large pages and/or shared page tables to reduce page
+   table overhead, which is a real "solution"
+
+2) page table garbage collection, to reduce the amount
+   of (resident?) page tables when the shit hits the fan;
+   this is an "emergency" thing to have and we wouldn't
+   want to use it continously, but it might be important
+   to keep the box alive
+
+Since I've heard that (1) is already in use by some people
+I've started working on (2) the moment Linus asked me to put
+the dentry/icache pages in the LRU ;)))
+
+cheers,
+
+Rik
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

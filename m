@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263608AbTDTPau (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 11:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbTDTPau
+	id S263610AbTDTPdN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 11:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbTDTPdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 11:30:50 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:52740 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263608AbTDTPau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 11:30:50 -0400
-Date: Sun, 20 Apr 2003 17:42:45 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
+	Sun, 20 Apr 2003 11:33:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61852 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263610AbTDTPdM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 11:33:12 -0400
+Date: Sun, 20 Apr 2003 16:45:13 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Shachar Shemesh <lkml@shemesh.biz>
+Cc: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: BK->CVS, kernel.bkbits.net
-In-Reply-To: <20030420152318.GA27331@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0304201735130.12110-100000@serv>
-References: <20030417162723.GA29380@work.bitmover.com> <b7n46e$dtb$1@cesium.transmeta.com>
- <20030420003021.GA10547@work.bitmover.com> <Pine.LNX.4.44.0304201436460.12110-100000@serv>
- <20030420152318.GA27331@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030420154513.GH10374@parcelfarce.linux.theplanet.co.uk>
+References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz> <20030420130123.GK2528@phunnypharm.org> <3EA2A285.2070307@shemesh.biz> <20030420134712.GM2528@phunnypharm.org> <3EA2B1BB.2060600@shemesh.biz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EA2B1BB.2060600@shemesh.biz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, 20 Apr 2003, Larry McVoy wrote:
-
-> [trolled, looking for another BK war]
+On Sun, Apr 20, 2003 at 05:42:03PM +0300, Shachar Shemesh wrote:
+> Ben Collins wrote:
 > 
-> Don't feed the trolls, please, we're all tired of it.
+> >CVSup is only available on i386 because of the compiler from what I can
+> >see.
+> > 
+> >
+> The site offers binary images for download for FreeBSD and Digital Unix 
+> (Alpha), and Solaris Sparc. It is therefor unlikely that this is a 
+> problem with lack of development tools. More probably - the maintainers 
+> did not have these platforms available to them.
 
-Huh? I'm the last one who is interested in a flame war, I just provided 
-the missing information you omitted. If I said something wrong, it should 
-be no problem to correct me, but it seems you can't, so you try to 
-discredit me as troll instead.
-
-bye, Roman
-
+Care to take a look at the bootstrap procedures for Modula 3 compiler?

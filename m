@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbTFUNqj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 09:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264203AbTFUNib
+	id S264499AbTFUNql (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 09:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTFUNiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 09:38:31 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:23202 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263837AbTFUNiB convert rfc822-to-8bit
+	Sat, 21 Jun 2003 09:38:25 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:22690 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263631AbTFUNiB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 21 Jun 2003 09:38:01 -0400
-Subject: [PATCH 10/11] input: Fixes for sidewinder.c
-In-Reply-To: <10562035171903@twilight.ucw.cz>
+Subject: [PATCH 8/11] input: Change order of search for beeper devices in keyboard.c
+In-Reply-To: <10562035172084@twilight.ucw.cz>
 X-Mailer: gregkh_patchbomb_levon_offspring
 Date: Sat, 21 Jun 2003 15:51:57 +0200
-Message-Id: <10562035174020@twilight.ucw.cz>
+Message-Id: <10562035172152@twilight.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
@@ -27,51 +27,27 @@ You can pull this changeset from:
 
 ===================================================================
 
-ChangeSet@1.1368, 2003-06-21 04:48:10-07:00, vojtech@kernel.bkbits.net
-  input: Fixes for sidewinder.c: Workaround for
-         misbehaving 3DPro joysticks, don't trust FreestylePro
-         1-bit data packet for data width recognition, invert
-         FreestylePro buttons.
+ChangeSet@1.1366, 2003-06-21 04:44:26-07:00, neilb@cse.unsw.edu.au
+  input: Change order of search for beeper devices in keyboard.c,
+         so that it is easier to replace a beeper with a different
+         driver
 
 
- sidewinder.c |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
+ keyboard.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 ===================================================================
 
-diff -Nru a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
---- a/drivers/input/joystick/sidewinder.c	Sat Jun 21 15:25:59 2003
-+++ b/drivers/input/joystick/sidewinder.c	Sat Jun 21 15:25:59 2003
-@@ -378,10 +378,10 @@
- 			for (j = 0; j < 6; j++)
- 				input_report_key(dev, sw_btn[SW_ID_FSP][j], !GB(j+10,1));
+diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+--- a/drivers/char/keyboard.c	Sat Jun 21 15:25:44 2003
++++ b/drivers/char/keyboard.c	Sat Jun 21 15:25:44 2003
+@@ -242,7 +242,7 @@
+ 	del_timer(&kd_mksound_timer);
  
--			input_report_key(dev, BTN_TR,     GB(26,1));
--			input_report_key(dev, BTN_START,  GB(27,1));
--			input_report_key(dev, BTN_MODE,   GB(38,1));
--			input_report_key(dev, BTN_SELECT, GB(39,1));
-+			input_report_key(dev, BTN_TR,     !GB(26,1));
-+			input_report_key(dev, BTN_START,  !GB(27,1));
-+			input_report_key(dev, BTN_MODE,   !GB(38,1));
-+			input_report_key(dev, BTN_SELECT, !GB(39,1));
- 
- 			input_sync(dev);
- 
-@@ -602,7 +602,6 @@
- 		gameport->phys, gameport->io, gameport->speed);
- 
- 	i = sw_read_packet(gameport, buf, SW_LENGTH, 0);		/* Read normal packet */
--	m |= sw_guess_mode(buf, i);					/* Data packet (1-bit) can carry mode info [FSP] */
- 	udelay(SW_TIMEOUT);
- 	dbg("Init 1: Mode %d. Length %d.", m , i);
- 
-@@ -676,6 +675,8 @@
- 					} else
- 					sw->type = SW_ID_PP;
- 					break;
-+				case 66:
-+					sw->bits = 3;
- 				case 198:
- 					sw->length = 22;
- 				case 64:
+ 	if (hz) {
+-		list_for_each(node,&kbd_handler.h_list) {
++		list_for_each_prev(node,&kbd_handler.h_list) {
+ 			struct input_handle *handle = to_handle_h(node);
+ 			if (test_bit(EV_SND, handle->dev->evbit)) {
+ 				if (test_bit(SND_TONE, handle->dev->sndbit)) {
 

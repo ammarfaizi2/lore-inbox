@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267397AbUJBRAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267408AbUJBRCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267397AbUJBRAe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 13:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUJBRAd
+	id S267408AbUJBRCl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 13:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267410AbUJBRBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 13:00:33 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:27723 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S267397AbUJBRA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 13:00:26 -0400
-Date: Sat, 2 Oct 2004 19:00:24 +0200
-Message-Id: <200410021700.i92H0Oct021183@anakin.of.borg>
+	Sat, 2 Oct 2004 13:01:32 -0400
+Received: from nl-ams-slo-l4-01-pip-6.chellonetwork.com ([213.46.243.23]:62752
+	"EHLO amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S267415AbUJBRAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 13:00:30 -0400
+Date: Sat, 2 Oct 2004 19:00:22 +0200
+Message-Id: <200410021700.i92H0MUF021150@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 493] Amiga frame buffer: kill obsolete DMI Resolver code
+Subject: [PATCH 487] m68k MM off-by-one
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amiga frame buffer: Kill remainings of the DMI Resolver support code that got
-removed somewhere between 2.0 and 2.2.
+M68k: Fix off-by-one error in zone size calculation (from Didier Mequignon and
+Petr Stehlik)
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.9-rc3/drivers/video/amifb.c	2004-09-30 18:08:25.000000000 +0200
-+++ linux-m68k-2.6.9-rc3/drivers/video/amifb.c	2004-09-30 20:11:02.000000000 +0200
-@@ -2268,19 +2268,6 @@ int __init amifb_init(void)
- 		return -ENXIO;
+--- linux-2.6.9-rc3/arch/m68k/mm/motorola.c.old	2003-08-30 08:01:28.000000000 +0200
++++ linux-m68k-2.6.9-rc3/arch/m68k/mm/motorola.c	2004-05-07 09:01:10.000000000 +0200
+@@ -258,7 +258,7 @@
+ 	printk ("before free_area_init\n");
+ #endif
+ 	zones_size[0] = (mach_max_dma_address < (unsigned long)high_memory ?
+-			 mach_max_dma_address : (unsigned long)high_memory);
++			 (mach_max_dma_address+1) : (unsigned long)high_memory);
+ 	zones_size[1] = (unsigned long)high_memory - zones_size[0];
  
- 	/*
--	 * TODO: where should we put this? The DMI Resolver doesn't have a
--	 *	 frame buffer accessible by the CPU
--	 */
--
--#ifdef CONFIG_GSP_RESOLVER
--	if (amifb_resolver){
--		custom.dmacon = DMAF_MASTER | DMAF_RASTER | DMAF_COPPER |
--				DMAF_BLITTER | DMAF_SPRITE;
--		return 0;
--	}
--#endif
--
--	/*
- 	 * We request all registers starting from bplpt[0]
- 	 */
- 	if (!request_mem_region(CUSTOM_PHYSADDR+0xe0, 0x120,
+ 	zones_size[0] = (zones_size[0] - PAGE_OFFSET) >> PAGE_SHIFT;
 
 Gr{oetje,eeting}s,
 

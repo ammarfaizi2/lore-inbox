@@ -1,204 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265355AbSKEXex>; Tue, 5 Nov 2002 18:34:53 -0500
+	id <S265369AbSKEXhp>; Tue, 5 Nov 2002 18:37:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265357AbSKEXex>; Tue, 5 Nov 2002 18:34:53 -0500
-Received: from mclean.mail.mindspring.net ([207.69.200.57]:34349 "EHLO
-	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S265355AbSKEXeq>; Tue, 5 Nov 2002 18:34:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Mike Diehl <mdiehl@dominion.dyndns.org>
-To: "Kevin Corry" <corryk@us.ibm.com>, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-announce] EVMS announcement
-Date: Tue, 5 Nov 2002 16:11:09 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-References: <02110516191004.07074@boiler> <20021105214012.C2B4651CF@dominion.dyndns.org>
-In-Reply-To: <20021105214012.C2B4651CF@dominion.dyndns.org>
+	id <S265362AbSKEXhp>; Tue, 5 Nov 2002 18:37:45 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:55251 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S265361AbSKEXhj>; Tue, 5 Nov 2002 18:37:39 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Mansfield <lkml@dm.cobite.com>, Jens Axboe <axboe@suse.de>
+Date: Wed, 6 Nov 2002 10:43:55 +1100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20021105215100.E927E51CF@dominion.dyndns.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15816.22459.739536.572418@notabene.cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [BUG] raw over raid5: BUG at drivers/block/ll_rw_blk.c:1967
+In-Reply-To: message from Neil Brown on Tuesday October 15
+References: <Pine.LNX.4.44.0210141627360.2876-100000@admin>
+	<15787.47236.823202.578662@notabene.cse.unsw.edu.au>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I'm a bit disapointed.  My experience with LVM has been nothing
-short of disasterous; EVMS looked like a very good alternative to LVM.
-Volume Management is one of the FEW things that Linux lacks that the
-"Big Boys" have.
+On Tuesday October 15, neilb@cse.unsw.edu.au wrote:
+> On Monday October 14, lkml@dm.cobite.com wrote:
+> > 
+> > Hi everyone,
+> > 
+> > I haven't been able to run raw over raid5 since 2.5.30 or so, but every
+> > time I'm about to report it, a new kernel comes out and the problem
+> > changes completely :-( Now I'm finally going to start getting out the info
+> > it the hopes someone can fix it.  The oops was triggered by attempting to 
+> > read from /dev/raw/raw1 (bound to /dev/md0) using dd.  System info 
+> > follows oops:
+> > 
+> > ------------[ cut here ]------------
+> > kernel BUG at drivers/block/ll_rw_blk.c:1967!
+> > invalid operand: 0000
+> >  
+> 
+> You are not alone in reporting this BUG...
+> 
+> I blame the Scsi/bio  layer.
+> Jens Axboe blames raid5.
+> :-)
+> 
 
-<pause> I got up to get a drink and my 2-year-old jumped up to my desk and 
-sent this...  Continue Ranting....
+Just for the record, Jens was right. :-)
+Here is the patch which will be winging it's way to Linus shortly.
 
-The biggest thing that EVMS had going for it was it's modular design.  As I 
-understand it, EVMS could even be used to manage the current MD and LVM 
-drivers.  I was looking forward to partition-level encryption, etc.  
+NeilBrown
+-----------------------------
+Fix bug in raid5
 
-I wish the decision had gone the other way.  Get rid of LVM and get EVMS into 
-the mainstream.  Any chance that, after this "migration," we might do just 
-that?  I'd love to see the day when LVM and MD aren't kernel options by 
-themselves, but rather options under EVMS, along with lots of other cools 
-things.
+When analysing a stripe in handle_stripe we set bits
+ R5_Wantread or R5_Wantwrite
+to indicate if a read or write is needed.  We don't actually schedule the
+IO immediately as this is done under a spinlock (sh->lock) and 
+generic_make_request can block.  Instead we check these bits after
+the lock has been lifted and then schedule the IO.
 
-But never mind me.  I'm just a linux user, not a linux developer.
+But once the lock has been lifted we aren't safe against multiple
+access, and it is possible that the IO will be scheduled never, or twice.
 
-     > On Tuesday 05 November 2002 05:19 pm, Kevin Corry wrote:
-     >      > Greetings EVMS users,
-     >      >
-     >      > On behalf of the EVMS team, we would like to announce a
-     >      > significant change in direction for the Enterprise Volume
-     >      > Management System project.
-     >      >
-     >      > As many of you may know by now, the 2.5 kernel feature freeze
-     >      > has come and gone, and it seems clear that the EVMS kernel
-     >      > driver is not going to be included. With this in mind, we have
-     >      > decided to rework the EVMS user-space administration tools (the
-     >      > Engine) to work with existing drivers currently in the kernel,
-     >      > including (but not necessarily limited to) device mapper and
-     >      > MD.
-     >      >
-     >      > Why make this change? With EVMS being passed over for inclusion
-     >      > in 2.5, the future of the EVMS kernel driver becomes very
-     >      > uncertain. We could obviously continue working on it and keep
-     >      > it up-to-date as a patch against the latest kernels. Numerous
-     >      > helpful comments and changes were suggested during the review
-     >      > of the code last month on the kernel mailing list. We could
-     >      > spend the time to make many of the desired fixes, including
-     >      > some architectural and interface changes. However, the one
-     >      > issue that has not been addressed at length is EVMS's in-kernel
-     >      > volume discovery mechanism.  We believe that even if the other
-     >      > changes are made, this will eventually become an issue at a
-     >      > later time. Moving discovery to user-space is certainly a
-     >      > possibility. However, at that point, it would become difficult
-     >      > to differentiate the EVMS driver from the device mapper driver,
-     >      > since they would be performing very similar tasks.
-     >      >
-     >      > In addition, there would be no need to maintain duplicate MD
-     >      > kernel code in order to provide compatibility with existing
-     >      > software RAID devices.  Obviously this duplication has been a
-     >      > significant issue, but it was an unfortunate necessity in order
-     >      > for MD devices to be discovered within the current EVMS kernel
-     >      > framework. With discovery moving to user-space, the EVMS tools
-     >      > can simply be rewritten to communicate with the existing MD
-     >      > driver in the kernel. This approach allows MD to be used
-     >      > directly, without requiring it to be immediately ported to
-     >      > device mapper. However, if the decision is made in the future
-     >      > to make that port, then the EVMS tools should only become
-     >      > simpler.
-     >      >
-     >      > We will also emphasize that this change has not been made
-     >      > suddenly or without a great deal of thought. We have been
-     >      > contemplating this possibility since shortly after the Ottawa
-     >      > Linux Symposium in July. However, we continued to develop the
-     >      > EVMS kernel driver because of input from our users. We wanted
-     >      > to go ahead and submit the driver and get the opinion of the
-     >      > full community before making this decision. In the last few
-     >      > weeks it has become clear that the current EVMS approach is not
-     >      > what the kernel community was looking for, so we have spent
-     >      > that time determining the feasibility and consequences of
-     >      > making this switch. We have come up with a good initial plan,
-     >      > and everyone involved now agrees that this is the best course
-     >      > of action.
-     >      >
-     >      > So how will this switch affect the EVMS users? Ideally, we want
-     >      > the users' experience with EVMS to remain completely unchanged.
-     >      > Based on our current plans, the user interfaces will not have
-     >      > to change at all, since we don't see any major changes to the
-     >      > Engine's external application interface. The plan is to provide
-     >      > the same, single, coherent method for performing all volume
-     >      > management tasks. This change will be almost transparent for
-     >      > most users. The same features, plugins, and capabilities will
-     >      > be supported.
-     >      >
-     >      > There will, of course, be some minor changes. Specifically,
-     >      > installing EVMS will be slightly different. It will involve
-     >      > different kernel options than you are used to with the current
-     >      > version. In the 2.5 kernel, all of the major components are
-     >      > already present, so little, if any, kernel patching should be
-     >      > necessary. Since device mapper has not yet been included in the
-     >      > main 2.4 kernel, 2.4 users will still require kernel patches.
-     >      > In addition, some functionality still does not exist in any of
-     >      > the available drivers. Specifically, we may provide extra
-     >      > device mapper modules for features like bad block relocation.
-     >      > The installation of the EVMS engine tools, on the other hand,
-     >      > should not change significantly from the current method.
-     >      >
-     >      > The other major difference will be due to the move to
-     >      > user-space discovery. First of all, why make this switch? The
-     >      > most obvious reason is that the kernel drivers become much
-     >      > simpler, and the only things they need to provide is I/O
-     >      > handling and a method for activating the volumes. While disk
-     >      > partitioning and software RAID still perform discovery in the
-     >      > kernel, the trend seems to be to move these tasks to
-     >      > user-space. It is likely at some point in the future that
-     >      > partitioning and MD will also be moved out of the kernel as
-     >      > well. However, the drawback to making this switch is losing
-     >      > automatic boot-time volume discovery. Activating EVMS volumes
-     >      > will now require a call to a user-space utility, which will
-     >      > need to be added to the system's init scripts in order to
-     >      > activate the volumes on each boot.
-     >      >
-     >      > In addition, this switch complicates having the root filesystem
-     >      > on an EVMS volume. Currently there is a lot of work being done
-     >      > on adding initramfs to the 2.5 kernel, which will provide a
-     >      > pre-root-fs user-space. This new system should provide a simple
-     >      > method for adding tasks to run during this early user-space,
-     >      > and those who wish to use root-on-EVMS will just need to add
-     >      > the EVMS tools to their initramfs. For 2.4 users, this means
-     >      > using an initial ramdisk (initrd) to provide this same pre-root
-     >      > user-space. Initrd setup is certainly awkward and often
-     >      > distribution- specific. But we will do our best to provide
-     >      > adequate instructions and assistance to those who need help in
-     >      > that situation.
-     >      >
-     >      > Looking ahead, we *will* continue to *fully* support the 1.2.0
-     >      > version of EVMS on 2.4 kernels, and possibly release a 1.2.1
-     >      > version with some recent bug fixes. We will also make a
-     >      > reasonable effort to maintain the current EVMS kernel driver on
-     >      > 2.5. It will not go through any other major changes, but we
-     >      > will try to keep it up-to-date and working with the latest 2.5
-     >      > releases, until the new EVMS tools are complete. At that point,
-     >      > the 2.5 EVMS driver will be dropped. Also, the new enhancements
-     >      > we have been working on recently, such as clustering and volume
-     >      > move, will only be developed under the new Engine model, and
-     >      > will not be available for the current 1.2.x code base.
-     >      >
-     >      > So how long will this take? Currently, we are estimating that
-     >      > we can have the user-space volume activation framework working,
-     >      > along with initial support for most of the plugins, by early
-     >      > 2003. Certain features, such as BBR and Snapshotting, may take
-     >      > longer to work out the details of their operation. We will soon
-     >      > open a new CVS tree to hold the new Engine code, leaving the
-     >      > old trees as a repository for bug fixes to the 1.2.x version.
-     >      >
-     >      > In summary, we feel that this decision is the best way to
-     >      > support our users for the long term. We want to provide EVMS on
-     >      > current and future kernels, and we feel this change provides
-     >      > the best method for achieving that. At the same time, this
-     >      > addresses all of the concerns voiced by the kernel community. 
-     >      > If anyone has any questions or concerns about this decision,
-     >      > please email us or the EVMS mailing list at
-     >      > evms-devel@lists.sf.net. We will be happy to answer any
-     >      > questions or discuss these changes in more detail.
-     >      >
-     >      > Thank you,
-     >      >
-     >      > The EVMS Team
-     >      > http://evms.sourceforge.net/
-     >      > evms-devel@lists.sourceforge.net
-     >      >
-     >      >
-     >      > -------------------------------------------------------
-     >      > This sf.net email is sponsored by: See the NEW Palm
-     >      > Tungsten T handheld. Power & Color in a compact size!
-     >      > http://ads.sourceforge.net/cgi-bin/redirect.pl?palm0001en
-     >      > _______________________________________________
-     >      > Evms-announce mailing list
-     >      > Evms-announce@lists.sourceforge.net
-     >      > To subscribe/unsubscribe, please visit:
-     >      > https://lists.sourceforge.net/lists/listinfo/evms-announce
+So, we use test_and_clear to check and potentially schedule the IO.
 
--- 
-Mike Diehl
-PGP Encrypted E-mail preferred.
-Public Key via: http://dominion.dyndns.org/~mdiehl/mdiehl.asc
+This wasn't a problem in 2.4 because the equivalent information was
+stored on the stack instead of in the stripe.
 
+We also make sure bi_io_vec[0] has correct values as a previous
+call to generic_make_request may have changed them.
+
+ ----------- Diffstat output ------------
+ ./drivers/md/raid5.c |   92 +++++++++++++++++++++++++++------------------------
+ 1 file changed, 51 insertions(+), 43 deletions(-)
+
+--- ./drivers/md/raid5.c	2002/11/05 23:31:25	1.1
++++ ./drivers/md/raid5.c	2002/11/05 23:39:15	1.2
+@@ -851,8 +851,6 @@ static void handle_stripe(struct stripe_
+ 	for (i=disks; i--; ) {
+ 		mdk_rdev_t *rdev;
+ 		dev = &sh->dev[i];
+-		clear_bit(R5_Wantread, &dev->flags);
+-		clear_bit(R5_Wantwrite, &dev->flags);
+ 		clear_bit(R5_Insync, &dev->flags);
+ 		clear_bit(R5_Syncio, &dev->flags);
+ 
+@@ -1160,48 +1158,56 @@ static void handle_stripe(struct stripe_
+ 		bi->bi_size = 0;
+ 		bi->bi_end_io(bi, bytes, 0);
+ 	}
+-	for (i=disks; i-- ;) 
+-		if (sh->dev[i].flags & ((1<<R5_Wantwrite)|(1<<R5_Wantread))) {
+-			struct bio *bi = &sh->dev[i].req;
+-			mdk_rdev_t *rdev ;
+-
+-			bi->bi_rw = 0;
+-			if (test_bit(R5_Wantread, &sh->dev[i].flags))
+-				bi->bi_end_io = raid5_end_read_request;
+-			else {
+-				bi->bi_end_io = raid5_end_write_request;
+-				bi->bi_rw = 1;
+-			}
+-
+-			spin_lock_irq(&conf->device_lock);
+-			rdev = conf->disks[i].rdev;
+-			if (rdev && rdev->faulty)
+-				rdev = NULL;
+-			if (rdev)
+-				atomic_inc(&rdev->nr_pending);
+-			spin_unlock_irq(&conf->device_lock);
+-
+-			if (rdev) {
+-				if (test_bit(R5_Syncio, &sh->dev[i].flags))
+-					md_sync_acct(rdev, STRIPE_SECTORS);
+-
+-				bi->bi_bdev = rdev->bdev;
+-				PRINTK("for %llu schedule op %ld on disc %d\n", (unsigned long long)sh->sector, bi->bi_rw, i);
+-				atomic_inc(&sh->count);
+-				bi->bi_sector = sh->sector;
+-				bi->bi_flags = 1 << BIO_UPTODATE;
+-				bi->bi_vcnt = 1;	
+-				bi->bi_idx = 0;
+-				bi->bi_io_vec = &sh->dev[i].vec;
+-				bi->bi_size = STRIPE_SIZE;
+-				bi->bi_next = NULL;
+-				generic_make_request(bi);
+-			} else {
+-				PRINTK("skip op %ld on disc %d for sector %llu\n", bi->bi_rw, i, (unsigned long long)sh->sector);
+-				clear_bit(R5_LOCKED, &dev->flags);
+-				set_bit(STRIPE_HANDLE, &sh->state);
+-			}
++	for (i=disks; i-- ;) {
++		int rw;
++		struct bio *bi;
++		mdk_rdev_t *rdev;
++		if (test_and_clear_bit(R5_Wantwrite, &sh->dev[i].flags))
++			rw = 1;
++		else if (test_and_clear_bit(R5_Wantread, &sh->dev[i].flags))
++			rw = 0;
++		else
++			continue;
++ 
++		bi = &sh->dev[i].req;
++ 
++		bi->bi_rw = rw;
++		if (rw)
++			bi->bi_end_io = raid5_end_write_request;
++		else
++			bi->bi_end_io = raid5_end_read_request;
++ 
++		spin_lock_irq(&conf->device_lock);
++		rdev = conf->disks[i].rdev;
++		if (rdev && rdev->faulty)
++			rdev = NULL;
++		if (rdev)
++			atomic_inc(&rdev->nr_pending);
++		spin_unlock_irq(&conf->device_lock);
++ 
++		if (rdev) {
++			if (test_bit(R5_Syncio, &sh->dev[i].flags))
++				md_sync_acct(rdev, STRIPE_SECTORS);
++
++			bi->bi_bdev = rdev->bdev;
++			PRINTK("for %llu schedule op %ld on disc %d\n", (unsigned long long)sh->sector, bi->bi_rw, i);
++			atomic_inc(&sh->count);
++			bi->bi_sector = sh->sector;
++			bi->bi_flags = 1 << BIO_UPTODATE;
++			bi->bi_vcnt = 1;	
++			bi->bi_idx = 0;
++			bi->bi_io_vec = &sh->dev[i].vec;
++			bi->bi_io_vec[0].bv_len = STRIPE_SIZE;
++			bi->bi_io_vec[0].bv_offset = 0;
++			bi->bi_size = STRIPE_SIZE;
++			bi->bi_next = NULL;
++			generic_make_request(bi);
++		} else {
++			PRINTK("skip op %ld on disc %d for sector %llu\n", bi->bi_rw, i, (unsigned long long)sh->sector);
++			clear_bit(R5_LOCKED, &dev->flags);
++			set_bit(STRIPE_HANDLE, &sh->state);
+ 		}
++	}
+ }
+ 
+ static inline void raid5_activate_delayed(raid5_conf_t *conf)

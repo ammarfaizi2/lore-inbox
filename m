@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132686AbRD3QL5>; Mon, 30 Apr 2001 12:11:57 -0400
+	id <S132959AbRD3QN5>; Mon, 30 Apr 2001 12:13:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132862AbRD3QLs>; Mon, 30 Apr 2001 12:11:48 -0400
-Received: from relay.freedom.net ([207.107.115.209]:56331 "HELO relay")
-	by vger.kernel.org with SMTP id <S132686AbRD3QLa>;
-	Mon, 30 Apr 2001 12:11:30 -0400
-X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQGw1UXY9JQOg773A7KqbM/QIRuZbKGY/7FPDn/6W3KL0TkHD1h5W1qn
-Date: Mon, 30 Apr 2001 10:11:04 -0600
-Old-From: cacook@freedom.net
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Common GUI Config for All Users
-In-Reply-To: <Pine.LNX.4.33.0104301204300.25695-100000@viper.haque.net>
-Content-Type: text/plain; charset = "us-ascii" 
-Content-Transfer-Encoding: 7bit
-From: cacook@freedom.net
-Message-Id: <20010430161138Z132686-409+1697@vger.kernel.org>
-To: unlisted-recipients:; (no To-header on input)@mail.zip.com.au
+	id <S135413AbRD3QNs>; Mon, 30 Apr 2001 12:13:48 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:45369 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132959AbRD3QNd>; Mon, 30 Apr 2001 12:13:33 -0400
+Date: Mon, 30 Apr 2001 18:13:04 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Magnus Naeslund(f)" <mag@fbab.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Alpha compile problem solved by Andrea (pte_alloc)
+Message-ID: <20010430181304.B5917@athlon.random>
+In-Reply-To: <052901c0ceca$e6a543c0$020a0a0a@totalmef> <20010427155246.O16020@athlon.random> <m1k843qoc1.fsf@frodo.biederman.org> <20010430014653.C923@athlon.random> <m1g0erqbxh.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1g0erqbxh.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Apr 29, 2001 at 09:55:06PM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for the =constructive= answer Mohammad.  I have thusfar only received criticism for my question, with no further information, which I think is destructive to the spirit of the list, and to the culture.
+On Sun, Apr 29, 2001 at 09:55:06PM -0600, Eric W. Biederman wrote:
+> Hmm. I was having problems reproducible with
+> CONFIG_ALPHA_LARGE_VMALLOC n.
+> 
+> Enabling the large vmalloc was my work around, because the large
+> vmalloc whet back to the prelazy allocation code.
 
-Those who act like pricks toward newcomers should be treated as such, and I will remember them.
---
-C.
+I don't have a clue about your problems but certainly the
+CONFIG_ALPHA_LARGE_VMALLOC n is not racy while the
+CONFIG_ALPHA_LARGE_VMALLOC y is racy.
 
-The best way out is always through.
-      - Robert Frost  A Servant to Servants, 1914
+> problem I had was entries failed to propagate across different tasks.
 
+With CONFIG_ALPHA_LARGE_VMALLOC n the entry is propagated before
+starting using the new pgd so it cannot race, there's no special page
+fault case for that beacuse you will never get a page fault because of
+an unmapped pgd entry in the vmalloc space in first place.
 
-"Mohammad A. Haque" wrote:
-
-> On Mon, 30 Apr 2001 cacook@freedom.net wrote:
->
-> > Looking for the best way to give all users a common desktop, which comes from one source (for easy administration).
->
-> This list doesn't deal with what you are asking. Try
-> http://www.linux.com and see if anything/anyone there can help you.
->
-> --
->
-> =====================================================================
-> Mohammad A. Haque                              http://www.haque.net/
->                                                mhaque@haque.net
->
->   "Alcohol and calculus don't mix.             Project Lead
->    Don't drink and derive." --Unknown          http://wm.themes.org/
->                                                batmanppc@themes.org
-> =====================================================================
-
-
-
-
+Andrea

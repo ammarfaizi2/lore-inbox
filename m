@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261942AbRFNU7j>; Thu, 14 Jun 2001 16:59:39 -0400
+	id <S263172AbRFNVBT>; Thu, 14 Jun 2001 17:01:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbRFNU73>; Thu, 14 Jun 2001 16:59:29 -0400
-Received: from dweeb.lbl.gov ([128.3.1.28]:27911 "EHLO beeble.lbl.gov")
-	by vger.kernel.org with ESMTP id <S261942AbRFNU7X>;
-	Thu, 14 Jun 2001 16:59:23 -0400
-Message-ID: <3B292578.1887366D@lbl.gov>
-Date: Thu, 14 Jun 2001 13:58:32 -0700
-From: Thomas Davis <tadavis@lbl.gov>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-RAID i686)
-X-Accept-Language: en
+	id <S263329AbRFNVBJ>; Thu, 14 Jun 2001 17:01:09 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:61202 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S263172AbRFNVA6>;
+	Thu, 14 Jun 2001 17:00:58 -0400
+Date: Thu, 14 Jun 2001 21:59:55 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+cc: Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
+In-Reply-To: <200106131025.f5DAPMF01441@moisil.badula.org>
+Message-ID: <Pine.LNX.4.33.0106142155360.16844-100000@infradead.org>
 MIME-Version: 1.0
-To: Guus Sliepen <guus@warande3094.warande.uu.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Looking for ifenslave.c
-In-Reply-To: <20010613213012.A23439@sliepen.warande.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guus, there isn't a really official version of it..
+Hi Ion.
 
-At http://pdsf.nersc.gov/linux/ifenslave.c is the last version I
-produced, that works with bonding in v2.2 and v2.4 kernels.
+ >> Shawn, I'd suggest you tell the said sales guy that IF he can
+ >> get you the FULL specs TOGETHER WITH permission to freely
+ >> distribute them...
 
-Please note; I'm currently bound up in DOE/LBNL contract issues, that
-prevent any work on any GPL code on DOE/LBNL time.  Folks, don't flame
-us - we know it, we are working on it.  (The problem actually dates back
-to the 50's, when the labs where created!)  Once this contract issue is
-cleared up, I've been given the 'Ok' to work on it again.
+ > Permission to freely distribute the specs isn't necessary,
+ > although it is nice indeed. All that's needed is permission to
+ > GPL the driver sources written using knowledge from said specs.
 
-Which means, since I don't have anything at home to work on bonding
-with, I can't officially support it.
+That presupposes that the person they give the specs to is the person
+writing the driver. I don't remember shawn offering to write a driver
+or anything approaching that.
 
-Sorry.
+As I see it, if Shawn has permission to freely distribute the specs,
+he can send a copy to Alan Cox for forwarding to the relevant driver
+developers. However, if he has to sign an NDA to get them, they're
+useless...
 
-thomas
+Alan: Am I right in assuming this?
 
-Guus Sliepen wrote:
-> 
-> Hello,
-> 
-> The Ethernet bonding module is useless without ifenslave.c. I'm making a Debian
-> package for it, and I have tried to find the "offical" distribution of this
-> small program. I could not find an authorative source, instead a lot of copies
-> and patched versions are scattered around the Internet (I maintain a patched
-> version myself too).
-> 
-> I would like to combine all the useful extra features and patches into this
-> Debian package, so if you know of a patched version or maintain one yourself,
-> please send it to me.
-> 
-> Thanks,
-> 
-> --
-> Met vriendelijke groet / with kind regards,
->   Guus Sliepen <guus@sliepen.warande.net>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Best wishes from Riley.
 
--- 
-------------------------+--------------------------------------------------
-Thomas Davis		| ASG Cluster guy
-tadavis@lbl.gov		| 
-(510) 486-4524		| "80 nodes and chugging Captain!"

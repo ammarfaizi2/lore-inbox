@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261589AbSJDMw5>; Fri, 4 Oct 2002 08:52:57 -0400
+	id <S261617AbSJDMzy>; Fri, 4 Oct 2002 08:55:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261601AbSJDMw5>; Fri, 4 Oct 2002 08:52:57 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:34295 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261589AbSJDMw4>; Fri, 4 Oct 2002 08:52:56 -0400
-Subject: Re: EVMS Submission for 2.5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: kcorry@austin.rr.com
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       evms-devel@lists.sourceforge.net
-In-Reply-To: <02100319394801.00236@cygnus>
-References: <02100216332002.18102@boiler> <02100316563708.05904@boiler>
-	<20021003230728.GF2289@kroah.com>  <02100319394801.00236@cygnus>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Oct 2002 14:06:29 +0100
-Message-Id: <1033736789.31839.24.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261623AbSJDMzy>; Fri, 4 Oct 2002 08:55:54 -0400
+Received: from ns.suse.de ([213.95.15.193]:11023 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261617AbSJDMzx>;
+	Fri, 4 Oct 2002 08:55:53 -0400
+To: "Brian F. G. Bidulock" <bidulock@openss7.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: export of sys_call_table
+References: <20021003153943.E22418@openss7.org.suse.lists.linux.kernel> <1033682560.28850.32.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel> <20021003170608.A30759@openss7.org.suse.lists.linux.kernel> <1033722612.1853.1.camel@localhost.localdomain.suse.lists.linux.kernel> <20021004051932.A13743@openss7.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 04 Oct 2002 15:01:25 +0200
+In-Reply-To: "Brian F. G. Bidulock"'s message of "4 Oct 2002 13:23:00 +0200"
+Message-ID: <p73k7kyqrx6.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-04 at 01:39, Kevin Corry wrote:
-> Yep, you guessed it. I'm no big fan of Lindent. In my opinion, it makes some 
-> really bad choices about how to break long lines (among other things), as 
-> you've kindly pointed out. But, I had to start somewhere and wanted to get 
-> something out before I left for the day. Obviously the AIX plugin will need 
-> some additional attention at some point.
-
-IMHO the Lindent script is broken. It should also specify a line length
-of something like 256 so it doesnt go mashing lines. 
+"Brian F. G. Bidulock" <bidulock@openss7.org> writes:
 
 
+> 					   void *dataptr, int band, int flags)
+> 	{
+> 		int ret =3D -ENOSYS;
+> 		read_lock(&streams_call_lock);
+
+I don't think you really want to use any spinlocks this way. They would
+make sleeping impossible and you could never legally do a copy_from/to_user
+in your system call. And how else would you access dataptr ? 
+
+More likely you want an atomic_inc(&modulecounter) or perhaps a rw
+semaphore.
+
+-Andi

@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVBHUKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVBHUKD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbVBHUKC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 15:10:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVBHUIw
+	id S261652AbVBHUKD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 15:10:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVBHUIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 15:08:52 -0500
-Received: from scl-ims.phoenix.com ([216.148.212.222]:15198 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S261652AbVBHUIW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 15:08:22 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: BIOS Bug
-Date: Tue, 8 Feb 2005 12:08:19 -0800
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B301B3D548@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: BIOS Bug
-Thread-Index: AcUN2jTAxwhLEd6yRXiBPn2dWESA6QAPzdfg
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: <DOSProfi@web.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Feb 2005 20:08:20.0822 (UTC) FILETIME=[EFB07F60:01C50E19]
+	Tue, 8 Feb 2005 15:08:37 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:51630 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261653AbVBHUIC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 15:08:02 -0500
+Date: Tue, 8 Feb 2005 14:08:01 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Michael Halcrow <mhalcrow@us.ibm.com>, Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8)
+Message-ID: <20050208200801.GA2444@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us> <20050207142603.A469@build.pdx.osdl.net> <20050208172450.GA3598@halcrow.us> <200502081747.j18Hlt54012728@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502081747.j18Hlt54012728@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>-----Original Message-----
->>>From: linux-kernel-owner@vger.kernel.org 
->>>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->Enrico Bartky
->>>Sent: Monday, February 07, 2005 7:12 AM
->>>To: linux-kernel@vger.kernel.org
->>>Subject: BIOS Bug
->>>
->>>Hello,
->>>
->>>on my notebook, when I plugged in my USB keyboard the kernel 
->>>doesnt boot correctly, ...
->>>
->>>... 
->>>BIOS hangoff failed ( 112, 1010001 )
->>>continuing after BIOS bug
->>>irq 192, pci mem 0xfebff000
->>>new usb device registered, assigned bus number 1
->>>...
->>>
->>>then the notebook hangs. If I boot without the plugged 
->>>keyboard and plug in when the kernel is ready, there are no 
->>>problems. I have a SiS USB chipset.
->>>
->>>Can you help me?
->>>    
->>>
->>
->>What kernel version are you using ?
->>Try 2.6.10 with the following command line parameter:
->>usb-handoff
->>
->>Aleks.
->>  
->>
->Thanx, it works! Can you say me,  it is really a BIOS Bug, a 
->buggy ACPI 
->or a driver problem?
+Quoting Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu):
+> On Tue, 08 Feb 2005 11:24:50 CST, Michael Halcrow said:
+> 
+> > While the program is waiting for a keystroke, mount the block device.
+> > Enter a keystroke.  The result without the patch is 1, which is a
+> > security violation.  This occurs because the bd_release function will
+> > bd_release(bdev) and set inode->i_security to NULL on the close(fd1).
+> 
+> Sounds like a bug, not a feature.  Should it be zeroing out inode->i_security
+> for an inode with a non-zero reference count?
 
-It depends. But I believe in your case it is just too late 
-for hand off in USB driver. Try search for usb handoff in this 
-list.
+Valdis,
 
-Aleks.
+inode->i_security is no longer used after the patch.  Does your question
+still apply with the proposed patch, %s/inode->i_security/file->f_security/?
+
+Nevertheless, note that the thing being enforced is "no simultaneous
+write access to a block device and mount of that block device."  The
+file->f_security is just used as a flag to seclvl that when this file
+is closed, we can bd_release the device to allow a mount or another
+open(O_RDWR) of the file.  So references to the inode don't matter,
+provided the other references are read accesses.  Which they have to
+be, since otherwise the seclvl_bd_claim() would have failed on the
+second open(O_RDWR) call.
+
+I hope I'm at least remotely answering your question :)
+
+-serge
+

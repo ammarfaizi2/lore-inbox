@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbTKTTtO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 14:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbTKTTtO
+	id S261793AbTKTToc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 14:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTKTToc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 14:49:14 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:32898
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262066AbTKTTtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 14:49:09 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Shaheed <srhaque@iee.org>, linux-kernel@vger.kernel.org
-Subject: Re: Patrick's Test9 suspend code.
-Date: Thu, 20 Nov 2003 13:39:45 -0600
-User-Agent: KMail/1.5
-References: <200311201726.48097.srhaque@iee.org>
-In-Reply-To: <200311201726.48097.srhaque@iee.org>
+	Thu, 20 Nov 2003 14:44:32 -0500
+Received: from mail.xor.ch ([212.55.210.163]:28424 "HELO mail.xor.ch")
+	by vger.kernel.org with SMTP id S261793AbTKTTo1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 14:44:27 -0500
+Message-ID: <3FBD1997.FA66A2F1@orpatec.ch>
+Date: Thu, 20 Nov 2003 20:44:22 +0100
+From: Otto Wyss <otto.wyss@orpatec.ch>
+Reply-To: otto.wyss@orpatec.ch
+X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
+X-Accept-Language: de,en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: ALSA ICE1724 driver doesn't work
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311201339.45461.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 November 2003 11:26, Shaheed wrote:
-> > B) A heuristic that looks at the mounted block devices for things that
-> > smell like a resume partition would actually be more robust in that case.
->
-> How about a static signature followed by a timestamp? That way, maybe we
-> could have a resume menu like this:
->
-> /dev/hda3  (kernel 2.7.88, suspended on 01-04-2004 20:00:00)
-> /dev/hda4  (kernel 2.8.99, suspended on 31-05-2005 20:00:00) ***
-> Resume in 5..4..3..2..1..
->
-> with a 5 second countdown before it chooses the most recent? Or in Pavel's
-> examples:
->
-> Erk! Nowhere to resume from!
->
-> :-)
+Since google shows no results and nobody in the alsa project knows an
+answer I try it here. Just say if there is a better place to ask.
 
-When resuming from a writeable filesystem, the filesystem has to match the 
-contents of suspended memory.  If you've TOUCHED the filesystem since 
-suspending, the resume is going to shred it, cross-link the heck out of it, 
-and generally be evil.  (There are open filehandles saved in there, page 
-table entries to maped stuff...  Just don't go there.)
+When alsa is started I get the following error:
 
-Rob
+Starting ALSA (version 0.9.6): ice1724-failed failed
 
+After shutting down X I see on the console the following message:
+
+ALSA ../../alsa-kernel/pci/ice1712/ice1724.c:1614: invalid EEPROM (size=120)
+
+I guess there is something in the kernel driver wrong. How can I fix
+this? Is there a newer version?
+
+O. Wyss
+
+-- 
+See "http://wxguide.sourceforge.net/" for ideas how to design your app
+
+
+-------------------------------------------------------
+This SF.net email is sponsored by: SF.net Giveback Program.
+Does SourceForge.net help you be more productive?  Does it
+help you create better code?  SHARE THE LOVE, and help us help
+YOU!  Click Here: http://sourceforge.net/donate/
+_______________________________________________
+Alsa-user mailing list
+Alsa-user@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/alsa-user

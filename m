@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268864AbRHBJmg>; Thu, 2 Aug 2001 05:42:36 -0400
+	id <S268867AbRHBJrg>; Thu, 2 Aug 2001 05:47:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268865AbRHBJm0>; Thu, 2 Aug 2001 05:42:26 -0400
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:7296 "EHLO
-	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
-	id <S268864AbRHBJmN>; Thu, 2 Aug 2001 05:42:13 -0400
-Message-ID: <3B691FAD.39B642F2@randomlogic.com>
-Date: Thu, 02 Aug 2001 02:38:53 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S268870AbRHBJr0>; Thu, 2 Aug 2001 05:47:26 -0400
+Received: from web20010.mail.yahoo.com ([216.136.225.73]:27143 "HELO
+	web20010.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S268867AbRHBJrP>; Thu, 2 Aug 2001 05:47:15 -0400
+Message-ID: <20010802094719.43751.qmail@web20010.mail.yahoo.com>
+Date: Thu, 2 Aug 2001 17:47:19 +0800 (CST)
+From: =?gb2312?q?=D0=C2=20=D4=C2?= <xinyuepeng@yahoo.com>
+Subject: About the cramfs
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: SMP possible with AMD CPUs?
-In-Reply-To: <20010801230441.A19396@leeor.math.technion.ac.il> <3B690A63.5068B279@theOffice.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=gb2312
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Agus Budy Wuysang wrote:
-> 
+hi!
+         I was creating the cramfs image using
+/linux/scripts/mkcramfs.c,because of the big endian,so
+I got 
+a patch to convert. 
+        When I mounted the cramfs as root
+filesystem,it worked, and to read directory was also
+ok,but When 
+I tried to read the files ,I found that it didn't work
+well.Sometimes,error emerged as follow:
+           bash>Error -3 while decompressing!
+             00158fb8(67829187)->001f0000(1024) 
+and I used system page size is 1024,when the file size
+was beyond page size,the error must emerge.
+       I think it is possible that I used the zlib
+which is used in kernel 3.x ,but the kernel  I used is
+2.x,but I didn't sure.
+       Could you explain it? Thanks
+  
+Best Regards:
+                     ypxin
 
-[SNIP]
-> 
-> They got large pictures & some timing comparison
-> against dual Alpha & dual PIII.
-> 
 
-A note about the pictures. It's no wonder the AMD-762 gets hot: They
-have no heatsink on it. Possibly a pre-production board or they removed
-it or...?
 
-Mine has a decent size heatsink and does not get very hot (although I
-have 12 fans in my case :)
-
-PGA
-
--- 
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com

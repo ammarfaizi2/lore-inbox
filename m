@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262128AbSKCQNi>; Sun, 3 Nov 2002 11:13:38 -0500
+	id <S262130AbSKCQOY>; Sun, 3 Nov 2002 11:14:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262130AbSKCQNi>; Sun, 3 Nov 2002 11:13:38 -0500
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:62499 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S262128AbSKCQNi>; Sun, 3 Nov 2002 11:13:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jos Hulzink <josh@stack.nl>
-To: Tomas Szepe <szepe@pinerecords.com>
-Subject: Re: Petition against kernel configuration options madness...
-Date: Sun, 3 Nov 2002 19:20:17 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200211031809.45079.josh@stack.nl> <20021103160527.GP28803@louise.pinerecords.com>
-In-Reply-To: <20021103160527.GP28803@louise.pinerecords.com>
+	id <S262134AbSKCQOY>; Sun, 3 Nov 2002 11:14:24 -0500
+Received: from modemcable077.18-202-24.mtl.mc.videotron.ca ([24.202.18.77]:31243
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262130AbSKCQOT>; Sun, 3 Nov 2002 11:14:19 -0500
+Date: Sun, 3 Nov 2002 11:23:49 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.5] nolapic boot parameter
+Message-ID: <Pine.LNX.4.44.0211031122280.14075-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211031920.17806.josh@stack.nl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 November 2002 17:05, Tomas Szepe wrote:
-> > It took me about an hour to find out why my keyboard didn't work in
-> > 2.5.45. Well... after all it seemed that I need to enable 4 ! options
-> > inside the input configuration, just to get my default, nothing special
-> > PS/2 keyboard up and running. Oh, and I didn't even have my not so fancy
-> > boring default PS/2 mouse configured then. Guys, being able to configure
-> > everything is nice, but with the 2.5 kernel, things are definitely
-> > getting out of control IMHO.
->
-> don't blame your inability to understand the consequences of copying a
-> .config across ~50 kernel releases on others thank you.
+This has bugged me for a while, also applies to 2.4.45
 
-I wont, as long as you don blame someone who -to prevent buggy config files- 
-downloaded a fresh 2.5.45 kernel, patched it with the bk-1 update and ran 
-make menuconfig after that, of copying .config files.
+Index: linux-2.5.44-ac5/arch/i386/kernel/apic.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.44-ac5/arch/i386/kernel/apic.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 apic.c
+--- linux-2.5.44-ac5/arch/i386/kernel/apic.c	3 Nov 2002 07:20:03 -0000	1.1.1.1
++++ linux-2.5.44-ac5/arch/i386/kernel/apic.c	3 Nov 2002 07:43:50 -0000
+@@ -609,11 +609,20 @@
+ 
+ #endif	/* CONFIG_PM */
+ 
++int dont_enable_local_apic __initdata = 0;
++
++static int __init nolapic_setup(char *str)
++{
++	dont_enable_local_apic = 1;
++	return 1;
++}
++
++__setup("nolapic", nolapic_setup);
++
+ /*
+  * Detect and enable local APICs on non-SMP boards.
+  * Original code written by Keir Fraser.
+  */
+-int dont_enable_local_apic __initdata = 0;
+ 
+ static int __init detect_init_APIC (void)
+ {
 
-Jos
-
+-- 
+function.linuxpower.ca
 

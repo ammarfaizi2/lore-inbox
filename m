@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUIIXGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266798AbUIIXJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266741AbUIIXGN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 19:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266798AbUIIXGN
+	id S266798AbUIIXJO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 19:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUIIXJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 19:06:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19079 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266741AbUIIXGF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 19:06:05 -0400
-Date: Thu, 9 Sep 2004 18:41:13 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+	Thu, 9 Sep 2004 19:09:14 -0400
+Received: from holomorphy.com ([207.189.100.168]:20404 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266798AbUIIXJJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 19:09:09 -0400
+Date: Thu, 9 Sep 2004 16:09:05 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] cacheline align pagevec structure
-Message-ID: <20040909214113.GB5723@logos.cnet>
-References: <20040909163929.GA4484@logos.cnet> <20040909154906.57f9391b.akpm@osdl.org>
+Message-ID: <20040909230905.GO3106@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org
+References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040909154906.57f9391b.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040909155226.714dc704.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 09, 2004 at 03:49:06PM -0700, Andrew Morton wrote:
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> >
-> > Right now it is 140 bytes on 64-bit and 72 bytes on 32-bit. Thats just a little bit more 
-> > than a power of 2 (which will cacheline align), so shrink it to be aligned: 64 bytes on 
-> > 32bit and 124bytes on 64-bit. 
-> > 
-> > It now occupies two cachelines most of the time instead of three. 
-> > 
-> > I changed nr and cold to "unsigned short" because they'll never reach 2 ^ 16.
-> > 
-> > I do not see a problem with changing pagevec to "15" page pointers either, 
-> > Andrew, is there a special reason for that "16"? Is intentional to align
-> > to 64 kbytes (IO device alignment)? I dont think that matters much because
-> > of the elevator which sorts and merges requests anyway?
-> > 
-> > 
-> > 
-> > Did some reaim benchmarking on 4way PIII (32byte cacheline), with 512MB RAM:
-> > 
-> > #### stock 2.6.9-rc1-mm4 ####
-> > 
-> > Peak load Test: Maximum Jobs per Minute 4144.44 (average of 3 runs)
-> > Quick Convergence Test: Maximum Jobs per Minute 4007.86 (average of 3 runs)
-> > 
-> > Peak load Test: Maximum Jobs per Minute 4207.48 (average of 3 runs)
-> > Quick Convergence Test: Maximum Jobs per Minute 3999.28 (average of 3 runs)
-> > 
-> > #### shrink-pagevec #####
-> > 
-> > Peak load Test: Maximum Jobs per Minute 4717.88 (average of 3 runs)
-> > Quick Convergence Test: Maximum Jobs per Minute 4360.59 (average of 3 runs)
-> > 
-> > Peak load Test: Maximum Jobs per Minute 4493.18 (average of 3 runs)
-> > Quick Convergence Test: Maximum Jobs per Minute 4327.77 (average of 3 runs)
-> 
-> I think the patch make sense, but I'm very sceptical about the benchmarks
-> ;)
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>> I do not see a problem with changing pagevec to "15" page pointers either, 
+>> Andrew, is there a special reason for that "16"? Is intentional to align
+>> to 64 kbytes (IO device alignment)? I dont think that matters much because
+>> of the elevator which sorts and merges requests anyway?
 
-Why's that? You think changing to the number of pages in the pagevec to "15" instead
-"16" is the cause?
+On Thu, Sep 09, 2004 at 03:52:26PM -0700, Andrew Morton wrote:
+> No, it was just a randomly-chosen batching factor.
+> The tradeoff here is between
+> a) lock acquisition frequency versus lock hold time (increasing the size
+>    helps).
+> b) icache misses versus dcache misses. (increasing the size probably hurts).
+> I suspect that some benefit would be seen from making the size very small
+> (say, 4). And on some machines, making it larger might help.
 
-Or that the performance increase is not a direct effect of the one cacheline 
-saved per pagevec instance?
+Reducing arrival rates by an Omega(NR_CPUS) factor would probably help,
+though that may blow the stack on e.g. larger Altixen. Perhaps
+O(lg(NR_CPUS)), e.g. NR_CPUS > 1 ? 4*lg(NR_CPUS) : 4 etc., will suffice,
+though we may have debates about how to evaluate lg(n) at compile-time...
+Would be nice if calls to sufficiently simple __attribute__((pure))
+functions with constant args were considered constant expressions by gcc.
 
-Or you think such benchmark is too specific to be interpreted as a broad
-vision of performance? 
-
-:)
-
+-- wli

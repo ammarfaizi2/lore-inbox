@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265744AbUAKDdz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 22:33:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265745AbUAKDdz
+	id S265740AbUAKDby (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 22:31:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265742AbUAKDby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 22:33:55 -0500
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:15280 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265744AbUAKDdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 22:33:52 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Peter Berg Larsen <pebl@math.ku.dk>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync loss (With Patch).
-Date: Sat, 10 Jan 2004 22:33:46 -0500
-User-Agent: KMail/1.5.4
-Cc: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter.koenigsmann@gmx.de>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.40.0401110335330.588-100000@shannon.math.ku.dk>
-In-Reply-To: <Pine.LNX.4.40.0401110335330.588-100000@shannon.math.ku.dk>
+	Sat, 10 Jan 2004 22:31:54 -0500
+Received: from omrnat5.verisignmail.com ([216.168.230.164]:26251 "EHLO
+	omr3.verisignmail.com") by vger.kernel.org with ESMTP
+	id S265740AbUAKDbx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 22:31:53 -0500
+From: <shai@ftcon.com>
+Message-Id: <200401110331.BBB99015@ms6.verisignmail.com>
+Reply-To: <shai@ftcon.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: lowlatency patch question
+Date: Sat, 10 Jan 2004 19:31:47 -0800
+Organization: FT Consulting
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401102233.46164.dtor_core@ameritech.net>
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5329
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcPX8vFNTG/dFkmwS+SMhPXvIYwqfw==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-It is a good stuff but we probably want not only restore mux mode
-but also do serio_reconnect on all ports to make sure all devices are
-properly configured. But it gets way too big for interrupt handler.
-I am thinking that if mux error is detected the only thing that should
-be done in i8042_interrupt is disabling the controller and then use
-schedule_work to schedule the rest.
+I think the following is a bug that can affect kernels patched with
+lowlatency, such as Audio… and RedHat AS2.1.
 
-Also, if we get SERIO_REMOVED condition we should just do serio_reconnect
-right away and let it sort through the device state.
+lowlatency patch added conditional_schedule() to be called from
+close_files(…) at kernel/exit.c, which seems to raise a problem if the
+process had LDT entries.
+If it had LDT, at the stage of close_files(…) the tsk->mm already zeroed
+(__exit_mm(…), which comes before __exit_files(…) in do_exit(…)).  If
+conditional_schedule() at close_files(…) will succeed, switching back into
+this process (that now have zeroed tsk->mm) will fail since the kernel will
+not use the right LDT (since tsk->mm was zeroed, so switch_mm(…) will not be
+called to load the LDT at schedule()).
 
-What do you think?
+Switching back to a process that had a register that used the LDT will fail
+since the register probably points to non-valid LDT entry (since we are
+using the wrong LDT), which will lead to a segmentation fault.
+ 
+--Shai
 
-Dmitry
+

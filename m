@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313712AbSDZIaw>; Fri, 26 Apr 2002 04:30:52 -0400
+	id <S313713AbSDZIgQ>; Fri, 26 Apr 2002 04:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313713AbSDZIav>; Fri, 26 Apr 2002 04:30:51 -0400
-Received: from mons.uio.no ([129.240.130.14]:63650 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S313712AbSDZIau>;
-	Fri, 26 Apr 2002 04:30:50 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo
-To: Daniel Forrest <forrest@lmcg.wisc.edu>
-Subject: Re: lockd hanging
-Date: Fri, 26 Apr 2002 10:30:41 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200204112333.SAA22343@radium.lmcg.wisc.edu> <shsk7rd8k9r.fsf@charged.uio.no> <200204242113.QAA29375@radium.lmcg.wisc.edu>
+	id <S313714AbSDZIgP>; Fri, 26 Apr 2002 04:36:15 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:34322 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313713AbSDZIgP>; Fri, 26 Apr 2002 04:36:15 -0400
+Message-ID: <3CC902D8.4070604@evision-ventures.com>
+Date: Fri, 26 Apr 2002 09:33:44 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17117p-0002fH-00@charged.uio.no>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.10 UTS_VERSION
+In-Reply-To: <1019549894.1450.41.camel@turbulence.megapathdsl.net> <3CC7E358.8050905@evision-ventures.com> <20020425172508.GK3542@suse.de> <20020425173439.GM3542@suse.de> <aa9qtb$d8a$1@penguin.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------010504050302060602020805"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24. April 2002 23:13, Daniel Forrest wrote:
-> The bug I have found is in fs/lockd/svclock.c and is caused by downing
-> an already downed semaphore:
->
-> ->nlmsvc_lock				calls down(&file->f_sema)
+This is a multi-part message in MIME format.
+--------------010504050302060602020805
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Just exactly what is f_sema protecting? I've looked at the code, and I just 
-can't figure out why we need a semaphore there at all.
+Make sure UTS_VERSION is allways in "C" locale.
+Without it you will get (please note the day of week):
 
-AFAICS, all we are using them for is to protect the 2 lists f_shares and 
-f_blocks in struct nlm_file. Since we are already holding the BKL, I don't 
-see why we need an extra lock. (Yes: nlmsvc_delete_block() can sleep, so we 
-need to be careful with the loop in nlmsvc_traverse_blocks(), but that is 
-trivial to cope with...)
+~# export LANG=en_US
+~# uname -a
+Linux rosomak.prv 2.5.10 #1 pi± kwi 26 09:31:52 CEST 2002 i686 unknown
+~#
 
 
-As for calling nlmclnt_lookup_host() in nlmsvc_create_block(). Why not just 
-pass the value that we looked up in nlmsvc_proc_lock()?
 
-Cheers,
-  Trond
+
+--------------010504050302060602020805
+Content-Type: text/plain;
+ name="trivial-2.5.10.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="trivial-2.5.10.diff"
+
+diff -urN linux-2.5.10/Makefile linux/Makefile
+--- linux-2.5.10/Makefile	2002-04-24 12:01:52.000000000 +0200
++++ linux/Makefile	2002-04-26 02:06:38.000000000 +0200
+@@ -312,8 +312,8 @@
+ 	@echo -n \#define UTS_VERSION \"\#`cat .version` > .ver
+ 	@if [ -n "$(CONFIG_SMP)" ] ; then echo -n " SMP" >> .ver; fi
+ 	@if [ -f .name ]; then  echo -n \-`cat .name` >> .ver; fi
+-	@echo ' '`date`'"' >> .ver
+-	@echo \#define LINUX_COMPILE_TIME \"`date +%T`\" >> .ver
++	@echo ' '`LANG=C date`'"' >> .ver
++	@echo \#define LINUX_COMPILE_TIME \"`LANG=C date +%T`\" >> .ver
+ 	@echo \#define LINUX_COMPILE_BY \"`whoami`\" >> .ver
+ 	@echo \#define LINUX_COMPILE_HOST \"`hostname`\" >> .ver
+ 	@if [ -x /bin/dnsdomainname ]; then \
+
+--------------010504050302060602020805--
+

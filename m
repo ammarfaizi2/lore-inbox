@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263018AbTDFPZt (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:25:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbTDFPZt (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:25:49 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:60355 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S263018AbTDFPZq (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 11:25:46 -0400
-Date: Sun, 6 Apr 2003 18:37:13 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: poweroff problem
-Message-Id: <20030406183713.3435d742.us15@os.inf.tu-dresden.de>
-In-Reply-To: <1049639095.963.0.camel@dhcp22.swansea.linux.org.uk>
-References: <20030405060804.31946.qmail@webmail5.rediffmail.com>
-	<20030406233319.042878d3.sfr@canb.auug.org.au>
-	<20030406155814.68c5c908.us15@os.inf.tu-dresden.de>
-	<20030407002703.16993dc4.sfr@canb.auug.org.au>
-	<20030406174655.592b7f60.us15@os.inf.tu-dresden.de>
-	<1049639095.963.0.camel@dhcp22.swansea.linux.org.uk>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.11claws3 (GTK+ 1.2.10; Linux 2.4.21-pre6)
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.TFa5Fk+Mn?wx+3"
+	id S263017AbTDFPZk (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbTDFPZk (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:25:40 -0400
+Received: from [80.88.129.57] ([80.88.129.57]:10250 "HELO coolre41954.com")
+	by vger.kernel.org with SMTP id S263017AbTDFPZj convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 11:25:39 -0400
+From: "Dr.Williams Okun." <drwilliamokun@breathe.com>
+Reply-To: drokunwill@hknetmail.com
+To: linux-kernel@vger.kernel.org
+Date: Sun, 6 Apr 2003 07:43:26 +0200
+Subject: Waiting to hear from you.
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S263017AbTDFPZj/20030406152539Z+1000@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.TFa5Fk+Mn?wx+3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Dear Sir,
+ 
+REQUEST ASSISTANCE/PARTNERSHIP .
 
-On 06 Apr 2003 15:24:55 +0100 Alan Cox (AC) wrote:
+I am  a member of a contract award and review committee .A contract already executed by a foreign firm in Africa in 1999 was over invoiced by us to the tune of $8,600,000.00 (Eight million six hundred thousand United states dollars).
 
-AC> We rely on the bios for the power off sequences. Many BIOS vendors do
-AC> set it up to share the bios code it seems
+ In the light of the above, I ask for your assistance in the transfer of this excess floating fund in a suspence account  into a foreign account you may wish to provide, for it was a category "A" contract, (strictly reserved for foreign contractors) this informed my request, and also that I am forbidden by my government to run any foreign account.
 
-Ok, but this does not explain why things work with 2.5.66 on the exact same
-machine, unless 2.5 had workarounds for BIOS bugs or didn't use the BIOS for
-power off. Board is an Asus A7V, BIOS version 1011.
+After the sucessful transfer, 20% of the total sum will go to you for your assistance. 5% of the total  sum will be set aside  to compensate for any incidental expenses incured by both parties. 
 
--Udo.
+More details will be given in the course of correspondence. 
 
---=.TFa5Fk+Mn?wx+3
-Content-Type: application/pgp-signature
+Your confidentiality is highly required since I am still in active service .
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
+Thank you for your anticipated co-operation.
 
-iD8DBQE+kFe5nhRzXSM7nSkRAqvYAJ4roEOkJC8hVcL9UaKlnTCVV34J2gCfUGQt
-BLQpK5nLK7SrJ0q9u1Vr2HM=
-=nZV1
------END PGP SIGNATURE-----
+Regards,
 
---=.TFa5Fk+Mn?wx+3--
+Dr.Williams Okun.
+
+TELEPHONE:234-1-776-3350. 
+FAX:234-1-759-7912.
+
+You can contact me on my home email on.
+
+drokunwill@hknetmail.com
+
+
+
+

@@ -1,127 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbUKDSdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUKDSgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbUKDSdw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 13:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbUKDSdv
+	id S262322AbUKDSgh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbUKDSfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 13:33:51 -0500
-Received: from sartre.ispvip.biz ([209.118.182.154]:2511 "HELO
-	sartre.ispvip.biz") by vger.kernel.org with SMTP id S262362AbUKDScJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 13:32:09 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.7
-From: "Michael J. Cohen" <mjc@unre.st>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: sboyce@blueyonder.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20041104142317.GA19476@elte.hu>
-References: <41897119.6030607@blueyonder.co.uk>
-	 <418988A6.4090902@cybsft.com> <20041104100634.GA29785@elte.hu>
-	 <1099563805.30372.2.camel@localhost> <1099567061.7911.4.camel@localhost>
-	 <20041104114545.GA3722@elte.hu>
-	 <1099573171.7876.0.camel@optie.uni.325i.org>
-	 <1099575262.8110.1.camel@optie.uni.325i.org>
-	 <20041104140528.GA16604@elte.hu>
-	 <1099577631.8090.4.camel@optie.uni.325i.org>
-	 <20041104142317.GA19476@elte.hu>
-Content-Type: text/plain
-Date: Thu, 04 Nov 2004 13:31:57 -0500
-Message-Id: <1099593117.7982.14.camel@optie.uni.325i.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Thu, 4 Nov 2004 13:35:07 -0500
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:11910 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262322AbUKDSdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 13:33:11 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net,
+       user-mode-linux-user@lists.sourceforge.net,
+       Jeff Dike <jdike@addtoit.com>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: 2.6.9-bb1, 2.4.27-bs1, SKAS3/2.6-V7 released
+Date: Thu, 4 Nov 2004 19:32:31 +0100
+User-Agent: KMail/1.7.1
+Cc: LKML <linux-kernel@vger.kernel.org>, Erik@budgetdedicated.com,
+       "Peter" <peter@rimuhosting.com>,
+       "Christopher S. Aker" <caker@theshore.net>,
+       Matt Zimmerman <mdz@debian.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart10377242.nxt1Ootl8N";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200411041932.39733.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 15:23 +0100, Ingo Molnar wrote:
-> * Michael J. Cohen <mjc@unre.st> wrote:
-> 
-> > config attached, and I'll try booting with nmi_watchdog=1 next time it
-> > locks.
-> 
-> i'd also suggest to turn CONFIG_RWSEM_DEADLOCK_DETECT on.
-> 
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--nextPart10377242.nxt1Ootl8N
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-threw in your tcp_window oneliner mentioned in another thread and that
-seemed to curb the lockups I was getting.  xmms+jackd in realtime mode
-is getting some xruns during any kind of IDE activity. network isn't
-quite as fussy.
+You can find all on http://www.user-mode-linux.org/~blaisorblade/.
 
-http://325i.org/kernel/2.6.10-rc1-mm2-RT-V0.7.8
-+tcp_window-jackd-diskio.dmesg is the dmesg to go with the following
-jackd log.  during the entire test I used xmms-jack with an mp3 read
-from an nfs source.
+The SKAS3/2.6-v7 was already released, but I probably forgot to announce it=
+=2E=20
+So I'm announcing it now.
 
-optie ~ # jackd -R -d alsa -P -HMm -z s -o 6   
-jackd 0.99.0
-Copyright 2001-2003 Paul Davis and others.
-jackd comes with ABSOLUTELY NO WARRANTY
-This is free software, and you are welcome to redistribute it
-under certain conditions; see the file COPYING for details
+Changes in SKAS:
+* echo 0 > /proc/sysemu on the guests works fine, finally!
 
-loading driver ..
-creating alsa driver ... hw:0|-|1024|2|48000|0|6|hwmon|swmeter|-|32bit
-control device hw:0
-configuring for 48000Hz, period = 1024 frames, buffer = 2 periods
-Couldn't open hw:0 for 32bit samples trying 24bit instead
-Couldn't open hw:0 for 24bit samples trying 16bit instead
-Noise-shaped dithering at 16 bits
-**** alsa_pcm: xrun of at least 55.205 msecs
-**** alsa_pcm: xrun of at least 7.287 msecs
-**** alsa_pcm: xrun of at least 101.226 msecs
-**** alsa_pcm: xrun of at least 21.544 msecs
-**** alsa_pcm: xrun of at least 78.721 msecs
-**** alsa_pcm: xrun of at least 278.089 msecs
+Changes in both 2.6.9 and 2.4.27:
+they run fine on 2.6.9 host kernels, without hanging at the exit.
 
-to produce the disk load I ran 'emerge metadata'.
+Changes in 2.6.9 only:
+included a large chunk of JDike tree (excluding all x86_64 related patches)=
+,=20
+and all the latest security patches from Bodo Stroesser; also it includes t=
+he=20
+=2DV7 skas patch in it.
 
-upon running bonnie++, I got:
+Actually, however, to do this I had to include big, invasive patches from J=
+eff=20
+Dike's tree. I've done it because it's needed and because Bodo Stroesser=20
+worked with the incrementals very fine.
 
-**** alsa_pcm: xrun of at least 808.719 msecs
-**** alsa_pcm: xrun of at least 702.963 msecs
-**** alsa_pcm: xrun of at least 78.230 msecs
-**** alsa_pcm: xrun of at least 78.351 msecs
-**** alsa_pcm: xrun of at least 78.390 msecs
-**** alsa_pcm: xrun of at least 77.898 msecs
-**** alsa_pcm: xrun of at least 78.354 msecs
-**** alsa_pcm: xrun of at least 78.394 msecs
-**** alsa_pcm: xrun of at least 77.835 msecs
-**** alsa_pcm: xrun of at least 19.489 msecs
-**** alsa_pcm: xrun of at least 85.666 msecs
-**** alsa_pcm: xrun of at least 14.937 msecs
-**** alsa_pcm: xrun of at least 16.331 msecs
-**** alsa_pcm: xrun of at least 2.079 msecs
+Changes in 2.4.27 only:
 
-bonnie++ measurements are at
-http://325i.org/kernel/2.6.10-rc1-mm2-RT-V0.7.8
-+tcp_window-jackd-diskio.bonnie++
+It's based on a fork from the official 2.4.24-1; the patches I've included=
+=20
+come almost totally from there, but I dropped all the hostfs rewrite. I als=
+o=20
+included some incrementals, the one I thought safe.
 
-finally I downloaded a 700MB avi to /dev/null from the box beside it:
-100%[====================================>] 734,797,824   11.08M/s   ETA
-00:00
+Also, you can find on the page the instructions to avoid the "hwclock hang"=
+ in=20
+TT mode. I found the faulty patch, but it needs a more worse bug, which=20
+affects everyone running in TT mode on a 2.6 host, so it's included. You ca=
+n=20
+revert the patch if you want, and if you have to run it on a 2.4 host. I se=
+nt=20
+a message about this about a week ago, but I got no answer.
 
-0 xruns
+Distribution:
+* the patch are also in split-out form, both web-browsable and tarballed.
+* md5sums are available (to test with "md5sum -c *.md5").
 
-then to /root:
+Any testing and report is welcome.
 
-100%[====================================>] 734,797,824   11.07M/s
-ETA 00:00
+Bye
+=2D-=20
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
 
-0 xruns during download but 2 xruns while rm'ing the file:
+--nextPart10377242.nxt1Ootl8N
+Content-Type: application/pgp-signature
 
-**** alsa_pcm: xrun of at least 41.071 msecs
-**** alsa_pcm: xrun of at least 66.074 msecs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
+iD8DBQBBinXHqH9OHC+5NscRAqoSAJ4gt3A6zOHcIEHivBZyYhQDQAXJcwCeLHbF
+nPVU2hP4bwab24uVXxN4ft4=
+=MlWB
+-----END PGP SIGNATURE-----
 
-I could only find tcp related info in dmesg. strange.
-
-HTH,
-
-Michael Cohen
-
-
+--nextPart10377242.nxt1Ootl8N--

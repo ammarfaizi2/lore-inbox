@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317708AbSHBCUv>; Thu, 1 Aug 2002 22:20:51 -0400
+	id <S317730AbSHBCXS>; Thu, 1 Aug 2002 22:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317730AbSHBCUv>; Thu, 1 Aug 2002 22:20:51 -0400
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.133]:3826 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S317708AbSHBCUv>; Thu, 1 Aug 2002 22:20:51 -0400
-Date: Thu, 01 Aug 2002 21:47:28 -0400
-From: Nick Orlov <nick.orlov@mail.ru>
-Subject: [PATCH] pdc20265 problem.
-In-reply-to: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
-To: lkml <linux-kernel@vger.kernel.org>
-Mail-followup-to: lkml <linux-kernel@vger.kernel.org>
-Message-id: <20020802014728.GA796@nikolas.hn.org>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_SJK+ke6N+0T84slayxW2Hg)"
-User-Agent: Mutt/1.4i
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
+	id <S317752AbSHBCXS>; Thu, 1 Aug 2002 22:23:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59807 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317730AbSHBCXR>;
+	Thu, 1 Aug 2002 22:23:17 -0400
+Date: Thu, 01 Aug 2002 19:14:49 -0700 (PDT)
+Message-Id: <20020801.191449.101696880.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       vamsi_krishna@in.ibm.com
+Subject: Re: [PATCH] kprobes for 2.5.30
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020802021635.D8A674CA5@lists.samba.org>
+References: <20020802021635.D8A674CA5@lists.samba.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Fri, 02 Aug 2002 12:11:47 +1000
 
---Boundary_(ID_SJK+ke6N+0T84slayxW2Hg)
-Content-type: text/plain; charset=koi8-r
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-
-
-> <marcelo@plucky.distro.conectiva> (02/07/19 1.646)
-> 	Fix wrong #ifdef in ide-pci.c: Was causing problems with FastTrak
-
-Because of this fix my Promise 20265 became ide0 instead of ide2.
-Is there any reason to mark pdc20265 as ON_BOARD controller?
-
-Anyway, attached patch fix it for me :)
-
--- 
-With best wishes,
-	Nick Orlov.
-
-
---Boundary_(ID_SJK+ke6N+0T84slayxW2Hg)
-Content-type: text/plain; charset=koi8-r; NAME=pcd20265.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=pcd20265.patch
-
-408c408
-<         {DEVID_PDC20265,"PDC20265",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	ON_BOARD,	48 },
----
->         {DEVID_PDC20265,"PDC20265",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
-
---Boundary_(ID_SJK+ke6N+0T84slayxW2Hg)--
+   	Vamsi's kernel probes again, this time with EXPORT_SYMBOL_GPL
+   so people don't think this is blanket permission to hook into
+   arbitrary parts of the kernel (as separate from debugging, testing,
+   diagnostics, etc).
+   
+A nice enhancement would be to move the kprobe table and
+other generic bits into a common area so that it did not
+need to be duplicated as other arches add kprobe support.

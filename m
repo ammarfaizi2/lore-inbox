@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbVBXXtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262621AbVBYAEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbVBXXtw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbVBXXpK
+	id S262621AbVBYAEw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:04:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVBXX5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:45:10 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:58633 "HELO
+	Thu, 24 Feb 2005 18:57:51 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9482 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262573AbVBXXho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:37:44 -0500
-Date: Fri, 25 Feb 2005 00:37:42 +0100
+	id S262590AbVBXXle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:41:34 -0500
+Date: Fri, 25 Feb 2005 00:41:27 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] unexport do_settimeofday
-Message-ID: <20050224233742.GR8651@stusta.de>
+Subject: [2.6 patch] drivers/char/vt*: cleanups
+Message-ID: <20050224234127.GD8651@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,250 +22,188 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't found any possible modular usage of do_settimeofday in the 
-kernel.
+This patch contains the following cleanups:
+- make needlessly gloval code static
+- vt_ioctl.c: removed the global variable keyboard_type since noone
+              did actually set it to any other value
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 20 Jan 2005
+- 31 Jan 2005
 
- arch/alpha/kernel/time.c     |    2 --
- arch/arm/kernel/time.c       |    2 --
- arch/arm26/kernel/time.c     |    2 --
- arch/cris/kernel/time.c      |    2 --
- arch/h8300/kernel/time.c     |    2 --
- arch/i386/kernel/time.c      |    2 --
- arch/m32r/kernel/time.c      |    2 --
- arch/m68k/kernel/time.c      |    2 --
- arch/m68knommu/kernel/time.c |    1 -
- arch/mips/dec/time.c         |    2 --
- arch/mips/kernel/time.c      |    2 --
- arch/parisc/kernel/time.c    |    1 -
- arch/ppc/kernel/time.c       |    2 --
- arch/ppc64/kernel/time.c     |    2 --
- arch/s390/kernel/time.c      |    2 --
- arch/sh/kernel/time.c        |    2 --
- arch/sparc/kernel/time.c     |    2 --
- arch/um/kernel/ksyms.c       |    1 -
- arch/v850/kernel/time.c      |    2 --
- arch/x86_64/kernel/time.c    |    2 --
- 20 files changed, 37 deletions(-)
+ drivers/char/vt.c        |   17 +++++++++--------
+ drivers/char/vt_ioctl.c  |   13 +++++--------
+ include/linux/keyboard.h |    1 -
+ include/linux/vt_kern.h  |    6 ------
+ 4 files changed, 14 insertions(+), 23 deletions(-)
 
---- linux-2.6.11-rc1-mm2-full/arch/i386/kernel/time.c.old	2005-01-20 18:52:12.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/i386/kernel/time.c	2005-01-20 18:52:27.000000000 +0100
-@@ -169,8 +169,6 @@
+--- linux-2.6.11-rc2-mm2-full/include/linux/vt_kern.h.old	2005-01-31 15:48:36.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/include/linux/vt_kern.h	2005-01-31 15:51:23.000000000 +0100
+@@ -35,16 +35,11 @@
+ int vc_resize(struct vc_data *vc, unsigned int cols, unsigned int lines);
+ void vc_disallocate(unsigned int console);
+ void reset_palette(struct vc_data *vc);
+-void set_palette(struct vc_data *vc);
+ void do_blank_screen(int entering_gfx);
+ void do_unblank_screen(int leaving_gfx);
+ void unblank_screen(void);
+ void poke_blanked_console(void);
+ int con_font_op(struct vc_data *vc, struct console_font_op *op);
+-int con_font_set(struct vc_data *vc, struct console_font_op *op);
+-int con_font_get(struct vc_data *vc, struct console_font_op *op);
+-int con_font_default(struct vc_data *vc, struct console_font_op *op);
+-int con_font_copy(struct vc_data *vc, struct console_font_op *op);
+ int con_set_cmap(unsigned char __user *cmap);
+ int con_get_cmap(unsigned char __user *cmap);
+ void scrollback(struct vc_data *vc, int lines);
+@@ -75,7 +70,6 @@
+ int con_copy_unimap(struct vc_data *dst_vc, struct vc_data *src_vc);
+ 
+ /* vt.c */
+-void complete_change_console(struct vc_data *vc);
+ int vt_waitactive(int vt);
+ void change_console(struct vc_data *new_vc);
+ void reset_vc(struct vc_data *vc);
+--- linux-2.6.11-rc2-mm2-full/drivers/char/vt.c.old	2005-01-31 15:47:16.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/vt.c	2005-01-31 15:50:51.000000000 +0100
+@@ -144,6 +144,7 @@
+ static void hide_cursor(struct vc_data *vc);
+ static void console_callback(void *ignored);
+ static void blank_screen_t(unsigned long dummy);
++static void set_palette(struct vc_data *vc);
+ 
+ static int printable;		/* Is console ready for printing? */
+ 
+@@ -732,7 +733,7 @@
  	return 0;
  }
  
--EXPORT_SYMBOL(do_settimeofday);
--
- static int set_rtc_mmss(unsigned long nowtime)
+-inline int resize_screen(struct vc_data *vc, int width, int height)
++static inline int resize_screen(struct vc_data *vc, int width, int height)
  {
- 	int retval;
---- linux-2.6.11-rc1-mm2-full/arch/arm/kernel/time.c.old	2005-01-20 18:52:46.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/arm/kernel/time.c	2005-01-20 18:52:51.000000000 +0100
-@@ -301,8 +301,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /**
-  * save_time_delta - Save the offset between system time and RTC time
-  * @delta: pointer to timespec to store delta
---- linux-2.6.11-rc1-mm2-full/arch/sparc/kernel/time.c.old	2005-01-20 18:52:59.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/sparc/kernel/time.c	2005-01-20 18:53:03.000000000 +0100
-@@ -530,8 +530,6 @@
- 	return ret;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- static int sbus_do_settimeofday(struct timespec *tv)
- {
- 	time_t wtm_sec, sec = tv->tv_sec;
---- linux-2.6.11-rc1-mm2-full/arch/ppc/kernel/time.c.old	2005-01-20 18:53:11.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/ppc/kernel/time.c	2005-01-20 18:53:15.000000000 +0100
-@@ -285,8 +285,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /* This function is only called on the boot processor */
- void __init time_init(void)
- {
---- linux-2.6.11-rc1-mm2-full/arch/mips/dec/time.c.old	2005-01-20 18:53:21.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/mips/dec/time.c	2005-01-20 18:53:25.000000000 +0100
-@@ -189,8 +189,6 @@
- 	CMOS_WRITE(RTC_REF_CLCK_32KHZ | (16 - LOG_2_HZ), RTC_REG_A);
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- void __init dec_timer_setup(struct irqaction *irq)
- {
- 	setup_irq(dec_interrupt[DEC_IRQ_RTC], irq);
---- linux-2.6.11-rc1-mm2-full/arch/mips/kernel/time.c.old	2005-01-20 18:53:32.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/mips/kernel/time.c	2005-01-20 18:53:36.000000000 +0100
-@@ -234,8 +234,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /*
-  * Gettimeoffset routines.  These routines returns the time duration
-  * since last timer interrupt in usecs.
---- linux-2.6.11-rc1-mm2-full/arch/m68knommu/kernel/time.c.old	2005-01-20 18:53:43.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/m68knommu/kernel/time.c	2005-01-20 18:53:47.000000000 +0100
-@@ -195,4 +195,3 @@
- 	return (unsigned long long)jiffies * (1000000000 / HZ);
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
---- linux-2.6.11-rc1-mm2-full/arch/sh/kernel/time.c.old	2005-01-20 18:53:54.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/sh/kernel/time.c	2005-01-20 18:53:58.000000000 +0100
-@@ -254,8 +254,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /* last time the RTC clock got updated */
- static long last_rtc_update;
- 
---- linux-2.6.11-rc1-mm2-full/arch/cris/kernel/time.c.old	2005-01-20 18:54:05.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/cris/kernel/time.c	2005-01-20 18:54:11.000000000 +0100
-@@ -122,8 +122,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- 
- /*
-  * BUG: This routine does not handle hour overflow properly; it just
---- linux-2.6.11-rc1-mm2-full/arch/arm26/kernel/time.c.old	2005-01-20 18:54:18.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/arm26/kernel/time.c	2005-01-20 18:54:22.000000000 +0100
-@@ -198,8 +198,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- static irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
-         do_timer(regs);
---- linux-2.6.11-rc1-mm2-full/arch/m68k/kernel/time.c.old	2005-01-20 18:54:29.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/m68k/kernel/time.c	2005-01-20 18:54:32.000000000 +0100
-@@ -175,8 +175,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- /*
-  * Scheduler clock - returns current time in ns units.
+ 	/* Resizes the resolution of the display adapater */
+ 	int err = 0;
+@@ -2138,7 +2139,7 @@
+  * The console must be locked when we get here.
   */
---- linux-2.6.11-rc1-mm2-full/arch/alpha/kernel/time.c.old	2005-01-20 18:54:44.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/alpha/kernel/time.c	2005-01-20 18:54:48.000000000 +0100
-@@ -512,8 +512,6 @@
- 	return 0;
- }
  
--EXPORT_SYMBOL(do_settimeofday);
--
- 
- /*
-  * In order to set the CMOS clock precisely, set_rtc_mmss has to be
---- linux-2.6.11-rc1-mm2-full/arch/ppc64/kernel/time.c.old	2005-01-20 18:54:56.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/ppc64/kernel/time.c	2005-01-20 18:54:59.000000000 +0100
-@@ -424,8 +424,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(do_settimeofday);
--
- void __init time_init(void)
+-void vt_console_print(struct console *co, const char *b, unsigned count)
++static void vt_console_print(struct console *co, const char *b, unsigned count)
  {
- 	/* This function is only called on the boot processor */
---- linux-2.6.11-rc1-mm2-full/arch/um/kernel/ksyms.c.old	2005-01-20 18:55:07.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/um/kernel/ksyms.c	2005-01-20 18:55:11.000000000 +0100
-@@ -95,7 +95,6 @@
- EXPORT_SYMBOL(dump_thread);
- 
- EXPORT_SYMBOL(do_gettimeofday);
--EXPORT_SYMBOL(do_settimeofday);
- 
- /* This is here because UML expands open to sys_open, not to a system
-  * call instruction.
---- linux-2.6.11-rc1-mm2-full/arch/parisc/kernel/time.c.old	2005-01-20 18:55:19.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/parisc/kernel/time.c	2005-01-20 18:55:23.000000000 +0100
-@@ -197,7 +197,6 @@
- 	clock_was_set();
- 	return 0;
- }
--EXPORT_SYMBOL(do_settimeofday);
- 
- /*
-  * XXX: We can do better than this.
---- linux-2.6.11-rc1-mm2-full/arch/h8300/kernel/time.c.old	2005-01-20 18:55:33.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/h8300/kernel/time.c	2005-01-20 18:55:37.000000000 +0100
-@@ -125,8 +125,6 @@
- 	return 0;
+ 	struct vc_data *vc = vc_cons[fg_console].d;
+ 	unsigned char c;
+@@ -2233,7 +2234,7 @@
+ 	return console_driver;
  }
  
--EXPORT_SYMBOL(do_settimeofday);
--
- unsigned long long sched_clock(void)
+-struct console vt_console_driver = {
++static struct console vt_console_driver = {
+ 	.name		= "tty",
+ 	.write		= vt_console_print,
+ 	.device		= vt_console_device,
+@@ -2899,7 +2900,7 @@
+  *	Palettes
+  */
+ 
+-void set_palette(struct vc_data *vc)
++static void set_palette(struct vc_data *vc)
  {
- 	return (unsigned long long)jiffies * (1000000000 / HZ);
---- linux-2.6.11-rc1-mm2-full/arch/m32r/kernel/time.c.old	2005-01-20 18:55:46.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/m32r/kernel/time.c	2005-01-20 18:55:50.000000000 +0100
-@@ -181,8 +181,6 @@
- 	return 0;
- }
+ 	WARN_CONSOLE_UNLOCKED();
  
--EXPORT_SYMBOL(do_settimeofday);
--
- /*
-  * In order to set the CMOS clock precisely, set_rtc_mmss has to be
-  * called 500 ms after the second nowtime has started, because when
---- linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/time.c.old	2005-01-20 18:55:59.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/time.c	2005-01-20 18:56:02.000000000 +0100
-@@ -179,8 +179,6 @@
- 	return 0;
- }
+@@ -2990,7 +2991,7 @@
  
--EXPORT_SYMBOL(do_settimeofday);
--
- unsigned long profile_pc(struct pt_regs *regs)
+ #define max_font_size 65536
+ 
+-int con_font_get(struct vc_data *vc, struct console_font_op *op)
++static int con_font_get(struct vc_data *vc, struct console_font_op *op)
  {
- 	unsigned long pc = instruction_pointer(regs);
---- linux-2.6.11-rc1-mm2-full/arch/s390/kernel/time.c.old	2005-01-20 18:56:11.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/s390/kernel/time.c	2005-01-20 18:56:15.000000000 +0100
-@@ -148,8 +148,6 @@
- 	return 0;
+ 	struct console_font font;
+ 	int rc = -EINVAL;
+@@ -3045,7 +3046,7 @@
+ 	return rc;
  }
  
--EXPORT_SYMBOL(do_settimeofday);
--
- 
- #ifdef CONFIG_PROFILING
- #define s390_do_profile(regs)	profile_tick(CPU_PROFILING, regs)
---- linux-2.6.11-rc1-mm2-full/arch/v850/kernel/time.c.old	2005-01-20 18:56:22.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/v850/kernel/time.c	2005-01-20 18:56:26.000000000 +0100
-@@ -179,8 +179,6 @@
- 	return 0;
+-int con_font_set(struct vc_data *vc, struct console_font_op *op)
++static int con_font_set(struct vc_data *vc, struct console_font_op *op)
+ {
+ 	struct console_font font;
+ 	int rc = -EINVAL;
+@@ -3102,7 +3103,7 @@
+ 	return rc;
  }
  
--EXPORT_SYMBOL(do_settimeofday);
+-int con_font_default(struct vc_data *vc, struct console_font_op *op)
++static int con_font_default(struct vc_data *vc, struct console_font_op *op)
+ {
+ 	struct console_font font = {.width = op->width, .height = op->height};
+ 	char name[MAX_FONT_NAME];
+@@ -3132,7 +3133,7 @@
+ 	return rc;
+ }
+ 
+-int con_font_copy(struct vc_data *vc, struct console_font_op *op)
++static int con_font_copy(struct vc_data *vc, struct console_font_op *op)
+ {
+ 	int con = op->height;
+ 	int rc;
+--- linux-2.6.11-rc2-mm2-full/include/linux/keyboard.h.old	2005-01-31 15:52:55.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/include/linux/keyboard.h	2005-01-31 15:53:00.000000000 +0100
+@@ -27,7 +27,6 @@
+ extern const int max_vals[];
+ extern unsigned short *key_maps[MAX_NR_KEYMAPS];
+ extern unsigned short plain_map[NR_KEYS];
+-extern unsigned char keyboard_type;
+ #endif
+ 
+ #define MAX_NR_FUNC	256	/* max nr of strings assigned to keys */
+--- linux-2.6.11-rc2-mm2-full/drivers/char/vt_ioctl.c.old	2005-01-31 15:51:37.000000000 +0100
++++ linux-2.6.11-rc2-mm2-full/drivers/char/vt_ioctl.c	2005-01-31 15:53:13.000000000 +0100
+@@ -33,7 +33,7 @@
+ #include <linux/kbd_diacr.h>
+ #include <linux/selection.h>
+ 
+-char vt_dont_switch;
++static char vt_dont_switch;
+ extern struct tty_driver *console_driver;
+ 
+ #define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
+@@ -52,15 +52,12 @@
+  * to the current console is done by the main ioctl code.
+  */
+ 
+-/* Keyboard type: Default is KB_101, but can be set by machine
+- * specific code.
+- */
+-unsigned char keyboard_type = KB_101;
 -
- static int timer_dev_id;
- static struct irqaction timer_irqaction = {
- 	timer_interrupt,
+ #ifdef CONFIG_X86
+ #include <linux/syscalls.h>
+ #endif
+ 
++static void complete_change_console(struct vc_data *vc);
++
+ /*
+  * these are the valid i/o ports we're allowed to change. they map all the
+  * video ports
+@@ -416,7 +413,7 @@
+ 		/*
+ 		 * this is naive.
+ 		 */
+-		ucval = keyboard_type;
++		ucval = KB_101;
+ 		goto setchar;
+ 
+ 		/*
+@@ -1068,7 +1065,7 @@
+ /*
+  * Performs the back end of a vt switch
+  */
+-void complete_change_console(struct vc_data *vc)
++static void complete_change_console(struct vc_data *vc)
+ {
+ 	unsigned char old_vc_mode;
+ 
 

@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVC3Sa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbVC3Sda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbVC3Sa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:30:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVC3Saz
+	id S262377AbVC3Sda (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVC3Sda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:30:55 -0500
-Received: from main.gmane.org ([80.91.229.2]:2477 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262376AbVC3Sav (ORCPT
+	Wed, 30 Mar 2005 13:33:30 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:23849 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262377AbVC3Sd1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:30:51 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Shankar Unni <shankarunni@netscape.net>
-Subject: Re: Do not misuse Coverity please
-Date: Wed, 30 Mar 2005 10:29:43 -0800
-Message-ID: <d2er4p$qp$1@sea.gmane.org>
-References: <200503300125.j2U1PFQ9005082@laptop11.inf.utfsm.cl> <OofSaT76.1112169183.7124470.khali@localhost>
+	Wed, 30 Mar 2005 13:33:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Zvw25bVJ70N1tAGxWT7uIfKVWzCHUh2lXVIN3bVLTBgvZaxTcAFItl2142I76dKHzFJoKjfTF4AWycvJKAfKAQfxHOkfQzYslNTNQqQdPLChJEXVC1nOkeAtMqyBg6layg+T4ZyH2sddAAqkhGH6wf1Hortcb659iZE7zV1VxyY=
+Message-ID: <9e473391050330103379e398de@mail.gmail.com>
+Date: Wed, 30 Mar 2005 13:33:24 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: krishna <krishna.c@globaledgesoft.com>
+Subject: Re: How to debug kernel before there is no printk mechanism?
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <424AD247.4080409@globaledgesoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-68-122-224-119.dsl.pltn13.pacbell.net
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.6) Gecko/20050317 Thunderbird/1.0.2 Mnenhy/0.7
-X-Accept-Language: en-us, en
-In-Reply-To: <OofSaT76.1112169183.7124470.khali@localhost>
+References: <424AD247.4080409@globaledgesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare wrote:
+Did you try turning on CONFIG_EARLY_PRINTK=y? That will allow printk
+to a serial console much earlier.
 
->     v = p->field;
->     if (!p) return;
-> 
-> can be seen as equivalent to
-> 
->     if (!p) return;
->     v = p->field;
+You need to build the serial driver in too:
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
 
-Heck, no.
-
-You're missing the side-effect of a null pointer dereference crash (for 
-p->field) (even though v is unused before the return). The optimizer is 
-not allowed to make exceptions go away as a result of the hoisting.
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

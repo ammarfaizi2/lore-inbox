@@ -1,67 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264027AbUDFV57 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 17:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264032AbUDFV57
+	id S264023AbUDFWBl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 18:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264033AbUDFWBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 17:57:59 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:36067 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S264027AbUDFV54
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 17:57:56 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Joerg Sommrey <jo@sommrey.de>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: High CPU temp on Athlon MP w/ recent 2.6 kernels
-Date: Tue, 6 Apr 2004 17:57:54 -0400
-User-Agent: KMail/1.6
-References: <20040406193649.GA13257@sommrey.de> <200404061626.37714.gene.heskett@verizon.net> <20040406204545.GA15946@sommrey.de>
-In-Reply-To: <20040406204545.GA15946@sommrey.de>
+	Tue, 6 Apr 2004 18:01:41 -0400
+Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:59860 "EHLO
+	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
+	id S264023AbUDFWBi convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 18:01:38 -0400
+From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
+To: Dave Jones <davej@redhat.com>, Bjoern Michaelsen <bmichaelsen@gmx.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
+Date: Wed, 7 Apr 2004 00:01:35 +0200
+User-Agent: KMail/1.6.1
+References: <20040406031949.GA8351@lord.sinclair> <200404062304.12089.volker.hemmann@heim10.tu-clausthal.de> <20040406210811.GA10142@redhat.com>
+In-Reply-To: <20040406210811.GA10142@redhat.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404061757.54779.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.9.226] at Tue, 6 Apr 2004 16:57:55 -0500
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200404070001.35514.volker.hemmann@heim10.tu-clausthal.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 April 2004 16:45, Joerg Sommrey wrote:
->On Tue, Apr 06, 2004 at 04:26:37PM -0400, Gene Heskett wrote:
->> But join the 70C club, that AMD athlon keeps itself at a medium
->> simmer full time.  Mine has been running 67-72C for 3 years now. 
->> Strangly, shutting down setiathome doesn't cool it by more than a
->> couple degrees C.  And, its got a $50 all copper Glaciator cooler
->> on it, heavy heavy heavy.
->
->That's not quite my point.  I am not afraid of running my athlons at
->70C.  I just don't want to.  With Debian Woody they ran at <40C,
-> which is impressing IMHO.  An upgrade to Sarge raised the temp for
-> about 5K, which is still very cool.  This temperature didn't change
-> when I upgraded to an early 2.6 kernel.  Just after 2.6.3-mm4 there
-> was this jump for 10K that I just do not understand.  It doesn't
-> hurt the athlons but seems unnecessary to me.
->
->-jo
+Hi,
 
-40C?  Shut down for an hour to cool, I've never seen the post on my 
-board show less than 63C by the time it gets to that part of the 
-bios.  I'm running a 1400DX at 1400mhz, so the bios thinks its a 
-1600DX, and I've got vcore set down to 1.65 volts which helps a bit.
+On Tuesday 06 April 2004 23:08, Dave Jones wrote:
 
-Actually, the athlons seem to have a builtin shutdown at 75C, I've hit 
-that once or 3 times when the air under the desk was trapped worse 
-than usual.  Makes for downright ugly reboots...
+> Ok, too strange for words.
+> I'm inclined to make things more explicit, and make
+> sis_get_driver look like this..
+>
+> static void __devinit sis_get_driver(struct agp_bridge_data *bridge)
+> {
+>     if (bridge->dev->device == PCI_DEVICE_ID_SI_648) {
+>         sis_driver.agp_enable=sis_648_enable;
+>         if (agp_bridge->major_version == 3) {
+>             sis_driver.aperture_sizes       = agp3_generic_sizes;
+>             sis_driver.size_type            = U16_APER_SIZE;
+>             sis_driver.num_aperture_sizes   = AGP_GENERIC_SIZES_ENTRIES;
+>             sis_driver.configure            = agp3_generic_configure;
+>             sis_driver.fetch_size           = agp3_generic_fetch_size;
+>             sis_driver.cleanup              = agp3_generic_cleanup;
+>             sis_driver.tlb_flush            = agp3_generic_tlbflush;
+>         }
+>     }
+>
+>     if (bridge->dev->device == PCI_DEVICE_ID_SI_746) {
+>         /*
+>          * We don't know enough about the 746 to enable it properly.
+>          * Though we do know that it needs the 'delay' hack to settle
+>          * after changing modes.
+>          */
+>         sis_driver.agp_enable=sis_648_enable;
+>     }
+> }
+
+ok, I was a little confused so:
+vanilla 2.6.5+this patch: old testgart garbeling problem again
+patched 2.6.5-rc3+this patch: everything fine
+vanilla 2.6.5+agpgart-2004-04-06.diff+ this patch: everything fine, too
+
+In each cases, I removed all .o and .ko files from drivers/char/agp 
+and /lib/modules/2.6.5 to be sure.
+
+Well, I dont care, if its believes to be at AGPv3 mode or not, as long X is 
+working fine ;o)
+
+Glück Auf
+Volker
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Conclusions 
+ In a straight-up fight, the Empire squashes the Federation like a bug. Even 
+with its numerical advantage removed, the Empire would still squash the 
+Federation like a bug. Accept it. -Michael Wong 

@@ -1,50 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263600AbUJ3BRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbUJ3BRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbUJ3BRu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 21:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263555AbUJ3BOp
+	id S262045AbUJ3BRs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 21:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263543AbUJ3BOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 21:14:45 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:55781 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S263643AbUJ3BGv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 21:06:51 -0400
-Message-Id: <200410300106.i9U16fXJ010366@localhost.localdomain>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4] 
-In-reply-to: Your message of "Fri, 29 Oct 2004 23:11:12 +0200."
-             <20041029211112.GA9836@elte.hu> 
-Date: Fri, 29 Oct 2004 21:06:41 -0400
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [141.152.250.245] at Fri, 29 Oct 2004 20:06:45 -0500
+	Fri, 29 Oct 2004 21:14:37 -0400
+Received: from fed1rmmtao10.cox.net ([68.230.241.29]:45531 "EHLO
+	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S263555AbUJ3BIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 21:08:32 -0400
+Date: Fri, 29 Oct 2004 18:08:14 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org,
+       trini@kernel.crashing.org, takeharu1219@ybb.ne.jp
+Subject: [PATCH][PPC32][2/2] 40x and Book E debug: 4xx platform support
+Message-ID: <20041029180814.A15758@home.com>
+References: <20041029175158.D13435@home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041029175158.D13435@home.com>; from mporter@kernel.crashing.org on Fri, Oct 29, 2004 at 05:51:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->but i'd also suggest to put in a counter into that branch so that this
->condition doesnt get lost. In fact the Maximum Process Cycle stat from
->Rui:
->
->>>   Maximum Delay . . . . . . . . .    6904       921       721    usecs
->>>   Maximum Process Cycle . . . . .    1449      1469      1590    usecs
->
->seems to suggest that there can be significant processing delays? (if
->Maximum Process Cycle is indeed the time spent from poll_ret to the next
->poll_enter.)
+This patch adds support to the 40x and 44x platform code for
+initializing debug events and using the in-kernel kgdb stub.
 
-IIRC, Rui was running with -p128, which at 48000kHz is 2600usecs (and
-longer at 44100kHz). If the maximum process cycle was on the order of
-1500usecs, that leaves nearly 1ms until the next interrupt is
-due. Unless jackd was held up between computing the process cycle time
-and entering poll, it doesn't seem that the process cycle ever gets
-close to the interrupt interval duration.
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
 
-So I don't think that delays caused *during* jackd's processing cycle
-are involved here. However, I agree that your suggestion to check for
-this before computing max_delay is probably wise in general.
-
---p
+diff -Nru a/arch/ppc/platforms/4xx/Kconfig b/arch/ppc/platforms/4xx/Kconfig
+--- a/arch/ppc/platforms/4xx/Kconfig	2004-10-29 17:22:22 -07:00
++++ b/arch/ppc/platforms/4xx/Kconfig	2004-10-29 17:22:22 -07:00
+@@ -201,7 +201,7 @@
+ 
+ config PPC_GEN550
+ 	bool
+-	depends on 44x
++	depends on 4xx
+ 	default y
+ 
+ config PM
+diff -Nru a/arch/ppc/platforms/4xx/ebony.c b/arch/ppc/platforms/4xx/ebony.c
+--- a/arch/ppc/platforms/4xx/ebony.c	2004-10-29 17:22:22 -07:00
++++ b/arch/ppc/platforms/4xx/ebony.c	2004-10-29 17:22:22 -07:00
+@@ -313,14 +313,6 @@
+ 	struct ocp_def *def;
+ 	struct ocp_func_emac_data *emacdata;
+ 
+-#if !defined(CONFIG_BDI_SWITCH)
+-	/*
+-	 * The Abatron BDI JTAG debugger does not tolerate others
+-	 * mucking with the debug registers.
+-	 */
+-        mtspr(SPRN_DBCR0, (DBCR0_TDE | DBCR0_IDM));
+-#endif
+-
+ 	/* Set mac_addr for each EMAC */
+ 	vpd_base = ioremap64(EBONY_VPD_BASE, EBONY_VPD_SIZE);
+ 	def = ocp_get_one_device(OCP_VENDOR_IBM, OCP_FUNC_EMAC, 0);
+diff -Nru a/arch/ppc/platforms/4xx/ocotea.c b/arch/ppc/platforms/4xx/ocotea.c
+--- a/arch/ppc/platforms/4xx/ocotea.c	2004-10-29 17:22:22 -07:00
++++ b/arch/ppc/platforms/4xx/ocotea.c	2004-10-29 17:22:22 -07:00
+@@ -291,14 +291,6 @@
+ 
+ 	ibm440gx_tah_enable();
+ 
+-#if !defined(CONFIG_BDI_SWITCH)
+-	/*
+-	 * The Abatron BDI JTAG debugger does not tolerate others
+-	 * mucking with the debug registers.
+-	 */
+-        mtspr(SPRN_DBCR0, (DBCR0_TDE | DBCR0_IDM));
+-#endif
+-
+ 	/* Setup TODC access */
+ 	TODC_INIT(TODC_TYPE_DS1743,
+ 			0,
+diff -Nru a/arch/ppc/syslib/Makefile b/arch/ppc/syslib/Makefile
+--- a/arch/ppc/syslib/Makefile	2004-10-29 17:22:22 -07:00
++++ b/arch/ppc/syslib/Makefile	2004-10-29 17:22:22 -07:00
+@@ -25,7 +25,6 @@
+ obj-$(CONFIG_PPC4xx_DMA)	+= ppc4xx_dma.o
+ obj-$(CONFIG_PPC4xx_EDMA)	+= ppc4xx_sgdma.o
+ ifeq ($(CONFIG_40x),y)
+-obj-$(CONFIG_KGDB)		+= ppc4xx_kgdb.o
+ obj-$(CONFIG_PCI)		+= indirect_pci.o pci_auto.o ppc405_pci.o
+ endif
+ endif
+diff -Nru a/arch/ppc/syslib/ibm44x_common.c b/arch/ppc/syslib/ibm44x_common.c
+--- a/arch/ppc/syslib/ibm44x_common.c	2004-10-29 17:22:22 -07:00
++++ b/arch/ppc/syslib/ibm44x_common.c	2004-10-29 17:22:22 -07:00
+@@ -166,5 +166,17 @@
+ #ifdef CONFIG_KGDB
+ 	ppc_md.kgdb_map_scc = gen550_kgdb_map_scc;
+ #endif
++
++	/*
++	 * The Abatron BDI JTAG debugger does not tolerate others
++	 * mucking with the debug registers.
++	 */
++#if !defined(CONFIG_BDI_SWITCH)
++	/* Enable internal debug mode */
++        mtspr(SPRN_DBCR0, (DBCR0_IDM));
++
++	/* Clear any residual debug events */
++	mtspr(SPRN_DBSR, 0xffffffff);
++#endif
+ }
+ 
+diff -Nru a/arch/ppc/syslib/ppc4xx_setup.c b/arch/ppc/syslib/ppc4xx_setup.c
+--- a/arch/ppc/syslib/ppc4xx_setup.c	2004-10-29 17:22:22 -07:00
++++ b/arch/ppc/syslib/ppc4xx_setup.c	2004-10-29 17:22:22 -07:00
+@@ -42,6 +42,8 @@
+ #include <asm/pci-bridge.h>
+ #include <asm/bootinfo.h>
+ 
++#include <syslib/gen550.h>
++
+ /* Function Prototypes */
+ extern void abort(void);
+ extern void ppc4xx_find_bridges(void);
+@@ -56,8 +58,16 @@
+ void __init
+ ppc4xx_setup_arch(void)
+ {
+-	/* Setup PCI host bridges */
++#if !defined(CONFIG_BDI_SWITCH)
++	/*
++	 * The Abatron BDI JTAG debugger does not tolerate others
++	 * mucking with the debug registers.
++	 */
++        mtspr(SPRN_DBCR0, (DBCR0_IDM));
++	mtspr(SPRN_DBSR, 0xffffffff);
++#endif
+ 
++	/* Setup PCI host bridges */
+ #ifdef CONFIG_PCI
+ 	ppc4xx_find_bridges();
+ #endif
+@@ -189,34 +199,6 @@
+ 	/* Set the PIT reload value and just let it run. */
+ 	mtspr(SPRN_PIT, tb_ticks_per_jiffy);
+ }
+-#ifdef CONFIG_SERIAL_TEXT_DEBUG
+-
+-/* We assume that the UART has already been initialized by the
+-   firmware or the boot loader */
+-static void
+-serial_putc(u8 * com_port, unsigned char c)
+-{
+-	while ((readb(com_port + (UART_LSR)) & UART_LSR_THRE) == 0) ;
+-	writeb(c, com_port);
+-}
+-
+-static void
+-ppc4xx_progress(char *s, unsigned short hex)
+-{
+-	char c;
+-#ifdef SERIAL_DEBUG_IO_BASE
+-	u8 *com_port = (u8 *) SERIAL_DEBUG_IO_BASE;
+-
+-	while ((c = *s++) != '\0') {
+-		serial_putc(com_port, c);
+-	}
+-	serial_putc(com_port, '\r');
+-	serial_putc(com_port, '\n');
+-#else
+-	printk("%s\r\n");
+-#endif
+-}
+-#endif				/* CONFIG_SERIAL_TEXT_DEBUG */
+ 
+ /*
+  * IDE stuff.
+@@ -319,13 +301,9 @@
+ 	ppc_md.setup_io_mappings = ppc4xx_map_io;
+ 
+ #ifdef CONFIG_SERIAL_TEXT_DEBUG
+-	ppc_md.progress = ppc4xx_progress;
++	ppc_md.progress = gen550_progress;
+ #endif
+ 
+-/*
+-**   m8xx_setup.c, prep_setup.c use
+-**     defined(CONFIG_BLK_DEV_IDE) || defined(CONFIG_BLK_DEV_IDE_MODULE)
+-*/
+ #if defined(CONFIG_PCI) && defined(CONFIG_IDE)
+ 	ppc_ide_md.ide_init_hwif = ppc4xx_ide_init_hwif_ports;
+ #endif /* defined(CONFIG_PCI) && defined(CONFIG_IDE) */

@@ -1,48 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135980AbREBVhC>; Wed, 2 May 2001 17:37:02 -0400
+	id <S135989AbREBVhm>; Wed, 2 May 2001 17:37:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135989AbREBVgm>; Wed, 2 May 2001 17:36:42 -0400
-Received: from carbon.btinternet.com ([194.73.73.92]:17293 "EHLO
-	carbon.btinternet.com") by vger.kernel.org with ESMTP
-	id <S135980AbREBVgl>; Wed, 2 May 2001 17:36:41 -0400
-Reply-To: <lar@cs.york.ac.uk>
-From: "Laramie Leavitt" <laramie.leavitt@btinternet.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: [OT] Interrupting select.
-Date: Wed, 2 May 2001 22:46:03 +0100
-Message-ID: <JKEGJJAJPOLNIFPAEDHLAEJGCOAA.laramie.leavitt@btinternet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S135992AbREBVhc>; Wed, 2 May 2001 17:37:32 -0400
+Received: from mail.valinux.com ([198.186.202.175]:23058 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S135989AbREBVhY>;
+	Wed, 2 May 2001 17:37:24 -0400
+Date: Wed, 2 May 2001 15:37:01 -0600
+From: Don Dugger <n0ano@valinux.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Bug in kernel/fork.c in 2.4.4 kernel
+Message-ID: <20010502153701.A6830@tlaloc.n0ano.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In working on thread core dumps I've stumbled across a minor bug in the
+generic `fork' code.  The problem code is in routine `copy_mm' in
+`kernel/fork.c':
 
-I think that this is slightly off-topic, but I figure that
-someone here knows the answer or where to point me to the
-answer.  Please respond privately so the entire list is not
-spamed by the response.
+	/* Copy the current MM stuff.. */
+        memcpy(mm, oldmm, sizeof(*mm));
+	  .
+	  .
+	  .
+        if (retval)
+                goto free_pt;
 
-I am writing a threaded network daemon using a thread per
-connection model (I know, it is not the most effective, but
-I can extend it to use a thread per N connections in the future).
-That thread waits on a socket using select, or possibly merely
-doing a read.  Messages to be written are inserted into a queue
-in shared memory.  I am looking for a way to send the thread a 
-signal or event to cause the thread to abort the read or select
-call when data is available.
+        /*
+         * child gets a private LDT (if there was an LDT in the parent)
+         */
+        copy_segments(tsk, mm);
+	  .
+	  .
+	  .
+free_pt:
+	mmput(mm);
 
-I know that it would be possible to create a unix socket
-and write a byte to that socket whenever data is available,
-but there should be a simpler message or signal that I can 
-send to the thread to accomplish the same thing.
+The new `mm' doesn't get it's own private version of it's `context'
+field until after the call to `copy_segments'.  At the `goto' the pointer
+`mm' points to a copy of the old `mm_struct', including a copy of the
+`context' field.  `mmput' will call `release_segments' which will free
+the memory pointed to by the `context' field.  Later, when `oldmm' is
+freed, the kernel will try to free the same memory twice - very bad.
 
-Thanks,
-Laramie
+Admittedly, this will only occur on an obscure error condition but
+it should be fixed.  The attached patch fixes the problem by zeroing
+out the `context' field immediately after the `mm' structure is
+copied.
+-- 
+Don Dugger
+"Censeo Toto nos in Kansa esse decisse." - D. Gale
+n0ano@valinux.com
+Ph: 303/938-9838
+
+
+--- linux-2.4.4-ref/kernel/fork.c	Thu Apr 26 07:11:17 2001
++++ linux/kernel/fork.c	Wed May  2 14:39:38 2001
+@@ -311,6 +311,10 @@
+ 
+ 	/* Copy the current MM stuff.. */
+ 	memcpy(mm, oldmm, sizeof(*mm));
++
++	/* Clear new context for now */
++	memset(&mm->context, 0, sizeof(mm->context));
++
+ 	if (!mm_init(mm))
+ 		goto fail_nomem;
+ 

@@ -1,62 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbTLJA7y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 19:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbTLJA7y
+	id S262580AbTLJA5G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 19:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbTLJA5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 19:59:54 -0500
-Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:59582
-	"EHLO bastard") by vger.kernel.org with ESMTP id S262762AbTLJA7w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 19:59:52 -0500
-Message-ID: <3FD67005.6060606@tupshin.com>
-Date: Tue, 09 Dec 2003 16:59:49 -0800
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Device-mapper submission for 2.4
-References: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet> <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org> <20031210002737.GA27208@localhost>
-In-Reply-To: <20031210002737.GA27208@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Dec 2003 19:57:05 -0500
+Received: from mxsf16.cluster1.charter.net ([209.225.28.216]:27654 "EHLO
+	mxsf16.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S262580AbTLJA5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 19:57:02 -0500
+Date: Tue, 9 Dec 2003 19:51:54 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: merged in bk5 Re: Catching NForce2 lockup with NMI watchdog - found?
+Message-ID: <20031210005154.GA18974@forming>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3FD65347.6060109@netzentry.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FD65347.6060109@netzentry.com>
+X-Editor: GNU Emacs 21.1
+X-Operating-System: Debian GNU/Linux 2.6.0-test11-Jm-nf2 i686
+X-Uptime: 19:43:29 up 3 days, 16:10,  6 users,  load average: 1.00, 1.00, 1.00
+User-Agent: Mutt/1.5.4i
+From: Josh McKinney <forming@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jose Luis Domingo Lopez wrote:
+On approximately Tue, Dec 09, 2003 at 02:57:11PM -0800, b@netzentry.com wrote:
+> Is this stuff going to be merged into 2.4 soon? I'd like
+> to try a 2.4.23/24-bk with these patches.
+> 
 
->On Tuesday, 09 December 2003, at 23:46:13 +0000,
->Paul Jakma wrote:
->
->  
->
->>There are people who store their data in LVM, we need compatibility,
->>and ideally we'd like to be able to migrate in small steps.
->>
->>    
->>
->Install "module-init-tools", install "LVM2" (that can drive both LVM1
->and DM Logical Volumes), compile a 2.6.x Linux kernel, reboot and you
->should be done.
->
->As far as I remember, migration is just that easy, and you can always go
->back to plain 2.4.x while you don't update LVM metadata to newer version 2.
->
->Greetings.
->
->  
->
-This is not true. LVM2 can read the LVM1 format, but it cannot 
-communicate with non-dm interfaces in 2.4.x. This means that you need to 
-run lvm1 on 2.4 and lvm2 on 2.6 unless you patch 2.4 with dm.
+These patches are extremely simple.  If they don't patch cleanly just
+edit the files directly.  The first one is 2 lines and the second adds
+17 lines.
 
-If this were the whole story, then it would be an amazingly painful 
-transition to (safely) upgrade an lvm machine from 2.4 to 2.6 (upgrade 
-to patched 2.4, then upgrade to 2.6). Luckily, debian has made the lvm1 
-and lvm2 packages not conflict, and the correct ones runs at startup 
-depending on which kernel you have. This is probably a feature that all 
-distros will have to adopt to ease the upgrade cycle.
+> 
+> >From: Bob
+> >Subject: merged in bk5 Re: Catching NForce2 lockup with NMI
+> >
+> >if you're following this thread, good news--
+> >
+> >nforce2 fixups have been merged in
+> >linux-2.6.0-test11-bk5.patch
+> >>  -bk snapshot (patch-2.6.0-test11-bk5)
+> >
+> >nforce2-disconnect-quirk.patch
+> >>  [x86] fix lockups with APIC support on nForce2
+> >>
+> >>nforce2-apic.patch
+> >>  [x86] do not wrongly override mp_ExtINT IRQ
+> >
+> >plus promise and sis fixes so I don't need to pay
+> >for a 3ware controller ;-)   that was another
+> >show-stopper for me earlier
+> >
+> >> We're all trying to get acpi, apic, lapic, io-apic working
+> >> when turned on in cmos/bios and kernel.
+> >>
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
--Tupshin
+-- 
+Josh McKinney		     |	Webmaster: http://joshandangie.org
+--------------------------------------------------------------------------
+                             | They that can give up essential liberty
+Linux, the choice       -o)  | to obtain a little temporary safety deserve 
+of the GNU generation    /\  | neither liberty or safety. 
+                        _\_v |                          -Benjamin Franklin

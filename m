@@ -1,104 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261321AbTCOH4m>; Sat, 15 Mar 2003 02:56:42 -0500
+	id <S261317AbTCOIEZ>; Sat, 15 Mar 2003 03:04:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261317AbTCOH4m>; Sat, 15 Mar 2003 02:56:42 -0500
-Received: from mail.casabyte.com ([209.63.254.226]:24081 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP
-	id <S261316AbTCOH4j>; Sat, 15 Mar 2003 02:56:39 -0500
-From: "Robert White" <rwhite@casabyte.com>
-To: "Chris Fowler" <cfowler@outpostsentinel.com>
-Cc: "Ed Vance" <EdV@macrolink.com>, "'Linux PPP'" <linuxppp@indiainfo.com>,
-       <linux-serial@vger.kernel.org>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: RS485 communication
-Date: Sat, 15 Mar 2003 00:07:22 -0800
-Message-ID: <PEEPIDHAKMCGHDBJLHKGCEGACDAA.rwhite@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1047598241.5292.2.camel@hp.outpostsentinel.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
+	id <S261320AbTCOIEZ>; Sat, 15 Mar 2003 03:04:25 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:52353 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261317AbTCOIEY>;
+	Sat, 15 Mar 2003 03:04:24 -0500
+Date: Sat, 15 Mar 2003 09:15:11 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.64-mm6: oops in elv_remove_request
+Message-ID: <20030315081511.GJ791@suse.de>
+References: <1047576167.1318.4.camel@ixodes.goop.org> <20030313175454.GP836@suse.de> <1047578690.1322.17.camel@ixodes.goop.org> <20030313190247.GQ836@suse.de> <1047633884.1147.3.camel@ixodes.goop.org> <20030314203324.GD791@suse.de> <1047680131.1510.0.camel@ixodes.goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1047680131.1510.0.camel@ixodes.goop.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, that, but that is only part of it.
+On Fri, Mar 14 2003, Jeremy Fitzhardinge wrote:
+> On Fri, 2003-03-14 at 12:33, Jens Axboe wrote:
+> > On Fri, Mar 14 2003, Jeremy Fitzhardinge wrote:
+> > > With the version or cdrtools I compiled, I get an instant oops+lockup
+> > > with the above command when running with anticipatory scheduler in
+> > > 2.5.64-mm6 (hand written):
+> > > 
+> > > elv_remove_request
+> > > ide_end_request
+> > > cdrom_end_request
+> > > cdrom_decode_status
+> > > cdrom_newpc_intr
+> > 
+> > 
+> > --- drivers/block/as-iosched.c~	2003-03-14 21:32:14.000000000 +0100
+> > +++ drivers/block/as-iosched.c	2003-03-14 21:32:38.000000000 +0100
+> > @@ -1341,6 +1341,8 @@
+> >  			insert_here = ad->dispatch->prev;
+> >  
+> >  		list_add(&rq->queuelist, insert_here);
+> > +		if (arq)
+> > +			RB_CLEAR(&arq->rb_node);
+> >  		
+> >  		if (!list_empty(ad->dispatch) && rq_data_dir(rq) == READ
+> >  			&& (ad->antic_status == ANTIC_WAIT_REQ
+> 
+> No joy, I'm afraid.  Same crash.
 
-The RS485 is a proper bus, so this custom program (or programs) will have to
-act as full bus arbiters and a kind of router.  Each PPP daemon must receive
-ONLY the data that its peer daemon transmits.  That means that each slave
-must know to ignore the data not destined for it.  Further, the master,
-which would have multiple PPP instances running on it, will need to decide
-which of those instances get which of the receiving bytes.
+Too bad, then there are two bugs in there :/
 
-So just like an Ethernet transceiver puts a protocol frame around the data
-to get it to the destination, the transport program will have to put
-envelopes around the data.  THEN the master transport program will tell each
-slave when and how many of its envelopes it may send.  The only way that can
-work (because there is no "ring" you can't pass a "token") is for the master
-to ask each slave in turn: "Got anything to send?"
-
-This usually devolves to a sequence of "#1, say your piece", "#2 say your
-piece" etc.  That is a very bad performance model.
-
-So every frame of data will need to be arbitrarily wide, meaning a length
-code, and will need an in-multiplexor address.
-
-So the master, for instance, will say "slave 1, go".  The slave 1 will send
-a packet (not necessarily a PPP packet, as the multiplexor will have
-overhead data etc.)
-
-The master will look at the address and decide which local pty the data is
-for and send it there.  (Think a simple byte pump here)
-
-When that pty has response data, and when the master says "slave 0 (e.g. me)
-go" it will frame a message that slave #1 will receive and put through to
-its local pty.  Slave 1 also has the job of ignoring data for slaves 2
-through N and the Master (Slave 0).
-
-In short, he has to write a distributed application that pumps data into and
-out of a broadcast medium, and makes sure that each participant gets only
-the data intended for itself.  (This is what both the Ethernet hardware
-layer, and the IP protocols do.)
-
-In communications you almost always put protocols inside of protocols to
-some significant depth.
-
-For instance, when you play Unreal Tournament 2003:
-Unreal Tournament's data is carried by UDP,
-The UDP is carried by IP,
-The IP is carried by the Ethernet hardware access layer (raw Ethernet),
-Those packets may go to your cable modem which either wraps the Ethernet
-hardware packets or decodes them and reencodes the IP  into whatever it
-does.
-
->From there, if your cable modem is doing PPPoE there are even more layers.
-
-This guy will only have to write a multiplexing layer, but it won't be fun.
-
-Then again, the Ethernet people have done all that, which is why it is
-cheaper and easier to just get the Ethernet hardware and use it.
-
-Rob.
-
------Original Message-----
-From: Chris Fowler [mailto:cfowler@outpostsentinel.com]
-Sent: Thursday, March 13, 2003 3:31 PM
-To: Robert White
-Cc: Ed Vance; 'Linux PPP'; linux-serial@vger.kernel.org; 'linux-kernel'
-Subject: RE: RS485 communication
-
-
-Are you saying that for him to to use PPPD that he will have to write a
-program that will run on a master and tell all the slave nodes when they
-can transmit their data.  In this case it would be ppp data.  Hopfully
-in block sizes that are at least the size of the MTU ppp is running.
-
-Chris
-
+-- 
+Jens Axboe
 

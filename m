@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261446AbSKBVmS>; Sat, 2 Nov 2002 16:42:18 -0500
+	id <S261454AbSKBVhK>; Sat, 2 Nov 2002 16:37:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261447AbSKBVmS>; Sat, 2 Nov 2002 16:42:18 -0500
-Received: from packet.digeo.com ([12.110.80.53]:53690 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261446AbSKBVmR>;
-	Sat, 2 Nov 2002 16:42:17 -0500
-Message-ID: <3DC44839.A3AEAE41@digeo.com>
-Date: Sat, 02 Nov 2002 13:48:41 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S261457AbSKBVhK>; Sat, 2 Nov 2002 16:37:10 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:39819 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261454AbSKBVhJ>; Sat, 2 Nov 2002 16:37:09 -0500
+Subject: Re: swsusp: don't eat ide disks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Pavel Machek <pavel@ucw.cz>
-CC: William Lee Irwin III <wli@holomorphy.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Hot/cold allocation -- swsusp can not handle hot pages
-References: <20021102181900.GA140@elf.ucw.cz> <20021102184612.GI23425@holomorphy.com> <20021102202208.GC18576@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii
+Cc: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021102202504.GD18576@atrey.karlin.mff.cuni.cz>
+References: <20021102184735.GA179@elf.ucw.cz>
+	<200211022006.gA2K6XW08545@devserv.devel.redhat.com> 
+	<20021102202504.GD18576@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2002 21:48:41.0849 (UTC) FILETIME=[9C0D8E90:01C282B9]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Nov 2002 22:04:33 +0000
+Message-Id: <1036274673.16803.34.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Sat, 2002-11-02 at 20:25, Pavel Machek wrote:
+> > Some disks are going to be settint their own power methods too.
 > 
-> Hi!
-> 
-> > > Swsusp counts free pages, and relies on fact that when it allocates
-> > > page there's one free page less. That is no longer true with hot
-> > > pages.
-> > > I attempted to work it around but it seems I am getting hot pages even
-> > > when I ask for cold one. This seems to fix it. Does it looks like
-> > > "possibly mergable" patch?
-> > > --- clean/mm/page_alloc.c   2002-11-01 00:37:44.000000000 +0100
-> > > +++ linux-swsusp/mm/page_alloc.c    2002-11-01 22:53:47.000000000 +0100
-> > > @@ -361,7 +361,7 @@
-> > >     unsigned long flags;
-> > >     struct page *page = NULL;
-> > >
-> > > -   if (order == 0) {
-> > > +   if ((order == 0) && !cold) {
-> > >             struct per_cpu_pages *pcp;
-> > >
-> > >             pcp = &zone->pageset[get_cpu()].pcp[cold];
-> > >
-> >
-> > This doesn't seem to be doing what you want, even if it seems to work.
-> > If you want there to be one free page less, then allocating it will
-> > work regardless. What are you looking for besides that? If it's not
-> > already working you want some additional semantics. Could this involve
-> > is_head_of_free_region()? That should be solvable with a per-cpu list
-> > shootdown algorithm to fully merge all the buddy bitmap things.
-> 
-> I need pages I allocate to disappear from "is_head_of_free_region()",
-> so my counts match.
-> 
+> Fine with me as long as they call idedisk_suspend() first ;-).
 
-hm.  swsusp does funny things.  Would it be posible to get a
-big-picture "how this whole thing works" story?  What exactly
-is the nature of its relationship with the page allocator?
+They may or may not do so depending upon other considerations. The new
+driver layer is supposed to handle suspend/power ordering. If it doesn't
+then it needs fixing. You can't go around hacking weird suspend shit
+into every single block driver for a final system, sure for a prototype
+but not the real thing. No way
 
-I'm not really sure what to suggest here.  Emptying the per-cpu
-page pools would be tricky.  Maybe a swsusp-special page allocator
-which goes direct to the buddy lists or something.

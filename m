@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266981AbTCDXSn>; Tue, 4 Mar 2003 18:18:43 -0500
+	id <S266540AbTCDXLh>; Tue, 4 Mar 2003 18:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266987AbTCDXSn>; Tue, 4 Mar 2003 18:18:43 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:10415 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S266981AbTCDXSm>;
-	Tue, 4 Mar 2003 18:18:42 -0500
-Date: Wed, 5 Mar 2003 10:28:49 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: sys32_ioctl -> compat_ioctl -- generic
-Message-Id: <20030305102849.61469d19.sfr@canb.auug.org.au>
-In-Reply-To: <20030303232122.GA24018@elf.ucw.cz>
-References: <20030303232122.GA24018@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S266622AbTCDXLh>; Tue, 4 Mar 2003 18:11:37 -0500
+Received: from packet.digeo.com ([12.110.80.53]:57256 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266540AbTCDXLg>;
+	Tue, 4 Mar 2003 18:11:36 -0500
+Date: Tue, 4 Mar 2003 15:18:04 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Mark Wong <markw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.63-mm2
+Message-Id: <20030304151804.259a6473.akpm@digeo.com>
+In-Reply-To: <1046819184.12936.100.camel@ibm-b>
+References: <20030302180959.3c9c437a.akpm@digeo.com>
+	<1046815078.12931.79.camel@ibm-b>
+	<20030304140918.4092f09b.akpm@digeo.com>
+	<1046819184.12936.100.camel@ibm-b>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Mar 2003 23:21:58.0975 (UTC) FILETIME=[DA98B4F0:01C2E2A4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
-
-On Tue, 4 Mar 2003 00:21:22 +0100 Pavel Machek <pavel@ucw.cz> wrote:
+Mark Wong <markw@osdl.org> wrote:
 >
-> This is generic part of sys32_ioctl -> compat_ioctl. Please apply,
+> Reverting to Linus's 2.5.63 tree produces the same problem for me.  I
+> had thought I tried it before, but it turns out I was running 2.5.62. 
+> 2.5.62's aic7xxx_old is good for me.
 
-Thanks for this - you saved me a headache :-)
+There are no significant differences in that driver between .62 and .63.  So
+I am assuming that 2.5.62 works, 2.5.63 doesn't, and that you have not
+actually tried 2.5.62's aic7xxx_old in a 2.5.63 tree?
 
-Some comments:
+If so, don't bother - it won't make any difference.  Looks like someone broke
+something in scsi core which colaterally damaged aic7xxx_old.  I suggest you
+feed it into bugme for now.
 
-> --- clean/kernel/compat.c	2003-03-03 23:39:39.000000000 +0100
-> +++ linux/kernel/compat.c	2003-02-20 10:48:21.000000000 +0100
 
-All this really belongs in fs/compat.c ...
-
-One thing that Linus (and I) wanted from the compatability layer is
-to try to keep all 32 bit assumptions out of the generic code - I
-understand that this my not be possible, but we would like to try.
-
-So maybe you could start by changing ioctl32 to compat_ioctl everywhere -
-I know that this is just cosmetic, but it gives the better impression of
-what the code is about ...
-
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au

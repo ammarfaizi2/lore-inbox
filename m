@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBHAWf>; Wed, 7 Feb 2001 19:22:35 -0500
+	id <S129027AbRBHAag>; Wed, 7 Feb 2001 19:30:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129169AbRBHAWZ>; Wed, 7 Feb 2001 19:22:25 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:27293 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129032AbRBHAWU>;
-	Wed, 7 Feb 2001 19:22:20 -0500
-Date: Thu, 8 Feb 2001 01:22:14 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102080022.BAA04424.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, cat@zip.com.au
-Subject: Re: suspecious ide hdparm results with 2.4.1 (and a minor capacity question)
+	id <S129032AbRBHAa1>; Wed, 7 Feb 2001 19:30:27 -0500
+Received: from [203.20.159.141] ([203.20.159.141]:54535 "EHLO memim01")
+	by vger.kernel.org with ESMTP id <S129027AbRBHAaW>;
+	Wed, 7 Feb 2001 19:30:22 -0500
+Message-Id: <974A613A43EED311ACBD00508B5EF8C1D66DF9@meexc04.jbwere.com.au>
+From: JShaw@jbwere.com.au
+To: urban@teststation.com
 Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.x and oops on 'mount -t smbfs'
+Date: Thu, 8 Feb 2001 12:28:59 +1100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> There are two entirely different things both called LBA.
->> Neither of them wastes any space.
+Resolved!  Running like a bought one now.  Thanks Urban, you are so cool
+that you should be in movies.
 
-> You sure?
+~NJ!~
 
-Yes. One is the hardware disk access - all disk access is LBA
-these days, certainly by Linux, but if the disk is small
-one can also use CHS access, when it is old one has to use CHS.
+> -----Original Message-----
+> From:	Urban Widmark [SMTP:urban@teststation.com]
+> Sent:	Thursday, February 08, 2001 9:39 AM
+> To:	Jim Shaw
+> Cc:	linux-kernel@vger.kernel.org
+> Subject:	Re: 2.4.x and oops on 'mount -t smbfs'
+> 
+> On Wed, 7 Feb 2001 JShaw@jbwere.com.au wrote:
+> 
+> > I've compiled a number of 2.4.1 and 2.4.0 kernels (actually supports the
+> 4GB
+> > RAM!!!  Yay!!!!), and I have only one more problem to sort out.  Under
+> > 2.4.x, the mount completes successfully, but 'ls /net' causes an OOPS:
+> 0000.
+> 
+> Try http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.1-pre10-cache-2.patch
+> 
+> Let me know if it works for you or not.
+> (patch should be ok with 2.4.0 or 2.4.1)
+> 
+> /Urban
+		      JBWere Limited
+			DISCLAIMER
 
-The other thing called LBA is a translation scheme.
-Translation means that the BIOS will use one set of parameters
-when talking to the disk, and another when talking to DOS or so.
-This just means that the same sector on the disk has different
-names.
-
-But when you partition your disk using DOS fdisk, it will want
-to use an integral number of "cylinders" for each partition,
-and for example with 8MB cylinders you may have the bad luck
-that the rounding costs you almost 8MB. But here each of the
-possible translations can be lucky or unlucky.
-Under Linux there is no restriction that a partition has to
-start on a cylinder boundary, but an integral number of blocks
-is used, so for example with 1KB blocks and an odd number of
-sectors this may cost you 512 bytes.
-These days one sees various (rather ugly) patches floating around
-just to get at this last sector. (But they are unnecessary, I think.)
-
-Andries
+JBWere Limited and its related entities distributing this document and 
+each of their respective directors, officers and agents ("the Were Group") 
+believe that the information contained in this document is correct and that
+any estimates, opinions, conclusions or recommendations contained in this 
+document are reasonably held or made as at the time of compilation. However, 
+no warranty is made as to the accuracy or reliability of any estimates, 
+opinions, conclusions, recommendations (which may change without notice) or 
+other information contained in this document and, to the maximum extent 
+permitted by law, the Were Group disclaims all liability and responsibility 
+for any direct or indirect loss or damage which may be suffered by any recipient 
+through relying on anything contained in or omitted from this document.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

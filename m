@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264369AbTKZXif (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 18:38:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264387AbTKZXie
+	id S264363AbTKZXhn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 18:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTKZXhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 18:38:34 -0500
-Received: from ns.suse.de ([195.135.220.2]:65251 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264369AbTKZXic (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 18:38:32 -0500
-Date: Thu, 27 Nov 2003 00:38:30 +0100
-From: Andi Kleen <ak@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andi Kleen <ak@suse.de>, davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine??
-Message-ID: <20031126233830.GB5274@wotan.suse.de>
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel> <20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel> <p73fzgbzca6.fsf@verdi.suse.de> <shsllq3yy2u.fsf@charged.uio.no> <20031127000145.61187530.ak@suse.de> <16325.13797.417933.122067@charged.uio.no>
+	Wed, 26 Nov 2003 18:37:42 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:36616
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264363AbTKZXhl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 18:37:41 -0500
+Date: Wed, 26 Nov 2003 15:37:38 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Vince <fuzzy77@free.fr>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [kernel panic @ reboot] 2.6.0-test10-mm1
+Message-ID: <20031126233738.GD1566@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Vince <fuzzy77@free.fr>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	"Randy.Dunlap" <rddunlap@osdl.org>
+References: <3FC4DA17.4000608@free.fr> <Pine.LNX.4.58.0311261213510.1683@montezuma.fsmlabs.com> <3FC4E42A.40906@free.fr> <Pine.LNX.4.58.0311261240210.1683@montezuma.fsmlabs.com> <3FC4E8C8.4070902@free.fr> <Pine.LNX.4.58.0311261305020.1683@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16325.13797.417933.122067@charged.uio.no>
+In-Reply-To: <Pine.LNX.4.58.0311261305020.1683@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There are a still few inefficiencies with this approach, though. Most
-> notable is the fact that you need to call kmap_atomic() several times
-> per page since the socket lower layers will usually be feeding you 1
-> skb at a time. I thought you might be referring to those (and that you
-> might have a good solution to propose ;-))
+On Wed, Nov 26, 2003 at 01:18:48PM -0500, Zwane Mwaikambo wrote:
+> On Wed, 26 Nov 2003, Vince wrote:
+> 
+> > > *groan* do you have a PDA?
+> > >
+> >
+> > Nope. I could probably borrow a laptop to a friend but am not excited at
+> > the idea of having to setup some serial console thing (I do not even
+> > have a serial cable). Dump to floppy/swap/disk would be much easier in
+> > my case... if it could me made to work, of course ;-)
+> 
+> Those oopses looked rather spurious, i'm not sure what help those other
+> methods would be here. Try applying the following patch and be sure to
+> have access to the console. You may have to hand transcribe...
 
-For kmap_atomic? Run a x86-64 box ;-) 
+Interesting.  It would be nice to have a boot option that halts the system
+after the first oops, instead of trying to continue.
 
-In general doing things with more than one packet at a time would
-be probably a good idea, but I don't have any deep thoughts on how
-to implement this for TCP RX.
+Vince/Randy:
+Did you use the 2.5.65 patch at http://w.ods.org/tools/kmsgdump/ or is there
+some other place that has newer patches?
 
--Andi
+BTW, http://www.xenotime.net/linux/kmsgdump gives a 404 error.

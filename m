@@ -1,84 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314707AbSECQqP>; Fri, 3 May 2002 12:46:15 -0400
+	id <S314748AbSECQsu>; Fri, 3 May 2002 12:48:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314722AbSECQqO>; Fri, 3 May 2002 12:46:14 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:16133 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S314707AbSECQqL>;
-	Fri, 3 May 2002 12:46:11 -0400
-Date: Fri, 3 May 2002 18:45:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Sebastian Droege <sebastian.droege@gmx.de>
-Cc: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org,
-        linux-ide@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #2
-Message-ID: <20020503164555.GQ839@suse.de>
-In-Reply-To: <20020503110652.GF839@suse.de> <20020503163248.633c8358.sebastian.droege@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S314751AbSECQst>; Fri, 3 May 2002 12:48:49 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:18560 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S314748AbSECQss>; Fri, 3 May 2002 12:48:48 -0400
+Date: Fri, 3 May 2002 12:46:12 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Leandro Tavares Carneiro <leandro@ep.petrobras.com.br>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: High Memory Address Space
+In-Reply-To: <1020437001.2951.45.camel@linux60>
+Message-ID: <Pine.LNX.3.95.1020503123034.1208A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 03 2002, Sebastian Droege wrote:
-> On Fri, 3 May 2002 13:06:52 +0200
-> Jens Axboe <axboe@suse.de> wrote:
+On 3 May 2002, Leandro Tavares Carneiro wrote:
+
 > 
-> > Hi,
-> > 
-> > 2.5.13 now has the generic tag support that I wrote included, here's an
-> > IDE TCQ that uses that. Changes since the version posted for 2.5.12:
-> > 
-> > - Fix the ide_tcq_invalidate_queue() WIN_NOP usage needed to clear the
-> >   internal queue on errors. It was disabled in the last version due to
-> >   the ata_request changes, it should work now.
-> > 
-> > - Remove Promise tcq disable check, it works just fine on Promise as
-> >   long as we handle the two-drives-with-tcq case like we currently do.
+> How is the maximum memory address space, per process or for all process,
+> using High Memory Suport to 64Gb? Is possible to alocate more than 3GB
+> for one process? Is much diference between kernel 2.4.x and 2.5.x in the
+> high memory support?
 > 
-> Hi,
-> I get following oops after a while... it's not really reproducable but
-> happens a few minutes after bootup
-> With TCQ disabled the kernel is rock-solid ;)
-> I only use TCQ on one harddisk (hda)... hdb doesn't support it.
-> The IDE controller is an Intel Corp. 82371AB PIIX4 IDE (rev 01)
-> hda is a IBM-DTTA-351010
+> Thanks in advance for any help.
 
-Hmm strange, please send me your .config so I can see some more facts
-about your setup.
+Unix/Linux on 32-bit machines use 32-bit address space. All addresses
+are virtual so some of the pages can come from anywhere, including
+so-called "high memory". The memory managment makes these pages
+appear contiguous to each task (and to the kernel itself). One of
+the Unix characteristics is that the kernel address space is
+shared with each of the process address space. This means that the
+actual process address-space does not start at 0 and extend to
+0xffffffff. Instead it starts at an address that leaves room for
+the kernel. This split can, in principle, be changed. However
+it will result in only a few more megabytes of user address space
+and might interfere with the memory mapping of runtime libraries
+which, last time I checked, presume certain starting addresses:
 
-> ide_tcq_intr_timeout: timeout waiting for interrupt...
-> ide_tcq_intr_timeout: hwgroup not busy
+Script started on Fri May  3 12:39:03 2002
+# cat >xxx.c
+main() { return 0; }
 
-We timed out waiting for an interrupt for service or dma completion.
-Damn, I forgot to print which one. Please change that printk in
-drivers/ide/ide-tcq.c:ide_tcq_intr_timeout() to:
+# gcc -c -o xxx.o xxx.c
+# ld -o xxx xxx.o
+ld: warning: cannot find entry symbol _start; defaulting to 08048074
+# exit
+exit
+Script done on Fri May  3 12:39:45 2002
 
-	printk("ide_tcq_intr_timeout: timeout waiting for %s interrupt...\n",
-		hwgroup->rq ? "completion" : "service");
+You can see that the assumed starting address is 08048074.
 
-and reproduce!
+So, basically, if you need more address space, you need a 64-bit
+machine. Practically, if what you are doing won't fit in the
+address space provided, you should re-think how you are doing
+it. Usually this involves using the file-system. That's one of
+the things it's really good at.
 
-> hda: invalidating pending queue (10)
+Cheers,
+Dick Johnson
 
-Ok, so a service check produced nothing for the drive (ok, odds are good
-this is a completion interrupt timeout), so we proceeded to invalidate
-the block tag queue.
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
-> kernel BUG at ll_rw_blk.c:407!
-
-And apparently one of the request on the tag queue had no tag assigned,
-very odd. This means someone else ended it, but it didn't get cleared.
-Hmm. This is probably your problem, I'll have to think about this.
-
-[snip oops]
-
-At least part of the decode seems bogus (eip should be
-blk_queue_end_tag...) and the last traces should be ide_tcq_intr_timeout
--> ide_tcq_invalidate_queue -> blk_queue_invalidate_tags
-
-Thanks for testing!
-
--- 
-Jens Axboe
+                 Windows-2000/Professional isn't.
 

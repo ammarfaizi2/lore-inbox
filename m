@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261625AbSJUUcP>; Mon, 21 Oct 2002 16:32:15 -0400
+	id <S261635AbSJUUe7>; Mon, 21 Oct 2002 16:34:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbSJUUcP>; Mon, 21 Oct 2002 16:32:15 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:16600 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261625AbSJUUcO>; Mon, 21 Oct 2002 16:32:14 -0400
-Message-ID: <3DB464B9.7B44EB48@us.ibm.com>
-Date: Mon, 21 Oct 2002 13:34:01 -0700
-From: mingming cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S261638AbSJUUe7>; Mon, 21 Oct 2002 16:34:59 -0400
+Received: from smtp1.home.se ([195.66.35.200]:41911 "EHLO smtp1.home.se")
+	by vger.kernel.org with ESMTP id <S261635AbSJUUe5>;
+	Mon, 21 Oct 2002 16:34:57 -0400
+Message-ID: <001701c27942$278fc090$0219450a@sandos>
+From: =?iso-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with thinkpad 760xl, (Trident FB) TGUI 96xx
+Date: Mon, 21 Oct 2002 22:40:53 +0200
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]IPC locks breaking down with RCU
-References: <Pine.LNX.4.44.0210212056390.17270-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> 
-> In the original design, Mingming nicely split up the locks (greatly
-> reducing contention), but had them in an array (causing lots of bounce,
-> I believe): 
-I am not an expert of cacheline bouncing, so please point me if I miss
-something.  I wonder if we could reduce the bounce even with current
-design (the spinlock is in the data it protects).  We have to go through
-that array anyway to get access to the data (and the spinlock).
+> The tridentfb driver isnt working very good
 
-> I'm resisting a return to that design.
-OK, I will back to original design.
+I did not get this to work, but I atleast managed to
+get vesa-fb running. Vesa did not work on this machine
+without UNIVBE, so I now use loadlin from a floppy to
+load the kernel after Ive loaded UNIVBE, and then I use
+vesafb, which seems to be working nicely, X using it
+also. This should be pretty slow though. UNIVBE said
+the chip had support for nearly nothing, and only
+banked modes. Thats probably why the vesa-fb driver
+didint work.
+
+---
+John Bäckstrand
+
+

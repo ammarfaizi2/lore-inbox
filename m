@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268626AbTCCWAx>; Mon, 3 Mar 2003 17:00:53 -0500
+	id <S268625AbTCCWAH>; Mon, 3 Mar 2003 17:00:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268627AbTCCWAv>; Mon, 3 Mar 2003 17:00:51 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:33796 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id <S268626AbTCCWAt>; Mon, 3 Mar 2003 17:00:49 -0500
-Date: Mon, 3 Mar 2003 17:11:10 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@oddball.prodigy.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [2.5.63] aha152x, module issues
-Message-ID: <Pine.LNX.4.44.0303031710370.22041-100000@oddball.prodigy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268626AbTCCWAH>; Mon, 3 Mar 2003 17:00:07 -0500
+Received: from pirx.hexapodia.org ([208.42.114.113]:37800 "HELO
+	pirx.hexapodia.org") by vger.kernel.org with SMTP
+	id <S268625AbTCCWAG>; Mon, 3 Mar 2003 17:00:06 -0500
+Date: Mon, 3 Mar 2003 16:10:33 -0600
+From: Andy Isaacson <adi@hexapodia.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.61 (Yes, there are still Alpha users out there. :-) )
+Message-ID: <20030303161033.A7473@hexapodia.org>
+References: <20030220062323.GX351@lug-owl.de> <Pine.LNX.3.96.1030220060638.14551A-101000@gatekeeper.tmr.com> <20030220113624.GP351@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030220113624.GP351@lug-owl.de>; from jbglaw@lug-owl.de on Thu, Feb 20, 2003 at 12:36:24PM +0100
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-aha152x alternates between not compiling and not working. The kernel has it not compiling.
+On Thu, Feb 20, 2003 at 12:36:24PM +0100, Jan-Benedict Glaw wrote:
+> This reminds me that I wanted to have a look at an additional feature -
+> building the kernel _not_ within its source tree. So I wouldn't need to
+> place 10 copies of the kernel onto disk / into memory...
+> 
+> Haven't I seen patches flyin' around? Anyone?
 
-  gcc -Wp,-MD,drivers/scsi/.aha152x.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include -DMODULE  -DAHA152X_STAT -DAUTOCONF -DKBUILD_BASENAME=aha152x -DKBUILD_MODNAME=aha152x -c -o drivers/scsi/aha152x.o drivers/scsi/aha152x.c
-drivers/scsi/aha152x.c: In function `aha152x_detect':
-drivers/scsi/aha152x.c:1134: too many arguments to function `pnp_activate_dev'
-make[2]: *** [drivers/scsi/aha152x.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+You can save your buffercache memory by doing a
+"cp -al linux-2.5.61 linux-2.5.61-buildfoo", for each value of buildfoo,
+and do your builds in a cloned tree.  Hard links save the day!
 
-
-Hogwash. I unpacked the source, copied the (working) 2.5.59 .config,
-and made oldconfig, bzImage, modules and modules_install in that order.
-I never even thought of playing with SUBDIRS... And the
-/lib/modules/2.5.63 directory did not even exist when I started, so the
-whine about stale module entries clearly doesn't mean what I would
-assume.
-
-++ make modules_install
-make -rR -f scripts/Makefile.modinst
-scripts/Makefile.modinst:16: *** Uh-oh, you have stale module entries. You messed with SUBDIRS, do not complain if something goes wrong.
-  mkdir -p /lib/modules/2.5.63/kernel/fs; cp fs/binfmt_aout.ko /lib/modules/2.5.63/kernel/fs
-cp: cannot stat `fs/binfmt_aout.ko': No such file or directory
-make[1]: *** [fs/binfmt_aout.ko] Error 1
-make: *** [_modinst_] Error 2
-
-
-
+-andy

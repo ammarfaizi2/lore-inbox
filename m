@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261744AbSJNPyQ>; Mon, 14 Oct 2002 11:54:16 -0400
+	id <S261757AbSJNP44>; Mon, 14 Oct 2002 11:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261835AbSJNPyQ>; Mon, 14 Oct 2002 11:54:16 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:31106 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261744AbSJNPyP>;
-	Mon, 14 Oct 2002 11:54:15 -0400
-Date: Mon, 14 Oct 2002 08:58:02 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Wim Van Sebroeck <wim@iguana.be>
-cc: Dave Jones <davej@codemonkey.org.uk>, Rob Radez <rob@osinvestor.com>,
-       Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Watchdog drivers
-In-Reply-To: <20021014144158.A19209@medelec.uia.ac.be>
-Message-ID: <Pine.LNX.4.33L2.0210140857050.24860-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261861AbSJNP44>; Mon, 14 Oct 2002 11:56:56 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:23310 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261757AbSJNP44>; Mon, 14 Oct 2002 11:56:56 -0400
+Date: Mon, 14 Oct 2002 17:02:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Richard Stallman <rms@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outragem, old and new
+Message-ID: <20021014170248.A19897@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
+References: <E180rX3-0005dL-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E180rX3-0005dL-00@fencepost.gnu.org>; from rms@gnu.org on Sun, Oct 13, 2002 at 06:48:22PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Oct 2002, Wim Van Sebroeck wrote:
+On Sun, Oct 13, 2002 at 06:48:22PM -0400, Richard Stallman wrote:
+> If the latest outrage brings the spirit of the non-free Bitkeeper
+> license into clear view, perhaps that will be enough to convince the
+> developers of Linux to stop using Bitkeeper for Linux development.
 
-| On Mon, Oct 14, 2002 at 01:22:39PM +0100, Dave Jones wrote:
-|
-| >  > Now I'm still left with my original question: wouldn't it be easier if we
-| >  > put all watchdog drivers in drivers/char/watchdog/ ?
-| >
-| > I'd say go for it. drivers/char/ is looking quite cluttered, and this
-| > has the added advantage of decreasing the size of the Config.in and
-| > config.help files too.
-|
-| I still see two options:
-| 1) drivers/char/watchdog/
-| 2) drivers/watchdog/
-|
-| Not sure what's best in this case...
-
-I agree that you should split them out.
-I would expect them to be in drivers/char/watchdog .
-
--- 
-~Randy
-  "In general, avoiding problems is better than solving them."
-  -- from "#ifdef Considered Harmful", Spencer & Collyer, USENIX 1992.
+It's still linuxand not GNU/Linux, so I'd suugest you troll with your
+advice on some FSF list.
 

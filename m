@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbTDXQTU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 12:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTDXQTT
+	id S261896AbTDXQPY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 12:15:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbTDXQPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 12:19:19 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:56962 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262620AbTDXQTS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 12:19:18 -0400
-Date: Thu, 24 Apr 2003 09:31:23 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 632] New: stream of bugus retval mask errors from ips on boot 
-Message-ID: <82680000.1051201883@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Thu, 24 Apr 2003 12:15:24 -0400
+Received: from gate.perex.cz ([194.212.165.105]:1035 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S261896AbTDXQPX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 12:15:23 -0400
+Date: Thu, 24 Apr 2003 18:26:44 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Matthias Schniedermeyer <ms@citd.de>, Pat Suwalski <pat@suwalski.net>,
+       Jamie Lokier <jamie@shareable.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 623] New: Volume not remembered.
+In-Reply-To: <20030424130151.O3557@almesberger.net>
+Message-ID: <Pine.LNX.4.44.0304241818400.1758-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=632
+On Thu, 24 Apr 2003, Werner Almesberger wrote:
 
-           Summary: stream of bugus retval mask errors from ips on boot
-    Kernel Version: 2.5.68-bkcurrent
-            Status: NEW
-          Severity: normal
-             Owner: andmike@us.ibm.com
-         Submitter: plars@austin.ibm.com
+> Matthias Schniedermeyer wrote:
+> > man amixer
+> 
+> Thanks. Yes, this indeed seems to map to some functionality that's
+> understood by the kernel.
+> 
+> Strange. So does this mean that non-ALSA mixers should not work when
+> using ALSA ?
 
+We have emulation layer for non-ALSA mixers. This layer turns mute off 
+automagically when volume is greater than zero. This layer doesn't work 
+100%, because ALSA API is more extended and there is no way to map the 
+extended features to limited API.
 
-Distribution:
-SuSE 8.0
-Hardware Environment:
-2-way PIII 550, ServeRaid (ips)
-Software Environment:
-Problem Description:
-This system generates a ton of messages like this on boot:
-Apr 24 10:52:07 triumph kernel: handlers:
-Apr 24 10:52:07 triumph kernel: [<c02ac9d8>] (do_ipsintr+0x0/0xdc)
-Apr 24 10:52:07 triumph kernel: irq event 11: bogus retval mask f7d31600
-Apr 24 10:52:07 triumph kernel: Call Trace:
-Apr 24 10:52:07 triumph kernel:  [<c010ae04>] handle_IRQ_event+0x94/0xf0
-Apr 24 10:52:07 triumph kernel:  [<c010b0e9>] do_IRQ+0xf9/0x1b0
-Apr 24 10:52:07 triumph kernel:  [<c0106df0>] default_idle+0x0/0x34
-Apr 24 10:52:07 triumph kernel:  [<c0105000>] _stext+0x0/0x70
-Apr 24 10:52:07 triumph kernel:  [<c0109910>] common_interrupt+0x18/0x20
-Apr 24 10:52:07 triumph kernel:  [<c0106df0>] default_idle+0x0/0x34
-Apr 24 10:52:07 triumph kernel:  [<c0105000>] _stext+0x0/0x70
-Apr 24 10:52:07 triumph kernel:  [<c0106e1c>] default_idle+0x2c/0x34
-Apr 24 10:52:07 triumph kernel:  [<c0106ea3>] cpu_idle+0x37/0x48
-Apr 24 10:52:07 triumph kernel:  [<c010506d>] _stext+0x6d/0x70
-Apr 24 10:52:07 triumph kernel:  [<c04bc772>] start_kernel+0x176/0x180
+> Why do they seem to anyway ?
 
-I can attach the entire log if you want, but they all look identical to me,
-irq even 11, mask f7d31600, etc.
+> Is the driver or hardware side of this mute flag just rarely implemented?
 
-Steps to reproduce:
-Boot on an ips machine with that kernel
+Most of PCI cards which are based on AC97 supports muting for analog i/o.
 
+> Or is the kernel default not always "mute" ?
+
+We mute almost everything. Today, we preset only some of digital controls
+and we preserve volume settings for USB devices (might be changed, of 
+course).
+
+Our policy is: Don't allow to users to jump from skin when default volumes 
+are invalid. Because we cannot determine the settings of an user amplifier
+(analog path), the most safe is mute everything.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs
 

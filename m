@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318483AbSGSJ3i>; Fri, 19 Jul 2002 05:29:38 -0400
+	id <S318492AbSGSJcq>; Fri, 19 Jul 2002 05:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318485AbSGSJ3i>; Fri, 19 Jul 2002 05:29:38 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:36484 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S318483AbSGSJ3f>; Fri, 19 Jul 2002 05:29:35 -0400
-Date: Fri, 19 Jul 2002 02:30:27 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: [PATCH 6/6] VM statistics for full rmap
-Message-ID: <Pine.LNX.4.44.0207190154390.4647-100000@loke.as.arizona.edu>
+	id <S318493AbSGSJcq>; Fri, 19 Jul 2002 05:32:46 -0400
+Received: from p50887DBB.dip.t-dialin.net ([80.136.125.187]:47749 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318492AbSGSJcp>; Fri, 19 Jul 2002 05:32:45 -0400
+Date: Fri, 19 Jul 2002 03:35:03 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Severe problems with 2.4.19-rc2-aa1 on k6-II
+In-Reply-To: <20020719112528.B15517@oldwotan.suse.de>
+Message-ID: <Pine.LNX.4.44.0207190333350.3378-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Fri, 19 Jul 2002, Andrea Arcangeli wrote:
+> > 2. Mouse and keyboard are both on one port. Now if I load gpm, the whole 
+> > PS/2 controller gets stuck until I unplug both mouse and keyboard and then 
+> > re-plug them. It all worked fine ever before.
 
-This adopts Rik van Riel's recent extended VM statistics patch for the 
-'armed-to-the-gills-kitchen-sink rmap' against 2.5.26.  The aim, in 
-combination with a meaningful benchmark suite, is to be able to have the 
-statistical ammunition to fine tune the VM properly, rather than twiddling 
-all knobs at once hoping to make things better. 
+Fair enough, from the moment I sent this mail (2) never happened again. 
+However, the IDE mis-probing is still present, and reproducible with any 
+2.4.18+ kernel.
 
-Get the patch series here: 
-	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.26/
-
-Rik's original announcement is here:
-	http://mail.nl.linux.org/linux-mm/2002-07/msg00172.html
-
-and I have added Bill Irwin's alterations to the patch, described here:
-	http://www.cs.helsinki.fi/linux/linux-kernel/2002-28/1287.html
-
-Given the late hour, I have almost certainly forgotten some hooks in 
-vmscan, so count it as a first, harmless cut at the problem.  Feedback 
-and fixes welcome! :)
-
-For 2.5.27, I'll make sure this patch is incremental to Rik's stats patch, 
-and not a replacement for it.  Sorry 'bout that...
-
-Craig Kulesa
-Steward Observatory
-Univ. of Arizona
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

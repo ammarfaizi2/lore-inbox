@@ -1,98 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbULABAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbULABAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbULABAh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 20:00:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbULAA75
+	id S261170AbULABAi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 20:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbULAA7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:59:57 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:27914 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261201AbULAAsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:48:19 -0500
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alexandre Oliva <aoliva@redhat.com>, dhowells <dhowells@redhat.com>,
-       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-In-Reply-To: <Pine.LNX.4.58.0411301636050.22796@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
-	 <19865.1101395592@redhat.com>
-	 <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
-	 <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
-	 <20041127032403.GB10536@kroah.com>
-	 <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
-	 <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
-	 <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <8219.1101828816@redhat.com>
-	 <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org>
-	 <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <Pine.LNX.4.58.0411301249590.22796@ppc970.osdl.org>
-	 <orekibrpmn.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <Pine.LNX.4.58.0411301423030.22796@ppc970.osdl.org>
-	 <1101854061.4574.4.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0411301447570.22796@ppc970.osdl.org>
-	 <1101858657.4574.33.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0411301605500.22796@ppc970.osdl.org>
-	 <1101860688.4574.50.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0411301636050.22796@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Wed, 01 Dec 2004 00:47:37 +0000
-Message-Id: <1101862057.4574.67.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 30 Nov 2004 19:59:44 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:30423 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261170AbULAAsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 19:48:35 -0500
+Date: Wed, 01 Dec 2004 09:50:02 +0900
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+Subject: Re: [ANNOUNCE 1/7] Diskdump 1.0 Release
+In-reply-to: <1101785039.14565.11.camel@localhost.localdomain>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkdump-develop@lists.sourceforge.net
+Message-id: <44C4D73FB0E4B3indou.takao@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: TuruKame 3.71
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <1101785039.14565.11.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-30 at 16:37 -0800, Linus Torvalds wrote:
-> 
-> On Wed, 1 Dec 2004, David Woodhouse wrote:
-> > 
-> > The concept isn't at all hard to understand. But no patch is 'obviously
-> > correct' if you want to protect against the _slightest_ possibility that
-> > people might be abusing something you're taking away. 
-> 
-> I really disagree. That's kind of my point. We _can_ make sure that there 
-> is abzolutely zero semantic content change.
+On Tue, 30 Nov 2004 14:23:59 +1100, Rusty Russell wrote:
 
-We've _never_ made sure that there's absolutely zero semantic content
-change in our private headers.
+>On Mon, 2004-11-29 at 19:37 +0900, Takao Indoh wrote:
+>> This is a patch for diskdump common layer.
+>...
+>
+>> +static int fallback_on_err = 1;
+>> +static int allow_risky_dumps = 1;
+>> +static unsigned int block_order = 2;
+>> +static int sample_rate = 8;
+>> +module_param_named(fallback_on_err, fallback_on_err, bool, S_IRUGO|
+>> S_IWUSR);
+>> +module_param_named(allow_risky_dumps, allow_risky_dumps, bool, S_IRUGO|
+>> S_IWUSR);
+>> +module_param_named(block_order, block_order, uint, S_IRUGO|S_IWUSR);
+>> +module_param_named(sample_rate, sample_rate, int, S_IRUGO|S_IWUSR);
+>
+>You can just use "module_param" here (and elsewhere in the patch), since
+>the name is the same as the variable name.
 
-> People both inside and outside the kernel who use the old <linux/xxx.h>
-> headers will get exactly what they got before if we do it right.
+I see, thanks!
 
-They'll get that if we change nothing at all.
 
-> > Some people might define __KERNEL__ on purpose when compiling something
-> > in userspace, to get something that would otherwise be hidden from them.
-> > Would you consider that sacrosanct too?
-> 
-> Why _do_ you want to break things? Do the cleanup. Don't do the breakage.
-
-I'm trying to understand precisely where _you_ want to draw the line
-between 'cleanup' and 'breakage'. 
-
-You obviously don't agree that including atomic.h was an entirely stupid
-thing for userspace to be doing in the first place, and that it's
-reasonable for that not to compile in future; you believe that it should
-continue to compile and silently do the wrong thing. We've covered that
-much.
-
-So where _do_ you draw the line? Trying to use spinlock.h? Defining
-__KERNEL__ before including kernel headers?
-
-I can try to apply common sense here, having discussed it with a bunch
-of other people. But you don't seem to agree with that; hence further
-guidance would be appreciated. But we can just submit patches to do the
-cleanups and see what you take and what you don't, if you really want to
-make us jump through hoops for the sake of it without indicating what
-you'd accept and what you'd not beforehand.
-
--- 
-dwmw2
-
+Best Regards,
+Takao Indoh

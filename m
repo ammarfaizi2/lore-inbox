@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290721AbSBLCYP>; Mon, 11 Feb 2002 21:24:15 -0500
+	id <S290736AbSBLCqi>; Mon, 11 Feb 2002 21:46:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290720AbSBLCYF>; Mon, 11 Feb 2002 21:24:05 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8071 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290721AbSBLCXw>;
-	Mon, 11 Feb 2002 21:23:52 -0500
-Date: Mon, 11 Feb 2002 18:22:08 -0800 (PST)
-Message-Id: <20020211.182208.102575913.davem@redhat.com>
-To: davidm@hpl.hp.com
-Cc: anton@samba.org, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: thread_info implementation
+	id <S290729AbSBLCqX>; Mon, 11 Feb 2002 21:46:23 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:24455 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290736AbSBLCqH> convert rfc822-to-8bit;
+	Mon, 11 Feb 2002 21:46:07 -0500
+Date: Mon, 11 Feb 2002 18:44:12 -0800 (PST)
+Message-Id: <20020211.184412.35663889.davem@redhat.com>
+To: groudier@free.fr
+Cc: alan@lxorguk.ukuu.org.uk, zaitcev@redhat.com, stodden@in.tum.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: pci_pool reap?
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15464.30088.754007.311391@napali.hpl.hp.com>
-In-Reply-To: <15464.29104.798819.399971@napali.hpl.hp.com>
-	<20020211.174102.28786938.davem@redhat.com>
-	<15464.30088.754007.311391@napali.hpl.hp.com>
+In-Reply-To: <20020210211352.Q1910-100000@gerard>
+In-Reply-To: <E16a6sw-0005Jw-00@the-village.bc.nu>
+	<20020210211352.Q1910-100000@gerard>
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@hpl.hp.com>
-   Date: Mon, 11 Feb 2002 17:53:12 -0800
+   From: Gérard Roudier <groudier@free.fr>
+   Date: Sun, 10 Feb 2002 21:20:05 +0100 (CET)
 
-   Loads are certainly not free on many CPU models.  This is made worse
-   by the fact that C alias analysis has to be so pessimistic, especially
-   given that the kernel is compiled with -fno-strict-aliasing.
+   On Mon, 11 Feb 2002, Alan Cox wrote:
+   
+   > This function may not be called in interrupt context.
+   
+   Such limitation looks poor implementation to me.
 
-I implemented the thread_info stuff, and I checked out the
-performance, have you?
+I agree with you Gerard, and probably nobody truly even requires
+this limitation.  I do plan to remove it after I've done a thorough
+investigation of the platform implementations.

@@ -1,1332 +1,881 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbSLHPZ4>; Sun, 8 Dec 2002 10:25:56 -0500
+	id <S261322AbSLHPm3>; Sun, 8 Dec 2002 10:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261322AbSLHPZ4>; Sun, 8 Dec 2002 10:25:56 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:48647 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S261295AbSLHPZ3>; Sun, 8 Dec 2002 10:25:29 -0500
-Date: Sun, 8 Dec 2002 13:33:01 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: jgarzik@pobox.com
-Subject: [PATCHES] 2: more trivial compile fix and includes fixups patches
-Message-ID: <20021208153301.GA14779@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	jgarzik@pobox.com
-References: <20021207182510.GE10322@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AhhlLboLdkugWU4S"
-Content-Disposition: inline
-In-Reply-To: <20021207182510.GE10322@conectiva.com.br>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S261333AbSLHPm3>; Sun, 8 Dec 2002 10:42:29 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:12284 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261322AbSLHPmS>; Sun, 8 Dec 2002 10:42:18 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200212081549.gB8Fnx527793@devserv.devel.redhat.com>
+Subject: Linux 2.5.50-ac1
+To: linux-kernel@vger.kernel.org
+Date: Sun, 8 Dec 2002 10:49:59 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Linus,
-
-	Please consider pulling from:
-
-bk://kernel.bkbits.net/acme/misc-2.5
-	
-	There are 34 outstanding changesets, the last 20 are attached.
-
-	Jeff, again, some for drivers/net
-
-- Arnaldo
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.857.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.857, 2002-12-07 23:33:19-02:00, acme@conectiva.com.br
-  o epca: use module_{init,exit}, {cleanup,init}_module now are macros
-
-
- epca.c |   19 +++++++------------
- 1 files changed, 7 insertions(+), 12 deletions(-)
-
-
-diff -Nru a/drivers/char/epca.c b/drivers/char/epca.c
---- a/drivers/char/epca.c	Sun Dec  8 13:27:48 2002
-+++ b/drivers/char/epca.c	Sun Dec  8 13:27:48 2002
-@@ -141,12 +141,6 @@
- 	configured.
- ----------------------------------------------------------------------- */
- 	
--
--#ifdef MODULE
--int                init_module(void);
--void               cleanup_module(void);
--#endif /* MODULE */
--
- static inline void memwinon(struct board_info *b, unsigned int win);
- static inline void memwinoff(struct board_info *b, unsigned int win);
- static inline void globalwinon(struct channel *ch);
-@@ -1534,8 +1528,7 @@
- } /* End pc_open */
- 
- #ifdef MODULE
--/* -------------------- Begin init_module ---------------------- */
--int __init init_module()
-+static int __init epca_module_init(void)
- { /* Begin init_module */
- 
- 	unsigned long	flags;
-@@ -1548,8 +1541,9 @@
- 	restore_flags(flags);
- 
- 	return(0);
--} /* End init_module */
-+}
- 
-+module_init(epca_module_init);
- #endif
- 
- #ifdef ENABLE_PCI
-@@ -1559,8 +1553,8 @@
- #ifdef MODULE
- /* -------------------- Begin cleanup_module  ---------------------- */
- 
--void cleanup_module()
--{ /* Begin cleanup_module */
-+static void __exit epca_module_exit(void)
-+{
- 
- 	int               count, crd;
- 	struct board_info *bd;
-@@ -1613,7 +1607,8 @@
- 
- 	restore_flags(flags);
- 
--} /* End cleanup_module */
-+}
-+module_exit(epca_module_exit);
- #endif /* MODULE */
- 
- /* ------------------ Begin pc_init  ---------------------- */
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.857
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31784
-M'XL(`/1D\ST``\U4WV_3,!!^KO^*D_;"1)/X[/Q&164;@FE(5$5[KCS'+!%-
-M7"5N-]3T?\=)JU)*Q\3$`VFDL\YW]WUW]Z5G<-NH.AT(62IR!A]U8]*!U)62
-MIE@)5^K2O:OMQ51K>^'ENE3>Q8U7%HUTF!L0>S411N:P4G63#M#E>X_YOE#I
-M8/K^P^VG=U-"1B.XS$5UK[XH`Z,1,;I>B7G6C(7)Y[IR32VJIE2F!VWWH2VC
-ME-E?@!&G0=AB2/VHE9@A"A]51ID?AS[I^(^/>1]5048CC%B`V/J,84BN`-TX
-MB(`R#YE'(V`\Y3S%Q*$LI11.%H77"`XE%_!O&[@D$C2HA10I+!L%I<Z6<S5;
-M%U5AANJQ,)LAK.5<B6JY&';.S6P;`I5^`%';#"%KW9`;\%D2(9G\'#=Q_O(A
-MA`I*WC[38E87W=8]F8O:ZYB[\J!9G]*@]3ERUL9W@F&<?(UY1%$$R>G!/EG/
-M[BVFR#F&;6"/K-?2B>#G5?5BQJ0LJGL]5G.CW'SY-%-*$1.KL;"U6Z:\5QCR
-MWP06_EE@$3C(_F>%;=?P&9SZH7^M8B:G-O("X5VA[X/]-#'@=ESDVMH8D#1&
-MF$)"41F8S3IR?2,[@KWCU4H7V7F7&*!-N-[937]B]G08>YQ\_J9+#-D6,>36
-M[A"[JA:RF\\OD)UC![FVN2&&/6AGF04]C#I.LV#[/TF9*_FM69:C.$RL<E1`
-*?@!L=#$;D@4`````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.858.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.858, 2002-12-07 23:41:49-02:00, acme@conectiva.com.br
-  o istallion: use module_{init,exit}, {cleanup,init}_module now are macros
-
-
- istallion.c |    8 +++++---
- 1 files changed, 5 insertions(+), 3 deletions(-)
-
-
-diff -Nru a/drivers/char/istallion.c b/drivers/char/istallion.c
---- a/drivers/char/istallion.c	Sun Dec  8 13:27:41 2002
-+++ b/drivers/char/istallion.c	Sun Dec  8 13:27:41 2002
-@@ -796,7 +796,6 @@
-  *	not increase character latency by much either...
-  */
- static struct timer_list stli_timerlist = TIMER_INITIALIZER(stli_poll, 0, 0);
--};
- 
- static int	stli_timeron;
- 
-@@ -813,7 +812,7 @@
-  *	Loadable module initialization stuff.
-  */
- 
--int init_module()
-+static int __init istallion_module_init(void)
- {
- 	unsigned long	flags;
- 
-@@ -831,7 +830,7 @@
- 
- /*****************************************************************************/
- 
--void cleanup_module()
-+static void __exit istallion_module_exit(void)
- {
- 	stlibrd_t	*brdp;
- 	stliport_t	*portp;
-@@ -897,6 +896,9 @@
- 
- 	restore_flags(flags);
- }
-+
-+module_init(istallion_module_init);
-+module_exit(istallion_module_exit);
- 
- /*****************************************************************************/
- 
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.858
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31752
-M'XL(`.UD\ST``\U476_3,!1]KG_%E?;"1)OX*Y^HJ&Q#,`V)JFA/@"K',20B
-MB:?$Z4#+_CM.6KIJZU;Q\4`2R=*]/N?>XWN<([AL5!V/A"P5.H*WNC'Q2.I*
-M29.OA"-UZ22U32RTM@DWTZ5R3R[<,F_DA#H>LJFY,#*#E:J;>$0<MHV8'U<J
-M'BU>O[E\]VJ!T'0*IYFHOJH/RL!TBHRN5Z)(FYDP6:$KQ]2B:DIEAJ+==FM'
-M,:;V]4C`L.=WQ,<\Z"1)"1&<J!13'OH<]?W/[O=]CX50'&+"&(DZ3J.`H#,@
-M3NB%@*E+J(L#H"SF).;1!-,88]A+"L\)3#`Z@7\KX!1)T)`W1A1%KJL8VD9!
-MJ=.V4,N;O,K-6'W/S>T8;F2A1-5>C?O@[7*]!2I]#:*V""%KW:`+X)1:UOG=
-MF:/);SX(88'1RP,ZTSKO1^_*3-3NMGU'[LCF&/..L,@+NL1/0IR$B<*,IH'D
-M^X_X:=+U&#GA7L>B"+/!6H\A#COM[P2@55[K66F9G:NF=53:?OQ5[O-!&9QB
-M%E+6T<!CT>!&XC\PH_>T&3V8L/_>C.LYO8=)?3U\UESS1T?V!T8]"Z((['T.
-M[?D1=+Y>+*/))>25@>6R[^].T*;1(?ILI?/TV&(9'[##LL'V*0ONQ3X$]]$-
-M^#RT]1GZA'9Y]U8[?H%VX7M)[9[M3U1F2GYKVG*:LB^)2'R)?@)56"H;L@4`
-!````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.859.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.859, 2002-12-07 23:42:18-02:00, acme@conectiva.com.br
-  o stallion: use module_{init,exit}, {cleanup,init}_module now are macros
-
-
- stallion.c |    7 +++++--
- 1 files changed, 5 insertions(+), 2 deletions(-)
-
-
-diff -Nru a/drivers/char/stallion.c b/drivers/char/stallion.c
---- a/drivers/char/stallion.c	Sun Dec  8 13:27:33 2002
-+++ b/drivers/char/stallion.c	Sun Dec  8 13:27:33 2002
-@@ -757,7 +757,7 @@
-  *	Loadable module initialization stuff.
-  */
- 
--int init_module()
-+static int __init stallion_module_init(void)
- {
- 	unsigned long	flags;
- 
-@@ -775,7 +775,7 @@
- 
- /*****************************************************************************/
- 
--void cleanup_module()
-+static void __exit stallion_module_exit(void)
- {
- 	stlbrd_t	*brdp;
- 	stlpanel_t	*panelp;
-@@ -850,6 +850,9 @@
- 
- 	restore_flags(flags);
- }
-+
-+module_init(stallion_module_init);
-+module_exit(stallion_module_exit);
- 
- /*****************************************************************************/
- 
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.859
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31720
-M'XL(`.5D\ST``\U476^;,!1]CG_%E?JR:@%L8P-ARI2UG;JJE1IEZM,V1:YQ
-M!QK@"$RZJ?2_SY`TB]JTT3X>!DB6[KWGW'-]CSB`JUI5\4#(0J$#^*!K$P^D
-M+I4TV5*X4A?N=643,ZUMPDMUH;RC<Z_(:NE0ER.;F@HC4UBJJHX'Q/4W$?-C
-MH>+![/WIU<6[&4+C,1RGHORJ/BH#XS$RNEJ*/*DGPJ2Y+EU3B;(NE.F;MIO2
-MEF),[<M)Z&,>M"3`+&PE20@1C*@$4Q8%#'7Z)X]U/V(A%$>8,,)&+:/4@DZ`
-MN!$?`:8>H1X.@?HQHS&)'$QCC&$G*;PFX&!T!/]V@&,D04-M1)YGNHRAJ144
-M.FER-;_+RLP,U??,W`_A3N9*E,UBV`7OYZL2*/4MB,HBA*QTC<Z!$<X9FOZZ
-M<N3\YH,0%AB]W3-F4F7=YCV9BLI[4._*K:$9QKP-6.#S=H1Y>',MI1I1GA#)
-M=U_PBYSK'5+2<8ZHW_OJ&<!^E_V5>K3,*CTI++&[J!M7)<VGAVY?]LW`*/8C
-MZK><AA'O?4CX$QOREVW(P:'_NPU7.[H$I[KM/VNKZ7/K^@.'GH0!!H+.5H>E
-M,IF$K#0PGW>Z-G.L]?7!5TN=)8<6&D8]M#_6T"YEL=V,3[!=<(T]BS@%'WU&
-FV[2[>AV^0=OH792V9//'E*F2W^JF&/,;(01G#/T$=*A0?9\%````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.860.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.860, 2002-12-08 00:57:30-02:00, acme@conectiva.com.br
-  o cdrom/gscd: fixup printk format specifier
-
-
- gscd.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/cdrom/gscd.c b/drivers/cdrom/gscd.c
---- a/drivers/cdrom/gscd.c	Sun Dec  8 13:27:26 2002
-+++ b/drivers/cdrom/gscd.c	Sun Dec  8 13:27:26 2002
-@@ -268,7 +268,7 @@
- 		goto out;
- 
- 	if (req->cmd != READ) {
--		printk("GSCD: bad cmd %d\n", rq_data_dir(req));
-+		printk("GSCD: bad cmd %lu\n", rq_data_dir(req));
- 		end_request(req, 0);
- 		goto repeat;
- 	}
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.860
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31688
-M'XL(`-YD\ST``\V4;6O;,!#'7UN?XF@9M&RQ3P]^B$=&UF2THX.%E+[:1E$E
-MI3:-K516L@W\X>LFK!E=MK"R%Y,$`MUQ][^['SJ$R\:X/)"J,N00SFSC\T#9
-MVBA?KF2H;!5>N\XPM;8S1(6M3'1R'E5EHWHLC$EGFDBO"E@9U^0!#?GCB_^^
-M,'DP?7=Z^>'ME)#!`$:%K&_,A?$P&!!OW4K.=3.4OIC;.O1.UDUE_#II^^C:
-M,D36[9BF'..DI0F*M%544RH%-1J9R!)!'O0/G^I^$H4RS)`*1K-6T#@69`PT
-MS!($9!%E$6:`F,=ISK&'+$>$G4'A)84>DA/XMP6,B`(+2CM;13>-TCG,RF_+
-M!2Q<6?M;F%E720_-PJAR5AI'SD%@IYU,METEO;]<A*!$\F9/)=J5#\.-MMI"
-M]5-1`BFV7'`6M\)0CDKTXWYFV$S3W0W\?<#U@%B<LK2E&8^S-32[O/?S\WS1
-M9%4Z.^R:782+9AD:O?ST(]67/TBGM&.+][$;<,8X7[/%?T&+I7O1HO\!6ION
-M?X2>^[H^'2J3G8-X!G)CEE*@Y/WF"H*-BJ.#TXO1.(=KJ4%5&E[,EY_K@U?@
-G[JZT]/)*E^[(F;OCX]?;+T<51MTVRVJ0($]BWI^1>_;,-A?.!```
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.861.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.861, 2002-12-08 00:58:07-02:00, acme@conectiva.com.br
-  o appletalk/cops: add missing linux/spinlock include
-
-
- cops.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-diff -Nru a/drivers/net/appletalk/cops.c b/drivers/net/appletalk/cops.c
---- a/drivers/net/appletalk/cops.c	Sun Dec  8 13:27:20 2002
-+++ b/drivers/net/appletalk/cops.c	Sun Dec  8 13:27:20 2002
-@@ -68,6 +68,7 @@
- #include <linux/if_ltalk.h>	/* For ltalk_setup() */
- #include <linux/delay.h>	/* For udelay() */
- #include <linux/atalk.h>
-+#include <linux/spinlock.h>
- 
- #include <asm/system.h>
- #include <asm/bitops.h>
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.861
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31656
-M'XL(`-AD\ST``]5476_4,!!\/O^*E>X1)=EU?(D3D:JT($!%XG2H/\!UK":Z
-M)(YBWP%2?CSN4;6TE)[X>,'VD]<>S\R.O(1+9Z9RH71OV!+>6>?+A;:#T;[=
-MJUC;/KZ:0F%C;2@DC>U-<G:1]*W3$8]7+)36RNL&]F9RY8+B]&['?QU-N=B\
-M>7OYX=6&L:J"\T8-U^:3\5!5S-MIK[K:G2K?=':(_:0&UQM_>'2^.SIS1![F
-MBO(45]E,&8I\UE03*4&F1BYD)M@-_]/'O!^A$$>)?!5P9H$R0_8:*)89`?*$
-M>((2$,N5+#&/D)>(\"0HO""(D)W!OQ5PSC184./8!81NFV@[NA)474/PVK7#
-M-73ML/N2N+$=.JNWT`ZZV]6&74`0(R5;W]O+HM\<C*%"=G)$4CVU-UU.!N.3
-MAT1C_8-*@2CFX'0A9X-&B!2%UJK0**Z>=O0X\&WG)*9S6A12'-+TW*WC`?M[
-M,;_(W'$Q%/1PS(CF-!><#C&DGU.8_E\I_-Z8CQ!-GP\KI&K];(_^(*7O<P1B
-BR]M'X>5#,G%S<O\?Z<;HK=OU%:594%9P]@UK3$'YZP0`````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.862.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.862, 2002-12-08 00:59:07-02:00, acme@conectiva.com.br
-  o sound/mpu401: attach_mpu returns int
-
-
- mpu401.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/sound/oss/mpu401.h b/sound/oss/mpu401.h
---- a/sound/oss/mpu401.h	Sun Dec  8 13:27:13 2002
-+++ b/sound/oss/mpu401.h	Sun Dec  8 13:27:13 2002
-@@ -7,7 +7,7 @@
- 
- /*	From mpu401.c */
- int probe_mpu401(struct address_info *hw_config);
--void attach_mpu401(struct address_info * hw_config, struct module *owner);
-+int attach_mpu401(struct address_info * hw_config, struct module *owner);
- void unload_mpu401(struct address_info *hw_info);
- 
- int intchk_mpu401(void *dev_id);
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.862
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31623
-M'XL(`-%D\ST``\5476O;,!1]CG[%A;YLW6)?R?)'/#*RMF,;'2QD]#FH\FWM
-M+;:*)"<,_..G9*7-VHZP#Y@D)*1[.3KWZ*`CN'!DRY'2+;$C>&^<+T?:=*1]
-MLU:1-FUT:4-@84P(Q+5I*3XYC]O&Z;&(4A9"<^5U#6NRKASQ*+D[\=]NJ!PM
-MWKZ[^/AFP=AT"J>UZJ[I,WF83IDW=JU6E9LI7Z],%WFK.M>2WUTZW*4.`E&$
-MGO(\P30;>(8R'S2O.%>24X5"%IED6_ZSA[P?H'"!!8JTP'R06!0%.P,>%9D`
-M%#$7,1:`6*:3$O,QBA(1G@2%%QS&R$[@WQ9PRC08<*;OJKB]Z27R$I3W2M?+
-ML`5+OK>=@Z;S[!PDS[*4S>\%9>/?;(RA0O;Z0!&5;;;O&N_3BNJ]BL(>!RZ"
-MK`-/\H+CA"XG.4_5)'M:O>$'E''N9[C;MYE@,DB9!SVV?GF<>]@X?T.956I-
-M7V:N=Q15]"NJ*#$)*XHL4"VR?&<C^<A$R4$3\?]LHIW.GV!L-[L13#%_0O(_
-ML-891^#LPVX.=^U1"(C/G+>]#H=59<FY9=-=&3B&>K,,(ETUUR_A-J$U5;\B
-@.#:;CNSS5_=?C:Y)?W5].Q4)D:0L8=\!)ZUY%\8$````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.863.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.863, 2002-12-08 01:00:36-02:00, acme@conectiva.com.br
-  o net/dl2k: test_bit expects pointer to long
-
-
- dl2k.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/net/dl2k.c b/drivers/net/dl2k.c
---- a/drivers/net/dl2k.c	Sun Dec  8 13:27:06 2002
-+++ b/drivers/net/dl2k.c	Sun Dec  8 13:27:06 2002
-@@ -1142,7 +1142,8 @@
- 	u16 rx_mode = 0;
- 	int i;
- 	int bit;
--	int index, crc;
-+	int index;
-+	long crc;
- 	struct dev_mc_list *mclist;
- 	struct netdev_private *np = dev->priv;
- 	
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.863
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31589
-M'XL(`,ID\ST``\U446O;,!!^MG[%01^'[3M9LA,7CZSMV$8'"QE]+HJDQ2:Q
-M'6PMZ<`_?K+'&FC3P48?)@DD=*?[OKO[T`7<];;+`Z5KRR[@8]N[/-!M8[6K
-M#BK2;1VM.V]8M:TWQ&5;V_CJ-JZK7H<\DLR;ELKI$@ZVZ_.`HN3QQOW8VSQ8
-MO?]P]_G=BK&B@.M2-1O[U3HH"N;:[J!VIE\H5^[:)G*=:OK:N@ET>'0=."+W
-M4U*6H$P'2E%D@R9#I`19@US,4L%&_HNGO)]$(8XSY'*.V2`H326[`8IF:0+(
-M8^(QS@`I1\R3-$3N#W`V*+PA")%=P>LF<,TTM-!8%YL=W^;@;._NUY4#^[#W
-M^#WLVZIQMO.PX-$V[!8$)31GRU-96?B7@S%4R-["?FS8^3Q,5XVMC7\SB_0I
-MH3F-J:0"4S%0IC,C9M\,28N2GZ_=2]&FSB2("1]2/N<XJ>6Y[RB;UZ?*K#FJ
-MSMSO;;-9F%W5;">V[O@B6_)4A>24>+9"BDE'_+F,^)]EQ"&D_T%&ORK^!<+N
-M."TOB^69XO^#N&Z(A`1BGZ:=L\!#0]48^W#)@A$==*<O3W^(+JW>]M_K8BW]
--"UPK]A-MG=;?GP0`````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.864.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.864, 2002-12-08 09:37:17-02:00, acme@conectiva.com.br
-  o appletalk/cops: s/spinlock_init/spin_lock_init/g
-
-
- cops.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/net/appletalk/cops.c b/drivers/net/appletalk/cops.c
---- a/drivers/net/appletalk/cops.c	Sun Dec  8 13:26:59 2002
-+++ b/drivers/net/appletalk/cops.c	Sun Dec  8 13:26:59 2002
-@@ -321,7 +321,7 @@
- 
-         lp = (struct cops_local *)dev->priv;
-         memset(lp, 0, sizeof(struct cops_local));
--        spinlock_init(&lp->lock);
-+        spin_lock_init(&lp->lock);
- 
- 	/* Copy local board variable to lp struct. */
- 	lp->board               = board;
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.864
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31557
-M'XL(`,-D\ST``\V4VVK<,!"&KU=/(0B4EF![1I*/Q2%-4MJ20I<MN0Y:6<1F
-M;<M8ZI:"'[Y:MV23-,WV=%'98,8C_9Y_YL-'],KJL5A(U6ER1-\:ZXJ%,KU6
-MKMG*4)DN7(\^L3+&)Z+:=#HZNXRZQJJ`A3'QJ:5TJJ9;/=IB@2&_?>.^#+I8
-MK%Z_N7K_:D5(6=+S6O8W^J-VM"R),^-6MI4]E:YN31^Z4?:VTV[^Z'2[=6(`
-MS%\QIASB9,($1#HIK!"E0%T!$UDBR*[^TX=U/U!!!AEP`)Y,`CGFY()BZ`]3
-M8!&R"#(*><'3`M,`6`%`'Q6EQT@#(&?TWQHX)XH:*H>A]0KM)E)FL`6UD1V:
-MOC5J<]WTC9NCZWUX0RZIMP(Q6>Z;2X+?7(2`!')RP%`U-KL91[UVT?TR0W7'
-MHP`0D^]SGDT:M!`<A%(R5R#6C_?SL/!N;H@\13%Y]32?67KJU&&\_M[,3XC[
-M)3/`8@_BQ/,\$S.$R'Y@4!QD$/\C!N>Q?*#!^'F^/5/+)R?T!XQ><"8HDG??
-I'O3[NE_,\V?M$)SLPA<O][\F56NUL9^Z,H_7:1)G%?D*()!0I/8$````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.865.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.865, 2002-12-08 10:50:38-02:00, acme@conectiva.com.br
-  o net/dl2k: set_bit requires a long pointer
-
-
- dl2k.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
-
-
-diff -Nru a/drivers/net/dl2k.c b/drivers/net/dl2k.c
---- a/drivers/net/dl2k.c	Sun Dec  8 13:26:52 2002
-+++ b/drivers/net/dl2k.c	Sun Dec  8 13:26:52 2002
-@@ -1142,8 +1142,7 @@
- 	u16 rx_mode = 0;
- 	int i;
- 	int bit;
--	int index;
--	long crc;
-+	long index, crc;
- 	struct dev_mc_list *mclist;
- 	struct netdev_private *np = dev->priv;
- 	
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.865
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31525
-M'XL(`+QD\ST``\V4P6K<,!"&S]93#.38KCTC2[;CXI(F*6U)(<N6G(LB*[')
-MVMK*RK8!/WQEEV0AV;2TY%#;(-`,,_\_\^$#N!B,*R.E.\,.X*,=?!EIVQOM
-MVZV*M>WB2Q<"*VM#(&EL9Y+CLZ1K![W@L60AM%1>-[`U;B@CBM.'&W^W,66T
-M>O_AXO.[%6-5!2>-ZJ_-%^.AJIBW;JO6]7"D?+.V?>R=ZH?.^+GI^)`Z<D0>
-M7DEYBC(;*4.1CYIJ(B7(U,A%D0DVZ3]ZK/M1%>)8$*4YY:.@4(R=`L5%)@%Y
-M0CS!`@A+B65:+)"7B+"W*+PB6"`[AI<U<,(T6.B-3^HUOREA,/[K9>O!F6^W
-MK3,#*`A-KF%CV]X;Q\X@>*",+7=398N_?!A#A>PM;*9][;=1NW;:;'(O+-8[
-M/X<T.<D$9F*D7.>U**YJD@8EWS^ZYZK-B^$24S%F7$HYP_(T=Z+FY:4^@\YO
-MI&**F/(@]9#CS!`73Q`2?T2(_P<(_9KV.2S<]_D+2"SW#/X?P#HE$A(X^Q3.
-G#(A%<^>VK\V/UZ"=?K/[<^C&Z)OAMJLTOTK3&HG]!/?F8>"5!```
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.866.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.866, 2002-12-08 10:51:36-02:00, acme@conectiva.com.br
-  o oss/wf_midi: fix up header cleanups, add include <linux/interrupt.h>
-
-
- wf_midi.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-diff -Nru a/sound/oss/wf_midi.c b/sound/oss/wf_midi.c
---- a/sound/oss/wf_midi.c	Sun Dec  8 13:26:46 2002
-+++ b/sound/oss/wf_midi.c	Sun Dec  8 13:26:46 2002
-@@ -50,6 +50,7 @@
-  */
- 
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/spinlock.h>
- #include "sound_config.h"
- 
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.866
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31493
-M'XL(`+9D\ST``]5476_3,!1]KG_%E?H(37SMQ$TC,I4-!&A(5$5[1I[MDH@D
-MCFRG'5)^/%D891J%B8\7;#_Y6N>>>\Z1YW#EC<MG4C6&S.&U]2&?*=L:%:J]
-MC)1MHFLW%K;6CH6XM(V)SR_CIO)JP:*4C*6-#*J$O7$^GV'$CS?A<V?RV?;E
-MJZNWS[>$%`5<E++]:-Z;`$5!@G5[66N_EJ&L;1L%)UO?F#`U'8Y/!T8I&W>*
-M2TY3,:"@R7)0J!%E@D93EF0B(;?\UP]Y/T!!1C-D*>79D"!'05X`1ID00%F,
-M+*89(,U3S+E84)93"B=!X0G"@I)S^+<#7!`%%JSW\6'WH:ETE<.NNH&^@])(
-M;1RHVLBV[_Q3D%I#U:JZUP:>U57;W\15&XQS?1>B\HQ<0H)IPLGFN^!D\9N+
-M$"HI.7MD2.VJ6]]C;_M6?R,>J7LC)Q3IP.F*IX/8I5R@6*$2UV(TX[2\PU>L
-M>T+<X=VYAYP/R:@CGQ)UXO'CV?HKUJ0[2*/*4!NW;J2:`']&F:[8"C,<LS;P
-M92;8%+@?X\;_^[A-?KR#A3M,9XS/YI0U?Y#"-RD#)/-?]3]^.*HTZI/OFP*U
-.QE0EC'P!]C9[M=X$````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.867.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.867, 2002-12-08 10:56:09-02:00, acme@conectiva.com.br
-  o scsi/ini9100u: fix up header cleanups: add include <linux/interrupt.h>
-  
-  Also clean up the includes a bit.
-
-
- ini9100u.c |   11 +++++------
- 1 files changed, 5 insertions(+), 6 deletions(-)
-
-
-diff -Nru a/drivers/scsi/ini9100u.c b/drivers/scsi/ini9100u.c
---- a/drivers/scsi/ini9100u.c	Sun Dec  8 13:26:38 2002
-+++ b/drivers/scsi/ini9100u.c	Sun Dec  8 13:26:38 2002
-@@ -115,9 +115,6 @@
- #endif
- 
- #include <linux/module.h>
--
--#include <stdarg.h>
--#include <asm/irq.h>
- #include <linux/errno.h>
- #include <linux/delay.h>
- #include <linux/pci.h>
-@@ -126,16 +123,18 @@
- #include <linux/spinlock.h>
- #include <linux/stat.h>
- #include <linux/config.h>
--
- #include <linux/kernel.h>
-+#include <linux/proc_fs.h>
- #include <linux/string.h>
-+#include <linux/interrupt.h>
- #include <linux/ioport.h>
- #include <linux/sched.h>
--#include <linux/proc_fs.h>
-+#include <linux/slab.h>
-+
- #include <asm/io.h>
-+
- #include "scsi.h"
- #include "hosts.h"
--#include <linux/slab.h>
- #include "ini9100u.h"
- 
- #ifdef DEBUG_i91u
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.867
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31461
-M'XL(`*YD\ST``]U4VVK<,!!]7GW%0![+VC.Z>&W3#;F5MJ30)25O@:*5E=K4
-M:R^6G*;@CX^\:9,FV6SHY:FV0.`Y<WQ&YZ`].'>VRR?:K"S;@W>M\_G$M(TU
-MOKK2D6E7T;(+A;.V#86X;%<V/CJ-5Y4S4QXI%DH+[4T)5[9S^80B<??%?U_;
-M?'+VYNWYA\,SQN9S."YU\\5^LA[F<^;;[DK7A3O0OJS;)O*=;MS*^LU/ASOH
-MP!%Y>!7-!*IDH`3E;#!4$&E)MD`NTT2R4?_!8]V/6(AC2ER12`9)2@IV`A2E
-MR0R0Q\1C3($P5TF.V11YC@A;2>$5P139$?S;`8Z9@1:<<55<-55&B'T.E]4U
-M]&LHK2YL!Z:VNNG7+@==%%`UINX+"Z_KJNFO0Y.W7=>O?53N!ZJP#FO7WO:,
-M'+ZT/UL<:%A6/F*G('DB%%O<.\.FO_DPAAK9_@NG4735&)#XP7R1^>5L)&(Z
-M"($B&\REG"U5DAIM,HW+=+L/.SE_6)U@L%K.^&P3OV<:7@[C7ZEGI2D/:N>C
-MPNZ6C"&:4@HE!JF4S#;I)'P2SF1W.!5,D_\EG!OG/L*T^[99(6R+YTS\@]R>
-M$*40+@'B&1![3P+#MO=(^;IKS>=+-^H."-J">##;"0EY2R:!/X&Z6B]'U,4(
-@4`%W,38$9^^O45-:\]7UJWDA4Y'14K$;8&.=;J(%````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.868.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.868, 2002-12-08 11:00:09-02:00, acme@conectiva.com.br
-  o scsi/pci2220i: fix up header cleanups: add include <linux/interrupt.h>
-
-
- pci2220i.c |    3 +++
- 1 files changed, 3 insertions(+)
-
-
-diff -Nru a/drivers/scsi/pci2220i.c b/drivers/scsi/pci2220i.c
---- a/drivers/scsi/pci2220i.c	Sun Dec  8 13:26:31 2002
-+++ b/drivers/scsi/pci2220i.c	Sun Dec  8 13:26:31 2002
-@@ -38,6 +38,7 @@
- 
- //#define DEBUG 1
- 
-+#include <linux/interrupt.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/types.h>
-@@ -52,9 +53,11 @@
- #include <linux/blk.h>
- #include <linux/timer.h>
- #include <linux/spinlock.h>
-+
- #include <asm/dma.h>
- #include <asm/system.h>
- #include <asm/io.h>
-+
- #include "scsi.h"
- #include "hosts.h"
- #include "pci2220i.h"
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.868
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31429
-M'XL(`*=D\ST``]546V_3,!1^KG_%D?J(FAQ?XT1T*AL(IB%1%>V-%]=Q240N
-M5>R4(>7'DP6I&V/KQ.4%V_*Q?.SC[YSOD^=P[5V7S8RM'9G#N]:';&;;QME0
-M'DQDVSK:=J-CT[:C(R[:VL7G5W%=>KM@D22C:VV"+>#@.I_-:,2/.^';WF6S
-MS9NWU^]?;0A9+N&B,,UG]]$%6"Y):+N#J7*_,J&HVB8*G6E\[<+TZ'`\.C!$
-M-G9)$XY2#52A2`9+<TJ-H"Y')K02Y!;_ZB'N!U$H0TV95)@.@BDNR6N@D58:
-MD,64Q:B!T@PQPW2!;%S`HT'A!84%DG/XMPE<$`LM>.O+>&]+QAB6&>S*&^CW
-M4#B3NPYLY4S3[WT&)L^A;&S5YPY>5F73W\1E$US7]?L0%6?D"@1/*"?KNY*3
-MQ6\V0M`@.7LFS;PK;YF/?P(>V7M)"T0]R%3K<5:2[K:)2G=\IY$]7M^3(2<*
-M.2+*0:'4>I+5$Q>>%]G?@">%+5:5#U'N3B-&)JD07/)!)EHED^@H_T5S\K3F
-M^'^@N1^,?(!%]W4:HX;63Y'S!W*\%`B4S$]AN)1B//)IM,EDCW^1+9S]XOMZ
-02;><REREY#L*:T@-^00`````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.869.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.869, 2002-12-08 11:01:42-02:00, acme@conectiva.com.br
-  o scsi/pci2000: fix up header includes: add include <linux/interrupt.h>
-
-
- pci2000.c |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
-
-
-diff -Nru a/drivers/scsi/pci2000.c b/drivers/scsi/pci2000.c
---- a/drivers/scsi/pci2000.c	Sun Dec  8 13:26:23 2002
-+++ b/drivers/scsi/pci2000.c	Sun Dec  8 13:26:23 2002
-@@ -35,8 +35,9 @@
-  ****************************************************************************/
- #define PCI2000_VERSION		"1.20"
- 
-+#include <linux/blk.h>
-+#include <linux/interrupt.h>
- #include <linux/module.h>
--
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/string.h>
-@@ -45,15 +46,15 @@
- #include <linux/delay.h>
- #include <linux/sched.h>
- #include <linux/proc_fs.h>
-+#include <linux/stat.h>
-+#include <linux/spinlock.h>
-+
- #include <asm/dma.h>
- #include <asm/system.h>
- #include <asm/io.h>
--#include <linux/blk.h>
-+
- #include "scsi.h"
- #include "hosts.h"
--#include <linux/stat.h>
--#include <linux/spinlock.h>
--
- #include "pci2000.h"
- #include "psi_roy.h"
- 
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.869
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31397
-M'XL(`)]D\ST``\U4VX[3,!!]KK]BI#ZB)#.V<VE$5V6W"%:+1%6T;[RXCB'1
-MYE+%;EFD?/PF`<I22E=<'K`M2YX9'Y^9.?(4;JUITXG2E6%3>-U8ETYT4QOM
-MBKWR=5/YF[9WK)NF=P1Y4YG@\B:H"JL][H>L=ZV4TSGL36O3"?GB8'&?MR:=
-MK%^^NGWS8LW8?`Y7N:H_FG?&P7S.7-/N59G9A7)YV=2^:U5M*^/&1[M#:,<1
-M>3]#B@6&44<1RKC3E!$I229#+I-(LH'_XICW$0IQ3$@@XJR3(B;!ED!^$LT`
-M>4`\P`2(4J14<@]YB@@G0>$9@8?L$OYM`E=,0P-6VR+8ZJ*_@RE\*.YAMX7<
-MJ,RT4-2ZW&7&IJ"R[-L)GI=%O;L/BMJ9MMUMG9]?L!N0,L&(K;Y7G'F_.1A#
-MA>SBB2RSMA@:'SSF[>M'*4O$I!-<RJC3<2CBT&Q4J`5R'9\N[SG(KPTD,>M$
-M2!2-HCH=_[3"_H8ZRW6^**WS,W.6+_*0I!2A&'`H'`5'>*PW,3NOMPB\\#_7
-MVY=VO`6O_32N7C^K7W3F#Y1X+6+@;'I$85/>#8\?FW]@MA0S('8M8Q`_!5JG
-MW"D`NRWJLM$C^'NV#&E`&/?A)'NDPQ>G<Z/O[*Z:QR9*XH02]@!K;I_>4`4`
-!````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.870.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.870, 2002-12-08 11:04:04-02:00, acme@conectiva.com.br
-  o oss/maui: fix up header cleanups: add include <linux/interrupt.h>
-
-
- maui.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-diff -Nru a/sound/oss/maui.c b/sound/oss/maui.c
---- a/sound/oss/maui.c	Sun Dec  8 13:26:17 2002
-+++ b/sound/oss/maui.c	Sun Dec  8 13:26:17 2002
-@@ -24,6 +24,7 @@
-  *					* Older versions will cause problems.
-  */
- 
-+#include <linux/interrupt.h>
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.870
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31365
-M'XL(`)ED\ST``]5446_3,!!^KG_%27U$3>YL)VDC,I4-!&A(5$7[`<;Q2$02
-M5[93"LJ/)PNCH*YB8N(%^^P'W^F[[^X^>0XWWKA\IG1KV!S>6!_RF;:=T:'>
-MJTC;-OKH1L?6VM$15[8U\>5UW-9>+WB4L-&U44%7L#?.YS.*Q/$E?-V9?+9]
-M]?KFW8LM8T4!5Y7J/ID/)D!1L&#=7C6E7ZM0-;:+@E.=;TV8D@['T($C\G$G
-ME`E,TH%2E-F@J212DDR)7"Y3R>[XKT]YGZ`0QR4)),D'*9>8LI=`T3)#0!X3
-MCW$)1#G*T1;(<T0X"PK/"!;(+N'?%G#%-%BPWL>MZNL<;NL#]#NHC"J-`]T8
-MU?4[GX,J2Z@[W?2E@>=-W?6'N.Z"<:[?A:BZ8-<@$TG(-K^ZS19_N1A#A>SB
-MD0I+5]\-/?:V[\J)=:1_*U8BK@9*9,('K3/-C5JI6RV("W6^L<,/H)\MN`>[
-M'YI$&L:#.`GI-/)Q/3V=+-L99P[KZ8[TM_,L1YZ"5H*C'%+BJ9BD)1\(B_YO
-M84W]?P\+]V6R42B;!Z-X@MC>\A2(S?^4_/BIZ,KHS[YO"Y6A2(1(V7>'$V'/
-$P@0`````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.871.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.871, 2002-12-08 11:13:45-02:00, acme@conectiva.com.br
-  o net/wan/hostess_sv11: remove unused variable flags
-
-
- hostess_sv11.c |    1 -
- 1 files changed, 1 deletion(-)
-
-
-diff -Nru a/drivers/net/wan/hostess_sv11.c b/drivers/net/wan/hostess_sv11.c
---- a/drivers/net/wan/hostess_sv11.c	Sun Dec  8 13:26:10 2002
-+++ b/drivers/net/wan/hostess_sv11.c	Sun Dec  8 13:26:10 2002
-@@ -211,7 +211,6 @@
- {
- 	struct z8530_dev *dev;
- 	struct sv11_device *sv;
--	unsigned long flags;
- 	
- 	/*
- 	 *	Get the needed I/O space
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.871
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31333
-M'XL(`))D\ST``\V4WVO;,!#'GZ._XJ"/P_:=+/^H(2-K.S;H8"&C3V,,15;B
-M$-L:ENQNX#^^JL?:TH:F&WV8I`>AD^[N>_=!)W!E=5?,I&HT.X&/QKIBIDRK
-ME=L-,E2F"=>=-ZR,\8:H,HV.SBZC9F=5P,.$>=-2.E7!H#M;S"B,[T[<KQ^Z
-MF*W>?[CZ]&[%V'P.YY5LM_J+=C"?,V>Z0=:E74A7U:8-72=;VV@W!1WOKHX<
-MD?N94!9CDHZ4HLA&1261%*1+Y")/!;O-?_$X[T=>B&-.,0H4HT@$(;L`"O.,
-M`'E$/,(<B`J*"Y$$R`M$..@4WA`$R,[@=06<,P4&6NVB:]GZ.ENGK?UN!Y\2
-M=+HQ@X:^[:TN89#=3JYK#9M:;BV[!!&?YBE;WI>7!7\Y&$.)[.T1266WN^UR
-M="C)4#W0*1!IC-'K'?5:)F(C%?'\5.9R<[BF+W']NWL4"QR19T),1#W_[CAF
-MKR&)R5JVB_JGZ;;]/NSW?1_ZK=]\_1/[VXOT$4]]K#S.1P\(BHG.[`F;^#R;
-M"`']3VQ.G?H,07<]+8_:\DC3_@'>"TX"Z/XO4I56>]LW\R3+5<JU9C?FY2`I
-$YP0`````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.872.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.872, 2002-12-08 11:25:37-02:00, acme@conectiva.com.br
-  o net/wan/sdla_fr: test_bit and friends require a long pointer
-
-
- sdla_fr.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
-
-
-diff -Nru a/drivers/net/wan/sdla_fr.c b/drivers/net/wan/sdla_fr.c
---- a/drivers/net/wan/sdla_fr.c	Sun Dec  8 13:26:03 2002
-+++ b/drivers/net/wan/sdla_fr.c	Sun Dec  8 13:26:03 2002
-@@ -225,10 +225,10 @@
- 	sdla_t *card;			/* -> owner */
- 	unsigned route_flag;		/* Add/Rem dest addr in route tables */
- 	unsigned inarp;			/* Inverse Arp Request status */ 
--	unsigned char inarp_ready;	/* Ready to send requests */
-+	long inarp_ready;		/* Ready to send requests */
- 	int inarp_interval;		/* Time between InArp Requests */
- 	unsigned long inarp_tick;	/* InArp jiffies tick counter */
--	unsigned char interface_down;	/* Bring interface down on disconnect */
-+	long interface_down;		/* Bring interface down on disconnect */
-       #if defined(LINUX_2_1) || defined(LINUX_2_4)
- 	struct net_device_stats ifstats;	/* interface statistics */
-       #else
-@@ -259,8 +259,8 @@
- 
- 	u32 ip_local;
- 	u32 ip_remote;
--	u8  config_dlci;
--	u32 unconfig_dlci;
-+	long config_dlci;
-+	long unconfig_dlci;
- 
- 	/* Whether this interface should be setup as a gateway.
- 	 * Used by dynamic route setup code */
-@@ -1459,7 +1459,8 @@
-         int err;
-     	unsigned char *sendpacket;
-     	fr508_flags_t* adptr_flags = card->flags;
--	int udp_type, delay_tx_queued=0;
-+	int udp_type;
-+	long delay_tx_queued = 0;
- 	unsigned long smp_flags=0;
- 	unsigned char attr = 0;
- 
-@@ -2811,7 +2812,7 @@
- 				chan->name, NIPQUAD(chan->ip_remote));
- 
- 		}else {
--			printk(KERN_INFO "%s: Route Added Successfully: %u.%u.%u.%U\n",
-+			printk(KERN_INFO "%s: Route Added Successfully: %u.%u.%u.%u\n",
- 				card->devname,NIPQUAD(chan->ip_remote));
- 			chan->route_flag = ROUTE_ADDED;
- 		}
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.872
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31301
-M'XL(`(MD\ST``\U4VV[;,`Q]MKZ":%%@Z!9;%]_J(D.OVXH.;9&B;P,,15(2
-M+XF<R7*Z`/[X*?9Z6=<NV.5AM@`:H@]Y2!YP&VXJ93*/B[E"V_"AK&SFB5(K
-M88LE]T4Y]X?&.09EZ1S!I)RKX.@\F!>5Z%$_0LYUQ:V8P%*9*O.(S^YO[&JA
-M,F]P^O[FX^$`H7X?CB=<C]6ULM#O(UN:)9_)ZH#;R:S4OC5<5W-EVZ3-_:\-
-MQ9BZ-R()PU'<D!B'22.()(2'1$E,PS0.T9K_P5/>3Z(0BE/""`NC)F1[:8Q.
-M@/AI0@'3@-``IT!(1J.,)3U,,XSAV:#PFD`/HR/XMP4<(P$E:&6#6ZZ#2LYX
-M/C(96%79?%A8X%K"R!1*RPJ,^E(71@$'EW<,B[+05AET#B%S.=#50Z-1[S<?
-MA##'Z.V&XJ0IUO,.GM#UQ:-B0XQ)PT*:1(V4%)-0B8@.XY`S\7QC-T3MID<C
-MQIHHC**T5=2+D,T*^\L:D.1+]=D5(=6\U%.U\DLS]NOIIBH(3<@>C4+21!%-
-MDU:#9.\G";)?2S"!7OQ_2K";S27TS&U[G*2N7A[3'^CSA%+7)736&:]-7VAN
-M%KE17*[V/2_8A<'ZT[4'*L>V)>N*J&`W<'!&6GAK[N".^X@+E<OR5G<1CDSQ
-MV`-K#Y0:I-M\I5[/HXL64Z`N6LR<Z:(Y]Z@8YW(FBOWO5[7^X?*$A`[F2+36
-MX5P:J.4B7Z_,.XQ4,[[*[=?<<:^5A#Y@AZ0I"5OZG?4\;^&(VNFK\]/!17YV
-M\>X2MG:JS.WKVBHXE-(AKVLA5%6-ZMELE<%.[=^=3WKKS<,&%Q,EIE4][[.A
-.9$,QE.@;(A%O7QT&````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.873.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.873, 2002-12-08 11:42:11-02:00, acme@conectiva.com.br
-  o if_wanpipe_common: test_bit and friends requires a long pointer
-
-
- if_wanpipe_common.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/include/linux/if_wanpipe_common.h b/include/linux/if_wanpipe_common.h
---- a/include/linux/if_wanpipe_common.h	Sun Dec  8 13:25:56 2002
-+++ b/include/linux/if_wanpipe_common.h	Sun Dec  8 13:25:56 2002
-@@ -33,7 +33,7 @@
- 	atomic_t command;
- 	atomic_t disconnect;
- 	atomic_t driver_busy;
--	unsigned char common_critical;
-+	long common_critical;
- 	struct timer_list *tx_timer;
- 	struct sock *sk;		/* Wanpipe Sock bind's here */ 
- 	int   (*func) (struct sk_buff *, netdevice_t *, 
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.873
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31269
-M'XL(`(1D\ST``\V486O;,!"&/T>_XJ`?1VR=+,>N1T;6=FRC@X6,?@Z*?(G%
-M;"FSE78#__@J#C30!M*-#289"WSR>_?J'G0!=QVUQ4CIAM@%?'*=+T;:6=+>
-MW*M(NR9:M2&P<"X$XLHU%%_=QHWI]%A$*0NAN?*Z@GMJNV*$4?+TQ?_:4C%:
-M?/AX]^7]@K'I%*XK93?TC3Q,I\R[]E[593=3OJJ=C7RK;->0'Y+V3UM[P;D(
-M,\4LX>FDQPF76:^Q1%02J>1"YA/)]O7/GM?]3`4%SS$1:9+U,@EJ[`8PRK,$
-MN(A1Q#P'Q$**`G',1<$YG!2%-PACSJ[@[QJX9AH<F/7R0=FMV=(RB#3.%N"I
-M\\N5\:!L">O6D"T[:.G'SK34@8*0>@-;9ZRGEMV"E#*3;'X\:S;^S<$85YR]
-M@^V^BZ?-&:OK74EQ;>SN9_RBZ*@ZFLX1$QE,B\NTS_E:I"NM4=%JE>5T^H!?
-MJ7[HIA0\ZT7"I1@(._OKGKQ_;XPUQF[<C&I/4;5[K2'.$2\#)3(8"NN`YPLX
-M>7863OQOX3PTZBN,VX?A";#-S_?L#PB^22:`[//P'@U%',26NC7>:%6_/=Y<
-6NB+]O=LUTX34))N@9(^,EE,Y%04`````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.874.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.874, 2002-12-08 11:52:16-02:00, acme@conectiva.com.br
-  o wanpipe: test_bit and friends requires a long pointer
-
-
- drivers/net/wan/sdlamain.c |    2 +-
- include/linux/wanpipe.h    |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-
-diff -Nru a/drivers/net/wan/sdlamain.c b/drivers/net/wan/sdlamain.c
---- a/drivers/net/wan/sdlamain.c	Sun Dec  8 13:25:48 2002
-+++ b/drivers/net/wan/sdlamain.c	Sun Dec  8 13:25:48 2002
-@@ -503,7 +503,7 @@
- 		}
- 
- 	}else{
--		printk(KERN_INFO "%s: Card Configured %i or Piggybacking %i!\n",
-+		printk(KERN_INFO "%s: Card Configured %lu or Piggybacking %i!\n",
- 			wandev->name,card->configured,card->wandev.piggyback);
- 	} 
- 
-diff -Nru a/include/linux/wanpipe.h b/include/linux/wanpipe.h
---- a/include/linux/wanpipe.h	Sun Dec  8 13:25:48 2002
-+++ b/include/linux/wanpipe.h	Sun Dec  8 13:25:48 2002
-@@ -358,7 +358,7 @@
- 	char in_isr;			/* interrupt-in-service flag */
- 	char buff_int_mode_unbusy;	/* flag for carrying out dev_tint */  
- 	char dlci_int_mode_unbusy;	/* flag for carrying out dev_tint */
--	char configured;		/* flag for previous configurations */
-+	long configured;		/* flag for previous configurations */
- 	
- 	unsigned short irq_dis_if_send_count; /* Disabling irqs in if_send*/
- 	unsigned short irq_dis_poll_count;   /* Disabling irqs in poll routine*/
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.874
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31237
-M'XL(`'QD\ST``]V5;VO;,!#&7UN?XM92&-UBZV39L3,RNJ;=5CK:D-%W@Z+(
-M2B+J/YDLIROXP\]Q1EJZ)F'M7HS9Q@++OGONN=_A?;@JE>DY0F:*[,/GHK0]
-M1Q:YDE8OA"N+S!V;9F-4%,V&-RLRY1V?>YDN98>Y`6FVAL+*&2R4*7L.NO[Z
-MB;V;JYXS.OUT]>7#B)!^'P8SD4_55V6AWR>V,`N1)N61L+.TR%UK1%YFRK9)
-MZ_6K-:.4-6>`79\&88TAY=U:8H(H.*J$,AZ%G"SU'SW6_2@*,AJASQEBS3GO
-M<G("Z$9=#I1YR#P:`6(O8#T,.Y3U*(4G@\(;!AU*CN'O%C`@$@JX%?E<-[:!
-M5:6]'FL+(D]@8K3*DQ*,^EYIHTH0T"2<PKS0N56&G`,/:.R3X;W#I/.'!R%4
-M4/)^1U6)T<M&>[FR7J/5*Y-49$+GKGQ0)J<4:[\;\:A.5.0'$YZ,0XPC0=G3
-MENX*NVI<T*QU@#YE.V7J7*95HKQ4Y]4/[Y>I[NQA*V*.=<@PXG4\[L8A95$0
-MRVC,Q[A!X[:8#P2&-(ZPI7US4;OQ?ZG/Q%2EO3M:WF5AYFT-HMH9-J(^=@/D
-M2Y\Q8NV`(/MM/MCV^4#HX#\V'RML+J%C;MNKX7VXI4'/F)Z3@(:`Y&RU.,[<
-M-+EO7I^?CBZNSRX^7L+>0=F#@3`)#(I\HJ>540D<I!44!H9Z.KT;"WFC&]4'
-M^M6W?.]MR]`&Z'8#]*()(%FCHSA2J6T^J;:3WS"(<1.-+\D/_1:9X#\@9C7'
-MCXC9X,1S</%#7.*R6IPVN5QS\<YQO$.8I&(*DP:/N5$+753E^@UA=9&7<.C=
-9_W_E3,F;LLKZ,E)C+M`G/P$U_MGLVP<`````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.875.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.875, 2002-12-08 11:54:44-02:00, acme@conectiva.com.br
-  o net/wan/sealevel: remove unused flags variable
-
-
- sealevel.c |    2 --
- 1 files changed, 2 deletions(-)
-
-
-diff -Nru a/drivers/net/wan/sealevel.c b/drivers/net/wan/sealevel.c
---- a/drivers/net/wan/sealevel.c	Sun Dec  8 13:25:41 2002
-+++ b/drivers/net/wan/sealevel.c	Sun Dec  8 13:25:41 2002
-@@ -211,8 +211,6 @@
- 	struct z8530_dev *dev;
- 	struct slvl_device *sv;
- 	struct slvl_board *b;
--	
--	unsigned long flags;
- 	int u;
- 	
- 	/*
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.875
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31205
-M'XL(`'5D\ST``\V4WVO;,!#'GZ._XJ"/P[9.EFS'D)&U'1MTL)#1I[&'JZS%
-M(;8U)-G=P'_\W'1K2]HU[,?#)#T(G71WW[L/.H%+;UPY(]T:=@)OK0_E3-O.
-MZ+`=*-:VC:_<9%A;.QF2VK8F.;U(VJW7D8@5FTPK"KJ&P3A?SC!.[T["MR^F
-MG*U?O[E\]VK-V&(!9S5U&_/!!%@L6+!NH*;R2PIU8[LX..I\:\(^Z'AW=12<
-MBVDJS%.NLA$S+O-18X5($DW%A2PRR6[R7Q[F?>`%!2\P50*S42H^3]DY8%SD
-M"KA(4"2\`,12R5+*B(N2<WC2*;Q`B#@[A7\KX(QIL-"9D%Q3EWA#C1E,4X(S
-MK1T,]%WO306?&]IX&,AMZ:HQ[`)DFF4I6]V7ED6_.1CCQ-G+(W(JM[WI<'*8
-M8*P?Z).<XY@62LU'@RGIG"HQSX0D-7^ZEL?<_NB8E#@JE?)B3]&OWQS'ZF]E
-M,&JH6S9?K=OTN[C?]7T\;:?-QY]Q/QW5A"*;XA2J&%4NBOR6PD<,XO,,<HC$
-M_\+@;6O>0^2N]VMB:O5,E_Z`T'.!$L3]9Z-KHW>^;Q>5)*UR*=EW/XPY6,@$
-"````
-`
-end
-
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="1.876.patch"
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.876, 2002-12-08 12:01:30-02:00, acme@conectiva.com.br
-  o parport/probe: fix up header cleanups: add include <linux/string.h>
-
-
- probe.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-diff -Nru a/drivers/parport/probe.c b/drivers/parport/probe.c
---- a/drivers/parport/probe.c	Sun Dec  8 13:25:34 2002
-+++ b/drivers/parport/probe.c	Sun Dec  8 13:25:34 2002
-@@ -7,6 +7,7 @@
- 
- #include <linux/parport.h>
- #include <linux/ctype.h>
-+#include <linux/string.h>
- #include <asm/uaccess.h>
- 
- static struct {
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.876
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch31173
-M'XL(`&YD\ST``]646VO;,!3'GZ-/<2"/P[9NEE4SEUXVMM%!0T8_@"(IM:EM
-M&5G..O"'G^-!NH5F9=U>)NE!Z$C_<_NA)=SUUN<+I1N+EO#1]2%?:-=:':J=
-MBK5KXHV?#&OG)D-2NL8F5S=)4_4ZHG&*)M-*!5W"SOH^7Y"8'4["M\[FB_7[
-M#W>?+]<(%05<EZJ]MU]L@*)`P?F=JDU_H4)9NS8.7K5]8\/L=#Q<'2G&=)HI
-MR1A.Q4@$YMFHB2%$<6(-IEP*CO;Q7QS'?:1"*):$I9SSD3,A&'H')):9`$P3
-M0A,L@=`<DYSA"$\;#,^*PAL"$497\&\3N$8:''3*=\Z'I/-N8W/85H\P=%!:
-M9:P'75O5#EV?@S(&JE;7@['PMJ[:X3'I@Z_:^[@\1S?`&984K9[JC:(_'`AA
-MA='Y"SD:7^W;GOP2=:Q_RIAC(D>6IEB.5"DJ-H)OTU1M,Z.?K^YO-><&3I(T
-MFS1))F>H3CQX&;&_BAYU>\9?*2PIGQ!@5)*SF4%^3"#-_G,"?[3G%B+_=5X3
-F4:M3G7H%G)_.@*#E2?^'+TB75C_T0U,8QK$0@J#O)+Z^OO`$````
-`
-end
-
---AhhlLboLdkugWU4S--
+*** I strongly recommend saying N to IDE TCQ options otherwise this
+   should hopefully build and run happily.
+
+This starts to clear the decks of pending 2.5.5x patches. It took a lot
+of effort to get anything worth running out of 2.5.50 hence they delay.
+A measurable chunk of these build fixes are already in (or came from)
+Linus BK tree so .51 ought to be a lot better.
+
+The new PnPBIOS code still has some problems so needs more work or removing.
+For now most people probably want to turn pnpbios support off.
+
+Linux 2.5.50-ac1
+	Merge with Linus 2.5.50
+o	Merge next batch of DVB updates			(Holger Waechtler)
+o	Merge first blocks of VISWS support		(Andrey Panin)
+o	ALi IDE IRQ routing fixups			(Ogawa Hirofumi)
+o	Fix hugetlbfs build				(Greg Kroah-Hartmann)
+o	Frther LSM updates				(Greg Kroah-Hartmann)
+o	Add __exit_p					(Bill Irwin)
+o	Fix scx200_gpio build				(me)
+o	PAS16 build fix with some gcc's			(Paul)
+o	Fix fs/namei logic inversion bug		(S L Baur)
+o	Fix ide build on m68k				(Geet Uytterhoeven)
+o	Fix arm typo					(David Woodhouse)
+o	I/O APIC finalise is int not void		(Christoph Hellwig)
+o	MPU401 header fix
+o	Use short jump on semaphore failed path		(Petr Vandrovec)
+o	Swsuspend updates				(Pavel Machek)
+o	ACPI S3 updates					(Pavel Machek)
+o	PnP updates					(Adam Belay)
+o	IPMI drivers					(Corey Minyard)
+o	eata_pio typo fix				(Adrian Bunk)
+o	aic7xxx_asm failure fix				(Bob Tracy)
+o	Allow binfmt_flat to use/avoid argv/envp ptrs	(Miles Bader)
+o	ctc tty driver didnt use HZ			(Christian Borntraeger)
+o	isdn_tty didnt use HZ				(Christian Borntraeger)
+o	Alpha compile fix				(Ivan Kokshaysky)
+o	Merge ikconfig for 2.5				(Khalid Aziz)
+o	Video4Linux updates				(Gerd Knorr)
+o	Better APM printk warnings			(Hiroshi Miura)
+o	Make some warnings clear that they did fixes	(me)
+o	Further intermezzo updates			(Randy Dunlap)
+o	Fix typo in kernel/printk.c			(Geert Uytterhoeven)
+o	ARCnet updates for 2.5				(Roman Fietze)
+o	Assorted typo fixes				(John Slee)
+o	Device mapper updates		(Joe Thornber, Kevin Correy,
+					 Christoph Hellwig, Stefan Lauterbach
+					 Heinz Mauelshagen)
+o	ucLinux signal locking fix			(Greg Ungerer)
+o	ucLinux vmscan.c ifdef fix			(Greg Ungerer)
+o	Fix sb_ess warning due to missing include	(Alex Riesen)
+o	Use kmap_atomic for NFS where we can		(Chuck Lever)
+o	Speed up NFS dirty list handling		(Chuck Lever)
+o	Clean up NFS req_offset handling		(Chuck Lever)
+o	Improve TCP/RPC behaviour			(Chuck Lever)
+o	Fix sign problem with bttv card ids		(Petr Vandrovec)
+o	RPC timeout improvements			(Chuck Lever)
+o	Add better checking for initial RPC timeouts	(Chuck Lever)
+o	Better RPC error counters			(Chuck Lever)
+o	Fix RPC debug oops				(Chuck Lever)
+o	Optimise crc32 code and generate the table	(Joakim Tjernlund,
+	statically for early boot users 		 Brian Murphy)
+o	Fix various OSS sound bits from other changes	(me)
+
+Linux 2.5.49-ac2
+*	Switch to maintainrs preferred vlsi_ir fix	(Adrian Bunk)
+o	Fix SiS APIC building				(me)
+*	IDE oops on error path fix			(Andrew Morton)
+o	TF trace fix for x86				(Dave Jones)
+*	Division by zero fix in tiglusb			(Randy Dunlap)
+o	Fixing missing header in kernel/sys.c		(Adrian Bunk)
+*	Remove wrong ncpfs patch			(Petr Vandrovec)
+*	Merge 2.5.49-uc0 MMUless updates		(Greg Ungerer)
+*	Merge 2.5.49-uc0 v850 updates			(Miles Bader)
+o	Don't export MMU only symbols for mmuless	(Miles Bader)
+o	Add ability to handle prefixed symbols to	(Miles Bader)
+	new module system
+*	Update v850 code for new module system		(Miles Bader)
+o	Merge ac97_codec fixes from 2.4 tree		(me)
+o	Apply additional fix to codec name printer	(Paul)
+*	Update OSS i810 audio driver to the 2.4 tree	(me)
+	| Adds i845, Nvidia MCP support
+*	Fix build with IDE disabled and pickier 	(Anton)
+	compilers
+*	Backport nm256 dell laptop crash fix		(Dave Jones)
+*	Fix cmpxchg8b to use lock prefix as per 2.4	(Dave Jones)
+*	Backport 2.4 i2c security fixes			(Dave Jones)
+*	Fix cardbus enable order (fixed some boxes	(Dave Jones)
+	failing cardbus stuff)
+*	Fix wrong check in serverworks IDE		(me)
+
+Linux 2.5.49-ac1
+-	Merge with Linus 2.5.49
+*	Fix qic02 build					(me)
+*	Fix zftape build				(me)
+	| Module now doesnt try and remember state and refuse
+	| to unload if it set it. May need thought
+*	Fix multiple gameport compile failures		(me)
+*	Fix bttv build problem with 2.5.49		(me)
+*	Fix depca, ewrk3 breakages			(me)
+*	Fix vlsi-ir breakage				(me)
+*	Fix aironet4500 cs breakage in 2.5.49		(me)
+*	Fix t128 breakage				(Andreas Steinmetz)
+*	Fix in2000 breakage				(me)
+*	Fix missing interrupt.h in multiple scsi drivers(me)
+*	Fix eata-pio build				(me)
+*	Fix wanrouter build				(me)
+*	Fix pnp boot ordering stuff again		(me)
+o	Fix oops on NUMA boxes				(Matthew Dobson)
+o	Fix serial double init				(Russell King)
+*	Clean up pdc202xx_tune driver wrappers		(Thierry Vignaud)
+*	Kill unused dma_verbose in new pdc202xx		(Thierry Vignaud)
+*	Fix a couple of bits of unreadable pdc202xx code(Thierry Vignaud)
+o	Fix 2.5.49 build with CONFIG_NET = n		(Miles Bader)
+o	Intermezzo build fixes				(Randy Dunlap)
+*	Watchdog driver fixes				(Wim Van Sebroeck)
+*	Update mousedrivers doc to kill of 		(Chris Wilson)
+	check_region and note misc_register can fail
+*	Fix misspellings of exception			(Adrian Bunk)
+o	Add VT support requirement for INPUT = y	(Rusty Lynch)
+*	pcnet_cs timer fix				(Andrew Morton)
+*	IDE fixup for what seems to be an ACPI bug	(Ogawa Hirofumi)
+o	Add linux streams syscall register support	(Dave Groethe)
+*	SCx200 wdt driver fixes on failure paths	(Chris Wilson)
+*	Remove dead swsuspend defines			(Geert Uytterhoeven)
+*	Fix ide_outsl return				(Russell King)
+*	Remove now redundant acorn ide init calls	(Russell King)
+*	I2O_CMD_UTIL_EVT_REGISTER has no status		(Rick Richardson)
+*	Fix incorrect MCE handling for SMP and 1 cpu	(Venkatesh Pallipadi)
+o	Update megaraid to megaraid 2.0		     (Atul Mukker, Matt Domsch)
+*	Fix 64bit boot crash in do_mounts		(Ralf Baechle)
+*	Fix swapoff crash when called			(Dave Miller)
+
+Linux 2.5.47-ac7
+o	Add workarounds for SiS io-apic bug		(me)
+*	Fix and turn on new style ide blacklists	(me)
+*	Add the VIA KT400 AGP bridge			(Nicolas Mailhot)
+o	Signal delivery optimisation			(Andrew Morton)
+*	Fix oops when ipv6 gets unknown packet type	(YOSHIFUJI Hideaki)
+*	NBD driver updates				(James Bottomley)
+*	Fix file paths in the OSS help texts		(Adrian Bunk)
+*	Update saa7185 to new style i2c			(Frank Davies)
+*	Update sa7111 to new style i2c			(Frank Davies)
+*	Don't trust rq->cmd_len in ide-cd		(Jens Axboe)
+o	Add console_initcall and remove a ton of cruft	(David Woodhouse)
+o	Fix mk712 drivers				(Lee Nash)
+*	Fix ALSA cs4281 suspend/resume			(Margit Schubert-While)
+
+Linux 2.5.47-ac6
+*	Move isapnp to device_init			(me)
+	| This is needed so pci init runs first and can mark
+	| areas reserved before PnP stomps on them blindly
+	| Closes #41
+*	Reserve 0x3d3 on the ATI chipset		(me)
+	| These two fix isapnp on the Presario 900 at least
+o	Merge voyager updates and timer cleanup		(James Bottomley)
+o	Fix up percpu ksym handling			(Randy Dunlap)
+	| Closes #22
+*	Fix pcmcia to use new pci_ API			(Greg Kroah-Hartmann)
+	| Closes #56
+*	MPT fusion small fixes				(Pam Delaney)
+o	Fix raw.c not working as a module		(Bob Miller)
+*	Split the ide pci helpers further to allow	(me)
+	for non standard chip setups
+*	Add a vdma field so drivers can issue PIO	(me)
+	commands in DMA mode
+	| Needed for chips that do DMA for PIO modes
+*	Fix oops on pnp boot				(me)
+*	Fix ultrastor SCSI module non load		(me)
+*	Add an experimental Cyrix 5510/5520 driver	(me)
+*	Hopefully fix remaining IDE NULL pointer oops	(me)
+	| Closes #33
+*	Update dma_scc to use new style locking		(me)
+*	Update sealevel and hostess_sv11 to new locks	(me)
+
+Linux 2.5.47-ac5
+*	Add the OSDL DAC960 driver work			(Dave Olien)
+o	Fix pci_ids typo				(Osamu Tomita)
+o	Update floppy98 driver				(Osamu Tomita)
+o	Update the boot98 code				(Osamu Tomita)
+*	Fix sd warning					(William Irwin III)
+*	Fix a small menuconfig glitch			(Petr Baudis)
+o	Fix missing ptrace helper export		(Olaf Dietsche)
+o	Add PC98 input driver for keyboard		(Osamu Tomita)
+o	Add PC98 low level keyboard/mouse drivers	(Osamu Tomita)
+o	Add PC98 old style printer port support		(Kousuke Takai)
+o	Add NEC CBUS to the isa dma quirks		(Osamu Tomita)
+o	PC9800 serial ports are in different spots	(Osamu Tomita)
+o	First parts of the PC98 bus APIC stuff		(Osamu Tomita)
+
+Linux 2.5.47-ac4
+*	Optimise Geode processor settings/oostore	(Hiroshi Miura)
+*	Geode bridge optimisation quirk			(Christer Weinigel)
+*	Don't use ALI IDE driver with ATI RadeonIGP	(me)
+	| At least until we know how it supposed to be done
+*	Reserve 0x3b0-0x3bb to stop MCE on boot with
+	RadeonIGP					(me)
+-	Switch to Linus version of the DOS fix		(Linus Torvalds)
+
+Linux 2.5.47-ac3
+o	Update the DriverFixers company list		(me)
+*	Fix the NT|TF DoS bug				(Petr Vandrovec)
+*	Remove dead IDE power management code		(Pavel Machek)
+*	Use sysfs for IDE power management		(Pavel Machek)
+o	Add extra rtc config rules			(Tom Rini)
+*	All IDE speedproc calls now go via the function	(me)
+	ide_set_xfer_rate
+	| Will let us eliminate many ifdefs
+*	Kill AMD override option. You can already use	(me)
+	the ata66 option for this
+*	Clean up ifdefs in PCI drivers further		(me)
+*	IDE DMA is now just a configuration detail	(me)
+*	Clean up ide floppy debug ifs			(me)
+*	Update roadrunner driver to new PCI API		(Jes Sorensen)
+*	Fix ncpfs timer init				(Andrew Morton)
+*	Fix multiple timer inits in sound drivers	(Andrew Morton)
+*	Fix acorn, atm, bluetooth fc4, synclink, ide_cs (Andrew Morton)
+	timers
+*	Fix smc9192 timer and mcast timer		(Zwane Mwaikambo)
+*	Fix missing mcheck_init symbol			(Dave Jones)
+*	Fix I/O errors on loop driver			(Hugh Dickins)
+-	Drop rest of random no-mmu escapee bits		(me)
+
+Linux 2.5.47-ac2
+-	Pull remaining nommu mm oddments		(me)
+	| With the final merge actively being worked on stale oddments in
+	| the -ac tree dont actually help anyone
+*	Add more documentation to ide.c			(me)
+	| Pavel hopefully that'll help get the pm handling right
+*	Comment more bits of ide-io.c			(me)
+*	Update mpt fusion driver			(Pam Delaney)
+*	Remove Alan's ugly device mapper hack		(me)
+*	Move vmalloc into the dm codebase		(Joe Thornber)
+*	Switch dm to set_disk_ro			(Al Viro)
+*	Use bit lists to keep track of minors		(Joe Thornber)
+*	Fix device mapper devfs control bits		(Joe Thornber)
+*	Remove dm use of compactmac.h			(Joe Thornber)
+*	Latest and greatest Intel ACPI code		(Andrew Grover)
+*	Fix i2o error in misc_register error check	(Michael Still)
+*	DVB cleanup and updates plus two new front ends (Holger Waechtler)
+
+Linux 2.5.47-ac1
+*	Fix ARP seq_file support			(Arnaldo Carvalho de
+							 Melo)
+*	Fix ipt_TCPMSS 					(Felipe Damasio)
+*	Fix SX detect logic				(Rogier Wolff)
+o	ATM printk quieten				(Paul Komkoff)
+*	Switch ips scsi driver to request_region	(Marcus Alanen)
+*	scsi scsi_register failure handler		(Michael Still)
+o	Fix head.S comment				(Pavel Machek)
+*	Fix missing bttv header update			(Brendan Burns)
++	Add Zwane Mwaikambo to CREDITS			(Zwane Mwaikambo)
+*	Fix SETTRIGGER mishandling in i810 audio	(Paul Stewart)
+*	Fix aacraid build				(Mark Haverkamp)
+*	Update the magic number table in the docs	(Petr Baudis)
+*	Fix serverworks IDE mode reporting		(Julian Blake)
++	bitops.h leaves "ADDR" defined 			(Denis Vlasenko)
+*	Forward port ide_cs locking fixups from 2.4	(me)
+*	The NS SCx200 IDE driver			(Mark Lord)
+*	Split ide.c into ide-io.c and ide.c		(me)
+o	Fix bttv uninitialized timer			(Andrew Morton)
+*	Make the IDE argument names saner for iops	(Geert Uytterhoeven)
+*	Improve longhaul support for earlier VIA 	(Dave Jones)
+*	Add missing jfs acl file			(Dave Kleikamp)
+*	Fix cs46xx compile				(Chris Friesen)
+*	Further eata/u14-34f updates			(Dario Ballabio)
+-	Merge all the megaraid changes together		(Matt Domsch)
+o	Quota locking fixes				(Jan Kara)
+
+Linux 2.5.46-ac1
+-	Merge Linux 2.4.46
+*	Fix binutils objcopy fail			(Kai Germaschewski)
+*	Remove old soundmodem driver (now userspace)	(Thomas Sailer)
+
+Linux 2.5.45-ac1
+-	Merge Linux 2.5.45
+	- ISDN diversion no longer builds (didnt work anyway)
+	- NFSv4 no longer builds
+*	Put MAINTAINERS back in order			(me)
+*	Revert dangerous looking ncr53c8xx change	(me) 
+*	Revert dangerous looking sym53c8xx change	(me)
+*	Revert dangerous looking inia100 changes	(me)
+*	Revert dangerous looking ql1280 changes		(me)
+*	Fix Qt check					(Roman Zippel)
+*	Initial move of megaraid to new eh		(me)
+*	Fix megaraid sleep/wakeup races			(me)
+*	Remove various bits of megaraid 2.0/2.2 stuff	(me)
+*	Fix build of ipmr				(Adam J Richter)
+*	Fix cpqfc asm					(me)
+*	Fix sbp2 build					(me)
+*	Fix mpt fusion build				(me)
+*	Fix i2o_scsi build				(me)
+*	Minimal new_eh/locking fixes for ultrastor.c	(me)
+*	Correct NCR5380 locking again			(me)
+	| Eventually I'll get it all right !
+*	Make i2o_scsi more polite about error recovery	(me)
+*	Update eata_pio to new_eh and also clean up	(me)
+	the scsi comamnd direction handling
+*	Fix fd_mcs compile				(me)
+*	Fix u14f/34f compile				(me)
+*	Move ibmmca to new_eh basic bits		(me)
+*	Fix eata build					(me)
+*	Switch inia100 to new_eh			(me)
+*	Fix nsp_cs build				(me)
+o	Disable PnPBIOS on Gateway 5300			(me)
+*	PMTU build fixes				(Adam J Richter)
+
+Linux 2.5.44-ac6 (not released generally)
+*	Don't take locks on polled NCR5380		(me)
+	| The 5380 actually works better polled than
+	| IRQ for the moment
+*	Use longer delays on 3c509 eeprom		(Zwane Mwaikambo)
+	| and switch to mdelay as per Jeff Garzik moan
+*	Update ips scsi driver to new queue logic	(David Jeffery)
+*	Fix scsi proc oops				(Mike Anderson)
+*	Updae eata and u14-34f drivers			(Dario Ballabino)
+o	Kill off old style cache flush functions	(David Miller)
+o	Kill obsolete bridge help texts			(Bert Hubert)
+*	Ensure IDE structures are fully setup on non	(Peter Denison)
+	PCI boxes
+*	Fix non PCI ide initialization order		(Peter Denison)
+o	Add boot98 from PC98 patches			(Osamu Tomita)
+o	Add upd4990a driver for PC98			(Osamu Tomita)
+o	Add gdc PC98 console driver			(Osamu Tomita)
+*	Add pci idents from PC98 patches		(Osamu Tomita)
+o	Add a mach-defaults to clean up mach includes	(me)
+	on x86
+o	Merge first pieces of PC98 arch support		(Osamu Tomita)
+	| I/O ports, reboot is now per machine
+	| FPU IRQ need not be IRQ 13
+	| Redid vm86 irq rules as mach-*.h stuff
+	| and yes Im sure it broke voyager
+o	Add floppy98 driver				(Osamu Tomita)
+o	Fix module symbol problems for apm, x.25,	(me)
+	stack check debugging
+-	Make xconfig fix				(Adrian Bunk)
+-	Fix proc/ksyms double init			(Randy Dunlap)
+*	Fix gcc 3.3 compile fail on alpha		(Thorsten Kranzkowski)
+*	Fix silly error in ibmlana fixes		(me)
+
+Linux 2.5.44-ac5
+o	Fix a possible corruption under load		(Andrew Morton)
+*	Fix a possible PPA oops				(me)
+*	Same fix for IMM				(me)
+*	Fix build without MCE support			(Dave Jones)
+*	Move NCR5380 to workqueue, more locking fixes	(me)
+*	Further NCR5380 cleanup, g_NCR5380 build fix	(me)
+*	Bring dtc driver back inline with NCR5380	(me)
+	| TODO: flush workqueue before NCR5380 module unload
+*	Fix undefined C in se401 driver			(me)
+*	Fix the rest of the APM compile bugs I hope	(me)
+o	Work around makefile breakages for pcmcia scsi	(me)
+	| Will whoever broke vpath please fix it properly
+*	Make nsp_cs build with gcc 3.2			(me)
+*	Clean up tpqic02 for 2.5			(me)
+*	Update de620 to new style locking		(me)
+*	Add pci mapping to i2o_block			(me)
+	| Untested
+*	Add pci mapping to i2o_scsi			(me)
+	| Untested
+*	Fix cpufreq for coppermine processors		(Dominik Brodowski)
+o	Add an optional IOMMU debug to help x86 people	(Andi Kleen)
+	find buggy pci_map code
+*	Forward port 2.4 PCI methods fix		(Jim Radford)
+*	Next set of ucLinux merge work			(Christoph Hellwig)
+*	Use TEST_UNIT_READY for media change probe	(Matthew Dharm)
+*	Remove last existing direct references to pci	(Adam J Richter)
+	driver private data
+o	Use faster page coping function			(Manfred Spraul)
+*	Update ah1740 to new locks, malloc		(me)
+*	Update fd_mcs driver to new sg lists, locks	(me)
+	and eh handling. Needs direction bits doing
+*	Update NCR53c406a to new eh, locking etc	(me)
+*	Minimal locking fixes for eata_pio		(me)
+	| Still needs lots doing (eg direction handling)
+*	Fixed 3ware scsi build				(me)
+*	Update cops driver to new locking		(me)
+*	Update 3c515 driver to new locking		(me)
+*	Update ibm lana driver to 2.5, remove compat	(me)
+	cruft
+*	Fix missing bits from the cdrom eject patch	(Jens Axboe)
+*	Further cpia fixes				(Duncan Haldane)
+*	Fix a wrong usb storage error code		(Matthew Dharm)
+-	Update USB storage to new scatter gather	(Matthew Dharm)
+*	Fix ext3 crash failing to set block size	(Angus Sawyer)
+*	ieee1394 memcpy warning fix			(me)
+*	Update 3c589 driver for new locking		(me)
+*	Fix trident sound driver printk format bugs	(me)
+
+Linux 2.5.44-ac4
+*	Add 2.4.20-ac style /proc for ht info		(Robert Love)
+*	Fix bd_blocksize setting case			(Hugh Dickins)
+*	PCI bus setup now __devinit for hotplug		(Ivan Kokshaysky)
+-	make xconfig should work again			(Alex Riesen)
+*	Merge uclinux resync. This is now way cleaner	(Christoph Hellwig)
+*	Update znet driver				(Marc Zyngier)
+*	More i2o_scsi tidying				(Christoph Hellwig)
+*	Fix a leak in the device mapper			(Joe Thornber)
+*	Fix missed section name change			(Peter Chubb)
+*	Fix a bug in the APM update, add comments	(me)
+*	Merge block layer changes			(Jens Axboe)
+	| Should fix eject panic
+*	Fix warnings in baycom_epp			(me)
+*	Fix warnings in fmvj18x, and timer_sync bug	(me)
+*	Fix sim710 warnings				(me)
+*	Fix pas16/t128 warnings				(me)
+*	Allow both mmio and pio g_NCR5380 builds at once(me)
+*	Remove unused code from axnet_cs		(me)
+*	Fix warning in pc300 driver			(me)
+*	Clean up qlogicfas drivers somewhat		(me)
+*	Fix megaraid build for pci bios changes		(me)
+o	Fix cpu count weird reporting 			(Dave Jones)
+o	Clean up capabilities printing			(Dave Jones)
+*	Silence mtrr debugging printk			(Dave Jones)
+*	Split machine check per processor		(Dave Jones)
+-	Update mpt fusion for new slave_attach handling	(Peter Chubb)
+o       Initial speedstep testing for VIA chipset boards(Bob Renwick)
+
+Linux 2.5.44-ac3
+o	Update the cciss driver				(Stephen Cameron)
+*	Fix seagate st02 unload				(me)
+*	Fix missing \n in i810 driver			(me)
+*	Update Ninja SCSI PCMCIA driver			(Yokota Hiroshi)
+*	Clean up and kill off scsi_merge		(Christoph Hellwig)
+o	Remove niceness magic numbers			(Randy Dunlap)
+*	Update EDD support				(Matt Domsch)
+o	Update voyager support for IRQ stacks		(James Bottomley)
+-	Revert do_mounts change
+*	Better fix for raw.c headers			(Bjoern Zeeb)
+*	Fix ehci enumeration breakage			(David Brownell)
+*	Update adv7175 to new style i2c			(Frank Davis)
+*	PnP updates					(Adam Belay)
+*	PnP conversion of CS423x to new code		(Adam Belay)
+*	Fix APM BUG() on SMP boxes, port forward 2.4	(me)
+	changes
+*	Update other Digi URLS				(me)
+
+Linux 2.5.44-ac2
+o	Merge interrupt stack support for x86		(David Hansen,
+							 Ben LaHaise)
+*	Update ACPI to the latest released patch	(Andrew Grover,
+	| Should fix the compaq problems	Ducrot Bruno, Pavel Machek)
+X	Kill old STATIC define in do_mounts		(Frank Davis)
+*	Port NCR5380 to the latest kernel changes	(me)
+*	Update Digi EPCA maintainer info		(Scott Kilau)
+*	Update LVM2 device mapper	(Joe Thornber, Christoph Hellwig)
+*	EATA updates					(Dario Ballabio)
+*	Fix remaining depca ioctl bug			(Peter Denison)
+*	Make cifs error invalid addresses nicely	(Zwane Mwaikambo)
+*	Fix cifs oops on kmalloc failure		(Zwane Mwaikambo)
+*	Propogate return value on cifs connect		(Zwane Mwaikambo)
+*	cifs locking changes				(Zwane Mwaikambo)
+*	Fix cifs oops with invalid unc			(Zwane Mwaikambo)
+o	Resync voyager architecture support		(James Bottomley)
+o	Spot synaptics touchpad so we dont confuse it	(David Woodhouse)
+o	Quieten bttv debugging a bit			(Bongani)
+*	Rip out lots of the left over pcibios_ stuff	(Greg Kroah-Hartmann)
+*	Fix reiserfs build				(Steven Cole)
+*	Further cpia driver updates			(Duncan Haldane)
+*	Kill tqueue.h in various other files		(Martin Waitz)
+*	Update IRDA maintainer data			(Pawel Kot)
+*	Add in missing read_barrier_depends for sparc	(Dipankar Sarma)
+*	Make afs compile with older gcc			(Jan Marek)
+*	2.5.44 UML updates				(Jeff Dike)
+o	Fix kmap bugs in fs/exec.c for upgrowing	(Marcus Alanen)
+	stack
+*	Add ethtool support to ewrk3			(Adam Kropelin)
+*	Fix up cli/sti use in ewrk3			(Denis Vlasenko)
+*	ewrk3 ioctl fixes				(Adam Kropelin)
+*	Cleanup ewrk3 signature code			(Adam Kropelin)
+*	Fix task state reporting			(Daniel Jacobowitz)
+*	Handle casio fiva weirdness with APM extents	(Hiroshi Miura)
+o	Add Geode target that defines OOSTORE		(Hiroshi Miura, me)
+*	Remove dodgy_tsc handling code			(Hiroshi Miura)
+*	Update problem PIT handling on 5510/5520	(Hiroshi Miura)
+	Cyrix devices, re-enable TSC on it
+*	Use outb_p on CTC load up			(Hiroshi Miura)
+*	Mark ide floppies as removable devices		(Paul Bristow)
+*	Fix sym53c416 IRQ release problem		(me)
+*	Update sym53c416 to new EH code			(me)
+*	Fix subtractive decoding bridge handling	(Ivan Kokshaysky)
+*	Fix wan driver build problems			(Krzysztof Halasa)
+o	Allow for >32 signals on some platforms		(Matthew Wilcox)
+
+Linux 2.5.44-ac1
+-	Resync with Linus 2.5.43/44
+*	Fix net/ipv4/raw.c build problem		(me)
+*	Fix bluetooth pcmcia builds			(me)
+*	Fix dm includes					(me)
+	| I've not merged any of the DM updates yet
+*	Fix 3c515, fealnx printk type warnings		(me)
+*	Fix multi-line string literal in olympic driver	(me)
+*	Fix printk type warnings in tulip		(me)
+*	Document core naming sysctl			(Randy Dunlap)
+*	Fix hd_struct size/offset bugs			(Mark Lord)
+*	Further sym53c416 updates			(Bjoern Zeeb)
+*	Fix ramdisk cache flush 			(Paul Mundt)
+-	Fix pnp config.in for make Xconfig		(Roman Zippel)
+*	Correct ncpfs marking of executables		(Petr Vandrovec)
+*	Small matroxfb fixes				(Petr Vandrovec)
+*	Small cleanups for i2o_block so Al can clean	(Al Viro)
+	up the core block code
+*	Fix hang at shutdown with offlined disk		(Mike Anderson)
+*	Fix error reporting on scsi offline		(Mike Anderson)
+*	Fix hang on power off with scsi			(Mike Anderson)
+*	Fix typo in pnp.h				(Martin Dahl)
+*	Remove tqueue.h from cycx_main			(Adrian Bunk)
+*	Fix vlsi irda compile				(Adrian Bunk)
+*	Fix hamradio makefile breakage			(Adrian Bunk)
+*	Fix inia100 build				(John Fort)
+*	Fix AX.25 build for ip_proc			(Dave Miller)
+*	Fix aic7xxx Makefile				(Inaky Perez-Gonzalez)
+*	Fix vga16fb					(Ben Pfaff)
+o	Optimise spinlock to Intel recommendation	(Manfred Spraul)
+*	Fix pipe wakeup bug				(Manfred Spraul)
+o	Fix semop 32bit pid handling			(Manfred Spraul)
+*	Fix qlogic1280 build				(Jens Axboe)
+*	Merge BeOS fs (already in 2.4)			(Will Dyson,
+							 Sergey Kostyliov)
+*	Clean up wan ioctl structures			(Krzysztof Halasa)
+*	Some trident audio takes a long time to		(Kenneth Sumrall)
+	come up (Hitachi webpad)
+*	Add DVB api and core				(Holger Waechtler)
+*	Add one DVB driver so people can see how it	(Holger Waechtler)
+	all fits together
+	| This wants further review. There are known things to do yet
+	| but its important to get the stuff in since Digital TV is 
+	| becoming the norm in western europe.
+-	Print something clueful if menuconfig explodes	(Russell King)
+o	Move BUG() into asm/bug.h			(Russell King)
+o	Report errors unzipping ramdisks		(Russell King)
+*	Support extra weird numeric key on ARM boxes	(Russell King)
+*	Fix missing devexit_p in tulip			(Andrey Panin)
+*	Kill sr_host 					(Patrick Mansfield)
+*	S/390 Makefile and Config updates		(Martin Scwidefsky)
+*	S/390 user access fixes				(Martin Scwidefsky)
+*	31bit emulation fixes for S/390			(Martin Scwidefsky)
+*	Make S/390 possible cpu map volatile		(Martin Scwidefsky)
+o	Update dasd drivers for S/390 series		(Martin Scwidefsky)
+*	Update ver_linux				(Steven Cole)
+*	Fix blk ioctls on aacraid			(Mark Haverkamp)
+*	Fix SiS IDE build without procfs		(Lionel Bouton)
+*	i386 verify write fixes				(Brian Gerst)
+*	iphase ATM updates				(Francois Romieu)
+*	Update i810-tco to C99 initializers		(Wim Van Sebroeck)
+*	IDE updates for ARM platform			(Russell King)
+*	Fix megaraid build				(Mike Anderson)
+	| This may change the device order for some folks but it works
+	| at least
+*	Fix in2000 to handle scsi host list change	(me)
+*	Fix ncr53c8xx build				(me)
+*	Fix atp870u build				(me)
+*	Fix nsp32 build					(me)
+*	Fix firewire prototypes				(me)
+
+Linux 2.5.42-ac1
+	Merge with Linus 2.5.42
+*	Merge the LVM2 device mapper			(Joe Thornber)
+-	Drop uid16 S/390 bits pending resolution	(me)
+*	Fix iphase build				(Adrian Bunk)
+*	Fix UML build					(Kai Germaschewski)
+*	Fix cpufreq compile				(Adrian Bunk)
+*	Move dead verify_area code from sh port		(Brian Gerst)
+*	Fix missing AIO symbols				(Ben LaHaise)
+*	Fix ATM makefile				(Sam Ravnborg)
+*	Fix esp build					(Andres Salmon)
+*	Fix cifs/jfs symbol name collision		(Steve F)
+*	Update CPIA to match 2.4 tree			(Duncan Haldane)
+*	Fix cifs 64bit and cifs scsi name collision	(Steve F)
+*	Fix a compile of missing sysrq updates		(James Simmons)
+*	Fix sparc timer build				(Pete Zaitcev)
+*	Fix comile without networking			(Miles Bader)
+*	Remove some left over _ret functions		(SL Baur)
+*	Update syncppp code				(Paul Fulghum)
+*	Fix n_hdlc leak					(Paul Fulghum)
+*	Make synclink_cs build again			(Paul Fulghum)
+*	Make synclinkmp build again			(Paul Fulghum)
+*	Make synclink build again			(Paul Fulghum)
+*	Fix NFS symbols for NFS as a module		(Olaf Dietsche)
+*	Fix problem with scsidriver docbook		(Joaquim Fellmann)
+*	Kill dead suspend code in IDE			(Pavel Machek)
+*	Kill unreferenced workqueue define		(Pavel Machek)
+*	Fix swsuspend with discontiguous memory bits	(Pavel Machek)
+*	Fix cpqfc ioctl sense buffer handling		(Francis Wiran)
+*	Sym53c416 from cli to real locking		(Bjoern Zeeb)
+*	Fix a case where sd uses freed memory		(Patrick Mansfield)
+*	Fix p4-clockmod on HT processors		(Dominic Brodowski)
+*	CPUfreq interface update			(Dominic Brodowski)
+*	Fix eicon build					(me)
+*	Restore disconnect field in devices for		(me)
+	driver use
+
+Linux 2.5.41-ac2
+*	Fix jffs/jffs2 properly this time (bpbb)	(me)
+*	Fix jffs2 for workqueues			(me)
+*	Next set of i2o_scsi update work		(me)
+*	Do the 2.5 checkup pass on the 3c501 driver	(me)
+o	Add missing exports for file system modules	(Nikita Danilov)
+	on UML
+*	Fix ipx proc permission bogosity	(Arnaldo Carvalho de Melo)
+*	Switch appletalk spinlocks to rwlocks	(Arnaldo Carvalho de Melo)
+*	Correct sys_getpid docs				(Robert Love)
+*	SubmittingPatches indent fix			(John Levon)
+*	cciss, cpqarray. rd. hd fixes			(Al Viro)
+*	Fix cpia with gcc 3.2				(Randy Dunlap)
+*	Use C99 structure initializers in IDE		(Art Haas)
+*	Use C99 structure initializers in HFS		(Art Haas)
+*	Update DMI scanner				(Jean Delvare)
+*	Fix bogus types in ide-cd.h			(Skip Ford)
+*	ns83820 updates					(Ben LaHaise)
+*	AIO updates					(Ben LaHaise)
+*	Beeping and sysrq on m68k			(Vojtech Pavlik)
+*	Improve hid naming				(Vojtech Pavlik)
+*	LSM docs					(Greg Kroah-Hartmann)
+*	Merge UML updates				(Jeff Dike)
+*	Final superblock union cleanup			(Brian Gerst)
+-	Fix atm build/makefile breakage			(Adrian Bunk)
+*	Brlock optimisation				(Robert Love)
+*	Miscellaneous USB updates			(Greg Kroah-Hartmann)
+*	MPT Fusion update				(Pam Delaney)
+-	Back out sched.c change - seem,s to cause hangs	(me)
+*	Serial compile fix				(Russell King)
+*	S/390 compile fixes				(Martin Schwidefsky)
+*	S/390 workqueue updates				(Martin Schwidefsky)
+*	Switch 3215/3270 from work queue to tasklet	(Martin Schwidefsky)
+*	Update S/390 link scripts			(Martin Schwidefsky)
+*	Remove duplicate S/390 memset			(Martin Schwidefsky)
+*	Fix S/390 syscall tracing			(Martin Schwidefsky)
+*	Multiple 3270 fixes				(Martin Schwidefsky)
+*	Configurable core names				(Jes Rahbek Klinke)
+X	Clean up s/390x 16bit uid calls			(Martin Schwidefsky)
+*	Fix EH locking on NCR5380			(me)
+	| Should now work on SMP boxes (badly admittedly)
+*	Indent wd7000 (no code changes)			(me)
+*	First pass at the in2000 scsi driver		(me)
+	| New locking, new_eh, address conversion
+
+Linux 2.5.41-ac1
+-	Merge with Linus 2.5.41
+	- Drop S/390 drivers subtree for Linus
+	- Drop task queue fixes for schedule_work
+	- TODO: merge two sets of conflicting UML changes
+	- TODO: double check bluetooth merge
+*	Fix aacraid makefile				(Mark Haverkamp)
+*	Fix ips compile					(Paul Larson)
+*	Fix aha152x compile				(Michel Eyckmans)
+*	Fix orinoco_cs compile		(Wichert Akkerman, Martin Waitz)
+*	Fix i2o_core compiler				(Gregoire Favre)
+*	Fix missing exports for netfilter
+*	Fix compile failure in jffs			(me)
+*	Fix compile failure in jffs2			(me)
+*	Fix Divas_Mod compile				(me)
+*	Fix hisax compile				(me)
+*	Fix ipacx compile				(me)
+*	Fix pcbit compile				(me)
+*	Fix tpam compile				(me)
+*	Fix i2o_lan build				(me)
+*	Fix i2o_proc build				(me)
+*	Fix ppa compile					(me)
+*	Fix imm compile					(me)
+*	Fix ipv6 compile				(me)
+
+
+
+Linux 2.5.40-ac6
+*	Cadet_wake can be static			(me)
+*	Bluetooth configuration cleanups		(Marcel Holtmann)
+*	Hardwired empty bar handling fix take two	(Ivan Kokshaysky)
+*	Use kernel crc32 lib for bluetooth		(Marcel Holtmann)
+*	Make scsi cdrom honour passed timeouts		(Peter Osterlund)
+*	Make aironet4500_cs compile			(me)
+*	Fix bugs where ibmtr unmapped the wrong address	(me)
+*	Fix crash problem in oss dmabuf.c		(me)
+	| Its still very broken but ALSA should replace it
+*	Fix opl3sa2 warnings				(me)
+*	Make tcic compile again				(me)
+*	Make i82365 also use del_timer_sync		(me)
+*	Fix warnings in fpu emulator			(me)
+*	Fix t128 for NCR5380 changes			(me)
+*	Fix pas16 for NCR5380 changes			(me)
+*	Fix dmx3191 for NCR538 changes			(me)
+*	First pass seagate st02 cleanups		(me)
+*	Clean up de600 driver. Switch to spinlocks	(me)
+	remove crud, formatting junk etc
+	| Still needs rewriting to use parport
+*	Remove extra unlock in wd7000			(Matthew Wilcox)
+*	First basic pass at qlogicgas			(me)
+*	Clean up the fdomain isa scsi			(me)
+*	Clean up max_thread setting limits		(Matthew Wilcox)
+*	Ricoh cardbus performance fix			(KOMURO)
+*	Switch appletalk to seq_file /proc	(Arnaldo Carvalho de Melo)
+*	Switch X.25 to seq_file			(Arnaldo Carvalho de Melo)
+*	Fix bugs in the above			(Arnaldo Carvalho de Melo)
+
+Linux 2.5.40-ac5
+*	Rework S/390 driver init sequences		(Martin Schwidefsky)
+*	Swap immediate_bh for tasklets for s/390 3215	(Martin Schwidefsky)
+*	UML updates - crash fixes, driver cleanup	(Jeff Dike)
+	pcap transport
+*	Switch fmi radio card to sleeping waits		(me)
+*	Fixing missing printk \n in fmi radio		(me)
+*	Update to newer uclinux patch			(Greg Ungerer)
+	| Unresolved now:
+	| fs/exec.c kernel/fork.c procfs sysctl
+	| can nommu be folded in (Hch)
+*	Remove surplus irq_disable from mpt fusion	(Carlos Gorges)
+*	Export gdt for APM				(Carlos Gorges)
+	| Marked as _GPL because its deep internals stuff
+*	Merge the add/put disk gendisk changes for i2o	(Al Viro)
+*	Switch NCR5380/g_NCR5380 to new_eh		(me)
+*	Fix cs89x0 netdevice init as module		(me)
+*	Change some of the wd7000 code to use
+	udelay and do other cleanups
+*	Switch wd7000 to new_eh				(me)
+*	Serial driver updates				(Russell King)
+*	Sync bluetooth with 2.4, fix SMP, hotplug	(Maksim Krasnyanskiy)
+	support L2CAP, BNEP, HCI filter etc
+*	Move firmwareloading to hotplug for bluetooth	(Maksim Krasnyanskiy)
+*	Pull hpfs out of shared struct superblock	(Brian Gerst)
+X	Fix sleep with pre-empt disabled in 		(Manfred Spraul)
+	set_cpus_allowed
+
+Linux 2.5.40-ac4
+*	Make ibm partition code compile again		(Martin Schwidefsky)
+*	Remove unneeded config options on S/390		(Martin Schwidefsky)
+*	Update DASD drivers				(Martin Schwidefsky)
+*	Update S/390 xpram driver			(Martin Schwidefsky)
+*	Replace S/390 BH code by tasklets		(Martin Schwidefsky)
+*	Fix S/390 bitops bugs				(Martin Schwidefsky)
+*	S/390x 31bit emulation fixes			(Martin Schwidefsky)
+*	Update S/390 link scripts			(Martin Schwidefsky)
+*	Add S/390 pre-empt support			(Martin Schwidefsky)
+*	Inline some S/390 old compilers couldnt handle	(Martin Schwidefsky)
+*	Use diag 44 for S/390x spinlocks		(Martin Schwidefsky)
+*	Better S/390 timer handling			(Martin Schwidefsky)
+*	S/390 code cleanups				(Martin Schwidefsky)
+*	Clean up S/390 fpu load/stores			(Martin Schwidefsky)
+*	DECnet updates for testing			(Steve Whitehouse)
+*	Add console shutdown handling to S/390		(Martin Schwidefsky)
+*	Remove some bogus S/390 sanity checks		(Martin Schwidefsky)
+*	Clean up S/390 process irq			(Martin Schwidefsky)
+*	Fix/simplify chpids handling on S/390		(Martin Schwidefsky)
+*	No /proc/interrupts on S/390			(Martin Schwidefsky)
+*	Remove now unneeded S/390 hack in init/main.c	(Martin Schwidefsky)
+*	Clean up all the S/390 ptrace handling		(Martin Schwidefsky)
+*	Fix build with local apic enabled		(James Bottomley)
+*	Initial i2o_block merge of 2.4/2.5 code		(me)
+	| Not yet functional
+*	Initial i2o_scsi merge of 2.4/2.5 code		(me)
+	| Needs dma mapping, 64bit, be and new_eh
+-	Revert Ivan's pci change (breaks serverworks)
+*	PCI serial oops fix				(William Irwin)
+*	Remove dead wood from unistd.h			(Brian Gerst)
+*	Fix bug in capget 				(Chris Wright)
+*	Switch qnxfs to new style initializers		(Art Haas)
+*	Recongize qnx v6 file systems			(Anders Larsen)
+*	Kill off remaining pcibios_ users   (Greg "Ninja Turtle" Kroah-Hartmann)
+*	Fix scsi debug for scsi scan changes		(Mike Anderson)
+*	Fix some bugs in scsi error handling		(Mike Andersen)
+*	Forward port RMK's 2.4 scsi fixes		(Mike Andersen)
+*	Allow longer settle times for scsi reset	(Mike Andersen)
+*	Hopefully improve error policies a bit		(Mike Andersen)
+
+Linux 2.5.40-ac3
+*	Resync telephony drivers with 2.4		(me)
+	| Forward port security and other minor fixes
+*	Fix aironet4500 build for tq changes		(me)
+*	Fix keyspan USB warnings with gcc 3		(me)
+*	Switch to the newer 2.4 depca driver		(me)
+*	Re-merge depca fixes from 2.5.0->2.5.40]
+*	Fix depca spinning waiting for irq probe	(me)
+*	Fix depca copy with interrupts off		(me)
+*	Fix depca clash with other ALIGN macros		(me)
+*	Initial port of NCR5380/g_NCR5380 to new locks	(me)
+	| This still needs new_eh, further clean up
+	| and possibly making NCR5380_main a thread
+*	Initial locking rework for the wd7000 scsi	(me)
+	| Still needs new_eh
+*	Update jffs to the dequeue_signal changes	(me)
+*	Update jffs2 to the dequeue_signal changes	(me)
+*	Fix shpnt misuse in NCR53c406a, wrong free_irq	(me)
+*	Update NCR53c406a to new style sglist		(me)
+	| Still needs new_eh
+*	Architecture updates for S/390			(Martin Schwidefsky)
+*	Include updates for S/390			(Martin Schwidefsky)
+*	Base S/390 driver updates			(Martin Schwidefsky)
+*	Add the new syscalls to S/390			(Martin Schwidefsky)
+*	Fix sleeping with locks in sound_core		(Jaroslav Kysela)
+*	Fix oops on shutdown of cs4281			(Suresh Siddha)
+*	Fix cdrom paths in devfs			(Jordan Breeding)
+*	Fix missing cache tag entry in intel cpu table	(Jean Delvare)
+*	Remove old 2.2 compatibility pci functions	(Greg Kroah-Hartmann)
+*	Clean up some dead devfs bits			(Greg Kroah-Hartmann)
+*	Fix an oops in the hugetblpage stuff		(Andrew Morton)
+	| Its still a stupid idea but now it doesnt oops
+X	Handle read only BARs with type bits set	(Ivan Kokshaysky)
+
+Linux 2.5.40-ac2
+*	Fix a cut and paste error in the amd rng docs	(Troels Hansen)
+*	Forward port OSS maestro3 fixes for toughbook
+*	Forward port ramdisk cache coherency
+*	RTL8150 USB updates				(Petko Manalov)
+*	Fix corega USB ident				(Petko Manalov)
+*	USB keyboard driver fix				(Dave Miller)
+*	USB prototype fix				(Luc Vanoostenryck)
+*	USB string fixes		(cip307@cip.physik.uni-wuerzburg.de)
+*	USB test driver					(David Brownell)
+*	Speedtouch USB driver fixes			(Greg Kroah-Hartmann)
+*	Clean environment for hotplug			(Greg Kroah-Hartmann)
+*	Fix mprotect oops				(Hugh Dickins)
+*	NUMA-Q cleanups					(Martin Dobson)
+*	Split timers into one x86 timer type per file	(John Stultz)
+*	Cyclone timer support for x440 etc		(John Stultz)
+*	Fix sleeping from illegal context for ioperm	(Andrew Morton)
+*	Fix imm compile				(bonganilinux@mweb.co.za)
+*	Fix irda for tq changes				(Carlos Gorges)
+*	Fix xjack telephony build			(Carlos Gorges)
+*	Fix ppa compile					(Carlos Gorges)
+*	Fix aha152x compile for tq changes		(Carlos Gorges)
+*	Fix hamradio drivers for tq changes		(Carlos Gorges)
+*	Fix plip driver for tq changes			(Carlos Gorges)
+*	Fix mpt fusion for tq changes			(Carlos Gorges)
+*	Fix isdn for tq changes				(Carlos Gorges)
+*	Fix ieee1394 for tq changes			(Carlos Gorges)
+*	Fix new timer code to build with cpufreq on	(me)
+*	Fix capi build for new tq_ code			(me)
+	| ISDN still needs moving to real locks
+	| this just cleans up one item
+*	Fix missing header in mtdblock_ro		(Carlos Gorges)
+*	Fix a typo and other header			(me)
+*	Fix up ixj_pcmcia for 2.5			(me)
+	| Note for janitors - it looks like a lot of the pcmcia release
+	| code people "fixed" should be using del_timer_sync not del_timer
+*	Fix missing header in longhaul cpu speed driver	(me)
+*	Pipe read/write cleanup				(Manfred Spraul)
+*	Make IDE PCI config text clearer	(Andrzej Krzysztofowicz)
+
+Linux 2.5.40-ac1
+*	Initial port of aacraid driver to 2.5		(me)
+*	vfat corruption fix				(Petr Vandrovec)
+*	Clean up firestream warnings			(Francois Romieu)
++	Voyager support					(James Bottomley)
+*	Fix split_vma					(Hugh Dickins)
++	Fix config in video subdirectory		(John Levon)
+*	Update olympic driver to 2.5			(Mike Phillips)
+*	Fix sg init error				(Mike Anderson)
+*	Fix Rules.make
+*	Merge most of ucLinux stuff			(Greg Ungerer)
+	| It needs putting somewhere so we can pick over the
+	| hard bits left
+	| Q: Wouldn't drivers/char/mem-nommu.c be better
+	| Q: How to do the procfs stuff tidily
+	| Q: Wouldn't it be nicer to move all mm or mmnommu specific ksyms
+	|    int the relevant mm/*.c file area instead of kernel/ksyms
+	| Q: Why ifdef out overcommit -  its even easier to account on 
+	|    MMUless and useful info
+*	Stick tulip back under 10/100 ethernet		(me)
+*	Correct docs for IBM touchpad back to how	(me)
+	they were before
+*	Fix abuse of set_bit in winbond-840		(me)
+*	Fix abuse of set_bit in atp			(me)

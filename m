@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267212AbSKXMak>; Sun, 24 Nov 2002 07:30:40 -0500
+	id <S267218AbSKXMmu>; Sun, 24 Nov 2002 07:42:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267218AbSKXMak>; Sun, 24 Nov 2002 07:30:40 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:4513 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267212AbSKXMaj>;
-	Sun, 24 Nov 2002 07:30:39 -0500
-Date: Sun, 24 Nov 2002 13:37:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andy Chou <acc@CS.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
-Subject: Re: [CHECKER] 5 additional buffer overruns in 2.5.48
-Message-ID: <20021124123737.GY11884@suse.de>
-References: <20021124063756.GA14294@Xenon.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021124063756.GA14294@Xenon.stanford.edu>
+	id <S267222AbSKXMmu>; Sun, 24 Nov 2002 07:42:50 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:29959 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S267218AbSKXMmt> convert rfc822-to-8bit;
+	Sun, 24 Nov 2002 07:42:49 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.5.49] atkbd.c: Unknown key [...]
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Sat, 23 Nov 2002 21:09:07 +0100
+Message-ID: <87isyodp5o.fsf@gswi1164.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 23 2002, Andy Chou wrote:
-> ---------------------------------------------------------
-> [BUG] [GEM] base starts at offset 4 of buf
-> /u1/acc/linux/2.5.48/drivers/cdrom/cdrom.c:1170:dvd_read_physical: 
-> ERROR:BUFFER:1170:1170:Array bounds error: base[16] indexed with [16]
-> 	layer->track_density = base[3] & 0xf;
-> 	layer->linear_density = base[3] >> 4;
-> 	layer->start_sector = base[5] << 16 | base[6] << 8 | base[7];
-> 	layer->end_sector = base[9] << 16 | base[10] << 8 | base[11];
-> 	layer->end_sector_l0 = base[13] << 16 | base[14] << 8 | base[15];
-> 
-> Error --->
-> 	layer->bca = base[16] >> 7;
-> 
-> 	return 0;
 
-Ah good catch. The buf[20] is simply too small, it must be 21 (or
-probably just 22 to make it even, the size is 21 bytes for header and
-data)
+I use a framebuffer console.  After the screensaver kicked in pressing
+Shift gives:
+
+,----
+| atkbd.c: Unknown key (set 2, scancode 0xb6, on isa0060/serio0)
+| pressed.
+`----
+
+The same for space:
+
+,----
+| atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0)
+| pressed.
+`----
+
+I didn't try other keys yet.  I'd like to get rid of these messages.
+
+Jochen
 
 -- 
-Jens Axboe
-
+Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.

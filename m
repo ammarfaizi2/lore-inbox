@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264875AbSLaX1d>; Tue, 31 Dec 2002 18:27:33 -0500
+	id <S264919AbSLaX3Y>; Tue, 31 Dec 2002 18:29:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264877AbSLaX1d>; Tue, 31 Dec 2002 18:27:33 -0500
-Received: from are.twiddle.net ([64.81.246.98]:898 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S264875AbSLaX1c>;
-	Tue, 31 Dec 2002 18:27:32 -0500
-Date: Tue, 31 Dec 2002 15:35:39 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [CFT] arch/alpha: Makefiles update
-Message-ID: <20021231153539.A21946@twiddle.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021230115336.GA1089@mars.ravnborg.org>
+	id <S264920AbSLaX3Y>; Tue, 31 Dec 2002 18:29:24 -0500
+Received: from pdbn-d9bb86aa.pool.mediaWays.net ([217.187.134.170]:7949 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id <S264919AbSLaX3X>;
+	Tue, 31 Dec 2002 18:29:23 -0500
+Date: Wed, 1 Jan 2003 00:37:41 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Josh Brooks <user@mail.econolodgetulsa.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Usermode NFS - still in existence ?
+Message-ID: <20021231233741.GA25889@citd.de>
+References: <20021231141201.D88624-100000@mail.econolodgetulsa.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021230115336.GA1089@mars.ravnborg.org>; from sam@ravnborg.org on Mon, Dec 30, 2002 at 12:53:36PM +0100
+In-Reply-To: <20021231141201.D88624-100000@mail.econolodgetulsa.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 30, 2002 at 12:53:36PM +0100, Sam Ravnborg wrote:
-> +# If ALPHA_GENERIC, make sure to turn off any instruction set extensions
-> +# that the host compiler might have on by default. Given that EV4 and EV5
-> +# have the same instruction set, prefer EV5 because an EV5 schedule is
-> +# more likely to keep an EV4 processor busy than vice-versa.
-> + 
-> +# Default value
-> +mach-yy := ev56
-> +mach-$(have_mcpu_pca56)$(have_mcpu_pca56)	:= pca56
-> +
-> +#Machine depedent values, influenced by gcc capabilitites
-> +mach-$(CONFIG_ALPHA_SX164)$(have_mcpu_pca56)	:= pca56
-> +mach-$(CONFIG_ALPHA_POLARIS)$(have_mcpu_pca56)	:= pca56
-> +mach-$(CONFIG_ALPHA_EV67)$(have_mcpu_ev67)	:= ev67
-> +
-> +mach-y				:= $(mach-yy)
-> +mach-$(CONFIG_ALPHA_GENERIC)	:= ev5
-> +mach-$(CONFIG_ALPHA_EV4)	:= ev4
-> +mach-$(CONFIG_ALPHA_EV56)	:= ev56
-> +mach-$(CONFIG_ALPHA_EV5)	:= ev5
-> +mach-$(CONFIG_ALPHA_EV6)	:= ev6
+On Tue, Dec 31, 2002 at 02:13:58PM -0800, Josh Brooks wrote:
+> 
+> Hello,
+> 
+> I have a system running a vendor supplied kernel that I do not have the
+> ability to change.  Further, it is modified enough that normal modules
+> will not load into it - and of course I cannot compile modules to work
+> with it since I don't have the source to the kernel.
+> 
+> And for some reason they did not compile NFS in.
+> 
+> And I need this system to be an NFS _client_.
+> 
+> What are my options ?  I see that at some point there was a usermode NFS
+> ... does this still exist ? Is there some other way of mounting an NFS
+> volume from userland - really any solution is fine, I just need to mount
+> my nfs volume from this server.
 
-This doesn't work.   For example CONFIG_ALPHA_EV67 depends on
-CONFIG_ALPHA_EV6, so we'll never use the -mcpu=ev67 flag.
+Hmmm.
 
-I'm reverting this part.  I see nothing wrong with an if/else
-tree for this.  It's straightforward.  I think anything you come
-up with to replace it will be harder to understand at a glance,
-and therefore more fragile.
+uname -r tells you the base-kernel and what you have to write into
+"EXTRAVERSION".
+uname -v tells you if you have a SMP or UP-Kernel.
 
+Then you "guess" what CPU-Type was used.
+A start-point for this guess is "uname -m".
+For a non-specific kernel i would guess i386 (=i386) or Pentium (=i586).
+For i686 you can normaly use the CPU from "/proc/cpuinfo".
 
-> +# My special boot (msb) writes directly to a specific disk partition,
-> +# I doubt most people will want to do that without changes..
-> +msb srmboot: vmlinux
-> +	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $@
+This way you SHOULD be able to create a module that matches (more or
+less) for the kernel you want to load it in.
 
-I've just removed these targets.
-
-I'm testing the rest of the patch now.  Will apply if successful.
+At least i had luck with this method so far. :-)
 
 
-r~
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
+

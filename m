@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264040AbSIQKix>; Tue, 17 Sep 2002 06:38:53 -0400
+	id <S264037AbSIQKlC>; Tue, 17 Sep 2002 06:41:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264042AbSIQKix>; Tue, 17 Sep 2002 06:38:53 -0400
-Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:1298 "EHLO
-	corvil.com.") by vger.kernel.org with ESMTP id <S264040AbSIQKix>;
-	Tue, 17 Sep 2002 06:38:53 -0400
-Message-ID: <3D870734.9080301@corvil.com>
-Date: Tue, 17 Sep 2002 11:43:00 +0100
-From: Padraig Brady <padraig.brady@corvil.com>
-Organization: Corvil Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dominik Brodowski <linux@brodo.de>
-CC: torvalds@transmeta.com, hpa@transmeta.com, linux-kernel@vger.kernel.org,
-       cpufreq@www.linux.org.uk
-Subject: Re: [PATCH][2.5.35] CPU frequency and voltage scaling (0/5)
-References: <20020917113047.C25385@brodo.de>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S264042AbSIQKlC>; Tue, 17 Sep 2002 06:41:02 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:10229
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264037AbSIQKlB>; Tue, 17 Sep 2002 06:41:01 -0400
+Subject: Re: DMA finally works! Thanks!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Rob Speer <rspeer@MIT.EDU>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10209170047430.11597-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10209170047430.11597-100000@master.linux-ide.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 17 Sep 2002 11:48:25 +0100
+Message-Id: <1032259705.13990.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski wrote:
-> Hi Linus, hpa, lkml,
+On Tue, 2002-09-17 at 08:48, Andre Hedrick wrote:
+> On Tue, 17 Sep 2002, Rob Speer wrote:
 > 
-> The following patches add CPU frequency and volatage scaling
-> support (Intel SpeedStep, AMD PowerNow, etc.) to kernel 2.5.35.
+> > Now that I'm using -pre7, DMA finally works on my Intel 845G controller
+> > that was being such a pain in the ass.
+> > 
+> > Someone out there, possibly Andre, rules. Great work.
 > 
-> As was discussed last time, the cpufreq patches have been reworked to use a
-> policy-based approach now. A cpufreq policy consists of four values:
-> cpu	-	the affected CPU nr., or CPUFREQ_ALL_CPUS for all cpus
-> min	-	minimum frequency in kHz
-> max	-	maximum frequency in kHz
-> policy	-	CPUFREQ_POLICY_PERFORMANCE or CPUFREQ_POLICY_POWERSAVE
-> 
+> I did not touch -pre7 directly, maybe Alan Cox filtered some goodies.
 
-This is much better, but I preferred Dave Jones' suggestion of
-supporting stackable policies as I can see no end to them:
-max_cpu_temp, temp_hysteresis, favor_fast_{fsb,multiplier}, ...
-
-Pádraig.
+I filtered out the PCI changes and the pci_enable_bars code. So its my
+work, but Andre's explanations about what we should be doing
 

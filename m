@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264862AbTFLPYs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 11:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264865AbTFLPYs
+	id S264849AbTFLPa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 11:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264861AbTFLPa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 11:24:48 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:21521 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S264862AbTFLPYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 11:24:47 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: CDEJECT for SCSI disks/ide-floppy in drivers/block/scsi_ioctl.c
-Date: Thu, 12 Jun 2003 19:26:47 +0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200306121919.05603.arvidjaar@mail.ru>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jun 2003 11:30:27 -0400
+Received: from mail.skjellin.no ([80.239.42.67]:32996 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S264849AbTFLPa0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 11:30:26 -0400
+Subject: Re: [QUESTION] What about EtherLeak report from @stake
+From: Andre Tomt <andre@tomt.net>
+To: Martin Zwickel <martin.zwickel@technotrend.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030612172426.0a3a60d9.martin.zwickel@technotrend.de>
+References: <20030612172426.0a3a60d9.martin.zwickel@technotrend.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1055432648.976.136.camel@slurv.ws.tomt.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 12 Jun 2003 17:44:08 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At least in 2.5.70 there is common drivers/block/scsi_ioctl.c that defines 
-CDEJECT and is used by both SCSI and IDE ioctls. This fails for SCSI disks 
-and should fail for ide-floppy as well (unverified for the lack of hardware). 
-Both lock tray on open and that prevents media from being ejected (even if 
-command appears to succeed).
+On Thu, 2003-06-12 at 17:24, Martin Zwickel wrote:
+> Hi there!
+> 
+> What do you think about this:
+> 
+> http://www.atstake.com/research/advisories/2003/atstake_etherleak_report.pdf
+> http://www.kb.cert.org/vuls/id/412115
+> 
+> Are those padding bug's fixed in >=2.5.x/2.4.21?
+> 
+> Or isn't it that critical?
 
-This happens to sometimes work for CD-ROMs because they do not lock media when 
-opened with O_NONBLOCK. It is not clear if this is a feature - device opened 
-with O_NONBLOCK is still busy so it should be locked as well.
 
-CDEJECT implementation should unlock tray first; is moving it into 
-drivers/block/scsi_ioctl.c a long term goal? Would it make sense to add 
-CDROM_LOCKDOOR ioctl to this file as well?
+It was fixed in 2.4.x early 2.4.21-pre, and in 2.2.2x sometime I dont
+really recall. It's also fixed in 2.5.x, according to linux.bkbits.net.
 
-Hmm ... just realized it fails for ide-floppy that has specia case for Click! 
-drive.  But then, it is impossible to add generic unlock command to 
-scsi_iotcl.c as well. 
+Most vendor kernels are fixed, too.
 
-Thank you
+-- 
+Cheers,
+André Tomt
 
--andrey

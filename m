@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264905AbUAFRb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 12:31:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUAFRb1
+	id S264870AbUAFRiI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 12:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264883AbUAFRiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 12:31:27 -0500
-Received: from iron-c-2.tiscali.it ([212.123.84.82]:59044 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S264905AbUAFRbZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 12:31:25 -0500
-X-BrightmailFiltered: true
-Date: Tue, 6 Jan 2004 18:30:17 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: Matt Domsch <Matt_Domsch@dell.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: Linux 2.4.25-pre4
-Message-ID: <20040106173017.GA10755@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040106102819.A12626@lists.us.dell.com>
-User-Agent: Mutt/1.4i
+	Tue, 6 Jan 2004 12:38:08 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:17544 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S264870AbUAFRhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 12:37:48 -0500
+Date: Tue, 6 Jan 2004 18:37:40 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: torvalds@osdl.org, James.Bottomley@SteelEye.com, johnstul@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix get_jiffies_64 to work on voyager
+In-Reply-To: <20040106092237.4e617296.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0401061832360.9228@gockel.physik3.uni-rostock.de>
+References: <1073405053.2047.28.camel@mulgrave> <20040106081947.3d51a1d5.akpm@osdl.org>
+ <Pine.LNX.4.58.0401060826570.2653@home.osdl.org>
+ <Pine.LNX.4.53.0401061807070.9108@gockel.physik3.uni-rostock.de>
+ <20040106092237.4e617296.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Domsch <Matt_Domsch@dell.com> ha scritto:
->> Trying to compile $subj with following config (these options seem to
->> cause the problem, full config attached):
->> 
->> CONFIG_SCSI_MEGARAID=y
->> CONFIG_SCSI_MEGARAID2=y
->>
->> Is this a known issue and megaraids can't live together, or am I
->> supposed to be able to compile both drivers in and this is a bug?
+On Tue, 6 Jan 2004, Andrew Morton wrote:
+
+> Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
+> >
+> >   #if (BITS_PER_LONG < 64)
+> >  @@ -21,7 +21,7 @@
+> >   #else
+> >   static inline u64 get_jiffies_64(void)
+> >   {
+> >  -	return (u64)jiffies;
+> >  +	return jiffies_64;
+> >   }
+> >   #endif
 > 
-> yes, this is known and expected.  You can build both as modules, but
-> they're not intended to both be loaded simultaneously (either built-in
-> or as modules).  They're mutually exclusive.
+> hm, why this change?  Are you sure that all 64-bit architectures alias
+> jiffies onto jiffies_64?  x86_64 seems not to.
+> 
 
-Ok, what about this patch (against 2.4.25-pre4):
+It was jiffies_64 in the first place (that's why the function is called
+get_jiffies_64(), after all). 
+I once made it jiffies because jiffies was volatile while jiffies_64 was
+not. Now that jiffies_64 becomes volatile as well, I thought we could
+re-straighten things.
 
---- linux-2.4/drivers/scsi/Config.in.orig	Tue Jan  6 18:11:10 2004
-+++ linux-2.4/drivers/scsi/Config.in	Tue Jan  6 18:23:29 2004
-@@ -66,8 +66,13 @@
- dep_tristate 'AdvanSys SCSI support' CONFIG_SCSI_ADVANSYS $CONFIG_SCSI
- dep_tristate 'Always IN2000 SCSI support' CONFIG_SCSI_IN2000 $CONFIG_SCSI
- dep_tristate 'AM53/79C974 PCI SCSI support' CONFIG_SCSI_AM53C974 $CONFIG_SCSI $CONFIG_PCI
--dep_tristate 'AMI MegaRAID support' CONFIG_SCSI_MEGARAID $CONFIG_SCSI
--dep_tristate 'AMI MegaRAID2 support' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI
-+
-+if [ "$CONFIG_SCSI_MEGARAID2" == "n" -o "$CONFIG_SCSI_MEGARAID2" == "" ]; then
-+  dep_tristate 'AMI MegaRAID support' CONFIG_SCSI_MEGARAID $CONFIG_SCSI
-+fi
-+if [ "$CONFIG_SCSI_MEGARAID" == "n" -o "$CONFIG_SCSI_MEGARAID" == "" ]; then
-+  dep_tristate 'AMI MegaRAID2 support' CONFIG_SCSI_MEGARAID2 $CONFIG_SCSI
-+fi
- 
- dep_tristate 'BusLogic SCSI support' CONFIG_SCSI_BUSLOGIC $CONFIG_SCSI
- if [ "$CONFIG_SCSI_BUSLOGIC" != "n" ]; then
+But we can leave out this chunk, it really shouldn't make any difference.
 
-
-I'm not very familiar with 2.4 config language, maybe there's a better
-way to do it.
-
-Luca
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Carpe diem, quam minimum credula postero. (Q. Horatius Flaccus)
+Tim

@@ -1,127 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVAXKBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVAXKO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbVAXKBH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 05:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVAXKBH
+	id S261315AbVAXKO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 05:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVAXKO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 05:01:07 -0500
-Received: from mxc.rambler.ru ([81.19.66.31]:26637 "EHLO mxc.rambler.ru")
-	by vger.kernel.org with ESMTP id S261329AbVAXKAu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 05:00:50 -0500
-Date: Mon, 24 Jan 2005 12:57:56 +0300
-From: Pavel Fedin <sonic_amiga@rambler.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Russian encoding support for MacHFS
-Message-Id: <20050124125756.60c5ae01.sonic_amiga@rambler.ru>
-X-Mailer: Sylpheed version 1.0.0beta2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 24 Jan 2005 05:14:58 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18367 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261315AbVAXKOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 05:14:54 -0500
+Date: Mon, 24 Jan 2005 11:14:54 +0100
+From: Jan Kara <jack@suse.cz>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Cc: Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: 2.6.11-rc2/ext3 quota allocation bug on error path ...
+Message-ID: <20050124101453.GA25398@atrey.karlin.mff.cuni.cz>
+References: <20050122155044.GA4573@mail.13thfloor.at>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Mon__24_Jan_2005_12_57_56_+0300_nNEr6BTIjnTDpRE7"
-X-Auth-User: sonic_amiga, whoson: (null)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050122155044.GA4573@mail.13thfloor.at>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+> 
+> looking at ext3_xattr_block_set() [fs/ext3/xattr.c] ...
+> I see that 
+> 
+>                                 error = -EDQUOT;
+>                                 if (DQUOT_ALLOC_BLOCK(inode, 1))
+>                                         goto cleanup;
+> 
+> allocates a quota block, but right after that several
+> error echecks happen ...
+> 
+>                                 if (error)
+>                                         goto cleanup;
+> 
+> and I don't see any DQUOT_FREE_BLOCK() in the errorpath
+> 
+> cleanup:
+>         if (ce)
+>                 mb_cache_entry_release(ce);
+>         brelse(new_bh); 
+>         if (!(bs->bh && s->base == bs->bh->b_data))
+>                 kfree(s->base);
+> 
+>         return error;
+> 
+> I'd suggest the attached fix (agains 2.6.11-rc2), comments?
+  Yes, the patch looks right. Please apply it, Andrew. BTW ext2 needs a
+similar fix - will submit in the next mail.
 
---Multipart=_Mon__24_Jan_2005_12_57_56_+0300_nNEr6BTIjnTDpRE7
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+								Honza
 
- Hello, guys! I'd like to present to the community my second kernel project. This patch adds support for russian characters on MacHFS volumes if you use koi8-r encoding on Linux (this is the common case in Russia).
- The implementation is probably not very good because it uses its own tables instead of NLS modules. Using NLS modules i consider impossible because due to MacHFS nature (at least current implementation nature) names must be supplied in MacOS encoding for proper searching. This means that you must to be able to reverse-translate all names from Linux encoding to Mac encoding. Using NLS causes characters loss if requested character does not exist in the table (it is substituted by '?'). Macintosh disks often contains specific characters in file names ("Folder" character for example) which will be lost in this case.
- If someone has some idea how to fix this you're welcome. I currently don't see a way to make the thing better because i don't know internal HFS structure. Probably using utf8 as host encoding would solve the problem but it's not commonly used in Russia.
 
+> --- ./fs/ext3/xattr.c.orig	2005-01-22 15:07:50 +0100
+> +++ ./fs/ext3/xattr.c		2005-01-22 16:45:09 +0100
+> @@ -773,7 +773,7 @@ inserted:
+>  				error = ext3_journal_get_write_access(handle,
+>  								      new_bh);
+>  				if (error)
+> -					goto cleanup;
+> +					goto cleanup_dquot;
+>  				lock_buffer(new_bh);
+>  				BHDR(new_bh)->h_refcount = cpu_to_le32(1 +
+>  					le32_to_cpu(BHDR(new_bh)->h_refcount));
+> @@ -783,7 +783,7 @@ inserted:
+>  				error = ext3_journal_dirty_metadata(handle,
+>  								    new_bh);
+>  				if (error)
+> -					goto cleanup;
+> +					goto cleanup_dquot;
+>  			}
+>  			mb_cache_entry_release(ce);
+>  			ce = NULL;
+> @@ -844,6 +844,10 @@ cleanup:
+>  
+>  	return error;
+>  
+> +cleanup_dquot:
+> +	DQUOT_FREE_BLOCK(inode, 1);
+> +	goto cleanup;
+> +
+>  bad_block:
+>  	ext3_error(inode->i_sb, __FUNCTION__,
+>  		   "inode %ld: bad block %d", inode->i_ino,
+> 
 -- 
-Best regards,
-Pavel Fedin,									mailto:sonic_amiga@rambler.ru
-
-
---Multipart=_Mon__24_Jan_2005_12_57_56_+0300_nNEr6BTIjnTDpRE7
-Content-Type: application/x-bzip2;
- name="hfs-koi8r.diff.bz2"
-Content-Disposition: attachment;
- filename="hfs-koi8r.diff.bz2"
-Content-Transfer-Encoding: base64
-
-QlpoOTFBWSZTWTxfdwYAB6ffgHY8e//////v3u6/7//6YBWcAK98auY16G9hrbcAEHvae7jbFN7U
-fe99vQu+zvec1azJoKzRtdUdcXTubMy7dHRgJTSRA00NqbVPap+qamnqnqeYoT1PTaptQ9Rp6gAA
-ANABKptTIGP1Soyo0A0A0ANMgAAyAaGmgNDFanqjyR6gAyAAAAAMgAAAAAASaUKZBI0nimU9qnqe
-gj0hpoNAMmQaA9TIAyD1AiUKepoBNMmmkyjamZR4o9EDQaBoA0NAAGgSJAgENDSDQqfkmmifqp5J
-7KnpHk9SPKNqPKAGmh6jRoDiwQA8kkskD2zuyKeOrTDTCVVBTLjC4MFKFhMYMGIhS1uG4RSlKNKN
-ZRPJiGFk+P+ED9oelP843DbYtJaxWlgCQqcaqqxioiqiYwyJjBRxUtlUrAq2wsGAgrWpFVFZatbR
-arKS2WqF971ebqwfbucJfYdYM1En/nAZEsufazflzxBedmjUshum2OFwVrhMMKhWsrK11irWF1ae
-amv03bVhG3txcbWcNqYXhZNOPFw24fVv0MxM1J0TfDxuJfBDlnUxFGdTAVcu/0Pz+j5vWyvq6a9Z
-mBiep/p0u3quHLs+WzGYDM3LzsHJbmYsUE53+GSZOKcjc/G4RxE8vZeTpDQdDOLu676cXSzNKXkj
-TXQtJ74RAOoBZEVYoBNesAPlkCkcmTZQfgGPkd/czmSeC/6rJIzZ5kHjBB3eOH70jNoTGBDNwq0P
-Gqq18GEImOP3/w8ibNcPc5XLc5zV9bsb5tlhivZIyjDC64pQPs+lfsYflcMifDFRU8TdNBT81+HW
-MntPvBOYkgw7+od58cGWjRKpYaaxCJSPv/d+oP4L4e/n2Hhi/L0bmfV3/Pdx4VU8Bvo8/M9hixlj
-0OZ1Xnq78zD+4gcyNvuD7ZtPDngHOmNqdJVLZsc2pq4efzL8Pg2d/Zf7fVk8Ojm8fX6xlXbwO3uI
-V4/ntYDG1vTisQ/qxDNiCt1dZRa30T9/tNddPgXUeVo38aYMuoYb4kzPC2W8WoY0rRFhr3RAvprT
-v/4lWtwlprxJBfbM0H30or/46zAqWlIX2IqF5XhGJnx3SRefr228KvQYbiV74br9fFtqqqrrj4Nu
-rw/05etCIM3i9Ghrw44oZGBVoYUj7RWwXffdUMVH5zw53hW/hf4fpmS+nl46Y7sfM0inIp0ZuPFc
-99unoqZS2YK9SNspe5WAocNaay2epkG57g0jddchRGufcZxnZxcO0y84ekt6HNcr4p/LAcGHimKl
-ggQQQu44aKxTOWlsfPpasWfODGdbr5R51j9E+TlWkd21MI4U3+skVu0psa1DUpm7sPxrU7WeNbsu
-F/LsVWJs7Ab3kEI7EvySLdvT++Jc2b1hteXph2MO16jJRBZGLGMYjDf1/0DERyp/s80U+R7Ojepu
-MtJyhR5Dz5MSaSwWD4M5VLoLQOIEnDLyUH+4f8x7jxWUgvQi5yzxwFkWncMH3ElUfpgfmS6n2et3
-sba77pDPuPu4Ek6XydiG/xcT5vAw/JOVSW47L72ZJHEc2FgaGx9tNP67e2tvHMUmEnggucAO1scq
-uibunP75QyGweClnHhNcA6YKctzHd7KrHZLASAfAxYEHxUCBjAPUSQuYvVgSashoO1UQZa82BbAQ
-0wQMGoujyi+tD9fsoVnkjalN3V9W7ZPZNE19Y7Zjn5bt3lLaItdQ3Yoe5rXK4hOswdZCLBKKWg7P
-SZVtnyMmalQoIwofOQ2m8DiRLTeRMIJmxg1O2ekdo7B2j5DtnkntHePIOqIiIiIiIiIiIiIiIiIi
-IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIjk34tEQXvnvF7l53JFy5fq3u4
-M4vgpTF6mLYjE552ppa7FcpXjPPN3uRuV4yvg2jbPg0pduXJ0wXEqIiJY3EitrluGyTInZlKSSSw
-iY3xW5Fbk5TpbW8a14nraVbb6a4xxesXzOHO9M9MYJFCol0RwVcSnnOxjjeMWtjaTZ4ie8TJSlK8
-4FgjQZcalM9M42lfPXfWNZ6G8iee+uuxpptGt8F1oZe9TyEj7xA0F6C9BVLD0UDDNJoUxgGwHsSa
-ft6d3kMYAxgzzQfLaILdbQTXgPyFWGsUcF7R7jCDz/qeOWf2/HfvLJ8ts9uvdKlO+vhLurWjtuDB
-tjMe3PSUhtxESmEQyCO0r9EKzlQQqmvghHFHb6n+QyGDffFj9Yw6jELghmxIJMdG7IVFR65sMChz
-Gw2bN++Dw3FW806s9pYW6SZzRpxvXwK3rGRiHsFVfpVzCGwLHYhQYQcYIO1I0JSLkH20SnMwKIIJ
-MqZwRJOqphlXGZoSglgfxPiFYQVhBWEFYQVhBWEFYRVkZCQUkBYRWAAskiqRZBYCyEUikgs3vv0Z
-TOZjQXGkvLyJGyY8yZPUs9uLQOLSwI0xY5GvFsZBSxNTboFCk5zJkpbKEpkyUnKROfxkRIfShMsU
-o6KZZnzYlSkwWdxQGQIggxJGR0Oh0OfPocTboOdOh0M9HvNefeINiZTiVrktSmsHXm92jWSlO74A
-wY7adODz55M8lRosPMoMze+AhuDAZbRIRmMxQoWlxQpOlKVVPOfcdxYvDPgPQ6cEjp0qV6o9RhIp
-S6RKWsi4vgGM51csGiYQRKGSBYwlVnfBBQwNjYsYm7YfPY5mxLbYeRjjuQaTjdwOXKaUjkxNj18I
-B46hxCMjyeANjsIOIcsKy0tLCUkoyFfJvkcy83JGhnvN8oA5MmyQMmzUZuYLbXmIutriQYHIoWMz
-kZXj4nI4nI48m7i/PU5bQFGYx4jWTKZtMo4oXxFCdYdkA7GGkIpBBsaHM0KlTkc+fTHM55ynz5yl
-s3tjDKdJTzvSJ9JVhvZey5hMpBrwgJqxREgV2pneWJlSxcsWKlzo6OREcjkYMapGWXsiPIoeJBEg
-GQWZ9TJleMgV4uSsTKnIxLjkcjLR6kcjkcjkcjHK8eW6J6nJi22gJMIZqyyTBcZdBez6+sfMLPN4
-dIZGDgJz2JNDOwoaji3qfyfqo2xefvhI3EqkEq4QAEiolFaAUjpmInPMyQMKRxPJzIkQKNwomOP5
-Y3g27Q4fR9hAgIXsZnZmkvdCMb7cmLMhcdeBnrC9Flpx59TcM8FH4+B9HkPbD5AUGH9gYLRCBQif
-vFOGwUGB4yhXPTrFEg/gCBBA8BgNz9eg1m04HkOs4HlPLYuzjxOMIPo4m4YZIbZw+4ocvdh7wFsb
-GxsbGxsbGxsczLY2I4bD2AD/b4kSJEiRIkS4uiaoiiVXRFEGaIyD7x+4DbL0pcvg1jvMmTJkyZMm
-TJmcwmTHmTJjMcyAmIo5jG5ptblkSJEiRIkSJZlrkSNRCWlXjMYIYqNmB2bWOcP55j0UuoUKFChQ
-oTny0nSuFM606dw7u0A1YpjEdvU/7Z1EhM2O/xgvMhmsTzsHzywqYT0gz3WSIMwCffHq6zbR4pK/
-haFNafYY57GQS4p3zINyR399OmPG8/a+kfjPw2u5rkDEEwHuKGaJ3XezLd8xcY50JcRVNWk2KgCn
-gShoNzRuYhMv0BzJlits88CeAYCDIere5Xnj3HIHb1np7uk9Aj5joiNYi/xJ2RCqAOKp8tRHEfKa
-HN70VuCHm4Kip5Je9EvIOoNdcbrU0CqiAOJBNgzD4oQz8vDhDYnAAPSSYEJ9nQr3dOJDkbWAm+w0
-peO238em5sVguV0y8JheonSsIj+4aKoKM7iQMGBfvEB+OJ10QZAitMY/C7AL444lEoAP0MTYmiBI
-F7zLHZTOlSojyEQsoyr9CwzWsKJk5RKTLJCWoMrlY3QDZgpY8gNQBXsJx55E75ZDi/ICrOqiB4fA
-OgwsCEcQGjtNxByHHKLgLzoUTewNiYgGMcDCT5CytlJZgUDIYj5gKKhCJE8Je5l4aCLW40NCCBoh
-gYDS0Q2AXkZRIJ2LgqhcLQfF/ujAklNlWXS8UkGKDDEqstLPnGzsxS7q01Af3WZxnWMNMYlMdGkW
-M2yklTgxTFklMYGWRECYE1dAcAA7I8MkLDMfYXUroaIFg9d9+CPzf1k4daKQxgxhKE3qM2buoSZf
-X8At+dW54EwkGC8eD7ciOM5NkJA7vla0bdWrHzzbk6ayNpHfcrhnLFXpx0rSl7l7WlfK1rqTKnUi
-6WlDFjwNHA4BuEGkXoklfXCSCiU2UlkUgnZXO4kWFEZWMogCGlO7BIV0piAhkZXezRCv/zrfnako
-uJbsBKZ/OxRWNOKLLdUIFBisGLc5xCpRg00VFzC9QnsvkC/QWVLjKWdYaMxsCBwhdAwAaPyWSudC
-BwZq2zMMkIvAaKJdsvdoyLt7aNYgWxCbPKDwfnI/D5YTIbfgkkGmIgPEF1LvADHqNUYkPGodMOC4
-iogIiGHbqDEh7JqmpA20H0pkOoTv4RKIIRESdYyAFIinRDRXUpkIQNBSlTDLZHF7dKiXdh3ebj7y
-rgRpIT4EUOiSGQn3kjerlcmp3EmaedIVRBIRA9dqTxpSa919GZMiQrCgwwf14h0Znn4cSG/M4zpZ
-SbSnoLGTuAjZCV94dKdWg8o86cuxCglMb7GtEsmxpI4WQ5Q0I4s3XgiGJ6YnjicZNGG4JXsIiW1h
-x0+qZx0qjVoRgHQHJjiI7iakpNHn7ZEv8cl0gUYXOdeapIL3K1qork7ISBJh/IwBRGIkmmGPzdTd
-8Lxd5IAv+uaQZg2LVaJ1928QBcb9yRHBlL8YQLVflG8V7CTZ+guH6W5U4MHVW4TkDZE/UtfmcTPV
-l3omYYuEsNK4daTB/sgO3S9WmdmFzRiBImlwO3nfGHG8bP7ULJLu7Vq4hTDp9HZOxuEIiczgEzXs
-sWSyCOIaEgJkUSclWm0TMHzNg6pPVKcDNs4YMRcenkBx6z3MGBg2hqRqWkaXDwUAiYzA9UKqtIJi
-K1dSNcCDFDCXqK7opJYyOXhtdMsISQwRoUWplIBYjSRCMJEGFW2zrDfve2AFAS1Di5DIiQPaLh6Z
-FZHZKOsdI8+MrwA94iocMihkTGgfwkESEQl9TPv+S3f3tQZA4+cm3IgrzSN7B1BdfkwxFSO+3q2j
-HLryD7No2NBvdEPDPLGgWm+tvRjZ0Zkg4fXjb0ShVxm67hrt9PnvXrweGKDtON/Y5UQvJy9d+PQM
-Fpg2DGNjEGS4AZrHv3HKXIMiZpoBycJoGcMKlpJifnLkCzZqhdKsOEUyWUaphvrSWhc7hphpYsNT
-Hq7hl8AcVSYYlZfnNINWpkGrTJFhcN+AelDzT7FZKLy+5Bj3J/xaSozl3AIIwNdZx4xzJDUUTw70
-SQZm8hcGeMkCgwJt9PvyYdJMPDG2JTOmn3bT326uF6lomexSqVUqQQzkGtieeoK4zvUENM0xQrBe
-9anNsOXeLyQJFsrQalbBc26u+ufGCcynbo0DYlLxvjkqVLxtDBrmNG9pYTjmhYENveExTGcsLjgT
-DwXfxFLFhxuV/bwMnVAtYAkCeLBscaH/I1HOeiG4oVhSlCKZ3SEkhmdJWR1nAqYNLN3JqKvW4YVd
-EiUcaqSazpW4qobGDEFbp0tUqhO8f2TCaqnfGuN5IdywdM9ngU32dI6tMpoo05ydTnA3fEIZS+gk
-FgTds0SUgasxHcam8JFEXkBnjMyJwgxNEmhM+fQZgILzpBk2M1DwRiGinv0x1Kp5xAMsixkMYDRg
-TnfuSDbeQot06Fpx+JbAVQTBLwEybROc4MmvW5FMN1aUPEgg4GeCSDsOv1QlqZXO2NlRCB5eS4Ad
-p0MPC+NkckdZKSGpjH5Q3yMjcIZ7EjE+lnEsj2GHHoXpNgNniAdcy5v4/pqjvVvGV1e9L+Tib9tl
-uTENt4fMAEYCAEiIAEZntH5Ek6ddCglvZBME0hDxJMIRSCkUgxGKHlQ5moHjIdd5yG2iB2jBiKxY
-PhP/i7kinChIHi+7gwA=
-
---Multipart=_Mon__24_Jan_2005_12_57_56_+0300_nNEr6BTIjnTDpRE7--
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

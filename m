@@ -1,23 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbTH2Que (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbTH2Que
+	id S261445AbTH2RHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 13:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbTH2RHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:50:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17824 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261499AbTH2Quc (ORCPT
+	Fri, 29 Aug 2003 13:07:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37543 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261445AbTH2RFA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:50:32 -0400
-Date: Fri, 29 Aug 2003 09:34:24 -0700
+	Fri, 29 Aug 2003 13:05:00 -0400
+Date: Fri, 29 Aug 2003 09:48:51 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Cliff White <cliffw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, cliffw@osdl.org
-Subject: Re: 2.6.0-test4-mm3
-Message-Id: <20030829093424.1f02cebe.akpm@osdl.org>
-In-Reply-To: <200308291627.h7TGRoX02912@mail.osdl.org>
-References: <20030829083540.58c9dd47.akpm@osdl.org>
-	<200308291627.h7TGRoX02912@mail.osdl.org>
+To: Mario Lang <mlang@delysid.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: JVC MP-XP7210 hangs on boot with 2.6.0-test4
+Message-Id: <20030829094851.066ce7c2.akpm@osdl.org>
+In-Reply-To: <87k78wsip0.fsf@lexx.delysid.org>
+References: <87k78wsip0.fsf@lexx.delysid.org>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,43 +24,45 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cliff White <cliffw@osdl.org> wrote:
+Mario Lang <mlang@delysid.org> wrote:
 >
-> This also breaks STP. We installed module-init-tools using the 'moveold' 
-> method,
-> so we can still run 2.4.
-> Our depmod is in /usr/local/sbin. 
-> Using /sbin/depmod hoses us. Using PATH works for us.
-
-Hrm, but your build must be playing up already:
-
-dhcp-140-218:/usr/src/25> grep DEPMOD Makefile
-DEPMOD          = /sbin/depmod
-        @if [ -z "`$(DEPMOD) -V | grep module-init-tools`" ]; then \
-        if [ -r System.map ]; then $(DEPMOD) -ae -F System.map $(depmod_opts) $(KERNELRELEASE); fi
-
-> [root@stp1-002 linux]# depmod -V
-> module-init-tools 0.9.12
+> I just tried 2.6.0-test4 on my Laptop (JVC MP-XP7210, 256MB RAM, IDE).
+> However, it hangs on boot.  I tried booting with acpi=off and also
+> with "acpi=off noapic".  Both options seem to help nothing,
+> and the same output appears on all attempts to boot.
 > 
-> [root@stp1-002 linux]# /sbin/depmod -V
-> depmod version 2.4.22
+> I compiled the kernel with gcc 3.3.2.
 > 
-> [root@stp1-002 linux]# /usr/local/sbin/depmod -V
-> module-init-tools 0.9.12
+> Here is the output I get:
 > 
-> Please send patch, we'll get some tests moving.
+> [<c0 10 92 69>] Kernel_thread_helper+0x5/0xc
+> Code: 0f ba 6e 24 00 c7 44 24 04 00 00 00 00 89 34 24 e8 25 fa ff
+> <0> Kernel Panic: Fatal Exception in Interrupt
+> in interrupt handler - not syncing
 
---- 25/Makefile~old-module-tools-warning-fix	Fri Aug 29 09:31:46 2003
-+++ 25-akpm/Makefile	Fri Aug 29 09:32:16 2003
-@@ -609,7 +609,7 @@ _modinst_:
- 	@if [ -z "`$(DEPMOD) -V | grep module-init-tools`" ]; then \
- 		echo "Install a current version of module-init-tools"; \
- 		echo "See http://www.codemonkey.org.uk/post-halloween-2.5.txt";\
--		/bin/false; \
-+		sleep 1; \
- 	fi
- 	@rm -rf $(MODLIB)/kernel
- 	@rm -f $(MODLIB)/build
+There must have been more output than that?  Please transcribe some more of
+the backtrace and send it.  Don't worry about all the hex numbers: the
+important parts are these:
 
-_
+ EIP is at i810fb_cursor+0x1da/0x240 [i810fb]
 
+ Call Trace:
+ [<...>] apic_timer_interrupt+0x1a/0x20
+ [<...>] bh_lru_install+0xb5/0x100
+ [<...>] __find_get_block+0x73/0xf0
+ [<...>] __getblk+0x2b/0x60
+ [<...>] is_tree_node+0x6b/0x70
+ [<...>] search_by_key+0x6f9/0xf30
+ [<...>] search_for_position_by_key+0x1be/0x3d0
+ [<...>] apic_timer_interrupt+0x1a/0x20
+
+Also, try stripping your kernel down by unconfiguring drivers and features
+which are not needed for a successful boot.  This will help identify the
+buggy component.
+
+Also, try adding the string `initcall_debug' to the kernel boot command
+line.  Watch out for the messages "calling initcall 0xNNNNNNNN".  Take a
+note of the final address which is printed before the crash and look it up
+in the 2.6 kernel's System.map file.
+
+Thanks.

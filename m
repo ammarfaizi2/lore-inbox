@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269172AbTCBJow>; Sun, 2 Mar 2003 04:44:52 -0500
+	id <S267890AbTCBKR1>; Sun, 2 Mar 2003 05:17:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269174AbTCBJow>; Sun, 2 Mar 2003 04:44:52 -0500
-Received: from p0058.as-l043.contactel.cz ([194.108.242.58]:4081 "EHLO
-	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
-	id <S269172AbTCBJov> convert rfc822-to-8bit; Sun, 2 Mar 2003 04:44:51 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-References: <20030226200208.GA392@elf.ucw.cz> <m38yvz3qts.fsf@Janik.cz>
-	<20030301183929.A31305@infradead.org> <m3el5q3dys.fsf@Janik.cz>
-	<20030302091130.A11536@infradead.org>
-From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
-X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
- ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
- iHiAs(t(~b#1.{w.d[=Z
-Date: Sun, 02 Mar 2003 10:57:40 +0100
-In-Reply-To: <20030302091130.A11536@infradead.org> (Christoph Hellwig's
- message of "Sun, 2 Mar 2003 09:11:30 +0000")
-Message-ID: <m3u1emhyzv.fsf@Janik.cz>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i386-suse-linux-gnu)
+	id <S269174AbTCBKR1>; Sun, 2 Mar 2003 05:17:27 -0500
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:11665 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id <S267890AbTCBKR0>; Sun, 2 Mar 2003 05:17:26 -0500
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200303021026.h22AQALn001315@wildsau.idv.uni.linz.at>
+Subject: Re: emm386 hangs when booting from linux
+In-Reply-To: <3E5FF7E4.FB290D8F@daimi.au.dk> from Kasper Dupont at "Mar 1, 3 00:59:32 am"
+To: kasperd@daimi.au.dk (Kasper Dupont)
+Date: Sun, 2 Mar 2003 11:26:10 +0100 (MET)
+Cc: kernel@wildsau.idv.uni.linz.at, root@chaos.analogic.com,
+       linux-kernel@vger.kernel.org, herp@wildsau.idv.uni.linz.at
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Christoph Hellwig <hch@infradead.org>
-   Date: Sun, 2 Mar 2003 09:11:30 +0000
 
-   > But anyway, don't you think Pavel is free to develop whatever free software
-   > he likes to develop instead of following you political agenda?
+hello again,
 
-Of course he is - it is one of his freedom. I only wanted to show him that
-there are (IMO) better ways to spend his time. And it is no about
-politics...
--- 
-Pavel Janík
+I've still not found a solution, but at least I know what's happening
+when emm386 or similar crash the system. e.g., when starting "loadlin"
+(with no parameters!) the system will hang too. Reason is that loadlin
+will generate an int 0x13, which is the general protection fault.
+I wonder *why*. Well, the int 0x13 handler I wrote just writes
+"int13" on top of the screen and does an iret, so the system will not
+crash anymore, but of course, the programs wont work. Another
+confusing thing I observed that even simply commands such as "copy <file1>
+<file2>" cause an int13!? and that DOS will become unusable quite soon
+(directories disappear and so on).
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+best regards,
+herbert
 
-                  -- Rik van Riel in linux-kernel
+

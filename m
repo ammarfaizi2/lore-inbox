@@ -1,81 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266051AbUBQGtS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 01:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266066AbUBQGtR
+	id S266050AbUBQGsV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 01:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266051AbUBQGsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 01:49:17 -0500
-Received: from h80ad2696.async.vt.edu ([128.173.38.150]:33201 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S266051AbUBQGtM (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 01:49:12 -0500
-Message-Id: <200402170648.i1H6muER029579@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: James Morris <jmorris@redhat.com>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH} 2.6 and grsecurity 
-In-Reply-To: Your message of "Tue, 17 Feb 2004 01:13:59 EST."
-             <Xine.LNX.4.44.0402170110400.19316-100000@thoron.boston.redhat.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Xine.LNX.4.44.0402170110400.19316-100000@thoron.boston.redhat.com>
+	Tue, 17 Feb 2004 01:48:21 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:56327 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S266050AbUBQGsB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 01:48:01 -0500
+Date: Mon, 16 Feb 2004 22:47:55 -0800
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: JFS default behavior
+Message-ID: <20040217064755.GC9466@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr> <20040216062152.GB5192@pegasys.ws> <20040216155534.GA17323@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-56350232P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 17 Feb 2004 01:48:56 -0500
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040216155534.GA17323@mail.shareable.org>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: Annoy potential new customers!  Reach new depths of advertising opportunism!  Contact this email address to see your product or service featured in this space.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-56350232P
-Content-Type: text/plain; charset=us-ascii
-
-On Tue, 17 Feb 2004 01:13:59 EST, James Morris said:
-> On Mon, 16 Feb 2004 Valdis.Kletnieks@vt.edu wrote:
-
-> > Agreed - the only one that seems at all a *big* win is randomizing PID's
-> > (and even there it probably should default a higher value for pid_max to
-> > increase the search space).  But as long as I was looking at it anyhow.. :)
+On Mon, Feb 16, 2004 at 03:55:34PM +0000, Jamie Lokier wrote:
+> jw schultz wrote:
+> > If you have a filesystem with filenames that don't conform
+> > to your policy write userspace tools to detect and/or fix
+> > them.  If you have programs creating non-conforming
+> > filenames, fix or rm those programs.
 > 
-> How is this a big win?  Looks like cargo cult security to me.
+> You do understand that GNU coreutils, bash etc. are among those
 
-Well.. I'll tell ya.. Yes, it's not totally bulletproof security.  And yes, the
-*right* thing to do is to go and fix all the userspace programs that use
-predictable values of mktemp() in bogus ways. On the other hand, Fedora Core 2
-Test 1 is running around 1,900+ RPMs.  That's a lot of code to audit, and Linux
-doesn't have a Theo doing it.  And that's not counting any 3rd party code that
-a system might have on it.  And even after that, it's often a hard sell getting
-a full-blown thing like a locked-down SELinux onto a user's system - but it's
-often a lot easier to sell the user a kernel that's been hardened to resist some
-of the more common classes of attacks.
+Doesn't matter where they come from.
 
-The PaX/exec-shield code is the same way - we all *know* that both are
-defeatable given enough effort.  Why is it seen as useful?  Because it at least
-locks the barn doors and makes the cattle rustler fit the cow out that tiny
-window instead.. ;)
+> programs, right?  As in "touch zöe.txt" creates a non-conforming
+> filename...
 
-No, this won't stop a truly determined and skilled hacker.  However, it puts
-a major crimp in the style of a script kiddie who's got an exploit that depends
-on "we can predict the next PID to within 3 or 4".  And quite frankly, I've spent
-a lot more of the last 2 decades cleaning the latter off systems than the former.
+Your concrete example is a good one.  Where did that
+filename come from?  It would seem to have come from the
+keyboard via a tty (or simulator) which also had to display
+it.  I'd say this is an argument for the terminal to display
+UTF-8 and convert intput into UTF-8.  That is something that
+seems to be not consistantly done as yet.  Ultimately it
+seems to be a responsiblity of the user interface, whether
+tty or GUI.  Until that happens the shells might be able to
+fill the gap, however poorly.
 
-It's all about raising the bar...
+Perhaps the utilities that don't attempt to interpret
+filenames should treat filenames exactly like the kernel
+does.
 
-> > Or they OK because they're only doing a separately distributed patch?
+> > OK.  The questions have been asked and answered.
+> > Asking again and again and again won't change the answer.
 > 
-> No.
+> The question of what a program like this should do has not been
+> answered:
+> 
+>    perl -e 'for (glob "*") { rename $_, "??i-".$_ or die "rename: $!\n"; }'
+> 
+>    (NB: The prefix string is N WITH CEDILLA followed by "i-").
+> 
+> Hint: it mangles perfectly fine non-ASCII file names, instead of just
+> prefixing the prefix string.  If you change the program to correctly
+> prepend the prefix string, then it mangles non-UTF-8 names, which is
+> arguably correct, but can result in you losing some files.
 
-Hmm... :)
+Then if there is incorrect behavior is it the shell, tty or perl that is
+getting things wrong here.
 
---==_Exmh_-56350232P
-Content-Type: application/pgp-signature
+> This _is_ a userspace problem, but it is a genuine problem for which
+> no good answer is yet apparent.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+I'll buy that.  Then the first question to ask is "what is
+the correct forum for resolving this".
 
-iD8DBQFAMblYcC3lWbTT17ARAufpAJwMtJ36wyXe4HTS5v546EXabyvNkgCfcSLv
-aBLBQ0Y3d5VAKle7c1pEmeM=
-=aatm
------END PGP SIGNATURE-----
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
---==_Exmh_-56350232P--
+		Remember Cernan and Schmitt

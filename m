@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267472AbUG2Rw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267990AbUG2PGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267472AbUG2Rw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 13:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265962AbUG2RwU
+	id S267990AbUG2PGv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 11:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267947AbUG2PC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 13:52:20 -0400
-Received: from outmx002.isp.belgacom.be ([195.238.3.52]:25275 "EHLO
-	outmx002.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S267505AbUG2Rnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 13:43:50 -0400
-Subject: Re: [PATCHSET 2.6.7-rc2-ff3] Kernel webconfig
-From: FabF <fabian.frederick@skynet.be>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040729100225.0e0b9aef.rddunlap@osdl.org>
-References: <1089211577.3692.46.camel@localhost.localdomain>
-	 <20040728095256.57aeed52.rddunlap@osdl.org>
-	 <1091049074.7462.1.camel@localhost.localdomain>
-	 <20040729100225.0e0b9aef.rddunlap@osdl.org>
-Content-Type: text/plain
-Message-Id: <1091123009.2334.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 29 Jul 2004 19:43:30 +0200
+	Thu, 29 Jul 2004 11:02:58 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:22461 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S264526AbUG2OMs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 10:12:48 -0400
+Date: Thu, 29 Jul 2004 07:12:29 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jbarnes@engr.sgi.com
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+Message-ID: <137530000.1091110348@[10.10.2.4]>
+In-Reply-To: <m18yd362sf.fsf@ebiederm.dsl.xmission.com>
+References: <16734.1090513167@ocs3.ocs.com.au><20040725235705.57b804cc.akpm@osdl.org><m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com><200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay><m14qnr7u7b.fsf@ebiederm.dsl.xmission.com><20040728133337.06eb0fca.akpm@osdl.org><1091044742.31698.3.camel@localhost.localdomain><m1llh367s4.fsf@ebiederm.dsl.xmission.com><1091055311.31923.3.camel@localhost.localdomain> <m18yd362sf.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy,
+> At that point you might get a corrupt DUMP. But it is extremely
+> unlikely any DMA transactions will touch your reserved memory.
+> Only the most buggy drivers or hardware will be running
+> DMA to the invalid addresses.  At which point there is
+> very little you can do in any event.
 
-You're absolutely right ! I forgot to talk about that mandatory point :
+Nothing we do is ever going to give us 100% perfect crashdumps from any
+given situation. I think we need to just accept that and take care not
+to destroy anything important (ie disk data), and try to get the best
+info into the dump we can.
 
-Here's httpd.conf additions :
-
-ScriptAlias /cgi-bin/ "/usr/src/linux-2.6.7-rc2-ff1/"
-
-<Directory "/usr/src/linux-2.6.7-rc2-ff1/">
-    AllowOverride None
-    Options None
-    Order allow,deny
-    Allow from all
-</Directory>
-
-i.e. http://localhost/cgi-bin/wconf is mapped to wconf binary which is
-generated in linux tree root.
-
-Note that we could work another way around e.g. 
-	-Have CGI in apache original cgi-bin path
-	-Place some conf file with kernel tree.
-... That said, it's only in proto state :)
-
-Regards,
-FabF
-
-	
-On Thu, 2004-07-29 at 19:02, Randy.Dunlap wrote:
-> On Wed, 28 Jul 2004 23:11:15 +0200 FabF wrote:
-> 
-> | Randy,
-> | 
-> | 	It's there again :)
-> | 	http://fabian.unixtech.be/kernel/webconfig/
-> | 
-> | 	Sorry for inconvenience but I removed it as I had 0 reaction.
-> 
-> Hi Fabian,
-> 
-> I've built it, but I don't know how to invoke it.
-> I have apache2 running and I added your cgi activation comments
-> to apache's local config file.  How do I invoke 'wconf' from
-> my browser?
-> 
-> Thanks,
-> ~Randy
-
+M
 

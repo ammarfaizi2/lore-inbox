@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVC2Wlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVC2WoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVC2Wlz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:41:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVC2WkZ
+	id S261588AbVC2WoX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:44:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVC2WmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:40:25 -0500
-Received: from smtpout.mac.com ([17.250.248.70]:30928 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261617AbVC2Whm (ORCPT
+	Tue, 29 Mar 2005 17:42:08 -0500
+Received: from gate.crashing.org ([63.228.1.57]:12003 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261617AbVC2Wk7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:37:42 -0500
-In-Reply-To: <20050329142248.GA32455@nevyn.them.org>
-References: <20050327205014.GD4285@stusta.de> <20050327232158.46146243.khali@linux-fr.org> <20050328222348.4c05e85c.akpm@osdl.org> <20050329142248.GA32455@nevyn.them.org>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <125c71877e5ad9e625336709874ced54@mac.com>
+	Tue, 29 Mar 2005 17:40:59 -0500
+Subject: Re: u32 vs. pm_message_t in ppc and radeon
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050329192016.GA8323@elf.ucw.cz>
+References: <20050329192016.GA8323@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 08:39:56 +1000
+Message-Id: <1112135996.5353.48.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Cc: bunk@stusta.de, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Do not misuse Coverity please (Was: sound/oss/cs46xx.c: fix a check after use)
-Date: Tue, 29 Mar 2005 17:37:19 -0500
-To: Daniel Jacobowitz <dan@debian.org>
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 29, 2005, at 09:22, Daniel Jacobowitz wrote:
-> The thing GCC is most likely to do with this code is discard the NULL
-> check entirely and leave only the oops; the "if (!card)" can not be
-> reached without passing through "card->amplifier", and a pointer which
-> is dereferenced can not be NULL in a valid program.
+On Tue, 2005-03-29 at 21:20 +0200, Pavel Machek wrote:
 
-Not true!  It is perfectly legal on a large number of platforms to
-explicitly mmap something at the address 0, at which point dereferencing
-a null pointer is exactly like dereferencing any other pointer on the
-heap.  Doing so is not recommended except in a few special cases for
-emulators and such, but it works to some extent.
+> --- clean/drivers/video/aty/radeonfb.h	2005-03-19 00:31:59.000000000 +0100
+> +++ linux/drivers/video/aty/radeonfb.h	2005-03-22 12:20:53.000000000 +0100
+> @@ -608,7 +608,7 @@
+>  extern int radeon_probe_i2c_connector(struct radeonfb_info *rinfo, int conn, u8 **out_edid);
+>  
+>  /* PM Functions */
+> -extern int radeonfb_pci_suspend(struct pci_dev *pdev, u32 state);
+> +extern int radeonfb_pci_suspend(struct pci_dev *pdev, pm_message_t state);
+>  extern int radeonfb_pci_resume(struct pci_dev *pdev);
+>  extern void radeonfb_pm_init(struct radeonfb_info *rinfo, int dynclk);
+>  extern void radeonfb_pm_exit(struct radeonfb_info *rinfo);
+>  
+Well, if you change the .h, you should change the .c too :)
 
-Cheers,
-Kyle Moffett
+I'll have a look later.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Ben.
 
 

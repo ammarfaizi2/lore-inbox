@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265268AbUFHVCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265311AbUFHVCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265268AbUFHVCL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 17:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbUFHVCL
+	id S265311AbUFHVCl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 17:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265314AbUFHVCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 17:02:11 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:6069 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S265268AbUFHVCH
+	Tue, 8 Jun 2004 17:02:41 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:18184 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265311AbUFHVCi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 17:02:07 -0400
-Message-ID: <40C6295B.10101@blue-labs.org>
-Date: Tue, 08 Jun 2004 17:02:19 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: linux/wrapper.h, where does it come from?
-Content-Type: multipart/mixed;
- boundary="------------050905020604020602030505"
+	Tue, 8 Jun 2004 17:02:38 -0400
+Date: Tue, 8 Jun 2004 23:08:46 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kbuild make deb patch
+Message-ID: <20040608210846.GA5216@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040607141353.GK21794@wiggy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040607141353.GK21794@wiggy.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050905020604020602030505
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Jun 07, 2004 at 04:13:53PM +0200, Wichert Akkerman wrote:
+> I originally posted this before 2.6.0 was out and was told to wait until 
+> things have stabilized a bit. At least from my point of view that has
+> happened by now so I'm bringing this one up again.
+> 
+> kbuild has had a rpm make target for some time now. Since the concept of
+> kernel packages is quite convenient I added a deb target as well, using
+> the patch below.
+> 
+> Since I'm (still) not familiar with kbuild Makefile bits are quite
+> rough, but they Work For Me(Tm).
 
-Whilst trying to emerge a package recently, it failed due to a missing 
-include file.  Searching 2.6.7-rc2 source, I see two references to 
-<linux/wrapper.h>, but no actual wrapper.h file except for the IrDA 
-wrapper.h file.
+I'm in progress of doing some infrastructure work to better support building
+different packages. I have requests for .tar.gz, tar.gz2 as well
+as deb.
 
-sound/oss/swarm_cs4297a.c:#include <linux/wrapper.h>
-sound/oss/au1000.c:#include <linux/wrapper.h>
+I hope to post a few patches later this week.
+I will include your script in the patch-set then.
 
-These two files include it.  While compiling the qc-usb module, it's 
-searching for this file.
-
-Any takers?
-
-Thanks
-
-
---------------050905020604020602030505
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
-
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
-
-
---------------050905020604020602030505--
+	Sam

@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264932AbUELKWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUELKWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264932AbUELKWv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 06:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264938AbUELKWv
+	id S264936AbUELKWU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 06:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264938AbUELKWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 06:22:51 -0400
-Received: from adsl-static-1-36.uklinux.net ([62.245.36.36]:34776 "EHLO
-	bristolreccc.co.uk") by vger.kernel.org with ESMTP id S264932AbUELKWs
+	Wed, 12 May 2004 06:22:20 -0400
+Received: from adsl-static-1-36.uklinux.net ([62.245.36.36]:34008 "EHLO
+	bristolreccc.co.uk") by vger.kernel.org with ESMTP id S264936AbUELKWS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 06:22:48 -0400
+	Wed, 12 May 2004 06:22:18 -0400
 Subject: Re: problem with sis900 driver 2.6.5 +
 From: mike <mike@bristolreccc.co.uk>
 To: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
@@ -18,8 +18,8 @@ References: <1084300104.24569.8.camel@datacontrol>
 	 <20040512005008.GA18347@cathedrallabs.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Wed, 12 May 2004 11:19:06 +0100
-Message-Id: <1084357146.24569.13.camel@datacontrol>
+Date: Wed, 12 May 2004 11:18:32 +0100
+Message-Id: <1084357112.24569.12.camel@datacontrol>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.5.7 
 Sender: linux-kernel-owner@vger.kernel.org
@@ -48,9 +48,6 @@ On Tue, 2004-05-11 at 21:50 -0300, Aristeu Sergio Rozanski Filho wrote:
 > running again. in newer kernels its isa bridge is listed with a different
 > product id (0x0018). no idea why.
 > 
-
-this works fine - thanks
-
 > -- 
 > Aristeu
 > 

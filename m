@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133112AbRAQLcw>; Wed, 17 Jan 2001 06:32:52 -0500
+	id <S135175AbRAQLiw>; Wed, 17 Jan 2001 06:38:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135213AbRAQLcm>; Wed, 17 Jan 2001 06:32:42 -0500
-Received: from nella-gw.infonet.cz ([212.71.152.17]:41221 "EHLO
-	mite.infonet.cz") by vger.kernel.org with ESMTP id <S133112AbRAQLcd>;
-	Wed, 17 Jan 2001 06:32:33 -0500
-Message-ID: <3A6582BE.E453ED18@infonet.cz>
-Date: Wed, 17 Jan 2001 12:32:14 +0100
-From: Marian Jancar <marian.jancar@infonet.cz>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.1-pre8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S135198AbRAQLie>; Wed, 17 Jan 2001 06:38:34 -0500
+Received: from kea.grace.cri.nz ([131.203.4.51]:35084 "EHLO kea.grace.cri.nz")
+	by vger.kernel.org with ESMTP id <S135175AbRAQLiL>;
+	Wed, 17 Jan 2001 06:38:11 -0500
+Date: Wed, 17 Jan 2001 06:36:56 -0500 (EST)
+Message-Id: <200101171136.GAA11202@whio.grace.cri.nz>
+From: roger@kea.grace.cri.nz
 To: linux-kernel@vger.kernel.org
-Subject: CBQ clases
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+CC: roger@kea.grace.cri.nz
+Subject: Linux v.2.4.0 and Netscape 4.76?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Im trying to create bounded class with two bouded childs, each one
-having more than half bandwidth of their parent, whoose bandwidth they
-should share, which sadly doesnt happen, when I tcpspray through both
-childs in the same time, each one uses its full bandwidth, what is of
-course togeather more, than bandwidth of their parent. Any suggesstions
-wellcome.
 
-tc qdisc add dev eth0 root handle 1: cbq bandwidth 10Mbit allot 1514
-cell 8 avpkt 1000
+After making extensive enquiries elsewhere I have been advised to post
+this question to the kernel mailing list. Joseph Anthony wrote recently
+to the list about a similar matter (I think).
 
-#*******trida 64Kbit**********
-tc class add dev eth0 parent 1:0 classid 1:200 cbq bandwidth 10Mbit rate
-64Kbit allot 1514 cell 8 avpkt 1000 maxburst 20 weight 6Kbit prio 5
-bounded
+The problem: symptoms
 
-#*******trida 48Kbit**********
-tc class add dev eth0 parent 1:200 classid 1:210 cbq bandwidth 10Mbit
-rate 48Kbit allot 1514 cell 8 avpkt 1000 maxburst 20 weight 5Kbit prio 5
-bounded
-#tc qdisc add dev eth0 parent 1:210 red bandwidth 48Kbit min 4500 max
-9000 limit 18000 avpkt 1000 burst 5 probability 0.02
+It concerns the behaviour of Netscape after upgrading from kernel
+2.2.16 to 2.4.0. With the new kernel Netscape locates and connects to
+a URL, and sometimes begins to download, but then it just sits there
+indefinitely (without downloading any data). This happens quite
+consistently since I upgraded to 2.4.0 (about 2 weeks ago).  ppp,
+telnet, ftp all function satisfactorily as far as I can determine
+(however that's not to say that the problem doesn't originate with
+ppp in the kernel). There are a few packet errors (about 1 per 1000).
+Netscape continues to function well with Linux kernel 2.2.16 -- but
+not with 2.4.0.
 
-#*******trida 48Kbit*********
-tc class add dev eth0 parent 1:200 classid 1:220 cbq bandwidth 10Mbit
-rate 48Kbit allot 1514 cell 8 avpkt 1000 maxburst 20 weight 5Kbit prio 5
-bounded
-#tc qdisc add dev eth0 parent 1:220 red bandwidth 48Kbit min 4500 max
-9000 limit 18000 avpkt 1000 burst 5 probability 0.02
+People have suggested various things (eg upgrading programs to later
+versions). I have tried most of them, without success. Somebody
+recommended I turn to the kernel mailing list. If this is not the
+right place for my enquiry I apologize (where else?). But if somebody
+recognizes these symptoms I would be very grateful for a diagnosis...
 
-#Filtry
-tc filter add dev eth0 parent 1:0 prio 5 protocol ip u32
-tc filter add dev eth0 parent 1:0 prio 5 u32 divisor 256
+Thanks,
+Roger Young
+(roger@maths.grace.cri.nz)
 
-tc filter add dev eth0 parent 1:0 prio 5 u32 match ip dst 10.0.0.2
-flowid 1:210
-tc filter add dev eth0 parent 1:0 prio 5 u32 match ip dst 10.0.0.3
-flowid 1:220
+Motherboard: GA-6VX7-4X with Via Apollo Pro AGP chipset
+CPU: P3/733 MHz
+Memory: 256 Mb SDRAM
+Graphics: GA 660+ with NVIDIA RIVA TNT2A chipset (32 Mb DRAM)
+Modem: Dynalink 56K external modem. Serial port IRQ4, I/O 03F8-03FF. 
+
+Distribution: Slackware 7.1
+Linux kernel: 2.4.0 (2.2.16)
+PPP: 2.4.0
+modutils: 2.4.0
+XFree86: 4.0.1
+Netscape: 4.76
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

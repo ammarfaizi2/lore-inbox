@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267747AbTBGJHe>; Fri, 7 Feb 2003 04:07:34 -0500
+	id <S267748AbTBGJO0>; Fri, 7 Feb 2003 04:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267748AbTBGJHe>; Fri, 7 Feb 2003 04:07:34 -0500
-Received: from [202.131.133.36] ([202.131.133.36]:36817 "EHLO mail.kongu.ac.in")
-	by vger.kernel.org with ESMTP id <S267747AbTBGJHd>;
-	Fri, 7 Feb 2003 04:07:33 -0500
-From: "Arvind Kalyan" <arvy@kongu.ac.in>
-To: linux-kernel@vger.kernel.org
-Subject: kernel oops on ifconfig
-Date: Fri, 7 Feb 2003 14:17:19 +0530
-Message-Id: <20030207141719.M50715@mail.kongu.ac.in>
-X-Mailer: KEC Web Mail 1.0 01-02-2002
-X-OriginatingIP: 172.16.7.3 (arvy)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S267749AbTBGJO0>; Fri, 7 Feb 2003 04:14:26 -0500
+Received: from angband.namesys.com ([212.16.7.85]:46468 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S267748AbTBGJOZ>; Fri, 7 Feb 2003 04:14:25 -0500
+Date: Fri, 7 Feb 2003 12:23:57 +0300
+From: Oleg Drokin <green@namesys.com>
+To: niteowl@intrinsity.com
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       andre@linux-ide.org, axboe@suse.de
+Subject: Re: 2.5.59 kernel bugs
+Message-ID: <20030207122357.A30922@namesys.com>
+References: <200302062043.h16KhHY05212@bletchley.vert.intrinsity.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302062043.h16KhHY05212@bletchley.vert.intrinsity.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-the error we got when we ran ifconfig on a ppc (imac machine). the kernel 
-version has also been included.. 
- 
-please send CC to arvind@kongu.edu 
- 
-[2JLinux KONGU.ITP7-3 2.4.19-4a #1 Wed Jun 5 01:34:59 EDT 2002 ppc unknown 
-Oops: kernel access of bad area, sig: 11 
-NIP: 00000000 XER: 20000000 LR: D5B166DC SP: C41BDEA0 REGS: c41bddf0 TRAP: 
-0400    Not tainted 
-MSR: 40009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11 
-TASK = c41bc000[4078] 'ifconfig' Last syscall: 6  
-last math c41bc000 last altivec 00000000 
-GPR00: 00000000 C41BDEA0 C41BC000 CD48F880 CC3D6940 00000000 CC3D6940 
-CB7D2100  
-GPR08: C41C4ED0 00000000 00000000 CD48F880 40000088 10027A64 00000000 
-10020000  
-GPR16: 00000000 00000000 00000000 00000000 00009032 041BDF40 00000000 
-C0006418  
-GPR24: C0006180 1000CCA0 300252CC 0FFEA718 C3324EC0 CD48F880 C41C4DA0 
-C41C4EC0  
-Call backtrace:  
-CCFF7000 C0237A38 C023801C C003FA4C C003E4BC C003E554 C00061DC  
-10001A48 0FECEF70 00000000  
- 
- 
-Thank you. 
- 
-Arvind Kalyan 
-___________________________________________________
-Kongu Engineering College - Assuring the Best!!!
-http://kongu.ac.in, http://kongu.edu
+Hello!
 
+On Thu, Feb 06, 2003 at 02:43:17PM -0600, niteowl@intrinsity.com wrote:
+
+Also similar stuff in IDE code in 2.4.21-pre4 from bk tree:
+
+> ===== misplaced/extra semicolon =====
+drivers/ide/ide-taskfile.c:247		if (drive->using_dma && !(hwif->ide_dma_write(drive)));
+drivers/ide/ide-taskfile.c:253		if (drive->using_dma && !(hwif->ide_dma_read(drive)));
+
+At least looking at another similar code that is ifdefed out, it seems below patch is correct.
+(and even if it's not, still that code should be changed not to confuse people ;) )
+
+Also I took a look at drivers/ide/ide-taskfile.c in 2.5 hoping I can see what should
+be in fact done and got even more confused ;)
+Sounds like in 2.5 there should be "return ide_started" at the end, not stopped,
+because otherwise when drive->using_dma is set, we always return ide_stopped for
+WIN_WRITEDMA.*, WIN_IDENTIFY_DMA and WIN_READDMA, WIN_READDMA_ONCE, WIN_READDMA_EXT
+taskfile->command and default case is the same (we check stuff, and then regardless
+or the result of the check we always return ide_stopped).
+Which looks somehow strange (and different from similar code in 2.4).
+Can please somebody take a look at it?
+
+Bye,
+    Oleg
+
+===== drivers/ide/ide-taskfile.c 1.2 vs edited =====
+--- 1.2/drivers/ide/ide-taskfile.c	Thu Nov 14 20:38:17 2002
++++ edited/drivers/ide/ide-taskfile.c	Fri Feb  7 11:56:59 2003
+@@ -244,13 +244,13 @@
+ 		case WIN_WRITEDMA_ONCE:
+ 		case WIN_WRITEDMA:
+ 		case WIN_WRITEDMA_EXT:
+-			if (drive->using_dma && !(hwif->ide_dma_write(drive)));
++			if (drive->using_dma && !(hwif->ide_dma_write(drive)))
+ 				return ide_started;
+ 		case WIN_READDMA_ONCE:
+ 		case WIN_READDMA:
+ 		case WIN_READDMA_EXT:
+ 		case WIN_IDENTIFY_DMA:
+-			if (drive->using_dma && !(hwif->ide_dma_read(drive)));
++			if (drive->using_dma && !(hwif->ide_dma_read(drive)))
+ 				return ide_started;
+ 		default:
+ 			break;

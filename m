@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbRCTKOE>; Tue, 20 Mar 2001 05:14:04 -0500
+	id <S129446AbRCTKna>; Tue, 20 Mar 2001 05:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129529AbRCTKNz>; Tue, 20 Mar 2001 05:13:55 -0500
-Received: from fs1.dekanat.physik.uni-tuebingen.de ([134.2.216.20]:55558 "EHLO
-	fs1.dekanat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S129464AbRCTKNp>; Tue, 20 Mar 2001 05:13:45 -0500
-Date: Tue, 20 Mar 2001 11:12:22 +0100 (CET)
-From: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-To: Colin Watson <cjw44@flatline.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: How to mount /proc/sys/fs/binfmt_misc ?
-In-Reply-To: <E14f5LN-0005Go-00@riva.ucam.org>
-Message-ID: <Pine.LNX.4.30.0103201108440.595-100000@fs1.dekanat.physik.uni-tuebingen.de>
+	id <S129466AbRCTKnU>; Tue, 20 Mar 2001 05:43:20 -0500
+Received: from inet-smtp4.oracle.com ([209.246.15.58]:20915 "EHLO
+	inet-smtp4.oracle.com") by vger.kernel.org with ESMTP
+	id <S129446AbRCTKnK>; Tue, 20 Mar 2001 05:43:10 -0500
+Message-ID: <3AB732F0.CE13E52F@oracle.com>
+Date: Tue, 20 Mar 2001 11:37:36 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+Subject: PCMCIA serial CardBus support vanished in 2.4.3-pre3 and later
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Mar 2001, Colin Watson wrote:
+Sorry to repost the issue but I got no reply...
 
-> Alexander Viro <viro@math.psu.edu> wrote:
-> >Seriously, binfmt_misc.c was written in rather, erm, interesting C.
-> >Read it and you'll see. Just one (but rather impressive) example:
-> >
-> >        if ((count == 1) && !(buffer[0] & ~('0' | '1'))) {
-> >
-> >It was meant to be
-> >
-> >        if (count == 1 && (buffer[0] == '0' || buffer[0] == '1')) {
-> >
-> >and anyone who can't find the difference really should learn C. And
-> >that's not the only bogosity of such level. Besides, the thing is
-> >trivially oopsable - write() to any file in binfmt_misc with buffer
-> >pointing to unmapped kernel address and you are screwed,
->
-> Or you can register binfmt names that are registered already and
-> silently shadow old ones, or register names like 'register', 'status',
-> '.', and '..'. It's hideous to manage reliably from userspace.
+ 2.4.3-pre3 and synced-up versions of the -ac series remove support for
+ PCMCIA serial CardBus. In drivers/char/pcmcia the Makefile and Config.in
+ files are modified to exclude serial_cb and the serial_cb.c file itself
+ is removed by the patch. As a net result, my Xircom modem port becomes
+ invisible to the kernel and I can't dial out through it.
 
-I know you have sent me patches to prevent multiple entries of the
-same name some time ago and I can see we argued about it. The main
-point I have with such checks is, that we dont prevent root from
-doing rm -Rf / either. There is no reason to clobber the kernel with
-endless checks of such cornercases (which even dont make the system
-unusable, but only one (unimportant) part of it). There is even one
-truely nasty "exploit" of binfmt_misc, if you register an entry
-that catches standard elf programs and do module insertion of the
-elf and misc handler in the right order... how would you catch this!?
+As a temporary measure I backed out the changes in drivers/char/pcmcia
+ and my 2.4.3-pre4 kernel seems happy (in fact I am dialing out through
+ said Xircom modem).
 
-Richard.
+Did I miss some announcement for replacement features for serial_cb or
+ did a bad patch slip in ?
 
---
-Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-WWW: http://www.anatom.uni-tuebingen.de/~richi/
-The GLAME Project: http://www.glame.de/
 
+Thanks & ciao,
+
+--alessandro      <alessandro.suardi@oracle.com> <asuardi@uninetcom.it>
+
+Linux:  kernel 2.2.19p17/2.4.3p4 glibc-2.2 gcc-2.96-69 binutils-2.11.90.0.1
+Oracle: Oracle8i 8.1.7.0.1 Enterprise Edition for Linux
+motto:  Tell the truth, there's less to remember.

@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282318AbRKXBNE>; Fri, 23 Nov 2001 20:13:04 -0500
+	id <S282323AbRKXBOy>; Fri, 23 Nov 2001 20:14:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282322AbRKXBMy>; Fri, 23 Nov 2001 20:12:54 -0500
-Received: from 24-240-35-67.hsacorp.net ([24.240.35.67]:1920 "HELO
-	majere.epithna.com") by vger.kernel.org with SMTP
-	id <S282318AbRKXBMp>; Fri, 23 Nov 2001 20:12:45 -0500
-Date: Fri, 23 Nov 2001 19:13:50 -0500 (EST)
-From: <listmail@majere.epithna.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Error: compiling with preempt-kernel-rml-2.4.15-1.patch
-Message-ID: <Pine.LNX.4.33.0111231906210.3406-100000@majere.epithna.com>
+	id <S282322AbRKXBOo>; Fri, 23 Nov 2001 20:14:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2055 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282323AbRKXBOg>; Fri, 23 Nov 2001 20:14:36 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: is 2.4.15 really available at www.kernel.org?
+Date: 23 Nov 2001 17:14:11 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9tms93$jqh$1@cesium.transmeta.com>
+In-Reply-To: <7xpu69sttm.fsf@colargol.tihlde.org> <Pine.LNX.4.33.0111230523340.8063-100000@localhost.localdomain> <20011123151053.B13009@willow.seitz.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I applied the preempt-kernel-rml-2.4.15-1.patch file to a clean
-just untarred 2.14.15 kernel source, and began to compile got the
-following error.
-I know the source is good, I compiled a non-patched Kernel from the same
-archive earlier, re-extracted after the error, repeated, redownloaded,
-reextracted. repeated.
+Followup to:  <20011123151053.B13009@willow.seitz.com>
+By author:    Ross Vandegrift <ross@willow.seitz.com>
+In newsgroup: linux.dev.kernel
+>
+> > then i'm just plain baffled.  using mozilla, i've tried downloading both 
+> > 2.4.15 and 2.5.0, from the main www.kernel.org page, and from the kernel
+> > subpage.  in *every* case, the download window starts off fine with
+> > "0K of 28716K", so it knows the right size at the beginning.
+> 
+> Turn your MTU down to 1490, maybe smaller.  There is a broken TCP/IP stack 
+> or switch between you and kernel.org.
+> 
 
-ran
-make menuconfig
-make dep
-make clean
-make bzImage
+I was just going to ask... is there a problem with either (a) Path MTU
+Discovery or (b) Explicit Congestion Notification?
 
-
-
-root@majere:/usr/src/linux# make bzImage
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o
-scripts/split-include scripts/split-include.c
-scripts/split-include include/linux/autoconf.h include/config
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=i686   -c -o init/main.o
-init/main.c
-. scripts/mkversion > .tmpversion
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=i686  -DUTS_MACHINE='"i386"' -c
--o init/version.o init/version.c
-make CFLAGS="-D__KERNEL__ -I/usr/src/linux/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 " -C  kernel
-make[1]: Entering directory `/usr/src/linux/kernel'
-make all_targets
-make[2]: Entering directory `/usr/src/linux/kernel'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=i686    -fno-omit-frame-pointer
--c -o sched.o sched.c
-sched.c: In function `__schedule_tail':
-sched.c:509: structure has no member named `has_cpu'
-make[2]: *** [sched.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux/kernel'
-make: *** [_dir_kernel] Error 2
-root@majere:/usr/src/linux#
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

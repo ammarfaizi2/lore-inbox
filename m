@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263117AbTCWQ76>; Sun, 23 Mar 2003 11:59:58 -0500
+	id <S263120AbTCWRBY>; Sun, 23 Mar 2003 12:01:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263118AbTCWQ76>; Sun, 23 Mar 2003 11:59:58 -0500
-Received: from smtpout.mac.com ([17.250.248.88]:47315 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S263117AbTCWQ75>;
-	Sun, 23 Mar 2003 11:59:57 -0500
-Subject: Re: [2.5 patch] fix sound/oss/ics2101.c compilation
-From: Peter Waechtler <pwaechtler@mac.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030321201012.GO6940@fs.tum.de>
-References: <20030321201012.GO6940@fs.tum.de>
+	id <S263121AbTCWRBY>; Sun, 23 Mar 2003 12:01:24 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34467
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263120AbTCWRBX>; Sun, 23 Mar 2003 12:01:23 -0500
+Subject: Re: ISAPNP BUG: 2.4.65 ne2000 driver w. isapnp not working
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "M.H.VanLeeuwen" <vanl@megsinet.net>
+Cc: mflt1@micrologica.com.hk, ambx1@neo.rr.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E7DE01B.2B6985DF@megsinet.net>
+References: <3E7DE01B.2B6985DF@megsinet.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 23 Mar 2003 19:11:03 +0100
-Message-Id: <1048443066.1936.2.camel@picklock>
+Organization: 
+Message-Id: <1048443865.10727.36.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Mar 2003 18:24:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Fre, 2003-03-21 um 21.10 schrieb Adrian Bunk:
-> The following patch fixes the problem for me, please check whether it's 
-> correct:
+On Sun, 2003-03-23 at 16:26, M.H.VanLeeuwen wrote:
+> NE2k ISAPNP broke around 2.5.64, again.  There are 2 parts to the attached
+> patch, one to move the NIC initialization earlier in the boot sequence
+> and the second is a HACK to get ne2k to work when compiled into the
+> kernel, I've never tried NE2k as a module...
 > 
-> --- linux-2.5.65-full/sound/oss/ics2101.c.old	2003-03-21 19:13:23.000000000 +0100
-> +++ linux-2.5.65-full/sound/oss/ics2101.c	2003-03-21 19:13:53.000000000 +0100
-> @@ -29,7 +29,7 @@
->  
->  extern int     *gus_osp;
->  extern int      gus_base;
-> -extern spinlock_t lock;
-> +spinlock_t      lock = SPIN_LOCK_UNLOCKED;
->  static int      volumes[ICS_MIXDEVS];
->  static int      left_fix[ICS_MIXDEVS] =
->  {1, 1, 1, 2, 1, 2};
+> 1. The level of isapnp_init was moved to after apci.  Since it is now
+>    after net_dev_init, ISA PNP NICs fail to initialized at boot.
 > 
+>    This fix allows ISA PNP NIC cards to work during net_dev_init, and still
+>    leaves isapnp_init after apci_init.
 
-With that patch you do not protect anything.
-The write_mix function should share the spinlock used in the 
-interrupt handler.
-
-Do you compile for Uniprocessor? Can you post the relevant config?
-I don't get a link error with SMP.
+We must initialise ACPI before ISAPnP because we need PCI and ACPI to
+know what system resources we must not hit. How about moving the
+net_dev_init to later ?
 
 

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268834AbRHKULB>; Sat, 11 Aug 2001 16:11:01 -0400
+	id <S268832AbRHKUKC>; Sat, 11 Aug 2001 16:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268837AbRHKUKv>; Sat, 11 Aug 2001 16:10:51 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:6411 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S268834AbRHKUKa>;
-	Sat, 11 Aug 2001 16:10:30 -0400
-Date: Sat, 11 Aug 2001 13:10:40 -0700 (PDT)
-From: Paul Buder <paulb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Large ramdisk crashes 2.4.8
-Message-ID: <Pine.LNX.4.33.0108111309170.19041-100000@shell1.aracnet.com>
+	id <S268834AbRHKUJv>; Sat, 11 Aug 2001 16:09:51 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27658 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268832AbRHKUJg>; Sat, 11 Aug 2001 16:09:36 -0400
+Subject: Re: [PATCH] Adaptec I2O RAID driver (kernel 2.4.7)
+To: Deanna_Bonds@adaptec.com (Bonds, Deanna)
+Date: Sat, 11 Aug 2001 21:12:03 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'),
+        Deanna_Bonds@adaptec.com (Bonds Deanna), linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+In-Reply-To: <no.id> from "Bonds, Deanna" at Aug 11, 2001 03:36:49 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Vf76-0003IH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A large ramdisk will either crash or make useless a
-2.4.8 kernel.  I did the following.
+> When I coded that, I took a snapshot of the i2o routines at 2.2.18 (I
+> think).  I still have requirement to support customers running 2.2.12 with
 
-I cleared out buffered memory by running this till it
-appropiately died.
-perl -e "$x='x' x 10000 while 1"
+Ok those will break in two cases - failed table reads and timeouts on post
+waits that then complete later. Its probably ok since you know those wont
+fail on your card
 
-top then said I was using 7 megs of ram on my 128 meg box.
+> support the older kernels.  I could not find a nice way of doing something
+> similar in those kernels (2.2.12 again).  
 
-I then did
-
-mke2fs /dev/ram0 70000
-mount /dev/ram0 /mnt
-dd if=/dev/zero of=/mnt/junk bs=1024000 count=100
-
-Usually at this point my system was not totally crashed but may as well
-have been.  I could usually ping the box.  I could sometimes switch
-virtual consoles though I couldn't log in.  I could press keys and they
-would display on the console.  That's about it.  Once I got a kernel
-panic. I also tried allocating 500 megs on a 1 gig box I have available
-to me with similar results.
-
-I reported similar problems with 2.4.[4-7] though the symptoms were
-a little different.  At this point I've consigned myself to wasting
-2/3 of my memory.  I won't report further on this issue unless someone
-is interested.
-
-
+2.2.12 has known and fixed security holes so nobody should be using it 8)
+ 
+I'll read over this version tomorrow morning

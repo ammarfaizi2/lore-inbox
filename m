@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbUBWSSt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 13:18:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbUBWSSt
+	id S261982AbUBWSWz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 13:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbUBWSWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 13:18:49 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:8856 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261988AbUBWSSi (ORCPT
+	Mon, 23 Feb 2004 13:22:55 -0500
+Received: from linux-bt.org ([217.160.111.169]:53130 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S261982AbUBWSWx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 13:18:38 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 23 Feb 2004 13:22:53 -0500
+Subject: Re: Please back out the bluetooth sysfs support
+From: Marcel Holtmann <marcel@holtmann.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040223101231.71be5da2.davem@redhat.com>
+References: <20040223103613.GA5865@lst.de>
+	 <20040223101231.71be5da2.davem@redhat.com>
+Content-Type: text/plain
+Message-Id: <1077560544.2791.63.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 23 Feb 2004 19:22:24 +0100
 Content-Transfer-Encoding: 7bit
-Message-ID: <16442.17401.767305.656013@napali.hpl.hp.com>
-Date: Mon, 23 Feb 2004 10:18:33 -0800
-To: markw@osdl.org
-Cc: pgsql-hackers@postgresql.org, linux-kernel@vger.kernel.org,
-       linux-lvm@redhat.com, osdldbt-general@lists.sourceforge.net
-Subject: dbt-2 tests & profiling on ia64
-In-Reply-To: <200402231742.i1NHgcE17332@mail.osdl.org>
-References: <200402231742.i1NHgcE17332@mail.osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark,
+Hi Dave,
 
->>>>> On Mon, 23 Feb 2004 09:42:34 -0800 (PST), markw@osdl.org said:
+> Ok Christoph, I'm taking to Marcel about what we'll do, and thus
+> it'll be resolved within the next day one way or another.
+> 
+> Thanks for pointing this out.
 
-  Mark> http://developer.osdl.org/markw/ia64/dbt2/
-  Mark> I have a summary of intial results from our DBT-2 workload with
-  Mark> PostgreSQL 7.4.1 on a 4-way Itanium2 system with 16GB of memory and 56
-  Mark> drives using LVM2 and linux-2.6.3.  There's readprofile
-  Mark> and oprofile data, but oprofile is seg faulting when it's trying to
-  Mark> generate the annotated assembly source.
+it seems that I missed a posting here. What is the problem?
 
-You could try q-tools, see the announcement here:
+Regards
 
- http://marc.theaimsgroup.com/?l=linux-ia64&m=107075994721581
+Marcel
 
-Besides the flat profile, it will also give you call-counts.  (It
-would be nice if this feature could be added to oprofile some day.)
 
-	--david

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317226AbSEXRtH>; Fri, 24 May 2002 13:49:07 -0400
+	id <S317221AbSEXRz2>; Fri, 24 May 2002 13:55:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317228AbSEXRtG>; Fri, 24 May 2002 13:49:06 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:13834 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317226AbSEXRtE>; Fri, 24 May 2002 13:49:04 -0400
-Date: Fri, 24 May 2002 18:49:03 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: asm/timex.h
-Message-ID: <20020524184903.B24780@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020524193345.A21559@ucw.cz>
+	id <S317216AbSEXRz1>; Fri, 24 May 2002 13:55:27 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:18173 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317215AbSEXRz0>; Fri, 24 May 2002 13:55:26 -0400
+Subject: Re: Compiling 2.2.19 with -O3 flag
+From: Robert Love <rml@tech9.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Marcus Meissner <mm@ns.caldera.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020524184402.A24780@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 24 May 2002 10:55:20 -0700
+Message-Id: <1022262920.956.258.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 07:33:45PM +0200, Vojtech Pavlik wrote:
-> Hi!
+On Fri, 2002-05-24 at 10:44, Christoph Hellwig wrote:
+
+> -Os implies -O2 + additional size-reducing features:
 > 
-> I have several questions about asm/timex.h
+> [hch@sb hch]$ grep -r optimize_size /work/people/hch/gcc/gcc | wc -l
+>     250
+> [hch@sb hch]$
 > 
-> 1) Who uses it? The kernel certainly doesn't. Perhaps NTP?
+> A bunch of matches are in ChangeLog and most are target-specific,
+> but I guess you got the point..
 
-The kernel does.  Thanks to the sched.h mess it's even implictly
-included in almost any file..
+I know this...maybe I am not being clear.  I realize -Os is a derivate
+of -O2, but is it not an interesting note if -Os can be as fast (or
+faster) than -O2 and still generate smaller binaries?  That is my point.
 
-> 3) What if an architecture doesn't have a compile-time known
->    CLOCK_TICK_RATE? I suppose I cannot just #define it to a variable,
->    because the kernel doesn't use it, and that probably means userland
->    does ...
+If -Os is equivalent in speed to -O2 but also generates smaller objects,
+then why have -O2?  If it does not generate smaller objects (which is
+what my testing has shown) then it is worthless.  Unless it is faster
+than -O2, like Alan said, in which case then the two options need to
+rethink themselves ;-)
 
-The kernel DOES use it.  grep(1) is your friend.
+	Robert Love
 

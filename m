@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbQLPXGM>; Sat, 16 Dec 2000 18:06:12 -0500
+	id <S129799AbQLPXMw>; Sat, 16 Dec 2000 18:12:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129799AbQLPXGC>; Sat, 16 Dec 2000 18:06:02 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48141 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129704AbQLPXF4>; Sat, 16 Dec 2000 18:05:56 -0500
-Subject: Re: link failure (drivers/char/riscom8.c) (240test13p2)
-To: rasmus@jaquet.dk (Rasmus Andersen)
-Date: Sat, 16 Dec 2000 22:37:59 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, pgmdsg@ibi.com
-In-Reply-To: <20001216225222.D609@jaquet.dk> from "Rasmus Andersen" at Dec 16, 2000 10:52:22 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129997AbQLPXMn>; Sat, 16 Dec 2000 18:12:43 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:7694 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129799AbQLPXMZ>; Sat, 16 Dec 2000 18:12:25 -0500
+Date: Sat, 16 Dec 2000 16:41:51 -0600
+To: Dana Lacoste <dana.lacoste@peregrine.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linus's include file strategy redux
+Message-ID: <20001216164151.J3199@cadcamlab.org>
+In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <91bnoc$vij$2@enterprise.cistron.net> <20001215155741.B4830@ping.be> <01cf01c066ab$036fc030$890216ac@ottawa.loran.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E147Pxr-0003IA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01cf01c066ab$036fc030$890216ac@ottawa.loran.com>; from dana.lacoste@peregrine.com on Fri, Dec 15, 2000 at 10:23:44AM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> drivers/char/char.o: In function `tty_init':
-> drivers/char/char.o(.text.init+0x259): undefined reference to `riscom8_init'
+
+[Dana Lacoste]
+> Essentially, whatever solution is implemented MUST ensure :
 > 
-> I guess this is bacause riscom8_init is now a static function and thus
-> tty_init cannot see it. If this is intentional or nat I cannot judge
-> but I guess the fix is either to remove the static or the initcall from
-> tty_init. The decision I leave with those who know what to do.
+> 1 - glibc will work properly (the headers in /usr/include/* don't
+>     change in an incompatible manner)
+> 
+> 2 - programs that need to compile against the current kernel MUST
+>     be able to do so in a quasi-predictable manner.
 
-Remove the call from tty_init. riscom8 now uses the new style initialisers
+(2) is bogus.  NO program needs to compile against the current kernel
+headers.  The only things that need to compile against the current
+kernel headers are kernel modules and perhaps libc itself.  As I put it
+a few days ago--
 
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=97658613604208&w=2
+
+So for your external modules, let me suggest the lovely
+/lib/modules/{version}/build/include/.  Recent-ish modutils required.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

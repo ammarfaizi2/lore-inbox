@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310434AbSCURPq>; Thu, 21 Mar 2002 12:15:46 -0500
+	id <S312396AbSCURTr>; Thu, 21 Mar 2002 12:19:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312394AbSCURPh>; Thu, 21 Mar 2002 12:15:37 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:53765 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S310434AbSCURP1>;
-	Thu, 21 Mar 2002 12:15:27 -0500
-Date: Thu, 21 Mar 2002 18:15:16 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: sneakums@zork.net, linux-kernel@vger.kernel.org,
-        trond.myklebust@fys.uio.no
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-Id: <20020321181516.24ea3fbd.skraw@ithnet.com>
-In-Reply-To: <20020321180750.A2706@namesys.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S312397AbSCURT0>; Thu, 21 Mar 2002 12:19:26 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35851 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312396AbSCURTQ>; Thu, 21 Mar 2002 12:19:16 -0500
+Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables
+To: mgross@unix-os.sc.intel.com
+Date: Thu, 21 Mar 2002 17:34:27 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dan@debian.org (Daniel Jacobowitz),
+        vamsi@in.ibm.com (Vamsi Krishna S .), pavel@suse.cz (Pavel Machek),
+        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+        tachino@jp.fujitsu.com, jefreyr@pacbell.net, vamsi_krishna@in.ibm.com,
+        richardj_moore@uk.ibm.com, hanharat@us.ibm.com, bsuparna@in.ibm.com,
+        bharata@in.ibm.com, asit.k.mallick@intel.com, david.p.howell@intel.com,
+        tony.luck@intel.com, sunil.saxena@intel.com
+In-Reply-To: <200203211707.g2LH7XW10116@unix-os.sc.intel.com> from "Mark Gross" at Mar 21, 2002 09:10:25 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16o6SJ-0005mD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Mar 2002 18:07:50 +0300
-Oleg Drokin <green@namesys.com> wrote:
+> This why I grabbed all those locks, and did the two sets of IPI's in the 
+> tcore patch.  Once the runqueue lock is grabbed, even if that process on the 
 
-> > Maybe my mkreiserfs util is old, and I should try recreating the volumes
-> > with a newer version? Were there "suspicious" changes during 3.6 format?
-> 
-> Not any I am aware of.
-
-Hello Oleg,
-
-I just re-created the questionable fs (both) with a freshly compiled
-util-package (reiserfsprogs-3.x.1b) and now things are even more weird:
-
-It now works, depending on which fs I mount first. Remeber both are completely
-new 3.6 fs. I can really reproduce mounting "a", then "b" works, but first
-mounting "b", then "a" has the problem. Did you try something like this (play
-with the mounting sequence)?
-
-Regards,
-Stephan
-
+If you IPI holding a lock whats going to happen if while the IPI is going
+across the cpus the other processor tries to grab the runqueue lock and
+is spinning on it with interrupts off ?

@@ -1,55 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbTLBXlv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 18:41:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTLBXls
+	id S264451AbTLBXob (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 18:44:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264453AbTLBXob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 18:41:48 -0500
-Received: from relay-2m.club-internet.fr ([194.158.104.41]:31442 "EHLO
-	relay-2m.club-internet.fr") by vger.kernel.org with ESMTP
-	id S264446AbTLBXln convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 18:41:43 -0500
-From: pinotj@club-internet.fr
-To: torvalds@osdl.org
-Cc: manfred@colorfullife.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Re: Re: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Date: Wed,  3 Dec 2003 00:41:39 CET
-Mime-Version: 1.0
-X-Mailer: Medianet/v2.0
-Message-Id: <mnet1.1070408499.1371.pinotj@club-internet.fr>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 2 Dec 2003 18:44:31 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:63240 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264451AbTLBXoY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 18:44:24 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: IDE-SCSI oops in 2.6.0-test11
+Date: 2 Dec 2003 23:33:14 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bqj7fq$e6e$1@gatekeeper.tmr.com>
+References: <200312022310.SAA14384@gatekeeper.tmr.com> <1070407849.12502.17.camel@athlonxp.bradney.info>
+X-Trace: gatekeeper.tmr.com 1070407994 14542 192.168.12.62 (2 Dec 2003 23:33:14 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1070407849.12502.17.camel@athlonxp.bradney.info>,
+Craig Bradney  <cbradney@zip.com.au> wrote:
+| On Wed, 2003-12-03 at 00:10, bill davidsen wrote:
+| > In article <1070401986.12502.6.camel@athlonxp.bradney.info>,
+| > Craig Bradney  <cbradney@zip.com.au> wrote:
+| > | Just as an fyi, Im on a 2600, same mobo (well, v2 1007 bios).. 2.6 test
+| > | 11, acpi on, local apic on, apic on.
+| > | 
+| > | Can burn CDs and DVD+RWs without IDE-SCSI just fine.
+| > 
+| > I bet you're using a recent cdrecord and growisofs, both of which have
+| > had Linux-specific code added to use the non-SCSI interface. Programs
+| > which are written for SCSI won't run on that interface.
 
->De: Linus Torvalds <torvalds@osdl.org>
->On Thu, 27 Nov 2003 pinotj@club-internet.fr wrote:
->>
->> Here is the result of test of 2.6.0-test10 with the printk patch in
->> slab.c and this new patch for fork.c from Linus :
->
->The fork.c change can really only affect threaded programs using the new
->threading, and even then is likely to hit only in very unlikely
->circumstances. Certainly not a kernel compile.
->
->I'm wondering if the slab debugging code is just broken somehow. If you
->have lots of memory, it should even work for you.
->
->NOTE! For this patch to make sense, you have to enable the page allocator
->debugging thing (CONFIG_DEBUG_PAGEALLOC), and you have to live with the
->fact that it wastes a _lot_ of memory.
->
->There's another problem with this patch: if the bug is actually in the
->slab code itself, this will obviously not find it, since it disables that
->code entirely.
->
->		Linus
-[patch]
+At this point I'll sat thanks for all the version numbers, and ask if
+you have noted if the DVD burn is using DMA or not. If your system CPU
+is very low it clearly is. I haven't checked to see if an audio burn
+uses DMA, data CD burn clearly does. That one I can check this weekend,
+my 2.6 boxen here have no burners.
 
-Thanks. I will try this.
-I have 256MB RAM and I always test with very few process running so I think it will not be a problem.
+| Sorry.. missed those out:
+| k3b 0.10.2
+| cdrdao 1.1.8pre2
+| cdrtools 2.01 alpha 19 (cdrecord is in here.. it is 2.01a19-dvd)
+| and growisofs is 5.1.3
+| mkisofs is 2.01a17.
+| 
+| All are latest "usntable" builds on Gentoo, or cvs. So, yes.. very
+| recent. I was very happy when i could burn a CD/DVD without IDE-SCSI,
+| and that was part of the reason I tried out 2.6 now.
+| 
+| > I'm told that SCSI programs for Win9x will run under vmware using
+| > ide-scsi under 2.4 but not 2.6, can someone confirm? I don't have the
+| > software for that test, but I'm told Win9x is quite popular ;-)
+| 
+| > 
+| > The last time I tried cdparanoia it didn't work with 2.6 (ATAPI or
+| > ide-scsi), and I haven't tried cdda2wav. Some work, some don't.
+| 
+| cdparanoia: 9.8 (march 23 2001)
+| cdda2wav 2.01a19
+| > 
+| > Please let us know if you're using other software than my guess, hard to
+| > track what's been converted from SCSI to ATAPI.
+| 
+| Let me know if you want anymore versions.
+| 
+| Craig
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+| 
 
-Jerome
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

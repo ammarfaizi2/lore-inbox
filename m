@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267078AbSLDUj0>; Wed, 4 Dec 2002 15:39:26 -0500
+	id <S267072AbSLDUf5>; Wed, 4 Dec 2002 15:35:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267079AbSLDUj0>; Wed, 4 Dec 2002 15:39:26 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:55557 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
-	id <S267078AbSLDUjZ>; Wed, 4 Dec 2002 15:39:25 -0500
-Date: Wed, 4 Dec 2002 21:46:54 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: Is this patch okay?
-Message-ID: <Pine.LNX.4.44.0212042140540.4031-100000@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267078AbSLDUf5>; Wed, 4 Dec 2002 15:35:57 -0500
+Received: from codepoet.org ([166.70.99.138]:28039 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S267072AbSLDUf4>;
+	Wed, 4 Dec 2002 15:35:56 -0500
+Date: Wed, 4 Dec 2002 13:43:29 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [kconfig] Direct use of lxdialog routines by menuconfig (resent,v2)
+Message-ID: <20021204204329.GA29999@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+References: <20021123095040.GY25628@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021123095040.GY25628@pasky.ji.cz>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat Nov 23, 2002 at 10:50:40AM +0100, Petr Baudis wrote:
+>  		if (menu == &rootmenu) {
+> -			cprint(":");
+> -			cprint("--- ");
+> -			cprint("L");
+> -			cprint("Load an Alternate Configuration File");
+> -			cprint("S");
+> -			cprint("Save Configuration to an Alternate File");
+> -		}
+> -		stat = exec_conf();
+> +			cmake(); cprint_tag(":"); cprint_name("--- ");
+> +			cmake(); cprint_tag("L"); cprint_name("Load an Alternate Configuration File");
+> +			cmake(); cprint_tag("S"); cprint_name("Save Configuration to an Alternate File");
+> +		}
+> +		dialog_clear();
+> +		stat = dialog_menu(prompt ? prompt : "Main Menu",
+> +				menu_instructions, rows, cols, rows - 10,
+> +				active_entry, item_no, items);
+>  		if (stat < 0)
+>  			continue;
 
-i downloaded 2.5.50, started compiling it, and it bailed out with an error
-in drivers/pci/quirks.c, that sis_apic_bug is not defined.
-I did a quick grep around the source and found a file to include.
+You never return from sub-menus.  This last bit should be:
 
-Basically, this is what i did.
+  		if (stat < 0)
+- 			continue;
++ 			return;
 
-*** linux-2.5.50.old/drivers/pci/quirks.c       Wed Nov 27 23:35:48 2002
---- linux-2.5.50/drivers/pci/quirks.c   Wed Dec  4 21:40:44 2002
-***************
-*** 18,23 ****
---- 18,24 ----
-  #include <linux/pci.h>
-  #include <linux/init.h>
-  #include <linux/delay.h>
-+ #include <asm/io_apic.h>
+ -Erik
 
-  #undef DEBUG
-
-Is it okay to include it like that?
-Or should it be fixed some other way? I am just getting around the kernel,
-though the kernel has one my small patch, i am definitelly no guru.
-
-I guess that some people have already noticed that, so if this has been
-resolved, please ignore the patch.
-I would appreciate any answer anyway.
-
-Best Regards,
-Maciej Soltysiak
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

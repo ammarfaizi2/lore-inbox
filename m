@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270034AbTGLXxx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 19:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270036AbTGLXxx
+	id S270038AbTGLXz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 19:55:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270039AbTGLXz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 19:53:53 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:6382 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S270034AbTGLXxw (ORCPT
+	Sat, 12 Jul 2003 19:55:28 -0400
+Received: from holomorphy.com ([66.224.33.161]:40900 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S270038AbTGLXzW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 19:53:52 -0400
-Date: Sun, 13 Jul 2003 02:08:32 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Jones <davej@codemonkey.org.uk>, mroos@linux.ee,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030713000832.GT843@suse.de>
-References: <20030711140219.GB16433@suse.de> <E19bK8w-0004Ij-00@roos.tartu-labor> <20030712202352.GA7741@suse.de> <20030712151511.107c1f59.akpm@osdl.org>
+	Sat, 12 Jul 2003 19:55:22 -0400
+Date: Sat, 12 Jul 2003 17:11:23 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
+Message-ID: <20030713001123.GD15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Davide Libenzi <davidel@xmailserver.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain> <55580000.1057727591@[10.10.2.4]> <20030709051941.GK15452@holomorphy.com> <20030709054307.GL15452@holomorphy.com> <Pine.LNX.4.55.0307121656060.4720@bigblue.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030712151511.107c1f59.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.55.0307121656060.4720@bigblue.dev.mcafeelabs.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 12 2003, Andrew Morton wrote:
-> Dave Jones <davej@codemonkey.org.uk> wrote:
-> >
-> > ..
-> > 
-> > Something seems amiss. The deprecated elvtune interface is the old -r/-w/-b command line.
-> > I was lead to believe a new elvtune appeared which supports an option
-> > for changing the elevator under 2.5, however a quick google doesn't turn
-> > up any such patched elvtune, so I'm somewhat puzzled.
-> 
-> No, we planned to do the selection via sysfs rather than ioctl.
+On Tue, 8 Jul 2003, William Lee Irwin III wrote:
+>    ^^^^^^^^^^^^^^^
 
-Right
+On Sat, Jul 12, 2003 at 04:58:55PM -0700, Davide Libenzi wrote:
+> Is it just me that is receiving dups from lkml or it's a common disease ?
 
-> >  > Maybe just suggest the sysfs interface at once and not mention
-> >  > elvtune?
-> > 
-> > Changing the elevator type per device via sysfs does seem to make
-> > sense, however /sys/block/<devicename>/queue/iosched/ doesn't yield
-> > anything that would suggest this is possible (yet).  I think Jens
-> > has patches for this?
-> 
-> But it never happened.  There are all sorts of nasties wrt actually
+The story is all in the headers:
 
-Well the code exists.
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S269995AbTGLXao (ORCPT <rfc822;wli@holomorphy.com>);
+        Sat, 12 Jul 2003 19:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270018AbTGLXao
+        (ORCPT <rfc822;linux-kernel-outgoing>);
+        Sat, 12 Jul 2003 19:30:44 -0400
+Received: from pip15.ptt.js.cn ([61.155.13.245]:9629 "HELO jlonline.com")
+        by vger.kernel.org with SMTP id S269995AbTGLXa2 (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 12 Jul 2003 19:30:28 -0400
+Received: from jlonline.com([10.100.0.6]) by js.cn(AIMC 2.9.5.2)
+        with SMTP id jm43f10fd18; Sun, 13 Jul 2003 07:33:56 +0800
+Received: from kanga.kvack.org([216.138.200.138]) by js.cn(AIMC 2.9.5.2)
+        with SMTP id jm343f0c0ba8; Wed, 09 Jul 2003 13:35:56 +0800
+Received: (root@kanga.kvack.org) by kvack.org id <S26870AbTGIFmJ>;
+        Wed, 9 Jul 2003 01:42:09 -0400
+Received: from holomorphy.com ([66.224.33.161]:56232 "EHLO holomorphy")
+        by kvack.org with ESMTP id <S26867AbTGIFlw> convert rfc822-to-8bit;
+        Wed, 9 Jul 2003 01:41:52 -0400
+Received: from wli by holomorphy with local (Exim 3.36 #1 (Debian))
+        id 19a7jQ-0004Pg-00; Tue, 08 Jul 2003 22:43:08 -0700
 
-> making the switch.  Some related to request queueing, some to sysfs
-> itself.
+It's clearly well upstream from me.
 
-I don't recall any request queueing problems, it's pretty straight
-forward to lock the queue down and prevent any new requests from
-entering. sysfs problems is the only issue, and before Al does his magic
-on that stuff, the patch just doesn't make sense. So it hasn't been
-posted publically. With the sysfs disabled, I can switch io schedulers
-on the fly quite easily.
-
-> So yes, we should have runtime selection, and maybe sometime we will,
-> but the lowness of the return-to-effort ratio means it won't happen
-> soon.
-
-Depends. If the sysfs stuff doesn't get fixed, then no it wont happen.
-
--- 
-Jens Axboe
-
+-- wli

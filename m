@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268947AbUJPWtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268954AbUJPWuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268947AbUJPWtF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 18:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUJPWtF
+	id S268954AbUJPWuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 18:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUJPWuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 18:49:05 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:6866 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268947AbUJPWtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 18:49:03 -0400
-Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Pavel Machek <pavel@ucw.cz>, M <mru@mru.ath.cx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097956343.2148.17.camel@krustophenia.net>
-References: <41650CAF.1040901@unimail.com.au>
-	 <20041007103210.GA32260@atrey.karlin.mff.cuni.cz>
-	 <yw1x7jq2n6k3.fsf@mru.ath.cx>  <20041007143245.GA1698@openzaurus.ucw.cz>
-	 <1097956343.2148.17.camel@krustophenia.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097963167.13226.4.camel@localhost.localdomain>
+	Sat, 16 Oct 2004 18:50:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12750 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268954AbUJPWuI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 18:50:08 -0400
+Date: Sat, 16 Oct 2004 15:48:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, axboe@suse.de
+Subject: Re: Hang on x86-64, 2.6.9-rc3-bk4
+Message-Id: <20041016154818.271a394b.akpm@osdl.org>
+In-Reply-To: <417196AA.3090207@pobox.com>
+References: <41719537.1080505@pobox.com>
+	<417196AA.3090207@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 16 Oct 2004 22:46:12 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-10-16 at 20:52, Lee Revell wrote:
-> > What benefits? HZ=1000 takes 1W more on my system.
-> Better timer resolution?
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> The only really notable changes in -bk3 -> -bk4 are the signal changes, 
+> something in mm/vmscan.c.
+> 
 
-And heavily reduced accuracy on a lot of laptops where 1000Hz
-is enough to make the clock slide every time the battery state is
-queried or an SMM event triggers.
-
-Getting the best of both worlds depends on the stuff discussed at OLS
-being finished, then you can have 1Khz accurancy and battery life
-
+I'd be suspecting the vmscan.c change, but we allegedly fixed that later on.
+Can you try reverting it?  (Can't reproduce the problem here)

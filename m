@@ -1,98 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265683AbUBJHXa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 02:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265695AbUBJHXa
+	id S265681AbUBJHVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 02:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265683AbUBJHVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 02:23:30 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:52644 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S265683AbUBJHX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 02:23:26 -0500
-Subject: Re: HT CPU handling - 2.6.2
-From: Len Brown <len.brown@intel.com>
-To: Hod McWuff <hod@wuff.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1076395641.2246.5.camel@siberian.wuff.dhs.org>
-References: <BF1FE1855350A0479097B3A0D2A80EE0023E8B98@hdsmsx402.hd.intel.com>
-	 <1076391435.4103.730.camel@dhcppc4>
-	 <1076395641.2246.5.camel@siberian.wuff.dhs.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076397803.4105.900.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 10 Feb 2004 02:23:23 -0500
+	Tue, 10 Feb 2004 02:21:09 -0500
+Received: from data.idl.com.au ([203.32.82.9]:58505 "EHLO smtp.idl.net.au")
+	by vger.kernel.org with ESMTP id S265681AbUBJHVB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 02:21:01 -0500
+From: Athol Mullen <athol_SPIT_SPAM@idl.net.au>
+Subject: Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three()
+Newsgroups: linux.kernel
+References: <1n9OA-6lu-17@gated-at.bofh.it> <1n9OA-6lu-23@gated-at.bofh.it> <1n9OA-6lu-15@gated-at.bofh.it> <1nu6y-XO-3@gated-at.bofh.it>
+Organization: Mullen Automotive Engineering
+Date: Tue, 10 Feb 2004 18:16:28 +1100
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402101816.28067.athol_SPIT_SPAM@idl.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-no.  the disabled flag is a reflection of wires inside the processor. 
-You could pop the cap and ion-beam edit the die, or buy an HT-enabled
-processor.  The later would be somewhat more cost effective;-)
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+> On Monday 09 of February 2004 03:50, Athol Mullen wrote:
+(Don't CC.  I read lkml via linux.kernel newsgroup.)
 
-cheers,
--Len
+>> +     u16 cr_flag             = 0x10 << drive->dn;
 
-On Tue, 2004-02-10 at 01:47, Hod McWuff wrote:
-> OK, the BIOS setting is disabled and cannot be changed, so the message
-> won't get cleaned up that way. I could of course disable SMP in my
-> kernel, but that really doesn't address anything.
-> 
-> What I'm wondering is, if the second "CPU" appears to exist but is
-> merely marked disabled, who cares about the BIOS flag? Why couldn't the
-> disable flag be cleared or ignored?
-> 
-> Couldn't the ACPI/APIC/SMP code just cope with the odd LAPIC ID somehow?
-> 
-> On Tue, 2004-02-10 at 00:37, Len Brown wrote:
-> > Your BIOS is reporting the 2nd CPU as disabled, and telling us that it
-> > has LAPIC id 0x81 = 129.  The ACPI table code prints this out and
-> > registers the processor anyway, but that chokes because the LAPIC ID is
-> > way out of bounds.
-> > 
-> > I'm thinking that ACPI should not register a processor that the BIOS
-> > marked as disabled...
-> > 
-> > What should you do?  Apparently you've got an HT-enabled platform, BIOS,
-> > and OS, but do not have an HT-enabled processor.  Your choices are to
-> > disable HT in the BIOS SETUP to clean up this message, or plug in an
-> > HT-enabled processor.
-> > 
-> > cheers,
-> > -Len
-> > 
-> > On Mon, 2004-02-09 at 15:44, Hod McWuff wrote:
-> > > I've got a 2.0A GHz P4, advertised as non-hyperthread, that seems to
-> > > be
-> > > reporting the presence of a second CPU. It also seems to be disabled
-> > > by
-> > > setting bit 7 of its ID. I've tried compiling with support for 130
-> > > CPU's
-> > > and nothing changed. What would have to be done to get this disabled
-> > > CPU half back online?
-> > > 
-> > > Feb  9 04:45:03 pug ACPI: Local APIC address 0xfee00000
-> > > Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-> > > Feb  9 04:45:03 pug Processor #0 15:2 APIC version 20
-> > > Feb  9 04:45:03 pug ACPI: LAPIC (acpi_id[0x02] lapic_id[0x81]
-> > > disabled)
-> > > Feb  9 04:45:03 pug Processor #129 invalid (max 16)
-> > > Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x01] dfl dfl lint[0x1])
-> > > Feb  9 04:45:03 pug ACPI: LAPIC_NMI (acpi_id[0x02] dfl dfl lint[0x1])
-> > > 
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe
-> > > linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+>> +                         pci_read_config_word(dev, 0x54, &reg54);
+>> +                         return ((reg54 & cr_flag) ? 1 : 0);
+
+> This is plain wrong, piix.c already does it for you.
+> piix.c:init_hwif_piix():
+
+The penny drops...
+
+I missed this code because I was looking for cable detection on
+a drive-by-drive basis, and this is taking drives in pairs.
+
+That's why the drive was being correctly initialised as a UDMA5
+drive even though eighty_ninty_three() was returning zero.
+
+The existing code was written before the ICH5 came out, and will
+always work for ICH4 and older, but is wrong in its method of
+detecting 80-core cables on an ICH5, and could fail if SATA and
+PATA drives are mixed and used in compatability mode.  The bit
+flags should be taken on a drive-by-drive basis, because the ICH5
+is capable of logical mapping such as:
+
+SATA0 -> IDE0 Master
+SATA1 -> IDE0 Slave
+PATA0 master -> IDE1 Master
+PATA1 master -> IDE1 Slave
+
+Note that this now sees two PATA drives on different physical
+interfaces looking like master and slave on one interface.  In this
+scenario, if PATA1 has a 40-core and PATA0 an 80-core or vise versa,
+both would be detected as having 80-core with the existing code.
+
+Why do I feel like I just pulled the lid off a can of worms?
+
+The options are essentially that we:
+1. Always force the SATA interfaces into native mode and PATA
+   into native or normal mode (desirable - the compatability mode
+   described above make only 2 PATA drives visible),
+2. Modify the above code to work on a drive-by-drive basis instead
+   of interface-by-interface (according to Intel, this is the
+   correct answer),
+3. Do nothing, and hope nobody notices.  :-)
+
+> Please make sure you have CONFIG_IDEDMA_IVB=n in your config.
+> If it is okay, please send me a copy of /proc/ide/hdX/identify.
+
+I definately had CONFIG_IDEDMA_IVB=n.
+
+/proc/ide/hda/identify and /proc/ide/hda/model emailed.
+
+(Apologies if messages don't thread properly.)
+
+-- 
+Athol
+<http://cust.idl.com.au/athol>
+Linux Registered User # 254000
+I'm a Libran Engineer. I don't argue, I discuss.
+
 

@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVBZFxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVBZGDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261406AbVBZFxy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 00:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVBZFxy
+	id S261762AbVBZGDw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 01:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVBZGDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 00:53:54 -0500
-Received: from soundwarez.org ([217.160.171.123]:41625 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261406AbVBZFxT (ORCPT
+	Sat, 26 Feb 2005 01:03:52 -0500
+Received: from soundwarez.org ([217.160.171.123]:34458 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261790AbVBZGDQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 00:53:19 -0500
-Date: Sat, 26 Feb 2005 06:53:16 +0100
+	Sat, 26 Feb 2005 01:03:16 -0500
+Date: Sat, 26 Feb 2005 07:03:13 +0100
 From: Kay Sievers <kay.sievers@vrfy.org>
 To: linux-kernel@vger.kernel.org
 Cc: Greg KH <greg@kroah.com>
-Subject: split kobject creation and hotplug event generation
-Message-ID: <20050226055316.GA14317@vrfy.org>
+Subject: Re: split kobject creation and hotplug event generation
+Message-ID: <20050226060313.GA14359@vrfy.org>
+References: <20050226055316.GA14317@vrfy.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050226055316.GA14317@vrfy.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This splits the implicit generation of a hotplug events from
-kobject_add() and kobject_del(), to give the user of of these
-functions control over the time the event is created.
+Sorry, the first patch has a typo.
 
-The kobject_register() and unregister functions still have the same
-behavior and emit the events by themselves.
-
-The class, block and device core is changed now to emit the hotplug
-event _after_ the "dev" file, the "device" symlink and the default
-attributes are created. This will save udev from spinning in a stat() loop
-to wait for the files to appear, which is expensive if we have a lot of
-concurrent events.
+On Sat, Feb 26, 2005 at 06:53:16AM +0100, Kay Sievers wrote:
+> This splits the implicit generation of a hotplug events from
+> kobject_add() and kobject_del(), to give the user of of these
+> functions control over the time the event is created.
+> 
+> The kobject_register() and unregister functions still have the same
+> behavior and emit the events by themselves.
+> 
+> The class, block and device core is changed now to emit the hotplug
+> event _after_ the "dev" file, the "device" symlink and the default
+> attributes are created. This will save udev from spinning in a stat() loop
+> to wait for the files to appear, which is expensive if we have a lot of
+> concurrent events.
 
 Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
 
@@ -89,12 +94,12 @@ Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
  
 ===== fs/partitions/check.c 1.129 vs edited =====
 --- 1.129/fs/partitions/check.c	2005-01-31 07:33:40 +01:00
-+++ edited/fs/partitions/check.c	2005-02-26 04:50:56 +01:00
++++ edited/fs/partitions/check.c	2005-02-26 06:58:33 +01:00
 @@ -337,6 +337,7 @@ void register_disk(struct gendisk *disk)
  	if ((err = kobject_add(&disk->kobj)))
  		return;
  	disk_sysfs_symlinks(disk);
-+	kobject_add(&disk->kobj);
++	kobject_hotplug(&disk->kobj, KOBJ_ADD);
  
  	/* No minors to use for partitions */
  	if (disk->minors == 1) {

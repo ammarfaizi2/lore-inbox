@@ -1,81 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266935AbUAXNmF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 08:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266937AbUAXNmF
+	id S266944AbUAXNnn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 08:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266946AbUAXNnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 08:42:05 -0500
-Received: from web25202.mail.ukl.yahoo.com ([217.12.10.62]:44206 "HELO
-	web25202.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S266935AbUAXNmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 08:42:01 -0500
-Message-ID: <20040124134200.65645.qmail@web25202.mail.ukl.yahoo.com>
-Date: Sat, 24 Jan 2004 13:42:00 +0000 (GMT)
-From: =?iso-8859-1?q?joseph=20ebenezer?= <atlantisminingltd@yahoo.co.uk>
-Subject: ATLANTIS MINING COMPANY (LTD).
-To: atlantisminingltd@yahoo.co.uk
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 24 Jan 2004 08:43:43 -0500
+Received: from [193.170.124.123] ([193.170.124.123]:54668 "EHLO 23.cms.ac")
+	by vger.kernel.org with ESMTP id S266944AbUAXNni (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 08:43:38 -0500
+Date: Sat, 24 Jan 2004 14:43:26 +0100
+From: JG <jg@cms.ac>
+To: Lincoln Dale <ltd@cisco.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: TG3: very high CPU usage
+In-Reply-To: <20040122125516.7B671202CDC@23.cms.ac>
+References: <5.1.0.14.2.20040121100550.03cff190@171.71.163.14>
+	<20040119033527.GA11493@linux.comp>
+	<20040119033527.GA11493@linux.comp>
+	<5.1.0.14.2.20040121100550.03cff190@171.71.163.14>
+	<5.1.0.14.2.20040122143222.02a06d68@171.71.163.14>
+	<20040122125516.7B671202CDC@23.cms.ac>
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Gentoo 1.4 ;)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Sat__24_Jan_2004_14_43_26_+0100_7d.URyUJIYcCb0aw"
+Message-Id: <20040124134334.A0BF9202CA0@23.cms.ac>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ATTENTION DEAR PRESIDENT.
+--Signature=_Sat__24_Jan_2004_14_43_26_+0100_7d.URyUJIYcCb0aw
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-HAPPY NEW YEAR I WISH YOU LONG LIFE STRONG
-HEALTHINESS.
+hi,
 
-FROM:ATLANTIS MINING COMPANY (LTD).
-Head Office 34-45 West Legon Accra Ghana.
-E-mail:  atlantisminingltd@yahoo.co.uk
+> i'm also going to test my systems with ttcp, because at the moment i'm transferring my backup from the server to my machine with 105.48 kB/s over the gigabit line via ftp :( but cpu is normal on both machines.
 
-I am DR. JOSEPH EBENEZER. Please I am looking for
-partner who will handle the sells of my commodities in
-abroad (GOLD AND DIAMOND) whenever I make shipment.
-Partnership negotiations as % percentage will be
-discussed when you reply. Ghana is a world known
-country that has various minerals such as (GOLD AND
-DIAMOND). On the request of every client you have
-there, I will provide him or her request. Price here
-is affordable and best in the world market. At the
-moment, I have commodities in my position and also in
-the bush market. With this opportunity, dear we are
-going to make $ millions nbenefits through this
-business.
+i did some tests now, here are the results.
+box1 = 2.6.0 (tg3 driver v2.3, nov5/03)
+box2 = 2.6.2-rc1-mm2 (tg3 v2.5, dec22/03)
 
-The reason of my looking for partner in oversea is
-because my international selling license was canceled
-and disapproved by the past government due to one of
-our member?s frustration. Without this document, we
-are not permitted to take any commodities out of the
-country. Please let me know if you can work with me as
-my associate selling the commodities overseas as I
-have gotting a new system to ship my commodities
-overseas while you handle the sells there.Let me use
-this opportunity to inform you that you have to give
-me a benefit of dependency in you. I have lost money.
-A partner in South African called MR. CALL WOLFF whom
-I shipped goods over $ 2 million dollars, up to date,
-I have never seein or hear from him again.
+box1 was sending, box2 receiving:
 
-I will be more than happy to answer any question you
-may have. Please include your private telephone lines
-in order to reach you easily. Your response is highly
-needed through above contacts. Looking forward hearing
-from you almost immediately.
+box1 # ttcp -t -l 65536 -v -b 2097152 -s -D -n100000 192.168.0.3
+ttcp-t: buflen=65536, nbuf=100000, align=16384/0, port=5001, sockbufsize=2097152  tcp  -> 192.168.0.3
+ttcp-t: socket
+ttcp-t: sndbuf
+ttcp-t: nodelay
+ttcp-t: connect
+ttcp-t: -2036334592 bytes in 1247.57 real seconds = 1768.00 KB/sec +++
+ttcp-t: -2036334592 bytes in 30.01 CPU seconds = 73492.73 KB/cpu sec
+ttcp-t: 100000 I/O calls, msec/call = 12.78, calls/sec = 80.16
+ttcp-t: 0.1user 29.8sys 20:47real 2% 0i+0d 0maxrss 1+16pf 67585+105csw
+ttcp-t: buffer address 0x807c000
 
-DR. JOSEPH EBENEZER
-NB:Please note: this business doesn?t take your work
-time as I fill that you may ask why you should leave
-yours present work or time. I will explain all it
-takes when you reply.
+------------------------------------------
+now the opposite, box2 was sending, box1 receiving:
 
+box2 ttcp # ttcp -t -l 65536 -v -b 2097152 -s -D -n100000 192.168.0.2
+ttcp-t: buflen=65536, nbuf=100000, align=16384/0, port=5001, sockbufsize=2097152  tcp  -> 192.168.0.2
+ttcp-t: socket
+ttcp-t: sndbuf
+ttcp-t: nodelay
+ttcp-t: connect
+ttcp-t: -2036334592 bytes in 153.82 real seconds = 14339.52 KB/sec +++
+ttcp-t: -2036334592 bytes in 28.61 CPU seconds = 77085.45 KB/cpu sec
+ttcp-t: 100000 I/O calls, msec/call = 1.58, calls/sec = 650.11
+ttcp-t: 0.1user 28.4sys 2:33real 18% 0i+0d 0maxrss 0+17pf 63153+846csw
+ttcp-t: buffer address 0x807c000
 
- 
+i thought the cable could be defective because of the results, but i tested with another machine (windows xp, 100mbit card) and both up and download speed via ftp (from both boxes!) was at about 8-9MB/s. so no problem with the cable and it seems also no problem with 100mbit, but as soon as i connect the two tg3 cards together with 1000mbit, one direction is slow (cable is gbit certified and worked with 2.4 kernels without any problem).
 
+as i already mentionend in a previous email, the errors on the tg3 cards are quite high, but only in RX:
+box1:
+RX packets:18585312 errors:102500 dropped:0 overruns:0 frame:102598
+TX packets:12435471 errors:0 dropped:0 overruns:0 carrier:0
+box2:
+RX packets:6864695 errors:202162 dropped:0 overruns:0 frame:204652
+TX packets:10049776 errors:0 dropped:0 overruns:0 carrier:0
 
+cpu usage was also normal in every test (about 15-30%).
 
-________________________________________________________________________
-Yahoo! Messenger - Communicate instantly..."Ping" 
-your friends today! Download Messenger Now 
-http://uk.messenger.yahoo.com/download/index.html
+JG
+
+--Signature=_Sat__24_Jan_2004_14_43_26_+0100_7d.URyUJIYcCb0aw
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAEnaGU788cpz6t2kRAocHAJ4+N2xhFYb5plz5VnyXj2wD01vOWgCeOY1c
+OffDJQHtUtfDhnIhZl1eHyg=
+=EpOI
+-----END PGP SIGNATURE-----
+
+--Signature=_Sat__24_Jan_2004_14_43_26_+0100_7d.URyUJIYcCb0aw--

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271754AbRHQXkP>; Fri, 17 Aug 2001 19:40:15 -0400
+	id <S271747AbRHQXhs>; Fri, 17 Aug 2001 19:37:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271752AbRHQXkF>; Fri, 17 Aug 2001 19:40:05 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38785 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271748AbRHQXjw>;
-	Fri, 17 Aug 2001 19:39:52 -0400
-Date: Fri, 17 Aug 2001 16:38:03 -0700 (PDT)
-Message-Id: <20010817.163803.125896302.davem@redhat.com>
-To: phillips@bonn-fries.net
-Cc: alan@lxorguk.ukuu.org.uk, riel@conectiva.com.br, tpepper@vato.org,
-        f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9 does not compile [PATCH]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010817222031.11A03246E39@mail2.bonn-fries.net>
-In-Reply-To: <E15Xrnn-0008Bl-00@the-village.bc.nu>
-	<20010817.151131.85413979.davem@redhat.com>
-	<20010817222031.11A03246E39@mail2.bonn-fries.net>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271748AbRHQXhf>; Fri, 17 Aug 2001 19:37:35 -0400
+Received: from [209.10.41.242] ([209.10.41.242]:25531 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S271747AbRHQXh3>;
+	Fri, 17 Aug 2001 19:37:29 -0400
+Date: Fri, 17 Aug 2001 20:25:34 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Admin Mailing Lists <mlist@intergrafix.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8 Resource leaks + limits
+In-Reply-To: <E15Xrmr-0008Ba-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0108172025220.5646-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Daniel Phillips <phillips@bonn-fries.net>
-   Date: Sat, 18 Aug 2001 01:34:28 +0200
+On Fri, 17 Aug 2001, Alan Cox wrote:
 
-   On August 18, 2001 12:11 am, David S. Miller wrote:
-   > What bothers me is all the time being spent arguing about it.
-   
-   It would be safe to conclude it's a universally unpopular change.
+> > Alan, would you accept the trivial version of per-user
+> > CPU scheduling for 2.4 if there is a lot of demand ?
+>
+> I'd rather it was a patch outside the main tree
 
-Well, to be fair, popularity sometimes isn't much of an indicator.
-Often people argue things because of change itself.  Having to do
-something differently can make people feel uneasy, so they resist the
-change.
+Ok, I'll just keep it the way it was, then ;)
 
-Later,
-David S. Miller
-davem@redhat.com
+Rik
+--
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

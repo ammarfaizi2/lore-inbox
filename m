@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTFFSj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 14:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTFFSj6
+	id S262227AbTFFSlX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 14:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTFFSlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 14:39:58 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:4370 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S262176AbTFFSj5 (ORCPT
+	Fri, 6 Jun 2003 14:41:23 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56071 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262227AbTFFSlV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 14:39:57 -0400
-Date: Fri, 6 Jun 2003 20:53:29 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.70] make allmodconfig --> infinite loop
-Message-ID: <20030606185329.GA6245@mars.ravnborg.org>
-Mail-Followup-To: Andy Pfiffer <andyp@osdl.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <1054924969.25858.28.camel@andyp.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054924969.25858.28.camel@andyp.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Jun 2003 14:41:21 -0400
+Date: Fri, 6 Jun 2003 11:54:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Steven Cole <elenstev@mesatop.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] 2.5.70-bk11 zlib cleanup #3 Z_NULL
+In-Reply-To: <20030606183920.GC10487@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.44.0306061151420.30453-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id h56IsjB07327
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 06, 2003 at 11:42:50AM -0700, Andy Pfiffer wrote:
-> It looks like this changeset (via tinyurl.com):
-> 
-> http://tinyurl.com/dnpr
-> 
-> causes "make allmodconfig" to go into a silent infinite loop.  The
-> changeset immediately before it (on the same bk path -- 1.1259.10.12)
-> does not demonstrate the problem.
-> 
-> Has anyone else seen this?
 
-Hi Andy.
+On Fri, 6 Jun 2003, Jörn Engel wrote:
+> 
+> How do you feel about "if (z->state->blocks != NULL)"?  Remove the
+> pointless !=NULL or keep it?
 
-I noticed this as well and Roman Zippel already has posted a fix which is
-included in latest-BK from Linus.
-The changeset you have identified triggered a bug in kconfig,
-which was what Roman fixed.
+I don't mind it, but it doesn't buy much.
 
-	Sam
+It's actually in some other cases where I think there is a readability 
+issue, ie in more complex conditionals I personally prefer the simpler 
+cersion, ie I much prefer something like
+
+	if (ptr && ptr->ops && ptr->ops->shutdown)
+		ptr->ops->shutdown(ptr, xxxx);
+
+over the pointless NULL-masturbation in something like
+
+	if (ptr != NULL && ptr->ops != NULL && ptr->ops->shutdown != NULL)
+		ptr->ops->shutdown(ptr, xxxx)
+
+which I just is much less readable than the simple version.
+
+		Linus
+

@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261520AbSIZUgz>; Thu, 26 Sep 2002 16:36:55 -0400
+	id <S261494AbSIZUuD>; Thu, 26 Sep 2002 16:50:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261522AbSIZUgz>; Thu, 26 Sep 2002 16:36:55 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:29967 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S261520AbSIZUgx>; Thu, 26 Sep 2002 16:36:53 -0400
-Message-Id: <200209262037.g8QKbTp06253@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: DragonK <dragon_krome@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.x Kernel Bug - Problem found
-Date: Thu, 26 Sep 2002 23:31:45 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <20020925210654.24630.qmail@web20301.mail.yahoo.com>
-In-Reply-To: <20020925210654.24630.qmail@web20301.mail.yahoo.com>
+	id <S261501AbSIZUuC>; Thu, 26 Sep 2002 16:50:02 -0400
+Received: from ext-ch1gw-3.online-age.net ([216.34.191.37]:3540 "EHLO
+	ext-ch1gw-3.online-age.net") by vger.kernel.org with ESMTP
+	id <S261494AbSIZUuC>; Thu, 26 Sep 2002 16:50:02 -0400
+Message-ID: <A9713061F01AD411B0F700D0B746CA6802FC14D6@vacho6misge.cho.ge.com>
+From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
+To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Distributing drivers independent of the kernel source tree
+Date: Thu, 26 Sep 2002 16:55:07 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 September 2002 19:06, DragonK wrote:
-> Hello,
->
-> Two days ago I've sent you a mail regarding my problem
-> with the Kernel 2.4(5).x boot hangs.
->
-> I'd like to thank the kind people who answered me
-> back, I really appreciate their efforts.
->
-> I have two news: one good, one bad :)
-> The good one is that I've found the cause of the
-> kernel lock-up (er...sort of).
->
-> Tha bad one is that I can't do anything about it.
-> I had an ideea and disabled in my BIOS all caches,
-> floppy controller, ports and other stuff...
-> Surprise! Kernel 2.4.18 booted (in 10 mins :). No
-> lock-up!!
 
-Congratulations!
+For some time I have been trying to figure out how to distribute drivers
+that are not part of the kernel source tree. The drivers that I am supplying
+are open source (BSD license) but are for obscure hardware and/or not ready
+for/may never be ready for inclusion in the kernel proper. Business being
+what it is though, I have to get them to the customer yesterday.
 
-> Ok...I went back into the BIOS and enabled internal
-> cache. Boot again...Guess what? :(
-> Nothing...dead.
->
-> So, at least on my system, there is a problem with the
-> cache. I don't think that the cache memory
-> itself is bad, since I don't experience random
-> failures or reboots...
->
-> What should I do? If there will be a patch for this,
-> where would I find it?
-> Please help!
+I would like to know if there is a good way to distribute drivers separate
+from the kernel source tree?  
 
-You have to patch arch/i386/setup.S with some piece of
-'marker' asm code (say, infinite loop with blinking keyboard LED :-)
-and move it further and further into boot process
-until you find a place where it stops blinking.
-You'll know then exact place of hang!
---
-vda
+1. Supplying patches does not seem to be feasible because there are so many
+kernel versions and trees to cover. I'm not in a position to tell my
+customers to run version 2.4.xx-xx. They need to be able to use these
+drivers with the kernel version they have in their production environment.
+Instead, I try to make my driver work on all versions of kernel 2.4.x.
+
+2. Assuming the kernel source is in /usr/src/linux is not always valid.
+
+3. I currently use /usr/src/linux-`uname -r` to locate the kernel source
+which is just as broken as method #2.
+
+If no good method exists, would someone be willing to suggest a standard
+which would allow distribution of drivers separate from the kernel tree?

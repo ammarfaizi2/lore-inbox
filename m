@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264607AbTFCIDj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 04:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbTFCIDj
+	id S264619AbTFCIRX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 04:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbTFCIRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 04:03:39 -0400
-Received: from 0x503e3f58.boanxx7.adsl-dhcp.tele.dk ([80.62.63.88]:57820 "HELO
-	mail.hswn.dk") by vger.kernel.org with SMTP id S264607AbTFCIDi
+	Tue, 3 Jun 2003 04:17:23 -0400
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:5826 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S264619AbTFCIRV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 04:03:38 -0400
+	Tue, 3 Jun 2003 04:17:21 -0400
+Date: Tue, 3 Jun 2003 11:30:32 +0300 (EEST)
+From: Catalin BOIE <util@deuroconsult.ro>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Henrik Storner <henrik-kernel@hswn.dk>
-Newsgroups: linux.kernel
-Subject: Re: VIA CHIPSET KT 400 / 8235 troubleshooting
-Date: Tue, 3 Jun 2003 08:17:04 +0000 (UTC)
-Organization: Linux Users Inc.
-Message-ID: <bbhli0$v5j$1@ask.hswn.dk>
-References: <0060478E58FDD611A4A200508BCF7BD97BF752@pleyel.chant.com>
-NNTP-Posting-Host: osiris.hswn.dk
-X-Trace: ask.hswn.dk 1054628224 31923 172.16.10.100 (3 Jun 2003 08:17:04 GMT)
-X-Complaints-To: news@ask.hswn.dk
-NNTP-Posting-Date: Tue, 3 Jun 2003 08:17:04 +0000 (UTC)
-User-Agent: nn/6.6.4
+Subject: Weird keyboard with 2.4.20 (NEW!)
+In-Reply-To: <20030602162447.GD3237@gmx.de>
+Message-ID: <Pine.LNX.4.53.0306031127540.7925@hosting.rdsbv.ro>
+References: <3ED7BECC.1000109@g-house.de> <20030531151615.GA13051@sexmachine.doom>
+ <1054570309.1208.8.camel@andyp.pdx.osdl.net> <20030602162447.GD3237@gmx.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In <0060478E58FDD611A4A200508BCF7BD97BF752@pleyel.chant.com> "Laurent Pierre (MIS)" <Pierre.Laurent2@eurotunnel.com> writes:
+Hi!
 
->> Motherboard : DFI AD77 ( KT 400 / 8235 chipset. ) 
->> Everytime , my pc hangs during the installation and i have the following
->> messages : 
->> - ESR value before enabling vector : 00000002 
->> I've tried to activate / deactivate APIC : No result. 
+I saw a problem with the keyboard and I want to tell my story.
+Motherboards are EPOX with an Nvidia TNT2 card.
+2 computers - not the same hard configuration.
+>From time to time the keyboard goes crazy: I press A it gives me z, I
+press ENTER it gives me n and so on.
+After a while or with a reset, the problem is gone.
+What can this be?
+Thanks!
 
-My KT400 motherboard (Soltek) requires me to boot with the "noapic"
-parameter, or it will hang in a similar manner. Did you try that,
-or did you just enable/disable the APIC in the BIOS ?
 
--- 
-Henrik Storner <henrik@hswn.dk> 
+On Mon, 2 Jun 2003, Wiktor Wodecki wrote:
+
+> On Mon, Jun 02, 2003 at 09:11:49AM -0700, Andy Pfiffer wrote:
+> > On Sat, 2003-05-31 at 08:16, Konstantin Kletschke wrote:
+> >
+> > > Sometime a key is very fast repeated 10 to 20 times after pressed only
+> > > one.
+> >
+> > I have seen this on one of two systems connected to a 4-port KVM
+> > switch.  I started seeing it in 2.5.68 or 2.5.69.  The other system has
+> > not demonstrated the super-fast repeat.
+>
+> I see this on my ibm thinkpad T20 with 2.5.69. I manually raised my
+> kbdrate(1) settings and that helps. However when switching between X
+> and text-consoles it gets worse after a while.
+>
+> --
+> Regards,
+>
+> Wiktor Wodecki
+>
+
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

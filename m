@@ -1,64 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261495AbSJYRNd>; Fri, 25 Oct 2002 13:13:33 -0400
+	id <S261499AbSJYRQr>; Fri, 25 Oct 2002 13:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261498AbSJYRNc>; Fri, 25 Oct 2002 13:13:32 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:11780 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261495AbSJYRNc>;
-	Fri, 25 Oct 2002 13:13:32 -0400
-Date: Fri, 25 Oct 2002 10:17:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Josh Myer <jbm@joshisanerd.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH] KB Gear JamStudio USB Tablet
-Message-ID: <20021025171758.GB29874@kroah.com>
-References: <Pine.LNX.4.44.0210250200290.25878-200000@blessed>
-Mime-Version: 1.0
+	id <S261501AbSJYRQq>; Fri, 25 Oct 2002 13:16:46 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:20192 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261499AbSJYRQp>; Fri, 25 Oct 2002 13:16:45 -0400
+Message-ID: <3DB97C90.2DF810E6@us.ibm.com>
+Date: Fri, 25 Oct 2002 10:17:04 -0700
+From: mingming cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Larson <plars@linuxtestproject.org>
+CC: Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
+       manfred@colorfullife.com, lkml <linux-kernel@vger.kernel.org>,
+       dipankar@in.ibm.com, lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [PATCH]updated ipc lock patch
+References: <Pine.LNX.4.44.0210211946470.17128-100000@localhost.localdomain>
+		<3DB86B05.447E7410@us.ibm.com> <3DB87458.F5C7DABA@digeo.com> 
+		<3DB880E8.747C7EEC@us.ibm.com> <1035555715.3447.150.camel@plars>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210250200290.25878-200000@blessed>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 02:04:25AM -0500, Josh Myer wrote:
-> +static void kbtab_irq(struct urb *urb)
-> +{
-> +
-> +  struct kbtab *tab = urb->context;
-> +  unsigned char *data = tab->data;
-> +  struct input_dev *dev = &tab->dev;
-> +
-> +  if(urb->status)
-> +    return;
+Paul Larson wrote:
+> 
+> On Thu, 2002-10-24 at 18:23, mingming cao wrote:
+> > Thanks for your quick feedback.  I did LTP tests on it--it passed(well,
+> > I saw a failure on shmctl(), but the failure was there since 2.5.43
+> > kernel).  I will do more stress tests on it soon.
+> Which shmctl() test is this?  To my knowledge, there are no current
+> known issues with shmctl tests.  There is however one with sem02 in
+> semctl() that last I heard has been partially fixed in the kernel and
+> still needs to be fixed in glibc.  Is that the one you are referring to,
+> or is there really some other shmctl test in LTP that is failing?
 
-Please use tabs instead of spaces.  Documentation/CodingStyle has these
-rules if you haven't read it yet.
+Here is the failure I saw on LTP test.  The one failed is 
+/ltp-20020807/testcases/kernel/syscalls/ipc/shmctl/shmctl01
 
-> +  FILL_INT_URB(&kbtab->irq, dev, usb_rcvintpipe(dev, endpoint->bEndpointAddress),
-> +	       kbtab->data, 8, kbtab_irq, kbtab, endpoint->bInterval);
-
-Please use usb_fill_int_urb() for all new code, and don't use the
-"old-style" macros.
-
-> +static struct usb_driver kbtab_driver = {
-> +	name:		"kbtab",
-> +	probe:		kbtab_probe,
-> +	disconnect:	kbtab_disconnect,
-> +	id_table:	kbtab_ids,
-> +};
-
-C99 style initializers are a good idea:
-
-> +static struct usb_driver kbtab_driver = {
-> +	.name =		"kbtab",
-> +	.probe =	kbtab_probe,
-> +	.disconnect =	kbtab_disconnect,
-> +	.id_table =	kbtab_ids,
-> +};
-
-Other than those minor things, looks good.
-
-thanks,
-
-greg k-h
+<<<test_start>>>
+tag=shmctl01 stime=1035475025
+cmdline="shmctl01"
+contacts=""
+analysis=exit
+initiation_status="ok"
+<<<test_output>>>
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1
+shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
+pass #2
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1
+shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
+pass #2
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1
+shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
+pass #2
+shmctl01    0  INFO  :  shmdt() failed - 22
+shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
+pass #1
+shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
+pass #2
+shmctl01    3  FAIL  :  # of attaches is incorrect - 0
+shmctl01    4  PASS  :  new mode and change time are correct
+<<<execution_status>>>
+duration=1 termination_type=exited termination_id=1 corefile=no
+cutime=0 cstime=0
+<<<test_end>>>

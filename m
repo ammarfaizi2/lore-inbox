@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281270AbRKPKSz>; Fri, 16 Nov 2001 05:18:55 -0500
+	id <S281271AbRKPKT4>; Fri, 16 Nov 2001 05:19:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281271AbRKPKSp>; Fri, 16 Nov 2001 05:18:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9221 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281270AbRKPKSc>; Fri, 16 Nov 2001 05:18:32 -0500
-Subject: Re: Devlinks.  Code.  (Dcache abuse?)
-To: neilb@cse.unsw.edu.au (Neil Brown)
-Date: Fri, 16 Nov 2001 10:26:17 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15348.58752.207182.488419@notabene.cse.unsw.edu.au> from "Neil Brown" at Nov 16, 2001 09:08:00 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281272AbRKPKTh>; Fri, 16 Nov 2001 05:19:37 -0500
+Received: from gw.chygwyn.com ([62.172.158.50]:50956 "EHLO gw.chygwyn.com")
+	by vger.kernel.org with ESMTP id <S281271AbRKPKT0>;
+	Fri, 16 Nov 2001 05:19:26 -0500
+From: Steven Whitehouse <steve@gw.chygwyn.com>
+Message-Id: <200111161016.KAA14485@gw.chygwyn.com>
+Subject: Re: The memory usage of the network block device
+To: chen_xiangping@emc.com (chen, xiangping)
+Date: Fri, 16 Nov 2001 10:16:18 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D188D@srgraham.eng.emc.com> from "chen, xiangping" at Nov 15, 2001 11:20:54 PM
+Organization: ChyGywn Limited
+X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
+X-RegisteredNumber: 03887683
+Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E164gCQ-0003YZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    A device special file is a gateway between a user (admin)
->    controlled name space (the filesystem) and a kernel imposed name
->    space (major/minor numbers) that recognises and imposes access
->    control (owner/group/permissions).
+Hi,
+
+I'm on holiday this week, so apologies in advance if my replies are not
+as prompt as they would otherwise be....
+
+Which kernel version are you using ? What are your settings in the
+/proc/sys/net/ipv4/tcp_*mem files or did you just use the default
+values ? Did you run the nbd server on the same machine as the client ?
+How much memory do you have in the machine that you are testing with ?
+
+Its a little while since I looked at nbd in detail, so if you can send me
+enough info to reproduce your set up, then I'll try and have a go in the
+next few days,
+
+Steve.
+
 > 
-> The (a) problem with this is that major/minor numbers are too limited,
-
-Textual names have unsolved problems too
-	1.	Who administers the namespace
-	2.	When trademarks get entangled whats the disputes procedure
-
-Do you want to create a situation where a future kernel is likely to be
-forced to change a device naming because an "official" vendor driver appears
-too and they demand the namespace and wave trademarks around ?
-
-> A Devlink looks like a symlink with the "sticky" (S_ISVTX) bit set.
-> Indeed, that is how it is stored on a filesystem.
-
-That seems basically sound. I'm not sure about the devfs part but that
-is a seperate matter. 
-
-Alan
+> Hi, 
+> 
+> I am trying to use the network block device in the Linux kernel.
+> 
+> The nbd works good in light io load, but during intensive io load
+> testing, it seems that it fails to release the memory fast enough.
+> Eventually the driver blocks at tcp_sendmsg, and waits for the
+> memory that seems never come. A simple bonnie test to create
+> a file about the size of the host memory shows the problem.
+> 
+> Is there any way to free up memory more quickly? or why the
+> network memory is held without being released?
+> 
+> Thanks,
+> 
+> Xiangping
+> 
 

@@ -1,86 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbVBVJzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbVBVJ6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262054AbVBVJzS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 04:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVBVJzS
+	id S262259AbVBVJ6r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 04:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVBVJ6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 04:55:18 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:41553 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262054AbVBVJyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 04:54:53 -0500
-Message-ID: <421B0163.3050802@yahoo.com.au>
-Date: Tue, 22 Feb 2005 20:54:43 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Tue, 22 Feb 2005 04:58:46 -0500
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:41348 "EHLO
+	aquarius.doma") by vger.kernel.org with ESMTP id S262259AbVBVJ56
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 04:57:58 -0500
+Message-ID: <421B0224.1050509@ribosome.natur.cuni.cz>
+Date: Tue, 22 Feb 2005 10:57:56 +0100
+From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b) Gecko/20050221
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@davemloft.net>,
-       benh@kernel.crashing.org, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] page table iterators
-References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au>     <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston>     <20050217230342.GA3115@wotan.suse.de>     <20050217153031.011f873f.davem@davemloft.net>     <20050217235719.GB31591@wotan.suse.de> <4218840D.6030203@yahoo.com.au> <Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: memory management weirdness
+References: <022120051420.20884.4219EE21000C6C9400005194220588448400009A9B9CD3040A029D0A05@comcast.net>
+In-Reply-To: <022120051420.20884.4219EE21000C6C9400005194220588448400009A9B9CD3040A029D0A05@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> On Sun, 20 Feb 2005, Nick Piggin wrote:
-
+Parag Warudkar wrote:
+>>Hi,
+>>  I have received no answer to my former question
+>>(see http://marc.theaimsgroup.com/?l=linux-kernel&m=110827143716215&w=2).
+>>I've spent some more time on that problem and have more or less confirmed
+>>it's because of buggy bios. However, the linux kernel doesn't handle properly
+>>such case. I've tested 2.4.30-pre1 kernel and latest 2.6.11-rc4 kernel.
+>>The conclusion is, that once the machine has physically installed 4x1GB
+>>DDR400 DIMM's (bios detects only 3556 or less memory as some buffers
+>>are allocated by the Intel 875P chipset and AGP card), the linux 2.6.11*
+>>runs up-to 18x slower than when only 2x1GB + 2x 512MB DDR memory is installed.
 >>
->>>Open coding is probably the smaller evil.
->>>And they're really not changed that often.
 > 
-> 
-> My opinion FWIW: I'm all for regularizing the pagetable loops to
-> work the same way, changing their variables to use the same names,
-> improving their efficiency; but I do like to see what a loop is up to.
-> 
-> list_for_each and friends are very widely used, they're fine, and I'm
-> quite glad to have their prefetching hidden away from me; but usually
-> I groan, grin and bear it, each time someone devises a clever new
-> for_each macro concealing half the details of some specialist loop.
-> 
-> In a minority?
+> Can you enable profiling and then post the profile info for various cases
+> - slow and fast? Check out Documentation/basic_profiling.txt in the kernel
+> source for understanding how to do this. This might help narrow down the issue.
 
-OK, I think Andrew is now sitting on the fence after seeing the
-code. So you (and Andi?) are the ones with remaining reservations
-about this.
+http://www.natur.cuni.cz/~mmokrejs/tmp/profile-2.6.11-rc4-bk7-(3|4)GB.txt
 
-I don't disagree with your stance entirely, Hugh. I think these
-macros are close to being too complicated... But I don't think
-they is hiding too much detail: we all know that conceptually,
-walking a page table page is reasonably simple. There are just a
-few tricky bits like wrapping and termination that caused such
-a divergent range of implementations - I would argue that hiding
-these details is OK, because they are basically inconsequencial
-to the job at hand. I think that actually makes the high level
-intention of the code clearer, if anything.
-
-If you are reading just the patch, that doesn't quite do it
-justice IMO - in that case, have a look at the code after the
-patch is applied (I can send you one which applies to current
-kernels if you'd like).
-
-Also, the implementation of the macros is not insanely difficult
-to understand, so the details are still accessible.
-
-Lastly, they fold to 2 and 3 levels easily, which is something
-that couldn't sanely be done with the open-coded implementation.
-I think with an infinitely smart compiler, there shouldn't need
-to be any folding here. But in practice I see quite a large
-speedup, which is something we shouldn't ignore.
-
-I do think that they are probably not ideal candidates for a
-more general abstraction that would allow for example the
-transparent drop in of Dave's bitmap walking functions (it
-would be possible, but would not be pretty AFAIKS). I have some
-other ideas to work towards those goals, but before that I
-think these macros do help with the deficiencies of the current
-situation.
-
-Nick
+The 3GB labeled file corresponds to fast case, 4GB is ugly slow.
+What can you gather from those files? I've used readprofile but also oprofile
+was enabled in kernel. I've left on the web also /proc/profile snapshots along with
+System.map file. Maybe oprofile can also be used later to extract info from them.
+Many thanks for help!
+Martin
 

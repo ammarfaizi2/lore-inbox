@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280570AbRKNNMF>; Wed, 14 Nov 2001 08:12:05 -0500
+	id <S280585AbRKNNSr>; Wed, 14 Nov 2001 08:18:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280571AbRKNNLz>; Wed, 14 Nov 2001 08:11:55 -0500
-Received: from lightning.hereintown.net ([207.196.96.3]:33473 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S280570AbRKNNLr>; Wed, 14 Nov 2001 08:11:47 -0500
-Date: Wed, 14 Nov 2001 08:27:46 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: Marvin Justice <mjustice@austin.rr.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: What Athlon chipset is most stable in Linux?
-In-Reply-To: <01111321194902.00746@bozo>
-Message-ID: <Pine.LNX.4.40.0111140823040.88-100000@rc.priv.hereintown.net>
+	id <S280586AbRKNNSg>; Wed, 14 Nov 2001 08:18:36 -0500
+Received: from odysseus2.dohle.com ([194.127.185.20]:52753 "EHLO
+	odysseus2.dohle.com") by vger.kernel.org with ESMTP
+	id <S280585AbRKNNSW> convert rfc822-to-8bit; Wed, 14 Nov 2001 08:18:22 -0500
+Reply-To: <kmeyer@dohle.com>
+From: "Klaus Meyer" <kmeyer@dohle.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: ServerWorks 
+Date: Wed, 14 Nov 2001 14:17:16 +0100
+Message-ID: <00fb01c16d0e$af0b7d20$5ebe7fc2@dohle.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2377.0
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Nov 2001, Marvin Justice wrote:
+Hi all,
 
-> We've acutally had next to no hangs on the Thunder K7 using a FireGL2 card
-> --- if you don't mind spending $1000+ for high end 3D graphics :-) Stay away
-> from nVidia for now; though I understand they're working on fixes for this
-> chipset for their next driver release.
+we have big Problems with IBM Netfinity Servers with ServerWorks ChipSet 3HE. The machine comes with an IBM ServeRaid Controller 4L and an Raid 0 is build with 4 Harddisks. If a dd is made on the raid (dd if=/dev/zero of=/dev/sda1 bs=1M count=2000; sync) and the sync starts all 4 CPUs are 100% buisy. Till the sync is done, the server is not able to do anything else.
+On a SuperMicro 8060 with Chipset ServerWorks 3HE happens the same. 
 
-Saw in your sig, I know who Boxx Tech is, they build machines like I build
-for myself, but for less money.  :P
+Any suggestions ?
 
-Anyway, to keep this kinda kernel related.  How well supported are the
-FireGL cards?  That is DRM wise, and of course X to go with that.
+Tanks
+Klaus Meyer
 
--Chris
--- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
+ 
 

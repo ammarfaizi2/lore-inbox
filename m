@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267329AbTCEQni>; Wed, 5 Mar 2003 11:43:38 -0500
+	id <S267354AbTCERHc>; Wed, 5 Mar 2003 12:07:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267335AbTCEQnh>; Wed, 5 Mar 2003 11:43:37 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:58886 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S267329AbTCEQnh>; Wed, 5 Mar 2003 11:43:37 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303051655.h25Gtjqx005881@81-2-122-30.bradfords.org.uk>
-Subject: Re: Unable to boot a raw kernel image :??
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Wed, 5 Mar 2003 16:55:45 +0000 (GMT)
-Cc: raul@pleyades.net, linux-kernel@vger.kernel.org
-In-Reply-To: <3E662A5C.4060307@zytor.com> from "H. Peter Anvin" at Mar 05, 2003 08:48:28 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267346AbTCERHb>; Wed, 5 Mar 2003 12:07:31 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:3984 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267339AbTCERH1>; Wed, 5 Mar 2003 12:07:27 -0500
+Date: Wed, 05 Mar 2003 09:17:55 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 4/6 Fix the type of get_zholes_size for NUMA-Q
+Message-ID: <155870000.1046884675@[10.10.2.4]>
+In-Reply-To: <155480000.1046884607@[10.10.2.4]>
+References: <154390000.1046884457@[10.10.2.4]>
+ <155040000.1046884524@[10.10.2.4]> <155480000.1046884607@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Doesn't the in kernel bootloader have uses other than booting from
-> > floppy?  What if you want to boot from a custom network boot prom?
-> > 
-> 
-> Then you probably need Etherboot.  The in-kernel boot loader
-> (bootsect.S) will not help you.
+>From Andy Whitcroft
 
-Sorry, I was thinking about something completely different :-).
+Fix the type of get_zholes_size for NUMA-Q
 
-John.
+diff -urpN -X /home/fletch/.diff.exclude
+014-physnode_map_u8/include/asm-i386/numaq.h
+015-numaq_zholes_warning/include/asm-i386/numaq.h
+--- 014-physnode_map_u8/include/asm-i386/numaq.h	Wed Mar  5 07:41:55 2003
++++ 015-numaq_zholes_warning/include/asm-i386/numaq.h	Wed Mar  5 07:43:31
+2003
+@@ -157,7 +157,7 @@ struct sys_cfg_data {
+         struct	eachquadmem eq[MAX_NUMNODES];	/* indexed by quad id */
+ };
+ 
+-static inline unsigned long get_zholes_size(int nid)
++static inline unsigned long *get_zholes_size(int nid)
+ {
+ 	return 0;
+ }
+

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263789AbRFCXQP>; Sun, 3 Jun 2001 19:16:15 -0400
+	id <S263859AbRFDKHV>; Mon, 4 Jun 2001 06:07:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263804AbRFCXQG>; Sun, 3 Jun 2001 19:16:06 -0400
-Received: from pD903C749.dip.t-dialin.net ([217.3.199.73]:33188 "HELO
-	enterprise.lokalnetz") by vger.kernel.org with SMTP
-	id <S263789AbRFCXP4>; Sun, 3 Jun 2001 19:15:56 -0400
-Date: Mon, 4 Jun 2001 01:14:50 +0200
-To: Harald Welte <laforge@gnumonks.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to know HZ from userspace?
-Message-ID: <20010604011449.A16006@mobile>
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva>
-Mime-Version: 1.0
+	id <S264167AbRFDJfV>; Mon, 4 Jun 2001 05:35:21 -0400
+Received: from colorfullife.com ([216.156.138.34]:47117 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S264166AbRFDJfQ>;
+	Mon, 4 Jun 2001 05:35:16 -0400
+Message-ID: <3B1B564E.D83A741A@colorfullife.com>
+Date: Mon, 04 Jun 2001 11:35:10 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac6 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: multicast hash incorrect on big endian archs
+In-Reply-To: <3B1A9558.2DBAECE7@colorfullife.com> <15130.61778.471925.245018@pizda.ninka.net> <3B1B3268.2A02D2C@colorfullife.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva>
-User-Agent: Mutt/1.3.18i
-From: Erik Tews <erik.tews@gmx.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 30, 2001 at 08:37:25PM -0300, Harald Welte wrote:
-> Hi!
+Manfred Spraul wrote:
 > 
-> Is there any way to read out the compile-time HZ value of the kernel?
-> 
-> I had a brief look at /proc/* and didn't find anything.
-> 
-> The background, why it is needed:
-> 
-> There are certain settings, for example the icmp rate limiting values,
-> which can be set using sysctl. Those setting are basically derived from
-> HZ values (1*HZ, for example).
-> 
-> If you now want to set those values from a userspace program / script in
-> a portable manner, you need to be able to find out of HZ of the currently
-> running kernel.
+> "David S. Miller" wrote:
+> >
+> > Many big-endian systems already need to provide little-endian bitops,
+> > for ext2's sake for example.
+> >
+> > We should formalize this, with {set,clear,change,test}_le_bit which
+> > technically every port has implemented in some for or another already.
+> >
 
-Have a look at the source of top. There is a lib which can help you to
-find out HZ by reading some files from proc.
+That could cause alignment problems.
+<<< from starfire.c
+{
+     long filter_addr;
+     u16 mc_filter[32] __attribute__ ((aligned(sizeof(long)))); 
+<<<
+set_bit requires word alignment, but without the __attibute__ the
+compiler would only guarantee 16-bit alignment. IMHO ugly.
+
+Should I add __set_bit_{8,16,32} into <linux/bitops.h>, overridable with
+__HAVE_ARCH_SET_BIT_n?
+
+Default implementation for the nonatomic __set_bit could be added into
+<linux/bitops.h>, too.
+
+Btw, the correct name would be __set_bit_n: the function don't guarantee
+atomicity.
+
+--
+	Manfred

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315457AbSEQH76>; Fri, 17 May 2002 03:59:58 -0400
+	id <S315458AbSEQIEF>; Fri, 17 May 2002 04:04:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315458AbSEQH75>; Fri, 17 May 2002 03:59:57 -0400
-Received: from mailer.zib.de ([130.73.108.11]:26024 "EHLO mailer.zib.de")
-	by vger.kernel.org with ESMTP id <S315457AbSEQH7z>;
-	Fri, 17 May 2002 03:59:55 -0400
-Subject: Re: PPPoE for sparc
-From: Sebastian Heidl <heidl@zib.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020516.181331.44763514.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 17 May 2002 09:59:49 +0200
-Message-Id: <1021622390.4280.3.camel@csr-pc6>
-Mime-Version: 1.0
+	id <S315459AbSEQIEE>; Fri, 17 May 2002 04:04:04 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:12339 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S315458AbSEQIEC>; Fri, 17 May 2002 04:04:02 -0400
+Date: Fri, 17 May 2002 08:56:56 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Hugh Dickins <hugh@lrel.veritas.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix BUG macro 
+In-Reply-To: <E178Ven-0007jA-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.21.0205170839240.1369-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Fre, 2002-05-17 um 03.13 schrieb David S. Miller:
->    From: Sebastian Heidl <heidl@zib.de>
->    Date: 16 May 2002 16:03:45 +0200
->    
->    Is there a particular reason why the PPPoE driver is not
->    offered when I do something like "make ARCH=sparc menuconfig" ?
->    Sure it's not listed in config.in for sparc (2.4.19-pre7) but
->    why ?
->    
-> Nobody got around to adding it, if you send me a patch
-> that adds it I'll put it into my tree and forward it on
-> to Marcelo/Linus.
+On Fri, 17 May 2002, Rusty Russell wrote:
+> 
+> Um, show me where sizeof(KBUILD_BASENAME) + sizeof(__FUNCTION__) >
+> sizeof(__FILENAME__).
 
-never mind, pre8 includes it.
-thanks,
-_sh_
+If you're talking about kbuild2.5 where all the __FILENAME__s
+become absolute (for good reason) instead of the leafnames they
+usually were (header files excepted): not many instances, but
+that's not the point.  The point is that all the instances of
+__FILENAME__ within one compilation unit (across compilation
+units? rumours that that will become so) get combined into a
+single string, so little overhead to many BUG()s in one file.
+But you are now creating lots of __FUNCTION__ strings which
+cannot be combined to the nearly same extent (though, yeah,
+all those "__free_pages_ok"s will get combined into one).
+
+Your BUG() may have made space savings relative to kbuild2.5,
+I don't know, but that's because kbuild2.5 has inadvertently
+added a bloat there, and I thought we were looking for ways
+to recover from that (I'd earlier proposed KBUILD_BASENAME,
+but didn't understand stringification), to get back to
+Andrew's lean mean clean implementation (before which we
+needed CONFIG_DEBUG_BUGVERBOSE=n to cut out the overhead).
+
+Hugh
 

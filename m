@@ -1,124 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262789AbTAJEqP>; Thu, 9 Jan 2003 23:46:15 -0500
+	id <S262807AbTAJFGI>; Fri, 10 Jan 2003 00:06:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262796AbTAJEqP>; Thu, 9 Jan 2003 23:46:15 -0500
-Received: from main.gmane.org ([80.91.224.249]:60072 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S262789AbTAJEqL>;
-	Thu, 9 Jan 2003 23:46:11 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	id <S262808AbTAJFGH>; Fri, 10 Jan 2003 00:06:07 -0500
+Received: from adsl-66-112-90-25-rb.spt.centurytel.net ([66.112.90.25]:4992
+	"EHLO carthage") by vger.kernel.org with ESMTP id <S262807AbTAJFGG>;
+	Fri, 10 Jan 2003 00:06:06 -0500
+Date: Thu, 9 Jan 2003 23:14:50 -0600
+From: James Curbo <phoenix@sandwich.net>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Andres Salomon" <dilinger@voxel.net>
-Subject: Re: 2.5.x inspiron touchpad breakage
-Date: Thu, 09 Jan 2003 23:54:55 -0500
-Message-ID: <pan.2003.01.10.04.54.54.329172@voxel.net>
-References: <pan.2003.01.09.08.27.53.688647@voxel.net> <39260000.1042119837@localhost.localdomain>
+Subject: Re: DMA timeouts on Promise 20267 IDE card
+Message-ID: <20030110051450.GC411@carthage>
+Reply-To: James Curbo <phoenix@sandwich.net>
+References: <233C89823A37714D95B1A891DE3BCE5202AB1B6D@xch-a.win.zambeel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.13.3 (That cat's something I can't explain)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1B6D@xch-a.win.zambeel.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The appropriate config section from my kernel:
-
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_MOUSE_SERIAL=m
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-# CONFIG_INPUT_MISC is not set
-
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-# CONFIG_INPUT_EVDEV is not set
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input I/O drivers
-#
-# CONFIG_GAMEPORT is not set
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_SERIO_CT82C710=m
-
-
-
-The inspiron uses an i8042 for the keyboard and the external ps/2
-mouse/keyboard port.  I'm not sure what it uses for the touchpad.
-
-
-On Fri, 10 Jan 2003 02:43:57 +1300, Andrew McGregor wrote:
-
-> Works for me on an Inspiron 8000.  The trackpoint does not, which is a 
-> known bug.  Of course, the 3800 might be different...
+On Jan 09, Manish Lachwani wrote:
+> Can you also get the SMART data from the drives using smartctl? Also, it
+> looks like the errors are happening on both the drives. Which UDMA mode are
+> you operating in?
 > 
-> Have you been bitten by the input layer configuration issue?  Here's what I 
-> have:
-> 
-> #
-> # Input device support
-> #
-> CONFIG_INPUT=y
-> 
-> #
-> # Userland interfaces
-> #
-> CONFIG_INPUT_MOUSEDEV=y
-> CONFIG_INPUT_MOUSEDEV_PSAUX=y
-> 
-> #
-> # Input Device Drivers
-> #
-> CONFIG_INPUT_KEYBOARD=y
-> CONFIG_KEYBOARD_ATKBD=y
-> CONFIG_INPUT_MOUSE=y
-> CONFIG_MOUSE_PS2=y
-> 
-> Andrew
-> 
-> --On Thursday, January 09, 2003 03:27:54 -0500 Andres Salomon 
-> <dilinger@voxel.net> wrote:
-> 
->> 2.5.54 and 2.5.55 do not appear to initialize the touchpad on my Dell
->> Inspiron 3800.  No mouse device is detected until I plug a normal ps/2
->> mouse into the laptop.  I assume this is some weird bios thing.  2.4.x
->> works fine with it.  Does anyone have suggestions about where to look for
->> any changed in the 2.5 series that might've broken it, or any patches that
->> fix it?
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->>
+> Thanks
+> Manish
+
+UDMA 5 for both of them. Here is the smartctl data:
+
+carthage:/home/james# smartctl -v /dev/hda
+Vendor Specific SMART Attributes with Thresholds:
+Revision Number: 16
+Attribute                    Flag     Value Worst Threshold Raw Value
+(  1)Raw Read Error Rate     0x000b   200   199   051       0
+(  3)Spin Up Time            0x0007   102   095   021       3733
+(  4)Start Stop Count        0x0032   100   100   040       419
+(  5)Reallocated Sector Ct   0x0032   160   160   112       160
+(  7)Seek Error Rate         0x000b   100   253   051       0
+(  9)Power On Hours          0x0032   079   079   000       15858
+( 10)Spin Retry Count        0x0013   100   099   051       2
+( 11)Calibration Retry Count 0x0013   100   100   051       0
+( 12)Power Cycle Count       0x0032   100   100   000       358
+(196)Reallocated Event Count 0x0032   126   126   000       74
+(197)Current Pending Sector  0x0012   200   200   000       1
+(198)Offline Uncorrectable   0x0012   200   200   000       0
+(199)UDMA CRC Error Count    0x000a   200   253   000       65884
+(200)Unknown Attribute       0x0009   200   199   051       1
+
+carthage:/home/james# smartctl -v /dev/hdc
+Vendor Specific SMART Attributes with Thresholds:
+Revision Number: 16
+Attribute                    Flag     Value Worst Threshold Raw Value
+(  1)Raw Read Error Rate     0x000b   200   200   051       0
+(  3)Spin Up Time            0x0007   101   093   021       2300
+(  4)Start Stop Count        0x0032   100   100   040       96
+(  5)Reallocated Sector Ct   0x0033   200   200   140       0
+(  7)Seek Error Rate         0x000b   200   200   051       0
+(  9)Power On Hours          0x0032   096   096   000       3325
+( 10)Spin Retry Count        0x0013   100   253   051       0
+( 11)Calibration Retry Count 0x0013   100   253   051       0
+( 12)Power Cycle Count       0x0032   100   100   000       93
+(196)Reallocated Event Count 0x0032   200   200   000       0
+(197)Current Pending Sector  0x0012   200   200   000       0
+(198)Offline Uncorrectable   0x0012   200   200   000       0
+(199)UDMA CRC Error Count    0x000a   200   253   000       0
+(200)Unknown Attribute       0x0009   200   200   051       0
 
 
+
+-- 
+James Curbo <hannibal@adtrw.org> <phoenix@sandwich.net>
+http://www.adtrw.org/blogs/hannibal/

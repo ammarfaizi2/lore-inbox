@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265246AbTBBNKQ>; Sun, 2 Feb 2003 08:10:16 -0500
+	id <S265247AbTBBNQL>; Sun, 2 Feb 2003 08:16:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265247AbTBBNKQ>; Sun, 2 Feb 2003 08:10:16 -0500
-Received: from smtp04.iprimus.com.au ([210.50.76.52]:5139 "EHLO
-	smtp04.iprimus.com.au") by vger.kernel.org with ESMTP
-	id <S265246AbTBBNKP>; Sun, 2 Feb 2003 08:10:15 -0500
-Message-Id: <5.1.0.14.0.20030203000618.00a0eb20@pop.iprimus.com.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 03 Feb 2003 00:19:08 +1100
-To: linux-kernel@vger.kernel.org
-From: James Buchanan <jamesbuch@iprimus.com.au>
-Subject: Anyone supporting Intel 8XX chipset???
-Cc: alan@lxorguk.ukuu.org.uk
+	id <S265249AbTBBNQL>; Sun, 2 Feb 2003 08:16:11 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26255
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265247AbTBBNQK>; Sun, 2 Feb 2003 08:16:10 -0500
+Subject: Re: Defect (Bug) Report
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+Cc: "John W. M. Stevens" <john@betelgeuse.us>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030202124911.GC30830@arthur.ubicom.tudelft.nl>
+References: <20030202011223.GC5432@morningstar.nowhere.lie>
+	 <1044178961.16853.9.camel@irongate.swansea.linux.org.uk>
+	 <20030202124911.GC30830@arthur.ubicom.tudelft.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044195694.16853.22.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-OriginalArrivalTime: 02 Feb 2003 13:19:41.0172 (UTC) FILETIME=[BE651340:01C2CABD]
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 02 Feb 2003 14:21:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is anyone writing code to directly support features of the Intel 800 series
-chipsets?  I'm using the 8xx chipset docs from Intel to gradually
-implement (hopefully) all the features of the 800 series of chipsets.
+On Sun, 2003-02-02 at 12:49, Erik Mouw wrote:
+> What's the current wisdom with dual Athlon boards to get them stable?
+> This is my list so far (for Asus A7M266-D):
+> 
+> - Plug in a PS/2 mouse even though you don't use it. It fixes certain
+>   hardware problems.
+> - Select "PnP OS = no" in the BIOS so all PCI devices (even the ones
+>   behind the PCI-PCI bridge) get properly initialised.
+> - Boot Linux with "noapic" to avoid random hangs.
+> 
+> Exact BIOS revision doesn't seem to matter. Any more suggestions?
 
-The support of the I/O hubs and so on to get rid of relying on legacy
-PC/AT stuff will take a while.
+BIOS revision matters too. With 1004 you need to set MP 1.1 not MP 1.4
+and APIC works reliably. With 1007 it seems that isnt needed but people
+report weird hangs. 1004 also won't POST with a broadcom ethernet card
+in it.
 
-I have a couple of questions because I'm new to kernel contributions.
-I'll be working in two main files, i8xx.h and i8xx.c, possibly i8xx.s too.
-In the early stages I may have a directory /i8xx and implementation of
-specific features will go into there in separate files.
+The proper fix for the PS/2 mouse/IDE problem appears to be always
+mapping out the page at 636-640K. Andi posted an ugly patch to handle
+that, but doing it cleanly is trickier. 
 
-Now, I need to add an option like -DHAVE_INTEL800_CHIPSET to the kernel
-configuration so my code can see if we should compile in this stuff.
-
-Where does it go?  I will only make patches for the kernel files that deal with
-that, and I will be patching against 2.4.20.  All my chipset stuff will 
-otherwise
-be in separate files.
-
-One thing: should I maintain the consistency of using /dev files?  Because 
-there
-is a hardware random number generator in the 800 series chipsets, and I
-am wondering whether I should export this feature as a set of functions or
-a /dev file.  (Both??)
-
-Thanks!
-James Buchanan
+Alan
 

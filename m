@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbRAIAVQ>; Mon, 8 Jan 2001 19:21:16 -0500
+	id <S131829AbRAIAWq>; Mon, 8 Jan 2001 19:22:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131829AbRAIAVG>; Mon, 8 Jan 2001 19:21:06 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:36872 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S129387AbRAIAUy>; Mon, 8 Jan 2001 19:20:54 -0500
-Date: Tue, 9 Jan 2001 00:20:52 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.2 vs. 2.4 benchmarks
-Message-ID: <Pine.LNX.4.30.0101090000110.9761-100000@ferret.lmh.ox.ac.uk>
+	id <S136702AbRAIAWg>; Mon, 8 Jan 2001 19:22:36 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:7429 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131829AbRAIAWZ>; Mon, 8 Jan 2001 19:22:25 -0500
+Date: 08 Jan 2001 23:39:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <7tSnVTQ1w-B@khms.westfalen.de>
+In-Reply-To: <93d7fr$429$1@penguin.transmeta.com>
+Subject: Re: setfsuid on ext2 weirdness (2.4)
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <93d7fr$429$1@penguin.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+torvalds@transmeta.com (Linus Torvalds)  wrote on 08.01.01 in <93d7fr$429$1@penguin.transmeta.com>:
 
-Hi,
+> And hey, if you think the above is confusing, try making your /dev/null
+> a regular (writable) file by mistake.  Now THAT will be confusing as
+> hell: things will actually work surprisingly well, but some thing
+> _really_ don't work the way they are intended to.  And chasing it down
+> is an exercise in futility.  Yes, I've done that at least twice as root
+> by mistake.
 
-I ran some 2.2 vs. 2.4 benchmarks, particularly in the area of file i/o,
-using bonnie++.
+So have I. It's so damned easy. Just remove the original; pretty soon  
+*something* will create a plain file there.
 
-The machine is a SMP 128Mb PII-350 with a udma2 drive capable of some
-20Mb/sec+. Kernels involved are 2.4.0, and the default RH7.0 kernel
-(2.2.16 plus more patches than you can shake a stick at).
+Now you have:
 
-Not going too much into the gory details, here are the differences exposed
-between 2,2 and 2.4:
+* Actual input reading from /dev/null (and it changes!).
+* Unusual permissions on /dev/null
 
-1) Amazing 2.4 increase in streaming write performance; 13Mb/sec ->
-20Mb/sec. I suspect this is the result of the "last minute" 2.4.0 dirty
-buffer/sync waiting handling changes.
+Fun fun fun. Many unusual failure modes.
 
-2) Slight 2.4 increase in streaming read performance; 16Mb/sec ->
-17Mb/sec. This leaves 2.4.0 writing faster than reading, I find that
-surprising.
-
-3) Some 10% drop in rewrite performance from 2.2 -> 2.4 (possibly because
-page aging, like LRU, isn't too hot for the 2nd+ linear scan over data)
-
-4) File creation 30% faster in 2.4; random deletes 30% faster; sequential
-deletes 10% slower.
-
-
-I did one other quick test, with disappointing results for 2.4.0. I did a
-kernel build with 32Mb.
-
-2.4.0 was taking about 10 mins to do the build. 2.2.x was 1min30 quicker
-:( I was hoping/expecting the 2.4.0 page aging to do better, due to
-keeping the more useful pages in RAM better. I have no explanation.
-
-Cheers
-Chris
-
+MfG Kai
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

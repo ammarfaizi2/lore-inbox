@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273846AbRI0UDF>; Thu, 27 Sep 2001 16:03:05 -0400
+	id <S273858AbRI0UGe>; Thu, 27 Sep 2001 16:06:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273854AbRI0UCz>; Thu, 27 Sep 2001 16:02:55 -0400
-Received: from pD9518E68.dip.t-dialin.net ([217.81.142.104]:9118 "EHLO
-	df1tlpc.local.here") by vger.kernel.org with ESMTP
-	id <S273846AbRI0UCp>; Thu, 27 Sep 2001 16:02:45 -0400
-From: Klaus Dittrich <kladit@t-online.de>
-Message-Id: <200109272002.WAA02203@df1tlb.local.here>
-Subject: 2.4.10 and dd
-To: linux-kernel@vger.kernel.org
-Date: Thu, 27 Sep 2001 22:02:07 +0200 (METDST)
-Cc: klaus@df1tlb.local.here
-Phone: 049-7151-987709
-Fax: 049-7151-987709
-X-Mailer: ELM [version 2.5 PL5]
+	id <S273872AbRI0UGY>; Thu, 27 Sep 2001 16:06:24 -0400
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:52490 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S273867AbRI0UGQ>;
+	Thu, 27 Sep 2001 16:06:16 -0400
+Message-ID: <3BB385C5.30992AD7@yahoo.com>
+Date: Thu, 27 Sep 2001 16:02:13 -0400
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
 MIME-Version: 1.0
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 0.01 disk lockup
+In-Reply-To: <Pine.LNX.3.96.1010927150812.28147B-100000@artax.karlin.mff.cuni.cz> <20010927104706.B2968@conectiva.com.br>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I do my backup using dd if=/dev/sda of=/dev/sdb bs=1024k.
+Arnaldo Carvalho de Melo wrote:
 
-With 2.4.10 this does not work anymore.
+> Fantastic! who is the maintainer for the 0.x kernel series these days? I
+> thought that 2.0 was Dave W., 2.2 was Alan, 2.4 Linus, so now we have to
+> find people for 1.2 and finally get 1.2.14 released, man, how I wanted one
+> with the dynamic PPP code in back in those days... 8)
 
-An fsck of the filesystem (ext2) of /dev/sdb3 (~8GB) is impossible
-because of too much errors.
- 
-System: SMP, 2 x PIII-800, BX-Chipset, 1 GB RAM, glibc-2.2.4
+Well, IIRC, Alan and DaveM were essentially 1.2.x maintainers with various
+-ac and "ISS" patches (bonus points if you can remember what ISS stood for).
+I've probably got some of those 1.2.13 patches around somewhere...
 
--- 
-Best regards
-Klaus Dittrich
+As for 1.0.9, at one point some years ago I had updated it (cf. linux-lite)
+to compile with "new" gcc-2.7.2  when RAM was major $$$ - I don't imagine
+it has been touched since.  
 
-e-mail: kladit@t-online.de
+$ ls -l date
+-rwxr-xr-x   1 root     root        13624 Sep  4  1992 date
+$ ldd ./date
+        /lib/libc.so.4 (4.0)
+$ ./date
+Thu Sep 27 15:58:19 EDT 2001
+$ 
+
+Wheee!  :)   Now if I just had a Decwriter for a serial console...
+
+Paul.
+

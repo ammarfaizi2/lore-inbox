@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273382AbRIRLIl>; Tue, 18 Sep 2001 07:08:41 -0400
+	id <S267196AbRIRL1w>; Tue, 18 Sep 2001 07:27:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273390AbRIRLIg>; Tue, 18 Sep 2001 07:08:36 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:14859 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S273382AbRIRLIX>; Tue, 18 Sep 2001 07:08:23 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Date: Tue, 18 Sep 2001 21:08:32 +1000 (EST)
+	id <S267852AbRIRL1m>; Tue, 18 Sep 2001 07:27:42 -0400
+Received: from hal.grips.com ([62.144.214.40]:24469 "EHLO hal.grips.com")
+	by vger.kernel.org with ESMTP id <S267196AbRIRL1d>;
+	Tue, 18 Sep 2001 07:27:33 -0400
+Message-ID: <3BA72FBC.1030601@grips.com>
+Date: Tue, 18 Sep 2001 13:27:56 +0200
+From: jury gerold <geroldj@grips.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010803
+X-Accept-Language: de-at, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: alan@lxorguk.ukuu.org.uk
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+In-Reply-To: <1292125035.20010914214303@port.imtp.ilyichevsk.odessa.ua> <E15i2Bp-00017m-00@the-village.bc.nu> <20010916035207.C7542@ppc.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15271.11056.810538.66237@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Define conflict between ext3 and raid patches against 2.2.19
-In-Reply-To: message from Mike Fedyk on Sunday September 16
-In-Reply-To: <20010916155835.C24067@mikef-linux.matchmail.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday September 16, mfedyk@matchmail.com wrote:
-> Hi,
-> 
-> I'm trying to setup a 2.2 kernel that I can use for comparison to the latest
-> 2.4 kernels I've been testing, but I came accross a little problem with the
-> patches I've been trying to combine.
-> 
-> I've already applied:
-> ide.2.2.19.05042001.patch
-> linux-2.2.19.kdb.diff
-> linux-2.2.19.ext3.diff
-> 
-> And now I'm trying to apply raid-2.2.19-A1, and I get one reject in
-> include/linux/fs.h.
 
-You should be aware that ext3 (and other journalling filesystems) do
-not work reliably over RAID1 or RAID5 in 2.2.  Inparticular, you can
-get problems when the array is rebuilding/resyncing.
 
-But if you only plan to use ext3 with raid0 or linear, you should be
-fine.
+Petr Vandrovec wrote:
 
-NeilBrown
+>>+static void __init pci_fixup_athlon_bug(struct pci_dev *d)
+>>+{ 
+>>+       u8 v; 
+>>+       pci_read_config_byte(d, 0x55, &v);
+>>+       if(v & 0x80) {
+>>+               printk(KERN_NOTICE "Stomping on Athlon bug.\n");
+>>+               v &= 0x7f; /* clear bit 55.7 */
+>>+               pci_write_config_byte(d, 0x55, v);
+>>+       }
+>>+}
+>>
+>>Well, these are cosmetic changes anyway...
+>>What is more important now:
+>>1) Do we have people who still see Athlon bug with the patch?
+>>
+>
+>Just by any chance - does anybody have KT133 (not KT133A)
+>datasheet? I just noticed at home that my KT133 has reg 55 set
+>to 0x89 and it happilly lives... So maybe some BIOS vendors
+>used KT133 instead of KT133A BIOS image?
+>
+Same here ... with a board from gigabyte
+I had to replace a 128MB PC100 RAM module (maybe related, maybe not)
+but now it works.
+
+Gerold Jury
+

@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264309AbTKZVey (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 16:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTKZVey
+	id S264337AbTKZVzE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 16:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264351AbTKZVzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 16:34:54 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:14987 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S264309AbTKZVew
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 16:34:52 -0500
+	Wed, 26 Nov 2003 16:55:04 -0500
+Received: from ee.oulu.fi ([130.231.61.23]:45244 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S264337AbTKZVzB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 16:55:01 -0500
+Date: Wed, 26 Nov 2003 23:54:55 +0200
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: "David S. Miller" <davem@redhat.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Fire Engine??
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031126113040.3b774360.davem@redhat.com>
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel>
-	 <20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>
-	 <p73fzgbzca6.fsf@verdi.suse.de>  <20031126113040.3b774360.davem@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AfvByX5m7dtelqx36vds"
-Organization: Red Hat, Inc.
-Message-Id: <1069882450.5219.1.camel@laptop.fenrus.com>
+Message-ID: <20031126215455.GA15502@ee.oulu.fi>
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel> <20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel> <p73fzgbzca6.fsf@verdi.suse.de> <20031126113040.3b774360.davem@redhat.com> <20031126200153.GG14383@mail.shareable.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 26 Nov 2003 22:34:10 +0100
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20031126200153.GG14383@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 26, 2003 at 08:01:53PM +0000, Jamie Lokier wrote:
+> > Andi, I know this is a problem, but for the millionth time your idea
+> > does not work because we don't know if the user asked for the timestamp
+> > until we are deep within the recvmsg() processing, which is long after
+> > the packet has arrived.
+> 
+> Do the timestamps need to be precise and accurately reflect the
+> arrival time in the irq handler?  Or, for TCP timestamps, would it be
+> good enough to use the time when the protocol handlers are run, and
+> only read the hardware clock once for a bunch of received packets?  Or
+> even use jiffies?
 
---=-AfvByX5m7dtelqx36vds
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Apart from TCP, precise timestamps are only used for packet capture,
+> and it's easy to keep track globally of whether anyone has packet
+> sockets open.
+It should probably noted that really hardcore timestamp users 
+have their NICs do it for them, since interrupt coalescing 
+makes timestamps done in the kernel too inaccurate for them even
+if rdtsc is used (http://www-didc.lbl.gov/papers/SCNM-PAM03.pdf)
+Not that it's anywhere near a univeral solution since more or less only 
+one brand of NICs supports them.
 
-On Wed, 2003-11-26 at 20:30, David S. Miller wrote:
-
-> > - Doing gettimeofday on each incoming packet is just dumb, especially
-> > when you have gettimeofday backed with a slow southbridge timer.
-> > This shows quite badly on many profile logs.
-> > I still think right solution for that would be to only take time stamps
-> > when there is any user for it (=3D no timestamps in 99% of all systems)=
-=20
->=20
-> Andi, I know this is a problem, but for the millionth time your idea
-> does not work because we don't know if the user asked for the timestamp
-> until we are deep within the recvmsg() processing, which is long after
-> the packet has arrived.
-
-question: do we need a timestamp for every packet or can we do one
-timestamp per irq-context entry ? (eg one timestamp at irq entry time we
-do anyway and keep that for all packets processed in the softirq)
-
---=-AfvByX5m7dtelqx36vds
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/xRxSxULwo51rQBIRAgC3AKCWFd5plGl3bRxwRWGFp3KLOa4angCdGfjs
-aJFAxz3ugdodxVGZ+oHo6ZY=
-=Kx1O
------END PGP SIGNATURE-----
-
---=-AfvByX5m7dtelqx36vds--
+It would probably be a useful experiment to see whether the performance is
+improved in a noticeable way if say jiffies were used. If so, it might be a
+reasonable choice for a configurable option, if not then not. 
+Isn't stuff like this the reason why the experimental network patches tree
+that was announced a while back is out there? ;-)

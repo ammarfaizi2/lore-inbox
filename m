@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbTKZCsc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 21:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTKZCsc
+	id S263936AbTKZDDc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 22:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbTKZDDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 21:48:32 -0500
-Received: from rth.ninka.net ([216.101.162.244]:23940 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263895AbTKZCsb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 21:48:31 -0500
-Date: Tue, 25 Nov 2003 18:48:25 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: piggin@cyberone.com.au, icerbofh@hotmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Fire Engine??
-Message-Id: <20031125184825.648aae7c.davem@redhat.com>
-In-Reply-To: <20031126021111.GA10193@work.bitmover.com>
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com>
-	<3FC40663.6050602@cyberone.com.au>
-	<20031126021111.GA10193@work.bitmover.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 Nov 2003 22:03:32 -0500
+Received: from CPE-65-30-34-80.kc.rr.com ([65.30.34.80]:62360 "EHLO
+	cognition.home.hanaden.com") by vger.kernel.org with ESMTP
+	id S263936AbTKZDDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 22:03:30 -0500
+Message-ID: <3FC41800.2020400@hanaden.com>
+Date: Tue, 25 Nov 2003 21:03:28 -0600
+From: Hanasaki JiJi <hanasaki@hanaden.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031004
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: via kt600 based motherboard compatibility
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003 18:11:11 -0800
-Larry McVoy <lm@bitmover.com> wrote:
+been looking and googling for hours... and haven't found a definitive
+answer.
 
-> I used to think otherwise, while I was a Sun employee, and Sun employee #1
-> pointed out to me that CPUs and memory were getting faster more quickly than
-> the TOE type answers could come to market.  He was right then and he seems
-> to still be right.
+Anyone know if, and how well, the following is supported?
 
-Maybe this was at least partially the impetus behind his recent
-departure from the company.  And if not the impetus, a possible straw
-that broke the camel's back.
+================
+Asus A7V600
+http://www.asus.com/prog/spec.asp?m=A7V600&langs=01
+	- ADI AD1980 audio sound
+	- eCom 3C940 gigabit ethernet
+		does it have a driver?
+		does it work on 10/100 too?
 
-How fast will cpus be when Sun actually deploys this stuff?
+================
+Soyo sy-kt600 Dragon+ v1.0
+http://www.soyousa.com/products/proddesc.php?id=280
+	- VIA 1616 audio sound
+	- VIA VT6307 IEEE1394 - firewire
+	- chip?  10/100 ethernet
 
-A commodity x86 U1 box at that time will probably have 6+ GHZ
-cpus in it, and super-duper-DDR or whatever the current memory
-technology will be.  Why do I need Sun's TOE crap in this box?
-Where's all that precious CPU I need to be saving?
+================
+Soyo sy-kt600 Dragon Ultra Platinum
+	- CMI 8738 - audio sound
+		- kernel 2.4.x and 2.6 has support
+	- VT6306 Firewire 1394
+	- BCM5705K gigabit ethernet
+		does it have a driver?
+		does it work on 10/100 too?
+	- Silicon Image SIL3112 - SATA
+	- 8237 SATA/IDE
+	* yes it has both SATA chips and support 4 SATA
 
-This stuff isn't really useful for huge database servers either.
+================
+Gigabyte GA-7V600 1394
+http://www.giga-byte.com/MotherBoard/Products/Products_Spec_GA-7VT600%201394.htm
+	- Realtek ALC655 sound
+	- VIA VT6306 IEEE1394 - firewire
+	- RTL8101L - Ethernet network
+	- IO - IT8705
+	- 8237 SATA/USB
 
-Where do they plan to do, put Solaris10 on iSCSI drives?  ROFL! :)
+*** what is the ordering of the sound chips, above, from best worst?
+	ADI AD1980
+	CMI 8738
+	VIA 1616
+	RT ALC655
 
-These days Sun is already several laps behind before the green flag
-even comes out to start the race.
+*** notice the slightly different firewire chips
+	6307 vs 6306
+
+Thank you all for your responses!
+
+

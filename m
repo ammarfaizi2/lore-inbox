@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVCIVQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVCIVTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVCIVQw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:16:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVCIVQr
+	id S261650AbVCIVTt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 16:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVCIVTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:16:47 -0500
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:28075 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S261622AbVCIVMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:12:49 -0500
-Date: Wed, 09 Mar 2005 15:12:38 -0600
-From: DHollenbeck <dick@softplc.com>
-Subject: 2.6.x.y gatekeeper discipline
-To: linux-kernel@vger.kernel.org
-Message-id: <422F66C6.50208@softplc.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+	Wed, 9 Mar 2005 16:19:47 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24301 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261552AbVCIVSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:18:48 -0500
+Date: Wed, 9 Mar 2005 21:18:44 +0000
+From: Joel Becker <jlbec@evilplan.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: suparna@in.ibm.com, pbadari@us.ibm.com, daniel@osdl.org,
+       sebastien.dugue@bull.net, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+Message-ID: <20050309211844.GC2076@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com,
+	pbadari@us.ibm.com, daniel@osdl.org, sebastien.dugue@bull.net,
+	linux-aio@kvack.org, linux-kernel@vger.kernel.org
+References: <1110189607.11938.14.camel@frecb000686> <20050307223917.1e800784.akpm@osdl.org> <20050308090946.GA4100@in.ibm.com> <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com> <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com> <1110324434.6521.23.camel@ibm-c.pdx.osdl.net> <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com> <20050309040757.GY27331@ca-server1.us.oracle.com> <20050309152047.GA4588@in.ibm.com> <20050309115348.2b86b765.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050309115348.2b86b765.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had hoped that the proper discipline in rejecting non-critical patches 
-would have pertained.  I remain unconvinced that the .y releases are 
-anything but noise that should have been kept elsewhere.  After reading 
-through a patch summary, I see this as typical:
+On Wed, Mar 09, 2005 at 11:53:48AM -0800, Andrew Morton wrote:
+> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> >  If writes/truncates take care of zeroing out the rest of the sector
+> >  on disk, might we still be OK without having to do the bounce buffer
+> >  thing ?
+> 
+> We can probably rely on the rest of the sector outside i_size being zeroed
+> anyway.  Because if it contains non-zero gunk then the fs already has a
+> problem, and the user can get at that gunk with an expanding truncate and
+> mmap() anyway.
 
+	Actually, yeah, even today we rely on block_prepare_write and
+friends to handle that trail zeroing.  That all happens after the sector
+has been read from disk.  So this should be analogous.
 
-----------------------
-
-
-      ChangeSet 2005/02/22 20:56:28-05:00, bunk @ stusta.de
-      <http://kernel.org/pub/linux/kernel/v2.6/testing/cset/cset-bunk@stusta.de%5Bjgarzik%5D%7CChangeSet%7C20050223015628%7C49266.txt>
-      [diffview]
-      <http://www.kernel.org/diff/diffview.cgi?file=/pub/linux/kernel/v2.5/testing/cset/cset-bunk@stusta.de%5Bjgarzik%5D%7CChangeSet%7C20050223015628%7C49266.txt>
-
-[PATCH] drivers/net/via-rhine.c: make a variable static const
-
-This patch makes a needlessly global variable static const.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
-
-----------------------------------
-
-It's possible I simply don't get it, but the above description of a 
-patch hardly seems like it would qualify for the intentions of the 
-2.6.x.y series.
-
-Is this typical, and is this in line with the intent of the x.y series?
-
-If this is going to achieve the objective, the gatekeeper has to be a 
-real stubborn, unpopular horse's ass it seems, with a sign on his 
-forehead that reads:  GO AWAY AND COME ANOTHER DAY!
-
-Somewhat disappointedly,
-
-Dick
+Joel
 
 -- 
-Please help fix the U.S. software industry before it is too late.
-Contact your U.S. representatives with this information:
-http://lpf.ai.mit.edu/Patents/industry-at-risk.html
-http://www.groklaw.net/article.php?story=20041003041632172
 
+Life's Little Instruction Book #396
 
+	"Never give anyone a fruitcake."
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org

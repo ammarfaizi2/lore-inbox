@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbUKIAAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbUKIAAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbUKIAAy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 19:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUKIAAy
+	id S261312AbUKIAAg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 19:00:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUKIAAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 19:00:54 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:53642 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261309AbUKIAAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 19:00:43 -0500
-Message-Id: <200411090000.iA900Obi004485@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: linux-os@analogic.com
-Cc: Colin Leroy <colin.lkml@colino.net>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: insmod module-loading errors, Linux-2.6.9 
-In-Reply-To: Your message of "Mon, 08 Nov 2004 12:52:18 EST."
-             <Pine.LNX.4.61.0411081242240.5779@chaos.analogic.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.61.0411081007530.3682@chaos.analogic.com> <20041108175638.2b3da7b3.colin.lkml@colino.net>
-            <Pine.LNX.4.61.0411081242240.5779@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1297004504P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 08 Nov 2004 19:00:24 -0500
+	Mon, 8 Nov 2004 19:00:36 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:31971 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261312AbUKIAAa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 19:00:30 -0500
+X-Envelope-From: kraxel@bytesex.org
+To: Olaf Titz <olaf@bigred.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why my computer freeze completely with xawtv ?
+References: <20041107224621.GB5360@magma.epfl.ch>
+	<418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch>
+	<418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch>
+	<418EBFE5.5080903@kolivas.org>
+	<Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
+	<E1CRGZd-0002ss-00@bigred.inka.de>
+From: Gerd Knorr <kraxel@bytesex.org>
+Organization: SUSE Labs, Berlin
+Date: 09 Nov 2004 00:45:36 +0100
+In-Reply-To: <E1CRGZd-0002ss-00@bigred.inka.de>
+Message-ID: <87is8frjkv.fsf@bytesex.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1297004504P
-Content-Type: text/plain; charset=us-ascii
+Olaf Titz <olaf@bigred.inka.de> writes:
 
-On Mon, 08 Nov 2004 12:52:18 EST, linux-os said:
+> > I suspect two things:
+> > - there is some bug in bttv and similar drivers (DVB) that corrupts memory
+> > related with internal mm and vfs structures or does something equally bad,
+> > - or maybe PCI bandwitch is overflowed, but I do not think it should
+> > happen.
+> 
+> This (first alternative) sounds related to the problem I had with DVB;
+> I got visible corruption of video memory when using xawtv on the DVB
+> video device using Xv on a G550.
 
-> There are certainly work-arounds for problems that shouldn't
-> exist at all. So, every time I do something to a kernel, I
-> have to change whatever the EXTRAVERSION field is?  Then, when
-> a customer demands that the kernel version be exactly the
-> same that was shipped with Fedora or whatever, I'm screwed.
+Thats something completely different and usually caused by the gfx
+card not being able to handle the bandwith needed for full video
+display.  Result are aborted PCI transfers, which results in the video
+being displayed fine on the left side and not being displayed
+correctly on the right side of the window.
 
-If you didn't have the foresight to keep that kernel version around,
-there isn't much we can do to help you.  Yes, this may mean you have
-a big bunch of /usr/src/linux-2.6.* directories.
+Usually can be workarounded by using 16 bpp instead of 32 which halves
+the video data rate.
 
-Note that you can *still* get screwed unless you keep the same
-compiler toolchain around...
+  Gerd
 
-> They simply should not have removed the "-f" option of
-> insmod. It's just that simple. This option allowed transient
-> (possible) incompatibilities so that one could be productive
-> and not spend a whole day reinstalling from a distribution
-> CD because the new modules wouldn't work because somebody
-> decided that their special VERMAGIC_STRING was so ")@*&#$%)"
-> important that they preempted my work. Don't get me started....
-
-Yes, instead you can spend a whole day reinstalling from a
-distribution CD, and then restoring user files from backup,
-because the new module you just 'insmod -f' had a different
-number of parameters to some kernel call, and as a result your
-stack got smashed and took the root filesystem with it....
-
---==_Exmh_-1297004504P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBkAiXcC3lWbTT17ARAjaOAJ0TbVgZn+VhlocuMpX+2aj4qveMLgCggle8
-lfwPIhsYiTLuZsXncEJlrkg=
-=cphS
------END PGP SIGNATURE-----
-
---==_Exmh_-1297004504P--
+-- 
+#define printk(args...) fprintf(stderr, ## args)

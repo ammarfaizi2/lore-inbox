@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278114AbRJWRgN>; Tue, 23 Oct 2001 13:36:13 -0400
+	id <S278128AbRJWRhd>; Tue, 23 Oct 2001 13:37:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278119AbRJWRgE>; Tue, 23 Oct 2001 13:36:04 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25348 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278114AbRJWRfu>; Tue, 23 Oct 2001 13:35:50 -0400
-Subject: Re: SiS630S FrameBuffer & LCD
-To: hmh@debian.org (Henrique de Moraes Holschuh)
-Date: Tue, 23 Oct 2001 18:42:02 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011023153015.F4709@khazad-dum> from "Henrique de Moraes Holschuh" at Oct 23, 2001 03:30:15 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S278131AbRJWRhY>; Tue, 23 Oct 2001 13:37:24 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:24328 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S278128AbRJWRhO>;
+	Tue, 23 Oct 2001 13:37:14 -0400
+Date: Tue, 23 Oct 2001 10:37:27 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, coldsync-bugs@ooblick.com
+Subject: Re: [OOPS] USB, Palm M500, Coldsync
+Message-ID: <20011023103727.C9943@kroah.com>
+In-Reply-To: <20011023191458.A4261@oisec.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15w5Yw-0000Q5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20011023191458.A4261@oisec.net>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Indeed. We need fully updated docs from SiS on how to deal with their newest
-> "contribution" to the onboard-video family.
+On Tue, Oct 23, 2001 at 07:14:58PM +0200, Cliff Albert wrote:
+> Hi,
+> 
+> Coldsync segfaults after a successful hotsync with my Palm M500 which
+> is connected using the USB Cradle. It also generates a oops. I hope
+> the following info is enough to fix this problem.
 
-SiS actually had a much updated frame buffer console driver that never made
-it into the kernel (stuff needed fixing and I never got a reply so it
-dropped out of the tree)
+This isn't a coldsync bug :)
 
-It may be worthing finding out if SiS have the relevant stuff around
+A number of other people have reported this problem, and it is on my
+TODO list to fix.
+
+Thanks for the oops trace.
+
+greg k-h

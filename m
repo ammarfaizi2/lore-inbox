@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263250AbTFPCju (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 22:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTFPCju
+	id S263295AbTFPC7E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 22:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTFPC7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 22:39:50 -0400
-Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:16454 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S263250AbTFPCjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 22:39:49 -0400
-Date: Sun, 15 Jun 2003 22:53:29 -0400
-From: Jeff <jeffpc@optonline.net>
-Subject: Re: 64-bit fields in struct net_device_stats
-In-reply-to: <200306152131.09983.jeffpc@optonline.net>
-To: linux-kernel@vger.kernel.org
-Message-id: <200306152253.36768.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
-References: <200306152131.09983.jeffpc@optonline.net>
+	Sun, 15 Jun 2003 22:59:04 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39429 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263295AbTFPC7C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 22:59:02 -0400
+Date: Sun, 15 Jun 2003 23:06:11 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Christoph Hellwig <hch@lst.de>
+cc: support@comtrol.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] License issue with rocket driver
+In-Reply-To: <20030606094759.GA20229@lst.de>
+Message-ID: <Pine.LNX.3.96.1030615230303.22624A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 6 Jun 2003, Christoph Hellwig wrote:
 
-On Sunday 15 June 2003 21:30, Jeff wrote:
-<snip>
-> These would lock (if
-> necessary - 32-bit architectures), add, unlock (if necessary.) 
-<snip>
+> drivers/char/rocket{,_int}.h have an intereesting and gpl-incompatible
+> license.  Could you please fix it or remove the drier from the tree?
+> (given that mess that this driver is the latter might be the better
+> idea..)
+> 
+> The license is:
+> 
+>  * The following source code is subject to Comtrol Corporation's
+>  * Developer's License Agreement.
+>  * 
+>  * This source code is protected by United States copyright law and 
+>  * international copyright treaties.
+>  * 
+>  * This source code may only be used to develop software products
+>  * international copyright treaties.
+>  * 
+>  * This source code may only be used to develop software products that
+>  * will operate with Comtrol brand hardware.
+>  * 
+>  * You may not reproduce nor distribute this source code in its original
+>  * form but must produce a derivative work which includes portions of
+>  * this source code only.
+>  * 
+>  * The portions of this source code which you use in your derivative
+>  * work must bear Comtrol's copyright notice:
+>  * 
+>  *              Copyright 1994 Comtrol Corporation.
 
-I now realize, that locking is out of the question. Also, it has been 
-suggested to use per cpu stats and overflow into a global counter. (Thanks 
-Zwane) This might be a better idea - the problem is, the counter won't be 
-100% accurate at all times. The degree of inaccuracy will vary with the 
-threshold value. On the other hand, if the threshold is relatively low, no 
-one will notice the difference these days.
+I don't see that it would disagree with GPL, let's try to get the existing
+Linux driver GPL'd with their agreement. I don't see that it helps anyone
+to just start throwing out drivers without at least checking with the
+author on license terms.
 
-Jeff.
-
-- -- 
-Please avoid sending me Word or PowerPoint attachments.
- See http://www.fsf.org/philosophy/no-word-attachments.html 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+7TEswFP0+seVj/4RAidcAJ0UAgHtRK4F1HHp8vOSLVOc5tdtRgCfXTyN
-MA5sBYybdjJxwxAwtiUnE8I=
-=MbW+
------END PGP SIGNATURE-----
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

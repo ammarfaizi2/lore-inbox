@@ -1,673 +1,814 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTIEImi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 04:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbTIEImh
+	id S262279AbTIEI6x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 04:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbTIEI6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 04:42:37 -0400
-Received: from mail0.epfl.ch ([128.178.50.57]:56836 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id S262050AbTIEImA (ORCPT
+	Fri, 5 Sep 2003 04:58:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20695 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262279AbTIEI6d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 04:42:00 -0400
-Date: Fri, 5 Sep 2003 10:41:57 +0200
-From: Frederic Gobry <frederic.gobry@smartdata.ch>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4 does not detect my touchpad
-Message-ID: <20030905084157.GA13745@rhin>
-References: <20030904135737.GA7956@rhin> <20030904165405.A2969@pclin040.win.tue.nl>
+	Fri, 5 Sep 2003 04:58:33 -0400
+Date: Fri, 5 Sep 2003 01:59:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: 2.6.0-test4-mm6
+Message-Id: <20030905015927.472aa760.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
-Content-Disposition: inline
-In-Reply-To: <20030904165405.A2969@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---H+4ONPRPur6+Ovig
-Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm6/
 
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is only faintly tested.  It's mainly a syncup with people..
 
-> We conclude that there is no AUX port.
-> No PS/2 mouse that can be used.
+. Initial support for kgdb-over-ethernet.  Mainly from Robert Walsh, based
+  on work by San Mehat.
 
-Does it mean that the hardware is somehow lying or is the check too
-strong ?
+  It's pretty simple to use - read Documentation/i386/kgdb/kgdbeth.txt
+  carefully.
 
-> You can to put #if 0 ... #endif around the four
-> if statements following the comment
->=20
-> /*
->  * Bit assignment test - filters out PS/2 i8042's in AT mode
->  */
->=20
-> in i8042.c (since also your mouse was filtered away).
+  This uses the same ethernet driver hooks as netconsole, and is designed
+  to work alongside netconsole.
 
-I've done that. Enclosed are some logs from my tests. In short:
+  Currently it "supports" e100, eepro100, 3c59x, tlan and tulip.  Only e100
+  has been tested.
 
-     - with no psmouse_noext option, the synaptics touchpad is
-       detected, but there a lots of synchro lost error messages.
+. More preparation for the larger dev_t, from Al.
 
-     - with psmouse_noext set, the mouse is erratic when using XFree
-       (not with the synaptics specific driver)
+. Dropped out Nick's CPU scheduler changes, brought back Con's interactivity
+  work.
 
-Fr=E9d=E9ric
+  We didn't get many reports from this in -mm5.  I'd prefer to stick with
+  Con's patches because they're tweaks, rather than fundamental changes and
+  they have had more testing and are more widely understood.
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: attachment; filename=kern-synaptics
+  But the performance regressions with specjbb and volanomark are a
+  problem.  We need to understand this and get it fixed up.
 
---------------------------------------------------
-At boot:
---------------------------------------------------
-
-Sep  5 10:27:40 pium kernel: mice: PS/2 mouse device common for all mice
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 47 <- i8042 (return) [0]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [1]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [1]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [1]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: f0 -> i8042 (parameter) [1]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 0f <- i8042 (return) [1]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: a9 <- i8042 (return) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: a4 -> i8042 (parameter) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 5b <- i8042 (return) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 5a -> i8042 (parameter) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: a5 <- i8042 (return) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [2]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [3]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [3]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [5]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [8]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [8]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [8]
-Sep  5 10:27:40 pium kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [8]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [8]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [8]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 45 -> i8042 (parameter) [8]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [8]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [8]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: ab <- i8042 (interrupt, kbd, 1) [9]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [14]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [14]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [14]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [14]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: f8 -> i8042 (kbd-data) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 02 -> i8042 (kbd-data) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [15]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [16]
-Sep  5 10:27:40 pium kernel: drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [20]
-Sep  5 10:27:40 pium kernel: input: AT Set 2 keyboard on isa0060/serio0
-Sep  5 10:27:40 pium kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+. The dev_t changes broke the feral driver.  The version in -mm is
+  fairly out of date anyway and I probably need to drop it or get a fresh
+  version from James..
 
 
+Changes since 2.6.0-test4-mm5:
+ 
 
---------------------------------------------------
-When modprobing psmouse (no option):
---------------------------------------------------
+-misc34.patch
+-fix-strange-code-in-bio_add_page.patch
+-convert-proc-stat-to-seq_file.patch
+-get_rtc_time-fix.patch
+-visws-qla1280-needs-pio.patch
+-elv-insertion-fix.patch
+-8250_acpi-taints-kernel.patch
+-proc_misc-build-fix.patch
+-slab-check-PG_slab.patch
+-might_sleep-improvements.patch
+-MODULE_ALIAS-in-block-devices.patch
+-MODULE_ALIAS-in-char-devices.patch
+-unpercpuify-in_flight-counter.patch
+-enable-selinux-with-boot-parameter.patch
+-pty-devfs-fix.patch
+-i8042-free_irq-fix.patch
+-netlink-warning-fixes.patch
 
+ Merged
 
-Sep  5 10:28:31 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [68938]
-Sep  5 10:28:31 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [68953]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [149818]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 47 -> i8042 (parameter) [149818]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149819]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [149819]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149822]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [149823]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149824]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: f6 -> i8042 (parameter) [149824]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149827]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149827]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [149827]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149830]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149830]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [149830]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149833]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149834]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [149834]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149836]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149837]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [149837]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149839]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149839]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [149839]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149843]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149843]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [149843]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149846]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149846]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [149846]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149848]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149849]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [149849]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149852]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149853]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [149853]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149855]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 06 <- i8042 (interrupt, aux, 12) [149856]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 47 <- i8042 (interrupt, aux, 12) [149857]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: 14 <- i8042 (interrupt, aux, 12) [149860]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [149861]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: ff -> i8042 (parameter) [149861]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [149863]
-Sep  5 10:29:52 pium kernel: synaptics reset failed
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150157]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: ff -> i8042 (parameter) [150157]
-Sep  5 10:29:52 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150160]
-Sep  5 10:29:53 pium kernel: synaptics reset failed
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150454]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: ff -> i8042 (parameter) [150454]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150457]
-Sep  5 10:29:53 pium kernel: synaptics reset failed
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150747]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [150747]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150750]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150751]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150751]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150753]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150754]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150754]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150757]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150758]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150758]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150760]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150760]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150760]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150763]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150763]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150763]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150766]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150767]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150767]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150769]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150770]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150770]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150772]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150773]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150773]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150776]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150776]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [150776]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150779]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 06 <- i8042 (interrupt, aux, 12) [150780]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 47 <- i8042 (interrupt, aux, 12) [150781]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 14 <- i8042 (interrupt, aux, 12) [150784]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150784]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [150784]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150787]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150787]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150787]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150791]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150791]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150791]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150793]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150794]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150794]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150796]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150797]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150797]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150800]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150800]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150800]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150803]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150803]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150803]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150806]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150806]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150806]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150809]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150810]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [150810]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150812]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150813]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [150813]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150815]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 0f <- i8042 (interrupt, aux, 12) [150818]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 42 <- i8042 (interrupt, aux, 12) [150819]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: a1 <- i8042 (interrupt, aux, 12) [150822]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150822]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [150822]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150825]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150825]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150825]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150828]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150829]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150829]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150832]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150833]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150833]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150835]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150836]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150836]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150839]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150839]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150839]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150842]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150842]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150842]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150845]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150845]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150845]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150848]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150849]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 02 -> i8042 (parameter) [150849]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150851]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150852]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [150852]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150854]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 80 <- i8042 (interrupt, aux, 12) [150857]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 47 <- i8042 (interrupt, aux, 12) [150858]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 1b <- i8042 (interrupt, aux, 12) [150861]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150861]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [150861]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150864]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150864]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150864]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150867]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150868]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [150868]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150870]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150871]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150871]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150873]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150874]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [150874]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150877]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150877]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150877]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150880]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150880]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 01 -> i8042 (parameter) [150880]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150882]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150883]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150883]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150886]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150887]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 01 -> i8042 (parameter) [150887]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150890]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150891]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [150891]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150893]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150893]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 14 -> i8042 (parameter) [150893]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150897]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150897]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [150897]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150900]
-Sep  5 10:29:53 pium kernel: Synaptics Touchpad, model: 1
-Sep  5 10:29:53 pium kernel:  Firware: 4.6
-Sep  5 10:29:53 pium kernel:  Sensor: 15
-Sep  5 10:29:53 pium kernel:  new absolute packet format
-Sep  5 10:29:53 pium kernel:  Touchpad has extended capability bits
-Sep  5 10:29:53 pium kernel:  -> four buttons
-Sep  5 10:29:53 pium kernel:  -> multifinger detection
-Sep  5 10:29:53 pium kernel:  -> palm detection
-Sep  5 10:29:53 pium kernel: input: Synaptics Synaptics TouchPad on isa0060/serio1
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150905]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [150905]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150908]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150908]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 64 -> i8042 (parameter) [150908]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150911]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150912]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [150912]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150914]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150915]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: c8 -> i8042 (parameter) [150915]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150917]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150917]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [150917]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150921]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150921]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [150921]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150924]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150924]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [150924]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150926]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150927]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: ea -> i8042 (parameter) [150927]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150930]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [150931]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [150931]
-Sep  5 10:29:53 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [150933]
++kgdb-over-ethernet.patch
++kgdb-over-ethernet-fixes.patch
++kgdb-CONFIG_NET_POLL_CONTROLLER.patch
++kgdb-handle-stopped-NICs.patch
++eepro100-poll-controller.patch
++tlan-poll_controller.patch
++tulip-poll_controller.patch
++kgdb-eth-smp-fix.patch
 
+ kgdb-over-ethernet support
 
---------------------------------------------------
-When touching the touchpad:
---------------------------------------------------
++fix-io-hangs.patch
 
+ Hopefully fix the tasks-stuck-in-D-state bug
 
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167149]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b1 <- i8042 (interrupt, aux, 12) [167150]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 0a <- i8042 (interrupt, aux, 12) [167153]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: dc <- i8042 (interrupt, aux, 12) [167154]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: df <- i8042 (interrupt, aux, 12) [167157]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 90 <- i8042 (interrupt, aux, 12) [167158]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167162]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167163]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 23 <- i8042 (interrupt, aux, 12) [167166]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167167]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 01 <- i8042 (interrupt, aux, 12) [167169]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b4 <- i8042 (interrupt, aux, 12) [167171]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167176]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167177]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 25 <- i8042 (interrupt, aux, 12) [167179]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167181]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 02 <- i8042 (interrupt, aux, 12) [167183]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b3 <- i8042 (interrupt, aux, 12) [167185]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167190]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167191]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 29 <- i8042 (interrupt, aux, 12) [167193]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167195]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 0d <- i8042 (interrupt, aux, 12) [167197]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b5 <- i8042 (interrupt, aux, 12) [167198]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167205]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167206]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 2b <- i8042 (interrupt, aux, 12) [167207]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167210]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 0b <- i8042 (interrupt, aux, 12) [167211]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b8 <- i8042 (interrupt, aux, 12) [167212]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167217]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167220]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 2c <- i8042 (interrupt, aux, 12) [167221]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167222]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 03 <- i8042 (interrupt, aux, 12) [167225]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b6 <- i8042 (interrupt, aux, 12) [167226]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167231]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167234]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 2e <- i8042 (interrupt, aux, 12) [167235]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167236]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 05 <- i8042 (interrupt, aux, 12) [167239]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b1 <- i8042 (interrupt, aux, 12) [167240]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167244]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167245]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 30 <- i8042 (interrupt, aux, 12) [167248]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167249]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 0c <- i8042 (interrupt, aux, 12) [167251]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: a8 <- i8042 (interrupt, aux, 12) [167253]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167258]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167260]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 31 <- i8042 (interrupt, aux, 12) [167262]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167264]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 0f <- i8042 (interrupt, aux, 12) [167265]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 99 <- i8042 (interrupt, aux, 12) [167268]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167272]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167273]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 32 <- i8042 (interrupt, aux, 12) [167275]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167278]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 0c <- i8042 (interrupt, aux, 12) [167279]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 84 <- i8042 (interrupt, aux, 12) [167282]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167286]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167288]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 32 <- i8042 (interrupt, aux, 12) [167289]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167292]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 19 <- i8042 (interrupt, aux, 12) [167293]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 69 <- i8042 (interrupt, aux, 12) [167294]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167299]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167302]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 33 <- i8042 (interrupt, aux, 12) [167303]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167306]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 29 <- i8042 (interrupt, aux, 12) [167307]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 4f <- i8042 (interrupt, aux, 12) [167308]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167313]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167316]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 33 <- i8042 (interrupt, aux, 12) [167317]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167318]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 23 <- i8042 (interrupt, aux, 12) [167321]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 32 <- i8042 (interrupt, aux, 12) [167322]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167326]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: b2 <- i8042 (interrupt, aux, 12) [167327]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 33 <- i8042 (interrupt, aux, 12) [167330]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167331]
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 2b <- i8042 (interrupt, aux, 12) [167332]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:09 pium kernel: drivers/input/serio/i8042.c: 13 <- i8042 (interrupt, aux, 12) [167335]
-Sep  5 10:30:09 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167340]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: ff <- i8042 (interrupt, aux, 12, timeout) [167343]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: a2 <- i8042 (interrupt, aux, 12) [167346]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 34 <- i8042 (interrupt, aux, 12) [167347]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167350]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 35 <- i8042 (interrupt, aux, 12) [167351]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: ed <- i8042 (interrupt, aux, 12) [167354]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167355]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: a2 <- i8042 (interrupt, aux, 12) [167356]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 34 <- i8042 (interrupt, aux, 12) [167359]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167360]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 3b <- i8042 (interrupt, aux, 12) [167362]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: c3 <- i8042 (interrupt, aux, 12) [167364]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167368]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: a2 <- i8042 (interrupt, aux, 12) [167370]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 33 <- i8042 (interrupt, aux, 12) [167371]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167374]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 47 <- i8042 (interrupt, aux, 12) [167375]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 97 <- i8042 (interrupt, aux, 12) [167378]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167383]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: a2 <- i8042 (interrupt, aux, 12) [167384]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 31 <- i8042 (interrupt, aux, 12) [167385]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167388]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 5a <- i8042 (interrupt, aux, 12) [167389]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 6f <- i8042 (interrupt, aux, 12) [167392]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167395]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: a2 <- i8042 (interrupt, aux, 12) [167397]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 24 <- i8042 (interrupt, aux, 12) [167399]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167400]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 6e <- i8042 (interrupt, aux, 12) [167403]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 4c <- i8042 (interrupt, aux, 12) [167404]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 98 <- i8042 (interrupt, aux, 12) [167408]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 92 <- i8042 (interrupt, aux, 12) [167409]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 08 <- i8042 (interrupt, aux, 12) [167412]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: d8 <- i8042 (interrupt, aux, 12) [167413]
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 9f <- i8042 (interrupt, aux, 12) [167414]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 4th byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: f8 <- i8042 (interrupt, aux, 12) [167417]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 88 <- i8042 (interrupt, aux, 12) [167421]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [167422]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [167424]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
-Sep  5 10:30:10 pium kernel: drivers/input/serio/i8042.c: c8 <- i8042 (interrupt, aux, 12) [167426]
-Sep  5 10:30:10 pium kernel: Synaptics driver lost sync at 1st byte
++as-insert-here-fix.patch
 
+ Anticipatory scheduler fix
 
---------------------------------------------------
-At rmmod:
---------------------------------------------------
++no-unit-at-a-time.patch
 
+ gcc-3.4 workaround
 
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [191604]
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: 45 -> i8042 (parameter) [191604]
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [191604]
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: 47 -> i8042 (parameter) [191604]
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [191605]
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [191605]
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [191607]
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [191610]
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [191610]
-Sep  5 10:30:34 pium kernel: drivers/input/serio/i8042.c: 45 -> i8042 (parameter) [191610]
++calibrate_tsc-consolidation.patch
+
+ calibrate_tsc() fixes
+
++large-dev_t-2nd-01.patch
++large-dev_t-2nd-02.patch
++large-dev_t-2nd-03.patch
++large-dev_t-2nd-04.patch
++large-dev_t-2nd-05.patch
++large-dev_t-2nd-06.patch
++large-dev_t-2nd-07.patch
++large-dev_t-2nd-08.patch
++large-dev_t-2nd-09.patch
++large-dev_t-2nd-10.patch
++large-dev_t-2nd-11.patch
++large-dev_t-2nd-12.patch
++large-dev_t-2nd-13.patch
++large-dev_t-2nd-14.patch
++large-dev_t-2nd-15.patch
+
+ large dev_t work
+
++swsusp-fpu-fix.patch
+
+ software suspend fix
+
++dac960-warning-fixes.patch
+
+ Warning fix
+
++ikconfig-gzipped-2.patch
+
+ Reworked
+
++joydev-exclusions.patch
+
+ Joystick fix
+
++might_sleep-diags.patch
+
+ More might_sleep() info
+
++imm-fix-fix.patch
+
+ SCSI driver fix
+
++selinux-option-config-option.patch
+
+ SELinux: select the boot-time selectability at compile time.
+
++sound-remove-duplicate-includes.patch
++kernel-remove-duplicate-includes.patch
+
+ janitorial work
+
++utime-on-immutable-file-fix.patch
+
+ Disallow utime() on immutable and append-only files.
+
++remove-version_h.patch
++remove-__SMP__.patch
++make-init_mister-static.patch
++skfddi-copy_user-checks.patch
++ll_rw_blk-comment-corrections.patch
++sc520_wdt-ioremap-checking.patch
++paride-error-return-handling.patch
++add-daniele-to-credits.patch
++init-exit-cleanups.patch
++qla1280-pci-alloc-free-checking.patch
++saa7134-core-ioremap-checking.patch
+
+ janitorial work
+
++NR_CPUS-overflow-fix.patch
+
+ Avoid overflows of NR_CPUS-sized arrays.
+
+-ia32-mknod64.patch
+-ext2-64-bit-special-inodes.patch
+-ext3-64-bit-special-inodes.patch
+-64-bit-dev_t-kdev_t.patch
+-64-bit-dev_t-other-archs.patch
+-mknod64-64-bit-fix.patch
+-ustat64.patch
+-ppc-64-bit-stat.patch
+-64-bit-dev_t-init_rd-fixes.patch
+-arch-dev_t-stat-fixes.patch
+
+ 64-bit dev_t stuff dropped for now.
+
+-np-sched-01-sched-fork-cleanup.patch
+-np-sched-02-sched-migrate-fix.patch
+-np-sched-03-sched-balance-tuning.patch
+-np-sched-04-sched-policy-10b.patch
+
+ Drop Nick's CPU scheduler things
+
++sched-CAN_MIGRATE_TASK-fix.patch
++sched-balance-fix-2.6.0-test3-mm3-A0.patch
++sched-2.6.0-test2-mm2-A3.patch
++ppc-sched_clock.patch
++ppc64-sched_clock.patch
++sparc64_sched_clock.patch
++x86_64-sched_clock.patch
++sched-warning-fix.patch
++sched-balance-tuning.patch
++sched-no-tsc-on-numa.patch
++o12.2int.patch
++o12.3.patch
++o13int.patch
++o13.1int.patch
++o14int.patch
++o14int-div-fix.patch
++o14.1int.patch
++o15int.patch
++o16int.patch
++o16.1int.patch
++o16.2int.patch
++o16.3int.patch
++o18int.patch
++o18.1int.patch
++sched-cpu-migration-fix.patch
++o19int.patch
++o20int.patch
+
+ Con's CPU scheduler things.
+
++4g4g-cyclone-timer-fix.patch
+
+ Compile fix
 
 
 
---------------------------------------------------
-At modprobe psmouse with psmouse_noext=1
---------------------------------------------------
 
 
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [441044]
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: 47 -> i8042 (parameter) [441044]
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441044]
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [441044]
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441046]
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [441049]
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441049]
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: f6 -> i8042 (parameter) [441049]
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441052]
-Sep  5 10:34:42 pium kernel: input: PS/2 Generic Mouse on isa0060/serio1
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441052]
-Sep  5 10:34:42 pium kernel: drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [441052]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441055]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441055]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: 64 -> i8042 (parameter) [441055]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441058]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441058]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [441058]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441060]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441060]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: c8 -> i8042 (parameter) [441060]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441063]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441063]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [441063]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441065]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441065]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [441065]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441067]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441067]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [441067]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441070]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441070]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: ea -> i8042 (parameter) [441070]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441072]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [441072]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [441072]
-Sep  5 10:34:43 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [441074]
+
+All 186 patches:
 
 
---------------------------------------------------
-When touching the touchpad:
---------------------------------------------------
+linus.patch
+
+mm.patch
+  add -mmN to EXTRAVERSION
+
+kgdb-ga.patch
+  kgdb stub for ia32 (George Anzinger's one)
+  kgdbL warning fix
+
+kgdb-warning-fix.patch
+  kgdbL warning fix
+
+kgdb-build-fix.patch
+
+kgdb-spinlock-fix.patch
+
+kgdb-fix-debug-info.patch
+  kgdb: CONFIG_DEBUG_INFO fix
+
+kgdb-cpumask_t.patch
+
+kgdb-x86_64-fixes.patch
+  x86_64 fixes
+
+kgdb-over-ethernet.patch
+  kgdb-over-ethernet patch
+
+kgdb-over-ethernet-fixes.patch
+  kgdb-over-ethernet fixlets
+
+kgdb-CONFIG_NET_POLL_CONTROLLER.patch
+  kgdb: replace CONFIG_KGDB with CONFIG_NET_RX_POLL in net drivers
+
+kgdb-handle-stopped-NICs.patch
+  kgdb: handle netif_stopped NICs
+
+eepro100-poll-controller.patch
+
+tlan-poll_controller.patch
+
+tulip-poll_controller.patch
+
+kgdb-eth-smp-fix.patch
+  kgdb-over-ethernet: fix SMP
+
+fix-io-hangs.patch
+  fix IO hangs
+
+as-insert-here-fix.patch
+  AS: insert_here fallout
+
+no-unit-at-a-time.patch
+  Use -fno-unit-at-a-time if gcc supports it
+
+calibrate_tsc-consolidation.patch
+  calibrate_tsc() fix and consolidation
+
+config_spinline.patch
+  uninline spinlocks for profiling accuracy.
+
+ppc64-build-fixes.patch
+  Fix ppc64 breakage
+
+ppc64-bar-0-fix.patch
+  Allow PCI BARs that start at 0
+
+ppc64-reloc_hide.patch
+
+ppc64-semaphore-reimplementation.patch
+  ppc64: use the ia32 semaphore implementation
+
+ppc64-local.patch
+  ppc64: local.h implementation
+
+sym-do-160.patch
+  make the SYM driver do 160 MB/sec
+
+rt-tasks-special-vm-treatment.patch
+  real-time enhanced page allocator and throttling
+
+rt-tasks-special-vm-treatment-2.patch
+
+input-use-after-free-checks.patch
+  input layer debug checks
+
+fbdev.patch
+  framebbuffer driver update
+
+cursor-flashing-fix.patch
+  fbdev: fix cursor letovers
+
+slab-hexdump.patch
+  slab: hexdump structures when things go wrong
+
+aic7xxx-parallel-build-fix.patch
+  fix parallel builds for aic7xxx
+
+thread-pgrp-fix-2.patch
+  Fix setpgid and threads
+
+ramdisk-cleanup.patch
+
+delay-ksoftirqd-fallback.patch
+  Try harded in IRQ context before falling back to ksoftirqd
+
+intel8x0-cleanup.patch
+  intel8x0 cleanups
+
+claim-serio-early.patch
+  Serio: claim serio early
+
+mark-devfs-obsolete.patch
+  mark devfs obsolete
+
+cfq-3.patch
+  CFQ io scheduler
+
+cfq-3-fixes.patch
+  CFQ fixes
+
+sysfs-memleak-fix.patch
+  Fix sysfs memory leak
+
+VT8231-router-detection.patch
+  VT8231 IRQ router detection
+
+block-devfs-conversions.patch
+  Initialise devfs_name in various block drivers
+
+large-dev_t-2nd-01.patch
+  (1/15) large dev_t - second series
+
+large-dev_t-2nd-02.patch
+  (2/15) large dev_t - second series
+
+large-dev_t-2nd-03.patch
+  (3/15) large dev_t - second series
+
+large-dev_t-2nd-04.patch
+  (4/15) large dev_t - second series
+
+large-dev_t-2nd-05.patch
+  (5/15) large dev_t - second series
+
+large-dev_t-2nd-06.patch
+  (6/15) large dev_t - second series
+
+large-dev_t-2nd-07.patch
+  (7/15) large dev_t - second series
+
+large-dev_t-2nd-08.patch
+  (8/15) large dev_t - second series
+
+large-dev_t-2nd-09.patch
+  (9/15) large dev_t - second series
+
+large-dev_t-2nd-10.patch
+  (10/15) large dev_t - second series
+
+large-dev_t-2nd-11.patch
+  (11/15) large dev_t - second series
+
+large-dev_t-2nd-12.patch
+  (12/15) large dev_t - second series
+
+large-dev_t-2nd-13.patch
+  (13/15) large dev_t - second series
+
+large-dev_t-2nd-14.patch
+  (14/15) large dev_t - second series
+
+large-dev_t-2nd-15.patch
+  (15/15) large dev_t - second series
+
+timer_tsc-cyc2ns_scale-fix.patch
+  monolitic_clock, timer_{tsc,hpet} and CPUFREQ
+
+test4-pm1.patch
+  power management update
+
+ide-pm-oops-fix.patch
+  IDE power management oops fix
+
+kobject-unlimited-name-lengths.patch
+  kobject: Support unlimited name lengths.
+
+kobject-unlimited-name-lengths-use-after-free-fix.patch
+  kobject_cleanup() use-after-free-fix
+
+swsusp-fpu-fix.patch
+  swsusp fpu management fix
+
+ricoh-mask-fix.patch
+  pcmcia: ricoh.h mask fix
+  EDEC
+  From: KOMURO <komujun@nifty.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+  
+  RL5C4XX_16BIT_MEM_0 was wrong.
+
+dac960-devfs_name-fix.patch
+  dac960 devfs_name initialisation fix
+
+dac960-warning-fixes.patch
+  compiler warning fixes for DAC960 on alpha
+
+ikconfig-gzipped-2.patch
+  Move ikconfig to /proc/config.gz
+  ikconfig cleanup
+
+flush-invalidate-fixes.patch
+  memory writeback/invalidation fixes
+
+flush-invalidate-fixes-warning-fix.patch
+
+ide_floppy-maybe-fix.patch
+  might fix ide_floppy
+
+reiserfs-direct-io.patch
+  resierfs direct-IO support
+
+pdflush-diag.patch
+
+joydev-exclusions.patch
+  joydev is too eager claiming input devices
+
+might_sleep-diags.patch
+
+imm-fix-fix.patch
+  Fix imm.c again
+
+selinux-option-config-option.patch
+  make selinux enable param config option, enabled by default
+
+sound-remove-duplicate-includes.patch
+  sound: remove duplicate includes
+
+kernel-remove-duplicate-includes.patch
+  remove duplicate includes in kernel/
+
+utime-on-immutable-file-fix.patch
+  disallow utime{s}() on immutable or append-only files
+
+remove-version_h.patch
+  remove unneeded <linux/version.h>
+
+remove-__SMP__.patch
+  Subject: [PATCH] janitor: remove remaining __SMP__ references
+
+make-init_mister-static.patch
+  Subject: [PATCH] janitor: make init function static
+
+skfddi-copy_user-checks.patch
+  skfddi: copy*user error handling
+
+ll_rw_blk-comment-corrections.patch
+  blk_ll_rw comment corrections
+
+sc520_wdt-ioremap-checking.patch
+  handle ioremap() failure case
+
+paride-error-return-handling.patch
+  paride error return handling fixes
+
+add-daniele-to-credits.patch
+  add Daniele to CREDITS
+
+init-exit-cleanups.patch
+  more init/exit cleanups
+
+qla1280-pci-alloc-free-checking.patch
+  qla1280 pci alloc/free consistent checking
+
+saa7134-core-ioremap-checking.patch
+  saa7134 pci alloc/free consistent checking
+
+NR_CPUS-overflow-fix.patch
+  Handle NR_CPUS overflow
+
+really-use-english-date-in-version-string.patch
+  really use english date in version string
+
+acpi-pci-routing-fixes.patch
+  Fixing USB interrupt problems with ACPI enabled
+
+p00001_synaptics-restore-on-close.patch
+
+p00002_psmouse-reset-timeout.patch
+
+p00003_synaptics-multi-button.patch
+
+p00004_synaptics-optional.patch
+
+p00005_synaptics-pass-through.patch
+
+p00006_psmouse-suspend-resume.patch
+
+p00007_synaptics-old-proto.patch
+
+synaptics-mode-set.patch
+  Synaptics mode setting
+
+syn-multi-btn-fix.patch
+  synaptics multibutton fix
+
+keyboard-resend-fix.patch
+  keyboard resend fix
+
+psmouse_ipms2-option.patch
+  Force mouse detection as imps/2 (and fix my KVM switch)
+
+i8042-history.patch
+  debug: i8042 history dumping
+
+linux-isp-2.patch
+
+linux-isp-2-fix-again.patch
+  lost feral fix
+
+feral-bounce-fix.patch
+  Feral driver - highmem issues
+
+feral-bounce-fix-2.patch
+  Feral driver bouncing fix
+
+list_del-debug.patch
+  list_del debug check
+
+print-build-options-on-oops.patch
+  print a few config options on oops
+
+show_task-free-stack-fix.patch
+  show_task() fix and cleanup
+
+put_task_struct-debug.patch
+
+oops-dump-preceding-code.patch
+  i386 oops output: dump preceding code
+
+lockmeter.patch
+
+sparc64-lockmeter-fix.patch
+
+sparc64-lockmeter-fix-2.patch
+  Fix lockmeter on sparc64
+
+printk-oops-mangle-fix.patch
+  disentangle printk's whilst oopsing on SMP
+
+20-odirect_enable.patch
+
+21-odirect_cruft.patch
+
+22-read_proc.patch
+
+23-write_proc.patch
+
+24-commit_proc.patch
+
+25-odirect.patch
+
+nfs-O_DIRECT-always-enabled.patch
+  Force CONFIG_NFS_DIRECTIO
+
+sched-CAN_MIGRATE_TASK-fix.patch
+  CAN_MIGRATE fix
+
+sched-balance-fix-2.6.0-test3-mm3-A0.patch
+  sched-balance-fix-2.6.0-test3-mm3-A0
+
+sched-2.6.0-test2-mm2-A3.patch
+  sched-2.6.0-test2-mm2-A3
+
+ppc-sched_clock.patch
+
+ppc64-sched_clock.patch
+  ppc64: sched_clock()
+
+sparc64_sched_clock.patch
+
+x86_64-sched_clock.patch
+  Add sched_clock for x86-64
+
+sched-warning-fix.patch
+
+sched-balance-tuning.patch
+  CPU scheduler balancing fix
+
+sched-no-tsc-on-numa.patch
+  Subject: Re: Fw: Re: 2.6.0-test2-mm3
+
+o12.2int.patch
+  O12.2int for interactivity
+
+o12.3.patch
+  O12.3 for interactivity
+
+o13int.patch
+  O13int for interactivity
+
+o13.1int.patch
+  O13.1int
+
+o14int.patch
+  O14int
+
+o14int-div-fix.patch
+  o14int 64-bit-divide fix
+
+o14.1int.patch
+  O14.1int
+
+o15int.patch
+  O15int for interactivity
+
+o16int.patch
+  From: Con Kolivas <kernel@kolivas.org>
+  Subject: [PATCH] O16int for interactivity
+
+o16.1int.patch
+  O16.1int for interactivity
+
+o16.2int.patch
+  O16.2int
+
+o16.3int.patch
+  O16.3int
+
+o18int.patch
+  O18int
+
+o18.1int.patch
+  O18.1int
+
+sched-cpu-migration-fix.patch
+  sched: task migration fix
+
+o19int.patch
+  O19int
+
+o20int.patch
+  O20int
+
+4g-2.6.0-test2-mm2-A5.patch
+  4G/4G split patch
+  4G/4G: remove debug code
+  4g4g: pmd fix
+  4g/4g: fixes from Bill
+  4g4g: fpu emulation fix
+  4g/4g usercopy atomicity fix
+  4G/4G: remove debug code
+  4g4g: pmd fix
+  4g/4g: fixes from Bill
+  4g4g: fpu emulation fix
+  4g/4g usercopy atomicity fix
+  4G/4G preempt on vstack
+  4G/4G: even number of kmap types
+  4g4g: fix __get_user in slab
+  4g4g: Remove extra .data.idt section definition
+  4g/4g linker error (overlapping sections)
+  4G/4G: remove debug code
+  4g4g: pmd fix
+  4g/4g: fixes from Bill
+  4g4g: fpu emulation fix
+  4g4g: show_registers() fix
+  4g/4g usercopy atomicity fix
+  4g4g: debug flags fix
+  4g4g: Fix wrong asm-offsets entry
+  cyclone time fixmap fix
+  4G/4G preempt on vstack
+  4G/4G: even number of kmap types
+  4g4g: fix __get_user in slab
+  4g4g: Remove extra .data.idt section definition
+  4g/4g linker error (overlapping sections)
+  4G/4G: remove debug code
+  4g4g: pmd fix
+  4g/4g: fixes from Bill
+  4g4g: fpu emulation fix
+  4g4g: show_registers() fix
+  4g/4g usercopy atomicity fix
+  4g4g: debug flags fix
+  4g4g: Fix wrong asm-offsets entry
+  cyclone time fixmap fix
+
+4g4g-cyclone-timer-fix.patch
+
+ppc-fixes.patch
+  make mm4 compile on ppc
+
+aic7xxx_old-oops-fix.patch
+
+aio-01-retry.patch
+  AIO: Core retry infrastructure
+
+io_submit_one-EINVAL-fix.patch
+  Fix aio process hang on EINVAL
+
+aio-02-lockpage_wq.patch
+  AIO: Async page wait
+
+aio-03-fs_read.patch
+  AIO: Filesystem aio read
+
+aio-04-buffer_wq.patch
+  AIO: Async buffer wait
+
+aio-05-fs_write.patch
+  AIO: Filesystem aio write
+
+aio-05-fs_write-fix.patch
+
+aio-06-bread_wq.patch
+  AIO: Async block read
+
+aio-06-bread_wq-fix.patch
+
+aio-07-ext2getblk_wq.patch
+  AIO: Async get block for ext2
+
+O_SYNC-speedup-2.patch
+  speed up O_SYNC writes
+
+aio-09-o_sync.patch
+  aio O_SYNC
+
+aio-10-BUG-fix.patch
+  AIO: fix a BUG
+
+aio-11-workqueue-flush.patch
+  AIO: flush workqueues before destroying ioctx'es
+
+aio-12-readahead.patch
+  AIO: readahead fixes
+
+aio-dio-no-readahead.patch
+  aio O_DIRECT no readahead
+
+lock_buffer_wq-fix.patch
+  lock_buffer_wq fix
+
+unuse_mm-locked.patch
+  AIO: hold the context lock across unuse_mm
+
+aio-take-task_lock.patch
+  From: Suparna Bhattacharya <suparna@in.ibm.com>
+  Subject: Re: 2.5.72-mm1 - Under heavy testing with AIO,.. vmstat seems to blow the kernel
+
+aio-O_SYNC-fix.patch
+  Unify o_sync changes for aio and regular writes
+
+aio-O_SYNC-fix-missing-bit.patch
+  aio-O_SYNC-fix bits got lost
+
+O_SYNC-speedup-nolock-fix.patch
+
+aio-writev-nsegs-fix.patch
+  aio: writev nr_segs fix
+
+aio-remove-lseek-triggerable-BUG_ONs.patch
+
+aio-readahead-rework.patch
+  Unified page range readahead for aio and regular reads
+
+aio-readahead-speedup.patch
+  Readahead issues and AIO read speedup
+
+aio-osync-fix-2.patch
+  More AIO O_SYNC related fixes
 
 
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux, 12) [541964]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12) [541965]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 02 <- i8042 (interrupt, aux, 12) [541967]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux, 12) [541977]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: ff <- i8042 (interrupt, aux, 12) [541980]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 05 <- i8042 (interrupt, aux, 12) [541981]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux, 12) [541990]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: fd <- i8042 (interrupt, aux, 12) [541991]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 06 <- i8042 (interrupt, aux, 12) [541994]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux, 12) [542004]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: fb <- i8042 (interrupt, aux, 12) [542007]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: ff <- i8042 (interrupt, aux, 12, timeout) [542010]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 09 <- i8042 (interrupt, aux, 12) [542013]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux, 12) [542018]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: fb <- i8042 (interrupt, aux, 12) [542019]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 0c <- i8042 (interrupt, aux, 12) [542022]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux, 12) [542031]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [542033]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 0d <- i8042 (interrupt, aux, 12) [542034]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux, 12) [542046]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: fb <- i8042 (interrupt, aux, 12) [542047]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 0d <- i8042 (interrupt, aux, 12) [542048]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux, 12) [542058]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: fc <- i8042 (interrupt, aux, 12) [542061]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 0b <- i8042 (interrupt, aux, 12) [542062]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux, 12) [542072]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 12) [542075]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 08 <- i8042 (interrupt, aux, 12) [542076]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 08 <- i8042 (interrupt, aux, 12) [542086]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [542087]
-Sep  5 10:36:23 pium kernel: drivers/input/serio/i8042.c: 04 <- i8042 (interrupt, aux, 12) [542090]
 
---ReaqsoxgOBHFXBhH--
-
---H+4ONPRPur6+Ovig
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/WExVFjQHpltE9KURAnaVAKCq9waXZUnGse61bx2ZSmkkyz1VAACeJqlA
-pJonY6jl1FItNW2unT84FwE=
-=rUZ2
------END PGP SIGNATURE-----
-
---H+4ONPRPur6+Ovig--

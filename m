@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbULOMyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbULONCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbULOMyR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 07:54:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbULOMyR
+	id S261194AbULONCv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 08:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbULONCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 07:54:17 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:32745 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261185AbULOMyP (ORCPT
+	Wed, 15 Dec 2004 08:02:51 -0500
+Received: from main.gmane.org ([80.91.229.2]:13805 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261194AbULONCt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 07:54:15 -0500
-Date: Wed, 15 Dec 2004 13:53:55 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Sven Krohlas <sven@asbest-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Understanding schedular and slab allocation
-Message-ID: <20041215125351.GB3034@suse.de>
-References: <3byuD-2Z8-7@gated-at.bofh.it> <41C030D2.7080604@asbest-online.de>
+	Wed, 15 Dec 2004 08:02:49 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Tristan Wibberley <maihem@maihem.org>
+Subject: Re: ppp* really buggy
+Date: Wed, 15 Dec 2004 12:53:26 +0000
+Message-ID: <cppc40$nuu$1@sea.gmane.org>
+References: <20041215103349.GA9617@nuit.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C030D2.7080604@asbest-online.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: m54-mp1.cvx1-b.swi.dial.ntli.net
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+In-Reply-To: <20041215103349.GA9617@nuit.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 15 2004, Sven Krohlas wrote:
-> Btw: is anybody working on the slab allocator as described in Bonwicks
-> 2001 paper?
+simon@nuit.ca wrote:
 
-Linux already fronts the slab allocator with per-cpu pools.
+> the first one refers what i'm speaking of a bit. it happens when i'm
+> bringing pppd down with poff, or when the other end of my ppp tunnel
+> drops the connection. here's some more f what i managed to get:
+> 
+> sig11
 
--- 
-Jens Axboe
+possibly bad RAM?
+
+--
+Tristan Wibberley
 

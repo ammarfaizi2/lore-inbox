@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277247AbRJLG0m>; Fri, 12 Oct 2001 02:26:42 -0400
+	id <S277255AbRJLGXW>; Fri, 12 Oct 2001 02:23:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277253AbRJLG0c>; Fri, 12 Oct 2001 02:26:32 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:63498 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S277252AbRJLG0U>;
-	Fri, 12 Oct 2001 02:26:20 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S277252AbRJLGXC>; Fri, 12 Oct 2001 02:23:02 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:62062 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S277247AbRJLGWv>; Fri, 12 Oct 2001 02:22:51 -0400
+Date: Fri, 12 Oct 2001 02:23:21 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: <mingo@devserv.devel.redhat.com>
+To: <gaby@applianceware.com>
+cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] for Multiple Device driver - md.c (kernel 2.4.12)
+In-Reply-To: <Pine.LNX.4.33.0110111801490.1143-100000@gaby.applianceware.com>
+Message-ID: <Pine.LNX.4.33.0110120220290.7954-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15302.36122.167106.102639@cargo.ozlabs.ibm.com>
-Date: Fri, 12 Oct 2001 16:26:34 +1000 (EST)
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Paul.McKenney@us.ibm.com (Paul McKenney),
-        andrea@suse.de (Andrea Arcangeli), frival@zk3.dec.com (Peter Rival),
-        ink@jurassic.park.msu.ru (Ivan Kokshaysky), Jay.Estabrook@compaq.com,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        rth@twiddle.net (Richard Henderson), cardoza@zk3.dec.com,
-        woodward@zk3.dec.com
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with
-In-Reply-To: <200110120543.f9C5hvZ224264@saturn.cs.uml.edu>
-In-Reply-To: <OF206EE8AA.7A83A16B-ON88256AE1.005467E3@boulder.ibm.com>
-	<200110120543.f9C5hvZ224264@saturn.cs.uml.edu>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan writes:
 
-> This looks an awful lot like the PowerPC architecture.
-> 
-> In an SMP system, one would most likely mark pages as
-> requiring coherency. This means that stores to a memory
-> location from multiple processors will give sane results.
-> Ordering is undefined when multiple memory locations are
-> involved.
+On Thu, 11 Oct 2001 gaby@applianceware.com wrote:
 
-The current PowerPC Architecture spec actually has a paragraph that
-says that where a processor does two loads and the second load depends
-on the first (i.e. the result from the first load is used in computing
-the address for the second load), that they have to be performed in
-program order with respect to other processors.  In other cases you do
-need a barrier as you say.
+> Suppose you can hot-swap a hard disk in a system. Now if you have a
+> degraded Software RAID device (for example a RAID-5 with one disk
+> failed) and you replace the failed disk on-the-fly you cannot start
+> reconstruction (with raidhotadd) of the Software RAID device with the
+> replaced disk because it says it is BUSY.
 
-This constraint has evidently been added since the original PPC
-architecture book was published.  I strongly doubt that any of the
-older PPC implementations would violate that constraint though.
+this is possible already: you should first raidhotremove the failed drive,
+then raidhotadd the new drive. It can be the 'same' drive if it's a
+hot-swap disk, or it can be another, spare disk.
 
-Paul.
+> +	if (rdev && rdev->faulty) {
+> +		err = hot_remove_disk(mddev, dev);
+
+what your patch does is a forced remove of any drive that is
+raidhotadd-ed. This is less finegrained than the current solution, and
+might make the method more volatile. (easier to mess up accidentally.) Is
+there anything your patch allows that is not possible today, via
+raidhotremove+raidhotadd?
+
+	Ingo
+

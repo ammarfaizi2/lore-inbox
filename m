@@ -1,235 +1,237 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317809AbSHKHYo>; Sun, 11 Aug 2002 03:24:44 -0400
+	id <S318221AbSHKH0j>; Sun, 11 Aug 2002 03:26:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317893AbSHKHYo>; Sun, 11 Aug 2002 03:24:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28678 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317809AbSHKHYm>;
-	Sun, 11 Aug 2002 03:24:42 -0400
-Message-ID: <3D56146B.C3CAB5E1@zip.com.au>
-Date: Sun, 11 Aug 2002 00:38:19 -0700
+	id <S318211AbSHKH02>; Sun, 11 Aug 2002 03:26:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36102 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318035AbSHKHZd>;
+	Sun, 11 Aug 2002 03:25:33 -0400
+Message-ID: <3D5614A0.ECA8FD88@zip.com.au>
+Date: Sun, 11 Aug 2002 00:39:12 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 1/21] random fixes
+Subject: [patch 10/21] batched removal of pages from the LRU
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, but there's a ton of stuff here.  It ends up as a 4600 line
-diff.  Some code dating back to 2.5.24.  It's almost all performance
-work and it has been very painful getting its effectiveness tested
-on the big machines; the main problem has been getting them booting
-2.5 at all.  The results still are not as conclusive as I'd like,
-but the signs are good, and there are no other proposals around to
-fix these problems.
+
+
+Convert all the bulk callers of lru_cache_del() to use the batched
+pagevec_lru_del() function.
+
+Change truncate_complete_page() to not delete the page from the LRU. 
+Do it in page_cache_release() instead.  (This reintroduces the problem
+with final-release-from-interrupt.  THat gets fixed further on).
+
+This patch changes the truncate locking somewhat.  The removal from the
+LRU now happens _after_ the page has been removed from the
+address_space and has been unlocked.  So there is now a window where
+the shrink_cache code can discover the to-be-freed page via the LRU
+list.  But that's OK - the page is clean, its buffers (if any) are
+clean.  It's not attached to any mapping.
 
 
 
-This one is mainly a resend.
 
-- I changed the sector_t thing in max_block to use davem's approach. 
-  I agree with Anton, but making it explicit doesn't hurt.
+ filemap.c |   79 +++++++++++++++++++++++++++++++++-----------------------------
+ swap.c    |    2 -
+ 2 files changed, 44 insertions(+), 37 deletions(-)
 
-- Remove a dead comment in copy_strings.
-
-Old stuff:
-
-- Remove the IO error warning in end_buffer_io_sync().  Failed READA
-  attempts trigger it.
-
-- Emit a warning when an ext2 is mounting an ext3 filesystem.
-
-  We have had quite a few problem reports related to this, mainly
-  arising from initrd problems.  And mount(8) tends to report the
-  fstype from /etc/fstab rather than reporting what has really
-  happened.
-
-Fixes some bogosity which I added to max_block():
-
-- `size' doesn't need to be sector_t
-
-- `retval' should not be initialised to "~0UL" because that is
-  0x00000000ffffffff with 64-bit sector_t.
-
-- Allocate task_structs with GFP_KERNEL, as discussed.
-
-- Convert the EXPORT_SYMBOL for generic_file_direct_IO() to
-  EXPORT_SYMBOL_GPL.  That was only exported as a practicality for the
-  raw driver.
-
-- Make the loop thread run balance_dirty_pages() after dirtying the
-  backing file.  So it will perform writeback of the backing file when
-  dirty memory levels are high.  Export balance_dirty_pages to GPL
-  modules for this.
-
-  This makes loop work a lot better - I suspect it broke when callers
-  of balance_dirty_pages() started writing back only their own queue.
-
-  There are many page allocation failures under heavy loop writeout. 
-  Coming from blk_queue_bounce()'s allocation from the page_pool
-  mempool.  So...
-
-- Disable page allocation warnings around the initial atomic
-  allocation attempt in mempool_alloc() - the one where __GFP_WAIT and
-  __GFP_IO were turned off.  That one can easily fail.
-
-- Add some commentary in block_write_full_page()
-
-
- drivers/block/loop.c |    2 ++
- fs/block_dev.c       |    6 +++---
- fs/buffer.c          |   13 +++++++++++--
- fs/exec.c            |    5 -----
- fs/ext2/super.c      |    3 +++
- kernel/fork.c        |    5 +++--
- kernel/ksyms.c       |    2 +-
- mm/mempool.c         |    2 ++
- mm/page-writeback.c  |    1 +
- 9 files changed, 26 insertions(+), 13 deletions(-)
-
---- 2.5.31/fs/buffer.c~misc	Sat Aug 10 23:23:35 2002
-+++ 2.5.31-akpm/fs/buffer.c	Sat Aug 10 23:23:35 2002
-@@ -180,7 +180,10 @@ void end_buffer_io_sync(struct buffer_he
- 	if (uptodate) {
- 		set_buffer_uptodate(bh);
- 	} else {
--		buffer_io_error(bh);
-+		/*
-+		 * This happens, due to failed READA attempts.
-+		 * buffer_io_error(bh);
-+		 */
- 		clear_buffer_uptodate(bh);
- 	}
- 	unlock_buffer(bh);
-@@ -2283,7 +2286,13 @@ int block_write_full_page(struct page *p
- 		return -EIO;
- 	}
+--- 2.5.31/mm/filemap.c~batched-lru-del	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/mm/filemap.c	Sun Aug 11 00:21:02 2002
+@@ -118,10 +118,10 @@ void invalidate_inode_pages(struct inode
+ 	struct list_head *head, *curr;
+ 	struct page * page;
+ 	struct address_space *mapping = inode->i_mapping;
++	struct pagevec lru_pvec;
  
--	/* The page straddles i_size */
-+	/*
-+	 * The page straddles i_size.  It must be zeroed out on each and every
-+	 * writepage invokation because it may be mmapped.  "A file is mapped
-+	 * in multiples of the page size.  For a file that is not a multiple of
-+	 * the  page size, the remaining memory is zeroed when mapped, and
-+	 * writes to that region are not written out to the file."
-+	 */
- 	kaddr = kmap(page);
- 	memset(kaddr + offset, 0, PAGE_CACHE_SIZE - offset);
- 	flush_dcache_page(page);
---- 2.5.31/fs/block_dev.c~misc	Sat Aug 10 23:23:35 2002
-+++ 2.5.31-akpm/fs/block_dev.c	Sat Aug 10 23:23:35 2002
-@@ -26,12 +26,12 @@
+ 	head = &mapping->clean_pages;
+-
+-	spin_lock(&pagemap_lru_lock);
++	pagevec_init(&lru_pvec);
+ 	write_lock(&mapping->page_lock);
+ 	curr = head->next;
  
- static sector_t max_block(struct block_device *bdev)
- {
--	sector_t retval = ~0U;
-+	sector_t retval = ~((sector_t)0);
- 	loff_t sz = bdev->bd_inode->i_size;
+@@ -143,10 +143,10 @@ void invalidate_inode_pages(struct inode
+ 		if (page_count(page) != 1)
+ 			goto unlock;
  
- 	if (sz) {
--		sector_t size = block_size(bdev);
--		unsigned sizebits = blksize_bits(size);
-+		unsigned int size = block_size(bdev);
-+		unsigned int sizebits = blksize_bits(size);
- 		retval = (sz >> sizebits);
- 	}
- 	return retval;
---- 2.5.31/fs/ext2/super.c~misc	Sat Aug 10 23:23:35 2002
-+++ 2.5.31-akpm/fs/ext2/super.c	Sat Aug 10 23:23:35 2002
-@@ -698,6 +698,9 @@ static int ext2_fill_super(struct super_
- 			printk(KERN_ERR "EXT2-fs: get root inode failed\n");
- 		goto failed_mount2;
- 	}
-+	if (EXT2_HAS_COMPAT_FEATURE(sb, EXT3_FEATURE_COMPAT_HAS_JOURNAL))
-+		ext2_warning(sb, __FUNCTION__,
-+			"mounting ext3 filesystem as ext2\n");
- 	ext2_setup_super (sb, es, sb->s_flags & MS_RDONLY);
- 	return 0;
- failed_mount2:
---- 2.5.31/kernel/fork.c~misc	Sat Aug 10 23:23:35 2002
-+++ 2.5.31-akpm/kernel/fork.c	Sat Aug 10 23:23:35 2002
-@@ -106,9 +106,10 @@ static struct task_struct *dup_task_stru
- 	struct thread_info *ti;
- 
- 	ti = alloc_thread_info();
--	if (!ti) return NULL;
-+	if (!ti)
-+		return NULL;
- 
--	tsk = kmem_cache_alloc(task_struct_cachep,GFP_ATOMIC);
-+	tsk = kmem_cache_alloc(task_struct_cachep, GFP_KERNEL);
- 	if (!tsk) {
- 		free_thread_info(ti);
- 		return NULL;
---- 2.5.31/kernel/ksyms.c~misc	Sat Aug 10 23:23:35 2002
-+++ 2.5.31-akpm/kernel/ksyms.c	Sat Aug 10 23:23:35 2002
-@@ -340,7 +340,7 @@ EXPORT_SYMBOL(register_disk);
- EXPORT_SYMBOL(read_dev_sector);
- EXPORT_SYMBOL(init_buffer);
- EXPORT_SYMBOL(wipe_partitions);
--EXPORT_SYMBOL(generic_file_direct_IO);
-+EXPORT_SYMBOL_GPL(generic_file_direct_IO);
- 
- /* tty routines */
- EXPORT_SYMBOL(tty_hangup);
---- 2.5.31/drivers/block/loop.c~misc	Sat Aug 10 23:23:35 2002
-+++ 2.5.31-akpm/drivers/block/loop.c	Sat Aug 10 23:23:35 2002
-@@ -74,6 +74,7 @@
- #include <linux/slab.h>
- #include <linux/loop.h>
- #include <linux/suspend.h>
-+#include <linux/writeback.h>
- #include <linux/buffer_head.h>		/* for invalidate_bdev() */
- 
- #include <asm/uaccess.h>
-@@ -235,6 +236,7 @@ do_lo_send(struct loop_device *lo, struc
- 	up(&mapping->host->i_sem);
- out:
- 	kunmap(bvec->bv_page);
-+	balance_dirty_pages(mapping);
- 	return ret;
- 
+-		__lru_cache_del(page);
+ 		__remove_from_page_cache(page);
+ 		unlock_page(page);
+-		page_cache_release(page);
++		if (!pagevec_add(&lru_pvec, page))
++			__pagevec_lru_del(&lru_pvec);
+ 		continue;
  unlock:
---- 2.5.31/mm/page-writeback.c~misc	Sat Aug 10 23:23:35 2002
-+++ 2.5.31-akpm/mm/page-writeback.c	Sat Aug 10 23:23:35 2002
-@@ -133,6 +133,7 @@ void balance_dirty_pages(struct address_
- 	if (!writeback_in_progress(bdi) && ps.nr_dirty > background_thresh)
- 		pdflush_operation(background_writeout, 0);
+ 		unlock_page(page);
+@@ -154,7 +154,7 @@ unlock:
+ 	}
+ 
+ 	write_unlock(&mapping->page_lock);
+-	spin_unlock(&pagemap_lru_lock);
++	pagevec_lru_del(&lru_pvec);
  }
-+EXPORT_SYMBOL_GPL(balance_dirty_pages);
  
- /**
-  * balance_dirty_pages_ratelimited - balance dirty memory state
---- 2.5.31/mm/mempool.c~misc	Sat Aug 10 23:23:35 2002
-+++ 2.5.31-akpm/mm/mempool.c	Sat Aug 10 23:23:35 2002
-@@ -189,7 +189,9 @@ void * mempool_alloc(mempool_t *pool, in
- 	int gfp_nowait = gfp_mask & ~(__GFP_WAIT | __GFP_IO);
+ static int do_invalidatepage(struct page *page, unsigned long offset)
+@@ -174,16 +174,14 @@ static inline void truncate_partial_page
+ }
  
- repeat_alloc:
-+	current->flags |= PF_NOWARN;
- 	element = pool->alloc(gfp_nowait, pool->pool_data);
-+	current->flags &= ~PF_NOWARN;
- 	if (likely(element != NULL))
- 		return element;
+ /*
+- * If truncate can remove the fs-private metadata from the page, it
+- * removes the page from the LRU immediately.  This because some other thread
+- * of control (eg, sendfile) may have a reference to the page.  But dropping
+- * the final reference to an LRU page in interrupt context is illegal - it may
+- * deadlock over pagemap_lru_lock.
++ * If truncate cannot remove the fs-private metadata from the page, the page
++ * becomes anonymous.  It will be left on the LRU and may even be mapped into
++ * user pagetables if we're racing with filemap_nopage().
+  */
+ static void truncate_complete_page(struct page *page)
+ {
+-	if (!PagePrivate(page) || do_invalidatepage(page, 0))
+-		lru_cache_del(page);
++	if (PagePrivate(page))
++		do_invalidatepage(page, 0);
  
---- 2.5.31/fs/exec.c~misc	Sat Aug 10 23:23:40 2002
-+++ 2.5.31-akpm/fs/exec.c	Sat Aug 10 23:24:12 2002
-@@ -209,11 +209,6 @@ int copy_strings(int argc,char ** argv, 
- 		/* XXX: add architecture specific overflow check here. */ 
- 		pos = bprm->p;
+ 	ClearPageDirty(page);
+ 	ClearPageUptodate(page);
+@@ -204,8 +202,10 @@ static int truncate_list_pages(struct ad
+ 	struct list_head *curr;
+ 	struct page * page;
+ 	int unlocked = 0;
++	struct pagevec release_pvec;
  
--		/*
--		 * The only sleeping function which we are allowed to call in
--		 * this loop is copy_from_user().  Otherwise, copy_user_state
--		 * could get trashed.
--		 */
- 		while (len > 0) {
- 			int i, new, err;
- 			int offset, bytes_to_copy;
+- restart:
++	pagevec_init(&release_pvec);
++restart:
+ 	curr = head->next;
+ 	while (curr != head) {
+ 		unsigned long offset;
+@@ -225,18 +225,17 @@ static int truncate_list_pages(struct ad
+ 				list_add_tail(head, curr);
+ 				write_unlock(&mapping->page_lock);
+ 				wait_on_page_writeback(page);
+-				page_cache_release(page);
++				if (!pagevec_add(&release_pvec, page))
++					__pagevec_release(&release_pvec);
+ 				unlocked = 1;
+ 				write_lock(&mapping->page_lock);
+ 				goto restart;
+ 			}
+ 
+ 			list_del(head);
+-			if (!failed)
+-				/* Restart after this page */
++			if (!failed)		/* Restart after this page */
+ 				list_add(head, curr);
+-			else
+-				/* Restart on this page */
++			else			/* Restart on this page */
+ 				list_add_tail(head, curr);
+ 
+ 			write_unlock(&mapping->page_lock);
+@@ -246,25 +245,27 @@ static int truncate_list_pages(struct ad
+ 				if (*partial && (offset + 1) == start) {
+ 					truncate_partial_page(page, *partial);
+ 					*partial = 0;
+-				} else 
++				} else {
+ 					truncate_complete_page(page);
+-
++				}
+ 				unlock_page(page);
+-			} else
++			} else {
+  				wait_on_page_locked(page);
+-
+-			page_cache_release(page);
+-
+-			if (need_resched()) {
+-				__set_current_state(TASK_RUNNING);
+-				schedule();
+ 			}
+-
++			if (!pagevec_add(&release_pvec, page))
++				__pagevec_release(&release_pvec);
++			cond_resched();
+ 			write_lock(&mapping->page_lock);
+ 			goto restart;
+ 		}
+ 		curr = curr->next;
+ 	}
++	if (pagevec_count(&release_pvec)) {
++		write_unlock(&mapping->page_lock);
++		pagevec_release(&release_pvec);
++		write_lock(&mapping->page_lock);
++		unlocked = 1;
++	}
+ 	return unlocked;
+ }
+ 
+@@ -362,8 +363,10 @@ static int invalidate_list_pages2(struct
+ 	struct list_head *curr;
+ 	struct page * page;
+ 	int unlocked = 0;
++	struct pagevec release_pvec;
+ 
+- restart:
++	pagevec_init(&release_pvec);
++restart:
+ 	curr = head->prev;
+ 	while (curr != head) {
+ 		page = list_entry(curr, struct page, list);
+@@ -380,7 +383,8 @@ static int invalidate_list_pages2(struct
+ 				goto restart;
+ 			}
+ 
+-			__unlocked = invalidate_this_page2(mapping, page, curr, head);
++			__unlocked = invalidate_this_page2(mapping,
++						page, curr, head);
+ 			unlock_page(page);
+ 			unlocked |= __unlocked;
+ 			if (!__unlocked) {
+@@ -398,15 +402,18 @@ static int invalidate_list_pages2(struct
+ 			wait_on_page_locked(page);
+ 		}
+ 
+-		page_cache_release(page);
+-		if (need_resched()) {
+-			__set_current_state(TASK_RUNNING);
+-			schedule();
+-		}
+-
++		if (!pagevec_add(&release_pvec, page))
++			__pagevec_release(&release_pvec);
++		cond_resched();
+ 		write_lock(&mapping->page_lock);
+ 		goto restart;
+ 	}
++	if (pagevec_count(&release_pvec)) {
++		write_unlock(&mapping->page_lock);
++		pagevec_release(&release_pvec);
++		write_lock(&mapping->page_lock);
++		unlocked = 1;
++	}
+ 	return unlocked;
+ }
+ 
+--- 2.5.31/mm/swap.c~batched-lru-del	Sun Aug 11 00:20:33 2002
++++ 2.5.31-akpm/mm/swap.c	Sun Aug 11 00:21:02 2002
+@@ -115,7 +115,7 @@ void __pagevec_release(struct pagevec *p
+ 		if (!put_page_testzero(page))
+ 			continue;
+ 
+-		if (!lock_held && PageLRU(page)) {
++		if (!lock_held) {
+ 			spin_lock(&pagemap_lru_lock);
+ 			lock_held = 1;
+ 		}
 
 .

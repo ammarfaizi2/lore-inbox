@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267185AbSKSSoi>; Tue, 19 Nov 2002 13:44:38 -0500
+	id <S267194AbSKSSqQ>; Tue, 19 Nov 2002 13:46:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267191AbSKSSoF>; Tue, 19 Nov 2002 13:44:05 -0500
-Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:48863 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S267185AbSKSSm6>; Tue, 19 Nov 2002 13:42:58 -0500
-Date: Tue, 19 Nov 2002 11:50:00 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [PATCH][TRIVIAL] Add back in <asm/system.h> and <linux/linkage.h> to <linux/interrupt.h>
-Message-ID: <20021119184959.GF779@opus.bloom.county>
-Mime-Version: 1.0
+	id <S267192AbSKSSov>; Tue, 19 Nov 2002 13:44:51 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:29188
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267178AbSKSSn7>; Tue, 19 Nov 2002 13:43:59 -0500
+Date: Tue, 19 Nov 2002 10:50:41 -0800 (PST)
+From: Andre Hedrick <andre@pyxtechnologies.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Patrick Mansfield <patmans@us.ibm.com>, Douglas Gilbert <dougg@torque.net>,
+       "J. E. J. Bottomley" <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.18-modified-scsi-h.patch
+In-Reply-To: <3DDA8746.3010409@pobox.com>
+Message-ID: <Pine.LNX.4.10.10211191049230.1342-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following trivial patch adds back <asm/system.h> and
-<linux/kernel.h> to <linux/interrupt.h>.  Without it,
-<linux/interrupt.h> is relying on <asm/system.h> to be implicitly
-included for smb_mb to be defined, and <linux/linkage.h> to be implicitly
-included for asmlinkage/FASTCALL/etc.
+On Tue, 19 Nov 2002, Jeff Garzik wrote:
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+> Patrick Mansfield wrote:
+> 
+> > I don't see why we need the #define, or is that another patch?
+> 
+> 
+> 
+> The define exists for the same reason that HAVE_xxx exists in 
+> include/linux/netdevice.h and other headers:  a feature test macro, so 
+> code using this pointer can detect its presence or absence.  The world 
+> of drivers is not all in the kernel tarball, ya know ;-)
+> 
+> But as I said, the macro is misnamed, it should be 
+> HAVE_UPPER_PRIVATE_DATA or similar.
+> 
+> 	Jeff
 
-===== include/linux/interrupt.h 1.17 vs edited =====
---- 1.17/include/linux/interrupt.h	Sun Nov 17 09:23:25 2002
-+++ edited/include/linux/interrupt.h	Tue Nov 19 11:35:47 2002
-@@ -3,11 +3,13 @@
- #define _LINUX_INTERRUPT_H
- 
- #include <linux/config.h>
-+#include <linux/linkage.h>
- #include <linux/bitops.h>
- #include <asm/atomic.h>
- #include <asm/hardirq.h>
- #include <asm/ptrace.h>
- #include <asm/softirq.h>
-+#include <asm/system.h>
- 
- struct irqaction {
- 	void (*handler)(int, void *, struct pt_regs *);
+Hey Jeff!
+
+Works for me, has each HBA has the need to reserve local structs and not
+pollute the basic kernel w/ bloat!
+
+Cheers,
+
+Andre Hedrick, CTO & Founder 
+iSCSI Software Solutions Provider
+http://www.PyXTechnologies.com/
+

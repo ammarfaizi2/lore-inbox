@@ -1,66 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262413AbUC1UCu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 15:02:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUC1UCu
+	id S262415AbUC1UHs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 15:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUC1UHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 15:02:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29919 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262413AbUC1UCr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 15:02:47 -0500
-Message-ID: <40672F54.1050703@pobox.com>
-Date: Sun, 28 Mar 2004 15:02:28 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sun, 28 Mar 2004 15:07:48 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55705 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262415AbUC1UHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 15:07:45 -0500
+To: Jamie Lokier <jamie@shareable.org>
+Cc: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+References: <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com>
+	<20040325174942.GC11236@mail.shareable.org>
+	<m1ekrgyf5y.fsf@ebiederm.dsl.xmission.com>
+	<20040325194303.GE11236@mail.shareable.org>
+	<m1ptb0zjki.fsf@ebiederm.dsl.xmission.com>
+	<20040327102828.GA21884@mail.shareable.org>
+	<m1vfkq80oy.fsf@ebiederm.dsl.xmission.com>
+	<20040327214238.GA23893@mail.shareable.org>
+	<m1ptax97m6.fsf@ebiederm.dsl.xmission.com>
+	<m1brmhvm1s.fsf@ebiederm.dsl.xmission.com>
+	<20040328122242.GB32296@mail.shareable.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Mar 2004 13:07:20 -0700
+In-Reply-To: <20040328122242.GB32296@mail.shareable.org>
+Message-ID: <m14qs8vipz.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: Nuno Silva <nuno.silva@vgertech.com>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] speed up SATA
-References: <4066021A.20308@pobox.com> <20040328175436.GL24370@suse.de> <20040328181223.GA791@holomorphy.com> <200403282030.11743.bzolnier@elka.pw.edu.pl> <40672D07.2060201@vgertech.com>
-In-Reply-To: <40672D07.2060201@vgertech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nuno Silva wrote:
-> With this kind of control we could have /etc/init.d/io-optimize that
-> paused the startup for 10 seconds and tests every device|controller in
-> fstab and optimizes according to the .conf file for latency or speed...
-> Or a daemon that retrieves statistics and adjusts the policies every 
-> minute?
+Jamie Lokier <jamie@shareable.org> writes:
+
+> Eric W. Biederman wrote:
+> > > The addictive thing about the prototype implementation was that you
+> > > could do ``ln --cow / /some/other/directory'' and you would have an
+> > > atomic snapshot of your filesystem.  Definitely not a feature for the
+> > > first implementation but certainly something to dream about.
+> > 
+> > Addictive but broken by design.  If any of the files inside your
+> > directory tree have hard links outside of the tree there is no way
+> > short of recursing through all of the subdirectories directories to
+> > tell if a given inode has is in use.  Except in the special case
+> > where you are taking a cow copy of the entire filesystem.  At which
+> > point a magic mount option is likely a better interface.
 > 
-> Also, everybody says "do it in userland". This is doing (some of) it in
-> userland :)
+> I don't understand this explanation.  Can you explain again?  What is
+> the problem with inodes being in use?
 
+A COW on a directory implies a COW on everything in it.  So the implication
+is an atomic snapshot of that directory and everything below it.
 
-An iotune daemon that sits in userland -- probably mlockall'd into 
-memory -- would be fun.  Like the existing irqbalance daemon that Red 
-Hat (disc: my employer) ships, "iotuned" could run in the background, 
-adjusting policies every so often.  It would be a good place to put some 
-of the more high-level "laptop mode" or "high throughput mode" tunables, 
-so that the user wouldn't have to worry about the minute details of such 
-things.
+Assuming no files are open and in use.  The implementation would
+create the cow link on the directory just like it would on a file.
+Then when you open/modify a directory or file the cow copies would be
+taken up to the point of the original cow directory so you have a
+separate directory structure.
 
-Just watch the IO statistics and tweak the queue settings...  Gotta make 
-sure the queue settings don't get tweaked beyond what the hardware can 
-do, though.
+All of which works great until you have a file that has one hard link
+in your cow directory structure and another hard link outside of
+any cow.  An application can come in and modify the file through that
+second cow link causing problems.
 
-A good iotune daemon would probably have to pay attention to various VM 
-statistics as well, since the VM is often the one that decides when to 
-start writing out stuff...  such an app could (quite justifiably) 
-mushroom into a io-and-vmtune daemon.
+So the problem is not really with open files at the time of the cow
+although there is a variation of it there as well.  At the time of the
+cow it is possible to look through the dcache and find all of the
+files that are in the cow directory or a subdirectory of the it.  Then
+you can make those cow files.   But again you run into the problem of
+an application using a file through a link that is not a subdirectory
+of the cow directory. 
 
-This is a side issue from the topic of finding a decent in-kernel 
-default, of course...
+So in the presence of hard links doing cow on a directory other than
+the root directory can not be implemented correctly short of doing a
+complete recursive directory copy at the time you create the cow.  At
+which point you might as well just copy the directories in user space.
+At least the race conditions are easily apparent.
 
-	Jeff
-
-
+Eric
 

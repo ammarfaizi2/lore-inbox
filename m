@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268457AbRGXUfK>; Tue, 24 Jul 2001 16:35:10 -0400
+	id <S268454AbRGXUkK>; Tue, 24 Jul 2001 16:40:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268456AbRGXUfA>; Tue, 24 Jul 2001 16:35:00 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:1029 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268449AbRGXUeo>; Tue, 24 Jul 2001 16:34:44 -0400
-Date: Tue, 24 Jul 2001 13:33:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Patrick Dreker <patrick@dreker.de>
-cc: <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Optimization for use-once pages
-In-Reply-To: <E15P8jB-0000Au-00@wintermute>
-Message-ID: <Pine.LNX.4.33.0107241328020.29611-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268452AbRGXUkB>; Tue, 24 Jul 2001 16:40:01 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8456 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S268449AbRGXUjt>; Tue, 24 Jul 2001 16:39:49 -0400
+Date: Tue, 24 Jul 2001 22:39:55 +0200
+From: Jan Kara <jack@suse.cz>
+To: kernel-list@kinkaid.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dqblk or mem_dqblk for quotas?
+Message-ID: <20010724223955.A14114@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <web-233042@kinkaid.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <web-233042@kinkaid.org>; from kernel-list@kinkaid.org on Tue, Jul 24, 2001 at 10:45:22AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+  Hello,
 
-On Tue, 24 Jul 2001, Patrick Dreker wrote:
->
-> I just decided to give this patch a try, as I have written a little
-> application which does some statistics over traces dumped by another program
-> by mmap()ing a large file and reading it sequentially. The trace file to be
-> analyzed is about 240 megs in size and consists of records each 249 bytes
-> long. The analysis program opens and the mmap()s the trace file doing some
-> small calculations on the data (basically it adds up fields from the records
-> to get overall values).
+> Recently, I've been trying to write a utility to edit quotas
+> (specifically on an ext2 filesystem), using the 2.4.x
+> kernel. The man page for quotactl() on my system (RH 7.1)
+> refer to the mem_dqblk struct, which is nowhere to be found
+> in the source to the 2.4 kernels.
+> 
+> Am I missing something, or should I just continue to use the
+> dqblk struct.
+  It depends on version of kernel. In RH 7.1 Alan's kernel is used
+and in it is new quota format -> mem_dqblk must be used.
+In standard Linus's kernel dqblk should be used.
 
-Note that the patch won't do much anything for the mmap() case - the VM
-doesn't consider that "use once" anyway, and trying to make it do so would
-be hard, I suspect. It's just very nasty to try to figure out whether the
-user has touched the page a single time or millions of times...
+							Honza
 
-We do have the "accessed" bit, but in order to get any access patterns
-we'd have to scan the page tables a _lot_ more than we do now. Right now
-we do it only under memory pressure, and only about once per memory cycle,
-which is not really even remotely enough to get anything more than "yes,
-the user did touch the page"..
-
-In order for mmap() to make a difference with the new code, we could do
-something like look at the adjacent VM pages on page-in. That, together
-with VM hints, might well be able to do similar things for mmap. But at a
-noticeably higher cost than what the current code has.
-
-		Linus
-
+--
+Jan Kara <jack@suse.cz>
+SuSE Labs

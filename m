@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbSJQIeu>; Thu, 17 Oct 2002 04:34:50 -0400
+	id <S261872AbSJQIfl>; Thu, 17 Oct 2002 04:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261870AbSJQIeu>; Thu, 17 Oct 2002 04:34:50 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:4181 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S261868AbSJQIeu>; Thu, 17 Oct 2002 04:34:50 -0400
-Date: Thu, 17 Oct 2002 10:40:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Tervel Atanassov <noxidog@earthlink.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aio bug report
-Message-ID: <20021017084047.GW30254@dualathlon.random>
-References: <004101c274c8$3d2e2230$0e00000a@turchodog>
-Mime-Version: 1.0
+	id <S261871AbSJQIfl>; Thu, 17 Oct 2002 04:35:41 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:9917 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S261870AbSJQIfk>;
+	Thu, 17 Oct 2002 04:35:40 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <004101c274c8$3d2e2230$0e00000a@turchodog>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15790.30657.234936.840909@kim.it.uu.se>
+Date: Thu, 17 Oct 2002 10:41:37 +0200
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.5.42+ reboot kills Dell Latitude keyboard
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-since you're at it, could you try to reproduce on 2.4.20pre11aa1, your
-userspace should need not one single modification. thanks.
+Dell Latitude CPi laptop. Boot 2.5.42 or .43, then reboot.
+Shortly after the screen is blanked and the BIOS starts, it
+prints a "keyboard error" message and requests an F1 or F2
+response (continue or go into SETUP). Never happened with any
+other kernel on that machine.
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre11aa1.gz
+Apparently the 2.5.42+ "let's shut everything down at reboot"
+change put the keyboard controller in a state which is inconsistent
+with the BIOS' expections at a warm boot.
 
-(must be applied on top of 2.4.20pre11)
-
-thanks,
-
-Andrea
+First the disks-spun-down-at-reboot bug and now this. Sigh.

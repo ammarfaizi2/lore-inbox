@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273176AbRJNBeL>; Sat, 13 Oct 2001 21:34:11 -0400
+	id <S273204AbRJNBhb>; Sat, 13 Oct 2001 21:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273255AbRJNBeC>; Sat, 13 Oct 2001 21:34:02 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:12471
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S273204AbRJNBdx>; Sat, 13 Oct 2001 21:33:53 -0400
-Date: Sat, 13 Oct 2001 18:34:21 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.12-ac1
-Message-ID: <20011013183421.G15110@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20011012141726.A27516@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S273261AbRJNBhV>; Sat, 13 Oct 2001 21:37:21 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:49083 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S273204AbRJNBhL>; Sat, 13 Oct 2001 21:37:11 -0400
+From: "Paul E. McKenney" <pmckenne@us.ibm.com>
+Message-Id: <200110140137.f9E1bYN18728@eng4.beaverton.ibm.com>
+Subject: Re: Re: RFC: patch to allow lock-free traversal of lists with insertion
+To: rusty@rustcorp.com.au (Rusty Russell)
+Date: Sat, 13 Oct 2001 18:37:34 -0700 (PDT)
+Cc: torvalds@transmeta.com (Linus Torvalds), dipankar@in.ibm.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E15sWCI-0005tP-00@wagner> from "Rusty Russell" at Oct 14, 2001 06:19:54 AM PST
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011012141726.A27516@lightning.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.22i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 02:17:26PM +0100, Alan Cox wrote:
+>Where, if anywhere, is this worth it?  Good question: 3% on 4-way
+>dbench doesn't cut it in my book...
 
-> 2.4.12-ac1
+No argument here, we need to show compelling performance cases for RCU in
+a number of situations.  We have some (e.g., for FD set management on
+8-way reported at OLS), but need more.  We will continue to work on this.
 
-This still won't compile drivers/char/pc_keyb.c on most arches.  The
-following fixes that.
+If nothing else, this thread seems to have raised awareness of RCU.  ;-)
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
-
---- linux-2.4.10-ac11.orig/drivers/char/pc_keyb.c	Wed Oct 10 19:10:27 2001
-+++ linux-2.4.10-ac11/drivers/char/pc_keyb.c	Wed Oct 10 19:35:15 2001
-@@ -34,6 +34,7 @@
- #include <linux/vt_kern.h>
- #include <linux/smp_lock.h>
- #include <linux/kd.h>
-+#include <linux/pm.h>
- 
- #include <asm/keyboard.h>
- #include <asm/bitops.h>
+						Thanx, Paul

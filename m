@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbVA1UO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262759AbVA1URL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262752AbVA1UO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbVA1UMr
+	id S262759AbVA1URL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 15:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVA1UPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:12:47 -0500
-Received: from colo.lackof.org ([198.49.126.79]:40662 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S262728AbVA1ULt (ORCPT
+	Fri, 28 Jan 2005 15:15:51 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:13773 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262728AbVA1UNu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:11:49 -0500
-Date: Fri, 28 Jan 2005 13:12:00 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>, Jon Smirl <jonsmirl@gmail.com>,
-       Greg KH <greg@kroah.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <matthew@wil.cx>,
-       linux-pci@atrey.karlin.mff.cuni.cz, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
-Message-ID: <20050128201200.GE32135@colo.lackof.org>
-References: <9e47339105011719436a9e5038@mail.gmail.com> <200501281041.42016.jbarnes@sgi.com> <20050128193320.GB32135@colo.lackof.org> <200501281141.16450.jbarnes@sgi.com>
+	Fri, 28 Jan 2005 15:13:50 -0500
+Subject: Re: [PATCH 2/4] page_cache_readahead: remove duplicated code
+From: Ram <linuxram@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <41F786EF.9FE19AEC@tv-sign.ru>
+References: <41F63493.309B0ADB@tv-sign.ru>
+	 <1106698119.3298.57.camel@localhost>  <41F786EF.9FE19AEC@tv-sign.ru>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1106943227.4286.28.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501281141.16450.jbarnes@sgi.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 28 Jan 2005 12:13:47 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 11:41:16AM -0800, Jesse Barnes wrote:
-> Yeah, I think I understand.  We could probably do the same thing on sn2
-> as you do on parisc--add a 'segment 0' offset to the port so that it's routed 
-> correctly.  I think that's a little less flexible than adding a new resource 
-> though, since it makes it harder for drivers to support more than one device 
-> or devices on non-segment 0 busses.
+On Wed, 2005-01-26 at 04:02, Oleg Nesterov wrote:
+> Ram wrote:
+> >
+> > No. There is a reason why we had some duplication. With your patch,
+> > we will end up reading-on-demand instead of reading ahead.
+> >
+> > When we notice a sequential reads have resumed, we first read in the
+> > data that is requested.
+> > However if the read request is for more pages than what are being held
+> > in the current window, we make the ahead window as the current window
+> > and read in more pages in the ahead window. Doing that gives the
+> > opportunity of always having pages in the ahead window when the next
+> > sequential read request comes in.
+> 
+> Yes, sorry. I have not noticed that this 'goto out' is conditional in
+> the 'no ahead window' case.
+> 
+> Thank you for explanation.
+> 
+> However, I still think it makes sense to factor out the common code in
+> these two cases, just for readability.
 
-To be clear, the parisc code defines this in include/asm-parisc/pci.h:
+We did consider putting a while loop, which looped twice. That looked
+ugly too. So we left it as is. You might have better ideas.
 
-#define HBA_PORT_SPACE_BITS     16
-#define PCI_PORT_HBA(a)    ((a) >> HBA_PORT_SPACE_BITS)
+> 
+> I'll redo these patches.
+> 
+Your 1st patch was fine. I have not looked deeply through your 3rd and
+4th patch. However I will wait till you redo your patches.
 
-and PCI_PORT_HBA gets used in arch/parisc/kernel/pci.c.
+RP
+> Oleg.
 
-Offhand, I don't know if ia64 has the equivalent.
-But it sounds like it might need it.
-
-grant

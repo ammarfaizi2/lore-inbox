@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129828AbRCLM2B>; Mon, 12 Mar 2001 07:28:01 -0500
+	id <S130065AbRCLMqN>; Mon, 12 Mar 2001 07:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129830AbRCLM1l>; Mon, 12 Mar 2001 07:27:41 -0500
-Received: from mumm.ibr.cs.tu-bs.de ([134.169.34.190]:46798 "EHLO
-	mumm.ibr.cs.tu-bs.de") by vger.kernel.org with ESMTP
-	id <S129828AbRCLM1f>; Mon, 12 Mar 2001 07:27:35 -0500
-Date: Mon, 12 Mar 2001 13:26:51 +0100
-Message-Id: <200103121226.NAA09602@kelts.ibr.cs.tu-bs.de>
-From: Joerg Diederich <dieder@ibr.cs.tu-bs.de>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with mtrr and Cyrix 6x86MX: no mtrr for...
+	id <S130073AbRCLMqD>; Mon, 12 Mar 2001 07:46:03 -0500
+Received: from [62.122.5.33] ([62.122.5.33]:1543 "HELO milkplus")
+	by vger.kernel.org with SMTP id <S130065AbRCLMp5>;
+	Mon, 12 Mar 2001 07:45:57 -0500
+Subject: Re: Interesting fs corruption story
+From: Ettore Perazzoli <ettore@ximian.com>
+To: timw@splhi.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010307122222.A1254@kochanski.internal.splhi.com>
+In-Reply-To: <Pine.LNX.4.21.0103042043320.27829-100000@trna.ximian.com>
+	<20010306170102.B1095@kochanski.internal.splhi.com>
+	<983927410.11517.0.camel@milkplus.unknown.domain> 
+	<20010307122222.A1254@kochanski.internal.splhi.com>
+Content-Type: text/plain
+X-Mailer: Evolution/0.9 (Preview Release)
+Date: 12 Mar 2001 07:44:40 -0500
+Message-Id: <984401080.15372.4.camel@milkplus.unknown.domain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 07 Mar 2001 12:22:22 -0800, Tim Wright wrote:
+> On Tue, Mar 06, 2001 at 08:10:10PM -0500, Ettore Perazzoli wrote:
+> > On 06 Mar 2001 17:01:02 -0800, Tim Wright wrote:
+> Yes, it does. I have the drive running in UDMA mode 2, and get ~16MB/s from
+> 'hdparm -t -T'. I have the "use DMA automatically" option turned on in the
+> kernel, so I inherit the BIOS settings which are correct.
+> 
+> I've used standby and hibernation with complete success since.
 
-I switched to Linux 2.4 recently and ran into the following problem:
+  This seemed to fix the problem for me as well.  I have had DMA turned
+on since then, and I have experienced no file system corruption anymore.
+Thanks!
 
-When starting XFree 4.0.2, I get error messages like
+  Maybe the help message for this kernel option (CONFIG_APM_ALLOW_INTS)
+should report in big blocky letters that disabling it might cause major
+data loss with some drive/bios combinations?..  I was not aware that I
+was touching such a sensitive parameter when I rebuilt the kernel, and
+the help message didn't warn me in any way.
 
-'no mtrr for 0xe0000000,0x400000' (or sth similar, I am not currently
-at the machine with the Cyrix).
-
-Digging deeper, I found the following, non XFree-related problem:
-
-When I do 
-'echo "base=0xe0000000 size=0x400000 type=write-combining" > /proc/mtrr' 
-
-as said in linux/Documentation/mtrr.txt in order to enable mtrr's for
-my graphics board, a 'cat /proc/mtrr' tells me, that the size is 8MB.
-
-If I do
-'echo "base=0xe0000000 size=0x200000 type=write-combining" > /proc/mtrr' 
-
-the behaviour becomes even stranger:
-
-When I do it the first time, again the size is 8MB (according to
-/proc/mtrr). When I delete the entry again (with 'echo delete...'),
-and repeat the above 'echo "base...', then the size is 4MB and there
-are no error messages when I start Xfree (which increases the 'count'
-in /proc/mtrr to 2).
-
-Probably it might be of interest, that the '8MB size' entry in
-/proc/mtrr is always in reg=6, whereas the 4MB size entry is in reg=2.
-
-My question is now, if this behavior is correct (since I do not know
-at all, what the mtrr stuff does except for that it speeds up my
-system. That's why I want to use it :-) or if it is an already known
-bug.
-
-If it is an unknown bug, I can give more information if someone tells
-me which one (exact /proc/mtrr output, /proc/cpuinfo etc, I didn't
-want to attach all the stuff in case this issue is known already)
-
-I am using the 2.4.2 kernel from SuSe, but I think this is not related
-to the SuSe-kernel... (However, I can check it with vanilla 2.4.2 or
-any patched version).
-
-
-Regards,
-
-/J"org
+-- 
+Ettore

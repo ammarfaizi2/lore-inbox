@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129104AbRBWPkX>; Fri, 23 Feb 2001 10:40:23 -0500
+	id <S129375AbRBWP41>; Fri, 23 Feb 2001 10:56:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129190AbRBWPkO>; Fri, 23 Feb 2001 10:40:14 -0500
-Received: from mta04.mail.au.uu.net ([203.2.192.84]:4502 "EHLO
-	mta04.mail.mel.aone.net.au") by vger.kernel.org with ESMTP
-	id <S129104AbRBWPkD>; Fri, 23 Feb 2001 10:40:03 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Matt Johnston <mlkm@caifex.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: random PID generation
-Date: Fri, 23 Feb 2001 23:40:37 +0800
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <27525795B28BD311B28D00500481B7601F0F02@ftrs1.intranet.ftr.nl>
-In-Reply-To: <27525795B28BD311B28D00500481B7601F0F02@ftrs1.intranet.ftr.nl>
-MIME-Version: 1.0
-Message-Id: <01022323403700.00325@box.caifex.org>
-Content-Transfer-Encoding: 7BIT
+	id <S129548AbRBWP4I>; Fri, 23 Feb 2001 10:56:08 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:62459 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129375AbRBWP4F>; Fri, 23 Feb 2001 10:56:05 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200102231554.f1NFsfI03168@webber.adilger.net>
+Subject: Re: Network console project (was: LILO and serial speeds over 9600)
+In-Reply-To: <20010222225208.B14571@bug.ucw.cz> from Pavel Machek at "Feb 22,
+ 2001 10:52:08 pm"
+To: Pavel Machek <pavel@suse.cz>
+Date: Fri, 23 Feb 2001 08:54:41 -0700 (MST)
+CC: "H. Peter Anvin" <hpa@transmeta.com>, James Sutherland <jas88@cam.ac.uk>,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OpenBSD has a working implementation, might be worth looking at???
+You write:
+> > We have set up a network console project on sourceforge and are starting
+> > to work on actual details.  If you're interested in this subject please
+> > do join that list.
+> > 
+> > Please see:
+> > 
+> > 	http://sourceforge.net/mail/?group_id=20426
+> 
+> Unfortunately maillist archives at sourceforge do not work.
 
-Cheers,
-Matt Johnston.
+Yes, I noticed this as well - there are several bug reports open already.
+I have subscribed some of the mailing lists at sourceforge that I'm using
+to marc.theaimsgroup.com, which has good searching facilities, etc.
 
-On Fri, 23 Feb 2001 23:34, Heusden, Folkert van wrote:
-> >> My code runs trough the whole task_list to see if a chosen pid is
-> >> already
-> >>
-> >> in use or not.
-> >
-> > But it doesn't check for a recently used PID. Lets say your system is
-> > exhausting 1000 PIDs/second, and that there is a window of 20ms between
->
-> you
->
-> > determining which PID to send to, and the recipient process receiving it.
->
-> Ah, I get your point. Good point :o)
->
-> I was thinking: I could split the PIDs up in 2...16383 and 16384-32767 and
-> then
-> switch between them when a process ends? nah, that doesn't help it.
-> hmmm.
-> I think random increments (instead of last_pid+1) would be the best thing
-> to do then?
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

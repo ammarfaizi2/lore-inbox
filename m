@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274968AbTHPVmn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 17:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274975AbTHPVmn
+	id S274971AbTHPV60 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 17:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274973AbTHPV60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 17:42:43 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:56450 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S274968AbTHPVml
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 17:42:41 -0400
-Date: Sat, 16 Aug 2003 22:42:37 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: Michael Frank <mhf@linuxmail.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
-Message-ID: <20030816214237.GB25483@mail.jlokier.co.uk>
-References: <200308170410.30844.mhf@linuxmail.org> <200308162049.h7GKnwnP024716@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308162049.h7GKnwnP024716@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+	Sat, 16 Aug 2003 17:58:26 -0400
+Received: from host81-128-40-169.in-addr.btopenworld.com ([81.128.40.169]:16685
+	"EHLO worthy.swandive.local") by vger.kernel.org with ESMTP
+	id S274971AbTHPV6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 17:58:24 -0400
+Message-ID: <3F3EA8FD.1030000@btinternet.com>
+Date: Sat, 16 Aug 2003 22:58:21 +0100
+From: Grant Wilson <gww@btinternet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test3-bk4 compilation failures
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 17 Aug 2003 04:10:30 +0800, Michael Frank <mhf@linuxmail.org>  said:
-> > Linux logs almost everything, why not exceptions such as SIGSEGV
-> > in userspace which may be very informative?
-> 
-> [SIG_IGN]
+If my .config has ACPI enabled but CONFIG_X86_UP_IOAPIC not set then the 
+compilation fails:
 
-Presumably only SIGSEGVs which kill a process would be logged...
+arch/i386/kernel/mpparse.c: In function `mp_config_ioapic_for_sci':
+arch/i386/kernel/mpparse.c:1065: warning: implicit declaration of 
+function `mp_find_ioapic'
+arch/i386/kernel/mpparse.c:1067: error: `mp_ioapic_routing' undeclared 
+(first use in this function)
+arch/i386/kernel/mpparse.c:1067: error: (Each undeclared identifier is 
+reported only once
+arch/i386/kernel/mpparse.c:1067: error: for each function it appears in.)
+arch/i386/kernel/mpparse.c:1069: warning: implicit declaration of 
+function `io_apic_set_pci_routing'
+arch/i386/kernel/mpparse.c: In function `mp_parse_prt':
+arch/i386/kernel/mpparse.c:1113: error: `mp_ioapic_routing' undeclared 
+(first use in this function)
 
-Some programs actually _use_ SIGSEGV in a useful way, to manage memory.
-Same for SIGBUS and other signals.  It would be wrong to log them.
+If I then set both CONFIG_X86_UP_IOAPIC and CONFIG_X86_IO_APIC to 'y' 
+the compilation fails:
 
--- Jamie
+drivers/ide/pci/amd74xx.c: In function `amd74xx_get_info':
+drivers/ide/pci/amd74xx.c:107: error: structure has no member named `name'
+drivers/ide/pci/amd74xx.c: In function `init_chipset_amd74xx':
+drivers/ide/pci/amd74xx.c:368: error: structure has no member named `name'
+
+-- Grant
+
+

@@ -1,80 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266011AbUALCRN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 21:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266020AbUALCRM
+	id S265218AbUALCK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 21:10:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265842AbUALCK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 21:17:12 -0500
-Received: from mail.bluebottle.com ([69.20.6.25]:9361 "EHLO mail.bluebottle")
-	by vger.kernel.org with ESMTP id S266011AbUALCRH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 21:17:07 -0500
-Date: Mon, 12 Jan 2004 00:17:03 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-X-X-Sender: fredlwm@pervalidus.dyndns.org
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: The key "/ ?" on my abtn2 keyboard is dead with kernel
- 2.6.1
-In-Reply-To: <20040111235025.GA832@ucw.cz>
-Message-ID: <Pine.LNX.4.58.0401120004110.601@pervalidus.dyndns.org>
-References: <200401111545.59290.murilo_pontes@yahoo.com.br> <20040111235025.GA832@ucw.cz>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 Jan 2004 21:10:57 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35541 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265218AbUALCKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 21:10:55 -0500
+Date: Mon, 12 Jan 2004 03:10:52 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andreas Haumer <andreas@xss.co.at>,
+       David Hinds <dahinds@users.sourceforge.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: [2.4 patch] simplify PARPORT_PC_PCMCIA dependencies
+Message-ID: <20040112021052.GG9677@fs.tum.de>
+References: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet> <3FF2EAB3.1090001@xss.co.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FF2EAB3.1090001@xss.co.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech, he reported the same problem I have. The "/ ?" key not
-working anymore with ABNT2 keyboards.
+On Wed, Dec 31, 2003 at 04:26:43PM +0100, Andreas Haumer wrote:
 
-I tested with the patch and it didn't fix it on the console.
-I'm using kbd 1.10.
+> Hi!
 
-showkey under 2.4:
+Hi Andreas!
 
-keycode  89
+>...
+> Here's a first report:
+>...
+>    - Double (but deactivated) entry in config dialog for
+>      + "Parallel port support" / "Support for PCMCIA management for PC-stype ports"
+>...
 
-showkey under 2.6.1:
+Thanks for this report.
 
-keycode   0 press
-keycode   1 release
-keycode  53 release
-keycode   0 release
-keycode   1 release
-keycode  53 release
+The patch below fixes this issue, and as a side effect it's also a great 
+simplification (while remaining semantically equivalent with the 
+original dependencies).
 
-It works with XFree86.
+cu
+Adrian
 
-Since 2.6.0 worked, I assume something broke it.
-
-Mon, 12 Jan 2004, Vojtech Pavlik wrote:
-
-> On Sun, Jan 11, 2004 at 03:45:59PM +0000, Murilo Pontes wrote:
->
-> > 15:34:36 [root@murilo:/MRX/drivers]#diff -urN linux-2.6.0/drivers/input/keyboard/atkbd.c linux-2.6.1/drivers/input/keyboard/atkbd.c > test.diff
-> > 15:35:12 [root@murilo:/MRX/drivers]#wc -l test.diff
-> >     387 test.diff
-> > -------------> May be wrong?!
->
-> Yes, there was a mistake by me in a related patch.
->
-> This should fix it.
->
-> diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-> --- a/drivers/char/keyboard.c	Sun Jan 11 19:42:55 2004
-> +++ b/drivers/char/keyboard.c	Sun Jan 11 19:42:55 2004
-> @@ -941,8 +941,8 @@
->  	 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
->  	 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
->  	 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-> -	 80, 81, 82, 83, 84, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
-> -	284,285,309,311,312, 91,327,328,329,331,333,335,336,337,338,339,
-> +	 80, 81, 82, 83, 43, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
-> +	284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
->  	367,288,302,304,350, 89,334,326,116,377,109,111,126,347,348,349,
->  	360,261,262,263,298,376,100,101,321,316,373,286,289,102,351,355,
->  	103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
-
--- 
-http://www.pervalidus.net/contact.html
+--- linux-2.4.25-pre4-full/drivers/parport/Config.in.old	2004-01-12 02:51:25.000000000 +0100
++++ linux-2.4.25-pre4-full/drivers/parport/Config.in	2004-01-12 03:00:50.000000000 +0100
+@@ -24,13 +24,7 @@
+          bool '    Use FIFO/DMA if available (EXPERIMENTAL)' CONFIG_PARPORT_PC_FIFO
+          bool '    SuperIO chipset support (EXPERIMENTAL)' CONFIG_PARPORT_PC_SUPERIO
+       fi
+-      if [ "$CONFIG_HOTPLUG" = "y" -a "$CONFIG_PCMCIA" != "n" ]; then
+-         if [ "$CONFIG_PARPORT_PC" = "y" ]; then
+-            dep_tristate '    Support for PCMCIA management for PC-style ports' CONFIG_PARPORT_PC_PCMCIA $CONFIG_PCMCIA
+-         else
+-            dep_tristate '    Support for PCMCIA management for PC-style ports' CONFIG_PARPORT_PC_PCMCIA $CONFIG_PARPORT_PC
+-         fi
+-      fi
++      dep_tristate '    Support for PCMCIA management for PC-style ports' CONFIG_PARPORT_PC_PCMCIA $CONFIG_PCMCIA $CONFIG_PARPORT_PC $CONFIG_HOTPLUG
+    fi
+    if [ "$CONFIG_ARM" = "y" ]; then
+       dep_tristate '  Archimedes hardware' CONFIG_PARPORT_ARC $CONFIG_PARPORT

@@ -1,83 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbUDUOWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263033AbUDUO0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263027AbUDUOWm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 10:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUDUOWm
+	id S263033AbUDUO0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 10:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUDUO0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 10:22:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14268 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262953AbUDUOW3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 10:22:29 -0400
-Date: Wed, 21 Apr 2004 15:22:28 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-ia64@vger.kernel.org,
-       Matt Tolentino <matthew.e.tolentino@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add some EFI device smarts
-Message-ID: <20040421142228.GM18329@parcelfarce.linux.theplanet.co.uk>
-References: <200404201600.26207.bjorn.helgaas@hp.com> <20040420235038.GB29850@lists.us.dell.com> <200404210659.22884.bjorn.helgaas@hp.com>
+	Wed, 21 Apr 2004 10:26:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44178 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263033AbUDUO0V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 10:26:21 -0400
+Subject: Re: 2.4.26, RAID1 + ext3fs oops(es)
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Rui Sousa <rui.sousa@laposte.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1082556296.6911.39.camel@sophia-sousar2-1.nice.mindspeed.com>
+References: <1082556296.6911.39.camel@sophia-sousar2-1.nice.mindspeed.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1082557576.2060.19.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404210659.22884.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Apr 2004 15:26:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 21, 2004 at 06:59:22AM -0600, Bjorn Helgaas wrote:
-> > > +		/* Convert Unicode to normal chars */
-> > > +		for (i = 0; i < (name_size/sizeof(name_unicode[0])); i++)
-> > > +			name_utf8[i] = name_unicode[i] & 0xff;
-> > > +		name_utf8[i] = 0;
-> > 
-> > I've never had a clear understanding of this.  It's not really UTF8
-> > (else straight ASCII text could be used), but more like UCS2.
-> 
-> I don't understand Unicode either.  Maybe the attached is a little
-> closer?  The EFI spec (1.10, table 2-2) says strings are stored in
-> UTF-16, and I think that UTF-16 is the same as ASCII for
-> (0 < c <= 0x7f).
+Hi,
 
-Ah, I know this one ...
+On Wed, 2004-04-21 at 15:05, Rui Sousa wrote:
 
-UTF-16 is like UCS-2 except that it has escapes to let you use past the
-first plane of Unicode.  That is, by and large it's 2-bytes long, but
-sometimes it can be 4 or more bytes long.  How to convert?  Let's see ...
+> I'm seeing frequent oopses when using a combination of RAID1 plus
+> ext3fs.
 
-	for (i = 0, j = 0; i < (name_size/sizeof(name_unicode[0])); i++) {
-		unsigned int rune = name_unicode[i];
-		if (0xD7FF < rune && rune < 0xE000) {
-			rune = (rune & 0x7ff) << 10;
-			rune |= name_unicode[++i] & 0x3ff;
-		}
-		if (rune < 0x80) {
-			name_utf8[j++] = rune;
-		} else if (rune < 0x800) {
-			name_utf8[j++] = 0xc0 | (rune >> 6);
-			name_utf8[j++] = 0x80 | (rune & 0x3f);
-		} else if (rune < 0x10000) {
-			name_utf8[j++] = 0xe0 | (rune >> 12);
-			name_utf8[j++] = 0x80 | ((rune >> 6) & 0x3f);
-			name_utf8[j++] = 0x80 | (rune & 0x3f);
-		} else {
-			name_utf8[j++] = 0xf0 | (rune >> 18);
-			name_utf8[j++] = 0x80 | ((rune >> 12) & 0x3f);
-			name_utf8[j++] = 0x80 | ((rune >> 6) & 0x3f);
-			name_utf8[j++] = 0x80 | (rune & 0x3f);
-		}
-	}
+The log is full of errors like
 
-ftp://ftp.rfc-editor.org/in-notes/rfc2279.txt
-ftp://ftp.rfc-editor.org/in-notes/rfc2781.txt
+        EIP:    0010:[prune_dcache+24/320]    Not tainted
+        
+Unfortunately, dcache corruptions like that are most often a sign of bad
+hardware, usually memory.  I'd recommend an overnight memtest86 run as
+the first step towards diagnosing the problem.
 
-Haven't even tried to compile it ...
+Cheers,
+ Stephen
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,82 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264242AbUENFWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264235AbUENFcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264242AbUENFWk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 01:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbUENFWk
+	id S264235AbUENFcX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 01:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUENFcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 01:22:40 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5566 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S264242AbUENFWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 01:22:37 -0400
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: akpm <akpm@osdl.org>, fastboot@lists.osdl.org, drepper@redhat.com,
+	Fri, 14 May 2004 01:32:23 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:34446 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S264235AbUENFcU (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 01:32:20 -0400
+Message-Id: <200405140532.i4E5WF4p006799@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andy Lutomirski <luto@myrealbox.com>, akpm@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-References: <20040511212625.28ac33ef.rddunlap@osdl.org>
-	<40A1AF53.3010407@redhat.com>
-	<m13c66qicb.fsf@ebiederm.dsl.xmission.com> <40A243C8.401@redhat.com>
-	<m1brktod3f.fsf@ebiederm.dsl.xmission.com>
-	<40A2517C.4040903@redhat.com>
-	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
-	<20040512143233.0ee0405a.rddunlap@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 May 2004 23:21:11 -0600
-In-Reply-To: <20040512143233.0ee0405a.rddunlap@osdl.org>
-Message-ID: <m1wu3fy46w.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] capabilities, take 3 (Re: [PATCH] capabilites, take 2) 
+In-Reply-To: Your message of "Thu, 13 May 2004 22:04:15 PDT."
+             <20040513220415.E22989@build.pdx.osdl.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <200405131308.40477.luto@myrealbox.com> <20040513182010.L21045@build.pdx.osdl.net> <200405131945.53723.luto@myrealbox.com>
+            <20040513220415.E22989@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_673854761P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 14 May 2004 01:32:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
+--==_Exmh_673854761P
+Content-Type: text/plain; charset=us-ascii
 
-> On 12 May 2004 10:57:27 -0600 Eric W. Biederman wrote:
-> 
-> | Ulrich Drepper <drepper@redhat.com> writes:
-> | 
-> | > Eric W. Biederman wrote:
-> | > 
-> | > > As a first draft we should be able to use the standard ELF mechanisms
-> | > > for this.  It is not like PIC shared libraries were new.   Or is
-> | > > there some specific problem you are thinking of with respect to
-> | > > randomization?
-> | > 
-> | > The official kernel does not have vdso randomization.  Ingo has a patch
-> | > for the Red Hat kernel which is used in the FC2 kernel.  The patch
-> | > effectively only changes the location at which the vdso is mapped.  It
-> | > does not change the vdso content.  So the __kernel_vsyscall symbol in
-> | > the vdso's symbol table is not changed.
-> 
-> [1:]
-> | > AT_SYSINFO is the right way to go forward but it is not directly
-> | > accessible to userlevel code.  And it is no pointer which will make
-> | > architectures with function descriptors unhappy.
-> | 
-> | It sounds like the vdso just needs to be treated as a prelinked
-> | vdso.  You can find everything you need with AT_SYSINFO_EHDR.
-> | 
-> | In the case of function descriptors they should be in a data segment
-> | that can get copied to another page, and corrected.  Leaving the code
-> | segment at it's randomized location.
-> 
-> Andrew tells me that he is OK with reserving a syscall number for
-> kexec, which is easy & quick.  I don't know when vdso will be available
-> (for non-x86[2]) or when the AT_SYSINFO data will work for userlevel
-> code[1. above].
-> 
-> So is there any reason not to reserve the syscall number for kexec
-> for now?  (patch is below)
-> 
-> --
-> ~Randy
-> 
-> 
-> [2] kexec is currently only available for x86, but there is interest
-> in it for ia64 and ppc64 at least.
+On Thu, 13 May 2004 22:04:15 PDT, Chris Wright said:
 
-Also been work on x86-64 and ppc32.   So if we are going to reserve
-syscall numbers  it would also be nice to have those reserved as well.
+> Well, I wonder what IRIX does?  They support capabilities and had a
+> reasonable sized hand in the draft.  No point in making it impossible
+> to port apps.  It's not that I'm a strong fan of Posix caps, but
+> compatibility (even with a partially complete draft) with defacto
+> standards is not entirely unreasonable.
 
-Eric
+The IRIX 6.5 manpage says:
+
+
+    A process has three, possibly empty, sets of capabilities.  The permitted
+     capability set is the maximum set of capabilities for the process.  The
+     effective capability set contains those capabilities that are currently
+     active for the process.  The inherited capability set contains those
+     capabilities that the process may pass to the next process image across
+     exec(2).
+
+     Only capabilities in a process' effective capability set allow the
+     process to perform restricted operations.  A process may use capability
+     management functions to add or remove capabilities from its effective
+     capability set.  However the capabilities that a process can make
+     effective are limited to those that exist in its permitted capability
+     set.
+
+     Only capabilities in the process' inherited capability set can be passed
+     across exec(2).
+
+     Capabilities are also associated with files.  There may or may not be a
+     capability set associated with a specific file.  If a file has no
+     capability set, execution of this file through an exec(2) will leave the
+     process' capability set unchanged.  If a file has a capability set,
+     execution of file will affect the process' capability set in the
+     following way: a file's inherited capability set further constrains the
+     process inherited capabilities that are passed from one process image to
+     another. The file's permitted capability set contains the capabilities
+     that are unconditionally permitted to a process upon execution of that
+     file.  The file's effective capabilities are the capabilities that become
+     immediately active for the process upon execution of the file.
+
+     More precisely described, the process capability assignment algorithm is:
+
+              I-proc-new = I-proc-old & I-file
+              P-proc-new = P-file | (I-proc-new & P-proc-old)
+              E-proc-new = P-proc-new & E-file
+
+     File capabilities are supported only on XFS filesystems.
+
+Note that Irix has *3* capability vectors attached to a file....
+
+--==_Exmh_673854761P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFApFnfcC3lWbTT17ARAtkuAKCvVXBz5+e7szf/jArOYNyAeB8UGwCg3mr/
+V8UtQWFwxLqo9n+YjSeNRIo=
+=OfKR
+-----END PGP SIGNATURE-----
+
+--==_Exmh_673854761P--

@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267958AbUIKOi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267976AbUIKOt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267958AbUIKOi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 10:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267976AbUIKOi4
+	id S267976AbUIKOt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 10:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUIKOt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 10:38:56 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:11699 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267958AbUIKOiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 10:38:54 -0400
-Subject: Re: [PATCH] i386 reduce spurious interrupt noise
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
-       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20040910232826.GA3302@taniwha.stupidest.org>
-References: <20040902192820.GA6427@taniwha.stupidest.org>
-	 <Pine.LNX.4.58L.0409102306420.20057@blysk.ds.pg.gda.pl>
-	 <20040910231052.GA3078@taniwha.stupidest.org>
-	 <1094854872.18282.29.camel@localhost.localdomain>
-	 <20040910232826.GA3302@taniwha.stupidest.org>
+	Sat, 11 Sep 2004 10:49:56 -0400
+Received: from trantor.org.uk ([213.146.130.142]:53917 "EHLO trantor.org.uk")
+	by vger.kernel.org with ESMTP id S267976AbUIKOtz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 10:49:55 -0400
+Subject: Re: [PATCH 2.6 NETFILTER] new netfilter module ipt_program.c
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+In-Reply-To: <4142F4CC.7080708@trash.net>
+References: <20040911124106.GD24787@lkcl.net>  <4142F4CC.7080708@trash.net>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094909793.21157.12.camel@localhost.localdomain>
+Date: Sat, 11 Sep 2004 15:49:35 +0100
+Message-Id: <1094914175.8495.66.camel@sherbert>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 11 Sep 2004 14:36:34 +0100
+X-Mailer: Evolution 1.5.9.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-09-11 at 00:28, Chris Wedgwood wrote:
-> > > > > -			printk("spurious 8259A interrupt: IRQ%d.\n", irq);
-> > > > > +			printk(KERN_DEBUG "spurious 8259A interrupt: IRQ%d.\n", irq);
+On Sat, 2004-09-11 at 14:51 +0200, Patrick McHardy wrote:
+> Luke Kenneth Casson Leighton wrote:
+> > decided to put this into a separate module.  based on ipt_owner.c.
+> > does full program's pathname.  like ipt_owner, only suitable for
+> > outgoing connections.
 > 
-> > This should really go.
-> 
-> do we want counters for this?  what about the APIC case?
+> I agree that it would be useful to match the full path, but
+> the patch is broken, as are the owner match's pid-, sid- and
+> command-matching options. You can't grab files->file_lock
+> outside of process context. Besides, we want to consolidate
+> functionality, not add new matches that do basically the same
+> as existing ones.
 
-I don't know enough about the APIC version to comment, just the PIC one.
+This is a binary compatibility issue, I don't think it's possible to add
+Lukes functionality to ipt_owner without breaking iptables
+compatibility.
+
+-- 
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+

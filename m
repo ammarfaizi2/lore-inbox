@@ -1,85 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285320AbRLGAL7>; Thu, 6 Dec 2001 19:11:59 -0500
+	id <S285334AbRLGAQJ>; Thu, 6 Dec 2001 19:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285328AbRLGALu>; Thu, 6 Dec 2001 19:11:50 -0500
-Received: from mail.gmx.net ([213.165.64.20]:4879 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S285320AbRLGALl>;
-	Thu, 6 Dec 2001 19:11:41 -0500
-Date: Fri, 7 Dec 2001 01:11:34 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: Greg KH <greg@kroah.com>
-Cc: jonathan@daria.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Q: device(file) permissions for USB
-Message-Id: <20011207011134.04c2a4af.rene.rebe@gmx.net>
-In-Reply-To: <20011206160055.O2710@kroah.com>
-In-Reply-To: <fa.ljcupnv.1ghotjk@ifi.uio.no>
-	<664.3c0fd1b7.a66fa@trespassersw.daria.co.uk>
-	<20011206223050.179cd30e.rene.rebe@gmx.net>
-	<20011206152721.M2710@kroah.com>
-	<20011207004521.19a131d4.rene.rebe@gmx.net>
-	<20011206160055.O2710@kroah.com>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S285329AbRLGAP4>; Thu, 6 Dec 2001 19:15:56 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:61962 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S285334AbRLGAOu>; Thu, 6 Dec 2001 19:14:50 -0500
+Message-ID: <3C1009B8.8080300@namesys.com>
+Date: Fri, 07 Dec 2001 03:13:44 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+        ramon@thebsh.namesys.com, yura@namesys.com
+Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16Bppx-0000mN-00@starship.berlin> <3C0F7659.1090701@namesys.com> <E16C2EN-0000pz-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001 16:00:55 -0800
-Greg KH <greg@kroah.com> wrote:
+Daniel Phillips wrote:
 
-Ok I did not searched this far. But this way you also change the nodes for
-USB hard-discs, net-interfaces, ... to 666 - the same insecure as my find
-solotion ...
+>On December 6, 2001 02:44 pm, Hans Reiser wrote:
+>
+>>Daniel Phillips wrote:
+>>
+>>>On December 6, 2001 04:56 am, Hans Reiser wrote:
+>>>
+>>>>>On December 6, 2001 04:41 am, you wrote:
+>>>>>
+>>>>>>ReiserFS is an Htree by your definition in your paper, yes?
+>>>>>>
+>>>>>You've got a hash-keyed b*tree over there.  The htree is fixed depth.
+>>>>>
+>>>>B*trees are fixed depth.  B-tree usually means height-balanced.  
+>>>>
+>>>I was relying on definitions like this:
+>>>
+>>> B*-tree
+>>>
+>>> (data structure)
+>>>
+>>> Definition: A B-tree in which nodes are kept 2/3 full by redistributing
+>>> keys to fill two child nodes, then splitting them into three nodes.
+>>>
+>>This is the strangest definition I have read.  Where'd you get it?
+>>
+>>
+>
+>This came from:
+>
+>   http://www.nist.gov/dads/HTML/bstartree.html
+>
+>Here's another, referring to Knuth's original description:
+>
+>   http://www.cise.ufl.edu/~jhammer/classes/b_star.html
+>
 
-> So a simple /sbin/hotplug script of:
-> 	#!/bin/sh
-> 	if [ "$1" == "usb" ]; then
-> 		chmod 666 $DEVICE
-> 	fi
-> 
-> would work just fine for your needs.
+Hmmmm, the definition I think I remember came I think from Wood's book 
+on Algorithms, and unfortunately it disappeared from my office some time 
+ago.
 
-> It's not a procfs hack, it is a stand alone filesystem.  The fact that
-> you happen to mount it within the /proc filesystem is your option.
+My memory was that a B*-tree handles variable length records.  It seems 
+I am wrong though.  Dear.  I'd better go tell the tech writer.
 
-Yes my mistake - sorry.
+ReiserFS is a B*-tree by both definitions though.  (Convenient at the 
+moment:-) )
 
-> The USB developers did not want to force people to use devfs to use USB
-> devices, and based on the fact that not a single distro is using devfs
-> (the one that did, now recommends that you disable it) backs up this
-> choice.
+>
+>
+>>>To tell the truth, I haven't read your code that closely, sorry, but I got 
+>>>the impression that you're doing rotations for balancing no?  If not then 
+>>>
+>>What are rotations?
+>>
+>
+>Re-rooting a (sub)tree to balance it.  <Pulls Knuth down from shelf>
+>For a BTree, rotating means shifting keys between siblings rather than 
+>re-parenting.  (The latter would change the path lengths and the result 
+>wouldn't be a BTree.)
+>
+>So getting back to your earlier remark, when examined under a bright light, 
+>an HTree looks quite a lot like a BTree, the principal difference being the 
+>hash and consequent collision handling.  An HTree is therefore a BTree with 
+>wrinkles.
+>
+Hmmm, well we do hashes too.  But I see your hash collision handling 
+resembles (but with some interesting improvements) something once 
+suggested by one of my programmers.  What happens when you have two 
+collisions in one node, and then you delete one colliding name?  Do you 
+leak collision bits?
 
-OK. Might be well for backward-compatibility - but the devfs solution
-would be a very nice option.
+When you rehash a large directory, is there a brief service interruption?
 
-> > I do not know why they adapt so slowly to such a cool technology
-> > anyway ...
-> 
-> See the numerous lkml posts about why this is so.
 
-We at ROCK linux (www.rocklinux) use it for years - and never had a
-problem (maybe some have - because they use the www.ibm.org/linu-docs-somewhere
-approach of taring them on shutdown and untar it on bootup. Using devfsd.conf
-is hust fine! (I'll try to search the archive for devfs posts ...)
+>
+>
+><reads more> But wait, you store references to objects along with keys, I 
+>don't.  So where does that leave us?
+>
+>By the way, how do you handle collisions?  I see it has something to do with 
+>generation numbers, but I haven't fully decoded the algorithm.
+>
+>Fully understanding your code is going to take some time.  This would 
+>go faster if I could find the papers mentioned in the comments, can you point 
+>me at those?
+>
+Which papers in which comments?
 
-> thanks,
-> 
-> greg k-h
+>
+>
+>--
+>Daniel
+>
+>
+>
+Yura, can you run some benchmarks on this code?
 
-k33p h4ck1n6
-  René
 
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

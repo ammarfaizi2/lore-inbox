@@ -1,142 +1,120 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313896AbSDUVdx>; Sun, 21 Apr 2002 17:33:53 -0400
+	id <S313854AbSDUVrY>; Sun, 21 Apr 2002 17:47:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313898AbSDUVdw>; Sun, 21 Apr 2002 17:33:52 -0400
-Received: from lego.zianet.com ([204.134.124.54]:26895 "EHLO lego.zianet.com")
-	by vger.kernel.org with ESMTP id <S313896AbSDUVdu>;
-	Sun, 21 Apr 2002 17:33:50 -0400
-Message-ID: <3CC32B57.1090703@zianet.com>
-Date: Sun, 21 Apr 2002 15:12:55 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020411
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jordan.breeding@attbi.com
-CC: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Trouble rebooting Tyan Thunder K7 (S2462UNG)
-In-Reply-To: <20020420130139.XUZR1901.rwcrmhc52.attbi.com@rwcrwbc55>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313867AbSDUVrX>; Sun, 21 Apr 2002 17:47:23 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:13454 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313854AbSDUVrW>;
+	Sun, 21 Apr 2002 17:47:22 -0400
+Date: Sun, 21 Apr 2002 23:30:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: swsusp for 2.5.8: find_last_bit_set
+Message-ID: <20020421213018.GA25043@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have this motherboard too and have a similiar problem,
-but it is usually not with reboots but with crashes.  I use
-the nVidia graphics module which crashes time to time
-and locks X, so I just hit the reset switch(Thank you
-journalling fs).  But lots of times after I reboot it will
-go through the initial POST, then go through the SCSI
-detection, and 3ware detection, then when it should goto
-the GRUB screen it will just display the POST screen
-and hang, no beeps no nothing.  I usually have to power it
-completely down for about a minute for it to come back
-up right.  I have chalked this up to a BIOS problem though
-and not a Linux one cause the BIOS should be smart enough
-to pull it's head out of it's ass and reset any bad states that
-may have been left behind. I would bitch to Tyan if I were you,
-I have thought about it but never got up the energy.
+Hi!
 
-Steve
+For software suspend [enabling suspend to disk on any machine], I need
+find_last_bit_set interface. Here it is, please apply.
 
-jordan.breeding@attbi.com wrote:
+								Pavel
 
->Hello,
->
->  Sorry about any duplicates of the last reply I sent 
->which might have gotten sent out, I am having to use 
->an online emailer right now and it seems to be 
->acting up.
->
->Jordan Breeding
->  
->
->>Sorry that I did not explain myself better the first time.  
->>The other OSes on this machine _do_ initialize a 
->>cold boot.  Here is how they _all_ reboot:  screen 
->>immediately goes black, hd light comes on as 
->>memory is ECC checked, hd light goes off and BIOS 
->>post screen comes up (monitor is now on again), 
->>Adaptec SCSISelect screen comes up, BIOS issues 
->>single beep and boots into GRUB.  This is the way 
->>that _all_ versions of linux reboot with _all_ reboot 
->>parameters:  screen hangs (but still has text on it, ie. 
->>the reboot messages) for at least 15-30 seconds, 
->>screen then goes blank, hd light comes on but _not_ 
->>for ecc check (during ecc check nothing is accessed 
->>except for memory) instead the system goes straight 
->>into SCSISelect once the screen goes blank and the 
->>hd light comes on (this is evident because during 
->>normal boot SCSISelect is the stage at which the hd 
->>light is on and each SCSI device is accessed in 
->>order), once SCSISelect has polled every id on the 
->>system it tries to hand back off to the BIOS which 
->>was apparently never initialized correctly during a 
->>Linux reboot since it issues a very weird series of 
->>eight or so BIOS beeps and then just sits there, the 
->>ecc memory is never polled, the BIOS post screen 
->>never comes up, the monitor never goes active 
->>again, the system is just hung at a black screen until 
->>I hard reboot it.  Other OSes _do_ perform a reboot 
->>in which ecc memory is polled however, so that 
->>does not seem to be the problem here.  Thanks for 
->>any more help anyone can offer.
->>
->>Jordan Breeding
->>    
->>
->>>On Fri, 2002-04-19 23:15:23 -0000, Jordan Breeding <jordan.breeding@attbi.com>
->>>wrote in message 
->>>
->>>      
->>>
->><!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAjQHXypTRWUeX0Da3WGxUUMKAAAAQAAAA
->>    
->>
->>>b2jlXi9TM0a+IKeYbO47lAEAAAAA@attbi.com>:
->>>      
->>>
->>>>  I am having trouble getting a brand new Tyan Thunder K7 S2462UNG (the
->>>>one with onboard SCSI) to reboot successfully using Linux.  This board
->>>>        
->>>>
->>>>FreeBSD do with this board, instead the text stays there for at least
->>>>15-20 seconds (maybe longer) then when it finally blanks the video and
->>>>the monitor light begins to flash it goes straight into the Adaptec
->>>>SCSISelect scan (I can tell because my HD light comes on and the CDROMs
->>>>        
->>>>
->>>What is so uncommon? The board does use ECC RAM, so maybe the board's
->>>BIOS / firmware needs this time to blank and check all the RAM. Maybe
->>>othe OSes don't initiate a full "cold boot" but something that doesn't
->>>make the board to re-initialize all the RAM...
->>>
->>>MfG, JBG
->>>
->>>-- 
->>>Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
->>>	 -- New APT-Proxy written in shell script --
->>>	   http://lug-owl.de/~jbglaw/software/ap2/
->>>
->>>      
->>>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>    
->>
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+--- clean.2.5/include/asm-generic/bitops.h	Tue Nov 28 02:47:38 2000
++++ linux-swsusp/include/asm-generic/bitops.h	Sun Apr 21 20:40:55 2002
+@@ -51,6 +51,12 @@
+ 	return ((mask & *addr) != 0);
+ }
+ 
++/*
++ * fls: find last bit set.
++ */
++
++#define fls(x) generic_fls(x)
++
+ #ifdef __KERNEL__
+ 
+ /*
+--- clean.2.5/include/asm-i386/bitops.h	Thu Apr 18 22:46:15 2002
++++ linux-swsusp/include/asm-i386/bitops.h	Sun Apr 21 21:15:07 2002
+@@ -414,6 +414,12 @@
+ 	return word;
+ }
+ 
++/*
++ * fls: find last bit set.
++ */
++
++#define fls(x) generic_fls(x)
++
+ #ifdef __KERNEL__
+ 
+ /*
+--- clean.2.5/include/linux/bitops.h	Mon Nov  5 21:42:13 2001
++++ linux-swsusp/include/linux/bitops.h	Sun Apr 21 21:15:07 2002
+@@ -1,6 +1,6 @@
+ #ifndef _LINUX_BITOPS_H
+ #define _LINUX_BITOPS_H
+-
++#include <asm/bitops.h>
+ 
+ /*
+  * ffs: find first bit set. This is defined the same way as
+@@ -35,6 +35,47 @@
+ 		r += 1;
+ 	}
+ 	return r;
++}
++
++/*
++ * fls: find last bit set.
++ */
++
++extern __inline__ int generic_fls(int x)
++{
++	int r = 32;
++
++	if (!x)
++		return 0;
++	if (!(x & 0xffff0000)) {
++		x <<= 16;
++		r -= 16;
++	}
++	if (!(x & 0xff000000)) {
++		x <<= 8;
++		r -= 8;
++	}
++	if (!(x & 0xf0000000)) {
++		x <<= 4;
++		r -= 4;
++	}
++	if (!(x & 0xc0000000)) {
++		x <<= 2;
++		r -= 2;
++	}
++	if (!(x & 0x80000000)) {
++		x <<= 1;
++		r -= 1;
++	}
++	return r;
++}
++
++extern __inline__ int get_bitmask_order(unsigned int count)
++{
++	int order;
++	
++	order = fls(count);
++	return order;	/* We could be slightly more clever with -1 here... */
+ }
+ 
+ /*
 
-
-
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

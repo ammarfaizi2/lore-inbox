@@ -1,38 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265599AbSJXSlF>; Thu, 24 Oct 2002 14:41:05 -0400
+	id <S265597AbSJXS4O>; Thu, 24 Oct 2002 14:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265601AbSJXSlF>; Thu, 24 Oct 2002 14:41:05 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:58633 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S265599AbSJXSlE>; Thu, 24 Oct 2002 14:41:04 -0400
-Date: Thu, 24 Oct 2002 19:47:10 +0100
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Cc: cminyard@mvista.com
-Subject: Re: [PATCH] NMI request/release, version 5 - I think this one's ready
-Message-ID: <20021024184710.GA11093@compsoc.man.ac.uk>
-References: <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com> <20021024132004.A29039@dikhow> <3DB7F574.9030607@mvista.com> <20021024144632.GC32181@compsoc.man.ac.uk> <3DB81376.90403@mvista.com> <20021024171815.GA6920@compsoc.man.ac.uk> <3DB83156.5000402@mvista.com> <20021024180435.GB8915@compsoc.man.ac.uk> <3DB83CC8.7070607@mvista.com>
+	id <S265598AbSJXS4O>; Thu, 24 Oct 2002 14:56:14 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:61338 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265597AbSJXS4M>; Thu, 24 Oct 2002 14:56:12 -0400
+Subject: Re: Crunch time -- the musical.  (2.5 merge candidate list 1.5)
+From: Michael Hohnbaum <hohnbaum@us.ibm.com>
+To: landley@trommello.org
+Cc: linux-kernel@vger.kernel.org, Erich Focht <efocht@ess.nec.de>
+In-Reply-To: <200210240750.09751.landley@trommello.org>
+References: <200210231626.12903.landley@trommello.org>
+	<1035476230.1274.1065.camel@dyn9-47-17-164.beaverton.ibm.com> 
+	<200210240750.09751.landley@trommello.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 24 Oct 2002 12:01:01 -0700
+Message-Id: <1035486061.9367.1078.camel@dyn9-47-17-164.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB83CC8.7070607@mvista.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *184n0g-0007DA-00*IDJrNRmKXkY* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 01:32:40PM -0500, Corey Minyard wrote:
+On Thu, 2002-10-24 at 05:50, Rob Landley wrote:
+> On Thursday 24 October 2002 11:17, Michael Hohnbaum wrote:
+> > On Wed, 2002-10-23 at 14:26, Rob Landley wrote:
+> > > 26) NUMA aware scheduler extenstions (Erich Focht, Michael Hohnbaum)
+> > >
+> > > Home page:
+> > > http://home.arcor.de/efocht/sched/
+> > >
+> > > Patch:
+> > > http://home.arcor.de/efocht/sched/Nod20_numa_sched-2.5.31.patch
+> >
+> > The simple NUMA scheduler patch, which is ready for inclusion is a
+> > separate project from Erich's NUMA scheduler extensions.  Information
+> > on the simple NUMA scheduler is contained in this lkml posting:
+> >
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103351680614980&w=2
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103480772901235&w=2
+> >
+> > The most recent version has been split into two patches for 2.5.44:
+> >
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103539626130709&w=2
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103540481010560&w=2
+> 
+> Any relation to http://lse.sourceforge.net/numa/ which the 2.5 status list 
+> says is "Alpha" state, two steps down from "Ready"?
+> 
+> Rob
 
-> Do you know if nmi_shutdown in oprofile/nmi_int.c can be called from 
+Yes and no.  At one point I was working with Erich moving his NUMA 
+scheduler to 2.5 and testing it on our NUMA hardware.  However, it
+was not looking like his NUMA scheduler was going to be ready for 
+2.5, so I went off on a separate effort to produce a much smaller,
+simpler patch to provide rudimentary NUMA support within the scheduler.
+This patch does not have all the functionality of Erich's, but does
+provide definite performance improvements on NUMA machines with no
+degradation on non-NUMA SMP.  It is much smaller and less intrusive,
+and has been tested on multiple NUMA architectures (including by 
+Erich on the NEC IA64 NUMA box).
 
-It can only be called in process context, from the event buffer
-release() method (and open(), on the failure path)
+The 2.5 status list has not been updated to reflect this separate 
+effort, and I believe incorrectly lists this entry as "ready".  There
+really are now two NUMA scheduler projects:
 
-regards
-john
+* Simple NUMA scheduler (Michael Hohnbaum)  - ready for inclusion
+* Node affine NUMA scheduler (Erich Focht)  - Alpha (Beta?)
+
 -- 
-"This is playing, not work, therefore it's not a waste of time."
-	- Zath
+
+Michael Hohnbaum                      503-578-5486
+hohnbaum@us.ibm.com                   T/L 775-5486
+

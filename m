@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265089AbUF1Qxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265080AbUF1QyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265089AbUF1Qxo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 12:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUF1Qxo
+	id S265080AbUF1QyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 12:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUF1QyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 12:53:44 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9990 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265080AbUF1Qxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 12:53:30 -0400
-Date: Mon, 28 Jun 2004 17:53:25 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [BUG FIX] [PATCH] fork_init() max_low_pfn fixes potential OOM bug on big highmem machine
-Message-ID: <20040628175325.B9214@flint.arm.linux.org.uk>
-Mail-Followup-To: Coywolf Qi Hunt <coywolf@greatcn.org>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <40E03F71.8010902@greatcn.org>
+	Mon, 28 Jun 2004 12:54:15 -0400
+Received: from mail.scs.ch ([212.254.229.5]:17574 "EHLO mail.scs.ch")
+	by vger.kernel.org with ESMTP id S265080AbUF1QyN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 12:54:13 -0400
+Subject: Re: [PATCH 4/4] 2.6.7-mm2, Use it in AX.25 drivers
+From: Thomas Sailer <sailer@scs.ch>
+To: Andrey Panin <pazke@donpac.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <10880815524130@donpac.ru>
+References: <10880815524130@donpac.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: SCS
+Message-Id: <1088441634.4382.85.camel@kronenbourg.scs.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <40E03F71.8010902@greatcn.org>; from coywolf@greatcn.org on Mon, Jun 28, 2004 at 11:55:29PM +0800
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 28 Jun 2004 18:53:54 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 11:55:29PM +0800, Coywolf Qi Hunt wrote:
-> <http://localhost/lxr/ident?i=start_kernel>Hello all,
-> 
-> On machine with 16G(or 8G if 4k stacks) or more memory, high max_threads 
-> could let system run out of low memory.
-> This patch decides max_threads by the amount of low memory instead of 
-> the total physical memory.
-> Systems without high memory would not be affected.
+On Thu, 2004-06-24 at 14:52, Andrey Panin wrote:
+> This patch makes AX.25 drivers use common crc16 code.
 
-This is wrong - max_low_pfn can be high on systems where physical RAM
-doesn't start at address 0.  Such is very common on ARM platforms,
-where RAM is located at 0xa0000000 or 0xc0000000 physical, which
-leads to any calculation based upon max_low_pfn to believe we have
-more than 3GB of RAM when we may only have 64MB or so.
+Hrm, isn't this bit of a misnamer? 
 
-I think we may need a num_lowpages for this...
+While the polynomial usually known as "CCITT" or "X25" is
+x^16+x^12+x^5+x^0, CRC-16 usually means the polynomial
+x^16+x^15+x^2+x^0. So to avoid confusion I suggest renaming it from
+CRC16 to CRCCCITT or similar...
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Tom
+

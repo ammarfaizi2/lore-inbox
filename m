@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263111AbTCTX7m>; Thu, 20 Mar 2003 18:59:42 -0500
+	id <S263220AbTCUAFl>; Thu, 20 Mar 2003 19:05:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263085AbTCTX7m>; Thu, 20 Mar 2003 18:59:42 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:49843 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263025AbTCTX7k>;
-	Thu, 20 Mar 2003 18:59:40 -0500
-Date: Thu, 20 Mar 2003 16:08:45 -0800 (PST)
-Message-Id: <20030320.160845.121240938.davem@redhat.com>
-To: fubar@us.ibm.com
-Cc: hshmulik@intel.com, bonding-devel@lists.sourceforge.net,
-       bonding-announce@lists.sourceforge.net, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com
-Subject: Re: [Bonding-devel] [patch] (2/8) Add 802.3ad support to bonding
- (released to bonding on sourceforge)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <OF102C4F31.A103F2FF-ON88256CEF.007C2E59@us.ibm.com>
-References: <OF102C4F31.A103F2FF-ON88256CEF.007C2E59@us.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S263195AbTCUAFk>; Thu, 20 Mar 2003 19:05:40 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34289 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S263182AbTCUAFk>;
+	Thu, 20 Mar 2003 19:05:40 -0500
+Message-ID: <3E7A59CD.8040700@mvista.com>
+Date: Thu, 20 Mar 2003 16:16:13 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Clock monotonic  a suggestion
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jay Vosburgh <fubar@us.ibm.com>
-   Date: Thu, 20 Mar 2003 14:53:14 -0800
-   
-         I have incorporated Shmulik Hen's bug fix patches to bonding (patch
-   numbers 2 and 3) into the current code and released the new patch to
-   sourceforge.net/projects/bonding.  The current bonding update is
-   bonding-2.4.20-20030320.  The only changes I made were minor spelling /
-   formatting fixes.
+In an effort to get better resolution and to get CLOCK_MONOTONIC to 
+better track CLOCK_REALTIME, I would like to do the following:
 
-So when do these changes end up being sent to myself or
-Jeff for mainline inclusion?
+Define CLOCK_MONOTONIC to be the same as
+(gettimeofday() + wall_to_monotonic).
 
-I have no objection to the sourceforge project for bonding, but
-I do object to there being such latency between what the sourceforge
-tree has (especially bug fixes) and what gets submitted into the
-mainline.
+Wall_to_monotonic would be defined at boot time as -(gettimeofday()) 
+at that time and would be updated each time the wall clock is set. 
+Currently this happens in only three places in the kernel, two in the 
+wall clock update routine (a leap second can be added or subtracted) 
+and in settimeofday().  The update of wall_to_monotonic must be done 
+under the xtime lock, as should the add to convert gettimeofday() to 
+CLOCK_MONOTONIC.
 
-Personally, I'd prefer that all development occur in the mainline
-tree.  That gives you testing coverage that is impossible otherwise.
+What this gets us is:
+
+Both clocks will tick at the same rate, even under NTP corrections.
+The conversion is a simple (well almost simple) add.
+Both clocks will have the same resolution.
+
+Comments?
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262345AbTIZPPP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 11:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbTIZPPP
+	id S262306AbTIZPGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 11:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbTIZPGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 11:15:15 -0400
-Received: from zero.aec.at ([193.170.194.10]:48134 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262345AbTIZPPM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 11:15:12 -0400
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 26 Sep 2003 17:14:57 +0200
-In-Reply-To: <zU7D.2Ji.27@gated-at.bofh.it> (Manfred Spraul's message of
- "Fri, 26 Sep 2003 08:20:17 +0200")
-Message-ID: <m3ad8rinta.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <zU7D.2Ji.27@gated-at.bofh.it>
+	Fri, 26 Sep 2003 11:06:23 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:16555 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262306AbTIZPGW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 11:06:22 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 26 Sep 2003 08:01:37 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Maciej Zenczykowski <maze@cela.pl>
+cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Syscall security
+In-Reply-To: <Pine.LNX.4.44.0309261611510.6080-100000@gaia.cela.pl>
+Message-ID: <Pine.LNX.4.56.0309260746140.1924@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.44.0309261611510.6080-100000@gaia.cela.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul <manfred@colorfullife.com> writes:
+On Fri, 26 Sep 2003, Maciej Zenczykowski wrote:
 
-> David wrote:
+> > if this syscall activity is so low then it might be much more flexible to
+> > control the binary via ptrace and reject all but the desired syscalls.
+> > This will cause a context switch but if it's stdio only then it's not a
+> > big issue. Plus this would work on any existing Linux kernel.
 >
->>Fine, then we should have something like an rx_copybreak scheme in
->>the ns83820 driver too.
->>
-> Is that really the right solution? Add a full-packet copy to every driver?
-> IMHO the fastest solution would be to copy only the ip & tcp headers,
-> and keep the rest as it is. And preferable in the network core, to
-> avoid having to copy&paste that into every driver.
+> Unfortunately sometimes the data transfer through stdio can be counted in
+> hundreds of MB (or even in extreme cases a couple of GB), plus it is
+> important to not slow down the execution of the code (we're timing and
+> comparing execution speed of different approaches).  Would doing this via
+> ptrace increase the runtime of the parent pid or of the child pid or both?
+> ie. would this make any syscall costly timewise (stdio is either from a
+> ram disk or piped to/from a generating/checking process) or would this be
+> unnoticeable?
 
-One problem is that you still have an unaligned->aligned copy to user space
-in recvmsg (the user buffer is usually aligned and the network payload 
-will be unaligned). And that will be very slow.
+I beieve that what you're trying to do is a little bit more complicated
+then simply blocking a few system calls. There are security softwares
+doing this but they do more then blindly blocking system calls. Parameters
+of the system call do matter in this scenario. For example you don't want
+to block every write(), since the application you're trying to control
+must be able to write on its own installation dir for example. They do
+this by running the given application and "learning" system calls and
+params to create a per-application policy. Every behaviour that violates
+the policy trigger an event to the user running it (with a
+"human readable" description of what is happening) and the user can either
+accept it (by trainig the policy) or reject it.
 
--Andi
+
+
+- Davide
+

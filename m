@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315923AbSIBTUx>; Mon, 2 Sep 2002 15:20:53 -0400
+	id <S318392AbSIBT0P>; Mon, 2 Sep 2002 15:26:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318389AbSIBTUx>; Mon, 2 Sep 2002 15:20:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51986 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315923AbSIBTUw>;
-	Mon, 2 Sep 2002 15:20:52 -0400
-Message-ID: <3D73BB19.6000302@mandrakesoft.com>
-Date: Mon, 02 Sep 2002 15:25:13 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
+	id <S318175AbSIBT0P>; Mon, 2 Sep 2002 15:26:15 -0400
+Received: from pD952A8C0.dip.t-dialin.net ([217.82.168.192]:14720 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318392AbSIBT0O>; Mon, 2 Sep 2002 15:26:14 -0400
+Date: Mon, 2 Sep 2002 13:30:47 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Christoph Hellwig <hch@infradead.org>
+cc: janul@wp.pl, <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: kernel BUG at page_alloc.c:91!
+In-Reply-To: <20020902201355.A10519@infradead.org>
+Message-ID: <Pine.LNX.4.44.0209021330110.3270-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, rth@twiddle.net
-Subject: required C optimizations?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-I'm trying to get an idea of the minimum compiler requirements necessary 
-to build a Linux kernel, excluding parsing requirements.  For example, 
-IIRC, some portions of the code depend on 'static inline' working and 
-decent constant propagation/folding.
+On Mon, 2 Sep 2002, Christoph Hellwig wrote:
+> Please unload the nvidia driver and retry.
 
-Are you guys aware of a list of such examples, either in your own head 
-or written down somewhere?
+Unload is insufficient. Please kick anew, without ever loading NVdriver, 
+and watch the bug go away...
 
-If you're wondering what this is about, I'm playing around with "tinycc" 
-(http://www.tinycc.org/) ...  it's nowhere near building a kernel, being 
-basically a C parser that emits binary code, but I wanted to get an idea 
-of the obstacles.
-
-	Jeff
-
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

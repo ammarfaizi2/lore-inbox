@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSHFT5b>; Tue, 6 Aug 2002 15:57:31 -0400
+	id <S315459AbSHFT74>; Tue, 6 Aug 2002 15:59:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315458AbSHFT5a>; Tue, 6 Aug 2002 15:57:30 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2181 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S315454AbSHFT53>; Tue, 6 Aug 2002 15:57:29 -0400
-Date: Tue, 6 Aug 2002 16:03:46 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
-       abraham@2d3d.co.za
-Subject: Re: ethtool documentation
-In-Reply-To: <3D502611.26B28B8E@nortelnetworks.com>
-Message-ID: <Pine.LNX.3.95.1020806155358.25303A-100000@chaos.analogic.com>
+	id <S315463AbSHFT74>; Tue, 6 Aug 2002 15:59:56 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:60427 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S315459AbSHFT7z>;
+	Tue, 6 Aug 2002 15:59:55 -0400
+Date: Tue, 6 Aug 2002 13:01:14 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Diego Calleja <diegocg@teleline.es>, <linux-kernel@vger.kernel.org>
+Subject: Re: pppd[32497]: Unsupported protocol 'CallBack Control Protocol
+ (CBCP)' (0xc029) received
+In-Reply-To: <Pine.LNX.3.95.1020806152633.25149B-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33L2.0208061257180.10089-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Aug 2002, Chris Friesen wrote:
+On Tue, 6 Aug 2002, Richard B. Johnson wrote:
 
-> "Richard B. Johnson" wrote:
-> 
-> > Because of this, there is no such thing as 'unused eeprom space' in
-> > the Ethernet Controllers. Be careful about putting this weapon in
-> > the hands of the 'public'. All you need is for one Linux Machine
-> > on a LAN to end up with the same IEEE Station Address as another
-> > on that LAN and connectivity to everything on that segment will
-> > stop. You do this once at an important site and Linux will get a
-> > very black eye.
-> 
-> Can't we already tell cards (some of them anyway) what MAC address to use when
-> sending packets?  This doesn't overwrite the EEPROM, but it does last for that
-> session...
-> 
-> Chris
+| On Tue, 6 Aug 2002, Diego Calleja wrote:
+|
+| > In different kernels I've seen this message:
+| >
+| > Aug  6 19:10:01 localhost pppd[32497]: Unsupported protocol 'CallBack
+| > Control Protocol (CBCP)' (0xc029) received
+| >
+| > Is pppd who has to handle this protocol, or it's a "ToDo" in ppp in the
+| > kernel? In the last case, will it be implemented?
+| >
+| > and, what's the hell is the "Callback Protocol?"
+|
+| You are connected to a M$ 'server' and it's trying to interrogate
+| your machine with 'Magic Lantern'. I don't think you want it
+| implemented. From what I hear, it's what the US Government decided
+| that M$ must put into everything so that any 'Duly authorized....'
+| can peer into your computer.
+|
+| Check it out. Scary...
 
-Sure you can. And it was assumed that the MAC address provided by
-the manufacturer would always be used by the software for the MAC
-address on the wire. However, 'software engineers' have decided
-that they don't have to follow the rules, so they provide hooks
-so you can use a MAC address of anything.  They even call it
-"Local Administration...", which decoded means; "Screw the
-committee".
+I've never heard this explanation, but who knows??
 
-But....
-If you ever sell a controller that contains an address that was
-not allocated to the 'producer', somebody is going to get very
-angry. This means, to me, that if you ever write a new MAC address
-to that card/board, you had better throw it away when you are done.
+I've heard of callback relating to RAS as a method of preventing
+just anyone calling into a particlar RAS server.
+Using callbacks, the server hangs up and immediately calls the
+originator back to a valid, known telephone number.
+Also allows the server to be billed for it instead of the caller.
 
-It's easier to make sure that the MAC address doesn't get changed.
-You still "screw the comittee" locally, but you don't modify the
-hardware.
+At MS web site:
+<quote>
+Callback Negotiation with the Callback Control Protocol
+The Callback Control Protocol (CBCP) is documented in
+ftp://ftp.microsoft.com/developr/rfc/cbcp.txt .
+CBCP negotiates the use of callback where the remote access server,
+after authenticating the remote access client, terminates the physical
+connection, waits a specified amount of time, and then calls the remote
+access client back at either a static or dynamically configured phone
+number. Common CBCP options include the phone number being used by the
+remote access server to call the remote access client back.
+</quote>
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+-- 
+~Randy
 

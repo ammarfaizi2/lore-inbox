@@ -1,68 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbTIZUVf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 16:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTIZUVf
+	id S261642AbTIZU15 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 16:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbTIZU14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 16:21:35 -0400
-Received: from xs.heimsnet.is ([193.4.194.50]:44476 "EHLO cg.c.is")
-	by vger.kernel.org with ESMTP id S261621AbTIZUVd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 16:21:33 -0400
-From: =?iso-8859-1?q?B=F6rkur=20Ingi=20J=F3nsson?= <bugsy@isl.is>
-Reply-To: bugsy@isl.is
-To: Justin Cormack <justin@street-vision.com>
-Subject: Re: khubd is a Succubus!
-Date: Fri, 26 Sep 2003 20:33:52 +0000
-User-Agent: KMail/1.5.3
-References: <200309261724.56616.bugsy@isl.is> <200309261855.43487.bugsy@isl.is> <1064607248.8723.53.camel@lotte.street-vision.com>
-In-Reply-To: <1064607248.8723.53.camel@lotte.street-vision.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200309262033.52994.bugsy@isl.is>
+	Fri, 26 Sep 2003 16:27:56 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:58646 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S261642AbTIZU1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 16:27:51 -0400
+Subject: Re: kernel BUG using multipath on 2.6.0-test5
+From: Steven Dake <sdake@mvista.com>
+Reply-To: sdake@mvista.com
+To: Jens Axboe <axboe@suse.de>
+Cc: Matthew Wilcox <willy@debian.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030926122646.GA15415@suse.de>
+References: <1064541435.4763.51.camel@persist.az.mvista.com>
+	 <20030926121703.GG24824@parcelfarce.linux.theplanet.co.uk>
+	 <20030926122646.GA15415@suse.de>
+Content-Type: text/plain
+Organization: MontaVista Software, Inc.
+Message-Id: <1064607249.4779.1.camel@persist.az.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 26 Sep 2003 13:14:09 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 September 2003 20:14, you wrote:
-> On Fri, 2003-09-26 at 19:55, Börkur Ingi Jónsson wrote:
-> > On Friday 26 September 2003 18:35, you wrote:
-> > > On Fri, Sep 26, 2003 at 06:43:10PM +0000, Börkur Ingi Jónsson wrote:
-> > > > nvidia: no version magic, tainting kernel.
-> > > > nvidia: module license 'NVIDIA' taints kernel.
-> > > > 0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4496 
-> > > > Wed Jul 16 19:03:09 PDT 2003
-> > > > 0: NVRM: AGPGART: unable to retrieve symbol table
-> > >
-> > > Does this same problem happen without the nvidia driver loaded?
-> > >
-> > > > > > 2. I have a usb keyboard plugged in It's packard Bell model
-> > > > > > number 9201
-> > > > > >
-> > > > > > 3. This did not happen with 2.4
-> > > > > >
-> > > > > > 4. ACPI is for laptops correct? I'm using a desktop and I've
-> > > > > > never installed anything ACPI related..
-> > > > >
-> > > > > But is ACPI configured in your kernel?
-> > > >
-> > > > I checked the config and ACPI was configured.. Now compiling without
-> > > > ACPI. Is that the reason? I think it was selected by default.
-> > >
-> > > I do not know, but if you do not need it, it should not be selected.
-> > >
-> > >
-> > > greg k-h
-> >
-> > how do I unload the nvidia driver?
->
-> boot up without starting X. Add 3 to your kernel command line or change
-> default runlevel in /etc/inittab to 3 not 5 (you can change it back
-> later). removing it wont help, you need a clean start without it loaded.
+On Fri, 2003-09-26 at 05:26, Jens Axboe wrote: 
+> On Fri, Sep 26 2003, Matthew Wilcox wrote:
+> > On Thu, Sep 25, 2003 at 06:57:15PM -0700, Steven Dake wrote:
+> > > kernel BUG at drivers/scsi/scsi_lib.c:544!
+> > 
+> >         BUG_ON(!cmd->use_sg);
+> > 
+> > >  [<c01f631d>] scsi_init_io+0x7a/0x13d
+> > 
+> > static int scsi_init_io(struct scsi_cmnd *cmd)
+> >         struct request     *req = cmd->request;
+> >         cmd->use_sg = req->nr_phys_segments;
+> >         sgpnt = scsi_alloc_sgtable(cmd, GFP_ATOMIC);
+> > 
+> > >  [<c01f6455>] scsi_prep_fn+0x75/0x171
+> > 
+> > static int scsi_prep_fn(struct request_queue *q, struct request *req)
+> >         struct scsi_cmnd *cmd;
+> >         cmd->request = req;
+> >         ret = scsi_init_io(cmd);
+> > 
+> > .. this is getting outside my area of confidence.  Ask axboe why we might
+> > get a zero nr_phys_segments request passed in.
+> 
+> Looks like an mp bug. I'd suggest adding something ala
+> 
+> 	if (!rq->nr_phys_segments || !rq->nr_hw_segments) {
+> 		blk_dump_rq_flags(req, "scsi_init_io");
+> 		return BLKPREP_KILL;
+> 	}
+> 
+> inside the first
+> 
+> 	} else if (req->flags & (REQ_CMD | REQ_BLOCK_PC)) {
+> 
+> drivers/scsi/scsi_lib.c:scsi_prep_fn(). That will show the state of such
+> a buggy request. I'm pretty sure this is an mp bug though.
 
-basically if I compile a new kernel It's always without the nvidia stuff 
-right? So I'll check it like that..
+scsi_prep_fn: dev sdd: flags = REQ_CMD REQ_STARTED
+sector 0, nr/cnr 8/8
+bio c2694708, biotail c2694708, buffer f76dc000, data 00000000, len 0
+multipath: IO failure on sdd, disabling IO path.
+        Operation continuing on 1 IO paths.
+multipath: sdd: rescheduling sector 8
+MULTIPATH conf printout:
+-- wd:1 rd:2
+disk0, o:0, dev:sdd
+disk1, o:1, dev:sdb
+MULTIPATH conf printout:
+-- wd:1 rd:2
+disk1, o:1, dev:sdb
+multipath: sdd: redirecting sector 0 to another IO path
+scsi_prep_fn: dev sdb: flags = REQ_CMD REQ_STARTED
+sector 0, nr/cnr 0/8
+bio c2694708, biotail c2694708, buffer f76dc000, data 00000000, len 0
+
+I assume a length of zero is wrong...  I'll trace up the stack and see
+where the bad data gets into the request.
+
+Thanks for the pointer...
+-steve  
 

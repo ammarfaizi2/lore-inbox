@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269540AbUJGAaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269561AbUJGAe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269540AbUJGAaq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 20:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269561AbUJGAaq
+	id S269561AbUJGAe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 20:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269589AbUJGAe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 20:30:46 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:59548
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269540AbUJGAap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 20:30:45 -0400
-Date: Wed, 6 Oct 2004 17:29:59 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-Id: <20041006172959.47c25e3d.davem@davemloft.net>
-In-Reply-To: <20041007001937.GA48516@dspnet.fr.eu.org>
-References: <20041006193053.GC4523@pclin040.win.tue.nl>
-	<003301c4abdc$c043f350$b83147ab@amer.cisco.com>
-	<20041006200608.GA29180@dspnet.fr.eu.org>
-	<20041006163521.2ae12e6d.davem@davemloft.net>
-	<20041007001937.GA48516@dspnet.fr.eu.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 6 Oct 2004 20:34:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57316 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269561AbUJGAeR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 20:34:17 -0400
+Date: Thu, 7 Oct 2004 01:34:14 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, ak@muc.de, jgarzik@pobox.com,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [ink@jurassic.park.msu.ru: Re: [PATCH] Sort generic PCI fixups after specific ones]
+Message-ID: <20041007003414.GJ16153@parcelfarce.linux.theplanet.co.uk>
+References: <20041006201311.GG16153@parcelfarce.linux.theplanet.co.uk> <20041006170228.1f8e5efd.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041006170228.1f8e5efd.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004 02:19:37 +0200
-Olivier Galibert <galibert@pobox.com> wrote:
-
-> On Wed, Oct 06, 2004 at 04:35:21PM -0700, David S. Miller wrote:
-> > On Wed, 6 Oct 2004 22:06:08 +0200
-> > Olivier Galibert <galibert@pobox.com> wrote:
-> > 
-> > > On Wed, Oct 06, 2004 at 12:43:27PM -0700, Hua Zhong wrote:
-> > > > How hard is it to treat the next read to the fd as NON_BLOCKING, even if
-> > > > it's not set?
-> > > 
-> > > Programs don't expect EAGAIN from blocking sockets.
-> > 
-> > That's right, which is why we block instead.
+On Wed, Oct 06, 2004 at 05:02:28PM -0700, Andrew Morton wrote:
+> Matthew Wilcox <matthew@wil.cx> wrote:
+> >
+> > Greg asked me to resend this patch and cc l-k, so here it is.
 > 
-> Programs don't expect a read to block after a positive select either,
-> so it doesn't really help.
+> Does this make
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/broken-out/sort-generic-pci-fixups-after-specific-ones.patch
+> obsolete, or what?
 
-It absolutely does help the programs not using select(), using
-blocking sockets, and not expecting -EAGAIN.
+Yes.  Ivan thinks there are cases that
+sort-generic-pci-fixups-after-specific-ones.patch won't fix, and I
+don't care enough to argue.  His patch fixes my problem, so let's go
+with it instead.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

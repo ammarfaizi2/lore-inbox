@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbUK2Jjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbUK2JmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbUK2Jjk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 04:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbUK2Jjk
+	id S261643AbUK2JmN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 04:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbUK2JmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 04:39:40 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:4051 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S261637AbUK2Jji (ORCPT
+	Mon, 29 Nov 2004 04:42:12 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:58506 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261643AbUK2JmF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 04:39:38 -0500
-Date: Mon, 29 Nov 2004 10:39:38 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Jim Nelson <james4765@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about /dev/mem and /dev/kmem
-Message-ID: <20041129093937.GN31995@wiggy.net>
-Mail-Followup-To: Jim Nelson <james4765@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <41AA9E26.4070105@verizon.net>
+	Mon, 29 Nov 2004 04:42:05 -0500
+Date: Mon, 29 Nov 2004 10:41:52 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Manfred Spraul <manfred@colorfullife.com>, roland@redhat.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use pid_alive in proc_pid_status
+Message-ID: <20041129094152.GB7868@elte.hu>
+References: <41A9B589.1090005@colorfullife.com> <20041128222151.4d53fd14.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41AA9E26.4070105@verizon.net>
-User-Agent: Mutt/1.5.6+20040722i
-X-SA-Exim-Connect-IP: <locally generated>
+In-Reply-To: <20041128222151.4d53fd14.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Jim Nelson wrote:
-> I was looking at some articles about rootkits on monolithic kernels, and 
-> had a thought.  Would a kernel config option to disable write access to 
-> /dev/mem and /dev/kmem be a workable idea?
 
-Yes, but not a very useful one since it is an incomplete solution. You
-can easily do something better using /proc/kernel/cap-bound (like
-writing 0xFFFCFFFF into it).
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Wichert.
+> >  +int pid_alive(struct task_struct *p)
+> >  +{
+> >  +	return p->pids[PIDTYPE_PID].nr != 0;
+> >  +}
+> 
+> Can we not simply test p->exit_state?  That's already done in quite a
+> few places and making things consistent would be nice.
 
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+as long as it's accessed from under the tasklist_lock, it ought to be
+fine to check for p->exit_state != EXIT_DEAD and dereference
+p->group_leader afterwards.
+
+	Ingo

@@ -1,113 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268256AbUHKV5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268258AbUHKWBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268256AbUHKV5w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 17:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUHKV5w
+	id S268258AbUHKWBr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUHKWBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 17:57:52 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:24558 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S268256AbUHKV5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 17:57:35 -0400
-Subject: Re: select implementation not POSIX compliant?
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: Alex Riesen <fork0@users.sourceforge.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Palmer <nick@sluggardy.net>, netdev@oss.sgi.com
-In-Reply-To: <20040811194018.GA3971@steel.home>
-References: <20040811194018.GA3971@steel.home>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Message-Id: <1092261449.4717.65.camel@persist.az.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 11 Aug 2004 14:57:29 -0700
+	Wed, 11 Aug 2004 18:01:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62666 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268258AbUHKWBp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:01:45 -0400
+Message-ID: <411A9735.5010006@pobox.com>
+Date: Wed, 11 Aug 2004 18:01:25 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Pavel Machek <pavel@ucw.cz>, Christoph Hellwig <hch@infradead.org>,
+       Jeff Chua <jeffchua@silk.corp.fedex.com>,
+       Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Jouni Malinen <jkmaline@cc.hut.fi>
+Subject: Re: ipw2100 wireless driver
+References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <20040810113439.A15100@infradead.org> <20040811121735.GA31171@elf.ucw.cz> <411A5D3B.3010808@pobox.com> <20040811202704.GD1550@openzaurus.ucw.cz>
+In-Reply-To: <20040811202704.GD1550@openzaurus.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You will find poll works as you desire but select does not.  I recommend
-porting to poll anyway; select sucks bad.  You might even try out epoll
-in 2.6.
+Pavel Machek wrote:
+> Hi!
+> 
+> 
+>>>Hmm, strange, one merge in last 8 weeks. That's not too active
+>>>project. Are you sure this is the right tree to work against?
+>>
+>>
+>>It's the right tree, but wireless development hasn't coalesced yet on 
+>>that tree it appears.  It sounds like the Intel folks are interested 
+>>in working on that tree, and others have mentioned they are 
+>>interested as well.
+> 
+> 
+> Is there way to access that tree without bk? Daily patches maybe?
 
-Thanks
-Good luck
+Just posted to netdev.  No regular snapshots, though.
 
-On Wed, 2004-08-11 at 12:40, Alex Riesen wrote:
-> On linux-kernel, Nick Palmer wrote:
-> > I am working on porting some software from Solaris to Linux 2.6.7. I
-> > have run into a problem with the interaction of select and/or
-> > recvmsg and close in our multi-threaded application. The application
-> > expects that a close call on a socket that another thread is
-> > blocking in select and/or recvmsg on will cause select and/or
-> > recvmsg to return with an error. Linux does not seem to do this. (I
-> > also verified that the same issue exists in Linux 2.4.25, just to be
-> > sure it wasn't introduced in 2.6 in case you were wondering.)
-> 
-> It works always for stream sockets and does not at all (even with
-> shutdown, even using poll(2) or read(2) instead of select) for dgram
-> sockets.
-> 
-> What domain (inet, local) are your sockets in?
-> What type (stream, dgram)?
-> 
-> There will probably be a problem anyway with changing the behaviour:
-> there surely is lots of code, which start complaining about select and
-> poll finishing "unexpectedly".
-> 
-> I used this to check:
-> 
-> #include <unistd.h>
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <sys/socket.h>
-> #include <sys/wait.h>
-> #include <netinet/in.h>
-> #include <fcntl.h>
-> 
-> int main(int argc, char* argv[])
-> {
->     int status;
->     int fds[2];
->     fd_set set;
-> #if 0
->     puts("stream");
->     if (  socketpair(PF_LOCAL, SOCK_STREAM, 0, fds) < 0 )
-> #else
->     puts("dgram");
->     if (  socketpair(PF_LOCAL, SOCK_DGRAM, 0, fds) < 0 )
-> #endif
->     {
-> 	perror("socketpair");
-> 	exit(1);
->     }
->     fcntl(fds[0], F_SETFL, fcntl(fds[0], F_GETFL) | O_NONBLOCK);
->     fcntl(fds[1], F_SETFL, fcntl(fds[1], F_GETFL) | O_NONBLOCK);
->     switch ( fork() )
->     {
->     case 0:
-> 	sleep(1);
-> 	close(fds[0]);
-> 	shutdown(fds[1], SHUT_RD);
-> 	close(fds[1]);
-> 	exit(0);
-> 	break;
->     case -1:
-> 	perror("fork");
-> 	exit(1);
->     }
->     close(fds[1]);
->     FD_ZERO(&set);
->     FD_SET(fds[0], &set);
->     select(fds[0] + 1, &set, NULL, NULL, 0);
->     wait(&status);
->     return 0;
-> }
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	Jeff
+
 

@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268592AbUHLPbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268594AbUHLPis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268592AbUHLPbf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 11:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268595AbUHLPbb
+	id S268594AbUHLPis (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 11:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268595AbUHLPis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 11:31:31 -0400
-Received: from mail.tmr.com ([216.238.38.203]:36881 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268599AbUHLPb3 (ORCPT
+	Thu, 12 Aug 2004 11:38:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63699 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268594AbUHLPiq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 11:31:29 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Linux Kernel bug report (includes fix)
-Date: Thu, 12 Aug 2004 11:35:10 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cfg25a$euu$1@gatekeeper.tmr.com>
-References: <200408101234.i7ACYdwP013901@burner.fokus.fraunhofer.de><200408101234.i7ACYdwP013901@burner.fokus.fraunhofer.de> <4118F6AC.7080903@jg555.com>
+	Thu, 12 Aug 2004 11:38:46 -0400
+Date: Thu, 12 Aug 2004 08:16:34 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Len Brown <len.brown@intel.com>
+Cc: pavel@suse.cz, trenn@suse.de, seife@suse.de, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: Allow userspace do something special on overtemp
+Message-Id: <20040812081634.532e3fc7.rddunlap@osdl.org>
+In-Reply-To: <1092323945.5028.177.camel@dhcppc4>
+References: <20040811085326.GA11765@elf.ucw.cz>
+	<1092323945.5028.177.camel@dhcppc4>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1092324330 15326 192.168.12.100 (12 Aug 2004 15:25:30 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <4118F6AC.7080903@jg555.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Gifford wrote:
-> There is a simple fix to your problem, I have sent this patch to you a 
-> few times, but never got an answer.
-> 
-> I bet eveyone here will agree, this is the proper way to fix the issue
+On 12 Aug 2004 11:19:05 -0400 Len Brown wrote:
 
-Everyone has agreed that not using kernel headers is the proper way to 
-fix the issue. Joerg can include the extracted and cleansed headers 
-released regularly and include them in his software.
+| Simpler to delete the usermode call and rely on the (flexible)
+| acpid event, yes?
+| 
+|  thermal.c |   29 +----------------------------
+|  1 files changed, 1 insertion(+), 28 deletions(-)
 
-The whole ide that no one can compile his application unless they have 
-the kernel source online is a non-starter in the first place.
+a.  Yes, it should be more flexible than just 'overtemp'.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+b.  For userspace, there are:
+
+acpid -  http://sourceforge.net/projects/acpid/
+
+acpi tools, like ospmd (by Andy Grover) - in CVS at
+  http://sourceforge.net/projects/acpi/
+
+What others are there?
+
+And ospmd (at least) needs some care.  Andy wanted to give it up
+1 or 2 years ago, so I took it over for awhile.  However, it
+still needs more care, so if anyone out there wants to maintain it,
+please speak up.
+
+--
+~Randy

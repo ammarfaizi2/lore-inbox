@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129098AbRBHOAv>; Thu, 8 Feb 2001 09:00:51 -0500
+	id <S130380AbRBHOCB>; Thu, 8 Feb 2001 09:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130380AbRBHOAl>; Thu, 8 Feb 2001 09:00:41 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:53991 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129098AbRBHOAd>; Thu, 8 Feb 2001 09:00:33 -0500
-Date: Thu, 8 Feb 2001 08:57:33 -0500 (EST)
-From: Ben LaHaise <bcrl@redhat.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-        Manfred Spraul <manfred@colorfullife.com>, Ingo Molnar <mingo@elte.hu>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        <kiobuf-io-devel@lists.sourceforge.net>,
-        Ingo Molnar <mingo@redhat.com>
-Subject: Re: select() returning busy for regular files [was Re: [Kiobuf-io-devel]
- RFC: Kernel mechanism: Compound event wait]
-In-Reply-To: <20010208001735.C189@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.30.0102080851410.23469-100000@today.toronto.redhat.com>
+	id <S129961AbRBHOBl>; Thu, 8 Feb 2001 09:01:41 -0500
+Received: from oberon.gaumina.lt ([193.219.244.227]:34319 "HELO
+	oberon.gaumina.lt") by vger.kernel.org with SMTP id <S129388AbRBHOBa> convert rfc822-to-8bit;
+	Thu, 8 Feb 2001 09:01:30 -0500
+From: Andrius Adomaitis <charta@gaumina.lt>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with 2.4.2-pre1 & reiser & vfs
+Date: Thu, 8 Feb 2001 16:00:26 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0102081600260I.32334@castle.gaumina.lt>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Feb 2001, Pavel Machek wrote:
 
-> Hi!
->
-> > > Its arguing against making a smart application block on the disk while its
-> > > able to use the CPU for other work.
-> >
-> > There are currently no other alternatives in user space. You'd have to
-> > create whole new interfaces for aio_read/write, and ways for the kernel to
-> > inform user space that "now you can re-try submitting your IO".
->
-> Why is current select() interface not good enough?
+Hello,
 
-Think of random disk io scattered across the disk.  Think about aio_write
-providing a means to perform zero copy io without needing to resort to
-playing mm tricks write protecting pages in the user's page tables.  It's
-also a means for dealing efficiently with thousands of outstanding
-requests for network io.  Using a select based interface is going to be an
-ugly kludge that still has all the overhead of select/poll.
+I have  dual PIII 800 machine running as mail server on DAC 960 RAID & 
+reiserfs comming with 2.4.1kernel.
 
-		-ben
+Under very high loads I get  following messages in my kernel log:
 
+kernel: vs-13060: reiserfs_update_sd: stat data of object [7906789 
+7906806 0x0 SD](nlink == 1) not found (pos 23)
+kernel: vs-13060: reiserfs_update_sd: stat data of object [7906789 
+7906806 0x0 SD] (nlink == 1) not found (pos 23)
+kernel: PAP-5660: reiserfs_do_truncate: wrong result -1 of search for 
+[7906789 7906806 0xfffffffffffffff DIRECT]
+kernel: vs-13060: reiserfs_update_sd: stat data of object [7906789 
+7906806 0x0 SD] (nlink == 1) not found (pos 23)
+kernel: PAP-5660: reiserfs_do_truncate: wrong result -1 of search for 
+[7906789 7906806 0xfffffffffffffff DIRECT]
+.....
+
+and afterwards come these:
+
+kernel: vs-3050: wait_buffer_until_released: nobody releases buffer 
+(dev 30:09, size 4096, blocknr 1661732, count 16,
+kernel: vs-3050: wait_buffer_until_released: nobody releases buffer 
+(dev 30:09, size 4096, blocknr 1661732, count 16,
+...
+and so on.
+
+The interesting thing is that system is still operational, but load 
+jumps up to 260 or so, and any attempts to reboot system fail. ps aux 
+shows that there exists imortal (kill -9 $PID doesn't kill it) qmail 
+process that consumes 97% of one CPU's resources.  Also `vmstat` shows 
+tons of processes in uninterruptable sleep, but `free` reports that it 
+is still enough memory (no swap used) and huge buffers... Machine gets 
+slugish but works for a while (0.5-2h dependent on mail request rate).
+
+System is Debian potato, 
+gcc version 2.95.2 20000220 (Debian GNU/Linux),
+reiserfs utils 3.6.25.
+
+Any patches or suggestions to fix that would be appreciated...
+
+P.S. Also I thought wouldn't it be good to have some sysctl entry in 
+proc that rebooted machine dependent on the value in control file when 
+proper software reboot is impossible (like in situation described 
+above)? Or probably there already exist(s) such thing(s)?
+
+Thanks.
+-- 
+Andrius
+charta@gaumina.lt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315928AbSEZKTL>; Sun, 26 May 2002 06:19:11 -0400
+	id <S315929AbSEZK1m>; Sun, 26 May 2002 06:27:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315927AbSEZKTK>; Sun, 26 May 2002 06:19:10 -0400
-Received: from codepoet.org ([166.70.14.212]:57560 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S315928AbSEZKTJ>;
-	Sun, 26 May 2002 06:19:09 -0400
-Date: Sun, 26 May 2002 04:19:10 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Robert Schwebel <robert@schwebel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Message-ID: <20020526101910.GA23705@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Robert Schwebel <robert@schwebel.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205250152110.15928-100000@hawkeye.luckynet.adm> <Pine.LNX.4.44.0205251015350.6515-100000@home.transmeta.com> <20020526005827.B598@schwebel.de> <20020526004853.GA18679@codepoet.org> <20020526073136.H598@schwebel.de>
+	id <S315935AbSEZK1l>; Sun, 26 May 2002 06:27:41 -0400
+Received: from adsl.hlfl.org ([62.212.107.116]:516 "HELO adsl.hlfl.org")
+	by vger.kernel.org with SMTP id <S315929AbSEZK1l>;
+	Sun, 26 May 2002 06:27:41 -0400
+Date: Sun, 26 May 2002 12:27:41 +0200
+From: Arnaud Launay <asl@launay.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [2.5.18] Re: Modules unresolved symbols
+Message-ID: <20020526122741.A5578@launay.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020526022051.15390.qmail@web14207.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+X-PGP-Key: http://launay.org/pgpkey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun May 26, 2002 at 07:31:36AM +0200, Robert Schwebel wrote:
-> On Sat, May 25, 2002 at 06:48:53PM -0600, Erik Andersen wrote:
-> > So now we have a full 3D model of the robot, the non-liner model
-> > of the robot PID-gain space, the entire (application specific)
-> > workcell model, the robot specific forward and inverse kinematics
-> > routines, and the entire trajectory planning subsystem.  And of
-> > course we now need the real-time IO subsystem to handle are the
-> > thousands of this-and-that sensors (think PLC-type behavior).
-> > etc, etc, etc.  All this in the kernel?  Nah...
-> 
-> People are doing this (or at least something similar) in reality these
-> days... :-) 
+Le Sat, May 25, 2002 at 07:20:51PM -0700, Erik McKee a écrit:
+> There is a missing export for the ext2 case as a mod.  I posted
+> a patch here recently and forwarded it to linux....perhaps it
+> got lost ;)
 
-Oh I know they are.  I was doing all of this stuff while in grad
-school back in 1996, and later at my first job I was doing this
-stuff too.  Had to use LynxOS back then.  Would have been nice if
-we could have used Linux...  I was watching RTLinux closely back
-then -- long before the patent problem.  :)
+Dunno. Here are two patches which corrects the ide and ext2 cases:
 
-> Hopefully, your post shows clearly why there are users out there who don't
-> want to make such complex algorithms open source, and I must say I can
-> understand them. 
 
-That was the hope.  So people would understand that this isn't
-the type of application where you can just squirrel away the
-real-time bits in a device driver...  Its got to be the whole
-thing,
+--- fs/buffer.c.old	Sun May 26 12:09:38 2002
++++ fs/buffer.c	Sun May 26 12:09:52 2002
+@@ -835,6 +835,7 @@
+ out:
+ 	return ret;
+ }
++EXPORT_SYMBOL(write_mapping_buffers);
+ 
+ void mark_buffer_dirty_inode(struct buffer_head *bh, struct inode *inode)
+ {
 
- -Erik
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+
+
+--- drivers/block/ll_rw_blk.c.old	Sun May 26 12:20:30 2002
++++ drivers/block/ll_rw_blk.c	Sun May 26 12:18:05 2002
+@@ -1880,6 +1880,7 @@
+ EXPORT_SYMBOL(end_that_request_first);
+ EXPORT_SYMBOL(end_that_request_last);
+ EXPORT_SYMBOL(blk_init_queue);
++EXPORT_SYMBOL(blk_get_request);
+ EXPORT_SYMBOL(bdev_get_queue);
+ EXPORT_SYMBOL(blk_cleanup_queue);
+ EXPORT_SYMBOL(blk_queue_make_request);
+
+
+	Arnaud.
+-- 
+No colors anymore, I want them to turn black.

@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262609AbVCVKIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVCVKKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbVCVKIA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 05:08:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbVCVKG3
+	id S262602AbVCVKKz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 05:10:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVCVKI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 05:06:29 -0500
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:41735 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262601AbVCVKFh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 05:05:37 -0500
-Date: Tue, 22 Mar 2005 02:04:46 -0800
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, Bill Huey <bhuey@lnxw.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
-       shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
-       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
-       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050322100446.GA448@nietzsche.lynx.com>
-References: <20050318160229.GC25485@elte.hu> <Pine.OSF.4.05.10503181750150.2466-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10503181750150.2466-100000@da410.phys.au.dk>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Tue, 22 Mar 2005 05:08:26 -0500
+Received: from gate.perex.cz ([82.113.61.162]:14989 "EHLO mail.perex.cz")
+	by vger.kernel.org with ESMTP id S262601AbVCVKGd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 05:06:33 -0500
+Date: Tue, 22 Mar 2005 11:06:24 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrew Morton <akpm@osdl.org>, rmk+lkml@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org, apatard@mandrakesoft.com,
+       Takashi Iwai <tiwai@suse.de>
+Subject: Re: ALSA bugs in list [was Re: 2.6.12-rc1-mm1]
+In-Reply-To: <1111465002.3058.26.camel@mindpipe>
+Message-ID: <Pine.LNX.4.58.0503221101060.1787@pnote.perex-int.cz>
+References: <20050321025159.1cabd62e.akpm@osdl.org> 
+ <20050321202022.B16069@flint.arm.linux.org.uk>  <20050321124159.0fbf1bef.akpm@osdl.org>
+ <1111463491.3058.15.camel@mindpipe>  <20050321201040.2a241f15.akpm@osdl.org>
+ <1111465002.3058.26.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 05:55:44PM +0100, Esben Nielsen wrote:
-> On Fri, 18 Mar 2005, Ingo Molnar wrote:
-> > i really have no intention to allow multiple readers for rt-mutexes. We
-> > got away with that so far, and i'd like to keep it so. Imagine 100
-> > threads all blocked in the same critical section (holding the read-lock)
-> > when a highprio writer thread comes around: instant 100x latency to let
-> > all of them roll forward. The only sane solution is to not allow
-> > excessive concurrency. (That limits SMP scalability, but there's no
-> > other choice i can see.)
+On Mon, 21 Mar 2005, Lee Revell wrote:
+
+> > >  This one is fixed in ALSA CVS.
+> > 
+> > But not in http://linux-sound.bkbits.net/linux-sound yet.  How does stuff
+> > propagate from ALSA CVS into bk?
 > 
-> Unless a design change is made: One could argue for a semantics where
-> write-locking _isn't_ deterministic and thus do not have to boost all the
+> The ALSA maintainers periodically ask Linus to pull from the linux-sound
+> tree.  But that's just the general "ALSA update" process.
+> 
+> I'm not aware of a mechanism for getting critical fixes like this in
+> ASAP.  The last few have been shepherded through manually by various
+> people.  Looks like we need a better system.
 
-RCU isn't write deterministic like typical RT apps are we can... (below :-))
+I am trying to sync the linux-sound BK tree every week with our CVS.
+For "urgent" fixes we need to find another faster way. Hopefully, they
+are in most cases small enough, so they might be propagated automagically.
+I already proposed special "tag" in our CVS commit policy, so we can 
+identify these patches / changesets.
 
-> readers. Readers boost the writers but not the other way around. Readers
-> will be deterministic, but not writers.
-> Such a semantics would probably work for a lot of RT applications
-> happening not to take any write-locks - these will in fact perform better. 
-> But it will give the rest a lot of problems.
+I will try to prepare some useable tool in few weeks.
 
-Just came up with an idea after I thought about how much of a bitch it
-would be to get a fast RCU multipule reader semantic (our current shared-
-exclusive lock inserts owners into a sorted priority list per-thread which
-makes it very expensive for a simple RCU case since they are typically very
-small batches of items being altered). Basically the RCU algorithm has *no*
-notion of writer priority and to propagate a PI operation down all reader
-is meaningless, so why not revert back to the original rwlock-semaphore to
-get the multipule reader semantics ?
+						Jaroslav
 
-A notion of priority across a quiescience operation is crazy anyways, so
-it would be safe just to use to the old rwlock-semaphore "in place" without
-any changes or priorty handling addtions. The RCU algorithm is only concerned
-with what is basically a coarse data guard and it isn't time or priority
-critical.
-
-What do you folks think ? That would make Paul's stuff respect multipule
-readers which reduces contention and gets around the problem of possibly
-overloading the current rt lock implementation that we've been bitching
-about. The current RCU development track seem wrong in the first place and
-this seem like it could be a better and more complete solution to the problem.
-
-If this works, well, you heard it here first. :)
-
-bill
-
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318638AbSHLC4O>; Sun, 11 Aug 2002 22:56:14 -0400
+	id <S318630AbSHLDEi>; Sun, 11 Aug 2002 23:04:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318641AbSHLC4O>; Sun, 11 Aug 2002 22:56:14 -0400
-Received: from rj.sgi.com ([192.82.208.96]:49341 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S318638AbSHLC4N>;
-	Sun, 11 Aug 2002 22:56:13 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unix-domain sockets - abstract addresses 
-In-reply-to: Your message of "Sun, 11 Aug 2002 21:35:05 EST."
-             <Pine.LNX.4.44.0208112132510.25011-100000@waste.org> 
+	id <S318631AbSHLDEi>; Sun, 11 Aug 2002 23:04:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:24472 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318630AbSHLDEi>;
+	Sun, 11 Aug 2002 23:04:38 -0400
+Date: Sun, 11 Aug 2002 19:54:59 -0700 (PDT)
+Message-Id: <20020811.195459.89771180.davem@redhat.com>
+To: Hell.Surfers@cwctv.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The spam problem.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <027b24303030c82DTVMAIL11@smtp.cwctv.net>
+References: <027b24303030c82DTVMAIL11@smtp.cwctv.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Aug 2002 12:59:53 +1000
-Message-ID: <649.1029121193@kao2.melbourne.sgi.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Aug 2002 21:35:05 -0500 (CDT), 
-Oliver Xymoron <oxymoron@waste.org> wrote:
->> >   From: Keith Owens <kaos@ocs.com.au>
->> >   Date: Sat, 10 Aug 2002 11:35:04 +1000
->> >
->> >   af_unix.c is linked into unix.o so we have -DKBUILD_MODNAME=unix.  Alas
->> >   we also have -Dunix=1.  __stringify(KBUILD_MODNAME) -> __stringify(unix) ->
->> >   "1" instead of "unix".
->
->Might it be simpler to change the overall module name? unix.o is an
->especially poor choice of names, compiler defines aside.
+   From: Hell.Surfers@cwctv.net
+   Date: Mon, 12 Aug 2002 04:04:10 +0100
 
-I prefer that option, expect that it changes the name of a module.  Not
-that we haven't done that before ...
+   They are dangerous, they have gotten people KILLED.
 
-A module name of af_unix would be much better, like af_packet.  It
-would require changing the name of af_unix.c (source and conglomerate
-objects cannot have the same basename) and a change to modutils to map
-net-pf-1 to af_unix.
+If people actually reply to and act upon those "here is how to make
+168 million dollars please help me in Nigeria!" emails, frankly that's
+Darwin at work.
 
+If you want to talk about this further, please don't do it here.

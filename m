@@ -1,107 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbTJIUrM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 16:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbTJIUrM
+	id S262581AbTJIVGR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 17:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTJIVGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 16:47:12 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:63408 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262420AbTJIUrG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 16:47:06 -0400
-Date: Thu, 9 Oct 2003 17:40:53 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: 2.4.23pre6aa1
-In-Reply-To: <20031005092326.GA1561@velociraptor.random>
-Message-ID: <Pine.LNX.4.44.0310091735380.3040-100000@logos.cnet>
+	Thu, 9 Oct 2003 17:06:17 -0400
+Received: from mail.gmx.de ([213.165.64.20]:17041 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262581AbTJIVGG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 17:06:06 -0400
+Date: Thu, 9 Oct 2003 23:06:05 +0200 (MEST)
+From: "Howard Duck" <h.t.d@gmx.net>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: kernel 2.6.0betaX: ich5 sata enhanced mode hangs during init
+X-Priority: 3 (Normal)
+X-Authenticated: #295886
+Message-ID: <22605.1065733565@www40.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi 
+ 
+I have a Mainboard with a intel 865PE chipset. I tested many kernels to get
+my 
+Serial-ATA (sata) disk to work in enhanced mode and so far only one kernel 
+works - 2.5.74. I need the enhanced mode because I lose all secondary ide 
+ports if i switch to legacy/compatible mode in the mainboards bios (which 
+disables some of my drives). 
+ 
+Since the first beta of kernel 2.6.0 i had no luck in successfully booting
+the 
+machine unless i switched to SATA legacy mode. All 2.6.0beta-kernels make it
 
+to the init sequence and detect the sata disk, but the system hangs at
+random 
+postions during init (starting devfsd, mounting swap or setting the machines
 
-On Sun, 5 Oct 2003, Andrea Arcangeli wrote:
+hostname, well - somewhere during startup). 
+ 
+I tried removing swap from /etc/fstab and disabling some init-scripts but it
 
-> > > Only in 2.4.23pre6aa1: 00_get_request_wait-race-1
-> > > 
-> > > 	Add missing smb_mb().
+doesn't help. Booting in "single" mode does not work too. The only thing
+that 
+works is using legacy sata support, so i guess it is related to some new
+code for 
+handling serial ata controllers/disks (the machine boots off a sata disk) in
+the 
+2.6.0beta kernels. 2.5.74 boots and works w/o problems, but i'd feel better
+if i 
+run a kernel marked "stable" ;) 
+ 
+Is there something i can do to trace the problem of the hang during boot,
+maybe 
+some special kernel options, new user-space tools,...? Is this maybe related
+to 
+SMP support or hyperthreading cpus? 
+ 
+I am open for any hints or test-procedures that may help to fix or find the 
+problem. 
+thanks in advance 
+ Michael Kefeder 
+ 
+p.s.: i'm not subscribed to the lkml, please put me on CC when answering 
+ 
 
-Ok I see you add smp_mb() in get_request_wait_wakeup()... Can you please 
-explain me in more detail why this is required? 
+-- 
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
 
-> > > Only in 2.4.23pre6aa1: 00_proc-readlink-1
-> > > 
-> > > 	Remeber to free tmp buffer (from spender)
+Jetzt kostenlos anmelden unter http://www.gmx.net
 
-Merged.
-
-> > > 
-> > > Only in 2.4.23pre6aa1: 00_sync-buffer-scale-1
-> > > 
-> > > 	Don't take the bkl (the same paths runs w/o the bkl elsewhere), from
-> > > 	Chris Mason.
-
-I prefer not applying this one.
-
-> > > Only in 2.4.23pre6aa1: 01_softirq-nowait-1
-> > > 
-> > > 	We must really keep executing softirqs or it may take
-> > > 	a too long time before ksoftirqd gets some cpu time.
-> > > 	For an embedded device you may want to remove this,
-> > > 	on a server we need this still.
-> > > 
-> > > Only in 2.4.23pre6aa1: 30_19-nfs-kill-unlock-1
-> > > 
-> > > 	Ignore errors on exiting lock cleanups. From Trond.
-
-Talked with Trond and he has other fixes pending... Should have them by 
-the weekend.
-
-> > > Only in 2.4.23pre6aa1: 9999900_BH_Sync-remove-1
-> > > 
-> > > 	To really be able to help and not just waste some
-> > > 	seek and cpu, wait_on_buffer should honour the
-> > > 	BH_Sync, but this is late in 2.4, and so I prefer
-> > > 	to get rid of it instead of giving it the full power
-> > > 	it should have.
-> > > 
-> > > Only in 2.4.23pre6aa1: 9999_z-execve-race-1
-> > > 
-> > > 	Fix race in exit_mmap.
->
-> I recall I sent one of these to you privately already (though not all of
-> them). the ones to merge are these:
-> 
-> 	00_e-nodev-1
-> 	00_get_request_wait-race-1
-> 	00_proc-readlink-1
-> 	00_sync-buffer-scale-1
-> 	30_19-nfs-kill-unlock-1
-> 	9999900_BH_Sync-remove-1
-> 	9999_z-execve-race-1
-> 
-> I benchmarked BH_Sync as a worthless logic, it increases cpu usage and
-> slowdown I/O a little due suprious unplugs, basically it makes no sense
-> until we change wait_on_buffer not to call run_task_queue if the BH is
-> BH_Sync, but personally I prefer to nuke it than to go mangle
-> wait_on_buffer, it wouldn't be a huge optimization anyways (and it's a
-> noop without more than one spindle running).
-
-I want to look with more time into this one...
-
-> as you know I tried to fix the execve race w/o removing the fast path,
-> but the lazy tlb code didn't work correctly, I'm unsure exactly what
-> went wrong with it. The above fix is obviously safe instead and it
-> indeed works fine. I'll be busy today and early next week. If something
-> doesn't apply cleanly let me know and I can fix it for you.
-
-Thats merged as well.
-
-Apart from this there's a huge pile of fixes all over in -aa. It would be
-good if we had them merged in.
++++ GMX - die erste Adresse für Mail, Message, More! +++
 

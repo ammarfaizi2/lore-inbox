@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268145AbRH1PpB>; Tue, 28 Aug 2001 11:45:01 -0400
+	id <S271572AbRH1Ptb>; Tue, 28 Aug 2001 11:49:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271507AbRH1Pow>; Tue, 28 Aug 2001 11:44:52 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:15518 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S268145AbRH1Pom>; Tue, 28 Aug 2001 11:44:42 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-Date: Tue, 28 Aug 2001 15:44:53 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9mge9l$sb9$1@forge.intermeta.de>
-In-Reply-To: <3B8BA883.3B5AAE2E@linux-m68k.org> <Pine.LNX.4.33.0108280732560.8585-100000@penguin.transmeta.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 999013493 29130 212.34.181.4 (28 Aug 2001 15:44:53 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 28 Aug 2001 15:44:53 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S271586AbRH1PtV>; Tue, 28 Aug 2001 11:49:21 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:53766 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S271572AbRH1PtK>;
+	Tue, 28 Aug 2001 11:49:10 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200108281549.f7SFnPg263571@saturn.cs.uml.edu>
+Subject: Re: [PATCH] Ext2FS: SUID on Dir
+To: clifford@clifford.at (Clifford Wolf)
+Date: Tue, 28 Aug 2001 11:49:25 -0400 (EDT)
+Cc: Remy.Card@linux.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108281227280.1127-100000@nerd.clifford.at> from "Clifford Wolf" at Aug 28, 2001 12:52:46 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Clifford Wolf writes:
 
->I'll show you a real example from drivers/acorn/scsi/acornscsi.c:
+> As you all know, on Ext2FS Partitions the SGID flag has a special function
+> on directories: files within that directories will be owned by the same
+> group that also owns the directory - which is useful for creating
+> directories which are shared between the members of a group.
+>
+> But that only makes sense if the umask is set to give full permissions to
+> the group (e.g. 007 or 002). Noone would do that if there is a system-wide
+> 'users' group - so some distributions add an extra group for every user
+> which lets the /etc/group file grow very fast and makes the admins life
+> harder ...
+>
+> The following small patch adds a function to the SUID flag on directories.
+> If the SUID flag is set for a diectory, all new files in that directory
+> will get the same rights in the group-field as they have in their
+> user-field.  So, if one sets both - SUID and SGID - on a directory, it
+> will also work with a umask like 022 or 077 and there is no more need for
+> an extra group for every user.
 
->	min(host->scsi.SCp.this_residual, DMAC_BUFFER_SIZE / 2);
+It would at least be more logical to have SUID do for user IDs
+what SGID does for group IDs. Having SUID muck with group IDs
+is pretty ugly.
 
->this_residual is "int", and "DMAC_BUFFER_SIZE" is just a #define for
->an integer constant. So the above is actually a signed comparison, and
->I'll bet you that was not what the author intended.
-
-And the mistake of the author was not to write "unsigned int this_residual".
-That's the bug. Not the min() function.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

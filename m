@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132439AbRDCTKG>; Tue, 3 Apr 2001 15:10:06 -0400
+	id <S132468AbRDCTNg>; Tue, 3 Apr 2001 15:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132465AbRDCTJ4>; Tue, 3 Apr 2001 15:09:56 -0400
-Received: from cc946626-a.vron1.nj.home.com ([24.5.103.153]:7940 "EHLO
-	tela.bklyn.org") by vger.kernel.org with ESMTP id <S132439AbRDCTJp>;
-	Tue, 3 Apr 2001 15:09:45 -0400
-Date: Tue, 3 Apr 2001 15:08:52 -0400
-From: Caleb Epstein <cae@bklyn.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS client code slow in 2.4.3
-Message-ID: <20010403150852.A1310@hagrid.bklyn.org>
-Reply-To: Caleb Epstein <cae@bklyn.org>
-In-Reply-To: <20010403145615.C1049@hagrid.bklyn.org>
+	id <S132497AbRDCTN0>; Tue, 3 Apr 2001 15:13:26 -0400
+Received: from jalon.able.es ([212.97.163.2]:21646 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S132468AbRDCTNH>;
+	Tue, 3 Apr 2001 15:13:07 -0400
+Date: Tue, 3 Apr 2001 21:12:18 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Ben Ford <ben@kalifornia.com>
+Cc: "J . A . Magallon" <jamagallon@able.es>, David Lang <dlang@diginsite.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: /proc/config idea
+Message-ID: <20010403211218.A2387@werewolf.able.es>
+In-Reply-To: <3AC91800.22D66B24@mandrakesoft.com> <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com> <20010403161322.A8174@werewolf.able.es> <3ACA1A91.70401@kalifornia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010403145615.C1049@hagrid.bklyn.org>; from cae@bklyn.org on Tue, Apr 03, 2001 at 02:56:15PM -0400
-Organization: Brooklyn Dust Bunny Mfg.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3ACA1A91.70401@kalifornia.com>; from ben@kalifornia.com on Tue, Apr 03, 2001 at 20:46:41 +0200
+X-Mailer: Balsa 1.1.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 03, 2001 at 02:56:15PM -0400, Caleb Epstein wrote:
 
-> 	I am having problems with timeouts and generaly throughput in
-> the 2.4.3 NFS client side code which are not present in the 2.4.2
-> kernel running in the same configuraiton on the same hardware.  The
-> machines are on a 100 Mbit switched local network with essentially
-> no other trafic.
+On 04.03 Ben Ford wrote:
+> J . A . Magallon wrote:
+> > 
+> > If this has not been done for System.map, that is a much more important
+> > info for debug and oops, and the de facto standard is to put it aside
+> > kernel with some standadr naming, lets use the same method for config.
+> > 
+> That would be great and all, but can you tell me how to do it when I 
+> have 3 or 4 different compiles of the same kernel version?
+> 
 
-	On second thought, it looks like 2.4.2 may also exhibit the
-	same behaviro after a little while.  Now that the machine has
-	been up for a half hour or so, NFS traffic has become slow on
-	my 2.4.2 client again.  I am seeing messages like this in my
-	kernel log:
-
-Apr  3 15:01:54 hagrid kernel: nfs: server tela not responding, still trying
-Apr  3 15:01:54 hagrid kernel: nfs: server tela OK
-
-	The machines are *not* having any connectivity problems, at
-	least judging from TCP sessions I have open between them.
-
-	So it would seem that NFS performace degrades over a very
-	short window in 2.4.2+.  It seems to fairly fly when the
-	machine is freshly booted, but after 30 minutes or less, the
-	performance is severely degraded.
-
-	Is anyone using 2.4.2+ as a NFS server/client with success?
-	Am I missing something?
+Just like the Alan Cox for 2.4 or Andrea Arcangeli for 2.2. Lets say you
+have 2.4.2-ac27. For each of your compiles, set EXTRAVERSION to -ac27-bf1,
+-ac27-bf2, etc. Your files will be:
+vmlinuz-2.4.2-ac27-bfX
+System.map-2.4.2-ac27-bfX
+config-2.4.2-ac27-bfX
 
 -- 
-cae at bklyn dot org | Caleb Epstein | bklyn . org | Brooklyn Dust Bunny Mfg.
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
+
+Linux werewolf 2.4.3 #2 SMP Fri Mar 30 15:42:05 CEST 2001 i686
+

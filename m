@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269935AbUH0BQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269830AbUH0BQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269935AbUH0BQY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 21:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269933AbUH0BQD
+	id S269830AbUH0BQc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 21:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269930AbUH0BPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 21:16:03 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53176 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269861AbUH0A75 (ORCPT
+	Thu, 26 Aug 2004 21:15:48 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:16087 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S269902AbUH0BLd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 20:59:57 -0400
-Date: Thu, 26 Aug 2004 17:59:37 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Dave Airlie <airlied@linux.ie>
+	Thu, 26 Aug 2004 21:11:33 -0400
+Date: Fri, 27 Aug 2004 02:11:32 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: "David S. Miller" <davem@redhat.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: maintaining DRM and using bitkeeper..
-Message-Id: <20040826175937.1da66716.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0408270043170.25111@skynet>
+In-Reply-To: <20040826175937.1da66716.davem@redhat.com>
+Message-ID: <Pine.LNX.4.58.0408270209350.25111@skynet>
 References: <Pine.LNX.4.58.0408270043170.25111@skynet>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <20040826175937.1da66716.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004 00:57:56 +0100 (IST)
-Dave Airlie <airlied@linux.ie> wrote:
 
-> it takes most of an evening to clone a tree to my
-> machine at home
+> Why?
 
-Why?
+Thanks Dave, that sorts out the I'm stupid and don't know how to use
+bitkeeper issue :-), I'm still not in the bk paradigm...
 
-You should always have a current vanilla linus-2.6 BK tree
-locally, and just pull into it occaisionally.  Then when
-you want to do work just clone it using links:
+I'll give it a blast this evening...
 
-	bk clone -l linus-2.6 drm-2.6
+Dave.
 
-and fire away. This is the fastest way.
+>
+> You should always have a current vanilla linus-2.6 BK tree
+> locally, and just pull into it occaisionally.  Then when
+> you want to do work just clone it using links:
+>
+> 	bk clone -l linus-2.6 drm-2.6
+>
+> and fire away. This is the fastest way.
+>
+> If you're going:
+>
+> 	bk clone bk://linux.bkbits.net/linux-2.5 drm-2.6
+>
+> then no wonder it takes all evening :-)
+>
+> When I rebase I just go:
+>
+> 	cd linus-2.6
+> 	bk pull
+> 	cd ..
+> 	mv tree treework
+> 	bk clone -l linus-2.6 tree
+> 	cd tree
+> 	bk pull ../treework
+>
+> and that takes less than 10 minutes even on my super slow
+> UltraSPARC machines :-)
+>
 
-If you're going:
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 
-	bk clone bk://linux.bkbits.net/linux-2.5 drm-2.6
-
-then no wonder it takes all evening :-)
-
-When I rebase I just go:
-
-	cd linus-2.6
-	bk pull
-	cd ..
-	mv tree treework
-	bk clone -l linus-2.6 tree
-	cd tree
-	bk pull ../treework
-
-and that takes less than 10 minutes even on my super slow
-UltraSPARC machines :-)

@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271179AbUJVC3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271172AbUJVBFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271179AbUJVC3w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 22:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271148AbUJVC3r
+	id S271172AbUJVBFE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 21:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271143AbUJVA7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 22:29:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50064 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271179AbUJVCNp (ORCPT
+	Thu, 21 Oct 2004 20:59:13 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:30725 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S271127AbUJVA4m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 22:13:45 -0400
-Date: Thu, 21 Oct 2004 19:11:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       guillaume.thouvenin@bull.net
-Subject: Re: [PATCH 2.6.9 0/2] enhanced accounting data collection
-Message-Id: <20041021191137.528ab638.akpm@osdl.org>
-In-Reply-To: <41785FE3.806@engr.sgi.com>
-References: <41785FE3.806@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 21 Oct 2004 20:56:42 -0400
+Date: Thu, 21 Oct 2004 20:57:39 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com, romieu@fr.zoreil.com
+Subject: [patch netdev-2.6 0/2] r8169: vlan hwaccel fixes
+Message-ID: <20041022005737.GA1945@tuxdriver.com>
+Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+	jgarzik@pobox.com, romieu@fr.zoreil.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan <jlan@engr.sgi.com> wrote:
->
-> These two patches are the one we submitted to SuSE for Sles9 SP1.
+After taking a little time to implement vlan hwaccl features for the
+r8169 driver, I discovered that someone had already beaten me to it! :-)
 
-Did suse accept them?
+Anyway, at least the experience put me in an ideal position to review
+the changes that had already been made.  I found a couple of places that
+need some work.
 
-> They are clean of CSA specific code.
-> 
-> In earlier round of discussion, all partipants favored  a common
-> layer of accounting data collection. I believe these two patches are
-> the super set that meets the needs of people who need enhanced BSD 
-> accounting.
+Patch 1:
 
-OK, well I shall assume that all participants are reading lse-tech, or that
-readers of lse-tech will pass on the appropriate heads-up.  Because if I
-don't hear from anyone, this all goes in.
+The return value of rtl8169_tx_vlan_tag() is not being
+endian-swapped to little endian.  The hardware registers are little
+endian, even though the vlan tag value in this register (16-bits only)
+is big endian -- confusing!  Anyway, I'll be posting a follow-up patch
+to correct this.
 
-> This patchset consists of two parts: acct_io and acct_mm, as we
-> identified improved data collection in the area of IO and MM are
-> useful to our customers.
-> 
-> It is intended to offer common data collection method for various
-> accounting packages including BSD accouting, ELSA, CSA, and any other
-> acct packages that favor a common layer of data collection.
-> 
-> 'acct_mm' defines a few macros that are no-op unless
-> CONFIG_BSD_PROCESS_ACCT config flag is set on.
-> 
-> Andrew, please consider including these two patches. Please let me
-> know how i can help!
+Patch 2:
 
-These patches are really, really badly documented.  This is by no means
-unusual, but I labour on.  A nice description of what you set out to do and
-how you did it would be a nice thing to present.
+The RxVlan bit in the CPlusCmd register is being turned-on in
+rtl8169_vlan_rx_register() without regard to the value passed-in for
+grp.  rtl8169_vlan_rx_register() is called w/ a non-NULL grp value when
+the first vlan interface is created, then w/ a NULL grp value when the
+last vlan interface is removed.
 
-I have a few comments on the present implementation and shall follow up to
-those patches.
+Similarly, the RxVlan bit in the CPlusCmd register is being turned-off
+in rtl8169_vlan_rx_kill_vid() without regard to anything.  This function
+is called when vlan interfaces are removed, but there may still be other
+vlan interfaces still associated with the physical interface.
 
+The net effect of the status quo is that vlan hwaccel is enabled after
+the first vlan interfaces is created, UNTIL a vlan interface is removed.
+After a single vlan interface is removed, no vlan hwaccel will occur (on
+receive) until another vlan interface is created.  The second follow-up
+patch I post will correct this by turning-on the RxVlan bit when
+rtl8169_vlan_rx_register() is called w/ a non-NULL grp value and
+turning-off the RxVlan bit when it is called w/ a NULL grp value.
+Manipulation of the RxVlan bit will be removed from
+rtl8169_vlan_rx_kill_vid().
+
+Patches to follow...
+
+Thanks,
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

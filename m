@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266832AbUHISQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266819AbUHISRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266832AbUHISQv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 14:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266816AbUHISOE
+	id S266819AbUHISRT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 14:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266816AbUHISRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 14:14:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36584 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266815AbUHISNC (ORCPT
+	Mon, 9 Aug 2004 14:17:17 -0400
+Received: from colin2.muc.de ([193.149.48.15]:27923 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S266833AbUHISQY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 14:13:02 -0400
-Date: Mon, 9 Aug 2004 10:51:13 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] Host Virtual Serial Interface driver
-Message-Id: <20040809105113.4923342d.rddunlap@osdl.org>
-In-Reply-To: <1091827384.31867.21.camel@localhost>
-References: <1091827384.31867.21.camel@localhost>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 9 Aug 2004 14:16:24 -0400
+Date: 9 Aug 2004 20:16:22 +0200
+Date: Mon, 9 Aug 2004 20:16:22 +0200
+From: Andi Kleen <ak@muc.de>
+To: Bob Deblier <bob.deblier@telenet.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AES assembler optimizations
+Message-ID: <20040809181622.GA42722@muc.de>
+References: <2riR3-7U5-3@gated-at.bofh.it> <m3d620v11e.fsf@averell.firstfloor.org> <1092067328.4332.40.camel@orion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092067328.4332.40.camel@orion>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 06 Aug 2004 16:23:05 -0500 Hollis Blanchard wrote:
+On Mon, Aug 09, 2004 at 06:02:08PM +0200, Bob Deblier wrote:
+> On Mon, 2004-08-09 at 16:28, Andi Kleen wrote:
+> > Bob Deblier <bob.deblier@telenet.be> writes:
+> > 
+> > > Just picked up on KernelTrap that there were some problems with
+> > > optimized AES code; if you wish, I can provide my own LGPL licensed (or
+> > > I can relicense them for you under GPL), as included in the BeeCrypt
+> > > Cryptography Library.
+> > >
+> > > I have generic i586 code and SSE-optimized code available in GNU
+> > > assembler format. Latest version is always available on SourceForge
+> > > (http://sourceforge.net/cvs/?group_id=8924).
+> > 
+> > Would be interesting.  Do you have any benchmarks for your code?
+> 
+> BeeCrypt contains benchmarks in the 'tests' subdirectory. Running of
+> 'make bench' will execute them. Benchmarks results below for repeatedly
+> looping over the same 16K block, produced by 'benchbc', without any
+> tweaks (YMMV):
 
-| Hi, I have a new char driver I'd like to get comments on. It is specific
-| to IBM's p5 server line; I've included a description from the comments
-| here:
-...
-| I've included the whole file below; it's pretty much self-contained. All
-| comments welcome.
-| 
-| -- 
-|  
-| #include <linux/init.h>
-| #include <linux/module.h>
-| #include <linux/console.h>
-| #include <linux/major.h>
-| #include <linux/kernel.h>
-| #include <linux/sysrq.h>
-| #include <linux/tty.h>
-| #include <linux/tty_flip.h>
-| #include <linux/sched.h>
-| #include <linux/kbd_kern.h>
-| #include <linux/spinlock.h>
-| #include <linux/ctype.h>
-| #include <linux/interrupt.h>
-| #include <linux/delay.h>
+I guess a cache cold benchmark would be more interesting. AFAIK 
+linux does encryption/decryption usually on cache cold buffers.
 
-To the extent possible, we like to put the linux/* files in alpha
-order, and same with the asm/* files.  Separately, as you have them.
+> P4 2400, with MMX:
+> ECB encrypted 738304 KB in 10.00 seconds = 73823.02 KB/s
+> CBC encrypted 659456 KB in 10.00 seconds = 65925.82 KB/s
+> ECB decrypted 765952 KB in 10.00 seconds = 76564.57 KB/s
+> CBC decrypted 616448 KB in 10.02 seconds = 61546.33 KB/s
+> 
+> P4 2400, plain i386:
+> ECB encrypted 584704 KB in 10.01 seconds = 58435.34 KB/s
+> CBC encrypted 570368 KB in 10.01 seconds = 56979.82 KB/s
+> ECB decrypted 444416 KB in 10.02 seconds = 44357.32 KB/s
+> CBC decrypted 423936 KB in 10.02 seconds = 42304.76 KB/s
 
-| #include <asm/uaccess.h>
-| #include <asm/hvconsole.h>
-| #include <asm/prom.h>
-| #include <asm/hvcall.h>
-| #include <asm/vio.h>
-| 
-| #define __ALIGNED__	__attribute__((__aligned__(sizeof(long))))
+MMX seems to be fast enough that it's probably a win to use,
+even with the overhead of kernel_fpu_begin/end
 
-You should explain this bit (__ALIGNED__).
+It usually annoys the "low latency" people a bit though because
+it requires disabling kernel preemption during the computation.
 
-| static inline int hdrlen(const uint8_t *packet)
-| {
-| 	const int lengths[] = { 4, 6, 6, 8, };
-| 	struct hvsi_header *header = (struct hvsi_header *)packet;
-| 
-| 	return lengths[VS_DATA_PACKET_HEADER - header->type];
-| }
-
-Any chance of bad data (value) in header->type ?
-
-| 		if (hangup) {
-| 			tty_hangup(hangup);
-| 		}
-
-extra braces (style); maybe in a few other places also.
-
---
-~Randy
+-Andi

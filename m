@@ -1,27 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315485AbSGAPRD>; Mon, 1 Jul 2002 11:17:03 -0400
+	id <S315607AbSGAPSn>; Mon, 1 Jul 2002 11:18:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315607AbSGAPRC>; Mon, 1 Jul 2002 11:17:02 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27318 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S315485AbSGAPRB>; Mon, 1 Jul 2002 11:17:01 -0400
-Date: Mon, 1 Jul 2002 11:18:58 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200207011518.g61FIwO21599@devserv.devel.redhat.com>
-To: Ralph Corderoy <ralph@inputplus.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18.
-In-Reply-To: <mailman.1025526604.30310.linux-kernel2news@redhat.com>
-References: <mailman.1025526604.30310.linux-kernel2news@redhat.com>
+	id <S315611AbSGAPSn>; Mon, 1 Jul 2002 11:18:43 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:53952 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S315607AbSGAPSl>;
+	Mon, 1 Jul 2002 11:18:41 -0400
+Date: Mon, 1 Jul 2002 17:20:06 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Rusty Russell <rusty@rustcorp.com.au>
+cc: kuebelr@email.uc.edu,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [TRIVIAL] namespace.c - compiler warning 
+In-Reply-To: <E17IN5r-0004a8-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.GSO.4.21.0206281724240.14426-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->[...]
-> I'll try and use hid.o instead, usbkbd.o was just picked by this Red Hat
-> 7.2 system on adding the keyboard.
+On Thu, 13 Jun 2002, Rusty Russell wrote:
+> In message <20020613035339.GA3950@cartman> you write:
+> > init_rootfs() (from ramfs) doesn't appear in any header file.  I didn't
+> > see any that looked like a good home, so lets put a prototype at the top
+> > of fs/namespace.c.  This only use of this function is in namespace.c.
+> > 
+> > Patch is agains 2.4.19-pre10.
+> 
+> Please simply backport the declaration from 2.5: it gets the function
+> type correct.
 
-Do up2date and be happy: usbkbd.o was removed from Red Hat kernels
-somewhere in erratas.
+So that becomes:
 
--- Pete
+--- linux-2.4.19-rc1/fs/namespace.c	Fri Apr  5 12:08:18 2002
++++ linux-geert-2.4.19-rc1/fs/namespace.c	Fri Jun 28 17:21:23 2002
+@@ -24,6 +24,7 @@
+ struct vfsmount *do_kern_mount(const char *type, int flags, char *name, void *data);
+ int do_remount_sb(struct super_block *sb, int flags, void * data);
+ void kill_super(struct super_block *sb);
++extern int __init init_rootfs(void);
+ 
+ static struct list_head *mount_hashtable;
+ static int hash_mask, hash_bits;
+
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

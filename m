@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbTICNh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 09:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTICNhZ
+	id S262167AbTICNb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 09:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTICNb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 09:37:25 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:52683 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262198AbTICNg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 09:36:56 -0400
-Subject: Re: corruption with A7A266+200GB disk?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: steveb@unix.lancs.ac.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200309030255.28645.bzolnier@elka.pw.edu.pl>
-References: <E19uBCi-00054b-00@wing0.lancs.ac.uk>
-	 <200309030255.28645.bzolnier@elka.pw.edu.pl>
+	Wed, 3 Sep 2003 09:31:28 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:55263 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262167AbTICNbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 09:31:25 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk@arm.linux.org.uk>, Pavel Machek <pavel@suse.cz>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+In-Reply-To: <1062594137.19058.23.camel@dhcp23.swansea.linux.org.uk>
+References: <20030831232812.GA129@elf.ucw.cz>
+	 <Pine.LNX.4.44.0309010925230.7908-100000@home.osdl.org>
+	 <20030901211220.GD342@elf.ucw.cz>
+	 <20030901225243.D22682@flint.arm.linux.org.uk>
+	 <20030901221920.GE342@elf.ucw.cz>
+	 <20030901233023.F22682@flint.arm.linux.org.uk>
+	 <1062498096.757.45.camel@gaston>
+	 <1062594137.19058.23.camel@dhcp23.swansea.linux.org.uk>
+Message-Id: <1062595873.1785.23.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 03 Sep 2003 15:31:14 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: Fix up power managment in 2.6
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1062596153.19059.42.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Wed, 03 Sep 2003 14:35:54 +0100
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-09-03 at 01:55, Bartlomiej Zolnierkiewicz wrote:
-> If you are ready to take a risk (again ;-) ) you can remove
-> "hwif->no_lba48 = ..." line from a drivers/ide/pci/alim15x3.c,
-> recompile and retest without using DMA (add "ide=nodma"
-> boot option).  Maybe LBA48 will work in PIO mode.
+On Wed, 2003-09-03 at 15:02, Alan Cox wrote:
+> On Maw, 2003-09-02 at 11:21, Benjamin Herrenschmidt wrote:
+> > The whole point was to get rid of the old 2 step save_state, then
+> > suspend model which didn't make sense. A saved state is only meaningful
+> > as long as that state doesn't get modified afterward, so saving state
+> > and suspending are an atomic operation.
+> 
+> Very old myth. In fact just about every scheduler on the planet exploits
+> the fact this is untrue.
+> 
+> 		save state
+> 		continue running doing scheduler stuff
+> 		restore other state losing the state in the middle we dont need
+> 
+> Ditto with a lot of I/O devices. My audio save state and suspend can be
+> seperated - I might play a little bit of a song twice but is that a bug
 
-ALi does support LBA48 in PIO mode. Right now the choice is 
-DMA and 137Gb or no DMA and 200Gb, ideally it should be DMA
-and fall back to PIO for the top 70Gb, but not yet a while.
+It is in lots of case with IO. Especially if your state don't match
+between different devices that rely on each other (parent/child
+typically), or if some of that state information matches something
+persistent on the HW (devices don't necessarily get fully powered
+off during suspend).
 
-I've actually not yet found a controller in my testing that cannot
-manage LBA48 PIO, including nailing a 160Gb drive to a Cyrix box with
-a VIA VP2.
+Note that in most case, there isn't really a notion of "state" to
+store or save anyway, that is "state" is just whatever is in your
+net_device structure for a network driver, or whatever private
+structure in your whatever-other driver, so you just have to restore
+a couple of things on wakeup, but really nothing to save on suspend.
+
+The single callback is much simpler, and will avoid lots of mistakes
+imho.
+
+Ben.
 
 

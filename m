@@ -1,162 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbTH0JYP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 05:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTH0JYP
+	id S263224AbTH0Jab (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 05:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbTH0Jab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 05:24:15 -0400
-Received: from mail.gmx.de ([213.165.64.20]:56002 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263258AbTH0JYI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 05:24:08 -0400
-Message-Id: <5.2.1.1.2.20030827111223.01997e98@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Wed, 27 Aug 2003 11:28:04 +0200
-To: Nick Piggin <piggin@cyberone.com.au>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] Nick's scheduler policy v7
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F49E7D1.4000309@cyberone.com.au>
-References: <3F497BB6.90100@cyberone.com.au>
- <3F48B12F.4070001@cyberone.com.au>
- <29760000.1061744102@[10.10.2.4]>
- <3F497BB6.90100@cyberone.com.au>
+	Wed, 27 Aug 2003 05:30:31 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:2755 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S263224AbTH0Ja3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 05:30:29 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Wed, 27 Aug 2003 11:30:27 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: linux-kernel@vger.kernel.org, tejun@aratech.co.kr
+Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
+Message-Id: <20030827113027.64c42485.skraw@ithnet.com>
+In-Reply-To: <20030827073758.GW83336@niksula.cs.hut.fi>
+References: <20030729073948.GD204266@niksula.cs.hut.fi>
+	<20030730071321.GV150921@niksula.cs.hut.fi>
+	<Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva>
+	<20030730181003.GC204962@niksula.cs.hut.fi>
+	<20030827064301.GF150921@niksula.cs.hut.fi>
+	<20030827073758.GW83336@niksula.cs.hut.fi>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_25825875==_"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_25825875==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+On Wed, 27 Aug 2003 10:37:58 +0300
+Ville Herva <vherva@niksula.hut.fi> wrote:
 
-At 08:41 PM 8/25/2003 +1000, Nick Piggin wrote:
->Hi,
+> > Did you already try to exchange everything but the harddisks ?
+> 
+> No. Do you suspect faulty hardware?
+> [...]
+> What I had hoped for is to be able to get some information on where it hangs.
+> But sysrq and nmi watchdog don't cut it...
 
-Greetings,
+Hm, did you try a serial console? On my side this was a big step forward.
+If you experience complete hangs it may be something around hanging interrupts.
+Did you play with apic/acpi etc. to try different interrupt handling? What does
+your /proc/interrupts look like compared between 2.2 and 2.4 ?
 
->I didn't miss 5 revisions, I'll just stick to using my internal
->numbering for releases.
->
->This one has a few changes. Children now get a priority boost
->on fork, and parents retain more priority after forking a child,
->however exiting CPU hogs will now penalise parents a bit.
->
->Timeslice scaling was tweaked a bit. Oh and remember raising X's
->priority should _help_ interactivity with this patch, and IMO is
->not an unreasonable thing to be doing.
->
->Please test. I'm not getting enough feedback!
-
-Heavy parallel make throughput is still down a little over 10%, but X 
-choppiness is markedly improved.  Test-starve is now working.  One thing 
-that I noticed is that irman takes quite a bit longer to complete than with 
-stock.  I've attached the results of that, plus some contest numbers.  My 
-local variant of contest has a couple of differences to stock: dbench 
-doesn't run so many instances, and list_load is just a small tree being 
-md5summed.  There are two additional loads as well.  ab_load is an ancient 
-apache bench jabbering with an also ancient apache (boring static page via 
-localhost)... you can guess what irman2_load is :)
-
-         -Mike
-
---=====================_25825875==_
-Content-Type: application/octet-stream; name="xx"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="xx"
-
-W3Jvb3RdOiMgdGltZSAuL2lybWFuClJlc3BvbnNlIHRpbWUgbWVhc3VyZW1lbnRzIChtaWxsaXNl
-Y29uZHMpIGZvcjogMi42LjAtdGVzdDQudjcKICAgICAgTG9hZCAgICAgICBNYXggICAgICAgTWlu
-ICAgICAgIEF2ZyBTdGQuIERldi4KICAgICAgTlVMTCAgICAgMC4yODcgICAgIDAuMDEwICAgICAw
-LjAxMSAgICAgMC4wMDIKICAgIE1FTU9SWSAgIDE3MC4wNTIgICAgIDAuMDEwICAgICAwLjA0OSAg
-ICAgMC41MzQKICAgRklMRV9JTyAgIDIyMC4wNTYgICAgIDAuMDEwICAgICAwLjA5MCAgICAgMS4w
-MTMKICAgUFJPQ0VTUyAgIDU1My45NDcgICAgIDAuMDEwICAgICAwLjA4MyAgICAgNC4wODQKCnJl
-YWwgICAgN201OC4wMjZzCnVzZXIgICAgMG00My4xOTJzCnN5cyAgICAgMG0yNC4xNTBzCgpbcm9v
-dF06IyB0aW1lIC4vaXJtYW4KUmVzcG9uc2UgdGltZSBtZWFzdXJlbWVudHMgKG1pbGxpc2Vjb25k
-cykgZm9yOiAyLjYuMC10ZXN0NAogICAgICBMb2FkICAgICAgIE1heCAgICAgICBNaW4gICAgICAg
-QXZnIFN0ZC4gRGV2LgogICAgICBOVUxMICAgICAwLjQyNiAgICAgMC4wMDkgICAgIDAuMDExICAg
-ICAwLjAwMgogICAgTUVNT1JZICAgMTExLjExNyAgICAgMC4wMDkgICAgIDAuMDIwICAgICAwLjk4
-MQogICBGSUxFX0lPICAgMzA2LjA5OSAgICAgMC4wMDkgICAgIDAuMDI5ICAgICAyLjQxMAogICBQ
-Uk9DRVNTICAgMzAzLjQ3NiAgICAgMC4wMTAgICAgIDAuMDMyICAgICAwLjgxNwoKcmVhbCAgICAy
-bTE1LjQwN3MKdXNlciAgICAwbTI0LjE2N3MKc3lzICAgICAwbTIxLjUxNHMKCm5vX2xvYWQ6Cktl
-cm5lbCAgICAgICAgICAgW3J1bnNdCVRpbWUJQ1BVJQlMb2FkcwlMQ1BVJQlSYXRpbwoyLjUuNjkg
-ICAgICAgICAgICAgICAgMQkxNTMJOTQuOAkwLjAJMC4wCTEuMDAKMi41LjcwICAgICAgICAgICAg
-ICAgIDEJMTUzCTk0LjEJMC4wCTAuMAkxLjAwCjIuNi4wLXRlc3QxICAgICAgICAgICAxCTE1Mwk5
-NC4xCTAuMAkwLjAJMS4wMAoyLjYuMC10ZXN0MS1tbTEgICAgICAgMQkxNTIJOTQuNwkwLjAJMC4w
-CTEuMDAKMi42LjAtdGVzdDQgICAgICAgICAgIDEJMTUzCTk0LjgJMC4wCTAuMAkxLjAwCjIuNi4w
-LXRlc3Q0LnY3ICAgICAgICAxCTE1Ngk5NC45CTAuMAkwLjAJMS4wMApjYWNoZXJ1bjoKS2VybmVs
-ICAgICAgICAgICBbcnVuc10JVGltZQlDUFUlCUxvYWRzCUxDUFUlCVJhdGlvCjIuNS42OSAgICAg
-ICAgICAgICAgICAxCTE0Ngk5OC42CTAuMAkwLjAJMC45NQoyLjUuNzAgICAgICAgICAgICAgICAg
-MQkxNDYJOTguNgkwLjAJMC4wCTAuOTUKMi42LjAtdGVzdDEgICAgICAgICAgIDEJMTQ2CTk4LjYJ
-MC4wCTAuMAkwLjk1CjIuNi4wLXRlc3QxLW1tMSAgICAgICAxCTE0Ngk5OC42CTAuMAkwLjAJMC45
-NgoyLjYuMC10ZXN0NCAgICAgICAgICAgMQkxNDcJOTguMAkwLjAJMC4wCTAuOTYKMi42LjAtdGVz
-dDQudjcgICAgICAgIDEJMTQ5CTk5LjMJMC4wCTAuMAkwLjk2CnByb2Nlc3NfbG9hZDoKS2VybmVs
-ICAgICAgICAgICBbcnVuc10JVGltZQlDUFUlCUxvYWRzCUxDUFUlCVJhdGlvCjIuNS42OSAgICAg
-ICAgICAgICAgICAxCTMzMQk0My44CTkwLjAJNTUuMwkyLjE2CjIuNS43MCAgICAgICAgICAgICAg
-ICAxCTE5OQk3Mi40CTI3LjAJMjUuNQkxLjMwCjIuNi4wLXRlc3QxICAgICAgICAgICAxCTI2NAk1
-NC41CTYxLjAJNDQuMwkxLjczCjIuNi4wLXRlc3QxLW1tMSAgICAgICAxCTMyMwk0NC45CTg4LjAJ
-NTQuMgkyLjEyCjIuNi4wLXRlc3Q0ICAgICAgICAgICAxCTE5OQk3Mi45CTI2LjAJMjYuMQkxLjMw
-CjIuNi4wLXRlc3Q0LnY3ICAgICAgICAxCTE5Nwk3Ni4xCTIyLjAJMjIuMwkxLjI2CmN0YXJfbG9h
-ZDoKS2VybmVsICAgICAgICAgICBbcnVuc10JVGltZQlDUFUlCUxvYWRzCUxDUFUlCVJhdGlvCjIu
-NS42OSAgICAgICAgICAgICAgICAxCTE5MAk3Ny45CTAuMAkwLjAJMS4yNAoyLjUuNzAgICAgICAg
-ICAgICAgICAgMQkxODYJODAuMQkwLjAJMC4wCTEuMjIKMi42LjAtdGVzdDEgICAgICAgICAgIDEJ
-MjEzCTcwLjQJMC4wCTAuMAkxLjM5CjIuNi4wLXRlc3QxLW1tMSAgICAgICAxCTIwNwk3Mi41CTAu
-MAkwLjAJMS4zNgoyLjYuMC10ZXN0NCAgICAgICAgICAgMQkyMDEJNzQuNgkwLjAJMC4wCTEuMzEK
-Mi42LjAtdGVzdDQudjcgICAgICAgIDEJMjA4CTczLjYJMC4wCTAuMAkxLjMzCnh0YXJfbG9hZDoK
-S2VybmVsICAgICAgICAgICBbcnVuc10JVGltZQlDUFUlCUxvYWRzCUxDUFUlCVJhdGlvCjIuNS42
-OSAgICAgICAgICAgICAgICAxCTE5Ngk3NS4wCTAuMAkzLjEJMS4yOAoyLjUuNzAgICAgICAgICAg
-ICAgICAgMQkxOTUJNzUuOQkwLjAJMy4xCTEuMjcKMi42LjAtdGVzdDEgICAgICAgICAgIDEJMTkz
-CTc2LjcJMS4wCTQuMQkxLjI2CjIuNi4wLXRlc3QxLW1tMSAgICAgICAxCTE5NQk3NS45CTEuMAk0
-LjEJMS4yOAoyLjYuMC10ZXN0NCAgICAgICAgICAgMQkxOTMJNzYuNwkxLjAJNS4yCTEuMjYKMi42
-LjAtdGVzdDQudjcgICAgICAgIDEJMTkwCTc5LjUJMC4wCTQuMgkxLjIyCmlvX2xvYWQ6Cktlcm5l
-bCAgICAgICAgICAgW3J1bnNdCVRpbWUJQ1BVJQlMb2FkcwlMQ1BVJQlSYXRpbwoyLjUuNjkgICAg
-ICAgICAgICAgICAgMQk0MzcJMzQuNgk2OS4xCTE1LjEJMi44NgoyLjUuNzAgICAgICAgICAgICAg
-ICAgMQk0MDEJMzcuNwk3Mi4zCTE3LjQJMi42MgoyLjYuMC10ZXN0MSAgICAgICAgICAgMQkyNDMJ
-NjEuMwk0OC4xCTE3LjMJMS41OQoyLjYuMC10ZXN0MS1tbTEgICAgICAgMQkzMzYJNDQuOQk2NC41
-CTE3LjMJMi4yMQoyLjYuMC10ZXN0NCAgICAgICAgICAgMQkyMzEJNjQuNQkzOC4yCTE2LjAJMS41
-MQoyLjYuMC10ZXN0NC52NyAgICAgICAgMQkyMjUJNjguOQkzOC44CTE2LjAJMS40NAppb19vdGhl
-cjoKS2VybmVsICAgICAgICAgICBbcnVuc10JVGltZQlDUFUlCUxvYWRzCUxDUFUlCVJhdGlvCjIu
-NS42OSAgICAgICAgICAgICAgICAxCTM4NwkzOC44CTY5LjMJMTcuMwkyLjUzCjIuNS43MCAgICAg
-ICAgICAgICAgICAxCTQyMgkzNi4wCTc1LjMJMTcuMQkyLjc2CjIuNi4wLXRlc3QxICAgICAgICAg
-ICAxCTI1OAk1Ny44CTU1LjgJMTkuMAkxLjY5CjIuNi4wLXRlc3QxLW1tMSAgICAgICAxCTMzMAk0
-NS41CTYzLjIJMTcuMgkyLjE3CjIuNi4wLXRlc3Q0ICAgICAgICAgICAxCTIzMgk2NC43CTM2LjkJ
-MTUuMwkxLjUyCjIuNi4wLXRlc3Q0LnY3ICAgICAgICAxCTIyNwk2Ny44CTM4LjYJMTUuNAkxLjQ2
-CnJlYWRfbG9hZDoKS2VybmVsICAgICAgICAgICBbcnVuc10JVGltZQlDUFUlCUxvYWRzCUxDUFUl
-CVJhdGlvCjIuNS42OSAgICAgICAgICAgICAgICAxCTIyMQk2Ny4wCTkuNAkzLjYJMS40NAoyLjUu
-NzAgICAgICAgICAgICAgICAgMQkyMjAJNjcuMwk5LjQJMy42CTEuNDQKMi42LjAtdGVzdDEgICAg
-ICAgICAgIDEJMjAwCTc0LjAJOS43CTQuMAkxLjMxCjIuNi4wLXRlc3QxLW1tMSAgICAgICAxCTE5
-MAk3OC40CTkuMgk0LjIJMS4yNQoyLjYuMC10ZXN0NCAgICAgICAgICAgMQkyMDQJNzMuMAk4LjEJ
-My40CTEuMzMKMi42LjAtdGVzdDQudjcgICAgICAgIDEJMjAwCTc2LjAJOC42CTMuNQkxLjI4Cmxp
-c3RfbG9hZDoKS2VybmVsICAgICAgICAgICBbcnVuc10JVGltZQlDUFUlCUxvYWRzCUxDUFUlCVJh
-dGlvCjIuNS42OSAgICAgICAgICAgICAgICAxCTIwMwk3MS40CTk5LjAJMjAuMgkxLjMzCjIuNS43
-MCAgICAgICAgICAgICAgICAxCTIwNQk3MC43CTEwNC4wCTIwLjUJMS4zNAoyLjYuMC10ZXN0MSAg
-ICAgICAgICAgMQkxOTkJNzIuNAkxMDIuMAkyMS42CTEuMzAKMi42LjAtdGVzdDEtbW0xICAgICAg
-IDEJMTkzCTc1LjEJOTEuMAkxOS43CTEuMjcKMi42LjAtdGVzdDEtbW0xWCAgICAgIDEJMTk0CTc0
-LjcJOTEuMAkxOS42CTEuMjcKMi42LjAtdGVzdDFYICAgICAgICAgIDEJMjAxCTcxLjYJMTA0LjAJ
-MjEuNAkxLjMxCjIuNi4wLXRlc3Q0ICAgICAgICAgICAxCTIwMQk3Mi4xCTEwMy4wCTIxLjQJMS4z
-MQoyLjYuMC10ZXN0NC52NyAgICAgICAgMQkxNzYJODQuNwkzMi4wCTguMAkxLjEzCm1lbV9sb2Fk
-OgpLZXJuZWwgICAgICAgICAgIFtydW5zXQlUaW1lCUNQVSUJTG9hZHMJTENQVSUJUmF0aW8KMi41
-LjY5ICAgICAgICAgICAgICAgIDEJMjU2CTU3LjgJMzQuMAkxLjIJMS42NwoyLjUuNzAgICAgICAg
-ICAgICAgICAgMQkyNTIJNTguNwkzMy4wCTEuMgkxLjY1CjIuNi4wLXRlc3QxICAgICAgICAgICAx
-CTMwOQk0OC4yCTc1LjAJMi4zCTIuMDIKMi42LjAtdGVzdDEtbW0xICAgICAgIDEJMjc3CTUzLjgJ
-MzguMAkxLjQJMS44MgoyLjYuMC10ZXN0NCAgICAgICAgICAgMQk0MjcJMzUuMQk4OC4wCTEuOQky
-Ljc5CjIuNi4wLXRlc3Q0LnY3ICAgICAgICAxCTI5Ngk1MS43CTc1LjAJMi40CTEuOTAKZGJlbmNo
-X2xvYWQ6Cktlcm5lbCAgICAgICAgICAgW3J1bnNdCVRpbWUJQ1BVJQlMb2FkcwlMQ1BVJQlSYXRp
-bwoyLjUuNjkgICAgICAgICAgICAgICAgMQk1MTcJMjguOAk1LjAJMzUuNgkzLjM4CjIuNS43MCAg
-ICAgICAgICAgICAgICAxCTQyNAkzNS4xCTMuMAkyNi43CTIuNzcKMi42LjAtdGVzdDEgICAgICAg
-ICAgIDEJMzQ3CTQyLjcJNC4wCTM5LjUJMi4yNwoyLjYuMC10ZXN0MS1tbTEgICAgICAgMQkzNzcJ
-MzkuOAk0LjAJMzYuOQkyLjQ4CjIuNi4wLXRlc3Q0ICAgICAgICAgICAxCTQ0NAkzMy42CTUuMAk0
-NC40CTIuOTAKMi42LjAtdGVzdDQudjcgICAgICAgIDEJMjU5CTU5LjUJMS4wCTEzLjUJMS42Ngph
-Yl9sb2FkOgpLZXJuZWwgICAgICAgICAgIFtydW5zXQlUaW1lCUNQVSUJTG9hZHMJTENQVSUJUmF0
-aW8KMi41LjY5ICAgICAgICAgICAgICAgIDEJMzAwCTQ4LjMJNDYuMAkyMS43CTEuOTYKMi41Ljcw
-ICAgICAgICAgICAgICAgIDEJMzAwCTQ4LjAJNDYuMAkyMi4wCTEuOTYKMi42LjAtdGVzdDEgICAg
-ICAgICAgIDEJMjgxCTUxLjYJNTAuMAkyNS42CTEuODQKMi42LjAtdGVzdDEtbW0xICAgICAgIDEJ
-MjI5CTYzLjMJMzAuMAkxOC4zCTEuNTEKMi42LjAtdGVzdDQgICAgICAgICAgIDEJMzE4CTQ1LjYJ
-NTEuMAkyMy4wCTIuMDgKMi42LjAtdGVzdDQudjcgICAgICAgIDEJMjMwCTY1LjIJMjIuMAk5LjYJ
-MS40Nwppcm1hbjJfbG9hZDoKS2VybmVsICAgICAgICAgICBbcnVuc10JVGltZQlDUFUlCUxvYWRz
-CUxDUFUlCVJhdGlvCjIuNi4wLXRlc3QxICAgICAgICAgICAxCTk5OQkxNC41CTMxLjAJMC4wCTYu
-NTMKMi42LjAtdGVzdDEtbW0xICAgICAgIDEJMjEwCTY5LjAJNi4wCTAuMAkxLjM4CjIuNi4wLXRl
-c3Q0ICAgICAgICAgICAxCTEwMDEJMTQuNQkzMS4wCTAuMAk2LjU0CjIuNi4wLXRlc3Q0LnY3ICAg
-ICAgICAxCTM2NAk0MC45CTExLjAJMC4wCTIuMzMK
---=====================_25825875==_--
-
+Regards,
+Stephan

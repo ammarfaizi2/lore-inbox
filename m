@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264960AbUHCCEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUHCCFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264960AbUHCCEy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 22:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUHCCEy
+	id S264973AbUHCCFp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 22:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUHCCFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 22:04:54 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40897 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264960AbUHCCEu (ORCPT
+	Mon, 2 Aug 2004 22:05:20 -0400
+Received: from holomorphy.com ([207.189.100.168]:10929 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264973AbUHCCFI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 22:04:50 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Date: Mon, 2 Aug 2004 19:03:39 -0700
-User-Agent: KMail/1.6.2
-Cc: Jon Smirl <jonsmirl@yahoo.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-References: <20040730221528.2702.qmail@web14922.mail.yahoo.com> <200408021002.31117.jbarnes@engr.sgi.com> <1091489449.1669.14.camel@localhost.localdomain>
-In-Reply-To: <1091489449.1669.14.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Mon, 2 Aug 2004 22:05:08 -0400
+Date: Mon, 2 Aug 2004 19:04:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [patchset] Lockfree fd lookup 0 of 5
+Message-ID: <20040803020459.GV2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	rusty@rustcorp.com.au
+References: <20040802101053.GB4385@vitalstatistix.in.ibm.com> <20040802165607.GN12308@parcelfarce.linux.theplanet.co.uk> <20040802130729.2dae8fd5.davem@redhat.com> <20040802210119.GS2334@holomorphy.com> <20040802161514.54f02f60.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408021903.39273.jbarnes@engr.sgi.com>
+In-Reply-To: <20040802161514.54f02f60.davem@redhat.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, August 2, 2004 4:30 pm, Alan Cox wrote:
-> What guarantees the ROM already has an assigned PCI address ?
+On Mon, 2 Aug 2004 14:01:19 -0700 William Lee Irwin III wrote:
+>> I've found unusual results in this area. e.g. it does appear to matter
+>> for mapping->tree_lock for database workloads that heavily share a
+>> given file and access it in parallel. The radix tree walk, though
+>> intuitively short, is long enough to make the rwlock a win in the
+>> database-oriented uses and microbenchmarks starting around 4x.
 
-Presumably the PCI core.  If that's a bad assumption, then clearly this code 
-won't work as is and will need additional checks/setup code.
+On Mon, Aug 02, 2004 at 04:15:14PM -0700, David S. Miller wrote:
+> Thanks for the data point, because I had this patch I had sent
+> to Rusty for 2.7.x which ripped rwlocks entirely out of the
+> kernel.  We might have to toss that idea :-)
 
-Jesse
+In all honesty, I'd rather use RCU, but that's a little more work than
+most RCU conversions.
+
+
+-- wli

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbULNVnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbULNVqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbULNVnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 16:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbULNVnN
+	id S261674AbULNVqE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 16:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbULNVqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 16:43:13 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:57267 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261672AbULNVkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 16:40:39 -0500
-Subject: Re: RCU question
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20041212121546.GM16322@dualathlon.random>
-References: <41BA59F6.5010309@mvista.com>
-	 <Pine.LNX.4.61.0412101943260.1101@montezuma.fsmlabs.com>
-	 <41BA698E.8000603@mvista.com>
-	 <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com>
-	 <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com>
-	 <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com>
-	 <41BC0854.4010503@colorfullife.com>
-	 <20041212093714.GL16322@dualathlon.random>
-	 <41BC1BF9.70701@colorfullife.com>
-	 <20041212121546.GM16322@dualathlon.random>
-Content-Type: text/plain
-Date: Tue, 14 Dec 2004 16:40:37 -0500
-Message-Id: <1103060437.14699.27.camel@krustophenia.net>
+	Tue, 14 Dec 2004 16:46:03 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:6536 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261667AbULNVpv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 16:45:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=o/v8e7jzndSI0w/vcnI1yGhnv5HWQmZbFpTiMuG5zgRnKz/PXoc6iMTtrQu24cL38NmQzr1/C8dK77RiTZXn7/90xocRCqTGLHropj3qAfdeqAE8wFid/1d/0dmyisyiBroqx6Nqg3D7DFLK85ks10sC/qFpHHTvVzdUvJ+4WUM=
+Message-ID: <9e4733910412141345380559da@mail.gmail.com>
+Date: Tue, 14 Dec 2004 16:45:43 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Subject: Re: [PATCH] fix ROM enable/disable in r128 and radeon fb drivers
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200412141256.21143.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200412141256.21143.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-12-12 at 13:15 +0100, Andrea Arcangeli wrote:
-> Overall this is a very minor issue (unless HZ is 0), it would only
-> introduce a 1/HZ latency to the irq that get posted while the nmi
-> handler is running, and the nmi handlers never runs in production.
+These drivers should be using the new ROM API in the PCI driver
+instead of manipulating the ROMs directly. Now that the ROM API is in
+the kernel all direct use of PCI_ENABLE_ROM should be removed. There
+are about thirty places in the kernel doing direct access. Kernel
+janitors would probably be a good place to track removing
+PCI_ENABLE_ROM.
 
-Ingo, couldn't this account for some of the inexplicable outliers some
-people were seeing in latency tests?
+I'm tied up taking care of premature baby twins so it is going to be
+quite a while until I can work on things like this.
 
-Lee
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286474AbRLTXyD>; Thu, 20 Dec 2001 18:54:03 -0500
+	id <S286486AbRLUAAn>; Thu, 20 Dec 2001 19:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286476AbRLTXx5>; Thu, 20 Dec 2001 18:53:57 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:5773 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S286474AbRLTXxo>;
-	Thu, 20 Dec 2001 18:53:44 -0500
-Date: Thu, 20 Dec 2001 15:53:13 -0800 (PST)
-Message-Id: <20011220.155313.35506065.davem@redhat.com>
-To: henning@forge.intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Newsgroups: hometree.linux.kernel
-Subject: Re: aio
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <9vt6vd$528$1@forge.intermeta.de>
-In-Reply-To: <20011219182628.A13280@burn.ucsd.edu>
-	<20011219.191354.65000844.davem@redhat.com>
-	<9vt6vd$528$1@forge.intermeta.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S286485AbRLUAAe>; Thu, 20 Dec 2001 19:00:34 -0500
+Received: from theirongiant.zip.net.au ([61.8.0.198]:39557 "EHLO
+	theirongiant.zip.net.au") by vger.kernel.org with ESMTP
+	id <S286483AbRLUAAT>; Thu, 20 Dec 2001 19:00:19 -0500
+Date: Fri, 21 Dec 2001 10:59:52 +1100
+From: CaT <cat@zip.com.au>
+To: Chris Ricker <kaboom@gatech.edu>
+Cc: Troels Walsted Hansen <troels@thule.no>,
+        "'David S. Miller'" <davem@redhat.com>,
+        World Domination Now! <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+Message-ID: <20011220235952.GA3506@zip.com.au>
+In-Reply-To: <007401c189a7$50f6cd60$0300000a@samurai> <Pine.LNX.4.33.0112201651370.26999-100000@verdande.oobleck.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112201651370.26999-100000@verdande.oobleck.net>
+User-Agent: Mutt/1.3.24i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: henning@forge.intermeta.de (Henning Schmiedehausen)
-   Date: Thu, 20 Dec 2001 17:26:05 +0000 (UTC)
+On Thu, Dec 20, 2001 at 04:55:55PM -0700, Chris Ricker wrote:
+> > I wish... Neither Samba 2.2.2 nor the bleeding edge 3.0alpha11 includes
+> > the word "sendfile" in the source at least. :( Wonder why the sendfile
+> > patches where never merged...
+> 
+> The only real-world source I've noticed actually using sendfile() are some
+> of the better ftp daemons (such as vsftpd).
 
-   Care to point out why? Because of Sun or because of C#?
+proftpd uses it also.
 
-That's a circular question, because C# exists due to Sun's mistakes
-with handling Java.  So my answer is "both".
+-- 
+CaT        - A high level of technology does not a civilisation make.

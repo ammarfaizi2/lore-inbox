@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267132AbSLDWe1>; Wed, 4 Dec 2002 17:34:27 -0500
+	id <S267130AbSLDWds>; Wed, 4 Dec 2002 17:33:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267133AbSLDWe1>; Wed, 4 Dec 2002 17:34:27 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:9687 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267132AbSLDWeZ>;
-	Wed, 4 Dec 2002 17:34:25 -0500
-Date: Wed, 04 Dec 2002 14:39:11 -0800 (PST)
-Message-Id: <20021204.143911.130515081.davem@redhat.com>
-To: george@mvista.com
-Cc: dan@debian.org, torvalds@transmeta.com, sfr@canb.auug.org.au,
-       linux-kernel@vger.kernel.org, anton@samba.org, ak@muc.de,
-       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
-       willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3DEE822D.385D2664@mvista.com>
-References: <20021204205609.GA29953@nevyn.them.org>
-	<20021204.140954.89672437.davem@redhat.com>
-	<3DEE822D.385D2664@mvista.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S267131AbSLDWds>; Wed, 4 Dec 2002 17:33:48 -0500
+Received: from adsl-67-113-154-34.dsl.sntc01.pacbell.net ([67.113.154.34]:33265
+	"EHLO postbox.aslab.com") by vger.kernel.org with ESMTP
+	id <S267130AbSLDWdq>; Wed, 4 Dec 2002 17:33:46 -0500
+Message-ID: <100401c29be5$776d8f00$6502a8c0@jeff>
+From: "Jeff Nguyen" <jeff@aslab.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <A5974D8E5F98D511BB910002A50A66470580D41F@hdsmsx103.hd.intel.com > <36490000.1038853452@aslan.btc.adaptec.com>
+Subject: Re: AIC79xx driver question
+Date: Wed, 4 Dec 2002 14:35:36 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: george anzinger <george@mvista.com>
-   Date: Wed, 04 Dec 2002 14:31:09 -0800
-   
-   It might help to understand just what registers do_signal
-   needs.  It doesn't need them all, I suspect.
+Hello Justin,
 
-Some of the original register values the process had before
-the system call was processed.
+The latest aic79xx source code (v1.1.0) found on Adaptec Web site
+does not compile under 2.4.20 kernel. The makefile references to
+an object file, aic7xxx_reg_print.o, which does not exist at all. 
 
-I think it's best just to abstract this away properly, as
-Linus said to begin with I'd like to note, rather than trying
-to come up with a "portable way to call do_signal()".
+Is there a patch that I can run to fix this error?
 
-do_signal is magic and this allows all sorts of great optimizations
-and simplifications, please don't add any constraints or complexity
-to it.
+Jeff
+
+
+
 

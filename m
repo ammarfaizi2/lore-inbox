@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbTGGIfN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 04:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTGGIfN
+	id S266843AbTGGIhE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 04:37:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266856AbTGGIhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 04:35:13 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:3255 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S263632AbTGGIfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 04:35:08 -0400
-Date: Mon, 7 Jul 2003 10:49:36 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andre Hedrick <andre@linux-ide.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Ryan Mack <lists@mackman.net>,
-       Markus Plail <linux-kernel@gitteundmarkus.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21 ServerWorks DMA Bugs
-Message-ID: <20030707084936.GF303@louise.pinerecords.com>
-References: <20030706184242.A20851@ucw.cz> <Pine.LNX.4.10.10307061740150.29935-100000@master.linux-ide.org> <20030707034217.GD303@louise.pinerecords.com> <1057560151.2413.1.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Jul 2003 04:37:04 -0400
+Received: from lidskialf.net ([62.3.233.115]:7334 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S266843AbTGGIhA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 04:37:00 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Compile nvidia-agp.c as module in 2.5.75
+Date: Mon, 7 Jul 2003 09:51:34 +0100
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1057560151.2413.1.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200307070951.34172.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [alan@lxorguk.ukuu.org.uk]
-> 
-> On Llu, 2003-07-07 at 04:42, Tomas Szepe wrote:
-> > > Just the view from an insider in the know.
-> > 
-> > Hmm, I certainly wouldn't expect a $3500 server to come with busted
-> > IDE, but thanks for the suggestion, we'll take extra care.
-> 
-> You might also want to check with HPaq about BIOS updates. I have
-> seen a couple of boxes which didnt set DMA but meant to or did
-> after BIOS update.
+Needs agp_memory_reserved exported (cannot use the standard calls in 
+agp/generic.c it seems).
 
-Too late now, the machine is collecting IP accounting statistics
-for 20 C's, 24/7.  Flashing the BIOS seems too risky given we're
-only using the IDE drives for nightly backups of a SCSI raid1 root
-fs.  I guess I'll just write a simple script to see if the backup
-data tends to get hosed.
+---CUT HERE--
+--- linux-2.5.74.orig/drivers/char/agp/generic.c	2003-07-02 21:45:17.000000000 
++0100
++++ linux-2.5.74/drivers/char/agp/generic.c	2003-07-07 09:45:03.000000000 
++0100
+@@ -39,6 +39,7 @@
+ 
+ __u32 *agp_gatt_table; 
+ int agp_memory_reserved;
++EXPORT_SYMBOL_GPL(agp_memory_reserved);
+ 
+ /* 
+  * Generic routines for handling agp_memory structures -
+--- CUT HERE---
 
-Thanks!
--- 
-Tomas Szepe <szepe@pinerecords.com>

@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278269AbRKDUND>; Sun, 4 Nov 2001 15:13:03 -0500
+	id <S277818AbRKDUXD>; Sun, 4 Nov 2001 15:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278597AbRKDUMz>; Sun, 4 Nov 2001 15:12:55 -0500
-Received: from unthought.net ([212.97.129.24]:65240 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S278269AbRKDULy>;
-	Sun, 4 Nov 2001 15:11:54 -0500
-Date: Sun, 4 Nov 2001 21:11:53 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Tim Jansen <tim@tjansen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011104211153.V14001@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <160T6C-1RvGb2C@fmrl05.sul.t-online.com> <20011104205527.R14001@unthought.net> <160TbB-1wNIOWC@fmrl04.sul.t-online.com>
+	id <S278597AbRKDUWy>; Sun, 4 Nov 2001 15:22:54 -0500
+Received: from peace.netnation.com ([204.174.223.2]:16650 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S277818AbRKDUWu>; Sun, 4 Nov 2001 15:22:50 -0500
+Date: Sun, 4 Nov 2001 12:22:48 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Mike Black <mblack@csihq.com>, linux-kernel@vger.kernel.org
+Subject: Re: Something broken in sys_swapon
+Message-ID: <20011104122248.A13561@netnation.com>
+In-Reply-To: <00a901c16526$48c64300$1a502341@cfl.rr.com> <Pine.GSO.4.21.0111040702440.20848-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <160TbB-1wNIOWC@fmrl04.sul.t-online.com>; from tim@tjansen.de on Sun, Nov 04, 2001 at 09:13:35PM +0100
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.GSO.4.21.0111040702440.20848-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Nov 04, 2001 at 07:05:02AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 09:13:35PM +0100, Tim Jansen wrote:
-> On Sunday 04 November 2001 20:55, Jakob Østergaard wrote:
-> > > BTW nobody says to one-value-files can not have types (see my earlier
-> > > posts in this thread).
-> > I don't dislike one-value-files - please tell me how you get type
-> > information
-> 
-> Using a ioctl that returns the type. 
+Hmm...Guessing that it had something to do with set_blocksize, I added
+this patch to the kernel:
 
-But that's not pretty   :)
+--- linux/fs/block_dev.c.orig	Sun Nov  4 11:35:05 2001
++++ linux/fs/block_dev.c	Sun Nov  4 11:54:39 2001
+@@ -95,6 +95,9 @@
+ 	/* Ok, we're actually changing the blocksize.. */
+ 	bdev = bdget(dev);
+ 	sync_buffers(dev, 2);
++	printk("Changing device %02x:%02x block size from %u to %u\n",
++		MAJOR(dev),MINOR(dev),
++		blksize_size[MAJOR(dev)][MINOR(dev)],size);
+ 	blksize_size[MAJOR(dev)][MINOR(dev)] = size;
+ 	bdev->bd_inode->i_blkbits = blksize_bits(size);
+ 	kill_bdev(bdev);
 
-Can't we think of something else ?
+And tried booting again with /dev/hdb2 swap in my fstab...
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+Changing device 03:02 block size from 1024 to 2048
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 224k freed
+Changing device 03:03 block size from 1024 to 4096
+Adding Swap: 265064k swap-space (priority 0)
+Changing device 03:42 block size from 10739452 to 4096
+attempt to access beyond end of device
+03:02: rw=0, want=10555924, limit=4096
+attempt to access beyond end of device
+03:02: rw=0, want=10555926, limit=4096
+
+It looks like it's not changing 03:02 (/dev/hda2, my root fs), which is
+good, but it seems to be trying to change 03:42 (/dev/hdb2) even though
+that device doesn't exist (which could also be fine, but it looks like it
+wasn't initialized).  I'm guessing blksize_size is statically allocated,
+so this isn't a problem.
+
+I wonder what else could cause 03:02 to barf... Hmm.
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

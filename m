@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbUKHQsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbUKHQog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbUKHQsY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 11:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbUKHQsJ
+	id S261611AbUKHQog (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 11:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbUKHQga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 11:48:09 -0500
-Received: from alog0232.analogic.com ([208.224.220.247]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261860AbUKHPNX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 10:13:23 -0500
-Date: Mon, 8 Nov 2004 10:12:39 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: insmod module-loading errors, Linux-2.6.9
-Message-ID: <Pine.LNX.4.61.0411081007530.3682@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 8 Nov 2004 11:36:30 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:57563 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261856AbUKHOdj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 09:33:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Lg2//nFxf62tn2tn08kD8YgU+rKhFaAZY5QkuDQEkIWr4o2cdhMk/8QatUNSH6wXBJjDNTE8S/WxQLMcIMAk0m1plqC4Tv7HytVS8pV4iiSNCpIIdJg8G0G4tkvbLHPCQBLu+wX2bySkDYNNA/QLJSIhOYDrFcc6HK/WWdck9Rs=
+Message-ID: <d120d50004110806334f69507c@mail.gmail.com>
+Date: Mon, 8 Nov 2004 09:33:34 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Juergen Quade <quade@hsnr.de>
+Subject: Re: [RFT/PATCH] Toshiba Satellite, Synaptics & keyboard problems
+Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <20041108083531.GA17236@hsnr.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200411080154.54279.dtor_core@ameritech.net>
+	 <20041108083531.GA17236@hsnr.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 8 Nov 2004 09:35:31 +0100, Juergen Quade <quade@hsnr.de> wrote:
+> On Mon, Nov 08, 2004 at 01:54:52AM -0500, Dmitry Torokhov wrote:
+> > Hi,
+> >
+> > If anyone experiencing keyboard getting "stuck" when you use Synaptics
+> > touchpad in native mode on Toshiba Satellite type notebooks it seems that
+> > lowering rate to 40 pps (which is roughly the same as standard PS/2 rate
+> > bytewise) helps.
+> >
+> > Please try the patch below (should apply to -mm tree) and see if it helps
+> > any. If not using -mm tree just use "psmouse.rate=40" or "modprobe psmouse
+> > rate=40" to check if fix is working for you and let me know.
+> 
+> I have problems with "no keyboard" since Kernel 2.6.9.
+> I am not using a -mm tree and booting with "psmouse.rate=40" does
+> _not_ fix the problem :-(   (tested with 2.6.9 and 2.6.10-rc1).
+> 
+> As soon as X is started I have no keyboard.
+> My box is a Acer Travelmate 290 notebook with synaptics/alps
+> touchpad.
+> 
 
-Hello module wizards,
+Well, this one is pretty easy - make sure that you have a recent
+version of Synaptics X driver and change protocol in your XF86Config
+to "auto-dev". (most likely you wree using /dev/input/exentX as your
+device and in 2.6.9 your keyboard and touchpad swapped their
+event devices).
 
-If one makes changes to the kernel configuration,
-compiles, then attempts to install the new kernel,
-there are two possible things that happen.
-
-(1) One does `make modules_install` before `make install`
-or...
-(2) One does `make install` before `make modules_install'.
-
-In the first case, `make install` may fail because the
-loop device module fails to load with:
-
-Script started on Mon 08 Nov 2004 09:07:41 AM EST
-# insmod loop.ko
-insmod: error inserting 'loop.ko': -1 Invalid module format
-# insmod -f loop.ko
-insmod: error inserting 'loop.ko': -1 Invalid module format
-# dmesg | tail --lines 2
-loop: version magic '2.6.9 SMP preempt PENTIUM4 gcc-3.3' should be '2.6.9 SMP PENTIUM4 gcc-3.3'
-loop: version magic '2.6.9 SMP preempt PENTIUM4 gcc-3.3' should be '2.6.9 SMP PENTIUM4 gcc-3.3'
-# exit
-Script done on Mon 08 Nov 2004 09:08:35 AM EST
-
-..OR..
-
-The installation seems to work, but the system won't complete
-a boot because modules from the previous configuration were used
-in the `initrd` procedure.
-
-This all comes about because the new module loading procedure
-won't allow (ignores) the "-f" (force) parameter. So, one
-is screwed trying to do something simple like substituting
-a preemptive kernel for another if there isn't already an
-alternate bootable system on the disk.
-
-Please restore the "-f" parameter passed to insmod. It
-was there for a very good reason. This allows one
-who encounters the module-loading error while installing
-the kernel to force the module loading. In this way, the
-correct modules are used to generate the new `initrd` image.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+-- 
+Dmitry

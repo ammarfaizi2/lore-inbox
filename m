@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUHCVbX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266877AbUHCVbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266878AbUHCVbX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 17:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUHCVbX
+	id S266877AbUHCVbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266871AbUHCVbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 17:31:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14526 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266878AbUHCVbT (ORCPT
+	Tue, 3 Aug 2004 17:31:09 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:30668 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266877AbUHCVbG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 17:31:19 -0400
-Date: Tue, 3 Aug 2004 17:31:08 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Chris Wright <chrisw@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-Subject: Re: [patch] mlock-as-nonroot revisted
-In-Reply-To: <20040803212231.GJ2241@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0408031729100.5948-100000@dhcp83-102.boston.redhat.com>
+	Tue, 3 Aug 2004 17:31:06 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Date: Tue, 3 Aug 2004 14:30:56 -0700
+User-Agent: KMail/1.6.2
+Cc: Jon Smirl <jonsmirl@yahoo.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040803211948.59456.qmail@web14921.mail.yahoo.com> <200408031428.25853.jbarnes@engr.sgi.com>
+In-Reply-To: <200408031428.25853.jbarnes@engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408031430.56395.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Aug 2004, Andrea Arcangeli wrote:
+On Tuesday, August 3, 2004 2:28 pm, Jesse Barnes wrote:
+> > Both of the video ROMs are at 00020000, won't they end up on top of
+> > each other when enabled?
+>
+> Yeah, it doesn't look like they've been properly assigned addresses.  But
+> then I've also seen lspci lie, you can check /sys/devices/.../config for
+> the actual resource values.  If they're sane then things are more likely to
+> work.
 
-> I agree there aren't security issues, but it's still very wrong to
-> charge the old user if the admin gives the locked ram to a new user.
-> This erratic behaviour shows how much the rlimit approch is flawed for
-> named fs objects that have nothing to do with the transient task that
-> created them.
+Oops, I mean /sys/devices/.../resource.  E.g.
 
-If root wants to screw over a user, there's nothing we
-can do.  I am not worried about the scenario you describe
-because hugetlbfs seems to be used only by Oracle anyway,
-so you won't run into issues like you describe.
+jbarnes@mill:~$ cat /sys/devices/pci0002\:06/0002\:06\:0f.0/resource
+0x00000000f5200000 0x00000000f53fffff 0x0000000000000200
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x00000000f5100000 0x00000000f51fffff 0x0000000000007200
 
-It would be different for a general purpose filesystem,
-but I'd like to see a usage case for your scenario before
-making the code overly complex.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+Jesse

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272323AbRHXUlE>; Fri, 24 Aug 2001 16:41:04 -0400
+	id <S272324AbRHXU4r>; Fri, 24 Aug 2001 16:56:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272324AbRHXUkx>; Fri, 24 Aug 2001 16:40:53 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:24079 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S272323AbRHXUkf>;
-	Fri, 24 Aug 2001 16:40:35 -0400
-Date: Fri, 24 Aug 2001 23:40:10 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Sandip Bhattacharya <subscriptions@sandipb.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: LKML on Majordomo2 ?
-Message-ID: <20010824234010.X11046@mea-ext.zmailer.org>
-In-Reply-To: <20010825020453.A1505@bigfoot.com>
-Mime-Version: 1.0
+	id <S272325AbRHXU4h>; Fri, 24 Aug 2001 16:56:37 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:35764 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S272324AbRHXU4c>;
+	Fri, 24 Aug 2001 16:56:32 -0400
+Message-ID: <3B86C01E.850008A@candelatech.com>
+Date: Fri, 24 Aug 2001 13:59:10 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies Inc
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Thomas Davis <tadavis@lbl.gov>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Poor Performance for ethernet bonding
+In-Reply-To: <3B865882.24D57941@biochem.mpg.de.suse.lists.linux.kernel> <oupg0ahmv2a.fsf@pigdrop.muc.suse.de> <3B867096.3A1D7DE@candelatech.com> <3B869A46.B1EF708A@lbl.gov>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010825020453.A1505@bigfoot.com>; from subscriptions@sandipb.net on Sat, Aug 25, 2001 at 02:04:53AM +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 25, 2001 at 02:04:53AM +0530, Sandip Bhattacharya wrote:
-> Hi!
+Thomas Davis wrote:
 > 
-> Is this transfer of lkml to vger.kernel.org a final thing, or is it
-> just temporary till rutgers is up again?
+> Ben Greear wrote:
+> >
+> > Couldn't the bonding code be made to distribute pkts to one interface or
+> > another based on a hash of the sending IP port or something?  Seems like that
+> > would fix the reordering problem for IP packets....  It wouldn't help for
+> > a single stream, but I'm guessing the real world problem involves many streams,
+> > which on average should hash such that the load is balanced...
+> >
+> 
+> Cisco etherchannel does this, by XOR'ing the dest address with the
+> source address, AND'ing with # of interfaces (limiting you to a power of
+> 2), and then using the number to determine what channel to use.
+> 
+> Now, you end up in a 4 way Etherchannel, all the traffic going down one
+> channel, and the none going down the other three.  Does that sound like
+> a balanced solution?
 
-	It is permanent.
+If Cisco can't do a balanced hash, that doesn't mean the idea is bad,
+it just means they implemented it poorly.  I would think that
+something as simple as: src_ip_port % num_devices would give a
+fairly even spread.  I'm sure you could get fancier and take other
+fields (dst_ip_port) into account in your hash.
+ 
 
-> Also, are there any plans of moving the list to majordomo2? There are
-> certain features of majordomo2 that makes it easier to live with a
-> list. I mean "set linux-kernel nomail" kinda thing.
-
-	Oh, is MD2 officially out ?
-
-	Pray tell, how 'nomail' differs from 'unsubscribe' ?
-
-	I mean in open list where just anybody can post independent
-	of their being list subscribers, or not.
-
-> - Sandip
-> Sandip Bhattacharya 
-> sandipb @ bigfoot.com
-
-/Matti Aarnio -- co-postmaster of vger.kernel.org
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269014AbUIQUr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269019AbUIQUwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269014AbUIQUr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 16:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268987AbUIQUr4
+	id S269019AbUIQUwH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 16:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269001AbUIQUtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 16:47:56 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17075 "EHLO
+	Fri, 17 Sep 2004 16:49:03 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12467 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S269014AbUIQUrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 16:47:23 -0400
-Date: Fri, 17 Sep 2004 21:40:48 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@digeo.com>,
-       Patrick Mochel <mochel@digitalimplant.org>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Suspend2 Merge: Driver model patches 2/2
-Message-ID: <20040917194047.GE467@openzaurus.ucw.cz>
-References: <1095332331.3855.161.camel@laptop.cunninghams> <20040916142847.GA32352@kroah.com> <1095373127.5897.23.camel@laptop.cunninghams> <20040916223539.GA16151@kroah.com> <1095374947.6537.34.camel@laptop.cunninghams> <20040916230713.GA16403@kroah.com> <1095376793.5902.49.camel@laptop.cunninghams>
+	id S268992AbUIQUrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 16:47:22 -0400
+Date: Sun, 12 Sep 2004 22:02:07 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
+       Markus =?iso-8859-2?Q?T=F6rnqvist?= <mjt@nysv.org>,
+       Matt Mackall <mpm@selenic.com>, Nicholas Miell <nmiell@gmail.com>,
+       Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
+       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040912200207.GA4637@openzaurus.ucw.cz>
+References: <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <4141FF13.8030009@techsource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095376793.5902.49.camel@laptop.cunninghams>
+In-Reply-To: <4141FF13.8030009@techsource.com>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Ah, no, I've never seen this one, thanks.  But it looks sane, I don't
-> > have a problem with it (sysfs will like it, it's not a suspend specific
-> > patch at all.)
-> 
-> Antonio posted it to LKML last week IIRC, which is why I didn't include
-> it in the device driver patches. Given Pavel's changes (again), I'm in
-> two minds as to whether its needed. It's clearly the right thing to do,
-> but not needed at the moment. Then again, as we noted already, the whole
+> Say there's a way to cd into a tgz file to look around.  If the 
+> access methods through the kernel get routed back to a user-space 
+> process (which probably does some amount of caching in memory and on 
+> disk of uncompressed bits of the archive), it could be a bit slower 
+> than if it were all in-kernel.  The thing is that the processing time 
 
-If it is not needed right now, go for simple solution and drop
-that patch. Interested people can find it in list archives.
+Exactly. See uservfs.sf.net. It is using coda hooks into the kernel.
+
+> be done in userspace.)  Besides, even if it were a LOT slower to 
+> access a tgz file without extracting it first, I would STILL think it 
+> was wonderful AND use it a LOT.
+
+Go ahead :-).
+
+
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

@@ -1,165 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267690AbUHEOyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267697AbUHEOzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267690AbUHEOyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 10:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267697AbUHEOyQ
+	id S267697AbUHEOzu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 10:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267723AbUHEOzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 10:54:16 -0400
-Received: from exeter-w-mailserver-fw.wrl.org ([209.96.177.100]:28882 "EHLO
-	franklin.wrl.org") by vger.kernel.org with ESMTP id S267690AbUHEOyE
+	Thu, 5 Aug 2004 10:55:50 -0400
+Received: from out005pub.verizon.net ([206.46.170.143]:29082 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S267697AbUHEOzc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 10:54:04 -0400
-Date: Thu, 5 Aug 2004 10:54:03 -0400 (EDT)
-From: Brett Charbeneau <brett@wrl.org>
+	Thu, 5 Aug 2004 10:55:32 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Subject: Possible dcache BUG 
-Message-ID: <Pine.LNX.4.44.0408051053480.12573-100000@franklin.wrl.org>
+Subject: Re: Possible dcache BUG
+Date: Thu, 5 Aug 2004 10:55:29 -0400
+User-Agent: KMail/1.6.82
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <Pine.LNX.4.58.0408042359460.24588@ppc970.osdl.org> <200408051133.55359.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408051133.55359.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408051055.30018.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [141.153.92.242] at Thu, 5 Aug 2004 09:55:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Thursday 05 August 2004 04:33, Denis Vlasenko wrote:
+>Hi Linus,
+>
+>On Thursday 05 August 2004 10:25, Linus Torvalds wrote:
+>> On Wed, 4 Aug 2004, Gene Heskett wrote:
+>> > I *thought* I had PREEMPT turned off, but when I did a make
+>> > xconfig, it was turned on.  So its now off, and a new 2.6.8-rc3
+>> > is building. It was frame pointers I had turned on for the last
+>> > build, still on for this one underway now.
+>>
+>> Your latest bug report definitely had preempt on, you could see
+>> the preempt code in the oops output when disassembled.
+>>
+>> Also, could you please enable CONFIG_DEBUG_BUGVERBOSE by hand if
+>> you use the -mm tree, since you definitely hit a BUG() in there
+>> somewhere, but in the -mm tree, the BUG()  message is totally
+>> unreadable unless you enable BUGVERBOSE (and it's not in the
+>> config file).
+>
+>It is not a BUG().
+>
+>It's an oops (dereferencing a d_op pointer with value 0x00000900+14
+>IIRC, Gene has complete disassembly with location of that event).
 
-	I am getting the oops below - twice since 7/26, but I haven't a 
-clue what's causing it.
-	I am not a subscriber, so any replies directed to me would be 
-gratefully received.
-	Thank you for your hard work on this!
+Unforch Denis, this is 2.6.8-rc3, the stuff we dissed was from 2.6.7, 
+where it can be hit without (usually that is) killing the machine 
+instantly.  From 2.6.7-mm1 on, the death seems generally sudden and 
+instant, generally no logs get written at all.
+
+>It is not reproducible on request, but happens for him from time
+>to time in the same place with the same bogus value of d_op.
 
 -- 
-
-Brett Charbeneau, Network Administrator         Tel: 757-259-7750
-Williamsburg Regional Library                   FAX: 757-259-7798
-7770 Croaker Road                               brett@wrl.org
-Williamsburg, VA 23188-7064                     http://www.wrl.org
-
-
-ksymoops 2.4.9 on i686 2.4.26.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.26/ (default)
-     -m /boot/System.map (specified)
-
-1151MB HIGHMEM available.
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-kernel BUG at dcache.c:345!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c014322d>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010206
-eax: 00040000   ebx: eb8d7c70   ecx: c281b394   edx: e5636700
-esi: eb8d7c58   edi: c281b394   ebp: d2b15f34   esp: d2b15f08
-ds: 0018   es: 0018   ss: 0018
-Process umount (pid: 14814, stackpage=d2b15000)
-Stack: c0128f81 c281b49c c281f000 00000246 d2b15f34 f721e1a0 00000466 f721e178 
-       f721e178 f721e178 c02991c0 d2b15f44 c01435a6 00000150 f7b6f400 d2b15f5c 
-       c013714f f721e178 d2b15f88 08052179 0804d82b d2b15f7c c013afea f7b6f400 
-Call Trace:    [<c0128f81>] [<c01435a6>] [<c013714f>] [<c013afea>] [<c01472d0>]
-  [<c01472ee>] [<c0106d93>]
-Code: 0f 0b 59 01 1e d6 25 c0 8d 56 10 8b 4a 04 8b 46 10 89 48 04 
-
-
->>EIP; c014322d <prune_dcache+5d/140>   <=====
-
->>ebx; eb8d7c70 <_end+2b5bb734/384f6ac4>
->>ecx; c281b394 <_end+24fee58/384f6ac4>
->>edx; e5636700 <_end+2531a1c4/384f6ac4>
->>esi; eb8d7c58 <_end+2b5bb71c/384f6ac4>
->>edi; c281b394 <_end+24fee58/384f6ac4>
->>ebp; d2b15f34 <_end+127f99f8/384f6ac4>
->>esp; d2b15f08 <_end+127f99cc/384f6ac4>
-
-Trace; c0128f81 <kmem_cache_free+1c1/270>
-Trace; c01435a6 <shrink_dcache_parent+16/30>
-Trace; c013714f <kill_super+5f/f0>
-Trace; c013afea <path_release+2a/40>
-Trace; c01472d0 <sys_umount+80/90>
-Trace; c01472ee <sys_oldumount+e/20>
-Trace; c0106d93 <system_call+33/38>
-
-Code;  c014322d <prune_dcache+5d/140>
-00000000 <_EIP>:
-Code;  c014322d <prune_dcache+5d/140>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c014322f <prune_dcache+5f/140>
-   2:   59                        pop    %ecx
-Code;  c0143230 <prune_dcache+60/140>
-   3:   01 1e                     add    %ebx,(%esi)
-Code;  c0143232 <prune_dcache+62/140>
-   5:   d6                        (bad)  
-Code;  c0143233 <prune_dcache+63/140>
-   6:   25 c0 8d 56 10            and    $0x10568dc0,%eax
-Code;  c0143238 <prune_dcache+68/140>
-   b:   8b 4a 04                  mov    0x4(%edx),%ecx
-Code;  c014323b <prune_dcache+6b/140>
-   e:   8b 46 10                  mov    0x10(%esi),%eax
-Code;  c014323e <prune_dcache+6e/140>
-  11:   89 48 04                  mov    %ecx,0x4(%eax)
-
-kernel BUG at dcache.c:345!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c014322d>]    Not tainted
-EFLAGS: 00010206
-eax: 00040000   ebx: ea612c70   ecx: c281b394   edx: dd1f64bc
-esi: ea612c58   edi: c281b394   ebp: c2825f00   esp: c2825ed4
-ds: 0018   es: 0018   ss: 0018
-Process kswapd (pid: 4, stackpage=c2825000)
-Stack: 00000187 00000003 c2825ef4 c0128525 c281b418 d8728000 c281b418 00000006 
-       00000000 c233bfb0 00000003 c2825f0c c01435e2 00000d1d c2825f4c c012a284 
-       00000006 000001d0 c2824000 ffffffff 00012199 000001d0 c02970d0 c2825f50 
-Call Trace:    [<c0128525>] [<c01435e2>] [<c012a284>] [<c012a462>] [<c012a501>]
-  [<c012a580>] [<c012a739>] [<c012a7b6>] [<c012a8ff>] [<c012a860>] [<c0105000>]
-  [<c01055b6>] [<c012a860>]
-Code: 0f 0b 59 01 1e d6 25 c0 8d 56 10 8b 4a 04 8b 46 10 89 48 04 
-
-
->>EIP; c014322d <prune_dcache+5d/140>   <=====
-
->>ebx; ea612c70 <_end+2a2f6734/384f6ac4>
->>ecx; c281b394 <_end+24fee58/384f6ac4>
->>edx; dd1f64bc <_end+1ced9f80/384f6ac4>
->>esi; ea612c58 <_end+2a2f671c/384f6ac4>
->>edi; c281b394 <_end+24fee58/384f6ac4>
->>ebp; c2825f00 <_end+25099c4/384f6ac4>
->>esp; c2825ed4 <_end+2509998/384f6ac4>
-
-Trace; c0128525 <__kmem_cache_shrink_locked+45/70>
-Trace; c01435e2 <shrink_dcache_memory+22/40>
-Trace; c012a284 <shrink_cache+294/370>
-Trace; c012a462 <refill_inactive+102/170>
-Trace; c012a501 <shrink_caches+31/40>
-Trace; c012a580 <try_to_free_pages_zone+70/f0>
-Trace; c012a739 <kswapd_balance_pgdat+59/b0>
-Trace; c012a7b6 <kswapd_balance+26/40>
-Trace; c012a8ff <kswapd+9f/c0>
-Trace; c012a860 <kswapd+0/c0>
-Trace; c0105000 <_stext+0/0>
-Trace; c01055b6 <arch_kernel_thread+26/40>
-Trace; c012a860 <kswapd+0/c0>
-
-Code;  c014322d <prune_dcache+5d/140>
-00000000 <_EIP>:
-Code;  c014322d <prune_dcache+5d/140>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c014322f <prune_dcache+5f/140>
-   2:   59                        pop    %ecx
-Code;  c0143230 <prune_dcache+60/140>
-   3:   01 1e                     add    %ebx,(%esi)
-Code;  c0143232 <prune_dcache+62/140>
-   5:   d6                        (bad)  
-Code;  c0143233 <prune_dcache+63/140>
-   6:   25 c0 8d 56 10            and    $0x10568dc0,%eax
-Code;  c0143238 <prune_dcache+68/140>
-   b:   8b 4a 04                  mov    0x4(%edx),%ecx
-Code;  c014323b <prune_dcache+6b/140>
-   e:   8b 46 10                  mov    0x10(%esi),%eax
-Code;  c014323e <prune_dcache+6e/140>
-  11:   89 48 04                  mov    %ecx,0x4(%eax)
-
-
-
-
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

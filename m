@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262984AbTDVHzb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 03:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbTDVHzb
+	id S262985AbTDVIDu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 04:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTDVIDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 03:55:31 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:30902 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S262984AbTDVHz2 (ORCPT
+	Tue, 22 Apr 2003 04:03:50 -0400
+Received: from [213.69.58.83] ([213.69.58.83]:49162 "EHLO invsv002.invision.de")
+	by vger.kernel.org with ESMTP id S262985AbTDVIDs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 03:55:28 -0400
-Date: Mon, 21 Apr 2003 18:55:52 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Paul Mackerras <paulus@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] M68k IDE updates
-In-Reply-To: <Pine.LNX.4.44.0304141038430.19302-100000@home.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0304211833010.14857-100000@vervain.sonytel.be>
+	Tue, 22 Apr 2003 04:03:48 -0400
+Subject: inconsistent usage of 
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF07767E6D.29E660DD-ONC1256D10.002B8A2D@invision.de>
+From: Heiko.Rabe@InVision.de
+Date: Tue, 22 Apr 2003 10:11:11 +0200
+X-MIMETrack: Serialize by Router on invsv002/InVision/DE(Release 5.0.8 |June 18, 2001) at
+ 04/22/2003 10:11:04 AM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Apr 2003, Linus Torvalds wrote:
-> On Mon, 14 Apr 2003, Paul Mackerras wrote:
-> > Since __ide_mm_insw doesn't get told whether it is transferring normal
-> > sector data or drive ID data, it can't necessarily do the right thing
-> > in both situations.
-> 
-> Can we please then just separate the two functions out into "fetch sector
-> data" and "fetch drive ID"? And NOT playing with another frigging broken
-> passed-down flag that people get wrong and isn't obvious what it does
-> anyway? It's a lot easier to do
-> 
-> 	/* On sane architectures, data and ID are accessed the same */
-> 	#define ide_fetch_sector_data(...) __ide_fetch_data(..)
-> 	#define ide_fetch_id_data(...) __ide_fetch_data(..)
-> 
-> than it is to carry a flag around and having to remember to get it right 
-> in every place this is used.
+I found inconsistent behavoir between SMP oand none SMP kernels using spin
+locks inside driver programming
+As first an simple example:
 
-OK, I took a closer look at the IDE identification innards.
+static spinlock_t        qtlock               = SPIN_LOCK_UNLOCKED;
 
-It's quite easy to call hwif->ata_input_id() instead of hwif->ata_input_data()
-for reading the drive ID. Then hwif->ata_input_id() can take care of the
-byteswapping for hardwired byteswapped IDE busses.
+void foo()
+{
+     unsigned long  local_flags;
+     spin_lock_irqsave (&qtlock, local_flags);
+     spin_lock_irqsave (&qtlock, local_flags);
+}
 
-However, there's also a routine that involves more magic:
-taskfile_lib_get_identify(). While trying to understand that one, I found more
-commands that should call the (possible byteswapping) hwif->ata_input_id()
-operations, like SMART commands. So first we need a clearer differentiation
-between commands that transfer on-platter data, or other drive data.
+Calling the function foo() works proper in none SMP kernels. I assume, the
+spinlocks internaly will be initialized as
+recursive semaphore as default. So it is possible to aquire it more than
+once by the same thread.
 
-Any comments from the IDE experts?
+If foo() has been called using a SMP kernel, it freezes the kernel. I
+assume that the semaphore object will be initialized as
+default to be none recursive. So the semaphore can't aquired a second time
+from the same thread.
 
-Gr{oetje,eeting}s,
+I found it during investigation of open source ISDN USB external Box
+drivers, that is well working in none SMP kernels
+but freeze at SMP kernels. Course i have an SMP kernel, i run into the
+freeze problem shown above.
+The example is only the simple structure about, it's not coded in that way
+inside the driver but results in this scenario.
+I have fixed the problem at driver to work well at SMP kernels too, but it
+seems to be a general issue.
 
-						Geert
+I think, semaphores should be have the same behavoir (default
+initialization) at SMP and none SMP kernels. Some code
+problems running software at SMP kernels that freeze could be avoided, if
+we had a consistent default behavoir of semaphores.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Is the there any reason for this difference i doesn't know ?
+Could this be handled in cosistent behavoir handling ?
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+regards
 
+Heiko Rabe
+Senior Developer
+InVision Software AG
+Tel.: +49-(0)341/497208-12
+Fax: +49-(0)2102/728-111
+mailto:heiko.rabe@invision.de
 

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129029AbQJ0Ncw>; Fri, 27 Oct 2000 09:32:52 -0400
+	id <S129032AbQJ0Ngc>; Fri, 27 Oct 2000 09:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbQJ0Ncm>; Fri, 27 Oct 2000 09:32:42 -0400
-Received: from brutus.conectiva.com.br ([200.250.58.146]:55537 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129029AbQJ0Nch>; Fri, 27 Oct 2000 09:32:37 -0400
-Date: Fri, 27 Oct 2000 11:32:06 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: mauelshagen@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: LVM snapshotting broken?
-In-Reply-To: <20001027004404.A1282@athlon.random>
-Message-ID: <Pine.LNX.4.21.0010271131020.25174-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129038AbQJ0NgZ>; Fri, 27 Oct 2000 09:36:25 -0400
+Received: from kleopatra.acc.umu.se ([130.239.18.150]:9186 "EHLO
+	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
+	id <S129032AbQJ0NgN>; Fri, 27 Oct 2000 09:36:13 -0400
+Date: Fri, 27 Oct 2000 15:36:09 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: Petko Manolov <petkan@dce.bg>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Off-Topic (or maybe on-topic)
+Message-ID: <20001027153609.D27262@khan.acc.umu.se>
+In-Reply-To: <20001027151753.C27262@khan.acc.umu.se> <Pine.LNX.4.21.0010271423290.10504-100000@saturn.homenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.21.0010271423290.10504-100000@saturn.homenet>; from tigran@veritas.com on Fri, Oct 27, 2000 at 02:24:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2000, Andrea Arcangeli wrote:
-
-> For some irrelevant reason I always test snapshotting on a LV with minor
-> number > 1 and the kernel side definitely works with 2.2.18pre17aa1:
+On Fri, Oct 27, 2000 at 02:24:53PM +0100, Tigran Aivazian wrote:
+> On Fri, 27 Oct 2000, David Weinehall wrote:
+> > and 1924 the city got renamed again, this time to Leningrad.
 > 
-> laser:/home/andrea # ls -l /dev/vg1/lv*
-> brw-r-----   1 root     root      58,   0 Oct 27  2000 /dev/vg1/lv0
-> brw-r-----   1 root     root      58,   1 Oct 27  2000 /dev/vg1/lv1
-> laser:/home/andrea # lvcreate -s -n lv1-snap /dev/vg1/lv1 -L 400M
-> lvcreate -- INFO: using default snapshot chunk size of 64 KB
-> lvcreate -- doing automatic backup of "vg1"
-> lvcreate -- logical volume "/dev/vg1/lv1-snap" successfully created
-> 
-> laser:/home/andrea # lvremove -f /dev/vg1/lv1-snap 
-> lvremove -- doing automatic backup of volume group "vg1"
-> lvremove -- logical volume "/dev/vg1/lv1-snap" successfully removed
+> ok, then a quiz question - was it renamed before or after Lenin's death?
+> (hint, Lenin died in 1924).
 
-Have you checked if the CONTENT of the snapshot is indeed
-the right LV and not the other one?
+After his death. And the city was renamed back to St. Petersburg in
+1991. With a 5 days-a-year long exception where the name
+Leningrad is used in parallel, in rememberance of WWII.
 
-(I get the same "success" messages as what you cut'n'pasted
-above, but find that the wrong LV has been snapshotted when
-I look at the actual snapshot)
 
-regards,
-
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
-
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

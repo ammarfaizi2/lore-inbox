@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267346AbUHWD4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267356AbUHWEFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267346AbUHWD4H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 23:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUHWD4H
+	id S267356AbUHWEFu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 00:05:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267362AbUHWEFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 23:56:07 -0400
-Received: from trantor.org.uk ([213.146.130.142]:51614 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S267346AbUHWD4C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 23:56:02 -0400
-Subject: Re: Linux Incompatibility List
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: public@mikl.as
-Cc: Wakko Warner <wakko@animx.eu.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408211955.44914.public@mikl.as>
-References: <87r7q0th2n.fsf@dedasys.com>
-	 <1093120274.854.145.camel@krustophenia.net>
-	 <20040821205157.GA9300@animx.eu.org>  <200408211955.44914.public@mikl.as>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jH5Aoth5EOOqgMthteIE"
-Date: Mon, 23 Aug 2004 04:54:54 +0100
-Message-Id: <1093233294.26293.46.camel@sherbert>
+	Mon, 23 Aug 2004 00:05:50 -0400
+Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:61092 "EHLO
+	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S267356AbUHWEFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 00:05:48 -0400
+Subject: PROBLEM: Linux system clock is running 3x too fast
+From: Fast Clock <fastclock@earthlink.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1093233957.3094.49.camel@apc>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 22 Aug 2004 23:05:57 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My Athlon 64 laptop (HP Pavilion zv5000z) dual-boots Linux and Windows
+XP. The Windows system clock is running accurately but the Linux system
+clock is running 3 times too fast.
 
---=-jH5Aoth5EOOqgMthteIE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The problem occurs in all of the Linux distributions and releases that
+I've tried, including Suse 9.1, Fedora Core 1 & 2, kernel versions
+2.4.x, 2.6.x (up to 2.6.8-1.521), 32-bit & 64-bit releases.
 
-On Sat, 2004-08-21 at 19:53 -0400, Andrew Miklas wrote:
-> They seem to be very selective about when they acknowledge Linux's existe=
-nce. =20
-> IMHO, this makes them even worse than a company that has decided to simpl=
-y=20
-> ignore Linux all together.
+The Linux system clock problem is also intermittent. Approximately 1 of
+10 (cold) boots could yield an accurately running Linux system clock...
+I've tried kernel boot options "clock=tsc", "clock=pit", "clock=pmtmr"
+and have seen about the same 1/10 (failed/passed) ratio for each of
+them. I've also tried kernel boot options "acpi=on" & "acpi=off" but
+they don't seem to have any affect on the problem.
 
-http://www.scaramanga.co.uk/stuff/bcm94306/
+The differences in dmesg outputs between "good" and "bad" boots are as
+followed.
 
-There is at least 1 effort underway to reverse engineer it, although I
-don't have much time to work on it. IMO It would be good if such
-companies were consistently shown that we certainly don't need them to
-write drivers for us and even if they go out of their way, there isn't
-much they can do to stop us from writing them ourselves.
+good:	time.c: Detected 797.952 MHz processor.
+bad:	time.c: Detected 265.995 MHz processor.
 
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+good:	Calibrating delay loop... 1576.96 BogoMIPS
+bad:	Calibrating delay loop... 516.09 BogoMIPS
 
---=-jH5Aoth5EOOqgMthteIE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+good:	Detected 12.468 MHz APIC timer.
+bad:	Detected 4.156 MHz APIC timer.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+good:	intel8x0_measure_ac97_clock: measured 49383 usecs
+	intel8x0: clocking to 47408
+bad:	intel8x0_measure_ac97_clock: measured 48347 usecs
+	intel8x0: measured clock 16547 rejected
+	intel8x0: clocking to 48000
 
-iD8DBQBBKWqNkbV2aYZGvn0RAupMAJ9wW10+JCdUq7iHX+75jFeZK6pokACeLopk
-X7ZXieT7KziZLVL/NbMBkTY=
-=XFrX
------END PGP SIGNATURE-----
-
---=-jH5Aoth5EOOqgMthteIE--
+Full dmesg logs (goods and bads) are available upon request.
 

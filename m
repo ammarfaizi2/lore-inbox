@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbQLGALH>; Wed, 6 Dec 2000 19:11:07 -0500
+	id <S131455AbQLGASK>; Wed, 6 Dec 2000 19:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131455AbQLGAK6>; Wed, 6 Dec 2000 19:10:58 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:33802
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129406AbQLGAKv>; Wed, 6 Dec 2000 19:10:51 -0500
-Date: Wed, 6 Dec 2000 15:40:10 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: James Lamanna <jlamanna@its.caltech.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with PDC202xx driver
-In-Reply-To: <3A2EB765.62FEF645@its.caltech.edu>
-Message-ID: <Pine.LNX.4.10.10012061522510.23490-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S131470AbQLGAR7>; Wed, 6 Dec 2000 19:17:59 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:40819 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S131455AbQLGARr>;
+	Wed, 6 Dec 2000 19:17:47 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: georgn@somanetworks.com
+cc: linux-kernel@vger.kernel.org, greg@wind.enjellic.com, sct@dcs.ed.ac.uk
+Subject: Re: linux-2.4.0-test11 and sysklogd-1.3-31 
+In-Reply-To: Your message of "Wed, 06 Dec 2000 17:24:58 CDT."
+             <14894.48314.363938.770481@somanetworks.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Thu, 07 Dec 2000 10:46:09 +1100
+Message-ID: <1348.976146369@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2000, James Lamanna wrote:
+On Wed, 6 Dec 2000 17:24:58 -0500 (EST), 
+"Georg Nikodym" <georgn@somanetworks.com> wrote:
+>sysklogd 1.3-31 no longer compiles using the latest headers in test11.
+>
+>Strictly speaking this isn't a kernel bug...
+>
+>sysklogd's ksym_mod.c includes <linux/module.h>
 
-> Here is an excerpt from /proc/pci:
-> 
-> Bus  0, device  11, function  0:
->     RAID bus controller: Promise Technology, Inc. 20267 (rev 2).
->       IRQ 10.
->       Master Capable.  Latency=32.
->       I/O at 0x9400 [0x9407].
->       I/O at 0x9000 [0x9003].
->       I/O at 0x8800 [0x8807].
->       I/O at 0x8400 [0x8403].
->       I/O at 0x8000 [0x803f].
->       Non-prefetchable 32 bit memory at 0xd5000000 [0xd501ffff].
->   Bus  0, device  17, function  0:
->     Unknown mass storage controller: Promise Technology, Inc. 20265 (rev 2).
->       IRQ 10.
->       Master Capable.  Latency=32.
->       I/O at 0x7800 [0x7807].
->       I/O at 0x7400 [0x7403].
->       I/O at 0x7000 [0x7007].
->       I/O at 0x6800 [0x6803].
->       I/O at 0x6400 [0x643f].
->       Non-prefetchable 32 bit memory at 0xd4800000 [0xd481ffff].
+Speaking as the modutils maintainer and the person who added list.h to
+module.h, sysklogd should *not* be including linux/module.h.  Linus has
+spoken, it is an error for user space applications to include kernel
+headers.  Even modutils does not include linux/module.h, instead it has
+a portable (2.0 through 2.4) local definition of struct module.
 
-No each device reports itself differently here.
-Bus  0, device  11, function  0: == 20267
-Bus  0, device  17, function  0: == 20265
+ksym_mod.c is only present to try to decode oops reports in klogd.
+klogd only handles some architectures, it often gets the oops decode
+wrong and it destroys the log information that is needed by other oops
+decoders.  IMNSHO ksymoops does a much better job of decoding the oops,
+but I maintain ksymoops so I am just a little biased ;)
 
-You bought a Fasttrak 100 and your mainboard came with an Ultra 100
-
-> 
-> Is there a plan to support the Fasttrak BIOS core at some point (I hope..)
-> So I guess I'm stuck with loading their proprietary module whenever I want 
-> to use the drive....
-
-Yep, until they realize that their simple IP is nothing, and want to
-export the raid calls to the Linux Raid Engine, you are "stuck".
-
-> But thanks for the clarification.
-
-Cheers,
-
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+I would prefer to see the oops decoding completely removed from klogd.
+The only justification for klogd converting the oops is to save users
+from running ksymoops by hand.  I would not mind klogd capturing the
+oops text, forking to run ksymoops then logging the ksymoops output.
+Just as along as the original text was left alone and the ksymoops
+output was obviously distinguished from real kernel output.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

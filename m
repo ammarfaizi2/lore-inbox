@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbUDCRNx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 12:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUDCRNx
+	id S261615AbUDCRY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 12:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUDCRY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 12:13:53 -0500
-Received: from CS2075.cs.fsu.edu ([128.186.122.75]:31218 "EHLO mail.cs.fsu.edu")
-	by vger.kernel.org with ESMTP id S261852AbUDCRNt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 12:13:49 -0500
-Message-ID: <1081012426.5c22c66499b13@system.cs.fsu.edu>
-Date: Sat,  3 Apr 2004 12:13:46 -0500
-From: khandelw@cs.fsu.edu
-To: karim@opersys.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.4.16
-References: <1080849830.91ac1e3f85274@system.cs.fsu.edu>
-	<406C79E4.1060700@opersys.com>
-In-Reply-To: <406C79E4.1060700@opersys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+	Sat, 3 Apr 2004 12:24:27 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:14781
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261615AbUDCRYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 12:24:25 -0500
+Date: Sat, 3 Apr 2004 19:24:26 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: anon-vma (and now filebacked-mappings too) mprotect vma merging [Re:    2.6.5-rc2-aa vma merging]
+Message-ID: <20040403172426.GJ2307@dualathlon.random>
+References: <20040403012612.GY21341@dualathlon.random> <Pine.LNX.4.44.0404031727320.10197-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Originating-IP: 192.168.122.50
+In-Reply-To: <Pine.LNX.4.44.0404031727320.10197-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Karim,
-   I had few issues related to compiling 2.6.3 on redhat 9.0. I have got that up
-and running except for the (networking)eth0 support. I see Ltt 0.9.6pre2 and
-not pre3 on the site am I missing sm thing??
+On Sat, Apr 03, 2004 at 06:06:49PM +0100, Hugh Dickins wrote:
+> It does look more complicated than I'd hoped, a lot of that coming from
+> the file-backed merging: which I like, but, we could have done it at
+> any point over the last couple of years if someone had a need for it.
+> Fair enough, you've discovered a need, at the same time that you have
+> to attend to vm_pgoff for anons, so it makes sense to do them together.
 
-Quoting Karim Yaghmour <karim@opersys.com>:
+the point is that *nobody* has a need for it, nor for the anonymous, nor
+for the filebacked mappings. It's just an "optimization", not a real
+need.
 
->
-> Hello Amit,
->
-> khandelw@cs.fsu.edu wrote:
-> >     I need linux2.4.16 because i want to use LTT and the documentation of
-> LTT
-> > says that it can be used with that version. Can somebody gimme sm pointer
-> > realted to this.
->
-> You may want to try fixing this patch for the latest kernel (and I could
-> then host the updated patch on the project's site.) Or you may want to try
-> LTT 0.9.6pre3 with linux 2.6.3 and relayfs. This is the latest development
-> version. It's got rough edges, but it shouldn't be too hard to get working.
->
-> Karim
-> --
-> Author, Speaker, Developer, Consultant
-> Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-> http://www.opersys.com || karim@opersys.com || 1-866-677-4546
->
+You're right it's not trivial, but as you can see 95% of the complexity
+comes from the filebacked merging, the anon-vma merging adds up to 5% of
+the complexity (i.e. calling is_mergeable_anon_vma before proceeding and
+then calling anon_vma_merge while nuking the superflous vma).
 
+> Do you realize that you could allocate just a single anon_vma to
+> the mm at fork time, for all the pure anon vmas created in it later?
+> And then no need for propagating anon_vma from adjacent vma, they'd
+> all have the right one already and be mergeable anyway.  But I think
+> you'll reject that on two grounds: you want to merge the file-backed
+> vmas as much as is reasonable, so you need the code anyway for them;
+> and you'd prefer your anon_vma lists to be as short as possible, to
+> minimize searching at page_referenced/try_to_unmap time.
+> 
+> Clearly there's a tension between keeping the anon_vma lists short,
+> and leaving the vmas mergable: it's natural that we should differ on
+> where to strike that balance, having come to it from opposite ends.
 
+exactly. the cost of the anonvmas is absolutely non measurable, so while
+it makes sense to share the sane anon_vma for adiancent mappings that
+differs only for the page protection flags, I don't want to share
+anything else to boost the reverse lookup performance. I want it as
+finegrined as possible, not just to have few vmas, but also to track
+_only_ the interesting MM in the group, something anonmm will never be
+able to do, except when the page has mapcount == 1. Sharing the same
+anon_vma for everything would just slowdown the lookup, in practice
+there would be no more merging at all. I believe being as finegrined as
+possible will payoff, maybe one day we may even be ok to pay for some
+more byte in the vma for a prio_tree on top of the anon_vma, to speedup
+the lookup as much as possible (today it would only waste ram IMO). Plus
+I love being able to handle mremap trasparently by-design. The ugliness
+of doing a swapin + copy and calling handle_mm_fault in mremap is pretty
+bad IMO. some more byte per-vma is not a problem and it'll never be
+noticeable, just like not merging non adiacent mappings will never be
+noticeable. So I believe the few bytes per vma are worth it, plus now it
+does filebacked mprotect merging too.

@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbUKPQfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbUKPQd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbUKPQfy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 11:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbUKPQdm
+	id S262048AbUKPQd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 11:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbUKPQcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 11:33:42 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:39366 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262044AbUKPQdX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 11:33:23 -0500
-Date: Tue, 16 Nov 2004 10:32:24 -0600
-From: Robin Holt <holt@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org, dev@sw.ru,
-       wli@holomorphy.com, steiner@sgi.com, sandeen@sgi.com
-Subject: Re: 21 million inodes is causing severe pauses.
-Message-ID: <20041116163224.GB5594@lnx-holt.americas.sgi.com>
-References: <20041115195551.GA15380@lnx-holt.americas.sgi.com> <20041115145714.3f757012.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041115145714.3f757012.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 16 Nov 2004 11:32:03 -0500
+Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:57110 "EHLO
+	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262032AbUKPQbB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 11:31:01 -0500
+Message-ID: <419A2B3A.80702@tebibyte.org>
+Date: Tue, 16 Nov 2004 17:30:50 +0100
+From: Chris Ross <chris@tebibyte.org>
+Organization: At home (Eindhoven, The Netherlands)
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: pt-br, pt
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Andrea Arcangeli <andrea@novell.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Nick Piggin <piggin@cyberone.com.au>,
+       Rik van Riel <riel@redhat.com>,
+       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de,
+       akpm@osdl.org
+Subject: Re: [PATCH] fix spurious OOM kills
+References: <20041111112922.GA15948@logos.cnet> <4193E056.6070100@tebibyte.org> <4194EA45.90800@tebibyte.org> <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random> <20041114202155.GB2764@logos.cnet>
+In-Reply-To: <20041114202155.GB2764@logos.cnet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 15, 2004 at 02:57:14PM -0800, Andrew Morton wrote:
-> Robin Holt <holt@sgi.com> wrote:
-> >
-> > One significant problem we are running into is autofs trying to umount the
-> > file systems.  This results in the umount grabbing the BKL and inode_lock,
-> > holding it while it scans through the inode_list and others looking for
-> > inodes used by this super block and attempting to free them.
+
+
+Marcelo Tosatti escreveu:
+> If its not the case, increasing the all_unreclaimable "timer" to a higher value
+> than 5 seconds will certainly delay the OOM killer such to a point where 
+> its not triggered until the VM reclaiming efforts make progress.
+[...]
 > 
-> You'll need invalidate_inodes-speedup.patch and
-> break-latency-in-invalidate_list.patch (or an equivalent).
+> Chris, can you change the "500*HZ" in mm/vmscan.c balance_pgdat() function
+> to "1000*HZ" and see what you get, please?
 
-With these patches and a new test where I periodically put on mild
-but diminishing memory pressure, I have been able to get the number
-of inodes up to 31 Million.  I would really like to find a way to
-reduce limit the number of inodes or am I seeing a problem where
-none exists?  After putting on constant mild memory pressure, I have
-seen then number of inodes stabilize at 17-18 Million.
+Changed. FWIW it's been running happily for hours without a single oom, 
+including the normally guaranteed build UML test. I'll leave it running 
+and see how it goes. The daily cron run is a usually a popular time for 
+killing off a few essential daemons (ntpd, sshd &c), in fact I think the 
+OOM Killer actually looks forward to it :)
 
-Robin
+Regards,
+Chris R.

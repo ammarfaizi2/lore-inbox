@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318678AbSHAJaC>; Thu, 1 Aug 2002 05:30:02 -0400
+	id <S318681AbSHAJaM>; Thu, 1 Aug 2002 05:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318679AbSHAJaC>; Thu, 1 Aug 2002 05:30:02 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:53263 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S318678AbSHAJaB>; Thu, 1 Aug 2002 05:30:01 -0400
-Message-ID: <3D49006C.12ABC6FC@aitel.hist.no>
-Date: Thu, 01 Aug 2002 11:33:33 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.29 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: linux-kernel@vger.kernel.org
+	id <S318680AbSHAJaL>; Thu, 1 Aug 2002 05:30:11 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:53998 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S318679AbSHAJaJ> convert rfc822-to-8bit; Thu, 1 Aug 2002 05:30:09 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <alan@lxorguk.ukuu.org.uk>, <trond.myklebust@fys.uio.no>
+CC: Christoph Hellwig <hch@infradead.org>, Bill Davidsen <davidsen@tmr.com>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1055) - Licensed Version
+Date: Thu, 1 Aug 2002 02:33:33 -0700
+In-Reply-To: <1028161904.13048.20.camel@irongate.swansea.linux.org.uk>
 Subject: Re: [2.6] The List, pass #2
-References: <Pine.LNX.4.44.0207311500210.1038-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20020801093335.AAA7575@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> 
-> > > o Remove all hardwired drivers from kernel
-> >
-> > I really hope this means drivers MAY be used as modules, not MUST. There
-> > is some overhead in doing things as modules, and added complexity usually
-> > means "harder to debug." Particularly with modules where there can be
-> > corner conditions and races on [un]load.
-> 
-> Bill,
->   Several people (IIRC including Alan Cox) would like to make many of the
-> modules (network cards and scsi drivers for example) mandatory, requiring
-> use of an initrd (or it's replacement) on all boot setups.
 
-As far as I know, they plan on doing things like 
-disk partition detection outside the kernel, i.e. in
-a userspace program.  That clearly require
-a initrd (or similiar) for anybody with root
-on a partitioned disk.
+>An additional problem with a BSD like license is that it makes no
+>statement on patents - regrettably a critical issue now days in the
+>USSA. That means nothing prevents CITI from providing BSD licensed code
+>and then 6 months later sueing everyone who used it. I don't see CITI
+>doing that but the basic problem is still there.
 
-Lots of other bootup initialization, like DHCP,
-might move to userspace as well.  This gives a smaller
-and safer kernel.
+	Sure something prevents them. You can't induce people to violate your patent 
+and then complain when they do what you induced them to do. Remember Rambus?
 
-I cannot see this requiring modules though.  Even a
-kernel without any module support at all should
-work fine for those who compile their own.
-Redhat and other distributors may be interested in
-shipping a completely modular kernel that
-loads modules from that initrd, but that certainly
-won't be a _requirement_ for all kernels. 
+	DS
 
-Helge Hafting
+

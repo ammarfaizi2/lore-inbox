@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135181AbRD3K65>; Mon, 30 Apr 2001 06:58:57 -0400
+	id <S135186AbRD3K6h>; Mon, 30 Apr 2001 06:58:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135198AbRD3K6s>; Mon, 30 Apr 2001 06:58:48 -0400
-Received: from mercury.ccil.org ([192.190.237.100]:28430 "EHLO
-	mercury.ccil.org") by vger.kernel.org with ESMTP id <S135181AbRD3K6j>;
-	Mon, 30 Apr 2001 06:58:39 -0400
-Subject: Re: [kbuild-devel] Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-In-Reply-To: <20010430025335.A5189@thyrsus.com> from "Eric S. Raymond" at "Apr
- 30, 2001 02:53:36 am"
-To: esr@thyrsus.com
-Date: Mon, 30 Apr 2001 06:57:59 -0400 (EDT)
-CC: David Emory Watson <demoryw@pacbell.net>,
-        Alexander Viro <viro@math.psu.edu>, aia21@cam.ac.uk, stoffel@casc.com,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
+	id <S135181AbRD3K62>; Mon, 30 Apr 2001 06:58:28 -0400
+Received: from mailgate1.zdv.Uni-Mainz.DE ([134.93.8.56]:29328 "EHLO
+	mailgate1.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
+	id <S135198AbRD3K6O>; Mon, 30 Apr 2001 06:58:14 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14uBNP-0006zm-00@mercury.ccil.org>
-From: John Cowan <cowan@mercury.ccil.org>
+From: Olaf Stetzer <ostetzer@mail.uni-mainz.de>
+To: linux-kernel@vger.kernel.org
+Subject: make bzlilo seems to ignore non-standard kernel path in lilo.conf (/boot)
+Date: Mon, 30 Apr 2001 12:16:24 +0200
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01043012162401.00851@Seaborg>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond scripsit:
+Hello,
 
-> I don't think I've heard anyone invoke the 4-line rule since about
-> 1992, though.  I didn't start generating short random quotes into my sig
-> until about 1996, well after the "standard" was effectively dead.
+when I tried to get rid of the problem I wrote about two days ago in 
+this list I compiled the kernel several times but unfortunately it was
+not installed correctly by the make target bzlilo.
+Is it possible to add a parse of /etc/lilo.conf to this target to look
+for the path the compiled kernels are located (in my case it was
+/boot but make bzlilo put the new kernel in / so it was not installed
+by running lilo afterwards)?
+This happened to the last 2.2.x kernels I did not try the 2.4.x
+series yet.
 
-I have always obeyed it.
+Greetings,
 
--- 
-John Cowan                                   cowan@ccil.org
-One art/there is/no less/no more/All things/to do/with sparks/galore
-	--Douglas Hofstadter
+Olaf

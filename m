@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbUBRHSI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 02:18:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbUBRHSI
+	id S262425AbUBRHk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 02:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUBRHk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 02:18:08 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:5035 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262580AbUBRHSG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 02:18:06 -0500
-Date: Wed, 18 Feb 2004 08:17:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Paul Clements <Paul.Clements@SteelEye.com>
-Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nbd oops on unload.
-Message-ID: <20040218071752.GB27190@suse.de>
-References: <20040217224700.GE6242@redhat.com> <4032FF7D.55D9935B@SteelEye.com>
-Mime-Version: 1.0
+	Wed, 18 Feb 2004 02:40:26 -0500
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:52409 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262425AbUBRHkX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 02:40:23 -0500
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+References: <200402130615.10608.mhf@linuxmail.org>
+	<200402131749.19758.mhf@linuxmail.org>
+	<402CA267.4090202@cyberone.com.au>
+	<200402131850.41339.mhf@linuxmail.org>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 18 Feb 2004 16:39:55 +0900
+In-Reply-To: <200402131850.41339.mhf@linuxmail.org>
+Message-ID: <buor7wshm44.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4032FF7D.55D9935B@SteelEye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18 2004, Paul Clements wrote:
-> Dave Jones wrote:
-> > 
-> > modprobe nbd ; rmmod nbd  was enough to reproduce this one..
-> > (2.6.3rc4)
-> 
-> hmmm...I'll look into it...out of curiosity, are you using any "unusual"
-> kernel config options? I've done the same test myself many times and
-> have not seen any problems...
+Michael Frank <mhf@linuxmail.org> writes:
+> 96 is not excessive and will reduce linecount and often makes things
+> more readable.
 
-It looks like 'the usual' 'several devices sharing a queue' oops on
-unload.
+96 is excessive.
 
+Code that wraps is _really_ unreadable.
+
+-Miles
 -- 
-Jens Axboe
-
+Come now, if we were really planning to harm you, would we be waiting here, 
+ beside the path, in the very darkest part of the forest?

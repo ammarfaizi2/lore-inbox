@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316892AbSFFMvl>; Thu, 6 Jun 2002 08:51:41 -0400
+	id <S316768AbSFFNBh>; Thu, 6 Jun 2002 09:01:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316906AbSFFMvk>; Thu, 6 Jun 2002 08:51:40 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:41228 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S316892AbSFFMvk>;
-	Thu, 6 Jun 2002 08:51:40 -0400
+	id <S316906AbSFFNBg>; Thu, 6 Jun 2002 09:01:36 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:42764 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316768AbSFFNBg>;
+	Thu, 6 Jun 2002 09:01:36 -0400
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre10-ac2 
-In-Reply-To: Your message of "Thu, 06 Jun 2002 11:11:09 +0100."
-             <Pine.LNX.4.44.0206061110410.16548-100000@jester.mews> 
+To: jlmales@yahoo.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Question Regarding "EXTRAVERSION" Specification 
+In-Reply-To: Your message of "Thu, 06 Jun 2002 03:09:29 -0400."
+             <20020606030929.460bec3e.jlmales@softhome.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 06 Jun 2002 22:51:31 +1000
-Message-ID: <4646.1023367891@ocs3.intra.ocs.com.au>
+Date: Thu, 06 Jun 2002 23:01:27 +1000
+Message-ID: <4708.1023368487@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jun 2002 11:11:09 +0100 (BST), 
-Matt Bernstein <matt@theBachChoir.org.uk> wrote:
->Since when was it OK to do a parallel make dep?
+On Thu, 6 Jun 2002 03:09:29 -0400, 
+"John L. Males" <jlmales@softhome.net> wrote:
+>***** Please note I am not on the Linux Kernel Mailing List.  Please
+>be so kind as to BCC copy me in on any reply to this inquiry.  Thanks
+>The questions are:
+>
+>  1) Is there a specification that states the maximum length that the
+>"EXTRAVERSION" string may be?
 
-Arch dependent.  Parallel make dep will generate incomplete output on
-some architectures, mainly those that generate files at make dep time.
-mkdep.c only adds .h files to .[h]depend if the file exists.  With
-parallel make dep the scanning of .c files can occur before the .h
-files have been generated, resulting in an incomplete dependency tree.
-Later changes may not rebuild everything that should be rebuilt.
+The total length $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+must not exceed 64 characters.  Break that limit and you get garbage in
+uname -r.
 
-Not a problem for kbuild 2.5 of course.
+>  2) Does the Kernel make/build process enforce any specified limit of
+>(1) above?
+
+kbuild 2.5 enforces the limit, the existing kernel build code does not.
+I sent a patch to Linus four times back in the 2.4.15 days, he
+completely ignored it.  Linus does not care about kernel build
+problems.
+
+I will dig out the patch and send it to Marcelo.
 

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262944AbTJULNK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 07:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbTJULNK
+	id S262950AbTJULQG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 07:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbTJULQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 07:13:10 -0400
-Received: from SteeleMR-loadb-NAT-49.caltech.edu ([131.215.49.69]:1682 "EHLO
-	water-ox.its.caltech.edu") by vger.kernel.org with ESMTP
-	id S262944AbTJULNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 07:13:08 -0400
-Date: Tue, 21 Oct 2003 04:13:05 -0700 (PDT)
-From: "Noah J. Misch" <noah@caltech.edu>
-X-X-Sender: noah@clyde
-To: Stephen Hemminger <shemminger@osdl.org>,
-       "David S. Miller" <davem@redhat.com>
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] Make LLC2 compile with PROC_FS=n
-In-Reply-To: <20031020223237.31854ab5.davem@redhat.com>
-Message-ID: <Pine.GSO.4.58.0310210401470.26573@clyde>
-References: <Pine.GSO.4.58.0310171452540.13905@blinky>
- <20031020101607.76e02647.shemminger@osdl.org> <20031020223237.31854ab5.davem@redhat.com>
+	Tue, 21 Oct 2003 07:16:06 -0400
+Received: from [212.239.226.99] ([212.239.226.99]:10370 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S262950AbTJULQD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 07:16:03 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.0-test8] Difference between Software Suspend and Suspend-to-disk?
+Date: Tue, 21 Oct 2003 13:15:54 +0200
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200310211315.58585.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Oct 2003, David S. Miller wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Mon, 20 Oct 2003 10:16:07 -0700
-> Stephen Hemminger <shemminger@osdl.org> wrote:
->
-> > Why make up a whole separate llc_proc.h file for two prototypes?
-> > Put them on the end of llc.h
->
-> I definitely prefer this version of the fix.
+Hello all,
 
-I agree completely.  Thanks, Stephen.
+I'm puzzled by two options in the menuconfig which seem to do the same thing:
 
-> Since Arnaldo appears to be busy, I'll apply this.
+Software Suspend (EXPERIMENTAL)
+Suspend-to-Disk Support
 
-Great.
+Do i need to have the second to actually suspend? Or does the first one by 
+itself do everything I need to suspend?
+
+Thanks.
+
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/lRVsUQQOfidJUwQRArkdAJ4/XEyzNle9XxPy1wkDAtTp9Hf0aQCeMOBL
+qkvnb8YPymSID7AKaYtJ3Ss=
+=/Nbf
+-----END PGP SIGNATURE-----
 

@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbTICNEM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 09:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTICNEM
+	id S262175AbTICNLX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 09:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTICNLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 09:04:12 -0400
-Received: from drn-c-ae51.adsl.wanadoo.nl ([81.68.204.81]:177 "HELO moratar")
-	by vger.kernel.org with SMTP id S262120AbTICNEG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 09:04:06 -0400
-From: Vladimir Lazarenko <vlad@lazarenko.net>
-Organization: Favoretti Spagettolino Inc
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [ACPI] Where do I send APIC victims?
-Date: Wed, 3 Sep 2003 15:04:03 +0200
-User-Agent: KMail/1.5.9
-Cc: adq_dvb@lidskialf.net, rl@hellgate.ch, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-References: <20030903080852.GA27649@k3.hellgate.ch> <1062589205.19059.6.camel@dhcp23.swansea.linux.org.uk> <20030903145356.35b9a192.skraw@ithnet.com>
-In-Reply-To: <20030903145356.35b9a192.skraw@ithnet.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 3 Sep 2003 09:11:23 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:42955 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262175AbTICNLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 09:11:22 -0400
+Subject: Re: Driver Model
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jimwclark@ntlworld.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309021943.15875.jimwclark@ntlworld.com>
+References: <200309021943.15875.jimwclark@ntlworld.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200309031504.03596.vlad@lazarenko.net>
+Message-Id: <1062594625.19058.27.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Wed, 03 Sep 2003 14:10:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my board, A7V8X, ACPI/APIC works just perfectly with 2.4.22 and KT400 
-chipset, alas on A7N8X Deluxe board with nForce2 chipsets it causes nasty 
-hangups.
-Machine just simply freezes, no oops, nothing whatsoever.
+On Maw, 2003-09-02 at 19:43, James Clark wrote:
+> 3. Will the practice of deliberately breaking some binary only 'tainted' 
+> modules prevent take up of Linux. Isn't this taking things too far?
 
-Disabling APIC solved the problem.
+tainted doesn't break anything. tainted marks modules so we know they
+are unsupported and every vendor, developer and the like can throw your
+reports into the bitbucket. The binary vendor has our code we don;t have
+theirs so they can go fix it.
 
---
-Regards,
-Vladimir
+As to "too far", the GPL is quite explicit and most people contributed
+code on its basis. So its very unlikely that any binary only module is
+legal in the first place. There is FSF code in the kernel, merged by
+others and the FSF certainly feel that way.
 
-On Wednesday 03 September 2003 14:53, Stephan von Krawczynski wrote:
-> On Wed, 03 Sep 2003 12:40:06 +0100
->
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > On Mer, 2003-09-03 at 11:48, Andrew de Quincey wrote:
-> > > 2.4.22 has the ACPI from 2.6 backported into it, (which includes my
-> > > patch for nforce2 boards) so it will start having the same issue with
-> > > the BIOS bug in KT333/KT400  boards.
-> >
-> > It does - 2.4.22pre7 is great on my boxes, 2.4.22 final ACPI is
-> > basically unusable on anything I own thats not intel.
->
-> I can't back that. At least on all my Serverworks boxes there are no
-> problems with ACPI. I got reports from VIA-bases SMP boards that they are
-> doing well, too. (all for 2.4.22)
->
-> Regards,
-> Stephan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+If you want to run a binary unix system I'd recommend Mac OSx - its
+rather nice.
 
--- 
-Best regards,
-Vladimir Lazarenko
+Alan
+

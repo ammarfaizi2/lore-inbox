@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293612AbSBZWEd>; Tue, 26 Feb 2002 17:04:33 -0500
+	id <S293615AbSBZWHN>; Tue, 26 Feb 2002 17:07:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293611AbSBZWEX>; Tue, 26 Feb 2002 17:04:23 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:6398
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S293609AbSBZWEQ>; Tue, 26 Feb 2002 17:04:16 -0500
-Date: Tue, 26 Feb 2002 14:04:47 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Rik van Riel <riel@conectiva.com.br>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 and undeletion
-Message-ID: <20020226220447.GS4393@matchmail.com>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Martin Dalecki <dalecki@evision-ventures.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020226171634.GL4393@matchmail.com> <Pine.LNX.4.44L.0202261419240.1413-100000@duckman.distro.conectiva> <20020226173822.GN4393@matchmail.com>
+	id <S293618AbSBZWGy>; Tue, 26 Feb 2002 17:06:54 -0500
+Received: from NODE1.HOSTING-NETWORK.COM ([66.186.193.1]:25353 "HELO
+	hosting-network.com") by vger.kernel.org with SMTP
+	id <S293615AbSBZWGr>; Tue, 26 Feb 2002 17:06:47 -0500
+Subject: Natsemi Multicast rx problem, workaround
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.21mdk 
+Date: 26 Feb 2002 12:54:27 -0800
+Message-Id: <1014756869.11691.56.camel@shire.arnor.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020226173822.GN4393@matchmail.com>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 09:38:22AM -0800, Mike Fedyk wrote:
-> On Tue, Feb 26, 2002 at 02:22:31PM -0300, Rik van Riel wrote:
-> > Your idea should work on deletion, when the inode were
-> > about to be destroyed, but ...
-> > 
-> > > It would only call chown/chgrp on the files *inside* the undelete dir,
-> > > and user,group,etc would have to be accounted for in another way.  Am I
-> > > going in the wrong direction?
-> > 
-> > ... of course, there still is the problem of hard links.
-> > 
-> 
-> I had considered hard links.  Take a look at my another message from me in
-> this thread and see Daniel's response to it.
->
+This is just a note for the record regarding multicast receive using the
+natsemi driver.  It may be of interest to the driver developers, but I'm
+including lots of detail in hope of helping people who find this message
+through google...
 
-Correction, that was Andreas Dilger that replied offline, and has been
-posted by me with his permission.
+Summary: multicast rx using natsemi hashtable is flaky. Workaround is to
+force all-multicast mode.
 
-And now the idea of chgrp/chown is out of the question...
+The long version:
 
-Mike
+We use the natsemi driver on TV-attached set top boxes to view UDP
+multicast MPEG video streams.  Channel changing is via IGMP leave and
+join.  Kernel is 2.4.recent + lowlatency patch.
+
+The natsemi driver and hardware work together to use a hash table of
+ethernet multicast addresses.  This hash table is rebuilt when the
+kernel multicast code joins and leaves channels.  (Our application only
+"watches" one channel at a time, thus the hash table only ever has two
+entries - one is the broadcast address).
+
+We noticed that about one in every five or six times, the hardware would
+fail to "pick up" incoming multicast packets after a channel change. 
+The IGMP join and leave packets were sent correctly, the multicast hash
+table was rebuilt, but packets never showed up at the interface.  The
+packets were definitely on the wire.  
+
+(My theory is that the hardware flakes out if the multicast hash table
+is being rewritten at the same time that the hardware is reading the
+table.)
+
+When our app notices that it isn't getting video, it retries the IGMP
+join. This causes the hashtable to be rebuilt. This works but resulted
+in inconsistent, slow channel changes.  Our application does a lot of
+rapid joins and leaves (user is channel surfing) and it's annoying when
+this happens.
+
+The fix, at least for us, is to force the driver into "all-multicast
+mode", all the time.  This is very easy - the driver as distributed
+switches from the hashtable to all-multicast mode when more than 100
+multicast channels are being received.  I just comment out that part of
+the code so it is either in promiscuous mode or all-multicast, and never
+uses the hashtable.
+
+And that does it - channel changes are always fast now.  Unfortunately
+this fix is not suitable for everyone. (We don't have lots of unwatched
+multicast channels going by on the wire, so we don't need hardware
+filtering, other users may not be so lucky.)
+
+Hope this helps someone.
+
+Torrey Hoffman
+thoffman@arnor.net
+torrey.hoffman@myrio.com
+
+
+

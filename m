@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266691AbUAWU10 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 15:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266693AbUAWU10
+	id S266625AbUAWUdy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 15:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266651AbUAWUdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 15:27:26 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:4874 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S266691AbUAWU1Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 15:27:25 -0500
-Date: Fri, 23 Jan 2004 21:32:16 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: make in 2.6.x
-Message-ID: <20040123203216.GC7311@mars.ravnborg.org>
-Mail-Followup-To: Wakko Warner <wakko@animx.eu.org>,
-	Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>,
-	linux-kernel@vger.kernel.org
-References: <20040123145048.B1082@beton.cybernet.src> <20040123124224.B1343@animx.eu.org>
+	Fri, 23 Jan 2004 15:33:54 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:58307 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S266625AbUAWUdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 15:33:53 -0500
+Date: Fri, 23 Jan 2004 14:24:49 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux1394-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Message about PCILynx in kernel config
+Message-ID: <20040123192449.GR27566@phunnypharm.org>
+References: <20040123210520.08108f9f.khali@linux-fr.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040123124224.B1343@animx.eu.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040123210520.08108f9f.khali@linux-fr.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 23, 2004 at 12:42:24PM -0500, Wakko Warner wrote:
-> > Is it correct to issue "make bzImage modules modules_install"
-> > or do I have to do make bzImage; make modules modules_install?
-> > 
-> > Is there any documentation where I can read answer to this question?
-> 
-> I see nothing wrong with the first invocation, the second you should change
-> the ; to &&.  if make bzImage fails, it'll stop there.
-> 
-> I typically do all seperate like this:
-> make -j 20 bzImage && make -j 20 modules && make -j modules_install
-> 
-> Sometimes it doesn't complete, not sure why.
+> I think it might be confusing, so I suggest that the message shouldn't
+> be displayed at all if PCI isn't selected. And here's a simple patch
+> that does just this. Built against and tested on Linux 2.6.2-rc1.
 
-Could you please enable verbose output, and send me a private mail with
-the log when it fails.
+Applied, thanks.
 
-Maybe I can dig out why it fails.
-I'm sitting on UP here, so i usually never tries with -jN
-where N > 2.
-
-make V=1 -j20 && make V=1 -j20 modules && make V=1 -j20 modules_install
-
-	Sam
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129367AbRA1RVy>; Sun, 28 Jan 2001 12:21:54 -0500
+	id <S129718AbRA1RXy>; Sun, 28 Jan 2001 12:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129235AbRA1RVo>; Sun, 28 Jan 2001 12:21:44 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:42256 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129406AbRA1RVc>; Sun, 28 Jan 2001 12:21:32 -0500
-Date: Sun, 28 Jan 2001 09:21:11 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: ps hang in 241-pre10
-In-Reply-To: <Pine.LNX.4.21.0101280155480.12703-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10101280918420.3673-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129523AbRA1RXo>; Sun, 28 Jan 2001 12:23:44 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:61189 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129235AbRA1RXe>; Sun, 28 Jan 2001 12:23:34 -0500
+Date: Sun, 28 Jan 2001 18:22:15 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux Post codes during runtime, possibly OT
+Message-ID: <20010128182215.D9106@pcep-jamie.cern.ch>
+In-Reply-To: <200101281012.LAA04278@cave.bitwizard.nl> <3A73F1EB.B6F69A93@transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A73F1EB.B6F69A93@transmeta.com>; from hpa@transmeta.com on Sun, Jan 28, 2001 at 02:18:19AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin wrote:
+> It is; you'd have to specify "eax" as a clobber value, and that is
+> undesirable.
 
+For outb_p, EAX is used, usually for the last time, in the preceding
+"out" instruction so clobbering it is not a big deal.
 
-On Sun, 28 Jan 2001, Marcelo Tosatti wrote:
-> 
-> Why dont you just put set_page_dirty() back in page_launder() in case
-> writepage() fails?
+For inb_p, you first have to copy EAX to another register before
+outputting the post_byte.  That's a small penalty.  Are in[bwl]_p used
+anywhere time critical?  (Richard Johnson's explanation for outb_p
+implies that inb_p is not required, but perhaps that explanation doesn't
+tell the whole story).
 
-Because a EIO or similar should _not_ be re-tried or kept dirty.
+> And you're still overwriting the POST value written by the BIOS.
 
-Imagine a bad user that goes over his quota on purpose, and then every
-single write will always return an error. What should we do? Let him eat
-all physical memory? I don't think so. 
+Can the BIOS-written value be read from port 0x80?
 
-write-out errors will be ignored. We _might_ send a signal or something,
-but considering the fact that we don't even know who caused the dirty page
-in the first place, even that is kind of hard.
-
-Shared memory and out-of-swap is special - the shared memory code is
-supposed to check that we have enough memory before it even allocates
-anything.
-
-		Linus
-
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbULNEPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbULNEPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbULNEPn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 23:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbULNEOh
+	id S261398AbULNEPm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 23:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbULNEOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 23:14:37 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:38819 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261395AbULNEG5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 23:06:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=jbInBGD8cNA8BXsTyRQVo2CuhRNmNZv5LAQXPpFW4WzA5YaW4HrVFHlLCaaSuAYTIiuD+zoD3QkZxMDY7kyBiFZEEFq4/I4y896/1v4lg37epYjdIWPEfz+BoAbc9uleZm99ObVp5xOU3ek2GBqK0h/6xuX6131hTwucEa0k3Yw=
-Message-ID: <29495f1d04121320061a2a5823@mail.gmail.com>
-Date: Mon, 13 Dec 2004 20:06:57 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: dynamic-hz
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Hans Kristian Rosbach <hk@isphuset.no>, Andrew Morton <akpm@osdl.org>,
-       Con Kolivas <kernel@kolivas.org>, andrea@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041213161207.GA27352@atrey.karlin.mff.cuni.cz>
+	Mon, 13 Dec 2004 23:14:44 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:32265 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261403AbULNEKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 23:10:07 -0500
+Date: Tue, 14 Dec 2004 05:10:02 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linuxraid@amcc.com
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] 3w-abcd.h: TW_Device_Extension: remove an unused filed
+Message-ID: <20041214041002.GX23151@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041211142317.GF16322@dualathlon.random>
-	 <20041212163547.GB6286@elf.ucw.cz>
-	 <20041212222312.GN16322@dualathlon.random>
-	 <41BCD5F3.80401@kolivas.org> <20041213030237.5b6f6178.akpm@osdl.org>
-	 <1102936790.17227.24.camel@linux.local>
-	 <20041213112229.GS6272@elf.ucw.cz>
-	 <1102942270.17225.81.camel@linux.local>
-	 <Pine.GSO.4.61.0412131605180.16849@waterleaf.sonytel.be>
-	 <20041213161207.GA27352@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Dec 2004 17:12:07 +0100, Pavel Machek <pavel@suse.cz> wrote:
-> HI!
-> 
-> > > I'm not sure what the above "scedule_timeout(HZ/10)" is supposed to
-> > > do, but the parameter it gets in 1000hz is "100" so I assume this
-> > > is because we want to wait for 100ms, and in 1000hz that equals
-> > > 100 cycles. Correct?
-> >
-> > `schedule_timeout(HZ/x)' lets it wait for 1/x'th second.
-> 
-> ...small problem is that for HZ lower than x it does not wait at all
-> :-(.
+[ subject adapted to linux-kernel filters... ]
 
-Ah ha! Another reason to use msleep() or msleep_interruptible() :).
-Or, if you just want to give up the CPU, use schedule(); or if, giving
-up the CPU for a long time, use yield() [the current semantic
-interpretation of yield()].
+num_units in struct TAG_TW_Device_Extension is completely unused.
 
--Nish
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc3-mm1-full/drivers/scsi/3w-xxxx.h.old	2004-12-14 04:39:15.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/drivers/scsi/3w-xxxx.h	2004-12-14 04:39:20.000000000 +0100
+@@ -397,7 +397,6 @@
+ 	unsigned long		*alignment_virtual_address[TW_Q_LENGTH];
+ 	unsigned long		alignment_physical_address[TW_Q_LENGTH];
+ 	int			is_unit_present[TW_MAX_UNITS];
+-	int			num_units;
+ 	unsigned long		*command_packet_virtual_address[TW_Q_LENGTH];
+ 	unsigned long		command_packet_physical_address[TW_Q_LENGTH];
+ 	struct pci_dev		*tw_pci_dev;
+

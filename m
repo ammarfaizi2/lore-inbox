@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbTEHL3R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 07:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTEHL3R
+	id S261328AbTEHLay (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 07:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTEHLay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 07:29:17 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:45327 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261320AbTEHL3Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 07:29:16 -0400
-Date: Thu, 8 May 2003 13:32:35 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: linux-kernel@vger.kernel.org
-Cc: chas williams <chas@locutus.cmf.nrl.navy.mil>, davem@redhat.com
-Subject: [PATCH] drivers/atm/iphase.c - ioremap() cookie dereferencing
-Message-ID: <20030508133235.B26472@electric-eye.fr.zoreil.com>
+	Thu, 8 May 2003 07:30:54 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:20105 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261328AbTEHLax (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 07:30:53 -0400
+Date: Thu, 08 May 2003 03:35:34 -0700 (PDT)
+Message-Id: <20030508.033534.74727769.davem@redhat.com>
+To: arnd@arndb.de
+Cc: pavel@ucw.cz, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200305080150.10697.arnd@arndb.de>
+References: <200305072113.07004.arnd@arndb.de>
+	<20030507.111245.25138161.davem@redhat.com>
+	<200305080150.10697.arnd@arndb.de>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Organisation: Hungry patch-scripts (c) users
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Arnd Bergmann <arnd@arndb.de>
+   Date: Thu, 8 May 2003 01:50:10 +0200
+   
+   I checked the numbers that are in arch/sparc64/kernel/ioctl32.o
+   and found none that uses more than 9 bits for the size field,
 
-Sneak variant of "ioremap() return dereferencing".
+I know that we had to change our sparc ioctl macro definitions a few
+months ago to accomodate some ioctl that wanted more bits.
 
-
- drivers/atm/iphase.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN drivers/atm/iphase.c~drivers-atm-iphase-yuck-yuck-yuck drivers/atm/iphase.c
---- linux-2.5.69-1.1042.92.10-to-1.1097/drivers/atm/iphase.c~drivers-atm-iphase-yuck-yuck-yuck	Thu May  8 13:12:02 2003
-+++ linux-2.5.69-1.1042.92.10-to-1.1097-fr/drivers/atm/iphase.c	Thu May  8 13:14:53 2003
-@@ -2809,10 +2809,10 @@ static int ia_ioctl(struct atm_dev *dev,
- 	     rfL = &regs_local->rfredn;
-              /* Copy real rfred registers into the local copy */
-  	     for (i=0; i<(sizeof (rfredn_t))/4; i++)
--                ((u_int *)rfL)[i] = ((u_int *)iadev->reass_reg)[i] & 0xffff;
-+                ((u_int *)rfL)[i] = readl(iadev->reass_reg + i) & 0xffff;
-              	/* Copy real ffred registers into the local copy */
- 	     for (i=0; i<(sizeof (ffredn_t))/4; i++)
--                ((u_int *)ffL)[i] = ((u_int *)iadev->seg_reg)[i] & 0xffff;
-+                ((u_int *)ffL)[i] = readl(iadev->seg_reg + i) & 0xffff;
- 
-              if (copy_to_user(ia_cmds.buf, regs_local,sizeof(ia_regs_t))) {
-                 kfree(regs_local);
-
-_
+It isn't a theoretical problem.

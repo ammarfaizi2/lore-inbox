@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267631AbRGNL5j>; Sat, 14 Jul 2001 07:57:39 -0400
+	id <S267632AbRGNMB3>; Sat, 14 Jul 2001 08:01:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267632AbRGNL5a>; Sat, 14 Jul 2001 07:57:30 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:18057 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S267631AbRGNL5W>; Sat, 14 Jul 2001 07:57:22 -0400
-Message-ID: <3B5033F2.AF71624E@uow.edu.au>
-Date: Sat, 14 Jul 2001 21:58:42 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S267633AbRGNMBT>; Sat, 14 Jul 2001 08:01:19 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58891 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267632AbRGNMBK>; Sat, 14 Jul 2001 08:01:10 -0400
+Subject: Re: [CHECKER] 52 probable security holes in 2.4.6 and 2.4.6-ac2
+To: kash@stanford.edu (Kenneth Michael Ashcraft)
+Date: Sat, 14 Jul 2001 13:01:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
+In-Reply-To: <Pine.GSO.4.31.0107131616290.8768-100000@myth9.Stanford.EDU> from "Kenneth Michael Ashcraft" at Jul 13, 2001 04:20:32 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Mike Black <mblack@csihq.com>
-CC: "Stephen C. Tweedie" <sct@redhat.com>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: 2.4.6 and ext3-2.4-0.9.1-246
-In-Reply-To: <02ae01c10925$4b791170$e1de11cc@csihq.com> <3B4BD13F.6CC25B6F@uow.edu.au> <021801c10a03$62434540$e1de11cc@csihq.com> <3B4C729B.6352A443@uow.edu.au> <05c401c10ac1$0e81ad70$e1de11cc@csihq.com> <3B4D8B5D.E9530B60@uow.edu.au> <036e01c10b96$72ce57d0$e1de11cc@csihq.com> <111501c10ba3$664a1370$e1de11cc@csihq.com> <3B4F0273.1DF40F8E@uow.edu.au> <125101c10bc1$85eab630$e1de11cc@csihq.com> <20010713183800.J13419@redhat.com> <001101c10c51$bd6239e0$b6562341@cfl.rr.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15LO7S-00017P-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Black wrote:
-> 
-> Ummm...that would be the version(s) mentioned in the subject line???? :-)
+> [BUG] Need a lower-bound check-- lo_encrypt_key_size is an int
+> /home/kash/linux/2.4.6/drivers/block/loop.c:782:loop_set_status: ERROR:RANGE:757:782: Using user length "lo_encrypt_key_size" as argument to "memcpy" [type=LOCAL] [state = need_lb] set by 'copy_from_user':759 [linkages -> 759:info->lo_encrypt_key_size -> 757:info:start] [distance=110]
+> 	if (lo->lo_encrypt_key_size && lo->lo_key_owner != current->uid &&
 
-doh.
+This one looks like a tool error
 
-OK, there was a nasty bug in 0.9.1 which I was not able to trigger
-in a solid month's testing.  But others with more worthy hardware
-were able to find it quite quickly.  Stephen fixed it in 0.9.2.
-I don't know if it explains the failure you saw.  This:
+        if ((unsigned int) info.lo_encrypt_key_size > LO_KEY_SIZE)
 
-	EXT3-fs error (device md(9,0)): ext3_new_inode: reserved
-	inode or inode > inodes count - block_group = 0,inode=1
+so the check is cast
 
-is nasty.  The LRU cache of inode bitmaps got wrecked.  Ugly.
+In looking at the located ones I also found it missed a pile of related problems
+it can check
 
-Maybe one more try?
+There were a pile of
 
-> My .config has
-> # CONFIG_NOHIGHMEM is not set
-> CONFIG_HIGHMEM4G=y
-> # CONFIG_HIGHMEM64G is not set
-> CONFIG_HIGHMEM=y
-> I've got 2G of RAM
-> 
-> And the main thing I noticed was kswapd going nuts -- this was NOT observed
-> with the same tiobench on ext2 (same filesystem).  The performance with ext3
-> reduced by about 66% on two threads -- and I think that is due to kswapd
-> hogging CPU time.
+ 	item *p=kmalloc(sizeof(item)*num_items);
+	if(p==NULL)
+		error
 
-Yup.  I've nailed this one - it's lovely.
+	for(i=0;i<num_items;i++)
+	{
+		..
+	}
 
-I'll be back.
+Where people rely on the kmalloc failing but forget that
 
--
+	large value * sizeof(item) -> small value after overflow
+	and the loop stomps all over kernel memory..
+
+

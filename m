@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273504AbRIVHH5>; Sat, 22 Sep 2001 03:07:57 -0400
+	id <S274162AbRIVHB4>; Sat, 22 Sep 2001 03:01:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274195AbRIVHHr>; Sat, 22 Sep 2001 03:07:47 -0400
-Received: from [24.254.60.21] ([24.254.60.21]:37620 "EHLO
-	femail31.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S273504AbRIVHH3>; Sat, 22 Sep 2001 03:07:29 -0400
-Date: Sat, 22 Sep 2001 03:04:25 -0400 (EDT)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@zod.capslock.lan>
-To: Stephane Brossier <stephane.brossier@sun.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: [1.] X session randomly crashes because of kernel
- problem.
-In-Reply-To: <3BA56490.FD898C70@sun.com>
-Message-ID: <Pine.LNX.4.33.0109220259410.25731-100000@zod.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-X-Spam-To: uce@ftc.gov
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S274195AbRIVHBq>; Sat, 22 Sep 2001 03:01:46 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:13063 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S274162AbRIVHBm>; Sat, 22 Sep 2001 03:01:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Subject: Re: broken VM in 2.4.10-pre9
+Date: Sat, 22 Sep 2001 09:09:10 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Rob Fuller <rfuller@nsisoftware.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.33L.0109200903100.19147-100000@imladris.rielhome.conectiva> <20010921080549Z16344-2758+350@humbolt.nl.linux.org> <20010921112722.A3646@cs.cmu.edu>
+In-Reply-To: <20010921112722.A3646@cs.cmu.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010922070205Z16210-2757+1207@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Sep 2001, Stephane Brossier wrote:
+On September 21, 2001 05:27 pm, Jan Harkes wrote:
+> On Fri, Sep 21, 2001 at 10:13:11AM +0200, Daniel Phillips wrote:
+> >   - small inactive list really means large active list (and vice versa)
+> >   - aging increments need to depend on the size of the active list
+> >   - "exponential" aging may be completely bogus
+> 
+> I don't think so, whenever there is sufficient memory pressure, the scan
+> of the active list is not only done by kswapd, but also by the page
+> allocations.
+> 
+> This does have the nice effect that with a large active list on a system
+> that has a working set that fits in memory, pages basically always age
+> up, and we get an automatic used-once/drop-behind behaviour for
+> streaming data because the age of these pages is relatively low.
+> 
+> As soon as the rate of new allocations increases to the point that
+> kswapd can't keep up, which happens if the number of cached used-once
+> pages is too small, or the working set expands so that it doesn't fit in
+> memory. The memory shortage then causes all pages to agressively get
+> aged down, pushing out the less frequently used pages of the working set.
+> 
+> Exponential down aging simply causes us to loop fewer times in
+> do_try_to_free_pages is such situations.
 
->Sep 16 19:13:59 129 modprobe: modprobe: Can't locate module binfmt-0000
->Sep 16 19:13:59 129 modprobe: modprobe: Can't locate module binfmt-0000
->Sep 16 19:13:59 129 kernel: [drm:r128_do_wait_for_fifo] *ERROR*
->r128_do_wait_for_fifo failed!
+In such a situation that's a horribly inefficient way to accomplish this and 
+throws away a lot of valuable information.  Consider that we're doing nothing 
+but looping in the vm in this situation, so nobody gets a chance to touch 
+pages, so nothing gets aged up.  So we are really just deactivating all the 
+pages that lie below a given theshold.
 
-There is a patch which fixes problems such as this.  IIRC, it was
-included in the upstream Linus kernel somewhere in April or
-later.  If you're using XFree86 4.0.3, you'll probably want to
-upgrade to a later kernel, or patch it with the r128 patch.  You
-can get this patch from:
+Say that the threshold happens to be 16.  We loop through the active list 5 
+times and now we have not only deactivated the pages we needed but collapsed 
+all ages between 16 and 31 to the same value, and all ages between 32 and 63 
+to just two values, losing most of the relative weighting information.
 
-ftp://people.redhat.com/mharris/patches/linux-r128-drm.patch.bz2
+Would it not make more sense to go through the active list once, deactivate 
+all pages with age less than some computed threshold, and subtract that 
+threshold from the rest?
 
-I'd offer to change your mind for you, but I don't have a fresh diaper.
-                   -- Leah to pro-spammer in news.admin.net-abuse.email
-
+--
+Daniel

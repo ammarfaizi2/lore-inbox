@@ -1,45 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266994AbTCAKLw>; Sat, 1 Mar 2003 05:11:52 -0500
+	id <S268540AbTCAKPF>; Sat, 1 Mar 2003 05:15:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268539AbTCAKLw>; Sat, 1 Mar 2003 05:11:52 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:15710
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S266994AbTCAKLw>; Sat, 1 Mar 2003 05:11:52 -0500
-Date: Sat, 1 Mar 2003 05:20:06 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Willy Tarreau <willy@w.ods.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, "" <jgarzik@pobox.com>,
-       "" <macro@ds2.pg.gda.pl>, "" <marcelo@conectiva.com.br>
-Subject: Re: [PATCH][2.4] APIC irq balance
-In-Reply-To: <20030301084204.GF5411@alpha.home.local>
-Message-ID: <Pine.LNX.4.50.0303010445580.2365-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303010109360.1132-100000@montezuma.mastecende.com>
- <20030301084204.GF5411@alpha.home.local>
+	id <S268544AbTCAKPF>; Sat, 1 Mar 2003 05:15:05 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:27842 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S268540AbTCAKPB>; Sat, 1 Mar 2003 05:15:01 -0500
+Message-ID: <20030301102518.21569.qmail@linuxmail.org>
+Content-Type: multipart/mixed; boundary="----------=_1046514318-21028-0"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Date: Sat, 01 Mar 2003 11:25:18 +0100
+Subject: Re: anticipatory scheduling questions
+X-Originating-Ip: 213.4.13.153
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Mar 2003, Willy Tarreau wrote:
+This is a multi-part message in MIME format...
 
-> Hi Zwane !
-> 
-> I've had the same problem on 2.4 since 2.4.21-pre1, but I couldn't find the
-> culprit. I've ported your patch to 2.4.21-pre5 and guess what ? it works, as
-> shown below. I'd like Maciej to review it quickly (if he has time), so that
-> Marcelo could include it in 2.4.21. Patch at the end.
+------------=_1046514318-21028-0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Well that's interesting, i couldn't find a suspicious hunk, but that could 
-be because of peripheral noise in the patch.
-
-> Oh, I forgot to say : it's on an Asus A7M266-D, dual XP1800.
-> 
-> Anyway, congratulations for this finding !
-
-Thanks =) I'll wait on Maciej especially for 2.4
-
-	Zwane
+----- Original Message ----- 
+> > It wasn't a typo... In fact, both deadline and AS give roughly the same 
+> > timings (one second up or down). But I  
+> > still don't understand why 2.5 is performing so much worse than 2.4. 
+>  
+> Me either.  It's a bug. 
+>  
+> Does basic 2.5.63 do the same thing?  Do you have a feel for when it started 
+> happening? 
+ 
+This has happened since the moment I switched from 2.4 to 2.5.63-mm1. 
+ 
+> > Could a "vmstat" or "iostat" dump be interesting?  
+> 2.4 versus 2.5 would be interesting, yes. 
+ 
+I have retested this with 2.4.20-2.54, 2.5.63 and 2.5.63-mm1... 
+and have attached the files to this message (I think pasting them 
+here would result in wrapping, making it harder to read). 
+ 
+If you need more testing or benchmarking, ask for it :-) 
+ 
+Thanks! 
+ 
 -- 
-function.linuxpower.ca
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze
+
+------------=_1046514318-21028-0
+Content-Type: application/octet-stream; name="vmstat-2.4.20-2.54"
+Content-Disposition: attachment; filename="vmstat-2.4.20-2.54"
+Content-Transfer-Encoding: base64
+
+ICAgcHJvY3MgICAgICAgICAgICAgICAgICAgICAgbWVtb3J5ICAgICAgc3dh
+cCAgICAgICAgICBpbyAgICAgc3lzdGVtICAgICAgY3B1CiByICBiICB3ICAg
+c3dwZCAgIGZyZWUgICBidWZmICBjYWNoZSAgIHNpICAgc28gICAgYmkgICAg
+Ym8gICBpbiAgICBjcyB1cyBzeSBpZAogMCAgMCAgMCAgICAgIDAgMTIxMDA4
+ICAgNDAyOCAgNzA3MDggICAgMCAgICAwICAgNzA1ICAgIDQ5ICAxODcgICA1
+NjUgMjAgMTIgNjcKIDAgIDEgIDAgICAgICAwIDExODQ2MCAgIDQwNDggIDcx
+NTY0ICAgIDAgICAgMCAgIDg3NiAgICAgMCAgMTU1ICAxMTc4IDM4ICA2IDU2
+CiAwICAxICAwICAgICAgMCAxMTQ1NTYgICA0MDkyICA3Mjk5NiAgICAwICAg
+IDAgIDEzNzIgICAgIDAgIDIxMCAgMTQ3MSAyOSAgNyA2NAogMSAgMCAgMCAg
+ICAgIDAgMTEyNTA0ICAgNDEyOCAgNzQ3NjQgICAgMCAgICAwICAxODA0ICAg
+ICAwICAyNDcgICA2OTggMjkgIDEgNzAKIDEgIDAgIDAgICAgICAwIDExMTAx
+NiAgIDQxMjggIDc2MjA0ICAgIDAgICAgMCAgMTQ0MCAgIDI1NiAgMjA5ICAg
+MzcxICAwICAwIDEwMAogMCAgMSAgMCAgICAgIDAgMTA4MDc2ICAgNDEyOCAg
+NzkwNTIgICAgMCAgICAwICAyODQ4ICAgICAwICAxOTAgICA1MTggIDEgIDEg
+OTgKIDEgIDAgIDAgICAgICAwIDEwNTAwNCAgIDQxMjggIDgyMDI4ICAgIDAg
+ICAgMCAgMjk3NiAgICAgMCAgMTk1ICAgODYwICAwICA0IDk2CiAyICAwICAw
+ICAgICAgMCAxMDIwMjggICA0MTI4ICA4NDkwOCAgICAwICAgIDAgIDI4ODAg
+ICAgIDAgIDE5MiAgMjE4NCAgMyAgNCA5MwogMyAgMCAgMCAgICAgIDAgIDk5
+ODM2ICAgNDEyOCAgODY3OTYgICAgMCAgICAwICAxNDcyICAgICAwICAxNDgg
+IDkyODMgNDEgIDggNTEKIDIgIDAgIDAgICAgICAwICA5ODc0MCAgIDQxMjgg
+IDg2ODcyICAgIDAgICAgMCAgICAgMCAgIDI1NiAgMTY2ICAyMDI3IDI4ICA0
+IDY4Cg==
+
+------------=_1046514318-21028-0
+Content-Type: application/octet-stream; name="vmstat-2.5.63"
+Content-Disposition: attachment; filename="vmstat-2.5.63"
+Content-Transfer-Encoding: base64
+
+ICAgcHJvY3MgICAgICAgICAgICAgICAgICAgICAgbWVtb3J5ICAgICAgc3dh
+cCAgICAgICAgICBpbyAgICAgc3lzdGVtICAgICAgY3B1CiByICBiICB3ICAg
+c3dwZCAgIGZyZWUgICBidWZmICBjYWNoZSAgIHNpICAgc28gICAgYmkgICAg
+Ym8gICBpbiAgICBjcyB1cyBzeSBpZAogMCAgMCAgMCAgICAgIDAgMTE3MjI4
+ICAgNDI0MCAgNzYxODQgICAgMCAgICAwICAgNTczICAgIDQzIDE0MzUgICA0
+MTMgMTcgIDggNzYKIDAgIDIgIDAgICAgICAwIDExNjU0MCAgIDQyNTIgIDc2
+NTk2ICAgIDAgICAgMCAgIDQyNCAgICAgMCAxMTA5ICAgNjk0IDMxICA0IDY1
+CiA0ICAwICAwICAgICAgMCAxMTEyNjAgICA0MjgwICA3ODEyOCAgICAwICAg
+IDAgIDE0NTYgICAgIDAgMTE3MCAgMTI4OSA4MiAxOCAgMAogMSAgMCAgMCAg
+ICAgIDAgMTEwMTQwICAgNDMzNiAgNzg4NzIgICAgMCAgICAwICAgODAwICAg
+ICAwIDEwNjkgICA3NTIgOTIgIDggIDAKIDAgIDEgIDAgICAgICAwIDEwODAx
+MiAgIDQzNDAgIDgwOTMyICAgIDAgICAgMCAgMjA2NCAgICAgMCAxMTA3ICAg
+NDkyIDUwIDUwICAwCiAxICAxICAwICAgICAgMCAxMDU1OTYgICA0MzQwICA4
+MzA2OCAgICAwICAgIDAgIDIxMzYgICAgIDAgMTEyNSAgIDU1NSA2NyAzMyAg
+MAogMSAgMCAgMCAgICAgIDAgMTA0MTU2ICAgNDM0MCAgODQ2NDAgICAgMCAg
+ICAwICAxNTcyICAgICAwIDExMTIgICA0OTUgMzMgNjcgIDAKIDAgIDEgIDAg
+ICAgICAwIDEwMjg2OCAgIDQzNDAgIDg1OTQwICAgIDAgICAgMCAgMTMwMCAg
+ICAgMCAxMTE0ICAgNTY0IDUwIDUwICAwCiAwICAxICAwICAgICAgMCAxMDE4
+MTIgICA0MzQwICA4NzQzMiAgICAwICAgIDAgIDE0OTIgICAgIDAgMTExMSAg
+IDY4OSA1MCA1MCAgMAogMCAgMSAgMCAgICAgIDAgMTAwNjM2ICAgNDM0MCAg
+ODg1ODggICAgMCAgICAwICAxMTU2ICAgICAwIDExMDQgICA4MjEgNzUgMjUg
+IDAKIDAgIDEgIDEgICAgICAwICA5OTU0OCAgIDQzNDAgIDg5NzIwICAgIDAg
+ICAgMCAgMTEzMiAgIDY5NiAxMDk5ICAxMDE3IDUwIDUwICAwCiAxICAxICAw
+ICAgICAgMCAgOTkwNDQgICA0MzQwICA5MDIwMCAgICAwICAgIDAgICA0ODAg
+ICAgIDAgMTA3NSAgIDkzNyA2MCA0MCAgMAogMCAgMSAgMCAgICAgIDAgIDk4
+NTk2ICAgNDM0MCAgOTA3NDAgICAgMCAgICAwICAgNTQwICAgICAwIDEwODYg
+IDExMzQgNjcgMzMgIDAKIDAgIDEgIDAgICAgICAwICA5ODE0OCAgIDQzNDAg
+IDkxMTk2ICAgIDAgICAgMCAgIDQ1NiAgICAgMCAxMDg2ICAxMzI3IDU3IDQz
+ICAwCiAzICAwICAwICAgICAgMCAgOTc1MDggICA0MzQwICA5MTc1MiAgICAw
+ICAgIDAgICAzNDggICAgIDAgMTA3NCAgMjkyMCA4MiAxOCAgMAogMiAgMCAg
+MCAgICAgIDAgIDk2NzE2ICAgNDM0MCAgOTIwMDQgICAgMCAgICAwICAgICAw
+ICAgMTI0IDEwMzIgIDIwMjkgMjkgIDYgNjUKIDEgIDAgIDAgICAgICAwICA5
+NjcxNiAgIDQzNDAgIDkyMDA0ICAgIDAgICAgMCAgICAgMCAgICAgMCAxMTI3
+ICAgNDc3ICAxICAwIDk5CiAxICAwICAwICAgICAgMCAgOTY3MTYgICA0MzQw
+ICA5MjAzNiAgICAwICAgIDAgICAgMzIgICAgIDAgMTAxNyAgMTQyMSAyMCAg
+MSA3OQogMyAgMCAgMCAgICAgIDAgIDk5NDc2ICAgNDM0MCAgOTE3MjggICAg
+MCAgICAwICAgICA0ICAgIDg4IDExNTAgIDU3NzEgMzUgMTYgNDgK
+
+------------=_1046514318-21028-0
+Content-Type: application/octet-stream; name="vmstat-2.5.63-mm1"
+Content-Disposition: attachment; filename="vmstat-2.5.63-mm1"
+Content-Transfer-Encoding: base64
+
+ICAgcHJvY3MgICAgICAgICAgICAgICAgICAgICAgbWVtb3J5ICAgICAgc3dh
+cCAgICAgICAgICBpbyAgICAgc3lzdGVtICAgICAgY3B1CiByICBiICB3ICAg
+c3dwZCAgIGZyZWUgICBidWZmICBjYWNoZSAgIHNpICAgc28gICAgYmkgICAg
+Ym8gICBpbiAgICBjcyB1cyBzeSBpZAogMCAgMCAgMCAgICAgIDAgMTIyNDg0
+ICAgNDE0OCAgNzIxNDAgICAgMCAgICAwICAgOTA4ICAgIDczIDE3MzQgICA3
+MDIgMjYgMTIgNjIKIDMgIDAgIDAgICAgICAwIDEyMDc0MCAgIDQxNjQgIDcy
+ODY4ICAgIDAgICAgMCAgIDc0NCAgICAgMCAxMTk1ICAxMDAyIDM2ICA4IDU2
+CiAyICAxICAwICAgICAgMCAxMTYzNjQgICA0MTkyICA3NDA1NiAgICAwICAg
+IDAgIDExMDggICAgIDAgMTE0MCAgMTE1OSA4NyAxMyAgMAogMiAgMCAgMCAg
+ICAgIDAgMTE1NDEyICAgNDI0NCAgNzQ2NjAgICAgMCAgICAwICAgNjU2ICAg
+ICAwIDExMTYgICA3MTggOTQgIDYgIDAKIDEgIDEgIDAgICAgICAwIDExNDk2
+NCAgIDQyNDggIDc1MTQ0ICAgIDAgICAgMCAgIDQ4OCAgICAgNCAxMTQ2ICAg
+NTgxICAwIDEwMCAgMAogMiAgMCAgMCAgICAgIDAgMTE0NDA0ICAgNDI0OCAg
+NzU2NzIgICAgMCAgICAwICAgNTI4ICAgICAwIDExNTcgICA1NzIgNTAgNTAg
+IDAKIDMgIDAgIDAgICAgICAwIDExMzk1NiAgIDQyNDggIDc2MTU2ICAgIDAg
+ICAgMCAgIDQ4NCAgICAgMCAxMTQ1ICAgNTY1IDEwMCAgMCAgMAogMSAgMSAg
+MCAgICAgIDAgMTEzMzk2ICAgNDI0OCAgNzY2ODAgICAgMCAgICAwICAgNTI0
+ICAgICAwIDExNTcgICA1OTIgMzMgNjcgIDAKIDEgIDEgIDAgICAgICAwIDEx
+Mjk0OCAgIDQyNDggIDc3MTI4ICAgIDAgICAgMCAgIDQ0OCAgICAgMCAxMTMz
+ICAgNTg4IDUwIDUwICAwCiAzICAwICAwICAgICAgMCAxMTI1ODAgICA0MjQ4
+ICA3NzU2OCAgICAwICAgIDAgICA0NDAgICAgMzIgMTEzOSAgIDY1OSA1MCA1
+MCAgMAogMSAgMSAgMCAgICAgIDAgMTEyMDc2ICAgNDI0OCAgNzgwMzIgICAg
+MCAgICAwICAgNDY0ICAgICAwIDExMzkgICA2NTUgMzMgNjcgIDAKIDIgIDAg
+IDAgICAgICAwIDExMTY4NCAgIDQyNDggIDc4NDUyICAgIDAgICAgMCAgIDQy
+MCAgICAgMCAxMTMwICAgNTUyIDY3IDMzICAwCiAyICAwICAwICAgICAgMCAx
+MTEyMzYgICA0MjQ4ICA3ODg3MiAgICAwICAgIDAgICA0MjAgICAgIDAgMTEy
+OSAgIDc0MSA2NyAzMyAgMAogMiAgMCAgMCAgICAgIDAgMTEwNzg4ICAgNDI0
+OCAgNzkzNDQgICAgMCAgICAwICAgNDcyICAgICAwIDExNDIgICA3NDYgMzMg
+NjcgIDAKIDEgIDEgIDAgICAgICAwIDExMDA5MiAgIDQyNDggIDc5ODEyICAg
+IDAgICAgMCAgIDQ2OCAgICAxNiAxMTQzICAgODI5IDgwIDIwICAwCiAxICAx
+ICAwICAgICAgMCAxMDk1ODggICA0MjQ4ICA4MDMxNiAgICAwICAgIDAgICA1
+MDQgICAgIDAgMTE1MCAgIDg5MyA1MCA1MCAgMAogMyAgMCAgMCAgICAgIDAg
+MTA5MTQwICAgNDI0OCAgODA3NzYgICAgMCAgICAwICAgNDYwICAgICAwIDEx
+NDAgICA4NTEgNTAgNTAgIDAKIDEgIDEgIDAgICAgICAwIDEwODc0OCAgIDQy
+NDggIDgxMTk2ICAgIDAgICAgMCAgIDQyMCAgICAgMCAxMTI4ICAgOTIxIDUw
+IDUwICAwCiAxICAxICAwICAgICAgMCAxMDgzNTYgICA0MjQ4ICA4MTU5MiAg
+ICAwICAgIDAgICAzOTYgICAgIDAgMTEyMyAgIDkyMiA1MCA1MCAgMAogMiAg
+MSAgMCAgICAgIDAgMTA4MTMyICAgNDI0OCAgODE3OTIgICAgMCAgICAwICAg
+MjAwICAgNTY0IDExMzUgICA1MzkgNjcgMzMgIDAKIDEgIDEgIDAgICAgICAw
+IDEwNzkwOCAgIDQyNDggIDgyMDA0ICAgIDAgICAgMCAgIDIxMiAgICAgMCAx
+MTE2ICAgNjI4IDMzIDY3ICAwCiAzICAwICAwICAgICAgMCAxMDc1NDggICA0
+MjQ4ICA4MjQzNiAgICAwICAgIDAgICA0MzIgICAgIDAgMTEzMyAgIDk2MCA2
+MCA0MCAgMAogMSAgMSAgMCAgICAgIDAgMTA3MTAwICAgNDI0OCAgODI4ODQg
+ICAgMCAgICAwICAgNDQ4ICAgICAwIDExMzUgIDE0ODQgNTcgNDMgIDAKIDQg
+IDAgIDAgICAgICAwIDEwNjQ4NCAgIDQyNDggIDgzNDUyICAgIDAgICAgMCAg
+IDM2MCAgICAgMCAxMTE1ICAxNTQ4IDg2IDE0ICAwCiAyICAwICAwICAgICAg
+MCAxMDU2MzYgICA0MjQ4ICA4MzcxMiAgICAwICAgIDAgICAgIDggICAgIDAg
+MTE3MCAgMjI1NiA0MSAgNSA1NAo=
+
+------------=_1046514318-21028-0--

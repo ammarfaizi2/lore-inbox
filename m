@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129346AbRCWCGO>; Thu, 22 Mar 2001 21:06:14 -0500
+	id <S129495AbRCWCOO>; Thu, 22 Mar 2001 21:14:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129282AbRCWCFz>; Thu, 22 Mar 2001 21:05:55 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:38550 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129242AbRCWCFn>; Thu, 22 Mar 2001 21:05:43 -0500
-Date: Thu, 22 Mar 2001 21:04:15 -0500 (EST)
-From: Alexander Viro <aviro@redhat.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Andreas Dilger <adilger@turbolinux.com>,
-        Linux kernel development list <linux-kernel@vger.kernel.org>,
-        Linux FS development list <linux-fsdevel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [linux-lvm] EXT2-fs panic (device lvm(58,0)):
-In-Reply-To: <20010323013914.M7756@redhat.com>
-Message-ID: <Pine.LNX.4.33.0103222100370.18794-100000@devserv.devel.redhat.com>
+	id <S129464AbRCWCOF>; Thu, 22 Mar 2001 21:14:05 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:4848 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129436AbRCWCN4>; Thu, 22 Mar 2001 21:13:56 -0500
+Message-ID: <3ABAB12D.CE7FA890@uow.edu.au>
+Date: Fri, 23 Mar 2001 02:13:01 +0000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.2-ac19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: frey@cxau.zko.dec.com
+CC: "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel_thread vs. zombie
+In-Reply-To: <008901c0b33c$ab1f51a0$90600410@SCHLEPPDOWN>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Mar 2001, Stephen C. Tweedie wrote:
-
-> Hi,
->
-> On Wed, Mar 07, 2001 at 01:35:05PM -0700, Andreas Dilger wrote:
->
-> > The only remote possibility is in ext2_free_blocks() if block+count
-> > overflows a 32-bit unsigned value.  Only 2 places call ext2_free_blocks()
-> > with a count != 1, and ext2_free_data() looks to be OK.  The other
-> > possibility is that i_prealloc_count is bogus - that is it!  Nowhere
-> > is i_prealloc_count initialized to zero AFAICS.
+Martin Frey wrote:
+> 
+> >>  - When started during boot (low PID (9)) It becomes a zombie
+> >>  - When started from a process that quits after sending the ioctl,
+> >>    it is correctly "garbage collected".
+> >>  - When started from a process that stays around, it becomes
+> >>    a zombie too
+> 
+> >Take a look at kernel/kmod.c:call_usermodehelper().  Copy it.
 > >
-> Did you ever push this to Alan and/or Linus?  This looks pretty
-> important!
+> >This will make your thread a child of keventd.  This takes
+> >care of things like chrootedness, uids, cwds, signal masks,
+> >reaping children, open files, and all the other crud which
+> >you can accidentally inherit from your caller.
+> >
+> So depending on the state of the caller daemonize() will not really
+> put us into the background as we want.
 
-It isn't. Check fs/inode.c::clean_inode(). Specifically,
-        memset(&inode->u, 0, sizeof(inode->u));
-The thing is called both by get_empty_inode() and by get_new_inode() (the
-former - just before returning, the latter - just before calling
-->read_inode()).
-								Cheers,
-									Al
+Well, kernel_thread() will put you in the background, in the
+sense that it creates an async thread.  But you inherit
+heaps of stuff from the parent.  daemonize() cleans up
+some of those things, but it can't clean up everything.
 
+Kernel threads *need* to run in a well-understood and
+sensible environment.  We went through a lot of fun late
+last year when there was a sudden proliferation of kernel
+threads and quite a few things were subtly broken.
+
+Things like kernel threads blocking signals because that's
+what their user-space parent happened to do.  Things like
+user-space applications receiving a surprise SIGCHLD from
+the kernel as a consequence of some system call which they
+happened to have executed some while beforehand.
+
+One approach would be to tromp through your task state setting
+everything back where you want it.  That's quite complex.  Plus
+there's the issue of who reaps the thread when it exits.
+
+So I think it's reasonable to use keventd as `kinit', if you like.
+Something which knows how to launch and reap kernel daemons, and
+which provides a known environment to them.
+
+A kernel API function (`kernel_daemon'?) which does all this
+boilerplate is needed, I think.
+
+-

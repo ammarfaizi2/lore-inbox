@@ -1,70 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265198AbUEYUaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265218AbUEYUbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265198AbUEYUaL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 16:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUEYUaL
+	id S265218AbUEYUbW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 16:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUEYUbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 16:30:11 -0400
-Received: from [82.228.82.76] ([82.228.82.76]:28915 "EHLO
-	paperstreet.colino.net") by vger.kernel.org with ESMTP
-	id S265198AbUEYUaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 16:30:03 -0400
-Date: Tue, 25 May 2004 22:29:29 +0200
-From: Colin Leroy <colin@colino.net>
-To: benh@kernel.crashing.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (2.6.7-rc1) ADB driver fails to create /dev/adb
-Message-Id: <20040525222929.4e31cc19@jack.colino.net>
-In-Reply-To: <20040525214504.377f3f12@jack.colino.net>
-References: <20040525214504.377f3f12@jack.colino.net>
-Organization: 
-X-Mailer: Sylpheed version 0.9.10claws67.4 (GTK+ 2.4.0; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Tue__25_May_2004_22_29_29_+0200_NxIpzT8AvMLXxGq2"
+	Tue, 25 May 2004 16:31:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31164 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265203AbUEYUbM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 16:31:12 -0400
+Date: Tue, 25 May 2004 13:30:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: wesolows@foobazco.org, willy@debian.org, andrea@suse.de,
+       benh@kernel.crashing.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, bcrl@kvack.org, linux-mm@kvack.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+In-Reply-To: <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0405251319550.9951@ppc970.osdl.org>
+References: <1085369393.15315.28.camel@gaston> <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
+ <1085371988.15281.38.camel@gaston> <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
+ <1085373839.14969.42.camel@gaston> <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+ <20040525034326.GT29378@dualathlon.random> <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+ <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org> <20040525153501.GA19465@foobazco.org>
+ <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org> <20040525102547.35207879.davem@redhat.com>
+ <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org> <20040525105442.2ebdc355.davem@redhat.com>
+ <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Multipart=_Tue__25_May_2004_22_29_29_+0200_NxIpzT8AvMLXxGq2
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On 25 May 2004 at 21h05, Colin Leroy wrote:
+On Tue, 25 May 2004, Linus Torvalds wrote:
+> 
+> BenH - I'm leaving that ppc64 code to somebody knows what the hell he is
+> doing. Ie you or Anton or something. Ok? I can act as a collector the
+> different architecture things for that "ptep_update_dirty_accessed()"
+> function.
 
-Hi, 
+Following up to myself.
 
-> Here's a patch that restores previous behaviour. (I bothered because I
-> noticed lots of other drivers still using devfs_mk_cdev() and I think
-> it should stay here for a bit more).
+I just committed a couple of trivial changesets that allows any 
+architecture to re-define its own "ptep_update_dirty_accessed()" method.
 
-Mmh, here's a nicer patch (forgot a return, and the else isn't the most
-clear).
+The default one (if none is defined by the architecture) is just
 
--- 
-Colin
+	#ifndef ptep_update_dirty_accessed
+	#define ptep_update_dirty_accessed(__ptep, __entry, __dirty) set_pte(__ptep, __entry)
+	#endif
 
---Multipart=_Tue__25_May_2004_22_29_29_+0200_NxIpzT8AvMLXxGq2
-Content-Type: text/plain;
- name="adb.c.patch"
-Content-Disposition: attachment;
- filename="adb.c.patch"
-Content-Transfer-Encoding: 7bit
+ie no change in behaviour. As an example of an alternate strategy, this is 
+the one I committed for x86:
 
---- drivers/macintosh/adb.c.orig	2004-05-25 21:08:10.000000000 +0200
-+++ drivers/macintosh/adb.c	2004-05-25 22:27:04.596656712 +0200
-@@ -899,6 +899,11 @@
- 	if (register_chrdev(ADB_MAJOR, "adb", &adb_fops)) {
- 		printk(KERN_ERR "adb: unable to get major %d\n", ADB_MAJOR);
- 		return;
-+	} 
-+	if (devfs_mk_cdev(MKDEV(ADB_MAJOR, 0),
-+				 S_IFCHR | S_IRUSR | S_IWUSR, "adb")) {
-+		printk(KERN_ERR "adb: unable to make dev via devfs\n");
-+		return;
- 	}
- 	adb_dev_class = class_simple_create(THIS_MODULE, "adb");
- 	if (IS_ERR(adb_dev_class)) {
+	#define ptep_update_dirty_accessed(__ptep, __entry, __dirty)	\
+		do {							\
+			if (__dirty) set_pte(__ptep, __entry);		\
+		} while (0)
 
---Multipart=_Tue__25_May_2004_22_29_29_+0200_NxIpzT8AvMLXxGq2--
+which is valid if the architecture updates its own accessed bits.
+
+I just realized that for x86 the _clever_ way of doing this (for highmem
+machines) is actually to only update the low word, which makes for much
+better code for the PAE case (and still does exactle the same for the
+non-PAE case):
+
+	#define ptep_update_dirty_accessed(__ptep, __entry, __dirty)		\
+		do {								\
+			if (__dirty) (__ptep)->pte_low = (__entry).pte_low;	\
+		} while (0)
+
+but I haven't actually tested this.
+
+Anybody willing to test the x86 PAE optimization?
+
+In the meantime, other architectures can now fix their dirty/accessed bit
+setting any way they damn well please.
+
+			Linus

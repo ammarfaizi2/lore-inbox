@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129653AbRBITlW>; Fri, 9 Feb 2001 14:41:22 -0500
+	id <S129791AbRBITqe>; Fri, 9 Feb 2001 14:46:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129791AbRBITlN>; Fri, 9 Feb 2001 14:41:13 -0500
-Received: from jalon.able.es ([212.97.163.2]:34712 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129653AbRBITlD>;
-	Fri, 9 Feb 2001 14:41:03 -0500
-Date: Fri, 9 Feb 2001 20:40:53 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: harmless trigraph warning in ac8
-Message-ID: <20010209204053.A3124@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.1
+	id <S130012AbRBITqX>; Fri, 9 Feb 2001 14:46:23 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:64260 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129791AbRBITqH>; Fri, 9 Feb 2001 14:46:07 -0500
+Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE683@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Dale P. Smith'" <dpsm@en.com>, acpi@phobos.fachschaften.tu-muenchen.de
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: ACPI driver overhaul (was: Thermal monitor)
+Date: Fri, 9 Feb 2001 11:44:39 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi Dale,
 
-Building latest 2.4.1-ac8, I got the following warning (it is harlmess, but
-if you want to make the compiler cleanly silent...):
+Thanks! Applied.
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-f
-rame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686
-    -c -o names.o names.c
-In file included from names.c:38:
-devlist.h:1279:33: warning: trigraph ??) ignored
-devlist.h:6371:25: warning: trigraph ??) ignored
-In file included from names.c:44:
-devlist.h:1279:33: warning: trigraph ??) ignored
-devlist.h:6371:25: warning: trigraph ??) ignored
-In file included from names.c:50:
-devlist.h:1279:33: warning: trigraph ??) ignored
-devlist.h:6371:25: warning: trigraph ??) ignored
+I feel I must mention that while I (and you, and others) have been working
+on improving the current codebase, other people here have been working on a
+totally different design. In general, the new codebase has better ACPI
+functionality, is more modular, etc. My hope is that we can switch over to
+the new stuff soon (a month?)
 
-File is drivers/pci/devlist.h:
-1279: DEVICE(109e,036c,"Bt879(??) Video Capture")
-6371: VENDOR(2a15,"3D Vision(???)")
+What this will mean is that:
+1) We will get a lot of new functionality, all at once.
+2) Some of that new functionality will be broken.
+3) We will lose some of the old functionality, short-term.
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+At least initially, the /proc interface for the new code will look like the
+current code, until it stabilizes, so the new code will have /proc code
+drawn heavily from the current implementation.
 
-Linux werewolf 2.4.1-ac8 #2 SMP Fri Feb 9 01:53:46 CET 2001 i686
+Also, I don't think this is the last big architecture change ACPI and Linux
+will go through. But, this new design will help us prototype the next
+change, whereas the current model cannot.
+
+Regards -- Andy
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265141AbUGCP6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265148AbUGCQme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265141AbUGCP6W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 11:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265146AbUGCP6W
+	id S265148AbUGCQme (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 12:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbUGCQmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 11:58:22 -0400
-Received: from cavan.codon.org.uk ([213.162.118.85]:32902 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S265141AbUGCP6U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 11:58:20 -0400
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 03 Jul 2004 16:58:16 +0100
-Message-Id: <1088870296.3733.29.camel@tyrosine>
+	Sat, 3 Jul 2004 12:42:33 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:16578 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265148AbUGCQmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 12:42:32 -0400
+Date: Sat, 3 Jul 2004 17:41:43 +0100
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: MTRR __initdata confusion.
+Message-ID: <20040703164143.GV7101@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: yenta_socket dies on rewriting configuration registers
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.0 (built Tue, 16 Mar 2004 19:40:56 +0100)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running 2.6.7 on a Thinkpad 240X, if I allow the PCI registers on my
-cardbus bridge to be rewritten after ACPI resume, the system dies with
-slightly strange symptoms. Every other character of kernel messages is
-written, with blank spaces in between. After a few lines of message, the
-system stops. If I do a resume with an unpatched kernel, it appears to
-get through to thawing processes before hanging - if I put debug
-statements in the resume path, it hangs within device_resume. I get this
-behaviour even if the yenta_socket driver is not loaded due to the
-generic 2.6.7 resume code. Commenting out both calls to
-pci_restore_state (from the driver itself and from the generic PCI code)
-results in suspend working correctly. The bridge is a Texas Instruments
-PCI1211.
+smp_changes_mask is used by generic_set_all() which isn't __init
 
-The driver works correctly with my Thinkpad X40, which has a Ricoh
-RL5c476 II
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Signed-off-by: Dave Jones <davej@redhat.com>
 
+		Dave
+
+
+		
+--- FC2/arch/i386/kernel/cpu/mtrr/generic.c~	2004-07-03 17:40:00.408094696 +0100
++++ FC2/arch/i386/kernel/cpu/mtrr/generic.c	2004-07-03 17:40:05.666295328 +0100
+@@ -18,7 +18,7 @@
+ 	mtrr_type def_type;
+ };
+ 
+-static unsigned long smp_changes_mask __initdata = 0;
++static unsigned long smp_changes_mask = 0;
+ struct mtrr_state mtrr_state = {};
+ 
+ 

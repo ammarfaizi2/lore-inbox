@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287417AbSATA64>; Sat, 19 Jan 2002 19:58:56 -0500
+	id <S287828AbSATBCq>; Sat, 19 Jan 2002 20:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287828AbSATA6q>; Sat, 19 Jan 2002 19:58:46 -0500
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:57604 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S287417AbSATA6c>;
-	Sat, 19 Jan 2002 19:58:32 -0500
-Date: Sat, 19 Jan 2002 19:58:29 -0500 (EST)
-From: Rob Radez <rob@osinvestor.com>
-X-X-Sender: <rob@pita.lan>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Andre's IDE Patch (1/7)
-In-Reply-To: <Pine.LNX.4.10.10201191625110.9354-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.33.0201191955210.14950-100000@pita.lan>
+	id <S287831AbSATBCg>; Sat, 19 Jan 2002 20:02:36 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62470 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287828AbSATBCW>; Sat, 19 Jan 2002 20:02:22 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [STATUS 2.5]  January 17, 2001
+Date: 19 Jan 2002 17:02:05 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a2d4ud$9eb$1@cesium.transmeta.com>
+In-Reply-To: <20020117214752.GA5085@localhost> <20020117141458.A11402@vato.org> <3C470866.5353.10126E20@localhost> <20020117143016.B11402@vato.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 19 Jan 2002, Andre Hedrick wrote:
-
+Followup to:  <20020117143016.B11402@vato.org>
+By author:    "Tim Pepper" <tpepper@vato.org>
+In newsgroup: linux.dev.kernel
 >
-> Please don't do that.  There is a fatal flaw in those patches we all
-> observed in 2.5.3pre1.  I have 2.4.16 as a possible candidate and
-> auto-patching for 2.4.17 at the moment.
+> On Thu 17 Jan at 17:22:46 -0500 boissiere@mediaone.net done said:
+> > So are you suggesting I add the following task to my list?
+> > o Finalize new device naming convention (Linus Torvalds)
+> 
+> Yeah, but I don't know if Linus will want it assigned to him.. ;)
+> 
 
-On Wed, 16 Jan 2002, Andre Hedrick wrote:
-> If the driver falls out of DMA, DEADBOX!!!!
-> There is a conflict of BIO and ACB and it is very fatal.
+Given that he doesn't seem to be willing to let anyone else do it,
+either...
 
-It was my impression that the problem with 2.5.3-pre1 was a complication
-that existed only because of bio in 2.5.  Oops.  I assume this means then
-that all of us running your ide.2.4.16.12102001.patch should immediately
-revert so Bad Things don't happen?
-
-Regards,
-Rob Radez
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135618AbREDTOp>; Fri, 4 May 2001 15:14:45 -0400
+	id <S135772AbREDTO0>; Fri, 4 May 2001 15:14:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135759AbREDTO0>; Fri, 4 May 2001 15:14:26 -0400
-Received: from colorfullife.com ([216.156.138.34]:33294 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S135618AbREDTOX>;
-	Fri, 4 May 2001 15:14:23 -0400
-Message-ID: <3AF2FF93.44A2C49@colorfullife.com>
-Date: Fri, 04 May 2001 21:14:27 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-0.1.9smp i686)
-X-Accept-Language: en, de
+	id <S135759AbREDTOQ>; Fri, 4 May 2001 15:14:16 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:61446 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135618AbREDTOF>; Fri, 4 May 2001 15:14:05 -0400
+Date: Fri, 4 May 2001 12:13:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        <volodya@mindspring.com>, Andrea Arcangeli <andrea@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <Pine.GSO.4.21.0105041418550.21896-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.31.0105041213150.797-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: bergsoft@home.com, linux-kernel@vger.kernel.org
-Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ---
-> >       __asm__ __volatile__ (
-> 158c157
-> <               "3: movw $0x1AEB, 1b\n"
-> ---
-> >               "3: movw $0x1AEB, 1b\n" /* jmp on 26 bytes */
-> 166c165
-> < */
-> ---
-> >
-> 170c169
-> <               "1: nop\n" /* prefetch 320(%0)\n" */
-> ---
-> >               "1: prefetch 320(%0)\n"                                         
-> -------------------------
->   Please let me know if that makes sense :).
 
-Very interesting.
-You've removed only the prefetch 320(%0), not the other prefetch
-instructions?
 
-prefetch 320(%0) can fetch memory behind the end of the source page.
-Perhaps it accesses memory in the ISA hole, or beyond the end of memory?
-Could you post the e820 map from dmesg?
+On Fri, 4 May 2001, Alexander Viro wrote:
+>
+> ObProcfs: I don't think that walking the page tables is a good way to
+> compute RSS, especially since VM maintains the thing.
 
-It's possible to build manually a memory map.
-Could you build one with wide margins from "dangerous" areas? (untested:
-mem=exactmap mem=620k@0 mem=<your mem in MB-2>M@1M)
+Well, the VM didn't always use to maintain the stuff it does now, so I bet
+that most of the code is just old code that still works.
 
-Then boot with prefetch enabled.
---
-	Manfred
+Feel free to rip it out.
+
+		Linus
+

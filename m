@@ -1,43 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUGXSb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUGXSop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbUGXSb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 14:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUGXSb3
+	id S262085AbUGXSop (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 14:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUGXSop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 14:31:29 -0400
-Received: from wit.mht.bme.hu ([152.66.80.190]:55184 "EHLO wit.wit.mht.bme.hu")
-	by vger.kernel.org with ESMTP id S262079AbUGXSb2 (ORCPT
+	Sat, 24 Jul 2004 14:44:45 -0400
+Received: from gate.crashing.org ([63.228.1.57]:3268 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262085AbUGXSom (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 14:31:28 -0400
-Date: Sat, 24 Jul 2004 20:31:26 +0200 (CEST)
-From: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
-To: linux-kernel@vger.kernel.org
-Subject: via-velocy problem
-Message-ID: <Pine.LNX.4.44.0407242015350.4553-100000@wit.wit.mht.bme.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	Sat, 24 Jul 2004 14:44:42 -0400
+Subject: Re: device_suspend() levels [was Re: [patch] ACPI work on aic7xxx]
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nathan Bryant <nbryant@optonline.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <41029215.1030406@optonline.net>
+References: <40FD38A0.3000603@optonline.net>
+	 <20040720155928.GC10921@atrey.karlin.mff.cuni.cz>
+	 <40FD4CFA.6070603@optonline.net>
+	 <20040720174611.GI10921@atrey.karlin.mff.cuni.cz>
+	 <40FD6002.4070206@optonline.net> <1090347939.1993.7.camel@gaston>
+	 <40FD65C2.7060408@optonline.net> <1090350609.2003.9.camel@gaston>
+	 <40FD82B1.8030704@optonline.net> <1090356079.1993.12.camel@gaston>
+	 <40FD85A3.2060502@optonline.net> <1090357324.1993.15.camel@gaston>
+	 <410280E9.5040001@optonline.net> <1090684826.1963.6.camel@gaston>
+	 <41029215.1030406@optonline.net>
+Content-Type: text/plain
+Message-Id: <1090694118.1971.13.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 24 Jul 2004 14:35:19 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, 2004-07-24 at 12:45, Nathan Bryant wrote:
+> Benjamin Herrenschmidt wrote:
+> > sysfs only takes care about the bus hierarchy as far as suspend/resume
+> > is concerned (which is the only sane way to do it imho)
+> 
+> I saw comments in one of the PCI IDE driver pcidev->suspend routines 
+> that say "we don't need to iterate over the list of drives, sysfs does 
+> that for us."
 
-I have a via-velocity gigabit ethernet controller on my Abit KV8pro
-motherboard. I tried it with kernel 2.6.7-rc1, 2.6.7-rc2 and the
-2.6.7-rc1-mm1 drivermodule in 2.6.7-rc2 on A Debian SID.
+That's different, because the disks are actually registered as
+"struct device" childs of the bus, and thus get proper suspend/resume
+callbacks.
 
-If I load it at the command promt, it seems to be working without any
-problem. I can set up an IP address etc.
+> > No, the ordering cannot be dictated by the upper layer, but by the
+> > physical bus hierarchy. The low level driver gets the suspend callback
+> > and need to notify the parent. The md/multipath must keep track that one
+> > of the device it relies on is going away and thus block the queues.
+> > 
+> > That is at least for machine suspend/resume.
+> 
+> We're talking past each other. I'm saying you take into consideration 
+> the physical bus hierarchy: PCI bus x is a parent of SCSI bus y which is 
+> a parent of SCSI disk drive z. Suspend disk z, with involvement from the 
+> block layer and scsi midlayer, before even calling the actual 
+> pcidev->suspend routine on the SCSI bus adapter. Shouldn't require more 
+> than minimal LLD involvement.
 
-If I load it at boot time (/etc/modules) Debian's network setup fails.
+Oh sure, the disks are in the loop, the problem happens with multipath
+and such which "breaks" the bus hiearchy somewhat. The queue management
+is part of the "functional" hierarchy (read: block layer) on top of
+SCSI disks, thus the disks will be the one getting the suspend callback,
+but they have to "notify" their functional parent (block layer, md, ...)
+to properly get the queues stopped.
 
-It seems to me that the problem is caused by "ifup -a". There is a screen
-shot (sorry I'm lazy to type in).
+IDE sort-of does that internally, by generating a special request that
+goes down the queue (in order to be properly ordered with whatever
+is pending in the queue, including pending tagged commands if any),
+and the "toplevel" IDE handling will stop processing the queue once
+that request got past, but it's a hackery that at this point is quite
+specific to drivers/ide/
 
-http://wit.mht.bme.hu/~kubi/kernelpanic_via-velocity.jpg
+> >>Looking in /sys/devices shows that sysfs already knows that 'host0' is a 
+> >>child of a SCSI PCI device.
+> > 
+> > 
+> > Yes, but the PM herarchy is the bus hierarchy, I don't see a simple way
+> > of going through both in this case ...
+> 
+> In the case of IDE, IDE is registered as a bus_type and has generic 
+> suspend code for the whole bus that is unrelated to the pcidev. The PIIX 
+> IDE (Intel chipsets) PCI pcidev struct doesn't even have suspend and 
+> resume callbacks filled in, but it works fine!
 
-How can I test the driver more precisely?
+Well... not exactly. The pci_dev is the parent of the IDE bus in the
+bus hierarchy. PIIX may lack the proper callbacks (it probably need
+some stuff there too). For a good working example, ide/ppc/pmac.c,
+it is a macio_dev (or a pci_dev, depending on the ASIC model).
 
-Best regards,
-Kubi
+The suspend request first reaches the disk(s), which does the queue
+processing I mentioned earlier & stanby's the disks. Once that's done,
+the parent (ide pmac) gets it's suspend call and does some suspend work
+on the controller HW. Resume is the opposite, the controller gets
+resumed first, then the child(s) (disk(s))
+
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132674AbRDQOb4>; Tue, 17 Apr 2001 10:31:56 -0400
+	id <S132668AbRDQOcq>; Tue, 17 Apr 2001 10:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132668AbRDQObr>; Tue, 17 Apr 2001 10:31:47 -0400
-Received: from quechua.inka.de ([212.227.14.2]:9052 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S132674AbRDQObc>;
-	Tue, 17 Apr 2001 10:31:32 -0400
-Date: Tue, 17 Apr 2001 16:31:11 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: ARP responses broken!
-Message-ID: <20010417163111.A20874@lina.inka.de>
-In-Reply-To: <E14pWQ2-0005LM-00@calista.inka.de>
-Mime-Version: 1.0
+	id <S132684AbRDQOcg>; Tue, 17 Apr 2001 10:32:36 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61966 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132664AbRDQOcZ>; Tue, 17 Apr 2001 10:32:25 -0400
+Subject: Re: DPT PM3755F Fibrechannel Host Adapter
+To: cacook@freedom.net
+Date: Tue, 17 Apr 2001 15:34:24 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010417130019Z132595-682+791@vger.kernel.org> from "cacook@freedom.net" at Apr 17, 2001 06:58:54 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <E14pWQ2-0005LM-00@calista.inka.de>; from Mailer-Daemon@lina.inka.de on Tue, Apr 17, 2001 at 04:25:26PM +0200
-From: Bernd Eckenfels <ecki@lina.inka.de>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14pWYl-0002SB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> but why would you want it to reply for the IP of the other interface even if
-> it was NOT on the same subnet?
+> Applying the patch & compiling went fine.  But the new kernel doesn't recognize the FC host adapter (though the bios does) and there is no dpt_i20 module so I can't insmod.  I don't know how to tell whether the driver is in the kernel.  Maybe I'm just not smart enough for Linux.
+> 
 
-Because Linux is always answering to all its local IP addresses, regardless
-of the Network interface. Even if you tun off the IP Forwarding.
+No its not your fault. The dpt_i2o stuff depends on a driver that isnt in the
+standard kernels, doesn't work for all cases. Im still trying to get a driver
+out of them good enough to merge but its an incredibly slow tedious process.
 
-This is by Designs, there are situation where this is good and there are
-situations where it is not so good. But it's an old tradition.
+For actual work I'm using symbios fibrechannel cards and most people I know
+use qlogic cards with Linux. 
 
-Greetings
-Bernd
--- 
-  (OO)      -- Bernd_Eckenfels@Wendelinusstrasse39.76646Bruchsal.de --
- ( .. )  ecki@{inka.de,linux.de,debian.org} http://home.pages.de/~eckes/
-  o--o     *plush*  2048/93600EFD  eckes@irc  +497257930613  BE5-RIPE
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+Alan
+

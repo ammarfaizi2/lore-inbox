@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263339AbUJ2OiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbUJ2OiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263339AbUJ2OiT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 10:38:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263342AbUJ2OfG
+	id S263366AbUJ2OiG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 10:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263352AbUJ2Oel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:35:06 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:16036 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263341AbUJ2O0h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:26:37 -0400
-Date: Fri, 29 Oct 2004 16:27:47 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041029142747.GD25204@elte.hu>
-References: <20041029134820.GA21746@elte.hu> <200410291419.i9TEJD75006459@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410291419.i9TEJD75006459@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 29 Oct 2004 10:34:41 -0400
+Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:5872
+	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S263342AbUJ2O1T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:27:19 -0400
+From: "Andrew" <aathan-linux-kernel-1542@cloakmail.com>
+To: "Andrew" <aathan-linux-kernel-1542@cloakmail.com>,
+       <linux-kernel@vger.kernel.org>
+Cc: <roland@topspin.com>, "Andrew Morton" <akpm@osdl.org>
+Subject: RE: Consistent lock up 2.6.10-rc1-bk7 (mutex/SCHED_RR bug?)
+Date: Fri, 29 Oct 2004 10:26:56 -0400
+Message-ID: <OMEGLKPBDPDHAGCIBHHJOELLFCAA.aathan-linux-kernel-1542@cloakmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <OMEGLKPBDPDHAGCIBHHJMEIDFCAA.aathan-linux-kernel-1542@cloakmail.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Paul Davis <paul@linuxaudiosystems.com> wrote:
+I have reproduced this hang on 2.6.10-rc1-bk7, and have also installed the sysrq-n patch.  Even after "SysRq : Nice All RT Tasks",
+the system is completely unresponsive as far as user mode is concerned, and will only react to SysRq.  It -does- respond to ICMP
+pings.  Sysrq-e, -k, -i do not stop the offending tt1 process.
 
-> for our purposes, the number of channels is irrelevant. the audio
-> interface interrupts when it has and/or needs data. whether that data
-> covers 2, 9, 26 or 128 channels isn't particularly important. each
-> channel is handled at the same time. for most stereo devices, the data
-> for the channels is actually interleaved; for some high end
-> multichannel devices, each channel uses a separate memory buffer.
-> either way, its really not central.
+I do not have netdump available in 2.6.10-rc1-bk7, and so cannot provide a full sysrq-t output, but the visible section shows two
+tt1 threads with identical stacks:
 
-ok, thanks for the explanations.
+schedule_timeout+0xd0/0xd2
+futex_wait+0x140/0x1a9
+do_futex+0x33/0x78
+sys_futex+0xcd/0xd9
+sysenter_past_esp+0x52/0x71
 
-	Ingo
+I then tried running this task as non-root user, which should prevent SCHED_RR and PRIO changes of the threads/tasks.  Under these
+conditions, the system does *not* hang.  I noticed that the app periodically ends up in a high-speed loop involving the
+ACE_Semaphore class in ACE; having checked the compilation flags, it seems ACE is simulating semaphors using below calls.  It is
+*not* using POSIX 1003.1b semaphores (sem_wait, etc.)
+
+pthread_mutex_lock()
+pthread_cond_wait()
+pthread_cond_signal()
+
+Although it appears I need to fix an applicaiton bug, is it normal/desirable for an application calling system mutex facilities to
+starve the system so completely, and/or become "unkillable"?
+
+A.
+
+
+-----Original Message-----
+From: Andrew [mailto:aathan-linux-kernel-1542@cloakmail.com]
+Sent: Thursday, October 28, 2004 5:10 PM
+To: linux-kernel@vger.kernel.org
+Cc: roland@topspin.com; Andrew Morton
+Subject: Consistent lock up 2.6.8-1.521 (and 2.6.8.1 w/
+high-res-timers/skas/sysemu)
+
+
+
+Caveat:  This may be an infinite loop in a SCHED_RR process.  See very bottom of email for sysrq-t sysrq-p output.
+
+[LARGE EMAIL DELETED]
+
+

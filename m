@@ -1,45 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265027AbUFGTxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265028AbUFGUHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265027AbUFGTxU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 15:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265028AbUFGTxU
+	id S265028AbUFGUHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 16:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbUFGUHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 15:53:20 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:31242 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S265027AbUFGTxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 15:53:19 -0400
-Subject: Re: APM realy sucks on 2.6.x
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Kloska <kloska@scienion.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040607144841.GD1467@elf.ucw.cz>
-References: <40C0E91D.9070900@scienion.de>
-	 <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de>
-	 <20040607140511.GA1467@elf.ucw.cz> <40C47B94.6040408@scienion.de>
-	 <20040607144841.GD1467@elf.ucw.cz>
-Content-Type: text/plain
-Date: Mon, 07 Jun 2004 21:53:20 +0200
-Message-Id: <1086638000.2220.8.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-1) 
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Jun 2004 16:07:09 -0400
+Received: from mk-smarthost-3.mail.uk.tiscali.com ([212.74.114.39]:29188 "EHLO
+	mk-smarthost-3.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id S265028AbUFGUHD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 16:07:03 -0400
+Date: Mon, 7 Jun 2004 13:06:51 -0700
+Message-ID: <40BC9D2F0001DE96@mk-cpfrontend-2.mail.uk.tiscali.com>
+From: "kazeem elsheikh" <kazeem45@tiscali.co.uk>
+Subject: Investment Capital Inquiry. 
+Reply-To: el_kazeem@yahoo.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-07 at 16:48 +0200, Pavel Machek wrote:
+Greetings and Compliments.
 
-> HP sells compaq nx5000 notebooks with Linux preloaded. Unfortunately
-> suspend-to-RAM is not there (IIRC). That's because suspend-to-RAM is
-> hard to do with ACPI.
+Re: Investment Capital.
 
-It took some time for me to work, but now ACPI S3 (suspend to RAM) is
-finally working for me (I have been trying it since 2.4.22 with no
-luck). Only one thing is required before suspending:
+Your contact has been gotten after a careful search
+for persons whom we can jointly invest Trust in and
+also solicit a honorable partnership with.
 
-# modprobe ds
-# cardctl eject
+I represent a client and my client has interest to do
+business relative to investments in your country in
+areas related to Agriculture and Real-Estate
+Development respective of the nature and manner of
+investments you handle. To initiate a proper and
+structured relationship:
 
-This ejects my CardBus NIC before going to sleep. Not doing so, causes
-the system to freeze when resuming.
+Please let me know what your response will be to an
+offer to receive investment funds in cash if:
+
+1. The said fund amounts to Twenty Five Million
+Dollars (US).
+
+2. The said fund is in cash and will be transferred to
+you in same state.
+
+3. The fund shall be investment through your agency in
+the purchase of facility and assets for investment
+purposes within your country.
+
+4. This transaction will result in your being paid a
+commission of 10% off the investment capital.
+
+5.The fund owners desire absolute confidentiality and
+professionalism in the handling of this matter.
+
+Please respond urgently.
+
+Sincerely.
+
+kazeem elsheikh
+
+National Real Estate Co.
+Chittagong Bangladesh
+
+
+__________________________________________________
+Broadband from an unbeatable £15.99!
+
+http://www.tiscali.co.uk/products/broadband/home.html?code=SM-NL-11AM
+
+
 

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314216AbSDRCNp>; Wed, 17 Apr 2002 22:13:45 -0400
+	id <S314220AbSDRCUQ>; Wed, 17 Apr 2002 22:20:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314217AbSDRCNo>; Wed, 17 Apr 2002 22:13:44 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:35497 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S314216AbSDRCNo>;
-	Wed, 17 Apr 2002 22:13:44 -0400
-Date: Wed, 17 Apr 2002 19:10:53 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
+	id <S314221AbSDRCUP>; Wed, 17 Apr 2002 22:20:15 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:44206 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S314220AbSDRCUO>; Wed, 17 Apr 2002 22:20:14 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Date: Thu, 18 Apr 2002 12:23:38 +1000 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15550.11818.429509.22486@notabene.cse.unsw.edu.au>
 Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
         Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
 Subject: Re: RAID superblock confusion
-Message-ID: <20020418021053.GF574@matchmail.com>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	Richard Gooch <rgooch@ras.ucalgary.ca>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200204101533.g3AFXwS09100@vindaloo.ras.ucalgary.ca> <20020410184010.GC3509@turbolinux.com> <200204101924.g3AJOp113305@vindaloo.ras.ucalgary.ca> <20020410193812.GE3509@turbolinux.com> <200204102037.g3AKbmT14222@vindaloo.ras.ucalgary.ca> <15540.59659.114876.390224@notabene.cse.unsw.edu.au> <200204131926.g3DJQGI06532@vindaloo.ras.ucalgary.ca> <15550.10053.834276.18723@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: message from Mike Fedyk on Wednesday April 17
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18, 2002 at 11:54:13AM +1000, Neil Brown wrote:
-> On Saturday April 13, rgooch@ras.ucalgary.ca wrote:
-> > If there was only a "do as I say, regardless" mode, I would be happy.
-> > This programmer-knows-best attitude smacks of M$.
+On Wednesday April 17, mfedyk@matchmail.com wrote:
+> On Thu, Apr 18, 2002 at 11:54:13AM +1000, Neil Brown wrote:
+> > On Saturday April 13, rgooch@ras.ucalgary.ca wrote:
+> > > If there was only a "do as I say, regardless" mode, I would be happy.
+> > > This programmer-knows-best attitude smacks of M$.
+> > 
+> > mdadm will do as you say, reguardless - if you ask it to.  Have you
+> > tried mdadm?
+> >    http://www.cse.unsw.edu.au/~neilb/source/mdadm/
 > 
-> mdadm will do as you say, reguardless - if you ask it to.  Have you
-> tried mdadm?
->    http://www.cse.unsw.edu.au/~neilb/source/mdadm/
+> Niel, do you plan to merge mdadm into the raidtools package?  It sounds like
+> it belongs there.
 
-Niel, do you plan to merge mdadm into the raidtools package?  It sounds like
-it belongs there.
+No.
+If distributions want to distribute mdadm together with the stuff from
+raidtools, then that is up to them.
+But from a development perspective, I don't see any value in making a
+single source distribution.
+
+NeilBrown

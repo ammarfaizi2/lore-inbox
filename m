@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289186AbSAVHij>; Tue, 22 Jan 2002 02:38:39 -0500
+	id <S289185AbSAVHh7>; Tue, 22 Jan 2002 02:37:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289188AbSAVHiU>; Tue, 22 Jan 2002 02:38:20 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:59558 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S289186AbSAVHiP>; Tue, 22 Jan 2002 02:38:15 -0500
-Date: 22 Jan 2002 08:29:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8HM4sDkXw-B@khms.westfalen.de>
-In-Reply-To: <E16Snav-0001kl-00@starship.berlin>
-Subject: Re: [kbuild-devel] Re: CML2-2.1.3 is available
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <3C4C4A60.7030700@dplanet.ch> <20020115145324.A5772@thyrsus.com> <E16ShDP-0001ic-00@starship.berlin> <3C4C4A60.7030700@dplanet.ch> <E16Snav-0001kl-00@starship.berlin>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+	id <S289186AbSAVHht>; Tue, 22 Jan 2002 02:37:49 -0500
+Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:55262 "EHLO
+	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S289185AbSAVHhn>; Tue, 22 Jan 2002 02:37:43 -0500
+Date: Tue, 22 Jan 2002 02:37:42 -0500
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18pre4aa1
+Message-ID: <20020122073742.GA767@opeth.ath.cx>
+In-Reply-To: <20020122074806.A1547@athlon.random> <1011682739.17096.563.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Disposition: inline
+In-Reply-To: <1011682739.17096.563.camel@phantasy>
+User-Agent: Mutt/1.3.26i
+From: Dan Chen <crimsun@email.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-phillips@bonn-fries.net (Daniel Phillips)  wrote on 22.01.02 in <E16Snav-0001kl-00@starship.berlin>:
 
-> On January 21, 2002 06:05 pm, Giacomo Catenazzi wrote:
-> > Daniel Phillips wrote:
-> >
-> > >
-> > > I detect a slight lack of symmetry here, shouldn't it be "make
-> > > autoconfig"? Pardon me if this has been beaten to^W^W discussed above.
-> >
-> >
-> > Yes. It should be "make autoconfig", for symmterty reasons :-)
-> > I called the files and the project autoconfigure, because
-> > 'autoconfig' is already an utility made by GNU. (not related
-> > to kernel)
->
-> This is kernel autoconfig, different namespace, same idea.  I don't think
-> you have a problem.  Besides, last time I checked, autoconfig wasn't
-> copyrighted.
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Last time I checked, autoconf (not -ig) was GPL. But as long as you don't  
-use code from it, copyright is completely irrelevant anyway: trademark  
-status might be relevant when you're talking about names. (And %@$&$!  
-patent status when talking about algorithms.)
+No weird anomalies here. I believe the ones you refer to were a result
+of ipv6 bits not being updated as well. Russell posted two patches for
+those.
 
-MfG Kai
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D101164602428323&w=3D2
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D101164602428401&w=3D2
+
+On Tue, Jan 22, 2002 at 01:58:58AM -0500, Robert Love wrote:
+> > Only in 2.4.18pre4aa1/: 00_icmp-offset-1
+> >=20
+> > 	Remote security fix from Andi (see bugtraq).
+>=20
+> Are we sure this works?  I thought I saw someone (IRC perhaps?) who had
+> weird anomalies with this fix (although it does certainly fix the hole).
+
+--=20
+Dan Chen                 crimsun@email.unc.edu
+GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8TRbGMwVVFhIHlU4RAhnMAJ9gmHZANj0ZJSf8D6CuKEohpJOxWwCfU8Sl
+479r2RAoIkirksZbfTRMkT8=
+=gOxq
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--

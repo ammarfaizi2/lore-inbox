@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282771AbRLGRu6>; Fri, 7 Dec 2001 12:50:58 -0500
+	id <S282862AbRLGRtZ>; Fri, 7 Dec 2001 12:49:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282877AbRLGRup>; Fri, 7 Dec 2001 12:50:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45584 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282771AbRLGRul>; Fri, 7 Dec 2001 12:50:41 -0500
-Date: Fri, 7 Dec 2001 09:45:08 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: <linux-kernel@vger.kernel.org>
+	id <S282867AbRLGRtG>; Fri, 7 Dec 2001 12:49:06 -0500
+Received: from zero.tech9.net ([209.61.188.187]:59141 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S282771AbRLGRsb>;
+	Fri, 7 Dec 2001 12:48:31 -0500
 Subject: Re: horrible disk thorughput on itanium
-In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de>
-Message-ID: <Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert Love <rml@tech9.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200112071740.fB7HeVG16220@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <p73r8q86lpn.fsf@amdsim2.suse.de.suse.lists.linux.kernel>
+	<Pine.LNX.4.33.0112070710120.747-100000@mikeg.weiden.de.suse.lists.linux.ker
+	 nel> <9upmqm$7p4$1@penguin.transmeta.com.suse.lists.linux.kernel>
+	<p73n10v6spi.fsf@amdsim2.suse.de>
+	<200112071614.fB7GEQ514356@vindaloo.ras.ucalgary.ca>
+	<1007745537.828.15.camel@phantasy> 
+	<200112071740.fB7HeVG16220@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 07 Dec 2001 12:48:28 -0500
+Message-Id: <1007747309.824.17.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2001-12-07 at 12:40, Richard Gooch wrote:
 
-On 7 Dec 2001, Andi Kleen wrote:
-> torvalds@transmeta.com (Linus Torvalds) writes:
-> >
-> > "putc()" is a standard function.  If it sucks, let's get it fixed.  And
-> > instead of changing bonnie, how about pinging the _real_ people who
-> > write sucky code?
->
-> It is easy to fix. Just do #define putc putc_unlocked
+> > The link to the mailing list post from bug-glibc says otherwise,
+> > that is the problem.  Using the unlocked version isn't implied by
+> > not setting __REENTRANT.
+> 
+> The bug is in glibc. An application shouldn't need to be changed to
+> work around that bug. putc() is a well-known interface, and people
+> shouldn't have to code around a change in that interface.
 
-Sure. And why don't you also do
+Right.  That's why I referenced a post on bug-glibc and called the issue
+a problem.  I'm not defending the heaping mass known as glibc ... it
+should be fixed.
 
-	#define sin(x) (1)
-	#define sqrt(x) (1)
-	#define strlen(x) (1)
-	...
-
-to make other benchmarks happier?
-
-bonnie is a _benchmark_. It's meant for finding bad performance. Changing
-it to make it work better when performance is bad is _pointless_. You've
-now made the whole point of bonnie go away.
-
-> There is just a slight problem: it'll fail if your application is threaded
-> and wants to use the same FILE from multiple threads.
->
-> It is a common problem on all OS that eventually got threadsafe stdio.
-
-It's a common problem with bad programming.
-
-You can be thread-safe without sucking dead baby donkeys through a straw.
-I already mentioned two possible ways to fix it so that you have locking
-when you need to, and no locking when you don't.
-
-		Linus
+	Robert Love
 

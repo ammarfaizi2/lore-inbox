@@ -1,287 +1,277 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265270AbTAEVe6>; Sun, 5 Jan 2003 16:34:58 -0500
+	id <S265255AbTAEVdB>; Sun, 5 Jan 2003 16:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265266AbTAEVe5>; Sun, 5 Jan 2003 16:34:57 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:56768 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S265243AbTAEVes>;
-	Sun, 5 Jan 2003 16:34:48 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 5 Jan 2003 22:42:46 +0100 (MET)
-Message-Id: <UTC200301052142.h05LgkH25404.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, zwane@holomorphy.com
-Subject: Re: inquiry in scsi_scan.c
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, mdharm-kernel@one-eyed-alien.net
+	id <S265230AbTAEVdB>; Sun, 5 Jan 2003 16:33:01 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:772 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265270AbTAEVc5>;
+	Sun, 5 Jan 2003 16:32:57 -0500
+Date: Sun, 5 Jan 2003 20:34:50 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] amd756 and amd8111 sensors support
+Message-ID: <20030105193450.GA260@elf.ucw.cz>
+References: <200212280303.gBS33o628113@hera.kernel.org> <1041076002.1485.2.camel@laptop.fenrus.com> <20021228123655.A31843@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021228123655.A31843@infradead.org>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo writes:
+Hi!
 
-> This looks related to something i also bumped into
->
-> scsi scan: host 2 channel 0 id 0 lun 0 identifier too long
+> Please add them inside drivers/i2c/, not at the toplevel.
 
-Sounds familiar. Please try the below (on 2.5.54).
+Done.
 
-Andries
+>  obj-$(CONFIG_PHONE)		+= telephony/
+>  obj-$(CONFIG_MD)		+= md/
+>  obj-$(CONFIG_BT)		+= bluetooth/
+> +#include <linux/version.h>
+> +#include <linux/module.h>
+> +#include <linux/pci.h>
+> +#include <asm/io.h>
+> +#include <linux/kernel.h>
+> +#include <linux/stddef.h>
+> +#include <linux/sched.h>
+> +#include <linux/ioport.h>
+> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> 
+> <asm/*.h> after <linux/*.h>, please
 
+Fixed.
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
---- a/drivers/scsi/scsi_scan.c	Wed Jan  1 23:54:23 2003
-+++ b/drivers/scsi/scsi_scan.c	Sun Jan  5 14:22:21 2003
-@@ -544,32 +544,6 @@
- }
+> +static struct i2c_adapter amd756_adapter = {
+> +	"unset",
+> +	I2C_ALGO_SMBUS | I2C_HW_SMBUS_AMD756,
+> +	&smbus_algorithm,
+> +	NULL,
+> +	amd756_inc,
+> +	amd756_dec,
+> +	NULL,
+> +	NULL,
+> +};
+> 
+> Please use named initializers for such sparse method vectors.
+
+Fixed.
+
+> +static int __initdata amd756_initialized;
+> 
+> __initdata for function used in cleanup code is bogus.  But this whole
+> flag is crap, see below.
+
+Killed.
+
+> +static unsigned short amd756_smba = 0;
+> 
+> This is in .bss, no need to initialize to zero.
+
+Ok.
+
+> +	if (check_region(amd756_smba, SMB_IOSIZE)) {
+> +		printk
+> +		    ("i2c-amd756.o: SMB region 0x%x already in use!\n",
+> +		     amd756_smba);
+> +		return -ENODEV;
+> +	}
+> +
+> +	/* Everything is happy, let's grab the memory and set things up. */
+> +	request_region(amd756_smba, SMB_IOSIZE, "amd756-smbus");
+> 
+> Don't use check_region.
+
+Fixed.
+
+> +	amd756_initialized = 0;
+> 
+> It's in .bss and thus already zero.
+
+Killed.
+
+> +EXPORT_NO_SYMBOLS;
+> 
+> Remove it, it's a noop for 2.5.
+> 
+> +#ifdef MODULE
+> +
+> +MODULE_AUTHOR("Merlin Hughes <merlin@merlin.org>");
+> +MODULE_DESCRIPTION("AMD756/766/768/nVidia nForce SMBus driver");
+> +
+> +#ifdef MODULE_LICENSE
+> +MODULE_LICENSE("GPL");
+> +#endif
+> +
+> +#endif				/* MODULE */
+> 
+> Please get rid of that ifdef mess, you can just always use it.
+
+Killed.
+
+Okay, I see lot more cleaning up is needed. I actually saved it as a
+"TODO" file... Thanks for your comments.
+
+								Pavel
+
+--- linux-sensors.mid/drivers/Makefile	2002-12-18 22:28:25.000000000 +0100
++++ linux-sensors/drivers/Makefile	2003-01-05 20:06:17.000000000 +0100
+@@ -38,8 +38,6 @@
+ obj-$(CONFIG_SERIO)		+= input/serio/
+ obj-$(CONFIG_I2O)		+= message/
+ obj-$(CONFIG_I2C)		+= i2c/
+-obj-$(CONFIG_I2C_MAINBOARD)	+= i2c/busses/
+-obj-$(CONFIG_SENSORS)		+= i2c/chips/
+ obj-$(CONFIG_PHONE)		+= telephony/
+ obj-$(CONFIG_MD)		+= md/
+ obj-$(CONFIG_BT)		+= bluetooth/
+--- linux-sensors.mid/drivers/i2c/Makefile	2002-12-18 22:28:30.000000000 +0100
++++ linux-sensors/drivers/i2c/Makefile	2003-01-05 20:06:13.000000000 +0100
+@@ -6,6 +6,8 @@
+ 		   i2c-algo-ite.o i2c-proc.o i2c-algo-ibm_ocp.o
  
- /**
-- * scsi_check_id_size - check if size fits in the driverfs name
-- * @sdev:	Scsi_Device to use for error message
-- * @size:	the length of the id we want to store
-- *
-- * Description:
-- *     Use a function for this since the same code is used in various
-- *     places, and we only create one string and call to printk.
-- *
-- * Return:
-- *     0 - fits
-- *     1 - size too large
-- **/
--static int scsi_check_id_size(Scsi_Device *sdev, int size)
--{
--	if (size > DEVICE_NAME_SIZE) {
--		printk(KERN_WARNING "scsi scan: host %d channel %d id %d lun %d"
--		       " identifier too long, length %d, max %d. Device might"
--		       " be improperly identified.\n", sdev->host->host_no,
--		       sdev->channel, sdev->id, sdev->lun, size,
--		       DEVICE_NAME_SIZE);
--		return 1;
--	} else
--		return 0;
--}
+ obj-$(CONFIG_I2C)		+= i2c-core.o
++obj-$(CONFIG_I2C_MAINBOARD)	+= busses/
++obj-$(CONFIG_SENSORS)		+= chips/
+ obj-$(CONFIG_I2C_CHARDEV)	+= i2c-dev.o
+ obj-$(CONFIG_I2C_ALGOBIT)	+= i2c-algo-bit.o
+ obj-$(CONFIG_I2C_PHILIPSPAR)	+= i2c-philips-par.o
+--- linux-sensors.mid/drivers/i2c/busses/i2c-amd756.c	2002-12-02 01:47:11.000000000 +0100
++++ linux-sensors/drivers/i2c/busses/i2c-amd756.c	2003-01-05 20:23:25.000000000 +0100
+@@ -37,13 +37,13 @@
+ #include <linux/version.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+-#include <asm/io.h>
+ #include <linux/kernel.h>
+ #include <linux/stddef.h>
+ #include <linux/sched.h>
+ #include <linux/ioport.h>
+ #include <linux/i2c.h>
+ #include <linux/init.h>
++#include <asm/io.h>
+ 
+ struct sd {
+     const unsigned short vendor;
+@@ -116,30 +116,24 @@
+ static u32 amd756_func(struct i2c_adapter *adapter);
+ 
+ static struct i2c_algorithm smbus_algorithm = {
+-	/* name */ "Non-I2C SMBus adapter",
+-	/* id */ I2C_ALGO_SMBUS,
+-	/* master_xfer */ NULL,
+-	/* smbus_access */ amd756_access,
+-	/* slave;_send */ NULL,
+-	/* slave_rcv */ NULL,
+-	/* algo_control */ NULL,
+-	/* functionality */ amd756_func,
++	.name = "Non-I2C SMBus adapter",
++	.id = I2C_ALGO_SMBUS,
++	.smbus_xfer = amd756_access,
++	.functionality =  amd756_func,
+ };
+ 
+ static struct i2c_adapter amd756_adapter = {
+-	"unset",
+-	I2C_ALGO_SMBUS | I2C_HW_SMBUS_AMD756,
+-	&smbus_algorithm,
+-	NULL,
+-	amd756_inc,
+-	amd756_dec,
+-	NULL,
+-	NULL,
++	.name = "unset",
++	.id = I2C_ALGO_SMBUS | I2C_HW_SMBUS_AMD756,
++	.algo_data = &smbus_algorithm,
++	.inc_use = amd756_inc,
++	.dec_use = amd756_dec,
+ };
+ 
+-static int __initdata amd756_initialized;
+-static struct sd *amd756_sd = NULL;
+-static unsigned short amd756_smba = 0;
++static struct sd *amd756_sd;
++static unsigned short amd756_smba;
++static int amd756_initialized;
++
+ 
+ int amd756_setup(void)
+ {
+@@ -191,16 +185,12 @@
+ 		printk(KERN_ERR "i2c-amd756.o: Error: SMB base address uninitialized\n");
+ 		return -ENODEV;
+ 	}
+-	if (check_region(amd756_smba, SMB_IOSIZE)) {
+-		printk
+-		    ("i2c-amd756.o: SMB region 0x%x already in use!\n",
+-		     amd756_smba);
++	if (!request_region(amd756_smba, SMB_IOSIZE, "amd756-smbus")) {
++		printk("i2c-amd756.o: SMB region 0x%x already in use!\n",
++		       amd756_smba);
+ 		return -ENODEV;
+ 	}
+ 
+-	/* Everything is happy, let's grab the memory and set things up. */
+-	request_region(amd756_smba, SMB_IOSIZE, "amd756-smbus");
 -
--/**
-  * scsi_get_evpd_page - get a list of supported vpd pages
-  * @sdev:	Scsi_Device to send an INQUIRY VPD
-  * @sreq:	Scsi_Request associated with @sdev
-@@ -715,17 +689,16 @@
-  * scsi_check_fill_deviceid - check the id and if OK fill it
-  * @sdev:	device to use for error messages
-  * @id_page:	id descriptor for INQUIRY VPD DEVICE ID, page 0x83
-- * @name:	store the id in name
-+ * @name:	store the id in name (of size DEVICE_NAME_SIZE > 26)
-  * @id_search:	store if the id_page matches these values
-  *
-  * Description:
-  *     Check if @id_page matches the @id_search, if so store an id (uid)
-- *     into name.
-+ *     into name, that is all zero on entrance.
-  *
-  * Return:
-  *     0: Success
-  *     1: No match
-- *     2: Failure due to size constraints
-  **/
- static int scsi_check_fill_deviceid(Scsi_Device *sdev, char *id_page,
- 	char *name, const struct scsi_id_search_values *id_search)
-@@ -755,70 +728,41 @@
- 	if ((id_page[0] & 0x0f) != id_search->code_set)
- 		return 1;
- 
--	name[0]  = hex_str[id_search->id_type];
-+	/*
-+	 * All OK - store ID
-+	 */
-+	name[0] = hex_str[id_search->id_type];
-+
-+	/*
-+	 * Prepend the vendor and model before the id, since the id
-+	 * might not be unique across all vendors and models.
-+	 * The same code is used below, with a different size.
-+	 */
-+	if (id_search->id_type == SCSI_ID_VENDOR_SPECIFIC) {
-+		strncat(name, sdev->vendor, 8);
-+		strncat(name, sdev->model, 16);
-+	}
-+
-+	i = 4;
-+	j = strlen(name);
- 	if ((id_page[0] & 0x0f) == SCSI_ID_ASCII) {
- 		/*
- 		 * ASCII descriptor.
- 		 */
--		if (id_search->id_type == SCSI_ID_VENDOR_SPECIFIC) {
--			/*
--			 * Prepend the vendor and model before the id,
--			 * since the id might not be unique across all
--			 * vendors and models. The same code is used
--			 * below, with a differnt size.
--			 *
--			 * Need 1 byte for the idtype, 1 for trailing
--			 * '\0', 8 for vendor, 16 for model total 26, plus
--			 * the name descriptor length.
--			 */
--			if (scsi_check_id_size(sdev, 26 + id_page[3]))
--				return 2;
--			else {
--				strncat(name, sdev->vendor, 8);
--				strncat(name, sdev->model, 16);
--			}
--		} else if (scsi_check_id_size (sdev, (2 + id_page[3])))
--			/*
--			 * Need 1 byte for the idtype, 1 byte for
--			 * the trailing '\0', plus the descriptor length.
--			 */
--			return 2;
--		memcpy(&name[strlen(name)], &id_page[4], id_page[3]);
--		return 0;
--	} else if ((id_page[0] & 0x0f) == SCSI_ID_BINARY) {
--		if (id_search->id_type == SCSI_ID_VENDOR_SPECIFIC) {
--			/*
--			 * Prepend the vendor and model before the id.
--			 */
--			if (scsi_check_id_size(sdev, 26 + (id_page[3] * 2)))
--				return 2;
--			else {
--				strncat(name, sdev->vendor, 8);
--				strncat(name, sdev->model, 16);
--			}
--		} else if (scsi_check_id_size(sdev, 2 + (id_page[3] * 2)))
--			/*
--			 * Need 1 byte for the idtype, 1 for trailing
--			 * '\0', 8 for vendor, 16 for model total 26, plus
--			 * the name descriptor length.
--			 */
--			return 2;
-+		while (i < 4 + id_page[3] && j < DEVICE_NAME_SIZE-1)
-+			name[j++] = id_page[i++];
-+	} else {
- 		/*
- 		 * Binary descriptor, convert to ASCII, using two bytes of
--		 * ASCII for each byte in the id_page. Store starting at
--		 * the end of name.
-+		 * ASCII for each byte in the id_page.
- 		 */
--		for(i = 4, j = strlen(name); i < 4 + id_page[3]; i++) {
-+		while (i < 4 + id_page[3] && j < DEVICE_NAME_SIZE-2) {
- 			name[j++] = hex_str[(id_page[i] & 0xf0) >> 4];
- 			name[j++] = hex_str[id_page[i] & 0x0f];
-+			i++;
- 		}
--		return 0;
- 	}
--	/*
--	 * Code set must have already matched.
--	 */
--	printk(KERN_ERR "scsi scan: scsi_check_fill_deviceid unexpected state.\n");
--	return 1;
-+	return 0;
+ #ifdef DEBUG
+ 	pci_read_config_byte(AMD756_dev, SMBREV, &temp);
+ 	printk("i2c-amd756.o: SMBREV = 0x%X\n", temp);
+@@ -456,15 +446,6 @@
+ int __init i2c_amd756_init(void)
+ {
+ 	int res;
+-#ifdef DEBUG
+-/* PE- It might be good to make this a permanent part of the code! */
+-	if (amd756_initialized) {
+-		printk
+-		    ("i2c-amd756.o: Oops, amd756_init called a second time!\n");
+-		return -EBUSY;
+-	}
+-#endif
+-	amd756_initialized = 0;
+ 	if ((res = amd756_setup())) {
+ 		printk
+ 		    ("i2c-amd756.o: AMD756 or compatible device not detected, module not inserted.\n");
+@@ -509,18 +490,10 @@
+ 			return 0;
  }
  
- /**
-@@ -834,7 +778,7 @@
-  *     0: Failure
-  *     1: Success
-  **/
--int scsi_get_deviceid(Scsi_Device *sdev, Scsi_Request *sreq)
-+static int scsi_get_deviceid(Scsi_Device *sdev, Scsi_Request *sreq)
- {
- 	unsigned char *id_page;
- 	unsigned char scsi_cmd[MAX_COMMAND_SIZE];
-@@ -879,14 +823,14 @@
- 	}
+-EXPORT_NO_SYMBOLS;
+-
+-#ifdef MODULE
+-
+ MODULE_AUTHOR("Merlin Hughes <merlin@merlin.org>");
+ MODULE_DESCRIPTION("AMD756/766/768/nVidia nForce SMBus driver");
  
- 	/*
--	 * Search for a match in the proiritized id_search_list.
-+	 * Search for a match in the prioritized id_search_list.
- 	 */
- 	for (id_idx = 0; id_idx < ARRAY_SIZE(id_search_list); id_idx++) {
- 		/*
- 		 * Examine each descriptor returned. There is normally only
- 		 * one or a small number of descriptors.
- 		 */
--		for(scnt = 4; scnt <= id_page[3] + 3;
-+		for (scnt = 4; scnt <= id_page[3] + 3;
- 			scnt += id_page[scnt + 3] + 4) {
- 			if ((scsi_check_fill_deviceid(sdev, &id_page[scnt],
- 			     sdev->sdev_driverfs_dev.name,
-@@ -941,12 +885,11 @@
- {
- 	unsigned char *serialnumber_page;
- 	unsigned char scsi_cmd[MAX_COMMAND_SIZE];
--	int max_lgth = 255;
-+	const int max_lgth = 255;
-+	int len;
+-#ifdef MODULE_LICENSE
+ MODULE_LICENSE("GPL");
+-#endif
+-
+-#endif				/* MODULE */
  
-- retry:
- 	serialnumber_page = kmalloc(max_lgth, GFP_ATOMIC |
--			      (sdev->host->unchecked_isa_dma) ?
--			      GFP_DMA : 0);
-+			      (sdev->host->unchecked_isa_dma) ? GFP_DMA : 0);
- 	if (!serialnumber_page) {
- 		printk(KERN_WARNING "scsi scan: Allocation failure identifying"
- 		       " host %d channel %d id %d lun %d, device might be"
-@@ -969,26 +912,19 @@
+ module_init(i2c_amd756_init)
+ module_exit(i2c_amd756_exit)
+--- linux-sensors.mid/include/linux/i2c.h	2002-12-14 12:53:19.000000000 +0100
++++ linux-sensors/include/linux/i2c.h	2003-01-05 20:11:00.000000000 +0100
+@@ -223,10 +223,6 @@
+ 	u32 (*functionality) (struct i2c_adapter *);
+ };
  
- 	if (sreq->sr_result)
- 		goto leave;
--	/*
--	 * check to see if response was truncated
--	 */
--	if (serialnumber_page[3] > max_lgth) {
--		max_lgth = serialnumber_page[3] + 4;
--		kfree(serialnumber_page);
--		goto retry;
--	}
- 
- 	/*
--	 * Need 1 byte for SCSI_UID_SER_NUM, 1 for trailing '\0', 8 for
--	 * vendor, 16 for model = 26, plus serial number size.
-+	 * a check to see if response was truncated is superfluous,
-+	 * since serialnumber_page[3] cannot be larger than 255
- 	 */
--	if (scsi_check_id_size (sdev, (26 + serialnumber_page[3])))
--		goto leave;
-+
- 	sdev->sdev_driverfs_dev.name[0] = SCSI_UID_SER_NUM;
- 	strncat(sdev->sdev_driverfs_dev.name, sdev->vendor, 8);
- 	strncat(sdev->sdev_driverfs_dev.name, sdev->model, 16);
--	strncat(sdev->sdev_driverfs_dev.name, &serialnumber_page[4],
--		serialnumber_page[3]);
-+	len = serialnumber_page[3];
-+	if (len > DEVICE_NAME_SIZE-26)
-+		len = DEVICE_NAME_SIZE-26;
-+	strncat(sdev->sdev_driverfs_dev.name, &serialnumber_page[4], len);
- 	kfree(serialnumber_page);
- 	return 1;
-  leave:
-@@ -1002,23 +938,19 @@
-  * @sdev:	get a default name for this device
-  *
-  * Description:
-- *     Set the name of @sdev to the concatenation of the vendor, model,
-- *     and revision found in @sdev.
-+ *     Set the name of @sdev (of size DEVICE_NAME_SIZE > 29) to the
-+ *     concatenation of the vendor, model, and revision found in @sdev.
-  *
-  * Return:
-  *     1: Success
-  **/
- int scsi_get_default_name(Scsi_Device *sdev)
- {
--	if (scsi_check_id_size(sdev, 29))
--		return 0;
--	else {
--		sdev->sdev_driverfs_dev.name[0] = SCSI_UID_UNKNOWN;
--		strncpy(&sdev->sdev_driverfs_dev.name[1], sdev->vendor, 8);
--		strncat(sdev->sdev_driverfs_dev.name, sdev->model, 16);
--		strncat(sdev->sdev_driverfs_dev.name, sdev->rev, 4);
--		return 1;
--	}
-+	sdev->sdev_driverfs_dev.name[0] = SCSI_UID_UNKNOWN;
-+	strncpy(&sdev->sdev_driverfs_dev.name[1], sdev->vendor, 8);
-+	strncat(sdev->sdev_driverfs_dev.name, sdev->model, 16);
-+	strncat(sdev->sdev_driverfs_dev.name, sdev->rev, 4);
-+	return 1;
- }
- 
- /**
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,29)
+-struct proc_dir_entry;
+-#endif
+-
+ /*
+  * i2c_adapter is the structure used to identify a physical i2c bus along
+  * with the access algorithms necessary to access it.
+
+
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

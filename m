@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317228AbSEXR56>; Fri, 24 May 2002 13:57:58 -0400
+	id <S317230AbSEXSAZ>; Fri, 24 May 2002 14:00:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317230AbSEXR55>; Fri, 24 May 2002 13:57:57 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:50863 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S317228AbSEXR5N>; Fri, 24 May 2002 13:57:13 -0400
-Date: Fri, 24 May 2002 19:57:02 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: "David S. Miller" <davem@redhat.com>
-cc: alan@lxorguk.ukuu.org.uk, tori@ringstrom.mine.nu, imipak@yahoo.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux crypto?
-In-Reply-To: <20020524.103104.107001160.davem@redhat.com>
-Message-ID: <Pine.GSO.4.05.10205241955480.11037-100000@mausmaki.cosy.sbg.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317238AbSEXSAY>; Fri, 24 May 2002 14:00:24 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:20234 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317230AbSEXSAW>; Fri, 24 May 2002 14:00:22 -0400
+Date: Fri, 24 May 2002 19:00:12 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Robert Love <rml@tech9.net>
+Cc: Marcus Meissner <mm@ns.caldera.de>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling 2.2.19 with -O3 flag
+Message-ID: <20020524190012.A25406@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Robert Love <rml@tech9.net>, Marcus Meissner <mm@ns.caldera.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200205241645.g4OGjbE30934@ns.caldera.de> <1022259244.2638.243.camel@sinai> <20020524184402.A24780@infradead.org> <1022262920.956.258.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 May 2002, David S. Miller wrote:
+On Fri, May 24, 2002 at 10:55:20AM -0700, Robert Love wrote:
+> I know this...maybe I am not being clear.  I realize -Os is a derivate
+> of -O2, but is it not an interesting note if -Os can be as fast (or
+> faster) than -O2 and still generate smaller binaries?  That is my point.
 
->    From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
->    Date: Fri, 24 May 2002 19:42:45 +0200 (MET DST)
->    
->    what about taking out the libdes stuff, and make it available from
->    elsewhere, and hook it into the kernel as a module?
->    the main kernel could come with a null crypto implementation - which
->    makes no sense to use, but it will allow to meintain the whole system
->    without having to worry about the crypto stuff per se (this shouldn't
->    change very much in any case)
-> 
-> The US laws cover even things that are meant to allow crypto.
-
-well, but if you take that by the word, is means you cannot export _any_
-hooks from the kernel (like the sycall table), because it would enable
-someone to place some crytography in there (thinking of read and write
-calls)
-
-	tm
--- 
-in some way i do, and in some way i don't.
+I've seen it beeing faster with gcc 2.95.  Alan's point was (and I think
+the explanation is plausible) is that it is faster exactly _because_ it
+produces smaller code due to the instruction cache behaviour of many
+current CPUs.
 

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129054AbQJaSW4>; Tue, 31 Oct 2000 13:22:56 -0500
+	id <S129041AbQJaSXq>; Tue, 31 Oct 2000 13:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129041AbQJaSWq>; Tue, 31 Oct 2000 13:22:46 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:41711 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S129029AbQJaSWc>; Tue, 31 Oct 2000 13:22:32 -0500
-Date: Tue, 31 Oct 2000 19:22:30 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: kmalloc() allocation.
-Message-ID: <20001031192229.G7204@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <20001031161753.F7204@nightmaster.csn.tu-chemnitz.de> <Pine.LNX.4.21.0010311410440.23139-100000@duckman.distro.conectiva>
+	id <S130332AbQJaSXg>; Tue, 31 Oct 2000 13:23:36 -0500
+Received: from 041imtd118.chartermi.net ([24.247.41.118]:29176 "EHLO
+	oof.netnation.com") by vger.kernel.org with ESMTP
+	id <S129041AbQJaSX3>; Tue, 31 Oct 2000 13:23:29 -0500
+Date: Tue, 31 Oct 2000 13:23:06 -0500
+From: Simon Kirby <sim@stormix.com>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: eepro100: card reports no resources [was VM-global...]
+Message-ID: <20001031132306.A24147@stormix.com>
+In-Reply-To: <20001026193508.A19131@niksula.cs.hut.fi> <20001030142356.A3800@saw.sw.com.sg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0010311410440.23139-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Oct 31, 2000 at 02:11:24PM -0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001030142356.A3800@saw.sw.com.sg>; from saw@saw.sw.com.sg on Mon, Oct 30, 2000 at 02:23:56PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2000 at 02:11:24PM -0200, Rik van Riel wrote:
-[PCAC]
-> It's a nice idea, but you still want to be sure you won't
-> allocate eg. page tables randomly in the middle of the
-> PCACs ;)
+On Mon, Oct 30, 2000 at 02:23:56PM +0800, Andrey Savochkin wrote:
 
-Yes. That's why we check later, whether our hint is still true.
+> > > > Oct 26 16:38:01 ns29 kernel: eth0: card reports no resources.
+> > > > 
+> > > let me guess: intel eepro100 or similar??
+> > > Well known problem with that one. dont know if its fully fixed ... With
+> > 
+> > Happens here too, with 2xPPro200, 2.2.18pre17, Eepro100 and light load.
+> > The network stalls for several minutes when it happens.
+> > 
+> > > 2.4.0-test9-pre3 it doesnt happen on my machine ...
+> > 
+> > What about a fix for a 2.2.x...?
+> 
+> The exact reason for this problem is still unknown.
 
-If we cannot free or move all pages from this area, we retry by
-looking up the PCAC again (which I forgot to show, because I was
-in a hurry :-/ ), or try the old method and might fail there.
+We were seeing this on a firewall a week or so ago -- it was actually
+coming from some sort of arp flood/loop on the uplink not being caused by
+us, and the speed of the incoming arp packets would cause these messages
+to occur.
 
-So we have only an idea, where we MIGHT have an physical area of
-this size, but have no idea whether it is STILL freeable or
-movable.
+We tried ifconfig up/down, warm reboot, cold reboot, power cycle, card
+swapping, and the messages continued.  We stopped the card with a 3c905
+and the messages stopped, but "ifconfig" showed Rx overruns at about the
+same frequency as the messages used to occur.  This is probably another
+way to trigger this error than what most people are seeing.
 
-That's why I didn't care about ANY locking[1]. The only thing, that
-I take for granted, is that all struct phys_page are linked
-together and represent the whole systems physical memory
-including holes. Anything that breaks these assumption must be
-fixed in my code.
+Simon-
 
-Once you have implemented physical page scanning, I'll try to
-implement this. I just needed to know, whether you like the idea,
-or it is total crap ;-)
-
-Another problem is, that the PCAC needs memory to store these
-areas. One possibility is to store in in struct phys_page and
-have a global hash table for the sizes. But these are details for
-2.5 and not for now ;-)
-
-Regards
-
-Ingo Oeser
-
-[1] Later I have to lock the PCAC related structures of course.
--- 
-Feel the power of the penguin - run linux@your.pc
-<esc>:x
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

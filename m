@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292473AbSBPJG2>; Sat, 16 Feb 2002 04:06:28 -0500
+	id <S292327AbSBPJNu>; Sat, 16 Feb 2002 04:13:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292476AbSBPJGT>; Sat, 16 Feb 2002 04:06:19 -0500
-Received: from duba03h03-0.dplanet.ch ([212.35.36.23]:61957 "EHLO
-	duba03h03-0.dplanet.ch") by vger.kernel.org with ESMTP
-	id <S292473AbSBPJGJ>; Sat, 16 Feb 2002 04:06:09 -0500
-Message-ID: <3C6E20A8.40008@dplanet.ch>
-Date: Sat, 16 Feb 2002 10:04:40 +0100
-From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.5) Gecko/20011023
-X-Accept-Language: en
+	id <S292328AbSBPJNk>; Sat, 16 Feb 2002 04:13:40 -0500
+Received: from [193.154.7.22] ([193.154.7.22]:39488 "EHLO
+	freedom.icomedias.com") by vger.kernel.org with ESMTP
+	id <S292327AbSBPJN3> convert rfc822-to-8bit; Sat, 16 Feb 2002 04:13:29 -0500
+Subject: AW: Need to force IDE geometry
+Date: Sat, 16 Feb 2002 10:13:20 +0100
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: esr@thyrsus.com, Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-In-Reply-To: <fa.fs57c8v.pms19j@ifi.uio.no> <fa.h6krj0v.ggg1hm@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <D143FBF049570C4BB99D962DC25FC2D203B821@freedom.icomedias.com>
+X-MS-Has-Attach: 
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+X-MS-TNEF-Correlator: 
+Thread-Topic: Need to force IDE geometry
+Thread-Index: AcG2yi0vJFzBy0/fTj6sO91tYdMYTg==
+From: "Martin Bene" <martin.bene@icomedias.com>
+To: <Andries.Brouwer@cwi.nl>, <john@mwk.co.nz>, <linux-kernel@vger.kernel.org>
+Cc: <andre@linux-ide.org>, <hugo@firstlinux.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Hi Andries,
 
-> "Eric S. Raymond" wrote:
-> 
->>The first thing I heard, from mec two years ago, was "the CML1 code
->>base is not salvageable".  This was then and is now the unanimous opinion of
->>the kbuild team.  Not just mine; in fact, they concluded it before
->>I entered the picture.
->>
->>I have seen nothing since to make me change that opinion.
->>
-> 
-> So Alan Cox's opinion counts as nothing?
-> mconfig counts as nothing?
+> Your question is based on your assumptions about geometry
+> and LBA. But your assumptions are incorrect, and therefore
+> your questions do not make sense. Please tell what you do
+> and what error messages you get.
 
+For some reasons the c/h/s settings reported for LBA disks depend on ide device number: /hda uses 255 heads, 63 sectors while /dev/hdc and above use 16 head, 63 sectors.
 
-Why mconfig is not in the kernel? who maintain mconfig?
-Why the first maintainer of mconfig prefer CML2?
+hda: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=9345/255/63, UDMA(33)
+hdb: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=148945/16/63, UDMA(33)
+hdc: 150136560 sectors (76870 MB) w/1916KiB Cache, CHS=148945/16/63, UDMA(33)
 
-> 
-> I'm sure CML2 configurator is whiz-bang, but it needs to do basic stuff
-> like having "make oldconfig" work exactly like it does in the current
-> config system.
+As you can see, this means you end up with different reported drive geometries for identical disks. Esp. if you want to use software raid this is a major nuisance. The usual workaround is to change head/cylinder settings when first partitioning the drive and let linux change the geometry during partition table check.
 
+Partition check:
+ hda: hda1 hda2 < hda5 hda6 > hda3
+ hdb: [PTBL] [9345/255/63] hdb1 hdb2 < hdb5 hdb6 > hdb3
+ hdc: [PTBL] [9345/255/63] hdc1 hdc2 < hdc5 hdc6 > hdc3
 
-now CML2 oldconfig behave like actual code. I would say too much.
+While this works, it's quite unintuitive and confusing; correct behaviour would be to treat all disks identicaly regardless of device number.
 
-
-	giacomo
-
-
+Bye, Martin

@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267655AbUBTBLS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 20:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267611AbUBTBHd
+	id S267628AbUBTBHL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 20:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUBTBGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 20:07:33 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16138 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S267626AbUBTBEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 20:04:44 -0500
-Message-ID: <40355D0D.3010800@transmeta.com>
-Date: Thu, 19 Feb 2004 17:04:13 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel too big
-References: <UTC200402200021.i1K0L1525525.aeb@smtp.cwi.nl>
-In-Reply-To: <UTC200402200021.i1K0L1525525.aeb@smtp.cwi.nl>
+	Thu, 19 Feb 2004 20:06:51 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:22913 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267353AbUBTBG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 20:06:26 -0500
+Date: Thu, 19 Feb 2004 20:06:23 -0500
+From: Tom Vier <tmv@comcast.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Deadlocks and Machine Check Exception on Athlon64
+Message-ID: <20040220010623.GA14838@zero>
+Reply-To: Tom Vier <tmv@comcast.net>
+References: <1077229909.2828.22.camel@terminal124.gozu.lan>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1077229909.2828.22.camel@terminal124.gozu.lan>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> In 2.5.61 hpa changed
-> 
-> -      /* 0x28000*16 = 2.5 MB, conservative estimate for the current maximum */
-> -      if (sys_size > (is_big_kernel ? 0x28000 : DEF_SYSSIZE))
-> +      /* 0x40000*16 = 4.0 MB, reasonable estimate for the current maximum */
-> +      if (sys_size > (is_big_kernel ? 0x40000 : DEF_SYSSIZE))
->               die("System is too big. ...");
-> 
-> (with comment "bootsect removal").
-> 
-> Today I find for a 2.6.3 machine that it boots with 2994 kB and
-> crashes at boot time with 3005 kB.
-> 
-> Thus, it looks like this "reasonable estimate" is too optimistic.
-> 
-> If I understand correctly, the real requirement is that
-> _end must stay below 8MB (unless the initial page tables
-> in head.S are made larger). A crash occurs with _end = c07fcf8c.
-> 
-> Maybe these "conservative" or "reasonable" estimates should be
-> replaced by a text on _end?
-> 
+On Thu, Feb 19, 2004 at 11:31:50PM +0100, Ronny V. Vindenes wrote:
+> CPU 0: Machine Check Exception : 0000000000000004
+> Bank 4: b200000000070f0f
+> kernel panic: CPU context corrupt
+> In interrupt handler - not syncing
 
-What we should do is to actually look at the limit that matters.
+i've gotten the same machine check a couple times. it only happened the
+first few days i had my machine. i updated to the latest tyan bios which
+fixes some bugs. i haven't had it happen since.
 
-Also, if the limit really is around 3 MB compressed we probably need to
-extend it to 16 MB uncompressed; we're a little too close for comfort.
+if i'm reading it right (which is hard on this small screen, slow cpu
+laptop), page 153 of the opteron kernel/bios guide says this is an ecc data
+cache exception (which is always fatal/nonrecoverable). this sounds like
+errata 86, which is fixed in the tyan bios update i installed.
 
+does msi say their 2.1 bios fixes #86?
+
+-- 
+Tom Vier <tmv@comcast.net>
+DSA Key ID 0xE6CB97DA

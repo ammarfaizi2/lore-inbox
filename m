@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265785AbUFDOJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265797AbUFDOMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbUFDOJw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 10:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUFDOJw
+	id S265797AbUFDOMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 10:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265791AbUFDOLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 10:09:52 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:28047 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S265785AbUFDOJu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 10:09:50 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: msync() oops in 2.6.7-rc2-bk1
-Date: Fri, 4 Jun 2004 14:09:49 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <c9pvrd$v39$1@news.cistron.nl>
+	Fri, 4 Jun 2004 10:11:31 -0400
+Received: from gprs214-121.eurotel.cz ([160.218.214.121]:19585 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265787AbUFDOL0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 10:11:26 -0400
+Date: Fri, 4 Jun 2004 16:11:15 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: keyboard problem with 2.6.6
+Message-ID: <20040604141115.GE11950@elf.ucw.cz>
+References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de> <20040530111847.GA1377@ucw.cz> <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1086358189 31849 62.216.29.200 (4 Jun 2004 14:09:49 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running a news server. The innd process uses mmap()s for several
-files and uses msync() to force synchronization to disk every so
-often. Suddenly, an msync() causes an oops (and innd SEGVs). This
-is after the box has been up and running for 3 days:
+Hi!
 
-# uname -a
-Linux enterprise 2.6.7-rc2-bk1 #1 Mon May 31 15:03:52 CEST 2004 i686 GNU/Linux
+>     >> In a nutshell, I hate to be restricted by YOUR own imaginations
+>     >> of how people should hack the system.
+> 
+>     Vojtech> You're not. You're free to hack the kernel drivers. 
+> 
+> Not everyone using  Linux is patient enough to  explore the Wonderland
+> of kernel hacking.  Many immigrants from 2.4 are highly disappointed
+> by the new but incompatible mouse/keyboard behaviours.  Some of them
+> returned to their 2.4 homeland because of this.
 
- <1>Unable to handle kernel NULL pointer dereference at virtual address 00000000 printing eip:
-c0149120
-*pde = 00000000
-Oops: 0002 [#5]
-Modules linked in: e100 mii
-CPU:    0
-EIP:    0060:[<c0149120>]    Not tainted
-EFLAGS: 00010213   (2.6.7-rc2-bk1)
-EIP is at __set_page_dirty_buffers+0x20/0xb0
-eax: 00000000   ebx: f77a1e7c   ecx: c15706e0   edx: eba5a83c
-esi: 5ccfb000   edi: 00000000   ebp: 5d000000   esp: f44b5efc
-ds: 007b   es: 007b   ss: 0068
-Process innd (pid: 10936, threadinfo=f44b5000 task=d0eb2c70)
-Stack: f77a1de4 00000004 00000000 c4af23ec c013143e c15706e0 c013da1c 5ccfb000
-       c4af23f0 c013db0f c4af23ec f7101900 5ccfb000 00000001 5cc00000 ce8b25d0
-       00000000 5d000000 c013dbc3 ce8b25cc 5cc00000 5d000000 f7101900 00000001
-Call Trace:
- [<c013143e>] set_page_dirty+0x3e/0x50
- [<c013da1c>] filemap_sync_pte+0x5c/0x80
- [<c013db0f>] filemap_sync_pte_range+0xcf/0xf0
- [<c013dbc3>] filemap_sync+0x93/0x100
- [<c013dc96>] msync_interval+0x66/0xf0
- [<c013de37>] sys_msync+0x117/0x123
- [<c0103c7b>] syscall_call+0x7/0xb
+How can you propose moving keyboard handling to userland in one thread
+and complain about 2.4-vs-2.6 incompatibility of inputs in another?!
 
-Code: 0f ba 28 01 8b 40 08 39 d0 75 f5 0f ba 29 04 19 c0 85 c0 75
+2.4-vs-2.6 broke few strange keyboards. What you are proposing would
+break everyone who has a keyboard.
 
-Mike.
-
+								Pavel
+-- 
+934a471f20d6580d5aad759bf0d97ddc

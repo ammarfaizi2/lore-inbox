@@ -1,179 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267121AbSKXBtT>; Sat, 23 Nov 2002 20:49:19 -0500
+	id <S267131AbSKXCFz>; Sat, 23 Nov 2002 21:05:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267131AbSKXBtT>; Sat, 23 Nov 2002 20:49:19 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:24839 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267121AbSKXBtR>; Sat, 23 Nov 2002 20:49:17 -0500
-Date: Sun, 24 Nov 2002 02:56:22 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kconfig: Locate files relative to $srctree
-In-Reply-To: <20021123220747.GA10411@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0211240250490.2113-100000@serv>
-References: <20021123220747.GA10411@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267132AbSKXCFz>; Sat, 23 Nov 2002 21:05:55 -0500
+Received: from CPE-203-51-30-159.nsw.bigpond.net.au ([203.51.30.159]:14976
+	"EHLO matty.emma.house") by vger.kernel.org with ESMTP
+	id <S267131AbSKXCFy>; Sat, 23 Nov 2002 21:05:54 -0500
+Date: Sun, 24 Nov 2002 13:22:30 +1100
+From: Matthew Hawkins <matt@mh.dropbear.id.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19-ck13 oops
+Message-ID: <20021124022230.GB690@mh.dropbear.id.au>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i0/AhcQY5QxfSsSZ"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sat, 23 Nov 2002, Sam Ravnborg wrote:
+--i0/AhcQY5QxfSsSZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  const char *conf_confnames[] = {
->  	".config",
->  	"/lib/modules/$UNAME_RELEASE/.config",
->  	"/etc/kernel-config",
->  	"/boot/config-$UNAME_RELEASE",
-> -	conf_defname,
-> +	"arch/$ARCH/defconfig",			/* index DEFNAME */
-> +	"$" SRCTREE "/arch/$ARCH/defconfig",	/* index DEFALTNAME */
->  	NULL,
->  };
+Nov 24 00:11:43 matty kernel: Assertion failure in journal_commit_transacti=
+on() at commit.c:79: "commit_transaction->t_state =3D=3D T_RUN
+NING"
+Nov 24 00:11:43 matty kernel: kernel BUG at commit.c:79!
+Nov 24 00:11:43 matty kernel: invalid operand: 0000
+Nov 24 00:11:43 matty kernel: CPU:    1
+Nov 24 00:11:43 matty kernel: EIP:    0010:[journal_commit_transaction+250/=
+4307]    Not tainted
+Nov 24 00:11:43 matty kernel: EFLAGS: 00010286
+Nov 24 00:11:43 matty kernel: eax: 00000070   ebx: d7355494   ecx: ffffff90=
+   edx: d76bc000
+Nov 24 00:11:43 matty kernel: esi: d7355400   edi: d7355400   ebp: d5f88bc0=
+   esp: d76bde74
+Nov 24 00:11:43 matty kernel: ds: 0018   es: 0018   ss: 0018
+Nov 24 00:11:43 matty kernel: Process kjournald (pid: 103, stackpage=3Dd76b=
+d000)
+Nov 24 00:11:43 matty kernel: Stack: c0252260 c0252230 c0252227 0000004f c0=
+2522e0 d7355450 d7355400 d7355400=20
+Nov 24 00:11:43 matty kernel:        00000000 00000000 06c9c930 c8bc85a0 d7=
+355450 d7355494 d7ed7120 00000000=20
+Nov 24 00:11:43 matty kernel:        00000000 00000000 00000000 c01cfad8 d1=
+15d1c0 00001587 ca41c360 ca41c5a0=20
+Nov 24 00:11:43 matty kernel: Call Trace:    [ide_do_request+676/768] [load=
+_balance+972/1672] [smp_apic_timer_interrupt+243/276] [upd
+ate_process_times+37/44] [smp_apic_timer_interrupt+243/276]
+Nov 24 00:11:43 matty kernel:   [call_apic_timer_interrupt+5/13] [kjournald=
++342/552] [commit_timeout+0/12] [kernel_thread+40/56]
+Nov 24 00:11:43 matty kernel:=20
+Nov 24 00:11:43 matty kernel: Code: 0f 0b 4f 00 27 22 25 c0 83 c4 14 8d b4 =
+26 00 00 00 00 c7 45=20
 
-This is not good. At some point I maybe want to make these configurable.
-I changed the patch to always use zconf_fopen(), which will try the 
-alternative prefix for relative paths.
-I couldn't test this very much as you forgot the kbuild script. :)
-Anyway, below is an alternative version.
+--=20
+Matt
 
-bye, Roman
+--i0/AhcQY5QxfSsSZ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Index: scripts/kconfig/confdata.c
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/scripts/kconfig/confdata.c,v
-retrieving revision 1.1.1.2
-diff -u -p -r1.1.1.2 confdata.c
---- scripts/kconfig/confdata.c	11 Nov 2002 19:06:27 -0000	1.1.1.2
-+++ scripts/kconfig/confdata.c	24 Nov 2002 00:31:28 -0000
-@@ -3,6 +3,7 @@
-  * Released under the terms of the GNU GPL v2.0.
-  */
- 
-+#include <sys/stat.h>
- #include <ctype.h>
- #include <stdio.h>
- #include <stdlib.h>
-@@ -53,7 +54,18 @@ static char *conf_expand_value(const cha
- 
- char *conf_get_default_confname(void)
- {
--	return conf_expand_value(conf_defname);
-+	struct stat buf;
-+	static char fullname[PATH_MAX+1];
-+	char *env, *name;
-+
-+	name = conf_expand_value(conf_defname);
-+	env = getenv(SRCTREE);
-+	if (env) {
-+		sprintf(fullname, "%s/%s", env, name);
-+		if (!stat(fullname, &buf))
-+			return fullname;
-+	}
-+	return name;
- }
- 
- int conf_read(const char *name)
-@@ -68,12 +80,12 @@ int conf_read(const char *name)
- 	int i;
- 
- 	if (name) {
--		in = fopen(name, "r");
-+		in = zconf_fopen(name);
- 	} else {
- 		const char **names = conf_confnames;
- 		while ((name = *names++)) {
- 			name = conf_expand_value(name);
--			in = fopen(name, "r");
-+			in = zconf_fopen(name);
- 			if (in) {
- 				printf("#\n"
- 				       "# using defaults found in %s\n"
-Index: scripts/kconfig/lkc.h
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/scripts/kconfig/lkc.h,v
-retrieving revision 1.1.1.1
-diff -u -p -r1.1.1.1 lkc.h
---- scripts/kconfig/lkc.h	31 Oct 2002 13:29:12 -0000	1.1.1.1
-+++ scripts/kconfig/lkc.h	24 Nov 2002 00:31:28 -0000
-@@ -21,12 +21,14 @@ extern "C" {
- #include "lkc_proto.h"
- #undef P
- 
--void symbol_end(char *help);
-+#define SRCTREE "srctree"
-+
- int zconfparse(void);
- void zconfdump(FILE *out);
- 
- extern int zconfdebug;
- void zconf_starthelp(void);
-+FILE *zconf_fopen(const char *name);
- void zconf_initscan(const char *name);
- void zconf_nextfile(const char *name);
- int zconf_lineno(void);
-Index: scripts/kconfig/zconf.l
-===================================================================
-RCS file: /usr/src/cvsroot/linux-2.5/scripts/kconfig/zconf.l,v
-retrieving revision 1.1.1.2
-diff -u -p -r1.1.1.2 zconf.l
---- scripts/kconfig/zconf.l	11 Nov 2002 19:06:28 -0000	1.1.1.2
-+++ scripts/kconfig/zconf.l	24 Nov 2002 00:31:28 -0000
-@@ -7,6 +7,7 @@
-  * Released under the terms of the GNU GPL v2.0.
-  */
- 
-+#include <limits.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-@@ -249,9 +251,34 @@ static void zconf_endhelp(void)
- 	BEGIN(INITIAL); 
- }
- 
-+
-+/* 
-+ * Try to open specified file with following names:
-+ * ./name
-+ * $(srctree)/name
-+ * The latter is used when srctree is separate from objtree
-+ * when compiling the kernel.
-+ * Return NULL if file is not found.
-+ */
-+FILE *zconf_fopen(const char *name)
-+{
-+	char *env, fullname[PATH_MAX+1];
-+	FILE *f;
-+
-+	f = fopen(name, "r");
-+	if (!f && name[0] != '/') {
-+		env = getenv(SRCTREE);
-+		if (env) {
-+			sprintf(fullname, "%s/%s", env, name);
-+			f = fopen(fullname, "r");
-+		}
-+	}
-+	return f;
-+}
-+
- void zconf_initscan(const char *name)
- {
--	yyin = fopen(name, "r");
-+	yyin = zconf_fopen(name);
- 	if (!yyin) {
- 		printf("can't find file %s\n", name);
- 		exit(1);
-@@ -272,7 +299,7 @@ void zconf_nextfile(const char *name)
- 	memset(buf, 0, sizeof(*buf));
- 
- 	current_buf->state = YY_CURRENT_BUFFER;
--	yyin = fopen(name, "r");
-+	yyin = zconf_fopen(name);
- 	if (!yyin) {
- 		printf("%s:%d: can't open file \"%s\"\n", zconf_curname(), zconf_lineno(), name);
- 		exit(1);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE94DfmWzq7BJucGyIRAnXNAJ9bS+KYgc1iskWLWruOb8FTOGnJagCeKlMK
+KhWLopwa2H5qDGBh9i6q/TU=
+=sDM3
+-----END PGP SIGNATURE-----
+
+--i0/AhcQY5QxfSsSZ--

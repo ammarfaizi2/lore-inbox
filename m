@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVDEKOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVDEKKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVDEKOy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 06:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVDEKLt
+	id S261667AbVDEKKy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 06:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVDEKGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 06:11:49 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8171 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261694AbVDEKHL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 06:07:11 -0400
-Date: Tue, 5 Apr 2005 12:06:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Norbert Preining <preining@logic.at>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: 2.6.12-rc1-mm4 and suspend2ram (and synaptics)
-Message-ID: <20050405100644.GA1345@elf.ucw.cz>
-References: <20050331220822.GA22418@gamma.logic.tuwien.ac.at> <20050401113335.GA13160@elf.ucw.cz> <20050403224557.GB1015@gamma.logic.tuwien.ac.at> <20050403225929.GE13466@elf.ucw.cz> <20050404081600.GA2424@gamma.logic.tuwien.ac.at>
+	Tue, 5 Apr 2005 06:06:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:26591 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261658AbVDEKES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 06:04:18 -0400
+Date: Tue, 5 Apr 2005 11:03:52 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Paul Mackerras <paulus@samba.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050405100352.GA29525@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Airlie <airlied@gmail.com>, Paul Mackerras <paulus@samba.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050405000524.592fc125.akpm@osdl.org> <20050405074405.GE26208@infradead.org> <21d7e99705040502073dfa5e5@mail.gmail.com> <16978.22617.338768.775203@cargo.ozlabs.ibm.com> <20050405093020.GA28620@infradead.org> <16978.24070.786761.641930@cargo.ozlabs.ibm.com> <20050405094535.GA29095@infradead.org> <16978.24509.527688.799274@cargo.ozlabs.ibm.com> <20050405095445.GA29246@infradead.org> <21d7e99705040502584229ae8d@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050404081600.GA2424@gamma.logic.tuwien.ac.at>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <21d7e99705040502584229ae8d@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 04-04-05 10:16:00, Norbert Preining wrote:
-> Hi Pavel!
+On Tue, Apr 05, 2005 at 07:58:19PM +1000, Dave Airlie wrote:
+> > 
+> > E.g. on my ia64 box CONFIG_COMPAT is set because I have support compiled
+> > in for running i386 apps.  But I don't want dri to hand out 32bit handles
+> > everywhere just because of that, because I most certainly won't be running
+> > i386 OpenGL apps.
+> > 
 > 
-> On Mon, 04 Apr 2005, Pavel Machek wrote:
-> > I'd like to fix the problem, but first I need to know where the
-> > problem is.  If it works with minimal config, I know that it is one of
-> > drivers you deselected.
-> 
-> It's b44. It *was* working with b44 insmod-ed and up and running, but
-> now as soon as b44-eth0 is ifup-ed while suspending, the resume freezes.
-> If I do a ifdown eth0 before suspending, it works.
+> It doesn't actually matter what size the handles are from what I
+> understand of this... as long as they are hashed properly.. I've been
+> thinking of changing the handle from something with meaning to a hash
+> just to find out some more bugs.. even on plain 32-bit systems..
 
-Does this one help?
-								Pavel
+Or, I though the handle was related to the dma_mask somewhat.  I'll take
+all flames on this subject back and apologize for not researching the subject
+better, although I still think it's not a good idea to have a different
+handle format depending on whether CONFIG_COMPAT is set or not.
 
---- clean/drivers/net/b44.c	2005-04-05 10:55:16.000000000 +0200
-+++ linux/drivers/net/b44.c	2005-04-05 10:56:33.000000000 +0200
-@@ -1927,6 +1927,8 @@
- 	b44_free_rings(bp);
- 
- 	spin_unlock_irq(&bp->lock);
-+
-+	free_irq(dev->irq, dev);
- 	return 0;
- }
- 
-@@ -1940,6 +1942,9 @@
- 	if (!netif_running(dev))
- 		return 0;
- 
-+	if (request_irq(dev->irq, b44_interrupt, SA_SHIRQ, dev->name, dev))
-+		printk(KERN_ERR PFX "%s: request_irq failed\n", dev->name);
-+
- 	spin_lock_irq(&bp->lock);
- 
- 	b44_init_rings(bp);
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263198AbVCKFYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263196AbVCKFcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263198AbVCKFYN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 00:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263207AbVCKFYM
+	id S263196AbVCKFcE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 00:32:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbVCKFcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 00:24:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5029 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263198AbVCKFXP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 00:23:15 -0500
-Date: Thu, 10 Mar 2005 21:23:02 -0800
-From: Greg KH <greg@kroah.com>
-To: long <tlnguyen@snoqualmie.dp.intel.com>, benh@kernel.crashing.org
-Cc: linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
-Subject: Re: [PATCH] PCI Express Advanced Error Reporting Driver
-Message-ID: <20050311052302.GB27775@kroah.com>
-References: <200503102304.j2AN4INc018805@snoqualmie.dp.intel.com>
+	Fri, 11 Mar 2005 00:32:04 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:63740 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S263196AbVCKFb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 00:31:59 -0500
+Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for
+	2.6.11)
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: peterc@gelato.unsw.edu.au
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 00:18:27 -0500
+Message-Id: <1110518308.1949.67.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503102304.j2AN4INc018805@snoqualmie.dp.intel.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 03:04:18PM -0800, long wrote:
-> PCI Express error signaling can occur on the PCI Express link itself
-> or on behalf of transactions initiated on the link. PCI Express
-> defines the Advanced Error Reporting capability, which is implemented 
-> with a PCI Express advanced error reporting extended capability
-> structure, to provide more robust error reporting. With the Advanced
-> Error Reporting capability a PCI Express component, which detects an
-> error, can send an error message to the Root Port associated with
-> its hierarchy.  
+Peter Chubb writes:
 
-<snip>
+> There are three new system calls:
+>
+>   long   usr_pci_open(int bus, int slot, int function, __u64 dma_mask);
+>          Returns a filedescriptor for the PCI device described 
+>          by bus,slot,function.  It also enables the device, and sets it 
+>          up as a bus-mastering DMA device, with the specified dma mask.
 
-This patch was too big for lkml, and should also be sent to the
-linux-pci list.  Care to split it up and resend it?
+You forgot the PCI domain (a.k.a. hose, phb...) number.
+Also, you might encode bus,slot,function according to
+the PCI spec. So that gives:
 
-Also, how does this tie into the recent discussion about pci error
-recovery?
+long usr_pci_open(unsigned pcidomain, unsigned devspec, __u64 dmamask);
 
-thanks,
+(with the user library returning an int instead of long)
 
-greg k-h
+

@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbUKOXyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbUKOXyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbUKOXyV (ORCPT <rfc822;willy@w.ods.org>);
+	id S261647AbUKOXyV (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 15 Nov 2004 18:54:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbUKOXxI
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbUKOXxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 18:53:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:23498 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261658AbUKOXwe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 18:52:34 -0500
-Date: Mon, 15 Nov 2004 15:56:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Sami Farin <7atbggg02@sneakemail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vm-pageout-throttling.patch: hanging in
- throttle_vm_writeout/blk_congestion_wait
-Message-Id: <20041115155639.744bfc67.akpm@osdl.org>
-In-Reply-To: <20041115231705.GE6654@m.safari.iki.fi>
-References: <20041115012620.GA5750@m.safari.iki.fi>
-	<Pine.LNX.4.44.0411152140030.4171-100000@localhost.localdomain>
-	<20041115223709.GD6654@m.safari.iki.fi>
-	<200411151451.21671.ryan@spitfire.gotdns.org>
-	<20041115231705.GE6654@m.safari.iki.fi>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Nov 2004 18:53:14 -0500
+Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:52700 "EHLO
+	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
+	id S261639AbUKOXwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 18:52:41 -0500
+Date: Mon, 15 Nov 2004 18:52:35 -0500 (EST)
+From: Nickolai Zeldovich <kolya@MIT.EDU>
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+cc: linux-kernel@vger.kernel.org, csapuntz@stanford.edu
+Subject: Re: [patch] Fix GDT re-load on ACPI resume
+In-Reply-To: <Pine.LNX.4.58L.0411152320520.12776@blysk.ds.pg.gda.pl>
+Message-ID: <Pine.GSO.4.58L.0411151851430.4959@contents-vnder-pressvre.mit.edu>
+References: <Pine.GSO.4.58L.0411151525540.28749@contents-vnder-pressvre.mit.edu>
+ <Pine.LNX.4.58L.0411152320520.12776@blysk.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 15 Nov 2004, Maciej W. Rozycki wrote:
 
-Please always do reply-to-all when working with kernel people.
+>  You should use "lgdtl" and let gas figure out the rest.
 
-Sami Farin <7atbggg02@sneakemail.com> wrote:
->
-> > swapon /path/to/file/on/reiserfs
-> > 
-> > This allows the kernel to perform certain optimizations and removes the 
-> > overhead of the loopback device.
-> 
-> It also removes encryption, which I wish to have.
+Thanks for the pointer; here's an updated patch.
 
-The dm-crypt driver should be able to do this, and it doesn't have
-low-on-memory deadlock problems.
+-- kolya
 
-(Not that I'm convinced that this was a low-on-memory deadlock - that
-wasn't obvious from the traces).
+--- linux-2.6.9/arch/i386/kernel/acpi/wakeup.S	2004/11/15 09:00:34	1.1
++++ linux-2.6.9/arch/i386/kernel/acpi/wakeup.S	2004/11/15 23:50:38
+@@ -66,8 +66,9 @@
+ 	movw	%ax,%fs
+ 	movw	$0x0e00 + 'i', %fs:(0x12)
+
+-	# need a gdt
+-	lgdt	real_save_gdt - wakeup_code
++	# need a gdt -- use lgdtl to force 32-bit operands, in case
++	# the GDT is located past 16 megabytes.
++	lgdtl	real_save_gdt - wakeup_code
+
+ 	movl	real_save_cr0 - wakeup_code, %eax
+ 	movl	%eax, %cr0

@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264330AbUEDMq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUEDMpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264330AbUEDMq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 08:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbUEDMqZ
+	id S264358AbUEDMpX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 08:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264331AbUEDMpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 08:46:25 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:51176 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S264330AbUEDMqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 08:46:21 -0400
-Date: Tue, 4 May 2004 08:39:40 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux1394-devel@lists.sf.net
-Subject: Re: [PATCH] fix ohci1394 rmmod
-Message-ID: <20040504123940.GD3647@phunnypharm.org>
-References: <16535.34664.662254.665975@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16535.34664.662254.665975@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 4 May 2004 08:45:16 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:23951 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264330AbUEDMpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 08:45:10 -0400
+Date: Tue, 4 May 2004 13:45:02 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Brent Cook <busterbcook@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Slab cache seems to grow forever - 2.6.6-rc3-mm1
+In-Reply-To: <Pine.LNX.4.58.0405040651150.18153@ozma.hauschen>
+Message-ID: <Pine.LNX.4.44.0405041343310.5077-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ben, any comments on this patch?  I think it should go in.
+On Tue, 4 May 2004, Brent Cook wrote:
+> 
+> This might be related to the change in fs-writeback.c that fixed
+> redirtying inodes on NFS, but I'm not sure. It seems that the Slab cache
+> never shrinks. Could this be a memory leak? It definitely affects system
+> performance. Here are the numbers after running for about 12 hours with
+> heavy NFS traffic (this is the client).
 
-Yeah, this is the wrong fix. I have a proper one in the repo that I'll
-sync to Linus this week.
+Please apply the patch akpm posted on Saturday:
 
-Point is, we need to ignore SIGTERM because init will send it during
-shutdown, and that will kill these threads making it impossible to
-unmount/sync sbp2 disks during the shutdown/reset process. My patch sets
-a variable and then signals the semaphore in the thread, which checks
-the variable and shuts down at that time.
+2.6.6-rc3-mm1 is totally broken in the slab-shrinking area (sorry).
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+--- 25/mm/vmscan.c~shrink_slab-handle-GFP_NOFS-fix	2004-05-01 14:34:25.446391008 -0700
++++ 25-akpm/mm/vmscan.c	2004-05-01 14:34:37.424570048 -0700
+@@ -156,7 +156,7 @@ static int shrink_slab(unsigned long sca
+ 			shrinker->nr = LONG_MAX;	/* It wrapped! */
+ 
+ 		if (shrinker->nr <= SHRINK_BATCH)
+-			break;
++			continue;
+ 		while (shrinker->nr) {
+ 			long this_scan = shrinker->nr;
+ 			int shrink_ret;
+

@@ -1,59 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262161AbSJ2R3i>; Tue, 29 Oct 2002 12:29:38 -0500
+	id <S262080AbSJ2RS6>; Tue, 29 Oct 2002 12:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262178AbSJ2R3i>; Tue, 29 Oct 2002 12:29:38 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:40591 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S262161AbSJ2R3h>; Tue, 29 Oct 2002 12:29:37 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 29 Oct 2002 09:45:08 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Shailabh Nagar <nagar@watson.ibm.com>
-cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [PATCH] Updated sys_epoll now with man pages
-In-Reply-To: <3DBEA982.8010309@watson.ibm.com>
-Message-ID: <Pine.LNX.4.44.0210290943130.1457-100000@blue1.dev.mcafeelabs.com>
+	id <S262107AbSJ2RS6>; Tue, 29 Oct 2002 12:18:58 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:58608 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262080AbSJ2RSx>; Tue, 29 Oct 2002 12:18:53 -0500
+From: Badari Pulavarty <badari@us.ibm.com>
+Message-Id: <200210291725.g9THP6j15170@eng2.beaverton.ibm.com>
+Subject: [PATCH] 2.5.44 generic_file_*_write() support for AIO
+To: linux-aio@kvack.org, linux-kernel@vger.kernel.org (lkml)
+Date: Tue, 29 Oct 2002 09:25:06 -0800 (PST)
+Cc: akpm@digeo.com
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Oct 2002, Shailabh Nagar wrote:
+Hi Ben & Andrew,
 
-> Andrew,
->
-> It would be very helpful if you could point out what were the bugs you found
-> objectionable enough to withold your approval for the patch's inclusion.
->
-> It appears that the lack of comments in the code is one major concern. That alone
-> being a reason to dismiss the sys_epoll patch seems unreasonable. Consider
-> - there are another 3-4 months before the stable kernel will be out. In the
-> interim, Davide with assistance from some of us IBMers can put in the desired
-> level of comments in the code. Our committment to having a fully understood patch
-> should be evident from the release of man pages and a detailed web page listing
-> performance results alongwith the patch itself.
-> - this patch is the ONLY available scalable alternative to poll() and does far
-> better. To make an example out of this patch for not conforming to commenting
-> standards is a little extreme.
->
-> That being said, if there are bugs (small or large) that make the patch
-> questionable, I would understand why it can't be included. But we do need to
-> know what the bugs are. Davide had been very responsive to your last set of
-> comments and included all of them in his patch.
->
-> Please do find the time to list out atleast some of the bugs that you found.
+Here is 2.5.44 patch to add support for generic_file_*_write()
+support for AIO. I was wondering why this is not done, while 
+adding generic_file_*_read() support for AIO. 
 
-Guys, Andrew sent me suggestions about the code and I'm working with him
-to see what it might be improved in the current code. I think that I'll
-have a patch ready before the end of today ...
+I need these changes to support AIO on DIO. Do they look
+reasonable to you ?
+
+Thanks,
+Badari
 
 
-
-- Davide
-
+--- linux/mm/filemap.c	Fri Oct 25 13:58:46 2002
++++ linux.new/mm/filemap.c	Tue Oct 29 08:27:50 2002
+@@ -1571,10 +1571,11 @@
+  * it for writing by marking it dirty.
+  *							okir@monad.swb.de
+  */
+-ssize_t
+-generic_file_write_nolock(struct file *file, const struct iovec *iov,
++static ssize_t
++__generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos)
+ {
++	struct file *file = iocb->ki_filp;
+ 	struct address_space * mapping = file->f_dentry->d_inode->i_mapping;
+ 	struct address_space_operations *a_ops = mapping->a_ops;
+ 	size_t ocount;		/* original count */
+@@ -1833,10 +1834,36 @@
+ 	return err;
+ }
+ 
++ssize_t
++generic_file_write_nolock(struct file *file, const struct iovec *iov,
++				unsigned long nr_segs, loff_t *ppos)
++{
++	struct kiocb kiocb;
++	ssize_t ret;
++
++	init_sync_kiocb(&kiocb, file);
++	ret = __generic_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
++	if (-EIOCBQUEUED == ret)
++		ret = wait_on_sync_kiocb(&kiocb);
++	return ret;
++}
++
+ ssize_t generic_file_aio_write(struct kiocb *iocb, const char *buf,
+ 			       size_t count, loff_t pos)
+ {
+-	return generic_file_write(iocb->ki_filp, buf, count, &iocb->ki_pos);
++	struct file *file = iocb->ki_filp;
++	struct inode *inode = file->f_dentry->d_inode->i_mapping->host;
++	int err;
++	struct iovec local_iov = { .iov_base = (void *)buf, .iov_len = count };
++
++	BUG_ON(iocb->ki_pos != pos);
++
++	down(&inode->i_sem);
++	err = __generic_file_aio_write_nolock(iocb, &local_iov, 1, 
++						&iocb->ki_pos);
++	up(&inode->i_sem);
++
++	return err;
+ }
+ EXPORT_SYMBOL(generic_file_aio_write);
+ 
 

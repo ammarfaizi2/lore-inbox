@@ -1,73 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263337AbTH0KNs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 06:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTH0KNs
+	id S263244AbTH0KUA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 06:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTH0KUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 06:13:48 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:27601 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S263337AbTH0KNg
+	Wed, 27 Aug 2003 06:20:00 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:64905 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S263244AbTH0KT5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 06:13:36 -0400
-Date: Wed, 27 Aug 2003 13:13:13 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org, tejun@aratech.co.kr
-Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
-Message-ID: <20030827101313.GX83336@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	linux-kernel@vger.kernel.org, tejun@aratech.co.kr
-References: <20030729073948.GD204266@niksula.cs.hut.fi> <20030730071321.GV150921@niksula.cs.hut.fi> <Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva> <20030730181003.GC204962@niksula.cs.hut.fi> <20030827064301.GF150921@niksula.cs.hut.fi> <20030827073758.GW83336@niksula.cs.hut.fi> <20030827113027.64c42485.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030827113027.64c42485.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+	Wed, 27 Aug 2003 06:19:57 -0400
+Message-ID: <3F4C8619.4020505@softhome.net>
+Date: Wed, 27 Aug 2003 12:21:13 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cache limit
+References: <oJ5P.699.21@gated-at.bofh.it> <oJ5P.699.23@gated-at.bofh.it> <oJ5P.699.25@gated-at.bofh.it> <oJ5P.699.27@gated-at.bofh.it> <oJ5P.699.19@gated-at.bofh.it> <oQh2.4bQ.13@gated-at.bofh.it> <3F4BB043.6010805@softhome.net> <20030826192333.GA1258@matchmail.com>
+In-Reply-To: <20030826192333.GA1258@matchmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 27, 2003 at 11:30:27AM +0200, you [Stephan von Krawczynski] wrote:
+Mike Fedyk wrote:
 > 
-> Hm, did you try a serial console? On my side this was a big step forward.
+> That was because they wanted the non-streaming files to be left in the cache.
+> 
+>>  I will try to produce some benchmarktings tomorrow with different 
+>>'mem=%dMB'. I'm afraid to confirm that it will make difference.
+>>  But in advance: mantainance of page tables for 1GB and for 128MB of 
+>>RAM are going to make a difference.
+> 
+> I'm sorry to say, but you *will* get lower performance if you lower the mem=
+> value below your working set.  This will also lower the total amount of
+> memory available for your applications, and force your apps, to swap and
+> balance cache, and app memory.
+> 
+> That's not what you are looking to benchmark.
+> 
 
-Do you mean in your case nothing shown on monitor (I've disabled monitor
-blanking, so that is not it), sysrq key didn't work, nmi watchdog didn't
-trigger but you were still able to get output from serial console? An oops?
+   Okay. I'm completely puzzled.
+   I will qute here only one test - and I really do not understand this 
+stuff.
 
-Or, did you use kdb/kgdb in addition to serial console?
+   Three boots with the same parameters and only mem=nMB, n = 
+{512,256,128} (I have 512MB RAM)
 
-> If you experience complete hangs it may be something around hanging
-> interrupts.
+   hdparm tests:
+[root@hera ifilipau]# hdparm -t /dev/hda
+/dev/hda:
+  Timing buffered disk reads:  64 MB in  1.56 seconds = 41.03 MB/sec
+[root@hera ifilipau]# hdparm -T /dev/hda
+/dev/hda:
+  Timing buffer-cache reads:   128 MB in  0.44 seconds =290.91 MB/sec
+[root@hera ifilipau]#
 
-Probably, yes.
+   Before tests I was doing 'swapoff -a; sync'
+   RedHat's 2.4.20-20.9 kernel.
 
-> Did you play with apic/acpi etc. to try different interrupt handling? 
+   What has really puzzled me.
+   Operation: "cat *.bz2 >big_file", where *.bz2 is just two bzipped 
+kernels. Total size: 29MB+32MB (2.4.22 + 2.6.0-test1)
 
-ACPI has never been enabled. I enabled local APIC when I enabled nmi
-watchdog, so I've tried it on and off.
+   To be bsolutely fair in this unfair benchmark I have run test only 
+once. Times in seconds as shown by bash's time.
 
-> What does your /proc/interrupts look like compared between 2.2 and 2.4 ?
+            cat      sync
+   512MB:  1.565    0.007
+   256MB:  1.649    0.008
+   128MB:  2.184    0.007
 
-I don't have 2.2 output at hand, but the 2.4.21-jam1 output doesn't seem too
-suspicious:
+   Kill me - shoot me, but how it can be?
+   Resulting file fits RAM.
+   Not hard to guess that source files, which no one cares about already 
+- are still hanging in the RAM...
 
-cat /proc/interrupts 
-           CPU0       
-  0:    1675428          XT-PIC  timer
-  1:          3          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  4:      19625          XT-PIC  serial
-  9:      25447          XT-PIC  aic7xxx
- 11:      25203          XT-PIC  eth0
- 12:          0          XT-PIC  PS/2 Mouse
- 14:     178082          XT-PIC  ide0
-NMI:      16763 
-LOC:    1675326 
-ERR:          0
+   That's not right: as long as resulting file fits memory - and it fits 
+memory in all (512MB, 256MB, 128MB) cases - this operation should take 
+the _same_ time. (Actually before 128MB test, vmstat was saying that I 
+have +70MB of free non-touched memory)
 
+   So resume is quite simple: kernel loses *terribly* much time 
+resorting read()s against write()s. Way _too_ _much_ time.
 
+   I will try to download RedHat's AS kernel and play with page-cache.
+   After all: if RH has included that feature in their kernels - that 
+means it really make sense ;-)))
 
--- v --
+-- 
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+   * Please avoid sending me Word/PowerPoint/Excel attachments.
+   * See http://www.fsf.org/philosophy/no-word-attachments.html
+   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+    There should be some SCO's source code in Linux -
+       my servers sometimes are crashing.      -- People
 
-v@iki.fi

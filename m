@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVCDJ0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVCDJ01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbVCDJ0E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 04:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVCDJ0E
+	id S262716AbVCDJ01 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 04:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVCDJ00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 04:26:04 -0500
-Received: from fire.osdl.org ([65.172.181.4]:31173 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262597AbVCDJWX (ORCPT
+	Fri, 4 Mar 2005 04:26:26 -0500
+Received: from upco.es ([130.206.70.227]:30671 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S262703AbVCDJXi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 04:22:23 -0500
-Date: Fri, 4 Mar 2005 01:21:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050304012154.619948d7.akpm@osdl.org>
-In-Reply-To: <20050304091612.GG14764@suse.de>
-References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-	<422751C1.7030607@pobox.com>
-	<20050303181122.GB12103@kroah.com>
-	<20050303151752.00527ae7.akpm@osdl.org>
-	<20050303234523.GS8880@opteron.random>
-	<20050303160330.5db86db7.akpm@osdl.org>
-	<20050304025746.GD26085@tolot.miese-zwerge.org>
-	<20050303213005.59a30ae6.akpm@osdl.org>
-	<1109924470.4032.105.camel@tglx.tec.linutronix.de>
-	<20050304005450.05a2bd0c.akpm@osdl.org>
-	<20050304091612.GG14764@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 4 Mar 2005 04:23:38 -0500
+Date: Fri, 4 Mar 2005 10:23:33 +0100
+From: Romano Giannetti <romanol@upco.es>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>,
+       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: 2.6.11: suspending laptop makes system randomly unstable
+Message-ID: <20050304092333.GA11862@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: romano@dea.icai.upco.es,
+	Andrew Morton <akpm@osdl.org>,
+	Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>,
+	linux-kernel@vger.kernel.org,
+	Dmitry Torokhov <dtor_core@ameritech.net>
+References: <422618F0.3020508@telefonica.net> <20050302134342.4c9cc488.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20050302134342.4c9cc488.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> On Fri, Mar 04 2005, Andrew Morton wrote:
->  > The average user has learnt "rc1 == pre1".  I don't expect that it
->  > matters much at all.
+On Wed, Mar 02, 2005 at 01:43:42PM -0800, Andrew Morton wrote:
 > 
->  The average user and lkml reader, perhaps. But I don't understand
->  why Linus refuses to use proper -preX/-rcX naming
+> That's an ACPI problem, I assume?
+> 
 
-Me either.  And because people just will insist on arbitrarily dinking with
-Cc: lines, he's not listening to us any more.
+Probably. There is something flaky in ACPI event (it happened sometime
+between 2.6.7 and 2.6.9, i tried to check all the patches, but I had find
+nothing. 
 
-There.  Fixed.
+Could someone please check http://bugme.osdl.org/show_bug.cgi?id=4124 and
+tell me what to do to help in debugging it? 
+
+What is very strange is why "power button" and "read battery current capacity" 
+events are working ok, and "sleep button" or "CRT switch button" or "ac
+plugged/unplugged" seems more or less random delayed. 
+
+Romano 
+
+
+
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

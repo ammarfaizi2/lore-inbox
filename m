@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVCFXtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVCFXtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbVCFXtd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 18:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVCFXrb
+	id S261568AbVCFXtc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 18:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVCFXss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 18:47:31 -0500
-Received: from coderock.org ([193.77.147.115]:59311 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261564AbVCFWg5 (ORCPT
+	Sun, 6 Mar 2005 18:48:48 -0500
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:18678 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261554AbVCFXbL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:36:57 -0500
-Subject: [patch 08/14] list_for_each_entry: arch-um-drivers-chan_kern.c
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, janitor@sternwelten.at,
-       jdike@addtoit.com
-From: domen@coderock.org
-Date: Sun, 06 Mar 2005 23:36:40 +0100
-Message-Id: <20050306223640.8A5C41F1FF@trashy.coderock.org>
+	Sun, 6 Mar 2005 18:31:11 -0500
+Date: Mon, 7 Mar 2005 08:30:52 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.11-mm1] mips: fix section type conflict about mpc30x
+Message-Id: <20050307083052.3366678c.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch fixes section type conflict about mpc30x
 
+  CC      arch/mips/pci/fixup-mpc30x.o
+arch/mips/pci/fixup-mpc30x.c:26: error: internal_func_irqs causes a section type conflict
+make[1]: *** [arch/mips/pci/fixup-mpc30x.o] Error 1
+make: *** [arch/mips/pci] Error 2
 
-Make code more readable with list_for_each_reverse.
+Yoichi
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-Acked-by: Jeff Dike <jdike@addtoit.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-
- kj-domen/arch/um/drivers/chan_kern.c |    4 +---
- 1 files changed, 1 insertion(+), 3 deletions(-)
-
-diff -puN arch/um/drivers/chan_kern.c~list-for-each-entry-drivers_chan_kern arch/um/drivers/chan_kern.c
---- kj/arch/um/drivers/chan_kern.c~list-for-each-entry-drivers_chan_kern	2005-03-05 16:09:00.000000000 +0100
-+++ kj-domen/arch/um/drivers/chan_kern.c	2005-03-05 16:09:00.000000000 +0100
-@@ -218,7 +218,6 @@ void enable_chan(struct list_head *chans
+diff -urN -X dontdiff a-orig/arch/mips/pci/fixup-mpc30x.c a/arch/mips/pci/fixup-mpc30x.c
+--- a-orig/arch/mips/pci/fixup-mpc30x.c	Fri Nov  5 00:42:26 2004
++++ a/arch/mips/pci/fixup-mpc30x.c	Mon Jan 10 23:54:09 2005
+@@ -29,7 +29,7 @@
+ 	VRC4173_USB_IRQ,
+ };
  
- void close_chan(struct list_head *chans)
- {
--	struct list_head *ele;
- 	struct chan *chan;
- 
- 	/* Close in reverse order as open in case more than one of them
-@@ -226,8 +225,7 @@ void close_chan(struct list_head *chans)
- 	 * state.  Then, the first one opened will have the original state,
- 	 * so it must be the last closed.
- 	 */
--        for(ele = chans->prev; ele != chans; ele = ele->prev){
--                chan = list_entry(ele, struct chan, list);
-+	list_for_each_entry_reverse(chan, chans, list) {
- 		if(!chan->opened) continue;
- 		if(chan->ops->close != NULL)
- 			(*chan->ops->close)(chan->fd, chan->data);
-_
+-static char irq_tab_mpc30x[] __initdata = {
++static const int irq_tab_mpc30x[] __initdata = {
+  [12] = VRC4173_PCMCIA1_IRQ,
+  [13] = VRC4173_PCMCIA2_IRQ,
+  [29] = MQ200_IRQ,
+

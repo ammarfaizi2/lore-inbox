@@ -1,85 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbTI2WFm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 18:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTI2WFm
+	id S261957AbTI2V6U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 17:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbTI2V6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 18:05:42 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:18436 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S262974AbTI2WFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 18:05:32 -0400
-From: Matt Gibson <gothick@gothick.org.uk>
-Organization: The Wardrobe Happy Cow Emporium
-To: linux-kernel@vger.kernel.org
-Subject: Re: Complaint: Wacom driver in 2.6
-Date: Mon, 29 Sep 2003 19:56:27 +0100
-User-Agent: KMail/1.5.4
-References: <200309291421.45692.simon@ulsnes.dk>
-In-Reply-To: <200309291421.45692.simon@ulsnes.dk>
-Cc: Simon Ask Ulsnes <simon@ulsnes.dk>
-X-Pointless-MIME-Header: yes
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 29 Sep 2003 17:58:20 -0400
+Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:44957 "EHLO
+	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S261957AbTI2V6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 17:58:18 -0400
+Subject: 2.6.0-test6: a few __init bugs
+From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: scottm@somanetworks.com, greg@kroah.com, rgooch@atnf.csiro.au,
+       mingo@redhat.com, pavel@suse.cz
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309291956.27688.gothick@gothick.org.uk>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 Sep 2003 14:58:12 -0700
+Message-Id: <1064872693.5733.42.camel@dooby.cs.berkeley.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 Sep 2003 13:21, Simon Ask Ulsnes wrote:
-> Hello there!
-> I am the lucky owner of a Wacom Graphire 2 tablet, which works great with
-> the latest 2.4-kernels. However, the 2.6-drive is unusually and utterly
-> broken. Frankly, it doesn't work at all.
+Here are several places where non-__init functions call __init functions
+or reference __init data.  I've looked at all of them and believe that
+they are all either legitimate bugs or opportunities to declare more
+code as __init to save memory.  Thanks for looking over these, and sorry
+if I've made any mistakes.
 
-If it's any hope for you, I'm using the Wacom driver with an original 
-Graphire, and it's working OK for me.  I'm currently on 2.6.0-test5, and I'm 
-pretty sure I'm using the vanilla wacom.c (it's version 1.30 according to 
-the comments.)
+Best,
+Rob
 
-If you want any info about how I've got things configured, feel free to give 
-me a shout.  In particular, I've got these relevant entries in my 
-XF86Config:
+P.S. All these bugs were found with Cqual, the bug-finding tool
+developed by Jeff Foster, John Kodumal, and many others, and available
+at http://www.cs.umd.edu/~jfoster/cqual/, although the currently
+released version of cqual only has primitive support for 
+__init bug-finding.
 
-# Our ordinary PS/2 and Wacom mice; they're both multiplexed into
-# /dev/mice by the kernel input event handling.
-Section "InputDevice"
-  Driver       "mouse"
-  Identifier   "Mouse[1]"
-  Option       "ButtonNumber" "5"
-  Option       "Device" "/dev/input/mice"
-  Option       "Name" "Autodetection"
-  Option       "Protocol" "imps/2"
-  Option       "Vendor" "Random"
-  Option       "ZAxisMapping" "4 5"
-EndSection
+Linux 2.6.0-test6:
 
-Goodness knows if I need half those options set up; it's a 
-much-hacked-about-with old file that was originally set up by the SuSE SaX2 
-configuration tool, about three years ago!  But I tend to live by "if it 
-ain't broke, don't fix it."  I guess the important thing I did to get it 
-working under 2.6.0 was just to drop all the event interface crap and just 
-run it off /dev/input/mice, which is where the kernel happily feeds all the 
-wacom input through into.
+** Possible bug:
+** drivers/pci/quirks.c:asus_hides_smbus_hostbridge()                  (__init)
+   in table: drivers/pci/quirks.c:pci_fixups                           (not __init)
+     indirect call f->hook(): drivers/pci/quirks.c:pci_do_fixups()     (not __init)
+       called by: drivers/pci/quirks.c:pci_fixup_device()              (not __init)
+         called by: drivers/pci/probe.c:pci_scan_slot()                (not __init)
+           called by lots of hotplug enable() functions, e.g.
+           drivers/pci/hotplug/ibmphp_core.c:ibm_configure_device()    (not __init)
+             called by drivers/pci/hotplug/ibmphp_core.c:enable_slot() (not __init)
 
-Section "ServerLayout"
-	... other stuff deleted ...
-  InputDevice  "Mouse[1]" "CorePointer"
-EndSection
+Note: It looks like this may have been originally designed to initialize the
+      pci bus at startup, but has been re-used in the hotplug code, which means it 
+      can be run after the __init segments have gone away.
 
-That's all I needed to get the mouse and pen working.  Of course, to go the 
-whole hog and get the pressure sensitive stuff and the pointer vs. eraser 
-functionality etc. you'd need to use the X11 wacom driver, but I've never 
-actually felt the need.
+Fix: Delete all the __init declarations on the quirks hooks.
 
-Cheers,
 
-Matt
+** Code can be declared __init:
+** arch/i386/kernel/cpu/mtrr/generic.c:get_fixed_ranges()              (__init)
+     called by: arch/i386/kernel/cpu/mtrr/generic.c:get_mtrr_state()   (not __init)
+       only caller: arch/i386/kernel/cpu/mtrr/main.c:init_other_cpus() (not __init)
+         only caller: arch/i386/kernel/cpu/mtrr/main.c:mtrr_init()     (__init)
+Fix: Declare get_mtrr_state()  __init
+Fix: Declare init_other_cpus() __init
 
--- 
-"It's the small gaps between the rain that count,
- and learning how to live amongst them."
-	      -- Jeff Noon
+
+** Code can be declared __init:
+** arch/i386/kernel/io_apic.c:io_apic_set_pci_routing() (not __init)
+     all callers are __init
+Fix: Declare io_apic_set_pci_routing() __init
+
+
+** Code should be declared __init?
+** name_to_dev_t()                                                     (__init)
+     called by kernel/power/swsusp.c:read_suspend_image()              (not __init)
+       called by kernel/power/swsusp.c:software_resume()               (not __init)
+Fix: declare read_suspend_image() __init
+Fix: declare software_resume() __init
+
+Note: read_suspend_image() in pmdisk.c is declared __init.
+
+

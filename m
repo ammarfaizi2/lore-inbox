@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266555AbSKGNll>; Thu, 7 Nov 2002 08:41:41 -0500
+	id <S266549AbSKGNhM>; Thu, 7 Nov 2002 08:37:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266556AbSKGNll>; Thu, 7 Nov 2002 08:41:41 -0500
-Received: from signup.localnet.com ([207.251.201.46]:45536 "HELO
-	smtp.localnet.com") by vger.kernel.org with SMTP id <S266555AbSKGNlk>;
-	Thu, 7 Nov 2002 08:41:40 -0500
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
-Subject: Re: 2.5 bk, input driver and dell i8100 nib+pad
-References: <m3el9xk7uv.fsf@lugabout.jhcloos.org>
-	<m3k7jqj9mi.fsf@lugabout.jhcloos.org>
-	<m3n0omk97i.fsf@lugabout.jhcloos.org>
-	<11033.1036602261@passion.cambridge.redhat.com>
-	<5339.1036653369@passion.cambridge.redhat.com>
-	<12249.1036665016@passion.cambridge.redhat.com>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <12249.1036665016@passion.cambridge.redhat.com>
-Date: 07 Nov 2002 08:48:07 -0500
-Message-ID: <m38z05jxt4.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S266550AbSKGNhM>; Thu, 7 Nov 2002 08:37:12 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:58103 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S266549AbSKGNhL>;
+	Thu, 7 Nov 2002 08:37:11 -0500
+Date: Thu, 7 Nov 2002 08:43:46 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Clayton Weaver <cgweav@email.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.19] read(2) and page aligned buffers
+Message-ID: <20021107134346.GA25833@www.kroptech.com>
+References: <20021107065421.20283.qmail@email.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021107065421.20283.qmail@email.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Woodhouse <dwmw2@infradead.org> writes:
+On Thu, Nov 07, 2002 at 01:54:21AM -0500, Clayton Weaver wrote:
+> Here is wrap_read() (assume that the appropriate #includes are there):
 
-David> Weird. Does it come back to life if you suspend to RAM and
-David> resume? Does the 'mouse' get detected as a Synaptics Touchpad
-David> by the changed psmouse.c?
+Your code is broken, and for exactly the same reason I told you
+yesterday.
 
-I have to do a new compile with the csets from overnight for the htree
-bug before I can test that.  But from /var/log I see:
+>       default: /* partial read */
+> 	switch(errno) {
+> 	case EINTR:    /* interrupted by signal */
+> 	case EAGAIN:   /* O_NONBLOCK ? */
+> 	  retval += tmpret;
+> 	  break;
 
-    kernel: input: PS/2 Synaptics TouchPad on isa0060/serio1
+I repeat: Checking errno when read() has returned something other than
+-1 is ILLEGAL. Period. This check is triggering early, thus giving your
+supposed early EOF.
 
-with the patch and w/o the patch I had:
+This is not even remotely a kernel issue.
 
-    kernel: input: PS/2 Generic Mouse on isa0060/serio1
-
-so that part of it at least was fixed.
-
--JimC
-
+--Adam

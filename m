@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285568AbRLGVtj>; Fri, 7 Dec 2001 16:49:39 -0500
+	id <S285576AbRLGVuM>; Fri, 7 Dec 2001 16:50:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285573AbRLGVt3>; Fri, 7 Dec 2001 16:49:29 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:47496 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S285568AbRLGVtX>; Fri, 7 Dec 2001 16:49:23 -0500
-Message-ID: <3C11394D.90101@us.ibm.com>
-Date: Fri, 07 Dec 2001 13:49:01 -0800
-From: "David C. Hansen" <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011206
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: "Udo A. Steinberg" <reality@delusion.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: release() locking
-In-Reply-To: <3C10D83E.81261D74@delusion.de> <3C10FDCF.D8E473A0@zip.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S285573AbRLGVtk>; Fri, 7 Dec 2001 16:49:40 -0500
+Received: from [209.249.147.248] ([209.249.147.248]:19979 "EHLO
+	proxy1.addr.com") by vger.kernel.org with ESMTP id <S285569AbRLGVtZ>;
+	Fri, 7 Dec 2001 16:49:25 -0500
+Date: Fri, 7 Dec 2001 16:48:17 -0500
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Cory Bell <cory.bell@usa.net>
+Cc: mochel@osdl.org, linux-kernel@vger.kernel.org, andrew.grover@intel.com,
+        john@deater.net
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+Message-Id: <20011207164817.179789a7.dang@fprintf.net>
+In-Reply-To: <1007760235.10687.0.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0112070925280.851-100000@segfault.osdlab.org>
+	<1007760235.10687.0.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On 07 Dec 2001 13:23:53 -0800
+Cory Bell <cory.bell@usa.net> wrote:
 
->"Udo A. Steinberg" wrote:
->
->>Hi Andrew,
->>
->>According to Linus' 2.5.1-pre changelog, the release locking changes
->>introduced in -pre5 are your work. Those changes, however, seem to
->>break the keyboard driver:
->>
->>keyboard: Timeout - AT keyboard not present?(f4)
->>
->>Other people (i.e. Mike Galbraith) have been experiencing the same.
->>
->wasntmeididntdoit
->
->>Do you have an updated patch which fixes those issues? -pre6 still
->>contains the same stuff as -pre5 and if it's broken then Linus should
->>probably back it out.
->>
 
-I'm responsible for the release locking changes.  But, I don't think 
-that the problems are a result of those changes.  There have been some 
-other patches that might have caused the problem.  Take a look at this 
-thread:
+> Could I get your comments on a patch against 2.4.16-stock? I'm trying to
+> figure out the best way to automagically work around the bug, and this
+> is the best I've come up with so far. I need more DMI data from other HP
+> 5400 series AMD/ALi laptops with the problem to come up with the most
+> accurate matches - right now it's tied to my machine type and BIOS
+> version.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100745930928683&w=2
+I have a N5415 with the shipped BIOS.  (I've downloaded but not applied the
+BIOS update.  I'd have to boot into Windows to apply it. :)  What do you want
+me to send you?
 
-Jens Axboe posted a patch.  I asked him:
- > So, what was the actual problem?
-bio_alloc() not waiting on the reserved pool for free entries, even
-though __GFP_WAIT was set. No need for __GFP_IO in that case too.
+Daniel
 
-Udo, did you apply the patch that Jens sent?
+--- 
+Recursion n.:
+        See Recursion.
+                        -- Random Shack Data Processing Dictionary
 

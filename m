@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271514AbRHUEAF>; Tue, 21 Aug 2001 00:00:05 -0400
+	id <S271594AbRHQVAB>; Fri, 17 Aug 2001 17:00:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271507AbRHUD7p>; Mon, 20 Aug 2001 23:59:45 -0400
-Received: from dsl254-035-224.sea1.dsl.speakeasy.net ([216.254.35.224]:29632
-	"EHLO dhcp12.pdx.beattie-home.net") by vger.kernel.org with ESMTP
-	id <S271514AbRHUD7f>; Mon, 20 Aug 2001 23:59:35 -0400
-Date: Thu, 16 Aug 2001 17:42:24 -0700
-From: Brian Beattie <bbeattie@sequent.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: Brian Beattie <bbeattie@beaverton.ibm.com>, linux-kernel@vger.kernel.org,
-        mingo@redhat.com
-Subject: Re: md/multipath: Multipath, Multiport support and prototype patch for round robin routing
-Message-ID: <20010816174223.A1381@dyn9-47-16-223.des.beaverton.ibm.com>
-Mail-Followup-To: Christoph Hellwig <hch@ns.caldera.de>,
-	Brian Beattie <bbeattie@beaverton.ibm.com>,
-	linux-kernel@vger.kernel.org, mingo@redhat.com
-In-Reply-To: <20010723133242.B970@dyn9-47-16-69.des.beaverton.ibm.com> <200108152034.f7FKYrM26636@ns.caldera.de>
+	id <S271659AbRHQU7v>; Fri, 17 Aug 2001 16:59:51 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7040 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271594AbRHQU7r>;
+	Fri, 17 Aug 2001 16:59:47 -0400
+Date: Fri, 17 Aug 2001 13:57:06 -0700 (PDT)
+Message-Id: <20010817.135706.74750097.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: aia21@cam.ac.uk, tpepper@vato.org, f5ibh@db0bm.ampr.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 does not compile [PATCH]
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E15Xfev-0006zJ-00@the-village.bc.nu>
+In-Reply-To: <no.id>
+	<E15Xfev-0006zJ-00@the-village.bc.nu>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200108152034.f7FKYrM26636@ns.caldera.de>; from hch@ns.caldera.de on Wed, Aug 15, 2001 at 10:34:53PM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 15, 2001 at 10:34:53PM +0200, Christoph Hellwig wrote:
-> In article <20010723133242.B970@dyn9-47-16-69.des.beaverton.ibm.com> you wrote:
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Fri, 17 Aug 2001 10:11:17 +0100 (BST)
+   
+   Its actually basically impossible to do back compat macros
+   with this mess. Your original smin() umin() proposal was _much_ saner.
 
-> 
-> The second comment actually goes to you, Brian:  could you please try to
-> create unified diffs (diff -u)?  It's sooo much easier to read..
-> 
+I don't see how you can logically say this.
+My sint_min() etc. version broke things just
+as equally because it had:
 
-I'm just back from vacation and still getting back into the groove,
-I'll try to do that and post it in a day or two.
+#define min __compile_error_do_not_use_min
+#define max __compile_error_do_not_use_max
 
+in it.  Do you think Linus or myself, by doing
+this, intended to let anyone undef the damn things
+to get around this?
 
-> > + 
-> > + static struct multipath_dev_table multipath_dev_template = {
-> > +         "",
-> > + 	{
-> > + 		{MULTIPATH_ROUTING, "routing", NULL, sizeof(int), 0644,
-> > + 			NULL, &proc_dointvec},
-> 
-> Shouldn't this be a property of the md device, instead of a sysctl?
-> I planned to write that information in the md superblock for my design.
+The whole point of the changes was "min and max are
+dumb, nobody may use them in their traditional form".
 
-I'm not sure what you mean here.  This is not a really complete thing
-here.  Adding the information to the superblock sounds, like a good idea,
-but I'm also looking at dynamically modifying the operating parameters.
+I was pretty sure, you understood this.
 
-> 
-> 	Christoph
-> 
-> -- 
-> Of course it doesn't work. We've performed a software upgrade.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Brian Beattie
-IBM Linux Technology Center - MPIO/SAN
-bbeattie@sequent.com
-503.578.5899  Des2-3C-5
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbVA3MMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVA3MQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbVA3MMu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 07:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVA3MMu
+	id S261691AbVA3MQU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 07:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVA3MQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 07:12:50 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:7947 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261690AbVA3MMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 07:12:46 -0500
-Date: Sun, 30 Jan 2005 13:12:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Paul Blazejowski <diffie@gmail.com>, linux-kernel@vger.kernel.org,
-       Nathan Scott <nathans@sgi.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: 2.6.11-rc2-mm2
-Message-ID: <20050130121241.GH3185@stusta.de>
-References: <9dda349205012923347bc6a456@mail.gmail.com> <20050129235653.1d9ba5a9.akpm@osdl.org> <20050130105429.GA28300@infradead.org> <20050130105738.GA28387@infradead.org> <20050130120009.GG3185@stusta.de>
+	Sun, 30 Jan 2005 07:16:20 -0500
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:51914 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261691AbVA3MQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 07:16:18 -0500
+Date: Sun, 30 Jan 2005 13:15:49 +0100
+From: Michael Gernoth <simigern@stud.uni-erlangen.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org,
+       Matthias Koerber <simakoer@stud.informatik.uni-erlangen.de>,
+       scott.feldman@intel.com, ganesh.venkatesan@intel.com
+Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
+Message-ID: <20050130121549.GA23946@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org,
+	Matthias Koerber <simakoer@stud.informatik.uni-erlangen.de>,
+	scott.feldman@intel.com, ganesh.venkatesan@intel.com
+References: <20050128164811.GA8022@cip.informatik.uni-erlangen.de> <20050129181821.GA2128@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050130120009.GG3185@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050129181821.GA2128@logos.cnet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 30, 2005 at 01:00:09PM +0100, Adrian Bunk wrote:
->...
-> His problem is:
-> - CONFIG_NFSD=m
-> - CONFIG_EXPORTFS=m
-> - CONFIG_XFS=y
-> - CONFIG_XFS_EXPORT=y
+On Sat, Jan 29, 2005 at 04:18:21PM -0200, Marcelo Tosatti wrote:
+> Probably a task event is rescheduling itself repeatedly? e100 does not seem 
+> to schedule_task() events directly, so I wonder what is going on.
 > 
-> The builtin fs/xfs/linux-2.6/xfs_export.c can't call the function 
-> find_exported_dentry in the modular fs/exportfs/expfs.c .
+> Can you boot a machine with profile=2, then send the WOL packet causing
+> keventd to go mad and run:
+> 
+> readprofile | sort -nr +2 | head -20
 
-Below is a patch that should fix these problems.
+faui07c:~# readprofile | sort -nr +2 | head -20
+  2352 acpi_ns_get_next_valid_node              130.6667
+  9577 acpi_os_read_port                        121.2278
+  4431 acpi_os_signal_semaphore                 100.7045
+  4639 default_idle                              57.9875
+  4363 acpi_ns_get_next_node                     57.4079
+  5957 acpi_ns_delete_namespace_by_owner         37.7025
+  2307 acpi_os_write_port                        34.9545
+  4048 acpi_os_wait_semaphore                    18.8279
+  1924 acpi_ut_acquire_mutex                     16.8772
+   492 __rdtsc_delay                             15.3750
+   526 acpi_os_get_thread_id                     15.0286
+  1421 acpi_ut_release_mutex                     13.1574
+   339 acpi_ns_get_parent_node                   11.6897
+  1506 acpi_ut_release_to_cache                  10.9130
+  1600 acpi_ut_acquire_from_cache                 9.8160
+   909 acpi_ds_method_data_init                   8.4953
+   327 acpi_ut_valid_acpi_name                    6.9574
+   311 acpi_ns_search_node                        4.7121
+   268 acpi_ps_get_opcode_info                    4.0606
+    31 acpi_ut_delete_generic_state_cache         3.4444
 
-It isn't very elebgant, and I've Cc'd Roman Zippel who might be able to 
-tell how to express these things without two helper variables.
+The machine has an uptime of 10 minutes at that point, and the second
+WOL packet was sent directly after the machine came up and I was able
+to ssh into it.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-rc2-mm2-test/fs/Kconfig.old	2005-01-30 12:46:07.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-test/fs/Kconfig	2005-01-30 12:51:00.000000000 +0100
-@@ -1476,6 +1476,7 @@
- 	select LOCKD
- 	select SUNRPC
- 	select NFS_ACL_SUPPORT if NFSD_ACL
-+	select WANT_EXPORTFS
- 	help
- 	  If you want your Linux box to act as an NFS *server*, so that other
- 	  computers on your local network which support NFS can access certain
-@@ -1560,9 +1561,12 @@
- 	depends on NFSD_V3 || NFS_V3
- 	default y
- 
-+config WANT_EXPORTFS
-+	tristate
-+	select EXPORTFS
-+
- config EXPORTFS
- 	tristate
--	default NFSD
- 
- config SUNRPC
- 	tristate
---- linux-2.6.11-rc2-mm2-test/fs/xfs/Kconfig.old	2005-01-30 12:46:25.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-test/fs/xfs/Kconfig	2005-01-30 13:04:11.000000000 +0100
-@@ -20,9 +20,15 @@
- 	  system of your root partition is compiled as a module, you'll need
- 	  to use an initial ramdisk (initrd) to boot.
- 
-+config XFS_WANT_EXPORT
-+	tristate
-+	default XFS_FS
-+	depends on WANT_EXPORTFS!=n
-+	select XFS_EXPORT
-+	select EXPORTFS
-+
- config XFS_EXPORT
- 	bool
--	default y if XFS_FS && EXPORTFS
- 
- config XFS_RT
- 	bool "Realtime support (EXPERIMENTAL)"
-
+Regards,
+  Michael

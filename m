@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265378AbTBJWLQ>; Mon, 10 Feb 2003 17:11:16 -0500
+	id <S265373AbTBJWLu>; Mon, 10 Feb 2003 17:11:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265382AbTBJWLQ>; Mon, 10 Feb 2003 17:11:16 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:38881 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265378AbTBJWLP>;
-	Mon, 10 Feb 2003 17:11:15 -0500
-Subject: Re: Linux 2.5.60
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0302101103570.1348-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0302101103570.1348-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044915711.4852.41.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 10 Feb 2003 14:21:51 -0800
-Content-Transfer-Encoding: 7bit
+	id <S265382AbTBJWLu>; Mon, 10 Feb 2003 17:11:50 -0500
+Received: from dsl-213-023-060-099.arcor-ip.net ([213.23.60.99]:45739 "EHLO
+	spot.lan") by vger.kernel.org with ESMTP id <S265373AbTBJWLs> convert rfc822-to-8bit;
+	Mon, 10 Feb 2003 17:11:48 -0500
+From: Oliver Feiler <kiza@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Athlon adv speculative caching fix removed from 2.4.20?
+Date: Mon, 10 Feb 2003 23:21:24 +0100
+User-Agent: KMail/1.5
+X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
+X-PGP-Key: http://kiza.kcore.de/pgpkey.shtml
+X-Species: Snow Leopard
+X-Operating-System: Linux i686
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200302102321.30549.kiza@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile statistics: 2.5.60
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Note that gcc 3.2 was used for all of these statistics.  gcc 2.95 is
-much more lenient on warnings and errors.
+Hi,
 
-                               2.5.59               2.5.60
-                       --------------------    -----------------
-bzImage (defconfig)         20 warnings          21 warnings
-                             0 errors             0 errors
+in patch-2.4.20 'static void amd_adv_spec_cache_disable(void)' was removed 
+from arch/i386/kernel/setup.c.
 
-bzImage (allmodconfig)      32 warnings          37 warnings
-                             9 errors             9 errors
+I haven't found any patch on lkml posted that did this and it wasn't mentioned 
+in 2.4.20's changelog.
 
-modules (allmodconfig)    3119 warnings        3079 warnings
-                           159 errors           138 errors
+Can someone point to a why this was removed, maybe a different fix since the 
+one mentioned says "Short-term fix" or is it not needed anymore for some 
+reason?
 
-Compile statistics have been for kernel releases from 2.5.46 to 2.5.60
-at: www.osdl.org/archive/cherry/stability
+Bye,
+Oliver
 
-John
+- -- 
+Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx(pro).net)>
+http://kiza.kcore.de/    <--    homepage
+PGP-key      -->    /pgpkey.shtml
+http://kiza.kcore.de/journal/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-
--- 
-John Cherry <cherry@osdl.org>
+iD8DBQE+SCXqOpifZVYdT9IRAlpTAKDRjsbgPJDj6MhjnrjuCnXzKaoODACg4f8/
+w8NSN6QG9K+ULPaB9/AVRDU=
+=xj4v
+-----END PGP SIGNATURE-----
 

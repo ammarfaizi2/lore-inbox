@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVCNWpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVCNWhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbVCNWpy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 17:45:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVCNWmn
+	id S262041AbVCNWhT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 17:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVCNWeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 17:42:43 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:41162 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S262026AbVCNWjq (ORCPT
+	Mon, 14 Mar 2005 17:34:24 -0500
+Received: from fire.osdl.org ([65.172.181.4]:64193 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262026AbVCNWat (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 17:39:46 -0500
-Date: Mon, 14 Mar 2005 23:39:45 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Eric Piel <Eric.Piel@tremplin-utc.net>
-Cc: Jan De Luyck <lkml@kcore.org>, davej@redhat.com,
-       cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: cpufreq on-demand governor up_treshold?
-Message-ID: <20050314223945.GC13378@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Eric Piel <Eric.Piel@tremplin-utc.net>,
-	Jan De Luyck <lkml@kcore.org>, davej@redhat.com,
-	cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
-References: <200503140829.04750.lkml@kcore.org> <42354400.7070500@tremplin-utc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42354400.7070500@tremplin-utc.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 14 Mar 2005 17:30:49 -0500
+Message-ID: <42361094.6070805@osdl.org>
+Date: Mon, 14 Mar 2005 14:30:44 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: maximilian attems <janitor@sternwelten.at>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [patch] hfc_sx eliminate bad section references
+References: <20050314002954.GC13729@sputnik.stro.at>
+In-Reply-To: <20050314002954.GC13729@sputnik.stro.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 08:57:52AM +0100, Eric Piel wrote:
-> BTW, DaveJ, Dominik, I couldn't find them in the daily-snapshot 
-> available at codemonkey.org.uk. Should I worry, or is it just due to 
-> some latency between your private trees and the public one?
+maximilian attems wrote:
+> Fix hfc_sx section references:
+>   convert __initdata to __devinitdata.
+> 
+> Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000204d R_386_32
+> .init.data
+> Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000205c R_386_32
+> .init.data
+> Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 00002082 R_386_32
+> .init.data
+> Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000209f R_386_32
+> .init.data
+> Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 00002114 R_386_32
+> .init.data
+> Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000211c R_386_32          
+> .init.data
+> Error: ./drivers/isdn/hisax/hfc_sx.o .text refers to 0000212e R_386_32
+> .init.data
+> 
+> Signed-off-by: maximilian attems <janitor@sternwelten.at>
 
-/me has no official position wrt cpufreq core [except userspace
-cpufrequtils, but I intend to hand this over to somebody else in the next
-few months].
+Acked-by: Randy Dunlap <rddunlap@osdl.org>
 
-Dave, as maintainer of cpufreq, has a cpufreq bitkeeper tree [http interface
-at http://linux-dj.bkbits.net/ ] which is exported as plain diff daily at
-http://www.codemonkey.org.uk/projects/cpufreq/daily-snapshots/ . This does
-not contain your patches yet, probably because he's still busy with other
-stuff.
+> diff -pruN -X dontdiff linux-2.6.11-bk8/drivers/isdn/hisax/hfc_sx.c
+> linux-2.6.11-bk8-max/drivers/isdn/hisax/hfc_sx.c
+> --- linux-2.6.11-bk8/drivers/isdn/hisax/hfc_sx.c	2005-03-02 08:37:48.000000000 +0100
+> +++ linux-2.6.11-bk8-max/drivers/isdn/hisax/hfc_sx.c	2005-03-14 01:03:42.000000000 +0100
+> @@ -1382,14 +1382,14 @@ hfcsx_card_msg(struct IsdnCardState *cs,
+>  }
+>  
+>  #ifdef __ISAPNP__
+> -static struct isapnp_device_id hfc_ids[] __initdata = {
+> +static struct isapnp_device_id hfc_ids[] __devinitdata = {
+>  	{ ISAPNP_VENDOR('T', 'A', 'G'), ISAPNP_FUNCTION(0x2620),
+>  	  ISAPNP_VENDOR('T', 'A', 'G'), ISAPNP_FUNCTION(0x2620), 
+>  	  (unsigned long) "Teles 16.3c2" },
+>  	{ 0, }
+>  };
+>  
+> -static struct isapnp_device_id *ipid __initdata = &hfc_ids[0];
+> +static struct isapnp_device_id *ipid __devinitdata = &hfc_ids[0];
+>  static struct pnp_card *pnp_c __devinitdata = NULL;
+>  #endif
+>  
 
-Thanks,
-	Dominik
+
+-- 
+~Randy

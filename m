@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268861AbRIHJnI>; Sat, 8 Sep 2001 05:43:08 -0400
+	id <S268856AbRIHJki>; Sat, 8 Sep 2001 05:40:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268896AbRIHJm6>; Sat, 8 Sep 2001 05:42:58 -0400
-Received: from [144.137.83.84] ([144.137.83.84]:27381 "EHLO e4.eyal.emu.id.au")
-	by vger.kernel.org with ESMTP id <S268861AbRIHJms>;
-	Sat, 8 Sep 2001 05:42:48 -0400
-Message-ID: <3B99E5C8.AEAEF207@eyal.emu.id.au>
-Date: Sat, 08 Sep 2001 19:32:56 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Josh McKinney <forming@home.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-pre5
-In-Reply-To: <3B99A8C2.56E88CE3@isn.net> <003001c1382d$f483d9d0$010da8c0@uglypunk> <20010908014643.A846@home.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S268861AbRIHJk2>; Sat, 8 Sep 2001 05:40:28 -0400
+Received: from HINux.hin.no ([158.39.26.220]:59316 "EHLO hinux.hin.no")
+	by vger.kernel.org with ESMTP id <S268856AbRIHJkR> convert rfc822-to-8bit;
+	Sat, 8 Sep 2001 05:40:17 -0400
+Subject: [PATCH] 2.4.10-pre5 missing pci id
+From: Ole =?ISO-8859-1?Q?Andr=E9?= Vadla =?ISO-8859-1?Q?Ravn=E5s?= 
+	<zole@jblinux.net>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 08 Sep 2001 11:45:31 -0100
+Message-Id: <999953131.30644.1.camel@zole.jblinux.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh McKinney wrote:
-> 
-> On approximately Sat, Sep 08, 2001 at 03:44:31PM +0930, Kingsley Foreman wrote:
-> > Yes i got this too
-> > anyone got a fix
-> Don't use gcc-3.0
+Hi again..
 
-No need to jump the gun, this is a real problem, unrelated to gcc-3.0.
+This patch adds a missing pci id required by the trident sound driver.
 
-I get the same error with Debian stable 2.2.r3
-	$ gcc --version
-	2.95.2
+Best regards,
+Ole André
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+---
+
+--- linux/include/linux/pci_ids.h-orig	Sat Sep  8 11:41:13 2001
++++ linux/include/linux/pci_ids.h	Sat Sep  8 11:41:34 2001
+@@ -852,6 +852,7 @@
+ #define PCI_DEVICE_ID_INTERG_2000	0x2000
+ #define PCI_DEVICE_ID_INTERG_2010	0x2010
+ #define PCI_DEVICE_ID_INTERG_5000	0x5000
++#define PCI_DEVICE_ID_INTERG_5050	0x5050
+ 
+ #define PCI_VENDOR_ID_REALTEK		0x10ec
+ #define PCI_DEVICE_ID_REALTEK_8029	0x8029
+

@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVCHV7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVCHWCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbVCHV7a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 16:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVCHV7O
+	id S261607AbVCHWCY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 17:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVCHWCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 16:59:14 -0500
-Received: from alog0447.analogic.com ([208.224.222.223]:33920 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262139AbVCHV4w
+	Tue, 8 Mar 2005 17:02:23 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:7560 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261607AbVCHWCP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 16:56:52 -0500
-Date: Tue, 8 Mar 2005 16:55:07 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Mount on Linux-2.6.10
-Message-ID: <Pine.LNX.4.61.0503081643310.15389@chaos.analogic.com>
+	Tue, 8 Mar 2005 17:02:15 -0500
+Message-ID: <422E2223.5060906@tmr.com>
+Date: Tue, 08 Mar 2005 17:07:31 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org
+Subject: Re: Linux 2.6.11.1
+References: <20050304124431.676fd7cf.akpm@osdl.org><20050304124431.676fd7cf.akpm@osdl.org> <4228D43E.1040903@pobox.com>
+In-Reply-To: <4228D43E.1040903@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
 
-When I mount the root file-system and the proc file-system on
-an embedded system, I use MS_NOATIME|MS_NODIRTIME for the flags.
-No errors are reported and the file-systems are mounted.
+> Unless it's crashing for people, stack usage is IMO a wanted-fix not 
+> needed-fix.
+> 
+> 
+>> nfsd--svcrpc-add-a-per-flavor-set_client-method.patch
+> 
+> 
+> is this critical?
 
-However, the (struct stat) st_mtime of the /proc directory
-is updated at every access and the st_mtime of any special
-files like terminals are also updated. In fact, the time
-appears to be updated on every keystroke when a terminal
-is active on the file-systems.
+Wasn't part of the Linus proposal that it had to fix an oops or 
+non-functional feature?
 
-How do I prevent this from occurring? These files were
-NOT modified and st_mtime is supposed to show the
-modification times, not the time at which it was
-accessed.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

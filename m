@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVC0Ap4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVC0AsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbVC0Ap4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 19:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVC0Ap4
+	id S261382AbVC0AsR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 19:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVC0AsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 19:45:56 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61676 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261377AbVC0Apu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 19:45:50 -0500
-Date: Sun, 27 Mar 2005 00:45:49 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Matthew Wilcox <matthew@wil.cx>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ARM] Group device drivers together under their own menu
-Message-ID: <20050327004549.GS21986@parcelfarce.linux.theplanet.co.uk>
-References: <200503261912.j2QJC192031517@hera.kernel.org> <20050326214141.GR21986@parcelfarce.linux.theplanet.co.uk> <20050326225026.D23306@flint.arm.linux.org.uk>
+	Sat, 26 Mar 2005 19:48:17 -0500
+Received: from mail.kroah.org ([69.55.234.183]:22953 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261382AbVC0AsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 19:48:15 -0500
+Date: Sat, 26 Mar 2005 16:48:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Mark Fortescue <mark@mtfhpc.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+Message-ID: <20050327004801.GA610@kroah.com>
+References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk> <20050326182828.GA8540@kroah.com> <1111869274.32641.0.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050326225026.D23306@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1111869274.32641.0.camel@mindpipe>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 26, 2005 at 10:50:26PM +0000, Russell King wrote:
-> On Sat, Mar 26, 2005 at 09:41:41PM +0000, Matthew Wilcox wrote:
-> > Any reason you can't merge ARM's options into the drivers/*/Kconfig (with
-> > appropriate conditionals) and use drivers/Kconfig?
+On Sat, Mar 26, 2005 at 03:34:34PM -0500, Lee Revell wrote:
+> On Sat, 2005-03-26 at 10:28 -0800, Greg KH wrote:
+> > On Sat, Mar 26, 2005 at 05:52:20PM +0000, Mark Fortescue wrote:
+> > > 
+> > > I am writing a "Proprietry" driver module for a "Proprietry" PCI card and
+> > > I have found that I can't use SYSFS on Linux-2.6.10.
+> > > 
+> > > Why ?. 
+> > 
+> > What ever gave you the impression that it was legal to create a
+> > "Proprietry" kernel driver for Linux in the first place.
 > 
-> Dunno.  Haven't gotten around to sorting that out yet, and I don't
-> particularly fancy trying to fight any corners over it.
-> 
-> I think, a while back, it was thought to be better to keep ARM separate
-> to keep the conditionals out of drivers/Kconfig.
-> 
-> If the general concensus has changed, I might eventually sort it out if
-> it causes enough trouble, or people think there's sufficient value to it.
+> The fact that Nvidia and ATI get away with it?
 
-As the original author of drivers/Kconfig, I think it's a brilliant
-idea that everybody should use ;-)  I haven't heard any dissenting
-opinions yet.  The only complaint I've heard is that net/Kconfig is now
-under device drivers.  I didn't make that change, and I agree it sucks.
+So, the fact that someone else is doing something illegal, makes it
+acceptable for you to do the same thing?  Please, talk to a lawyer about
+this issue if you have _any_ questions.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+And, to paraphrase Larry McVoy, if you can't afford to consult a proper
+IP lawyer, then your IP isn't worth risking.  Release it under the GPL
+and you will have no problems.
+
+thanks,
+
+greg k-h

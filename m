@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262561AbUCRMJy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 07:09:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUCRMJy
+	id S262557AbUCRMQx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 07:16:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbUCRMQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 07:09:54 -0500
-Received: from [163.178.136.27] ([163.178.136.27]:59249 "HELO 67.72.78.212")
-	by vger.kernel.org with SMTP id S262561AbUCRMJu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 07:09:50 -0500
-Message-ID: <01e-4o$n29$vi538lnzi-t2la7yeh@iqr.j8m>
-From: "Maura Hinkle" <af7whyana@getatme.net>
-Reply-To: "Maura Hinkle" <af7whyana@getatme.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Get a Masters Diploma!! sophistry
-Date: Thu, 18 Mar 04 12:01:49 GMT
-X-Mailer: AOL 7.0 for Windows US sub 118
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="0AB_8E2E.7."
-X-Priority: 3
-X-MSMail-Priority: Normal
+	Thu, 18 Mar 2004 07:16:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21952 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262557AbUCRMQv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 07:16:51 -0500
+Date: Thu, 18 Mar 2004 12:16:50 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Bind Mount Extensions 0.04.1 2/5
+Message-ID: <20040318121650.GI31500@parcelfarce.linux.theplanet.co.uk>
+References: <20040315035506.GB30948@MAIL.13thfloor.at> <20040314201457.23fdb96e.akpm@osdl.org> <20040315042541.GA31412@MAIL.13thfloor.at> <20040314203427.27857fd9.akpm@osdl.org> <20040315075723.GD31818@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040315075723.GD31818@MAIL.13thfloor.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 15, 2004 at 08:57:23AM +0100, Herbert Poetzl wrote:
+> -void update_atime(struct inode *inode)
+> +void update_atime(struct inode *inode, struct vfsmount *mnt)
 
---0AB_8E2E.7.
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
+_Hell_, no.  Proper solution is to move the callers upstream instead
+of propagating vfsmounts downstream.  That, BTW, was the main reason
+for readdir() patch.
 
-Accept Your Masters Degree Today
-
-Bachelors, Masters, MBA, and Doctorate (PhD)
-
-
-Obtain the diploma you deserve based on your present knowledge and life ex=
-perience. A prosperous future, money earning power, and the admiration of =
-all.
-
-Diplomas from established non-accredited schools show like any academic de=
-gree exactly what you really can do.
-
-No compulsory tests, classes, or interviews required
-
-
-Bachelors, Masters, MBA, and PhD's in the field of your choice. Discrete a=
-nd affordable. Everyone is welcome.
-
-CALL NOW to receive YOUR Diploma within days!!!
-
-1-413-473-9081 (24 Hours)
-
-Confidentiality assured!
-
---0AB_8E2E.7.--
-
+BTW, update_atime() is exported.  And it's 2.6 now...

@@ -1,77 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276897AbRJCHNs>; Wed, 3 Oct 2001 03:13:48 -0400
+	id <S276899AbRJCHTu>; Wed, 3 Oct 2001 03:19:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276898AbRJCHNi>; Wed, 3 Oct 2001 03:13:38 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:7686 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S276897AbRJCHNa>; Wed, 3 Oct 2001 03:13:30 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Alexander Viro <viro@math.psu.edu>
-Date: Wed, 3 Oct 2001 17:13:37 +1000 (EST)
+	id <S276900AbRJCHTk>; Wed, 3 Oct 2001 03:19:40 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:18088 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S276899AbRJCHTe>; Wed, 3 Oct 2001 03:19:34 -0400
+Message-ID: <3BBABC41.50203@wipro.com>
+Date: Wed, 03 Oct 2001 12:50:33 +0530
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15290.47777.464647.945975@notabene.cse.unsw.edu.au>
-Cc: Andreas Dilger <adilger@turbolabs.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.4.11-pre2 fs/buffer.c: invalidate: busy buffer
-In-Reply-To: message from Alexander Viro on Wednesday October 3
-In-Reply-To: <15290.46612.877715.135811@notabene.cse.unsw.edu.au>
-	<Pine.GSO.4.21.0110030259530.21861-100000@weyl.math.psu.edu>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [QUESTION] ISA overhead
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday October 3, viro@math.psu.edu wrote:
-> 
-> 
-> On Wed, 3 Oct 2001, Neil Brown wrote:
-> 
-> > On Wednesday October 3, adilger@turbolabs.com wrote:
-> 
-> > > 3) Rewrite to do I/O directly via pagecache?
-> > 
-> > 4) Rewrite to do I/O directly via generic_make_request just like it
-> >    does for all other I/O to underlying devices.
-> >    It is on my (mental) todo list, but doesn't have a high priority.
-> >    At the same time, it would be good to get write_disk_sb to notice
-> >    if the write failed.....
-> 
-> Folks, there's a problem aside of set_blocksize().  You are doing memset
-> and memcpy on unlocked buffer returned by getblk().  That's a race -
-> if that buffer is currently being read into, we will get a random crap.
-> And write it to disk afterwards.
-> 
-> General rule: don't modify buffer you've got from getblk() unless you've
-> locked it and mark it uptodate before you unlock.  We had the same
-> bug in ext2, BTW.
 
-What I am saying is "don't use the buffer cache at all" or any cache.
-Don't use getblk.
-Just:
-   bh = kmalloc(sizeof(*bh));
-   bh->b_data = rdev->sb; /* it is always one page */
-   bh->b_rdev = rdev->dev;
-   bh->b_rsector = sb_offset*2;
-   bh->b_end_io = md_just_set_a_flag_and_call_wakeup;
-   init_wait_queue_head(&bh->b_wait);
-   bh->b_flags = 1<<B_Locked;
+This is a multi-part message in MIME format.
 
-   generic_make_request(WRITE,bh);
-   wait_disk_event((bh->b_flags & (1<<B_Locked)), bh->b_wait);
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-   err = bh->b_flags & (1<<B_Uptodate);
-   kfree(bh);
-   return err;
+With 2.5 coming soon, something about ISA has been bothering me.
+
+All DMA has been limited to 16MB, this is ofcourse going to go
+away with the PCI DMA patch which allows PCI-DMA to use all the
+memory (4GB for 32 bit cards). All the setup of page-frames, etc
+is done with the knowledge of ISA.
+
+I was wondering if ISA should be treated as a special case in 2.5
+and only if the ISA bus and/or ISA device is present should we do
+the 16MB setup. Are there other devices (like MCA) limited to doing
+16 MB or so of DMA?, if so they too should be handled as a special case.
+
+I think this is the correct approach, now that all available devices
+are almost PCI. The default DMA space should be 32 bit, with special
+devices or buses like ISA being handled differently. The current code
+should be hidden under a #ifdef and be enabled only if CONFIG_
+ISA_DMA or something similar is set.
+
+Comments, suggestions
+
+Balbir
+
+PS: Please do not worry about the attachment, I have no control over it.
+
+"Accepting criticism is the fastest way to learn the right things"
+- Just made it up (I am no longer scared of being flamed)
 
 
-with typos corrected and a fairly obvious definition of
- md_just_set_a_flag_and_call_wakeup
-fairly similar to end_buffer_io_sync.
 
-NeilBrown
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+----------------------------------------------------------------------------------------------------------------------
+
+
+--------------InterScan_NT_MIME_Boundary--

@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267746AbTBGJBd>; Fri, 7 Feb 2003 04:01:33 -0500
+	id <S267747AbTBGJHe>; Fri, 7 Feb 2003 04:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267747AbTBGJBd>; Fri, 7 Feb 2003 04:01:33 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:41738 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S267746AbTBGJBc>;
-	Fri, 7 Feb 2003 04:01:32 -0500
-Date: Fri, 7 Feb 2003 10:10:52 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: rossb@google.com, alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
-Message-Id: <20030207101052.538ac3c5.skraw@ithnet.com>
-In-Reply-To: <1044572658.6330.51.camel@zion.wanadoo.fr>
-References: <20030202161837.010bed14.skraw@ithnet.com>
-	<3E3D4C08.2030300@pobox.com>
-	<20030202185205.261a45ce.skraw@ithnet.com>
-	<3E3D6367.9090907@pobox.com>
-	<20030205104845.17a0553c.skraw@ithnet.com>
-	<1044443761.685.44.camel@zion.wanadoo.fr>
-	<3E414243.4090303@google.com>
-	<1044465151.685.149.camel@zion.wanadoo.fr>
-	<20030206132043.1896a1c2.skraw@ithnet.com>
-	<1044572658.6330.51.camel@zion.wanadoo.fr>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267748AbTBGJHe>; Fri, 7 Feb 2003 04:07:34 -0500
+Received: from [202.131.133.36] ([202.131.133.36]:36817 "EHLO mail.kongu.ac.in")
+	by vger.kernel.org with ESMTP id <S267747AbTBGJHd>;
+	Fri, 7 Feb 2003 04:07:33 -0500
+From: "Arvind Kalyan" <arvy@kongu.ac.in>
+To: linux-kernel@vger.kernel.org
+Subject: kernel oops on ifconfig
+Date: Fri, 7 Feb 2003 14:17:19 +0530
+Message-Id: <20030207141719.M50715@mail.kongu.ac.in>
+X-Mailer: KEC Web Mail 1.0 01-02-2002
+X-OriginatingIP: 172.16.7.3 (arvy)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07 Feb 2003 00:04:18 +0100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-
-> On Thu, 2003-02-06 at 13:20, Stephan von Krawczynski wrote:
-> > On 05 Feb 2003 18:12:31 +0100
-> > Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > 
-> > 
-> > > Stephan: Can you try editing ide-dma.c, function
-> > > __ide_dma_test_irq(), and remove that line:
-> > > 
-> > > -	drive->waiting_for_dma++;
-> > > 
-> > > And tell us if it helps in any way.
-> > > 
-> > > Ben.
-> > 
-> > Hello Ben,
-> > 
-> > as requested I tried the above "patch" and had no problem so far. Current
-> > situation is:
-> > (ide2, ide3 are PDC, eth2 is tg3)
-> 
-> Ok, well, if it' still stable by now, I beleive we can safely remove
-> that line from ide_dma_test_irq(). AFAIK, it really have nothing to do
-> here.
-
-Hello all,
-
-it is still working ok, currently we are at:
-
-           CPU0       
-  0:   13848205          XT-PIC  timer
-  1:      54117          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  5:          0          XT-PIC  EMU10K1
-  7:      27260          XT-PIC  HiSax
-  9:   67048861          XT-PIC  ide2, ide3, aic7xxx, aic7xxx, eth0, eth1, eth2
- 12:     765541          XT-PIC  PS/2 Mouse
- 15:        229          XT-PIC  ide1
-NMI:          0 
-LOC:          0 
-ERR:          0
-MIS:          0
-
-Regards,
-Stephan
-
+ 
+the error we got when we ran ifconfig on a ppc (imac machine). the kernel 
+version has also been included.. 
+ 
+please send CC to arvind@kongu.edu 
+ 
+[2JLinux KONGU.ITP7-3 2.4.19-4a #1 Wed Jun 5 01:34:59 EDT 2002 ppc unknown 
+Oops: kernel access of bad area, sig: 11 
+NIP: 00000000 XER: 20000000 LR: D5B166DC SP: C41BDEA0 REGS: c41bddf0 TRAP: 
+0400    Not tainted 
+MSR: 40009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11 
+TASK = c41bc000[4078] 'ifconfig' Last syscall: 6  
+last math c41bc000 last altivec 00000000 
+GPR00: 00000000 C41BDEA0 C41BC000 CD48F880 CC3D6940 00000000 CC3D6940 
+CB7D2100  
+GPR08: C41C4ED0 00000000 00000000 CD48F880 40000088 10027A64 00000000 
+10020000  
+GPR16: 00000000 00000000 00000000 00000000 00009032 041BDF40 00000000 
+C0006418  
+GPR24: C0006180 1000CCA0 300252CC 0FFEA718 C3324EC0 CD48F880 C41C4DA0 
+C41C4EC0  
+Call backtrace:  
+CCFF7000 C0237A38 C023801C C003FA4C C003E4BC C003E554 C00061DC  
+10001A48 0FECEF70 00000000  
+ 
+ 
+Thank you. 
+ 
+Arvind Kalyan 
+___________________________________________________
+Kongu Engineering College - Assuring the Best!!!
+http://kongu.ac.in, http://kongu.edu
 

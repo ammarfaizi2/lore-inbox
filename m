@@ -1,82 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264843AbUFVRmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUFVRrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264843AbUFVRmz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 13:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUFVREn
+	id S265029AbUFVRrR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 13:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUFVRqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 13:04:43 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:14487 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265035AbUFVQWy convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 12:22:54 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
+	Tue, 22 Jun 2004 13:46:45 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:1437 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S265043AbUFVRjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 13:39:01 -0400
+Message-ID: <40D86E51.2080108@am.sony.com>
+Date: Tue, 22 Jun 2004 10:37:21 -0700
+From: Geoff Levand <geoffrey.levand@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Fix MSI-X setup
-Date: Tue, 22 Jun 2004 09:21:27 -0700
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024057E4FA4@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Fix MSI-X setup
-Thread-Index: AcRYEleb9NDxzVu/R7SMC/d8qhAPrAAYZNzQ
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Roland Dreier" <roland@topspin.com>, <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>, <akpm@osdl.org>
-Cc: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 22 Jun 2004 16:21:28.0552 (UTC) FILETIME=[F8B8AE80:01C45874]
+To: ganzinger@mvista.com
+CC: Mark Gross <mgross@linux.jf.intel.com>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
+References: <40C7BE29.9010600@am.sony.com> <20040611062256.GB13100@devserv.devel.redhat.com> <40CA3342.9020105@mvista.com> <200406140828.08924.mgross@linux.intel.com> <40D7662A.2030006@am.sony.com> <40D76C76.7000509@mvista.com>
+In-Reply-To: <40D76C76.7000509@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, June 21, 2004 Roland Dreier wrote: 
+George Anzinger wrote:
+> Geoff Levand wrote:
+> 
+>> Mark Gross wrote:
+>>
+>>> On Friday 11 June 2004 15:33, George Anzinger wrote:
+>>>
+>>>> I have been thinking of a major rewrite which would leave this code 
+>>>> alone,
+>>>> but would introduce an additional list and, of course, overhead for
+>>>> high-res timers. This will take some time and be sub optimal, so I 
+>>>> wonder
+>>>> if it is needed.
+>>>
+>>>
+>>>
+>>>
+>>> What would your goal for the major rewrite be?
+>>> Redesign the implementation?
+>>> Clean up / re-factor the current design?
+>>> Add features?
+>>>
+>>> I've been wondering lately if a significant restructuring of the 
+>>> implementation could be done.  Something bottom's up that enabled 
+>>> changing / using different time bases without rebooting and coexisted 
+>>> nicely with HPET.
+>>>
+>>> Something along the lines of;
+>>> * abstracting the time base's, calibration and computation of the 
+>>> next interrupt time into a polymorphic interface along with the 
+>>> implementation of a few of your time bases (ACPI, TSC) as a stand 
+>>> allown patch.
+>>> * implement yet another polymorphic interface for the interrupt 
+>>> source used by the patch, along with a few interrupt sources (PIT, 
+>>> APIC, HPET <-- new )
+>>> * Implement a simple RTC-like charactor driver using the above for 
+>>> testing and integration.  * Finally a patch to integrate the first 3 
+>>> with the POSIX timers code.
+>>>
+>>> What do you think?
+>>>
+>>>
+>>> --mgross
+>>>
+>>
+>> Mark,
+>>
+>> Generally I agree with your ideas on what needs fixing up, but I'm 
+>> concerned that the run-time binding of this kind of design would have 
+>> too much overhead for time-critical code paths.  Do you think it is 
+>> useful to have run-time selection of the time base and interrupt 
+>> source?   In my work we have a known fixed hardware configuration that 
+>> has limited timers, so I don't really see a need for runtime 
+>> configuration there.
+> 
+> 
+> Well, I don't see much added overhead, (save memory).  We already 
+> dispatch interrupts via indirect function calls in irq.c.  And the core 
+> clock functions (used by gettimeofday, for example) are also indirected 
+> today (this to allow pm-timer, TSC, or PIT at boot time).  All we would 
+> do is put both of our possibilities in the list.  The only place we add 
+> overhead is in an indirect to the "proper" hardware timer for the 
+> sub-jiffie interrupt.
+> 
 
->msix_capability_init() puts the offset of the MSI-X capability into
->pos, then uses pos as a loop index to clear the MSI-X vector table,
->and then tries to use pos as the offset again, which results in
->writing the MSI-X enable bit off into space.
->
->This patch fixes that by adding a new loop index variable and using
->that to clear the vector table.
+If that's the case, then Mark's proposal sounds like a good way to 
+abstract the arch dependent code.  Someone mentioned to me that distro 
+vendors would like the idea of runtime configuration because they could 
+use a single kernel binary to support many different hardware 
+configurations.  I suppose if needed some optimization can be done later.
 
-Thanks for detecting this bug and providing a fix with your patch below.
+Mark, do you have time to do a first cut at the interfaces?  It seems 
+you've been thinking about this, and I'd like to see your ideas.  It 
+would be great if you could put together a sample hrtime.h.  If you are 
+short on time, I could put something together, but I think you are the 
+guy to do this.
 
-Thanks,
-Long
+ From what I've been told, Renesas did an HRT port to the SH arch on a 
+recent kernel.  I'm trying to get the code so that there will be three 
+arch's (i386, ppc32 & sh) to work against when doing the arch 
+independent interface.
 
-Index: linux-2.6.7/drivers/pci/msi.c
-===================================================================
---- linux-2.6.7.orig/drivers/pci/msi.c	2004-06-21 20:51:33.000000000
--0700
-+++ linux-2.6.7/drivers/pci/msi.c	2004-06-21 21:30:05.000000000
--0700
-@@ -569,7 +569,7 @@
- 	struct msi_desc *entry;
- 	struct msg_address address;
- 	struct msg_data data;
--	int vector = 0, pos, dev_msi_cap;
-+	int vector = 0, pos, dev_msi_cap, i;
- 	u32 phys_addr, table_offset;
- 	u32 control;
- 	u8 bir;
-@@ -629,12 +629,12 @@
- 	writel(address.hi_address, base +
-PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
- 	writel(*(u32*)&data, base + PCI_MSIX_ENTRY_DATA_OFFSET);
- 	/* Initialize all entries from 1 up to 0 */
--	for (pos = 1; pos < dev_msi_cap; pos++) {
--		writel(0, base + pos * PCI_MSIX_ENTRY_SIZE +
-+	for (i = 1; i < dev_msi_cap; i++) {
-+		writel(0, base + i * PCI_MSIX_ENTRY_SIZE +
- 			PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET);
--		writel(0, base + pos * PCI_MSIX_ENTRY_SIZE +
-+		writel(0, base + i * PCI_MSIX_ENTRY_SIZE +
- 			PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET);
--		writel(0, base + pos * PCI_MSIX_ENTRY_SIZE +
-+		writel(0, base + i * PCI_MSIX_ENTRY_SIZE +
- 			PCI_MSIX_ENTRY_DATA_OFFSET);
- 	}
- 	attach_msi_entry(entry, vector);
+Another thing that seems to be a sore point is the HRT core.  I think 
+there's a good consensus that the current use of preprocessor 
+conditionals makes the code pretty hairy, but what alternatives are there?
+
+If the HRT code is always compiled in, that would simplify things alot, 
+but then there would always be a small performance hit in the compares, 
+and a slightly bigger code size.  Is this acceptable?  Also, something 
+would need to be arranged to take care of the non-supported arch's.  Any 
+ideas here?
+
+Another way would be to pull out the HRT operations into separate 
+functions that could be conditionally included or replaced with no-op 
+versions based on a config option.  I don't know if this would be 
+do-able, or if the result would be very clean though...
+
+George also mentioned an idea of a second 'timer slave list'.   Any 
+other ideas here?
+
+
+-Geoff
+
+
+
 

@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbTELLxD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 07:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTELLxD
+	id S262072AbTELL72 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 07:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTELL72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 07:53:03 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7821 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261918AbTELLxA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 07:53:00 -0400
-Date: Mon, 12 May 2003 14:05:26 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Parse new-style boot parameters just before initcalls 
-In-Reply-To: <20030512040100.C7B972C0D7@lists.samba.org>
-Message-ID: <Pine.SOL.4.30.0305121401560.7978-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 May 2003 07:59:28 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44951
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262072AbTELL71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 07:59:27 -0400
+Subject: Re: [PATCH] restore sysenter MSRs at resume
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0305111706370.22268-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0305111706370.22268-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052738012.31246.15.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 May 2003 12:13:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2003-05-12 at 01:07, Linus Torvalds wrote:
+> On 11 May 2003, Alan Cox wrote:
+> > 
+> > Some laptops also lose all the AGP settings in the chipset.
+> 
+> Well, that's definitely a driver issue, and should be handled that way. I
+> suspect even the MTRR's should be handled as a driver, since unlike things
+> like the SYSENTER things, it really _is_ a driver already and is
+> conditional on kernel configuration etc.
 
-On Mon, 12 May 2003, Rusty Russell wrote:
+True, although mtrr is kind of special because bad things happen in some
+cases if they dont match across CPU's or with I/O device mappings.
 
-> In message <Pine.SOL.4.30.0305101735410.20755-100000@mion.elka.pw.edu.pl> you w
-> rite:
-> >
-> > Hi,
-> >
-> > I've redone this patch. I've tested it and works okay for me.
-> > It is as minimal as possible and I hope it can go in 2.5 soon.
->
-> Only one request, that you push this slightly more, and make
-> setup_arch() call parse_early_args().  Does that break something?
-
-Okay.
-Shouldn't break anything, but it requires updating setup.c for each arch.
-
-> That way the arch-specific parsing in setup_arch() can be converted to
-> __setup (but doesn't need to be: archs can take their time).
->
-> ie. we already have two-stage parsing, it'd be nice not to make it
-> three.
-
-Yep.
-
-> Minor nitpick:
->
-> > @@ -241,7 +279,7 @@ static int __init unknown_bootoption(cha
-> >  		val[-1] = '=';
-> >
-> >  	/* Handle obsolete-style parameters */
-> > -	if (obsolete_checksetup(param))
-> > +	if (obsolete_test_checksetup(param))
-> >  		return 0;
-> >
->
-> Change comment to /* Ignore early params: already done in
-> parse_early_args */ or something, and maybe rename
-> obsolete_test_checksetup() to is_early_setup().
-
-Okay.
-
-> Thanks!
-> Rusty.
-> --
->   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 

@@ -1,77 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUH2SJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268232AbUH2SOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268248AbUH2SJm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 14:09:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268250AbUH2SJm
+	id S268232AbUH2SOD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 14:14:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268250AbUH2SOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 14:09:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33483 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268248AbUH2SJj (ORCPT
+	Sun, 29 Aug 2004 14:14:02 -0400
+Received: from nysv.org ([213.157.66.145]:25538 "EHLO nysv.org")
+	by vger.kernel.org with ESMTP id S268232AbUH2SNy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 14:09:39 -0400
-Date: Sun, 29 Aug 2004 11:09:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Christoph Hellwig <hch@infradead.org>, Craig Milo Rogers <rogers@isi.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-In-Reply-To: <1093790181.27934.44.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0408291102010.2295@ppc970.osdl.org>
-References: <20040826233244.GA1284@isi.edu>  <20040827004757.A26095@infradead.org>
-  <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org>
- <1093790181.27934.44.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 Aug 2004 14:13:54 -0400
+Date: Sun, 29 Aug 2004 21:12:10 +0300
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Spam <spam@tnonline.net>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Hans Reiser <reiser@namesys.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
+       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
+       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040829181210.GD26192@nysv.org>
+References: <1732169380.20040827224404@tnonline.net> <200408291521.i7TFLsQk028363@localhost.localdomain> <10558145.20040829185217@tnonline.net> <16690.4288.260815.847844@thebsh.namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16690.4288.260815.847844@thebsh.namesys.com>
+User-Agent: Mutt/1.5.6i
+From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[ This will probably go down in history as the most pointless message
+  ever, I just told Nik on IRC I'd take it up on the list :) ]
 
+On Sun, Aug 29, 2004 at 09:22:08PM +0400, Nikita Danilov wrote:
+>Spam writes:
 
-On Sun, 29 Aug 2004, Alan Cox wrote:
-> 
-> He is not sole author. Large parts of the code are based on other
-> authors work and simply copied from the standard framework. Please put
-> back the version without the hooks. It is useful to all sorts of people
-> in that form.
+>Hmm... drag-and-drop also doesn't work constently over all
+>applications. Let's put it into kernel.
 
-Are you willing to stand up for that and be the maintainer for it?
+What I'm after is that the file system should be able to store
+any arbitrary metadata. No matter what the format is.
 
-I'm disgusted by how many people have been complaining, yet when I ask 
-people to step up and actually _do_ something about it, people suddenly 
-become very quiet, or continue complaining about it ignoring the 
-fundamental issue.
+Maybe I was a bit harsh on XML in my previous email, but whatever.
 
-Everybody (including you, Alan, so don't go hoity-toity on us) has
-apparently totally ignored my calls for a new maintainer, and asking the 
-people involved who wrote parts of the driver for their input. I quote an 
-email from me:
+>Seriously, kernel prformance is critical to the system, and to achieve
+>high performance all kernel code runs in single address space (actually,
+>in portion of address spaces of user processes shared by all
+>processes). All shared system state is located there. This means that
+>bug in a kernel affects whole system. This means that kernel should be
+>kept as simple as possible (and a bit more simple).
 
-	Date: Fri, 27 Aug 2004 11:13:09 -0700 (PDT)
-	From: Linus Torvalds <torvalds@osdl.org>
-	To: Xavier Bestel <xavier.bestel@free.fr>
-	Cc: Christoph Hellwig <hch@infradead.org>,
-	    Craig Milo Rogers <rogers@isi.edu>,
-	    Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	    webcam@smcc.demon.nl
-	Subject: Re: Termination of the Philips Webcam Driver (pwc)
+I do agree here. But is it seriously such a big issue to implement
+the files-as-dirs kind of thing?
 
-	On Fri, 27 Aug 2004, Xavier Bestel wrote:
-	> 
-	> What if someone steps up and want to maintain and extend this piece of
-	> code ? Will you forbid him (as in "not in my tree") ?
+Be it overloading MAY_READ so it works with chdir or implementing openat
+or whatever it takes.
 
-	I'd suggest you contact the people who have worked on that driver (there's 
-	certainly people outside of nemosoft, at least according to the 
-	changelogs) and see what they feel like and try to gauge how much they 
-	were part of driver development. 
+I don't think this should be much more, if any more, than the capability
+to store this data. Which Reiser4 does. But moved from the Reiser4
+level to the VFS level. Right?
 
-	...
+>This is why only things that cannot be done efficiently in the user
+>level are put into kernel. And political agendas of various camps of
+>user-level developers change nothing here.
 
-I've got _lots_ of emails in my mailbox complaining.
+What I'd want to do is to be able to write a Reiser4 plugin that suits
+my needs for something. Not that I'd even know how to, but that's a
+matter of time.
 
-I don't have a _single_ one actually responding for my calls to actually 
-_do_ something about the driver.
+Are there other means of doing this than Reiser? I mean Reiser4 plugin
+functionality by other means.
 
-Until people turn from whiners to doers, nothing will happen.
+>>   Still.  Why do you oppose plugins, streams and meta files? The could
+>>   be   valuable   and  easy  to use tools for many purposes. One could
+>>   be  would be advanced ACLs defined as a meta-file using XML format.
+>POSIX has standard ACL API in C (well, "eternal draft" only), one can
+>use it to extract ACLs from kernel and convert it to any format to one's
+>heart content. Advantage of this is that when XML goes out of fashion (I
+>hope this wouldn't yet happen when you will read this message), kernel
+>API will remain intact.
 
-			Linus
+Aa, this apparently is an argument against XML parsing in the kernel,
+not the idea that if someone wanted ACLs, that are in XML format, and
+could not use them (because the kernel doesn't parse), he should be
+able to write such a plugin.
+
+Besides, let's say the Reiser4 XML-ACL plugin has a parser that actually
+DOES something. For argument's sake. Would it not be up to the individual
+user to disable this plugin? I'd assume it's possible to write plugins
+so that they do not affect anything but themselves, meaning this parser.
+
+Of course the problem of copying a file with XML-ACLs to another Reiser4
+fs without support for them should be thought of. But I guess this is
+where you take the shortest route; the XML-ACL files are intact in the
+file's metadata, but totally unusable?
+
+-- 
+mjt
+

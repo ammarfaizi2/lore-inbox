@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312083AbSCXWV6>; Sun, 24 Mar 2002 17:21:58 -0500
+	id <S312085AbSCXWY6>; Sun, 24 Mar 2002 17:24:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312085AbSCXWVs>; Sun, 24 Mar 2002 17:21:48 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:50359 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S312083AbSCXWVg>;
-	Sun, 24 Mar 2002 17:21:36 -0500
-Message-ID: <3C9E51FC.8030503@freenet.de>
-Date: Sun, 24 Mar 2002 23:23:56 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020323
-X-Accept-Language: de, en-us, en
+	id <S312086AbSCXWYs>; Sun, 24 Mar 2002 17:24:48 -0500
+Received: from CPE-203-51-26-136.nsw.bigpond.net.au ([203.51.26.136]:1787 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S312085AbSCXWYp>; Sun, 24 Mar 2002 17:24:45 -0500
+Message-ID: <3C9E5226.FD8FAB70@eyal.emu.id.au>
+Date: Mon, 25 Mar 2002 09:24:38 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre3-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.18] Security: Process-Killer if machine get's out of memory
-In-Reply-To: <Pine.LNX.4.44L.0203241029000.18660-100000@imladris.surriel.com> <3C9DDDEE.3000401@athlon.maya.org> <3C9E48B8.9080707@ngforever.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: list linux-kernel <linux-kernel@vger.kernel.org>
+CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Andre Hedrick <andre@linux-ide.org>
+Subject: Re: 2.4.18: many IDE errors
+In-Reply-To: <Pine.LNX.4.30.0203242314350.31118-100000@mustard.heime.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thunder from the hill wrote:
-> Hi,
+Roy Sigurd Karlsbakk wrote:
 > 
->> Maybe, it would be possible to sort all known processes by there 
->> memory usage and combine it with the speed of their memoryrequests.
->> If memory gets low, and there is a process, which suddenly requests a 
->> lot of memory, this process get's killed, even if there is another 
->> process, which has three times more memory allocated then the "fast 
->> growing" process. If all processes are growing nearly equal and memory 
->> gets low, the process with the most memory usage get's killed - 
->> because with this process, the kernel achieves the target (to get free 
->> memspace) best.
+> > The PCI IDE cards I use are ATA-100, so this is the max speed available
+> > to be. The four large disks can do ATA-133.
+> >
+> > The 48bit addressing (to allow >137GB) seems to be unrelated, and it
+> > works with these cards. But I needed to apply:
+> >       http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.18/
+> >               ide.2.4.18-rc1.02152002.patch.bz2
 > 
-> So what if I want to malloc() say 100 MiBs at once? I'll get into 
-> trouble then, because if I don't malloc() with sleep()s I get killed. 
-> That's perfect performance then.
+> but ...
+> 
+> how can that work? i mean - 48bit addressing is in the udma133 standard
+> but not in udma100...
+> 
+> how does the /proc/mdstat and /proc/partitions look?
 
-Only if there's not enough free memory. You can't get more memory then 
-the machine has.
-The mechanism gets active only when there isn't enough free memory for 
-your request.
+I am not in front of the machine, but let me tell you that mdstat shows
+a full 480GB RAID5. There are no partitions (hde/g/i/k are used raw).
 
+Again, I think udma133 and 48bit addressing are two, independent issues.
+The first is an electronic spec for the hardware, the second is an api
+standard which, it seems, can run at any speed.
 
-Regards,
-Andreas Hartmann
+Maybe Andre can make a clear statement here?
 
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

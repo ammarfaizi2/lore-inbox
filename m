@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbUFBK6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUFBLBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUFBK6V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 06:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUFBK6U
+	id S261724AbUFBLBF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 07:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUFBLBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 06:58:20 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:37770 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261745AbUFBKwl
+	Wed, 2 Jun 2004 07:01:04 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:17346 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S261724AbUFBKxR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 06:52:41 -0400
-Date: Wed, 2 Jun 2004 12:52:44 +0200
+	Wed, 2 Jun 2004 06:53:17 -0400
+Date: Wed, 2 Jun 2004 12:53:18 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (2/4): common i/o layer.
-Message-ID: <20040602105244.GC7108@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (4/4): network device driver.
+Message-ID: <20040602105318.GE7108@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,687 +21,315 @@ User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: common i/o layer.
+[PATCH] s390: network device driver.
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Common i/o layer changes:
- - qdio: Lose the adapter lock for thin interrupts to improve performance
-   and do unregister of the adapter interrupt handler with rcu.
- - ccwgroup: Fix error handling when creating a ccwgroup device.
- - Convert the slow crw kernel thread to a single threaded workqueue.
- - Use the slow crw workqueue to unregister a subchannel after it was
-   found not operational to serialize it with other possible unregister/
-   register events coming in via machine checks.
- - Trigger a rescan of the css via the slow path if a missing channel path
-   is found in __recover_lost_chpids.
- - Use saner default levels for the debug feature, add some debugging code.
- - Remove request_irq and free_irq stubs.
- - Remove bogus inlines.
+Network driver changes:
+ - iucv: Fix special case of a "Connection Pending" interrupt within
+   iucv_do_int.
+ - netiucv: Revoke broken iucvMagic change for more than one connection.
+ - qeth: Fix string parsing in notifier_register attribute function.
+ - qeth: Add code for socket ioctl SIOC_QETH_GET_CARD_TYPE.
+ - qeth: Fix debug log entry and buffer copy in qeth_snmp_command_cb.
+ - qeth: Fix race on qeth_dbf_txt_buf.
 
 diffstat:
- drivers/s390/cio/airq.c       |   38 +++++----------------
- drivers/s390/cio/ccwgroup.c   |   24 ++++++++-----
- drivers/s390/cio/chsc.c       |   39 +++++++++++----------
- drivers/s390/cio/cio.c        |    8 ++--
- drivers/s390/cio/css.c        |   75 +++++++++++++++++++++---------------------
- drivers/s390/cio/css.h        |    4 +-
- drivers/s390/cio/device.c     |   15 +++++---
- drivers/s390/cio/device_fsm.c |   14 -------
- drivers/s390/cio/requestirq.c |   17 ---------
- drivers/s390/s390mach.c       |   25 ++------------
- 10 files changed, 109 insertions(+), 150 deletions(-)
+ drivers/s390/net/iucv.c      |    9 +++++----
+ drivers/s390/net/netiucv.c   |   25 ++++++++-----------------
+ drivers/s390/net/qeth.h      |   14 +++++++++-----
+ drivers/s390/net/qeth_main.c |   30 ++++++++++++++++++------------
+ drivers/s390/net/qeth_sys.c  |   16 +++++++++-------
+ 5 files changed, 49 insertions(+), 45 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/cio/airq.c linux-2.6-s390/drivers/s390/cio/airq.c
---- linux-2.6/drivers/s390/cio/airq.c	Mon May 10 04:33:10 2004
-+++ linux-2.6-s390/drivers/s390/cio/airq.c	Wed Jun  2 11:29:35 2004
-@@ -2,7 +2,7 @@
-  *  drivers/s390/cio/airq.c
-  *   S/390 common I/O routines -- support for adapter interruptions
+diff -urN linux-2.6/drivers/s390/net/iucv.c linux-2.6-s390/drivers/s390/net/iucv.c
+--- linux-2.6/drivers/s390/net/iucv.c	Wed Jun  2 11:29:04 2004
++++ linux-2.6-s390/drivers/s390/net/iucv.c	Wed Jun  2 11:29:39 2004
+@@ -1,5 +1,5 @@
+ /* 
+- * $Id: iucv.c,v 1.32 2004/05/18 09:28:43 braunu Exp $
++ * $Id: iucv.c,v 1.33 2004/05/24 10:19:18 braunu Exp $
   *
-- *   $Revision: 1.11 $
-+ *   $Revision: 1.12 $
+  * IUCV network driver
   *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -14,11 +14,11 @@
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/slab.h>
-+#include <linux/rcupdate.h>
- 
- #include "cio_debug.h"
- #include "airq.h"
- 
--static spinlock_t adapter_lock = SPIN_LOCK_UNLOCKED;
- static adapter_int_handler_t adapter_handler;
- 
- /*
-@@ -40,23 +40,17 @@
- 
- 	CIO_TRACE_EVENT (4, "rgaint");
- 
--	spin_lock (&adapter_lock);
--
- 	if (handler == NULL)
- 		ret = -EINVAL;
--	else if (adapter_handler)
--		ret = -EBUSY;
--	else {
--		adapter_handler = handler;
--		ret = 0;
--	}
--
--	spin_unlock (&adapter_lock);
-+	else
-+		ret = (cmpxchg(&adapter_handler, NULL, handler) ? -EBUSY : 0);
-+	if (!ret)
-+		synchronize_kernel();
- 
- 	sprintf (dbf_txt, "ret:%d", ret);
- 	CIO_TRACE_EVENT (4, dbf_txt);
- 
--	return (ret);
-+	return ret;
- }
- 
- int
-@@ -67,38 +61,26 @@
- 
- 	CIO_TRACE_EVENT (4, "urgaint");
- 
--	spin_lock (&adapter_lock);
--
- 	if (handler == NULL)
- 		ret = -EINVAL;
--	else if (handler != adapter_handler)
--		ret = -EINVAL;
- 	else {
- 		adapter_handler = NULL;
-+		synchronize_kernel();
- 		ret = 0;
- 	}
--
--	spin_unlock (&adapter_lock);
--
- 	sprintf (dbf_txt, "ret:%d", ret);
- 	CIO_TRACE_EVENT (4, dbf_txt);
- 
--	return (ret);
-+	return ret;
- }
- 
- void
- do_adapter_IO (void)
+@@ -29,7 +29,7 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.32 $
++ * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.33 $
+  *
+  */
+ 
+@@ -352,7 +352,7 @@
+ static void
+ iucv_banner(void)
  {
--	CIO_TRACE_EVENT (4, "doaio");
--
--	spin_lock (&adapter_lock);
-+	CIO_TRACE_EVENT (6, "doaio");
+-	char vbuf[] = "$Revision: 1.32 $";
++	char vbuf[] = "$Revision: 1.33 $";
+ 	char *version = vbuf;
  
- 	if (adapter_handler)
- 		(*adapter_handler) ();
--
--	spin_unlock (&adapter_lock);
--
--	return;
- }
- 
- EXPORT_SYMBOL (s390_register_adapter_interrupt);
-diff -urN linux-2.6/drivers/s390/cio/ccwgroup.c linux-2.6-s390/drivers/s390/cio/ccwgroup.c
---- linux-2.6/drivers/s390/cio/ccwgroup.c	Mon May 10 04:32:38 2004
-+++ linux-2.6-s390/drivers/s390/cio/ccwgroup.c	Wed Jun  2 11:29:35 2004
-@@ -1,7 +1,7 @@
+ 	if ((version = strchr(version, ':'))) {
+@@ -2368,7 +2368,8 @@
+ 					iucv_debug(2,
+ 						   "found a matching handler");
+ 					break;
+-				}
++				} else
++					h = NULL;
+ 			}
+ 			spin_unlock_irqrestore (&iucv_lock, flags);
+ 			if (h) {
+diff -urN linux-2.6/drivers/s390/net/netiucv.c linux-2.6-s390/drivers/s390/net/netiucv.c
+--- linux-2.6/drivers/s390/net/netiucv.c	Wed Jun  2 11:29:04 2004
++++ linux-2.6-s390/drivers/s390/net/netiucv.c	Wed Jun  2 11:29:39 2004
+@@ -1,5 +1,5 @@
  /*
-  *  drivers/s390/cio/ccwgroup.c
-  *  bus driver for ccwgroup
-- *   $Revision: 1.27 $
-+ *   $Revision: 1.28 $
+- * $Id: netiucv.c,v 1.53 2004/05/07 14:29:37 mschwide Exp $
++ * $Id: netiucv.c,v 1.54 2004/05/28 08:04:14 braunu Exp $
   *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *                       IBM Corporation
-@@ -179,12 +179,12 @@
- 		    || gdev->cdev[i]->id.driver_info !=
- 		    gdev->cdev[0]->id.driver_info) {
- 			rc = -EINVAL;
--			goto error;
-+			goto free_dev;
- 		}
- 		/* Don't allow a device to belong to more than one group. */
- 		if (gdev->cdev[i]->dev.driver_data) {
- 			rc = -EINVAL;
--			goto error;
-+			goto free_dev;
- 		}
- 	}
- 	for (i = 0; i < argc; i++)
-@@ -207,8 +207,8 @@
- 	rc = device_register(&gdev->dev);
- 	
- 	if (rc)
--		goto error;
--
-+		goto free_dev;
-+	get_device(&gdev->dev);
- 	rc = device_create_file(&gdev->dev, &dev_attr_ungroup);
- 
- 	if (rc) {
-@@ -217,20 +217,28 @@
- 	}
- 
- 	rc = __ccwgroup_create_symlinks(gdev);
--	if (!rc)
-+	if (!rc) {
-+		put_device(&gdev->dev);
- 		return 0;
--
-+	}
- 	device_remove_file(&gdev->dev, &dev_attr_ungroup);
- 	device_unregister(&gdev->dev);
- error:
- 	for (i = 0; i < argc; i++)
- 		if (gdev->cdev[i]) {
- 			put_device(&gdev->cdev[i]->dev);
-+			gdev->cdev[i]->dev.driver_data = NULL;
-+		}
-+	put_device(&gdev->dev);
-+	return rc;
-+free_dev:
-+	for (i = 0; i < argc; i++)
-+		if (gdev->cdev[i]) {
-+			put_device(&gdev->cdev[i]->dev);
- 			if (del_drvdata)
- 				gdev->cdev[i]->dev.driver_data = NULL;
- 		}
- 	kfree(gdev);
--
- 	return rc;
- }
- 
-diff -urN linux-2.6/drivers/s390/cio/chsc.c linux-2.6-s390/drivers/s390/cio/chsc.c
---- linux-2.6/drivers/s390/cio/chsc.c	Mon May 10 04:32:38 2004
-+++ linux-2.6-s390/drivers/s390/cio/chsc.c	Wed Jun  2 11:29:35 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/chsc.c
-  *   S/390 common I/O routines -- channel subsystem call
-- *   $Revision: 1.110 $
-+ *   $Revision: 1.111 $
+  * IUCV network driver
   *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -62,11 +62,11 @@
- 	int state;
- 
- 	state = get_chp_status(chp);
--	if (state < 0)
--		new_channel_path(chp);
--	else
-+	if (state < 0) {
-+		need_rescan = 1;
-+		queue_work(slow_path_wq, &slow_path_work);
-+	} else
- 		WARN_ON(!state);
--	/* FIXME: should notify other subchannels here */
- }
- 
- /* FIXME: this is _always_ called for every subchannel. shouldn't we
-@@ -285,8 +285,10 @@
- out_unreg:
- 	spin_unlock(&sch->lock);
- 	sch->lpm = 0;
--	/* We can't block here. */
--	device_call_nopath_notify(sch);
-+	if (css_enqueue_subchannel_slow(sch->irq)) {
-+		css_clear_subchannel_slow_list();
-+		need_rescan = 1;
-+	}
- 	return 0;
- }
- 
-@@ -303,6 +305,9 @@
- 
- 	bus_for_each_dev(&css_bus_type, NULL, &chpid,
- 			 s390_subchannel_remove_chpid);
-+
-+	if (need_rescan || css_slow_subchannels_exist())
-+		queue_work(slow_path_wq, &slow_path_work);
- }
- 
- static int
-@@ -737,10 +742,12 @@
- 			 * can successfully terminate, even using the
- 			 * just varied off path. Then kill it.
- 			 */
--			if (!__check_for_io_and_kill(sch, chp) && !sch->lpm)
--				/* Get over with it now. */
--				device_call_nopath_notify(sch);
--			else if (sch->driver && sch->driver->verify)
-+			if (!__check_for_io_and_kill(sch, chp) && !sch->lpm) {
-+				if (css_enqueue_subchannel_slow(sch->irq)) {
-+					css_clear_subchannel_slow_list();
-+					need_rescan = 1;
-+				}
-+			} else if (sch->driver && sch->driver->verify)
- 				sch->driver->verify(&sch->dev);
- 		}
- 		break;
-@@ -773,11 +780,6 @@
- 	return 0;
- }
- 
--extern void css_trigger_slow_path(void);
--typedef void (*workfunc)(void *);
--static DECLARE_WORK(varyonoff_work, (workfunc)css_trigger_slow_path,
--		    NULL);
--
- /*
-  * Function: s390_vary_chpid
-  * Varies the specified chpid online or offline
-@@ -813,7 +815,7 @@
- 			 s390_subchannel_vary_chpid_on :
- 			 s390_subchannel_vary_chpid_off);
- 	if (!on)
--		return 0;
-+		goto out;
- 	/* Scan for new devices on varied on path. */
- 	for (irq = 0; irq < __MAX_SUBCHANNELS; irq++) {
- 		struct schib schib;
-@@ -835,8 +837,9 @@
- 			need_rescan = 1;
- 		}
- 	}
-+out:
- 	if (need_rescan || css_slow_subchannels_exist())
--		schedule_work(&varyonoff_work);
-+		queue_work(slow_path_wq, &slow_path_work);
- 	return 0;
- }
- 
-diff -urN linux-2.6/drivers/s390/cio/cio.c linux-2.6-s390/drivers/s390/cio/cio.c
---- linux-2.6/drivers/s390/cio/cio.c	Mon May 10 04:33:21 2004
-+++ linux-2.6-s390/drivers/s390/cio/cio.c	Wed Jun  2 11:29:35 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/cio.c
-  *   S/390 common I/O routines -- low level i/o calls
-- *   $Revision: 1.121 $
-+ *   $Revision: 1.123 $
+@@ -30,7 +30,7 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
   *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -67,17 +67,17 @@
- 	if (!cio_debug_msg_id)
- 		goto out_unregister;
- 	debug_register_view (cio_debug_msg_id, &debug_sprintf_view);
--	debug_set_level (cio_debug_msg_id, 6);
-+	debug_set_level (cio_debug_msg_id, 2);
- 	cio_debug_trace_id = debug_register ("cio_trace", 4, 4, 8);
- 	if (!cio_debug_trace_id)
- 		goto out_unregister;
- 	debug_register_view (cio_debug_trace_id, &debug_hex_ascii_view);
--	debug_set_level (cio_debug_trace_id, 6);
-+	debug_set_level (cio_debug_trace_id, 2);
- 	cio_debug_crw_id = debug_register ("cio_crw", 2, 4, 16*sizeof (long));
- 	if (!cio_debug_crw_id)
- 		goto out_unregister;
- 	debug_register_view (cio_debug_crw_id, &debug_sprintf_view);
--	debug_set_level (cio_debug_crw_id, 6);
-+	debug_set_level (cio_debug_crw_id, 2);
- 	pr_debug("debugging initialized\n");
- 	return 0;
- 
-diff -urN linux-2.6/drivers/s390/cio/css.c linux-2.6-s390/drivers/s390/cio/css.c
---- linux-2.6/drivers/s390/cio/css.c	Wed Jun  2 11:29:04 2004
-+++ linux-2.6-s390/drivers/s390/cio/css.c	Wed Jun  2 11:29:35 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/css.c
-  *  driver for channel subsystem
-- *   $Revision: 1.74 $
-+ *   $Revision: 1.77 $
+- * RELEASE-TAG: IUCV network driver $Revision: 1.53 $
++ * RELEASE-TAG: IUCV network driver $Revision: 1.54 $
   *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *			 IBM Corporation
-@@ -166,10 +166,12 @@
- 	if (sch && sch->schib.pmcw.dnv &&
- 	    (schib.pmcw.dev != sch->schib.pmcw.dev))
- 		return CIO_REVALIDATE;
-+	if (sch && !sch->lpm)
-+		return CIO_NO_PATH;
- 	return CIO_OPER;
- }
- 	
--static inline int
-+static int
- css_evaluate_subchannel(int irq, int slow)
- {
- 	int event, ret, disc;
-@@ -188,7 +190,11 @@
- 		return -EAGAIN; /* Will be done on the slow path. */
- 	}
- 	event = css_get_subchannel_status(sch, irq);
-+	CIO_MSG_EVENT(4, "Evaluating schid %04x, event %d, %s, %s path.\n",
-+		      irq, event, sch?(disc?"disconnected":"normal"):"unknown",
-+		      slow?"slow":"fast");
- 	switch (event) {
-+	case CIO_NO_PATH:
- 	case CIO_GONE:
- 		if (!sch) {
- 			/* Never used this subchannel. Ignore. */
-@@ -196,7 +202,8 @@
- 			break;
- 		}
- 		if (sch->driver && sch->driver->notify &&
--		    sch->driver->notify(&sch->dev, CIO_GONE)) {
-+		    sch->driver->notify(&sch->dev, event)) {
-+			cio_disable_subchannel(sch);
- 			device_set_disconnected(sch);
- 			ret = 0;
- 			break;
-@@ -205,6 +212,7 @@
- 		 * Unregister subchannel.
- 		 * The device will be killed automatically.
- 		 */
-+		cio_disable_subchannel(sch);
- 		device_unregister(&sch->dev);
- 		/* Reset intparm to zeroes. */
- 		sch->schib.pmcw.intparm = 0;
-@@ -266,23 +274,44 @@
- 	}
+  */
+ 
+@@ -60,7 +60,6 @@
+ #include <asm/io.h>
+ #include <asm/bitops.h>
+ #include <asm/uaccess.h>
+-#include <asm/ebcdic.h>
+ 
+ #include "iucv.h"
+ #include "fsm.h"
+@@ -167,10 +166,10 @@
  }
  
--static void
--css_evaluate_slow_subchannel(unsigned long schid)
--{
--	css_evaluate_subchannel(schid, 1);
--}
-+struct slow_subchannel {
-+	struct list_head slow_list;
-+	unsigned long schid;
+ static __u8 iucv_host[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+-//static __u8 iucvMagic[16] = {
+-//	0xF0, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+-//	0xF0, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40
+-//};
++static __u8 iucvMagic[16] = {
++	0xF0, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
++	0xF0, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40
 +};
  
--void
-+static LIST_HEAD(slow_subchannels_head);
-+static spinlock_t slow_subchannel_lock = SPIN_LOCK_UNLOCKED;
-+
-+static void
- css_trigger_slow_path(void)
- {
-+	CIO_TRACE_EVENT(4, "slowpath");
-+
- 	if (need_rescan) {
- 		need_rescan = 0;
- 		css_rescan_devices();
- 		return;
- 	}
--	css_walk_subchannel_slow_list(css_evaluate_slow_subchannel);
-+
-+	spin_lock_irq(&slow_subchannel_lock);
-+	while (!list_empty(&slow_subchannels_head)) {
-+		struct slow_subchannel *slow_sch =
-+			list_entry(slow_subchannels_head.next,
-+				   struct slow_subchannel, slow_list);
-+
-+		list_del_init(slow_subchannels_head.next);
-+		spin_unlock_irq(&slow_subchannel_lock);
-+		css_evaluate_subchannel(slow_sch->schid, 1);
-+		spin_lock_irq(&slow_subchannel_lock);
-+		kfree(slow_sch);
-+	}
-+	spin_unlock_irq(&slow_subchannel_lock);
- }
+ /**
+  * This mask means the 16-byte IUCV "magic" and the origin userid must
+@@ -769,18 +768,10 @@
+ 	struct iucv_event *ev = (struct iucv_event *)arg;
+ 	struct iucv_connection *conn = ev->conn;
+ 	__u16 msglimit;
+-	int rc, len;
+-	__u8 iucvMagic[16] = {
+-	0xF0, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+-        0xF0, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40
+-	};
++	int rc;
  
-+typedef void (*workfunc)(void *);
-+DECLARE_WORK(slow_path_work, (workfunc)css_trigger_slow_path, NULL);
-+struct workqueue_struct *slow_path_wq;
-+
- /*
-  * Rescan for new devices. FIXME: This is slow.
-  * This function is called when we have lost CRWs due to overflows and we have
-@@ -443,14 +472,6 @@
- 		device_unregister(dev);
- }
+ 	pr_debug("%s() called\n", __FUNCTION__);
  
--struct slow_subchannel {
--	struct list_head slow_list;
--	unsigned long schid;
--};
--
--static LIST_HEAD(slow_subchannels_head);
--static spinlock_t slow_subchannel_lock = SPIN_LOCK_UNLOCKED;
--
- int
- css_enqueue_subchannel_slow(unsigned long schid)
- {
-@@ -484,25 +505,7 @@
- 	spin_unlock_irqrestore(&slow_subchannel_lock, flags);
- }
- 
--void
--css_walk_subchannel_slow_list(void (*fn)(unsigned long))
--{
--	unsigned long flags;
- 
--	spin_lock_irqsave(&slow_subchannel_lock, flags);
--	while (!list_empty(&slow_subchannels_head)) {
--		struct slow_subchannel *slow_sch =
--			list_entry(slow_subchannels_head.next,
--				   struct slow_subchannel, slow_list);
--
--		list_del_init(slow_subchannels_head.next);
--		spin_unlock_irqrestore(&slow_subchannel_lock, flags);
--		fn(slow_sch->schid);
--		spin_lock_irqsave(&slow_subchannel_lock, flags);
--		kfree(slow_sch);
--	}
--	spin_unlock_irqrestore(&slow_subchannel_lock, flags);
--}
- 
- int
- css_slow_subchannels_exist(void)
-diff -urN linux-2.6/drivers/s390/cio/css.h linux-2.6-s390/drivers/s390/cio/css.h
---- linux-2.6/drivers/s390/cio/css.h	Mon May 10 04:33:22 2004
-+++ linux-2.6-s390/drivers/s390/cio/css.h	Wed Jun  2 11:29:35 2004
-@@ -136,7 +136,6 @@
- 
- /* Helper functions for vary on/off. */
- void device_set_waiting(struct subchannel *);
--void device_call_nopath_notify(struct subchannel *);
- 
- /* Helper functions to build lists for the slow path. */
- int css_enqueue_subchannel_slow(unsigned long schid);
-@@ -144,4 +143,7 @@
- void css_clear_subchannel_slow_list(void);
- int css_slow_subchannels_exist(void);
- extern int need_rescan;
-+
-+extern struct workqueue_struct *slow_path_wq;
-+extern struct work_struct slow_path_work;
- #endif
-diff -urN linux-2.6/drivers/s390/cio/device.c linux-2.6-s390/drivers/s390/cio/device.c
---- linux-2.6/drivers/s390/cio/device.c	Wed Jun  2 11:29:04 2004
-+++ linux-2.6-s390/drivers/s390/cio/device.c	Wed Jun  2 11:29:35 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/device.c
-  *  bus driver for ccw devices
-- *   $Revision: 1.117 $
-+ *   $Revision: 1.119 $
-  *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *			 IBM Corporation
-@@ -159,6 +159,11 @@
- 		ret = -ENOMEM; /* FIXME: better errno ? */
- 		goto out_err;
- 	}
-+	slow_path_wq = create_singlethread_workqueue("kslowcrw");
-+	if (!slow_path_wq) {
-+		ret = -ENOMEM; /* FIXME: better errno ? */
-+		goto out_err;
-+	}
- 	if ((ret = bus_register (&ccw_bus_type)))
- 		goto out_err;
- 
-@@ -174,6 +179,8 @@
- 		destroy_workqueue(ccw_device_work);
- 	if (ccw_device_notify_work)
- 		destroy_workqueue(ccw_device_notify_work);
-+	if (slow_path_wq)
-+		destroy_workqueue(slow_path_wq);
- 	return ret;
- }
- 
-@@ -646,9 +653,7 @@
- 	struct subchannel *sch;
- 
- 	sch = to_subchannel(cdev->dev.parent);
--	/* Check if device is registered. */
--	if (!list_empty(&sch->dev.node))
--		device_unregister(&sch->dev);
-+	device_unregister(&sch->dev);
- 	/* Reset intparm to zeroes. */
- 	sch->schib.pmcw.intparm = 0;
- 	cio_modify(sch);
-@@ -677,7 +682,7 @@
- 		sch = to_subchannel(cdev->dev.parent);
- 		INIT_WORK(&cdev->private->kick_work,
- 			  ccw_device_call_sch_unregister, (void *) cdev);
--		queue_work(ccw_device_work, &cdev->private->kick_work);
-+		queue_work(slow_path_wq, &cdev->private->kick_work);
- 		break;
- 	case DEV_STATE_BOXED:
- 		/* Device did not respond in time. */
-diff -urN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-s390/drivers/s390/cio/device_fsm.c
---- linux-2.6/drivers/s390/cio/device_fsm.c	Wed Jun  2 11:29:04 2004
-+++ linux-2.6-s390/drivers/s390/cio/device_fsm.c	Wed Jun  2 11:29:35 2004
-@@ -459,20 +459,6 @@
- }
- 
- void
--device_call_nopath_notify(struct subchannel *sch)
--{
--	struct ccw_device *cdev;
--
--	if (!sch->dev.driver_data)
--		return;
--	cdev = sch->dev.driver_data;
--	PREPARE_WORK(&cdev->private->kick_work,
--		     ccw_device_nopath_notify, (void *)cdev);
--	queue_work(ccw_device_notify_work, &cdev->private->kick_work);
--}
--
--
--void
- ccw_device_verify_done(struct ccw_device *cdev, int err)
- {
- 	cdev->private->flags.doverify = 0;
-diff -urN linux-2.6/drivers/s390/cio/requestirq.c linux-2.6-s390/drivers/s390/cio/requestirq.c
---- linux-2.6/drivers/s390/cio/requestirq.c	Mon May 10 04:32:54 2004
-+++ linux-2.6-s390/drivers/s390/cio/requestirq.c	Wed Jun  2 11:29:35 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/requestirq.c
-  *   S/390 common I/O routines -- enabling and disabling of devices
-- *   $Revision: 1.45 $
-+ *   $Revision: 1.46 $
-  *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *			      IBM Corporation
-@@ -18,21 +18,6 @@
- 
- #include "css.h"
- 
--/* for compatiblity only... */
--int
--request_irq (unsigned int irq,
--	     void (*handler) (int, void *, struct pt_regs *),
--	     unsigned long irqflags, const char *devname, void *dev_id)
--{
--	return -EINVAL;
--}
--
--/* for compatiblity only... */
--void
--free_irq (unsigned int irq, void *dev_id)
--{
--}
--
- struct pgid global_pgid;
- EXPORT_SYMBOL_GPL(global_pgid);
- 
-diff -urN linux-2.6/drivers/s390/s390mach.c linux-2.6-s390/drivers/s390/s390mach.c
---- linux-2.6/drivers/s390/s390mach.c	Mon May 10 04:33:21 2004
-+++ linux-2.6-s390/drivers/s390/s390mach.c	Wed Jun  2 11:29:35 2004
-@@ -12,6 +12,7 @@
- #include <linux/init.h>
- #include <linux/sched.h>
- #include <linux/errno.h>
-+#include <linux/workqueue.h>
- 
- #include <asm/lowcore.h>
- 
-@@ -21,13 +22,14 @@
- // #define DBG(args,...) do {} while (0);
- 
- static struct semaphore m_sem;
--static struct semaphore s_sem;
- 
- extern int css_process_crw(int);
- extern int chsc_process_crw(void);
- extern int chp_process_crw(int, int);
- extern void css_reiterate_subchannels(void);
--extern void css_trigger_slow_path(void);
-+
-+extern struct workqueue_struct *slow_path_wq;
-+extern struct work_struct slow_path_work;
- 
+-	len = (IFNAMSIZ < sizeof(conn->netdev->name)) ?
+-		IFNAMSIZ : sizeof(conn->netdev->name);
+-	memcpy(iucvMagic, conn->netdev->name, len);
+-	ASCEBC (iucvMagic, len);
+ 	if (conn->handle == 0) {
+ 		conn->handle =
+ 			iucv_register_program(iucvMagic, conn->userid, mask,
+@@ -1958,7 +1949,7 @@
  static void
- s390_handle_damage(char *msg)
-@@ -39,21 +41,6 @@
- 	disabled_wait((unsigned long) __builtin_return_address(0));
+ netiucv_banner(void)
+ {
+-	char vbuf[] = "$Revision: 1.53 $";
++	char vbuf[] = "$Revision: 1.54 $";
+ 	char *version = vbuf;
+ 
+ 	if ((version = strchr(version, ':'))) {
+diff -urN linux-2.6/drivers/s390/net/qeth.h linux-2.6-s390/drivers/s390/net/qeth.h
+--- linux-2.6/drivers/s390/net/qeth.h	Wed Jun  2 11:29:04 2004
++++ linux-2.6-s390/drivers/s390/net/qeth.h	Wed Jun  2 11:29:39 2004
+@@ -23,7 +23,7 @@
+ 
+ #include "qeth_mpc.h"
+ 
+-#define VERSION_QETH_H 		"$Revision: 1.108 $"
++#define VERSION_QETH_H 		"$Revision: 1.109 $"
+ 
+ #ifdef CONFIG_QETH_IPV6
+ #define QETH_VERSION_IPV6 	":IPv6"
+@@ -91,10 +91,14 @@
+ 		debug_event(qeth_dbf_##name,level,(void*)(addr),len); \
+ 	} while (0)
+ 
+-#define QETH_DBF_TEXT_(name,level,text...)				  \
+-	do {								  \
+-		sprintf(qeth_dbf_text_buf, text);			  \
+-		debug_text_event(qeth_dbf_##name,level,qeth_dbf_text_buf);\
++extern DEFINE_PER_CPU(char[256], qeth_dbf_txt_buf);
++
++#define QETH_DBF_TEXT_(name,level,text...)				\
++	do {								\
++		char* dbf_txt_buf = get_cpu_var(qeth_dbf_txt_buf);	\
++		sprintf(dbf_txt_buf, text);			  	\
++		debug_text_event(qeth_dbf_##name,level,dbf_txt_buf);	\
++		put_cpu_var(qeth_dbf_txt_buf);				\
+ 	} while (0)
+ 
+ #define QETH_DBF_SPRINTF(name,level,text...) \
+diff -urN linux-2.6/drivers/s390/net/qeth_main.c linux-2.6-s390/drivers/s390/net/qeth_main.c
+--- linux-2.6/drivers/s390/net/qeth_main.c	Wed Jun  2 11:29:04 2004
++++ linux-2.6-s390/drivers/s390/net/qeth_main.c	Wed Jun  2 11:29:39 2004
+@@ -1,6 +1,6 @@
+ /*
+  *
+- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.112 $)
++ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.118 $)
+  *
+  * Linux on zSeries OSA Express and HiperSockets support
+  *
+@@ -12,7 +12,7 @@
+  *			  Frank Pavlic (pavlic@de.ibm.com) and
+  *		 	  Thomas Spatzier <tspat@de.ibm.com>
+  *
+- *    $Revision: 1.112 $	 $Date: 2004/05/19 09:28:21 $
++ *    $Revision: 1.118 $	 $Date: 2004/06/02 06:34:52 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -78,7 +78,7 @@
+ #include "qeth_mpc.h"
+ #include "qeth_fs.h"
+ 
+-#define VERSION_QETH_C "$Revision: 1.112 $"
++#define VERSION_QETH_C "$Revision: 1.118 $"
+ static const char *version = "qeth S/390 OSA-Express driver";
+ 
+ /**
+@@ -91,7 +91,8 @@
+ static debug_info_t *qeth_dbf_trace = NULL;
+ static debug_info_t *qeth_dbf_sense = NULL;
+ static debug_info_t *qeth_dbf_qerr = NULL;
+-static char qeth_dbf_text_buf[255];
++
++DEFINE_PER_CPU(char[256], qeth_dbf_txt_buf);
+ 
+ /**
+  * some more definitions and declarations
+@@ -4182,9 +4183,10 @@
+ 	}
+ 	data_len = *((__u16*)QETH_IPA_PDU_LEN_PDU1(data));
+ 	if (cmd->data.setadapterparms.hdr.seq_no == 1)
+-		data_len -= (__u16)((char*)&snmp->request - (char *)cmd);
+-	else
+ 		data_len -= (__u16)((char *)&snmp->data - (char *)cmd);
++	else
++		data_len -= (__u16)((char*)&snmp->request - (char *)cmd);
++
+ 	/* check if there is enough room in userspace */
+ 	if ((qinfo->udata_len - qinfo->udata_offset) < data_len) {
+ 		QETH_DBF_TEXT_(trace, 4, "scer3%i", -ENOMEM);
+@@ -4193,15 +4195,17 @@
+ 	}
+ 	QETH_DBF_TEXT_(trace, 4, "snore%i",
+ 		       cmd->data.setadapterparms.hdr.used_total);
+-	QETH_DBF_TEXT_(trace, 4, "sseqn%i", cmd->data.setassparms.hdr.seq_no);
++	QETH_DBF_TEXT_(trace, 4, "sseqn%i", cmd->data.setadapterparms.hdr.seq_no);
+ 	/*copy entries to user buffer*/
+ 	if (cmd->data.setadapterparms.hdr.seq_no == 1) {
+ 		memcpy(qinfo->udata + qinfo->udata_offset,
+-		       (char *)snmp,offsetof(struct qeth_snmp_cmd,data));
++		       (char *)snmp,
++		       data_len + offsetof(struct qeth_snmp_cmd,data));
+ 		qinfo->udata_offset += offsetof(struct qeth_snmp_cmd, data);
++	} else {
++		memcpy(qinfo->udata + qinfo->udata_offset,
++		       (char *)&snmp->request, data_len);
+ 	}
+-	memcpy(qinfo->udata + qinfo->udata_offset,
+-	       (char *)&snmp->data, data_len);
+ 	qinfo->udata_offset += data_len;
+ 	/* check if all replies received ... */
+ 		QETH_DBF_TEXT_(trace, 4, "srtot%i",
+@@ -4212,7 +4216,6 @@
+ 	    cmd->data.setadapterparms.hdr.used_total)
+ 		return 1;
+ 	return 0;
+-
  }
  
--static int
--s390_mchk_slow_path(void *param)
--{
--	struct semaphore *sem;
+ static struct qeth_cmd_buffer *
+@@ -4280,7 +4283,6 @@
+ 	 else
+ 		copy_to_user(udata, qinfo.udata, qinfo.udata_len);
+ 
 -
--	sem = (struct semaphore *)param;
--	/* Set a nice name. */
--	daemonize("kslowcrw");
--repeat:
--	down_interruptible(sem);
--	css_trigger_slow_path();
--	goto repeat;
--	return 0;
--}
--
+ 	kfree(qinfo.udata);
+ 	return rc;
+ }
+@@ -4476,6 +4478,10 @@
+ 		rc = qeth_snmp_command(card, rq->ifr_ifru.ifru_data);
+ 		break;
+ 	case SIOC_QETH_GET_CARD_TYPE:
++		if ((card->info.type == QETH_CARD_TYPE_OSAE) &&
++		    !card->info.guestlan)
++			return 1;
++		return 0;
+ 		break;
+ 	case SIOCGMIIPHY:
+ 		mii_data = (struct mii_ioctl_data *) &rq->ifr_ifru.ifru_data;
+diff -urN linux-2.6/drivers/s390/net/qeth_sys.c linux-2.6-s390/drivers/s390/net/qeth_sys.c
+--- linux-2.6/drivers/s390/net/qeth_sys.c	Wed Jun  2 11:29:04 2004
++++ linux-2.6-s390/drivers/s390/net/qeth_sys.c	Wed Jun  2 11:29:39 2004
+@@ -1,6 +1,6 @@
  /*
-  * Retrieve CRWs and call function to handle event.
   *
-@@ -130,7 +117,7 @@
- 		}
+- * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.30 $)
++ * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.32 $)
+  *
+  * Linux on zSeries OSA Express and HiperSockets support
+  * This file contains code related to sysfs.
+@@ -20,7 +20,7 @@
+ #include "qeth_mpc.h"
+ #include "qeth_fs.h"
+ 
+-const char *VERSION_QETH_SYS_C = "$Revision: 1.30 $";
++const char *VERSION_QETH_SYS_C = "$Revision: 1.32 $";
+ 
+ /*****************************************************************************/
+ /*                                                                           */
+@@ -1447,14 +1447,16 @@
+ {
+ 	int rc;
+ 	int signum;
+-	char *tmp;
++	char *tmp, *tmp2;
+ 
+ 	tmp = strsep((char **) &buf, "\n");
+-	if (!strcmp(tmp, "unregister")){
+-		return qeth_notifier_unregister(current);
++	if (!strncmp(tmp, "unregister", 10)){
++		if ((rc = qeth_notifier_unregister(current)))
++			return rc;
++		return count;
  	}
- 	if (slow)
--		up(&s_sem);
-+		queue_work(slow_path_wq, &slow_path_work);
- 	goto repeat;
- 	return 0;
+ 
+-	signum = simple_strtoul(buf, &tmp, 10);
++	signum = simple_strtoul(tmp, &tmp2, 10);
+ 	if ((signum < 0) || (signum > 32)){
+ 		PRINT_WARN("Signal number %d is out of range\n", signum);
+ 		return -EINVAL;
+@@ -1465,7 +1467,7 @@
+ 	return count;
  }
-@@ -202,7 +189,6 @@
- machine_check_init(void)
- {
- 	init_MUTEX_LOCKED(&m_sem);
--	init_MUTEX_LOCKED( &s_sem );
- 	ctl_clear_bit(14, 25);	/* disable damage MCH */
- 	ctl_set_bit(14, 26);	/* enable degradation MCH */
- 	ctl_set_bit(14, 27);	/* enable system recovery MCH */
-@@ -226,7 +212,6 @@
- machine_check_crw_init (void)
- {
- 	kernel_thread(s390_collect_crw_info, &m_sem, CLONE_FS|CLONE_FILES);
--	kernel_thread(s390_mchk_slow_path, &s_sem, CLONE_FS|CLONE_FILES);
- 	ctl_set_bit(14, 28);	/* enable channel report MCH */
- 	return 0;
- }
+ 
+-static DRIVER_ATTR(notifier_register, 0644, 0,
++static DRIVER_ATTR(notifier_register, 0200, 0,
+ 		   qeth_driver_notifier_register_store);
+ 
+ int

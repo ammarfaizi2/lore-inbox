@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267369AbSLKXzM>; Wed, 11 Dec 2002 18:55:12 -0500
+	id <S267372AbSLLAFx>; Wed, 11 Dec 2002 19:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267371AbSLKXzL>; Wed, 11 Dec 2002 18:55:11 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:34768 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267369AbSLKXzK>;
-	Wed, 11 Dec 2002 18:55:10 -0500
-Message-ID: <8A9A5F4E6576D511B98F00508B68C20A1508E39A@orsmsx106.jf.intel.com>
-From: "Shureih, Tariq" <tariq.shureih@intel.com>
-To: "Lmkl (linux-kernel@vger.kernel.org)" <linux-kernel@vger.kernel.org>
-Subject: Slow SCSI AIC7xxx on 2.5.48
-Date: Wed, 11 Dec 2002 16:02:46 -0800
+	id <S267371AbSLLAFw>; Wed, 11 Dec 2002 19:05:52 -0500
+Received: from packet.digeo.com ([12.110.80.53]:26088 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267364AbSLLAFu>;
+	Wed, 11 Dec 2002 19:05:50 -0500
+Message-ID: <3DF7D4A9.C93316D8@digeo.com>
+Date: Wed, 11 Dec 2002 16:13:29 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Steven Roussey <sroussey@network54.com>
+CC: robm@fastmail.fm, linux-kernel@vger.kernel.org
+Subject: Re: Strange load spikes on 2.4.19 kernel
+References: <3DF7C5B2.D9E0249C@digeo.com> <001d01c2a170$b72639e0$026fa8c0@wehohome>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Dec 2002 00:13:29.0970 (UTC) FILETIME=[4CAFDD20:01C2A173]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone noticed some serious degradation in performance using AIC7xxx
-driver in 2.5.48?
+Steven Roussey wrote:
+>
+> 500      32429  0.3  1.1 41948 9148 ?        R    15:19   0:06 /usr/local/apache/bin/httpd -DSSL
 
-I have a system with Intel's SL2 dual PIII Xeon 933 with on board scsi
-adaptec.
+Looks like all your apache instances woke up and started doing something.
+What makes you think it's a kernel or ext3 thing?
 
-When I load the 2.4.19 kernel, everything is fine.
-
-Using 2.5.48, when I login it takes it sometimes up to 1 minute 34 seconds
-to return me a prompt and good luck with "ps".
-No errors or messages though.
-
-I have not tried it with 2.5.51 to see if anything changed. 
-
-Is this known?
-
-*_*_*_*_*_*
-Tariq Shureih
-*_*_*_*_*_*_*_*_*
-Opinions are my own and don't represent my employer
-
-
+If there were processes there in `D' state then it would probably
+be related to filesystem activity.  But that does not appear to
+be the case.

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbTJQSoS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 14:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbTJQSoS
+	id S263502AbTJQSoW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 14:44:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbTJQSoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 14:44:18 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:6604 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S263584AbTJQSml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 14:42:41 -0400
-Date: Fri, 17 Oct 2003 14:42:34 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: lkml <linux-kernel@vger.kernel.org>, <mingo@redhat.com>,
-       <linux-mm@kvack.org>
-Subject: Re: 2.6.0-test7-mm1 4G/4G hanging at boot
-In-Reply-To: <20031017111955.439d01c8.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.44.0310171441530.3108-100000@chimarrao.boston.redhat.com>
+	Fri, 17 Oct 2003 14:44:21 -0400
+Received: from mcomail03.maxtor.com ([134.6.76.14]:55053 "EHLO
+	mcomail03.maxtor.com") by vger.kernel.org with ESMTP
+	id S263586AbTJQSnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 14:43:01 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C105CDB2E1@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@Maxtor.com>
+To: "'Jens Axboe'" <axboe@suse.de>
+Cc: "'Greg Stark'" <gsstark@mit.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] ide write barrier support
+Date: Fri, 17 Oct 2003 12:42:59 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Oct 2003, Randy.Dunlap wrote:
 
-> then I wait for 1-2 minutes and hit the power button.
-> This is on an IBM dual-proc P4 (non-HT) with 1 GB of RAM.
+
+> -----Original Message-----
+> From: Jens Axboe [mailto:axboe@suse.de]
+>
+> > Luckilly, us drive guys are a bit smarter (if only a bit)...
 > 
-> Has anyone else seen this?  Suggestions or fixes?
+> Some of you? :)
 
-Chances are the 8kB stack window isn't 8kB aligned in the
-fixmap area, because of other patches interfering.  Try
-adding a dummy fixmap page to even things out.
+We're a little bit smarter than the totally braindead possible data order
+issues that are allowed in the spec... but only a little bit smarter.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+> That's why for IDE I prefer handling it in software. Let the 
+> queue drain,
+> issue a barrier write, and continue. That works, regardless of drive
+> firmware implementations. As long as the spec doesn't make it explicit
+> what happens, there's no way I can rely on it.
 
+agreed
+
+The drive will be doing ops as fast as possible, letting the queue go to
+zero depth then flushing cache would be the absolute fastest way to do it
+for best overall performance.
+
+eric

@@ -1,91 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286322AbSCHWOY>; Fri, 8 Mar 2002 17:14:24 -0500
+	id <S289817AbSCHWaS>; Fri, 8 Mar 2002 17:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286687AbSCHWON>; Fri, 8 Mar 2002 17:14:13 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:5014 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S286322AbSCHWN6>;
-	Fri, 8 Mar 2002 17:13:58 -0500
-Message-ID: <3C89379B.4020107@us.ibm.com>
-Date: Fri, 08 Mar 2002 14:13:47 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: truncate_list_pages()  BUG and confusion
-In-Reply-To: <3C880EFF.A0789715@zip.com.au>,		<3C8809BA.4070003@us.ibm.com> <3C880EFF.A0789715@zip.com.au> <17920000.1015622098@flay> <3C8932CC.761C8829@zip.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290333AbSCHWaJ>; Fri, 8 Mar 2002 17:30:09 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:39176 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S289817AbSCHWaE>; Fri, 8 Mar 2002 17:30:04 -0500
+Date: Fri, 8 Mar 2002 23:30:01 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Danek Duvall <duvall@emufarm.org>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: root-owned /proc/pid files for threaded apps?
+Message-ID: <20020308233001.B7163@devcon.net>
+Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+	Danek Duvall <duvall@emufarm.org>, linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net> <20020308203157.GA457@lorien.emufarm.org> <20020308222942.A7163@devcon.net> <20020308214148.GA750@lorien.emufarm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020308214148.GA750@lorien.emufarm.org>; from duvall@emufarm.org on Fri, Mar 08, 2002 at 01:41:49PM -0800
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> If the page_cache_release() in truncate_complete_page() is calling
-> __free_pages_ok() then something really horrid has happened.
+On Fri, Mar 08, 2002 at 01:41:49PM -0800, Danek Duvall wrote:
+> > 
+> > > So it also turns out that either by changing that argument to 0 or
+> > > just reverting that hunk of the patch, xmms starts skipping whenever
+> > > mozilla loads a page, even a really simple one.
+> > ie. always when mozilla tries to do a socket(PF_INET6, ...), which
+> > ends up requesting the ipv6 module. 
+> I don't think so -- modprobe logs its attempts in /var/log/ksymoops/ and
+> there aren't nearly as many attempts to load net-pf-10 logged there as
+> pages I reloaded.
 
-Something horrid _IS_ happening:
+Hmm, right. Actually, it should only try to open an IPv6 socket if
+you stomp on a webserver which runs IPv6 already.
 
-kernel BUG at page_alloc.c:109!
-CPU:    1
-EIP:    0010:[<c012d9ac>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: 01000005   ebx: c1471560   ecx: c1471560   edx: c1471560
-esi: 00000000   edi: 00000000   ebp: 00000000   esp: da569ed0
-ds: 0018   es: 0018   ss: 0018
-Stack: c1471560 00000000 00000000 00000000 c1471560 c1471560 00000000 
-c1471560
-        00000000 00000000 00000000 c012574a c1471560 00000000 c012e235 
-c1471560
-        c0125792 c1471560 c1471560 c01258f6 c1471560 00000000 da569f60 
-00000000
-Call Trace: [<c012574a>] [<c012e235>] [<c0125792>] [<c01258f6>] 
-[<c01259ab>]
-    [<c0148df5>] [<c0146697>] [<c0140635>] [<c01070a3>]
-Code: 0f 0b 6d 00 80 6d 23 c0 8b 4c 24 10 8b 41 18 a8 40 74 08 0f
+> > Maybe it's related to the wmb() done by set_user() if dumpclear is
+> > set? (although it's actually a nop on most x86 (which arch are you
+> > using?))
+> AMD K6-III, just to be specific.
 
- >>EIP; c012d9ac <__free_pages_ok+6c/29c>   <=====
-Trace; c012574a <do_flushpage+26/2c>
-Trace; c012e235 <page_cache_release+2d/30>
-Trace; c0125792 <truncate_complete_page+42/48>
-Trace; c01258f6 <truncate_list_pages+15e/1c4>
-Trace; c01259ab <truncate_inode_pages+4f/80>
-Trace; c0148df5 <iput+b5/1d8>
-Trace; c0146697 <dput+e7/148>
-Trace; c0140635 <sys_unlink+b1/124>
-Trace; c01070a3 <syscall_call+7/b>
-Code;  c012d9ac <__free_pages_ok+6c/29c>
-00000000 <_EIP>:
-Code;  c012d9ac <__free_pages_ok+6c/29c>   <=====
-    0:   0f 0b                     ud2a      <=====
-Code;  c012d9ae <__free_pages_ok+6e/29c>
-    2:   6d                        insl   (%dx),%es:(%edi)
-Code;  c012d9af <__free_pages_ok+6f/29c>
-    3:   00 80 6d 23 c0 8b         add    %al,0x8bc0236d(%eax)
-Code;  c012d9b5 <__free_pages_ok+75/29c>
-    9:   4c                        dec    %esp
-Code;  c012d9b6 <__free_pages_ok+76/29c>
-    a:   24 10                     and    $0x10,%al
-Code;  c012d9b8 <__free_pages_ok+78/29c>
-    c:   8b 41 18                  mov    0x18(%ecx),%eax
-Code;  c012d9bb <__free_pages_ok+7b/29c>
-    f:   a8 40                     test   $0x40,%al
-Code;  c012d9bd <__free_pages_ok+7d/29c>
-   11:   74 08                     je     1b <_EIP+0x1b> c012d9c7 
-<__free_pages_ok+87/29c>
-Code;  c012d9bf <__free_pages_ok+7f/29c>
-   13:   0f 00 00                  sldt   (%eax)
+OK, if you didn't compile your kernel for an IDT WinChip, wmb() only
+affects the compilers optimizer (it stops the compiler from reordering
+memory writes across it, so it's effect is not changed by the if
+around it in this case).
 
- > Is this happening with the dbench/ENOSPC/1k blocksize testcase?
-yes
+> > Just for testing, can you try moving the wmb() in set_user()
+> > (kernel/sys.c, line 512 in 2.4.19-pre2-ac3) out of the if statement?
+> I'd expect to see the skipping regardless, then, right?
 
-For this particular one, dbench ran without failure, but while rm'ing 
-the leftover directories, it BUGged.
+Nope, the other way round. At the moment, the wmb() in set_user() is
+only done if dumpclear is set, ie. with set_user(0, 1).
 
+But as stated above, moving the wmb() should not change anything on an
+x86 (non-WinChip) machine. I think your problem is buried somewhere
+else ...
+
+> I'll give it a
+> shot tonight and report back.
+
+... but really testing it doesn't hurt, so please proceed :-)
+
+What you can also try is making the kernel do those module requests
+without the rest of mozilla around it. Try running the following test
+program a few times while you are listening to music.
+
+---------- snip ----------
+/*
+ * Save as ipv6test.c and compile with "gcc -o ipv6test ipv6test.c". 
+ * Run with "./ipv6test".
+ */
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <stdio.h>
+
+int main(void)
+{
+        int s;
+
+        printf("Creating IPv6 socket...");
+        if ((s = socket(PF_INET6, SOCK_STREAM, 0)) != -1) {
+                printf(" succeeded.\n");
+                close(s);
+        }
+        else
+                printf("failed.\nsocket: %m\n");
+        return 0;
+}
+---------- snip ----------
+
+If this doesn't cause skips, it seems very unlikely to me that your
+skips are related to request_module() or the functions called by it.
+
+Andreas
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbTDKQfk (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTDKQfk (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 12:35:40 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:28066 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261258AbTDKQfi (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 12:35:38 -0400
-Date: Fri, 11 Apr 2003 09:47:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Vagn Scott <vagn@ranok.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.67-bk2] depmod: *** Unresolved symbols in /lib/modules/2.5.67-bk2/kernel/drivers/usb/serial/visor.ko
-Message-ID: <20030411164745.GA1606@kroah.com>
-References: <E193fnx-0004Zp-00@Maya.ny.ranok.com>
+	id S261283AbTDKQhL (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 12:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbTDKQhL (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 12:37:11 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:22540
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S261283AbTDKQhK 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 12:37:10 -0400
+Subject: Re: Tasklet doubt!
+From: Robert Love <rml@tech9.net>
+To: root@chaos.analogic.com
+Cc: Sriram Narasimhan <nsri@tataelxsi.co.in>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0304111242210.8834@chaos>
+References: <3E96EAF5.4060609@tataelxsi.co.in>
+	 <Pine.LNX.4.53.0304111242210.8834@chaos>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050079715.2291.223.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E193fnx-0004Zp-00@Maya.ny.ranok.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 11 Apr 2003 12:48:36 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 10, 2003 at 01:25:41PM -0400, Vagn Scott wrote:
-> config is below
-> Thu Apr 10 12:55:02 EDT 2003
-> 2.5.67
-> patch-2.5.67-bk2.bz2
+On Fri, 2003-04-11 at 12:46, Richard B. Johnson wrote:
 
-Does 2.5.67 work ok?
-There have not been any USB patches in -bk2 so I don't know what would
-be causing this.
+> You only need GFP_ATOMIC for stuff allocated and freed when the
+> interrupts are off like in ISRs.
 
-thanks,
+Not just when the interrupts are off but whenever you cannot sleep.
 
-greg k-h
+In most interrupt handlers, interrupts are enabled anyhow (except the
+current line which is masked out -- but the interrupt system itself is
+on i.e. sti is set).  But they cannot sleep.
+
+	Robert Love
+

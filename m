@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266559AbRHAKgr>; Wed, 1 Aug 2001 06:36:47 -0400
+	id <S266469AbRHAKl1>; Wed, 1 Aug 2001 06:41:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266577AbRHAKgh>; Wed, 1 Aug 2001 06:36:37 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:46855
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S266559AbRHAKgb>; Wed, 1 Aug 2001 06:36:31 -0400
-Date: Wed, 1 Aug 2001 06:38:08 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: "Nadav Har'El" <nyh@math.technion.ac.il>
-Cc: Riley Williams <rhw@MemAlpha.CX>, Guest section DW <dwguest@win.tue.nl>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Virii (sic)
-Message-ID: <20010801063808.A19303@animx.eu.org>
-In-Reply-To: <20010801015116.B11060@win.tue.nl> <Pine.LNX.4.33.0108010754400.9176-100000@infradead.org> <20010801115637.C22440@leeor.math.technion.ac.il>
+	id <S266507AbRHAKlS>; Wed, 1 Aug 2001 06:41:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2058 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266469AbRHAKlC>;
+	Wed, 1 Aug 2001 06:41:02 -0400
+Date: Wed, 1 Aug 2001 11:41:05 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Per Jessen <per.jessen@enidan.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-laptop@vger.kernel.org" <linux-laptop@vger.kernel.org>
+Subject: Re: PCMCIA control I82365 stops working with 2.4.4
+Message-ID: <20010801114105.A26615@flint.arm.linux.org.uk>
+In-Reply-To: <3B5D8A0A002D181A@mta2n.bluewin.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20010801115637.C22440@leeor.math.technion.ac.il>; from Nadav Har'El on Wed, Aug 01, 2001 at 11:56:37AM +0300
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B5D8A0A002D181A@mta2n.bluewin.ch>; from per.jessen@enidan.com on Wed, Aug 01, 2001 at 12:40:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Just like the plural of abacus is abaci, the plural of cactus is cacti
-> (check the dictionary if you don't believe me), shouldn't the plural of
-> virus be viri, with one I at the end (of course, "viruses" is also currently
-> accepted as a plural, and even preferred by some people).
+On Wed, Aug 01, 2001 at 12:40:01PM +0200, Per Jessen wrote:
+> I have since moved on to 2.4.5, 2.4.6 and 2.4.7 - the i82365 is
+> still not being detected. Should I be talking to Toshiba about this ?
+> Not having the i82365 module loaded means not being able to use my
+> PCMCIA network card - pretty bad situation. 
 
-If the plural of mouse is mice, shouldn't the plural of spouce be spice?
+Use the yenta module instead of the i82365 module.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

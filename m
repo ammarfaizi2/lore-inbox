@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUFWW5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbUFWXCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUFWW5F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 18:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUFWW5E
+	id S262080AbUFWXCN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 19:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUFWXCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 18:57:04 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:19469 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262009AbUFWW4w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 18:56:52 -0400
-Date: Thu, 24 Jun 2004 00:56:40 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: jt@hpl.hp.com
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: [BUG 2.6.7] : Partition table display bogus...
-Message-ID: <20040623225640.GE3072@pclin040.win.tue.nl>
-References: <20040623220557.GA26199@bougret.hpl.hp.com>
+	Wed, 23 Jun 2004 19:02:13 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:59785 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S262050AbUFWXCI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 19:02:08 -0400
+Subject: Re: [PATCH] Make POSIX locks compatible with the NPTL thread model
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040623144150.H21045@build.pdx.osdl.net>
+References: <1088010468.5806.52.camel@lade.trondhjem.org>
+	 <20040623122930.K22989@build.pdx.osdl.net>
+	 <1088020210.5806.95.camel@lade.trondhjem.org>
+	 <20040623144150.H21045@build.pdx.osdl.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1088031727.8944.71.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040623220557.GA26199@bougret.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 23 Jun 2004 19:02:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 03:05:57PM -0700, Jean Tourrilhes wrote:
+På on , 23/06/2004 klokka 17:41, skreiv Chris Wright:
 
-> 	Playing with 2.6.7 on my laptop. I realised Lilo did not work
-> anymore. Look further, and the partition table was all screwed up.
+> Yes, it's a BUG in locks_remove_flock.  The first patch changes
+> locks_remove_posix, so posix lock is missed on filp_close and the BUG
+> is hit.  I believe the problem is that locks can have same fl_owner,
+> w/out having same tgid.
 
-Not so pessimistic.
+Yep. I agree with that analysis. Blech...
 
-Old situation:
->  hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
-New situation:
->  hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+That just goes to show how broken the posix locks "logic" is when
+applied to CLONE_FILES: POSIX locks are not supposed to be inherited by
+child processes, and so the current VFS code checks both lock->fl_pid &
+lock->fl_owner in tests such as posix_locks_conflict(). Currently (as I
+said) on filp_close() we remove all locks with the same lock->fl_owner
+without checking the pid.
 
-Nothing wrong with that partition table.
+However upon the last fput(), then in practice locks_remove_flock()
+expects all locks with the same *file descriptor* to have been cleaned
+up.
 
-Maybe you get unhappy because of the fdisk output, but that only
-shows that you have an old fdisk. Also there nothing wrong.
+So what do we do? There is no way that we can keep the current rules, as
+they provide no consistent way to inform the underlying NFS or CIFS
+filesystem  when to test for lock->fl_pid, when to test for
+lock->fl_owner, and when to test for lock->fl_file.
 
-Ah - so the only wrong thing must be the fact that lilo stopped working.
-I suppose things will improve if you give it the "linear" (or "lba32") flag.
-
-What changed is that the kernel no longer attempts at guessing a geometry.
-If such guessing is required, user space must do so itself.
-
-Andries
+Cheers,
+  Trond

@@ -1,132 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVB1ETN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVB1E0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVB1ETN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 23:19:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVB1ETN
+	id S261551AbVB1E0H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 23:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVB1E0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 23:19:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:14713 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261550AbVB1ETB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 23:19:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=TbKdoExh1fALyINWQ5Mmi8M8e9WfYSA9Yi3/FcpC+9Ji7iVhWERMyq+hve58WUBrUVpVh3FxdCxmikExpGzW8XV0SSoUTlSlHigwSvmlVh+Qr7MOAHOWPhPSQ95US32R2JHYmLfMAtZ1UCPhOpNPBLQ8A3C0YPfCs0SXVs8Jn+U=
-Message-ID: <537f59d10502272019257fc784@mail.gmail.com>
-Date: Mon, 28 Feb 2005 09:49:01 +0530
-From: Vinay Reddy <vinayvinay@gmail.com>
-Reply-To: Vinay Reddy <vinayvinay@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Panic due to NF_IP_LOCAL_OUT handler calling itself again
+	Sun, 27 Feb 2005 23:26:07 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:43818
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261551AbVB1EZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 23:25:46 -0500
+Date: Mon, 28 Feb 2005 05:25:44 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: two pipe bugfixes
+Message-ID: <20050228042544.GA8742@opteron.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am writing an implementation of a source routing protocol as a
-loadable module. I am using netfilter, I am not using the IP SSR
-option, I am using kernel 2.6.5, without smp and preemption support.
-My design is based on the DSR protocol. I have a header after the IP
-header, describing the source route and the route error. If 's' is the
-src, 'd' is the dst, and x1,x2 ... are the hops, the source route is :
-x1-x2...d. However unlike SSR I don't change the dst field of the ip
-header, which is set to d. Also every src routed packet carries with
-it an ack request for the next hop, to which the next hop is supposed
-to reply to.
-The jist of my code is as follows:
+Hello,
 
-pre_route_handler:
-For all source routed packets:
-	ackReply to previous hop
-	nxtHop = getNextHop(packet);
-	if(ip_route_input(myaddr,nxtHop)!=0){
-		drop packet;
-	}
-	awaitAck(nxtHop);
-	return NF_ACCEPT.
+This testcase from Thomas Crhak:
 
-In local_out_handler:
-	cruft a packet with the source route. route it to the first hop,
-using ip_route_output_key(flowi,skb). I then do an awaitAck(firstHop).
+#include <unistd.h>
+#include <sys/select.h>
 
-I intend to use this protocol in wireless networks. And hence I have
-implemented an ack based design, where every node is responsible for
-ensuring that the packet makes it to the next hop. For this the
-function awaitAck does the following:
+int
+main(int argv, char **argc) {
+  int inout[2];
+  fd_set readfds, writefds, exceptfds;
+  struct timeval timeout;
 
-awaitAck(skb):
-	add an ackRequest header.
-	add a timer(a pointer to it) in the skb->cb. 
-	put this skb to a queue.
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 0;
 
-When this timer fires:
-	if rtxCount for the skb less than a MAX_RXMT, retransmit, else send a
-route error on the reverse route to the source.
+  FD_ZERO(&readfds);
+  FD_ZERO(&writefds);
+  FD_ZERO(&exceptfds);
 
-This scheme is working fine when there are no errors. I am testing it
-across an ethernet lan by pinging. However when there are link breaks,
-weird things happen. Specifically I am encountering the following
-problems. I am testing it with the following topology: A-B. Where A is
-the src, C is some fictional destination not connected to B. The src
-route at A is B-C.
-At B, I think that the dst->input points to ip_error instead of
-ip_forward. Note that B knows of a route to C (all A,B,C are in the
-same subnet). However I think that in rt_intern_hash function called
-by ip_route_input, the dst->neighbour is filled by the
-arp_bind_neighbour, which I expect to fail, as B doesn't know of the
-mac address of C, and arp obviously will fail as C and B are not
-connected. Surprisingly, ip_route_input succeeds, and an icmp dest
-unreachable packet is generated by ip_error (I think), which is passed
-on to the local_out_handler. Also as I have done an awaitAck on this
-skb, eventually it will time out and rxmit (using code similar to
-ip_finish_output2), and when the MAX_RXMIT limit is reached, I send a
-route error back (not using netfilter, basically calling
-dst->neighbour->output)
-Even more weird things happen at the src A if I use the topology A - -
-- B. Where again B is some fictional node not connected to A, but in
-the same subnet (the routing table so configured to put such packets
-to eth0). In the local out handler, I do a ip_route_output to B, which
-succeeds! .I call the output function okfn, given to me by netfilter
-directly and return NF_STOLEN. The next packet to come to me in
-local_out is an icmp dest unreach. It is destined to me, so I accept
-it. The next packet is again an icmp dest unreach, and after that
-somehow my local_out_handler is called again, while the first call of
-it hasn't finished. (My kernel is not smp and not preemptible). At
-times this happens over and over. My kernel then panics, either due to
-a stack overflow, or some bad eip value, or something else (with eip
-value not decoded, and nowhere in the /proc/kallsyms). I detect this
-double calling of my local_out_handler by using an atomic_t variable.
-The same effect is seen if I return an NF_DROP or NF_ACCEPT on the skb
-in the reentrant call. I have also used spinlocks but the kernel
-always crashes.
+  pipe(inout);
+  write(inout[1], "qqqqqqqq", 5);
 
-To summarize:
-i) Why do ip_route_input and ip_route_output succeed, if they do, and
-arp obviously has to fail, will the dst->neighbour be null?
-ii) Since my kernel is not smp and not preemptible, the only way my
-local out can be called again is : either I call it myself, by calling
-the okfn, however okfn is always (quite rightly dst_output) and
-dst->output is always ip_output. Or since they are icmp dest unreach
-packets, they could have been called only when the prerouting returns
-with NF_ACCEPT, but my printk statements show no trace of
-pre_route_handler being called in the second test case.
-iii) How are icmp dest unreach packets sent while calling
-ip_route_output, the only place icmp_send(DEST_UNREACH) is called is
-in ip_error, which is assigned in the no_route part of ip_route_input,
-and nowhere in the ip_route_outpout.
+  FD_SET(inout[1], &readfds);
+  FD_SET(inout[1], &writefds);
+  FD_SET(inout[1], &exceptfds);
 
-I am quite helpless, I have posted on several mailing lists(linux-net,
-kernelnewbies, etc), but haven't received any replies, Also I couldn't
-find any decent material on the web related to my problem.
-I would be obliged if someone could please help me with this. And
-please forgive me for posting such a trivial problem on lkml, but I am
-kind of desperate for help. What am I doing wrong, where can I find
-information on this?
-My code is completely based on Alex Song's DSR implementation for
-linux 2.4, available online at http://piconet.sf.net.
+  select(inout[1] + 1, &readfds, &writefds, &exceptfds, &timeout);
 
-Regards,
-Vinay
+  close(inout[0]);
+
+  write(inout[1], "qqqqqqqq", 5);
+  return 0;
+}
+
+was returning this in 2.6.9:
+
+pipe([3, 4])                            = 0
+write(4, "qqqqq", 5)                    = 5
+select(5, [4], [4], [4], {0, 0})        = 1 (in [4], left {0, 0})
+close(3)                                = 0
+write(4, "qqqqq", 5)                    = -1 EPIPE (Broken pipe)
+
+and it started to return this since 2.6.11-rc:
+
+pipe([3, 4])                            = 0
+write(4, "qqqqq", 5)                    = 5
+select(5, [4], [4], [4], {0, 0})        = 2 (in [4], out [4], left {0,
+0})
+close(3)                                = 0
+write(4, "qqqqq", 5)                    = 5
+
+There are two separate bugs: the first is that it doesn't return
+-EPIPE because the input side has been closed already, the second is
+that it returns POLLIN|POLLOUT. I heard POLLIN|POLLOUT is sometime
+detected as a special case that means the input side has disconnected.
+But anyway POLLIN|POLLOUT at the same time seems wrong to me (at least I
+didn't find anything in SUS specs mentioning this magic for pipes) and
+2.6.11-rc definitely breaks python-twisted (which apparently understand
+the magic I've heard). But clearly the change in 2.6.11-rc that sets
+POLLOUT if not all buffers are full makes plenty of sense for
+performance reasons.
+
+IMHO the really wrong thing is that we always set POLLIN (even for
+output filedescriptors that will never allow any data to be read).
+
+So now I check if the file is open in read or write mode, and I return
+POLLIN or POLLOUT and never both of them at the same time. I've no idea
+if this is the correct semantics that all applications expects, but
+since we use the same pipe_poll callback for all read/write/rdwr cases,
+I believe this is the most correct one and it certainly looks better
+than the 2.6.11-rc code that breaks twisted, and this new logic still
+allows the optimizations in the 2.6.11-rc to work.
+
+Current output of strace with this patch applied is this:
+
+pipe([3, 4])                            = 0
+write(4, "qqqqq", 5)                    = 5
+select(5, [4], [4], [4], {0, 0})        = 1 (out [4], left {0, 0})
+close(3)                                = 0
+write(4, "qqqqq", 5)                    = -1 EPIPE (Broken pipe)
+--- SIGPIPE (Broken pipe) @ 0 (0) ---
++++ killed by SIGPIPE +++
+
+which is different from 2.6.9 but it makes a lot more sense to me for a
+"write-only" fd IMHO, and I had no pratical problems with this patch
+yet (not that I've run any big stress test though, just normal misc
+usage with all sort of desktop apps and twisted). Comments welcome thanks!
+
+Patch is against 2.6.11-rc5.
+
+Signed-off-by: Andrea Arcangeli <andrea@suse.de>
+
+--- xx/fs/pipe.c.~1~	2005-02-28 00:43:42.000000000 +0100
++++ xx/fs/pipe.c	2005-02-28 04:47:26.000000000 +0100
+@@ -235,6 +235,12 @@ pipe_writev(struct file *filp, const str
+ 	down(PIPE_SEM(*inode));
+ 	info = inode->i_pipe;
+ 
++	if (!PIPE_READERS(*inode)) {
++		send_sig(SIGPIPE, current, 0);
++		ret = -EPIPE;
++		goto out;
++	}
++
+ 	/* We try to merge small writes */
+ 	if (info->nrbufs && total_len < PAGE_SIZE) {
+ 		int lastbuf = (info->curbuf + info->nrbufs - 1) & (PIPE_BUFFERS-1);
+@@ -398,8 +404,15 @@ pipe_poll(struct file *filp, poll_table 
+ 
+ 	/* Reading only -- no need for acquiring the semaphore.  */
+ 	nrbufs = info->nrbufs;
+-	mask = (nrbufs > 0) ? POLLIN | POLLRDNORM : 0;
+-	mask |= (nrbufs < PIPE_BUFFERS) ? POLLOUT | POLLWRNORM : 0;
++	mask = 0;
++	/*
++	 * Returning POLLIN|POLLOUT for a output channel has special semantics 
++	 * and it's used by some app to detect when the input has been closed.
++	 */
++	if (filp->f_mode & FMODE_READ && nrbufs > 0)
++		mask |= POLLIN | POLLRDNORM;
++	if (filp->f_mode & FMODE_WRITE && nrbufs < PIPE_BUFFERS)
++		mask |= POLLOUT | POLLWRNORM;
+ 
+ 	if (!PIPE_WRITERS(*inode) && filp->f_version != PIPE_WCOUNTER(*inode))
+ 		mask |= POLLHUP;
+
+PS. this still can return POLLIN|POLLOUT if somebody opens a fifo in RDWRITE
+mode, but I guess that's ok and the above beahviour still should make sense
+for such a corner case usage too.

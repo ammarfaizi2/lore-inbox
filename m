@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273748AbRJDLPV>; Thu, 4 Oct 2001 07:15:21 -0400
+	id <S273691AbRJDLQc>; Thu, 4 Oct 2001 07:16:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273723AbRJDLPC>; Thu, 4 Oct 2001 07:15:02 -0400
-Received: from dutepp0.et.tudelft.nl ([130.161.38.38]:35847 "EHLO
-	dutepp0.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S273691AbRJDLOy>; Thu, 4 Oct 2001 07:14:54 -0400
-From: Bert Meijs <L.Meijs@dutepp0.et.tudelft.nl>
-Message-Id: <200110041115.f94BFNN14226@dutepp0.et.tudelft.nl>
-Subject: keyboard not detected krnl v2.4.10
-To: linux-kernel@vger.kernel.org
-Date: Thu, 4 Oct 2001 13:15:22 +0200 (CEST)
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S273724AbRJDLQV>; Thu, 4 Oct 2001 07:16:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54939 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S273691AbRJDLQP>;
+	Thu, 4 Oct 2001 07:16:15 -0400
+Date: Thu, 04 Oct 2001 04:16:04 -0700 (PDT)
+Message-Id: <20011004.041604.13771259.davem@redhat.com>
+To: balbir.singh@wipro.com
+Cc: James.Bottomley@HansenPartnership.com, jes@sunsite.dk,
+        linuxopinion@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: how to get virtual address from dma address
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BBC35BC.5020706@wipro.com>
+In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain>
+	<20011003.172439.66056954.davem@redhat.com>
+	<3BBC35BC.5020706@wipro.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, who can help me with my problem.
+   From: "BALBIR SINGH" <balbir.singh@wipro.com>
+   Date: Thu, 04 Oct 2001 15:41:08 +0530
 
-I have a system with an ASUS A7A266 chipset ALiMaGiK 1 chipset
+   With Rik's reverse mapping patch, wouldn't we have the virtual address for the given
+   physical address ? I have no clue about how the patch works, somebody willing to explain
+   it?
+   
+Rik's work is for user process PTEs, we're talking about IOMMU PTEs on
+PCI controllers used to map the 32-bit PCI address space to the (often
+larger) physical address space of main memory.
 
-I installed this system with RH linux 7.1 and it works fine.
+These two PTE types are totally unrelated.
 
-Then I need some modules for ipadmin and ipmasq en get the
-latest kernel v2.4.10.
-
-After I compiled this kernel and reboot my system I see a 
-kernel message, keybord not detected, and when the system is
-running, my keyboard don't work.
-
-On older motherboards everything works fine.
-
-	greetings, bert
-
--- 
--- Bert Meijs                             --- Email: L.Meijs@its.tudelft.nl --
--- Unix System Manager of the Computer Engineering group		    --
--- CARDIT, Delft University of Technology ------------ Tel: (31)-15-2781366 --
--- P.O.Box 5031, 2600 GA Delft, The Netherlands ------ Fax: (31)-15-2784898 --
+Franks a lot,
+David S. Miller
+davem@redhat.com

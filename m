@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129352AbQLGQkY>; Thu, 7 Dec 2000 11:40:24 -0500
+	id <S130235AbQLGQmo>; Thu, 7 Dec 2000 11:42:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130887AbQLGQkO>; Thu, 7 Dec 2000 11:40:14 -0500
-Received: from 212-140-94-250.btopenworld.com ([212.140.94.250]:40454 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129352AbQLGQkF>;
-	Thu, 7 Dec 2000 11:40:05 -0500
-Date: Thu, 7 Dec 2000 16:11:41 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
+	id <S130876AbQLGQme>; Thu, 7 Dec 2000 11:42:34 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:13027 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S130235AbQLGQm0>; Thu, 7 Dec 2000 11:42:26 -0500
+Date: Thu, 7 Dec 2000 17:07:07 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "H. Peter Anvin" <hpa@zytor.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Broken NR_RESERVED_FILES
-In-Reply-To: <Pine.LNX.4.30.0012071758470.5455-100000@fs129-190.f-secure.com>
-Message-ID: <Pine.LNX.4.21.0012071608550.970-100000@penguin.homenet>
+Subject: Re: Microsecond accuracy
+In-Reply-To: <90oak3$326$1@cesium.transmeta.com>
+Message-ID: <Pine.GSO.3.96.1001207165626.21086F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Dec 2000, Szabolcs Szakacsits wrote:
-> Read the whole get_empty_filp function, especially this part, note the
-> goto new_one below and the part you didn't include above [from
-> the new_one label],
-> 
->         if (files_stat.nr_files < files_stat.max_files) {
->                 file_list_unlock();
->                 f = kmem_cache_alloc(filp_cachep, SLAB_KERNEL);
->                 file_list_lock();
->                 if (f) {
->                         files_stat.nr_files++;
->                         goto new_one;
->                 }
+On 7 Dec 2000, H. Peter Anvin wrote:
 
-I have read the whole function, including the above code, of course. The
-new_one label has nothing to do with freelists -- it adds the file to the
-anon_list, where the new arrivales from the slab cache go. The goto
-new_one above is there simply to initialize the structure with sane
-initial values
+> Unfortunately the most important instance of the in-kernel flag -- the
+> global one in the somewhat misnamed boot_cpu_data.x86_features --
+> isn't actually readable in the /proc/cpuinfo file.  It is perfectly
+> possible (e.g. the "notsc" option) for ALL the CPUs to report this
+> capability, but the global capability to still be off.
 
-So, the normal user _cannot_ take a file structure from the freelist
-unless it contains more than NR_RESERVED_FILE entries. Please read the
-whole function and see it for yourself.
+ Hmm, I recall I implemented and explicitly verified switching the
+/proc/cpuinfo "tsc" flag (as well as the userland access to the TSC) off
+when I wrote the code to handle the "notsc" option.  Has it changed since
+then?  I recall you modified the code a bit -- I looked at the changes
+then but I was pretty confident the semantics was preserved.
 
-Regards,
-Tigran
+ There is no possibility to have TSC and non-TSC chips mixed in a single
+SMP system (due to existing hardware, even though it's possible in
+theory), so there is no problem with such an assymetry.  Either all chips
+have the "tsc" flag in /proc/cpuinfo on or off.
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

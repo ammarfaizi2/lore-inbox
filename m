@@ -1,119 +1,127 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262337AbRENLW1>; Mon, 14 May 2001 07:22:27 -0400
+	id <S262339AbRENLoR>; Mon, 14 May 2001 07:44:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262338AbRENLWS>; Mon, 14 May 2001 07:22:18 -0400
-Received: from [195.56.211.151] ([195.56.211.151]:65154 "EHLO lima")
-	by vger.kernel.org with ESMTP id <S262337AbRENLWM>;
-	Mon, 14 May 2001 07:22:12 -0400
-Message-ID: <3AFFBF14.7D7BAB01@sch.bme.hu>
-Date: Mon, 14 May 2001 13:18:44 +0200
-From: Marcell GAL <cell@sch.bme.hu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S262341AbRENLoG>; Mon, 14 May 2001 07:44:06 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:47628 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S262339AbRENLn4>; Mon, 14 May 2001 07:43:56 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Mon, 14 May 2001 13:43:03 +0200
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-        Michal Ostrowski <mostrows@styx.uwaterloo.ca>
-Subject: Scheduling in interrupt BUG.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: 2.2.18: severe performance problem (high load, low mem, idle CPU)
+Message-ID: <3AFFE0E5.30854.13C8A7A@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
+X-Content-Conformance: HerringScan-0.1/SWEEP Version 3.43, March 2001 
+X-Content-Conformance: LittleSister-1.6/0.0.100644.20010514.100056Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guys,
+Hello,
 
-Once upon a time on my
-x86 UP box, UP kernel 2.4.4, (64M ram, 260M swap)
-http://home.sch.bme.hu/~cell/.config
-I hit a reproducable "Scheduling in interrupt" BUG.
-Also reproduced with 128M ram and low memory pressure
-(first I suspected it is related to swapping)
-Running lots of pppd version 2.4.0 (pppoe) sessions almost at the same
-time. 
-(before the crash the pppoe sessions work fine)
-It crashed after 89 sessions, 473 another time.. (depending
-on the phase of Jupiter moons I guess .. I still have to verify this),
-usually much before memory is exhausted (30k mem/pppd process).
-To do this you have to patch ppp_generic.c
-http://x-dsl.hu/~cell/ppp_generic_hash/, because
-otherwise we hit 'NULL ptr in all_ppp_units list'
-BUG much _more likely_ than this 'sched.c line 709 thingy'..
+we experienced a severe performance problem on a PentiumPro 200 MHz, 
+64MB RAM, 128MB swap:
 
-EIP: c010faa4 <schedule+388/394>   <===== sched.c schedule(), line 709:
-which is ~ printk("Scheduling in interrupt");BUG();
+Due to many processes being started in a short time, the system load 
+went up to 53, and the 9GB SCSI disk was working heavily. At that time 
+I suspected no severe problem, and I was busy doing something else. 
+However after almost three hours the system load was still at about 40 
+with the old processes not yet finished. (The processes typically take 
+2 to 5 seconds to finish, and need about 4MB memory each).
 
-Trace:
+At that point I became active.
 
-0xc01ddac5 <__lock_sock+53>:    movl   $0x0,0x1c(%esp,1)
-0xc01ddacd <__lock_sock+61>:    mov    %ebx,0x20(%esp,1)
-0xc01ddad1 <__lock_sock+65>:    movl   $0x0,0x24(%esp,1)
-0xc01ddad9 <__lock_sock+73>:    movl   $0x0,0x28(%esp,1)
-0xc01ddae1 <__lock_sock+81>:    lea    0x1c(%esp,1),%esi
-0xc01ddae5 <__lock_sock+85>:    lea    0x34(%edi),%eax
-0xc01ddae8 <__lock_sock+88>:    mov    %esi,%edx
-0xc01ddaea <__lock_sock+90>:    call   0xc0110598
-<add_wait_queue_exclusive>
-0xc01ddaef <__lock_sock+95>:    nop    
-0xc01ddaf0 <__lock_sock+96>:    movl   $0x2,(%ebx)
-0xc01ddaf6 <__lock_sock+102>:   decl   0xc02f75ec
-0xc01ddafc <__lock_sock+108>:   call   0xc010f71c <schedule> 
-*****************
-0xc01ddb01 <__lock_sock+113>:   incl   0xc02f75ec
-0xc01ddb07 <__lock_sock+119>:   cmpl   $0x0,0x30(%edi)
-0xc01ddb0b <__lock_sock+123>:   jne    0xc01ddaf0 <__lock_sock+96>
+In top I was surprised that the CPU claimed to be more than 90% idle, 
+while the swap space was exceeded. But the memory wasn't really tight; 
+cached and buffers were about 12MB together. So basically the situation 
+should have gone away. Should, but didn't.
 
------
-0xc01a315c <pppoe_backlog_rcv>: push   %esi
-0xc01a315d <pppoe_backlog_rcv+1>:       push   %ebx
-0xc01a315e <pppoe_backlog_rcv+2>:       mov    0xc(%esp,1),%ebx
-0xc01a3162 <pppoe_backlog_rcv+6>:       incl   0xc02f75ec
-0xc01a3168 <pppoe_backlog_rcv+12>:      cmpl   $0x0,0x30(%ebx)
-0xc01a316c <pppoe_backlog_rcv+16>:
-    je     0xc01a3177 <pppoe_backlog_rcv+27>
-0xc01a316e <pppoe_backlog_rcv+18>:      push   %ebx
-0xc01a316f <pppoe_backlog_rcv+19>:      call   0xc01dda90
-<__lock_sock>   ************
-0xc01a3174 <pppoe_backlog_rcv+24>:      add    $0x4,%esp
-0xc01a3177 <pppoe_backlog_rcv+27>:      movl   $0x1,0x30(%ebx)
-0xc01a317e <pppoe_backlog_rcv+34>:      decl   0xc02f75ec
-0xc01a3184 <pppoe_backlog_rcv+40>:      mov    0x10(%esp,1),%eax
---------
-0xc01ddb2c <__release_sock>:    push   %esi
-0xc01ddb2d <__release_sock+1>:  push   %ebx
-0xc01ddb2e <__release_sock+2>:  mov    0xc(%esp,1),%esi
-0xc01ddb32 <__release_sock+6>:  mov    0xb8(%esi),%eax
-0xc01ddb38 <__release_sock+12>: movl   $0x0,0xbc(%esi)
-0xc01ddb42 <__release_sock+22>: movl   $0x0,0xb8(%esi)
-0xc01ddb4c <__release_sock+32>: lea    0x0(%esi,1),%esi
-0xc01ddb50 <__release_sock+36>: mov    (%eax),%ebx
-0xc01ddb52 <__release_sock+38>: movl   $0x0,(%eax)
-0xc01ddb58 <__release_sock+44>: push   %eax
-0xc01ddb59 <__release_sock+45>: push   %esi
-0xc01ddb5a <__release_sock+46>: mov    0x31c(%esi),%eax
-0xc01ddb60 <__release_sock+52>: call   *%eax		********************
-0xc01ddb62 <__release_sock+54>: mov    %ebx,%eax
-0xc01ddb64 <__release_sock+56>: add    $0x8,%esp
-0xc01ddb67 <__release_sock+59>: test   %eax,%eax
+The kernel running was that from SuSE Linux 7.1 (Linux version 2.2.18 
+(root@Pentium.suse.de) (gcc version 2.95.2 19991024 (release)) #1 Fri 
+Jan 19 22:10:35 GMT 2001). So maybe the defect is an "enhancement" done 
+by SuSE. Anyway:
 
+In top I noticed that the processes to finish were all mostly swapped 
+out, and they showed a zero in the "PRI" column. Usually runnable 
+processes have more "fuel" there. It seems to me swapped out processes 
+did not get their fules reloaded. The processes all had a "D" status 
+(blocked on I/O). Also it seemed that processes that share a lot of 
+data are not favoured enough when paging in. If a page is shared 10 
+times, paging that one in would help 10 processes. Instead the kernel 
+seemed to swap in and out a few kB wihout getting any process done.
 
-int pppoe_backlog_rcv(struct sock *sk, struct sk_buff *skb)
-{
-        lock_sock(sk);
-        pppoe_rcv_core(sk, skb);
-        release_sock(sk);
-        return 0;
-}
+I decided to kill a few non-essential processes to improve the 
+situation. No help. I added an extra 32MB swapfile, so the buffers and 
+shared went up to ver 30MB, but still no process finished. The CPU 
+still was quite "idle".
 
+So I decided to kill the processes in question. After several seconds, 
+no process had terminated however. (Maybe due to the code to handle the 
+signal being paged out). Then I did a kill -9 to the processes which 
+finally helped.
 
-What else should I check? How can we fix it?
-PPPoE is more and more frequently used nowadays because of ADSL
-services. I think this can effect its stability (guess which direction
-;-)
-even with one session (though probably not that bad as with many
-sessions).
- 
-Have a nice week:
-	Cell
+So to summarize:
+1) paged out processes seem not to get enough CPU
+2) paged out shared pages seem not to get enough priority to be swapped 
+in
+3) On low memory situations the schedulting algorithm seems to perform 
+poor
 
--- 
-Alice? WTFIA?
+For 3) I sould imagine doing a round-robing scheduling with extended 
+time-slice (while still being fair, i.e. run them rarely but longer) 
+for massively swapped out processes, hoping that one of them will 
+finish soon. That way maybe more of the working set will be paged in, 
+enabbling some progress.
+
+I don't have the top screen saved, but I have a ps -aux. The 40 
+processes being paged out were all displayed with a %CPU of "0.0".
+The ps command with 7.4% CPU was the highest value. The kernel pager 
+also seemed to be non-busy:
+
+USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0   400   52 ?        S    Mar22   0:22 init [3]
+root         2  0.0  0.0     0    0 ?        SW   Mar22   0:03 [kflushd]
+root         3  0.0  0.0     0    0 ?        SW   Mar22   0:01 [kupdate]
+root         4  0.0  0.0     0    0 ?        SW   Mar22   6:58 [kswapd]
+root         5  0.0  0.0     0    0 ?        SW<  Mar22   0:00 
+[mdrecoveryd]
+...
+daemon   32528  0.0  2.0  4984 1352 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32529  0.0  2.0  4984 1352 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32531  0.0  2.7  5008 1760 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32533  0.0  2.5  4984 1640 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32539  0.0  3.1  5008 2044 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32540  0.0  1.9  4984 1276 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32542  0.0  1.4  4984  948 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32547  0.0  2.1  4984 1404 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32548  0.0  2.1  4984 1380 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32549  0.0  1.9  4984 1284 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32550  0.0  1.1  4984  768 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32555  0.0  2.3  4984 1504 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32556  0.0  1.8  4984 1224 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+daemon   32557  0.0  1.9  4984 1244 ?        D    14:42   0:04 
+/etc/mail/dirty-h
+...
+
+These were some of the processes that should have finished.
+
+Regards,
+Ulrich
+

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbUAXVRa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 16:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUAXVRa
+	id S261929AbUAXVJt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 16:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUAXVJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 16:17:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33764 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262055AbUAXVR1
+	Sat, 24 Jan 2004 16:09:49 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:42993 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S261929AbUAXVJs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 16:17:27 -0500
-Message-ID: <4012E0DA.7050808@pobox.com>
-Date: Sat, 24 Jan 2004 16:17:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bryan Whitehead <driver@megahappy.net>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       tulip-users@lists.sourceforge.net
-Subject: Re: [PATCH 2.6.2-rc1-mm2] drivers/net/tulip/tulip_core.c
-References: <20040124080217.ED53113A354@mrhankey.megahappy.net>
-In-Reply-To: <20040124080217.ED53113A354@mrhankey.megahappy.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jan 2004 16:09:48 -0500
+Date: Sat, 24 Jan 2004 23:09:40 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Diego Calleja <grundig@teleline.es>
+Cc: Felix von Leitner <felix-kernel@fefe.de>, linux-kernel@vger.kernel.org
+Subject: Re: Request: I/O request recording
+Message-ID: <20040124210940.GX11115091@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Diego Calleja <grundig@teleline.es>,
+	Felix von Leitner <felix-kernel@fefe.de>,
+	linux-kernel@vger.kernel.org
+References: <20040124181026.GA22100@codeblau.de> <20040124211156.042a4ff2.grundig@teleline.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040124211156.042a4ff2.grundig@teleline.es>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan Whitehead wrote:
-> This fixes a warning if CONFIG_NET_POLL_CONTROLLER is NOT set.
+On Sat, Jan 24, 2004 at 09:11:56PM +0100, you [Diego Calleja] wrote:
 > 
-> --- drivers/net/tulip/tulip_core.c.orig 2004-01-23 23:53:17.484261904 -0800
-> +++ drivers/net/tulip/tulip_core.c      2004-01-23 23:53:53.675759960 -0800
-> @@ -253,7 +253,9 @@
->  static struct net_device_stats *tulip_get_stats(struct net_device *dev);
->  static int private_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
->  static void set_rx_mode(struct net_device *dev);
-> +#ifdef CONFIG_NET_POLL_CONTROLLER
->  static void poll_tulip(struct net_device *dev);
-> +#endif
+> That's exactly what XP does (and Mac OS X, for that matter).
+> And it really works (ie: you can notice it)
+> 
+> XP records what the OS does in the first 2 minutes (or so). The next
+> time it boots, it tries to load the files that he knows that are going
+> to be used. The same for an app that is frecuently used: it records
+> what the app does, and it optimizes the startup of that app. 
+> Take a look at: (search prefetch)
+> http://msdn.microsoft.com/library/default.asp?url=/library/en-us/appendix/hh/appendix/enhancements5_0qhx.asp
+> http://msdn.microsoft.com/msdnmag/issues/01/12/xpkernel/default.aspx
+
+It's perhaps worth pointing out that XP not only uses the boot (or
+application launch) traces to prefetch the data on next boot (application
+launch) but also to reorder the data on disk optimally via XP's
+defragmenter. 
+
+And XP is noticeable faster to boot than (say) W2000.
 
 
-Hum... doesn't apply here, and also it breaks my automated
-"patch -sp1 < patch" script :/
+-- v --
 
-
+v@iki.fi

@@ -1,77 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129729AbQL0UWe>; Wed, 27 Dec 2000 15:22:34 -0500
+	id <S129778AbQL0UYY>; Wed, 27 Dec 2000 15:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129778AbQL0UWO>; Wed, 27 Dec 2000 15:22:14 -0500
-Received: from dusdi5-212-144-140-003.arcor-ip.net ([212.144.140.3]:33549 "EHLO
-	al.romantica.wg") by vger.kernel.org with ESMTP id <S129729AbQL0UWG>;
-	Wed, 27 Dec 2000 15:22:06 -0500
-Date: Wed, 27 Dec 2000 15:06:24 +0100
-From: Jens Taprogge <taprogge@idg.rwth-aachen.de>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        acpi@phobos.fachschaften.tu-muenchen.de
-Subject: Re: test13-pre4-ac2 -- The cardbus/pcmcia sockets no longer work with two devices present at boot time.
-Message-ID: <20001227150623.A19813@al.romantica.wg>
-Mail-Followup-To: Jens Taprogge <taprogge@idg.rwth-aachen.de>,
-	Miles Lane <miles@megapathdsl.net>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	acpi@phobos.fachschaften.tu-muenchen.de
-In-Reply-To: <3A49AB66.1000607@megapathdsl.net>
+	id <S130120AbQL0UYE>; Wed, 27 Dec 2000 15:24:04 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:59723 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129778AbQL0UYC>; Wed, 27 Dec 2000 15:24:02 -0500
+Date: Wed, 27 Dec 2000 20:53:36 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Todd M. Roy" <toddroy@softhome.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lvm 0.8 to 0.9 conversion?
+Message-ID: <20001227205336.A10446@athlon.random>
+In-Reply-To: <3A45192F.8C149F93@softhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A49AB66.1000607@megapathdsl.net>; from miles@megapathdsl.net on Wed, Dec 27, 2000 at 12:42:14AM -0800
+In-Reply-To: <3A45192F.8C149F93@softhome.net>; from toddroy@softhome.net on Sat, Dec 23, 2000 at 04:29:19PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This seems to be a problem that was introduced with the big ACPI update
-as pointed out earlier by Andrew Morton.  Try disabling ACPI (since your
-BIOS does not seem to have ACPI support anyway it should not be a
-disadvantage) and see if PCMCIA support works again on bootup.
+On Sat, Dec 23, 2000 at 04:29:19PM -0500, Todd M. Roy wrote:
+> group is visible, and you just told meit should be, then I can just
+> copy volumes over under test13-pre3 and destroy and recreate the
+> first volume group.
 
-Jens
+Is it possible you had a snapshot in the volume group when you started
+lvm 0.9 the first time? snapshots are not persistent on pre3 so it doesn't make
+sense to left them before rebooting the kernel, and maybe lvmtools 0.9 doesn't
+cope correctly with non persistent snapshot created by 0.8 driver (trivial to
+temporarly workaround, just delete any snapshot volume before using 0.9 lvm :).
 
-On Wed, Dec 27, 2000 at 12:42:14AM -0800, Miles Lane wrote:
-> When I boot with the following inserted:
-> 
-> Socket 0:
->    product info: "3Com Corporation", "3CCFE575BT", "LAN Cardbus Card", "001"
->    manfid: 0x0101, 0x5157
->    function: 6 (network)
-> Socket 1:
->    product info: "PCMCIA  ", "56K V.90 Fax Modem (LK)  ", "FM560LK  "
->    manfid: 0x0175, 0x0000
->    function: 2 (serial)
-> 
-> both sockets fail to set up properly and work.
-> 
-> Linux PCMCIA Card Services 3.1.22
->    options:  [pci] [cardbus] [pm]
-> PCI: Enabling device 00:04.0 (0000 -> 0002)
-> PCI: Assigned IRQ 11 for device 00:04.0
-> PCI: Enabling device 00:04.1 (0000 -> 0002)
-> PCI: Assigned IRQ 11 for device 00:04.1
-> Intel PCIC probe: not found.
-> Yenta IRQ list 0698, PCI irq11
-> Socket status: 30000020
-> Yenta IRQ list 0698, PCI irq11
-> Socket status: 30000010
-> ACPI: System description tables not found
-> cs: socket c118b000 timed out during reset.  Try increasing setup_delay.
-> cs: socket c118b800 timed out during reset.  Try increasing setup_delay.
-> 
-> If I then run "cardctl eject" and then eject and reinsert the two
-> cards, the cards get set up correctly.
-> 
-> Note that I am not using the PCMCIA drivers.  I am using Yenta
-> and its native development kernel friends. I am using modutils
-> 2.3.22.
--- 
-Jens Taprogge
-
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

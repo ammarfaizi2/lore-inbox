@@ -1,69 +1,166 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbUCQWR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 17:17:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbUCQWR1
+	id S262117AbUCQWUj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 17:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCQWUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 17:17:27 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:32019 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262108AbUCQWRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 17:17:25 -0500
-Date: Wed, 17 Mar 2004 22:17:23 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Oystein Haare <lkml-account@mazdaracing.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RadeonFB
-In-Reply-To: <1079366460.853.3.camel@dawn>
-Message-ID: <Pine.LNX.4.44.0403172215240.19415-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Mar 2004 17:20:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49047 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262117AbUCQWUd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 17:20:33 -0500
+Date: Wed, 17 Mar 2004 14:17:57 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: kjo <kernel-janitors@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] 2.6.5-rc1-kj1 patchset
+Message-Id: <20040317141757.26364225.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Is there any different in the dmesg output between each kernel version?
+patch is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.5-rc1/2.6.5-rc1-kj1.patch.bz2  [2004-03-16]
+
+M: merged at kernel.org;   mm: in -mm;   tx: sent;   mntr: maintainer merged;
+?: still evaluating;
+
+This patch applies to linux-2.6.5-rc1.
+new (for 2.6.5-rc1):  [2004-03-16]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+add/	extraver.patch
+	rddunlap%osdl!org
+
+X	make_html_docs.patch
+	From: Don Scorgie <DonScorgie@Blueyonder.co.uk>
+already fixed;
+
+add	cpufreq_longhaul_section.patch
+?	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add	cpufreq_longrun_section.patch
+?	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	nfs_parse.patch
+	From: Fabian_LoneStar_Frederick <fabian.frederick@gmx.fr>
+
+add/	floppy_deugli_00.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	floppy_deugli_01.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	floppy_deugli_02.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	floppy_deugli_03.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add	floppy_audit.patch
+?	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
 
 
-On Tue, 16 Mar 2004, Oystein Haare wrote:
+This patch applies to linux-2.6.4-rc2.
+previous (for 2.6.4-rc2):  [2004-03-09]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-> Hi!
-> 
-> I'm having some problems with radeon framebuffer and the newer kernels.
-> I have a HP/Compaq nx7010 laptop computer, that is supposed to have a
-> Radeon 9200 graphics board.
-> 
-> Now.. in 2.6.1, it seems to work ok. But in 2.6.4 it just flickers alot.
-> Are there anyone else than me experiencing this problem? 
-> 
-> This is what it outputs:
-> 
-> radeonfb: Found Intel x86 BIOS ROM Image
-> radeonfb: Retreived PLL infos from BIOS
-> radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=250.00 Mhz,
-> System=220.00 MHz
-> Non-DDC laptop panel detected
-> radeonfb: Monitor 1 type LCD found
-> radeonfb: Monitor 2 type no found
-> radeonfb: panel ID string: Samsung LTN150P1-L02    
-> radeonfb: detected LVDS panel size from BIOS: 1400x1050
-> radeondb: BIOS provided dividers will be used
-> radeonfb: Assuming panel size 1400x1050
-> radeonfb: Power Management enabled for Mobility chipsets
-> radeonfb: ATI Radeon Lf  DDR SGRAM 64 MB
-> 
-> Could the flickering have something to do with the fact that the lcd
-> panel on my laptop can only do 1280x800 resolution? Or doesn't the
-> 1400x1050 have anything to do with resolution at all?
-> 
-> PS: Please CC replies to me as I am not on the list.
-> 
-> thanks 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+add/	kswapd_init_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
 
+tx/	lmc_proto_raw_h_rm.patch
+	From: Domen Puncer <domen@coderock.org>
+	sent to netdev/jgarzik: 2004.0229;
+
+tx/	atm_nicstar_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to netdev/mntr: 2004.0225;
+	sent to mntr: 2004.0316;
+
+add/	ipv4_fib_hash_check.patch
+	From: Francois Romieu <romieu@fr.zoreil.com>
+	original From: <WHarms@bfs.de>(Walter Harms)
+
+tx/	file2alias_signcomp.patch
+fxd	From: Ron Gage <ron@rongage.org>
+	sent to mntrs: 2004.0316;
+
+tx/	fixdep_signcomp.patch
+fxd	From: Ron Gage <ron@rongage.org>
+	sent to mntrs: 2004.0316;
+
+tx/	modpost_signcomp.patch
+	From: Ron Gage <ron@rongage.org>
+	sent to mntrs: 2004.0316;
+
+tx/	errno_numbers_assembly.patch
+	From: Danilo Piazzalunga <danilopiazza@libero.it>
+	to akpm: 2004.0126;
+	to akpm: 2004.0316;
+
+tx/	dgrs_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to jgarzik/netdev: 2004.0124;
+
+tx/	doc_var_updates.patch
+	From: Alexey Dobriyan <adobriyan@mail.ru>
+	sent to akpm: 2004.0316;
+
+tx/	drivers_ide_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to mntr/linux-ide: 2004.0316;
+
+tx/	drivers_ide_minmax2.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to mntr/linux-ide: 2004.0316;
+
+tx/	fs_proc_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to akpm/viro: 2004.0316;
+
+tx/	mm_slab_init.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+	sent to akpm: 2004.0316;
+
+tx/	reiserfs_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to akpm/mntr: 2004.0316;
+
+tx/	serial_8250_pnp_init.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+	sent to akpm/rmk: 2004.0316;
+
+tx/	sound_oss_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to akpm/mntr: 2004.0316;
+
+tx/	zlib_deflate_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to akpm: 2004.0316;
+
+tx/	char_ip2_double_op.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+	sent to akpm/mntr: 2004.0316;
+
+add/	keyboard_ptr_to_string.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	string_form_drivers.patch
+	From: maximilian attems <janitor@sternwelten.at>
+
+###
+
+backlog:
+- check kernel_thread() results;
+- list_for_each() usage;
+
+###
+
+--
+~Randy

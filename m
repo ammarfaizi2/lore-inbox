@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265257AbUFXTOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265269AbUFXTOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265257AbUFXTOo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 15:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUFXTNU
+	id S265269AbUFXTOp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 15:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUFXTNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 15:13:20 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:41706 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265293AbUFXTMO (ORCPT
+	Thu, 24 Jun 2004 15:13:05 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:4992 "EHLO hermes.sc.intel.com")
+	by vger.kernel.org with ESMTP id S265198AbUFXTK0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 15:12:14 -0400
-From: Limin Gu <limin@dbear.engr.sgi.com>
-Message-Id: <200406241912.i5OJC1X03468@dbear.engr.sgi.com>
-Subject: Re: [PATCH] Process Aggregates (PAGG) for 2.6.7
-To: chrisw@osdl.org (Chris Wright)
-Date: Thu, 24 Jun 2004 12:12:01 -0700 (PDT)
-Cc: erikj@subway.americas.sgi.com (Erik Jacobson),
-       linux-kernel@vger.kernel.org, jlan@engr.sgi.com, limin@engr.sgi.com,
-       pwil3058@bigpond.net.au
-In-Reply-To: <20040624115704.O22989@build.pdx.osdl.net> from "Chris Wright" at Jun 24, 2004 11:57:04 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jun 2004 15:10:26 -0400
+Message-Id: <200406241908.i5OJ8rY20620@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6.7-mm2 build failure
+Date: Thu, 24 Jun 2004 12:10:18 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcRaHR2xF8OwKsFtTnmYOWjoOyJ8kAAAJClg
+In-Reply-To: <20040624115640.5f01ce20.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, this is really ioctl.  This should be exposed in fs interface, or
-> the primitives should be promoted to first class syscalls if others can
-> use this.
+> Begin forwarded message:
+>
+> Date: Thu, 24 Jun 2004 07:43:58 -0700
+> From: "Martin J. Bligh" <mbligh@aracnet.com>
+> To: Andrew Morton <akpm@osdl.org>
+> Cc: linux-kernel <linux-kernel@vger.kernel.org>
+> Subject: 2.6.7-mm2 build failure
+>
+>
+> drivers/base/node.c: In function `node_read_meminfo':
+> drivers/base/node.c:56: warning: implicit declaration of function
+> `hugetlb_report_node_meminfo'
+> drivers/built-in.o(.text+0x1f615): In function `node_read_meminfo':
+> : undefined reference to `hugetlb_report_node_meminfo'
+> make: *** [.tmp_vmlinux1] Error 1
+>
+> Hmmm. I wonder if anyone tested that patch ;-)
+>
 
-Yes, that would be better. 
+Sorry, missing a #include.  Tested with/without hugetlb config'ed.  Previous
+patch was tested with hugetlb page configured.
 
-But right now, we only have CSA ( Comprehensive System Accounting) use 
-job, :)
 
---Limin
+diff -Nur linux-2.6.7.orig/drivers/base/node.c linux-2.6.7/drivers/base/node.c
+--- linux-2.6.7.orig/drivers/base/node.c	2004-06-15 22:18:59.000000000 -0700
++++ linux-2.6.7/drivers/base/node.c	2004-06-24 12:01:48.000000000 -0700
+@@ -7,6 +7,7 @@
+ #include <linux/init.h>
+ #include <linux/mm.h>
+ #include <linux/node.h>
++#include <linux/hugetlb.h>
+ #include <linux/cpumask.h>
+ #include <linux/topology.h>
 
-> 
-> thanks,
-> -chris
-> -- 
-> Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
-> 
 

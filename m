@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266849AbTAORs1>; Wed, 15 Jan 2003 12:48:27 -0500
+	id <S266886AbTAORvT>; Wed, 15 Jan 2003 12:51:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266859AbTAORs1>; Wed, 15 Jan 2003 12:48:27 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:55813 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S266849AbTAORrd>; Wed, 15 Jan 2003 12:47:33 -0500
-Message-ID: <3E259489.2CFCAAA@linux-m68k.org>
-Date: Wed, 15 Jan 2003 18:04:09 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Werner Almesberger <wa@almesberger.net>, kuznet@ms2.inr.ac.ru,
-       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface
-References: <20030115082444.062EF2C0F0@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S266888AbTAORvT>; Wed, 15 Jan 2003 12:51:19 -0500
+Received: from packet.digeo.com ([12.110.80.53]:2461 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266886AbTAORvS>;
+	Wed, 15 Jan 2003 12:51:18 -0500
+Date: Wed, 15 Jan 2003 10:01:02 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Robert Macaulay <robert_macaulay@dell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.57 IO slowdown with CONFIG_PREEMPT enabled
+Message-Id: <20030115100102.0c8a6a27.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0301151106340.21210-100000@ping.us.dell.com>
+References: <Pine.LNX.4.44.0301151106340.21210-100000@ping.us.dell.com>
+X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Jan 2003 18:00:05.0796 (UTC) FILETIME=[EF377640:01C2BCBF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Robert Macaulay <robert_macaulay@dell.com> wrote:
+>
+> Is this expected behaviour now?
 
-Rusty Russell wrote:
+Judging by the coffee dribbles on my monitor: no.
 
-> 2) It's bad enough to force the interfaces to change: at least the
->    primitive they are to use is one many of them are already using,
->    and is very simple to understand.
+Thanks for the detailed report.  Let me crunch on that.
 
-They are indeed simple, but only because it's impossible to implement
-anything more complex.
-An example: A "rmmod -w loop" will currently deadlock on a busy loop
-module. Could you please explain, how it will be possible to force a
-safe removal of the loop module?
-
-> PS.  The *implementation* flaw in your scheme: someone starts using a
->      module as you try to deregister it.  Either you re-register the
->      module (ie. you can never unload security modules), or you leave
->      it half unloaded (even worse).
-
-What is the problem with a half unloaded module? Only the module knows
-which interfaces it can safely remove to prevent new users, afterwards
-it only has to wait for remaining user to leave to complete the cleanup.
-BTW this also solves nicely the module init race.
-
-bye, Roman
 

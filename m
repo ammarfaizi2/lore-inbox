@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268980AbRHFUMY>; Mon, 6 Aug 2001 16:12:24 -0400
+	id <S268981AbRHFUOO>; Mon, 6 Aug 2001 16:14:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268981AbRHFUMO>; Mon, 6 Aug 2001 16:12:14 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:63246
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S268980AbRHFUL5>; Mon, 6 Aug 2001 16:11:57 -0400
-Date: Mon, 06 Aug 2001 16:12:00 -0400
-From: Chris Mason <mason@suse.com>
-To: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: Re: [RFC] using writepage to start io
-Message-ID: <755760000.997128720@tiny>
-In-Reply-To: <0108062145120I.00294@starship>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S268989AbRHFUOE>; Mon, 6 Aug 2001 16:14:04 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:5764 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S268981AbRHFUNs>; Mon, 6 Aug 2001 16:13:48 -0400
+Date: Mon, 6 Aug 2001 16:13:58 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200108062013.f76KDwI11220@devserv.devel.redhat.com>
+To: mheinz@infiniconsys.com, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Resources for SCSI, SRP, Infiniband?
+In-Reply-To: <mailman.997107541.5496.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.997107541.5496.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I'm making progress, but could someone direct me to a list of do's and 
+> don't's for SCSI drivers in 2.4?
 
+Laugh, sadly.
 
-On Monday, August 06, 2001 09:45:12 PM +0200 Daniel Phillips
-<phillips@bonn-fries.net> wrote:
+> Also, anybody else looking at developing IB and or SRP?
 
->> Almost ;-) memory pressure doesn't need to care about how long a
->> buffer has been dirty, that's kupdate's job.  kupdate doesn't care if
->> the buffer it is writing is a good candidate for freeing, that's taken
->> care of elsewhere. The two never need to talk (aside from
->> optimizations).
-> 
-> My point is, they should talk, in fact they should be the same function. 
-> It's never right for bdflush to submit younger buffers when there are 
-> dirty buffers whose flush time has already passed.
-> 
+Nobody does IB in the open, because hardware is not generally
+available. Adapter manufacturers roll their proprietary stacks.
+I work in a Trillian style effort (e.g. definitely to be opensourced
+at a later date) - contact johnsonm at redhat if you are interested
+in joining.
 
-Grin, we're talking in circles.  My point is that by having two threads,
-bdflush is allowed to skip over older buffers in favor of younger ones
-because somebody else is responsible for writing the older ones out.
+No SRP implementations exist that I know of, prorotypes may
+be out there, coming from storage startups. AFAIK, Intel is
+using a packetised SCSI mapping, at least Ashok Raj made
+noises about it on IDF.
 
-Take away the kupdate thread and bdflush must write the older buffer.  I
-believe this limits optimizations, unless kswapd is changed to handle all
-memory pressure flushes.
-
--chris
-
-
-
-
+-- Pete

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136633AbREAPND>; Tue, 1 May 2001 11:13:03 -0400
+	id <S136631AbREAPXK>; Tue, 1 May 2001 11:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136630AbREAPMs>; Tue, 1 May 2001 11:12:48 -0400
-Received: from www.topmail.de ([212.255.16.226]:6116 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S136636AbREAPMc>;
-	Tue, 1 May 2001 11:12:32 -0400
-Message-ID: <00da01c0d251$240894e0$de00a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: bandwidth
-Date: Tue, 1 May 2001 15:11:52 -0000
-Organization: eccesys.net Linux development
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+	id <S136630AbREAPXA>; Tue, 1 May 2001 11:23:00 -0400
+Received: from t2.redhat.com ([199.183.24.243]:35835 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S136637AbREAPWv>; Tue, 1 May 2001 11:22:51 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3AEDCF40.5020805@fugmann.dhs.org> 
+In-Reply-To: <3AEDCF40.5020805@fugmann.dhs.org> 
+To: Anders Peter Fugmann <afu@fugmann.dhs.org>
+Cc: linux-kernel@vger.kernel.org, canbus@fugmann.dhs.org
+Subject: Re: CANBus driver. 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 01 May 2001 16:22:30 +0100
+Message-ID: <22559.988730550@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-duh! You argue over bandwidth due to sigs >4*80, and
-other ppl here are QUOTING SIGS which is much worse,
-and even the kcsf-ing LMKL footer.
-And yep I have a .sig which I don't use on LKML due
-to bandwidth.
 
-Another point: look at the headers. I'd like LKML to
-strip all these X- thingies, the "Received:" etc.
-so that the messages I get have a bare minimum header
-consisting just of To: and Subject: (maybe MIME).
+afu@fugmann.dhs.org said:
+>  Does there exist any work on a CANBus driver for linux already?
 
--mirabilos
+See the Linux Lab Project at http://www.llp.fu-berlin.de/
+
+ISTR there were CAN drivers there at one point.
+
+--
+dwmw2
+
 

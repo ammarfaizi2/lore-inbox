@@ -1,40 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313078AbSDSVr0>; Fri, 19 Apr 2002 17:47:26 -0400
+	id <S313026AbSDSV6N>; Fri, 19 Apr 2002 17:58:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313090AbSDSVrZ>; Fri, 19 Apr 2002 17:47:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:6075 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313078AbSDSVrY>;
-	Fri, 19 Apr 2002 17:47:24 -0400
-Date: Fri, 19 Apr 2002 14:38:39 -0700 (PDT)
-Message-Id: <20020419.143839.15920500.davem@redhat.com>
-To: peterson@austin.ibm.com
-Cc: anton@au.ibm.com, paulus@ozlabs.au.ibm.com, mj@suse.cz,
-        linux-kernel@vger.kernel.org
-Subject: Re: PowerPC Linux and PCI
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3CC08DFF.787F6E54@austin.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S313057AbSDSV6M>; Fri, 19 Apr 2002 17:58:12 -0400
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:29115 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S313026AbSDSV6L>;
+	Fri, 19 Apr 2002 17:58:11 -0400
+Message-ID: <3CC092F2.8090009@candelatech.com>
+Date: Fri, 19 Apr 2002 14:58:10 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: unresolved symbol: __udivdi3
+In-Reply-To: <Pine.LNX.4.33L2.0204191408450.15597-100000@dragon.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: James L Peterson <peterson@austin.ibm.com>
-   Date: Fri, 19 Apr 2002 16:37:03 -0500
 
-   if (pci_read_config_dword(temp, PCI_VENDOR_ID, &l))
-     return NULL;
-        ....
-     memcpy(dev, temp, sizeof(*dev));
-    dev->vendor = l & 0xffff;
-    dev->device = (l >> 16) & 0xffff;
-   
-   It seems to me this is incorrect for a big-endian machine
-   (like PowerPC).  If we read the two 16-bit parts out of the
-   first 32-bit part, we will end up with:
 
-pci_read_config_dword should do the byte swapping on &l for
-the caller, fix your pci_{read,write}_config_*() arch implementation.
+Randy.Dunlap wrote:
+
+> On Fri, 19 Apr 2002, Ben Greear wrote:
+> 
+> | I would like to be able to devide 64bit numbers in a kernel module,
+> | but I get unresolved symbols when trying to insmod.
+> |
+> | Does anyone have any ideas how to get around this little issue
+> | (without the obvious of casting the hell out of all my __u64s
+> | when doing division and throwing away precision.)?
+> 
+> Did you look at linux/include/asm*/div64.h ?
+
+
+I changed my code to look like this:
+
+		char *p = info->pg_result;
+                 __u64 mbps = 0;
+                 __u64 t1 = (info->pg_sofar*1000);
+                 __u64 t2 = do_div(total, 1000);
+                 __u64 pps = 0; /* do_div(t1, t2); */
+                 t1 = (info->pg_sofar * 1000);
+                 mbps = 0;/* do_div(t1, t2); */
+                 /* mbps *= info->pkt_size; */
+
+This code will load w/out problems.  However, if I uncomment the do_div
+on the line: __u64 pps = 0; /* do_div(t1, t2); */
+then I get another unresolved symbol:
+__umodi3
+
+I'm guessing that there is some optimization the compiler is doing that
+is using the mod operator somehow, but I am unsure about how to work around
+this.
+
+Thanks,
+Ben
+
+
+> 
+> 
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289561AbSAONJr>; Tue, 15 Jan 2002 08:09:47 -0500
+	id <S289564AbSAONTq>; Tue, 15 Jan 2002 08:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289564AbSAONJe>; Tue, 15 Jan 2002 08:09:34 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:38157 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289561AbSAONJ1>;
-	Tue, 15 Jan 2002 08:09:27 -0500
-Date: Tue, 15 Jan 2002 14:08:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Joel Becker <jlbec@evilplan.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O_DIRECT with hardware blocksize alignment
-Message-ID: <20020115140852.I31878@suse.de>
-In-Reply-To: <20020109195606.A16884@parcelfarce.linux.theplanet.co.uk> <20020112133122.I1482@inspiron.school.suse.de> <20020115032126.F1929@parcelfarce.linux.theplanet.co.uk> <20020115132026.F22791@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020115132026.F22791@athlon.random>
+	id <S289566AbSAONTf>; Tue, 15 Jan 2002 08:19:35 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:43203 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S289564AbSAONT3>;
+	Tue, 15 Jan 2002 08:19:29 -0500
+Message-ID: <3C442BDB.7010008@debian.org>
+Date: Tue, 15 Jan 2002 14:17:15 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marco Colombo <marco@esi.it>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --the elegant solution)
+In-Reply-To: <fa.g54h1nv.126slpt@ifi.uio.no> <fa.k72pe6v.1tmgn1a@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Jan 2002 13:19:28.0437 (UTC) FILETIME=[42979E50:01C19DC7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15 2002, Andrea Arcangeli wrote:
-> actually we could also forbid merging at the ll_rw_block layer if b_size
-> is not equal, maybe that's the simpler solution to that problem after
-> all, merging between kiovec I/O and buffered I/O probably doesn't
-> matter.
 
-Agreed, this is also what I suggested.
 
---- /opt/kernel/linux-2.4.18-pre3/drivers/block/ll_rw_blk.c	Tue Jan 15 14:06:13 2002
-+++ drivers/block/ll_rw_blk.c	Tue Jan 15 14:07:23 2002
-@@ -694,10 +694,11 @@
- 	switch (el_ret) {
+Marco Colombo wrote:
+
  
- 		case ELEVATOR_BACK_MERGE:
--			if (!q->back_merge_fn(q, req, bh, max_segments)) {
--				insert_here = &req->queue;
-+			insert_here = &req->queue;
-+			if (!q->back_merge_fn(q, req, bh, max_segments))
-+				break;
-+			if (req->current_nr_sectors != (bh->b_size >> 9))
- 				break;
--			}
- 			elevator->elevator_merge_cleanup_fn(q, req, count);
- 			req->bhtail->b_reqnext = bh;
- 			req->bhtail = bh;
-@@ -708,10 +709,11 @@
- 			goto out;
- 
- 		case ELEVATOR_FRONT_MERGE:
--			if (!q->front_merge_fn(q, req, bh, max_segments)) {
--				insert_here = req->queue.prev;
-+			insert_here = req->queue.prev;
-+			if (!q->front_merge_fn(q, req, bh, max_segments))
-+				break;
-+			if (req->current_nr_sectors != (bh->b_size >> 9))
- 				break;
--			}
- 			elevator->elevator_merge_cleanup_fn(q, req, count);
- 			bh->b_reqnext = req->bh;
- 			req->bh = bh;
+> Alan, Eric (and others, too), please.
+> Of course the autoconfigurator is an useful piece of software.
+> And of course Eric is posting to the wrong list here. Kernel developers
+> don't need any autoconfigurator at all (yes, it's just "extra state").
 
--- 
-Jens Axboe
+
+The main discussion was in kbuild-devel list.
+
+> 
+> Eric, Aunt Tillie doesn't need any custom-made, untested, probably not
+> working kernel. QA comes at a price. The lastest VM fix may take a while
+> to reach mainstream kernels. That's life.
+
+Maybe this force kernel maintainer to merge the tested and trusted
+distribution patches into the main kernel's branches.
+
+Anyway, the target of Linux changes. If was a toy for hacker 10 year
+ago, maybe in future will be the toy for Aunt Tillies. So:
+Forget aunts and the other scenarios of Eric.
+Let talk about what autoconfigure can do yet (aka the creation of
+a /proc/drivers (better in /dev) with a list of all running
+kernel drivers. aka how the modules will be in the next months)
+
+	giacomo
 

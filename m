@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130499AbQLFURF>; Wed, 6 Dec 2000 15:17:05 -0500
+	id <S131004AbQLFUTz>; Wed, 6 Dec 2000 15:19:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130562AbQLFUQ4>; Wed, 6 Dec 2000 15:16:56 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:9994 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130499AbQLFUQs>; Wed, 6 Dec 2000 15:16:48 -0500
-Date: Wed, 6 Dec 2000 11:46:07 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
-In-Reply-To: <Pine.LNX.4.21.0012060904550.1044-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.10.10012061145010.1917-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130562AbQLFUTq>; Wed, 6 Dec 2000 15:19:46 -0500
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:27396 "EHLO
+	anduin.gondor.com") by vger.kernel.org with ESMTP
+	id <S131008AbQLFUTc>; Wed, 6 Dec 2000 15:19:32 -0500
+Date: Wed, 6 Dec 2000 20:49:04 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Trashing ext2 with hdparm
+Message-ID: <20001206204904.A1083@gondor.com>
+In-Reply-To: <3A2E767B.D74B24B5@Hell.WH8.TU-Dresden.De> <Pine.LNX.4.10.10012061141300.21407-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10012061141300.21407-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Dec 06, 2000 at 11:41:51AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 06, 2000 at 11:41:51AM -0800, Andre Hedrick wrote:
+> No way that this could cause corruption it is a read-only test.
 
+It definitely does, I saw it, too.  It seems to be triggered
+by invalidate_buffers().
 
-On Wed, 6 Dec 2000, Tigran Aivazian wrote:
-> 
-> This patch combines your previous patch with 2 changes I have just
-> suggested. Both changes are obvious (and correct).
-
-Why remove the EROFS test?
-
-		Linus
+Jan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

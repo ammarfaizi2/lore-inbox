@@ -1,46 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbUBJVuC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 16:50:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUBJVuC
+	id S261784AbUBJV5q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 16:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUBJV5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 16:50:02 -0500
-Received: from shiva.warpcore.org ([216.81.249.60]:30697 "EHLO
-	shiva.warpcore.org") by vger.kernel.org with ESMTP id S261567AbUBJVt7
+	Tue, 10 Feb 2004 16:57:46 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:9971 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261784AbUBJV5n
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 16:49:59 -0500
-Subject: Re: Kernel GPL Violations and How to Research
-From: Gidon <gidon@warpcore.org>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040210192007.GA6987@one-eyed-alien.net>
-References: <1076388828.9259.32.camel@CPE-65-26-89-23.kc.rr.com>
-	 <20040210192007.GA6987@one-eyed-alien.net>
-Content-Type: text/plain
-Message-Id: <1076449796.6373.3.camel@CPE-65-26-89-23.kc.rr.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 10 Feb 2004 15:49:56 -0600
+	Tue, 10 Feb 2004 16:57:43 -0500
+Message-ID: <40295388.5080901@mvista.com>
+Date: Tue, 10 Feb 2004 13:56:24 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: "Amit S. Kale" <amitkale@emsyssoft.com>, akpm@osdl.org, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org, piggy@timesys.com,
+       trini@kernel.crashing.org
+Subject: Re: kgdb support in vanilla 2.6.2
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>	<20040204155452.49c1eba8.akpm@osdl.org.suse.lists.linux.kernel>	<p73n07ykyop.fsf@verdi.suse.de>	<200402052320.04393.amitkale@emsyssoft.com> <20040206032054.3fd7db8d.ak@suse.de>
+In-Reply-To: <20040206032054.3fd7db8d.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-10 at 13:20, Matthew Dharm wrote:
-> As a final level of analysis, you can always look at the compiled binary
-> code -- if you think they are using a _reasonably_ compatible compiler, you
-> might actually be able to find long sections of identical or near-identical
-> assembly (modulo loop unrolling, etc. which you should be able to identify
-> by hand.)
+Andi Kleen wrote:
+> On Thu, 5 Feb 2004 23:20:04 +0530
+> "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> 
+> 
+>>On Thursday 05 Feb 2004 8:41 am, Andi Kleen wrote:
+>>
+>>>Andrew Morton <akpm@osdl.org> writes:
+>>>
+>>>>need to take a look at such things and really convice ourselves that
+>>>>they're worthwhile.  Personally, I'd only be interested in the basic
+>>>>stub.
+>>>
+>>>What I found always extremly ugly in the i386 stub was that it uses
+>>>magic globals to talk to the page fault handler. For the x86-64
+>>>version I replaced that by just using __get/__put_user in the memory
+>>>accesses, which is much cleaner. I would suggest doing that for i386
+>>>too.
+>>
+>>May be I am missing something obvious. When debugging a page fault handler if 
+>>kgdb accesses an swapped-out user page doesn't it deadlock when trying to 
+>>hold mm semaphore?
+> 
+> 
+> Modern i386 kernels don't grab the mm semaphore when the access is >= TASK_SIZE
+> and the access came from kernel space (actually I see x86-64 still does, but that's 
+> a bug, will fix). You could only see a deadlock when using user addresses
+> and you already hold the mm semaphore for writing (normal read lock is ok). 
+> Just don't do that. 
+> 
+> 
+> 
+>>George has coded cfi directives i386 too. He can use them to backtrace past 
+>>irqs stack.
+> 
+> 
+> Problem is that he did it without binutils support. I don't think that's a good
+> idea because it makes the code basically unmaintainable for normal souls
+> (it's like writing assembly code directly in hex) 
 
-Your advice is appreciated. I will do some further research using
-objdump. I believe they use gcc.
+Well, bin utils, at this time, makes it even worse in that it does not support 
+the expression syntax.  Also, it is not asm but dwarf2 and it is written in, 
+IMHO, useful macros (not hex :)
 
-One thing I am unsure of is how to approach them and ensure at the same
-time that the problem is taken care of. Another words, if I show them
-what's wrong, they may simply obfuscate it (although at this time I hope
-not) and then I have no way to easily prove anything anymore...
+
 
 -- 
-I am subscribed to this mailing list. It is not necessary to CC me.
-Thank you. -Gidon
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

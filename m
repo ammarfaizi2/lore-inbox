@@ -1,49 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318310AbSIBPwH>; Mon, 2 Sep 2002 11:52:07 -0400
+	id <S318313AbSIBPz2>; Mon, 2 Sep 2002 11:55:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318313AbSIBPwG>; Mon, 2 Sep 2002 11:52:06 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19680 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318310AbSIBPwG>; Mon, 2 Sep 2002 11:52:06 -0400
-Date: Mon, 2 Sep 2002 17:56:31 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Thunder from the hill <thunder@lightweight.ods.org>
-cc: Samuel Flory <sflory@rackable.com>, Gerd Knorr <kraxel@bytesex.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre4 depmod errors
-In-Reply-To: <Pine.LNX.4.44.0209020900580.3234-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.NEB.4.44.0209021754590.147-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318314AbSIBPz2>; Mon, 2 Sep 2002 11:55:28 -0400
+Received: from [80.120.128.82] ([80.120.128.82]:64528 "EHLO hofr.at")
+	by vger.kernel.org with ESMTP id <S318313AbSIBPz1>;
+	Mon, 2 Sep 2002 11:55:27 -0400
+From: Der Herr Hofrat <der.herr@mail.hofr.at>
+Message-Id: <200209021503.g82F3F430394@hofr.at>
+Subject: kthread execve question
+To: linux-kernel@vger.kernel.org
+Date: Mon, 2 Sep 2002 17:03:15 +0200 (CEST)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Sep 2002, Thunder from the hill wrote:
 
-> On Mon, 2 Sep 2002, Adrian Bunk wrote:
-> > > /lib/modules/2.4.20-pre4/kernel/drivers/media/video/bttv.o
-> > > depmod:         mod_firmware_load_Rsmp_39e3dd23
-> >
-> > A workaround is to say "M" at "Sound/Sound card support"
->
-> Isn't the correct soluion a fresh compile (i.e. from clean sources)?
+HI !
 
-No, I suspect the problem is the one I describe in [1].
+ starting out at kernel/kmod.c as an example I tried to execve a simple command
+ from a kernel thread using the exec_usermodehelper from kmod (kmod enabled in
+ the kernel). It all seems to be fine - the printk appears but the command is
+ not executed...
 
-> 			Thunder
+ any hint whats wrong ? any pointers to using kernel threads dosc/examples in 
+ general and how to execute user space apps would be appreciated.
 
-cu
-Adrian
+thx !
+hofrat
 
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=103097532016257&w=2
+--- broken hello world kthread ---
+#define __KERNEL_SYSCALLS__
 
--- 
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/sched.h>
+#include <linux/unistd.h>
+#include <linux/kmod.h>
+#include <linux/smp_lock.h>
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+#include <asm/uaccess.h>
 
+char cmd_path[256] = "/bin/echo";
 
+static int exec_cmd(void * kthread_arg)
+{
+	static char * envp[] = { "HOME=/", 
+		"TERM=linux", 
+		"PATH=/:/bin:/usr/bin:/usr/bin", 
+		NULL };
+	char *argv[] = { kthread_arg,
+		">>",
+		"/tmp/kthread_echo", 
+		NULL };
+	int ret;
+
+	printk("calling usermodehelper for %s \n",cmd_path); 
+	ret = exec_usermodehelper(cmd_path, argv, envp);
+
+	printk(KERN_ERR "failed to exec %s, ret = %d\n", cmd_path,ret);
+	return ret;
+}
+
+int init_module(void) {
+	pid_t pid;
+	char kthread_arg[]="Hello World";
+
+	pid = kernel_thread(exec_cmd, (void*) kthread_arg, 0);
+	if (pid < 0) {
+		printk(KERN_ERR "fork failed, errno %d\n", -pid);
+		return pid;
+	}
+	printk("fork ok, pid %d\n",pid);
+	return 0;
+}
+
+void cleanup_module(void) {
+	printk("module exit\n");
+}

@@ -1,43 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265193AbUAJPF3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 10:05:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUAJPF3
+	id S265208AbUAJPJD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 10:09:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUAJPJC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 10:05:29 -0500
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:61701 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S265193AbUAJPFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 10:05:23 -0500
-Message-ID: <400015BE.6080500@kolumbus.fi>
-Date: Sat, 10 Jan 2004 17:09:50 +0200
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Sat, 10 Jan 2004 10:09:02 -0500
+Received: from [81.3.4.101] ([81.3.4.101]:33481 "HELO localhost")
+	by vger.kernel.org with SMTP id S265208AbUAJPIy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 10:08:54 -0500
+From: "Christian Kivalo" <valo@valo.at>
+To: "Alex" <alex@meerkatsoft.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Cannot boot after new Kernel Build
+Date: Sat, 10 Jan 2004 16:08:52 +0100
+Message-ID: <NMEHJKFGFEGJPIPOLFFECEBBDEAA.valo@valo.at>
 MIME-Version: 1.0
-To: Nguyen@vger.kernel.org, Tom@vger.kernel.org, L@vger.kernel.org,
-       len.brown@intel.con
-CC: linux-kernel@vger.kernel.org
-Subject: PCI vector and ACPI
-References: <C7AB9DA4D0B1F344BF2489FA165E50240154170D@orsmsx404.jf.intel.com>
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E50240154170D@orsmsx404.jf.intel.com>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 10.01.2004 17:07:27,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 10.01.2004 17:06:38,
-	Serialize complete at 10.01.2004 17:06:38
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <3FFFB60C.9010309@meerkatsoft.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be some bad interaction between PCI VECTOR 
-(use_pci_vector()) and ACPI PRTs. Namely, both mp_parse_prt() and 
-pcibios_fixup_irqs() do the IO_APIC_VECTOR() translation on irq, the 
-result being  IO_APIC_VECTOR(IO_APIC_VECTOR(irq)). I wonder if this is 
-the cause of some bug reports with acpi and pci vector? Maybe 
-mp_parse_prt() should not do the irq->vector translation?
+> Hi,
+> I am trying to build a new kernel but what ever version 2.4.24, 2.6.0,
+> 2.6.1 i am trying to build I come across the same problem.
+>
+> when doing a "make install" i get the following error.
+>
+> /dev/mapper/control: open failed: No such file or directlry
+> Is device-mapper driver missing from kernel?
+> Comman failed.
+>
+> I have installed the lates packages
+> device mapper 1.00.07
+> initscripts 7.28.1
+> modutils, lvm2.2.00.08
+> mkinitrd-3.5.15.1-2
+>
+> If I just ignore the message and try to boot the machine with the new
+> kernel then I get a Kernel Panic.
+>
+> VFS: Cannot open root device "LABEL=/" or unknown-block(0,0)
+> Please append a correct "root=" boot option
+> Kernel panic: VFS: Unapble to mount root fs on unknown-block(0,0).
+>
+> The boot command in grub is
+> root (hd0,0)
+> kernel /vmlinuz-2.6.1 ro root=LABEL=/ hdc=ide-scsi
+> initrd /initrd-2.6.1.img
+>
+> It is basically the same (except the version) as I use for
+> 2.4.20-28 so
+> I assume the label is correct.
+>
+> I saw quite a few messages of similar type but no real answer to the
+> problem. Any Ideas what it could be ?  I am using RH9.0
 
---Mika
+hi!
 
+as mentioned in this thread
+(http://marc.theaimsgroup.com/?l=linux-kernel&m=107330398724534&w=2) a
+few days ago, christophe saout wrote: "LABEL= is a RedHat extension.
+Please use the normal root options that is described in the Grub or
+kernel documentation."
+rik van riel mentioned: "It's not even a Red Hat extension.  The LABEL=
+stuff is done entirely in userspace, on the initrd.
+
+If you do not want to use an initrd, you need to use the normal root
+options instead, something like root=/dev/hda3" that thread also offers
+some information to the problem."
+
+have you created an initrd? if not, comment that line out of your grub
+config.
+
+you can leave your fstab like it is, using labels in fstab is ok.
+
+hth
+christian
+
+> Thanks
+> Alex
 

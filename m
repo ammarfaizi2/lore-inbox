@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288914AbSBVArz>; Thu, 21 Feb 2002 19:47:55 -0500
+	id <S288921AbSBVAz5>; Thu, 21 Feb 2002 19:55:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSBVArq>; Thu, 21 Feb 2002 19:47:46 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:4596
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S288914AbSBVArd>; Thu, 21 Feb 2002 19:47:33 -0500
-Date: Thu, 21 Feb 2002 16:47:50 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Antoni Bella <bella5@teleline.es>
-Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: diff ?? [ linux-2.4.18-rc3 ]
-Message-ID: <20020222004750.GD20060@matchmail.com>
-Mail-Followup-To: Antoni Bella <bella5@teleline.es>,
-	linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <20020221233320Z287874-889+4827@vger.kernel.org>
-Mime-Version: 1.0
+	id <S288946AbSBVAzr>; Thu, 21 Feb 2002 19:55:47 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:57497 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S288921AbSBVAzk>;
+	Thu, 21 Feb 2002 19:55:40 -0500
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org,
+        davem@redhat.com
+Subject: Re: [PATCH] HDLC patch for 2.5.5 (0/3)
+In-Reply-To: <Pine.LNX.4.33.0202191732320.1443-100000@penguin.transmeta.com>
+	<3C739351.20C03FDA@mandrakesoft.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 22 Feb 2002 00:52:23 +0100
+In-Reply-To: <3C739351.20C03FDA@mandrakesoft.com>
+Message-ID: <m3u1sav1e0.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020221233320Z287874-889+4827@vger.kernel.org>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 12:52:44AM +0100, Antoni Bella wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> 
-> 
->   Error in diff generated
-> 
-> ## Automatically generated incremental diff
-> ## From:   linux-2.4.18-rc2
-> ## To:     linux-2.4.18-rc3
-> ## Robot:  $Id: make-incremental-diff,v 1.11 2002/02/20 02:59:33 hpa Exp $
+Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-What is script is this from?  It needs some enhancements to say what went
-wrong where.
+> Sure.
+> 
+> FWIW it looks like Krzysztof Halasa has some good points, so a "[BK
+> PATCH]" may be delayed a day or two before coming to you, I'm betting...
 
-Make sure you're patching it against 2.4.17 of course, unless you're using
-an incremental diff, but then if you were, you should know this.
-
-Mike
+Anyway, I can't even touch it until March, 23. I think it's now best
+to apply the patches from Francois on top of my original patch.
+We could eventually make some small correction(s) if I really still
+have good points there, when I'm back in Poland.
+-- 
+Krzysztof Halasa out
+Network Administrator

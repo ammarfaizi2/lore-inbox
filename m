@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319350AbSIKVdj>; Wed, 11 Sep 2002 17:33:39 -0400
+	id <S319354AbSIKVfF>; Wed, 11 Sep 2002 17:35:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319354AbSIKVdj>; Wed, 11 Sep 2002 17:33:39 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:15613
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319350AbSIKVdg>; Wed, 11 Sep 2002 17:33:36 -0400
-Subject: Re: XFS?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Eric Sandeen <sandeen@sgi.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Andi Kleen <ak@suse.de>,
-       Thunder from the hill <thunder@lightweight.ods.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1031770508.9726.17.camel@stout.americas.sgi.com>
-References: <Pine.LNX.3.96.1020911110502.12605A-100000@gatekeeper.tmr.com> 
-	<1031760229.2768.54.camel@irongate.swansea.linux.org.uk> 
-	<1031770508.9726.17.camel@stout.americas.sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
-Date: 11 Sep 2002 22:37:39 +0100
-Message-Id: <1031780259.2902.8.camel@irongate.swansea.linux.org.uk>
+	id <S319355AbSIKVfF>; Wed, 11 Sep 2002 17:35:05 -0400
+Received: from [208.34.239.54] ([208.34.239.54]:28865 "EHLO
+	babylon5.babcom.com") by vger.kernel.org with ESMTP
+	id <S319354AbSIKVfB>; Wed, 11 Sep 2002 17:35:01 -0400
+Date: Wed, 11 Sep 2002 17:39:46 -0400
+From: Phil Stracchino <alaric@babcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: CDROM driver does not support Linux partition tables
+Message-ID: <20020911213946.GC31724@babylon5.babcom.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020904181952.GA1158@babylon5.babcom.com> <1031182512.3017.139.camel@irongate.swansea.linux.org.uk> <20020911211959.GA31724@babylon5.babcom.com> <yw1xr8g0kyd2.fsf@gladiusit.e.kth.se>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yw1xr8g0kyd2.fsf@gladiusit.e.kth.se>
+User-Agent: Mutt/1.4i
+X-ICBM: 35.6880N 77.4375W
+X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
+X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
+X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
+X-UCE-Policy: No unsolicited commercial email is accepted at this site.  All senders of UCE will be immediately and permanently blocked.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-11 at 19:55, Eric Sandeen wrote:
-> The last patch Christoph posted against 2.5 is not the least bit 
-> invasive.  Excluding documentation and configuration files, these are
-> the changes:
+On Wed, Sep 11, 2002 at 11:30:49PM +0200, M?ns Rullg?rd wrote:
+> Phil Stracchino <alaric@babcom.com> writes:
+> > Even on a kernel configured with support for UFS and Sun partition
+> > tables, it doesn't appear to be possible to mount any but the first
+> > slice of a Sun CDROM containing multiple slices.  Essentially, it seems
+> > that Solaris partition table support doesn't trickle down to the CDROM
+> > driver.
+> 
+> Can the disk be copied to a file or hard disk and mounted there?
 
-As I said its improving
+Copied with dd?  I don't know, but it's a thought.  I suspect the
+ide-scsi route Alan suggested is more promising.
 
+
+
+-- 
+ *********  Fight Back!  It may not be just YOUR life at risk.  *********
+ :phil stracchino : unix ronin : renaissance man : mystic zen biker geek:
+ : alaric@babcom.com   :::   alaric@geeksnet.com   :::    phil@latt.net :
+ :  2000 CBR929RR, 1991 VFR750F3 (foully murdered), 1986 VF500F (sold)  :
+ :    Linux Now! ...because friends don't let friends use Microsoft.    :

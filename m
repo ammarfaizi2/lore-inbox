@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269248AbTGJMhT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 08:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269254AbTGJMhT
+	id S269256AbTGJMlG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 08:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269258AbTGJMlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 08:37:19 -0400
-Received: from tmi.comex.ru ([217.10.33.92]:16041 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S269248AbTGJMhR (ORCPT
+	Thu, 10 Jul 2003 08:41:06 -0400
+Received: from ns.suse.de ([213.95.15.193]:13584 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269256AbTGJMlD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 08:37:17 -0400
-X-Comment-To: Andi Kleen
-To: Andi Kleen <ak@suse.de>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+	Thu, 10 Jul 2003 08:41:03 -0400
+Date: Thu, 10 Jul 2003 14:55:43 +0200
+From: Andi Kleen <ak@suse.de>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
 Subject: Re: [PATCH] minor optimization for EXT3
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: Thu, 10 Jul 2003 16:51:30 +0000
-In-Reply-To: <p73of02pn6s.fsf@oldwotan.suse.de> (Andi Kleen's message of "10
- Jul 2003 14:43:07 +0200")
-Message-ID: <87vfuagwa5.fsf@gw.home.net>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
-References: <87smpeigio.fsf@gw.home.net.suse.lists.linux.kernel>
-	<20030710042016.1b12113b.akpm@osdl.org.suse.lists.linux.kernel>
-	<87y8z6gyt3.fsf@gw.home.net.suse.lists.linux.kernel>
-	<p73of02pn6s.fsf@oldwotan.suse.de>
-MIME-Version: 1.0
+Message-ID: <20030710125543.GB26892@wotan.suse.de>
+References: <87smpeigio.fsf@gw.home.net.suse.lists.linux.kernel> <20030710042016.1b12113b.akpm@osdl.org.suse.lists.linux.kernel> <87y8z6gyt3.fsf@gw.home.net.suse.lists.linux.kernel> <p73of02pn6s.fsf@oldwotan.suse.de> <87vfuagwa5.fsf@gw.home.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87vfuagwa5.fsf@gw.home.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andi Kleen (AK) writes:
+On Thu, Jul 10, 2003 at 04:51:30PM +0000, Alex Tomas wrote:
+>  AK> Also dtimes in free inodes  can be now lost, can't they? Did you check 
+>  AK> if that causes problems in fsck?  [my understanding was that ext2/3 fsck relies on the 
+>  AK> dtime to make some heuristics when recovering files work better]
+> 
+> freed inodes will be lost. I've checked filesystem by fsck after lots of creations/removals.
+> it seems OK.
 
- AK> Alex Tomas <bzzz@tmi.comex.ru> writes:
- >> +			if (i == start + inodes_per_buffer) {
- >> +				/* all inodes (but our) are free. so, we skip I/O */
+iirc the dtime is used so that fsck can relink all non deleted inodes to lost+found
+when a directory is corrupted. Without dtime there is no way to distingush
+deleted and non deleted files, and just relinking everything would be quite
+nasty.
 
- AK> Won't this make undeletion a lot harder? Deleted inodes will now be trashed
- AK> at will, so you cannot use their contents anymore. 
+With your patch this heuristic would lose some files.
 
-AFAIK ext3 doesn't support undeletion at all
+That's more important for ext2 than ext3 of course, but even on ext3 
+you could get a corrupted directory when you're unlucky (e.g. io error or similar)
 
- AK> Also dtimes in free inodes  can be now lost, can't they? Did you check 
- AK> if that causes problems in fsck?  [my understanding was that ext2/3 fsck relies on the 
- AK> dtime to make some heuristics when recovering files work better]
-
-freed inodes will be lost. I've checked filesystem by fsck after lots of creations/removals.
-it seems OK.
-
- AK> Maybe it should be an mount option so that users can trade performance against
- AK> better recoverability.
-
-well, I'm not sure we really need it
-
+-Andi

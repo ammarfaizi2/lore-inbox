@@ -1,180 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267918AbUG2PG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUG2R3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267918AbUG2PG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 11:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267980AbUG2PDb
+	id S267516AbUG2R3T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 13:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbUG2R1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 11:03:31 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21756 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263980AbUG2OMi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 10:12:38 -0400
-Date: Thu, 29 Jul 2004 16:12:32 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jes Sorensen <jes@wildopensource.com>, Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/rrunner.c: fix inline compile error (fwd)
-Message-ID: <20040729141231.GW2349@fs.tum.de>
+	Thu, 29 Jul 2004 13:27:16 -0400
+Received: from holomorphy.com ([207.189.100.168]:30613 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264833AbUG2RXR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 13:23:17 -0400
+Date: Thu, 29 Jul 2004 10:23:05 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Avi Kivity <avi@exanet.com>, jmoyer@redhat.com, suparna@in.ibm.com,
+       linux-aio@kvack.org, linux-kernel@vger.kernel.org, linux-osdl@osdl.org
+Subject: Re: [PATCH 20/22] AIO poll
+Message-ID: <20040729172305.GT2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Arjan van de Ven <arjanv@redhat.com>, Avi Kivity <avi@exanet.com>,
+	jmoyer@redhat.com, suparna@in.ibm.com, linux-aio@kvack.org,
+	linux-kernel@vger.kernel.org, linux-osdl@osdl.org
+References: <20040702130030.GA4256@in.ibm.com> <20040702163946.GJ3450@in.ibm.com> <16649.5485.651481.534569@segfault.boston.redhat.com> <41091FAA.6080409@exanet.com> <1091117766.2792.14.camel@laptop.fenrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1091117766.2792.14.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
-The patch forwarded below is still required in 2.6.8-rc2-mm1.
+On Thu, 2004-07-29 at 18:02, Avi Kivity wrote:
+>> I second the motion. I don't see how one can write a server which uses 
+>> both networking and block aio without aio poll.
+
+On Thu, Jul 29, 2004 at 06:16:07PM +0200, Arjan van de Ven wrote:
+> one could try to use epoll and fix it to be usable for disk io too ;)
+
+That notion doesn't make any sense. epoll is just a continuation-based
+implementation of a recurring readiness notification operation. Extant
+async I/O operations (in mainline) are data transfer. The inclusion
+goes the other direction. Readiness notification can be modeled as a
+kind of data transfer by synthesizing a data stream to represent the
+readiness transitions, but the reverse fails as data can't become
+ready to consume (what epoll would like to report) until I/O is
+initiated. epoll is suited to become a recurring aio readiness
+notification operation. Vice-versa is literally so logically
+inconsistent it can't even be phrased properly.
+
+I'll send in some code to deal with this properly later on today. New
+polling infrastructures should not be erected, but rather existing
+epoll code reused for continuation-based readiness notification.
 
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date:	Thu, 15 Jul 2004 22:55:29 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: jgarzik@pobox.com, linux-net@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/rrunner.c: fix inline compile error
-
-Trying to compile drivers/net/rrunner.c in 2.6.8-rc1-mm1 using gcc 3.4 
-results in the following compile error:
-
-<--  snip  -->
-
-...
-  CC      drivers/net/rrunner.o
-drivers/net/rrunner.c: In function `rr_timer':
-drivers/net/rrunner.h:846: sorry, unimplemented: inlining failed in call 
-to 'rr_raz_tx': function body not available
-drivers/net/rrunner.c:1155: sorry, unimplemented: called from here
-drivers/net/rrunner.h:847: sorry, unimplemented: inlining failed in call 
-to 'rr_raz_rx': function body not available
-drivers/net/rrunner.c:1156: sorry, unimplemented: called from here
-make[2]: *** [drivers/net/rrunner.o] Error 1
-
-<--  snip  -->
-
-
-The patch below moves some inlined functions above the place where they
-are called the first time.
-
-An alternative approach would be to remove the inlines.
-
-
-diffstat output:
- drivers/net/rrunner.c |   86 +++++++++++++++++++++---------------------
- 1 files changed, 43 insertions(+), 43 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.7-mm6-full-gcc3.4/drivers/net/rrunner.c.old	2004-07-09 01:05:03.000000000 +0200
-+++ linux-2.6.7-mm6-full-gcc3.4/drivers/net/rrunner.c	2004-07-09 01:05:46.000000000 +0200
-@@ -1138,6 +1138,49 @@
- 	return IRQ_HANDLED;
- }
- 
-+static inline void rr_raz_tx(struct rr_private *rrpriv, 
-+			     struct net_device *dev)
-+{
-+	int i;
-+
-+	for (i = 0; i < TX_RING_ENTRIES; i++) {
-+		struct sk_buff *skb = rrpriv->tx_skbuff[i];
-+
-+		if (skb) {
-+			struct tx_desc *desc = &(rrpriv->tx_ring[i]);
-+
-+	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
-+				skb->len, PCI_DMA_TODEVICE);
-+			desc->size = 0;
-+			set_rraddr(&desc->addr, 0);
-+			dev_kfree_skb(skb);
-+			rrpriv->tx_skbuff[i] = NULL;
-+		}
-+	}
-+}
-+
-+
-+static inline void rr_raz_rx(struct rr_private *rrpriv, 
-+			     struct net_device *dev)
-+{
-+	int i;
-+
-+	for (i = 0; i < RX_RING_ENTRIES; i++) {
-+		struct sk_buff *skb = rrpriv->rx_skbuff[i];
-+
-+		if (skb) {
-+			struct rx_desc *desc = &(rrpriv->rx_ring[i]);
-+
-+	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
-+				dev->mtu + HIPPI_HLEN, PCI_DMA_FROMDEVICE);
-+			desc->size = 0;
-+			set_rraddr(&desc->addr, 0);
-+			dev_kfree_skb(skb);
-+			rrpriv->rx_skbuff[i] = NULL;
-+		}
-+	}
-+}
-+
- static void rr_timer(unsigned long data)
- {
- 	struct net_device *dev = (struct net_device *)data;
-@@ -1253,49 +1296,6 @@
- }
- 
- 
--static inline void rr_raz_tx(struct rr_private *rrpriv, 
--			     struct net_device *dev)
--{
--	int i;
--
--	for (i = 0; i < TX_RING_ENTRIES; i++) {
--		struct sk_buff *skb = rrpriv->tx_skbuff[i];
--
--		if (skb) {
--			struct tx_desc *desc = &(rrpriv->tx_ring[i]);
--
--	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
--				skb->len, PCI_DMA_TODEVICE);
--			desc->size = 0;
--			set_rraddr(&desc->addr, 0);
--			dev_kfree_skb(skb);
--			rrpriv->tx_skbuff[i] = NULL;
--		}
--	}
--}
--
--
--static inline void rr_raz_rx(struct rr_private *rrpriv, 
--			     struct net_device *dev)
--{
--	int i;
--
--	for (i = 0; i < RX_RING_ENTRIES; i++) {
--		struct sk_buff *skb = rrpriv->rx_skbuff[i];
--
--		if (skb) {
--			struct rx_desc *desc = &(rrpriv->rx_ring[i]);
--
--	        	pci_unmap_single(rrpriv->pci_dev, desc->addr.addrlo, 
--				dev->mtu + HIPPI_HLEN, PCI_DMA_FROMDEVICE);
--			desc->size = 0;
--			set_rraddr(&desc->addr, 0);
--			dev_kfree_skb(skb);
--			rrpriv->rx_skbuff[i] = NULL;
--		}
--	}
--}
--
- static void rr_dump(struct net_device *dev)
- {
- 	struct rr_private *rrpriv;
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
-
+-- wli

@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267280AbTA1Pc0>; Tue, 28 Jan 2003 10:32:26 -0500
+	id <S265154AbTA1Paz>; Tue, 28 Jan 2003 10:30:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267288AbTA1Pc0>; Tue, 28 Jan 2003 10:32:26 -0500
-Received: from AGrenoble-101-1-6-201.abo.wanadoo.fr ([80.11.197.201]:28321
-	"EHLO awak") by vger.kernel.org with ESMTP id <S267280AbTA1PcZ>;
-	Tue, 28 Jan 2003 10:32:25 -0500
-Subject: Re: AW: Bootscreen
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <398E93A81CC5D311901600A0C9F29289469389@cubuss2>
-References: <398E93A81CC5D311901600A0C9F29289469389@cubuss2>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: 
-Message-Id: <1043768501.24813.18.camel@bip.localdomain.fake>
+	id <S267280AbTA1Paz>; Tue, 28 Jan 2003 10:30:55 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:62895 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S265154AbTA1Pay>; Tue, 28 Jan 2003 10:30:54 -0500
+Date: Tue, 28 Jan 2003 16:39:38 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Stuart Cheshire <cheshire@cs.stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [BUG] in drivers/net/strip.c
+Message-ID: <20030128153938.GB10685@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 28 Jan 2003 16:41:41 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mar 28/01/2003 à 15:48, Raphael Schmid a écrit :
-> > Yeah, I'd really like a stable working swsusp (on a working kernel) to
-> > shortcut the fscking boot. Go pawel !
-> What's an swsusp?
+Hi!
 
-It's a suspend-to-disk feature for the 2.5 kernel. For laptops and
-desktops.
+This one-liner appears to be fixing a range error, but I'd like
+someone to check it first.
 
-	Xav
+Jörn
 
+-- 
+Jörn Engel
+mailto: joern@wohnheim.fh-wedel.de
+http://wohnheim.fh-wedel.de/~joern
+Phone: +49 179 6704074
+
+diff -Naur linux-2.4.21-pre3-ac4/drivers/net/strip.c scratch/drivers/net/strip.c
+--- linux-2.4.21-pre3-ac4/drivers/net/strip.c	Fri Nov  9 23:02:24 2001
++++ scratch/drivers/net/strip.c	Tue Jan 28 13:38:57 2003
+@@ -527,7 +527,7 @@
+ 
+     *p++ = '\"';
+ 
+-    while (ptr<end && p < &pkt_text[MAX_DumpData-4])
++    while (ptr<end && p < &pkt_text[MAX_DumpData-5])
+     {
+         if (*ptr == '\\')
+         {

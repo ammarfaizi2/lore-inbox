@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292708AbSCSVJW>; Tue, 19 Mar 2002 16:09:22 -0500
+	id <S292705AbSCSVJW>; Tue, 19 Mar 2002 16:09:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292700AbSCSVJM>; Tue, 19 Mar 2002 16:09:12 -0500
+	id <S292708AbSCSVJN>; Tue, 19 Mar 2002 16:09:13 -0500
 Received: from [195.39.17.254] ([195.39.17.254]:56194 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S292708AbSCSVI4>;
-	Tue, 19 Mar 2002 16:08:56 -0500
-Date: Tue, 19 Mar 2002 14:25:24 +0000
+	by vger.kernel.org with ESMTP id <S292705AbSCSVJF>;
+	Tue, 19 Mar 2002 16:09:05 -0500
+Date: Tue, 19 Mar 2002 13:06:19 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: David Golden <david.golden@oceanfree.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IO delay, port 0x80, and BIOS POST codes
-Message-ID: <20020319142523.A55@toy.ucw.cz>
-In-Reply-To: <E16le8P-00028c-00@the-village.bc.nu> <02031500124202.02088@golden1.goldens.ie>
+To: yodaiken@fsmlabs.com
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>,
+        Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+Message-ID: <20020319120618.GA470@elf.ucw.cz>
+In-Reply-To: <20020316131219.C20436@hq.fsmlabs.com> <Pine.LNX.4.33.0203161223290.31971-100000@penguin.transmeta.com> <20020316143916.A23204@hq.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
-> > We've got one. Its 0x80. It works everywhere with only marginal non
-> > problematic side effects
-> 
-> I've always liked POST cards.  They could hypothetically be useful
-> for kernel development,too  - who hasn't wanted a low-level 
-> single-asm-instruction status output from a running system at one time or 
-> another , independent of any other output mechanisms?
-> 
-> OK it's a single byte, but it's still nice...  That's two whole hex digits!
-> DE... AD...  BE... EF... !
 
-Use 0x378 for that, works equally well.
-								Pavel
+> > > To me, once you have a G of memory, wasting a few meg on unused process 
+> > > memory seems no big deal.
+> > 
+> > It's not the process memory, and it is a whole lot than a "few meg" if 
+> > your page size is 2M.
+> 
+> I forget what an extremist you are. My claim is that
+> some processes benefit from big pages, some do not.
+> A 16G process needs 2^25 bytes of PTE at 4kbytes/page if I
+> did the numbers right. Just populating 4 million odd  page tables is a 
+> pain. I might be wrong about it, but I wonder if just scaling
+> up from a working 32 bit strategy gets you anywhere.
+> If you want to optimize for gnome, you get a very different
+> layout. But Hammer and ia64 are supposedly designed for huge
+> databases, routing tables, and images. Our good friends at Intel
+
+Hammer is designed for desktop, AFAICT. [Its slightly modified athlon,
+you see?]
+									Pavel
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

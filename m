@@ -1,49 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262892AbUKRS5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbUKRS7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262892AbUKRS5E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbUKRS40
+	id S262890AbUKRS7h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 13:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbUKRS51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:56:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39883 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262890AbUKRSzt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:55:49 -0500
-Date: Thu, 18 Nov 2004 10:55:46 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Tony Luck <tony.luck@intel.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] setup_arg_pages can insert overlapping vma
-Message-ID: <20041118105546.Q2357@build.pdx.osdl.net>
-References: <20041116151937.E2357@build.pdx.osdl.net> <Pine.LNX.4.44.0411181720550.2971-100000@localhost.localdomain>
+	Thu, 18 Nov 2004 13:57:27 -0500
+Received: from atorelbas04.hp.com ([156.153.255.238]:41403 "EHLO
+	palrel13.hp.com") by vger.kernel.org with ESMTP id S262886AbUKRSzE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 13:55:04 -0500
+Date: Thu, 18 Nov 2004 10:55:03 -0800
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: linux-kernel@vger.kernel.org, syrjala@sci.fi,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
+Message-ID: <20041118185503.GA5584@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <419CECFF.2090608@free.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0411181720550.2971-100000@localhost.localdomain>; from hugh@veritas.com on Thu, Nov 18, 2004 at 05:39:59PM +0000
+In-Reply-To: <419CECFF.2090608@free.fr>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Hugh Dickins (hugh@veritas.com) wrote:
-> On Tue, 16 Nov 2004, Chris Wright wrote:
-> > Florian Heinz built an a.out binary that could map bss from 0x0 to
-> > 0xc0000000, and setup_arg_pages() would BUG() in insert_vma_struct
-> > because the arg pages overlapped.  This just checks before inserting,
-> > and bails out if it would overlap.
+On Thu, Nov 18, 2004 at 07:42:07PM +0100, matthieu castet wrote:
+> Hi,
 > 
-> Chris, shouldn't your patch also cover the setup_arg_pages clones for
-> 32-bit support on 64-bit architectures, with something - uncompiled,
-> untested - like the below?  I'm not sure how necessary the additional
-> vma->vm_start < mpnt->vm_end test is, but suspect ia64 might need it.
+> I had also done a pnp patch for the smsc-ircc2 and irport 3 months ago.
+> Unfortunaly I don't remember where I put the patches, certainly on the 
+> laptop that it is in my parent home.
 
-I expect other arches should need the fix as well, it would be nice
-to test them.  I'm not clear on that extra test.  Wouldn't it imply
-vm_end < vm_start?
+	I've never seen you patches on the irda mailing list...
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> try to do an "echo auto > /sys/bus/pnp/device_number/resources"
+> 
+> It will reenable the device.
+
+	Thanks for the tip.
+
+> > I have a machine with nsc-ircc here so I think I'll try that too.
+> >
+> > > OnThe issue there is that if a smsc chipset has a valid PnP ID
+> > > but somehow the pnp_probe fails to set it up, then the regular probe
+> > > won't be able to configure it. This makes me nervous.
+> > >
+> Yes that's the problem this pnp, if the probe failed it disable the 
+> device resource.
+> When I do my patch I encounter the problem : I called pnp driver after 
+> smsc_ircc_look_for_chips, so all the resources where already reserved, 
+> and the pnp probe failed and it disable the resource, and the device 
+> found with the traditional smsc_ircc_look_for_chips doesn't work.
+> 
+> So in my patch if I register pnp devices, I don't run 
+> smsc_ircc_look_for_chips like it is done for (ircc_fir>0)&&(ircc_sir>0) 
+> case.
+
+	smsc_ircc_look_for_chips won't re-register the devices
+configured via PnP, as smsc_ircc_present won't be able to request the
+region. So, I don't see the problem. And you could imagine having
+multiple SMSC in the box, some PnP, some not.
+	Note that we could put the region check earlier, but I like
+the fact that the driver is still able to probe completely the chip
+even if the serial driver has grabbed the regions. Maybe we could
+split the difference and request the FIR region early on (so to fail
+on SMC devices already registered) and request the other ressources
+late (so as to completely probe even when serial is loaded).
+
+> > > On3) If the ressources are markes as disabled, you just quit
+> > > with an error. Compouded with (2), this makes me doubly
+> > > nervous. Wouldn't it be possible to forcefully enable those 
+> ressources ?
+> pnp should call automatiquely pnp_activate_dev() before probing the 
+> driver, so the resource should be activated. Have you got an example 
+> where the resource wheren't activated ?
+
+	No, it was more that I don't understand what PnP does for
+us. I don't have a SMS chipset to test on. Also, I would like to know
+if it remove the need of smcinit.
+
+	Thanks, have fun...
+
+	Jean

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130218AbRBLKDb>; Mon, 12 Feb 2001 05:03:31 -0500
+	id <S130047AbRBLKGC>; Mon, 12 Feb 2001 05:06:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130047AbRBLKDW>; Mon, 12 Feb 2001 05:03:22 -0500
-Received: from mx01.nexgo.de ([151.189.8.96]:24328 "HELO mx01.nexgo.de")
-	by vger.kernel.org with SMTP id <S130218AbRBLKDM>;
-	Mon, 12 Feb 2001 05:03:12 -0500
-Message-Id: <008901c094db$261c2020$2900a8c0@regi>
-From: "BUND Regionalverband Stuttgart" <bund.rv-stuttgart@bund.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Driver for ELSA Microlink ISDN USB?
-Date: Mon, 12 Feb 2001 11:04:11 +0100
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+	id <S130048AbRBLKFw>; Mon, 12 Feb 2001 05:05:52 -0500
+Received: from ns.suse.de ([213.95.15.193]:21002 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130047AbRBLKFm>;
+	Mon, 12 Feb 2001 05:05:42 -0500
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Major Clock Drift
+In-Reply-To: <E14SFbG-0006WR-00@the-village.bc.nu>
+From: Andi Kleen <freitag@alancoxonachip.com>
+Date: 12 Feb 2001 11:05:18 +0100
+In-Reply-To: Alan Cox's message of "12 Feb 2001 10:54:49 +0100"
+Message-ID: <ouplmrckyht.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any driver in development for the ELSA Microlink ISDN USB?
-I´ve set up a web-page for this problem (including own mailinglist):
-http://elsa.dosdriver.de/
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> Suppose vesafb did something like this, dropping the printk lock
+> 
+> 	if(test_and_set_bit(0, &vesafb_lock))
+> 	{
+> 		if(in_interrupt())
+> 		{
+> 			// remember which bit of the dmesg ring to queue
+> 			queued_writes=1;
+> 			return;
 
 
+Just what happens when you run out of dmesg ring in an interrupt ?
+
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

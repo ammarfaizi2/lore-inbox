@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267440AbSKQDMQ>; Sat, 16 Nov 2002 22:12:16 -0500
+	id <S267439AbSKQDMB>; Sat, 16 Nov 2002 22:12:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267441AbSKQDMQ>; Sat, 16 Nov 2002 22:12:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8462 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267440AbSKQDMP>; Sat, 16 Nov 2002 22:12:15 -0500
-Date: Sat, 16 Nov 2002 19:19:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: lan based kgdb
-In-Reply-To: <1037490849.24843.11.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0211161915360.1337-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267440AbSKQDMB>; Sat, 16 Nov 2002 22:12:01 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34824 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267439AbSKQDMB>;
+	Sat, 16 Nov 2002 22:12:01 -0500
+Date: Sun, 17 Nov 2002 03:18:55 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org,
+       Janitors <kernel-janitor-discuss@lists.sourceforge.net>
+Subject: [PATCH] remove sched.h from blkdev.h
+Message-ID: <20021117031855.U20070@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 16 Nov 2002, Alan Cox wrote:
-> 
-> And in the real world you end up back with TCP. Been there, done that
-> with network debugger tools before.
+blkdev.h simply doesn't need sched.h
 
-.. and we have another "been there, done that" that says UDP works fine.
+diff -urpNX dontdiff linux-2.5.47/include/linux/blkdev.h linux-2.5.47-pci/include/linux/blkdev.h
+--- linux-2.5.47/include/linux/blkdev.h	2002-11-14 10:52:17.000000000 -0500
++++ linux-2.5.47-pci/include/linux/blkdev.h	2002-11-16 22:01:32.000000000 -0500
+@@ -2,7 +2,6 @@
+ #define _LINUX_BLKDEV_H
+ 
+ #include <linux/major.h>
+-#include <linux/sched.h>
+ #include <linux/genhd.h>
+ #include <linux/list.h>
+ #include <linux/pagemap.h>
 
-I also dislike overdesign with a passion. I'll believe we have to go to
-TCP when I see it - and even if that happens, I think we should do the UDP
-case first just to avoid having a monster ("start off simple, and evolve"  
-as opposed to "try to get it right the first time").
-
-		Linus
-
+-- 
+Revolutions do not require corporate support.

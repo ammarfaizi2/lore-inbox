@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133077AbRDRSpm>; Wed, 18 Apr 2001 14:45:42 -0400
+	id <S135220AbRDRSpv>; Wed, 18 Apr 2001 14:45:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135223AbRDRSpb>; Wed, 18 Apr 2001 14:45:31 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:14346 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S133077AbRDRSpS>; Wed, 18 Apr 2001 14:45:18 -0400
-Date: Wed, 18 Apr 2001 21:00:00 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: David Schwartz <davids@webmaster.com>
-Cc: Laurent Chavet <lchavet@av.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is there a way to turn file caching off ?
-Message-ID: <20010418210000.H30770@athlon.random>
-In-Reply-To: <3ADD4E61.A2A9CE9@av.com> <NCBBLIEPOCNJOAEKBEAKOEPOOGAA.davids@webmaster.com>
-Mime-Version: 1.0
+	id <S135223AbRDRSpm>; Wed, 18 Apr 2001 14:45:42 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:29608 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S135220AbRDRSpZ>;
+	Wed, 18 Apr 2001 14:45:25 -0400
+Message-ID: <3ADDE0C0.BD5B0EF5@mandrakesoft.com>
+Date: Wed, 18 Apr 2001 14:45:20 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-19mdksmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'Simon Richter'" 
+	<Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDD9A@orsmsx35.jf.intel.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKOEPOOGAA.davids@webmaster.com>; from davids@webmaster.com on Wed, Apr 18, 2001 at 11:21:46AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 18, 2001 at 11:21:46AM -0700, David Schwartz wrote:
+"Grover, Andrew" wrote:
 > 
+> > From: Simon Richter
+> > > We are going to need some software that handles button
+> > events, as well as
+> > > thermal events, battery events, polling the battery, AC
+> > adapter status
+> > > changes, sleeping the system, and more.
+> >
+> > Yes, that will be a separate daemon that will also get the
+> > events. But I
+> > think it's a good idea to have a simple interface that allows
+> > the user to
+> > run arbitrary commands when ACPI events occur, even without
+> > acpid running
+> > (think of singleuser mode, embedded systems, ...).
 > 
-> 	[..] If we assume the caching isn't helping [..]
+> Fair enough. I don't think I would be out of line to say that our resources
+> are focused on enabling full ACPI functionality for Linux, including a
+> full-featured PM policy daemon. That said, I don't think there's anything
+> precluding the use of another daemon (or whatever) from using the ACPI
+> driver's interface.
 
-If you know kernel data cache doesn't help your workload at all then you want
-use O_DIRECT at least to save the CPU.  You can run 2.4.4pre3aa3 or apply the
-rawio-3 patch and then the o_direct-2 patch on top of 2.4.4pre3 if you want
-O_DIRECT support (it also fixes the O_SYNC wait for locked inode bug noticed by
-Marcelo).
+There's a ton of stuff to focus on :)
 
-You will find detailed explanation on the O_DIRECT feature and where to
-find the patches if you grep for subject O_DIRECT in the l-k list in the
-messages of this month.
+For example, if you focused on suspend and resume, I could start
+implementing and testing that in the drivers :)
 
-Andrea
+-- 
+Jeff Garzik       | "The universe is like a safe to which there is a
+Building 1024     |  combination -- but the combination is locked up
+MandrakeSoft      |  in the safe."    -- Peter DeVries

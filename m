@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266788AbRGFSlx>; Fri, 6 Jul 2001 14:41:53 -0400
+	id <S265245AbRGFSpO>; Fri, 6 Jul 2001 14:45:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266790AbRGFSln>; Fri, 6 Jul 2001 14:41:43 -0400
-Received: from [199.26.153.10] ([199.26.153.10]:2565 "HELO fourelle.com")
-	by vger.kernel.org with SMTP id <S266788AbRGFSlf>;
-	Fri, 6 Jul 2001 14:41:35 -0400
-Message-ID: <3B4605E5.DDA1B8CA@fourelle.com>
-Date: Fri, 06 Jul 2001 11:39:33 -0700
-From: "Adam D. Scislowicz" <adams@fourelle.com>
-Organization: Fourelle Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S266790AbRGFSpE>; Fri, 6 Jul 2001 14:45:04 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:62473 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265245AbRGFSo5>; Fri, 6 Jul 2001 14:44:57 -0400
 To: linux-kernel@vger.kernel.org
-CC: adams@fourelle.com
-Subject: IDE0/Slave Detection Fails in 2.4.x(2.4.4, 2.4.5, and 2.4.5-ac18 tested)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Why Plan 9 C compilers don't have asm("")
+Date: Fri, 6 Jul 2001 18:44:31 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9i50uf$tla$1@penguin.transmeta.com>
+In-Reply-To: <200107040337.XAA00376@smarty.smart.net> <20010704002436.C1294@ftsoj.fsmlabs.com> <9hvjd4$1ok$1@penguin.transmeta.com> <20010706023835.A5224@ftsoj.fsmlabs.com>
+X-Trace: palladium.transmeta.com 994445095 23486 127.0.0.1 (6 Jul 2001 18:44:55 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 6 Jul 2001 18:44:55 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having a problem where the 2.4.x(2.4.4, and 2.4.5, and 2.4.5-ac18)
-kernel does not detect the IDE0/primary slave device. If I put a third
-drive in the system as IDE1/secondary master then that is detected.
-However
-the IDE0/primary slave is never detected.
+In article <20010706023835.A5224@ftsoj.fsmlabs.com>,
+Cort Dougan  <cort@fsmlabs.com> wrote:
+>I'm talking about _modern_ processors, not processors that dominate the
+>modern age.  This isn't x86.
 
-Using the 2.2.19 kernel the IDE0/primary slave device IS detected
-properly. This
-can be seen below in the 2.2.19 Kernel Init Messages.
+NONE of my examples were about the x86.
 
-Below is some more detailed info.
- *Note: Please CC me in any replay as I am not subscribed to this
-mailiing list ;)
+I gave the alpha as a specific example.  The same issues are true on
+ia64, sparc64, and mips64.  How more "modern" can you get? Name _one_
+reasonably important high-end CPU that is more modern than alpha and
+ia64.. 
 
- -Adam Scislowicz
+On ia64, you probably end up with function calls costing even more than
+alpha, because not only does the function call end up being a
+synchronization point for the compiler, it also means that the compiler
+cannot expose any parallelism, so you get an added hit from there.  At
+least with other CPU's that find the parallelism dynamically they can do
+out-of-order stuff across function calls. 
 
-[ My IDE Controller Info (2.2.19:/proc/pci) ]
-  Bus  0, device   7, function  1:
-    IDE interface: Intel 82371AB PIIX4 IDE (rev 1).
-      Medium devsel.  Fast back-to-back capable.  Master Capable.
-Latency=64.
-      I/O at 0xffa0 [0xffa1].
+>Unconditional branches are definitely predictable so icache pre-fetches are
+>not more complicated that straight-line code.
 
+Did you READ my mail at all?
 
-[ The 2.2.19 Kernel Init Messages ]
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: TOSHIBA THNCF032MAA, ATA DISK drive
-hdb: IBM-DARA-206000, ATA DISK drive
-hdc: ST320420A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: TOSHIBA THNCF032MAA, 31MB w/2kB Cache, CHS=496/4/32
-hdb: IBM-DARA-206000, 5729MB w/418kB Cache, CHS=730/255/63, UDMA
-hdc: ST320420A, 19458MB w/2048kB Cache, CHS=39535/16/63, UDMA
+Most of these "unconditional branches" are indirect, because rather few
+64-bit architectures have a full 64-bit branch.  That means that in
+order to predict them, you either have to do data-prediction (pretty
+much nobody does this), or you have a branch target prediction cache,
+which works very well indeed but has the problem that it only works for
+stuff in the cache, and the cache tends to be fairly limited (because
+you need to cache the whole address - it's more than a "which direction
+do we go in"). 
 
+There are lots of good arguments for function calls: they improve icache
+when done right, but if you have some non-C-semantics assembler sequence
+like "cli" or a spinlock that you use a function call for, that would
+_decrease_ icache effectiveness simply because the call itself is bigger
+than the instruction (and it breaks up the instruction sequence so you
+get padding issues). 
 
-[ The 2.4.5-ac18 Kernel Init Messages ]
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: TOSHIBA THNCF032MAA, ATA DISK drive
-hdc: ST320420A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 63488 sectors (33 MB) w/2KiB Cache, CHS=496/4/32, DMA
-hdc: 39851760 sectors (20404 MB) w/2048KiB Cache, CHS=39535/16/63,
-UDMA(33)
-
+		Linus

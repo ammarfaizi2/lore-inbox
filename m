@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVAYRUC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVAYRXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVAYRUC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 12:20:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVAYRRG
+	id S262024AbVAYRXt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 12:23:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVAYRUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 12:17:06 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:12739 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262028AbVAYRNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 12:13:51 -0500
-Date: Tue, 25 Jan 2005 11:13:15 -0600
-From: Robin Holt <holt@sgi.com>
-To: Sachithanantham_Saravanan@emc.com
-Cc: linux-ia64@vger.kernel.org, yakker@sgi.com, yakker@turbolinux.com,
-       yakker@alacritech.com, matt@aparity.com, linux-kernel@vger.kernel.org
-Subject: Re: LKCD on 2.6 IA64 Linux Kernel
-Message-ID: <20050125171315.GA4951@lnx-holt.americas.sgi.com>
-References: <50C05B7AA7D6924FB5E384EF14BC647BCBBD63@inba1mx2.corp.emc.com>
+	Tue, 25 Jan 2005 12:20:23 -0500
+Received: from mail.suse.de ([195.135.220.2]:41193 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262029AbVAYRRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 12:17:03 -0500
+Subject: Re: [patch 1/13] Qsort
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Olaf Kirch <okir@suse.de>, Andi Kleen <ak@muc.de>,
+       Nathan Scott <nathans@sgi.com>,
+       Mike Waychison <Michael.Waychison@sun.com>,
+       Jesper Juhl <juhl-lkml@dif.dk>, Felipe Alfaro Solana <lkml@mac.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Buck Huppmann <buchk@pobox.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>, Tim Hockin <thockin@hockin.org>
+In-Reply-To: <1106672637.11449.24.camel@lade.trondhjem.org>
+References: <20050122203326.402087000@blunzn.suse.de>
+	 <41F570F3.3020306@sun.com> <20050125065157.GA8297@muc.de>
+	 <200501251112.46476.agruen@suse.de> <20050125120023.GA8067@muc.de>
+	 <20050125120507.GH19199@suse.de>
+	 <1106671920.11449.11.camel@lade.trondhjem.org>
+	 <1106672028.9607.33.camel@winden.suse.de>
+	 <1106672637.11449.24.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1106673415.9607.36.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <50C05B7AA7D6924FB5E384EF14BC647BCBBD63@inba1mx2.corp.emc.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 25 Jan 2005 18:16:56 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 03:16:21PM -0000, Sachithanantham_Saravanan@emc.com wrote:
-> Hi all,
+On Tue, 2005-01-25 at 18:03, Trond Myklebust wrote:
+> ty den 25.01.2005 Klokka 17:53 (+0100) skreiv Andreas Gruenbacher:
+> > On Tue, 2005-01-25 at 17:52, Trond Myklebust wrote:
+> > > So here's an iconoclastic question or two:
+> > > 
+> > >   Why can't clients sort the list in userland, before they call down to
+> > > the kernel?
+> > 
+> > Tell that to Sun Microsystems.
 > 
-> I tried using lkcd on a ia64 machine running on 2.6.5-7.111 SuSe Kernel for
-> debugging. I configured the swap device as the dump device and I created
-> panics,oops to generate dumps. The dump happens in /var/log/dump on a "lkcd
-> save" after a reboot. When I use lcrash to trace the task of the process
-> that caused the dump, I get some data misalignment errors as listed below.
-> And interestingly this happens only for the trace of the process that
-> generated the panic/oops. For all other processes in the dump trace is
-> giving me the proper output. Looks like the issue is specific to ia64 as I
-> did not encounter any such errors on my i386 machine on the same kernel. 
-> Pointers to any patches or what the problem is will be of help to me.
+> Whatever Sun chooses to do or not do changes nothing to the question of
+> why our client would want to do a quicksort in the kernel.
 
-Which version of lcrash are you using?  I think you will need to build the
-latest version of lcrash from the oss.sgi.com web page in order to use the
-dumps created by the SuSE kernel.  Not sure though.
+Well, it determines what we must accept, both on the server side and the
+client side.
 
-Robin
+Cheers,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+

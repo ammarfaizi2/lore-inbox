@@ -1,128 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267303AbSLEXVp>; Thu, 5 Dec 2002 18:21:45 -0500
+	id <S267322AbSLEXks>; Thu, 5 Dec 2002 18:40:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267322AbSLEXVp>; Thu, 5 Dec 2002 18:21:45 -0500
-Received: from lucidpixels.com ([66.45.37.187]:3500 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id <S267303AbSLEXVo>;
-	Thu, 5 Dec 2002 18:21:44 -0500
-Message-ID: <3DEFE14F.8040403@lucidpixels.com>
-Date: Thu, 05 Dec 2002 18:29:19 -0500
-From: jpiszcz <jpiszcz@lucidpixels.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: Question with printk warnings in ip_conntrack with 2.4.20.]
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267375AbSLEXks>; Thu, 5 Dec 2002 18:40:48 -0500
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:60850
+	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
+	id <S267322AbSLEXkr>; Thu, 5 Dec 2002 18:40:47 -0500
+Date: Thu, 5 Dec 2002 15:48:22 -0800
+From: Phil Oester <kernel@theoesters.com>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Bingner Sam J Contractor PACAF CSS/SCHE 
+	<Sam.Bingner@hickam.af.mil>,
+       "'ja@ssi.bg'" <ja@ssi.bg>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: hidden interface (ARP) 2.4.20
+Message-ID: <20021205154822.A6762@ns1.theoesters.com>
+References: <A6B0BFA3B496A24488661CC25B9A0EFA333DEF@himl07.hickam.pacaf.ds.af.mil> <1039124530.18881.0.camel@rth.ninka.net> <20021205140349.A5998@ns1.theoesters.com> <3DEFD845.1000600@drugphish.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DEFD845.1000600@drugphish.ch>; from ratz@drugphish.ch on Thu, Dec 05, 2002 at 11:50:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Stange?  I am just using vcheck (perl script) that goes out and checks 
-out software for the latest versions.
+On Thu, Dec 05, 2002 at 11:50:45PM +0100, Roberto Nibali wrote:
+> First I would like to ask people not to post such patches to lkml but 
+> rather to the LVS list, because this affects only LVS so far and we 
 
-Here is an example of what happens when I run it:
-http://www.tu-ilmenau.de/~gomar/stuff/vcheck/
+*snip*
 
-All it does is goes out to http/ftps site, matches a regex to check for 
-the latest version of whatever you have, ie: sample entry:
+Eh?  Last I checked, there were other loadbalancing solutions out there.  Some
+even use hardware (like ours).  IOW - LVS isn't the only use for the hidden flag.
 
-prog util-linux = {
-  version   = 2.11y
-  urgency   = high
-  dl        = no
-  lastcheck = "2002-12-05 06:07"
-  url       = 
-ftp://ftp.win.tue.nl/pub/home/aeb/linux-local/utils/util-linux/
-  regex     = util-linux-(__VER__)\.tar
-}
+This flag is useful for many folks, and is a generic (not LVS specific) kernel feature
+which many of us would like to see added back to the kernel.
 
-This program is very useful and those warnings highly annoying. :)
-Will there possibly be a /proc or kernel config option for warnings such 
-as these?
+Granted, further discussion on the matter is an exercise in futility, as the current
+net maintainer has already stated his disdain for it.  So...we'll go on patching
+our kernels ad infinitum.
 
-
-Dec  5 18:20:23 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->199.232.41.7, reusing
-Dec  5 18:20:25 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->204.214.92.161, reusing
-Dec  5 18:20:27 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->209.249.29.67, reusing
-Dec  5 18:20:30 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->209.249.29.67, reusing
-Dec  5 18:20:35 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->195.37.77.171, reusing
-Dec  5 18:21:00 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->216.180.224.6, reusing
-Dec  5 18:21:06 lucidpixels kernel: BLOCK: IN=eth1 OUT= 
-MAC=00:a0:24:05:eb:87:00:c0:7b:b1:8d:3b:08:00 SRC=130.239.18.137 
-DST=66.45.37.187 LEN=1500 TOS=0x00 PREC=0x00 TTL=232 ID=47301 DF 
-PROTO=ICMP TYPE=8 CODE=0 ID=0 SEQ=0
-Dec  5 18:21:18 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->130.239.18.137, reusing
-Dec  5 18:21:29 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->130.239.18.137, reusing
-Dec  5 18:21:38 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->195.40.6.41, reusing
-Dec  5 18:21:42 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->204.80.150.47, reusing
-Dec  5 18:21:44 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->199.232.41.7, reusing
-Dec  5 18:21:47 lucidpixels kernel: BLOCK: IN=eth1 OUT= 
-MAC=00:a0:24:05:eb:87:00:c0:7b:b1:8d:3b:08:00 SRC=130.239.18.137 
-DST=66.45.37.187 LEN=1500 TOS=0x00 PREC=0x00 TTL=232 ID=28140 DF 
-PROTO=ICMP TYPE=8 CODE=0 ID=0 SEQ=2
-Dec  5 18:21:57 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->199.232.41.7, reusing
-Dec  5 18:22:20 lucidpixels last message repeated 3 times
-Dec  5 18:22:21 lucidpixels kernel: BLOCK: IN=eth1 OUT= 
-MAC=00:a0:24:05:eb:87:00:c0:7b:b1:8d:3b:08:00 SRC=130.239.18.173 
-DST=66.45.37.187 LEN=1500 TOS=0x00 PREC=0x00 TTL=232 ID=48463 DF 
-PROTO=ICMP TYPE=8 CODE=0 ID=0 SEQ=0
-Dec  5 18:22:25 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->130.239.18.173, reusing
-Dec  5 18:22:34 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->130.239.18.137, reusing
-Dec  5 18:22:36 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->199.232.41.7, reusing
-Dec  5 18:22:42 lucidpixels kernel: ip_conntrack: max number of expected 
-connections 1 of ftp reached for 192.168.168.12->143.239.1.60, reusing
-Dec  5 18:22:43 lucidpixels kernel: BLOCK: IN=eth1 OUT= 
-MAC=00:a0:24:05:eb:87:00:c0:7b:b1:8d:3b:08:00 SRC=130.239.18.173 
-DST=66.45.37.187 LEN=1500 TOS=0x00 PREC=0x00 TTL=232 ID=63220 DF 
-PROTO=ICMP TYPE=8 CODE=0 ID=0 SEQ=2
-
-Harald Welte wrote:
-
->>Nov 29 03:29:26 lucidpixels kernel: ip_conntrack: max number of expected 
->>connections 1 of ftp reached for 192.168.xxx.xxx->129.128.5.191, reusing
->>Nov 29 03:29:30 lucidpixels kernel: ip_conntrack: max number of expected 
->>connections 1 of ftp reached for 192.168.xxx.xxx->129.132.7.170, reusing
->>Nov 29 03:29:36 lucidpixels kernel: ip_conntrack: max number of expected 
->>connections 1 of ftp reached for 192.168.xxx.xxx->195.113.31.123, reusing
->>
->>These fill up my logs (kern.info) which I use for logging iptables 
->>blocked packets.
->>    
->>
->
->the issue is that somebody is doing something very strange to your ftp
->server.  Inside an FTP session, there's always only one expectation,
->since there is only one unestablished data session per control session
->at any given point in time.
->
->  
->
->>Is there anyway to turn this feature off dynamically or should one just 
->>comment out line #970 in 
->>/usr/src/linux/net/ipv4/netfilter/ip_conntrack_core.c ?
->>    
->>
->
->feel free to remove the comment.  but in normal ftp protocol behaviour,
->the lines above should never be printed.
->
->  
->
-
+-Phil

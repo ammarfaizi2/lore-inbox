@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbTJMJV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 05:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbTJMJV1
+	id S261595AbTJMJWg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 05:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTJMJWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 05:21:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7644 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261613AbTJMJV0 (ORCPT
+	Mon, 13 Oct 2003 05:22:36 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:23724 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S261595AbTJMJWd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 05:21:26 -0400
-Date: Mon, 13 Oct 2003 02:24:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6] No swapping on memory backed swapfiles
-Message-Id: <20031013022441.79c800b6.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.53.0310130502440.28426@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.53.0310130354440.28426@montezuma.fsmlabs.com>
-	<20031013011117.103de5e7.akpm@osdl.org>
-	<Pine.LNX.4.53.0310130502440.28426@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 13 Oct 2003 05:22:33 -0400
+Date: Mon, 13 Oct 2003 11:21:38 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: include/linux/nfs/nfsfh.h declares a symbol
+Message-ID: <20031013092138.GA16056@wohnheim.fh-wedel.de>
+References: <20031001121811.GE31698@wohnheim.fh-wedel.de> <16266.11661.91185.167555@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <16266.11661.91185.167555@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
->
-> On Mon, 13 Oct 2003, Andrew Morton wrote:
-> 
-> > Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
-> > >
-> > > +	bdi = mapping->backing_dev_info;
-> > >  +	if (bdi->memory_backed)
-> > >  +		goto bad_swap;
-> > >  +
+On Mon, 13 October 2003 14:43:57 +1000, Neil Brown wrote:
+> On Wednesday October 1, joern@wohnheim.fh-wedel.de wrote:
+> > Neil, the function SVCFH_fmt uses a static variable to sprintf into.
+> > Looks like this variable is declared locally for every .c file
+> > including nfsfh.h, which is quite a few.
 > > 
-> > I guess that makes sense, although someone might want to swap onto a
-> > ramdisk-backed file just for some testing purpose.
-> > 
-> > Why not simply test for a null ->readpage()?
+> > You could remove the static, but that would increase the stack usage,
+> > which might be a problem too.  The buffer could be reduced to 64
+> > chars, to reduce that problem.  kmalloc()ing it seems a bit expensive,
+> > but might be an option, too.
 > 
-> That was my initial intention, but then i wondered why someone would be 
-> swapping to a memory backed filesystem in the first place. Also things 
-> like ramfs have ->readpage().
+> Thanks.  I think it is best to simply make SVCFH_fmt a real function
+> instead of inline, as below.
+> 
+> NeilBrown
+> 
+> =======================================
+> Move SVCFH_fmt from being 'inline' to being 'extern'.
+> 
+> This way, the "static char buf" is defined only once instead
+> of once per file.
 
-A non-memory-backed fs may still have a NULL ->readpage though (ncpfs?).
+Patch looks good.  Thanks!
 
-I do think it best to just test for ->readpage, and give the user the extra
-rope.
+Jörn
 
+-- 
+To recognize individual spam features you have to try to get into the
+mind of the spammer, and frankly I want to spend as little time inside
+the minds of spammers as possible.
+-- Paul Graham

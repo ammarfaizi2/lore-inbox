@@ -1,157 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVA2Wb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVA2WXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVA2Wb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 17:31:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVA2WZ1
+	id S261598AbVA2WXo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 17:23:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVA2WXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 17:25:27 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:27311 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261584AbVA2WUl (ORCPT
+	Sat, 29 Jan 2005 17:23:22 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:26799 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261580AbVA2WUK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 17:20:41 -0500
-Date: Sat, 29 Jan 2005 23:20:36 +0100 (CET)
+	Sat, 29 Jan 2005 17:20:10 -0500
+Date: Sat, 29 Jan 2005 23:20:04 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-cc: linux-input@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 6/8] Kconfig: cleanup input menu
-Message-ID: <Pine.LNX.4.61.0501292320090.7662@scrub.home>
+Subject: [PATCH 5/8] Kconfig: cleanup various driver menus
+Message-ID: <Pine.LNX.4.61.0501292319550.7649@scrub.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This properly indents the input menu.
-Move SOUND_GAMEPORT to its user, so it's easier to set it to y, even if GAMEPORT is n.
+This properly indents various driver menus.
+Remove PARPORT_PC_CML1.
 
 Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
 ---
 
- drivers/input/Kconfig          |    3 +++
- drivers/input/gameport/Kconfig |   21 +--------------------
- drivers/input/serio/Kconfig    |    3 ++-
- sound/oss/Kconfig              |   22 ++++++++++++++++++++++
- 4 files changed, 28 insertions(+), 21 deletions(-)
+ mtd/Kconfig     |   18 +++++++++---------
+ parport/Kconfig |   12 +++---------
+ video/Kconfig   |   29 ++++++++++++++---------------
+ 3 files changed, 26 insertions(+), 33 deletions(-)
 
-Index: linux-2.6.11/sound/oss/Kconfig
+Index: linux-2.6.11/drivers/parport/Kconfig
 ===================================================================
---- linux-2.6.11.orig/sound/oss/Kconfig	2005-01-29 22:50:43.404946203 +0100
-+++ linux-2.6.11/sound/oss/Kconfig	2005-01-29 22:56:42.549085439 +0100
-@@ -3,6 +3,28 @@
- # 18 Apr 1998, Michael Elizabeth Chastain, <mailto:mec@shout.net>
- # More hacking for modularisation.
- #
-+
-+# Yes, SOUND_GAMEPORT looks a bit odd. Yes, it ends up being turned on
-+# in every .config. Please don't touch it. It is here to handle an
-+# unusual dependency between GAMEPORT and sound drivers.
-+#
-+# Some sound drivers call gameport functions. If GAMEPORT is
-+# not selected, empty stubs are provided for the functions and all is
-+# well.
-+# If GAMEPORT is built in, everything is fine.
-+# If GAMEPORT is a module, however, it would need to be loaded for the
-+# sound driver to be able to link properly. Therefore, the sound
-+# driver must be a module as well in that case. Since there's no way
-+# to express that directly in Kconfig, we use SOUND_GAMEPORT to
-+# express it. SOUND_GAMEPORT boils down to "if GAMEPORT is 'm',
-+# anything that depends on SOUND_GAMEPORT must be 'm' as well. if
-+# GAMEPORT is 'y' or 'n', it can be anything".
-+config SOUND_GAMEPORT
-+	tristate
-+	depends on SOUND_PRIME
-+	default m if GAMEPORT=m
-+	default y
-+
- # Prompt user for primary drivers.
- config SOUND_BT878
- 	tristate "BT878 audio dma"
-Index: linux-2.6.11/drivers/input/serio/Kconfig
-===================================================================
---- linux-2.6.11.orig/drivers/input/serio/Kconfig	2005-01-29 22:50:43.404946203 +0100
-+++ linux-2.6.11/drivers/input/serio/Kconfig	2005-01-29 22:56:42.549085439 +0100
-@@ -3,6 +3,7 @@
- #
- config SERIO
- 	tristate "Serial i/o support" if EMBEDDED || !X86
-+	depends on INPUT
- 	default y
- 	---help---
- 	  Say Yes here if you have any input device that uses serial I/O to
-@@ -19,7 +20,7 @@ config SERIO
- config SERIO_I8042
- 	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
- 	default y
--	select SERIO
-+	depends on SERIO
- 	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && !M68K
- 	---help---
- 	  i8042 is the chip over which the standard AT keyboard and PS/2
-Index: linux-2.6.11/drivers/input/gameport/Kconfig
-===================================================================
---- linux-2.6.11.orig/drivers/input/gameport/Kconfig	2005-01-29 22:50:43.404946203 +0100
-+++ linux-2.6.11/drivers/input/gameport/Kconfig	2005-01-29 22:56:42.549085439 +0100
-@@ -3,6 +3,7 @@
- #
- config GAMEPORT
- 	tristate "Gameport support"
-+	depends on INPUT
- 	---help---
- 	  Gameport support is for the standard 15-pin PC gameport. If you
- 	  have a joystick, gamepad, gameport card, a soundcard with a gameport
-@@ -20,26 +21,6 @@ config GAMEPORT
- 	  module will be called gameport.
+--- linux-2.6.11.orig/drivers/parport/Kconfig	2005-01-29 22:50:43.242974099 +0100
++++ linux-2.6.11/drivers/parport/Kconfig	2005-01-29 22:55:31.785275067 +0100
+@@ -46,15 +46,9 @@ config PARPORT_PC
  
+ 	  If unsure, say Y.
  
--# Yes, SOUND_GAMEPORT looks a bit odd. Yes, it ends up being turned on
--# in every .config. Please don't touch it. It is here to handle an
--# unusual dependency between GAMEPORT and sound drivers.
--#
--# Some sound drivers call gameport functions. If GAMEPORT is
--# not selected, empty stubs are provided for the functions and all is
--# well.
--# If GAMEPORT is built in, everything is fine.
--# If GAMEPORT is a module, however, it would need to be loaded for the
--# sound driver to be able to link properly. Therefore, the sound
--# driver must be a module as well in that case. Since there's no way
--# to express that directly in Kconfig, we use SOUND_GAMEPORT to
--# express it. SOUND_GAMEPORT boils down to "if GAMEPORT is 'm',
--# anything that depends on SOUND_GAMEPORT must be 'm' as well. if
--# GAMEPORT is 'y' or 'n', it can be anything".
--config SOUND_GAMEPORT
+-config PARPORT_PC_CML1
 -	tristate
--	default y if GAMEPORT!=m
--	default m if GAMEPORT=m
+-	depends on PARPORT!=n && PARPORT_PC!=n
+-	default PARPORT_PC if SERIAL_8250=y
+-	default m if SERIAL_8250=m
 -
- config GAMEPORT_NS558
- 	tristate "Classic ISA and PnP gameport support"
- 	depends on GAMEPORT
-Index: linux-2.6.11/drivers/input/Kconfig
+ config PARPORT_SERIAL
+ 	tristate "Multi-IO cards (parallel and serial)"
+-	depends on SERIAL_8250!=n && PARPORT_PC_CML1 && PCI
++	depends on SERIAL_8250 && PARPORT_PC && PCI
+ 	help
+ 	  This adds support for multi-IO PCI cards that have parallel and
+ 	  serial ports.  You should say Y or M here.  If you say M, the module
+@@ -118,8 +112,8 @@ config PARPORT_ATARI
+ 
+ config PARPORT_GSC
+ 	tristate
+-	depends on GSC
+-	default PARPORT
++	default GSC
++	depends on PARPORT
+ 
+ config PARPORT_SUNBPP
+ 	tristate "Sparc hardware (EXPERIMENTAL)"
+Index: linux-2.6.11/drivers/mtd/Kconfig
 ===================================================================
---- linux-2.6.11.orig/drivers/input/Kconfig	2005-01-29 22:50:43.404946203 +0100
-+++ linux-2.6.11/drivers/input/Kconfig	2005-01-29 22:56:42.549085439 +0100
-@@ -23,6 +23,7 @@ config INPUT
- 	  module will be called input.
+--- linux-2.6.11.orig/drivers/mtd/Kconfig	2005-01-29 22:50:43.242974099 +0100
++++ linux-2.6.11/drivers/mtd/Kconfig	2005-01-29 22:55:31.786274895 +0100
+@@ -27,6 +27,15 @@ config MTD_DEBUG_VERBOSE
+ 	help
+ 	  Determines the verbosity level of the MTD debugging messages.
  
- comment "Userland interfaces"
-+	depends on INPUT
++config MTD_CONCAT
++	tristate "MTD concatenating support"
++	depends on MTD
++	help
++	  Support for concatenating several MTD devices into a single
++	  (virtual) one. This allows you to have -for example- a JFFS(2)
++	  file system spanning multiple physical flash chips. If unsure,
++	  say 'Y'.
++
+ config MTD_PARTITIONS
+ 	bool "MTD partitioning support"
+ 	depends on MTD
+@@ -40,15 +49,6 @@ config MTD_PARTITIONS
+ 	  devices. Partitioning on NFTL 'devices' is a different - that's the
+ 	  'normal' form of partitioning used on a block device.
  
- config INPUT_MOUSEDEV
- 	tristate "Mouse interface" if EMBEDDED
-@@ -135,12 +136,14 @@ config INPUT_EVBUG
- 	  module will be called evbug.
+-config MTD_CONCAT
+-	tristate "MTD concatenating support"
+-	depends on MTD
+-	help
+-	  Support for concatenating several MTD devices into a single
+-	  (virtual) one. This allows you to have -for example- a JFFS(2)
+-	  file system spanning multiple physical flash chips. If unsure,
+-	  say 'Y'.
+-
+ config MTD_REDBOOT_PARTS
+ 	tristate "RedBoot partition table parsing"
+ 	depends on MTD_PARTITIONS
+Index: linux-2.6.11/drivers/video/Kconfig
+===================================================================
+--- linux-2.6.11.orig/drivers/video/Kconfig	2005-01-29 22:50:43.242974099 +0100
++++ linux-2.6.11/drivers/video/Kconfig	2005-01-29 22:55:31.787274723 +0100
+@@ -1062,7 +1062,7 @@ config FB_G364
  
- comment "Input I/O drivers"
-+	depends on INPUT
+ config FB_68328
+ 	bool "Motorola 68328 native frame buffer support"
+-	depends on (M68328 || M68EZ328 || M68VZ328)
++	depends on FB && (M68328 || M68EZ328 || M68VZ328)
+ 	help
+ 	  Say Y here if you want to support the built-in frame buffer of
+ 	  the Motorola 68328 CPU family.
+@@ -1081,22 +1081,8 @@ config FB_PXA
  
- source "drivers/input/gameport/Kconfig"
+ 	  If unsure, say N.
  
- source "drivers/input/serio/Kconfig"
+-config FB_W100
+-	tristate "W100 frame buffer support"
+-	depends on FB && PXA_SHARPSL
+-	---help---
+-	  Frame buffer driver for the w100 as found on the Sharp SL-Cxx series.
+-
+-	  This driver is also available as a module ( = code which can be
+-	  inserted and removed from the running kernel whenever you want). The
+-	  module will be called vfb. If you want to compile it as a module,
+-	  say M here and read <file:Documentation/modules.txt>.
+-
+-	  If unsure, say N.
+-
+ config FB_PXA_PARAMETERS
+ 	bool "PXA LCD command line parameters"
+-	default n
+ 	depends on FB_PXA
+ 	---help---
+ 	  Enable the use of kernel command line or module parameters
+@@ -1111,6 +1097,19 @@ config FB_PXA_PARAMETERS
  
- comment "Input Device Drivers"
-+	depends on INPUT
+ 	  <file:Documentation/fb/pxafb.txt> describes the available parameters.
  
- source "drivers/input/keyboard/Kconfig"
- 
++config FB_W100
++	tristate "W100 frame buffer support"
++	depends on FB && PXA_SHARPSL
++	---help---
++	  Frame buffer driver for the w100 as found on the Sharp SL-Cxx series.
++
++	  This driver is also available as a module ( = code which can be
++	  inserted and removed from the running kernel whenever you want). The
++	  module will be called vfb. If you want to compile it as a module,
++	  say M here and read <file:Documentation/modules.txt>.
++
++	  If unsure, say N.
++
+ config FB_VIRTUAL
+ 	tristate "Virtual Frame Buffer support (ONLY FOR TESTING!)"
+ 	depends on FB

@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130029AbRB1A3v>; Tue, 27 Feb 2001 19:29:51 -0500
+	id <S130016AbRB1A3b>; Tue, 27 Feb 2001 19:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130020AbRB1A3m>; Tue, 27 Feb 2001 19:29:42 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:3862 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S130017AbRB1A3c>; Tue, 27 Feb 2001 19:29:32 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "David L. Nicol" <david@kasey.umkc.edu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: another Linux-2.4.2 splat: *** target pattern contains no `%'. Stop. 
-In-Reply-To: Your message of "Tue, 27 Feb 2001 15:25:45 MDT."
-             <3A9C1B59.2492E5C9@kasey.umkc.edu> 
-Mime-Version: 1.0
+	id <S130020AbRB1A3V>; Tue, 27 Feb 2001 19:29:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32530 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130017AbRB1A3K>; Tue, 27 Feb 2001 19:29:10 -0500
+Subject: Re: [2.4.2-ac5] X (4.0.1) crashes
+To: mahowi@gmx.net (Manfred H. Winter)
+Date: Wed, 28 Feb 2001 00:32:26 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20010227150830.A739@marvin.mahowi.de> from "Manfred H. Winter" at Feb 27, 2001 03:08:30 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 28 Feb 2001 11:29:25 +1100
-Message-ID: <6543.983320165@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14XuXd-0004bA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Feb 2001 15:25:45 -0600, 
-"David L. Nicol" <david@kasey.umkc.edu> wrote:
->[david@nicol1 linux]$ make dep
->
->make[3]: Entering directory `/mnt/sdb2/src/linux-2.4.2/drivers'
->make -C acpi fastdep
->make[4]: Entering directory `/mnt/sdb2/src/linux-2.4.2/drivers/acpi'
->Makefile:29: *** target pattern contains no `%'.  Stop.
+> I use XFree86 4.0.1 with nvidia-drivers 0.96.
 
-grep make Documentation/Changes
+Take it up with nvidia. Obfuscated effectively binary only code isnt anyone
+elses problem
 

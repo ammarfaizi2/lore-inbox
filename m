@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129545AbRBPR6L>; Fri, 16 Feb 2001 12:58:11 -0500
+	id <S130834AbRBPSAb>; Fri, 16 Feb 2001 13:00:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129647AbRBPR5v>; Fri, 16 Feb 2001 12:57:51 -0500
-Received: from jkd.penguinfarm.com ([12.32.79.69]:4480 "HELO
-	jkd.penguinfarm.com") by vger.kernel.org with SMTP
-	id <S129545AbRBPR5o>; Fri, 16 Feb 2001 12:57:44 -0500
-Message-ID: <3A8D69E4.7DC6EED6@penguinfarm.com>
-Date: Fri, 16 Feb 2001 12:56:52 -0500
-From: Jason Straight <junfan@penguinfarm.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac15 i686)
-X-Accept-Language: en
+	id <S130835AbRBPSAV>; Fri, 16 Feb 2001 13:00:21 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:24847 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130834AbRBPSAM>; Fri, 16 Feb 2001 13:00:12 -0500
+Date: Fri, 16 Feb 2001 09:59:51 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: x86 ptep_get_and_clear question
+In-Reply-To: <3A8D4045.F8F27782@colorfullife.com>
+Message-ID: <Pine.LNX.4.10.10102160953060.14020-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: (2.4.1-ac15) Wont set using_dma = 1 with hdparm
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.2.18 I can set using_dma = 1 with hdparm on my Dell Inspiron
-8000, I cannot with 2.4.1-ac15, so my HD works about 1/3 the speed with
-2.4.1.
-
-[root@jkd junfan]# hdparm -I /dev/hda
-
-/dev/hda:
-
- Model=IHATHC_IKD32AB2- 0                      , FwRev=000E0A2D,
-SerialNo=              11S59T
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=36477, SectSize=579, ECCbytes=4
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=?0?
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39070080
- IORDY=yes, tPIO={min:400,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3
-*udma4
 
 
-/dev/hda:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- using_dma    =  0 (off)
+On Fri, 16 Feb 2001, Manfred Spraul wrote:
 
-hdparm v3.9
+> Jamie Lokier wrote:
+> > 
+> > Linus Torvalds wrote:
+> > > So the only case that ends up being fairly heavy may be a case that is
+> > > very uncommon in practice (only for unmapping shared mappings in
+> > > threaded programs or the lazy TLB case).
+> >
+> The lazy tlb case is quite fast: lazy tlb thread never write to user
+> space pages, we don't need to protect the dirty bits. And the first ipi
+> clears mm->cpu_vm_mask, only one ipi.
 
+This is NOT necessarily true in the generic case.
 
+The lazy TLB thread itself may not write to the address space, but I can
+in theory see a hardware implementation that delays writing out the dirty
+bit from the TLB until it is invalidated. I agree that it is unlikely,
+especially on an x86, but I think it's a case we should at least think
+about for the generic kernel architecture.
 
+Think of the TLB as a cache, and think of the dirty state as being either
+write-through or write-back. Now, I will bet you that all current x86's
+ (a) _do_ actually check the P bit when writing D (ie current Linux code
+     is probably fine as-is, even if incorrect in theory)
+and
+  (b) the D bit is write-through.
 
+But even so, I want people to at least consider the case of a write-back
+TLB dirty bit, in which case the real state of the D bit might not be
+known until a TLB flush has been done (even on a UP machine - which is why
+I'm certain that no current x86 actually does this optimization).
 
--- 
-Jason Straight
+(And because of (a), I don't think I'll necessarily fix this during 2.4.x
+anyway unless it gets fixed as a result of the generic TLB shootdown issue
+which has nothing at all to do with the D bit)
+
+Don't get too hung up on implementation details when designing a good
+architecture for this thing.
+
+			Linus
+

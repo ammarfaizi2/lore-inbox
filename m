@@ -1,91 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267896AbTBLTXX>; Wed, 12 Feb 2003 14:23:23 -0500
+	id <S267729AbTBLTOm>; Wed, 12 Feb 2003 14:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267902AbTBLTXX>; Wed, 12 Feb 2003 14:23:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21773 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267896AbTBLTXT>;
-	Wed, 12 Feb 2003 14:23:19 -0500
-Message-ID: <3E4AA154.7070307@pobox.com>
-Date: Wed, 12 Feb 2003 14:32:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: akpm@digeo.com
-Subject: 2.5.60-BK reproducible oops, during LTP run
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267776AbTBLTOm>; Wed, 12 Feb 2003 14:14:42 -0500
+Received: from mailin.zma.compaq.com ([161.114.64.102]:47878 "EHLO
+	zmamail02.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S267729AbTBLTNR>; Wed, 12 Feb 2003 14:13:17 -0500
+Date: Wed, 12 Feb 2003 13:23:44 +0600
+From: steve cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: Re: [PATCH] 2.5.60 make cciss driver compile
+Message-ID: <20030212072344.GJ1032@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have reproduced the BUG in fs/buffer.c:2533 twice now.  Test 
-conditions exactly the same, fsx-linux in one window, LTP in another window.
 
-The machine stays alive for pings and sysrq's, but I cannot ssh into it 
-nor login at the console.  sysrq-s initiates a sync of the root 
-filesystem on the ATA disk but never finishes.  other sysrq's and pings 
-continues to work after the sysrq-s invocation.
+Factor out duplicated read capacity code into common routine in cciss driver.
+(patch 10 of 11)
+-- steve
 
-Call trace from BUG, each time I hit it:
-EIP in submit_bh
-ll_rw_block
-journal_commit_transaction
-schedule
-default_wake_function
-kjournald
-commit_timeout
-kjournald
-kernel_thread_helper
+--- linux-2.5.60/drivers/block/cciss.c~factor_duped_code	2003-02-12 10:13:18.000000000 +0600
++++ linux-2.5.60-scameron/drivers/block/cciss.c	2003-02-12 10:13:18.000000000 +0600
+@@ -114,6 +114,9 @@ static void cciss_getgeometry(int cntl_n
+ 
+ static inline void addQ(CommandList_struct **Qptr, CommandList_struct *c);
+ static void start_io( ctlr_info_t *h);
++static int sendcmd( __u8 cmd, int ctlr, void *buff, size_t size,
++	unsigned int use_unit_num, unsigned int log_unit, __u8 page_code,
++	unsigned char *scsi3addr);
+ 
+ #ifdef CONFIG_PROC_FS
+ static int cciss_proc_get_info(char *buffer, char **start, off_t offset, 
+@@ -1003,6 +1006,30 @@ case CMD_HARDWARE_ERR:
+         return(return_status);
+ 
+ }
++static void
++cciss_read_capacity(int ctlr, int logvol, ReadCapdata_struct *buf,
++		int withirq, unsigned int *total_size, unsigned int *block_size)
++{
++	int return_code;
++	memset(buf, 0, sizeof(*buf));
++	if (withirq)
++		return_code = sendcmd_withirq(CCISS_READ_CAPACITY,
++			ctlr, buf, sizeof(*buf), 1, logvol, 0 );
++	else
++		return_code = sendcmd(CCISS_READ_CAPACITY,
++			ctlr, buf, sizeof(*buf), 1, logvol, 0, NULL );
++	if (return_code == IO_OK) {
++		*total_size = be32_to_cpu(*((__u32 *) &buf->total_size[0]))+1;
++		*block_size = be32_to_cpu(*((__u32 *) &buf->block_size[0]));
++	} else { /* read capacity command failed */
++		printk(KERN_WARNING "cciss: read capacity failed\n");
++		*total_size = 0;
++		*block_size = BLOCK_SIZE;
++	}
++	printk(KERN_INFO "      blocks= %d block_size= %d\n",
++		*total_size, *block_size);
++	return;
++}
+ static int register_new_disk(int ctlr)
+ {
+         struct gendisk *disk;
+@@ -1137,38 +1164,8 @@ static int register_new_disk(int ctlr)
+ 		/* there could be gaps in lun numbers, track hightest */
+ 	if(hba[ctlr]->highest_lun < lunid)
+ 		hba[ctlr]->highest_lun = logvol;
+-		
+-	memset(size_buff, 0, sizeof(ReadCapdata_struct));
+-	return_code = sendcmd_withirq(CCISS_READ_CAPACITY, ctlr, size_buff,
+-		sizeof( ReadCapdata_struct), 1, logvol, 0 );
+-	if (return_code == IO_OK)
+-	{
+-		total_size = (0xff & 
+-			(unsigned int)(size_buff->total_size[0])) << 24;
+-		total_size |= (0xff & 
+-				(unsigned int)(size_buff->total_size[1])) << 16;
+-		total_size |= (0xff & 
+-				(unsigned int)(size_buff->total_size[2])) << 8;
+-		total_size |= (0xff & (unsigned int)
+-				(size_buff->total_size[3])); 
+-		total_size++; // command returns highest block address
+-
+-		block_size = (0xff & 
+-				(unsigned int)(size_buff->block_size[0])) << 24;
+-               	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[1])) << 16;
+-               	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[2])) << 8;
+-               	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[3]));
+-	} else /* read capacity command failed */ 
+-	{
+-			printk(KERN_WARNING "cciss: read capacity failed\n");
+-			total_size = 0;
+-			block_size = BLOCK_SIZE;
+-	}	
+-	printk(KERN_INFO "      blocks= %u block_size= %d\n", 
+-					total_size, block_size);
++	cciss_read_capacity(ctlr, logvol, size_buff, 1,
++		&total_size, &block_size);
+ 	/* Execute the command to read the disk geometry */
+ 	memset(inq_buff, 0, sizeof(InquiryData_struct));
+ 	return_code = sendcmd_withirq(CISS_INQUIRY, ctlr, inq_buff,
+@@ -2169,39 +2166,8 @@ static void cciss_getgeometry(int cntl_n
+ 		ld_buff->LUN[i][0], ld_buff->LUN[i][1],ld_buff->LUN[i][2], 
+ 		ld_buff->LUN[i][3], hba[cntl_num]->drv[i].LunID);
+ #endif /* CCISS_DEBUG */
+-
+-	  	memset(size_buff, 0, sizeof(ReadCapdata_struct));
+-	  	return_code = sendcmd(CCISS_READ_CAPACITY, cntl_num, size_buff, 
+-				sizeof( ReadCapdata_struct), 1, i, 0, NULL );
+-	  	if (return_code == IO_OK)
+-		{
+-			total_size = (0xff & 
+-				(unsigned int)(size_buff->total_size[0])) << 24;
+-			total_size |= (0xff & 
+-				(unsigned int)(size_buff->total_size[1])) << 16;
+-			total_size |= (0xff & 
+-				(unsigned int)(size_buff->total_size[2])) << 8;
+-			total_size |= (0xff & (unsigned int)
+-				(size_buff->total_size[3])); 
+-			total_size++; // command returns highest block address
+-
+-			block_size = (0xff & 
+-				(unsigned int)(size_buff->block_size[0])) << 24;
+-                	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[1])) << 16;
+-                	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[2])) << 8;
+-                	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[3]));
+-		} else /* read capacity command failed */ 
+-		{
+-			printk(KERN_WARNING "cciss: read capacity failed\n");
+-			total_size = 0;
+-			block_size = BLOCK_SIZE;
+-		}	
+-		printk(KERN_INFO "      blocks= %d block_size= %d\n", 
+-					total_size, block_size);
+-
++		cciss_read_capacity(cntl_num, i, size_buff, 0,
++			&total_size, &block_size);
+ 		/* Execute the command to read the disk geometry */
+ 		memset(inq_buff, 0, sizeof(InquiryData_struct));
+ 		return_code = sendcmd(CISS_INQUIRY, cntl_num, inq_buff,
 
-sysrq-t bits (I note truncate and sys_sync as common elements):
-* shows that LTP test "ftest08" is running
-* fsx-linux stack trace:  io_schedule, __wait_on_buffer, 
-free_hot_cold_page, autoremove_wake_function, autoremovce_wake_function, 
-journal_invalidatepage, ext2_invalidatepage, do_invalidatepage, 
-truncate_complete_page, truncate_inode_pages, vmtruncate, inode_setattr, 
-ext3_setattr, notify_change, do_truncate, do_sys_ftruncate, 
-sys_ftruncate, syscall_call
-* ftest08 stack trace, process 0: sys_wait4, do_fork, 
-default_wake_function, default_wake_function, sycall_call
-* ftest08 trace, proc 1: __down, default_wake_function, __down_failed, 
-.text.ock.read_write, sys_llseek, sys_sync, syscall_call
-* ftest08 trace, proc 2: do_readv_writev, __down, default_wake_function, 
-__down_failed, .text.lock.read_write, sys_llseek, syscall_call
-* ftest08 trace, proc 3: sleep_on, default_wake_function, 
-log_wait_commit, journal_stop, journal_force_commit, write_inode, 
-__sync_single_inode, sync_sb_inodes, sync_inodes_sb, sync_inodes, 
-sys_sync, syscall_call
-* ftest08 trace, proc 4: do_writepages, __down, default_wake_function, 
-__down_failed, .text.lock.read_write, sync_blockdev, sys_llseek, 
-sys_sync, syscall_call
-* ftest08 trace, proc 5: sleep_on, default_wake_function, 
-log_wait_commit, journal_stop, journal_force_commit, ext3_force_commit, 
-ext3_sync_file, sys_fsync, syscall_call
-
-
-sysrq-m bits:
-
-free pages: 5552kB (0kB highmem)
-active: 48451, inactive: 9478 dirty:10 writeback:0 free:1388
-DMA free: 2368kB, min 128kB, low:256kB, high:384kB, active:3776kB, 
-inactive:6688kB
-Normal free: 3184kB min:1020 low:2040 high:3060 active:190028 inactive:31224
-swap cache: add 93, delete 92, find 24/26, race 0+0
-free swap: 2096776kB
-63472 pages of RAM
-1471 reserved pages
-27697 pages shared
-1 pages swap cached
-
-
-hardware bits:
-
-via c3 cpu
-gcc 3.2.2
-kernel 2.5.60-bk2
-one 40GB ATA/100 drive, running at ATA/100
-256 MB RAM
-
+_

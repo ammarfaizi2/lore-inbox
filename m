@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVAGAvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVAGAvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVAGAvw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 19:51:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVAGAuB
+	id S261152AbVAGAvy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVAGAtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 19:50:01 -0500
-Received: from mailer2-5.key-systems.net ([81.3.43.243]:24552 "HELO
-	mailer2-1.key-systems.net") by vger.kernel.org with SMTP
-	id S261190AbVAGAre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 19:47:34 -0500
-Message-ID: <41DDDC22.80009@mathematica.scientia.net>
-Date: Fri, 07 Jan 2005 01:47:30 +0100
-From: Christoph Anton Mitterer <cam@mathematica.scientia.net>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+	Thu, 6 Jan 2005 19:49:25 -0500
+Received: from adsl-69-149-197-17.dsl.austtx.swbell.net ([69.149.197.17]:10711
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S261252AbVAGAoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 19:44:18 -0500
+Message-ID: <41DDDB47.8050008@microgate.com>
+Date: Thu, 06 Jan 2005 18:43:51 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Questions about the CMD640 and RZ1000 bugfix support options
-References: <41D5D206.1040107@mathematica.scientia.net>	 <1104676209.15004.58.camel@localhost.localdomain>	 <e0qta2-7jr.ln1@kenga.kmv.ru>	 <1105025417.17176.222.camel@localhost.localdomain>	 <hcr0b2-ofr.ln1@kenga.kmv.ru>  <41DDC55B.2030106@mathematica.scientia.net> <1105053558.17176.297.camel@localhost.localdomain>
-In-Reply-To: <1105053558.17176.297.camel@localhost.localdomain>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
+CC: Tim_T_Murphy@Dell.com, rmk+lkml@arm.linux.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP
+ kernel
+References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4D32@ausx2kmps304.aus.amer.dell.com> <1105052674.24187.288.camel@localhost.localdomain>
+In-Reply-To: <1105052674.24187.288.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Alan Cox wrote:
+> On Iau, 2005-01-06 at 22:47, Tim_T_Murphy@Dell.com wrote:
+> 
+>>>anything i can do to avoid dropping characters without using 
+>>>low_latency, which still hangs SMP kernels?
+>>
+>>this patch fixes the problem for me, but its probably an awful hack -- a
+>>brief interrupt storm occurs until tty processes its buffer, but IMHO
+>>that's better than dropping characters.
+> 
+> Presumably this is a device with a fake 8250 that produces sudden large
+> bursts of data ? If so then for now you -need- to set low_latency and
+> should probably do it by the PCI vendor subid/device id. The problem is
+> that the serial layer expects serial data arriving at serial speeds. It
+> completely breaks down when it hits an emulation of a generic uart that
+> suddenely receives 32Kbytes of data at ethernet speed.
+> 
+> The longer term fix for this is when the flip buffers go away, and the
+> same problem gets cleaned up for things like mainframes and some of the
+> high performance DMA devices. Until then just set low_latency and
+> comment it as "not your fault" 8)
 
- >On Iau, 2005-01-06 at 23:10, Christoph Anton Mitterer wrote:
- >
- >>What about the following idea?
- >>Both stay enabled by default but the help text explains exactly (as
- >>far as possible) which systems are affected.
- >>This would help newbies like me to decide if those bugfixes are
- >>necessary or not.
- >
- >
- >Its the ideal solution. The diff for this is available on your computer
- >already - its kept in /dev/null 8)
+IIRC that guarantees a deadlock on SMP due to the
+generic serial layer trying to grab a spinlock
+that is already held. (Which prompted the original
+bug report by Tim several months ago)
 
-Ok,... so here's my patch which I request for inclusion:
---- begin of patch ---
+Perhaps the FIFO trigger threshold for this
+specific device can be altered
+to try and smooth the amount of data dumped
+per IRQ.
 
---- end of patch ---
-(Ahh,.. my first kernel patch,... *lol* )
-
-;-)
-
-
-Seriously,.. I thought about adding something like:
-"Most users of modern computers won't need this, but it is safer to say 
-Y here."
-
-But according to you answer I think that you like the way it's at the 
-moment. =)
-Never mind! But if you think it's ok I could make a (real) patch which 
-adds such a text.
-
-Best wishes,
-cam.
+--
+Paul Fulghum
+paulkf@microgate.com

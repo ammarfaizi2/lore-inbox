@@ -1,379 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbUAPF1X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 00:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbUAPF1X
+	id S265246AbUAPFXM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 00:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbUAPFWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 00:27:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8386 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263244AbUAPF07 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 00:26:59 -0500
-Date: Thu, 15 Jan 2004 21:26:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: joe.korty@ccur.com, paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-Id: <20040115212613.3e345518.akpm@osdl.org>
-In-Reply-To: <20040115211402.04c5c2c4.pj@sgi.com>
-References: <20040107165607.GA11483@rudolph.ccur.com>
-	<20040107113207.3aab64f5.akpm@osdl.org>
-	<20040108051111.4ae36b58.pj@sgi.com>
-	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
-	<20040108225929.GA24089@tsunami.ccur.com>
-	<16381.61618.275775.487768@cargo.ozlabs.ibm.com>
-	<20040114150331.02220d4d.pj@sgi.com>
-	<20040115002703.GA20971@tsunami.ccur.com>
-	<20040114204009.3dc4c225.pj@sgi.com>
-	<20040115081533.63c61d7f.akpm@osdl.org>
-	<20040115181525.GA31086@tsunami.ccur.com>
-	<20040115211402.04c5c2c4.pj@sgi.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 Jan 2004 00:22:49 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:55764 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S265246AbUAPFWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 00:22:41 -0500
+Message-ID: <4007751C.9090702@kriminell.com>
+Date: Fri, 16 Jan 2004 06:22:36 +0100
+From: marcel cotta <marcel@kriminell.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1: kernel BUG at mm/swapfile.c:806
+References: <400751B1.40608@kriminell.com>	<20040115203419.76332f6a.akpm@osdl.org>	<40076B62.9000108@kriminell.com> <20040115204302.2909af64.akpm@osdl.org>
+In-Reply-To: <20040115204302.2909af64.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
->   Should any of the other inline routines in include/bitmap.h
->    be moved to your new file lib/bitmap.c?
+Andrew Morton wrote:
+> marcel cotta <marcel@kriminell.com> wrote:
+> 
+>>Andrew Morton wrote:
+>>
+>>>marcel cotta <marcel@kriminell.com> wrote:
+>>>
+>>>
+>>>>i got this oops after the box swapped like crazy under X for about 5 
+>>>>minutes
+>>>>while swapping it was nearly unusable (jerky mouse, console switching 
+>>>>took 10 seconds)
+>>>>the extreme performance drop is always reproducible when swapping starts
+>>>>
+>>>>
+>>>>------------[ cut here ]------------
+>>>>kernel BUG at mm/swapfile.c:806!
+>>>
+>>>
+>>>Amazing.  Are you using a swapfile, or are you swapping to a block device?
+>>>
+>>>
+>>>
+>>>
+>>
+>>hehe, hasnt been reported for a while eh ;)
+>>
+>>i used swapfiles, one static 50mb file and the rest in temp 16MB 
+>>blocks managed by swapd
+> 
+> 
+> What is `swapd'?
+> 
+> 
 
-Yup.   The below patch will be in 2.6.1-mm4:
+
+the box is still running and i just saw another thing
+
+hades:~# cat /proc/swaps
+Filename                                Type            Size    Used
+   Priority
+/swap/linux0.swp                         file           14184   14160   -1
+/swap/linux1.swp                         file           16184   16036
+   -22
+/swap/linux2.swp                         file           16184   15740
+   -23
+/swap/linux3.swp                         file           16184   15720
+   -28
+/swap/linux4.swp                         file           16184   15960
+   -43
+/swap/linux5.swp                         file           16184   13380
+   -44
+/swap/linux6.swp                         file           16184   104
+   -45
+/swap/linux7.swp                         file           16184   0
+   -46
+/swap/linux8.swp                         file           16184   4
+   -47
 
 
-
-uninline bitmap functions
-
-- A couple of them are using alloca (via DECLARE_BITMAP) and this generates
-  a cannot-inline warning with -Winline.
-
-- These functions are too big to inline anwyay.
+hades:~# free
+              total       used       free     shared    buffers     cached
+Mem:        188724     184076       4648          0        328      33176
+-/+ buffers/cache:     150572      38152
+Swap:       127476      90528      36948
 
 
+have a look at the total swap amount, free reports 127476 but the
+total should be 143656
+the /swap/linux0.swp file being 2mb smaller is no error
+it is caused by setting swapfile size in /etc/swapd.conf to 14184,
+while only
+this file being in use, and restarting swapd with 16184 as new
+swapfile size
 
----
-
- include/linux/bitmap.h |  140 ++++---------------------------------------------
- lib/Makefile           |    3 -
- lib/bitmap.c           |  140 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 156 insertions(+), 127 deletions(-)
-
-diff -puN /dev/null lib/bitmap.c
---- /dev/null	2002-08-30 16:31:37.000000000 -0700
-+++ 25-akpm/lib/bitmap.c	2004-01-14 02:52:02.000000000 -0800
-@@ -0,0 +1,140 @@
-+#include <linux/bitmap.h>
-+#include <linux/module.h>
-+
-+int bitmap_empty(const unsigned long *bitmap, int bits)
-+{
-+	int k, lim = bits/BITS_PER_LONG;
-+	for (k = 0; k < lim; ++k)
-+		if (bitmap[k])
-+			return 0;
-+
-+	if (bits % BITS_PER_LONG)
-+		if (bitmap[k] & ((1UL << (bits % BITS_PER_LONG)) - 1))
-+			return 0;
-+
-+	return 1;
-+}
-+EXPORT_SYMBOL(bitmap_empty);
-+
-+int bitmap_full(const unsigned long *bitmap, int bits)
-+{
-+	int k, lim = bits/BITS_PER_LONG;
-+	for (k = 0; k < lim; ++k)
-+		if (~bitmap[k])
-+			return 0;
-+
-+	if (bits % BITS_PER_LONG)
-+		if (~bitmap[k] & ((1UL << (bits % BITS_PER_LONG)) - 1))
-+			return 0;
-+
-+	return 1;
-+}
-+EXPORT_SYMBOL(bitmap_full);
-+
-+int bitmap_equal(const unsigned long *bitmap1,
-+		unsigned long *bitmap2, int bits)
-+{
-+	int k, lim = bits/BITS_PER_LONG;;
-+	for (k = 0; k < lim; ++k)
-+		if (bitmap1[k] != bitmap2[k])
-+			return 0;
-+
-+	if (bits % BITS_PER_LONG)
-+		if ((bitmap1[k] ^ bitmap2[k]) &
-+				((1UL << (bits % BITS_PER_LONG)) - 1))
-+			return 0;
-+
-+	return 1;
-+}
-+EXPORT_SYMBOL(bitmap_equal);
-+
-+void bitmap_complement(unsigned long *bitmap, int bits)
-+{
-+	int k;
-+
-+	for (k = 0; k < BITS_TO_LONGS(bits); ++k)
-+		bitmap[k] = ~bitmap[k];
-+}
-+EXPORT_SYMBOL(bitmap_complement);
-+
-+void bitmap_shift_right(unsigned long *dst,
-+			const unsigned long *src, int shift, int bits)
-+{
-+	int k;
-+	DECLARE_BITMAP(__shr_tmp, bits);
-+
-+	bitmap_clear(__shr_tmp, bits);
-+	for (k = 0; k < bits - shift; ++k)
-+		if (test_bit(k + shift, src))
-+			set_bit(k, __shr_tmp);
-+	bitmap_copy(dst, __shr_tmp, bits);
-+}
-+EXPORT_SYMBOL(bitmap_shift_right);
-+
-+void bitmap_shift_left(unsigned long *dst,
-+			const unsigned long *src, int shift, int bits)
-+{
-+	int k;
-+	DECLARE_BITMAP(__shl_tmp, bits);
-+
-+	bitmap_clear(__shl_tmp, bits);
-+	for (k = bits; k >= shift; --k)
-+		if (test_bit(k - shift, src))
-+			set_bit(k, __shl_tmp);
-+	bitmap_copy(dst, __shl_tmp, bits);
-+}
-+EXPORT_SYMBOL(bitmap_shift_left);
-+
-+void bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k;
-+	int nr = BITS_TO_LONGS(bits);
-+
-+	for (k = 0; k < nr; k++)
-+		dst[k] = bitmap1[k] & bitmap2[k];
-+}
-+EXPORT_SYMBOL(bitmap_and);
-+
-+void bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k;
-+	int nr = BITS_TO_LONGS(bits);
-+
-+	for (k = 0; k < nr; k++)
-+		dst[k] = bitmap1[k] | bitmap2[k];
-+}
-+EXPORT_SYMBOL(bitmap_or);
-+
-+#if BITS_PER_LONG == 32
-+int bitmap_weight(const unsigned long *bitmap, int bits)
-+{
-+	int k, w = 0, lim = bits/BITS_PER_LONG;
-+
-+	for (k = 0; k < lim; k++)
-+		w += hweight32(bitmap[k]);
-+
-+	if (bits % BITS_PER_LONG)
-+		w += hweight32(bitmap[k] &
-+				((1UL << (bits % BITS_PER_LONG)) - 1));
-+
-+	return w;
-+}
-+#else
-+int bitmap_weight(const unsigned long *bitmap, int bits)
-+{
-+	int k, w = 0, lim = bits/BITS_PER_LONG;
-+
-+	for (k = 0; k < lim; k++)
-+		w += hweight64(bitmap[k]);
-+
-+	if (bits % BITS_PER_LONG)
-+		w += hweight64(bitmap[k] &
-+				((1UL << (bits % BITS_PER_LONG)) - 1));
-+
-+	return w;
-+}
-+#endif
-+EXPORT_SYMBOL(bitmap_weight);
-+
-diff -puN include/linux/bitmap.h~uninline-bitmap-functions include/linux/bitmap.h
---- 25/include/linux/bitmap.h~uninline-bitmap-functions	2004-01-14 02:36:26.000000000 -0800
-+++ 25-akpm/include/linux/bitmap.h	2004-01-14 02:36:26.000000000 -0800
-@@ -10,57 +10,11 @@
- #include <linux/bitops.h>
- #include <linux/string.h>
- 
--static inline int bitmap_empty(const unsigned long *bitmap, int bits)
--{
--	int k, lim = bits/BITS_PER_LONG;
--	for (k = 0; k < lim; ++k)
--		if (bitmap[k])
--			return 0;
--
--	if (bits % BITS_PER_LONG)
--		if (bitmap[k] & ((1UL << (bits % BITS_PER_LONG)) - 1))
--			return 0;
--
--	return 1;
--}
--
--static inline int bitmap_full(const unsigned long *bitmap, int bits)
--{
--	int k, lim = bits/BITS_PER_LONG;
--	for (k = 0; k < lim; ++k)
--		if (~bitmap[k])
--			return 0;
--
--	if (bits % BITS_PER_LONG)
--		if (~bitmap[k] & ((1UL << (bits % BITS_PER_LONG)) - 1))
--			return 0;
--
--	return 1;
--}
--
--static inline int bitmap_equal(const unsigned long *bitmap1,
--				unsigned long *bitmap2, int bits)
--{
--	int k, lim = bits/BITS_PER_LONG;;
--	for (k = 0; k < lim; ++k)
--		if (bitmap1[k] != bitmap2[k])
--			return 0;
--
--	if (bits % BITS_PER_LONG)
--		if ((bitmap1[k] ^ bitmap2[k]) &
--				((1UL << (bits % BITS_PER_LONG)) - 1))
--			return 0;
--
--	return 1;
--}
--
--static inline void bitmap_complement(unsigned long *bitmap, int bits)
--{
--	int k;
--
--	for (k = 0; k < BITS_TO_LONGS(bits); ++k)
--		bitmap[k] = ~bitmap[k];
--}
-+int bitmap_empty(const unsigned long *bitmap, int bits);
-+int bitmap_full(const unsigned long *bitmap, int bits);
-+int bitmap_equal(const unsigned long *bitmap1,
-+			unsigned long *bitmap2, int bits);
-+void bitmap_complement(unsigned long *bitmap, int bits);
- 
- static inline void bitmap_clear(unsigned long *bitmap, int bits)
- {
-@@ -78,81 +32,15 @@ static inline void bitmap_copy(unsigned 
- 	memcpy(dst, src, BITS_TO_LONGS(bits)*sizeof(unsigned long));
- }
- 
--static inline void bitmap_shift_right(unsigned long *dst,
--				const unsigned long *src, int shift, int bits)
--{
--	int k;
--	DECLARE_BITMAP(__shr_tmp, bits);
--
--	bitmap_clear(__shr_tmp, bits);
--	for (k = 0; k < bits - shift; ++k)
--		if (test_bit(k + shift, src))
--			set_bit(k, __shr_tmp);
--	bitmap_copy(dst, __shr_tmp, bits);
--}
--
--static inline void bitmap_shift_left(unsigned long *dst,
--				const unsigned long *src, int shift, int bits)
--{
--	int k;
--	DECLARE_BITMAP(__shl_tmp, bits);
--
--	bitmap_clear(__shl_tmp, bits);
--	for (k = bits; k >= shift; --k)
--		if (test_bit(k - shift, src))
--			set_bit(k, __shl_tmp);
--	bitmap_copy(dst, __shl_tmp, bits);
--}
--
--static inline void bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
--				const unsigned long *bitmap2, int bits)
--{
--	int k;
--	int nr = BITS_TO_LONGS(bits);
--
--	for (k = 0; k < nr; k++)
--		dst[k] = bitmap1[k] & bitmap2[k];
--}
--
--static inline void bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
--				const unsigned long *bitmap2, int bits)
--{
--	int k;
--	int nr = BITS_TO_LONGS(bits);
--
--	for (k = 0; k < nr; k++)
--		dst[k] = bitmap1[k] | bitmap2[k];
--}
--
--#if BITS_PER_LONG == 32
--static inline int bitmap_weight(const unsigned long *bitmap, int bits)
--{
--	int k, w = 0, lim = bits/BITS_PER_LONG;
--
--	for (k = 0; k < lim; k++)
--		w += hweight32(bitmap[k]);
--
--	if (bits % BITS_PER_LONG)
--		w += hweight32(bitmap[k] &
--				((1UL << (bits % BITS_PER_LONG)) - 1));
--
--	return w;
--}
--#else
--static inline int bitmap_weight(const unsigned long *bitmap, int bits)
--{
--	int k, w = 0, lim = bits/BITS_PER_LONG;
--
--	for (k = 0; k < lim; k++)
--		w += hweight64(bitmap[k]);
--
--	if (bits % BITS_PER_LONG)
--		w += hweight64(bitmap[k] &
--				((1UL << (bits % BITS_PER_LONG)) - 1));
--
--	return w;
--}
--#endif
-+void bitmap_shift_right(unsigned long *dst,
-+			const unsigned long *src, int shift, int bits);
-+void bitmap_shift_left(unsigned long *dst,
-+			const unsigned long *src, int shift, int bits);
-+void bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
-+void bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
-+int bitmap_weight(const unsigned long *bitmap, int bits);
- 
- #endif /* __ASSEMBLY__ */
- 
-diff -puN lib/Makefile~uninline-bitmap-functions lib/Makefile
---- 25/lib/Makefile~uninline-bitmap-functions	2004-01-14 02:36:26.000000000 -0800
-+++ 25-akpm/lib/Makefile	2004-01-14 02:36:26.000000000 -0800
-@@ -5,7 +5,8 @@
- 
- lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
- 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
--	 kobject.o idr.o div64.o parser.o int_sqrt.o mask.o
-+	 kobject.o idr.o div64.o parser.o int_sqrt.o mask.o \
-+	 bitmap.o
- 
- lib-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
- lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
-
-_
 

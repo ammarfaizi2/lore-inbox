@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbTHUKQr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 06:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbTHUKQr
+	id S262565AbTHUKXE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 06:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTHUKXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 06:16:47 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:14012 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262566AbTHUKQq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 06:16:46 -0400
-Date: Thu, 21 Aug 2003 12:16:41 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>,
-       linux-kernel@vger.kernel.org
-Subject: Re: usb-storage: how to ruin your hardware(?)
-In-Reply-To: <20030820185550.A24579@one-eyed-alien.net>
-Message-ID: <Pine.LNX.4.51.0308211208290.22664@dns.toxicfilms.tv>
-References: <200308210134.h7L1YmRE011754@wildsau.idv.uni.linz.at>
- <20030820185550.A24579@one-eyed-alien.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Aug 2003 06:23:04 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:38807 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S262565AbTHUKXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 06:23:01 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Thu, 21 Aug 2003 12:22:59 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Stuart Longland <stuartl@longlandclan.hopto.org>
+Cc: Valdis.Kletnieks@vt.edu, davidsen@tmr.com, linux-kernel@vger.kernel.org
+Subject: Re: SCO's "proof"
+Message-Id: <20030821122259.677a33e9.skraw@ithnet.com>
+In-Reply-To: <3F4437E7.2090307@longlandclan.hopto.org>
+References: <3F422809.7080806@yahoo.com>
+	<20030819145213.GC5582@gallifrey>
+	<20030819150137.GA22521@gevaerts.be>
+	<lt4r0du0t3.fsf@colina.demon.co.uk>
+	<bi0eij$f13$1@gatekeeper.tmr.com>
+	<200308201846.h7KIk6uu013871@turing-police.cc.vt.edu>
+	<3F4437E7.2090307@longlandclan.hopto.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> P.P.S. The 'strange partition table' you saw probably wasn't a partition
-> table at all -- it was likely the start of a VFAT filesystem.  I'm guessing
-> that if you had just mounted /dev/sda (notice no partition number!), it
-> would have worked.
-I almost killed my USB 128mb flash (it's an mp3 player also).
-I also noticed a strange partition and "fixed" it. And file transfers
-where ok (VFAT, formatted), but suddenly it stopped playing audio. When I
-redid the formatting as a plain DOS partition using fdisk command.
-   o   create a new empty DOS partition table
+On Thu, 21 Aug 2003 13:09:27 +1000
+Stuart Longland <stuartl@longlandclan.hopto.org> wrote:
 
-MP3 started playing right.
-It seems that many manufacturers rely on undocumented (yes, I haven't
-found any pointers about partition table format, etc.) nuances
-and settings.
-Like your USB BAR's starting sector's data, that seemed to be garbage.
+> This case is getting more rediculous with each day...lfmao
+> 
+> Oh dear, it seems that our /comments/ are alike.  Hrmm.  Pity the
+> compiller doesn't take any notice of them, and therefore, I don't see
+> the evidence that the /code/ has been stolen.  Also, as others have
+> quite rightfully pointed out, it doesn't even compile -- syntax errors
+> galore.
+> 
+> Lets hope some people in the legal profession have some C knowledge --
+> or at least have the sense to go directly to the kernel source on
+> kernel.org rather than relying on what SCO provides.
 
-Maybe a message of caution should be displayed in usb-storage
-configure help about attemtping to change partitions and/or filesystems on
-USB storage devices.
+As the only case that SCO has filed up to now is against IBM (as far as I know)
+you should be aware of the possibility that this proof presented is only a
+piece of FUD to distract from the real issues. IBM has never touched this
+source, so it is irrelevant to the case.
 
 Regards,
-Maciej
-
+Stephan

@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272351AbRHYANq>; Fri, 24 Aug 2001 20:13:46 -0400
+	id <S272352AbRHYASq>; Fri, 24 Aug 2001 20:18:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272352AbRHYANg>; Fri, 24 Aug 2001 20:13:36 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:47262 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S272351AbRHYAN3>;
-	Fri, 24 Aug 2001 20:13:29 -0400
-Date: Fri, 24 Aug 2001 20:13:44 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Brad Chapman <kakadu_croc@yahoo.com>
-cc: Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+	id <S272353AbRHYASg>; Fri, 24 Aug 2001 20:18:36 -0400
+Received: from web10906.mail.yahoo.com ([216.136.131.42]:60687 "HELO
+	web10906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S272352AbRHYAS3>; Fri, 24 Aug 2001 20:18:29 -0400
+Message-ID: <20010825001844.15318.qmail@web10906.mail.yahoo.com>
+Date: Fri, 24 Aug 2001 17:18:44 -0700 (PDT)
+From: Brad Chapman <kakadu_croc@yahoo.com>
 Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <20010824235858.59972.qmail@web10908.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.21.0108242002130.19796-100000@weyl.math.psu.edu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010824.170748.41633430.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 24 Aug 2001, Brad Chapman wrote:
-
-> 	- make everyone use the new macros (some people are thinking :P)
+--- "David S. Miller" <davem@redhat.com> wrote:
+>    From: Brad Chapman <kakadu_croc@yahoo.com>
+>    Date: Fri, 24 Aug 2001 16:59:27 -0700 (PDT)
+>    
+>    	- stay with the old-style macros (:P, :P, :P)
 > 
-> 	- make everyone use #ifdef blocks with a config option (you think it's :P)
+> I've been trying to stay out of this until Linus returns
+> and has his word... but I can say with a level of certainty
+> that this won't sit well with Linus at all.
 > 
-> 	- make min()/max() typeof() wrappers for a switch-style stack of comparison 
-> 	  functions which work on the various types, i.e:
-> 	
-> 	  __u8 minimum = min(one, two) -> __u8 minimum = __u8_min(one, two)
-> 
-> 	  (this may be too complex and is probably :P)
+> Later,
+> David S. Miller
+> davem@redhat.com
 
-> 
-> 	- make min()/max() inline functions, cast things to void, and use memcmp()
-> 	  (this might almost be reasonable, but is probably also :P)
-> 
-> 	- stay with the old-style macros (:P, :P, :P)
-> 
-> 	What do you think, sir?
+Mr. Miller,
 
-	Use different inline functions for signed and unsigned.
-Explicitly.
+	Ack. When Linus returns, I'm sure he'll give us all very good reasons 
+why he thought it needed to be changed.
 
-	Any scheme trying to imitate polymorphism with use of cpp/
-GNU extensions/whatever is missing the point.  There is _no_ common
-operation to extend on several types.  Choice between signed and
-unsigned max should be explicit - they are different operations.
+	BTW, what is your opinion on the various ways I suggested to satisfy 
+people over the min()/max() issue? Mr. LaHaise nearly threw up when I suggested 
+using #ifdef, so we can safely scratch that one ;-). What do you think, sir?
 
-	Trying to hide that is C++itis of the worst kind - false
-polymorphism that hides only one thing: subtle bugs.
+Brad 
 
+
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+Current e-mail: kakadu@adelphia.net
+Alternate e-mail: kakadu@netscape.net
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

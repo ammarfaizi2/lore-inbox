@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266048AbTGIPiG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 11:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266051AbTGIPiG
+	id S268390AbTGIPmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 11:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268396AbTGIPmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 11:38:06 -0400
-Received: from compsciinn-gw.customer.ALTER.NET ([157.130.84.134]:32413 "EHLO
-	picard.csi-inc.com") by vger.kernel.org with ESMTP id S266048AbTGIPiD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 11:38:03 -0400
-Message-ID: <02fe01c34632$1f4dfe20$c8de11cc@black>
-From: "Mike Black" <mblack@csi-inc.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: pthreads on dual CPU
-Date: Wed, 9 Jul 2003 11:52:38 -0400
+	Wed, 9 Jul 2003 11:42:09 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:469 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268390AbTGIPll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 11:41:41 -0400
+Message-ID: <3F0C3F32.40301@kegel.com>
+Date: Wed, 09 Jul 2003 09:13:38 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "Luck, Tony" <tony.luck@intel.com>
+CC: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org
+Subject: Re: Redundant memset in AIO read_events
+References: <DD755978BA8283409FB0087C39132BD101B00F79@fmsmsx404.fm.intel.com>
+In-Reply-To: <DD755978BA8283409FB0087C39132BD101B00F79@fmsmsx404.fm.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found a benchmark program for threads and found a major difference between a single CPU and dual CPU system.
-Here's the code:
-http://www-124.ibm.com/pipermail/pthreads-users/2002-April/000176.html
-Is this showing context switches going between CPUs??
-Wouldn't one expect the dual CPU to run twice as fast instead of ten times slower?
-As you can see from the timing user time increases by a factor of 4 and system time by a factor of 10.
-I seem to remember something about gettimeofday() possibly being a problem but couldn't find a refernce to it.
-Anybody have an explanation/fix for this?
-I'm running 2.4.21 with glibc-2.3.2 
+Luck, Tony wrote:
+> That is true, but here's the definition of the io_event strcuture:
+> 
+> struct io_event {
+>         __u64           data;
+>         __u64           obj;
+>         __s64           res;
+>         __s64           res2;
+> };
+> 
+> In the words of the comment, C may be "fun", but I've
+> having trouble envisioning an architecture where a structure
+> that consists of four equal sized objects has some padding!
 
-Single CPU (Athlon 2400):
-Thread     Count Start Time   End Time  Reverses
-------   ------- ----------   --------  --------
-0         100000    0.00014    0.55257     99998
-1         100000    0.00018    0.44839     99997
-2         100000    0.00018    0.57385    100000
-3         100000    0.00026    0.37884     99999
-4         100000    0.00026    0.50911    100000
-5         100000    0.00028    0.49115     99998
-6         100000    0.00035    0.53783    100000
-7         100000    0.00036    0.60039    100000
-8         100000    0.00038    0.60346     81847
-9         100000    0.45934    0.59906     99998
-Total elapsed time is    0.60348 seconds
-0.080u 0.530s 0:00.60 101.6%    0+0k 0+0io 136pf+0w
-Dual CPU (Athlon 2000MP):
-Thread     Count Start Time   End Time  Reverses
-------   ------- ----------   --------  --------
-0         100000    0.00024    2.35316    100000
-1         100000    0.00031    2.65760    100000
-2         100000    0.00036    2.61471    100000
-3         100000    0.00048    2.59529    100000
-4         100000    0.00055    2.65601    100000
-5         100000    0.00060    2.70938     98040
-6         100000    0.00065    2.68379    100000
-7         100000    0.00075    2.71154     95341
-8         100000    0.00082    2.69375    100000
-9         100000    0.00089    2.71491     78796
-Total elapsed time is    2.71494 seconds
-0.380u 5.040s 0:02.71 200.0%    0+0k 0+0io 133pf+0w
+<newbie>
+There might be some architecture that requires 16 byte alignment...
+how about surrounding the memcpy with if (sizeof(struct io_event) != 4 * sizeof(__u64)) ?
+</newbie>
 
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 
-Michael D. Black mblack@csi-inc.com
-http://www.csi-inc.com/
-http://www.csi-inc.com/~mike
-Melbourne FL

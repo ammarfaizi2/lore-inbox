@@ -1,79 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbTDYR74 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 13:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbTDYR74
+	id S263387AbTDYSKf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 14:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTDYSKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 13:59:56 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32521 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263592AbTDYR7x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 13:59:53 -0400
-Date: Fri, 25 Apr 2003 14:06:33 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Ben Collins <bcollins@debian.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
-In-Reply-To: <20030424214107.GH808@phunnypharm.org>
-Message-ID: <Pine.LNX.3.96.1030425135740.16623D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Apr 2003 14:10:34 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:54489 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263387AbTDYSKe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 14:10:34 -0400
+Date: Fri, 25 Apr 2003 11:20:42 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: bcrl@redhat.com, akpm@digeo.com, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.68-mm2
+Message-Id: <20030425112042.37493d02.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.3.96.1030425135538.16623C-100000@gatekeeper.tmr.com>
+References: <20030424163334.A12180@redhat.com>
+	<Pine.LNX.3.96.1030425135538.16623C-100000@gatekeeper.tmr.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Apr 2003, Ben Collins wrote:
+On Fri, 25 Apr 2003 13:56:31 -0400 (EDT) Bill Davidsen <davidsen@tmr.com> wrote:
 
-> On Thu, Apr 24, 2003 at 05:44:39PM -0400, Bill Davidsen wrote:
-> > On Wed, 23 Apr 2003, Marcelo Tosatti wrote:
-> > 
-> > > I guess Ben's mega patch (and yes, I also consider it a megapatch for
-> > > -rc) has to be applied. I just mailed him asking about the possibility
-> > > of getting only fixes in and not the cleanups, but I guess that might be a
-> > > bit hard to do _today_. Right Ben ?
-> > > 
-> > > And about the sweet complaints about -pre timing, I will release -pre's
-> > > each damn week for .22.
-> > > 
-> > > *!@#!&*.
-> > 
-> > If I might offer a course of action, if you put thing which are *fixes* in
-> > the bk releases, and hold *changes* for the next -pre, it might allow
-> > people to grab bk's to fix the quickly caught things in a new pre, without
-> > being hit with major changes which might decrease stability.
-> > 
-> > Clearly any pre is a risk, but there always seem to be errors of the "XXX
-> > doesn't compile because of typo" type. That way Alan could put all new IDE
-> > code in each -pre and Andre and others could put fixes in the bk's until
-> > it worked. => JOKING!! <== but you get the idea.
-> > 
-> > I'd love to see this in 2.5 as well, just to encourage people to use it!
-> 
-> You do realize that the -pre's are pulled from bk, right?
+| On Thu, 24 Apr 2003, Benjamin LaHaise wrote:
+| 
+| > On Thu, Apr 24, 2003 at 04:24:56PM -0400, Bill Davidsen wrote:
+| > > Of course reasonable way may mean that bash does some things a bit slower,
+| > > but given that the whole thing works well in most cases anyway, I think
+| > > the kernel handling the situation is preferable.
+| > 
+| > Eh?  It makes bash _faster_ for all cases of starting up a child process.  
+| > And it even works on 2.4 kernels.
+| 
+| The point is that even if bash is fixed it's desirable to address the
+| issue in the kernel, other applications may well misbehave as well.
 
-Yes, and I miss why that matters. Let me see if I can make the idea clear
-to you:
-  2.4.22-pre5		some code
-  2.4.22-pre5-bk1	fixes
-  2.4.22-pre5-bk2	more fixes
-  2.4.22-pre5-bk3	still more fixes
-  2.4.22-pre6		fixes to date plus major changes
+So when would this ever end?
 
-So when a maintainer got something major it wouldn't go into bk (the
-commercial software database) until a new -pre, while the -bk patches
-available for download would get the fixes only.
-
-Just a matter of staging, so that after a new -pre the -bk patch files
-against it would hopefully get more stable for a few days. A new -pre need
-not have something major, it would be nice if they came out every few
-weeks at most. Any -pre release is an adventure, but usually there are a
-few days of minor fixes posted, and it would be nice if those got
-somewhere before the next major change.
-
-Did I make it clear this time? You don't have to agree it's a good idea,
-but I'd like you to understand what I have in mind.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+--
+~Randy

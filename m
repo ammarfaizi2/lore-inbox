@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132255AbRALTGw>; Fri, 12 Jan 2001 14:06:52 -0500
+	id <S132397AbRALTIW>; Fri, 12 Jan 2001 14:08:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132204AbRALTGc>; Fri, 12 Jan 2001 14:06:32 -0500
-Received: from smtp4.libero.it ([193.70.192.54]:47251 "EHLO smtp4.libero.it")
-	by vger.kernel.org with ESMTP id <S132152AbRALTGV>;
-	Fri, 12 Jan 2001 14:06:21 -0500
-From: Andrea Ferraris <andrea_ferraris@libero.it>
-Reply-To: andrea_ferraris@libero.it
-Date: Fri, 12 Jan 2001 20:02:44 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.31.0101112024250.9238-100000@neptun.fachschaften.tu-muenchen.de> <01011120083704.00618@depoffice.localdomain> <01011215001406.00925@af>
-In-Reply-To: <01011215001406.00925@af>
-Subject: Re: 2.4.0 Keyboard and mouse lock
-MIME-Version: 1.0
-Message-Id: <01011220024400.00934@af>
-Content-Transfer-Encoding: 8bit
+	id <S132398AbRALTIM>; Fri, 12 Jan 2001 14:08:12 -0500
+Received: from e56090.upc-e.chello.nl ([213.93.56.90]:23047 "EHLO unternet.org")
+	by vger.kernel.org with ESMTP id <S132397AbRALTII>;
+	Fri, 12 Jan 2001 14:08:08 -0500
+Date: Fri, 12 Jan 2001 20:07:53 +0100
+From: Frank de Lange <frank@unternet.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
+Message-ID: <20010112200753.B25675@unternet.org>
+In-Reply-To: <3A5F3BF4.7C5567F8@colorfullife.com> <20010112183314.A24174@unternet.org> <3A5F4428.F3249D2@colorfullife.com> <20010112192500.A25057@unternet.org> <3A5F5538.57F3FDC5@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5F5538.57F3FDC5@colorfullife.com>; from manfred@colorfullife.com on Fri, Jan 12, 2001 at 08:04:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the noise, it has happened again, but this time I had
-sysreq active and it worked. CTRL+ALT+BACKSPACE or 
-ALT+FX didn't work. With sysreq I synced, umounted and 
-rebooted without trouble.
+On Fri, Jan 12, 2001 at 08:04:24PM +0100, Manfred Spraul wrote:
+> Linus wrote:
+> > Does this seem to happen mainly with drivers that use "disable_irq()" 
+> > and "enable_irq()"? I know the ne drivers do (through the 8390 module), 
+> > and some others do too (3c59x). 
+> 
+> I removed the disable_irq lines from 8390.c, and that fixed the problem:
+> no hang within 2 minutes - the test is still running.
+> 
+> Frank, could you double check it?
 
-I think that could be a mouse and/or X and/or Netscape problem,
-since the system (apart input devices) was up and running.
+Hm, I also sent in a (somewhat different) patch on my own... :-)]
 
-	Andrea
+Anyway, still running under heavy load...
+
+Cheers//Frank
+-- 
+  WWWWW      _______________________
+ ## o o\    /     Frank de Lange     \
+ }#   \|   /                          \
+  ##---# _/     <Hacker for Hire>      \
+   ####   \      +31-320-252965        /
+           \    frank@unternet.org    /
+            -------------------------
+ [ "Omnis enim res, quae dando non deficit, dum habetur
+    et non datur, nondum habetur, quomodo habenda est."  ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

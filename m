@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266049AbUBJRPn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266028AbUBJRNg
+	id S266027AbUBJRPm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266051AbUBJROE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:13:36 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:4109 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266058AbUBJRL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:11:58 -0500
-Date: Tue, 10 Feb 2004 17:11:55 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Olaf Hering <olh@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ieee1394 and fbdev oops in 2.6.3rc2
-In-Reply-To: <20040210165202.GA7590@suse.de>
-Message-ID: <Pine.LNX.4.44.0402101708450.6294-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Feb 2004 12:14:04 -0500
+Received: from nevyn.them.org ([66.93.172.17]:22462 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S266027AbUBJRLM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 12:11:12 -0500
+Date: Tue, 10 Feb 2004 12:10:55 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Chua <jchua@fedex.com>,
+       jeffchua@silk.corp.fedex.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] warning: `__attribute_used__' redefined
+Message-ID: <20040210171055.GA32612@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, Jeff Chua <jchua@fedex.com>,
+	jeffchua@silk.corp.fedex.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com> <20040209225336.1f9bc8a8.akpm@osdl.org> <Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com> <20040210082514.04afde4a.akpm@osdl.org> <Pine.LNX.4.58.0402100827100.2128@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402100827100.2128@home.osdl.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 10, 2004 at 08:31:24AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 10 Feb 2004, Andrew Morton wrote:
+> > 
+> > ah, thanks.
+> > 
+> > Like this?
+> 
+> That will just break. The reason for the "compiler.h" include is the 
+> "__user" part of fpstate, so now you'll get a parse error later if 
+> non-kernel code includes this.
+> 
+> So the rule should still be: don't include kernel headers from user 
+> programs. But if it's needed for some reason, that #ifdef needs to be 
+> somewhere else (inside "compiler.h" or something).
 
+This is what Debian has been using.  I believe the other folks with a
+glibc-kernel-headers package based on 2.6 do something similar.  I
+don't know how you'll feel about adding this sort of crap to the
+kernel, though.  Someone else needs to find time to start linuxabi
+moving again...
 
-> Oops: Exception in kernel mode, sig: 4 [#2]
-> NIP: C0101000 LR: C0100F90 SP: EF185CF0 REGS: ef185c40 TRAP: 0700    Not tainted
-> MSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-> TASK = ef1938a0[4325] 'X' Last syscall: 54 
-> GPR00: 00000002 EF185CF0 EF1938A0 EFFA3C00 EF185CF8 00000000 EF185D94 00000000 
-> GPR08: 00000000 FFFFFF00 00000001 00000000 28004884 101E6A58 101EEE08 101EED88 
-> GPR16: 101EF108 101EEF88 101EEE08 7FFFF438 101ECCF8 101E0000 101E0000 101E0000 
-> GPR24: 00000001 C02EBA40 000000A0 00000040 00000400 00000010 EFFA3C00 00000008 
-> Call trace:
->  [<c01011ac>] fbcon_switch+0x11c/0x288
->  [<c00c56c4>] redraw_screen+0x1c0/0x22c
->  [<c00c027c>] complete_change_console+0x44/0xf8
->  [<c00bfa34>] vt_ioctl+0x16c0/0x1d60
->  [<c00b8604>] tty_ioctl+0x160/0x5d4
->  [<c006c51c>] sys_ioctl+0xdc/0x2fc
->  [<c0007c7c>] ret_from_syscall+0x0/0x44
+--- include/linux/compiler.h	2003-10-15 11:13:09.000000000 -0400
++++ include/linux/compiler.h.t	2003-11-01 18:04:19.000000000 -0500
+@@ -9,6 +9,15 @@
+ # define __kernel
+ #endif
+ 
++#if !defined(__KERNEL__)
++/* Debian: Most of these are inappropriate for userspace.  */
++/* We don't define likely, unlikely, or barrier; they're namespace-intrusive
++   and should not be needed outside of __KERNEL__.  For __attribute_pure__
++   and __attribute_used__ we use glibc's definitions.  */
++# include <sys/cdefs.h>
++# define __deprecated
++#else
++
+ #if __GNUC__ > 3
+ # include <linux/compiler-gcc+.h>	/* catch-all for GCC 4, 5, etc. */
+ #elif __GNUC__ == 3
+@@ -86,4 +95,6 @@
+     (typeof(ptr)) (__ptr + (off)); })
+ #endif
+ 
++#endif /* __KERNEL__ */
++
+ #endif /* __LINUX_COMPILER_H */
 
-This is very strange. No patches have gone in that affects fbcon_switch. 
-Which kernel are you using and is this error repeatable?
-
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

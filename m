@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310979AbSDMXT4>; Sat, 13 Apr 2002 19:19:56 -0400
+	id <S311121AbSDMXc7>; Sat, 13 Apr 2002 19:32:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311121AbSDMXTz>; Sat, 13 Apr 2002 19:19:55 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:56823
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S310979AbSDMXTz>; Sat, 13 Apr 2002 19:19:55 -0400
-Date: Sat, 13 Apr 2002 16:22:16 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Michal =?unknown-8bit?Q?Maru=B9ka?= <mmc@maruska.dyndns.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: copy-on-write directories (is possible?)
-Message-ID: <20020413232216.GS23513@matchmail.com>
-Mail-Followup-To: Michal =?unknown-8bit?Q?Maru=B9ka?= <mmc@maruska.dyndns.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <m28z7t6mni.fsf@linux11.maruska.tin.it>
+	id <S311147AbSDMXc6>; Sat, 13 Apr 2002 19:32:58 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:20580 "EHLO
+	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S311121AbSDMXc5>; Sat, 13 Apr 2002 19:32:57 -0400
+Date: Sun, 14 Apr 2002 00:40:22 +0100
+From: Ian Molton <spyro@armlinux.org>
+To: linux-kernel@vger.kernel.org
+Subject: usb-uhci *BUG*
+Message-Id: <20020414004022.6450f038.spyro@armlinux.org>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 12, 2002 at 04:01:53PM +0200, Michal Maru?ka wrote:
-> 
-> is there some FS, which permits a backup snapshot share unchanged files w/
-> working directory ?
+Hi
 
-Yes, with lvm and ext3 or reiserfs you can do this.
+I'm not familiar with the USB code, but I've been hitting a BUG() with my
+new OHCI card (sorry, it was cheap :(   )
+
+the BUG() is at line 464 in usb-ohci.h, which seems to be a linked-list
+traversal failing to find an entry.
+
+the backtrace /does/ seem to be the same every time. I dont have ksymoops
+(on ARM I decode oopses with grep and system.map :). This appears not to
+work so well for X86, but here goes...
+
+c583708b  - n/a
+c01098fc  - follows handle_IRQ_event
+c0109a62  - preceeds request_irq
+c0106c10  - default_idle
+c0106c10  - default_idle
+c0106c33  - follows default_idle
+c0106c97  - follows cpu_idle
+c0105000  - _stext
+c0105027  - follows rest_init

@@ -1,83 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbTIWP1x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 11:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbTIWP1x
+	id S261627AbTIWPc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 11:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTIWPc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 11:27:53 -0400
-Received: from mail.psincusa.com ([209.11.89.147]:27660 "EHLO mail.cisny.com")
-	by vger.kernel.org with ESMTP id S261955AbTIWP1t convert rfc822-to-8bit
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 11:27:49 -0400
-Message-ID: <CACE38B35BF4314D925747967235EECE03BD6987@mail.cisny.com>
-From: Edwin Apaloo <Edwin.Apaloo@cisny.com>
-To: Linux-Kernel <Linux-Kernel@vger.kernel.org>
-Subject: Operating System Job Opportunities
-Date: Tue, 23 Sep 2003 11:25:28 -0400
+	Tue, 23 Sep 2003 11:32:59 -0400
+Received: from CPE0010e000064f-CM014270111571.cpe.net.cable.rogers.com ([65.49.101.54]:23819
+	"EHLO belle.augustahouse.net") by vger.kernel.org with ESMTP
+	id S261627AbTIWPcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 11:32:54 -0400
+Message-ID: <3F706764.1090203@sun.com>
+Date: Tue, 23 Sep 2003 11:31:48 -0400
+From: Mike Waychison <michael.waychison@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+To: Ian Kent <raven@themaw.net>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Maneesh Soni <maneesh@in.ibm.com>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] autofs4 deadlock during expire - kernel 2.6
+References: <Pine.LNX.4.44.0309232125010.2341-100000@raven.themaw.net>
+In-Reply-To: <Pine.LNX.4.44.0309232125010.2341-100000@raven.themaw.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Ian Kent wrote:
+> I have noticed that a deadlock can occur in the autofs4 module in the 2.6 
+> kernel and RedHat kernels with the O(1) scheduler patch. The easiest way 
+> to reproduce it is with an autofs-4.0.0 tree mount with at least 10 mounts 
+> within a Nautilus desktop environment with the module debug flag set. 
+> Perhaps this is because of the longish amount of time spent in the expire 
+> state.
+> 
+> The scenario:
+> 
+> 1) An expire locates an expirable dentry and signals the user space 
+> daemon to umount it.
+> 2) During the umount operation Nautilus notices and scans entries in the 
+> directory tree triggering a revalidate/lookup.
+> 3) autofs4 places the requesting process on the umount wait queue. 
+> 4) At completion of the expire both process are released from the wait 
+> queue.
+> 5) If the lookup gets a quantum first deadlock occurs and expiration stops 
+> leaving an autofs mount that is permanently busy.
+> 
+> The following patch fixes this by ensuring that the expire gets a lookin 
+> before the revalidate/lookup continues.
 
-A semiconductor company in the New York area is looking for 3 to 4 Operating
-Systems Developers.
+I'm not extremely familiar with the autofs4 implementation, but why is 
+the expiring process in the wait queue to start off with?  Doesn't 
+autofs4 let the daemon's pgrp bypass the waitqueue completely?
 
-Please see below for a brief on the company and job description.
-*************
- 
-The company is a fabless semiconductor company that develops and markets
-revolutionary fully programmable software-defined-radio (SDR) chipsets for
-multimode, multi-function wireless handheld devices. They provide their
-customers tremendous competitive value in the global cellular marketplace
-through an exceptionally cost effective, ultra-low power broadband wireless
-technology based on a new DSP baseband architecture. 
- 
-Offering a complete software-defined radio system for WCDMA, GSM and EGPRS,
-the new product is an ultra-low power, multi-threaded processor that has
-been designed to execute Java, Digital Signal Processing (DSP), and
-RISC-style control code in a unified architecture. The SoC will also allow
-handset capabilities to be enhanced through the introduction of new
-protocols, applications and functions by means of over-the-air dynamic
-software downloads.  
-The multimode multi-function baseband processor is powered by the company's
-0.13-micron DSP, which integrates an ARM microcontroller with 16MB of
-on-chip Memory and a multi-mode protocol stack. The DSP can deliver 9600
-million MAC operations per second. The platform offers support for MP3,
-MPEG4, JEPG, JPEG2000, WMA, AAC, Bluetooth and 802.11b. In addition,
-peripheral support is on tap for SIM, USIM, IrDA, FastIRDA, GPIO, UART, USB,
-Compact Flash, MMC, DS Memory, Memory Stick and Smart Memory
- 
-***************
-Jobs - Salary is Open
-**********
+> 
+> The problem of the remount that this causes remains and I an not sure how 
+> to deal with that at this stage.
 
-----------------------------------------------------------------------------
-----
+This is purely a userspace issue.  Nautilus trampling all over the 
+filesystem is greatly unjustified.  If they want a decent filesystem 
+change notification system put in place, let them propose something. 
+Caching mountpoints entries is a bad idea.
 
-TITLE: Operating System Developer (4)
+> 
+> Comments and suggestions please.
+> 
+> Is this acceptable for inclusion in the kernel?
+> If so what should I do to make this happen?
+> 
+> diff -Nur autofs4-2.6.orig/fs/autofs4/autofs_i.h autofs4-2.6.deadlock/fs/autofs4/autofs_i.h
+> --- autofs4-2.6.orig/fs/autofs4/autofs_i.h	2003-09-09 03:50:14.000000000 +0800
+> +++ autofs4-2.6.deadlock/fs/autofs4/autofs_i.h	2003-09-22 22:48:11.000000000 +0800
+> @@ -82,6 +82,7 @@
+>  	char *name;
+>  	/* This is for status reporting upon return */
+>  	int status;
+> +	struct task_struct *owner;
 
-Looking for a developer/researcher to take our existing RTOS and extend it
-to conform to the POSIX realtime applications environment profile
-(PSE51/PSE52)/Embedded Linux Consortium standards. He/she will be
-responsible for the design, implementation and testing of the RTOS. 
+This new field isn't even set anywhere!!
 
-MUST HAVE EXPERIENCE IN DEVELOPING OPERATING SYSTEMS FOR THE FOLLOWING:
-·         shared-memory multi-processors
-·         real-time systems
-·         embedded systems
+>  	int wait_ctr;
+>  };
+>  
+> diff -Nur autofs4-2.6.orig/fs/autofs4/waitq.c autofs4-2.6.deadlock/fs/autofs4/waitq.c
+> --- autofs4-2.6.orig/fs/autofs4/waitq.c	2003-09-09 03:50:31.000000000 +0800
+> +++ autofs4-2.6.deadlock/fs/autofs4/waitq.c	2003-09-23 00:02:29.209789432 +0800
+> @@ -206,6 +206,11 @@
+>  
+>  		interruptible_sleep_on(&wq->queue);
+>  
+> +		if (waitqueue_active(&wq->queue) && current != wq->owner) {
+> +			set_current_state(TASK_INTERRUPTIBLE);
+> +			schedule_timeout(wq->wait_ctr * (HZ/10));
+> +		}
+> +
 
-EXTENSIVE KERNEL HACKING ABILITY.
+This doesn't avoid the problem, it just makes it go away 99.99% of the 
+time.  I would suggest using a complete_all from the owner of the wq, 
+and let all other waiters wait for the completion.
 
-Prefer PhDs and will actively consider Masters with 4+ years of relevant
-experience.
-Include soft-copies of any relevant publications.
+Again, why is the umount on this queue?
 
- Experience with RTOS, such as VxWorks, pSOS, RTEMS etc.
-
-
+Mike Waychison
 

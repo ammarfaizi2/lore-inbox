@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbVA2CUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262839AbVA2CpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbVA2CUY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 21:20:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbVA2CUY
+	id S262839AbVA2CpW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 21:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbVA2CpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 21:20:24 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:24534 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262838AbVA2CUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 21:20:15 -0500
-Message-ID: <41FAF2D8.1060207@comcast.net>
-Date: Fri, 28 Jan 2005 21:20:08 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Fri, 28 Jan 2005 21:45:22 -0500
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:53633 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262839AbVA2CpQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 21:45:16 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [RFC][PATCH] add driver matching priorities
+Date: Fri, 28 Jan 2005 21:45:13 -0500
+User-Agent: KMail/1.7.2
+Cc: g@parcelfarce.linux.theplanet.co.uk, Adam Belay <abelay@novell.com>,
+       greg@kroah.com, rml@novell.com, linux-kernel@vger.kernel.org
+References: <1106951404.29709.20.camel@localhost.localdomain> <200501281823.27132.dtor_core@ameritech.net> <20050129001105.GQ8859@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050129001105.GQ8859@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-To: Jeff Wiegley <jeffw@cyte.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10 USB devices generate descriptor read error?
-References: <41FAEF8F.9010809@cyte.com>
-In-Reply-To: <41FAEF8F.9010809@cyte.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200501282145.13837.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Known one - It's non fatal. All your devices should work fine.  If you 
-want you can try loading usbcore.ko with module parameter 
-old_scheme_first=y and see if it goes away.
-Parag
-Jeff Wiegley wrote:
+On Friday 28 January 2005 19:11, Al Viro wrote:
+> On Fri, Jan 28, 2005 at 06:23:26PM -0500, Dmitry Torokhov wrote:
+> > On Friday 28 JanuarDy 2005 17:30, Adam Belay wrote:
+> > > Of course this patch is not going to be effective alone.  We also need
+> > > to change the init order.  If a driver is registered early but isn't the
+> > > best available, it will be bound to the device prematurely.  This would
+> > > be a problem for carbus (yenta) bridges.
+> > > 
+> > > I think we may have to load all in kernel drivers first, and then begin
+> > > matching them to hardware.  Do you agree?  If so, I'd be happy to make a
+> > > patch for that too.
+> > > 
+> > 
+> > I disagree. The driver core should automatically unbind generic driver
+> > from a device when native driver gets loaded. I think the only change is
+> > that we can no longer skip devices that are bound to a driver and match
+> > them all over again when a new driver is loaded.  
+> 
+> And what happens if we've already got the object busy?
+> 
 
-> Is anybody else having a similar problem as the
-> following...
->
-> My USB keydrives use to work fine in 2.6.9.
-> Since I upgraded to 2.6.10 now they just
-> generate a device descriptor read error.
->
-> Specifically:
->
-> /var/log/kern.log.0:Jan 26 18:18:18 mail kernel: usb 4-2.1:
-> device descriptor read/64, error -32
->
-> Also I noticed that a new Sigmatel based USB IRDA
-> device also produces similar messages...
->
-> /var/log/kern.log:Jan 27 12:31:19 mail kernel: usb 2-2: device
-> descriptor read/64, error -71
->
-> Is this a known problem or is it just me?
->
-> I noticed that the precompiled debian 2.6.10 kernel
-> works with at least the usb flash drive ok.  But my
-> compiled version produces the above.
->
-> But I don't think I changed any relevant kernel config
-> items from 2.6.9 to 2.6.10 and I've compiled lots of
-> USB enabled kernels before so I'd like to think I'm
-> not an idiot but maybe I missed a new option or
-> something.
->
-> Please help,
->
-> - Jeff
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Mark it as dead and release structures when holder lets it go. With hotplug
+pretty much everywhere more and more systems can handle it. Plus one could
+argue that if an object needs a special driver to function properly it will
+unlikely be busy before native driver is loaded.
 
+Also, one still can do what Adam offers by pre-loading native drivers in
+cases whent is required but still support more flexible default scheme.
+
+-- 
+Dmitry

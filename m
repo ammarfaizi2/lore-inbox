@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287406AbSACQj3>; Thu, 3 Jan 2002 11:39:29 -0500
+	id <S287418AbSACQkT>; Thu, 3 Jan 2002 11:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287409AbSACQjT>; Thu, 3 Jan 2002 11:39:19 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:50446 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287406AbSACQjI>;
-	Thu, 3 Jan 2002 11:39:08 -0500
-Date: Thu, 3 Jan 2002 14:38:55 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: <harald.holzer@eunet.at>, <linux-kernel@vger.kernel.org>,
-        <wookie@osdl.org>, <velco@fadata.bg>
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-In-Reply-To: <20020103153355.612bd269.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33L.0201031437500.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S287414AbSACQkA>; Thu, 3 Jan 2002 11:40:00 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:45327 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S287409AbSACQj4>; Thu, 3 Jan 2002 11:39:56 -0500
+Message-ID: <3C3486C9.8080007@evision-ventures.com>
+Date: Thu, 03 Jan 2002 17:28:57 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Ion Badulescu <ion@cs.columbia.edu>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
+In-Reply-To: <200201031605.g03G57e22947@guppy.limebrokerage.com> <E16MAp4-00018b-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Stephan von Krawczynski wrote:
-> On Thu, 3 Jan 2002 11:28:45 -0200 (BRST)
-> Rik van Riel <riel@conectiva.com.br> wrote:
+Daniel Phillips wrote:
+
+>On January 3, 2002 05:05 pm, Ion Badulescu wrote:
 >
-> > Another item to look into is removing the page cache hash table
-> > and replacing it by a radix tree or hash trie, in the hopes of
-> > improving scalability while at the same time saving some space.
+>>Daniel Phillips wrote:
+>>
+>>>+static struct file_system_type ext2_fs = {
+>>>+       owner:          THIS_MODULE,
+>>>+       fs_flags:       FS_REQUIRES_DEV,
+>>>+       name:           "ext2",
+>>>+       read_super:     ext2_read_super,
+>>>+       super_size:     sizeof(struct ext2_sb_info),
+>>>+       inode_size:     sizeof(struct ext2_inode_info)
+>>>+};
+>>>
+>>While we're at it, can we extend this model to also include details about 
+>>the other filesystem data structures with (potential) private info, i.e.
+>>struct dentry and struct file? ext2 might not use them, but other 
+>>filesystems certainly do.
+>>
 >
-> Ah, didn't we see such a patch lately in LKML? If I remember correct I
-> saw some comparison charts too and some people testing it were happy
-> with it. Just searched through the list: 24. dec :-) by Momchil
-> Velikov Can someone with big mem have a look at the saving? How about
-> 18-pre?
+>Hi,
+>
+>Could you be more specific about what you mean, please?
+>
+>>>-static inline struct inode * new_inode(struct super_block *sb)
+>>>+static inline struct inode *new_inode (struct super_block *sb)
+>>>
+>>Minor issue of coding style. I'd steer away from such gratuitious changes, 
+>>especially since they divert from the commonly accepted practice of having 
+>>no spaces between the name of the function and its arguments.
+>>
+>
+>That's good advice and I'm likely to adhere to it - if you can show that 
+>having no spaces between the name of the function and its arguments really is 
+>the accepted practice. 
+>
+It is trust on that. Only the silly GNU indentation style introduced 
+something else. Look at the "core kernel" and
+not the ugly drivers around it.
 
->From what velco told me on IRC, he is still tuning his work
-and looking at further improvements.
-
-One thing to keep in mind is that most pages are in the
-page cache; we wouldn't want to reduce space in one data
-structure just to use more space elsewhere, this is
-something to look at very carefully...
-
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
 

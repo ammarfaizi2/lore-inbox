@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311278AbSCLRXJ>; Tue, 12 Mar 2002 12:23:09 -0500
+	id <S311279AbSCLR0a>; Tue, 12 Mar 2002 12:26:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311279AbSCLRW7>; Tue, 12 Mar 2002 12:22:59 -0500
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:61361 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S311278AbSCLRWs>; Tue, 12 Mar 2002 12:22:48 -0500
-Date: Tue, 12 Mar 2002 17:21:01 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Malte Starostik <malte@kde.org>, linux-kernel@vger.kernel.org
-Subject: Re: directory notifications lost after fork?
-Message-ID: <20020312172101.A5075@kushida.apsleyroad.org>
-In-Reply-To: <200203120247.05611.malte@kde.org> <20020312125543.B4281@kushida.apsleyroad.org> <E16kpHc-0002Lx-00@starship>
-Mime-Version: 1.0
+	id <S311291AbSCLR0U>; Tue, 12 Mar 2002 12:26:20 -0500
+Received: from mons.uio.no ([129.240.130.14]:28355 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S311279AbSCLRZ7>;
+	Tue, 12 Mar 2002 12:25:59 -0500
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Dave Jones <davej@suse.de>
+Subject: Re: Linux 2.4.19-pre3
+In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
+	<slrna8rmfn.46r.kraxel@bytesex.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 12 Mar 2002 18:24:48 +0100
+In-Reply-To: <slrna8rmfn.46r.kraxel@bytesex.org>
+Message-ID: <shsy9gxhf6n.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16kpHc-0002Lx-00@starship>; from phillips@bonn-fries.net on Tue, Mar 12, 2002 at 05:37:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> On March 12, 2002 01:55 pm, Jamie Lokier wrote:
-> >    - dnotify causes files to notify their parent directory (yes it's
-> >      ambiguous with hard links).
-> 
-> That's a bitch, isn't it?  The only way I can think of to deal with it
-> is via a hardlink reverse map, and there are lots of worms in that
-> can, including where you store it, how much it costs to maintain it,
-> how persistent it should be and how to make it perfectly non-racy.
+>>>>> " " == Gerd Knorr <kraxel@bytesex.org> writes:
 
-For dnotify purposes this may be solvable without a full reverse map.
-Suppose that we have per-inode notifiers as I suggested, and as the imon
-patch implements.  Of course, multiple listeners can attach to an
-inode's notifier chain -- this is needed to support multiple processes
-listening.
+    >> Here goes -pre3, with the new IDE code. It has been stable
+    >> enough time in the -ac tree, in my and Alan's opinion.
 
-Then you can implement dnotify by attaching the parent directory as a
-listener to each of its child inodes.  (It's a bit heavy to set up,
-though).
+     > Doesn't boot my machine.  "Intel machine check architecture
+     > supported" is the last message printed before it just hangs.
 
-Now, when an inode is modifed we don't guarantee to notify all the
-parent directories...  but we do guarantee to notify all the ones which
-are actually listening at the moment.  So it's a partial reverse map.  I
-expect Al Viro would have something to say about dcache races at this
-point.
+Ditto on my laptop. I've tracked it down to a change in the file
+arch/i386/kernel/bluesmoke.c between pre2 and pre3. My guess is that
 
-For recursive parent notification, such as monitoring "/usr" to learn
-about changes anywhere underneath "/usr", the above is perhaps
-impractical.  We're right back to having to do "find -print" equivalent
-disk activity.  Or reverse maps in the filesystem.  Ugh.
+- Fix off-by-one error in bluesmoke                     (Dave Jones)
 
-In practice I'd just give up trying to cache stat() results of hard
-linked files, unless I knew I'd found all the paths to those files.
-Just don't use hard links ;-)
+is wrong for some reason. Backing out that change using the appended
+patch causes pre3 to boot normally.
 
-cheers,
--- Jamie
+Cheers,
+  Trond
 
+--- linux-2.4.19-up/arch/i386/kernel/bluesmoke.c.orig	Tue Mar 12 14:56:56 2002
++++ linux-2.4.19-up/arch/i386/kernel/bluesmoke.c	Tue Mar 12 18:07:44 2002
+@@ -169,7 +169,7 @@
+ 	if(l&(1<<8))
+ 		wrmsr(MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
+ 	banks = l&0xff;
+-	for(i=0;i<banks;i++)
++	for(i=1;i<banks;i++)
+ 	{
+ 		wrmsr(MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
+ 	}
 

@@ -1,79 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267076AbUBRCFz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 21:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267085AbUBRCFz
+	id S266572AbUBRB7U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 20:59:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267017AbUBRB7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 21:05:55 -0500
-Received: from mail.inter-page.com ([12.5.23.93]:33298 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S267076AbUBRCFx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 21:05:53 -0500
-From: "Robert White" <rwhite@casabyte.com>
-To: <Valdis.Kletnieks@vt.edu>, "'Andrey Borzenkov'" <arvidjaar@mail.ru>
-Cc: <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: Initrd Question 
-Date: Tue, 17 Feb 2004 18:05:39 -0800
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAodkDQazuxky+8ha4yn4hfQEAAAAA@casabyte.com>
+	Tue, 17 Feb 2004 20:59:20 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:23266 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S266572AbUBRB7S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 20:59:18 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <200402131422.i1DEMWVB011960@turing-police.cc.vt.edu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16434.50928.682219.187846@napali.hpl.hp.com>
+Date: Tue, 17 Feb 2004 17:59:12 -0800
+To: Matthew Wilcox <willy@debian.org>
+Cc: davidm@hpl.hp.com, torvalds@osdl.org, Michel D?nzer <michel@daenzer.net>,
+       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: radeon warning on 64-bit platforms
+In-Reply-To: <20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk>
+References: <16434.35199.597235.894615@napali.hpl.hp.com>
+	<1077054385.2714.72.camel@thor.asgaard.local>
+	<16434.36137.623311.751484@napali.hpl.hp.com>
+	<1077055209.2712.80.camel@thor.asgaard.local>
+	<16434.37025.840577.826949@napali.hpl.hp.com>
+	<1077058106.2713.88.camel@thor.asgaard.local>
+	<16434.41884.249541.156083@napali.hpl.hp.com>
+	<20040217234848.GB22534@krispykreme>
+	<16434.46860.429861.157242@napali.hpl.hp.com>
+	<20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In a modern kernel you can safely multiply mount file systems.  In
-particular, if you are going to pivot_root you might be better off and
-happier if you mount devfs and procfs (and sysfs) in both the old and new
-locations before the pivot.
+>>>>> On Wed, 18 Feb 2004 01:54:23 +0000, Matthew Wilcox <willy@debian.org> said:
 
-So mount /dev and /proc and /sysfs (etc) as needed before the pivot.
-Mount /new-root.
-Then mount /new-root/dev /new-root/proc /new-root/sysfs /new-root/dev/devpts
-(etc) as you expect to need it after the pivot
-Do the pivot.
-Then unmount the unneeded /old-root/dev etc.
+  >> I don't really see the point of that, given that pretty much all
+  >> existing Linux source code is formatted for 100 columns.  I don't feel
+  >> strongly about it, however, so I changed it.
 
-This should make things much more convenient.
+  Matthew> Um, only your crap.  Everybody else follows
+  Matthew> Documentation/CodingStyle.
 
-Mount what you need, but don't mount things that init scripts will mount
-later.  There isn't much harm to be had in mounting something over itself
-(e.g. "mount -t devfs devfs /dev" twice in a row) but it keeps things like
-/proc/mounts nice and tidy if you keep it all straight.
+Wow.  Revisionists at work? ;-)
 
-Rob.
+I personally would be more than happy to reformat things to 80 cols,
+but it's a waste of time unless almost all Linux code gets
+reformatted.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of
-Valdis.Kletnieks@vt.edu
-Sent: Friday, February 13, 2004 6:23 AM
-To: Andrey Borzenkov
-Cc: der.eremit@email.de; linux-kernel@vger.kernel.org
-Subject: Re: Initrd Question 
-
-On Fri, 13 Feb 2004 17:14:25 +0300, =?koi8-r?Q?=22?=Andrey
-Borzenkov=?koi8-r?Q?=22=20?= said:
-
-> > Should you check for /dev/.devfsd on the real root here? I thought
-.devfsd
-> > is created by the devfsd process, 
-> 
-> you are wrong here, sorry. .devfsd is created by devfs.
-
-I see the confusion - .devfsd gets created in the directory that is
-/dev at the time devfs starts up.  However, after pivot_root, that directory
-has a new name, and that's where we need to check for .devfsd.
-
-It gets even more confusing in some configurations where we end up
-unmounting
-/initrd/dev and then re-mounting /dev just to get it into the right place..
-
-
+	--david

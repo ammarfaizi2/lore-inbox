@@ -1,92 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268097AbUHWWNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267489AbUHWWO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268097AbUHWWNV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 18:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267597AbUHWWMw
+	id S267489AbUHWWO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 18:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267795AbUHWWEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 18:12:52 -0400
-Received: from mail.tmr.com ([216.238.38.203]:55823 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S267598AbUHWWGm (ORCPT
+	Mon, 23 Aug 2004 18:04:22 -0400
+Received: from mk-smarthost-2.mail.uk.tiscali.com ([212.74.114.38]:262 "EHLO
+	mk-smarthost-2.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
+	id S267489AbUHWWCo convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 18:06:42 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: CD/DVD record
-Date: Mon, 23 Aug 2004 18:07:09 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cgdpdk$l9i$1@gatekeeper.tmr.com>
-References: <4125B539.6040402@hist.no><4125B539.6040402@hist.no> <4125BA56.1060307@wiggly.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1093298420 21810 192.168.12.100 (23 Aug 2004 22:00:20 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <4125BA56.1060307@wiggly.org>
+	Mon, 23 Aug 2004 18:02:44 -0400
+Date: Mon, 23 Aug 2004 23:02:14 +0100
+Message-ID: <4124B99C0001EEEA@mk-cpfrontend-4.mail.uk.tiscali.com>
+From: dmusa2@tiscali.co.uk
+Subject: Urgent .
+To: dmusa2@tiscali.co.uk
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Rantor wrote:
-> Helge Hafting wrote:
-> 
->>> Hmm...not sure about that. Not if you do want device specific fixes 
->>> in there too...
->>
->>
->> The question then becomes - how many percent of devices in use need 
->> fixes to work?
->> A simple program with _no_ fixes, that works with correct devices only 
->> might not be that hard.
->> After it becomes popular people simply take care to buy working 
->> burners.  The old broken
->> tend to get upgraded after a while, or they can be used with the old 
->> cdrecord.
->> [...]
-> 
-> 
-> Good point. Agreed.
-> 
->>> I'll admit to having some time on my hands but acquiring equipment to 
->>> test with would be a stumbling block for me.
->>
->>
->> Take one thing at a time.  If you want to try this, start writing a 
->> program that works well
->> with your particular burner.  Chances are it'll work with many others 
->> too.  And then you
->> get patches from people who have other equipment.  You won't need to 
->> have everything
->> yourself.
-> 
-> 
-> Another good point. Agreed.
-> 
->>> It would be nice if everyone could just put their egos aside and 
->>> provide a united front wrt FOSS cd/dvd recording.
->>
->>
->> :-) This goes for all open source.  I don't think it'll happen though. 
->> :-/
-> 
-> 
-> Hat trick on the Good Point(tm) front. Agreed!
-> 
-> Well then I may go and look into cd recording then...hmm...
+AUDIT AND ACCOUNTS UNIT 
+UNION BANK OF TOGOLEISE UNION
+BANK HOUSE,LOME- TOGO. 
 
-I hate to say it, but why reinvent the wheel? I'm sure that if Jorg 
-doesn't support new technology there will be a project, either on 
-sourceforge or freestanding, to create OpenCDburn or some such. It would 
-be very hard to find someone as technically good as Jorg in this area, 
-and hard to find anyone worse at working with others.
+Good day, 
 
-That's really sad, because if he would accept more from others and not 
-insist on having the last (or only) word on every issue the software 
-would move faster and with less hostility.
+I am Mr.Dan Musa. A staff of bills and exchange at
+the foreign remittance Department, of Union Bank Of Togolise
+plc. 
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+I am writing following the impressive information
+about you from our chambers of commerce and industry.In my
+department, we discovered an abandoned sum of (US$ 5m)
+FIVE MILLION UNITED STATES DOLLARS only, in an account that
+belongs to one of our foreign customers who died along with
+his entire family in November 1999 in a plane crash. 
+Since we got information about his death, we have been
+expecting his next of kin to come over and claim his money
+because we cannot release it unless somebody applies as a
+next of kin or relation to the deceased as indicated in our
+banking guidelines. 
+
+Unfortunately we learn that his supposed next of kin or
+relations died along with him at the crash leaving nobody
+behind! for the claim. It is therefore upon this discovery
+that I and other officials in the department now decided to
+make business with you, that is, to release the money to
+you as the next of kin or relation to the decease since
+nobody is fronting for the money and we do not want this
+fund to go into disbursement account as unclaimed bill. The
+banking law and guidelines here stipulates that if such
+money remained unclaimed after six years the money will be
+transferred into federal government account as unclaimed
+fund. 
+
+The request of a foreigner as next of kin in this business
+is occassioned by the fact that the customer was a
+foreigner and an indigene can not stand as a next of kin to
+a foreigner. We agreed that 30% of this money will be for
+you as the foreign partner and 10% for expenses incurred
+during the cost of remittance. Therefore to enable
+immediate transfer of the fund to you as arranged, you
+should contact me with my e-mail address for further information. 
+
+I look forward to hear from you. Please Include your phone
+and fax numbers when repling. 
+
+Waiting for your urgent reply via my private email:dmusa5@swissonline.ch.
+
+Best regards
+ 
+Mr.Dan Musa.
+Foreign Remittance.
+
+__________________________________________________________________
+Get Tiscali Broadband From £15:99
+http://www.tiscali.co.uk/products/broadbandhome/
+
+
+

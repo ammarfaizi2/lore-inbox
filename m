@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUCUVWl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 16:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUCUVWl
+	id S261322AbUCUVpg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 16:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUCUVpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 16:22:41 -0500
-Received: from postfix4-2.free.fr ([213.228.0.176]:5045 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261300AbUCUVWj
+	Sun, 21 Mar 2004 16:45:36 -0500
+Received: from postfix3-1.free.fr ([213.228.0.44]:47311 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261322AbUCUVpe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 16:22:39 -0500
-Message-ID: <405E07A1.9000609@free.fr>
-Date: Sun, 21 Mar 2004 22:22:41 +0100
+	Sun, 21 Mar 2004 16:45:34 -0500
+Message-ID: <405E0CFB.8090003@free.fr>
+Date: Sun, 21 Mar 2004 22:45:31 +0100
 From: Eric Valette <eric.valette@free.fr>
 Reply-To: eric.valette@free.fr
 Organization: HOME
@@ -21,55 +21,39 @@ To: Zwane Mwaikambo <zwane@linuxpower.ca>
 Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.5-rc2-mm1 does not boot. 2.6.5-rc1-mm2 + small fix from axboe
  was fine
-References: <405DFA02.8090504@free.fr> <Pine.LNX.4.58.0403211555110.28727@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0403211555110.28727@montezuma.fsmlabs.com>
+References: <405DFA02.8090504@free.fr> <Pine.LNX.4.58.0403211550430.28727@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.58.0403211550430.28727@montezuma.fsmlabs.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Zwane Mwaikambo wrote:
-
-> How about the following patch?
-
-Part of this does not apply...
-
-> --- linux-2.6.5-rc2-mm1/init/main.c    21 Mar 2004 17:02:18 -0000    
-> 1.1.1.1
-> +++ linux-2.6.5-rc2-mm1/init/main.c    21 Mar 2004 20:54:19 -0000
-> @@ -586,8 +586,8 @@ static int free_initmem_on_exec_helper(v
->     char c;
+> On Sun, 21 Mar 2004, Eric Valette wrote:
 > 
->     sys_close(fd[1]);
-> -    sys_read(fd[0], &c, 1);
-> -    free_initmem();
-> +    if (sys_read(fd[0], &c, 1) > 0)
-> +        free_initmem();
->     return 0;
-> }
-
-This part does apply. I made it by hand...
-
+>> System starts but hang just before giving hand to init, sometimes I see
+>>
+>> Mounted devfs on /dev <=== Hangs here
+>> Freeing unused kernel memory: 216k freed
+>>
+>> Sometimes it goes a little bit further but hangs nearly at calling 
+>> init...
+>>
+>> Is there something tagged __init that should not be? Or does some of the
+>> new SCSI stuff breaks (swap on sda1, ...).
+>>
+>> Keyboard still gets interrupt (CAPS lock led), but nothing happens. Like
+>> if there was a deadlock. No kdbg...
 > 
-> @@ -596,7 +596,7 @@ static void free_initmem_on_exec(void)
->     int fd[2];
 > 
->     do_pipe(fd);
-> -       kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
-> +    kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
-
-Cosmetic change but yes...
-
+> initramfs-search-for-init.patch
 > 
->     sys_dup2(fd[1], 255);   /* to get it out of the way */
->     sys_close(fd[0]);
-> @@ -643,6 +643,7 @@ static int init(void * unused)
->     run_init_process("/init");
-> 
->     prepare_namespace();
-> +    free_initmem();
+> That patch may be freeing initmem before you get to prepare_namespace()
 
-This is already done (plus a comment....)???
+It looks like this patch initramfs-search-for-init.patch has been 
+mis-applyed when creating 2.6.5-rc2-mm1. At least the resulting code I 
+have in my source tree is not what I should get with the patch applied 
+(as far as I can read patch directly). Will try to apply it by hand...
 
 -- 
     __

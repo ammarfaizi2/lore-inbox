@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbULWNLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbULWN0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbULWNLh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 08:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbULWNLh
+	id S261231AbULWN0y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 08:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbULWN0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 08:11:37 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:60079 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261227AbULWNLf (ORCPT
+	Thu, 23 Dec 2004 08:26:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42201 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261231AbULWN0w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 08:11:35 -0500
-Date: Thu, 23 Dec 2004 14:11:35 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pc stalling when processing large files [2.6.9]
-Message-ID: <20041223131135.GA11257@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Folkert van Heusden <folkert@vanheusden.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.33.0412231205470.28376-100000@muur.intranet.vanheusden.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0412231205470.28376-100000@muur.intranet.vanheusden.com>
-User-Agent: Mutt/1.3.28i
+	Thu, 23 Dec 2004 08:26:52 -0500
+Date: Thu, 23 Dec 2004 08:26:09 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: "Zou, Nanhai" <nanhai.zou@intel.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       lista4@comhem.se, linux-kernel@vger.kernel.org, mr@ramendik.ru,
+       kernel@kolivas.org
+Subject: RE: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+In-Reply-To: <894E37DECA393E4D9374E0ACBBE7427013CA3A@pdsmsx402.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.61.0412230825473.21365@chimarrao.boston.redhat.com>
+References: <894E37DECA393E4D9374E0ACBBE7427013CA3A@pdsmsx402.ccr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 23, 2004 at 12:09:10PM +0100, Folkert van Heusden wrote:
-> Hi,
-> 
-> I have a P-III with 384MB of ram running kernel 2.6.9. It has one IDE disk.
-> When processing a large mailbox with sa-learn (the bayes learn tool of
-> spamassassin), the system gets very unresponsive. Like: when typing commands
-> on it via ssh, the system doesn't respond several times for seconds (1 or 2
-> maybe 3). Then when I continue to type, it gets a little better but when
-> idling for say 10 seconds it gets unresponsive again. The large mailbox is
-> aprox 200MB.
+On Thu, 23 Dec 2004, Zou, Nanhai wrote:
+> Rik van Riel wrote:
+>>> Seems that vmscan-ignore-swap-token-when-in-trouble.patch +
+>>> vm-pageout-throttling.patch dose not fix the problem,
+>>> I ran stress test for 2.6.9 + these 2 patches.
+>>> OOM killer was still triggered.
+>>
+>> You need the oneline patch that Andrew Morton posted two
+>> days ago:
+>>
+>> Message-Id: <20041219230754.64c0e52e.akpm@osdl.org>
+>
+> You mean that totally disable swap_token?
 
-Sounds obvious, but can you show the output of hdparm /dev/hda ? You have
-IDE DMA support enabled, but does the kernel recognize your IDE controller?
+No, the other one.  The one from the email with the message-id
+above ;)
 
-What you describe vould very well be caused by DMA being switched off for
-IDE.
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

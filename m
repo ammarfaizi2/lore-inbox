@@ -1,97 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUHVMig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUHVMlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266741AbUHVMig (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 08:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266796AbUHVMig
+	id S266810AbUHVMlD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 08:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266786AbUHVMkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 08:38:36 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:45198 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266741AbUHVMic convert rfc822-to-8bit (ORCPT
+	Sun, 22 Aug 2004 08:40:45 -0400
+Received: from legaleagle.de ([217.160.128.82]:16840 "EHLO www.legaleagle.de")
+	by vger.kernel.org with ESMTP id S266796AbUHVMkA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 08:38:32 -0400
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Cc: Julien Oster <usenet-20040502@usenet.frodoid.org>,
-       Miles Lane <miles.lane@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl>
-References: <200408191822.48297.miles.lane@comcast.net>
-	 <87hdqyogp4.fsf@killer.ninja.frodoid.org>
-	 <Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1093174557.24319.55.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 22 Aug 2004 12:35:58 +0100
+	Sun, 22 Aug 2004 08:40:00 -0400
+Message-ID: <4128941D.9030000@trash.net>
+Date: Sun, 22 Aug 2004 14:39:57 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+       Nuno Silva <nuno.silva@vgertech.com>, linux-kernel@vger.kernel.org,
+       master@sectorb.msk.ru, netdev@oss.sgi.com
+Subject: Re: 2.6.8-rc4-bk1 problem: unregister_netdevice: waiting for ppp0
+ to become free. Usage count = 1
+References: <E1BynUy-0007t1-00@gondolin.me.apana.org.au>
+In-Reply-To: <E1BynUy-0007t1-00@gondolin.me.apana.org.au>
+Content-Type: multipart/mixed;
+ boundary="------------040809050802040307090201"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-08-21 at 07:03, Tomasz Kłoczko wrote:
-> Again: DTrace is *ALSO* admininstration tool and this is why I can't
-> understand why in IBM KProbe/DProbe patch it is marked as "depends on
-> DEBUG_KERNEL" which is IMO bigest mistake on thinking level about this :>
+This is a multi-part message in MIME format.
+--------------040809050802040307090201
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Because its a debugging feature
+Herbert Xu wrote:
 
-> In Solaris DTrace is enabled in _normal production_ kernel and you can 
-> hang any probe or probes set without restarting system or any runed
-> application which was compiled withoud debug info.
+>Nuno Silva <nuno.silva@vgertech.com> wrote:
+>  
+>
+>>The problem is in the QoS code. If I start ppp whithout the 
+>>    
+>>
+>
+>OK, this appears to be due to the changeset titled
+>
+>[PKT_SCHED]: Refcount qdisc->dev for __qdisc_destroy rcu-callback
+>
+>It adds a reference to dev.
+>
+>I don't see any code that cleans up that reference when the dev goes
+>down.  So someone needs to add that similar to the code in net/core/dst.c.
+>
+>Patrick, could you please have a look at this?
+>  
+>
+The reference is dropped in __qdisc_destroy. The problem lies in the CBQ
+qdisc, it doesn't destroy the root-class and leaks the inner qdisc. These
+two patches for 2.4 and 2.6 fix the problem.
 
-Solaris only runs on large computers. You don't want kprobes randomly on
-your phone, pda, wireless router. Solaris deals with an extremely narrow
-market segment of "big computers for people with lots of money".
+Regards
+Patrick
 
-> [1] Remember: if you want profile some part of code you mast _first_
-> (re)compile them with profiling enabled. If you wand debug some code
 
-OProfile doesn't require this. 
 
-> Some enterprise systems have limited summary time to few hours per year 
-> and restart cycle can take houre or more (checking and initialize hardware
-> components). If you will try say for admin this kind system "restat your
+--------------040809050802040307090201
+Content-Type: text/x-patch;
+ name="01-2.4-cbq-leaks.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="01-2.4-cbq-leaks.diff"
 
-Enterprise users generally get kernels from vendors who have done the
-analysis of needs for them (and hopefully got it right). They generally
-don't ftp 2.6.8.1 type make config and try it out.
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/22 14:37:58+02:00 kaber@coreworks.de 
+#   [PKT_SCHED]: Fix class leak in CBQ scheduler
+#   
+#   Signed-off-by: Patrick McHardy <kaber@trash.net>
+# 
+# net/sched/sch_cbq.c
+#   2004/08/22 14:37:27+02:00 kaber@coreworks.de +8 -6
+#   [PKT_SCHED]: Fix class leak in CBQ scheduler
+# 
+diff -Nru a/net/sched/sch_cbq.c b/net/sched/sch_cbq.c
+--- a/net/sched/sch_cbq.c	2004-08-22 14:38:18 +02:00
++++ b/net/sched/sch_cbq.c	2004-08-22 14:38:18 +02:00
+@@ -1712,15 +1712,18 @@
+ 	}
+ }
+ 
+-static void cbq_destroy_class(struct cbq_class *cl)
++static void cbq_destroy_class(struct Qdisc *sch, struct cbq_class *cl)
+ {
++	struct cbq_sched_data *q = (struct cbq_sched_data *)sch->data;
++
+ 	cbq_destroy_filters(cl);
+ 	qdisc_destroy(cl->q);
+ 	qdisc_put_rtab(cl->R_tab);
+ #ifdef CONFIG_NET_ESTIMATOR
+ 	qdisc_kill_estimator(&cl->stats);
+ #endif
+-	kfree(cl);
++	if (cl != &q->link)
++		kfree(cl);
+ }
+ 
+ static void
+@@ -1743,8 +1746,7 @@
+ 
+ 		for (cl = q->classes[h]; cl; cl = next) {
+ 			next = cl->next;
+-			if (cl != &q->link)
+-				cbq_destroy_class(cl);
++			cbq_destroy_class(sch, cl);
+ 		}
+ 	}
+ 
+@@ -1766,7 +1768,7 @@
+ 		spin_unlock_bh(&sch->dev->queue_lock);
+ #endif
+ 
+-		cbq_destroy_class(cl);
++		cbq_destroy_class(sch, cl);
+ 	}
+ }
+ 
+@@ -2000,7 +2002,7 @@
+ 	sch_tree_unlock(sch);
+ 
+ 	if (--cl->refcnt == 0)
+-		cbq_destroy_class(cl);
++		cbq_destroy_class(sch, cl);
+ 
+ 	return 0;
+ }
 
-> For bring few levels up kernel *development* speed on finding some bugs 
-> source and measure some consequences adding/modifing some part of code
-> it will be good have two very well prepared on Solaris things:
-> - crash dumps,
-> - DTrace.
+--------------040809050802040307090201
+Content-Type: text/x-patch;
+ name="01-2.6-cbq-leaks.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="01-2.6-cbq-leaks.diff"
 
-We have crash dumps - at least all the enterprise vendors do. Linus
-doesn't seem to like that stuff so much.
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/22 14:30:32+02:00 kaber@coreworks.de 
+#   [PKT_SCHED]: Fix class leak in CBQ scheduler
+#   
+#   Signed-off-by: Patrick McHardy <kaber@trash.net>
+# 
+# net/sched/sch_cbq.c
+#   2004/08/22 14:30:13+02:00 kaber@coreworks.de +8 -6
+#   [PKT_SCHED]: Fix class leak in CBQ scheduler
+# 
+diff -Nru a/net/sched/sch_cbq.c b/net/sched/sch_cbq.c
+--- a/net/sched/sch_cbq.c	2004-08-22 14:33:59 +02:00
++++ b/net/sched/sch_cbq.c	2004-08-22 14:33:59 +02:00
+@@ -1746,15 +1746,18 @@
+ 	}
+ }
+ 
+-static void cbq_destroy_class(struct cbq_class *cl)
++static void cbq_destroy_class(struct Qdisc *sch, struct cbq_class *cl)
+ {
++	struct cbq_sched_data *q = qdisc_priv(sch);
++
+ 	cbq_destroy_filters(cl);
+ 	qdisc_destroy(cl->q);
+ 	qdisc_put_rtab(cl->R_tab);
+ #ifdef CONFIG_NET_ESTIMATOR
+ 	qdisc_kill_estimator(&cl->stats);
+ #endif
+-	kfree(cl);
++	if (cl != &q->link)
++		kfree(cl);
+ }
+ 
+ static void
+@@ -1777,8 +1780,7 @@
+ 
+ 		for (cl = q->classes[h]; cl; cl = next) {
+ 			next = cl->next;
+-			if (cl != &q->link)
+-				cbq_destroy_class(cl);
++			cbq_destroy_class(sch, cl);
+ 		}
+ 	}
+ 
+@@ -1799,7 +1801,7 @@
+ 		spin_unlock_bh(&sch->dev->queue_lock);
+ #endif
+ 
+-		cbq_destroy_class(cl);
++		cbq_destroy_class(sch, cl);
+ 	}
+ }
+ 
+@@ -2035,7 +2037,7 @@
+ 	sch_tree_unlock(sch);
+ 
+ 	if (--cl->refcnt == 0)
+-		cbq_destroy_class(cl);
++		cbq_destroy_class(sch, cl);
+ 
+ 	return 0;
+ }
 
-> When you see some strange behavior without system destabization 
-> current/cassic Linux kernel development look now like:
-> 1) if you have good kernel knowledge you can imagine which part of them
->     is source of same observed strange behavior,
-> 2) after looking on kernel source you can cut of area to part where bug
->     exist,
-> 3) after few recompilations you can say in which area bug exist and after
->     few other iteration stage 3) you can say what maust be fixed.
-
-Actually I generally
--	Glance across the load meters
--	Ask ps where everything is waiting
--	Potentially turn on oprofile
--	Potentially use netfilter to see who is causing all my traffic
--	Maybe strace a few apps to see what is up
--	Educate the user concerned (if needed)
-
-I've already got the symbols (and they are in the debuginfo package from
-the rpm build too). I could insmod kgdb but that level of
-debugging is generally inappropriate. 
-
-DTrace value is ease of use value.
-
-> http://blogs.sun.com/roller/page/bmc/20040820#dtrace_on_lkml
-> Bryan blog is also yet another Dtrace knowledge source ..
-
-Coo I thought only the Sun CEO spent his life making inappropriate
-comments 8)
-
+--------------040809050802040307090201--

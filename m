@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVBRUE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVBRUEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVBRUE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 15:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVBRUE1
+	id S261477AbVBRUEF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 15:04:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVBRUEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 15:04:27 -0500
-Received: from fire.osdl.org ([65.172.181.4]:47770 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261470AbVBRUDw (ORCPT
+	Fri, 18 Feb 2005 15:04:04 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:25094 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261468AbVBRUDp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 15:03:52 -0500
-Message-ID: <42164A27.8010402@osdl.org>
-Date: Fri, 18 Feb 2005 12:03:51 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 current BK] Unnecesary code gets compiled in during build?
-References: <132340039.20050218204824@dns.toxicfilms.tv>
-In-Reply-To: <132340039.20050218204824@dns.toxicfilms.tv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Feb 2005 15:03:45 -0500
+Date: Fri, 18 Feb 2005 15:03:37 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: [patch libata-dev-2.6 3/5] libata: filter SET_FEATURES - XFER MODE from ATA pass thru
+Message-ID: <20050218200337.GD3197@tuxdriver.com>
+Mail-Followup-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+	jgarzik@pobox.com
+References: <20050218195027.GB3197@tuxdriver.com> <20050218195512.GC3197@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050218195512.GC3197@tuxdriver.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Soltysiak wrote:
-> Hi,
-> 
-> I am compiling 2.6.11-rc4-cset
-> 
-> And I see during the compilation:
->   LD      drivers/media/common/built-in.o
->   LD      drivers/media/dvb/b2c2/built-in.o
->   LD      drivers/media/dvb/bt8xx/built-in.o
->   LD      drivers/media/dvb/cinergyT2/built-in.o
->   LD      drivers/media/dvb/dibusb/built-in.o
->   LD      drivers/media/dvb/dvb-core/built-in.o
->   LD      drivers/media/dvb/frontends/built-in.o
->   LD      drivers/media/dvb/ttpci/built-in.o
->   LD      drivers/media/dvb/ttusb-budget/built-in.o
->   LD      drivers/media/dvb/ttusb-dec/built-in.o
->   LD      drivers/media/dvb/built-in.o
->   LD      drivers/media/radio/built-in.o
->   LD      drivers/media/video/built-in.o
-> 
-> Although I know I have not added dvb, nor radio.
-> How come this shows up?
+Filter-out attempts to issue a SET_FEATURES - XFER MODE command
+via the ATA pass thru mechanism.
 
-It makes the kbuild system easier ?
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-It's probably fixable (I haven't looked), but I have
-noticed the same thing that you are seeing.
-Patches are welcome... if it needs to be fixed.
+ drivers/scsi/libata-scsi.c |   11 +++++++++++
+ 1 files changed, 11 insertions(+)
 
-Did you notice how large those built-in.o files are?
-
-> I am attaching my .config, it does not have DVB set.
-
+--- sata-smart-2.6/drivers/scsi/libata-scsi.c.filter	2005-02-17 16:49:51.362715273 -0500
++++ sata-smart-2.6/drivers/scsi/libata-scsi.c	2005-02-17 16:50:03.907040725 -0500
+@@ -1764,6 +1764,17 @@ ata_scsi_pass_thru(struct ata_queued_cmd
+ 	}
+ 
+ 	/*
++	 * Filter SET_FEATURES - XFER MODE command -- otherwise,
++	 * SET_FEATURES - XFER MODE must be preceded/succeeded
++	 * by an update to hardware-specific registers for each
++	 * controller (i.e. the reason for ->set_piomode(),
++	 * ->set_dmamode(), and ->post_set_mode() hooks).
++	 */
++	if ((tf->command == ATA_CMD_SET_FEATURES)
++	 && (tf->feature == SETFEATURES_XFER))
++		return 1;
++
++	/*
+ 	 * Set flags so that all registers will be written,
+ 	 * and pass on write indication (used for PIO/DMA
+ 	 * setup.)
 -- 
-~Randy
+John W. Linville
+linville@tuxdriver.com

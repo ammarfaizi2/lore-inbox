@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270727AbUJURAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270723AbUJURBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270727AbUJURAw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 13:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270661AbUJUQ44
+	id S270723AbUJURBz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 13:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270763AbUJURBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 12:56:56 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:9861 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S270727AbUJUP7i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:59:38 -0400
-Date: Thu, 21 Oct 2004 17:59:35 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: linux-kernel@vger.kernel.org
-Subject: High precision nanosleep removed?
-Message-ID: <Pine.LNX.4.53.0410211755260.12823@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 21 Oct 2004 13:01:31 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:9307 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S270723AbUJURAp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 13:00:45 -0400
+Subject: Re: Linux v2.6.9 (Strange tty problem?)
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Paul <set@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <1098373052.17052.141.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+	 <20041021024132.GB6504@squish.home.loc>
+	 <1098349651.17067.3.camel@localhost.localdomain>
+	 <1098364808.2815.38.camel@deimos.microgate.com>
+	 <1098373052.17052.141.camel@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1098378042.10324.8.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 21 Oct 2004 12:00:43 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+On Thu, 2004-10-21 at 10:37, Alan Cox wrote:
+> On Iau, 2004-10-21 at 14:20, Paul Fulghum wrote:
+> > This restores the original behavior for
+> > devices that have not yet implemented ldisc->hangup()
+> > and should work with the new locking.
+> 
+> Unfortunately that re-introduces another existing unfixed problem.
 
+I also realized that the original code *only*
+called ldisc->close if the current ldisc != N_TTY.
 
-the high precision sleep was removed, as this changeset says. Can anybody shed
-some more light on why it is a special case after all?
+So I was wrong in interpreting this as using
+ldisc->close to indicate hangup in a general sense
+because it does not apply to N_TTY.
+So depending on this behavior is wrong,
+and implementing ldisc->hangup is the way to go.
 
-|PatchSet 3949
-|Date: 2002/09/26 05:04:43
-|Author: torvalds
-|Branch: HEAD
-|Tag: (none)
-|Log:
-|Remove busy-wait for short RT nanosleeps. It's a random special case
-|and does the wrong thing for higher HZ values anyway.
-|BKrev: 3d92875bgaJQe6_FSRDwHLDYHwPTgw
-|
-|Members:
-|        ChangeSet:1.3949->1.3950
-|        kernel/timer.c:1.22->1.23
+I'm working on the PPP ldisc now.
 
-
-
-Jan Engelhardt
 -- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+Paul Fulghum
+paulkf@microgate.com
+

@@ -1,57 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262436AbSIZLcT>; Thu, 26 Sep 2002 07:32:19 -0400
+	id <S262498AbSIZLiO>; Thu, 26 Sep 2002 07:38:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262498AbSIZLcS>; Thu, 26 Sep 2002 07:32:18 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:22657 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262436AbSIZLcS>;
-	Thu, 26 Sep 2002 07:32:18 -0400
-Date: Thu, 26 Sep 2002 13:37:25 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Stian Jordet <liste@jordet.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mouse/Keyboard problems with 2.5.38
-Message-ID: <20020926133725.A8851@ucw.cz>
-References: <1032996672.11642.6.camel@chevrolet> <20020926105853.A168142@ucw.cz> <1033039991.708.6.camel@chevrolet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1033039991.708.6.camel@chevrolet>; from liste@jordet.nu on Thu, Sep 26, 2002 at 01:32:59PM +0200
+	id <S262501AbSIZLiO>; Thu, 26 Sep 2002 07:38:14 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:20952 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S262498AbSIZLiM>; Thu, 26 Sep 2002 07:38:12 -0400
+Message-ID: <3D92F2D9.3050308@metaparadigm.com>
+Date: Thu, 26 Sep 2002 19:43:21 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre10aa4 OOPS in ext3 (get_hash_table, unmap_underlying_metadata)
+References: <3D92A1D0.5000203@metaparadigm.com> <3D92B6F3.1428A76A@digeo.com> <3D92BDC8.8080603@metaparadigm.com> <3D92BF0C.DBDDFA38@digeo.com> <20020926111234.GC11333@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 01:32:59PM +0200, Stian Jordet wrote:
-
-> > > Second problem, if I press SHIFT+PAGEUP, my computer freezes. It spits
-> > > out this message: "input: AT Set 2 keyboard on isa0060/serio0, and then
-> > > it's dead. I have a Logitech cordless keyboard. 
-> > > 
-> > > Anyone else experienced this?
-> > 
-> > I fixed this in about 2.5.36. Please #define ATKBD_DEBUG in
-> > drivers/input/keyboard/atkbd.c, and send me the kernel output just
-> > before the crash, please. I'll try to reproduce it here meanwhile.
+On 09/26/02 19:12, Andrea Arcangeli wrote:
+> On Thu, Sep 26, 2002 at 01:02:20AM -0700, Andrew Morton wrote:
 > 
-> I'm added #define ATKBD_DEBUG right below all the other define's in
-> atkbd.c, did a make clean; make dep; make bzImage and tried again. I
-> can't see any difference. It still just prints "input: AT Set 2 keyboard
-> on isa0060/serio0".
+>>Michael Clark wrote:
+>>
+>>>On 09/26/02 15:27, Andrew Morton wrote:
+>>>
+>>>>Michael Clark wrote:
+>>>>
+>>>>
+>>>>>Hiya,
+>>>>>
+>>>>>Been having frequent (every 4-8 days) oopses with 2.4.19pre10aa4 on
+>>>>>a moderately loaded server (100 users - 0.4 load avg).
+>>>>>
+>>>>>The server is a Intel STL2 with dual P3, 1GB RAM, Intel Pro1000T
+>>>>>and Qlogic 2300 Fibre channel HBA.
+>>>>>
+>>>>>We are running qla2300, e1000 and lvm modules unmodified as present in
+>>>>>2.4.19pre10aa4. We also have quotas enabled on 1 of the ext3 fs.
+>>>>>
+>>>>
+>>>>
+>>>>It's not familiar, sorry.
+>>>
+>>>Maybe I should try XFS? I've heard of people running this for
+>>>80+ days and no downtime. I really would like to get past 8 days.
+>>
+>>Well that would be one way of eliminating variables, and that's
+>>the only way to narrow this down.   Looks like something somewhere
+>>(software or hardware) has corrupted some memory.
+> 
+> 
+> yep. This is the hardest kind of bugs to fix, since the oops (or a lkcd
+> crash dump) would be almost totally useless in these cases. I'm quite
+> relaxed about the core, I would look into either scsi driver or e1000
+> first.
 
-Hmm, have you looked into 'dmesg'? It prints the information with
-KERN_DEBUG priority, which often won't make it on the screen or into the
-logs ...
+I'm pretty sure it's not e1000 as we just switched to it from
+GA621's using the ns82830 driver - still had the same lookups
+with a completely different eth driver (although at that stage
+we were loosing the oopses).
 
-> I did, however, find out that if I press SHIFT+what
-> ever of the buttons arrows, insert, home, page up/down, delete and end,
-> I get just the same behaviour. It does not happen with CTRL or ALT.
+I'm still dubious about the qlogic driver although v4.45 had
+stood up to a 2 week cerberus and bonnie run with the 2.4.18pre2aa2
+kernel, although this kernel also would panic every 8-10 days
+under fileserver load.
 
-Can you try passing 'i8042_direct' on the kernel command line to see if
-it cures the problem? It looks like your keyboard is doing some very
-strange 84-key-at-emulation, stranger than others do ...
+Possibly an LVM interaction with the qlogic driver. Maybe i
+should stick with fixed partition sizes and drop the LVM.
 
-> Thank you very much.
+Due to corrupted bufferheads in the oops, it is most likely some
+interaction between ext3,LVM and qlogic ???
 
--- 
-Vojtech Pavlik
-SuSE Labs
+afpd (Netatalk)
+   |
+ext3 with quotas
+   |
+LVM
+   |
+qlogic2300 6.0.1b1
+
+> While I got good reports about qla drivers, I'm not sure how many people
+> is testing the e1000 in pre10aa4, that's an old driver, 4.2.x, the new
+> one in mainline 2.4.20 is 4.3.15. So I would suggest first of all to
+> upgrade the e1000 driver, just in case (I will shortly upload a new -aa
+> with all pending stuff included, but the latest one against 20pre5
+> is just in sync with mainline in terms of e1000).
+
+Okay. Hmmm, still not sure what my best next step for elimination,
+still my personal hunch is LVM, ext3 or this mix. I'm sorta thinking
+XFS with no LVM at the moment (or maybe I should just remove the LVM
+as a first step). Trouble is it takes a week or so for the problem to
+show up.
+
+Would you suggest i tried 2.4.20pre5aa2 with its qlogic 6.1b1 (I notice
+b5 is the latest) and no LVM?
+
+>>The problem is that even if you _do_ fix the problem by switching
+>>something out, the cause could lie elsewhere.
+
+Cheers,
+~mc
+

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVCDGkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262570AbVCDGpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVCDGkh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 01:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVCDGkh
+	id S262570AbVCDGpi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 01:45:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbVCDGpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 01:40:37 -0500
-Received: from bender.bawue.de ([193.7.176.20]:47832 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S262444AbVCDGh0 (ORCPT
+	Fri, 4 Mar 2005 01:45:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:57001 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262525AbVCDGpL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 01:37:26 -0500
-Date: Fri, 4 Mar 2005 07:37:17 +0100
-From: Joerg Sommrey <jo@sommrey.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [SATA] libata-dev queue updated
-Message-ID: <20050304063717.GA12203@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <3Ds62-5AS-3@gated-at.bofh.it> <200503022034.j22KYppm010967@bear.sommrey.de> <422641AF.8070309@pobox.com> <20050303193229.GA10265@sommrey.de> <4227DF76.3030401@pobox.com>
+	Fri, 4 Mar 2005 01:45:11 -0500
+Date: Thu, 3 Mar 2005 22:44:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org, Gerd Knorr <kraxel@bytesex.org>
+Subject: Re: 2.6.11 vs DVB cx88 stuffs
+Message-Id: <20050303224438.2952f63e.akpm@osdl.org>
+In-Reply-To: <200503032119.04675.gene.heskett@verizon.net>
+References: <200503032119.04675.gene.heskett@verizon.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4227DF76.3030401@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 11:09:26PM -0500, Jeff Garzik wrote:
-> Joerg Sommrey wrote:
-> >On Wed, Mar 02, 2005 at 05:43:59PM -0500, Jeff Garzik wrote:
-> >
-> >>Joerg Sommrey wrote:
-> >>
-> >>>Jeff Garzik wrote:
-> >>>
-> >>>>Patch:
-> >>>>http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.11-rc5-bk4-libata-dev1.patch.bz2
-> >>>
-> >>>
-> >>>Still not usable here.  The same errors as before when backing up:
-> >>
-> >>Please try 2.6.11 without any patches.
-> >
-> >Plain 2.6.11 doesn't work either.  All of 2.6.10-ac11, 2.6.11-rc5,
-> >2.6.11-rc5 + 2.6.11-rc5-bk4-libata-dev1.patch and 2.6.11 fail with the
-> >same symptoms. 
-> >
-> >Reverting to stable 2.6.10-ac8 :-)
+Gene Heskett <gene.heskett@verizon.net> wrote:
+>
+> I've a new pcHDTV-3000 card, and I thought maybe it would
+>  be a good idea to build the cx88 stuff in the DVB section
+>  of a make xconfig.
 > 
-> Does reverting the attached patch in 2.6.11 (apply with patch -R) fix 
-> things?
+>  It doesn't build, spitting out this bailout:
 > 
+>    CC [M]  drivers/media/video/cx88/cx88-cards.o
+>  drivers/media/video/cx88/cx88-cards.c: In function `hauppauge_eeprom_dvb':
+>  drivers/media/video/cx88/cx88-cards.c:694: error: `PLLTYPE_DTT7595' undeclared (first use in this function)
+>  drivers/media/video/cx88/cx88-cards.c:694: error: (Each undeclared identifier is reported only once
+>  drivers/media/video/cx88/cx88-cards.c:694: error: for each function it appears in.)
+>  drivers/media/video/cx88/cx88-cards.c:698: error: `PLLTYPE_DTT7592' undeclared (first use in this function)
+>  drivers/media/video/cx88/cx88-cards.c: In function `cx88_card_setup':
+>  drivers/media/video/cx88/cx88-cards.c:856: error: `PLLTYPE_DTT7579' undeclared (first use in this function)
 
-Still the same with this patch reverted.
--jo
+OK, this is one for Gerd.  Those identifiers just aren't anywhere in the tree.
 
--- 
--rw-r--r--  1 jo users 63 2005-03-04 07:32 /home/jo/.signature
+The reason this wasn't picked up is that neither `make allyesconfig' or
+`make allmodconfig' enables CONFIG_VIDEO_CX88_DVB or
+CONFIG_VIDEO_CX88_DVB_MODULE.
+
+For coverage purposes it would be excellent to fix that up too, please.

@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131430AbRCQBJE>; Fri, 16 Mar 2001 20:09:04 -0500
+	id <S131477AbRCQBJq>; Fri, 16 Mar 2001 20:09:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131477AbRCQBIx>; Fri, 16 Mar 2001 20:08:53 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:11654 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131430AbRCQBIs>;
-	Fri, 16 Mar 2001 20:08:48 -0500
-Date: Sat, 17 Mar 2001 02:07:56 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200103170107.CAA06282.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, rhw@MemAlpha.CX
-Subject: Re: [PATCH] Improved version reporting
-Cc: kaboom@gatech.edu, linux-kernel@vger.kernel.org, seberino@spawar.navy.mil
+	id <S131480AbRCQBJg>; Fri, 16 Mar 2001 20:09:36 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:5897 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131477AbRCQBJb>; Fri, 16 Mar 2001 20:09:31 -0500
+Date: Fri, 16 Mar 2001 20:09:12 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Neal Gieselman <Neal.Gieselman@Visionics.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Cannot delete dir
+In-Reply-To: <D0FA767FA2D5D31194990090279877DA573588@dbimail.digitalbiometrics.com>
+Message-ID: <Pine.LNX.4.33.0103162008000.835-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> {Shrug} Thinking isn't sufficient - check your facts.
+On Fri, 16 Mar 2001, Neal Gieselman wrote:
 
-Poor Riley,
+>Date: Fri, 16 Mar 2001 10:42:40 -0600
+>From: Neal Gieselman <Neal.Gieselman@Visionics.com>
+>To: linux-kernel@vger.kernel.org
+>Content-Type: text/plain
+>Subject: Cannot delete dir
+>
+>Excuse me, but can anyone tell me how I might delete a directory on a Redhat
+>6.1 ext2 file
+>system that has permissions drwS--sr-x?  Even as root I cannot unlink the
+>directory.
 
-Probably I should not answer, I think you know all the facts already.
-But just to be sure:
+What does "lsattr" say?  I'll bet you've had some fs corruption
+and some extended attributes are enabled.  Also be sure to look
+at the attributes of the parent directory as well.
 
-(i) There are two different packages, kbd and a forked version,
-console-tools. Both contain roughly the same programs.
-In your earlier mails you seemed aware of that, but now you report
-that the console-tools version of loadkeys does not want to
-print a kbd version. No surprise there.
+man lsattr
+man chattr
 
-(ii) I am the maintainer of both mount and util-linux.
-If I say that there exists no more recent version of mount
-than the one found in util-linux, you can believe me.
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+There are two major products that come out of Berkeley: LSD and BSD.
+We don't believe this to be a coincidence.
+   -- Jeremy S. Anderson
 
-Andries

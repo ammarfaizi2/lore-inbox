@@ -1,60 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261495AbSJAGYW>; Tue, 1 Oct 2002 02:24:22 -0400
+	id <S261496AbSJAGg5>; Tue, 1 Oct 2002 02:36:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261496AbSJAGYW>; Tue, 1 Oct 2002 02:24:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:3778 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261495AbSJAGYV>;
-	Tue, 1 Oct 2002 02:24:21 -0400
-Date: Tue, 1 Oct 2002 08:26:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: v2.6 vs v3.0
-Message-ID: <20021001062630.GM3867@suse.de>
-References: <20020929091229.GA1014@suse.de> <Pine.LNX.3.96.1020930151754.20863I-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1020930151754.20863I-100000@gatekeeper.tmr.com>
+	id <S261497AbSJAGg5>; Tue, 1 Oct 2002 02:36:57 -0400
+Received: from transport.cksoft.de ([62.111.66.27]:18951 "EHLO
+	transport.cksoft.de") by vger.kernel.org with ESMTP
+	id <S261496AbSJAGg4>; Tue, 1 Oct 2002 02:36:56 -0400
+Date: Tue, 1 Oct 2002 08:40:30 +0200 (CEST)
+From: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
+X-X-Sender: bz@e0-0.zab2.int.zabbadoz.net
+To: Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>
+Cc: linux-kernel@vger.kernel.org, <coreteam@netfilter.org>,
+       <netfilter-devel@lists.netfilter.org>, <patch@zabbadoz.net>
+Subject: Re: 2.5.39 make modules_install error (netfilter)
+In-Reply-To: <20021001142528.4640228c.Corporal_Pisang@Counter-Strike.com.my>
+Message-ID: <Pine.BSF.4.44.0210010838480.427-100000@e0-0.zab2.int.zabbadoz.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30 2002, Bill Davidsen wrote:
-> On Sun, 29 Sep 2002, Jens Axboe wrote:
-> 
-> > On Sun, Sep 29 2002, jbradford@dial.pipex.com wrote:
-> > > > Anyway, people who are having VM trouble with the current 2.5.x series, 
-> > > > please _complain_, and tell what your workload is. Don't sit silent and 
-> > > > make us think we're good to go.. And if Ingo is right, I'll do the 3.0.x 
-> > > > thing.
-> > > 
-> > > I think the broken IDE in 2.5.x has meant that it got seriously less
-> > > testing overall than previous development trees :-(.  Maybe after
-> > > halloween when it stabilises a bit more we'll get more reports in.
-> > 
-> > 2.5 is definitely desktop stable, so please test it if you can. Until
-> > recently there was a personal show stopper for me, the tasklist
-> > deadline. Now 2.5 is happily running on my desktop as well.
-> 
-> 2.5.38-mm2 has been stable for me on uni, what is the status of SMP? I had
-> what looked like logical to physical mapping problems on a BP6 and Abit
-> dual P5C-166, resulting in syslog data on every drive including those with
-> no Linux partition. That was somewhere around 2.5.22 to 2.5.26.
+On Tue, 1 Oct 2002, Corporal Pisang wrote:
 
-Well I do all my 2.5 testing on SMP, I don't even remember when I last
-compiled a UP 2.5 kernel. Well works for me as I wrote earlier, I don't
-keep the deskop up more than a few days at the time though. Then I boot
-a newer 2.5 on it.
+Hi,
 
-> > 2.5 IDE stability should be just as good as 2.4-ac.
-> 
-> A laudable goal.
+> Final hurdle for me to get 2.5.39 compiled,
+>
+> This is the error on make modules_install
+>
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.39; fi
+> depmod: *** Unresolved symbols in /lib/modules/2.5.39/kernel/net/ipv4/netfilter/ipt_owner.o
+> depmod:         next_thread
+> depmod:         find_task_by_pid
+> depmod: *** Unresolved symbols in /lib/modules/2.5.39/kernel/net/ipv6/netfilter/ip6t_owner.o
+> depmod:         next_thread
+> depmod:         find_task_by_pid
 
-If you know of any points where this is currently not true, I'd like to
-hear about it. I'm considering this goal reached. Whether 2.4-ac is at
-the level we want is a different story.
+think someone already posted at least parts of this one.
+
+--- linux-20020930-175132/kernel/pid.c.orig	Mon Sep 30 19:13:24 2002
++++ linux-20020930-175132/kernel/pid.c	Mon Sep 30 21:13:30 2002
+@@ -23,6 +23,7 @@
+ #include <linux/slab.h>
+ #include <linux/init.h>
+ #include <linux/bootmem.h>
++#include <linux/module.h>
+
+ #define PIDHASH_SIZE 4096
+ #define pid_hashfn(nr) ((nr >> 8) ^ nr) & (PIDHASH_SIZE - 1)
+@@ -275,3 +276,5 @@
+ 		attach_pid(current, i, 0);
+ 	}
+ }
++
++EXPORT_SYMBOL(find_task_by_pid);
+--- linux-20020930-175132/kernel/Makefile.orig	Mon Sep 30 19:41:03 2002
++++ linux-20020930-175132/kernel/Makefile	Mon Sep 30 20:38:38 2002
+@@ -3,7 +3,8 @@
+ #
+
+ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
+-	      printk.o platform.o suspend.o dma.o module.o cpufreq.o
++	      printk.o platform.o suspend.o dma.o module.o cpufreq.o pid.o \
++	      exit.o
+
+ obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o time.o softirq.o resource.o \
+--- linux-20020930-175132/kernel/exit.c.orig	Mon Sep 30 20:37:53 2002
++++ linux-20020930-175132/kernel/exit.c	Mon Sep 30 21:13:15 2002
+@@ -911,3 +911,5 @@
+ }
+
+ #endif
++
++EXPORT_SYMBOL(next_thread);
 
 -- 
-Jens Axboe
+Greetings
+Bjoern A. Zeeb				bzeeb at Zabbadoz dot NeT
+56 69 73 69 74				http://www.zabbadoz.net/
 

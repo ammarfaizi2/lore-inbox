@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVCSV3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVCSV3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVCSV3E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 16:29:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVCSV3E
+	id S261832AbVCSV3i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 16:29:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVCSV3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 16:29:04 -0500
-Received: from fire.osdl.org ([65.172.181.4]:24533 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261827AbVCSV3B (ORCPT
+	Sat, 19 Mar 2005 16:29:38 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10167 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261832AbVCSV3e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 16:29:01 -0500
-Date: Sat, 19 Mar 2005 13:28:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: swsusp: Remove arch-specific references from generic code
-Message-Id: <20050319132815.4f51a7e5.akpm@osdl.org>
-In-Reply-To: <200503191159.32569.rjw@sisk.pl>
-References: <20050316001207.GI21292@elf.ucw.cz>
-	<200503191159.32569.rjw@sisk.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 19 Mar 2005 16:29:34 -0500
+Date: Sat, 19 Mar 2005 22:29:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Russell Miller <rmiller@duskglow.com>
+Cc: erik.andren@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Suspend-to-disk woes
+Message-ID: <20050319212922.GA1835@elf.ucw.cz>
+References: <423B01A3.8090501@gmail.com> <20050319132612.GA1504@openzaurus.ucw.cz> <200503191220.35207.rmiller@duskglow.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503191220.35207.rmiller@duskglow.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
->
-> On Wednesday, 16 of March 2005 01:12, Pavel Machek wrote:
->  > Hi!
->  > 
->  > This is fix for "swsusp_restore crap"-: we had some i386-specific code
->  > referenced from generic code. This fixes it by inlining tlb_flush_all
->  > into assembly.
->  > 
->  > Please apply,
+On So 19-03-05 12:20:35, Russell Miller wrote:
+> On Saturday 19 March 2005 05:26, Pavel Machek wrote:
 > 
->  Unfortunately, this patch requires the following fix.  Without it, swsusp will
->  leak lots of memory on every resume.  Sorry for this bug, it was really dumb.
+> > Checking that would be hard, but you might want to provide patch to check
+> > last-mounted dates of filesystems and panic if they changed.
+> > 				Pavel
+> 
+> Then how would you fix it?  There'd also have to be a way to reset it, 
 
-Just fyi, the only swsusp patches I currently have queued are
-
-swsusp-add-missing-refrigerator-calls.patch
-swsusp-suspend_pd_pages-fix.patch
-suspend-to-ram-update-videotxt-with-more-systems.patch
-
-I've been ducking all the "swsusp_restore crap" patches.  Pavel, could you
-please aggregate, test and resend everything when the dust has settled?
-
+boot with "noresume", then mkswap.
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

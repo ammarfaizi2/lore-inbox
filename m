@@ -1,89 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285148AbRL2RtI>; Sat, 29 Dec 2001 12:49:08 -0500
+	id <S285165AbRL2Rwi>; Sat, 29 Dec 2001 12:52:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285114AbRL2Rs7>; Sat, 29 Dec 2001 12:48:59 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16656 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S285148AbRL2Rsr>;
-	Sat, 29 Dec 2001 12:48:47 -0500
-Date: Sat, 29 Dec 2001 18:48:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: rwhron@earthlink.net
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.2-pre1 dbench 32 hangs in vmstat "b" state
-Message-ID: <20011229184837.F1821@suse.de>
-In-Reply-To: <20011221185538.A131@earthlink.net> <20011224150337.A593@suse.de> <20011224115953.A118@earthlink.net> <20011224180244.C1241@suse.de> <20011227140723.A4713@earthlink.net> <20011228124037.K2973@suse.de> <20011228091401.A15569@earthlink.net> <20011228153022.D1248@suse.de> <20011229014248.A17257@earthlink.net> <20011229183315.E1821@suse.de>
-Mime-Version: 1.0
+	id <S285161AbRL2Rw3>; Sat, 29 Dec 2001 12:52:29 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60433 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285150AbRL2RwQ>; Sat, 29 Dec 2001 12:52:16 -0500
+Subject: Re: AX25/socket kernel PATCHes
+To: henk.de.groot@hetnet.nl (Henk de Groot)
+Date: Sat, 29 Dec 2001 18:02:53 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-hams@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20011229174504.00a291b0@pop.hetnet.nl> from "Henk de Groot" at Dec 29, 2001 06:27:32 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011229183315.E1821@suse.de>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16KNor-00059i-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29 2001, Jens Axboe wrote:
-> On Sat, Dec 29 2001, rwhron@earthlink.net wrote:
-> > > > Kernel panic: Out of memory and no killable processes...
-> > > 
-> > > Someone else did report a similar case. Very strange, doesn't look bio
-> > 
-> > Al Viro posted a fix:
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=100959128922157&w=2
-> > 
-> > I used Al's patch and 2.5.2-pre3 boots with reiserfs root_fs
-> > and no panic.
-> > 
-> > Below is the trace on 2.5.2-pre3 after dbench 32 livelocked.
-> 
-> Thanks, could you try with this patch? It's not a fix (haven't found the
-> bug yet), but I think we are looking at list corruption so please check
-> if this patch at least alters when it hangs etc.
+> The message doesn't seem to matter but I frequently get messages about this since using the DIGI_NED digipeater provokes a lot of these messages. I attached the code segment I use to interface below (the complete code is available through http://www.qsl.net/digi_ned/).
+> My proposal is either to fix the drivers to set skb->nh correctly (no idea where and how this should be done, otherwise I would have supplied a patch) or to remove the message (at least for AX.25 use). There must be a reason why this printk is done so the first would be preferred. If there is something I could do at application level than that would be okay to, but I don't see how I could set skb->nh from the application.
 
-Ah I think I got it -- appears to be down to no rechecking for empty
-queue after a potential queue_lock droppage (busy I/O, no request left
-get_request returns NULL, drop lock and run get_request_wait). This
-explains the get_request_wait deadlock, compiling right now...
+On the receive path skb->nh.raw is set by the kernel core in 2.2 so that
+should be ok providing skb->mac.raw is sane. It looks like the ax25 transmit
+code isnt setting skb->nh.raw somewhere, or we have an off by one error
+handling control messages (which looking at the code seems to be the case)
 
---- /opt/kernel/linux-2.5.2-pre3/drivers/block/ll_rw_blk.c	Sat Dec 29 12:17:53 2001
-+++ drivers/block/ll_rw_blk.c	Sat Dec 29 12:45:04 2001
-@@ -881,7 +881,9 @@
- 
- 	BUG_ON(rw != READ && rw != WRITE);
- 
-+	spin_lock_irq(q->queue_lock);
- 	rq = get_request(q, rw);
-+	spin_unlock_irq(q->queue_lock);
- 
- 	if (!rq && (gfp_mask & __GFP_WAIT))
- 		rq = get_request_wait(q, rw);
-@@ -1081,7 +1083,7 @@
- {
- 	struct request *req, *freereq = NULL;
- 	int el_ret, latency = 0, rw, nr_sectors, cur_nr_sectors, barrier;
--	struct list_head *insert_here = &q->queue_head;
-+	struct list_head *insert_here;
- 	elevator_t *elevator = &q->elevator;
- 	sector_t sector;
- 
-@@ -1103,15 +1105,14 @@
- 	barrier = test_bit(BIO_RW_BARRIER, &bio->bi_rw);
- 
- 	spin_lock_irq(q->queue_lock);
-+again:
-+	req = NULL;
-+	insert_here = q->queue_head.prev;
- 
- 	if (blk_queue_empty(q) || barrier) {
- 		blk_plug_device(q);
- 		goto get_rq;
- 	}
--
--again:
--	req = NULL;
--	insert_here = q->queue_head.prev;
- 
- 	el_ret = elevator->elevator_merge_fn(q, &req, bio);
- 	switch (el_ret) {
+If you change
 
--- 
-Jens Axboe
+                        if (skb2->nh.raw < skb2->data || skb2->nh.raw >= skb2->...
+                                if (net_ratelimit())
 
+So that it checks
+			< skb2->data || nh.raw > ..
+
+Let me know if that fixes it. It shouldn't but it would be good to know if
+we are picking up header only frames somewhere, or nh.raw has accidentally
+been pushed on one header too far.
+
+		

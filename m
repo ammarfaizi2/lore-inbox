@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268089AbTBRWvt>; Tue, 18 Feb 2003 17:51:49 -0500
+	id <S268066AbTBRW5d>; Tue, 18 Feb 2003 17:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268090AbTBRWvs>; Tue, 18 Feb 2003 17:51:48 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:26767 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S268089AbTBRWvs>;
-	Tue, 18 Feb 2003 17:51:48 -0500
-Date: Tue, 18 Feb 2003 15:01:50 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Linux v2.5.62 --- spontaneous reboots
-Message-ID: <20030218230150.GA15657@f00f.org>
-References: <Pine.LNX.4.44.0302181408200.1107-100000@penguin.transmeta.com> <Pine.LNX.4.44.0302181426020.1498-100000@penguin.transmeta.com> <20030218215956.GA15178@f00f.org> <Pine.LNX.4.44.0302181408200.1107-100000@penguin.transmeta.com>
+	id <S268083AbTBRW5c>; Tue, 18 Feb 2003 17:57:32 -0500
+Received: from AMarseille-201-1-6-77.abo.wanadoo.fr ([80.11.137.77]:44583 "EHLO
+	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S268066AbTBRW5b>;
+	Tue, 18 Feb 2003 17:57:31 -0500
+Subject: Re: [ACPI] Re: Fixes to suspend-to-RAM
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@transmeta.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.33.0302181535520.1035-100000@localhost.localdomain>
+References: <Pine.LNX.4.33.0302181535520.1035-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045609701.7399.5.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302181426020.1498-100000@penguin.transmeta.com> <Pine.LNX.4.44.0302181408200.1107-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 19 Feb 2003 00:08:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 02:13:00PM -0800, Linus Torvalds wrote:
+On Tue, 2003-02-18 at 22:41, Patrick Mochel wrote:
 
-> > I'm back to 2.5.51 and I'll beat it hard and see what happens.  I
-> > guess until I (or someone else who sees this) can get some
-> > concrete data points you'll have to ignore this.
->
-> Ok. Especially if it seems that -mjb4 also potentially does it (just
-> harder to trigger), I don't see many other alternatives than just
-> going back in time to see when it started.
+> I propose that we don't even call SUSPEND_DISABLE. Based on recent
+> conversations, it appears that we can and should do the entire device
+> suspend sequence in two passes - SUSPEND_SAVE_STATE with interrupts
+> enabled, and SUSPEND_POWER_DOWN with interrupts disabled.
 
-It seems 2.5.51 *does* also show this... but it took nearly an hour
-this time.
+Right... though I still care about my early pet SUSPEND_NOTIFY for
+the few things that need to care about allocations issues (that is
+that need to know they can no longer rely on GFP_KERNEL & friends
+not blocking until wakeup).
 
-> But if it was getting hard to trigger with 2.5.52 too, things might
-> be getting hairier and hairier... If it becomes hard enough to
-> trigger as to be practically nondeterministic, a better approach
-> might be to just go back to -mjb4, and even if it is still there in
-> -mjb4 try to see which part of the patch seems to be making it more
-> stable.
+Regarding failure, what I did with success on pmac (I had occasional
+failure to suspend from the OHCI controller or video drivers during
+tests, though those seem to be quite rare in real life) is to call
+back the wakeup calls for devices that got the matching suspend
+call.
 
-I may have to do that...  it seems older kernel do have this problem,
-it's just harder to hit for some reason.
+I beleive it's as safe to just call all wakeup calls in order
+instead though, and it makes things simpler (as the individual
+drivers should really know in what state they really are).
 
-I'd suspect it was an Athlon or chipset problem if it weren't for the
-fact 2.4.x is stable for 8+ hours doing doing the same exact thing[1].
+Ben.
 
-> That might give us more clues, and it's a much smaller problem set
-> than going arbitrarily far back in the 2.5.x series.
-
-Sure thing.
-
-
-  --cw

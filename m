@@ -1,61 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265903AbUFYAPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265957AbUFYARq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265903AbUFYAPW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 20:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUFYAPV
+	id S265957AbUFYARq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 20:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265950AbUFYARp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 20:15:21 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27623 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265903AbUFYAPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 20:15:16 -0400
-Date: Fri, 25 Jun 2004 02:15:14 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: willy@debian.org
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: [2.6 patch] fix arch/i386/pci/Makefile
-Message-ID: <20040625001513.GB18303@fs.tum.de>
+	Thu, 24 Jun 2004 20:17:45 -0400
+Received: from gprs214-211.eurotel.cz ([160.218.214.211]:2434 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265957AbUFYAQC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 20:16:02 -0400
+Date: Fri, 25 Jun 2004 02:15:45 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: alan <alan@clueserver.org>
+Cc: "Fao, Sean" <Sean.Fao@dynextechnologies.com>, linux-kernel@vger.kernel.org,
+       Amit Gud <gud@eth.net>
+Subject: Re: Elastic Quota File System (EQFS)
+Message-ID: <20040625001545.GI20649@elf.ucw.cz>
+References: <20040624220318.GE20649@elf.ucw.cz> <Pine.LNX.4.44.0406241544010.19187-100000@www.fnordora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.44.0406241544010.19187-100000@www.fnordora.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following compile error in 2.6.7-mm2 (but it doesn't seem to 
-be specific to -mm2):
+Hi!
 
-<--  snip  -->
+> > Of course, if mozilla marked them "elastic" it should better be
+> > prepared for they disappearance. I'd disappear them with simple
+> > unlink(), so they'd physically survive as long as someone held them
+> > open.
+> 
+> Hard to get the client to support a feature in an experimental file 
+> system.  You are more likely to handle this like a system policy than 
+> something set by the client.  (Especially since an app designed to fill 
+> disk space could just mark its files as elastic to get around
+> quotas.)
 
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x6c24a): In function `acpi_pci_root_add':
-: undefined reference to `pci_acpi_scan_root'
-make: *** [.tmp_vmlinux1] Error 1
+I believe application support is right thing to do... It may not be
+the easiest thing to do, through.
 
-<--  snip  -->
+> > >  Would it delete entire directories or 
+> > > just some of the files?  How does it choose?  (First up against the delete 
+> > > when the drive space fills...)
+> > 
+> > Probably just some of the files... Or you could delete directory, too,
+> > if it was marked "elastic". What to delete first... probably file with
+> > oldest access time? Or random file, with chance of being selected
+> > proportional to file size?
+> > 
+> > I'm not implementing it, I'm just arguing that it is usefull.
+> 
+> I think that would make a bunch of headaches for the app designer.  
+> Imaging having a cache directory with an indexed database in a directory 
+> marked as elastic.  What happens whenone part of the multi-file database 
+> gets nuked in the middle on operation?  You are going to have to 
+> handle much more error conditions for weird special cases to deal with 
+> files wandering away without having the app just halt.  (Most programs I 
+> have seen just halt when a file they need is not found.)
 
-This problem occurs with
-  CONFIG_ACPI_PCI=y && (CONFIG_X86_VISWS=y || CONFIG_X86_NUMAQ=y)
+Well, that's arguably application bug. Anyway, noone says that right
+thing to do is easy.
 
-The patch below fixes it.
+> A better option in this case is to reduce the default size of Mozilla's 
+> cache or expand the size of the quota for each user to deal with the added 
+> space requirements.
+> 
+> If you are concerned about disk usage from caches, you can always create 
+> a script that removes the cache(s) when the user logs out.
 
-Please apply
-Adrian
+That's not the right thing.. that way you loose caching effects around
+logins even when there's plenty of space.
 
+There's quite a lot of data -- at least on my systems -- that can be
+removed with "only" loss of performance...
 
---- linux-2.6.7-mm2-full/arch/i386/pci/Makefile.old	2004-06-25 02:08:29.000000000 +0200
-+++ linux-2.6.7-mm2-full/arch/i386/pci/Makefile	2004-06-25 02:10:36.000000000 +0200
-@@ -5,10 +5,11 @@
- obj-$(CONFIG_PCI_DIRECT)	+= direct.o
- 
- pci-y				:= fixup.o
--pci-$(CONFIG_ACPI_PCI)		+= acpi.o
- pci-y				+= legacy.o irq.o
- 
- pci-$(CONFIG_X86_VISWS)		:= visws.o fixup.o
- pci-$(CONFIG_X86_NUMAQ)		:= numa.o irq.o
- 
-+pci-$(CONFIG_ACPI_PCI)		+= acpi.o
-+
- obj-y				+= $(pci-y) common.o
+1) browser caches
+
+2) package lists, downloaded packages
+
+3) object files
+
+heck, if you know you have reliable network connection 4), you could
+even mark stuff like /usr/bin/mozilla elastic, and re-install it from
+the network when it is needed... Doing anything more complex than 1)
+requires extensive changes all around the kernel and userland, and
+you'd probably not call that system unix any more.
+
+I'm not saying that "elastic" feature should go into 2.6 or 2.8 or
+whatever, but it still seems interesting to me.
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

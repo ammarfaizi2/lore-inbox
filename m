@@ -1,309 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263804AbUEMGQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263817AbUEMGTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263804AbUEMGQc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 02:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbUEMGQc
+	id S263817AbUEMGTk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 02:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbUEMGTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 02:16:32 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:50805 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263804AbUEMGQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 02:16:21 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] Move SysRq register dump processing into do_IRQ
-Date: Thu, 13 May 2004 00:37:40 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
-       Greg KH <greg@kroah.com>, Vojtech Pavlik <vojtech@suse.cz>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405130037.42155.dtor_core@ameritech.net>
+	Thu, 13 May 2004 02:19:40 -0400
+Received: from out-of-band.media.mit.edu ([18.85.16.22]:38661 "EHLO
+	out-of-band.media.mit.edu") by vger.kernel.org with ESMTP
+	id S263824AbUEMGTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 02:19:37 -0400
+Date: Thu, 13 May 2004 02:19:20 -0400 (EDT)
+Message-Id: <200405130619.CAA18064@out-of-band.media.mit.edu>
+From: foner+x-forcedeth@media.mit.edu
+To: c-d.hailfinger.kernel.2004@gmx.net
+CC: XFree86@XFree86.Org, manfred@colorfullife.com,
+       debian-user@lists.debian.org, linux-kernel@vger.kernel.org,
+       foner+x-forcedeth@media.mit.edu
+In-reply-to: <409FD316.6010506@gmx.net> (message from Carl-Daniel Hailfinger
+	on Mon, 10 May 2004 21:08:06 +0200)
+Subject: forcedeth breaks X in Debian-testing 2.4.25 on MSI K7N2 Delta-L mobo
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    Date: Mon, 10 May 2004 21:08:06 +0200
+    From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
 
-As I mentioned in my other email current implementation of SysRq's "showPc"
-option requires sysrq_handle_showregs to be called from the hard interrupt
-context only, otherwise the call trace will be wrong. Having entire input
-processing execute in hard IRQ context is not always feasible, some
-interrupts may need splitting into IRQ/tasklet pairs.
+    foner+x-forcedeth@media.mit.edu wrote:
 
-Also, pt_regs structure is currently propagated throughout entire input and
-USB systems for no other benefit than displaying the registers and call trace
-at SysRq request.
+    You could have googled for "forcedeth". The first hit would have given you
+    all the information you need. Quoting from there:
 
-I propose to change SysRq register dump processing in the following fashion:
-- SysRq-P merely posts a request for the data (registers and call trace) to
-  be printed;
-- do_IRQ (or whatever arch's equivalent) checks the at the end of IRQ
-  dispatching routine and prints the requested information next time some IRQ
-  is raised. The check is cheap as rough attempt can be done without locking
-  and if we miss request it's ok as next time do_IRQ called it will notice it.
+    | Send any reports to linux-kernel or netdev@oss.sgi.com and CC:
+    | Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net> to get
+    | the remaining issues fixed.
 
-The patch below implements the SysRq changes and do_IRQ for most popular (IMO)
-arches. It works for me on i386. Please let me know if you think it is
-acceptable and I will modify the rest of the arches and will remove pt_regs
-handling from input system and then from USB. 
+You know, I looked at that page at least 3 separate times on different
+days, and missed that paragraph -every- time.  It also doesn't help
+that my next try was to google for
+  forcedeth bug
+and
+  forcedeth bugs
+but that page doesn't mention the word "bug" -anywhere- and hence
+fails to show up when someone is looking precisely for where to file
+bug reports.  You might want to rephase "send any reports" to be
+'send any bug reports" or "send bugs and other reports" so that google
+can find the page when people are trying to report a bug.
 
-===== arch/alpha/kernel/irq.c 1.29 vs edited =====
---- 1.29/arch/alpha/kernel/irq.c	Thu Apr 22 03:40:34 2004
-+++ edited/arch/alpha/kernel/irq.c	Wed May 12 23:59:19 2004
-@@ -25,6 +25,7 @@
- #include <linux/irq.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
-+#include <linux/sysrq.h>
- 
- #include <asm/system.h>
- #include <asm/io.h>
-@@ -679,6 +680,8 @@
- 	spin_unlock(&desc->lock);
- 
- 	irq_exit();
-+
-+	sysrq_irq_show_registers(regs);
- }
- 
- /*
-===== arch/i386/kernel/irq.c 1.52 vs edited =====
---- 1.52/arch/i386/kernel/irq.c	Mon Apr 12 12:54:45 2004
-+++ edited/arch/i386/kernel/irq.c	Wed May 12 23:30:51 2004
-@@ -34,6 +34,7 @@
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
- #include <linux/kallsyms.h>
-+#include <linux/sysrq.h>
- 
- #include <asm/atomic.h>
- #include <asm/io.h>
-@@ -569,6 +570,8 @@
- 	spin_unlock(&desc->lock);
- 
- 	irq_exit();
-+
-+	sysrq_irq_show_registers(&regs);
- 
- 	return 1;
- }
-===== arch/ia64/kernel/irq.c 1.37 vs edited =====
---- 1.37/arch/ia64/kernel/irq.c	Fri Feb 27 20:13:48 2004
-+++ edited/arch/ia64/kernel/irq.c	Wed May 12 23:58:07 2004
-@@ -35,6 +35,7 @@
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
- #include <linux/kallsyms.h>
-+#include <linux/sysrq.h>
- 
- #include <asm/atomic.h>
- #include <asm/io.h>
-@@ -524,6 +525,9 @@
- 		desc->handler->end(irq);
- 		spin_unlock(&desc->lock);
- 	}
-+
-+	sysrq_irq_show_registers(regs);
-+
- 	return 1;
- }
- 
-===== arch/ppc/kernel/irq.c 1.36 vs edited =====
---- 1.36/arch/ppc/kernel/irq.c	Wed Feb 18 22:42:58 2004
-+++ edited/arch/ppc/kernel/irq.c	Thu May 13 00:04:55 2004
-@@ -46,6 +46,7 @@
- #include <linux/random.h>
- #include <linux/seq_file.h>
- #include <linux/cpumask.h>
-+#include <linux/sysrq.h>
- 
- #include <asm/uaccess.h>
- #include <asm/bitops.h>
-@@ -531,6 +532,7 @@
- 		/* That's not SMP safe ... but who cares ? */
- 		ppc_spurious_interrupts++;
-         irq_exit();
-+	sysrq_irq_show_registers(regs);
- }
- 
- unsigned long probe_irq_on (void)
-===== arch/ppc64/kernel/irq.c 1.52 vs edited =====
---- 1.52/arch/ppc64/kernel/irq.c	Mon Apr 12 12:54:06 2004
-+++ edited/arch/ppc64/kernel/irq.c	Thu May 13 00:06:17 2004
-@@ -41,6 +41,7 @@
- #include <linux/proc_fs.h>
- #include <linux/random.h>
- #include <linux/kallsyms.h>
-+#include <linux/sysrq.h>
- 
- #include <asm/uaccess.h>
- #include <asm/bitops.h>
-@@ -617,6 +618,8 @@
- 		timer_interrupt(regs);
- 	}
- 
-+	sysrq_irq_show_registers(regs);
-+
- 	return 1; /* lets ret_from_int know we can do checks */
- }
- 
-@@ -645,6 +648,8 @@
- 		ppc_spurious_interrupts++;
- 
- 	irq_exit();
-+
-+	sysrq_irq_show_registers(regs);
- 
- 	return 1; /* lets ret_from_int know we can do checks */
- }
-===== arch/sparc/kernel/irq.c 1.28 vs edited =====
---- 1.28/arch/sparc/kernel/irq.c	Sun Feb 22 17:34:53 2004
-+++ edited/arch/sparc/kernel/irq.c	Thu May 13 00:07:40 2004
-@@ -30,6 +30,7 @@
- #include <linux/threads.h>
- #include <linux/spinlock.h>
- #include <linux/seq_file.h>
-+#include <linux/sysrq.h>
- 
- #include <asm/ptrace.h>
- #include <asm/processor.h>
-@@ -341,6 +342,7 @@
- 	} while (action);
- 	enable_pil_irq(irq);
- 	irq_exit();
-+	sysrq_irq_show_registers(regs);
- }
- 
- #ifdef CONFIG_BLK_DEV_FD
-===== arch/sparc64/kernel/irq.c 1.40 vs edited =====
---- 1.40/arch/sparc64/kernel/irq.c	Tue Feb 24 22:04:19 2004
-+++ edited/arch/sparc64/kernel/irq.c	Thu May 13 00:14:43 2004
-@@ -21,6 +21,7 @@
- #include <linux/delay.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
-+#include <linux/sysrq.h>
- 
- #include <asm/ptrace.h>
- #include <asm/processor.h>
-@@ -822,6 +823,7 @@
- 		bp->flags &= ~IBF_INPROGRESS;
- 	}
- 	irq_exit();
-+	sysrq_irq_show_registers(regs);
- }
- 
- #ifdef CONFIG_BLK_DEV_FD
-===== arch/x86_64/kernel/irq.c 1.22 vs edited =====
---- 1.22/arch/x86_64/kernel/irq.c	Wed Feb 18 22:42:58 2004
-+++ edited/arch/x86_64/kernel/irq.c	Thu May 13 00:02:07 2004
-@@ -33,6 +33,7 @@
- #include <linux/irq.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
-+#include <linux/sysrq.h>
- 
- #include <asm/atomic.h>
- #include <asm/io.h>
-@@ -405,6 +406,9 @@
- 	spin_unlock(&desc->lock);
- 
- 	irq_exit();
-+
-+	sysrq_irq_show_registers(regs);
-+
- 	return 1;
- }
- 
-===== drivers/char/sysrq.c 1.29 vs edited =====
---- 1.29/drivers/char/sysrq.c	Mon Jan 19 18:38:11 2004
-+++ edited/drivers/char/sysrq.c	Wed May 12 23:39:52 2004
-@@ -135,12 +135,33 @@
- 
- 
- /* SHOW SYSRQ HANDLERS BLOCK */
-+unsigned int sysrq_register_dump_requested;
-+static spinlock_t show_registers_lock = SPIN_LOCK_UNLOCKED;
-+
-+void __sysrq_irq_show_registers(struct pt_regs *pt_regs)
-+{
-+	unsigned long flags;
-+	int doit = 0;
-+
-+	spin_lock_irqsave(&show_registers_lock, flags);
-+	if (sysrq_register_dump_requested) {
-+		sysrq_register_dump_requested--;
-+		doit = 1;
-+	}
-+	spin_unlock_irqrestore(&show_registers_lock, flags);
-+
-+	if (doit)
-+		show_regs(pt_regs);
-+}
- 
- static void sysrq_handle_showregs(int key, struct pt_regs *pt_regs,
- 				  struct tty_struct *tty) 
- {
--	if (pt_regs)
--		show_regs(pt_regs);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&show_registers_lock, flags);
-+	sysrq_register_dump_requested++;
-+	spin_unlock_irqrestore(&show_registers_lock, flags);
- }
- static struct sysrq_key_op sysrq_showregs_op = {
- 	.handler	= sysrq_handle_showregs,
-===== include/linux/sysrq.h 1.5 vs edited =====
---- 1.5/include/linux/sysrq.h	Wed May  7 23:18:01 2003
-+++ edited/include/linux/sysrq.h	Thu May 13 00:15:32 2004
-@@ -31,13 +31,26 @@
- 
- void handle_sysrq(int, struct pt_regs *, struct tty_struct *);
- 
--/* 
-+/*
-  * Nonlocking version of handle sysrq, used by sysrq handlers that need to
-  * call sysrq handlers
-  */
- 
- void __handle_sysrq_nolock(int, struct pt_regs *, struct tty_struct *);
- 
-+
-+/*
-+ * Check whether register dump has been requested and print it
-+ */
-+extern unsigned int sysrq_register_dump_requested;
-+void __sysrq_irq_show_registers(struct pt_regs *);
-+static inline void sysrq_irq_show_registers(struct pt_regs *pt_regs)
-+{
-+	if (unlikely(sysrq_register_dump_requested != 0))
-+		__sysrq_irq_show_registers(pt_regs);
-+}
-+
-+
- /*
-  * Sysrq registration manipulation functions
-  */
-@@ -70,7 +83,7 @@
- 	__sysrq_unlock_table();
- 	return retval;
- }
--	
-+
- static inline int register_sysrq_key(int key, struct sysrq_key_op *op_p)
- {
- 	return __sysrq_swap_key_ops(key, op_p, NULL);
-@@ -90,5 +103,9 @@
- 
- #define register_sysrq_key(ig,nore) __reterr()
- #define unregister_sysrq_key(ig,nore) __reterr()
-+
-+static inline void sysrq_irq_show_registes(struct pt_regs *pt_regs)
-+{
-+}
- 
- #endif
+I'm not sure how to make the paragraph itself more prominent once
+someone lands on the page---all I know is that -I- couldn't find it
+until I knew it was there and searched for "netdev" via my browser.
+Dunno why; I'm not blind or illiterate... :)
+
+    > obviously short-term address of one of its maintainers and an address
+    > of another author gleaned a random mailing list.  Doesn't it have its
+    > own buglist?  Lots of googling has failed to turn one up and its
+
+    Forcedeth is integrated into current 2.4 and 2.6, so there is no point in
+    setting up a dedicated mailing list for it.
+
+Okay.
+
+    > I'm now in the state where I can reliably cause X to not start if
+    > forcedeth is loaded, and vice versa.  Logfiles for both cases are
+    > appended below.
+    > 
+    > Does anyone know of a workaround?  It looks like forcedeth is doing
+    > something fishy that's breaking X's VESA handling.  Googling for
+
+    forcedeth only accesses the nForce nic. If that confuses the VESA BIOS
+    code, the bug most probably is in the BIOS itself.
+
+So do you (or anyone) have any suggestions for what to do?  This is a
+reasonably new motherboard (I don't think it has any new firmware
+versions out yet) and this leaves me dead in the water---all I can do
+at this point is to just try the nVidia drivers and hope they work
+better than forcedeth.  (And I'll have to make sure that forcedeth
+does -not- get loaded; I'm not yet sure how to ensure that.)
+
+I also don't -know- that's what's going on---all I know is the various
+errors (and eventual abort) I get from X if I try to start it up with
+forcedeth loaded.

@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbUAWUFX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 15:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266696AbUAWUFX
+	id S266677AbUAWT4j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 14:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUAWT4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 15:05:23 -0500
-Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:2449 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S262683AbUAWUFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 15:05:13 -0500
-Date: Fri, 23 Jan 2004 21:04:51 +0100
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.25-pre7
-Message-Id: <20040123210451.01cf3e1e@argon.inf.tu-dresden.de>
-In-Reply-To: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
-References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
-Organization: Fiasco Core Team
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Mailer: X-Mailer 5.0 Gold
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Fri__23_Jan_2004_21_04_51_+0100_=Sb2kAML/+NXT+Lv"
+	Fri, 23 Jan 2004 14:56:39 -0500
+Received: from mail2-116.ewetel.de ([212.6.122.116]:61321 "EHLO
+	mail2.ewetel.de") by vger.kernel.org with ESMTP id S266677AbUAWT4h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 14:56:37 -0500
+Date: Fri, 23 Jan 2004 20:56:33 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make ide-cd handle non-2kB sector sizes
+In-Reply-To: <Pine.LNX.4.55.0401232006480.3223@jurand.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.44.0401232054060.1178-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__23_Jan_2004_21_04_51_+0100_=Sb2kAML/+NXT+Lv
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Fri, 23 Jan 2004, Maciej W. Rozycki wrote:
 
-On Fri, 23 Jan 2004 16:58:24 -0200 (BRST) Marcelo Tosatti (MT) wrote:
+> So that's just opposite to what ide-cd does, but I think ide-cd should be
+> limited to CD-like devices with their all properties (oddities).  
 
-MT> Here goes -pre number 7 of 2.4.25 series.
-MT> 
-MT> About 2.4 freeze:
-MT> The planned freeze during 2.4.26 can happen only for 2.4.27.
+When I brought up the issue a few months back, the consensus was to
+use ide-cd, not ide-floppy.
 
-Do you have any plans to merge cryptoloop into 2.4. before the freeze?
+> Specifically you can do random writes to an MO disk, perhaps even format
+> it, which is usually not the case with CDs.
 
--Udo.
+ide-cd also handles DVD-RAM, which can also handle random writes.
 
---Signature=_Fri__23_Jan_2004_21_04_51_+0100_=Sb2kAML/+NXT+Lv
-Content-Type: application/pgp-signature
+> BTW, what does ide-scsi say of the device type for the MO: is it "CD-ROM"  
+> or "Direct-Access" or anything else?  I used an MO drive (a SCSI one --
+> nobody was crazy enough to think of an ATAPI interface for that kinds of
+> devices at that time) for a short while under Linux once and it used to be
+> the latter, with sd, not sr being the appropriate driver.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+On 2.4:
 
-iD8DBQFAEX5jnhRzXSM7nSkRAkDFAKCCiwec6PikeM4ocqnNeP/SxIKk6ACdF0JX
-/KXbZ9W0Xwy6yXWckhJknIU=
-=jQpd
------END PGP SIGNATURE-----
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: FUJITSU   Model: M25-MCC3064AP     Rev: 0051
+  Type:   Optical Device                     ANSI SCSI revision: 02
 
---Signature=_Fri__23_Jan_2004_21_04_51_+0100_=Sb2kAML/+NXT+Lv--
+And yes, this uses the sd driver.
+
+-- 
+Ciao,
+Pascal
+

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284732AbSBZMyi>; Tue, 26 Feb 2002 07:54:38 -0500
+	id <S285352AbSBZNCA>; Tue, 26 Feb 2002 08:02:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285352AbSBZMy1>; Tue, 26 Feb 2002 07:54:27 -0500
-Received: from AGrenoble-202-1-1-87.abo.wanadoo.fr ([80.14.157.87]:26028 "EHLO
-	lyon.ram.loc") by vger.kernel.org with ESMTP id <S284732AbSBZMyO>;
-	Tue, 26 Feb 2002 07:54:14 -0500
-To: linux-kernel@vger.kernel.org
-From: Raphael_Manfredi@pobox.com (Raphael Manfredi)
-Subject: Re: setsockopt(SOL_SOCKET, SO_SNDBUF) broken on 2.4.18?
-Date: 26 Feb 2002 12:54:03 GMT
-Organization: Home, Grenoble, France
-Message-ID: <a5g0hb$12d$1@lyon.ram.loc>
-In-Reply-To: <a5feh2$bvs$1@lyon.ram.loc> <E16fe55-0008UQ-00@the-village.bc.nu>
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-In-Reply-To: <E16fe55-0008UQ-00@the-village.bc.nu>
-X-Mailer: newsgate 1.0 at lyon.ram.loc
+	id <S285424AbSBZNBm>; Tue, 26 Feb 2002 08:01:42 -0500
+Received: from sleet.ispgateway.de ([62.67.200.125]:59801 "HELO
+	sleet.ispgateway.de") by vger.kernel.org with SMTP
+	id <S285352AbSBZNBa>; Tue, 26 Feb 2002 08:01:30 -0500
+Message-ID: <3C7B8727.4010803@ellinger.de>
+Date: Tue, 26 Feb 2002 14:01:27 +0100
+From: Rainer Ellinger <rainer@ellinger.de>
+Organization: Rainers Rechenzentrum
+User-Agent: Mozilla/5.0
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tulika Pradhan <tulikapradhan@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: frame relay on linux
+In-Reply-To: <LAW2-F51Hprp5yLZ86B00000eef@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Alan Cox <alan@lxorguk.ukuu.org.uk> from ml.linux.kernel:
-:> If I can't use the returned value from getsockopt(SO_SNDBUF) to do a
-:> setsockopt(SO_SNDBUF), then it's broken!  You'll have a hard time convincing
-:> me otherwise.
-:
-:I'd like to see a standards document cite for that. The behaviour we follow
-:is not atypical for a lot of ioctls and syscalls were you ask for one size
-:and the kernel gives you its preferred variant. In the other cases I can
-:think of the kernel also does not lie about its preferred variant
+Tulika Pradhan wrote:
+> what is the procedure if i want to add this effort to 
+ > the standard linux code and future versions.
 
-Practical experience shows that the test program I sent "works" (i.e.
-returns the least surprising results) on OpenBSD, HP-UX 11.x. I'm having
-a friend testing it for me on Solaris, but my guess is that it will work
-there as well.
+http://www.tux.org/lkml/#s1-15
 
-Raphael
+-- 
+rainer@ellinger.de
+

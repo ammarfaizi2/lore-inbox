@@ -1,115 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVAESSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVAESUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262521AbVAESSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 13:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVAESSQ
+	id S262538AbVAESUR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 13:20:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVAESUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 13:18:16 -0500
-Received: from mail.joq.us ([67.65.12.105]:37550 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262521AbVAESRg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 13:17:36 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Chris Wright <chrisw@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <1104374603.9732.32.camel@krustophenia.net>
-	<20050103140359.GA19976@infradead.org>
-	<1104862614.8255.1.camel@krustophenia.net>
-	<20050104182010.GA15254@infradead.org> <87u0pxhvn0.fsf@sulphur.joq.us>
-	<1104865198.8346.8.camel@krustophenia.net>
-	<1104878646.17166.63.camel@localhost.localdomain>
-	<20050104175043.H469@build.pdx.osdl.net>
-	<1104890131.18410.32.camel@krustophenia.net>
-	<20050105115213.GA17816@elte.hu>
-From: "Jack O'Quin" <joq@io.com>
-Date: Wed, 05 Jan 2005 12:18:27 -0600
-In-Reply-To: <20050105115213.GA17816@elte.hu> (Ingo Molnar's message of
- "Wed, 5 Jan 2005 12:52:13 +0100")
-Message-ID: <87vfabd9jg.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Wed, 5 Jan 2005 13:20:17 -0500
+Received: from alog0670.analogic.com ([208.224.223.207]:4480 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262538AbVAESSn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 13:18:43 -0500
+Date: Wed, 5 Jan 2005 13:15:30 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+cc: David Vrabel <dvrabel@cantab.net>, aryix <aryix@softhome.net>,
+       lug-list@lugmen.org.ar, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: dmesg: PCI interrupts are no longer routed automatically.........
+In-Reply-To: <1104945236.4046.25.camel@eeyore>
+Message-ID: <Pine.LNX.4.61.0501051251140.9762@chaos.analogic.com>
+References: <20041229095559.5ebfc4d4@sophia>  <1104862721.1846.49.camel@eeyore>
+  <Pine.LNX.4.61.0501041342070.5445@chaos.analogic.com>  <1104867678.1846.80.camel@eeyore>
+  <Pine.LNX.4.61.0501041447420.5310@chaos.analogic.com>  <41DBB5F6.6070801@cantab.net>
+  <Pine.LNX.4.61.0501050640430.12879@chaos.analogic.com> <1104945236.4046.25.camel@eeyore>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+On Wed, 5 Jan 2005, Bjorn Helgaas wrote:
 
-> the RT-LSM thing is a bit dangerous because it doesnt really protect
-> against a runaway, buggy app. So i think the right way to approach this
-> problem is to not apply RT-LSM for the time being, but to provide an
-> 'advanced latency needs' scheduling class that is _still_ safe even if
-> the task is runaway, but behaves with near-RT priorities if the task is
-> 'nice' (i.e. doesnt use up large amount of CPU time.)
+> On Wed, 2005-01-05 at 07:06 -0500, linux-os wrote:
+>> The temporary work-around is....
+>>  	pci_enable_device(pdev);
+>>  	save_irq = pdev->irq;
+>>  	pci_disable_device(pdev);	// Turn back off.
+>>
+>>  	init_bars(....);
+>>  	request_irq(save_irq,...)	// Put ISR in place
+>>
+>>  	pci_write_config_byte(pdev, PCI_CACHE_LINE_SIZE, 0x08);
+>>  	pci_write_config_byte(pdev, PCI_LATENCY_TIMER, 0x40);
+>>  	pci_set_dma_mask(pdev, 0x00000000ffffffffULL);
+>>  	pci_set_drvdata(pdev, NULL);
+>>  	pci_set_power_state(pdev, 0);
+>>  	pci_set_master(pdev);
+>>  	pci_set_mwi(pdev);
+>>  	pci_write_config_dword(pdev, PCI_COMMAND, PCI_CONFIG);
+>>
+>>  	.... configure chip-specific stuff, clear interrupts, etc.
+>>  	pci_enable_device(dev);
+>
+> So prior to 2.6.10, you did something like this?
+>
+> 	request_irq(pdev->irq, ...);
+> 	pci_write_config_byte(pdev, PCI_CACHE_LINE_SIZE, 0x08);
+> 	pci_write_config_byte(pdev, PCI_LATENCY_TIMER, 0x40);
+> 	...
+> 	pci_enable_device(pdev);
+>
 
-You are right that a runaway SCHED_FIFO application can freeze the
-system.  But, this really has nothing to do with the permissions
-problem addressed by the realtime-lsm.  In fact, it is needed by
-non-root users for running `nice -20', just as for SCHED_FIFO.
+Yes, exactly.
 
-I have no objection to creating a "better" RT scheduling class than
-SCHED_FIFO.  The "much-maligned" Mac OS X has a deadline scheduler
-that works quite well for running JACK and its applications.
+> What sort of interrupts does the device generate before it's
+> enabled?  I can't find anything in the PCI spec that actually
+> prohibits interrupts before the driver starts up the device,
+> but it does seem strange.
+>
 
-> so, could you try vanilla 2.6.10 (without LSM and without jackd running
-> with RT priorities), with jackd set to nice -20? Make sure the
-> jack-client process gets this priority too. Best to achieve this is to
-> renice a shell to -20 and start up everything from there - the nice
-> settings will be inherited. How does such an audio test compare to a
-> test done with jackd running at SCHED_FIFO with RT priority 1?
+The problem is that the PLX-9656BA INTCSR is not in configuration
+space, but runtime registers off a BAR. The interrupt source
+can be from a PLD that hasn't even had its microcode loaded
+yet!
 
-For a quick comparison, I used a slightly modified version of the
-jack_test3.2 script, that runs jackd without the -R (--realtime)
-option...
+FYI, the PLX or similar clone is the bus interface chip for many
+busmastering PCI boards.
 
-                                 With -R        Without -R
-                               (SCHED_FIFO)     (nice -20)
+> You wouldn't want your ISR mucking around with a half-initialized
+> device, so does it have to check a "device_configured" flag
+> or something?
+>
 
-************* SUMMARY RESULT ****************
-Total seconds ran . . . . . . :   300
-Number of clients . . . . . . :    20
-Ports per client  . . . . . . :     4
-Frames per buffer . . . . . . :    64
-*********************************************
-Timeout Count . . . . . . . . :(    1)          (    1)         
-XRUN Count  . . . . . . . . . :     2             2837          
-Delay Count (>spare time) . . :     0                0          
-Delay Count (>1000 usecs) . . :     0                0          
-Delay Maximum . . . . . . . . :  3130   usecs    5038044   usecs
-Cycle Maximum . . . . . . . . :   960   usecs    18802   usecs
-Average DSP Load. . . . . . . :    34.3 %           44.1 %    
-Average CPU System Load . . . :     8.7 %            7.5 %    
-Average CPU User Load . . . . :    29.8 %            5.2 %    
-Average CPU Nice Load . . . . :     0.0 %           20.3 %    
-Average CPU I/O Wait Load . . :     3.2 %            5.2 %    
-Average CPU IRQ Load  . . . . :     0.7 %            0.7 %    
-Average CPU Soft-IRQ Load . . :     0.0 %            0.2 %    
-Average Interrupt Rate  . . . :  1707.6 /sec      1677.3 /sec 
-Average Context-Switch Rate . : 11914.9 /sec     11197.6 /sec 
-*********************************************
+Yes. If the device isn't configured, the ISR reads all the INTCSR
+bits, then writes 0 to the register to prevent anything else.
 
-This was not exactly the test you requested.  The LSM is still
-present.  But, it makes no difference.  In fact, I used it to grant
-nice privileges, since I didn't feel like running it as root.
+If the PLX had been reset, then the INTCSR bits would all
+be masked off. However, reset is really only guaranteed from
+power OFF on some motherboards, in particuar the ones with
+so-called "hot-swap" capabilites fail. There is a software
+reset that, in fact, even reloads its serial EEPROM. However,
+the BAR needs to be accessible for this to be used.
 
-But this is otherwise vanilla 2.6.10, and the two scheduling
-algorithms are fairly represented.  Try it yourself, I think you'll
-see similarly dramatic differences.
+So it would be wonderful if the correct IRQ could be made
+available before the chip could generate an interrupt.
 
-Note that 2.6.10 has by far the best realtime performance of any
-vanilla Linux kernel I have ever tried.  Although, much better results
-can be obtained with your Realtime Preemption patches, this is still a
-very creditable result, quite usable for many relatively low-latency
-applications.  Kudos to you and the many others who contributed to
-this achievement.
-
-> if this works out well then we could achieve something comparable to
-> RT-LSM, via nice levels alone.
-
-As you see, it does not work at all.
--- 
-  joq
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

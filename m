@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274530AbRJEXWH>; Fri, 5 Oct 2001 19:22:07 -0400
+	id <S274520AbRJEXWg>; Fri, 5 Oct 2001 19:22:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274520AbRJEXVq>; Fri, 5 Oct 2001 19:21:46 -0400
-Received: from femail28.sdc1.sfba.home.com ([24.254.60.18]:10201 "EHLO
-	femail28.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S274513AbRJEXVm>; Fri, 5 Oct 2001 19:21:42 -0400
-Message-ID: <3BBE3F7D.621B727C@didntduck.org>
-Date: Fri, 05 Oct 2001 19:17:17 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
+	id <S274522AbRJEXW1>; Fri, 5 Oct 2001 19:22:27 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:270 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S274520AbRJEXWJ>; Fri, 5 Oct 2001 19:22:09 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Alex Pennace <alex@pennace.org>
+Date: Sat, 6 Oct 2001 09:22:00 +1000 (EST)
 MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: Alessandro Suardi <alessandro.suardi@oracle.com>,
-        Dan Merillat <harik@chaos.ao.net>, linux-kernel@vger.kernel.org
-Subject: Re: Wierd /proc/cpuinfo with 2.4.11-pre4
-In-Reply-To: <1566531237.1002293911@mbligh.des.sequent.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15294.16536.430907.650513@notabene.cse.unsw.edu.au>
+Cc: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: Desperately missing a working "pselect()" or similar...
+In-Reply-To: message from Alex Pennace on Friday October 5
+In-Reply-To: <3BBDD37D.56D7B359@isg.de>
+	<E15pbid-0007fi-00@calista.inka.de>
+	<20011005190523.A6516@buick.pennace.org>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
+On Friday October 5, alex@pennace.org wrote:
+> On Fri, Oct 05, 2001 at 10:36:53PM +0200, Bernd Eckenfels wrote:
+> > In article <3BBDD37D.56D7B359@isg.de> you wrote:
+> > > Without a proper pselect() implementation (the one in glibc is just
+> > > a mock-up that doesn't prevent the race condition) I'm currently
+> > > unable to come up with a good idea on how to wait on both types
+> > > of events.
+> > 
+> > Isnt select() returning with EINTR?
 > 
-> >> Wow!  That's pretty impressive, a new kernel build gives me an
-> >> additional _7_ CPUs!
-> 
-> Sorry. Mea culpa
-> 
-> --- setup.c.old Fri Oct  5 14:20:29 2001
-> +++ setup.c     Fri Oct  5 14:28:51 2001
-> @@ -2420,7 +2420,7 @@
->          * WARNING - nasty evil hack ... if we print > 8, it overflows the
->          * page buffer and corrupts memory - this needs fixing properly
->          */
-> -       for (n = 0; n < 8; n++, c++) {
-> +       for (n = 0; n < (clustered_apic_mode ? 8 : NR_CPUS); n++, c++) {
->         /* for (n = 0; n < NR_CPUS; n++, c++) { */
->                 int fpu_exception;
->  #ifdef CONFIG_SMP
-> 
-> M.
-> 
-> PS. I just tested this since my last post. It seems to work.
+> The select system call doesn't return EINTR when the signal is caught
+> prior to entry into select.
 
-It would be more appropriate to do:
-	for (n = 0; n < min(8, NR_CPUS); n++, c++) {
+A technique I used in a similar situation once went something like:
 
--- 
+tv.tv_sec=bignum;
+tv.tv_usec = 0;
+enable_signals();
+select(nfds, &readfds,&writefds,0,&tv);
 
-						Brian Gerst
+and have the signal handlers set tv.tv_sec to 0. (tv is a global
+variable).
+
+Then if the signal comes before the select, the select exits
+immediately.
+
+NeilBrown

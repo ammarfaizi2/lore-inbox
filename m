@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbTFWO5q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 10:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTFWO5p
+	id S263311AbTFWPEl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 11:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTFWPEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 10:57:45 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:35735 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263638AbTFWO5o (ORCPT
+	Mon, 23 Jun 2003 11:04:40 -0400
+Received: from [62.75.136.201] ([62.75.136.201]:20115 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S263311AbTFWPEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 10:57:44 -0400
-Date: Mon, 23 Jun 2003 17:11:36 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: John Weber <weber@sixbit.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.73 Mouse
-Message-ID: <20030623171136.A21216@ucw.cz>
-References: <3EF7010C.5090000@sixbit.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3EF7010C.5090000@sixbit.org>; from weber@sixbit.org on Mon, Jun 23, 2003 at 09:30:52AM -0400
+	Mon, 23 Jun 2003 11:04:39 -0400
+Message-ID: <3EF71A54.7010909@g-house.de>
+Date: Mon, 23 Jun 2003 17:18:44 +0200
+From: Christian Kujau <evil@g-house.de>
+Reply-To: evil@g-house.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: kernel BUG at jfs_dmap.c:776 (2.4.21)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 09:30:52AM -0400, John Weber wrote:
+Hi,
 
-> My mouse suddenly stopped working with 2.5.73.  I am using a Synaptics 
-> Touchpad --
-> with comes with a Dell laptop.  (I will test with an external mouse later).
-> 
-> The SERIO I8042 driver seems to find my mouse, interrupts are firing, 
-> and I enabled
-> the old /dev/psaux so that userland doesn't see anything different. 
-> Most importantly,
-> the same config worked with 2.5.72.  I noticed that dmesg was slightly 
-> different across
-> the two versions which suggests that something did change.
+while doing some benchmarks, i noticed a segfault when trying to mount a 
+newly created JFS. mkfs.jfs passes, but mount gives:
 
-Option 1)
-	Use psmouse_noext option on the command line. This will
-	restore the previous behavior easily and immediately.
 
-Option 2)
-	Get the Synaptics XFree86 driver for 2.5 kernels from
-	http://w1.894.telia.com/~u89404340/touchpad/index.html
-	This will enable additional features with the pad, like
-	palm detection, multitap gestures and more. It will also
-	make the pad work, of course.
+BUG at jfs_dmap.c:776 assert(hint < mapSize)
+kernel BUG at jfs_dmap.c:776!
+mount(1055): Kernel Bug 1
+pc = [<fffffffc003236b4>]  ra = [<fffffffc003236a8>]  ps = 0000    Not 
+tainted
+v0 = 000000000000001e  t0 = 0000000000000001  t1 = 0000000000000000
+t2 = fffffc00011d2948  t3 = 0000000000000000  t4 = ffffffff00000000
+t5 = 0000000000000001  t6 = 343c0a29657a6953  t7 = fffffc0002cf8000
+a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
+a3 = 0000000000000001  a4 = 0000000000000001  a5 = 0000000000000002
+t8 = 0000000000000004  t9 = 0000000000001c0e  t10= 0000000000001c0f
+t11= fffffc00011f0988  pv = fffffc000101fb90  at = fffffc00011f0988
+gp = fffffffc00347c88  sp = fffffc0002cfb9e8
+Trace:fffffc0001029f50 fffffc0001053b88 fffffc0001054838 
+fffffc000103e1ac fffffc00010168b0 fffffc000105808c fffffc00010585a4 
+fffffc0001058434 fffffc0001070b28 fffffc0001070f3c fffffc0001070d18 
+fffffc000107155c fffffc0001071538 fffffc0001010d30 fffffc0001010c88
+Code: 22106a0c  47e90411  6b5b4106  27ba0002  23bd45e0  00000081 
+<c3fffecb> 47ff041f
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+
+this is with vanilla 2.4.21 (Alpha), compiled with gcc3.3, glibc 2.3.1,
+util-linux 2.11z.
+
+
+thanks,
+Christian.
+

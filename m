@@ -1,29 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbTKZW6s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 17:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264360AbTKZW6s
+	id S264365AbTKZXFt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 18:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTKZXFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 17:58:48 -0500
-Received: from ns.suse.de ([195.135.220.2]:59349 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264359AbTKZW6q (ORCPT
+	Wed, 26 Nov 2003 18:05:49 -0500
+Received: from [212.35.254.18] ([212.35.254.18]:22466 "EHLO mail2.midnet.co.uk")
+	by vger.kernel.org with ESMTP id S264365AbTKZXFs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 17:58:46 -0500
-Date: Wed, 26 Nov 2003 23:56:41 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine??
-Message-Id: <20031126235641.36fd71c1.ak@suse.de>
-In-Reply-To: <20031126143620.5229fb1f.davem@redhat.com>
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel>
-	<20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>
-	<p73fzgbzca6.fsf@verdi.suse.de>
-	<20031126113040.3b774360.davem@redhat.com>
-	<3FC505F4.2010006@google.com>
-	<20031126120316.3ee1d251.davem@redhat.com>
-	<20031126232909.7e8a028f.ak@suse.de>
-	<20031126143620.5229fb1f.davem@redhat.com>
+	Wed, 26 Nov 2003 18:05:48 -0500
+Date: Wed, 26 Nov 2003 23:05:50 +0000
+From: Tim Kelsey <tk@midnet.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Help building module for 2.6.0
+Message-Id: <20031126230550.37785544.tk@midnet.co.uk>
+Organization: Midland Internet
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -31,25 +22,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Nov 2003 14:36:20 -0800
-"David S. Miller" <davem@redhat.com> wrote:
+ok im trying to build a kernel module (my first :) ) when i build it on a 2.4 box everything is fine when i build it on my laptop running 2.6.0-t10 it builds fine but when i try and insmod it i get 
 
-> On Wed, 26 Nov 2003 23:29:09 +0100
-> Andi Kleen <ak@suse.de> wrote:
-> 
-> > The first SIOCGTSTAMP would be inaccurate, but the following (after 
-> > all untimestamped packets have been flushed) would be ok.
-> 
-> I don't think this is acceptable.  It's important that all
-> of the timestamps are as accurate as they were before.
+sh$ insmod ./hgn.o 
+insmod: error inserting './hgn.o': -1 Invalid module format
 
-I disagree on that. The window is small and slowing down 99.99999% of all 
-users who never care about this for this extremely obscure misdesigned API does 
-not make  much sense to me.
+I have attached my Makefile. Please could some one tell me if this is due to the way i compile the module (my guess) or if it is likly caused by my code. Any pointers would be welcome.
 
-Also if you worry about these you could add an optional sysctl
-to always take it, so if anybody really has an application that relies
-on the first time stamp being accurate and they cannot use SO_TIMESTAMP
-they could set the sysctl.
+Thnx for any help
+Tim Kelsey
 
--Andi
+
+p.s. I know this is kind of like walking into a filharmonic auchestra with a waveing a tin drum :P so if there is a more apropriate place to post this kind of question pls let me know.

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSLICgz>; Sun, 8 Dec 2002 21:36:55 -0500
+	id <S262214AbSLICjq>; Sun, 8 Dec 2002 21:39:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262214AbSLICgz>; Sun, 8 Dec 2002 21:36:55 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:3081 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262067AbSLICgy>;
-	Sun, 8 Dec 2002 21:36:54 -0500
-Date: Sun, 8 Dec 2002 18:43:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Khalid Aziz Khalid Shuah Khan <khalid@gonehiking.org>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH] Add support for Epson 785EPX Storage device
-Message-ID: <20021209024345.GB27730@kroah.com>
-References: <20021208214329.F0F70374C1@waltz.gonehiking.org>
-Mime-Version: 1.0
+	id <S262442AbSLICjq>; Sun, 8 Dec 2002 21:39:46 -0500
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:65273 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S262214AbSLICjp>; Sun, 8 Dec 2002 21:39:45 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021208214329.F0F70374C1@waltz.gonehiking.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15860.1070.521840.791396@wombat.chubb.wattle.id.au>
+Date: Mon, 9 Dec 2002 13:47:10 +1100
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Rusty Trivial Russell <rusty@rustcorp.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "" <linux-kernel@vger.kernel.org>,
+       Kingsley Cheung <kingsley@aurema.com>
+Subject: Re: [TRIVIAL] Re: setrlimit incorrectly allows hard limits to exceed
+ soft limits
+In-Reply-To: <1054753245@toto.iv>
+X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 08, 2002 at 02:43:29PM -0700, Khalid Aziz Khalid Shuah Khan wrote:
-> Epson 785EPX USB printer has a PCMCIA slot that works as a USB storage
-> device. usb-storage driver fails to recognize this device since it
-> returns 0xff for Subclass. Attached patch adds support for the PCMCIA
-> slot to usb-storage driver.
-> 
-> Marcelo, please apply.
+>>>>> "Rik" == Rik van Riel <riel@conectiva.com.br> writes:
 
-Please send this to the usb-storage author and maintainer.
+Rik> On Fri, 6 Dec 2002, Rusty Trivial Russell wrote:
+>> > Just try "ulimit -H -m 10000" for memory limits that were not >
+>> previously set.  You end up with (hard limit = 10000) < (soft limit
+>> = > unlimited).
 
-thanks,
+>> + if (new_rlim.rlim_cur > new_rlim.rlim_max) + return -EINVAL;
 
-greg k-h
+Rik> Wouldn't it be better to simply take the soft limit down to
+Rik> min(new_rlim.rlim_cur, new_rlim.rlim_max) ?
+ 
+Single unix spec says to return EINVAL in this case.
+
+[EINVAL]
+An invalid resource was specified; or in a setrlimit() call, the new
+rlim_cur exceeds the new rlim_max.
+
+ 

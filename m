@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264476AbTGBUUN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 16:20:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbTGBUUN
+	id S264472AbTGBUVP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 16:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTGBUVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 16:20:13 -0400
-Received: from buerotecgmbh.de ([217.160.181.99]:59535 "EHLO buerotecgmbh.de")
-	by vger.kernel.org with ESMTP id S264478AbTGBUUJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 16:20:09 -0400
-Date: Wed, 2 Jul 2003 22:34:33 +0200
-From: Kay Sievers <lkml001@vrfy.org>
-To: linux-kernel@vger.kernel.org
-Subject: why does sscanf() does not interpret number length attributes?
-Message-ID: <20030702203433.GA14854@vrfy.org>
+	Wed, 2 Jul 2003 16:21:15 -0400
+Received: from lakemtao02.cox.net ([68.1.17.243]:39389 "EHLO
+	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S264472AbTGBUVH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 16:21:07 -0400
+Date: Wed, 2 Jul 2003 16:36:02 -0400
+From: Wil Reichert <wilreichert@yahoo.com>
+To: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: highpoint driver problem, 2.4.21-ac4
+Message-Id: <20030702163602.2d07ad23.wilreichert@yahoo.com>
+In-Reply-To: <3F032991.3030201@gmx.at>
+References: <4FHn.4MD.1@gated-at.bofh.it>
+	<3F032991.3030201@gmx.at>
+Organization: NA
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I needed a conversion from hex-string to integer and found
-this mail from Linus suggesting sscanf:
+>  > The on-board Highpoint controller (HPT372A) on my DFI NF2 is having
+>  > issue.  Loading the hptraid module results in a 'No such device'
+>  > message while the hpt366 module segfaults and leaves an oops in my
+>  > logs.  These errors occur regardless of the disk/raid configuration
+>  > in the hpt BIOS.   Following are the oops trace, an lsmod, the
+>  > .config and a lspci -vvv.
+> 
+> The crash occurs in the hpt366 module. Loading hptraid will not work 
+> because it depends on the kernel to claim the disks of the raid volume 
+> (that is what hpt366 would do). I will add autoloading of the 
+> ide-controller module in the next raid-driver release. However, I do not 
+> know why the kernel oopses. You might want to try to build the hpt366 
+> code into the kernel instead of a module. If it works it would probably 
+> mean that "ide_hwif_t *hwif" was not properly initalized.
+I initially had all the hpt modules built into the kernel, but that would also produce an oops and die immediately after ID'ing the two drives I have on attached.  Would any more information be of use to you?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101414195507893&w=2
-
-but sscanf in linux-2.5/lib/vsprintf.c interpretes length attributes
-only when the type is a string. It uses simple_strtoul() and it will
-read the buffer until it finds a non-(hex)digit.
-
-int i;
-char str[] ="34AFFE45XYZ";
-sscanf(str, "%1x", &i);
-
-i will be '0x34AFFE45' instead of the expected '3'.
-
-Is this behaviour intended or is just nobody caring about?
-
-
-thanks
-Kay
-
+Wil

@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUJFEMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266912AbUJFEMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266880AbUJFEMm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 00:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUJFEMm
+	id S266912AbUJFEMw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 00:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUJFEMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 00:12:42 -0400
-Received: from o3.xlccorp.com ([66.37.197.101]:49292 "HELO o1.xlccorp.com")
-	by vger.kernel.org with SMTP id S266880AbUJFEMc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 00:12:32 -0400
-Message-ID: <416370D5.8040700@allvantage.com>
-Date: Wed, 06 Oct 2004 00:13:10 -0400
-From: Kenny Bentley <crash77a@allvantage.com>
-Reply-To: crash77a@allvantage.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "J. Bruce Fields" <bfields@fieldses.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Converting kernel modules from 2.4 to 2.6/Suggested new driver
-References: <416345C0.4050500@allvantage.com> <20041005182716.2f3f52c0.rddunlap@osdl.org> <20041006015310.GD9683@fieldses.org>
-In-Reply-To: <20041006015310.GD9683@fieldses.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 6 Oct 2004 00:12:52 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:36549 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266912AbUJFEMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 00:12:36 -0400
+Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive
+	(SCSI-libsata, VIA SATA))
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrea Arcangeli <andrea@novell.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Robert Love <rml@novell.com>,
+       Roland Dreier <roland@topspin.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4163660A.4010804@pobox.com>
+References: <4136E4660006E2F7@mail-7.tiscali.it>
+	 <41634236.1020602@pobox.com> <52is9or78f.fsf_-_@topspin.com>
+	 <4163465F.6070309@pobox.com> <41634A34.20500@yahoo.com.au>
+	 <41634CF3.5040807@pobox.com> <1097027575.5062.100.camel@localhost>
+	 <20041006015515.GA28536@havoc.gtf.org> <41635248.5090903@yahoo.com.au>
+	 <20041006020734.GA29383@havoc.gtf.org>
+	 <20041006031726.GK26820@dualathlon.random>  <4163660A.4010804@pobox.com>
+Content-Type: text/plain
+Message-Id: <1097035953.1359.15.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 06 Oct 2004 00:12:34 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J. Bruce Fields wrote:
+On Tue, 2004-10-05 at 23:27, Jeff Garzik wrote:
+> If users and developers are presented with the _impression_ that long 
+> latency code paths don't exist
 
->You'll need to double-check that.  I think Linuxant released some
->free-as-in-beer drivers that were a mixture of free and proprietary
->code, so it was easy to get confused on this point.
->  
->
-I'm not sure what you mean by "free-as-in-beer", but they were released 
-open-source in hopes that others would be able to develop them further.  
-At the very least, I know for sure that the sound card driver is 
-open-source in hopes that people will be able to write an ALSA driver 
-for it since it only supports OSS.  I'll have to check the licenses in 
-the files I have for details about distribution.
+Users do not care whether some "long latency code path" exists in
+theory.  They only notice results.  The developer part of your argument
+is valid though.
+
+Lee 
 

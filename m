@@ -1,69 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVCBRVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVCBRVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbVCBRVx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 12:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbVCBRUV
+	id S262359AbVCBRVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 12:21:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVCBRTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 12:20:21 -0500
-Received: from mail.kroah.org ([69.55.234.183]:54950 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262379AbVCBRR4 (ORCPT
+	Wed, 2 Mar 2005 12:19:24 -0500
+Received: from fire.osdl.org ([65.172.181.4]:16573 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262370AbVCBRIG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 12:17:56 -0500
-Date: Wed, 2 Mar 2005 09:17:39 -0800
-From: Greg KH <greg@kroah.com>
-To: Mickey Stein <yekkim@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [Patch] gcc 4 errors out on i2c.h (2.6.11)
-Message-ID: <20050302171739.GA2563@kroah.com>
-References: <4225D9E0.40005@pacbell.net>
+	Wed, 2 Mar 2005 12:08:06 -0500
+Date: Wed, 2 Mar 2005 09:07:34 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org
+Subject: Re: Improving mmap() support for !MMU further
+Message-Id: <20050302090734.5a9895a3.akpm@osdl.org>
+In-Reply-To: <9420.1109778627@redhat.com>
+References: <9420.1109778627@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4225D9E0.40005@pacbell.net>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 07:21:04AM -0800, Mickey Stein wrote:
-> I've noticed no problems with today's new 2.6.11 in the i2c realm on 
-> gcc3.x, but the last couple of weeks of gcc 4.x cvs give this:
+David Howells <dhowells@redhat.com> wrote:
+>
 > 
-> Error msgs building i2c modules on 2.6.11 using gcc 4:
-> ------------
-> In file included from drivers/i2c/i2c-core.c:29:
-> include/linux/i2c.h:58: error: array type has incomplete element type
-> include/linux/i2c.h:197: error: array type has incomplete element type
-> drivers/i2c/i2c-core.c: In function ?i2c_transfer?:
-> drivers/i2c/i2c-core.c:594: error: type of formal parameter 2 is incomplete
-> drivers/i2c/i2c-core.c: In function ?i2c_master_send?:
-> drivers/i2c/i2c-core.c:620: error: type of formal parameter 2 is incomplete
-> drivers/i2c/i2c-core.c: In function ?i2c_master_recv?:
-> drivers/i2c/i2c-core.c:649: error: type of formal parameter 2 is incomplete
-> make[2]: *** [drivers/i2c/i2c-core.o] Error 1
-> make[1]: *** [drivers/i2c] Error 2
-> make: *** [drivers] Error 2
-> -------------
+> Hi Linus,
 > 
-> I'm not clear on whether the mainstream kernel is "supposed" to compile 
-> error-free with the current state of
-> gcc 4 cvs. If not, then disregard. I tested this patch applied against 
-> today's 2.6.11 with gcc 3.x & 4.x
-> by enabling all i2c module switches and building.
-> 
-> A thread discussing this can be found by following the link below:
-> 
-> http://gcc.gnu.org/ml/gcc/2005-02/msg00053.html
-> 
-> The patch changes declarations from "struct i2c_msg msg[]" format to 
-> "struct i2c_msg *msg".
-> 
-> I've run this by Greg K-H and fixed a typo akpm noticed. The patch 
-> touches on several other
-> files using *i2c_transfer and *master_xfer that give warnings.
+> I'd like to improve mmap() support on !MMU still further by overloading struct
+> backing_dev_info::memory_backed to hold flags describing what the backing
+> device is capable of with respect to direct memory access.
 
-This patch is already in the -mm tree, and will be sent to Linus in a
-few days.
+->memory_backed is already overloaded in various awkward ways.  It would be
+good to fix that up first, then add enhancements in a later patch.
 
-thanks,
+Furthermore I'd suggest that we remove ->memory_backed and simply add a
+bunch of new booleans to backing_dev_info rather than futzing with
+bitflags.  Those booleans could be bitfields, of course.
 
-greg k-h
+And those fields should refer to device capabilities and not to device
+characteristics: "what it can do" rather than "what it is".  So
+"contributes to dirty memory" and "needs writeback" are good and "is a ram
+disk thingy" is bad.
+
+So in 2.6.11 as-is, we have:
+
+bdi->dirty_memory_acct		Contributes to dirty memory accounting
+bdi->needs_writeback		Needs writeback
+
+>  (*) If bdi->memory_backed is 0, then the backing device is not accessible as
+>      memory.
+
+Not sure what this means.
+
+>  (*) If the bdi->memory_backed is non-zero, then it's a bit mask of the
+>      following:
+> 
+> 	#define BDI_NO_WRITEBACK	0x00000001
+
+Invert the sense of this, use ->needs_writeback
+
+> 	#define BDI_MEMORY_BACKED	0x00000001
+
+Lose this.
+
+> 	#define BDI_CAN_MAP_DIRECT	0x00000002
+
+bdi->can_map_direct
+
+> 	#define BDI_CAN_MAP_COPY	0x00000004
+
+bdi->can_map_copy
+
+> 	#define BDI_CAN_READ_MAP	VM_MAYREAD
+> 	#define BDI_CAN_WRITE_MAP	VM_MAYWRITE
+> 	#define BDI_CAN_EXEC_MAP	VM_MAYEXEC
+
+A separate field in backing_dev_info?
+
+
+That `membacked' stuff in the !NOMMU implementation of do_mmap_pgoff()
+looks like it could benefit from some rework as a result of the above as
+well.  It all looks rather inferential.

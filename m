@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268529AbUJJWA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268527AbUJJWIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268529AbUJJWA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 18:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268532AbUJJWA7
+	id S268527AbUJJWIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 18:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268532AbUJJWIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 18:00:59 -0400
-Received: from goliath.sylaba.poznan.pl ([193.151.36.3]:51216 "EHLO
-	goliath.sylaba.poznan.pl") by vger.kernel.org with ESMTP
-	id S268529AbUJJWA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 18:00:57 -0400
-Subject: Re: How to umount a busy filesystem?
-From: Olaf =?iso-8859-2?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
-To: Matthias Schniedermeyer <ms@citd.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041010211208.GA6986@citd.de>
-References: <1097441558.2235.9.camel@venus>  <20041010211208.GA6986@citd.de>
-Content-Type: text/plain
-Message-Id: <1097445655.2235.18.camel@venus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 11 Oct 2004 00:00:55 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Oct 2004 18:08:52 -0400
+Received: from smtp09.auna.com ([62.81.186.19]:61070 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S268527AbUJJWIu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 18:08:50 -0400
+Date: Sun, 10 Oct 2004 22:08:49 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: udev: what's up with old /dev ?
+To: Lista Mdk-Cooker <cooker@linux-mandrake.com>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: Balsa 2.2.5
+Message-Id: <1097446129l.5815l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-10 at 23:12, Matthias Schniedermeyer wrote:
-> On 10.10.2004 22:52, Olaf Fr?czyk wrote:
-> > Hi,
-> > 
-> > Why I cannot umount filesystem if it is being accessed?
-> > I tried MNT_FORCE option but it doesn't work.
-> > 
-> > Killing all processes that access a filesystem is not an option. They
-> > should just get an error when accessing filesystem that is umounted.
-> > 
-> > Any idea how to do it?
-> 
-> umount -l
-> 
-> removes the mount in "lazy"-mode, this way the mount-point "vanishes"
-> for all programs whose working-dirs aren't "within" that mount-point.
-> After all files are closed the filesystem is unmounted totally.
-> You can "reuse" the mount-point immediatly.
-> 
-Thank you.
-But this:
-1. Does not let the user to remove the media (eg. cdrom).
-2. Does not flush buffers etc. so the media cannot be safely removed
-even if it were physically possible (eg. cdrom with unlocked tray or
-USB-key).
+Hi all...
 
-I have read that the MNT_FORCE is currently limited to NFS mounts.
-Does somebody have any idea why it is limited? 
-Or is the functionality planned for other filesystems too?
+I have just remembered that udev mounts /dev as a tmpfs filesystem, _on top_
+of the old /dev directory. I have just booted to single user mode,
+and checked that the old /dev is wasting around 13000 files (inodes) in my
+box. Space is not an issue, that is around 480 Kb.
 
-Regards,
+A couple questions:
 
-Olaf
+- Is it possible to boot with an empty /dev, until udev builds it ?
+- If this is not the case, which are the minimal nodes that should be
+  present ?
+- For any answer to previous question, shouldn't the distro set up minimal
+  /dev (empty or with a few nodes) and _delete_ the old /dev tree ?
+
+I don't remember exactly, but there are scripts at initscripts run before
+udev. As I understand it, udev should be the very first thing to run, as
+anything after it will probably need a /dev/something....
+
+Why my simple logic does not work ?
+
+(As I CC both cooker and LKML, this is a cooker specific question: could anybody
+who has installed 10.1 from scratch, ie not an update, boot to runlevel 1 and
+list his /dev)
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-rc3-mm3 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #2
+
 

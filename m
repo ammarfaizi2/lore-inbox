@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbUKEBYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbUKEBLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbUKEBYA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 20:24:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbUKEBUZ
+	id S262550AbUKEBLd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 20:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUKEBIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 20:20:25 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:36503 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262540AbUKEBSc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 20:18:32 -0500
-Message-ID: <418AD4D7.8090502@linux.intel.com>
-Date: Thu, 04 Nov 2004 19:18:15 -0600
-From: James Ketrenos <jketreno@linux.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ipw2100/ipw2200 firmware license
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 20:08:15 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:54993 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262541AbUKEBEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 20:04:33 -0500
+Date: Fri, 5 Nov 2004 02:04:27 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Patrick McHardy <kaber@trash.net>, matthias.andree@gmx.de,
+       netfilter-devel@lists.netfilter.org, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks amanda dumps
+Message-ID: <20041105010427.GA2770@merlin.emma.line.org>
+Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
+	Patrick McHardy <kaber@trash.net>,
+	netfilter-devel@lists.netfilter.org, linux-net@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20041104121522.GA16547@merlin.emma.line.org> <418A7B0B.7040803@trash.net> <20041104231734.GA30029@merlin.emma.line.org> <418AC0F2.7020508@trash.net> <20041104160655.1c66b7ef.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104160655.1c66b7ef.davem@davemloft.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 04 Nov 2004, David S. Miller wrote:
 
-As some of you may be aware, there has recently been some confusion about the 
-terms of the license covering the firmware for the Intel PRO/Wireless network 
-adapters (raised on the mailing list last week).  The key question by Linux 
-users/distributors revolves around whether or not the firmware license supports 
-redistribution.  The answer is (as many of you know) "yes".
+> His patch isn't correct, even making a temporary change to
+> a shared SKB is illegal.
 
-I've spent some time speaking with our legal team to try and clarify the issue 
-and so have put together a few quick usage questions that try and illustrate how 
-the license works.  You can find those questions and their answers at 
-http://ipw2100.sf.net/firmware_faq.php
+So the original ip_conntrack_amanda was already illegal. If only such
+nonsense caused heavy kernel logging (let it oops or GPF or whatver),
+that's a much quicker way to pinpoint the bug than run amanda with a
+special devnull configuration some dozen times.
 
-For various reasons (many of which have been touched on in this mailing list in 
-many different threads) Intel can not change the terms of the license to support 
-what some refer to as an "unencumbered" or "non-restrictive" license.  We 
-recognize the need of the Linux community to be able to freely (as in beer) 
-redistribute the firmware and the license supports that.
+> Things like tcpdump could see corrupt SKB contents if they look during
+> that tiny window when the newline character has been changed to NULL
+> by the amanda conntrack module.
 
-If you have any questions about the license, or need further clarification, 
-please don't hesitate to send me an email off list.
+Where is the SKB stuff documented?
 
-Thanks,
-James
-ipw2100 / ipw2200 project maintainer
-Intel Corporation
+-- 
+Matthias Andree

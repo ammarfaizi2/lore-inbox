@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSIPG2A>; Mon, 16 Sep 2002 02:28:00 -0400
+	id <S313060AbSIPGno>; Mon, 16 Sep 2002 02:43:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313060AbSIPG2A>; Mon, 16 Sep 2002 02:28:00 -0400
-Received: from pop017pub.verizon.net ([206.46.170.210]:54424 "EHLO
-	pop017.verizon.net") by vger.kernel.org with ESMTP
-	id <S312590AbSIPG2A>; Mon, 16 Sep 2002 02:28:00 -0400
-Message-Id: <200209160644.g8G6iEvo006691@pool-141-150-241-241.delv.east.verizon.net>
-Date: Mon, 16 Sep 2002 02:44:12 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.35 undefined reference to `wait_task_inactive'
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop017.verizon.net from [141.150.241.241] using ID <vze2j9fk@verizon.net> at Mon, 16 Sep 2002 01:32:52 -0500
+	id <S313070AbSIPGno>; Mon, 16 Sep 2002 02:43:44 -0400
+Received: from horkos.telenet-ops.be ([195.130.132.45]:1716 "EHLO
+	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S313060AbSIPGnn> convert rfc822-to-8bit; Mon, 16 Sep 2002 02:43:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Bart De Schuymer <bart.de.schuymer@pandora.be>
+To: "David S. Miller" <davem@redhat.com>
+Subject: [PATCH] ebtables - Ethernet bridge tables, for 2.5.35
+Date: Mon, 16 Sep 2002 08:50:16 +0200
+X-Mailer: KMail [version 1.4]
+Cc: buytenh@math.leidenuniv.nl, linux-kernel@vger.kernel.org,
+       ebtables-user@lists.sourceforge.net, bridge@math.leidenuniv.nl
+References: <200209130520.41862.bart.de.schuymer@pandora.be> <200209130812.27093.bart.de.schuymer@pandora.be> <20020912.230916.96754743.davem@redhat.com>
+In-Reply-To: <20020912.230916.96754743.davem@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209160850.16192.bart.de.schuymer@pandora.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A call to wait_task_inactive was added to fs/exec.c but that function is
-not defined for UP.
+Hello David,
 
-ld -m elf_i386 -T arch/i386/vmlinux.lds.s -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/init.o --start-group arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o security/built-in.o /usr/local/src/linux/arch/i386/lib/lib.a lib/lib.a /usr/local/src/linux/arch/i386/lib/lib.a drivers/built-in.o sound/sound.o arch/i386/pci/pci.o net/network.o --end-group -o vmlinux
-fs/fs.o: In function `flush_old_exec':
-fs/fs.o(.text+0x8cb7): undefined reference to `wait_task_inactive'
-make: *** [vmlinux] Error 1
+The following link points to the ebtables patch approved by Lennert:
+http://users.pandora.be/bart.de.schuymer/ebtables/v2.0/ebtables-v2.0_vs_2.5.35-try3.diff
+
+Changes:
+
+cleanup brouter interface in the bridge code + brouter bugfix.
 
 -- 
-Skip
+cheers,
+Bart
+

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbUBZGzR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 01:55:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbUBZGzR
+	id S262707AbUBZHNV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 02:13:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbUBZHNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 01:55:17 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:58343 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262701AbUBZGzJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 01:55:09 -0500
-Date: Thu, 26 Feb 2004 07:55:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Byron Stanoszek <gandalf@winds.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to force cdrom driver to redetect media after cdrecord?
-Message-ID: <20040226065505.GB32080@suse.de>
-References: <Pine.LNX.4.58.0402251611590.6015@winds.org>
+	Thu, 26 Feb 2004 02:13:21 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:50997 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262707AbUBZHNU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 02:13:20 -0500
+Date: Thu, 26 Feb 2004 08:12:19 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Brian King <brking@us.ibm.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Question on MODULE_VERSION macro
+Message-ID: <20040226071219.GA2253@mars.ravnborg.org>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Sam Ravnborg <sam@ravnborg.org>, Brian King <brking@us.ibm.com>,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20040225213659.GA9985@mars.ravnborg.org> <20040226023341.42E862C270@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402251611590.6015@winds.org>
+In-Reply-To: <20040226023341.42E862C270@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25 2004, Byron Stanoszek wrote:
-> > > I originally thought so, but maybe I was wrong. Jens posted a patch
-> > > to invalidate kernel buffers on an umount - if the problem persists
-> > > with that patch, I still believe it is a hardware fault.
-> >
-> > Perhaps another program has the device open still? In that case, we
-> > don't invalidate the toc cache.
-> >
-> > --
-> > Jens Axboe
+On Thu, Feb 26, 2004 at 12:50:37PM +1100, Rusty Russell wrote:
+> > The current implementation fails to locate include files in the local
+> > directory when compiled using "make O=...".
 > 
-> Jens,
-> I ran into something similar today. I'd like to use cdrecord to write
-> to a CD and then immediately turn around and read from it for
-> verification purposes...
-> 
-> ...Except that I only get 2048 bytes from a 'cat /dev/scd0' until I
-> take the CD out and put it back in.
-> 
-> Is there a known way for a userland application to make an ioctl to
-> the cdrom device in a 2.4/2.6 kernel to tell it the media changed
-> without forcing a tray open & close?
-> 
-> I intend to execute a program with this ioctl (if there is such a
-> thing) after the cdrecord and before the 'cat'.
+> There's no documentation I could find for "O=", BTW.  I'm not even
+> sure what it does...
+Check README in the kernel src.
+Specify the output directory, allowing you to compile from RO media,
+or just to have several kernel configs based on same src tree.
 
-That should already work in 2.6 current, when the last program closes
-the drive the toc is invalidated. For 2.4 you are probably out of luck,
-use something like eject to open/close the tray.
-
--- 
-Jens Axboe
-
+	Sam

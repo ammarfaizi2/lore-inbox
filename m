@@ -1,86 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbTLEOTn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 09:19:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264120AbTLEOTm
+	id S264141AbTLEO4e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 09:56:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264151AbTLEO4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 09:19:42 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:22976 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S264147AbTLEOTh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 09:19:37 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-From: Craig Bradney <cbradney@zip.com.au>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Josh McKinney <forming@charter.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <16336.30392.344028.347132@alkaid.it.uu.se>
-References: <20031205045404.GA307@tesore.local>
-	 <16336.13962.285442.228795@alkaid.it.uu.se>
-	 <20031205083349.GA15152@forming>
-	 <16336.30392.344028.347132@alkaid.it.uu.se>
-Content-Type: text/plain
-Message-Id: <1070633973.4100.23.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Dec 2003 15:19:33 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Dec 2003 09:56:34 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:58545 "EHLO
+	VL-MO-MR005.ip.videotron.ca") by vger.kernel.org with ESMTP
+	id S264141AbTLEO4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 09:56:32 -0500
+Date: Fri, 05 Dec 2003 09:53:47 -0500
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Subject: Re: High-pitch noise with 2.6.0-test11
+In-reply-to: <3FD05E9C.5080501@thule.no>
+To: Troels Walsted Hansen <troels@thule.no>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Message-id: <1070636027.4328.18.camel@idefix.homelinux.org>
+Organization: =?ISO-8859-1?Q?Universit=C3=A9_de?= Sherbrooke
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7)
+Content-type: multipart/signed; boundary="=-rNacGTOQnIyeZZd4WQTh";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <1070605910.4867.9.camel@idefix.homelinux.org>
+ <3FD05E9C.5080501@thule.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting those in dmesg too...
 
-..MP-BIOS bug: 8254 timer not connected to IO-APIC
-...trying to set up timer (IRQ0) through the 8259A ...  failed.
-...trying to set up timer as Virtual Wire IRQ... failed.
-...trying to set up timer as ExtINT IRQ... works.
+--=-rNacGTOQnIyeZZd4WQTh
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+Actually, I'm already using ACPI, so it's not an APM problem. I really
+don't see what thermal.o can do to cause this.
 
-Do you really think this could be the problem?
+	Jean-Marc
 
-If so, any ideas why I am relatively lucky to not have the crashes
-people are having? 5.5 days, then 5 hours, and now Im up to 17 hours...
-with a decent amount of use combined with idle time.
+> I had the same problem with my Dell Latitude C600 and newer kernels with=20
+>   HZ>100. The solution I found was to add "apm=3Didle-threshold=3D100" to=
+=20
+> the kernel commandline, to disable APM idle calls.
+>=20
+> You should monitor the temperature of your laptop to make sure it=20
+> doesn't spin wildly and create extra heat if you use the same solution.
+>=20
+> Using ACPI instead of APM might also be a solution?
+>=20
+> Troels
+--=20
+Jean-Marc Valin, M.Sc.A., ing. jr.
+LABORIUS (http://www.gel.usherb.ca/laborius)
+Universit=E9 de Sherbrooke, Qu=E9bec, Canada
 
-Craig
+--=-rNacGTOQnIyeZZd4WQTh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-On Fri, 2003-12-05 at 13:14, Mikael Pettersson wrote:
-> Josh McKinney writes:
->  > On approximately Fri, Dec 05, 2003 at 08:40:58AM +0100, Mikael Pettersson wrote:
->  > > Jesse Allen writes:
->  > >  > Hi,
->  > >  > 
->  > >  > I have a NForce2 board and can easily reproduce a lockup with grep on an IDE 
->  > >  > hard disk at UDMA 100.  The lockup occurs when both Local APIC + IO-APIC are 
->  > >  > enabled.  It was suggested to me to use NMI watchdog to catch it.  However, the 
->  > >  > NMI watchdog doesn't seem to work.
->  > >  > 
->  > >  > When I set the kernel parameter "nmi_watchdog=1" I get this message in 
->  > >  > /var/log/syslog:
->  > >  > Dec  4 20:10:30 tesore kernel: ..MP-BIOS bug: 8254 timer not connected to 
->  > >  > IO-APIC
->  > >  > Dec  4 20:10:30 tesore kernel: timer doesn't work through the IO-APIC - 
->  > >  > disabling NMI Watchdog!
->  > >  > 
->  > >  > "nmi_watchdog=2" seems to work at first, In /var/log/messages:
->  > >  > Dec  4 20:13:11 tesore kernel: testing NMI watchdog ... OK.
->  > >  > but it still locks up.
->  > > 
->  > > The NMI watchdog can only handle software lockups, since it relies on
->  > > the CPU, and for nmi_watchdog=1 the I/O-APIC + bus, still running.
->  > > Hardware lockups result in, well, hardware lockups :-(
->  > 
->  > So does this confirm that the lockups with nforce2 chipsets and apic
->  > is actually a hardware problem after all? 
-> 
-> Confirm with very high probability. There may be quirks in nVidia's
-> chipset that we (unlike their Windoze drivers) don't know about.
-> 
-> Ask nVidia for detailed chipset documentation. Then maybe we can fix this.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+iD8DBQA/0Jv7dXwABdFiRMQRAos4AJ4xQ8AkZFQ0MouQ2W79OdNjU/nlJgCfdjIt
+/mjP0Ot+ZKwQyoyHpZPTij0=
+=6IgZ
+-----END PGP SIGNATURE-----
+
+--=-rNacGTOQnIyeZZd4WQTh--
 

@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132492AbRDAO7R>; Sun, 1 Apr 2001 10:59:17 -0400
+	id <S131219AbRDARhM>; Sun, 1 Apr 2001 13:37:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132514AbRDAO7G>; Sun, 1 Apr 2001 10:59:06 -0400
-Received: from ns1.cfcc.cc.fl.us ([150.176.253.67]:57480 "EHLO
-	ns1.cfcc.cc.fl.us") by vger.kernel.org with ESMTP
-	id <S132492AbRDAO6z>; Sun, 1 Apr 2001 10:58:55 -0400
-Date: Sun, 1 Apr 2001 10:54:12 -0400
-From: Mike Bennett <mbennett@ns1.cfcc.cc.fl.us>
-To: linux-kernel@vger.kernel.org
-Subject: aic7xxx 6.1.8 for 2.2.19
-Message-ID: <20010401105412.G21419@cfcc.cc.fl.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+	id <S132520AbRDARhC>; Sun, 1 Apr 2001 13:37:02 -0400
+Received: from imap.digitalme.com ([193.97.97.75]:44341 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S131219AbRDARgm>;
+	Sun, 1 Apr 2001 13:36:42 -0400
+Message-ID: <3AC758E3.2090507@bigfoot.com>
+Date: Sun, 01 Apr 2001 12:35:47 -0400
+From: "Trever L. Adams" <trever_Adams@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; 0.8.1)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Serial, 115Kbps, 2.2, 2.4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Was getting ready to compile 2.2.19 this AM and went to
-Justin's site to grab the latest aic7xxx driver.
+I am trying to find out if I am the only one who has pppd drop packets 
+as bogus when the port is set at 115Kbps.  I only get it at that speed. 
+  It causes stall outs etc.
 
-Unfortunately, he doesn't have a patch for 2.2.19 and the
-2.2.18 patch doesn't apply cleanly because the stock driver
-changed.
+There may be a possibility this is machine specific, because if it is 
+meant to forward the packet to the internal net and I slow the machine 
+down (external cache off) it works fine, turn the cache back on and it 
+is a problem.
 
-It's a long story, but the short version is that the stock
-driver has always given me timeouts with heavy disk activity.
-Right now I'm using 6.0.8beta in 2.2.18 since Jan 12 and have
-not had a single timeout problem. Needless to say, I won't be
-upgrading kernels today.  Damn, now I've got no excuse for
-not mowing the lawn... :)
+So, anyway, this is an information seeking trip.
 
-Has anyone made a patch against 2.2.19 ?
+Trever
 

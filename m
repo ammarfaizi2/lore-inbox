@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbTFYUtu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 16:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbTFYUtu
+	id S265061AbTFYUtR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 16:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbTFYUtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 16:49:50 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:31241 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265055AbTFYUtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 16:49:47 -0400
-Date: Wed, 25 Jun 2003 22:03:55 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: mocm@mocm.de
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Michael Hunold <hunold@convergence.de>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DVB Include files
-Message-ID: <20030625220355.A13814@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, mocm@mocm.de,
-	Michael Hunold <hunold@convergence.de>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <20030625175513.A28776@infradead.org> <16121.55366.94360.338786@sheridan.metzler> <20030625181606.A29104@infradead.org> <16121.55873.675690.542574@sheridan.metzler> <20030625182409.A29252@infradead.org> <16121.56382.444838.485646@sheridan.metzler> <20030625185036.C29537@infradead.org> <16121.58735.59911.813354@sheridan.metzler> <20030625191532.A1083@infradead.org> <16121.60747.537424.961385@sheridan.metzler>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Jun 2003 16:49:17 -0400
+Received: from keetweej.xs4all.nl ([213.84.46.114]:10199 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id S265061AbTFYUtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 16:49:16 -0400
+From: Folkert van Heusden <folkert@vanheusden.com>
+Reply-To: folkert@vanheusden.com
+To: Michael Bellion and Thomas Heinz <nf@hipac.org>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [ANNOUNCE] nf-hipac v0.8 released
+Date: Wed, 25 Jun 2003 23:03:13 +0200
+User-Agent: KMail/1.5.2
+References: <200306252248.44224.nf@hipac.org>
+In-Reply-To: <200306252248.44224.nf@hipac.org>
+WebSite: http://www.vanheusden.com/
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16121.60747.537424.961385@sheridan.metzler>; from mocm@metzlerbros.de on Wed, Jun 25, 2003 at 08:43:23PM +0200
+Message-Id: <200306252303.13366.folkert@vanheusden.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2003 at 08:43:23PM +0200, Marcus Metzler wrote:
->  > In that case yes, you are screwed.  Your ABI just changed incompatibly.
-> 
-> Not if you recompile.
+Hi,
 
-If you need to recompile your ABI changed.  And yes, then your absolutely
-screwed.
+> nf-hipac is a drop-in replacement for the iptables packet filtering module.
+> It implements a novel framework for packet classification which uses an
+> advanced algorithm to reduce the number of memory lookups per packet.
+> The module is ideal for environments where large rulesets and/or high
+> bandwidth networks are involved. Its userspace tool, which is also called
+> 'nf-hipac', is designed to be as compatible as possible to 'iptables -t
+> filter'.
 
->  > No!  <linux/*.h> is the namesapce for kernelheaders.  Currently they're
->  > still in the the user includes, too (due to legacy reasons).  The
->  > DVD API must move to a directory outside <linux/dvb>.
->  > 
-> 
-> Why (It's DVB by the way)? It's as close to the kernel as ls or cat
-> and having two sets of the same includes is stupid. 
+Looks great!
+Any chance on a port to 2.5.x?
 
-No, it's not.  One if for the driver you compile and one for the application.
 
->  > If you userland packages add headers to /usr/include/linux/ they
->  > are totally bogus.
->  > 
-> 
+Greetings,
 
-> What packages? You are always talking about packages. There are no packages.
-> There are only the kernel and my app. Nothing else. No copying of headers.
+Folkert van Heusden
 
-Then you need to add a package with the userland header (which, as I already
-said might be exactly the same ones as those in the kernel tree).
-
->  > And that's wrong.  You must always compile against the kernel headers
->  > that your libc was compiled against.
->  > 
-> 
-> There is no one who does that, not even distributions. The includes
-> needed for libc are far less prone to change than v4l or dvb. And not
-> as linux specific.
-
-Oh yes, everyone does.  Ever looked at an errata kernel from RH, SuSE
-or Debian?  Yes, they never change what's /usr/include/.
-
-> I see your point, but right now it's only academic and not practicable.
-
-It's how Linux works.  If you don't like that play with SCO Unix or MacOS.
++-> www.vanheusden.com       folkert@vanheusden.com       +31-6-41278122 <-+
++--------------------------------------------------------------------------+
+| UNIX sysop? Then give MultiTail ( http://www.vanheusden.com/multitail/ ) |
+| a try, it brings monitoring logfiles (and such) to a different level!    |
++--------------------------------------------------------------------------+
 

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267642AbRHAR3J>; Wed, 1 Aug 2001 13:29:09 -0400
+	id <S267643AbRHARcj>; Wed, 1 Aug 2001 13:32:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267651AbRHAR3A>; Wed, 1 Aug 2001 13:29:00 -0400
-Received: from lightning.hereintown.net ([207.196.96.3]:18614 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S267642AbRHAR2m>; Wed, 1 Aug 2001 13:28:42 -0400
-Date: Wed, 1 Aug 2001 13:43:23 -0400 (EDT)
-From: Chris Meadors <clubneon@hereintown.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Disk quotas not staying in sync?
-Message-ID: <Pine.LNX.4.31.0108011322470.4569-100000@rc.priv.hereintown.net>
+	id <S267657AbRHARca>; Wed, 1 Aug 2001 13:32:30 -0400
+Received: from ns.suse.de ([213.95.15.193]:61963 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S267643AbRHARcM>;
+	Wed, 1 Aug 2001 13:32:12 -0400
+Date: Wed, 1 Aug 2001 19:31:39 +0200 (CEST)
+From: Rainer Link <link@suse.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Virii on vger.kernel.org lists
+In-Reply-To: <20010801130458.C2154@intern.kubla.de.suse.lists.linux.kernel>
+Message-ID: <Pine.LNX.4.33.0108011925490.790-100000@D180.suse.de>
+Organisation: SuSE GmbH - http://www.suse.de/
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe I'm missing something silly, but I can't seem to put my finger on
-whats happening here.
+On 1 Aug 2001, Dominik Kubla wrote:
 
-I have a sever that holds the e-mail and webpages for our dial-up
-customers.  Each user (for the most part) gets 20MB of space to hold their
-files.
+> > The german antivirus tool AntiVir is free for personal use (www.free-av.com)
+> > and i am pretty sure they would sponsor a version for the list server if asked
+> > (if linux-kernel would be considered commercial use).
+>
+> Hmm. Apparently their free product is just available for Windows. ARGH! But
+> one can pickup an evaluation version for Linux from their commercial site:
 
-So people, for what ever reason, get so much e-mail they run up to their
-quota.  They have trouble downloading 20MB of mail across a dial-up link,
-and really don't want all the messages (picutues) anyway.  So one of the
-techs here will just wipe out the messages.
+AntiVir for Linux is _free_ for non-commercial use. Quote from
+http://www.hbedv.com/infos/prices.htm
+"[...] AntiVir for Linux Workstations is also free of charge for private
+(individual, non-commercial) use. Just send a brief e-mail with your name,
+address and an assurance that you will only use Linux on your private
+computer to linux_registration@antivir.de. We will then send you a licence
+file for AntiVir for Linux. Support is provided exclusively by e-mail via
+linux_support@antivir.de."
 
-We are using the Maildir format to store the mail, so each message is in a
-seperate file.
+Anyway, several anti-virus products for Linux/Unix do exist, please
+see http://www.openantivirus.org/av-unix_e.txt.
 
-The problem is sometimes after all the messages have been deleted they
-still can't get any new mail.  Looking at their quota usage the machine
-still thinks that they have their quota full, but `du` says otherwise.
-Running `quotacheck` fixes things up.
+HTH
 
-I've tried to reproduce this with a test account.  Just creating a bunch
-of files to run up to the quota and then deleting them.  But no matter
-what I tried the system followed the test account's disk usage exactly.
+Sorry for the 2nd off-topic post *sigh*
 
-This doesn't just happen when someone runs up to their quota.  I have also
-seen their quota usage not correctly reflect what is on disk, but as the
-usage goes up and down, both the actual disk usage and the what quota says
-change by the same amount.
+best regards,
+Rainer Link
 
-Any ideas?  This machine is pretty much standard.  ext2 file systems on
-all partitions.  /home is the only one with user disk quotas.  Running
-2.4.7 kernel (but I've seen it in all 2.4 kernels, I was running
-2.4.0-prerelease on the machine when I first put it up, so I don't know
-how 2.2 works).  To access the disks I'm using a sym53c8xx controller that
-is talking to a hardware RAID controller that has the disks behind it.
-
-Thanks,
-Chris
 -- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
-
+Rainer Link  |                SuSE - The Linux Experts
+link@suse.de |    Developer of A Mail Virus Scanner (amavis.org)
+www.suse.de  | Founder OpenAntiVirus Project (www.openantivirus.org)
 

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264983AbSLUVpR>; Sat, 21 Dec 2002 16:45:17 -0500
+	id <S265074AbSLUWA1>; Sat, 21 Dec 2002 17:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265002AbSLUVpR>; Sat, 21 Dec 2002 16:45:17 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:32269 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S264983AbSLUVpR>;
-	Sat, 21 Dec 2002 16:45:17 -0500
-Date: Sat, 21 Dec 2002 22:52:50 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: John Bradford <john@grabjohn.com>
-Cc: Sampson Fung <sampson@attglobal.net>, linux-kernel@vger.kernel.org,
-       mec@shout.net, Roman Zippel <zippel@linux-m68k.org>
+	id <S265066AbSLUWA1>; Sat, 21 Dec 2002 17:00:27 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:45573 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S265065AbSLUWAZ>;
+	Sat, 21 Dec 2002 17:00:25 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212212218.gBLMIate002167@darkstar.example.net>
 Subject: Re: First Bug Found : RE: How to help new comers trying the v2.5x series kernels.
-Message-ID: <20021221215250.GA1905@mars.ravnborg.org>
-Mail-Followup-To: John Bradford <john@grabjohn.com>,
-	Sampson Fung <sampson@attglobal.net>, linux-kernel@vger.kernel.org,
-	mec@shout.net, Roman Zippel <zippel@linux-m68k.org>
-References: <000c01c2a930$754a6790$0100a8c0@noelpc> <200212212123.gBLLNEGI001935@darkstar.example.net>
-Mime-Version: 1.0
+To: sam@ravnborg.org (Sam Ravnborg)
+Date: Sat, 21 Dec 2002 22:18:35 +0000 (GMT)
+Cc: sampson@attglobal.net, linux-kernel@vger.kernel.org, mec@shout.net,
+       zippel@linux-m68k.org
+In-Reply-To: <20021221215250.GA1905@mars.ravnborg.org> from "Sam Ravnborg" at Dec 21, 2002 10:52:50 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212212123.gBLLNEGI001935@darkstar.example.net>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The MAINTAINERS file tells you who to contact, (as well as this list):
+> > The MAINTAINERS file tells you who to contact, (as well as this list):
+> > 
+> > CONFIGURE, MENUCONFIG, XCONFIG
+> > P:      Michael Elizabeth Chastain
 > 
-> CONFIGURE, MENUCONFIG, XCONFIG
-> P:      Michael Elizabeth Chastain
+> Despite the MAINTANERS file, roman Zippel is the right person to contact.
+> roman ripped out three different shell ased parsers and replaced them
+> with a single parser written in yacc and c.
+> During this process 2make menuconfig" functionality was altered.
 
-Despite the MAINTANERS file, roman Zippel is the right person to contact.
-roman ripped out three different shell ased parsers and replaced them
-with a single parser written in yacc and c.
-During this process 2make menuconfig" functionality was altered.
+Whoops, sorry, I should have realised, especially as I was discussing
+that menuconfig problem a couple of weeks ago :-)
 
-Roman has the following address:
-Roman Zippel <zippel@linux-m68k.org>
-
-	Sam
+John.

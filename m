@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266030AbUAUSnx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 13:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266032AbUAUSnn
+	id S265590AbUAUSjv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 13:39:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbUAUSjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 13:43:43 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:39396 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S266030AbUAUSnW (ORCPT
+	Wed, 21 Jan 2004 13:39:51 -0500
+Received: from nevyn.them.org ([66.93.172.17]:12697 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S265590AbUAUSjt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 13:43:22 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 21 Jan 2004 13:39:49 -0500
+Date: Wed, 21 Jan 2004 13:39:40 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
+       Matt Mackall <mpm@selenic.com>, discuss@x86-64.org
+Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
+Message-ID: <20040121183940.GA23200@nevyn.them.org>
+Mail-Followup-To: "Amit S. Kale" <amitkale@emsyssoft.com>,
+	George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
+	Matt Mackall <mpm@selenic.com>, discuss@x86-64.org
+References: <200401161759.59098.amitkale@emsyssoft.com> <200401171459.01794.amitkale@emsyssoft.com> <40099301.6000202@mvista.com> <200401211916.49520.amitkale@emsyssoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16398.51269.149031.241526@napali.hpl.hp.com>
-Date: Wed, 21 Jan 2004 10:43:17 -0800
-To: Jes Sorensen <jes@trained-monkey.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for ia64
-In-Reply-To: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <200401211916.49520.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 20 Jan 2004 07:23:49 -0500, Jes Sorensen <jes@trained-monkey.org> said:
+On Wed, Jan 21, 2004 at 07:16:48PM +0530, Amit S. Kale wrote:
+> Now back to gdb problem of not being able to locate registers.
+> schedule results in code of this form:
+> 
+> schedule:
+> framesetup
+> registers save
+> ...
+> ...
+> save registers
+> change esp
+> call switchto
+> restore registers
+> ...
+> ...
+> 
+> GDB can't analyze code other than frame setup and registers save. It may not 
+> show values of variables that are present in registers correctly. This used 
+> to be a problem some time ago (gdb 5.X). Perhaps gdb 6.x does a better job.
+> hmm...
+> May be its time I should look at gdb's x86 register info code again.
 
-  Jes> Hi,
-  Jes> The new sort_extable and shares search_extable code doesn't work on
-  Jes> ia64. I have introduced two new #defines that archs can define to avoid
-  Jes> the common code being built. ARCH_HAS_SEARCH_EXTABLE and
-  Jes> ARCH_HAS_SORT_EXTABLE.
+You should try GDB 6.0, which will use the dwarf2 unwind information to
+accurately locate registers in any GCC-compiled code with -gdwarf-2 (-g
+on Linux targets).
 
-  Jes> With this patch, 2.6.1-mm5 builds again on ia64.
+As George is now painfully familiar with :)
 
-What's this about?  Isn't the only reason this doesn't work because
-the "insn" member is called "addr" on ia64?  If so, surely it would
-make more sense to do a little renaming?
-
-	--david
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265636AbRGPQqF>; Mon, 16 Jul 2001 12:46:05 -0400
+	id <S264624AbRGPQtZ>; Mon, 16 Jul 2001 12:49:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265463AbRGPQpp>; Mon, 16 Jul 2001 12:45:45 -0400
-Received: from web13903.mail.yahoo.com ([216.136.175.29]:16901 "HELO
-	web13903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265443AbRGPQpo>; Mon, 16 Jul 2001 12:45:44 -0400
-Message-ID: <20010716164546.55938.qmail@web13903.mail.yahoo.com>
-Date: Mon, 16 Jul 2001 09:45:46 -0700 (PDT)
-From: <samandbuffy@yahoo.com>
-Subject: send_sig_info help?
-To: "Victoria W." <wicki@terror.de>, linux-kernel@vger.kernel.org
-Cc: volker@erste.de
-In-Reply-To: <Pine.LNX.4.10.10107161814140.3877-100000@csb.terror.de>
+	id <S265449AbRGPQtP>; Mon, 16 Jul 2001 12:49:15 -0400
+Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:24269 "EHLO
+	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
+	id <S264624AbRGPQtK>; Mon, 16 Jul 2001 12:49:10 -0400
+Date: Mon, 16 Jul 2001 18:51:10 +0200 (CEST)
+From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+cc: Ben LaHaise <bcrl@redhat.com>, "David S. Miller" <davem@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
+        Jes Sorensen <jes@sunsite.dk>
+Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit
+ machine
+Message-ID: <Pine.LNX.4.30.0107161601480.23444-100000@biker.pdb.fsc.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Guys,
+Hi,
 
-This is my first attempt at writing at the kernel
-level. I'm working on a device driver, and usually in
-userspace, I use Kill() to send a signal to a PID I
-know of.
+sorry to join in so late in this thread, but I think I should bring the
+following to your attention:
 
-At the kernel level, I don't know of any kill()
-equivalents (are there any?), except send_sig_info().
+Someone (David, I think) said that IA64 was handling 32-bit controllers
+fine. To my experience, that depends strongly on the drivers.
+At least for aic7xxx, it is not the case (I have documented the
+related crashes on the linux-ia64 mailing lists during the last two
+months). The driver is simply eating up buffer space in such vast amounts
+that it freezes the software IO-memory management even at very moderate
+load (you can use the "old" driver instead, but this doesn't look like a
+long-term solution).
 
-Send_sig_info(int, struct siginfo *, struct
-tasktstruct *)
+After some discussion, Justin Gibbs announced that he'll implement 39-bit
+DMA addressing in the aic7xxx driver, and it appeared that this was
+pretty much the only viable solution to make the "new" aic7xxx driver work on
+IA64. I haven't looked at his new code yet, but I assume he's using the
+IA64 approach.
 
-I know the int is the PID from "Understanding the
-Linux Kernel -Oreilly". 
+It is likely that this will happen for other drivers as well, especially
+those that need a lot of buffer space for good performance. Thus the IA-64
+API will probably emerge as a matter-of-fact standard, and if something
+better is to replace it, I think it should be decided upon quickly, so
+that driver maintainers (and IA64) can adopt to it before everything has
+to be written (and debugged) twice.
 
-The problem I'm experiencing is that I'm not sure how
-to find the pointer to taskstruct.  From what I"ve
-read, the pointer to taskstruct is a pointer to the
-target process.  How do I find the pointer to the
-taskstruct of that task I want to send a signal to, if
-I only know its PID?
-
-Thanks, any help would be greatly appreciated.
-
-Sam
+Regards,
+Martin
+-- 
+Martin Wilck     <Martin.Wilck@fujitsu-siemens.com>
+FSC EP PS DS1, Paderborn      Tel. +49 5251 8 15113
 
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/
+

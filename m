@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136269AbRD0Xoc>; Fri, 27 Apr 2001 19:44:32 -0400
+	id <S136256AbRD0Xnb>; Fri, 27 Apr 2001 19:43:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136264AbRD0XoM>; Fri, 27 Apr 2001 19:44:12 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:55718 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136263AbRD0XoB>;
-	Fri, 27 Apr 2001 19:44:01 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15082.1085.52054.186234@pizda.ninka.net>
-Date: Fri, 27 Apr 2001 16:43:57 -0700 (PDT)
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Matthias Andree <matthias.andree@gmx.de>,
+	id <S136263AbRD0XnW>; Fri, 27 Apr 2001 19:43:22 -0400
+Received: from pille1.addcom.de ([62.96.128.35]:10756 "HELO pille1.addcom.de")
+	by vger.kernel.org with SMTP id <S136256AbRD0XnI>;
+	Fri, 27 Apr 2001 19:43:08 -0400
+Date: Sat, 28 Apr 2001 01:43:26 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: "David S. Miller" <davem@redhat.com>
+cc: Matthias Andree <matthias.andree@gmx.de>,
         Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: 2.4.4-pre7 build failure w/ IP NAT and ipchains
-In-Reply-To: <Pine.LNX.4.33.0104280140400.1256-100000@vaio>
 In-Reply-To: <15081.63650.574602.341411@pizda.ninka.net>
-	<Pine.LNX.4.33.0104280140400.1256-100000@vaio>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-ID: <Pine.LNX.4.33.0104280140400.1256-100000@vaio>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 27 Apr 2001, David S. Miller wrote:
 
-Kai Germaschewski writes:
- > If you get this mail, it works okay :-) (Just using a simple
- > masquerading setup here)
+> Kai, can you try this patch out?  I think it does the right
+> thing.  What I'm mostly interested in is if your ipchains
+> setup works for the resulting kernel, I've already checked
+> that it links properly. :-)
 
-Cool, I've sent this fix off to Rusty and Linus already.
+If you get this mail, it works okay :-) (Just using a simple
+masquerading setup here)
 
-Later,
-David S. Miller
-davem@redhat.com
+--Kai
+
+

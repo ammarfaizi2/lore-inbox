@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278915AbRJVVBu>; Mon, 22 Oct 2001 17:01:50 -0400
+	id <S278917AbRJVVBu>; Mon, 22 Oct 2001 17:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278917AbRJVVBl>; Mon, 22 Oct 2001 17:01:41 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:49426 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S278915AbRJVVB0>; Mon, 22 Oct 2001 17:01:26 -0400
-Date: Mon, 22 Oct 2001 17:40:47 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Peter Hamilton <lobsterphoneuk@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.12: High disk activity + system load causes lockup.
-In-Reply-To: <20011022215712.A763@hamil.org>
-Message-ID: <Pine.LNX.4.21.0110221740230.16025-100000@freak.distro.conectiva>
+	id <S278923AbRJVVBd>; Mon, 22 Oct 2001 17:01:33 -0400
+Received: from a1d15hel.dial.kolumbus.fi ([212.54.8.1]:49556 "EHLO
+	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
+	id <S278917AbRJVVBM>; Mon, 22 Oct 2001 17:01:12 -0400
+Message-ID: <3BD488BB.854A96CC@kolumbus.fi>
+Date: Mon, 22 Oct 2001 23:59:39 +0300
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rik van Riel <riel@conectiva.com.br>
+CC: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <Pine.LNX.4.33L.0110221432490.22127-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 22 Oct 2001, Peter Hamilton wrote:
-
-> 2.4.12: High disk activity + system load causes lockup.
+Rik van Riel wrote:
 > 
-> The first time this happened, I was copying .wav files from a vfat
-> partition (about 30..80Mb each).  The second time I was running lame
-> whilst downloading news.  I found the problem can be reliably reproduced
-> by simply copying large files around (copy two lots at the same time
-> and the system dies within 10..30 seconds).  Nothing is printed to
-> the console or written to any log files, and the only way to recover
-> is to hit the reset button.
-> The system seems stable in every other respect.
-> 
-> I've moved back to 2.4.6 which is fine.  Also tried downloading
-> a new 2.4.12 and configuring from scratch.
-> 
-> I'm not subscribed to this list, so please Cc: if you want me to
-> see replies.
+> The worst that could happen is that the US cripples
+> itself by not allowing the kernel hackers outside the
+> US to publish security info to people in the US, but
+> only to the rest of the world.
 
-Pete, 
+Unless they pressure foreign governments to make similar laws as we have
+seen with Wassenaar arrangement and few other cases...
 
-Please try to reproduce the problem without the Nvidia driver loaded.
 
-Thanks.
+	- Jussi Laako
 
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

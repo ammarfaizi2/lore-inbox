@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263804AbUGADwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUGAD7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263804AbUGADwg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 23:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263815AbUGADwe
+	id S263815AbUGAD7a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 23:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbUGAD7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 23:52:34 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:9640 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S263804AbUGADwc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 23:52:32 -0400
-From: dth@ncc1701.cistron.net (Danny ter Haar)
-Subject: Re: problems with SATA: 2.6.7 working, -bk12/13/-mm4 not
-Date: Thu, 1 Jul 2004 03:52:31 +0000 (UTC)
-Organization: Cistron
-Message-ID: <cc01pv$938$1@news.cistron.nl>
-References: <cbvgor$lgp$1@news.cistron.nl> <40E34A1F.1040406@pobox.com>
-X-Trace: ncc1701.cistron.net 1088653951 9320 62.216.30.38 (1 Jul 2004 03:52:31 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@ncc1701.cistron.net (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Wed, 30 Jun 2004 23:59:30 -0400
+Received: from lakermmtao11.cox.net ([68.230.240.28]:14806 "EHLO
+	lakermmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S263815AbUGAD71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 23:59:27 -0400
+In-Reply-To: <20040701033620.GB1564@mail.shareable.org>
+References: <20040701033620.GB1564@mail.shareable.org>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0B128D6C-CB13-11D8-947A-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Michael Kerrisk <michael.kerrisk@gmx.net>, linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Table of mmap PROT_* implementations by architecture
+Date: Wed, 30 Jun 2004 23:59:25 -0400
+To: Jamie Lokier <jamie@shareable.org>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik  <jgarzik@pobox.com> wrote:
->Can you try:
->* disabling combined mode in BIOS
+On Jun 30, 2004, at 23:36, Jamie Lokier wrote:
+> From a study of Linux 2.6.5 source code, and some patches.
+> This is based on studying the source, not running tests, so there
+> may be errors.
+> ======================+================================================ 
+> ========
+> Requested PROT flags  | ---    R--    -W-    RW-    --X    R-X    -WX   
+>   RWX
+> ======================+================================================ 
+> ========
+> [...]
+> ppc                   | ---(1) r-x    rwx(5) rwx    r-x(5) r-x     
+> rwx(5) rwx
+> ppc64                 | ---(1) r-x    rwx(5) rwx    r-x(5) r-x     
+> rwx(5) rwx
+> ppc (PaX)	      | ---(1) r--    rw-    rw-    r-x    r-x    rw-(2)  
+> rw-(2)
+> ppc64 (PaX for 2.6)   | ---(1) r--    rw-    rw-    r-x    r-x     
+> rw-(2) rw-(2)
+> [...]
+>
+> (1) - In kernel, maybe these pages are readable using "write()"?
+>       In each case that is labelled, I'm not sure from reading the  
+> code.
+>       (Pages are always readable using ptrace(), that's ok, but write()
+>       and other kernel reads shouldn't be able to read PROT_NONE  
+> pages).
 
-Not at this point, since it's 35 kilometers away and only linux serial
-console at this moment, so no way to change the bios.
+This is wrong for PPC32 and PPC64, see the email written earlier today:
 
->* finding which -bk snapshot breaks your system
+On June 30, 2004, at 00:47, Paul Mackerras wrote:
+>> Thus PROT_NONE pages aren't readable from userspace, but it appears
+>> they _are_ readable from kernel space.  Is this correct?
+>
+> No.  Kernel accesses to pages in the user portion of the address space
+> (0 .. TASK_SIZE-1) are done using the user permissions.  On classic
+> PPC this is implemented (in part) by setting Ks = Kp = 1 in the
+> segment descriptors for the user segments, which tells the hardware to
+> check the access as if it was a user access even in supervisor mode.
+>
+> We do the same on ppc64 as well.
 
-for i in 1 2 3 4 5
-> do
-> cp -a linux-2.6.7 linux-2.6.7-bk$i
-> done
+Cheers,
+Kyle Moffett
 
-:-) cpu cycles put to compile ...
 
->* acpi=off (disabling ACPI)
->* noapic
-
-Will do this at first compiled kernel.
-
->* copying the following files verbatim into your 2.6.7-{bk12,bk13,mm4} tree:
->	drivers/scsi/libata*.[ch]
->	drivers/scsi/ata_*.c
->	drivers/scsi/sata_*.[ch]
->	include/linux/libata.h
->	include/linux/ata.h
-
-will get back.
-
-Danny
-
--- 
-"If Microsoft had been the innovative company that it calls itself, it 
-would have taken the opportunity to take a radical leap beyond the Mac, 
-instead of producing a feeble, me-too implementation." - Douglas Adams -
 

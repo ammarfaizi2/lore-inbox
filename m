@@ -1,140 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274337AbRJJDBb>; Tue, 9 Oct 2001 23:01:31 -0400
+	id <S274405AbRJJDGW>; Tue, 9 Oct 2001 23:06:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274368AbRJJDBV>; Tue, 9 Oct 2001 23:01:21 -0400
-Received: from ausxc08.us.dell.com ([143.166.99.216]:52544 "EHLO
-	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
-	id <S274337AbRJJDBM>; Tue, 9 Oct 2001 23:01:12 -0400
-Message-ID: <71714C04806CD51193520090272892178BD6DB@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: adilger@turbolabs.com, rgooch@ras.ucalgary.ca
-Cc: torvalds@transmeta.com, alan@redhat.com, Martin.Wilck@Fujitsu-Siemens.com,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] EFI GUID Partition Tables
-Date: Tue, 9 Oct 2001 22:01:35 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S274424AbRJJDGM>; Tue, 9 Oct 2001 23:06:12 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:55581 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S274405AbRJJDFz>; Tue, 9 Oct 2001 23:05:55 -0400
+Date: Wed, 10 Oct 2001 05:06:30 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Robert Love <rml@ufl.edu>
+Cc: safemode <safemode@speakeasy.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+Message-ID: <20011010050630.E726@athlon.random>
+In-Reply-To: <20011010003636Z271005-760+23005@vger.kernel.org> <20011010031803.F8384@athlon.random> <20011010020935.50DEF1E756@Cantor.suse.de> <20011010043003.C726@athlon.random> <1002681480.1044.67.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1002681480.1044.67.camel@phantasy>; from rml@ufl.edu on Tue, Oct 09, 2001 at 10:37:56PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard and Andreas, thanks for your feedback.
+On Tue, Oct 09, 2001 at 10:37:56PM -0400, Robert Love wrote:
+> On Tue, 2001-10-09 at 22:30, Andrea Arcangeli wrote:
+> > As said it's very very unlikely that preemption points can fix xmms
+> > skips anyways, the worst scheduler latency is always of the order of the
+> > msecs, to generate skips you need a latency of seconds.
+> >
+> > [...]
+> >
+> > There's nothing magic in the software, if you divide the cpu in 10 parts
+> > and you give 1/10 of the cpu to xmms, but xmms needs 1/2 of the cpu to
+> > play your .mp3 then there's nothing you can do to fix it but to tell
+> > the scheduler to give more cpu to xmms (renicing to -20 gives more cpu
+> 
+> What if the CPU does divide its time into two 1/2 parts, and gives one
+> each to xmms and dbench.  Everything runs fine, since xmms needs 1/2 cpu
+> to play without skips.
 
-> You've put the devfs_unregister_slave() inside an #ifdef. Yuk! It
-> shouldn't be conditional.
+Of course. (btw, when running dbench there's usually more than one
+thread to generate more I/O, usually 20/40, it depends on the parameter
+but let's assume there's only one thread for the sake of this example)
 
-Richard, I'm happy to make this change.
+> Now dbench (or any task) is in kernel space for too long.  The CPU time
 
-> Would it be possible to put this somewhere else and/or rename it?  It
-> appears that GUIDs are really DCE UUIDs (which are used by 
-> other things
-> like ext2, XFS, MD RAID, etc) so if we are "advertising" 
-> UUIDs from the
-> kernel, we may as well make it "sensible" for other users.  How about
-> "/dev/dis[ck]s/uuid", unless there are other users of UUID 
-> identifiers?
+The time in kernel space decreases the timeslice too, so it doesn't
+matter if it runs in kernel space too long, it will still be accounted
+as such 1/2 of time.
 
-Yes, UUIDs and GUIDs are the same thing, fortunately.
-I'll have to defer this to the author of this piece of code.  Martin, any
-reason why it shouldn't be renamed?  Richard, any preferred name?
+> xmms needs will of course still be given, but _too late_.  Its just not
 
-> On a side note, I have a user-space library which locates/identifies
-> devices by UUID/LABELs as well.  It is likely to become part 
-> of e2fsprogs
-> and mount as a way to consolidate all of the fs identification code,
-> but it could easily to partition identification also (hasn't 
-> been possible until now).
+I think the issue you raise is that dbench gets a 10msec more of cpu
+time and xmms starts running 10msec later than expected (because of the
+scheduler latency peak worst case of 10msec).
 
-This would be great!  How can I help?
+But that doesn't matter. The scheduler isn't perfect anyways. The
+resolution of the scheduler is 10msec too, so you can easily lose 10msec
+anywhere else no matter of whatever scheduler latency of 10msec.
 
-> Given that 2.5 will likely push a lot of stuff out to user-space, does
-> it make sense to add something to the kernel which could just 
-> as easily be done in userspace?
+The only tasks that can get hurted by the scheduler latency are real
+time tasks running with RT prio that expects to get running in less than
+10msec after their wakeup, this is obviously not the xmms case that can
+live fine even if it becomes running after houndred milliseconds after
+its wakeup.
 
-Perhaps.  The basis of this code is already in the 2.4 IA-64 kernel port
-patch.  Given that I needed to update it to accomodate the page cache
-changes in 2.4.10pre, I thought it was time to pull it out of the IA-64
-patch and put it in the mainstream patch.  If it had been mainstream, Al
-would have fixed up my code too. :-)   Until 2.5, what's the best approach,
-mainstream kernel or IA-64 patch?
+The point is that to avoid dropouts dbench must take say 40% of the cpu
+and xmms another 40% of the cpu. Then the 10msec doesn't matter. If each
+one takes 50% of cpu exactly you can run in dropouts anyways because of
+scheduler imprecisions.
 
-> Another question, does GPT support user-defined names/LABELs 
-> for partitions?
+So again: the preemptive patch cannot make any difference, except for
+the read/write copy-user paths that originally Ingo fixed ages ago in
+2.2, and that I also later fixed in all -aa 2.2 and 2.4 and that are
+also fixed in the lowlatency patches from Andrew (but in the
+generic_file_read/write rather than in copy-user, to possible avoid some
+overhead for short copy users, but the end result for an xmms user is
+exactly the same).
 
-Yes.  36 efi_char_t (Unicode, really UCS-2, 72 bytes) per partition name
-field. :-)  No relying on the file system (e.g. swap doesn't support names).
+So for whatever non real time, but where buffering is possible running
+lowlatency patch from Ingo or Andrew, preemptive patch, or -aa isn''t
+going to make any difference.
 
-
-> If this is going into the kernel, it should first of all just 
-> be called
-> "uuid_unparse()" to match the equivalent function in user-space, it
-> should be exported and not static (maybe put into "lib/" or similar),
-> and it is also very useful for it to return "out" so you can 
-> use it like
-> "Dprintk("UUID is", uuid_unparse(uuid, buf));" and have the 
-> whole thing
-> disappear if you are not compiling with debugging on (which otherwise
-> requires an extra "#ifdef DEBUG" around the uuid_unparse().
-
-Happy to.  I haven't done an extensive grep for other uuid uses in the
-kernel (besides knowing they're used for ext2).  If lib/ is a better place
-to combine them, I'll do that.
-
-
-> Have you looked at the DocBook stuff?  It would be desirable (not that
-> I'm complaining about ANY documentation, mind you) if the 
-> comments were
-> in DocBook format (as some parts of the kernel are moving).
-
-No, I haven't looked at DocBook.  I can do that if it's important.
-
-
-> I take it these are verbose ways of defining a "partition 
-> type"?  If this
-> is the case (i.e. single GUID defined for RAID/LVM/SWAP) then 
-> the whole
-> concept of the "U" in GUID = "Unique" is broken, and this 
-> format is useless,
-> as how could you use it in /proc/guid to point to a single disk?
-
-I prefer to think of it as "partition content type", with a single type for
-all normal file systems (ext2, ext3, etc), and different types for different
-content uses (LVM, RAID, SWAP should be grouped in with normal file systems,
-but for historical reasons isn't).
-
-Each disk and each partition also includes a UniquePartitionGUID which is
-what /proc/guid points to, separate from the PartitionTypeGUID.
-
-> How is this different than a "struct partition" in 
-> <linux/genhd.h> (aside
-> from the fact that "struct partition" should use fixed-sized 
-> types because
-> it is referring to on-disk data)?
-
-Same thing, but I didn't want to go mucking about with struct partition in
-exactly that way, as it's used in a variety of places across the kernel, and
-I didn't want this GPT patch to be so invasive.
-
-> Are there not already plenty of crc32 functions in the kernel, or does
-> this one have different coefficients?
-
-Yes, in fact I grabbed this one out of the CIPE kernel patch and put it in
-lib/ for that reason.  CIPE had it as a table (it needs to be fast as it's
-processing network packets at that point), so I wanted to have a single 1KB
-array that both use.  There are other crc32 functions in the kernel, but
-this happens to be the one that Intel is using in their firmware (despite
-what their spec says).
+> a cpu resource problem, its a timing problem.  xmms needs x units of CPU
+> every y units of time.  Just getting the x whenever is not enough.
+> 
+> With preempt-kernel patch, the long-lasting kernel space activity dbench
+> is engaged in won't hog the CPU until it completes.  When xmms is ready
+> (time y arrives), the scheduler will yield the CPU.
+> 
+> 	Robert Love
 
 
-Thanks for the feedback!
-Matt
-
--- 
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions
-www.dell.com/linux
-#2 Linux Server provider with 17% in the US and 14% Worldwide (IDC)!
-#3 Unix provider with 18% in the US (Dataquest)!
+Andrea

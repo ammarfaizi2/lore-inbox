@@ -1,95 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUGGLVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUGGLXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbUGGLVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 07:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUGGLVQ
+	id S263159AbUGGLXU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 07:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUGGLXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 07:21:16 -0400
-Received: from 142.13.111.219.st.bbexcite.jp ([219.111.13.142]:4023 "EHLO
-	tiger.gg3.net") by vger.kernel.org with ESMTP id S265055AbUGGLVN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 07:21:13 -0400
-Date: Wed, 7 Jul 2004 20:21:10 +0900
-From: Georgi Georgiev <chutz@gg3.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: partitionable md devices and partition detection
-Message-ID: <20040707112109.GC2051@ols-dell.iic.hokudai.ac.jp>
-References: <20040707045939.GA20516@ols-dell.iic.hokudai.ac.jp> <16619.35060.821865.570842@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16619.35060.821865.570842@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.6i
+	Wed, 7 Jul 2004 07:23:20 -0400
+Received: from pop.gmx.de ([213.165.64.20]:46977 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263159AbUGGLXR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 07:23:17 -0400
+X-Authenticated: #547800
+Message-ID: <002001c46415$4bb9dfe0$6bda6c50@b>
+From: <sc2@gmx.at>
+To: <linux-kernel@vger.kernel.org>
+References: <S265049AbUGGKsc/20040707104832Z+1012@vger.kernel.org>
+Subject: Re: question kernel 2.6 problem
+Date: Wed, 7 Jul 2004 13:26:42 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-maillog: 07/07/2004-15:24:04(+1000): Neil Brown types
-> On Wednesday July 7, chutz@gg3.net wrote:
-> > What is the proper way to detect the partitions on a md device during kernel
-> > initialization?
-> 
-> Hmm... I guess there isn't.
-> I remember having a lot of trouble getting partitions to be recognised
-> when an array is first assembled, and deciding it was just easier to
-> leave it to user-space.  However that isn't an option when booting
-> without an initrd.
-> 
-> The following patch should make it work for the
->   md=d0,....
-> case.  The "raid=part" case is a bit harder....
-> 
-> NeilBrown
-> 
-> 
-> diff ./init/do_mounts_md.c~current~ ./init/do_mounts_md.c
-> --- ./init/do_mounts_md.c~current~	2004-07-07 15:20:05.000000000 +1000
-> +++ ./init/do_mounts_md.c	2004-07-07 15:20:57.000000000 +1000
-> @@ -232,6 +232,8 @@ static void __init md_setup_drive(void)
->  			err = sys_ioctl(fd, RUN_ARRAY, 0);
->  		if (err)
->  			printk(KERN_WARNING "md: starting md%d failed\n", minor);
-> +		else
-> +			sys_ioctl(fd, BLKRRPART, 0);
->  		sys_close(fd);
->  	}
->  }
+hello
+when i try to make the 2.6.7 kernel this error is coming
+i use gcc 3.2.1
+any ideas what i did wrong? (i did same stuff likle every time)
+thx
+ CC      arch/i386/kernel/asm-offsets.s
+In Datei, eingef?gt von include/asm/system.h:5,
+                    von include/asm/processor.h:18,
+                    von include/asm/thread_info.h:16,
+                    von include/linux/thread_info.h:21,
+                    von include/linux/spinlock.h:12,
+                    von include/linux/capability.h:45,
+                    von include/linux/sched.h:7,
+                    von arch/i386/kernel/asm-offsets.c:7:
+include/linux/kernel.h:10:20: stdarg.h: Datei oder Verzeichnis nicht
+gefunden
+In file included from include/asm/system.h:5,
+                 from include/asm/processor.h:18,
+                 from include/asm/thread_info.h:16,
+                 from include/linux/thread_info.h:21,
+                 from include/linux/spinlock.h:12,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:7,
+                 from arch/i386/kernel/asm-offsets.c:7:
+include/linux/kernel.h:71: Fehler: parse error vor "va_list"
+include/linux/kernel.h:71: Warnung: Funktionsdeklaration ist kein Prototyp
+include/linux/kernel.h:74: Fehler: parse error vor "va_list"
+include/linux/kernel.h:74: Warnung: Funktionsdeklaration ist kein Prototyp
+include/linux/kernel.h:77: Fehler: parse error vor "va_list"
+include/linux/kernel.h:77: Warnung: Funktionsdeklaration ist kein Prototyp
+include/linux/kernel.h:81: Fehler: parse error vor "va_list"
+include/linux/kernel.h:81: Warnung: Funktionsdeklaration ist kein Prototyp
+make[1]: *** [arch/i386/kernel/asm-offsets.s] Fehler 1
+make: *** [arch/i386/kernel/asm-offsets.s] Fehler 2
 
-Shouldn't something, similar to the patch above, added to ./drivers/md/md.c do
-the trick for the raid=part case?
 
-I am way out of my league here, but looking at the above patch, wouldn't
-something like the thing below do it (plus adding the appropriate header)?
-
-I'll try the above suggestion when I get home.
-
---- /usr/src/linux/drivers/md/md.c.orig	2004-07-07 20:03:23.529156642 +0900
-+++ /usr/src/linux/drivers/md/md.c	2004-07-07 20:18:50.845059260 +0900
-@@ -1856,6 +1856,22 @@
- 					export_rdev(rdev);
- 			}
- 			autorun_array(mddev);
-+			if (part) {
-+				int fd;
-+				char name[16];
-+
-+				sprintf(name, "/dev/%s", mdname(mddev));
-+				fd = sys_open(name, 0, 0);
-+				if (fd < 0) {
-+					printk(KERN_ERR 
-+						"md: open failed - cannot"
-+						"detect partitions on %s\n",
-+						name);
-+				} else {
-+					sys_ioctl(fd, BLKRRPART, 0);
-+					sys_close(fd);
-+				}
-+			}
- 			mddev_unlock(mddev);
- 		}
- 		/* on success, candidates will be empty, on error
-
--- 
-|    Georgi Georgiev   |  The surest sign that a man is in love is     |
-|     chutz@gg3.net    |  when he divorces his wife.                   |
-|   +81(90)6266-1163   |                                               |

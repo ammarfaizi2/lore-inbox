@@ -1,68 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266201AbTGLQta (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 12:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267775AbTGLQta
+	id S266205AbTGLQro (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 12:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267522AbTGLQro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 12:49:30 -0400
-Received: from main.gmane.org ([80.91.224.249]:59606 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266201AbTGLQt2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 12:49:28 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Geode GX1, video acceleration -> crash
-Date: Sat, 12 Jul 2003 10:04:57 -0700
-Message-ID: <m2adbj7k1y.fsf@tnuctip.rychter.com>
-References: <20030711181025.14633.qmail@web10001.mail.yahoo.com> <3F0F27B6.9B7DAAE2@engard.hu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@main.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:0HGJpBG7Gu7pqRmCGWKTp0kRFoM=
+	Sat, 12 Jul 2003 12:47:44 -0400
+Received: from 213-84-203-196.adsl.xs4all.nl ([213.84.203.196]:57860 "EHLO
+	gateway.bencastricum.nl") by vger.kernel.org with ESMTP
+	id S266205AbTGLQrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 12:47:40 -0400
+Message-ID: <001501c34896$baddd3e0$0802a8c0@pc>
+From: "Ben Castricum" <lk@bencastricum.nl>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <000901c343df$9165ed10$0802a8c0@pc> <1057578275.2749.11.camel@dhcp22.swansea.linux.org.uk>
+Subject: Re: 2.4.22-pre3 : SoundBlaster IDE interface missing
+Date: Sat, 12 Jul 2003 18:57:49 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
 
->>>>> "Ferenc" =3D=3D Ferenc Engard <ferenc@engard.hu> writes:
- Ferenc> Keyser Soze wrote:
- >>
- > But the real problem is, that I wanted to benchmark the system while
- > the scrolling continues, and issued a dd if=3D/dev/mem of=3D/dev/null
- > bs=3D1024 count=3D32768 command. For the second go, the system freezed
- > like a good refrigerator. No kernel panic, nothing, just freezed.
- >>
- >> Try turning off ide dma and see if that helps.  You will lose very
- >> little by turning off udma on this system and I'll bet you end up
- >> being more stable.
+> On Sul, 2003-07-06 at 17:56, Ben Castricum wrote:
+> > I have one of those ancients ISA-PNP SoundBlaster cards with an
+additional
+> > IDE interface on it. It all worked perfectly up till 2.4.22-pre2 but
+with
+> > pre3 the IDE interface is no longer detected.
+>
+> Oops. I have redone the initialization for the ISAPnP IDE devices so its
+> quite possible I got this bit wrong. I'll take a look at it
+> today/tomorrow see why its vanished.
 
- Ferenc> I will try it on Monday, as the eval board is in my
- Ferenc> workplace. What is the connection between ide dma, memory read
- Ferenc> and the hw video accel? The ide dma setting alters the way
- Ferenc> /dev/mem is read? :-O
-[...]
+I took a look at it myself as well and it seems that the code was just
+removed. This patch restores a couple of line from pre2 and fixes the
+problem for me. It's diffed againts the current bk-2.4 tree.
 
-It can have interesting things in common, but NS won't tell you about
-them without NDAs, I'm afraid -- at least that's how it used to be.
-I've had IDE DMA interfere with video input, for instance. So asking NS
-is indeed the best answer in this thread.
+Hope this helps,
+Ben
 
-=2D-J.
 
---=-=-=
-Content-Type: application/pgp-signature
+diff -u linux/drivers/ide/ide-pnp.c linux-fix/drivers/ide/ide-pnp.c
+--- linux/drivers/ide/ide-pnp.c 2003-07-12 18:03:05.000000000 +0200
++++ linux-fix/drivers/ide/ide-pnp.c     2003-07-12 18:26:13.000000000 +0200
+@@ -99,7 +99,7 @@
+  * Probe for ISA PnP IDE interfaces.
+  */
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+-static void pnpide_init(int enable)
++void __init pnpide_init(int enable)
+ {
+        struct pci_dev *dev = NULL;
+        struct pnp_dev_t *dev_type;
+diff -u linux/drivers/ide/ide.c linux-fix/drivers/ide/ide.c
+--- linux/drivers/ide/ide.c     2003-07-12 18:03:01.000000000 +0200
++++ linux-fix/drivers/ide/ide.c 2003-07-12 18:25:11.000000000 +0200
+@@ -2318,6 +2318,12 @@
+                buddha_init();
+        }
+ #endif /* CONFIG_BLK_DEV_BUDDHA */
++#if defined(CONFIG_BLK_DEV_ISAPNP) && defined(CONFIG_ISAPNP)
++       {
++               extern void pnpide_init(int enable);
++               pnpide_init(1);
++       }
++#endif /* CONFIG_BLK_DEV_ISAPNP */
+ }
 
-iD8DBQA/ED++Lth4/7/QhDoRAlO/AKDDg/+ZSze9/4186hbSwY86vsAoZwCeIjVH
-Rn5ZRtHQmoiZqBzgsTwMj48=
-=0dC6
------END PGP SIGNATURE-----
---=-=-=--
+ void __init ide_init_builtin_subdrivers (void)
 

@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129495AbRBZSDl>; Mon, 26 Feb 2001 13:03:41 -0500
+	id <S129498AbRBZSJc>; Mon, 26 Feb 2001 13:09:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129492AbRBZSDd>; Mon, 26 Feb 2001 13:03:33 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:39932 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S129473AbRBZSDO>; Mon, 26 Feb 2001 13:03:14 -0500
-Date: Mon, 26 Feb 2001 18:16:34 +0100
-From: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18/ext2: special file corruption?
-Message-ID: <20010226181634.A5097@frodo.uni-erlangen.de>
-In-Reply-To: <3A9A2E3D.9135.8E1BCE@localhost>
-Mime-Version: 1.0
+	id <S129539AbRBZSJX>; Mon, 26 Feb 2001 13:09:23 -0500
+Received: from 24-216-78-5.hsacorp.net ([24.216.78.5]:34821 "EHLO
+	mccoy.penguinpowered.com") by vger.kernel.org with ESMTP
+	id <S129498AbRBZSJJ>; Mon, 26 Feb 2001 13:09:09 -0500
+From: Jens Petersohn <jkp@mccoy.penguinpowered.com>
+Message-Id: <200102261809.MAA07469@mccoy.penguinpowered.com>
+Subject: How well does AOpen AK33 + 900 MHz Athlon work?
+To: linux-kernel@vger.kernel.org
+Date: Mon, 26 Feb 2001 12:09:02 -0600 (CST)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A9A2E3D.9135.8E1BCE@localhost>; from Ulrich.Windl@rz.uni-regensburg.de on Mon, Feb 26, 2001 at 10:21:51AM +0100
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Windl schrieb am Montag, den 26. Februar 2001:
+Hi all,
 
-> I had an interesting effect: Due to NVdriver I had a lot of system 
-> freezes, and I had to reboot. Using e2fsck 1.19a (SuSE 7.1) I got the 
-> message that one specific "Special (device/socket/fifo) inode .. has 
-> non-zero size. FIXED."
+I was wondering how well the AOpen AK33 and Linux 2.2.18/19 play
+together? I saw a really good deal recently but remember reading
+some issues with the KT133 chipset not too long ago. The archives
+weren't all that specific. The issues that I could identify
+were:
 
-I see them too on every fsck (after a crash). I'm using e2fsck 1.19 (but
-not from SuSE. The rpm was built on snap.thunk.org, but I can't
-remember where I got it from).
+1) Mouse cursor jumping?
+2) Clock loosing time (but correctable with NTP).
+3) Disk corruption (2.2.x or 2.4.x?)
 
-Walter
+Thanks in advance...
+
+Jens Petersohn

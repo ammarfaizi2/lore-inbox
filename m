@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbTJTEgT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 00:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbTJTEgT
+	id S262260AbTJTE3R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 00:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbTJTE3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 00:36:19 -0400
-Received: from SteeleMR-loadb-NAT-49.caltech.edu ([131.215.49.69]:39766 "EHLO
-	water-ox.its.caltech.edu") by vger.kernel.org with ESMTP
-	id S262272AbTJTEgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 00:36:18 -0400
-Date: Sun, 19 Oct 2003 21:36:15 -0700 (PDT)
-From: "Noah J. Misch" <noah@caltech.edu>
-X-X-Sender: noah@clyde
-To: dwmw2@redhat.com
-Cc: mtd@infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove needless and non-portable include in mtd
-Message-ID: <Pine.GSO.4.58.0310171454050.13905@blinky>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Oct 2003 00:29:17 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:27399 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262260AbTJTE2y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 00:28:54 -0400
+Date: Mon, 20 Oct 2003 06:28:37 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Rob Landley <rob@landley.net>
+Cc: Willy Tarreau <willy@w.ods.org>, Michael Buesch <mbuesch@freenet.de>,
+       Nick Piggin <piggin@cyberone.com.au>, Daniel Egger <degger@fhm.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Where's the bzip2 compressed linux-kernel patch?
+Message-ID: <20031020042837.GA4994@alpha.home.local>
+References: <200310180018.21818.rob@landley.net> <200310191245.55961.mbuesch@freenet.de> <20031019210453.GE16761@alpha.home.local> <200310191900.47300.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310191900.47300.rob@landley.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello David,
+On Sun, Oct 19, 2003 at 07:00:47PM -0500, Rob Landley wrote:
+> upx is upx-1.22.  
+> 
+> So you're talking about something that compresses LESS well than gzip.  Why?
 
-The #include <asm/setup.h> in drivers/mtd/cmdlinepart.c does not appear to
-provide any definition this file uses, and it quickly breaks builds on
-architectures that lack such a header, including ia64 and sparc.
+I'm not talking about something that compresses LESS than gzip, I'm talking
+about something I almost always use to recompress my kernels and reduce their
+size by 20% over gzip, and decompress way faster.
 
-This applies to your CVS and linux-2.5 BK as of 0700 UTC 10/20/2003 and passes
-an allyesconfig on (with unrelated exceptions) i386, ia64, and sparc.  I do not
-have the hardware to test it further, but I think the change is straightforward.
-Please let me know if you need further information.
+It's upx-1.90 (which is able to decompress/recompress bzimage). OK it's still
+a development version, but it has already saved me megs of flash.
 
-I will probably send you at least one more MTD compatibility patch.
+I don't know how the tests above were done. But what I know for sure is that
+there are excessive open source zealots who would only download the OSS
+version of UPX which uses the UCL library while the closed source version
+uses the NRV one which is a jewel.
 
-Thanks,
-Noah
+And you know what ? when I put a complete distro on a 8MB flash, my primary
+concern is to save as much space as possible, and my ability to read the
+compressor sources only comes next.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1369  -> 1.1370
-#	drivers/mtd/cmdlinepart.c	1.5     -> 1.6
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/10/16	noah@caltech.edu	1.1370
-# Remove needless include of asm/setup.h in drivers/mtd/cmdlinepart.c.  This
-# was breaking compilation on architectures that lack such a header.
-# --------------------------------------------
-#
-diff -Nru a/drivers/mtd/cmdlinepart.c b/drivers/mtd/cmdlinepart.c
---- a/drivers/mtd/cmdlinepart.c	Fri Oct 17 13:40:56 2003
-+++ b/drivers/mtd/cmdlinepart.c	Fri Oct 17 13:40:56 2003
-@@ -28,7 +28,6 @@
+BTW, I don't remember every upx argument, but I'm sure I got best numbers
+with '--best --crp-ms=100000'.
 
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/partitions.h>
--#include <asm/setup.h>
- #include <linux/bootmem.h>
+> And no, gzip -9 does not add anything to decompression time, only
+> compression time.
 
- /* error message prefix */
+Where did you get this interesting idea ? every decompressor needs
+decompression time. You need the compressed kernel to be in memory, then you
+decompress it, then you boot it. On my old 386sx which was still my home
+firewall 6 months ago, the kernel would take 2-3 seconds to decompress with
+gzip while it was almost unnoticeable with upx (which did it in place, BTW).
+
+Now don't get me wrong, I'm not advertising for upx. But bzip2 was proposed
+and will always be criticized because of its decompression time and cost in
+terms of memory. So I simply suggested to take a look at other solutions
+which seem interesting. An UPX-based implementation seems interesting to me
+only if the decompression code is free and can be put in the kernel. Otherwise
+it is not. If the numbers above come from the UCL lib, then we at least know
+that this one doesn't interest us for this matter. Some people would also
+suggest taking a look at other compression algorithms which can be of
+interest, but I don't know their sources status (open/close).
+
+> I can make bunzip work in-place if you'd like
+
+That's very important for low-memory systems.
+
+Regards,
+Willy
 

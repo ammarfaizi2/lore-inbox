@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281488AbRKHI4r>; Thu, 8 Nov 2001 03:56:47 -0500
+	id <S281502AbRKHJEh>; Thu, 8 Nov 2001 04:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281487AbRKHI4i>; Thu, 8 Nov 2001 03:56:38 -0500
-Received: from cc78409-a.hnglo1.ov.nl.home.com ([212.120.97.185]:28676 "EHLO
-	dexter.hensema.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S281486AbRKHI4X>; Thu, 8 Nov 2001 03:56:23 -0500
-From: spamtrap@use.reply-to (Erik Hensema)
-Subject: Re: Yet another design for /proc. Or actually /kernel.
-Date: 8 Nov 2001 08:56:21 GMT
-Message-ID: <slrn9uki5k.174.spamtrap@dexter.hensema.xs4all.nl>
-In-Reply-To: <F218Wqr2f9hYDkngMUJ00002181@hotmail.com> <20011108002705.A45912@compsoc.man.ac.uk>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.6.3 (Linux)
-To: linux-kernel@vger.kernel.org
+	id <S281487AbRKHJE2>; Thu, 8 Nov 2001 04:04:28 -0500
+Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:64156 "EHLO
+	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S281486AbRKHJER>; Thu, 8 Nov 2001 04:04:17 -0500
+Date: Thu, 8 Nov 2001 04:04:08 -0500 (EST)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
+To: Matt Bernstein <matt@theBachChoir.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.15-pre1 changelog
+In-Reply-To: <Pine.LNX.4.33.0111080850240.9233-100000@nick.dcs.qmul.ac.uk>
+Message-ID: <Pine.A41.4.21L1.0111080403470.53246-100000@login3.isis.unc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon (moz@compsoc.man.ac.uk) wrote:
->On Wed, Nov 07, 2001 at 02:41:26PM -0500, William Knop wrote:
->
->> You really consider this discussion to be unimportant? Granted, the lack of 
->> organization in /proc is not a bug, but keeping the kernel organized is part 
->> of maintenence. Like cleaning my room-- it's not a showstopper if it is 
->> messy, but it is nicer and easier to work in when neat.
->
->Like cleaning your room, talking endlessly about how doesn't get you anywhere.
->Show some code ...
+It does in fact have the fix for loop.c. Try wget instead.
 
-Just starting to code without giving much thought into it give us... the
-current /proc. It may be a good idea to actually design the thing this
-time.
+---
+Dan Chen                 crimsun@email.unc.edu
+GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
 
--- 
-Erik Hensema (erik@hensema.net)
-I'm on the list, no need to Cc: me, though I appreciate one if your
-mailer doesn't support the References header.
+On Thu, 8 Nov 2001, Matt Bernstein wrote:
+
+> ..appears to detail some code changes, but the patch I downloaded (maybe I
+> (or Mozilla) was Doing It Wrong) only had documentation/config text diffs.
+> 
+> In particular no loop.c diff :-/
+

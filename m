@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129238AbRBWBR0>; Thu, 22 Feb 2001 20:17:26 -0500
+	id <S129245AbRBWBV0>; Thu, 22 Feb 2001 20:21:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129245AbRBWBRQ>; Thu, 22 Feb 2001 20:17:16 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:11254 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S129238AbRBWBRA>;
-	Thu, 22 Feb 2001 20:17:00 -0500
-Date: Fri, 23 Feb 2001 02:16:44 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: root <lkthomas@hkicable.com>, linux-kernel@vger.kernel.org
-Subject: Re: need to suggest a good FS:
-Message-ID: <20010223021644.A12506@khan.acc.umu.se>
-In-Reply-To: <3A95A94E.E3C84BE4@hkicable.com> <20010222195707.A30319@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010222195707.A30319@animx.eu.org>; from wakko@animx.eu.org on Thu, Feb 22, 2001 at 07:57:07PM -0500
+	id <S129453AbRBWBVR>; Thu, 22 Feb 2001 20:21:17 -0500
+Received: from pcy162.nts.net ([198.245.31.162]:14464 "EHLO stingray.ntcor.com")
+	by vger.kernel.org with ESMTP id <S129245AbRBWBVB>;
+	Thu, 22 Feb 2001 20:21:01 -0500
+Date: Thu, 22 Feb 2001 17:22:22 -0800 (PST)
+From: <jeff@CYTE.COM>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.2 seems to break loopback and/or mount
+Message-ID: <Pine.LNX.4.21.0102221714370.1662-100000@stingray.ntcor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 22, 2001 at 07:57:07PM -0500, Wakko Warner wrote:
-> > anyone can suggest some good FS that can install linux?
-> > exclude reiserfs, ext2, ext3, DOS FAT..etc
-> > just need non-normal or non-popular FS, any suggestion?
-> 
-> How about minixfs?  >=)
+Please CC me on replies. I just joined the list and don't want
+to miss any replies.
 
-ADFS, AFFS, BFS or HPFS are all uncommon
-and unpopular (especially in the case of AFFS, if I understood Alexander
-Viro's woes correctly), QNX4 might do too, then there's always NTFS;
-guaranteed to make your day...
+I have been running 2.4.1-pre10 for quite some time with no
+problems. I just upgraded to 2.4.2 and everything seem to work
+fine until I did...  (as root or course)
 
-SysV5, UFS and UDF are probably too easy to get going, or?!
+mount -t iso9660 -o loop,ro mycdimage.iso /mnt/cdrom
 
+at which point the mount process hung in an uninterruptable sleep.
+after that I can no longer successfully issue any other mount
+commands, including non-loopback mounts. I can mount/unmount
+regular partitions before mounting anything via loopback.
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Any ideas as to what is wrong?
+The only thing I can think of is that my modutils is v2.3.19
+but I doubt that is doing it as the loop module and other modules
+are loaded fine.
+
+If anybody has an idea as to what I broke please let me know.
+I will upgrade modutils tomorrow and see if the problem goes
+away while I wait for a possibly more accurate response.
+
+Thank you,
+
+Jeff Wiegley
+

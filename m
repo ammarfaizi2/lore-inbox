@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268294AbTGLTyg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 15:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268383AbTGLTyg
+	id S268396AbTGLT6m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 15:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268407AbTGLT6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 15:54:36 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:58273 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268294AbTGLTye (ORCPT
+	Sat, 12 Jul 2003 15:58:42 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:45752 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S268396AbTGLT6k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 15:54:34 -0400
-Date: Sat, 12 Jul 2003 13:09:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: Arjan van de Ven <arjanv@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/RFC] Deprecate sysctl(2), add sysctl_name
-In-Reply-To: <20030711102146.GB11119@wotan.suse.de>
-Message-ID: <Pine.LNX.4.44.0307121305040.2483-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 12 Jul 2003 15:58:40 -0400
+Date: Sat, 12 Jul 2003 22:12:56 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: linux-kernel@vger.kernel.org, acpi-support@lists.sourceforge.net
+Subject: Re: [ACPI-sppt] Re: [2.5.75] S3 and S4
+Message-ID: <20030712201256.GA446@elf.ucw.cz>
+References: <20030711193611.GA824@dreamland.darkstar.lan> <20030711200053.GA402@elf.ucw.cz> <20030712164542.GA1157@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030712164542.GA1157@dreamland.darkstar.lan>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Fri, 11 Jul 2003, Andi Kleen wrote:
+> > Unable to handle kernel paging request at virtual address 40107114
+> > >  printing eip:
+> > > 40107114
+> > > *pde = 2dbf6067
+> > > *pte = 00000000
+> > > Oops: 0004 [#1]
+> > > CPU:    0
+> > > EIP:    0073:[<40107114>]    Not tainted
+> > > EFLAGS: 00010202
+> > > EIP is at 0x40107114
+> > > eax: ffffffea   ebx: 00000001   ecx: 080d440c   edx: 00000002
+> > > esi: 00000002   edi: 080d440c   ebp: bffffae8   esp: bffffab8
+> > > ds: 007b   es: 007b   ss: 007b
+> > > Process bash (pid: 484, threadinfo=ed776000 task=ef1e40c0)
+> > >  <6>note: bash[484] exited with preempt_count 1
+> > > pdflush left refrigerator
+> > > e100: eth0 NIC Link is Up 10 Mbps Half duplex
+> > > 
+> > > ksymoops says:
+> > > 
+> > > Warning (Oops_read): Code line not seen, dumping what data is available
+> > > 
+> > > 
+> > > >>EIP; 40107114 Before first symbol   <=====
+> > > 
+> > > >>eax; ffffffea <__kernel_rt_sigreturn+1baa/????>
+> > 
+> > That's bad. Error outside of kernel. Not sure what is wrong.
 > 
-> Also I doubt sysctls are that commonly called if they are even used.
+> Note that  if suspend after booting  with "single" (ie. with  only init,
+> agetty and bash running) the other warnings go away, but I still see the
+> above oops.
 
-It looks like kudzu (also known as "the RH hardware hack from h*ll") 
-actually messes with "sysctl 1 23", aka "/proc/sys/kernel/printk".
+That's strange. It works here. I'm not sure whats wrong for you.
 
-Why it thinks it should mess with it I don't know. I dislike how the 
-distributions tend to shut off kernel messages that can tell you when
-something is seriously wrong, making the error cases be silent hangs
-instead of having some indication of why something went wrong.. I 
-wonder if that's what kudzu is doing - shutting the kernel up before
-it starts doing things that it should never do.
+Also try to find out what you need to run if you want the warnings.
 
-Anyway, having one
-
-	kudzu: numerical sysctl 1 23 is obsolete.
-
-during bootup seems to be a fairly non-irritating thing, and hopefully the 
-kudzu people can just stop doing whatever they are doing.
-
-			Linus
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

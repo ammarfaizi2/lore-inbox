@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278660AbRKFIpW>; Tue, 6 Nov 2001 03:45:22 -0500
+	id <S278695AbRKFIrM>; Tue, 6 Nov 2001 03:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278673AbRKFIpN>; Tue, 6 Nov 2001 03:45:13 -0500
-Received: from isp01.net ([209.90.125.207]:11795 "HELO itc.prohosting.com")
-	by vger.kernel.org with SMTP id <S278660AbRKFIo7>;
-	Tue, 6 Nov 2001 03:44:59 -0500
-Subject: TCP Connections stuck in SYN_SENT state with 2.4.12, 2.4.13, 2.4.14
-From: "James A. Hillyerd" <james@hillyerd.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.100+cvs.2001.11.05.15.34 (Preview Release)
-Date: 06 Nov 2001 00:44:00 -0800
-Message-Id: <1005036240.978.6.camel@makita>
-Mime-Version: 1.0
+	id <S278701AbRKFIrC>; Tue, 6 Nov 2001 03:47:02 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:20964 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S278673AbRKFIqt>; Tue, 6 Nov 2001 03:46:49 -0500
+Date: Tue, 6 Nov 2001 10:57:28 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <matt@eee.nott.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: PCI interrupts 
+Message-ID: <Pine.LNX.4.33.0111061041001.7663-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a strange problem, outgoing TCP packets get stuck at the SYN_SENT
-point for certain websites.  Two of the sites I have this problem with
-are zdnet.com and compusa.com.  When I try to telnet to port 80, the
-connection will never be established, and netstat shows it in the
-SYN_SENT state.
+Matthew Clark said...
+>(b) if it shouldn't have a unique number do I have to share the
+>interrupt (with the usb controller) or can I change it to
+>another address (by writing to the config space?)?
+>If I have to share it how do I do this- (my card will generate a
+>lot of interrupt traffic)?.
+Assuming i386
 
-This problem occurs with kernels 2.4.12-2.4.14.  It does not occur with
-2.4.10.  I am making these connections via a PPP link, but a friend of
-mine has duplicated the exact same problem using a ethernet connection
-(passing over DSL).  We do not have the same ISP, so I don't think that
-is the problem.
+>From my limited knowledge about the IRQ handling subsystems, you would
+call arch/i386/irq.c:request_irq() with the appropriate flags, ie
+SA_SHIRQ and any others you may require. I *think* you might also be able
+to do dev->irq = irq_num and then do your request_irq() but you might
+require a bit of voodoo inbetween.
 
-Any help, or requests for more debugging info would be appreciated. 
-Please CC message to me, I am not subscribed to the list.
-
-Thanks.
-
--james
-
--- 
-[]  James A. Hillyerd <james@hillyerd.com> - Java Developer
-[]  PGP 1024D/D31BC40D F87B 7906 C0DA 32E8 B8F6 DE23 FBF6 4712 D31B C40D
+Regards,
+	Zwane Mwaikambo
 

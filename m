@@ -1,64 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbUJXPe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbUJXPfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbUJXPe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 11:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbUJXPe0
+	id S261516AbUJXPfb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 11:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbUJXPfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 11:34:26 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:9909 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261515AbUJXPeW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 11:34:22 -0400
-Date: Sun, 24 Oct 2004 17:35:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, bstowell@sco.com
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Message-ID: <20041024153538.GA9935@elte.hu>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com> <35fb2e590410221714205fe526@mail.gmail.com> <41799BEE.1030104@drdos.com> <35fb2e59041022175758ece5f9@mail.gmail.com> <4179E136.1090201@drdos.com> <Pine.LNX.4.58.0410230923540.2101@ppc970.osdl.org> <417B397D.2070106@drdos.com>
+	Sun, 24 Oct 2004 11:35:31 -0400
+Received: from pD9E39B5D.dip.t-dialin.net ([217.227.155.93]:36357 "EHLO
+	pro01.local.promotion-ie.de") by vger.kernel.org with ESMTP
+	id S261516AbUJXPfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 11:35:11 -0400
+From: alex@local.promotion-ie.de
+Subject: Re: linux 2.6.9 on alpha noritake
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: alex@local.promotion-ie.de, linux-kernel <linux-kernel@vger.kernel.org>,
+       Richard Henderson <rth@twiddle.net>
+In-Reply-To: <20041024144329.A623@den.park.msu.ru>
+References: <1098476483.11296.37.camel@pro30.local.promotion-ie.de>
+	 <1098520279.14984.12.camel@pro30.local.promotion-ie.de>
+	 <20041023175811.GA23184@twiddle.net>  <20041024144329.A623@den.park.msu.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1098632003.8479.4.camel@pro30.local.promotion-ie.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417B397D.2070106@drdos.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 24 Oct 2004 17:33:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hallo Ivan,
 
-* Jeff V. Merkey <jmerkey@drdos.com> wrote:
+that seems to do the trick....
+but as usually one thing fixed next broken....
+now the sym53c8xx won't scan the SCSI bus.
+So I have no chance to boot and take a closer look if everything is
+working again. I do further investigation later on.
 
-> I don't think SCO has to apologize to you [...]
+Thank you for your help!
+Alex
 
-Jeff, you seem to have proven once more that you live in a fantasy world
-that has its own private rules of physics, ethics and rule of law. 
-While this appears to be a dangerous phenomenon, it is fortunately a
-relatively rare one.
-
-Linus has been intentionally, deliberately and maliciously lied to,
-smeared and mislead for more than 1.5 years. Linus has not mislead
-anyone, let alone lied to anyone. The so-called 'contamination'
-accusations that you repeated are just that: unfounded accusations. A
-simple question: do you know the concept of "truth"? Another simple
-question: do you even care about it? In the world i live SCO owes Linus
-more than just a simple apology. I personally find it admirable that the
-only thing Linus expects of SCO is a simple apology.
-
-(it is your free choice to join SCO's ranks but it is really not Linus'
-fault that whenever it comes to Novell you apparently tick out and start
-behaving seemingly irrationally. You should not fault him for happening
-to be in the line of fire of your apparent personal vendetta against
-Novell.)
-
-(it is also your free choice to rewrite any part of Linux as long as you
-respect the license. You are not the first one and you will not be the
-last one trying. Good luck with it.)
-
-	Ingo
+Am So, den 24.10.2004 schrieb Ivan Kokshaysky um 12:43:
+> On Sat, Oct 23, 2004 at 10:58:11AM -0700, Richard Henderson wrote:
+> > > pc is at __raw_readw+0x4c/0x60
+> > > ra is at vgacon_startup+0x4ec/0x750
+> > 
+> > I'll have a look.  Why are you using fbcon anyway?
+> 
+> Ouch. The high order bits of the address in cia_ioXXX routines get
+> cleared out too early, so that addr >= CIA_DENSE_MEM clause
+> is always false.
+> 
+> Ivan.
+> 
+> --- 2.9/include/asm-alpha/core_cia.h	Tue Oct 19 01:54:30 2004
+> +++ linux/include/asm-alpha/core_cia.h	Sun Oct 24 14:16:17 2004
+> @@ -347,14 +347,14 @@ __EXTERN_INLINE unsigned int cia_ioread8
+>  	unsigned long addr = (unsigned long) xaddr;
+>  	unsigned long result, base_and_type;
+>  
+> -	/* We can use CIA_MEM_R1_MASK for io ports too, since it is large
+> -	   enough to cover all io ports, and smaller than CIA_IO.  */
+> -	addr &= CIA_MEM_R1_MASK;
+>  	if (addr >= CIA_DENSE_MEM)
+>  		base_and_type = CIA_SPARSE_MEM + 0x00;
+>  	else
+>  		base_and_type = CIA_IO + 0x00;
+>  
+> +	/* We can use CIA_MEM_R1_MASK for io ports too, since it is large
+> +	   enough to cover all io ports, and smaller than CIA_IO.  */
+> +	addr &= CIA_MEM_R1_MASK;
+>  	result = *(vip) ((addr << 5) + base_and_type);
+>  	return __kernel_extbl(result, addr & 3);
+>  }
+> @@ -379,12 +379,12 @@ __EXTERN_INLINE unsigned int cia_ioread1
+>  	unsigned long addr = (unsigned long) xaddr;
+>  	unsigned long result, base_and_type;
+>  
+> -	addr &= CIA_MEM_R1_MASK;
+>  	if (addr >= CIA_DENSE_MEM)
+>  		base_and_type = CIA_SPARSE_MEM + 0x08;
+>  	else
+>  		base_and_type = CIA_IO + 0x08;
+>  
+> +	addr &= CIA_MEM_R1_MASK;
+>  	result = *(vip) ((addr << 5) + base_and_type);
+>  	return __kernel_extwl(result, addr & 3);
+>  }
+> @@ -394,12 +394,12 @@ __EXTERN_INLINE void cia_iowrite16(u16 b
+>  	unsigned long addr = (unsigned long) xaddr;
+>  	unsigned long w, base_and_type;
+>  
+> -	addr &= CIA_MEM_R1_MASK;
+>  	if (addr >= CIA_DENSE_MEM)
+>  		base_and_type = CIA_SPARSE_MEM + 0x08;
+>  	else
+>  		base_and_type = CIA_IO + 0x08;
+>  
+> +	addr &= CIA_MEM_R1_MASK;
+>  	w = __kernel_inswl(b, addr & 3);
+>  	*(vuip) ((addr << 5) + base_and_type) = w;
+>  }

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129815AbQLATGM>; Fri, 1 Dec 2000 14:06:12 -0500
+	id <S129789AbQLATHW>; Fri, 1 Dec 2000 14:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129789AbQLATGC>; Fri, 1 Dec 2000 14:06:02 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:40323 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129465AbQLATFt>;
-	Fri, 1 Dec 2000 14:05:49 -0500
-Date: Fri, 1 Dec 2000 10:19:44 -0800
-Message-Id: <200012011819.KAA02951@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: andrea@suse.de
-CC: ink@jurassic.park.msu.ru, ezolt@perf.zko.dec.com, axp-list@redhat.com,
-        rth@twiddle.net, Jay.Estabrook@compaq.com,
-        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
-        wcarr@perf.zko.dec.com, linux-alpha@vger.kernel.org
-In-Reply-To: <20001201151842.C30653@athlon.random> (message from Andrea
-	Arcangeli on Fri, 1 Dec 2000 15:18:42 +0100)
-Subject: Re: mm->context[NR_CPUS] and pci fix check [was Re: Alpha SCSI error on 2.4.0-test11]
-In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com> <20001130233742.A21823@athlon.random> <20001201145619.A553@jurassic.park.msu.ru> <20001201151842.C30653@athlon.random>
+	id <S130095AbQLATHM>; Fri, 1 Dec 2000 14:07:12 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:61959 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129789AbQLATHB>; Fri, 1 Dec 2000 14:07:01 -0500
+Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE4D3@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: ACPI / Cardbus issues?
+Date: Fri, 1 Dec 2000 10:36:22 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Fri, 1 Dec 2000 15:18:42 +0100
-   From: Andrea Arcangeli <andrea@suse.de>
+I've had second-hand reports of an issue with ACPI and cardbus, but I
+haven't enough about this to actually diagnose the problem.
 
-   I'm still left the #ifdef __alpha__ around the context[NR_CPUS] to
-   avoid breakage of other archs but that should be probably removed:
-   any CPU with per-CPU ASNs like alpha needs per-CPU per-MM context
-   information to avoid wasting ASNs when the task migrate CPU or with
-   threads.
+Is anyone experiencing this?
 
-I would instead suggest to declare 'context' to be of an arch-specific
-defined type, much like "thread_struct" is.
+If so, could you please provide some more details to me, so we can get this
+fixed ASAP?
 
-For example, I don't need NR_CPUS contexts in the mm_struct on
-sparc64, my allocation just works differently, so I shouldn't eat
-all the space.
+Thanks -- Regards -- Andy
 
-Later,
-David S. Miller
-davem@redhat.com
+----------------------------
+Andrew Grover
+Intel/TRL/MAL
+andrew.grover@intel.com
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

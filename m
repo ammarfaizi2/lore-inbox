@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275758AbRI0E32>; Thu, 27 Sep 2001 00:29:28 -0400
+	id <S275759AbRI0Eb2>; Thu, 27 Sep 2001 00:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275759AbRI0E3S>; Thu, 27 Sep 2001 00:29:18 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:49908 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S275758AbRI0E3J>; Thu, 27 Sep 2001 00:29:09 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Wed, 26 Sep 2001 22:29:06 -0600
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: move resume before mounting root [diff against vanilla 2.4.9]
-Message-ID: <20010926222906.J1140@turbolinux.com>
-Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010926101914.A28339@atrey.karlin.mff.cuni.cz> <200109270302.f8R32pl12537@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200109270302.f8R32pl12537@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.20i
+	id <S275760AbRI0EbS>; Thu, 27 Sep 2001 00:31:18 -0400
+Received: from pool-141-151-142-74.pitt.east.verizon.net ([141.151.142.74]:63471
+	"HELO jmcmullan") by vger.kernel.org with SMTP id <S275759AbRI0EbC>;
+	Thu, 27 Sep 2001 00:31:02 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Jason McMullan <jmcmullan@linuxcare.com>
+Newsgroups: local.linux.kernel
+Subject: Re: Why is Device3Dfx driver (voodoo1/2) not in the kernel?
+Date: 27 Sep 2001 04:28:52 GMT
+Organization: Matrix Fire Systems
+Distribution: local
+Message-ID: <9ou9u4$ee6$1@localhost.localdomain>
+In-Reply-To: <E15jmx4-0003bf-00@the-village.bc.nu>
+NNTP-Posting-Host: localhost.localdomain
+X-Trace: localhost.localdomain 1001564932 14790 127.0.0.1 (27 Sep 2001 04:28:52 GMT)
+X-Complaints-To: news@localhost
+NNTP-Posting-Date: 27 Sep 2001 04:28:52 GMT
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.10 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 26, 2001  23:02 -0400, Albert D. Cahalan wrote:
-> That is totally broken, because I may mount the disk in between
-> the suspend and resume. I might even:
-> 
-> 1. boot kernel X
-> 2. suspend kernel X
-> 3. boot kernel Y
-> 4. suspend kernel Y
-> 5. resume kernel X
-> 6. suspend kernel X
-> 7. resume kernel Y
-> 8. suspend kernel Y
-> 9. goto #5
-> 
-> You really have to close the logs and mark the disks clean
-> when you suspend. The problems here are similar the the ones
-> NFS faces. Between the suspend and resume, filesystems may be
-> modified in arbitrary ways.
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Because it lets anyone crash the machine by feeding a Voodoo1 garbage. To
+> get something like that into the kernel I suspect would involve
+>
+> -	Making sure glide is using the fifo
+> -	Writing a parser for packet1-packet5 commands to verify they 
+> 	are valid
+>
+> then voodoo would be safe for user direct access.
 
-This is possible with the "write_super_lockfs" interface to the
-journaling filesystems (ext3/reiserfs/XFS).  This is normally
-used for LVM snapshots, but it could also be used for this.
+	Better stop that this minute Alan! You're starting
+to sound like those old KGI people, with their 'safe kernel
+drivers for video' spiel... ;^)
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
+-- 
+Jason McMullan, Senior Linux Consultant
+Linuxcare, Inc. 412.432.6457 tel, 412.656.3519 cell
+jmcmullan@linuxcare.com, http://www.linuxcare.com/
+Linuxcare. Putting open source to work.

@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310540AbSCTWPg>; Wed, 20 Mar 2002 17:15:36 -0500
+	id <S311462AbSCTWfd>; Wed, 20 Mar 2002 17:35:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312117AbSCTWP1>; Wed, 20 Mar 2002 17:15:27 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43279 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S310540AbSCTWPT>; Wed, 20 Mar 2002 17:15:19 -0500
-Date: Wed, 20 Mar 2002 23:15:14 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Daniela Engert <dani@ngrt.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Olivier Galibert <galibert@pobox.com>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020320221514.GB23957@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020319225609.A12655@ucw.cz> <20020320065425.D27F3DD1C@mail.medav.de>
-Mime-Version: 1.0
+	id <S312245AbSCTWfZ>; Wed, 20 Mar 2002 17:35:25 -0500
+Received: from CPE-203-51-26-136.nsw.bigpond.net.au ([203.51.26.136]:53232
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S311462AbSCTWfO>; Wed, 20 Mar 2002 17:35:14 -0500
+Message-ID: <3C990E9E.CC23F0AA@eyal.emu.id.au>
+Date: Thu, 21 Mar 2002 09:35:10 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre3-ac1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre3-ac4: ATTRIB_NORET
+In-Reply-To: <E16nje1-0002oN-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >> > Not all of them safely, though. Many a drive will corrupt data if it
-> >> > receives a command when not spinned up. You need to issue a wake command
-> >> > first, which hdparm doesn't, it just leaves it to the kernel to issue a
-> >> > read command or whatever to wake the drive ...
-> >> 
-> >> Is this common disk bug, or are they permitted to behave like that?
-> >
-> >This behavior is permitted by the specification, as far as I know -
+Alan Cox wrote:
 > 
-> Actually not. Have a look at page 36 of the current ATA6
-> specification.
+> This is the small stuff. Next patch is the next IDE updates so its about to
+> get more fun again 8)
+> 
+> [+ indicates stuff that went to Marcelo, o stuff that has not,
+>  * indicates stuff that is merged in mainstream now, X stuff that proved
+>    bad and was dropped out]
+> 
+> Linux 2.4.19pre3-ac4
+> o       Ensure jfs readdir doesn't spin on bad metadata (Dave Kleikamp)
+> o       Fix iconfig with no modules                     (Randy Dunlap)
+> o       Don't enfore rlimit on block device files       (Peter Hartley)
+> o       Add belkin wireless card idents                 (Brendan McAdams)
+> o       Add HP VA7400 to the scsi blacklist quirks      (Alar Aun)
+> o       JFS race fix                                    (Dave Kleikamp)
+> o       Fix wafer5823 watchdog merge error I made       (Justin Cormack)
+> o       Fix Config rule for phonejack pcmcia card       (Eyal Lebedinsky)
+> o       Test improved OOM handler for rmap              (Rik van Riel)
+> o       Update defconfig/experimental bits              (Neils Jensen)
+> o       The incredible shrinking kernel patch           (Andrew Morton)
+> o       Clean up BUG() implementation                   (Andrew Morton)
 
-Good. So noflushd is safe.
-								Pavel
+-ac4 includes this:
 
-> If a disk has entered power state PM3:sleep, its interface is turned
-> off! You no longer can issue any command except for a DEVICE RESET to
-> this unit. A reset is required to initiate a state transition from
-> PM3:sleep to PM2:standby (there are no other state transitions).
+--- linux.19p3/include/linux/kernel.h   Thu Mar 14 21:51:34 2002
++++ linux.19pre3-ac4/include/linux/kernel.h     Wed Mar 20 16:02:22 2002
+@@ -181,4 +181,6 @@
+        char _f[20-2*sizeof(long)-sizeof(int)]; /* Padding: libc5 uses
+this.. */
+ };
+ 
++extern void out_of_line_bug(void) ATTRIB_NORET;
++
+ #endif
 
-I do not think we are using PM3:sleep in noflushd, but we even
-could. AFAICT, ide layer resets interface if it does not respond.
+However ATTRIB_NORET is only defined if __KERNEL__, and the above line
+is outside that segment. In may case it is lm_sensors 2.6.2 that fails
+here.
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+I moved it up and the build completes now.
+
+
+BTW, this undef is still around too:
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.19-pre3-ac4/kernel/drivers/hotplug/ibmphp.o
+depmod:         IO_APIC_get_PCI_irq_vector
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

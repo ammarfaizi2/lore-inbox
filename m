@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284837AbRLRTnd>; Tue, 18 Dec 2001 14:43:33 -0500
+	id <S284762AbRLRTfx>; Tue, 18 Dec 2001 14:35:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284696AbRLRTmQ>; Tue, 18 Dec 2001 14:42:16 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1041 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284795AbRLRTk3>; Tue, 18 Dec 2001 14:40:29 -0500
-Subject: Re: The direction linux is taking
-To: dana.lacoste@peregrine.com (Dana Lacoste)
-Date: Tue, 18 Dec 2001 19:50:27 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), linux-kernel@vger.kernel.org
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A07@ottonexc1.ottawa.loran.com> from "Dana Lacoste" at Dec 18, 2001 07:18:51 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284696AbRLRTeJ>; Tue, 18 Dec 2001 14:34:09 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:33034 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S284843AbRLRTde>;
+	Tue, 18 Dec 2001 14:33:34 -0500
+Date: Tue, 18 Dec 2001 11:28:02 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Andreas Bombe <bombe@informatik.tu-muenchen.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1 API change summary
+In-Reply-To: <20011218031427.GA5990@storm.local>
+Message-ID: <Pine.LNX.4.33L2.0112181124460.20824-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16GQFw-0008Uh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > is too noisy and many key people dont read it.
-> 
-> ...but if you are working with the code and you see something change
-> the mailing list is the place to ask, correct?
+On Tue, 18 Dec 2001, Andreas Bombe wrote:
 
-Or its submitter - thyats why names in changelogs are so important
+| One problem with following kernel development is that new APIs are
+| nowhere really summarized outside of the list thread where they are
+| developed (if there is a thread at all).  So maybe there's this great
+| new function that simplifies something in your driver, but you don't
+| know about it and only stumble across it much later (like 50 dev kernel
+| revisions) and wish you'd known earlier.
+|
+| So someone should just collect the changes and post a summary to
+| linux-kernel, now wouldn't that be useful ...
+|
+| [Silence, far away keyboards can be heard having "So I take it you
+| volun..." typed on them.]
+|
+| ... and I will try to do that for the kernel 2.5 revisions.
+|
+| I have collected the API changes in 2.5.1 and summarized below.  I just
+| read the patch for all the *.h files, so I may have confused something
+| (like not realizing something just moved instead of being new).  I also
+| don't know much about most of the areas I'm summarizing, any corrections
+| are welcome.
+|
+| These summaries won't serve as documentation except when it's short and
+| simple.  If there are big changes, I won't list every detail (I just
+| remind you that there is something, you can read the source yourself).
+| I will list changes which are global or at least apply to a whole
+| subsystem.
+|
+| You'll also find stuff that's pretty much the talk of the week on
+| linux-kernel and therefore well known, but these summaries should also
+| serve as a overview ("when was what introduced") in combination with the
+| kernel changelogs for those who get into 2.5 later (yes, I will archive
+| these summaries on the web when I get a few together).
+|
+| So, here it goes:
+|
+| =======================================================================
 
-> > Many kernel bug reports end up invisible to some of the developers.
-> 
-> Many kernel developers don't read LKML.
-> Isn't that their flaw?
+[snip]
 
-Not really. If they read lk they would have no time to fix bugs.
+I guess you won't see summaries of proposals or actual changes
+in IRC discussions (: , but linux-kernel (mailing list) does have
+_some_ of them.  For links to the ones that I'm aware of (for
+2.5.x), see
 
-> I sincerely challenge you to propose a method for centralizing
-> bug tracking in the Linux kernel that _can_ be used by the
-> community as a whole.  That means something that Linus would use
-> _and_ somebody who doesn't subscribe to LKML can use to find out
-> why he can't compile loop.o on his redhat 7.0 system with the
-> kernel he got from kernel.org a few weeks ago.
+http://www.osdl.org/archive/rddunlap/linux-port-25x.html .
 
-You don't centralise it. You ensure the data is in common(ish) formats
-and let the search tools improve. Would you build google by making all
-the web run at one site ?
+~Randy
+

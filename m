@@ -1,98 +1,208 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266109AbUAUTj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 14:39:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266112AbUAUTj1
+	id S266128AbUAUTtX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 14:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUAUTtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 14:39:27 -0500
-Received: from sandershosting.com ([69.26.136.138]:14502 "HELO
-	sandershosting.com") by vger.kernel.org with SMTP id S266109AbUAUTjY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 14:39:24 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: David Sanders <linux@sandersweb.net>
-Reply-To: David Sanders <linux@sandersweb.net>
-Organization: SandersWeb.net
-Message-Id: <200401211434.04749@sandersweb.net>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH-BK-2.6] NTFS fix "du" and "stat" output (NTFS 2.1.6).
-Date: Wed, 21 Jan 2004 14:38:57 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-References: <Pine.SOL.4.58.0401191413180.7391@yellow.csi.cam.ac.uk> <200401211318.53776@sandersweb.net>
-In-Reply-To: <200401211318.53776@sandersweb.net>
+	Wed, 21 Jan 2004 14:49:23 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:57006 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S266128AbUAUTtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 14:49:14 -0500
+Date: Wed, 21 Jan 2004 14:49:09 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: Valdis.Kletnieks@vt.edu, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sched-idle and disk-priorities for 2.6.X
+In-Reply-To: <20040118195825.GA27658@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0401211448250.26332-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 January 2004 01:24 pm, David Sanders wrote:
-> On Monday 19 January 2004 09:15 am, Anton Altaparmakov wrote:
-> > This fixes the erroneous "du" and "stat" output people reported on
-> > ntfs partitions containing compressed directories.
->
-> Thanks for the quick patch.  There are still problems with the
-> reported disk usage.  I use as an example the file win.ini.  With the
-> 2.4.24 kernel I get the following results:
-> $ ls -l win.ini
-> -r--r-----    1 root     staff         399 Jan 27  2003 win.ini
->
-> $ stat win.ini
->   File: "win.ini"
->   Size: 399       	Blocks: 2          IO Block: 1024   Regular File
-> Device: 305h/773d	Inode: 1023        Links: 1
-> Access: (0440/-r--r-----)  Uid: (    0/    root)   Gid: (   50/  
-> staff) Access: Thu Jan 15 15:34:09 2004
-> Modify: Mon Jan 27 18:54:00 2003
-> Change: Sun Sep 22 07:23:44 2002
->
-> $ du -h win.ini
-> 1.0k	win.ini
->
-> But, under the 2.6.1 kernel:
-> $ ls -l win.ini
-> -r-xr-x---    1 root     staff         399 Jan 27  2003 win.ini
->
-> $ stat win.ini
->   File: "win.ini"
->   Size: 399       	Blocks: 0          IO Block: 4096   Regular File
-> Device: 305h/773d	Inode: 1023        Links: 1
-> Access: (0550/-r-xr-x---)  Uid: (    0/    root)   Gid: (   50/  
-> staff) Access: Thu Jan 15 15:34:09 2004
-> Modify: Mon Jan 27 18:54:00 2003
-> Change: Mon Jan 27 18:54:00 2003
->
-> $ du -h win.ini
-> 0	win.ini
->
-> Now, surely the 2.4.24 kernel is reporting the more accurate disk
-> usage since with 2.6.1 it reports 0 blocks (vice 2).
->
-> Thanks in advance,
-I thought perhaps stat -f output would be usefull:
->From WINNT 4.0
-stat -f win.ini
-  File: "win.ini"
-    ID:        1078931058   (    404F2E72) Namelen:          255 Type: 
-NTFS
-Blocks: Total:    8385866 Free:    3808839 Available:    3808839 Size: 
-512
-Inodes: Total:    8385866 Free:    3808839
+On Sun, 18 Jan 2004, Pavel Machek wrote:
 
->From 2.4.24 kernel:
-  File: "win.ini"
-    ID: 0        0        Namelen: 255     Type: ntfs
-Blocks: Total: 8385866    Free: 3808930    Available: 3808930    Size: 
-512
-Inodes: Total: 40642      Free: 0         
+> > > Is there effective way to limit RSS?
+> > 
+> > Want me to port the RSS stuff from 2.4-rmap to 2.6 ?
+> 
+> Well, if it allows me to limit memory for one task so that it does not
+> make system unusable... yes, that would be great.
 
->From 2.6.1 kernel:
-  File: "win.ini"
-    ID: 404f2e72 90404f42 Namelen: 255     Type: ntfs
-Blocks: Total: 1048233    Free: 476116     Available: 476116     Size: 
-4096
-Inodes: Total: 40642      Free: 95        
+Here it is.  Untested, except for whether it compiles cleanly ;)
+
+Let me know how it works, if the enforcement is aggressive
+enough or not, whether I need to tweak things etc...
 
 -- 
-David Sanders
-linux@sandersweb.net
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+
+
+
+===== include/linux/init_task.h 1.27 vs edited =====
+--- 1.27/include/linux/init_task.h	Mon Aug 18 22:46:23 2003
++++ edited/include/linux/init_task.h	Tue Jan 20 17:34:40 2004
+@@ -2,6 +2,7 @@
+ #define _LINUX__INIT_TASK_H
+ 
+ #include <linux/file.h>
++#include <asm/resource.h>
+ 
+ #define INIT_FILES \
+ { 							\
+@@ -41,6 +42,7 @@
+ 	.page_table_lock =  SPIN_LOCK_UNLOCKED, 		\
+ 	.mmlist		= LIST_HEAD_INIT(name.mmlist),		\
+ 	.default_kioctx = INIT_KIOCTX(name.default_kioctx, name),	\
++	.rlimit_rss	= RLIM_INFINITY			\
+ }
+ 
+ #define INIT_SIGNALS(sig) {	\
+===== include/linux/sched.h 1.178 vs edited =====
+--- 1.178/include/linux/sched.h	Mon Jan 19 18:38:15 2004
++++ edited/include/linux/sched.h	Tue Jan 20 17:32:56 2004
+@@ -204,6 +204,7 @@
+ 	unsigned long arg_start, arg_end, env_start, env_end;
+ 	unsigned long rss, total_vm, locked_vm;
+ 	unsigned long def_flags;
++	unsigned long rlimit_rss;
+ 	cpumask_t cpu_vm_mask;
+ 
+ 	unsigned long saved_auxv[40]; /* for /proc/PID/auxv */
+===== include/linux/swap.h 1.80 vs edited =====
+--- 1.80/include/linux/swap.h	Mon Jan 19 01:28:35 2004
++++ edited/include/linux/swap.h	Tue Jan 20 18:16:28 2004
+@@ -179,7 +179,7 @@
+ 
+ /* linux/mm/rmap.c */
+ #ifdef CONFIG_MMU
+-int FASTCALL(page_referenced(struct page *));
++int FASTCALL(page_referenced(struct page *, int *));
+ struct pte_chain *FASTCALL(page_add_rmap(struct page *, pte_t *,
+ 					struct pte_chain *));
+ void FASTCALL(page_remove_rmap(struct page *, pte_t *));
+@@ -188,7 +188,7 @@
+ /* linux/mm/shmem.c */
+ extern int shmem_unuse(swp_entry_t entry, struct page *page);
+ #else
+-#define page_referenced(page)	TestClearPageReferenced(page)
++#define page_referenced(page, _x)	TestClearPageReferenced(page)
+ #define try_to_unmap(page)	SWAP_FAIL
+ #endif /* CONFIG_MMU */
+ 
+===== kernel/sys.c 1.69 vs edited =====
+--- 1.69/kernel/sys.c	Mon Jan 19 18:38:13 2004
++++ edited/kernel/sys.c	Tue Jan 20 18:02:19 2004
+@@ -1308,6 +1308,14 @@
+ 	if (retval)
+ 		return retval;
+ 
++	/* The rlimit is specified in bytes, convert to pages for mm. */
++	if (resource == RLIMIT_RSS && current->mm) {
++		unsigned long pages = RLIM_INFINITY;
++		if (new_rlim.rlim_cur != RLIM_INFINITY)
++			pages = new_rlim.rlim_cur >> PAGE_SHIFT;
++		current->mm->rlimit_rss = pages;
++	}
++
+ 	*old_rlim = new_rlim;
+ 	return 0;
+ }
+===== mm/rmap.c 1.34 vs edited =====
+--- 1.34/mm/rmap.c	Mon Jan 19 01:36:00 2004
++++ edited/mm/rmap.c	Tue Jan 20 18:26:03 2004
+@@ -104,6 +104,7 @@
+ /**
+  * page_referenced - test if the page was referenced
+  * @page: the page to test
++ * rsslimit: set if the process(es) using the page is(are) over RSS limit
+  *
+  * Quick test_and_clear_referenced for all mappings to a page,
+  * returns the number of processes which referenced the page.
+@@ -112,8 +113,9 @@
+  * If the page has a single-entry pte_chain, collapse that back to a PageDirect
+  * representation.  This way, it's only done under memory pressure.
+  */
+-int page_referenced(struct page * page)
++int page_referenced(struct page * page, int * rsslimit)
+ {
++	struct mm_struct * mm;
+ 	struct pte_chain *pc;
+ 	int referenced = 0;
+ 
+@@ -127,10 +129,17 @@
+ 		pte_t *pte = rmap_ptep_map(page->pte.direct);
+ 		if (ptep_test_and_clear_young(pte))
+ 			referenced++;
++
++		mm = ptep_to_mm(pte);
++		if (mm->rss > mm->rlimit_rss)
++			*rsslimit = 1;
+ 		rmap_ptep_unmap(pte);
+ 	} else {
+ 		int nr_chains = 0;
+ 
++		/* We clear it if any task using the page is under its limit. */
++		*rsslimit = 1;
++
+ 		/* Check all the page tables mapping this page. */
+ 		for (pc = page->pte.chain; pc; pc = pte_chain_next(pc)) {
+ 			int i;
+@@ -142,6 +151,10 @@
+ 				p = rmap_ptep_map(pte_paddr);
+ 				if (ptep_test_and_clear_young(p))
+ 					referenced++;
++
++				mm = ptep_to_mm(p);
++				if (mm->rss < mm->rlimit_rss)
++					*rsslimit = 0;
+ 				rmap_ptep_unmap(p);
+ 				nr_chains++;
+ 			}
+===== mm/vmscan.c 1.177 vs edited =====
+--- 1.177/mm/vmscan.c	Mon Jan 19 18:38:07 2004
++++ edited/mm/vmscan.c	Wed Jan 21 14:34:44 2004
+@@ -250,6 +250,7 @@
+ 	LIST_HEAD(ret_pages);
+ 	struct pagevec freed_pvec;
+ 	int pgactivate = 0;
++	int over_rsslimit;
+ 	int ret = 0;
+ 
+ 	cond_resched();
+@@ -278,10 +279,12 @@
+ 			goto keep_locked;
+ 
+ 		pte_chain_lock(page);
+-		referenced = page_referenced(page);
++		referenced = page_referenced(page, &over_rsslimit);
+ 		if (referenced && page_mapping_inuse(page)) {
+ 			/* In active use or really unfreeable.  Activate it. */
+ 			pte_chain_unlock(page);
++			if (over_rsslimit)
++				goto keep_locked;
+ 			goto activate_locked;
+ 		}
+ 
+@@ -597,6 +600,7 @@
+ 	long mapped_ratio;
+ 	long distress;
+ 	long swap_tendency;
++	int over_rsslimit;
+ 
+ 	lru_add_drain();
+ 	pgmoved = 0;
+@@ -657,7 +661,7 @@
+ 		list_del(&page->lru);
+ 		if (page_mapped(page)) {
+ 			pte_chain_lock(page);
+-			if (page_mapped(page) && page_referenced(page)) {
++			if (page_mapped(page) && page_referenced(page, &over_rsslimit) && !over_rsslimit) {
+ 				pte_chain_unlock(page);
+ 				list_add(&page->lru, &l_active);
+ 				continue;
+

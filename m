@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287705AbSASWow>; Sat, 19 Jan 2002 17:44:52 -0500
+	id <S287731AbSASWqm>; Sat, 19 Jan 2002 17:46:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287770AbSASWom>; Sat, 19 Jan 2002 17:44:42 -0500
-Received: from chabotc.xs4all.nl ([213.84.192.197]:2713 "EHLO
-	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S287705AbSASWoD>; Sat, 19 Jan 2002 17:44:03 -0500
-Subject: Re: [OT] Re: AOL in Negotiations to Buy Red Hat?
-From: Chris Chabot <chabotc@reviewboard.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020119223029.GA1690@home.parts-unknown.org>
-In-Reply-To: <Pine.LNX.4.44.0201190032090.8490-100000@localhost.localdomain>
-	 <20020119223029.GA1690@home.parts-unknown.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 19 Jan 2002 23:43:38 +0100
-Message-Id: <1011480218.1391.4.camel@gandbook.chabotc.com>
+	id <S287770AbSASWqX>; Sat, 19 Jan 2002 17:46:23 -0500
+Received: from cj723460-a.alex1.va.home.com ([24.23.56.237]:49032 "EHLO
+	CJ723460-A.alex1.va.home.com") by vger.kernel.org with ESMTP
+	id <S287731AbSASWqU>; Sat, 19 Jan 2002 17:46:20 -0500
+Date: Sat, 19 Jan 2002 17:45:24 -0500
+From: "G . Sumner Hayes" <sumner-kernel@forceovermass.com>
+To: Jussi Laako <jussi.laako@kolumbus.fi>
+Cc: linux-audio-dev@music.columbia.edu, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x, patches and latencies
+Message-ID: <20020119174524.A1387@forceovermass.com>
+In-Reply-To: <3C41849D.72ECBC05@kolumbus.fi> <3C41AC11.4060806@drugphish.ch> <3C41BFF1.6FF714A1@kolumbus.fi> <3C496A67.5237873F@kolumbus.fi>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C496A67.5237873F@kolumbus.fi>; from jussi.laako@kolumbus.fi on Sat, Jan 19, 2002 at 02:45:27PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the main conclusion to be drawn here, is that the reporter who
-covered this news, is a bit clueless when it comes to high-tech
-situations. I remeber reading in the article that "...Sony Corp.'s
-PlayStation 2 video-game console. Linux also runs the Sony product"
-
-Ofoucrce, i think he ment that you can linux on the sony playstation.
-
-Anyways, gues we better get used to those types of proclamations,when
-the millions of aol users start running linux <grin>
-
-
-
-On Sat, 2002-01-19 at 23:30, David Benfell wrote:
-> On Sat, 19 Jan 2002 00:45:36 -0500, Werner Puschitz wrote:
-> > 
-> > http://www.washtech.com/news/media/14759-1.html
-> > 
-> Forgive the mind-numbing question but, it says, "But the AOL software
-> could be configured to override Windows and launch a version of Red
-> Hat's Linux operating system, sources said."
+On Sat, Jan 19, 2002 at 02:45:27PM +0200, Jussi Laako wrote:
+> I made a web page for my kernel patch combinations. Aimed primarily for low
+> latency use.
 > 
-> Now, my idea of overriding Windows is blowing it away, or at least
-> making the system dual-boot.  I'm having trouble reconciling the
-> concepts.  Can anyone shed some light?
+> http://www.pp.song.fi/~visitor/linux/
 > 
-> -- 
-> David Benfell
-> benfell@parts-unknown.org
-> ---
-> There's an old proverb that says just about whatever you want it to.
->                                 [from fortune]
+> Latest 2.4.17-jl11 contains:
+> 
+>  - Andre's ide driver update
+>  - Lionel's SiS ide driver update
+>  - ALi ide fix
+>  - Small AGP fix
+>  - Updated VIA KT133/KT266 fix
+>  - Rik's rmap-11c
+>  - Ingo's sched-O1-J2
+[SNIP]
+> -jl11-ll also contains:
+> 
+>  - full lowlatency patch
+>  - my DRM lowlatency patch
 
+FWIW, I just built this and did a kernel compile+updatedb+xmms
+test.  Normally (Red Hat's  2.4.7), xmms skips like mad under those
+circumstances, with this patch it didn't skip at all.  And system "feel"
+is good.
 
+Not scientific numbers, and maybe not all that useful given the
+huge number of variables in the patch, but I figured I'd throw it
+out here.
+
+Thanks for putting this patch up, Jussi.
+
+  Sumner

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUC2Uwd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 15:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUC2Uwc
+	id S262220AbUC2VAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 16:00:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbUC2VAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 15:52:32 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:63148 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262217AbUC2Uw0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 15:52:26 -0500
-Message-Id: <200403292049.i2TKnvF11443@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Andy Whitcroft'" <apw@shadowen.org>,
-       "'Martin J. Bligh'" <mbligh@aracnet.com>,
-       "'Ray Bryant'" <raybry@sgi.com>, "'Andrew Morton'" <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Cc: <anton@samba.org>, <sds@epoch.ncsc.mil>, <ak@suse.de>,
-       <lse-tech@lists.sourceforge.net>, <linux-ia64@vger.kernel.org>
-Subject: RE: [PATCH] [0/6] HUGETLB memory commitment
-Date: Mon, 29 Mar 2004 12:49:57 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQVkBQZE22XHoMUTr6zcz3m3jTLKAAO2bgQAADg7GA=
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Mon, 29 Mar 2004 16:00:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63427 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262220AbUC2VAL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 16:00:11 -0500
+Subject: Re: older kernels + new glibc?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Lev Lvovsky <lists1@sonous.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
+References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TSlCe1NqzklTvJ7LVWXj"
+Organization: Red Hat, Inc.
+Message-Id: <1080594005.3570.12.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 29 Mar 2004 23:00:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>>> Chen, Kenneth W wrote on Mon, March 29, 2004 12:46 PM
-> overcomit is not checked for hugetlb mmap, is it intentional here?
 
-Just to follow up myself, I meant overcommit accounting is not done
-for mmap hugetlb page.  (typical Monday morning symptom :))
+--=-TSlCe1NqzklTvJ7LVWXj
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-- Ken
 
+> Specifically, a piece of telecom hardware that we use out in the field=20
+> requires a 2.2.x kernel to compile the drivers, however, after choosing=20
+
+you could of course ask/use the source of the driver and port it to
+2.4... that's what open source is about ;)
+
+--=-TSlCe1NqzklTvJ7LVWXj
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAaI5VxULwo51rQBIRAmMHAKCAKsADCCbwYhRr6oUvsDGBXtqXhACgndsF
+HoRbYrbDhPK4APAOAiEKDBY=
+=e1Wr
+-----END PGP SIGNATURE-----
+
+--=-TSlCe1NqzklTvJ7LVWXj--
 

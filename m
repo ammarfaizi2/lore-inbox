@@ -1,64 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285085AbRLFJpp>; Thu, 6 Dec 2001 04:45:45 -0500
+	id <S285087AbRLFJtz>; Thu, 6 Dec 2001 04:49:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285084AbRLFJpg>; Thu, 6 Dec 2001 04:45:36 -0500
-Received: from ns0.dhm-systems.de ([195.126.154.163]:46602 "EHLO
-	ns0.dhm-systems.de") by vger.kernel.org with ESMTP
-	id <S285074AbRLFJpZ> convert rfc822-to-8bit; Thu, 6 Dec 2001 04:45:25 -0500
-Message-ID: <3C0F3E2C.D3B7D3C7@web-systems.net>
-Date: Thu, 06 Dec 2001 10:45:16 +0100
-From: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
-Reply-To: Ado.Arnolds@dhm-systems.de
-Organization: DHM GmbH & Co. KG
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: de, en, fr, ru
+	id <S285074AbRLFJtp>; Thu, 6 Dec 2001 04:49:45 -0500
+Received: from mail.science.uva.nl ([146.50.4.51]:13036 "EHLO
+	mail.science.uva.nl") by vger.kernel.org with ESMTP
+	id <S285078AbRLFJtb>; Thu, 6 Dec 2001 04:49:31 -0500
+X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
+X-URL: http://www.science.uva.nl/
+Date: Thu, 6 Dec 2001 10:43:13 +0100 (CET)
+From: Kamil Iskra <kamil@science.uva.nl>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Andrew Morton <akpm@zip.com.au>, Mark Hahn <hahn@physics.mcmaster.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with APM suspend and ext3
+In-Reply-To: <20011205145901.A11105@redhat.com>
+Message-ID: <Pine.LNX.4.33.0112061013190.10310-100000@krakow.science.uva.nl>
 MIME-Version: 1.0
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16: running *really* short on DMA buffers
-In-Reply-To: <20011205182528.D1831-100000@gerard>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gérard Roudier wrote:
-> 
-> On Wed, 5 Dec 2001, Heinz-Ado Arnolds wrote:
-> 
-> > Hi all,
-> >
-> > I get the message "kernel: Warning - running *really* short on DMA
-> > buffers" frequently with medium to heavy disk i/o (running several
-> > tar and/or moving huge directories).
-...
-> So, they are the allocations internal to the scsi layer that may well
-> exhaust the ISA DMA pool. This pool is divided into 512 bytes chunks.
-> Under heavy reordering of IOs, it can get very fragmented and much memory
-> being wasted as a result.
-> 
-> An immediate solution might be to hack the scsi code for it to allocate
-> more memory.
+On Wed, 5 Dec 2001, Stephen C. Tweedie wrote:
 
-I'm not an experienced kernel hacker. Please help me: would it be right
-to increase the constant 2 in
+> > Yup.  It seems that your BIOS is being asked to suspend all devices
+> > while there is still disk IO being performed.  And it refuses to
+> > suspend because the disk is still active.
+> Yep.  I'd still like to know exactly what the circumstances around
+> this are: just what are the constraints which apm requires us to
+> observe for successful suspend?  I've never had a laptop fail to
+> suspend due to this sort of problem with ext3, so it's obviously
+> different from one apm implementation to the next.
 
-   new_dma_sectors = 2 * SECTORS_PER_PAGE;
-                     ^
-in drivers/scsi/scsi_dma.c, scsi_resize_dma_pool() to 3 or 4 as a first
-solution. Or is there an other place I should start?
+I tried to perform some more experiments yesterday to get some insight,
+but I didn't get much further than before.
 
-> The error string in well known since years, so you shouldn't have missed
-> it from sources. :-)
-Sorry, my stupid fault. For sure, it's in drivers/scsi/scsi_merge.c.
+Basically, the conclussions that I reached are that for a reasonably
+reliable suspend, I either need the filesystem to be mounted as ext2, or I
+need "noatime" option with ext3.  That's with 2.4.16 kernel BTW.  In
+either of the two configurations I don't seem to need to play with "sync"
+or such before attempting a suspend: it mostly "just works".
 
-Thanks for your attention
+I also ran a fairly disk-intensive "find /usr" in another xterm and tried
+to suspend with this process running.  With either of ext2 or
+ext3+noatime, suspend attempts _sometimes_ succeed in this case, with a
+rate of 30-50%, I think. That seems to be consistent with my past
+experience with older Compaq Armada laptops, such as 15xx and 7xxx series.
 
-Ado
+Also, strangely enough, the success rate of suspends is higher if I invoke
+"apm -s" from an xterm than when I do it from a virtual console.  I'm
+talking about identical situations here, same processes running and all,
+with one root session in an xterm and another on the console and just
+switching between them with Alt+Fn.  I made so many tries and reboots that
+I am quite certain that I'm not imagining this one.
+
+With ext3 without noatime, suspend attempts occassionally succeed from
+xterm, and practically never do from the virtual console.  Manually
+invoking "sync" doesn't seem to help.
+
+I've also played with the configuration of syslogd, putting a '-' in front
+of all file/device fields so as to prevent a sync, and with hdparm,
+turning off various optimisations such as 32-bit I/O, DMA and more.
+These changes didn't seem to matter.
+
+I'm always willing to try some patches or other ideas which would allow a
+seemless work of ext3 on my laptop.  For the time being, I will probably
+settle for ext3+noatime.  The latter is not a stupid thing anyway if you
+ever want your harddisk to spin down.
+
+Regards,
 
 -- 
-------------------------------------------------------------------------
-  Heinz-Ado Arnolds                        Ado.Arnolds@web-systems.net
-  Websystems GmbH                              +49 2234 1840-0 (voice)
-  Max-Planck-Strasse 2, 50858 Koeln, Germany   +49 2234 1840-40  (fax)
+Kamil Iskra                 http://www.science.uva.nl/~kamil/
+Section Computational Science, Faculty of Science, Universiteit van Amsterdam
+kamil@science.uva.nl  tel. +31 20 525 75 35  fax. +31 20 525 74 90
+Kruislaan 403  room F.202  1098 SJ Amsterdam  The Netherlands
+

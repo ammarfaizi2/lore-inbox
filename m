@@ -1,64 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266886AbUAXI1C (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 03:27:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUAXI1C
+	id S266892AbUAXIjx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 03:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266893AbUAXIjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 03:27:02 -0500
-Received: from nms.rz.uni-kiel.de ([134.245.1.2]:34810 "EHLO uni-kiel.de")
-	by vger.kernel.org with ESMTP id S266886AbUAXI0y (ORCPT
+	Sat, 24 Jan 2004 03:39:53 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:4224 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S266892AbUAXIju (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 03:26:54 -0500
-From: Mike Gabriel <mgabriel@ecology.uni-kiel.de>
-Reply-To: mgabriel@ecology.uni-kiel.de
-Organization: OEZK, CAU Kiel
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: vt6410 in kernel 2.6
-Date: Sat, 24 Jan 2004 09:25:39 +0100
-User-Agent: KMail/1.5.4
-References: <200401222238.09157.mgabriel@ecology.uni-kiel.de> <200401240047.19261.mgabriel@ecology.uni-kiel.de> <4011B4C8.50908@pobox.com>
-In-Reply-To: <4011B4C8.50908@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Sat, 24 Jan 2004 03:39:50 -0500
+Date: Sat, 24 Jan 2004 09:39:58 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "P. Christeas" <p_christ@hol.gr>
+Cc: lkml <linux-kernel@vger.kernel.org>, omnibook@zurich.csail.mit.edu
+Subject: Re: Solved: atkbd w 2.6.2rc1 : HowTo for extra (inet) keys ?
+Message-ID: <20040124083958.GA445@ucw.cz>
+References: <200401232204.27819.p_christ@hol.gr> <20040123210953.GA12647@ucw.cz> <200401240428.30493.p_christ@hol.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401240925.39986.mgabriel@ecology.uni-kiel.de>
+In-Reply-To: <200401240428.30493.p_christ@hol.gr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi jeff,
+On Sat, Jan 24, 2004 at 04:28:30AM +0200, P. Christeas wrote:
+> After spending my evening on it :-(  I managed to find the correct keys for 
+> the Omnibook XE3: 
+> (I could only reverse-engineer the previous hack I 've had for it)
+> Download and hack the 'console-tools' package (from sourceforge, project 
+> "lct") so that 'setkeycodes' does accept keycodes >127.
+> 
+> Vojtech, is 512 the upper bound for <keycode> at setkeycodes?
+> 
+> Using 2.6.2-rc1, issue:
+> setkeycodes e071 236
+> setkeycodes e072 237
+> setkeycodes e073 238
+> setkeycodes e074 239
+> 
+>  so that the upper (near the screen) row of "internet" buttons is assigned to 
+> the keys X expect to receive.
+> e071 etc. can be found using 'showkey -s'
+> I still don't get where 236 came from (so that I could help other kbds, as 
+> well).
 
-> >>>is there any chance of upcoming support for the vt6410 ide/raid chipset
-> >>>in the 2.6.x kernel? there has been an attempt by via itself, but it
-> >>> only suits redhat 7.2 kernels and systems, thus it is highly specific.
-> >>> is there any1 who is working on that?
->
-> CONFIG_BLK_DEV_GENERIC or CONFIG_SCSI_SATA_VIA should do it.
->
+The almost right solution here would be to write an xkb keyboard
+description that matches the 2.6 keycode->scancode mappings, so that
+once you get the 'setkeycodes' command right, both the kernel and X will
+understand the keys correctly.
 
-oh, i thought these options were for SATA only. what i need is the ide-part of 
-the controller. is this support by these options, as well? i will try as soon 
-as possible. i use a debian-backports kernel which for now always kills the 
-system during kernel-image-boot. as i use the board in one of our servers, i 
-cannot really fiddle around with it to much. thanks for your info.
+With your approach you got the keys correct solely in X, not the kernel.
 
-mike gabriel
+I'll take a look at this.
+
+The completely right approach would be to teach X to either use the
+event interface or at least the medium raw mode.
+
+> > On Fri, Jan 23, 2004 at 10:04:27PM +0200, P. Christeas wrote:
+> > > Hello again.
+> > > I just reverted my atkbd.c code to your version (Linus's tree) and
+> > > unfortunately have 4 keys 'missing' from my HP Omnibook XE3GC extra
+> > > "internet keys".
+> > > Question 1: Can I fix the table from userland, using some utility? That
+> > > is, can I upload an updated table into the kernel, so that I don't have
+> > > to reboot?
+> >
+> > 'setkeycodes' can do that.
+> >
+> > > Q 2: Do you have any HowTo/QA for that?
+> >
+> > Not yet, but I'll have to write one.
+> >
+> > > Q 3: Will that work under X? (which AFAIK reads the 'raw' codes)
+> >
+> > X needs to be set up as well. In 2.6, X doesn't get real raw codes but
+> > instead simulated raw codes generated by the kernel.
+> >
+> > > Q 4: It has been rather difficult for me to compute the scancodes needed
+> > > for the table. Could you put the "formula" onto the HowTo?
+> > >
+> > > FYI, the codes are:
+> > > "www": Unknown key pressed (translated set 2, code 0xf3 on
+> > > isa0060/serio0). "Mail":  Unknown key pressed (translated set 2, code
+> > > 0xf4 on isa0060/serio0). "Launch": Unknown key pressed (translated set 2,
+> > > code 0xf2 on isa0060/serio0). "Help":  Unknown key pressed (translated
+> > > set 2, code 0xf1 on isa0060/serio0).
+> >
+> > The formula for setkeycodes is:
+> >
+> > if (code > 0x100)
+> > 	you're out of luck, setkeycodes doesn't handle this yet;
+> > else if (code > 0x80)
+> > 	result = code - 0x80 + 0xe000;
+> > else
+> > 	result = code;
+> >
+> > And then you use 'setkeycodes result keycode',
+> >
+> > where keycode you find in include/linux/input.h.
 
 -- 
-
-netzwerkteam - oekologiezentrum
-Mike Gabriel
-FA Geobotanik
-Christian-Albrecht Universit‰t zu Kiel
-Abt. Prof. Dr. K. Dierﬂen
-Olshausenstr. 75
-24118 kiel
-
-fon-oezk: +49 431 880 1186
-fon-home: +49 431 64 74 196
-
-mail: mgabriel@ecology.uni-kiel.de
-http://www.ecology.uni-kiel.de
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272091AbRHVTTa>; Wed, 22 Aug 2001 15:19:30 -0400
+	id <S272088AbRHVTTb>; Wed, 22 Aug 2001 15:19:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272088AbRHVTTK>; Wed, 22 Aug 2001 15:19:10 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:63749 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S272091AbRHVTTE>;
-	Wed, 22 Aug 2001 15:19:04 -0400
-Date: Wed, 22 Aug 2001 21:18:49 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, phillips@bonn-fries.net
-Subject: Re: Memory Problem in 2.4.9 ?
-Message-Id: <20010822211849.14a4481a.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.33.0108221752590.542-100000@mikeg.weiden.de>
-In-Reply-To: <20010822130106.0c4d4bf1.skraw@ithnet.com>
-	<Pine.LNX.4.33.0108221752590.542-100000@mikeg.weiden.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S272092AbRHVTTK>; Wed, 22 Aug 2001 15:19:10 -0400
+Received: from smtp-rt-7.wanadoo.fr ([193.252.19.161]:19119 "EHLO
+	embelia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S272088AbRHVTTF>; Wed, 22 Aug 2001 15:19:05 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Kent Borg <kentborg@borg.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: State of PPC in kernel.org Sources?
+Date: Wed, 22 Aug 2001 22:17:47 +0200
+Message-Id: <20010822201747.12864@smtp.wanadoo.fr>
+In-Reply-To: <20010822094440.B11350@borg.org>
+In-Reply-To: <20010822094440.B11350@borg.org>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001 19:22:35 +0200 (CEST)
-Mike Galbraith <mikeg@wen-online.de> wrote:
+>What is the state of Power PC support in Linus' kernels?  What about
+>in -ac kernels?  
+>
+>I have noticed some recent PPC work in summaries of recent -ac kernels
+>and wonder how intact it is.  Are they merges to keep PPC forks from
+>drifting too far?  Are they merges to make furture back-ports from
+>kernel.org to PPC forks easier?  Are they actually complete in and of
+>themselves but lagging PPC forks?  (What about 405 support?  I think I
+>see evidence of recent 405 activity in 2.4.8-ac4...)
 
-> When page is added to to the pagecache, it begins life with age=0 and
-> is placed on the inactive_dirty list with use_once.  With the original
-> aging, it started with PAGE_AGE_START and was placed on the active
-> list.  The intent of used once (correct me Daniel if I fsck up.. haven't
-> been able to track vm changes very thoroughly lately [as you can see:])
-> is to place a new page in the line of fire of page reclamation and only
-> pull it into the active aging scheme if it is referenced again prior to
-> consumption.  This is intended to preserve other cached pages in the event
-> of streaming IO.  Your cache won't be demolished as quickly, the pages
-> which are only used one time will self destruct instead.  Cool idea.
+There are no "PPC forks" ;) There is a PPC kernel tree on which
+the work is done to merge all sources of PPC stuffs (embedded,
+macs, other desktops, IBM high end...) and which is always in sync
+with the latest Linus tree (well, it can be a few days off ;)
 
-Well, maybe I am completely off the road, but the primary problem seems to be that a whole lot of the pages _look_ like being of the same age, and the algorithm cannot cope with that very well. There is obviously no way out of this problem for the code, and thats basically why it fails to alloc pages with this warning message. So the primary goal should be to refine the algorithm and give it a way to _know_ a way out, and not to _guess_ ("maybe we got some free pages later") or _give up_ on the problem. How about the following (ridiculously simple) approach:
-every alloc'ed page gets a "timestamp". If an alloc-request reaches the current "dead point" it simply throws out the oldest x pages of the lowest aging level reachable. This is sort of a garbage-collection idea. It sounds not very fast indeed, but it sounds working, does it?
-Best of all, very few changes have to be made to make it work.
+It's itself divided into a linuxppc_2_4 tree which contains
+stable things that are in the process of beeing commited to the
+main (Linus) tree, and linuxppc_2_4_devel which contains work
+in progress stuffs (like new boards support, or whatever hacking
+we PPC hackers that is more than fixing bugs).
 
-Shoot me for this :-)
+This get regulary merged from _2_4_devel to _2_4 when they have
+been tested enough. At that point, Paul Mackerras usually send
+patches to Linus.
 
-Regards, Stephan
+>I would love a short descreiption of the shape of this stuff.  What
+>work happens where and how and when it moves elsewhere would be great
+>to understand.  
 
-PS: timestamp could be a simple static int, that is counted up on every successful alloc. Obviously page needs an additional struct member.
+Well, we have recently merged a bunch of new things from our "devel"
+tree down to _2_4. When Linus is back, we'll bomb him with patches
+to get his tree up-to-date.
+
+The "embedded" support may be a little bit behind in _2_4 right now,
+Dan Malek (Montavista) have updated  _2_4_devel recently with a
+bunch of 4xx & 8xx updates, I can't tell for sure how stable they
+are and when they may end up beeing in _2_4 or Linus tree. All I
+can tell is that the current _2_4_devel on a 405GP board I'm working
+on doesn't quite work yet (but is close to).
+
+I'd suggest that until that's fixed, you stick to whatever kernel
+you have (I beleive the previous 405GP port from Montavista, which
+was a 2.4.2 base). 
+
+Once it's fully merged in _2_4_devel, it will stay up-to-date
+hopefully.
+
+Finally, for more infos about those linuxppc_2_4 and linuxppc_2_4_devel,
+or any other useful informations about linux on PPC, go
+look at www.penguinppc.org ;)
+
+Regards,
+Ben.
+
+
+Ben.
+
+

@@ -1,76 +1,213 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268964AbTGJGUt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 02:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268965AbTGJGUt
+	id S268941AbTGJGn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 02:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268960AbTGJGn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 02:20:49 -0400
-Received: from pdbn-d9bb87fd.pool.mediaWays.net ([217.187.135.253]:33291 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S268964AbTGJGUs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 02:20:48 -0400
-Date: Thu, 10 Jul 2003 08:35:16 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Milan Roubal <roubm9am@barbora.ms.mff.cuni.cz>
-Cc: linux-kernel@vger.kernel.org, mru@users.sourceforge.net
-Subject: Re: Promise SATA 150 TX2 plus
-Message-ID: <20030710063516.GA3357@citd.de>
-References: <Pine.LNX.4.53.0307091413030.683@mx.homelinux.com> <027901c3461e$e023c670$401a71c3@izidor> <yw1xadbnx017.fsf@users.sourceforge.net> <02ff01c34642$5512d7f0$401a71c3@izidor> <20030709175827.GA412@citd.de> <03ab01c34677$225d53a0$401a71c3@izidor>
+	Thu, 10 Jul 2003 02:43:28 -0400
+Received: from a3hr6fay45cl.bc.hsia.telus.net ([216.232.206.119]:65298 "EHLO
+	cyclops.implode.net") by vger.kernel.org with ESMTP id S268941AbTGJGnX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 02:43:23 -0400
+Date: Wed, 9 Jul 2003 23:58:01 -0700
+From: John Wong <kernel@implode.net>
+To: linux-kernel@vger.kernel.org
+Subject: USB stops working with any of 2.4.22-pre's after 2.4.21
+Message-ID: <20030710065801.GA351@gambit.implode.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <03ab01c34677$225d53a0$401a71c3@izidor>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 02:06:38AM +0200, Milan Roubal wrote:
-> Wow, how is the performance of this cards? HPT PATA controllers
-> was always bad in performance and if it has got SATA to PATA converter,
-> I can't imagine how fast/slow it could be.
+On any of the 2.4.22-pre's, after a bit of time, my USB mouse stops
+responding.  It is using the usb-ohci driver.  2.4.22-pre1 included the
+new ACPI base.  Even before this ACPI was merged into mainstream, I had
+tried patching the system with the newer ACPI on 2.4.21-pre, and rc's
+and I also ran into the same problem that I am now getting with
+2.4.22-pre's.  I'm suspecting the new ACPI is behind this.  Stopping gpm
+and removing usb-ohci and then reloading it doesn't seem to get it
+working again.  A reboot does the trick.  Strange though is that the one 
+USB 2.0 device I have plugged in still continues to work (at least for a 
+while as I normally reboot when the problem arises) when I start having 
+the problems with USB mouse.  But then, it uses the ehci-hcd driver.
 
-For me performance is good.
+Some hardware info.  I'm using a nForce2 board with an ATI Radeon video
+card.
 
-I don't use it in a RAID configuration but with 4 seperate WD 100GB
-HDDs.
+Jul  9 23:39:29 gambit kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jul  9 23:39:29 gambit kernel: eth0: transmit timed out, tx_status 00
+status e601.
+Jul  9 23:39:29 gambit kernel:   diagnostics: net 0cc0 media 8080 dma
+0000003a.
+Jul  9 23:39:29 gambit kernel: eth0: Interrupt posted but not delivered
+-- IRQ blocked by another device?
+Jul  9 23:39:29 gambit kernel:   Flags; bus-master 1, dirty 5538(2)
+current 5538(2)
+Jul  9 23:39:29 gambit kernel:   Transmit list 00000000 vs. f7c40280.
+Jul  9 23:39:29 gambit kernel:   0: @f7c40200  length 80000036 status
+80010036
+Jul  9 23:39:29 gambit kernel:   1: @f7c40240  length 80000036 status
+80010036
+Jul  9 23:39:29 gambit kernel:   2: @f7c40280  length 80000042 status
+00010042
+Jul  9 23:39:29 gambit kernel:   3: @f7c402c0  length 8000004a status
+0001004a
+Jul  9 23:39:29 gambit kernel:   4: @f7c40300  length 800005ea status
+000105ea
+Jul  9 23:39:29 gambit kernel:   5: @f7c40340  length 800001be status
+000101be
+Jul  9 23:39:29 gambit kernel:   6: @f7c40380  length 800005ea status
+000105ea
+Jul  9 23:39:29 gambit kernel:   7: @f7c403c0  length 800001be status
+000101be
+Jul  9 23:39:29 gambit kernel:   8: @f7c40400  length 800001be status
+000101be
+Jul  9 23:39:29 gambit kernel:   9: @f7c40440  length 800005ea status
+000105ea
+Jul  9 23:39:29 gambit kernel:   10: @f7c40480  length 8000004a status
+0001004a
+Jul  9 23:39:29 gambit kernel:   11: @f7c404c0  length 80000187 status
+00010187
+Jul  9 23:39:29 gambit kernel:   12: @f7c40500  length 8000004a status
+0001004a
+Jul  9 23:39:29 gambit kernel:   13: @f7c40540  length 80000042 status
+00010042
+Jul  9 23:39:29 gambit kernel:   14: @f7c40580  length 8000004a status
+0001004a
+Jul  9 23:39:29 gambit kernel:   15: @f7c405c0  length 8000004a status
+0001004a
+Jul  9 23:39:29 gambit kernel: eth0: Resetting the Tx ring pointer.
+Jul  9 23:39:44 gambit kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jul  9 23:39:44 gambit kernel: eth0: transmit timed out, tx_status 00
+status e601.
+Jul  9 23:39:44 gambit kernel:   diagnostics: net 0cc0 media 8080 dma
+0000003a.
+Jul  9 23:39:44 gambit kernel: eth0: Interrupt posted but not delivered
+-- IRQ blocked by another device?
+Jul  9 23:39:44 gambit kernel:   Flags; bus-master 1, dirty 5554(2)
+current 5554(2)
+Jul  9 23:39:44 gambit kernel:   Transmit list 00000000 vs. f7c40280.
+Jul  9 23:39:44 gambit kernel:   0: @f7c40200  length 80000036 status
+80010036
+Jul  9 23:39:44 gambit kernel:   1: @f7c40240  length 80000036 status
+80010036
+Jul  9 23:39:44 gambit kernel:   2: @f7c40280  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   3: @f7c402c0  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   4: @f7c40300  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   5: @f7c40340  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   6: @f7c40380  length 80000042 status
+00010042
+Jul  9 23:39:44 gambit kernel:   7: @f7c403c0  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   8: @f7c40400  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   9: @f7c40440  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   10: @f7c40480  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   11: @f7c404c0  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   12: @f7c40500  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   13: @f7c40540  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   14: @f7c40580  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel:   15: @f7c405c0  length 80000036 status
+00010036
+Jul  9 23:39:44 gambit kernel: eth0: Resetting the Tx ring pointer.
+Jul  9 23:39:51 gambit kernel: usb-ohci.c: unlink URB timeout
+Jul  9 23:39:54 gambit kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jul  9 23:39:54 gambit kernel: eth0: transmit timed out, tx_status 00
+status e601.
+Jul  9 23:39:54 gambit kernel:   diagnostics: net 0cc0 media 8080 dma
+0000003a.
+Jul  9 23:39:54 gambit kernel: eth0: Interrupt posted but not delivered
+-- IRQ blocked by another device?
+Jul  9 23:39:54 gambit kernel:   Flags; bus-master 1, dirty 5570(2)
+current 5570(2)
+Jul  9 23:39:54 gambit kernel:   Transmit list 00000000 vs. f7c40280.
+Jul  9 23:39:54 gambit kernel:   0: @f7c40200  length 80000078 status
+80010078
+Jul  9 23:39:54 gambit kernel:   1: @f7c40240  length 80000036 status
+80010036
+Jul  9 23:39:54 gambit kernel:   2: @f7c40280  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   3: @f7c402c0  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   4: @f7c40300  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   5: @f7c40340  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   6: @f7c40380  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   7: @f7c403c0  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   8: @f7c40400  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   9: @f7c40440  length 80000078 status
+00010078
+Jul  9 23:39:54 gambit kernel:   10: @f7c40480  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   11: @f7c404c0  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   12: @f7c40500  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   13: @f7c40540  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel:   15: @f7c405c0  length 80000036 status
+00010036
+Jul  9 23:39:54 gambit kernel: eth0: Resetting the Tx ring pointer.
+Jul  9 23:40:04 gambit kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jul  9 23:40:04 gambit kernel: eth0: transmit timed out, tx_status 00
+status e601.
+Jul  9 23:40:04 gambit kernel:   diagnostics: net 0cc0 media 8080 dma
+0000003a.
+Jul  9 23:40:04 gambit kernel: eth0: Interrupt posted but not delivered
+-- IRQ blocked by another device?
+Jul  9 23:40:04 gambit kernel:   Flags; bus-master 1, dirty 5586(2)
+current 5586(2)
+Jul  9 23:40:04 gambit kernel:   Transmit list 00000000 vs. f7c40280.
+Jul  9 23:40:04 gambit kernel:   0: @f7c40200  length 80000036 status
+80010036
+Jul  9 23:40:04 gambit kernel:   1: @f7c40240  length 80000036 status
+80010036
+Jul  9 23:40:04 gambit kernel:   2: @f7c40280  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   3: @f7c402c0  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   4: @f7c40300  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   5: @f7c40340  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   6: @f7c40380  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   7: @f7c403c0  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   8: @f7c40400  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   9: @f7c40440  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   10: @f7c40480  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   11: @f7c404c0  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   12: @f7c40500  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   13: @f7c40540  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   14: @f7c40580  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel:   15: @f7c405c0  length 80000036 status
+00010036
+Jul  9 23:40:04 gambit kernel: eth0: Resetting the Tx ring pointer.
 
-Linear througput is 40MB/s (=maximum of this HDD). And when i copy a
-file from one of the HDDs to another, the total thoughput is 70MB/s.
+I am not subscribed to LKML, but I do check the archives regularly.
 
-I used the same HDDs with a Promise Ultra 100 TX2 before and the
-throughput is a bit (i'd say about 5%) better now.
-
-MB: Tyan Thunder HE-SL (Serverworks HE-SL Chipset)
-CPU: 2xPIII 933Mhz
-The Highpoint is the only connected device to the 66MHz PCI-Bus.
-
-> > On Wed, Jul 09, 2003 at 04:51:13PM +0200, Milan Roubal wrote:
-> > > So other question - is there SATA controler that
-> > > is working in linux multiple controlers (4 cards)
-> > > and is for better bus than standart PCI? Like PCI-X or
-> > > PCI 66 MHz like promise is?
-> > 
-> > Highpoint RocketRAID 1540 or 1542.
-> > (www.highpoint-tech.com)
-> > 
-> > OK, it's not native SATA but a PATA with converters, but at least for me
-> > that a none-issue.
-> > 
-> > 
-> > 
-> > 
-> > Bis denn
-
--- 
-
-
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
-
+John

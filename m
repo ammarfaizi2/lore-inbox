@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136410AbRAGSlv>; Sun, 7 Jan 2001 13:41:51 -0500
+	id <S129774AbRAGSvc>; Sun, 7 Jan 2001 13:51:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136458AbRAGSln>; Sun, 7 Jan 2001 13:41:43 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:26121 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S136457AbRAGSlf>;
-	Sun, 7 Jan 2001 13:41:35 -0500
-Date: Sun, 7 Jan 2001 10:39:05 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, pcmcia-cs-devel@lists.sourceforge.net,
-        linux-usb-devel@lists.sourceforge.net,
-        linux1394-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org
-Subject: [ANNOUNCE] Linux Hotplug Developers Mailing List Created
-Message-ID: <20010107103905.A11253@kroah.com>
-Mime-Version: 1.0
+	id <S129994AbRAGSvX>; Sun, 7 Jan 2001 13:51:23 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:63757 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S129774AbRAGSvP>;
+	Sun, 7 Jan 2001 13:51:15 -0500
+Message-ID: <3A58C97B.A3C5676B@candelatech.com>
+Date: Sun, 07 Jan 2001 12:54:35 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jamal <hadi@cyberus.ca>
+CC: "David S. Miller" <davem@redhat.com>, ak@suse.de,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumissionpolicy!)
+In-Reply-To: <Pine.GSO.4.30.0101071026070.18916-100000@shell.cyberus.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.2.16-immunix (i586)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+jamal wrote:
 
-With the release of the 2.4.0 kernel, there was a bit of confusion over
-a last minute patch that made it in, which effected the modutils program
-and the USB drivers hotplug ability.  Realizing that this problem
-shouldn't have happened with better communication between developers of
-different parts of the kernel, and the fact that Linux hotplug
-properties effect many different parts of the kernel, we have created a
-new mailing list.
+> So instead of depending what ifconfig does, maybe a better test for Ben is
+> to measure the kernel level improvement in the lookup for example from
+> 2..6000 devices.
 
-This list is for any developers interested in any aspects of the Linux
-kernel hotplug ability and functionality.  This would include (but is
-not restricted to) USB, PCMCIA, SCSI, Firewire, and probably PCI
-developers.
+In the benchmark I gave, the performance increase was in the kernel,
+not user space, and it was more than 10 times faster, at least with 4k
+VLANs.  Adding VLANs was about twice as fast, and deleting them was
+faster, though not as much.
 
-Information on joining the list can be found at:
-	http://lists.sourceforge.net/lists/listinfo/linux-hotplug-devel
+ Tests with the user space tools will also help. example
+> to add to Andi's flavor:
+> "date; time ifconfig -a; date" for each number of devices.
+> repeat for ip as well ;->
 
-There is an initial SourceForge site set up at:
-	http://sourceforge.net/projects/linux-hotplug/
-but it is only currently holding the mailing list.  In the future this
-will hold more content.  If anyone wants to be listed as a developer on
-this project, please let me know.
+I can show a range w/out much trouble.  I think I'll also tweak
+the hash code to just do linear lookups if the number of interfaces
+is below some number, (probably 20, or whatever the numbers show
+is good...)
 
-If anyone knows of any other mailing lists this should be announced on,
-please feel free to forward it.
-
-thanks,
-
-greg k-h
+Ben
 
 -- 
-greg@(kroah|wirex).com
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

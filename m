@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbTKOBGN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 20:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264325AbTKOBGN
+	id S261188AbTKOBtW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 20:49:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTKOBtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 20:06:13 -0500
-Received: from pop.gmx.net ([213.165.64.20]:58540 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262714AbTKOBGK (ORCPT
+	Fri, 14 Nov 2003 20:49:21 -0500
+Received: from uirapuru.fua.br ([200.129.163.1]:37601 "EHLO uirapuru.fua.br")
+	by vger.kernel.org with ESMTP id S261188AbTKOBtU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 20:06:10 -0500
-X-Authenticated: #15936885
-Message-ID: <3FB57C00.4080205@gmx.net>
-Date: Sat, 15 Nov 2003 02:06:08 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
-X-Accept-Language: de, en
+	Fri, 14 Nov 2003 20:49:20 -0500
+Message-ID: <3093.200.208.225.32.1068857385.squirrel@webmail.ufam.edu.br>
+Date: Fri, 14 Nov 2003 22:49:45 -0200 (BRST)
+Subject: 
+From: edjard@ufam.edu.br
+To: linux-kernel@vger.kernel.org
+Cc: Mauricio.Lin@indt.org.br, Allan.Bezerra@indt.org.br,
+       mauriciolin@bol.com.br, ajsb@dcc.fua.br
+User-Agent: SquirrelMail/1.4.1
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: kernel.bkbits.net off the air
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry,
+Hello All,
 
-regarding rsync from bkbits.net to kernel.org, would it be possible to do
-that with a post-incoming trigger in kernel.bkbits.net which starts rsync
-to kernel.org? That should solve all atomicity requirements, at least on
-the way from bkbits.net to kernel.org.
-Same way for the CVS tree. Since you are starting the conversion (I assume
-it's at least half automated), you could also add a call to rsync at the
-end of that script.
-Using rsync over ssh with pubkey authentication should be pretty
-straightforward and also mostly secure, since no incoming connections to
-bkbits.net are needed. The only thing listening to network connections
-would be bkd.
+We have tried to find out answer to our questions at the kernelnewbies
+list, but after many mails we had no conclusive opinion. Does any one
+here have n idea on how to solve it?
 
-Comments on the (in)feasibility of my suggestion are welcome.
+The hacking challenge is:
+We are looking for a structure or variables that represent the size
+of heap, stack, code and data in physical memory. We found some
+structures on kernel source 2.6 like mm_struct and vm_area_struct,
+but these structures give the size of process (stack,code, data, heap
+separately) allocated in virtual memory. The only information we
+found about physical memory is rss, but this variable does not provide
+the size of stack, code, data, heap separately.
 
+The pmap of Linux doesn't provide these data also since it is
+actually inside /proc.
 
-Carl-Daniel
-(happy bk user)
+We think the only way to get this information is through the way
+the page table sets the page resident flag and use some variables
+to calculate the size of such elements (stack, code, data, heap)
+allocated in physical memory. But the implementation of page
+table is not trivial, the same for pgd, pmd and pte.
+
+We'd like to know if it is possible to calculate the size of these
+elements without losing the OS performance?
+
+Is there any better solution to do that?
+
+Edjard
+
 

@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261678AbSK0EXh>; Tue, 26 Nov 2002 23:23:37 -0500
+	id <S261550AbSK0Efp>; Tue, 26 Nov 2002 23:35:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261693AbSK0EXh>; Tue, 26 Nov 2002 23:23:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3850 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261678AbSK0EXh>; Tue, 26 Nov 2002 23:23:37 -0500
-Message-ID: <3DE44A78.9070602@zytor.com>
-Date: Tue, 26 Nov 2002 20:30:48 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Dike <jdike@karaya.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: uml-patch-2.5.49-1
-References: <200211270406.XAA04379@ccure.karaya.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261568AbSK0Efp>; Tue, 26 Nov 2002 23:35:45 -0500
+Received: from nakyup.mizi.com ([203.239.30.70]:46745 "EHLO nakyup.mizi.com")
+	by vger.kernel.org with ESMTP id <S261550AbSK0Efo>;
+	Tue, 26 Nov 2002 23:35:44 -0500
+Date: Wed, 27 Nov 2002 13:35:32 +0900
+From: Young-Ho Cha <ganadist@nakyup.mizi.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.49 module problem
+Message-ID: <20021127043532.GA25666@nakyup.mizi.com>
+References: <20021126193026.Q14666-100000@sorrow.ashke.com> <1038362008.2594.112.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+In-Reply-To: <1038362008.2594.112.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
-> hpa@zytor.com said:
-> 
->>Access control, ability to work in a chroot, ...
-> 
-> 
-> Point.
-> 
-> 
->>For major/minor, this is presumably a misc device (major 10) or, if
->>you don't need module support, a kernel core device (major 1), and
->>write to device@lanana.org to have a minor number assigned. 
-> 
-> 
-> If you think that this would be better as a misc device than a proc entry,
-> then I can certainly go along with that.
-> 
 
-Absolutely.  I think /proc is heavily overused as a really bad devfs.
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	-hpa
+On Wed, Nov 27, 2002 at 01:53:28AM +0000, Alan Cox wrote:
+> On Wed, 2002-11-27 at 00:40, Adam K Kirchhoff wrote:
+> > 
+> > Hello all.
+> > 
+> > Sorry to bother everyone with what is probably a stupid user error, but in
+> > case it's not I thought I should post my problem to the list.
+> > 
+> > I recently upgraded my motherboard to one with an ICH4 IDE controller.
+> > Since it's not supported in 2.4.*, yet, I decided now would be a good time
+> 
+> 2.4.20-rc4 should handle your ICH4 fine
+> 
+> 2.5.49 needs new very different module tools
+> 
+I use rusty's module init tools with modutils 2.4.22.
 
+But many modules cannot load.
 
+attach some list of modules that kernel cannot load.
 
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="test.log"
+
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/ac97_codec.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/core.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/exportfs.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/g450_pll.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/gameport.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/matroxfb_DAC1064.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/matroxfb_Ti3026.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/matroxfb_accel.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/matroxfb_g450.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/matroxfb_misc.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/mii.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/p8022.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/sb_lib.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/snd-seq-midi-event.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/uart6850.o: Invalid argument
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/usbvideo.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/v4l2-common.o: Invalid module format
+FATAL: Error inserting /lib/modules/2.5.49-ac2/kernel/video-buf.o: Invalid module format
+
+--PEIAKu/WMn1b1Hv9--

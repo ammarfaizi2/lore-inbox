@@ -1,87 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268076AbUBRUyF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268077AbUBRUyF
+	id S267537AbUBRRY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 12:24:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267618AbUBRRY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:54:05 -0500
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:6671 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S268076AbUBRUx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:53:59 -0500
-Date: Wed, 18 Feb 2004 21:54:53 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.3 fails to compile (new radeonfb+i2c)
-Message-Id: <20040218215453.1f721a28.khali@linux-fr.org>
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 18 Feb 2004 12:24:56 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60105
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S267537AbUBRRYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 12:24:52 -0500
+Date: Wed, 18 Feb 2004 18:24:46 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: module unload deadlock
+Message-ID: <20040218172446.GD4478@dualathlon.random>
+References: <20040217172646.GT4478@dualathlon.random> <20040218041527.052222C510@lists.samba.org> <20040218043555.GY8858@parcelfarce.linux.theplanet.co.uk> <20040218154040.GZ4478@dualathlon.random> <20040218164659.GA31035@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040218164659.GA31035@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please CC: me on replies.]
+On Wed, Feb 18, 2004 at 04:46:59PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Wed, Feb 18, 2004 at 04:40:41PM +0100, Andrea Arcangeli wrote:
+> > On Wed, Feb 18, 2004 at 04:35:55AM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > It's clear this could be fixed by making sure parport won't call
+> > request_module from cleanup_module, the primary reason I fixed it in the
+> > module code is that I don't know if other drivers are doing this, do
+> > you? What parport did was legitimate, and it was working fine in the
+> > past, sure the parport code could be made slightly more complex and
+> > aware about the fact it doesn't worth to try loading the lowlevel module
+> > in cleanup_exit, but it wasn't obviously wrong, the cleanup/init module
+> > are slow paths, it didn't matter if parport tried to load a lowlevel
+> > module there.
+> 
+> Sigh...
+> 
+> No, it wasn't legitimate.  As the matter of fact, _nothing_ outside of
+> parport/share.c has any business looking at the list of ports.  IOW,
+> parport_enumerate() should be removed regardless of the request_module()
+> crap.
+> 
+> In particular, parport_pc should keep track of the ports it had created
+> instead of messing with parport_enumerate().
 
-Zippel, Linus,
+The one you propose (of parport_pc keeping track of the ports by itself)
+is a different model, currently it's the highlevel that keeps track of
+the ports and each lowlevel registers the lowlevel ports in the
+highlevel list of ports. It doesn't mean the current model is wrong. You
+may not like it and you may find it less efficient, or less clean, or
+whatever, but the current model is definitely legitimate (the parport
+code has the troubles you found in the sharing code locking, but this
+registration model you're complaining about now is legitimate instead).
 
-Your recent changes to the way the dependencies between new radeonfb and
-i2c-algo-bit (changesets 1.1557.2.89 and 1.1557.2.90) are handled don't
-seem to work as intended. I was able to obtain a configuration file such
-that the 2.6.3 kernel wouldn't compile. Interesting parts:
-
-#
-# Graphics support
-#
-CONFIG_FB=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_RADEON_OLD is not set
-CONFIG_FB_RADEON=y
-CONFIG_FB_RADEON_I2C=y
-CONFIG_FB_RADEON_DEBUG=y
-
-#
-# I2C support
-#
-CONFIG_I2C=m
-CONFIG_I2C_CHARDEV=m
-
-#
-# I2C Algorithms
-#
-CONFIG_I2C_ALGOBIT=y
-
-As you can see, we have i2c-algo-bit into the kernel, but i2c-core as a
-module. This cannot possibly work.
-
-How to reproduce:
-First select I2C=m and I2C_ALGOBIT=m. Then select FB_RADEON=y and
-CONFIG_FB_RADEON_I2C=y. Save and try to compile.
-
-Result:
-drivers/built-in.o: In function `radeon_setup_i2c_bus':
-drivers/built-in.o(.text+0x68e40): undefined reference to `i2c_bit_add_bus'
-drivers/built-in.o: In function `radeon_delete_i2c_busses':
-drivers/built-in.o(.text+0x68f26): undefined reference to `i2c_bit_del_bus'
-drivers/built-in.o(.text+0x68f48): undefined reference to `i2c_bit_del_bus'
-drivers/built-in.o(.text+0x68f6a): undefined reference to `i2c_bit_del_bus'
-drivers/built-in.o(.text+0x68f8c): undefined reference to `i2c_bit_del_bus'
-drivers/built-in.o: In function `radeon_do_probe_i2c_edid':
-drivers/built-in.o(.text+0x69070): undefined reference to `i2c_transfer'
-make: *** [.tmp_vmlinux1] Error 1
-
-This isn't the error I would have expected (radeonfb complains it
-doesn't have i2c-algo-bit, while I would have expected that i2c-algo-bit
-would complain that it didn't have i2c-core), still this has to be
-caused by the impossible I2C=m, I2C_ALGOBIT=y combo. If I set I2C=y and
-retry, compilation succeeds.
-
-May I ask why the dependencies handling was changed? It was working fine
-for me in 2.6.3{-rc3,-rc4}.
-
-Thanks.
-
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+But let's ignore parport, the only question is if you know if other
+modules are doing the same thing or not. Calling request_module from
+cleanup_module was allowed with the 2.4 module API, now it deadlocks.
+The only single reason I changed the module code is to avoid other
+modules to deadlock in rmmod.

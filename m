@@ -1,68 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265516AbUFIKEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUFIKET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265516AbUFIKEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 06:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266071AbUFIKEJ
+	id S265773AbUFIKET (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 06:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266074AbUFIKES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 06:04:09 -0400
-Received: from gprs214-178.eurotel.cz ([160.218.214.178]:54144 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265516AbUFIKEF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 06:04:05 -0400
-Date: Wed, 9 Jun 2004 12:03:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dominik Brodowski <linux@dominikbrodowski.de>,
-       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       george anzinger <george@mvista.com>, greg kh <greg@kroah.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [PATCH 3/3] fix for small xloops [Was: Re: Too much error in __const_udelay() ?]
-Message-ID: <20040609100347.GA28128@elf.ucw.cz>
-References: <1086419565.2234.133.camel@cog.beaverton.ibm.com> <20040605152326.GA11239@dominikbrodowski.de> <1086635568.2234.171.camel@cog.beaverton.ibm.com> <20040607212303.GC23106@dominikbrodowski.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040607212303.GC23106@dominikbrodowski.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 9 Jun 2004 06:04:18 -0400
+Received: from cmlapp16.siteprotect.com ([64.41.126.229]:41197 "EHLO
+	cmlapp16.siteprotect.com") by vger.kernel.org with ESMTP
+	id S265773AbUFIKEG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 06:04:06 -0400
+Message-ID: <40C6E07C.6060609@serice.net>
+Date: Wed, 09 Jun 2004 05:03:40 -0500
+From: Paul Serice <paul@serice.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040127
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Eric Lammerts <eric@lammerts.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] iso9660 Inodes Anywhere and NFS
+References: <40BD2841.2050509@serice.net> <54574.67.8.218.172.1086758675.squirrel@webmail.krabbendam.net>
+In-Reply-To: <54574.67.8.218.172.1086758675.squirrel@webmail.krabbendam.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ > But what about 0-byte files? The block offset could be the same for
+ > all 0-byte files, or worse, it could be the same as the block offset
+ > of a non-0-byte file.
 
-> The const_udelay calculation relies on the "overflow" of the lower 32 bits
-> of the mull operation. What's in the lower 32 bits is "cut off", so that a
-> "rounding down" phenomenon exists. For large arguments to {n,u}delay, this does
-> not matter, as udelay and ndelay round _up_ themselves. However, for small
-> delays (for cyclone timer: up to 20ns; for pmtmr-based delay timer it's even
-> up to 1500ns or 1us) it _is_ a critical error. Empirical testing has shown that
-> it happens only (for usual values of loops_per_jiffies) if xloops is lower or
-> equal to six. Let's be safe, and double that value, and add one xloop if
-> xloop is smaller than 13.
+For my latest patch, the only complaints (so far) have been regarding
+my inode numbering scheme.  So, I would like to keep the switch from
+iget() to iget5_locked() to allow the NFS get_parent() method to work
+which has always been missing.
 
-Should not you just xloops++, always? Better safe than sorry. Plus you
-have one less test and branch...
+So basically, I think we are talking about a one line change to the
+isofs_get_ino() function in include/linux/iso_fs.h.  I only mention
+this because I don't want to seem too defensive about my choice of
+inode numbers.  I'm more than happy to make the change to another
+inode numbering scheme, but before doing that I would like to defend
+the one I chose.
 
-									Pavel
 
-> Signed-off-by: Dominik Brodowski <linux@brodo.de>
-> 
-> diff -ruN linux-original/arch/i386/lib/delay.c linux/arch/i386/lib/delay.c
-> --- linux-original/arch/i386/lib/delay.c	2004-06-07 23:02:02.472656160 +0200
-> +++ linux/arch/i386/lib/delay.c	2004-06-07 22:55:40.063791144 +0200
-> @@ -34,6 +34,8 @@
->  	__asm__("mull %0"
->  		:"=d" (xloops), "=&a" (d0)
->  		:"1" (xloops),"0" (current_cpu_data.loops_per_jiffy * HZ));
-> +	if (unlikely(xloops < 13))
-> +		xloops++;
->          __delay(xloops);
->  }
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-934a471f20d6580d5aad759bf0d97ddc
+ > I don't know if this has been mentioned before, but since a
+ > directory record is always 34 bytes or bigger, why not simply divide
+ > the directory record byte offset by 32? I.e.,
+ >
+ > -   inode_number = (bh->b_blocknr << bufbits) + offset;
+ > +   inode_number = (bh->b_blocknr << (bufbits - 5)) + (offset >> 5);
+
+There was a previous e-mail from Sergey Vlasov that suggested this,
+and the second patch I posted (which was buggy) tried to implement
+this.  I posted the patch to the cdwrite mailing list, and J"org
+Schilling told me that "the assumptions were correct but that the
+conclusions were wrong" and that because of this I was assigning
+duplicate inode numbers.  I get the feeling that carving out 6 bits
+(11 - 5) for the offset is not sufficient.  I was never able to get
+to the bottom of it, and he never really elaborated further.  Your
+math is somewhat different so maybe you don't have the problem.
+
+So there's that degree of uncertainty, and there's the problem that
+this approach also assigns duplicate inode numbers starting at block
+67108864.
+
+I think the next generation of storage media will come close to
+reaching this block count.  So, I decided to abandon my second patch
+in order to find a solution that can handle the maximum block count
+allowed by the ISO 9660 standard.  If not now, it is going to have to
+be done in a number of years anyway.
+
+So my thoughts on what would make a good inode number ran down two
+lines.  The first line of reasoning is that I know "ls" and "find"
+required inode numbers to be unique among directories, or they will
+not recurse down some directories.  I think my patch provides "ls" and
+"find" with what they need.
+
+The second line of reasoning is that I do not know of any other common
+use of inode numbers in user space, and while posix says inode numbers
+shall be unique, BSD (at least NetBSD) appears to me to assign
+non-unique inode numbers for files by returning the lower 32 bits of
+the byte offset.
+
+I did have another idea, but it has limitations too.  We could use the
+upper 16 bits of the inode number to store the index into the Path
+Table and use the lower 16 bits to store the index into the directory.
+This would limit the number of directories and the number of directory
+entries per directory to 65535 each.  I have never been able to figure
+out what the Optional Occurrence of the Path Table is used for so I
+have never pursued this approach, and I'm not sure that the arbitrary
+limitation on the number of directories and directory entries is worth
+a few duplicate inode numbers in cases where two files actually do
+point to the same block on disc.
+
+In conclusion, I just don't see much long-term difference in any of
+the inode numbering schemes, and the advantage of the scheme in my
+patch is that directories should always have unique inode numbers
+which to me is the important case.  So, that's my reasoning, but I'm
+not married to it.
+

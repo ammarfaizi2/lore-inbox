@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312499AbSDEMWb>; Fri, 5 Apr 2002 07:22:31 -0500
+	id <S312498AbSDEMVl>; Fri, 5 Apr 2002 07:21:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312505AbSDEMWM>; Fri, 5 Apr 2002 07:22:12 -0500
-Received: from wombat.cs.rmit.edu.au ([131.170.24.41]:48875 "EHLO
-	wombat.cs.rmit.edu.au") by vger.kernel.org with ESMTP
-	id <S312499AbSDEMWH>; Fri, 5 Apr 2002 07:22:07 -0500
-Date: Fri, 5 Apr 2002 22:22:05 +1000 (EST)
-From: Brett Nuske <bnuske@cs.rmit.edu.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: COMPILE BUG: SiS DRM Support
-In-Reply-To: <20020405134641.B26709@free.fr>
-Message-ID: <Pine.SOL.4.33.0204052211080.25614-100000@numbat.cs.rmit.edu.au>
+	id <S312499AbSDEMVb>; Fri, 5 Apr 2002 07:21:31 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1798 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312498AbSDEMVU>; Fri, 5 Apr 2002 07:21:20 -0500
+Subject: Re: Kernel BUG at inode.c:384!
+To: sunadm@rediffmail.com
+Date: Fri, 5 Apr 2002 13:38:26 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020405084200.13305.qmail@mailweb18.rediffmail.com> from "Umaid Singh Rajpurohit" at Apr 05, 2002 08:42:00 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16tSz4-0008CD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> we are running clearcase,sun grid engine on RedHat Linux 7.1 
+> (kernel 2.4.2-2smp) on IBM Xseries one U servers that has
 
-Hi,
+Are you running the clearcase binary modules ? If so then please take your
+bug to clearcase, or your vendor.
 
-   I have been trying to compile SiS DRM support
-with the 2.4.18 kernel (have tried both module
-and in the kernel) but to no avail. When built
-as a module it compiles but when the module gets
-loaded I get unresolved symbols.
+> Linux  2.4.2-2smp #1 SMP Sun Apr 8 20:21:34 EDT 2001 i686 
+> unknown
 
-   When trying to compile the support directly into
-the kernel I get the following compilation errors:
+You should upgrade that kernel anyway both for performance and if relevant
+in your environment for security reasons
 
-<cut>
-
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
-        net/network.o \
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/char/drm/drm.o: In function `sis_fb_alloc':
-drivers/char/drm/drm.o(.text+0x6a26): undefined reference to `sis_malloc'
-drivers/char/drm/drm.o(.text+0x6a6d): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_fb_free':
-drivers/char/drm/drm.o(.text+0x6bb2): undefined reference to `sis_free'
-drivers/char/drm/drm.o: In function `sis_final_context':
-drivers/char/drm/drm.o(.text+0x7066): undefined reference to `sis_free'
-make: *** [vmlinux] Error 1
-
-</cut>
-
-sis_free appears to be in linux/drivers/video/sis/sis_main.c
-with its prototype in linux/drivers/video/sis/sis_main.h
-
-linux/drivers/video/sis/sis_mm.c seems to be where the sis_fb_alloc
-and sis_fb_free function calls are made.
-
-Is there any obvious reasons why this isn't compiling?
-
-Thanks in advance
-
-****************************************************
-*   Brett Nuske                                    *
-*   3nd Year B.APP.SCI.(Computer Science)          *
-*   COSC1082/CS118 Tutor                           *
-*   City Tech. Helpdesk Staff (Computer Science)   *
-****************************************************
-
+Alan

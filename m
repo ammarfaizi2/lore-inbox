@@ -1,96 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269190AbUINHt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269192AbUINH5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269190AbUINHt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 03:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269191AbUINHt7
+	id S269192AbUINH5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 03:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269191AbUINH5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 03:49:59 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:59917 "EHLO
-	bne.snapgear.com") by vger.kernel.org with ESMTP id S269190AbUINHtz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 03:49:55 -0400
-Message-ID: <4146A228.3080705@snapgear.com>
-Date: Tue, 14 Sep 2004 17:47:52 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 14 Sep 2004 03:57:23 -0400
+Received: from mail5.bluewin.ch ([195.186.1.207]:65419 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S269193AbUINH4U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 03:56:20 -0400
+Date: Tue, 14 Sep 2004 09:55:08 +0200
+From: Roger Luethi <rl@hellgate.ch>
 To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Albert Cahalan <albert@users.sf.net>, Andrew Morton OSDL <akpm@osdl.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Paul Jackson <pj@sgi.com>, Roger Luethi <rl@hellgate.ch>
+Cc: Albert Cahalan <albert@users.sf.net>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
+       Chris Wright <chrisw@osdl.org>
 Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-References: <20040908184028.GA10840@k3.hellgate.ch> <20040908184130.GA12691@k3.hellgate.ch> <20040909003529.GI3106@holomorphy.com> <20040909184300.GA28278@k3.hellgate.ch> <20040909184933.GG3106@holomorphy.com> <20040909191142.GA30151@k3.hellgate.ch> <1094941556.1173.12.camel@cube> <20040914055946.GA20929@k3.hellgate.ch> <20040914061800.GD9106@holomorphy.com> <20040914062307.GF9106@holomorphy.com>
-In-Reply-To: <20040914062307.GF9106@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040914075508.GA10880@k3.hellgate.ch>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Albert Cahalan <albert@users.sf.net>,
+	Stephen Smalley <sds@epoch.ncsc.mil>,
+	Andrew Morton OSDL <akpm@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
+	Chris Wright <chrisw@osdl.org>
+References: <20040908184130.GA12691@k3.hellgate.ch> <1094730811.22014.8.camel@moss-spartans.epoch.ncsc.mil> <20040909172200.GX3106@holomorphy.com> <20040909175342.GA27518@k3.hellgate.ch> <1094760065.22014.328.camel@moss-spartans.epoch.ncsc.mil> <20040909205531.GA17088@k3.hellgate.ch> <20040909212507.GA32276@k3.hellgate.ch> <1094942212.1174.20.camel@cube> <20040914064403.GB20929@k3.hellgate.ch> <20040914071058.GH9106@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040914071058.GH9106@holomorphy.com>
+X-Operating-System: Linux 2.6.9-rc1-bk13 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi William, Roger,
-
-William Lee Irwin III wrote:
-> Greg, could you comment on this since there are some people having
-> trouble figuring out what's going on with VM-related /proc/ fields for
-> !CONFIG_MMU. Please forgive the top-posting, it made more sense to
-> quote the text below in this instance.
-
-Yeah, the !CONFIG_MMU code behind this is probably a little stale.
-The thinking has mostly been to keep things as much the same as
-possible, even if the fields didn't have a sensible meaning in
-non-mmu space.
-
-
-> On Tue, Sep 14, 2004 at 07:59:46AM +0200, Roger Luethi wrote:
+On Tue, 14 Sep 2004 00:10:58 -0700, William Lee Irwin III wrote:
+> > - If the access control bits for a field are cleared, any process/user
+> >   can get that field information for any process.
+> > - If the access control bits are set to NPROC_PERM_USER, only root and
+> >   the owner of a process can read the field for that process.
+> > - For NPROC_PERM_ROOT, only root can ever read such a field.
+> > I picked that design because it captures the essence of what /proc
+> > does today.
 > 
->>>I agree with you that those specific fields should be offered for
->>>!CONFIG_MMU. However, if for some reason they cannot carry a value
->>>that fits the field description, they should not be offered at all. The
->>>ambiguity of having 0 mean either "0" or "this field is not available"
->>>is bad. Trying to read a specific field _can_ fail, and applications
->>>had better handle that case (it's still trivial compared to having to
->>>parse different /proc file layouts depending on the configuration).
+> The concern appears to be that the tools might interpret failed
+> permission checks as indications of process nonexistence. I don't
+> regard this as particularly pressing, as properly-written apps should
+> check the specific value of errno (in particular to retry when EAGAIN
+> is received in numerous contexts).
 
-In at least one case this is true now, as you mention for the
-VmXxx fields. But looking at these now I think we could actually
-implement most of them in a sensible way for the no-mmu case.
-Size, Exe, Lib, Stk, etc  all apply with their conventional
-meanings.
+I would expect a tool to refrain from asking for fields with restricted
+access if it needs a complete overview over existing processes. It can
+always ask for restricted fields in a second request (the vast majority
+of fields are world-readable anyway).
 
-
-> On Mon, Sep 13, 2004 at 11:18:00PM -0700, William Lee Irwin III wrote:
+> > processes seems a good solution. In this special case, the current
+> > nproc code returns 0, but that's probably not optimal. Currently,
+> > my preferred solution would be to return ~(0).
+> > I'm not convinced yet that making message formats more complex (adding
+> > bitmaps or lists of applicaple fields or something) for one special
+> > case is a better idea.
 > 
->>Apart from doing something it's supposed to for !CONFIG_MMU and using
->>the internal kernel accounting I set up for the CONFIG_MMU=y case I'm
->>not very concerned about this. I have a vague notion there should
->>probably be some consistency with the /proc/ precedent but am not
->>particularly tied to it. We should probably ask Greg Ungerer (the
->>maintainer of the external MMU-less patches) about what he prefers
->>since it's likely we can't anticipate all of the !CONFIG_MMU concerns.
-> 
-> 
-> On Tue, Sep 14, 2004 at 07:59:46AM +0200, Roger Luethi wrote:
-> 
->>>The presumed wrong assumptions underlying broken tools of the future
->>>are not a good base for designing a new interface. My interest is in
->>>making it easy to write correct applications (or in fixing broken apps
->>>that won't work, say, on !CONFIG_MMU systems).
+> Distinguishing between EPERM, ENOSYS, ENOENT, etc. could probably be
+> done if the fields are measured in units such that the top bit is never
+> set for any feasible value, then a fully qualified error return could
+> simply be returned as (unsigned long)(-err). I suspect VSZ may be
+> problematic wrt. overflows even for 32-bit, not just for 31-bit.
 
-Reality for non-mmu targets is that most apps just won't be fixed
-for them, so we try real hard to make the world look like it is
-just like any other linux architecture.
+Yeah, that makes me nervous. There are just too many ways this can go
+wrong or be misinterpreted in user space. Currently, nproc does not
+indicate the type of error at all, because a properly written user-space
+app will either not hit an error or be able to figure out what the
+problem was based on the available information. I suppose if we wanted
+to change that (which doesn't sound unreasonable), the proper way would
+be to return error flags with an error message (delivered via netlink).
 
-I think !CONFIG_MMU case can be cleaned up to make it almost identical
-to the CONFIG_MMU case, and reporting sensible values for just about
-all fields.
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+Roger

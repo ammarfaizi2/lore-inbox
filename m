@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbTEKNO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 09:14:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTEKNO4
+	id S261351AbTEKNZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 09:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbTEKNZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 09:14:56 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:47235
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261326AbTEKNOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 09:14:55 -0400
-Date: Sun, 11 May 2003 09:17:36 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Jos Hulzink <josh@stack.nl>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: irq balancing: performance disaster
-In-Reply-To: <20030511131521.GK8978@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0305110913530.15337-100000@montezuma.mastecende.com>
-References: <200305110118.10136.josh@stack.nl> <7750000.1052619248@[10.10.2.4]>
- <200305111200.31242.josh@stack.nl> <Pine.LNX.4.50.0305110813140.15337-100000@montezuma.mastecende.com>
- <20030511125438.GJ8978@holomorphy.com> <Pine.LNX.4.50.0305110855120.15337-100000@montezuma.mastecende.com>
- <20030511131521.GK8978@holomorphy.com>
+	Sun, 11 May 2003 09:25:24 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:63674 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261351AbTEKNZY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 09:25:24 -0400
+Date: Sun, 11 May 2003 15:37:46 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Grzegorz Wilk <toulouse@put.mielec.pl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SiS648 support for agpgart, kernel 2.4.21-rc2-ac1
+In-Reply-To: <3EBE4B64.8070800@put.mielec.pl>
+Message-ID: <Pine.SOL.4.30.0305111531430.4788-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 May 2003, William Lee Irwin III wrote:
 
-> On Sun, 11 May 2003, William Lee Irwin III wrote:
-> >> I vaguely like this notion because it removes a #ifdef and cleans up
-> >> a tiny bit of its surroundings. But it's not quite a one-liner.
-> 
-> On Sun, May 11, 2003 at 08:58:57AM -0400, Zwane Mwaikambo wrote:
-> > Nice, it's during init too so there really is no need for any sort of 
-> > optimisation, the inline can also go and make it __init.
-> 
-> Very good point. The static variable in an inline function is very fishy
-> also. Here it is:
+On Sun, 11 May 2003, Grzegorz Wilk wrote:
 
-Cool, could you send it to Marcelo?
+> Uzytkownik Bartlomiej Zolnierkiewicz napisal:
+> > On Sun, 11 May 2003, Grzesiek Wilk wrote:
+>
+> >>One thing i'm not sure is in which agp mode it is working. SiS648 as well as
+> >>R9k supports agp 3.0 but I don't think that generic sis driver does.
+> >>(correct me if i'm wrong).
+> >
+> >
+> > You are wrong, R9k -> no AGP3.0 ;-).
+> > --
+> > Bartlomiej
+>
+> I'm quite certain, that R2k _is_ agp 3.0 compatible.
+> Following the specification at
+> http://mirror.ati.com/products/pc/radeon9000pro/specs.html:
+> "...with AGP 2X (3.3v), 4X (1.5V), 8X (0.8v) or Universal AGP 3.0 bus
+> configuration (2X/4X/8X)."
+>
+> So is ATI making a mickey of me or what?
 
-> -		case CLUSTERED_APIC_XAPIC:
-> -			/*round robin the interrupts*/
-> -			cpu = (cpu+1)%smp_num_cpus;
-> -			return cpu_to_physical_apicid(cpu);
+It is a bit misleading, read once again and look at "GENERAL FEATURES",
+2X and 4X supported and 8X *compatible*.
+Look also at R9200(PRO) spec, it is a R9000(PRO) with AGP3.0 support.
 
-Side note, any idea what the largest x440 this has code has run on?
+btw. R9100 is both faster/cheaper than R9000PRO.
 
--- 
-function.linuxpower.ca
+--
+Bartlomiej
+

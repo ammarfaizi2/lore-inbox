@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267481AbTALUKD>; Sun, 12 Jan 2003 15:10:03 -0500
+	id <S267487AbTALUKk>; Sun, 12 Jan 2003 15:10:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267487AbTALUKC>; Sun, 12 Jan 2003 15:10:02 -0500
-Received: from h80ad26bd.async.vt.edu ([128.173.38.189]:12928 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267481AbTALUKB>; Sun, 12 Jan 2003 15:10:01 -0500
-Message-Id: <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: robw@optonline.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*? 
-In-Reply-To: Your message of "Sun, 12 Jan 2003 14:59:57 EST."
-             <1042401596.1209.51.camel@RobsPC.RobertWilkens.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com>
-            <1042401596.1209.51.camel@RobsPC.RobertWilkens.com>
+	id <S267490AbTALUKj>; Sun, 12 Jan 2003 15:10:39 -0500
+Received: from mail5.home.nl ([213.51.128.16]:5281 "EHLO mail5-sh.home.nl")
+	by vger.kernel.org with ESMTP id <S267487AbTALUKe>;
+	Sun, 12 Jan 2003 15:10:34 -0500
+Subject: Re: [PATCH] add explicit Pentium II support
+From: Luuk van der Duim <l.a.van.der.duim@student.rug.nl>
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1042402432.834.70.camel@phantasy>
+References: <Pine.LNX.4.44.0301121125370.14031-100000@home.transmeta.com>
+	 <1042402432.834.70.camel@phantasy>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042406417.8427.9.camel@cc75757-a.groni1.gr.home.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1758062902P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.2.1-1mdk 
+Date: 12 Jan 2003 22:20:18 +0100
 Content-Transfer-Encoding: 7bit
-Date: Sun, 12 Jan 2003 15:18:38 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1758062902P
-Content-Type: text/plain; charset=us-ascii
+On Sun, 2003-01-12 at 21:13, Robert Love wrote:
+> On Sun, 2003-01-12 at 14:26, Linus Torvalds wrote:
+> 
+> > The thing I reacted to was that the P4 entry should include the
+> > P4-based celerons. I have no idea what those are called, though.
+> > 
+> > Anyway, applied.
+> 
+> I was thinking the same thing, but the lame name of the chips held me
+> back - the new Celerons are also called "Celerons".
+> 
+> Regardless, I updated the comments and I call the new Celerons "P4-based
+> Celerons" which should be descriptive enough.
+> 
+> Patch is against current BK.
+> 
+> 	Robert Love
+> 
+>  arch/i386/Kconfig |   12 +++++++-----
+>  1 files changed, 7 insertions(+), 5 deletions(-)
+> 
+> 
+> diff -urN linux-2.5.56/arch/i386/Kconfig linux/arch/i386/Kconfig
+> --- linux-2.5.56/arch/i386/Kconfig	2003-01-12 15:05:16.000000000 -0500
+> +++ linux/arch/i386/Kconfig	2003-01-12 15:10:45.000000000 -0500
+> @@ -120,7 +120,7 @@
+>  	  - "Pentium-Pro" for the Intel Pentium Pro.
+>  	  - "Pentium-II" for the Intel Pentium II or pre-Coppermine Celeron.
+>  	  - "Pentium-III" for the Intel Pentium III or Coppermine Celeron.
+> -	  - "Pentium-4" for the Intel Pentium 4.
+> +	  - "Pentium-4" for the Intel Pentium 4 or P4-based Celeron.
 
-On Sun, 12 Jan 2003 14:59:57 EST, Rob Wilkens said:
+Aren't those called Willamette based Celerons?
 
-> In general, if you can structure your code properly, you should never
-> need a goto, and if you don't need a goto you shouldn't use it.  It's
-> just "common sense" as I've always been taught.  Unless you're
-> intentionally trying to write code that's harder for others to read.
+-- 
+Luuk van der Duim 
 
-Now, it's provable you never *NEED* a goto.  On the other hand, *judicious*
-use of goto can prevent code that is so cluttered with stuff of the form:
-
-        if(...) {
-		...
-		die_flag = 1;
-		if (!die _flag) {...
-		
-Pretty soon, you have die_1_flag, die_2_flag, die_3_flag and so on,
-rather than 3 or 4 "goto bail_now;".
-
-The real problem is that C doesn't have a good multi-level "break" construct.
-On the other hand, I don't know of any language that has a good one - some
-allow "break 3;" to break 3 levels- but that's still bad because you get
-screwed if somebody adds an 'if' clause....
-
-
---==_Exmh_1758062902P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+Ic2ecC3lWbTT17ARAgeFAJwPeR4EZ8YDxqhb5uYIQgjhfnK+TgCdG7mt
-HHdwNfbe8FVARMNs7guE50A=
-=oXcC
------END PGP SIGNATURE-----
-
---==_Exmh_1758062902P--

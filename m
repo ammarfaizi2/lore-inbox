@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268775AbUJPQG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268776AbUJPQ2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268775AbUJPQG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 12:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268776AbUJPQG0
+	id S268776AbUJPQ2q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 12:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268728AbUJPQ2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 12:06:26 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:58033 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268775AbUJPQGU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 12:06:20 -0400
-Date: Sat, 16 Oct 2004 18:07:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Alan Stern <stern@rowland.harvard.edu>,
-       Laurent Riffard <laurent.riffard@free.fr>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, Paul Fulghum <paulkf@microgate.com>
-Subject: [patch, 2.6.9-rc4-mm1] fix rmmod uhci_hcd oops
-Message-ID: <20041016160737.GA19630@elte.hu>
-References: <Pine.LNX.4.44L0.0410151318580.1052-100000@ida.rowland.org> <1097861761.2820.18.camel@deimos.microgate.com> <1097872927.5119.5.camel@krustophenia.net> <1097874840.2915.18.camel@deimos.microgate.com>
+	Sat, 16 Oct 2004 12:28:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:153 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268776AbUJPQ2n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 12:28:43 -0400
+Date: Sat, 16 Oct 2004 17:28:36 +0100
+From: Joel Becker <jlbec@evilplan.org>
+To: Avi Kivity <avi@exanet.com>
+Cc: Yasushi Saito <ysaito@hpl.hp.com>, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org, suparna@in.ibm.com,
+       Janet Morgan <janetmor@us.ibm.com>
+Subject: Re: [PATCH 1/2]  aio: add vectored I/O support
+Message-ID: <20041016162836.GG17142@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Avi Kivity <avi@exanet.com>, Yasushi Saito <ysaito@hpl.hp.com>,
+	linux-aio@kvack.org, linux-kernel@vger.kernel.org,
+	suparna@in.ibm.com, Janet Morgan <janetmor@us.ibm.com>
+References: <416EDD19.3010200@hpl.hp.com> <20041016031301.GC17142@parcelfarce.linux.theplanet.co.uk> <4170AF35.7030806@exanet.com> <20041016053721.GD17142@parcelfarce.linux.theplanet.co.uk> <4170DF18.50004@exanet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1097874840.2915.18.camel@deimos.microgate.com>
+In-Reply-To: <4170DF18.50004@exanet.com>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 16, 2004 at 10:43:04AM +0200, Avi Kivity wrote:
+> Using IO_CMD_READ for a vector entails
+> 
+> - converting the userspace structure (which might well an iovec) to iocbs
 
-this patch fixes the rmmod oops reported by Paul Fulghum. It is caused
-by the generic-irqs subsystem creating multiple /proc/irq/<nr>/<name>
-directory entries with the same name which then confuses procfs upon
-module removal.
+	Why create an iov if you don't need to?
 
-	Ingo
+> - merging the iocbs
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+	I don't see how this is different than merging iovs.  Whether an
+I/O range is represented by two segments of an iov or by two iocbs, the
+elevator is going to merge them.  If the userspace program had the
+knowledge to merge them up front, it should have submitted one larger
+segment.
 
---- linux/kernel/irq/proc.c.orig
-+++ linux/kernel/irq/proc.c
-@@ -66,11 +66,24 @@ static int irq_affinity_write_proc(struc
- 
- #define MAX_NAMELEN 128
- 
-+static int name_unique(unsigned int irq, struct irqaction *new_action)
-+{
-+	struct irq_desc *desc = irq_desc + irq;
-+	struct irqaction *action;
-+
-+	for (action = desc->action ; action; action = action->next)
-+		if ((action != new_action) && action->name &&
-+				!strcmp(new_action->name, action->name))
-+			return 0;
-+	return 1;
-+}
-+
- void register_handler_proc(unsigned int irq, struct irqaction *action)
- {
- 	char name [MAX_NAMELEN];
- 
--	if (!irq_dir[irq] || action->dir || !action->name)
-+	if (!irq_dir[irq] || action->dir || !action->name ||
-+					!name_unique(irq, action))
- 		return;
- 
- 	memset(name, 0, MAX_NAMELEN);
+> - generating multiple completions for the merged request
 
+	Fair enough.
+
+> - coalescing the multiple completions in userspace to a single completion
+
+	You generally have to do this anyway.  In fact, it is often far
+more efficient and performant to have a pattern of:
+
+	submit 10;
+	reap 3; submit 3 more;
+	reap 6; submit 6 more;
+	repeat until you are done;
+
+than to wait on all 10 before you can submit 10 again.
+
+> error handling is difficult as well. one would expect that a bad sector 
+> with multiple iocbs would only fail one of the requests. it seems to be 
+> non-trivial to implement this correctly.
+
+	I don't follow this.  If you mean that you want all io from
+later segments in an iov to fail if one segment has a bad sector, I
+don't know that we can enforce it without running one segment at a
+time.  That's terribly slow.
+	Again, even if READV is a good idea, we need to fix whatever
+inefficiencies io_submit() has.  copying to/from userspace just can't be
+that slow.
+
+Joel
+
+-- 
+
+"When choosing between two evils, I always like to try the one
+ I've never tried before."
+        - Mae West
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org

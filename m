@@ -1,43 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265494AbUFOMxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265502AbUFOM6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265494AbUFOMxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 08:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265499AbUFOMxZ
+	id S265502AbUFOM6D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 08:58:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265503AbUFOM6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 08:53:25 -0400
-Received: from hostmaster.org ([212.186.110.32]:54172 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S265494AbUFOMxY (ORCPT
+	Tue, 15 Jun 2004 08:58:03 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:43392 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S265502AbUFOM6B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 08:53:24 -0400
-Subject: Re: NUMA API observations
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
+	Tue, 15 Jun 2004 08:58:01 -0400
+Date: Tue, 15 Jun 2004 12:58:00 +0000
+From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <20040614153638.GB25389@krispykreme>
-References: <20040614153638.GB25389@krispykreme>
-Content-Type: text/plain
-Message-Id: <1087304002.28142.46.camel@hostmaster.org>
+Subject: HID vs. Input Core
+Message-ID: <20040615125800.B5811@beton.cybernet.src>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 15 Jun 2004 14:53:22 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking at these numastat results and the default policy it seems that
-memory is primarily allocated on the first node which in turn means a
-unnecessarily large amount of page faults on the second node.
+Hello
 
-I wonder if it is possible to better balance processes among the nodes
-by e.g. setting nodeAffinity = pid mod nodeCount
+I would like to know what's the difference between
+Input Core (CONFIG_INPUT) and USB HID (CONFIG_USB_HID) in 2.4.25
 
-Tom
+They seem to enable the same thing - USB HID. However I don't
+know which one should I enable or if I should enable both. I find
+existence of two options with seemingly the same function confusing.
 
--- 
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
-
-Attempting to apply the OSI layers model to a real network is just like
-attempting to represent seven dimensions in four dimensional reality.
-      Thomas Zehetbauer
-
+Cl<

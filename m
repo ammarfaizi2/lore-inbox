@@ -1,86 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263742AbUDGGqR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 02:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUDGGqR
+	id S264108AbUDGGrK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 02:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264109AbUDGGrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 02:46:17 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52172 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263742AbUDGGqO (ORCPT
+	Wed, 7 Apr 2004 02:47:10 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:18357 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S264108AbUDGGqi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 02:46:14 -0400
-Date: Wed, 7 Apr 2004 08:46:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Eric Whiting <ewhiting@amis.com>, akpm@osdl.org,
+	Wed, 7 Apr 2004 02:46:38 -0400
+Date: Wed, 7 Apr 2004 08:46:37 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: -mmX 4G patches feedback [numbers: how much performance impact]
-Message-ID: <20040407064629.GA31338@elte.hu>
-References: <40718B2A.967D9467@amis.com> <20040405174616.GH2234@dualathlon.random> <4071D11B.1FEFD20A@amis.com> <20040405221641.GN2234@dualathlon.random> <20040406115539.GA31465@elte.hu> <20040406155925.GW2234@dualathlon.random> <20040406192549.GA14869@elte.hu> <20040406202548.GI2234@dualathlon.random> <20040407060330.GB26888@dualathlon.random>
+Subject: Re: [Patch] BME, noatime and nodiratime
+Message-ID: <20040407064637.GB28941@MAIL.13thfloor.at>
+Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040406145544.GA19553@MAIL.13thfloor.at> <20040406204843.GL31500@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040407060330.GB26888@dualathlon.random>
+In-Reply-To: <20040406204843.GL31500@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrea Arcangeli <andrea@suse.de> wrote:
-
-> > I'm using DOUBLE. However I won't post the quips, I draw the graph
-> > showing the performance for every working set, that gives a better
-> > picture of what is going on w.r.t. memory bandwidth/caches/tlb.
+On Tue, Apr 06, 2004 at 09:48:44PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Tue, Apr 06, 2004 at 04:55:44PM +0200, Herbert Poetzl wrote:
+> > 
+> > Hi Andrew!
+> > 
+> > according to todays vfs strategy (hope it hasn't changed
+> > again), here is the first patch, which adds the mount 
+> > flags propagation, fixes the /proc display, and implements
+> > noatime and nodiratime per mountpoint ...
+> > 
+> > please consider for inclusion ...
 > 
-> Here we go:
+> noatime/nodiratime: OK, but we still have direct modifications of i_atime
+> that need to be taken care of.
+
+okay, will look at it ...
+
+> massage of ->show(): more or less OK.  However, we don't need to keep
+> MS_NOATIME and MS_NODIRATIME in flags at all - 
+> > +	if (flags & MS_NOATIME)
+> > +		mnt_flags |= MNT_NOATIME;
+> > +	if (flags & MS_NODIRATIME)
+> > +		mnt_flags |= MNT_NODIRATIME;
+> >  	flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV);
 > 
-> 	http://www.kernel.org/pub/linux/kernel/people/andrea/misc/31-44-100-1000/31-44-100-1000.html
+> should remove them from flags in the last line, same way we do that for
+> nosuid/noexec/nodev, with obvious consequences for ->show().
 > 
-> the global quips you posted indeed had no way to account for the part
-> of the curve where 4:4 badly hurts. details in the above url.
+> Note that we don't need to keep MS_NOATIME check in update_atime() - that
+> animal is purely per-mountpoint now.
 
-Firstly, most of the first (full) chart supports my measurements. 
+hmm, wasn't there a reason, for having them per inode
+like for 'special' files, which I do not remember atm?
 
-There's the portion of the chart at around 500k working set that is at
-issue, which area you've magnified so helpfully [ ;-) ].
+> > +	if (MNT_IS_NOATIME(mnt))
+> > +		return;
+> > +	if (S_ISDIR(inode->i_mode) && MNT_IS_NODIRATIME(mnt))
+> > +		return;
+> 
+> Do we need those to be macros?  AFAICS, this is the only place where we
+> do such checks and we shouldn't get new callers.  IOW, keeping them
+> separate doesn't buy us anything and only obfuscates the code.
 
-That area of the curve is quite suspect at first sight. With a TLB flush
-every 1 msec [*], for a 'double digit' slowdown to happen it means the
-effect of the TLB flush has to be on the order of 100-200 usecs. This is
-near impossible, the dTLB+iTLB on your CPU is only 64+64. This means
-that a simple mmap() or a context-switch done by a number-cruncher
-(which does a TLB flush too) would have a 100-200 usecs secondary cost -
-this has never been seen or reported before!
+okay, no problem with that ...
 
-but it is well-known that most complex numeric benchmarks are extremely
-sensitive to the layout of pages - e.g. my dTLB-sensitive benchmark is
-so sensitive that i easily get runs that are 2 times faster on 4:4 than
-on 3:1, and the 'results' are extremely stable and repeatable on the
-same kernel!
+> > -#define MNT_NOSUID	1
+> > -#define MNT_NODEV	2
+> > -#define MNT_NOEXEC	4
+> > +#define MNT_RDONLY	1
+> > +#define MNT_NOSUID	2
+> > +#define MNT_NODEV	4
+> > +#define MNT_NOEXEC	8
+> > +#define MNT_NOATIME	16
+> > +#define MNT_NODIRATIME	32
+> 
+> *ugh*
+> 
+> a) what's the point of reordering them (rdonly shifting the existing ones)?
 
-to eliminate layout effects, could you do another curve? Plain -aa4 (no
-4:4 patch) but a __flush_tlb() added before and after do_IRQ(), in
-arch/i386/kernel/irq.c? This should simulate much of the TLB flushing
-effect of 4:4 on -aa4, without any of the other layout changes in the
-kernel. [it's not a full simulation of all effects of 4:4, but it should
-simulate the TLB flush effect quite well.]
+simple, to match the MS_* counterparts, something which
+actually confused me in the first place (in the code)
 
-once the kernel image layout has been stabilized via the __flush_tlb()
-thing, the way to stabilize user-space layout is to static link the
-benchmark and boot it via init=/bin/DOUBLE. This ensures that the
-placement of the physical pages is constant. Doing the test 'fresh after
-bootup' is not good enough.
+> b) since MNT_RDONLY doesn't do anything at that point, why introduce it
+> (and associated confusion) now?  As it is, your /proc/mounts will pretend
+> that per-mountpoint r/o works right now.  Since it doesn't...
 
-	Ingo
+no, they won't. the required MNT_RDONLY flag in the proc
+function isn't set, so only MS_RDONLY will be reported
+(from the superblock) which is equivalent to what is 
+reported in the current version.
 
-[*] a nitpick: you keep saying '2000 tlb flushes per second'. This is
-    misleading, there's one flush of the userspace TLBs every 1 msec
-    (i.e. 1000 per second), and one flush of the kernel TLBs - but
-    the kernel TLBs are small at this point, especially with 4MB pages.
+> > +#define	MNT_IS_RDONLY(m)	((m) && ((m)->mnt_flags & MNT_RDONLY))
+> > +#define	MNT_IS_NOATIME(m)	((m) && ((m)->mnt_flags & MNT_NOATIME))
+> > +#define	MNT_IS_NODIRATIME(m)	((m) && ((m)->mnt_flags & MNT_NODIRATIME))
+> 
+> See above.  Besides, are we ever planning to pass NULL to these guys?
+
+originally there was a 'comment' which said, the
+(m) check can be removed, when we are sure that this
+isn't called with mnt == NULL ...
+
+so maybe a BUGON(!m) might be useful? 
+
+I'll add the 'updates' today ...
+
+best,
+Herbert
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,87 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVCYOwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVCYO6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbVCYOwb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 09:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVCYOwb
+	id S261666AbVCYO6o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 09:58:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVCYO6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 09:52:31 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:9939 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261654AbVCYOw2 (ORCPT
+	Fri, 25 Mar 2005 09:58:44 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:39250 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261666AbVCYO6l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 09:52:28 -0500
+	Fri, 25 Mar 2005 09:58:41 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Es3jZ+xAWMWmYsApJqDDmXNNKMGHYwCGAgyBI0lumz6gk49yy0dRKdVUrmAZpQ3q/AZHrPOB9N3cdugYY/Xg68KP3SxCyczr1CHnY6lEhxpBsjfp64okwmW+8JEvICP36GJnULMdMTkqaCmw6D+nOpPdL09dOkChJFz/l2M+Cx4=
-Message-ID: <d120d50005032506526f6b9304@mail.gmail.com>
-Date: Fri, 25 Mar 2005 09:52:27 -0500
+        b=h3KofV5U4vowms+5e+FPGRfxL5bGw/9+laACMtLJU0zIX1NM0tbvseBP3B/OcGg5UT59a4nBtg890E+qLMqmNf6Bxm37NX6yXwCJlRKjq6fp5BaRS+adtl3r+2awwwZjMjXWMN40ZbzYBwT1fjhuuHUgubz8csKvwWiNanDjIak=
+Message-ID: <d120d50005032506582451d581@mail.gmail.com>
+Date: Fri, 25 Mar 2005 09:58:40 -0500
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Reply-To: dtor_core@ameritech.net
-To: Pavel Machek <pavel@suse.cz>
+To: Andy Isaacson <adi@hexapodia.org>
 Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <20050325142414.GF23602@elf.ucw.cz>
+Cc: Stefan Seyfried <seife@suse.de>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050324235439.GA27902@hexapodia.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 References: <20050323184919.GA23486@hexapodia.org> <4242CE43.1020806@suse.de>
 	 <20050324181059.GA18490@hexapodia.org> <4243252D.6090206@suse.de>
-	 <20050324235439.GA27902@hexapodia.org> <4243D854.2010506@suse.de>
-	 <20050325101344.GA1297@elf.ucw.cz>
-	 <d120d500050325061963fb13db@mail.gmail.com>
-	 <20050325142414.GF23602@elf.ucw.cz>
+	 <d120d50005032413145adaa283@mail.gmail.com>
+	 <d120d50005032413105950045c@mail.gmail.com>
+	 <20050324235439.GA27902@hexapodia.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Mar 2005 15:24:15 +0100, Pavel Machek <pavel@suse.cz> wrote:
-> Hi!
+On Thu, 24 Mar 2005 15:54:39 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
+> On Thu, Mar 24, 2005 at 04:10:39PM -0500, Dmitry Torokhov wrote:
+> > If you do "ls /sys/bus/serio/devices" and see more than 3 ports you
+> > have MUX mode active.
 > 
-> > > > > OK, anything else I should try?
-> > > >
-> > > > not really, i just wait for Vojtech and Pavel :-)
-> > >
-> > > Try commenting out "call_usermodehelper". If that helps, Stefan's
-> > > theory is confirmed, and this waits for Vojtech to fix it.
-> > >
+> Just serio0 and serio1.
+> 
+> On Thu, Mar 24, 2005 at 04:14:52PM -0500, Dmitry Torokhov wrote:
+> > On Thu, 24 Mar 2005 12:20:40 -0800, Andy Isaacson <adi@hexapodia.org> wrote:
+> > > (How can I verify that "nomux" was accepted?  It shows up on the "Kernel
+> > > command line" but there's no other mention of it in dmesg.)
 > >
-> > This is more of a general swsusp problem I believe - the second phase
-> > when it blindly resumes entire system. Resume of a device can fail
-> > (any reason whatsoever) and it will attempt to clean up after itself,
-> > but userspace is dead and hotplug never completes. While I am
-> > interested to know why ALPS does not want to resume on ANdy's laptop
-> > the issue will never be completely resolved from within the input
-> > system.
+> > Ignore my babbling, I just noticed in your dmesg that your KBC does
+> > not support MUX mode to begin with.
 > 
-> When device fails to resume, what should I do? I think I could
+> OK, anything else I should try?
 > 
->        if (error)
->                panic("Device resume failed\n");
+> Why does it only fail when I have *both* intel_agp and i8042 aux?
 > 
-> , but... that does not look like what you want.
+> In the SysRq-T trace I see one interesting process: most things are
+> in D state in refrigerator(), but sh shows the following traceback:
+> 
+> wait_for_completion
+> call_usermodehelper
+> kobject_hotplug
+> kobject_del
+> class_device_del
+> class_device_unregister
+> mousedev_disconnect
+> input_unregister_device
+> alps_disconnect
+> psmouse_disconnect
+> serio_driver_remove
+> device_release_driver
+> serio_release_driver
+> serio_resume
 
-Oh, always panic-happy Pavel ;). It really depends on what kind of
-device has faled to resume. If the device is really needed for writing
-image then panic is the only recourse, but if it some other device you
-resuming just ignore it, who cares...
+I wonder why ALPS reconnect failed. You don't have a serial console
+set up, do you? If not then maybe you could make a huge framebuffer to
+capture as much info as you can... I hope you have a digital camera ;)
 
-Btw, I dont think that doing selective resume (as opposed to selective
-suspend and Nigel's partial device trees) would be so much
-complicated. You'd always resume sysdevs and then, when iterating over
-"normal" devices, just skip ones not in resume path. It can all be
-contained in driver core I believe (sorry but no patch, for now at
-least).
-
-> 
-> > Pavel, is it possible for swsusp to disable hotplug (probably just do
-> > hotplug_path[0] = 0) before resuming in suspend phase?
-> 
-> It feels like a hack, but yes, I probably could do that. (Do you have
-> patch to try?)
->
-
-Not really, I won't be able to write any code anything till next week I think.
+Then do "echo 1 > /sys/modules/i8042/parameters/debug" and try to
+suspend. I am interested of data coming in and out of i8042.
 
 -- 
 Dmitry

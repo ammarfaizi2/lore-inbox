@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUH1MFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266508AbUH1MIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266485AbUH1MFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 08:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUH1MFY
+	id S266508AbUH1MIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 08:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUH1MIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 08:05:24 -0400
-Received: from alias.nmd.msu.ru ([193.232.127.67]:28168 "EHLO alias.nmd.msu.ru")
-	by vger.kernel.org with ESMTP id S266463AbUH1MFF (ORCPT
+	Sat, 28 Aug 2004 08:08:24 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:35460 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S266488AbUH1MH7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 08:05:05 -0400
-Date: Sat, 28 Aug 2004 16:05:02 +0400
-From: Alexander Lyamin <flx@msu.ru>
-To: Christoph Hellwig <hch@lst.de>, flx@msu.ru,
-       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
-       reiserfs-list@namesys.com
-Subject: Re:  reiser4 plugins (was: silent semantic changes with reiser4)
-Message-ID: <20040828120502.GE6746@alias>
-Reply-To: flx@msu.ru
-Mail-Followup-To: flx@msu.ru, Christoph Hellwig <hch@lst.de>,
-	Christophe Saout <christophe@saout.de>,
-	Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
-References: <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <20040828105929.GB6746@alias> <20040828111233.GA11339@lst.de>
+	Sat, 28 Aug 2004 08:07:59 -0400
+Date: Sat, 28 Aug 2004 14:07:59 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: QuantumG <qg@biodome.org>
+Cc: Craig Milo Rogers <rogers@isi.edu>, linux-kernel@vger.kernel.org
+Subject: Re: reverse engineering pwcx
+Message-ID: <20040828120759.GB1841@ucw.cz>
+References: <412FD751.9070604@biodome.org> <20040828012055.GL24018@isi.edu> <20040828014931.GM24018@isi.edu> <412FF888.8090307@biodome.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040828111233.GA11339@lst.de>
-X-Operating-System: Linux 2.6.5-7.104-smp
-X-Fnord: +++ath
-X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
-X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <412FF888.8090307@biodome.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sat, Aug 28, 2004 at 01:12:33PM +0200, Christoph Hellwig wrote:
-> On Sat, Aug 28, 2004 at 02:59:29PM +0400, Alexander Lyamin wrote:
-> > Thu, Aug 26, 2004 at 03:24:39PM +0200, Christoph Hellwig wrote:
-> > > This VFS interface is an integral part of ??very filesystem, and it
-> > 
-> > VFS never was "an integral part" of ANY filesystem. my dog knows it.
-> > its just unified INTERFACE TO any filesystem (including reiser4).
+On Sat, Aug 28, 2004 at 01:14:16PM +1000, QuantumG wrote:
+
+> Craig Milo Rogers wrote:
 > 
-> You's misquoting me.  IF you quoted the whole context it'd be pretty
-> sure that the part of the filesystem that intefaces with the VFS is
-> meant.
-
-No. Its not me "misquoting", its just someone sound plain ?incoherrent?.
-Even if I overquoted reply with whole message, its still sound ?incohherent?.
-
+> >	Hmmm... a poster on Slashdot claims that entropy measurements
+> >imply that the pwcx code is interpolating rather that truly
+> >decompressing.  Again, that's integer math and table lookups.
 > 
-> But one could even say VFS is integral part of a linux filesystem as
-> it does most of the work a filesystem driver does in other operating
-> systems.
-
-theres no "linux filesystem". there are "linux filesystems".
-thanks god.
-
-But I it would be really grate if you'll elaborate your sentence with
-example of VFS functionality (lack of it) on said "other operating systems"
-and if you'll define "most of work".
-
-
+> http://www.amazon.com/exec/obidos/tg/detail/-/B00005R098/102-7619892-0201738?v=glance
 > 
-> > P.S. I imagine, how much flamed it would be if reiser4 made any intensive
-> > changes in linux VFS code...
+> claims that the Logitech Quickcam Pro 3000 is a "True 640 x 480 
+> resolution video capture" which is now clearly false.
 > 
-> It really depends on how you sent them.  If you had a big patch without
-> explanations - sure.
-It would work with small tweaks, but you just can take a look at reiser4
-code and you'll understand that it just could not be chopped in
-"set of small patches" altough it could be documented better ofcourse,
-but its really well commented already.
+> It would appear I have found an answer to my question.  The reason 
+> Philips made Nemosoft sign an NDA was not to hide proprietory 
+> information from their competitors.  It was to hide the fact that they 
+> were misrepresenting the resolution of their cameras to their 
+> customers.  No wonder Nemosoft did not feel right about opening this 
+> module even after the NDA expired, he would be telling the world their 
+> dirty little secret.  Of course I'm sure this was common knowledge to 
+> all those people who work in robotics and always demand an uncompressed 
+> stream from the camera.
 
-some times, some approaches to  some problems  just would not work.
+Well, it's definitely no surprise, you simply can't push the
+uncompressed stream through USB1.1.
+
+Us in robotics, we use the iBot2 from Orange Micro, which is an USB2.0
+webcam working nicely with Linux at 30fps, 640x480, truecolor,
+uncompressed.
+
+So I don't think that Philips would really be able to "hide" this fact
+by putting the decompressors into a binary only module - everybody knows
+the compression must be lossy to allow for this high a compression
+ratio.
+
+Also, it's quite obvious that there is a big tradeoff between image
+quality and algorithm complexity - it might be possible do do JPEG
+compression in the webcam at full framerate and a reasonably low price,
+but simpler algorithms with worse image quality still be well usable and
+make the price even lower.
 
 -- 
-"the liberation loophole will make it clear.."
-lex lyamin
+Vojtech Pavlik
+SuSE Labs, SuSE CR

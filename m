@@ -1,62 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130436AbRAQUiu>; Wed, 17 Jan 2001 15:38:50 -0500
+	id <S133025AbRAQUkA>; Wed, 17 Jan 2001 15:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130643AbRAQUil>; Wed, 17 Jan 2001 15:38:41 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:56845 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S130436AbRAQUiZ>; Wed, 17 Jan 2001 15:38:25 -0500
-Date: Wed, 17 Jan 2001 12:38:23 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Rick Jones <raj@cup.hp.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <3A65FA77.9E1C1117@cup.hp.com>
-Message-ID: <Pine.LNX.4.30.0101171231420.16292-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S132996AbRAQUju>; Wed, 17 Jan 2001 15:39:50 -0500
+Received: from p3EE0E419.dip.t-dialin.net ([62.224.228.25]:61200 "EHLO
+	router.abc") by vger.kernel.org with ESMTP id <S132815AbRAQUji>;
+	Wed, 17 Jan 2001 15:39:38 -0500
+Message-ID: <3A6602F8.BB3F7ECA@baldauf.org>
+Date: Wed, 17 Jan 2001 21:39:20 +0100
+From: Xuan Baldauf <xuan--lkml@baldauf.org>
+Organization: Medium.net
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: de-DE,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Padraig Brady <Padraig@AnteFacto.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Relative CPU time limit
+In-Reply-To: <3A65E573.D004302B@baldauf.org> <3A65EDE2.4030204@AnteFacto.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Rick Jones wrote:
 
-> > The fact that I understand _why_ it is done that way doesn't mean that I
-> > don't think it's a hack. It doesn't allow you to sendfile multiple files
-> > etc without having nagle boundaries, and the header/trailer stuff really
-> > isn't a generic solution.
+
+Padraig Brady wrote:
+
+> man setrlimit (or ulimit)
+> This is per user though, and only related
+> to user accounting really as you can only
+> set a limit on the number of CPU seconds
+> used.
+
+Yet this is _not_ what I want, especially not for server processes. :-)
+
 >
-> Hmm, I would think that nagle would only come into play if those files
-> were each less than MSS and there were no intervening application level
-> reply/request messages for each.
+>
+> I would also really like the ability
+> to throttle any processes back to a certain
+> % of CPU, and extending this to throttling
+> users to certain CPU limits which would be
+> useful also.
+>
+> Obviously you would set it up so that all
+> available CPU is used, for e.g. if you
+> had 2 CPU bound processes running and you
+> allocated 1 to 40% and the other 60%, when
+> either terminates the other should increase
+> to the available CPU (I can't see any reason
+> why you would forceably limit a process' CPU
+> usage if there was free CPU).
+>
+> Could the current scheduling logic that uses
+> the nice value of a process, do this, and all
+> I would have to do is have a % specifying wrapper
+> around this?
 
-actually the problem isn't nagle...  nagle needs to be turned off for
-efficient servers anyhow.  but once it's turned off, the standard socket
-API requires (or rather allows) the kernel to flush packets to the wire
-after each system call.
+The nice values have to be dynamic. I seem to happen to see the behaviour that
+regardless of which nice value I assign to httpd, great user load kann make the
+whole machine slow down to load ~200. (A horribly slow php script *sigh*) I want
+to limit the sum of all apache processes (which happen to run with the same UID)
+to eat no more than 80% of the available CPU time, at least if there are any
+other processes requesting the CPU. The background is that I'm unable to log in
+to the server when the load is at 200. Apache is already at nice 5 while sshd is
+at nice 0.
 
-consider the case where you're responding to a pair of pipelined HTTP/1.1
-requests.  with the HPUX and BSD sendfile() APIs you end up forcing a
-packet boundary between the two responses.  this is likely to result in
-one small packet on the wire after each response.
+Xuân.
 
-with the linux TCP_CORK API you only get one trailing small packet.  in
-case you haven't heard of TCP_CORK -- when the cork is set, the kernel is
-free to send any maximum size packets it can form, but has to hold on to
-the stragglers until userland gives it more data or pops the cork.
-
-(the heuristic i use in apache to decide if i need to flush responses in a
-pipeline is to look if there are any more requests to read first, and if
-there are none then i flush before blocking waiting for new requests.)
-
-> As for the header/trailer stuff, you're right, I should have spec'd a
-> separate iovec for each :)
-
-well, if you've got low system call overhead (such as linux ;), and you
-add TCP_CORK ... then you don't even need to combine all those system
-calls into one monster syscall.
-
--dean
+>
+>
+> Any other ideas or will I get hacking..
+>
+> Padraig.
+>
+> Xuan Baldauf wrote:
+>
+> > Hello, (maybe a FAQ, but could not find this question)
+> >
+> > is it possible with linux2.4 to limit the relative CPU time
+> > per process or per UID? I saw something like this about 5
+> > years ago on solaris machines, but I have not access to
+> > solaris machines anymore. I do not mean limiting the
+> > absolute CPU time (e.g. "the process should run 20minutes at
+> > maximum and shall be killed after that time), but the
+> > relative CPU time (e.g. "apache should consume at most 80%
+> > of my servers CPU time and shall be throttled if it was to
+> > consume more").
+> >
+> > Thanx,
+> > Xuân. :-)
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > Please read the FAQ at http://www.tux.org/lkml/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,35 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286819AbRLVQkn>; Sat, 22 Dec 2001 11:40:43 -0500
+	id <S286821AbRLVQue>; Sat, 22 Dec 2001 11:50:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286820AbRLVQkd>; Sat, 22 Dec 2001 11:40:33 -0500
-Received: from sushi.toad.net ([162.33.130.105]:1240 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S286819AbRLVQkQ>;
-	Sat, 22 Dec 2001 11:40:16 -0500
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in
-From: Thomas Hood <jdthood@mail.com>
+	id <S286822AbRLVQuY>; Sat, 22 Dec 2001 11:50:24 -0500
+Received: from pop.gmx.de ([213.165.64.20]:30540 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S286821AbRLVQuO>;
+	Sat, 22 Dec 2001 11:50:14 -0500
+Date: Sat, 22 Dec 2001 17:50:07 +0100
+From: Andreas Kinzler <akinzler@gmx.de>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 22 Dec 2001 11:40:25 -0500
-Message-Id: <1009039227.763.0.camel@thanatos>
+Subject: Injecting packets into the kernel
+X-Mailer: Andreas Kinzler's registered AK-Mail 3.11 [ger]
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20011222165020Z286821-18284+6166@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Satchell wrote:
-> Unless you can get the business community to cry
-> out for the change (so that BSD, what's left of BeOS,
-> and Microsoft make the change) this is a Bad Idea(tm).
+I am trying to fix a problem in diald (demand dialing tool). The problem is that
+somewhen you need to resubmit IP packets to the kernel that were buffered while the
+link (PPP in most cases) was down. However, a bit of debugging showed that the method
+used in diald does not work. You cannot submit to ppp0 directly because of masq/forwaring
+issues. Can somebody give me some hints how to submit packets from a user mode programm.
 
-The thing to do is to tell the pointy-haired boss that
-without the 'i' he is being shortchanged 2.5% of the
-RAM he's paying for.
-
-If that doesn't work, tell him the 'i' has always been
-there between the K and the B.  Couldn't he see it?
-He must need new reading glasses.
-
-
+Andreas
 

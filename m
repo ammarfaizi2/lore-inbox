@@ -1,74 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293408AbSCPE1m>; Fri, 15 Mar 2002 23:27:42 -0500
+	id <S293703AbSCPFNH>; Sat, 16 Mar 2002 00:13:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293703AbSCPE1d>; Fri, 15 Mar 2002 23:27:33 -0500
-Received: from h24-83-222-158.vc.shawcable.net ([24.83.222.158]:51590 "EHLO
-	me.bcgreen.com") by vger.kernel.org with ESMTP id <S293408AbSCPE12>;
-	Fri, 15 Mar 2002 23:27:28 -0500
-Message-ID: <3C92C8F0.6070201@bcgreen.com>
-Date: Fri, 15 Mar 2002 20:24:16 -0800
-From: Stephen Samuel <samuel@bcgreen.com>
-Organization: Just Another Radical
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
-X-Accept-Language: en-us, en
+	id <S293708AbSCPFM5>; Sat, 16 Mar 2002 00:12:57 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:5901 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S293703AbSCPFMk>; Sat, 16 Mar 2002 00:12:40 -0500
+To: frankeh@watson.ibm.com
+Cc: "Rajan Ravindran" <rajancr@us.ibm.com>, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] get_pid() performance fix
+In-Reply-To: <OF810580E6.8672B341-ON85256B73.005AF9B8@pok.ibm.com>
+	<20020314231733.638C03FE06@smtp.linux.ibm.com>
+	<87663xlv33.fsf@devron.myhome.or.jp>
+	<20020315183610.212993FE06@smtp.linux.ibm.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 16 Mar 2002 14:12:16 +0900
+In-Reply-To: <20020315183610.212993FE06@smtp.linux.ibm.com>
+Message-ID: <87zo19jdu7.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-CC: Robert Love <rml@tech9.net>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] syscall interface for cpu affinity
-In-Reply-To: <1015784104.1261.8.camel@phantasy> <20020311013853.A1545@devcon.net> <3C92704C.1070909@bcgreen.com> <20020316014326.B31470@devcon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Almost... Same effect  (mostly)...
+Hubertus Franke <frankeh@watson.ibm.com> writes:
 
-It does, however, leaves us arguing the linguistic semantics of
-which name 'who' should have. It seems to me that the most
-natural would be with 'who' being the 'name' of the target, and
-'which' specifying which name space 'who' is operating in.
+> On Friday 15 March 2002 10:16 am, OGAWA Hirofumi wrote:
+> > Whoops! I'm sorry. previous email was the middle of writing.
+> >
+> > Hubertus Franke <frankeh@watson.ibm.com> writes:
+> > > +	if (i == PID_MAP_SIZE) {
+> > > +		if (again) {
+> > > +			/* we didn't find any pid , sweep and try again */
+> > > +			again = 0;
+> > > +			memset(pid_map, 0, PID_MAP_SIZE * sizeof(unsigned long));
+> > > +			last_pid = RESERVED_PIDS;
+> > > +			goto repeat;
+> > > +		}
+> > > +		next_safe = RESERVED_PIDS;
+> > > +		return 0;
+> >
+> > Probably, the bug is here. No bug ....
+> 
+> >
+> >   +	next_safe = RESERVED_PIDS;	/* or 0 */
+> >
+> > > +	read_unlock(&tasklist_lock);
+> > > +	spin_unlock(&lastpid_lock);
+> > > +	return 0;
+> > >  }
+> >
+> > Basically nice, I think.
+> >
+> > BTW, How about using the __set_bit(), find_next_zero_bit(), and
+> > find_next_bit() in get_pid_by_map().
+> >
+> > Thanks for nice work.
+> 
+> OGAWA, honestly I only tried testcase 2.
+> But looking at your suggestion its not clear to me whether
+> there is a bug.
+> Remember we need to determine a valid interval [ last_pid .. next_safe ).
+> In the pid_map function, if no pid is available, then
+> [ PID_MAX .. PID_MAX ) will be returned.
+> The other path should also end up with this as well.
+> Could you  point where you see this not happening.
 
-UGH: messing with these names via pronouns is too confusing:
------------
-    How about this:
+Maybe my point was unclear. Sorry.
 
-int sched_set_affinity(int who, int which, unsigned int len,
-                              unsigned long *new_mask_ptr);
+Please consider what happens after using up pid. Then,
+get_pid_by_map() returns 0.
 
-'who' being a {process, process-group or user } ID , and
-with 'which' being one of {PRIO_PROCESS, PRIO_PGRP, PRIO_USER},
-respectively -- specifying which namespace 'who' operates in.
+And last_pid = 0, next_safe = RESERVED_PIDS.  After it, get_pid()
+returns the values between 0 and RESERVED_PIDS.
 
-I think that that is what you were trying to say, right?
+And the line which I added is also the same reason. 
 
-Andreas Ferber wrote:
- > On Fri, Mar 15, 2002 at 02:06:04PM -0800, Stephen Samuel wrote:
- >
- >> >
- >> >     int sched_set_affinity(int which, int who, unsigned int len,
- >> >                            unsigned long *new_mask_ptr);
- >> >
- >> > with who one of {PRIO_PROCESS,PRIO_PGRP,PRIO_USER} and which according
- >> > to the value of who.
- >>
- >
- > Uh, who/which should be just the other way round in the description
- > (but not in the prototype). Sorry.
- >
- >
- >>I sould suggest that the order be
- >>
- >>int sched_set_affinity(int who, int which, unsigned int len,
- >>                             unsigned long *new_mask_ptr);
- >>
- >>This would have the {p,pg}id be the first thing that a programmer
- >>would see (likely more important than the 'which'.).
-
+Regards.
 -- 
-Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
-		   http://www.bcgreen.com/~samuel/
-Powerful committed communication, reaching through fear, uncertainty and
-doubt to touch the jewel within each person and bring it to life.
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

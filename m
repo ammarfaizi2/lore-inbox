@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270783AbTG0OB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 10:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270796AbTG0OB7
+	id S270799AbTG0OEX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 10:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270797AbTG0OEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 10:01:59 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:26318 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S270783AbTG0OBv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 10:01:51 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Yury Umanets <umka@namesys.com>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Hans Reiser <reiser@namesys.com>, Nikita Danilov <Nikita@Namesys.COM>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <1059315015.10692.207.camel@sonja>
-References: <3F1EF7DB.2010805@namesys.com>
-	 <1059062380.29238.260.camel@sonja>
-	 <16160.4704.102110.352311@laputa.namesys.com>
-	 <1059093594.29239.314.camel@sonja>
-	 <16161.10863.793737.229170@laputa.namesys.com>
-	 <1059142851.6962.18.camel@sonja>
-	 <1059143985.19594.3.camel@haron.namesys.com>
-	 <1059181687.10059.5.camel@sonja>
-	 <1059203990.21910.13.camel@haron.namesys.com>
-	 <1059228808.10692.7.camel@sonja>  <3F23D38B.3020309@namesys.com>
-	 <1059315015.10692.207.camel@sonja>
-Content-Type: text/plain
-Organization: NAMESYS
-Message-Id: <1059315305.25361.9.camel@haron.namesys.com>
+	Sun, 27 Jul 2003 10:04:23 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:46347 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S270806AbTG0ODX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 10:03:23 -0400
+Date: Sun, 27 Jul 2003 16:18:35 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Stoian Atanasov <stoian@ucc.uni-sofia.bg>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Compiling problem with certain options
+Message-ID: <20030727141835.GA944@mars.ravnborg.org>
+Mail-Followup-To: Stoian Atanasov <stoian@ucc.uni-sofia.bg>,
+	linux-kernel@vger.kernel.org
+References: <bg07jn$t1g$1@main.gmane.org> <6usmosz19k.fsf@zork.zork.net> <bg0lvc$7nj$1@main.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3.99 
-Date: Sun, 27 Jul 2003 18:15:05 +0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bg0lvc$7nj$1@main.gmane.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-07-27 at 18:10, Daniel Egger wrote:
-> Am Son, 2003-07-27 um 15.28 schrieb Hans Reiser:
+On Sun, Jul 27, 2003 at 05:01:18PM +0300, Stoian Atanasov wrote:
 > 
-> > it is suitable for any flash device that has wear leveling built into 
-> > the hardware (e.g. all compact flash cards)
-> 
-> Are you sure CF cards have wear leveling? I'm pretty confident that they
-> have defect sector management but no wear leveling. There's a huge
-> difference between those two.
-> 
-> > or for which a wear leveling block device driver is used (I don't know
-> > if one exists for Linux).
-> 
-> This is normally done by the filesystem (e.g. JFFS2).
+> Funny, but now i did the menuconfig again and clear, dep, bzImage, modules
+> and it is ok, maybe i missed removing some module before as i want to
+> compile a quite light kernel.
 
-Normally device driver should be concerned about making wear out
-smaller. It is up to it IMHO.
+make dep is obsolete in 2.6
 
--- 
-We're flying high, we're watching the world passes by...
+> Many times i wanted to compile a kernel with just a fiew options and get
+> some errors, and when want to kompile with lot of options it's ok. I guess
+> there are some dependency problems, which are not handled properly by make
+> dep? And i heard somewhere that it is a common error.
 
+When reconfiguring a 2.4 kernel it is adviced to do a:
+cp .config ..
+make mrproper
+cp ../.config .
+make oldconfig
+make dep
+etc.
+
+For 2.6 you can just run make, without cleaning up before.
+To get a resonable small configuration you can start out with
+"make allnoconfig", which compiles ok in 2.6 for now.
+
+> Is there a dedicated site, forum about this problem?
+
+This is a good place - you can also try kernelnewbies.
+
+	Sam

@@ -1,104 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbUKBRF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbUKBRF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbUKBRF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 12:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUKBRCN
+	id S261315AbUKBRF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 12:05:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbUKBRFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 12:02:13 -0500
-Received: from hostmaster.org ([212.186.110.32]:12930 "EHLO hostmaster.org")
-	by vger.kernel.org with ESMTP id S261251AbUKBQ6u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 11:58:50 -0500
-Subject: Re: 2.6.8 and 2.6.9 Dual Opteron glitches
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Linux Mailing List Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <5AC1EEB8-2CD7-11D9-BF00-000A958E35DC@fhm.edu>
-References: <5AC1EEB8-2CD7-11D9-BF00-000A958E35DC@fhm.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SjBXJAX9n39Qg5l6oSY+"
-Date: Tue, 02 Nov 2004 17:58:47 +0100
-Message-Id: <1099414727.4618.11.camel@hostmaster.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Tue, 2 Nov 2004 12:05:19 -0500
+Received: from zamok.crans.org ([138.231.136.6]:11676 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261885AbUKBRDq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 12:03:46 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, jfannin1@columbus.rr.com, agk@redhat.com,
+       christophe@saout.de, linux-kernel@vger.kernel.org, bzolnier@gmail.com
+Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
+References: <20041026123651.GA2987@zion.rivenstone.net>
+	<20041026135955.GA9937@agk.surrey.redhat.com>
+	<20041026213703.GA6174@rivenstone.net>
+	<20041026151559.041088f1.akpm@osdl.org>
+	<87hdogvku7.fsf@barad-dur.crans.org>
+	<20041026222650.596eddd8.akpm@osdl.org>
+	<20041027054741.GB15910@suse.de> <20041027064146.GG15910@suse.de>
+	<877jpcgolt.fsf@barad-dur.crans.org> <20041102143919.GT6821@suse.de>
+	<20041102145541.GV6821@suse.de>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Tue, 02 Nov 2004 18:03:44 +0100
+In-Reply-To: <20041102145541.GV6821@suse.de> (Jens Axboe's message of "Tue, 2
+	Nov 2004 15:55:41 +0100")
+Message-ID: <87acu0p4i7.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe <axboe@suse.de> disait dernièrement que :
 
---=-SjBXJAX9n39Qg5l6oSY+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Ehm, that should be
+>
+> 		if ((isize - offset))
+> 			bytes_todo = isize - offset;
+> 		else if (bytes_todo > PAGE_SIZE)
+> 			bytes_todo = PAGE_SIZE;
+>
 
-Hi,
+this one works :)
+(of course on top 2.6.10-rc1-mm2, too)
 
-I am using a not-so-new Tyan Thunder K8W S2885 based Dual Opteron
-System.
+Thanks,
 
-On Die, 2004-11-02 at 14:59 +0100, Daniel Egger wrote:=20
-> 1) 32 bit kernel HPET calibration hang: If the kernel is compiled
+-- 
+<JALH> regex are more than some crappy posix thing
+<JALH> they are an art form
 
-Cannot tell as I am using a 64-bit kernel without HPET. Can someone
-maybe tell me which applications use HPET yet?
-
-> 2) 64 bit kernel vgettimeofday panic: The kernel panics in
-
-Cannot confirm this, both 2.6.8.1 and 2.6.9 boot OK.
-
-> 3) Interrupt distribution 32 bit vs. 64 bit. Below is a copy of the
-
-Cannot confirm this, interrupts seem to be almost equally distributed
-with 64-bit kernel and irqbalance running. Did you note that x86_64 does
-not provide in-kernel IRQ balancing.
-
-           CPU0       CPU1
-  0:    2921345    2988327    IO-APIC-edge  timer
-  1:       5767       5414    IO-APIC-edge  i8042
-  3:          2        147    IO-APIC-edge  serial
-  4:      23806      21183    IO-APIC-edge  serial
-  8:          2         37    IO-APIC-edge  rtc
-  9:          0          0   IO-APIC-level  acpi
- 14:      77847      72327    IO-APIC-edge  ide0
- 15:      21317      29959    IO-APIC-edge  ide1
- 16:     216766     217251   IO-APIC-level  EMU10K1, mga@pci:0000:05:00.0
- 17:          0          0   IO-APIC-level  AMD AMD8111
- 19:     182493     182216   IO-APIC-level  ohci_hcd, ohci_hcd
- 24:     317611       1085   IO-APIC-level  eth0
-NMI:          0          0
-LOC:    5908168    5908259
-ERR:          0
-MIS:          0
-
-> 4) ACPI powermanagement (32bit and 64bit): No matter which ACPI options
-
-AFAIK power management is almost unsupported on SMP systems.
-
-Tom
-
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
-
-Quantum Mechanics is God's version of "Trust me."
-
-
-
-
-
---=-SjBXJAX9n39Qg5l6oSY+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iQEVAwUAQYe8x2D1OYqW/8uJAQJF7QgAiBL/dbvgqxvFXdJrsg3BPDg2qX8/lrle
-FBn+P880ewQ6pRpnTWjyhm5ZtpxZgO9HXwoP9zOnpz4/rX6tyMc8waR5vEVvqRvu
-3zCFzRru9KOYdxOrGUtbpQzn5B6mpzjVNPdgppQu54uRJ8co7CHa4K5DWhvy/FOZ
-GjrFyc26BmFsYF/9tlZ1iz1wFSH+PlH3uxoCTt8vPK0Jfgk4IgFDI6JD8g4kQfv6
-y0FfdfHL1i0GD4SyQCCVkFtMhWMLltfOCgiRnRXr8zSd4I8kWKgc6AQEaQWtFpPB
-ArV3sQ8Zm7483ID5nrFxvLEW3LJBJtqIgsZkV9xGAmDiIl3bQ5KZ2w==
-=s727
------END PGP SIGNATURE-----
-
---=-SjBXJAX9n39Qg5l6oSY+--
+	- Marc Zealey on #kernelnewbies
 

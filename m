@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUKDXeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbUKDXji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUKDXeE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 18:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbUKDXeE
+	id S262493AbUKDXji (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 18:39:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUKDXje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 18:34:04 -0500
-Received: from ayaks.net2.nerim.net ([213.41.131.245]:46492 "EHLO
-	nemesis.nata.nx") by vger.kernel.org with ESMTP id S262476AbUKDXdz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 18:33:55 -0500
-Message-ID: <418ABC5F.6060200@enix.org>
-Date: Fri, 05 Nov 2004 00:33:51 +0100
-From: =?ISO-8859-1?Q?J=E9r=F4me_Petazzoni?= <jp@enix.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Thu, 4 Nov 2004 18:39:34 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:28296 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S262493AbUKDXjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 18:39:32 -0500
+Date: Thu, 4 Nov 2004 17:39:08 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+In-Reply-To: <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
+ <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Possible GPL infringement in Broadcom-based routers
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following routers (and they might be other models, too) :
-- Us Robotics 9105 (without wireless) and 9106 (with wireless)
-- Siemens SE515
-- Dynalink RTA230
-- Buffalo WMR-G54
-- Inventel DBW-200
+On Thu, 4 Nov 2004, Linus Torvalds wrote:
 
-... are all based on the same Broadcom chipset (96345 board). They 
-integrate a 4-ports Ethernet switch, a 802.11g wireless access point, 
-and a DSL modem (and doing routing and/or bridging between those 
-interfaces). The CPU runs the MIPS32 instruction set. It runs a 2.4.17 
-linux-mips kernel with additional patches, and is loaded with a lot of 
-free software (busybox, uclibc, zebra...)
+>
+>
+> On Thu, 4 Nov 2004, Adam Heath wrote:
+> > >
+> > > First off, for some people that is literally where _most_ of the CPU
+> > > cycles go.
+> >
+> > So find a fast machine.  As I have already said, you don't need to compile a
+> > kernel for a slow machine/arch *on* a slow machine/arch.
+>
+> I _have_ a fast machine. Others don't. And quite frankly, even I tend to
+> prioritize things like "nice and quiet" over absolute speed.
+>
+> > I don't doubt these are issues.  That's not what I am discussing.
+>
+> Sure it is. You're complaining that developers use old versions of gcc.
+> They do so for a reason. Old versions of gcc are sometimes better. They
+> are better in many ways.
 
-The vendors (probably Broadcom, in fact) had to patch the kernel to 
-support the DSL modem, the wireless interface (which is a PCMCIA-hosted 
-BCM4306 ; which already was subject of heated debates earlier), and also 
-some generic stuff like the flash memory and the front leds. 
-Miscellaneous vendors provide so-called "GPL sources", which are 
-generally mutilated kernels, lacking all the "interesting" parts 
-(wireless and DSL drivers for instance).
+Using an old version of gcc because it is faster at compiling is a
+non-argument.  If people don't bother using newer compilers, complaining
+about their inefficiencies, then the issues will never be resolved.
 
-Can Broadcom and the vendors "escape" the obligations of the GPL by 
-shipping those proprietary drivers as modules, or are they violating the 
-GPL plain and simple by removing the related source code (and showing 
-irrelevant code to show "proof of good will") ?
+I have no problem with older gccs if they produce more correct code.
 
-Broadcom has been contacted about this matter but hasn't answered so 
-far, nor did US Robotics (I tried to contact USR since I own a USR router).
+> Your "use new versions of gcc even if it is slower" argument doesn't make
+> any _sense_. If the new versions aren't any better, why would you want to
+> use them?
 
-Any suggestions about the legal (or if it's a lost cause, technical!) 
-ways to get support for this platform will be very welcome.
+That's not my argument.  Never has been.  I am against people who say not to
+use newer gccs only on the grounds that they are slower.
 
-More information can be found here :
-http://skaya.enix.org/wiki/GplInfringement (some extra details)
-http://skaya.enix.org/wiki/BroadCom96345 (technical info that I gathered 
-about the router, firmware and kernel formats, etc.)
-http://sourceforge.net/projects/brcm6345-linux/ (sourceforge project)
+If they produce bad code, then that's a valid reason.
+If they produce larger code, that is a valid reason.
 
-Best regards,
-Jérôme Petazzoni <jp at enix dot org>
-PS: please be kind and cc me, as my lkml awareness is limited to KT ...
+But slowness doesn't mean wrong, just by being slow.
+
+ps: it seldom makes sense to use a single metric as a measure of the quality
+    of some specific item in some specific situation.

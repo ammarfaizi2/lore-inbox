@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263997AbRFEOlL>; Tue, 5 Jun 2001 10:41:11 -0400
+	id <S264005AbRFEPAP>; Tue, 5 Jun 2001 11:00:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264003AbRFEOlB>; Tue, 5 Jun 2001 10:41:01 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:46087 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S263997AbRFEOks>; Tue, 5 Jun 2001 10:40:48 -0400
-Date: Wed, 6 Jun 2001 02:40:44 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Vipin Malik <vipin.malik@daniel.com>
-Cc: Bjorn Wesen <bjorn.wesen@axis.com>, David Woodhouse <dwmw2@infradead.org>,
-        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: Re: Missing cache flush.
-Message-ID: <20010606024044.A23954@metastasis.f00f.org>
-In-Reply-To: <Pine.LNX.4.21.0106051105110.1078-100000@godzilla.axis.se> <3B1CEB15.FFB2EADB@daniel.com>
+	id <S264007AbRFEPAG>; Tue, 5 Jun 2001 11:00:06 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:5 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S264005AbRFEO7w>;
+	Tue, 5 Jun 2001 10:59:52 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Stephen Wille Padnos <stephenwp@adelphia.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Exporting new functions from kernel 2.2.14 
+In-Reply-To: Your message of "Tue, 05 Jun 2001 10:32:41 MST."
+             <3B1D17B9.92D046A1@adelphia.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B1CEB15.FFB2EADB@daniel.com>; from vipin.malik@daniel.com on Tue, Jun 05, 2001 at 09:22:13AM -0500
-X-No-Archive: Yes
+Date: Wed, 06 Jun 2001 00:59:39 +1000
+Message-ID: <18174.991753179@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 05, 2001 at 09:22:13AM -0500, Vipin Malik wrote:
+On Tue, 05 Jun 2001 10:32:41 -0700, 
+Stephen Wille Padnos <stephenwp@adelphia.net> wrote:
+>Unfortunately, the printk warning was still there.
+>
+>I replaced the unconditional #define MODVERSIONS with
+>#include <linux/config.h>
+>#ifdef CONFIG_MODVERSIONS
+>#define MODVERSIONS
+>#include <linux/modversions.h>
+>#endif
+>
+>this is at the top of my source file. (before module.h and linux.h)
+>
+>(as seen somewhere on the web)
 
-    Here's a stupid question: Are there any processors out there that
-    have a cache but no explicit cache-flush command?
+And like many things on the web, it is wrong.  Do not put anything in
+the source code expect #include <linux/module.h> as the first include.
+In particular do not include modversions.h yourself, it will break in
+2.5.  You compile a module with these gcc flags
 
-Yes, and as Linus pointed out, some with the ability are broken
-anyhow.
+(1) -DMODULE
+(2) -DMODVERSIONS -include $(TOPDIR)/include/linux/modversions.h
+(3) -DEXPORT_SYMTAB
 
+All modules get flag (1).
+All modules get flags (2) but only if .config contains
+CONFIG_MODVERSIONS, otherwise omit these flags.
+Only modules that export symbols get flag (3).
 
-  --cw
+That is what the standard kernel Makefiles do and is the only correct
+way to compile modules.
+
+Keith Owens, kernel build and modutils maintainer.
+

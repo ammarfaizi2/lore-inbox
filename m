@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbTFQJ3J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 05:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbTFQJ3J
+	id S261561AbTFQJl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 05:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbTFQJl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 05:29:09 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:11525 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S261428AbTFQJ3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 05:29:07 -0400
-Date: Tue, 17 Jun 2003 13:41:56 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Anton Blanchard <anton@samba.org>
-Cc: Matthew Wilcox <willy@debian.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: pci_domain_nr vs. /sys/devices
-Message-ID: <20030617134156.A2473@jurassic.park.msu.ru>
-References: <1055341842.754.3.camel@gaston> <20030611144801.GZ28581@parcelfarce.linux.theplanet.co.uk> <20030617044948.GA1172@krispykreme>
+	Tue, 17 Jun 2003 05:41:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61454 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261561AbTFQJl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 05:41:56 -0400
+Date: Tue, 17 Jun 2003 10:55:44 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: bvermeul@blackstar.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with PCMCIA/Orinoco
+Message-ID: <20030617105544.D25452@flint.arm.linux.org.uk>
+Mail-Followup-To: bvermeul@blackstar.nl, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0306171123540.1854-100000@blackstar.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030617044948.GA1172@krispykreme>; from anton@samba.org on Tue, Jun 17, 2003 at 02:49:48PM +1000
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0306171123540.1854-100000@blackstar.nl>; from bvermeul@blackstar.nl on Tue, Jun 17, 2003 at 11:29:00AM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 02:49:48PM +1000, Anton Blanchard wrote:
-> And only creates /proc/bus/pci entries for the first domain.
-
-Err, this definitely breaks X on alpha. On small and mid-range
-machines we always have pci_domain_nr(bus) == bus->number.
-Practically, it's only Marvel where we could overflow an 8-bit
-bus number.
-
-> Finally there was some shuffling required to make pci_bus_exists work
-> (passing in a pci_bus *, ->sysdata and ->number must be initialised
-> before calling it). There are some uses of pci_bus_exists in x86 that
-> will need updating.
+On Tue, Jun 17, 2003 at 11:29:00AM +0200, bvermeul@blackstar.nl wrote:
+> I'm having some problems with 2.5.71 (latest bk yesterday I believe).
+> All works well (pcmcia works as advertised, with one tiny blip on
+> the horizon), except when I want to reboot, when I get the following
+> message:
 > 
-> Thoungts?
+> unregister_netdevice: waiting for eth1 to become free. Usage count = 1
+> 
+> The net device is an Orinoco mini-pci card (eg, cardbus minipci interface 
+> with built-in orinoco card), and it is down.
+> 
+> I'm not sure what causes this, and it's started somewhere in 2.5.70 bk.
 
-Looks good to me, except this (see above):
+I believe this is a netdevice problem and isn't anything to do with
+PCMCIA or Cardbus.  If the net people would like to confirm this, it'd
+be most helpful.
 
-> +	/* Backwards compatibility for domain 0 only */
-> +	if (pci_domain_nr(dev->bus) != 0)
-> +		return 0;
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-How about this instead?
-
-	/* Backwards compatibility for first N PCI domains. */
-	if (pci_domain_nr(dev->bus) > PCI_PROC_MAX_DOMAIN)
-		return 0;
-
-PCI_PROC_MAX_DOMAIN could be defined in asm/pci.h (255 on alpha), default 0.
-
-Ivan.

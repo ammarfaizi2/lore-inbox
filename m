@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262967AbUCRVMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 16:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbUCRVMZ
+	id S262966AbUCRVPv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 16:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbUCRVPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 16:12:25 -0500
-Received: from mailgate2.mysql.com ([213.136.52.47]:53683 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S262967AbUCRVKj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 16:10:39 -0500
-Subject: Re: True  fsync() in Linux (on IDE)
-From: Peter Zaitsev <peter@mysql.com>
-To: Chris Mason <mason@suse.com>
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1079643740.11057.16.camel@watt.suse.com>
-References: <1079572101.2748.711.camel@abyss.local>
-	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
-	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
-	 <1079641026.2447.327.camel@abyss.local>
-	 <1079642001.11057.7.camel@watt.suse.com>
-	 <1079642801.2447.369.camel@abyss.local>
-	 <1079643740.11057.16.camel@watt.suse.com>
-Content-Type: text/plain
-Organization: MySQL
-Message-Id: <1079644190.2450.405.camel@abyss.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 18 Mar 2004 13:09:52 -0800
+	Thu, 18 Mar 2004 16:15:51 -0500
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:58630 "EHLO
+	rtr.ca") by vger.kernel.org with ESMTP id S262968AbUCRVM2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 16:12:28 -0500
+Message-ID: <405A1098.8080409@pobox.com>
+Date: Thu, 18 Mar 2004 16:11:52 -0500
+From: Mark Lord <mlord@pobox.com>
+Organization: Real-Time Remedies Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: vmalloc fix buggy again?
+References: <20040318180744.GE16242@master.mivlgu.local>
+In-Reply-To: <20040318180744.GE16242@master.mivlgu.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-18 at 13:02, Chris Mason wrote:
+Yup.
 
-> > In the former case cache is surely not flushed. 
-> > 
-> Hmmm, is it reiser?  For both 2.4 reiserfs and ext3, the flush happens
-> when you commit.  ext3 always commits on fsync and reiser only commits
-> when you've changed metadata.
+Thanks, Sergey.  I'm suffering severe brain-impairment on this one.
+Please pass this on to Marcelo.
 
-Oh. Yes. This is Reiser, I did not think it is FS issue.
-I'll know to stay away from ReiserFS now.
-
-> 
-> Thanks to Jens, the 2.6 barrier patch has a nice clean way to allow
-> barriers on fsync, O_SYNC, O_DIRECT, etc, so we can make IDE drives much
-> safer than the 2.4 code did.  
-
-Great.
-
-> > I was also surprised to see this simple test case has so different
-> > performance with default and "deadline" IO scheduler   -  1.6 vs 0.5 sec
-> > per 1000 fsync's.
-> 
-> Not sure on that one, both cases are generating tons of unplugs, the
-> drive is just responding insanely fast.
-
-Well why it would be slow if it has write cache off.
-
-
+Cheers
 -- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
+Mark Lord
+Real-Time Remedies Inc.
+mlord@pobox.com
 
-Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
-  http://www.mysql.com/uc2004/
+Sergey Vlasov wrote:
+> Hello!
+> 
+> 
+>># ChangeSet
+>>#   2004/03/14 13:16:58-03:00 mlord...
+>>#   [PATCH] Yet another vmalloc() fixup
+>># 
+>>diff -Nru a/mm/vmalloc.c b/mm/vmalloc.c
+>>--- a/mm/vmalloc.c	Thu Mar 18 09:44:53 2004
+>>+++ b/mm/vmalloc.c	Thu Mar 18 09:44:53 2004
+>>@@ -184,7 +184,7 @@
+>> 	spin_unlock(&init_mm.page_table_lock);
+>> 	flush_cache_all();
+>> 	if (address > start)
+>>-		vmfree_area_pages((address - start), address - start);
+>>+		vmfree_area_pages(address, address - start);
+>> 	return -ENOMEM;
+>> }
+>> 
+> 
+> 
+> Looks like this should be
+> 
+> 		vmfree_area_pages(start, address - start);
+> 
+
 

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270717AbRHPC6b>; Wed, 15 Aug 2001 22:58:31 -0400
+	id <S270720AbRHPDOc>; Wed, 15 Aug 2001 23:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270716AbRHPC6V>; Wed, 15 Aug 2001 22:58:21 -0400
-Received: from ns.caldera.de ([212.34.180.1]:42399 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S270715AbRHPC6F>;
-	Wed, 15 Aug 2001 22:58:05 -0400
-Date: Thu, 16 Aug 2001 04:57:34 +0200
-Message-Id: <200108160257.f7G2vYA18080@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: kaos@ocs.com.au (Keith Owens)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: daddr_t is inconsistent and barely used
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <9980.997929632@kao2.melbourne.sgi.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S270719AbRHPDOW>; Wed, 15 Aug 2001 23:14:22 -0400
+Received: from zok.sgi.com ([204.94.215.101]:26573 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S270716AbRHPDOO>;
+	Wed, 15 Aug 2001 23:14:14 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: daddr_t is inconsistent and barely used 
+In-Reply-To: Your message of "Thu, 16 Aug 2001 04:57:34 +0200."
+             <200108160257.f7G2vYA18080@ns.caldera.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 16 Aug 2001 13:14:20 +1000
+Message-ID: <10589.997931660@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <9980.997929632@kao2.melbourne.sgi.com> you wrote:
-> daddr_t is barely used in the kernel.  2.4.8.
+On Thu, 16 Aug 2001 04:57:34 +0200, 
+Christoph Hellwig <hch@ns.caldera.de> wrote:
+>In article <9980.997929632@kao2.melbourne.sgi.com> you wrote:
+>> daddr_t is barely used in the kernel.  2.4.8.
+>>
+>> The use of daddr_t in freevxfs may give different in core and disk
+>> layouts on different machines.  Is that intended?.
 >
-> The use of daddr_t in freevxfs may give different in core and disk
-> layouts on different machines.  Is that intended?.
+>No, it may not.  Please double check.
 
-No, it may not.  Please double check.
+That is why I said "may".  It seemed puzzling that freevxfs used
+vx_daddr_t for almost everything but daddr_t for a couple of fields.
+An inconsistency with no obvious reason.
 
-> Do we still need daddr_t?
-
-I think so, in fact we really should use daddr_t for all incore disk
-addessing.
-
-> This question was raised when I saw patches for ia64 that replaced u32
-> with unsigned long because ia64 needs 64 bit.  Shouldn't we be using a
-> consistent type that holds kernel addresses as numbers?  off_t and
-> loff_t are not suitable.  caddr_t is close but uses char *, sometimes
-> you want just a number.  What about defining kaddr_t?
-
-vaddr_t?  That's consintant to virt_to_phys, virt_to_bus, etc.. and
-what SVR5 uses.
-
-	Christoph
-
-
--- 
-Whip me.  Beat me.  Make me maintain AIX.

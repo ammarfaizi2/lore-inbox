@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbTKXIGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 03:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTKXIGP
+	id S263639AbTKXIZV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 03:25:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbTKXIZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 03:06:15 -0500
-Received: from gizmo13bw.bigpond.com ([144.140.70.23]:44196 "HELO
-	gizmo13bw.bigpond.com") by vger.kernel.org with SMTP
-	id S263636AbTKXIGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 03:06:13 -0500
-Message-ID: <3FC1BBF1.A4D05AD@eyal.emu.id.au>
-Date: Mon, 24 Nov 2003 19:06:09 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.23-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test10 - BINFMT_ELF
-References: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>
+	Mon, 24 Nov 2003 03:25:21 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:32459 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S263639AbTKXIZT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 03:25:19 -0500
+Date: Mon, 24 Nov 2003 10:25:04 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Junio C Hamano <junkio@cox.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [OT] Re: Linux 2.6.0-test10
+Message-ID: <20031124082504.GA1524@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Junio C Hamano <junkio@cox.net>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org> <7vvfpai81r.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.53.0311240200170.2498@montezuma.fsmlabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0311240200170.2498@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is unusual that a Y/n option includes M in the help text:
-...
-To compile this as a module, choose M here: the module will be called
-binfmt_elf. Saying M or N here is dangerous because some crucial
-programs on your system might be in ELF format.
+On Mon, Nov 24, 2003 at 02:00:58AM -0500, you [Zwane Mwaikambo] wrote:
+> On Sun, 23 Nov 2003, Junio C Hamano wrote:
+> 
+> > Sorry for being paranoid, but is this message really from the
+> > real Linus?  I have never seen Linus' e-mail with long lines
+> > folded with '=' at the end of line, nor with charset ISO-8859-1.
+> 
+> You can normally tell by the thoroughly ancient Pine version ;)
+> 
+> Message-ID: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>
 
-Kernel support for ELF binaries (BINFMT_ELF) [Y/n/?] (NEW) y
-...
+Which could cause uneasiness to a paranoid person:
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+http://www.secunia.com/product/710/
+
+
+-- v --
+
+v@iki.fi

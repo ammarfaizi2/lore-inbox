@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290431AbSAXWp6>; Thu, 24 Jan 2002 17:45:58 -0500
+	id <S290429AbSAXWpn>; Thu, 24 Jan 2002 17:45:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290428AbSAXWpo>; Thu, 24 Jan 2002 17:45:44 -0500
-Received: from svr3.applink.net ([206.50.88.3]:63240 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S290430AbSAXWp3>;
-	Thu, 24 Jan 2002 17:45:29 -0500
-Message-Id: <200201242243.g0OMhAL06878@home.ashavan.org.>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Robert Love <rml@tech9.net>, timothy.covell@ashavan.org
-Subject: Re: RFC: booleans and the kernel
-Date: Fri, 25 Jan 2002 16:44:38 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0201241530000.2839-100000@waste.org> <200201242228.g0OMSlL06826@home.ashavan.org.> <1011911932.810.23.camel@phantasy>
-In-Reply-To: <1011911932.810.23.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S290428AbSAXWpd>; Thu, 24 Jan 2002 17:45:33 -0500
+Received: from cpe.atm2-0-105125.0x3ef2066b.hrnxx2.customer.tele.dk ([62.242.6.107]:33871
+	"HELO mars.ravnborg.org") by vger.kernel.org with SMTP
+	id <S290429AbSAXWp0>; Thu, 24 Jan 2002 17:45:26 -0500
+Date: Thu, 24 Jan 2002 23:47:04 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] kernelconf-0.1.2
+Message-ID: <20020124234704.A968@mars.ravnborg.org>
+Mail-Followup-To: Anuradha Ratnaweera <anuradha@gnu.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020124124548.A2435@lklug.pdn.ac.lk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020124124548.A2435@lklug.pdn.ac.lk>; from anuradha@gnu.org on Thu, Jan 24, 2002 at 12:45:48PM +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 January 2002 16:38, Robert Love wrote:
-> On Fri, 2002-01-25 at 17:30, Timothy Covell wrote:
-> > On Thursday 24 January 2002 16:19, Robert Love wrote:
-> > > how is "if (x)" any less legit if x is an integer ?
-> >
-> > What about
-> >
-> > {
-> >     char x;
-> >
-> >     if ( x )
-> >     {
-> >         printf ("\n We got here\n");
-> >     }
-> >     else
-> >     {
-> >         // We never get here
-> >         printf ("\n We never got here\n");
-> >     }
-> > }
-> >
-> >
-> > That's not what I want.   It just seems too open to bugs
-> > and messy IHMO.
->
-> When would you ever use the above code?  Your reasoning is "you may
-> accidentally check a char for a boolean value."  In other words, not
-> realize it was a char.  What is to say its a boolean?  Or not?  This
-> isn't an argument.  How does having a boolean type solve this?  Just use
-> an int.
->
-> 	Robert Love
+On Thu, Jan 24, 2002 at 12:45:48PM +0600, Anuradha Ratnaweera wrote:
+> 
+> Here we go again...
+> 
+> Version 0.1.2 is an RFC.  Don't use it unless you are really adventurous.
+> The size of the tarball has grown by a factor of 6, mostly due to the
+> symbol files.
 
-It would fix this because then the compiler would refuse to compile
-"if (x)"  when x is not a bool.    That's what I would call type safety.
-But I guess that you all are arguing that C wasn't built that way and
-that you don't want it.    
+Hi Anuradha.
+I have not looked into the SRC, but IIRC you mentioned an interest in LEX/YACC for CML2.
+Take a look at:
+http://www.alphalink.com.au/~gnb/cml2
 
--- 
-timothy.covell@ashavan.org.
+This is an incomplete implementation of a CML2 parser + semantic analysis in C utilising a bison parser.
+
+	Sam

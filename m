@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVBOU3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVBOUcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbVBOU3p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 15:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVBOU3p
+	id S261851AbVBOUcV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 15:32:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbVBOU37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 15:29:45 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:14810 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261868AbVBOUPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 15:15:15 -0500
-Date: Tue, 15 Feb 2005 15:15:14 -0500
-To: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       sergio@sergiomb.no-ip.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give	dev=/dev/hdX as device
-Message-ID: <20050215201514.GC17865@csclub.uwaterloo.ca>
-References: <1108426832.5015.4.camel@bastov> <1108434128.5491.8.camel@bastov> <42115DA2.6070500@osdl.org> <1108486952.4618.10.camel@localhost.localdomain> <20050215194813.GA20922@wszip-kinigka.euro.med.ge.com>
+	Tue, 15 Feb 2005 15:29:59 -0500
+Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:13443 "EHLO
+	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261777AbVBOUVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 15:21:19 -0500
+Subject: Re: [ACPI] Call for help: list of machines with working S3
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: Norbert Preining <preining@logic.at>, Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+In-Reply-To: <4212460A.4000100@gmx.net>
+References: <20050214211105.GA12808@elf.ucw.cz>
+	 <20050215125555.GD16394@gamma.logic.tuwien.ac.at>
+	 <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
+	 <4212460A.4000100@gmx.net>
+Content-Type: text/plain
+Date: Tue, 15 Feb 2005 20:21:15 +0000
+Message-Id: <1108498875.12026.18.camel@elrond.flymine.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050215194813.GA20922@wszip-kinigka.euro.med.ge.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 08:48:13PM +0100, Kiniger, Karl (GE Healthcare) wrote:
-> I can confirm that. Creating a correct  iso image from a CD is a
-> major pain w/o ide-scsi. Depending on what one has done before the iso
-> image is missing some data at the end most of the time.
-> (paired with lots of kernel error messages)
-> 
-> Testing was done here using Joerg Schilling's sdd:
-> 
-> sdd ivsize=`isosize /dev/cdxxx` if=/dev/cdxxx of=/dev/null \
-> 	bs=<several block sizes from 2048 up tried,does not matter>
-> 
-> and most of the time it results in bad iso images....
+On Tue, 2005-02-15 at 19:57 +0100, Carl-Daniel Hailfinger wrote:
 
-I have only ever used his readcd program for doing such things.  It has
-been so long I can't even remember if it was using ide-scsi or ide-cd.
+> Kendall Bennett is working with me to get suspend/resume working
+> even with framebuffers. Once we have results, I'll post them here.
 
-For burning I use ide-cd with cdrecord and growisofs, and so far it has
-worked great.  Flashing firmware on the plextor still requires ide-scsi
-though.
+I've had success using vesafb with vbetool state restoration. vga16fb
+ought to work fairly happily.
 
-Lennart Sorensen
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org
+

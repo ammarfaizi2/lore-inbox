@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311686AbSCNRL1>; Thu, 14 Mar 2002 12:11:27 -0500
+	id <S311687AbSCNRS5>; Thu, 14 Mar 2002 12:18:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311687AbSCNRLR>; Thu, 14 Mar 2002 12:11:17 -0500
-Received: from ns.suse.de ([213.95.15.193]:63246 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S311686AbSCNRLJ>;
-	Thu, 14 Mar 2002 12:11:09 -0500
-Date: Thu, 14 Mar 2002 18:11:06 +0100
-From: Dave Jones <davej@suse.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Martin Dalecki <martin@dalecki.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Actually hide x86 IDE chipsets on !CONFIG_X86
-Message-ID: <20020314181106.J19636@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Martin Dalecki <martin@dalecki.de>,
-	LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020314165018.GE706@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020314165018.GE706@opus.bloom.county>; from trini@kernel.crashing.org on Thu, Mar 14, 2002 at 09:50:18AM -0700
+	id <S311688AbSCNRSs>; Thu, 14 Mar 2002 12:18:48 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17930 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S311687AbSCNRSe>; Thu, 14 Mar 2002 12:18:34 -0500
+Date: Thu, 14 Mar 2002 12:16:49 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Dave Jones <davej@suse.de>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre3aa2
+In-Reply-To: <20020314171300.H19636@suse.de>
+Message-ID: <Pine.LNX.3.96.1020314121029.9630B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14, 2002 at 09:50:18AM -0700, Tom Rini wrote:
- > Hello.  The following actually hides x86-specific drivers on
- > !CONFIG_X86.  The problem is that dep_bool '...' CONFIG_FOO $CONFIG_BAR
- > doesn't have the desired effect if CONFIG_BAR isn't set.
- > 
- > +   if [ "$CONFIG_X86" = "y" ]; then
- > +      bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640
- > +      dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
- > +   fi
+On Thu, 14 Mar 2002, Dave Jones wrote:
 
- I've a PCI card with one of these. It could in theory work on any arch
- with a PCI slot.
+> On Thu, Mar 14, 2002 at 10:53:01AM -0500, Bill Davidsen wrote:
+  
+>  It's not a matter of codesize, it's a correctness issue in the source.
+>  #ifndef CONFIG_M686 is wrong. It assumes a P6 is the only CPU family
+>  in existence without the bug, despite the fact there are probably close
+>  to a dozen others.
+
+  No problem with that, it obviously should be done for all chips which
+could have the bug, both Intel and faithful clones :-(
  
+>  > that many people would set it off not knowing was it was much less whether
+>  > they needed it. This is not like a missing FPU where you can do a graceful
+>  > reject of the instructions, if you have the bug and not the fix you are
+>  > vulnerable to sudden total failures, correct?
+> 
+>  No. You at worse vulnerable to a malicious user running hand-crafted code
+>  (no compiler generates this code-sequence) bringing down the machine.
+
+  Having the machine lock suddenly when user mode code is executed fits MY
+definition of sudden total failure! Malicious user meaning anyone who d/l
+something and runs it. Doesn't take malicious, just dumb. Somone wanting
+to try the new screen saver or some such.
+ 
+>  The proposal however was not to remove anything that we currently have.
+>  Every kernel that is possible to be run on an affected box (i386/i486/i586)
+>  would still have the workaround present. We just won't generate it in
+>  Cyrix III, Athlon, Pentium 4, etc kernels..
+
+  As long as it's not something the user can easily set wrong. If they
+build a kernel for K6 and they have a P-II "stupidity, like virtue, is its
+own reward."
+
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

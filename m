@@ -1,70 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317036AbSHJPj4>; Sat, 10 Aug 2002 11:39:56 -0400
+	id <S317058AbSHJPcI>; Sat, 10 Aug 2002 11:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317066AbSHJPj4>; Sat, 10 Aug 2002 11:39:56 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:38666 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317036AbSHJPjz>;
-	Sat, 10 Aug 2002 11:39:55 -0400
-Date: Sat, 10 Aug 2002 08:40:18 -0700
-From: Greg KH <greg@kroah.com>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [linux-usb-devel] [RFC] USB driver conversion to use "struct device_driver"
-Message-ID: <20020810154018.GB32083@kroah.com>
-References: <20020810001005.GA29490@kroah.com> <200208101157.28759.oliver@neukum.name>
+	id <S317066AbSHJPcH>; Sat, 10 Aug 2002 11:32:07 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:37390 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S317058AbSHJPcE>; Sat, 10 Aug 2002 11:32:04 -0400
+Date: Sat, 10 Aug 2002 19:35:28 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 2.5.30] alpha: rwsem update [10/10]
+Message-ID: <20020810193528.I20534@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200208101157.28759.oliver@neukum.name>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Sat, 13 Jul 2002 14:27:47 -0700
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 10, 2002 at 11:57:28AM +0200, Oliver Neukum wrote:
-> Am Samstag, 10. August 2002 02:10 schrieb Greg KH:
-> > Hi all,
-> 
-> > The USB subsystem only binds drivers to USB "interfaces".  A USB device
-> > may have many "interfaces", so a single device may have many drivers
-> > attached to it, handling different portions of it (think of a USB
-> > speaker, which has a audio driver for the audio stream, and a HID driver
-> > for the speaker buttons.)  Because of this I had to create a "empty"
-> > device driver that I attach to the USB device structure.  This ensures
-> > it shows up properly in the driverfs tree, and that no USB drivers try
-> > to bind to it.
-> 
-> Hi,
-> 
-> the probe/disconnect changes are an improvement.
-> But what do we call a device? IMHO the device in
-> terms of driverfs is the interface, thus the usb_device
-> should be seen as a bus, which interfaces are attached to.
+- __down_[read,write]_trylock, __downgrade_write implemented;
+- __builtin_expect replaced with unlikely().
 
-Hm, I don't really understand your question, but I'll try to explain
-how I did this.
+Ivan.
 
-Both struct usb_device and struct usb_interface now have a struct
-device.  This is because _both_ things need to show up in the driverfs
-tree.  I tried only making interfaces be devices (which is more of what
-the USB core code things of as devices), but the tree just didn't make
-much sense.  Also, a USB device contains such things as the control
-pipe, and the usb descriptors and strings.  So it is useful to show the
-device, as that's where you get the device name and serial number from :)
-
-Does that help?
-
-Try looking at the usb driverfs implementation as it is in 2.5.30, both
-the interfaces and the main device show up in the tree, I didn't change
-this.  All this patch does is start to use "struct device_driver", and
-bind the drivers to the interfaces, _which_ is what the USB core has
-always done (no change in functionality here.)  What this allows us to
-do is remove (eventually) the USB list of devices, and remove some other
-device list logic, as well as clean up the probe/disconnect interface.
-
-thanks,
-
-greg k-h
+--- 2.5.30/include/asm-alpha/rwsem.h	Fri Aug  2 01:16:35 2002
++++ linux/include/asm-alpha/rwsem.h	Thu Aug  8 19:28:02 2002
+@@ -21,6 +21,7 @@ struct rwsem_waiter;
+ extern struct rw_semaphore *rwsem_down_read_failed(struct rw_semaphore *sem);
+ extern struct rw_semaphore *rwsem_down_write_failed(struct rw_semaphore *sem);
+ extern struct rw_semaphore *rwsem_wake(struct rw_semaphore *);
++extern struct rw_semaphore *rwsem_downgrade_wake(struct rw_semaphore *sem);
+ 
+ /*
+  * the semaphore definition
+@@ -83,10 +84,26 @@ static inline void __down_read(struct rw
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(oldcount < 0, 0))
++	if (unlikely(oldcount < 0))
+ 		rwsem_down_read_failed(sem);
+ }
+ 
++/*
++ * trylock for reading -- returns 1 if successful, 0 if contention
++ */
++static inline int __down_read_trylock(struct rw_semaphore *sem)
++{
++	long res, tmp;
++
++	res = sem->count;
++	do {
++		tmp = res + RWSEM_ACTIVE_READ_BIAS;
++		if (tmp <= 0)
++			break;
++	} while (cmpxchg(&sem->count, res, tmp) != res);
++	return res >= 0 ? 1 : 0;
++}
++
+ static inline void __down_write(struct rw_semaphore *sem)
+ {
+ 	long oldcount;
+@@ -107,10 +124,22 @@ static inline void __down_write(struct r
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(oldcount, 0))
++	if (unlikely(oldcount))
+ 		rwsem_down_write_failed(sem);
+ }
+ 
++/*
++ * trylock for writing -- returns 1 if successful, 0 if contention
++ */
++static inline int __down_write_trylock(struct rw_semaphore *sem)
++{
++	long ret = cmpxchg(&sem->count, RWSEM_UNLOCKED_VALUE,
++			   RWSEM_ACTIVE_WRITE_BIAS);
++	if (ret == RWSEM_UNLOCKED_VALUE)
++		return 1;
++	return 0;
++}
++
+ static inline void __up_read(struct rw_semaphore *sem)
+ {
+ 	long oldcount;
+@@ -131,7 +160,7 @@ static inline void __up_read(struct rw_s
+ 	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_READ_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(oldcount < 0, 0)) 
++	if (unlikely(oldcount < 0))
+ 		if ((int)oldcount - RWSEM_ACTIVE_READ_BIAS == 0)
+ 			rwsem_wake(sem);
+ }
+@@ -157,9 +186,36 @@ static inline void __up_write(struct rw_
+ 	:"=&r" (count), "=m" (sem->count), "=&r" (temp)
+ 	:"Ir" (RWSEM_ACTIVE_WRITE_BIAS), "m" (sem->count) : "memory");
+ #endif
+-	if (__builtin_expect(count, 0))
++	if (unlikely(count))
+ 		if ((int)count == 0)
+ 			rwsem_wake(sem);
++}
++
++/*
++ * downgrade write lock to read lock
++ */
++static inline void __downgrade_write(struct rw_semaphore *sem)
++{
++	long oldcount;
++#ifndef	CONFIG_SMP
++	oldcount = sem->count;
++	sem->count -= RWSEM_WAITING_BIAS;
++#else
++	long temp;
++	__asm__ __volatile__(
++	"1:	ldq_l	%0,%1\n"
++	"	addq	%0,%3,%2\n"
++	"	stq_c	%2,%1\n"
++	"	beq	%2,2f\n"
++	"	mb\n"
++	".subsection 2\n"
++	"2:	br	1b\n"
++	".previous"
++	:"=&r" (oldcount), "=m" (sem->count), "=&r" (temp)
++	:"Ir" (-RWSEM_WAITING_BIAS), "m" (sem->count) : "memory");
++#endif
++	if (unlikely(oldcount < 0))
++		rwsem_downgrade_wake(sem);
+ }
+ 
+ static inline void rwsem_atomic_add(long val, struct rw_semaphore *sem)

@@ -1,50 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264518AbTLLJmb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 04:42:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbTLLJmb
+	id S264391AbTLLKEB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 05:04:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbTLLKEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 04:42:31 -0500
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:34756 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264518AbTLLJma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 04:42:30 -0500
-Date: Fri, 12 Dec 2003 04:41:54 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Anton Blanchard <anton@samba.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
-Subject: Re: [PATCH] improve rwsem scalability (was Re: [CFT][RFC] HT scheduler)
-In-Reply-To: <3FD91F5D.30005@cyberone.com.au>
-Message-ID: <Pine.LNX.4.58.0312120440400.14103@devserv.devel.redhat.com>
-References: <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au>
- <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au>
- <3FD81BA4.8070602@cyberone.com.au> <3FD8317B.4060207@cyberone.com.au>
- <20031211115222.GC8039@holomorphy.com> <3FD86C70.5000408@cyberone.com.au>
- <20031211132301.GD8039@holomorphy.com> <3FD8715F.9070304@cyberone.com.au>
- <20031211133207.GE8039@holomorphy.com> <3FD88D93.3000909@cyberone.com.au>
- <3FD91F5D.30005@cyberone.com.au>
+	Fri, 12 Dec 2003 05:04:00 -0500
+Received: from pop.gmx.de ([213.165.64.20]:43660 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264391AbTLLKD6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 05:03:58 -0500
+Date: Fri, 12 Dec 2003 11:03:57 +0100 (MET)
+From: "Svetoslav Slavtchev" <svetljo@gmx.de>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Multiple keyboard/monitor vs linux-2.6?
+X-Priority: 3 (Normal)
+X-Authenticated: #20183004
+Message-ID: <1622.1071223437@www41.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Fri, 12 Dec 2003, Nick Piggin wrote:
+zb == Zoltán Böszörményi
+< zb >
+is there a way to assign different keyboards to different vcs?
+I would like to set up a machine that has 2 keyboards, 2 mice and
+2 videocards and run XFree-4.x on both heads. The videocard/monitor and
+mouse settings are easy to set up but I cannot find a device setting
+for the keyboard in man XF86Config. How can I do it with mainline kernels?
+</ zb >
 
-> getting contended. The following graph is a best of 3 runs average.
-> http://www.kerneltrap.org/~npiggin/rwsem.png
+you can not do it with mainline kernel
 
-the graphs are too noise to be conclusive.
+you need both patched kernel and XFree, although the 
+second might be skiped in case a similar functionality
+added by the kernel patch is used 
 
-> The part to look at is the tail. I need to do some more testing to see
-> if its significant.
+< zb >
+After some googleing I found something called "backstreet ruby"
+http://startx.times.lv/eng-faq.html
+</ zb >
 
-yes, could you go from 150 to 300?
+check the entire documentation there
+and visit the links section -> you'll get the big picture
 
-	Ingo
+for 2.6 most info is still on the linuxconsole ml archive
+
+< zb >
+This gave me this info (howto in a nutshell):
+
+1. Boot with kernel option "dumbcon=N" to activate N dummy console.
+</ zb >
+
+mostly undocumented, but dumbcon= ... is not obligatory for 2.6,
+you can also use multiple independent framebuffer consoles instead,
+which is still work in progress
+
+< zb >
+2. cat /proc/bus/input/devices gives the input devices, search for keyboard
+    entries.
+3. To assign a keyboard to a VT, feed the keyboard Phys= entry into
+    a VT, e.g. echo "isa0060/serio0/input0" > /proc/bus/console/00/keyboard
+4. Start the X server on the proper VT.
+</ zb >
+ 
+you can configure hotplug to do this for you
+and let a display manager start X for you,
+but i'm not sure how well will this work with
+multiple framebuffer consoles
+
+< zb >
+The functionality can be found at linuxconsole.sourceforge.net.
+Will this be included into mainline near term? Say 2.6.[12]?
+The ruby-2.6 is against 2.6.0-test9 so it's almost uptodate.
+</ zb >
+
+the ruby tree works with current 2.6 too
+multiple framebuffer console is not yet polished
+and the framebuffer drivers in vanilla 2.6 aren't
+in very good shape too
+
+i really doubt it will be included in the near term,
+i think it  will be first merged in 2.7 
+(hopefully right after it opens) and then it will 
+be "backported" to 2.6, may be arround 2.6.1[0-9]
+
+best,
+
+svetljo
+
+-- 
++++ GMX - die erste Adresse für Mail, Message, More +++
+Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
+
+

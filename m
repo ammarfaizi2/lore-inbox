@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUFIVGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUFIVJH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbUFIVGR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 17:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266179AbUFIVGR
+	id S266188AbUFIVJH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 17:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266179AbUFIVGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 17:06:17 -0400
-Received: from nepa.nlc.no ([195.159.31.6]:65431 "HELO nepa.nlc.no")
-	by vger.kernel.org with SMTP id S266192AbUFIVDG (ORCPT
+	Wed, 9 Jun 2004 17:06:40 -0400
+Received: from gprs214-136.eurotel.cz ([160.218.214.136]:18818 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S266176AbUFIVCx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 17:03:06 -0400
-Message-ID: <1701.83.109.60.63.1086814977.squirrel@nepa.nlc.no>
-Date: Wed, 9 Jun 2004 23:02:57 +0200 (CEST)
-Subject: timer + fpu stuff locks my console race
-From: stian@nixia.no
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.0-1
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
-Importance: Normal
+	Wed, 9 Jun 2004 17:02:53 -0400
+Date: Wed, 9 Jun 2004 23:00:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mark Gross <mgross@linux.jf.intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsusp "not enough swap space" 2.6.5-mm6.
+Message-ID: <20040609210054.GD17936@elf.ucw.cz>
+References: <200406080829.35120.mgross@linux.intel.com> <20040608230450.GA13916@elf.ucw.cz> <200406090832.04064.mgross@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406090832.04064.mgross@linux.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please keep me in CC as I'm not on the mailinglist. I'm currently on a
-vaccation, so I can't hook my linux-box to the Internet, but I came across
-a race condition in the "old" 2.4.26-rc1 vanilla kernel.
+Hi!
 
-I'm doing some code tests when I came across problems with my program
-locking my console (even X if I'm using a xterm).
+> 2.6.6 still fails, just like the failure reported by the thread independent of 
+> swappiness: 
+> 
+> http://marc.theaimsgroup.com/?t=107806010900002&r=1&w=2
+> 
+> However; as hinted in the thread turning off premption does seem to fix the 
+> problem.
 
-I think first of all gcc triggers the problem, so the full report is here:
-http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15905
+Good.
 
-For more details about versions and other information needed, please let
-me know if needed. It triggers at every attempt at my box currently (and
-I'm lacking Internet connection at the time-being on my machine).
+> When will the CONFIG_PREEMPT work with swsusp again?  (it works with 2.6.2-mm1 
+> on my system a NEC VERSA E120 Daylite with 512MB ram)  
 
+Bad question.
 
+It works for me (with few warnings). CONFIG_PREEMPT is not too high on
+my todo list, sorry.
 
-Stian Skjelstad
+> Also, why does it burp out such a bogus message?  not enough swap, when its 
+> trying to dump only 7000 some pages to a 700MB swap partiion that isn't used 
+> yet is missleading.
+
+How much bogus? It says not enough memory, and there really might be
+not enough RAM available.
+
+Can you quote exact message and/or suggest patch.
+								Pavel
+-- 
+934a471f20d6580d5aad759bf0d97ddc

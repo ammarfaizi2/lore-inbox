@@ -1,95 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283755AbRLEQPn>; Wed, 5 Dec 2001 11:15:43 -0500
+	id <S284442AbRLEQRo>; Wed, 5 Dec 2001 11:17:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283759AbRLEQPd>; Wed, 5 Dec 2001 11:15:33 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:27308 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S283755AbRLEQPZ>;
-	Wed, 5 Dec 2001 11:15:25 -0500
-Date: Wed, 5 Dec 2001 21:09:38 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, lse-tech@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Scalable Statistics Counters
-Message-ID: <20011205210938.D5254@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20011205163153.E16315@in.ibm.com> <Pine.LNX.4.33L.0112051109340.4079-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33L.0112051109340.4079-100000@imladris.surriel.com>; from riel@conectiva.com.br on Wed, Dec 05, 2001 at 11:13:19AM -0200
+	id <S283770AbRLEQRe>; Wed, 5 Dec 2001 11:17:34 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:54028 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S283786AbRLEQQr>;
+	Wed, 5 Dec 2001 11:16:47 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Cyrille Beraud <cyrille.beraud@savoirfairelinux.com>
+Date: Wed, 5 Dec 2001 17:15:52 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Removing an executable while it runs
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <B22D093570E@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
+On  5 Dec 01 at 11:00, Cyrille Beraud wrote:
 
-On Wed, Dec 05, 2001 at 11:13:19AM -0200, Rik van Riel wrote:
-> On Wed, 5 Dec 2001, Ravikiran G Thirumalai wrote:
-> 
-> > Here is a RFC for Scalable Statistics Counters.
-> 
-> > Initial results of micro benchmarking on 3 cpus showed a 65% reduction
-> > in cpu cycles used to update the proposed statistics counter, over
-> > global non atomic counter.
-> 
-> I'd use it, if there were a really easy interface to the thing.
-> 
-> This would include both an interface to automagically use it from
-> the routines where we increase variables to some automagic reporting
-> in /proc ;)
+> I would like to remove an executable from the file-system while it is 
+> running and
+> get all the blocks back immediately, not after the end of the program.
+> Is this possible ?
 
-Which interfaces would you consider complicated ? 
+No. Binary runs from these blocks. Maybe you can force it to run from
+swap by modifying these pages through ptrace interface, but it is
+not supported. Just kill the app if you need these blocks.
 
-I guess currently one would do -
+>  From what I understand, the inode is not released until the program 
+> ends. Do all the file-systems behave the same way ?
 
-struct yyy {
-	int blah1;
-	void *blah2;
-	int stats;
-};
+No. Some will refuse to unlink running app (or another opened file).
+Some will unlink it immediately, and app then dies when it needs
+page-in something. Some works as POSIX mandates.
 
-void some_init_routine(struct another_struct *op)
-{
-	op->yyy = kmalloc(sizeof(struct yyy), GFP_KERNEL);	
-	if (op->yyy == NULL)
-		return;
-	memset(op->yyy, 0, sizeof(struct yyy));
-}
-
-void do_something(struct another_struct *op)
-{
-	op->yyy.stats++;
-}
-
-int get_stats(struct another_struct *op)
-{
-	return op->yyy.stats;
-}
-
-statctr just provides interfaces to do all these three operations.
-Did I miss something here ?
-
-What would be your ideal way of using a statistics counter ?
-
-
-> 
-> (it'd be so cool if we could just start using a statistic variable
-> through some macro and it'd be automatically declared and visible
-> in /proc ;))
-> 
-
-Given a parent /proc directory, it would be possible for statctr to
-automatically create corresponding proc entries and automatically
-reflect the combined per-cpu counter value.
-However if you want to club multiple statctrs together in
-a single /proc entry, then it gets complicated and it might
-just be easier for the driver to maintain its proc entries.
-
-
-Thanks
-Dipankar
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

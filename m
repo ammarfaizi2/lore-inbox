@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293042AbSB1Ms7>; Thu, 28 Feb 2002 07:48:59 -0500
+	id <S293125AbSB1Nt7>; Thu, 28 Feb 2002 08:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293181AbSB1Mq1>; Thu, 28 Feb 2002 07:46:27 -0500
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:3083 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id <S293317AbSB1Mob>; Thu, 28 Feb 2002 07:44:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Henrique Gobbi <henrique@cyclades.com>
-Organization: Cyclades
-To: khc@pm.waw.pl
-Subject: Generic HDLC Protocols
-Date: Thu, 28 Feb 2002 09:44:58 -0300
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-Id: <02022809445800.00921@henrique.cyclades.com.br>
-Content-Transfer-Encoding: 7BIT
+	id <S293400AbSB1Nrc>; Thu, 28 Feb 2002 08:47:32 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38415 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S293395AbSB1NpH>; Thu, 28 Feb 2002 08:45:07 -0500
+Date: Thu, 28 Feb 2002 14:44:55 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Davidovac Zoran <zdavid@unicef.org.yu>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/mounts: two different loop devices mounted on same mountpoint?!
+Message-ID: <20020228134455.GA28490@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020228095948.GG774@elf.ucw.cz> <Pine.LNX.4.33.0202281200230.15246-100000@unicef.org.yu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0202281200230.15246-100000@unicef.org.yu>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello 
+Hi!
 
-I'd like to know what RFC's the protocols provided by Generic HDLC (PPP, 
-Frame-Relay ansy & CCITT, CISCO and X.25) support.
-I look up in the source code but this information is not there (should it 
-be?).
-Can someone give me this information ?
+> I think that is normal behaviour in 2.4.X
+> that one can mount more than once
+> on same mount point.
 
-Thanks in advance
--- 
-Henrique Gobbi
-Software Engineer
-Cyclades Corporation
-+55 11 50333365
-henrique@cyclades.com
+But two different devices? What's the semantics, then?
+> > Hi!
+> >
+> > Kernel 2.4.17:
+> >
+> > pavel@amd:~/misc$ cat /proc/mounts
+> > /dev/root / ext2 rw 0 0
+> > /dev/hda3 /suse ext2 rw 0 0
+> > none /proc proc rw 0 0
+> > none /proc/bus/usb usbdevfs rw 0 0
+> > /dev/cfs0 /overlay coda rw 0 0
+> > /dev/loop0 /mnt ext2 rw 0 0
+> > /dev/loop1 /mnt ext2 rw 0 0
+> > pavel@amd:~/misc$
+> >
+> > Both /dev/loop0 *and* /dev/loop1 mounted on /mnt at same time? Oops?
+> > What's the semantics of that? [And I guess it should not be allowed)
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

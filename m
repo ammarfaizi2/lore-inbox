@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUIARwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267205AbUIARzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267374AbUIARwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 13:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUIARwC
+	id S267205AbUIARzL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 13:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUIARwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 13:52:02 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:45961 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S267400AbUIARtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 13:49:07 -0400
-Message-ID: <41361953.5020004@myrealbox.com>
-Date: Wed, 01 Sep 2004 11:47:47 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040831
-X-Accept-Language: en-us, en
+	Wed, 1 Sep 2004 13:52:32 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:60818 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S267359AbUIAPyk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:54:40 -0400
+Message-ID: <4135F0BB.8040503@hotmail.com>
+Date: Wed, 01 Sep 2004 11:54:35 -0400
+From: Colin <cwvca_spammr@hotmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: davem@davemloft.net
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Excellent tg3 news
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 3/4] v4l: bttv driver update.
+References: <20040831152405.GA15658@bytesex>
+In-Reply-To: <20040831152405.GA15658@bytesex>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+Gerd Knorr wrote:
+>   Hi,
+> 
+> This patch is a minor update for the bttv driver.  Changes:
+> 
+>   * add a few new tv cards.
+>   * add some infrastructure needed by the dvb drivers (for bt878-based
+>     dvb cards).
+>   * improve croma line selection for planar video formats,
+>   * some new debug printk's
 
-Your latest tg3 update fixed my multi-year-long bug.  Thank you!
-
-I'm the one with the BCM5702 Gigabit Ethernet (rev 02) (asus A7V8X)
-which always required an ifdown/up cycle to get the chip working
-after each boot.
-
-It's obviously time to buy a new mobo and start over ;o)
+Will this patch fix the problem with channels being one off from where 
+they're suppose to be?  I can't even tune into channel 6 because of it.

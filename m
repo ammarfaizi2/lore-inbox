@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273577AbRJDNz4>; Thu, 4 Oct 2001 09:55:56 -0400
+	id <S273877AbRJDOB4>; Thu, 4 Oct 2001 10:01:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273622AbRJDNzr>; Thu, 4 Oct 2001 09:55:47 -0400
-Received: from ausxc08.us.dell.com ([143.166.99.216]:4131 "EHLO
-	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
-	id <S273577AbRJDNzi>; Thu, 4 Oct 2001 09:55:38 -0400
-Message-ID: <DCAE0B077C81BE4CA50FD1E225531AE319A13A@AUSXMBT102VS1.amer.dell.com>
-From: Anwar_Payyoorayil@Dell.com
+	id <S273724AbRJDOBj>; Thu, 4 Oct 2001 10:01:39 -0400
+Received: from rj.SGI.COM ([204.94.215.100]:47056 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S273702AbRJDOB1>;
+	Thu, 4 Oct 2001 10:01:27 -0400
+Message-Id: <200110041401.f94E1an22571@jen.americas.sgi.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 To: linux-kernel@vger.kernel.org
-Cc: andrew.bond@compaq.com, jamshed.patel@oracle.com, Robert_Macaulay@Dell.com
-Subject: [PATCH] 2.4.10-ac4 panics when starting Oracle
-Date: Thu, 4 Oct 2001 08:55:49 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: 2.4.11-pre2-xfs 
+In-Reply-To: Message from Andrey Nekrasov <andy@spylog.ru> 
+   of "Thu, 04 Oct 2001 14:15:13 +0400." <20011004141513.A5421@spylog.ru> 
+Date: Thu, 04 Oct 2001 09:01:36 -0500
+From: Steve Lord <lord@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below (against 2.4.10-ac4) fixes it.
+> Hello.
+> 
+>  1. hardware Intel ISP1100 (BX/1GB RAM/IDE DISK)
+>  2. kernel 2.4.11-pre2-xfs, with highmem support
+> 
+>  3. create ramdisk 512Mb and run "tiotest -c -f 110"
 
-Anwar.
+And what type of filesystems were used? I am presuming XFS.
 
---- fs/iobuf.c.orig     Wed Oct  3 16:48:18 2001
-+++ fs/iobuf.c  Wed Oct  3 17:01:06 2001
-@@ -47,6 +47,7 @@
-        iobuf->nr_pages = 0;
-        iobuf->locked = 0;
-        iobuf->io_count.counter = 0;
-+        iobuf->end_io = NULL;
- }
- 
- int alloc_kiobuf_bhs_sz(struct kiobuf * kiobuf, int sz)
+>  4. 
+>  
+>  __alloc_pages: 0-order allocation failed (gfp=0x3d0/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x2f0/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x70/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x2f0/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x70/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x2f0/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x70/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x3f0/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x3f0/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x3f0/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x70/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x2f0/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x2f0/0) from c0127fe9
+>  __alloc_pages: 0-order allocation failed (gfp=0x70/0) from c0127fe9
 
+Can you map that address onto a symbol by any chance?
 
+Steve
 
-> From: Robert Macaulay (robert_macaulay@dell.com)
+p.s. linux-xfs@oss.sgi.com is a good place to mail things like this,
+messages posted to just linux-kernel tend to get lost in the noise.
 
-> 2.4.10-ac4 will panic when starting Oracle. Oracle mounts the database, 
-> and causes the following panic before it finishes with the opening. The 
-> kernel is pure 2.4.10-ac4 with the qla2x00 driver patched in. The box has 
-> 8GB of RAM. 
-
-> Code: Bad EIP value. 
-> >>EIP; 00023384 Before first symbol <===== 
-> Trace; c014f4fc <end_kio_request+3c/60> 
-> Trace; c0137946 <bounce_end_io_read+b6/170> 
-> Trace; c01b18f4 <scsi_queue_next_request+44/110> 
+>  
+>  5. kernel compiled with gdb & have serial console.
+> 
+> -- 
+> bye.
+> Andrey Nekrasov, SpyLOG.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 

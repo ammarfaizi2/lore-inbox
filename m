@@ -1,151 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131776AbQJ2PiC>; Sun, 29 Oct 2000 10:38:02 -0500
+	id <S131745AbQJ2PrF>; Sun, 29 Oct 2000 10:47:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131789AbQJ2Phw>; Sun, 29 Oct 2000 10:37:52 -0500
-Received: from www.collectingnation.com ([206.183.160.80]:22788 "EHLO
-	www.beanienation.com") by vger.kernel.org with ESMTP
-	id <S131776AbQJ2Pho>; Sun, 29 Oct 2000 10:37:44 -0500
-Date: Sun, 29 Oct 2000 10:41:01 -0500 (EST)
-From: John Babina III <babina@pex.net>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: SMP System 2.2.15 #2 locking & Memory oddness?
-Message-ID: <Pine.LNX.4.20.0010291020560.7464-100000@pioneer.local.net>
+	id <S131784AbQJ2Pqz>; Sun, 29 Oct 2000 10:46:55 -0500
+Received: from dialup308.canberra.net.au ([203.33.188.180]:9988 "EHLO
+	didi.localnet") by vger.kernel.org with ESMTP id <S131745AbQJ2Pqq>;
+	Sun, 29 Oct 2000 10:46:46 -0500
+Message-ID: <029f01c041be$fab45d90$0200a8c0@W2K>
+From: "Nick Piggin" <s3293115@student.anu.edu.au>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: test9 oops (in block_read_full_page)
+Date: Mon, 30 Oct 2000 02:43:25 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_029C_01C0421B.2D367DF0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been investigating this for quite a while and am at a
-loss... (Please let me know if you need more information or this post is
-unclear in anway, I tried to make it as complete as possible)
+This is a multi-part message in MIME format.
 
-I am running a heavily hit web server (around half a million hits a
-day) and am getting random lockups (system cannot even be pinged) with no
-warnings or errors and also the memory usage stats seem to fluctuate
-randomly. 
+------=_NextPart_000_029C_01C0421B.2D367DF0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-The machine is randomly locking up 1-2 times a day, with basically no
-syslog errors except this one recently just before a crash:
+I apologise if this oops has already been fixed: it has happened twice but I
+can't find the exact way to trigger it, I just want to make sure it is
+reported ;)
 
-Oct 28 01:38:07 www kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000014 
-Oct 28 01:38:07 www kernel: current->tss.cr3 = 3bf0d000, %cr3 = 3bf0d000 
-Oct 28 01:38:07 www kernel: *pde = 00000000 
+Nick
 
-I also have been running top with 1 second intervals and everything looks
-fine when the lockup occurs... (IE no heavy swapping, or loads off the
-chart)
+------=_NextPart_000_029C_01C0421B.2D367DF0
+Content-Type: application/octet-stream;
+	name="oops"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="oops"
 
-Also, the other strange thing is that if I reload the machine multiple
-times, the memory usage will change even when the machine comes up
-identical each time.  There are two apache processes (see below) that are
-basically the only things running on the machine.  Sometimes I will load
-up the machine and it will say around 500 megs used, and sometimes it will
-jump right to 800-900 megs used.  Also the memory buffers will sometimes
-be around 100 megs and sometimes 300-400 megs.  The load on the server is
-basically the same at these times and I have even run heavy load testing
-(wrote a program to hammer the machine for a few mins and max out the
-processes) with no real difference.
+Unable to handle kernel paging request at virtual address f8e400cc=0A=
+c013020a=0A=
+*pde =3D 00000000=0A=
+Oops: 0000=0A=
+CPU:    0=0A=
+EIP:    0010:[<c013020a>]=0A=
+Using defaults from ksymoops -t elf32-i386 -a i386=0A=
+EFLAGS: 00010202=0A=
+eax: f8e400c0   ebx: c3fdb3d0   ecx: c1a7c81f   edx: c1033c48=0A=
+esi: c1033c48   edi: c1a7c8bc   ebp: 00000000   esp: c1b91ee4=0A=
+ds: 0018   es: 0018   ss: 0018=0A=
+Process bash (pid: 383, stackpage=3Dc1b91000)=0A=
+Stack: c3fdb3d0 c1033c48 c1a7c8bc 00000000 c02677c0 c012a44a 00000000 =
+c0267a58=0A=
+       c1a7c8bc c1a7c81f c012a5b8 c0267a4c 00000000 00000001 00000001 =
+00000000=0A=
+       00000000 c1a7c8bc c014e33f c1033c48 c014dca0 c0123275 c1531cc0 =
+c1033c48=0A=
+Call Trace: [<c012a44a>] [<c012a5b8>] [<c014e33f>] [<c014dca0>] =
+[<c0123275>] [<c012355b>] [<c01234a0>]=0A=
+       [<c012db56>] [<c010a4d3>]=0A=
+Code: 8b 68 0c 8b 44 24 4c 83 78 38 00 75 0b 55 51 50 e8 b1 fa ff=0A=
+=0A=
+>>EIP; c013020a <block_read_full_page+4a/1f0>   <=3D=3D=3D=3D=3D=0A=
+Trace; c012a44a <__alloc_pages_limit+8a/b0>=0A=
+Trace; c012a5b8 <__alloc_pages+148/300>=0A=
+Trace; c014e33f <ext2_readpage+f/20>=0A=
+Trace; c014dca0 <ext2_get_block+0/490>=0A=
+Trace; c0123275 <do_generic_file_read+2a5/4d0>=0A=
+Trace; c012355b <generic_file_read+5b/80>=0A=
+Trace; c01234a0 <file_read_actor+0/60>=0A=
+Trace; c012db56 <sys_read+96/d0>=0A=
+Trace; c010a4d3 <system_call+33/38>=0A=
+Code;  c013020a <block_read_full_page+4a/1f0>=0A=
+00000000 <_EIP>:=0A=
+Code;  c013020a <block_read_full_page+4a/1f0>   <=3D=3D=3D=3D=3D=0A=
+   0:   8b 68 0c                  mov    0xc(%eax),%ebp   <=3D=3D=3D=3D=3D=0A=
+Code;  c013020d <block_read_full_page+4d/1f0>=0A=
+   3:   8b 44 24 4c               mov    0x4c(%esp,1),%eax=0A=
+Code;  c0130211 <block_read_full_page+51/1f0>=0A=
+   7:   83 78 38 00               cmpl   $0x0,0x38(%eax)=0A=
+Code;  c0130215 <block_read_full_page+55/1f0>=0A=
+   b:   75 0b                     jne    18 <_EIP+0x18> c0130222 =
+<block_read_full_page+62/1f0>=0A=
+Code;  c0130217 <block_read_full_page+57/1f0>=0A=
+   d:   55                        push   %ebp=0A=
+Code;  c0130218 <block_read_full_page+58/1f0>=0A=
+   e:   51                        push   %ecx=0A=
+Code;  c0130219 <block_read_full_page+59/1f0>=0A=
+   f:   50                        push   %eax=0A=
+Code;  c013021a <block_read_full_page+5a/1f0>=0A=
+  10:   e8 b1 fa ff 00            call   fffac6 <_EIP+0xfffac6> c112fcd0 =
+<_end+e539dc/4550d0c>=0A=
+ =0A=
 
-The other oddness is the memory does not seem to free.  In the most recent
-loading, memory usage was the following:
-
-             total       used       free     shared    buffers     cached
-Mem:        971872     947944      23928     233900     361108     495764
--/+ buffers/cache:      91072     880800
-Swap:       136544        764     135780
-
-Then I killed the two apache processes and the memory usage stayed
-basically the same.  I even checked top and ps, with no other programs
-hogging memory.  I can't seem to get the memory to "clear".
-
-I have tried re-seating all hardware, upgrading the kernel (I upgraded
-originally from an older kernel), upgrading apache to the latest (the one
-I am using now), etc.
-
-In my testing and calculations, the memory should be large enough for
-these apache processes.  I have also looked into "ipcs" and it shows I
-have around 170K used in shared memory, but FREE states I have 250k plus
-in shared memory.
-
-Any help would be appreciated.  Again, thanks for reading my rambling
-post.  I have included some more details below, if you need any more
-information please let me know.
-
--John
-
-
-Here are the system stats:
--------------------------------------------------------------------
-Linux Kernel 2.2.15 #2 SMP
-Dual Processor Pentium 3, 700 mhz, 256k cache
-1 Gig of memory
-Mylex Raid
-Linux Kernel max processes per user upped to 512 from 256
-(this was an attempt to resolve the problem, system crashing before this
-was done as well)
-
-The main processes that are running are:
-
-Apache 1.3.14 running with max processes of 450, mostly serving tiny
-static graphics (< 1k each) - standard apache, this is the one that gets
-around 500,000 hits a day
-
-Apache 1.3.14 running mod-perl 1.18, max processes around 50
-(I am aware that mod-perl can "bloat" processes and overwhelm machine, but
-I have ruled this out... this apache process is very lowly hit, only gets
-like 10,000 hits a day)
-
-There are some various perl 5.004_03 scripts running on cron-jobs to parse
-log files, etc.
-
-
-Machine Details
--------------------------------------------------------
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 3
-cpu MHz		: 701.607927
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-sep_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr xmm
-bogomips	: 1399.19
-
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 3
-cpu MHz		: 701.607927
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-sep_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr xmm
-bogomips	: 1402.47
-
-             total       used       free     shared    buffers     cached
-Mem:        971872     947944      23928     233900     361108     495764
--/+ buffers/cache:      91072     880800
-Swap:       136544        764     135780
+------=_NextPart_000_029C_01C0421B.2D367DF0--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

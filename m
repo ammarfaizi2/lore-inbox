@@ -1,55 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129446AbRC1Odw>; Wed, 28 Mar 2001 09:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129624AbRC1Odl>; Wed, 28 Mar 2001 09:33:41 -0500
-Received: from mail1.upco.es ([130.206.70.227]:13376 "EHLO mail1.upco.es") by vger.kernel.org with ESMTP id <S129446AbRC1Od3>; Wed, 28 Mar 2001 09:33:29 -0500
-Date: Wed, 28 Mar 2001 16:32:44 +0200
-From: Romano Giannetti <romano@dea.icai.upco.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disturbing news..
-Message-ID: <20010328163244.D11584@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.30.0103280115180.7637-100000@coredump.sh0n.net> <Pine.GSO.4.21.0103280815160.26500-100000@weyl.math.psu.edu>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129624AbRC1OjM>; Wed, 28 Mar 2001 09:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131286AbRC1OjC>; Wed, 28 Mar 2001 09:39:02 -0500
+Received: from 216.41.5.host170 ([216.41.5.170]:16859 "EHLO habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP id <S129624AbRC1Oir>; Wed, 28 Mar 2001 09:38:47 -0500
+Message-Id: <200103281438.f2SEc4Q03910@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
+To: james <jdickens@ameritech.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Ideas for the oom problem 
+In-reply-to: Your message of "Tue, 27 Mar 2001 18:53:18 CST." <01032718343500.32154@friz.themagicbus.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.GSO.4.21.0103280815160.26500-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Mar 28, 2001 at 08:25:46AM -0500
-X-Edited-With-Muttmode: muttmail.sl - 2000-11-20 - RGtti 2001-01-29
+Date: Wed, 28 Mar 2001 09:38:04 -0500
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Notice: this is my first post to l-k since some bug report as old as 0.99...
-so please be kind, don't beat me to hard.
+> a. don't kill any task with a uid < 100 
+>     
+> b. if uid between 100 to 500 or CAP-SYS equivalent enabled 
+> 	set it too a lower priority, so if it is at fault it will happen slower 		   
+>             giving more time before the system collapses
 
-On Wed, Mar 28, 2001 at 08:25:46AM -0500, Alexander Viro wrote:
- 
-> <shrug> If you run untrusted binaries - you are screwed.  If you run
-> them as root - all users on your system are screwed.  If your MUA
-> (or browser, etc.) can run untrusted code - see above. 
-
-Too true. 
-
-But with the new VFS semantics, wouldn't be possible for a MUA to make a
-thing like the following: 
-
-spawn a process with a private namespace. Here a minimun subset of the
-"real" tree (maybe all / except /dev) is mounted readonly. The private /tmp
-and /home/user are substituted by read-write directory that are in the
-"real" tree /home/user/mua/fakehome and /home/user/mua/faketmp. In this
-private namespace, run the "untrusted" binary. 
-
-Now the binary can do much less harm than before, or am I missing something?
-It have no access to real user data, but can use the system library and
-services without changing anything in the system. 
-
-Having the read-only flag per vfs-mount is the only kernel-related thing
-here, I think; all the rest is simply user-space spice :-). 
-
-Have a nice day,
-                   Romano 
+Deciding what not to kill based on who started it seems like a bad idea. Root 
+can start netscape just as easily as any user, but if the choice of processes 
+to kill is root's netscape or a user's experimental database, I'd want the 
+netscape to go away.
 
 
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 411 132
+

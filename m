@@ -1,112 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUJROJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUJROsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUJROJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 10:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266547AbUJROJ4
+	id S266459AbUJROsw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 10:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266547AbUJROsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 10:09:56 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7296 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266517AbUJROJr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 10:09:47 -0400
-Date: Mon, 18 Oct 2004 10:09:14 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fw: signed kernel modules?
-In-Reply-To: <E1CJXww-0006F4-00@chiark.greenend.org.uk>
-Message-ID: <Pine.LNX.4.61.0410181001440.3963@chaos.analogic.com>
-References: <27277.1097702318@redhat.com> <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com>
- <1097843492.29988.6.camel@weaponx.rchland.ibm.com> <200410151153.08527.gene.heskett@verizon.net>
- <1097857049.29988.29.camel@weaponx.rchland.ibm.com>
- <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com>
- <1097860121.13633.358.camel@hades.cambridge.redhat.com>
- <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com>
- <1097873791.5119.10.camel@krustophenia.net> <20041015211809.GA27783@kroah.com>
- <4170426E.5070108@nortelnetworks.com> <Pine.LNX.4.61.0410151744220.3651@chaos.analogic.com>
- <Pine.LNX.4.61.0410151744220.3651@chaos.analogic.com>
- <Pine.LNX.4.61.0410180845040.3512@chaos.analogic.com>
- <E1CJXww-0006F4-00@chiark.greenend.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 18 Oct 2004 10:48:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:62947 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266459AbUJROsr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 10:48:47 -0400
+Date: Mon, 18 Oct 2004 16:50:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+Message-ID: <20041018145008.GA25707@elte.hu>
+References: <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041016153344.GA16766@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Oct 2004, Matthew Garrett wrote:
 
-> Richard B. Johnson <root@chaos.analogic.com> wrote:
->
->> If the whole module license issue is truly one of being able
->> to review the source, then certainly nobody would fear the
->> inclusion of a "PUBLIC" license string. This would fit the
->> broad classification of publicly-available sources, not
->> necessarily just in the "Public domain". For instance, when
->> a company puts the sources for some driver on it's Web Page,
->> but doesn't want to have anything to do with Mr. Stallman.
->
-> This potentially leds to arguments about whether developers who have
-> seen your publically available code are then tainted. If you don't want
+i have released the -U5 Real-Time Preemption patch:
 
-Tainted??? Tainted to what. The stated reason for having module-
-license strings in kernel modules was to save developers from
-having to locate "bugs" that were caused by proprietary modules
-for which there was no source-code available. Now, you say that
-if somebody were to review publicly-available source-code, they
-become tainted?  This is unmitigated political bullshit.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U5
 
-> anything to do with Mr. Stallman, why not just use a BSD-style license?
->
-> -- 
-> Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
->
+this is a release intended to increase stability, but since it also
+includes new debug features and related cleanups it might introduce new
+regressions. Be careful.
 
-Because it doesn't allow "BSD"!  Also, even my mailer doesn't
-like the patch!!! Here it is again....
+there are two big changes:
 
+ - debug feature: automatic semaphore/rwsem deadlock detection, based on
+   the code from Igor Manyilov and Bill Huey.
 
---- linux-2.6.8/kernel/module.c.orig	2004-10-18 08:21:28.000000000 -0400
-+++ linux-2.6.8/kernel/module.c	2004-10-18 08:37:19.000000000 -0400
-@@ -48,6 +48,18 @@
-  #define ARCH_SHF_SMALL 0
-  #endif
+this is a very nice feature that should help in debugging the remaining
+deadlocks. The deadlock detection feature has already helped me fix a
+bug that was causing hangs in the VFS, so it's really useful.
 
-+/*
-+ *  List of acceptible module-license strings.
-+ */
-+static const char *licok[]= {
-+    "GPL",
-+    "GPL v2",
-+    "GPL and additional rights",
-+    "Dual BSD/GPL",
-+    "Dual MPL/GPL",
-+    "PUBLIC" };
-+
-+
-  /* If this is set, the section belongs in the init part of the module */
-  #define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
+ - generic semaphore implementation
 
-@@ -1362,11 +1374,11 @@
+the generic semaphore implementation (which uses rwsems) makes it
+possible to use the deadlock detection mechanism for all the mutex types
+we currently have: semaphores, rw-semaphores, spinlock-mutexes and
+rwlock-mutexes. Another benefit is that PREEMPT_REALTIME becomes much
+more portable this way. (although it's still x86-only at the moment.)
 
-  static inline int license_is_gpl_compatible(const char *license)
-  {
--	return (strcmp(license, "GPL") == 0
--		|| strcmp(license, "GPL v2") == 0
--		|| strcmp(license, "GPL and additional rights") == 0
--		|| strcmp(license, "Dual BSD/GPL") == 0
--		|| strcmp(license, "Dual MPL/GPL") == 0);
-+    size_t i;
-+    for(i=0; i < sizeof(licok) / sizeof(licok[0]); i++)
-+        if(strcmp(license, licok[i]) == 0)
-+            return 1;
-+   return 0;
-  }
+other changes since -U4:
 
-  static void set_license(struct module *mod, const char *license)
+ - crash fix: fixed a possible "unbound recursion upon IRQ entry" bug.
+   introduced preempt_schedule_irq() which now schedules without
+   enabling interrupts again, preventing new IRQs from hitting this
+   task again and triggering preemption. This might fix the
+   'infinite stackdumps' problem Rui Nuno Capela was seeing.
 
+ - deadlock fix: is_subdir()'s PREEMPT_REALTIME locking was buggy. This 
+   could perhaps fix the other problem reported by Rui Nuno Capela.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
+ - i8253_lock fixes: apm, hd.c, gameport.c and analog.c were all 
+   improperly importing the variable while overriding the prototype. 
+   This fixes the bug reported by Florian Schmidt.
 
+ - possible crash fix: one particular lock in selinux has to be 
+   mutex-based, because while held it calls other mutex-using code.
+
+ - two more selinux locks converted to raw spinlocks, because they were
+   called from within raw-critical sections.
+
+ - debug feature: enforce interrupts-enabled upon schedule().
+   (Note that this does not break sleep_on() because sleep_on() does not
+   disable interrupts in the PREEMPT_REALTIME mode. It might break with 
+   !PREEMPT_REALTIME though.)
+
+ - locking cleanup: converted the IPC code from raw spinlocks & RCU to
+   spinlock-mutexes.
+
+ - code cleanup: cleaned up the generic rwsem code.
+
+ - debug feature: implemented /proc/sys/kernel/trace_verbose runtime
+   flag (default:0), which enables a much more verbose printout in
+   /proc/latency_trace.  This trace format can be useful in e.g. 
+   debugging timestamp weirdnesses.
+
+ - irqs-off fix: there was one codepath where irqd would call schedule() 
+   with interrupts disabled.
+
+ - debug feature: the NMI entries in the latency trace now also include 
+   the last-observed-EFLAGS value. Can be useful in figuring out what a
+   certain CPU is doing and why.
+
+ - cleanup: fixed preemption-off ordering: often the spinlock (and 
+   scheduler) code would re-enable preemption and interrupts in the
+   wrong order, opening up a small window for an interrupt handler to
+   fit in and increase the latency of that almost-finished critical
+   section.
+
+ - cleanup: consolidated various bug-printouts. It should now be easy to
+   find whether anything bad happens even amongst lots of preempt-timing
+   printouts: 'dmesg | grep BUG'.
+
+to create a -U5 tree from scratch, the patching order is:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U5
+
+	Ingo

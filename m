@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270748AbRHWXgA>; Thu, 23 Aug 2001 19:36:00 -0400
+	id <S270758AbRHWXlM>; Thu, 23 Aug 2001 19:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270772AbRHWXfv>; Thu, 23 Aug 2001 19:35:51 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:21010 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S270746AbRHWXfj>;
-	Thu, 23 Aug 2001 19:35:39 -0400
-Message-ID: <3B859349.95F09EB1@linux-m68k.org>
-Date: Fri, 24 Aug 2001 01:35:38 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
+	id <S270746AbRHWXlA>; Thu, 23 Aug 2001 19:41:00 -0400
+Received: from [209.38.98.99] ([209.38.98.99]:36481 "EHLO srvr201.castmark.com")
+	by vger.kernel.org with ESMTP id <S270772AbRHWXkt>;
+	Thu, 23 Aug 2001 19:40:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Fred <fred@arkansaswebs.com>
+To: Tony Hoyle <tmh@nothing-on.tv>
+Subject: Re: File System Limitations
+Date: Thu, 23 Aug 2001 18:40:59 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01082316383301.12104@bits.linuxball> <01082318132000.12319@bits.linuxball> <3B858F58.1000606@nothing-on.tv>
+In-Reply-To: <3B858F58.1000606@nothing-on.tv>
 MIME-Version: 1.0
-To: "Magnus Naeslund(f)" <mag@fbab.net>
-CC: raybry@timesn.com, Tim Walberg <twalberg@mindspring.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: macro conflict
-In-Reply-To: <20010823143440.G20693@mindspring.com> <3B85615A.58920036@timesn.com> <03fc01c12c10$8155b060$020a0a0a@totalmef>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01082318405901.12319@bits.linuxball>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+glibc-2.2.2-10
 
-"Magnus Naeslund(f)" wrote:
+dd if=/dev/zero of=./tgb count=4000 bs=1M
 
-> > min(x,y) = ({typeof((x)) __x=(x), __y=(y); (__x < __y) ? __x : __y})
+created file of 2147483647 bytes
+
+[root@bits /a5]# dd if=/dev/zero of=./tgb count=4000 bs=1M
+File size limit exceeded (core dumped)
+[root@bits /a5]#
+
+is glibc part of gcc? where do i find glibc?
+(I've recently compiled gcc-3.00, but won't install cause it breaks kernel 
+compilations).
+
+
+
+TIA
+
+Fred
+
+ _________________________________________________ 
+On Thursday 23 August 2001 06:18 pm, Tony Hoyle wrote:
+> Fred wrote:
+> > so why dos my filesystem have a 2 GB limit?
+> > Must I specify a large block size or some such when i format?
 > >
-> > That gets you the correct "evaluate the args once" semantics and gives
-> > you control over typing (the comparison is done in the type of the
-> > first argument) and we don't have to change a zillion drivers.
-> >
-> > (typeof() is a gcc extension.)
-
-({...}) is also gcc extension.
-
-> But then again, how do you know it's the type of x we want, maybe we want
-> type of y, that is and signed char (not an int like x).
-> Talk about hidden buffer overflow stuff :)
-
-That's the reason I'm using this macro for affs:
-
-#define MIN(a, b) ({            \
-        typeof(a) _a = (a);     \
-        typeof(b) _b = (b);     \
-        _a < _b ? _a : _b;      \
-})
-
-I need a very good reason to use something else, so far I'm unconvinced.
-
-bye, Roman
+> > i run 2.4.9 on redhat7.1 out of the box
+>
+> Does it?  Unless RH are using a seriously old glibc (which I doubt)
+> there's no 2GB limit any more.
+>
+> Some older applications don't work with it AFAIK... anything bundled
+> with a modern distro shouldn't have any problems.
+>
+> Tony
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

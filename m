@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267451AbTGTQuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 12:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbTGTQuZ
+	id S267504AbTGTQvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 12:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbTGTQvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 12:50:25 -0400
-Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:37326 "EHLO
-	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
-	id S267451AbTGTQuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 12:50:24 -0400
-Date: Sun, 20 Jul 2003 19:05:23 +0200
-Message-ID: <vines.sxdD+Gjg4zA@SZKOM.BFS.DE>
-X-Priority: 3 (Normal)
-To: <linux-kernel@vger.kernel.org>
-From: <WHarms@bfs.de> (Walter Harms)
-Reply-To: <WHarms@bfs.de>
-Subject: problem linux-2.6.0-test1 on alpha
-X-Incognito-SN: 25185
-X-Incognito-Version: 5.1.0.84
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Sun, 20 Jul 2003 12:51:47 -0400
+Received: from H143.C231.tor.velocet.net ([216.138.231.143]:22405 "EHLO
+	mjfrazer.org") by vger.kernel.org with ESMTP id S267504AbTGTQvC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 12:51:02 -0400
+Date: Sun, 20 Jul 2003 13:06:02 -0400
+From: Mark Frazer <mark@mjfrazer.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test1 panics on MCE with athlon
+Message-ID: <20030720130602.A439@mjfrazer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Message-Flag: Outlook not so good.
+Organization: Detectable, well, not really
+X-Bender: Want me to smack the corpse around a little?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi list,
- i have a problem with GNU linker for alpha. it crashes when
-linking. ( I compiled with gcc 2.96.)
- 
-  LD      .tmp_vmlinux1
-make: *** [.tmp_vmlinux1] Fehler 139
+Turning off MCE fixes things.  Leaving MCE on was fine under 2.4.21.
 
-I have tried 2.12,2.13,2.14 sofar, no success at all. did anyone else tried 2.6 on alpha ?
+A boot log, cpuinfo and config are at
+http://mjfrazer.org/~mjfrazer/linux/2.6-mce/
 
-walter
-
-ps: i have alread reported this as a bug to binutils
+-mark
+-- 
+Like most of life's problems, this one can be solved with bending. - Bender

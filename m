@@ -1,50 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266140AbUF2XW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266141AbUF2XiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266140AbUF2XW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 19:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUF2XW5
+	id S266141AbUF2XiB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 19:38:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUF2XiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 19:22:57 -0400
-Received: from winds.org ([68.75.195.9]:41877 "EHLO winds.org")
-	by vger.kernel.org with ESMTP id S266078AbUF2XWo (ORCPT
+	Tue, 29 Jun 2004 19:38:01 -0400
+Received: from mail.kroah.org ([65.200.24.183]:31711 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266141AbUF2Xh4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 19:22:44 -0400
-Date: Tue, 29 Jun 2004 19:22:37 -0400 (EDT)
-From: Byron Stanoszek <gandalf@winds.org>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-cc: Mark Haverkamp <markh@osdl.org>, Alan Cox <alan@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: RE: PATCH: Further aacraid work
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D6EE@otce2k03.adaptec.com>
-Message-ID: <Pine.LNX.4.60.0406291918590.27755@winds.org>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D6EE@otce2k03.adaptec.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 29 Jun 2004 19:37:56 -0400
+Date: Tue, 29 Jun 2004 16:36:23 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] More USB patches for 2.6.7
+Message-ID: <20040629233623.GA22852@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jun 2004, Salyzyn, Mark wrote:
+Hi,
 
-> Oooo, good!
->
-> The Adapter has declared itself `dead' (maybe for reasons other than a
-> controlled blinkLED situation). Effectively a crash or complete loss of
-> communications with the Adapter. Last time I've seen this happened it
-> was a bad power supply.
->
-> Contact technical support to have them narrow down the actual cause of
-> adapter failure ... I don't know where the F/W updates are held on the
-> Dell Site.
+Here are some more USB fixes against the latest 2.6.7-bk tree.  Almost
+all of these patches have been in the past few -mm releases.
 
-I found the firmware updates on Dell's site, latest version 2.8.0, build 6089.
-I'm going to try updating the server along with its BIOS tomorrow morning.
+The one odd fs/aio.c change is to export a symbol needed by gadgetfs to
+be a module.  The other fixes here are:
+	- async io support for gadgetfs
+	- usb gadget bugfixes
+	- cdc-acm bugfixes
+	- pwc driver update and fixes
+	- ehci and uhci fixes
+	- usb-serial bug fix.
+	- a few new device ids added
 
-I'll keep you posted!
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/usb-2.6
 
-  -Byron
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
 
---
-Byron Stanoszek                         Ph: (330) 644-3059
-Systems Programmer                      Fax: (330) 644-8110
-Commercial Timesharing Inc.             Email: byron@comtime.com
+thanks,
+
+greg k-h
+
+ Documentation/usb/philips.txt      |   87 ++--
+ drivers/usb/class/cdc-acm.c        |  147 +++++--
+ drivers/usb/class/cdc-acm.h        |   14 
+ drivers/usb/core/hub.c             |   81 ++-
+ drivers/usb/core/hub.h             |    2 
+ drivers/usb/gadget/dummy_hcd.c     |   43 +-
+ drivers/usb/gadget/ether.c         |   10 
+ drivers/usb/gadget/file_storage.c  |    2 
+ drivers/usb/gadget/inode.c         |  184 ++++++++
+ drivers/usb/gadget/serial.c        |    2 
+ drivers/usb/gadget/zero.c          |    2 
+ drivers/usb/host/ehci-hcd.c        |   29 -
+ drivers/usb/host/uhci-debug.c      |    2 
+ drivers/usb/host/uhci-hcd.c        |   19 
+ drivers/usb/host/uhci-hub.c        |    4 
+ drivers/usb/input/hid-tmff.c       |    2 
+ drivers/usb/media/Kconfig          |    2 
+ drivers/usb/media/konicawc.c       |    2 
+ drivers/usb/media/pwc-ctrl.c       |  775 +++++++++++++++++--------------------
+ drivers/usb/media/pwc-if.c         |  225 ++++++----
+ drivers/usb/media/pwc-ioctl.h      |   88 +++-
+ drivers/usb/media/pwc-misc.c       |   50 +-
+ drivers/usb/media/pwc-uncompress.c |   33 +
+ drivers/usb/media/pwc-uncompress.h |   23 -
+ drivers/usb/media/pwc.h            |   43 --
+ drivers/usb/net/kaweth.c           |    4 
+ drivers/usb/net/pegasus.c          |    4 
+ drivers/usb/serial/generic.c       |   33 +
+ drivers/usb/serial/pl2303.c        |   53 ++
+ drivers/usb/serial/pl2303.h        |    6 
+ drivers/usb/serial/usb-serial.c    |   28 -
+ drivers/usb/storage/transport.c    |    6 
+ drivers/usb/storage/unusual_devs.h |   12 
+ fs/aio.c                           |    2 
+ 34 files changed, 1278 insertions(+), 741 deletions(-)
+-----
+
+<hverhagen:dse.nl>:
+  o USB: shut-up kaweth usb/net driver
+
+<slansky:usa.net>:
+  o USB: PL2303 module, new IDs
+
+<torsten.scherer:uni-bielefeld.de>:
+  o USB Storage: unusual_devs.h addition
+
+Alan Stern:
+  o USB Storage: Unusual_devs.h update
+  o USB: Add mb() during initialization of UHCI controller
+  o USB: Imiprove usb_device tracking in dummy_hcd
+  o USB: Fail pending URBs in dummy_hcd upon disconnect
+  o USB: Add logical connect-change notices to the hub driver
+
+Andrew Morton:
+  o USB: pwc-uncompress.h
+
+Craig Nadler:
+  o USB: EHCI IRQ tweaks
+
+David Brownell:
+  o USB: gadgetfs AIO support
+  o USB: usb gadget drivers should be stricter about ZLPs
+
+Frank Neuber:
+  o USB: usb ethernet gadget build fixes on PXA
+
+Greg Kroah-Hartman:
+  o USB: fix bug where removing usb-serial modules or usb serial devices could oops
+  o USB: provide support for the HX version of pl2303 chips
+  o USB: enable the pwc driver to be able to be built again
+
+Herbert Xu:
+  o USB: Fix pegasus_set_multicast lockup in drivers/usb/net/pegasus.c
+
+Ludovic Aubry:
+  o USB: Use 64-bit IO addresses in UHCI driver
+
+Matthew Dharm:
+  o USB: Patch to signal underflow in usb-storage driver
+
+Nemosoft Unv.:
+  o USB: PWC 9.0.1
+
+Oliver Neukum:
+  o USB: kaweth not handling ESHUTDOWN
+  o USB: GFP_KERNEL in irq
+  o USB: another error check in acm
+  o USB:  patches to acm driver
+
+Zinx Verituse:
+  o USB: hid-tmff fix
+

@@ -1,40 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbTIIGlT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 02:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTIIGlT
+	id S263526AbTIIHCd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 03:02:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTIIHCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 02:41:19 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:17553
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S262078AbTIIGlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 02:41:17 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-Date: Tue, 9 Sep 2003 16:49:00 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>, Steven Pratt <slpratt@austin.ibm.com>,
-       linux-kernel@vger.kernel.org
-References: <3F5D023A.5090405@austin.ibm.com> <200309091231.48709.kernel@kolivas.org> <3F5D53B9.8050004@cyberone.com.au>
-In-Reply-To: <3F5D53B9.8050004@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 03:02:33 -0400
+Received: from adsl-67-124-157-90.dsl.pltn13.pacbell.net ([67.124.157.90]:992
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S263526AbTIIHCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 03:02:15 -0400
+Date: Tue, 9 Sep 2003 00:02:13 -0700
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org
+Subject: Re: 2.6.0-test5-mm1
+Message-ID: <20030909070213.GF7314@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, akpm@osdl.org
+References: <20030908235028.7dbd321b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ylS2wUBXLOxYXZFQ"
 Content-Disposition: inline
-Message-Id: <200309091649.00086.kernel@kolivas.org>
+In-Reply-To: <20030908235028.7dbd321b.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Sep 2003 14:14, Nick Piggin wrote:
-> Hi Con,
-> Any chance you could give this
-> http://www.kerneltrap.org/~npiggin/v14/sched-rollup-nopolicy-v14.gz
-> a try? It should apply against test5.
 
-Tested. This patch causes a drop in volano throughput of around 8% also like 
-the other patches. I guess this patch must be good too :P
+--ylS2wUBXLOxYXZFQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Con
+On Mon, Sep 08, 2003 at 11:50:28PM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5=
+/2.6.0-test5-mm1/
 
+Needs the following patch to compile:
+
+--- mm/slab.c~	2003-09-08 23:58:31.000000000 -0700
++++ mm/slab.c	2003-09-08 23:58:33.000000000 -0700
+@@ -2794,11 +2794,13 @@
+ 		} else {
+ 			kernel_map_pages(virt_to_page(objp), c->objsize/PAGE_SIZE, 1);
+=20
++#if DEBUG
+ 			if (c->flags & SLAB_RED_ZONE)
+ 				printk("redzone: 0x%lx/0x%lx.\n", *dbg_redzone1(c, objp), *dbg_redzone=
+2(c, objp));
+=20
+ 			if (c->flags & SLAB_STORE_USER)
+ 				printk("Last user: %p.\n", *dbg_userword(c, objp));
++#endif
+ 		}
+ 		spin_unlock_irqrestore(&c->spinlock, flags);
+=20
+--=20
+Joshua Kwan
+
+--ylS2wUBXLOxYXZFQ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iQIVAwUBP1169KOILr94RG8mAQIpNw//V2KYJYMvmqsDNJeud+vFwSzEZ2aZlxIN
+1fan4Y3hFjzdY2ftyi989DFRHvrVxOmDq7Nw59fIQq0VhGkDYrjvmC8RuOh8tae3
+pkfG6UngtqlsJe7GEVaGO+fkQfvCNdlcn5ps74Jaja3Isb2NqFA/pHk3cG8/T34U
+dwz6QunpxA7kQ2joptbqaD5sIUkAQ/bq2wEQHPS1OyV3rTzbPsYICbwqCbsjqPAl
+WwHulOoyqGSbbFxihUYJv9f35odZ8GEsaeD8+kZ/nHkjWbK2MAJyn+xjmE/DM+5h
+qnJFjAjzpCCTHSDZSZhbbvsFV8uukOzjIDiEaYIoPaiGMeaPQF/YR4wOTOfNxoUK
+dDQ3ni5Le8MSR2ewqmLCud22jj579KSv4LOKSTv4kx/sjHerTxe3vHHd8DOPKKY/
+owvr+qKR9aArIEOkBzCFV9hxgzRz52jhAgAlWIhMgFwsL8ScPK1sZ+EHKZossaJe
+5a6Tb3E1//hO2yspiAC1pEPae9+sZMauK8X8Pu73BuiVisfdz66OEcpCMLBViIKn
+u4o3ONg1r+manRq2zLswzgXMsJjCsuC4Tw+vEj/zBg6fkjmNCaWraF+TiKOve+ZY
+p6bP91pMSpeaXppMb9Mfl4EYmXofv3lu8qcPEzHCcSPQuoeSk43KLm+XAW6CuFix
+1EcBiNUfcEg=
+=/7Vh
+-----END PGP SIGNATURE-----
+
+--ylS2wUBXLOxYXZFQ--

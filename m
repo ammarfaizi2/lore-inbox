@@ -1,120 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130981AbRCFQDB>; Tue, 6 Mar 2001 11:03:01 -0500
+	id <S130993AbRCFQIL>; Tue, 6 Mar 2001 11:08:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130988AbRCFQCw>; Tue, 6 Mar 2001 11:02:52 -0500
-Received: from [38.204.212.32] ([38.204.212.32]:42398 "HELO srv2.ecropolis.com")
-	by vger.kernel.org with SMTP id <S130981AbRCFQCl>;
-	Tue, 6 Mar 2001 11:02:41 -0500
-Date: Tue, 6 Mar 2001 11:02:37 -0500 (EST)
-From: Jeremy Hansen <jeremy@xxedgexx.com>
-X-X-Sender: <jeremy@srv2.ecropolis.com>
-To: Mike Black <mblack@csihq.com>
-cc: Andre Hedrick <andre@linux-ide.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Douglas Gilbert <dougg@torque.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: scsi vs ide performance on fsync's  
-In-Reply-To: <02f901c0a644$61dca150$e1de11cc@csihq.com>
-Message-ID: <Pine.LNX.4.33L2.0103061056410.5957-100000@srv2.ecropolis.com>
+	id <S131002AbRCFQIB>; Tue, 6 Mar 2001 11:08:01 -0500
+Received: from b1.ovh.net ([213.186.33.51]:16367 "HELO ns0.ovh.net")
+	by vger.kernel.org with SMTP id <S130993AbRCFQHr>;
+	Tue, 6 Mar 2001 11:07:47 -0500
+From: "Stephane GARIN" <sgarin@sgarin.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: 2.2.19pre - Kernel Panic: no init found
+Date: Tue, 6 Mar 2001 17:06:06 +0100
+Message-ID: <000e01c0a657$5a359340$4601a8c0@oracle.intranet>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <200103031758.f23HwQn02197@stev.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3612.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Ahh, now we're getting somewhere.
+I tried with init=/bin/sh but no success. I download a 2.2.18 Kernel and I
+use patch 2.2.19pre16 but no success too... I don't know why there is this
+error with this 2.2.19 kernel but not with my 2.2.18 kernel. I'm ready to
+send all technical information about my computer (PIII 650 with 256Mb and a
+ABIT BX133-RAID mothercard).
 
-IDE:
+With Regards,
+Stephane Garin
 
-jeremy:~# time ./xlog file.out fsync
+-----Message d'origine-----
+De : James Stevenson
+Envoyé : samedi 3 mars 2001 18:58
+À : sgarin@sgarin.com
+Objet : Re: 2.2.19pre - Kernel Panic: no init found
 
-real    0m33.739s
-user    0m0.010s
-sys     0m0.120s
 
+Hi
 
-so now this corresponds to the performance we're seeing on SCSI.
+it would mean pass something like
+init=/bin/sh
+not the runlevel you want
 
-So I guess what I'm wondering now is can or should anything be done about
-this on the SCSI side?
-
-Thanks
--jeremy
-
-On Tue, 6 Mar 2001, Mike Black wrote:
-
-> Write caching is the culprit for the performance diff:
+In local.linux-kernel-list, you wrote:
+>Hi,
 >
-> On IDE:
-> time xlog /blah.dat fsync
-> 0.000u 0.190s 0:01.72 11.0%     0+0k 0+0io 91pf+0w
-> # hdparm -W 0 /dev/hda
+>I have a kernel panic with the patch 2.2.19pre16 that I test. I use a
+2.2.18
+>Kernel very well. I used the last patch on this kernel and make my kernel
+>with sames parameters without error message. At the boot, I can see this :
 >
-> /dev/hda:
->  setting drive write-caching to 0 (off)
-> # time xlog /blah.dat fsync
-> 0.000u 0.220s 0:50.60 0.4%      0+0k 0+0io 91pf+0w
-> # hdparm -W 1 /dev/hda
->
-> /dev/hda:
->  setting drive write-caching to 1 (on)
-> # time xlog /blah.dat fsync
-> 0.010u 0.230s 0:01.88 12.7%     0+0k 0+0io 91pf+0w
->
-> On my SCSI setup:
-> # time xlog /usr5/blah.dat fsync
-> 0.020u 0.230s 0:30.48 0.8%      0+0k 0+0io 91pf+0w
+>..
+>eth0: RealTek RTL8139 Fast Ethernet at 0xa800, IRQ 10, 00:50:fc:0b:60:70
+>eth1: RealTek RTL8139 Fast Ethernet at 0xac00, IRQ 11, 00:50:fc:1f:c1:98
+>Partition check:
+> hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 hda10 >
+>Trying to vfree() noexistent vm area (c00f0000)
+>VFS: Mounted root (ext2 filesystem) readonly.
+>Freeing unused kernel memory: 68k freed
+>Kernel panic: No init found. Try passing init= option to kernel.
 >
 >
-> ________________________________________
-> Michael D. Black   Principal Engineer
-> mblack@csihq.com  321-676-2923,x203
-> http://www.csihq.com  Computer Science Innovations
-> http://www.csihq.com/~mike  My home page
-> FAX 321-676-2355
-> ----- Original Message -----
-> From: "Andre Hedrick" <andre@linux-ide.org>
-> To: "Linus Torvalds" <torvalds@transmeta.com>
-> Cc: "Douglas Gilbert" <dougg@torque.net>; <linux-kernel@vger.kernel.org>
-> Sent: Tuesday, March 06, 2001 2:12 AM
-> Subject: Re: scsi vs ide performance on fsync's
 >
+>I tried to start with init=3 but no change. I send this information on this
+>mailing list because I think that could be a bug. Sorry if it is a wrong
+>action of me...
 >
-> On Mon, 5 Mar 2001, Linus Torvalds wrote:
+>With Regards,
+>Stephane Garin
 >
-> > Well, it's fairly hard for the kernel to do much about that - it's almost
-> > certainly just IDE doing write buffering on the disk itself. No OS
-> > involved.
->
-> I am pushing for WC to be defaulted in the off state, but as you know I
-> have a bigger fight than caching on my hands...
->
-> > I don't know if there is any way to turn of a write buffer on an IDE disk.
->
-> You want a forced set of commands to kill caching at init?
->
-> Andre Hedrick
-> Linux ATA Development
-> ASL Kernel Development
-> ----------------------------------------------------------------------------
-> -
-> ASL, Inc.                                     Toll free: 1-877-ASL-3535
-> 1757 Houret Court                             Fax: 1-408-941-2071
-> Milpitas, CA 95035                            Web: www.aslab.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 >
 
--- 
-this is my sig.
+
+--
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+  5:50pm  up 4 days,  5:56,  3 users,  load average: 0.24, 0.38, 0.47
 

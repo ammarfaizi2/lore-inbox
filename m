@@ -1,64 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316608AbSHTIky>; Tue, 20 Aug 2002 04:40:54 -0400
+	id <S316610AbSHTI4F>; Tue, 20 Aug 2002 04:56:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSHTIky>; Tue, 20 Aug 2002 04:40:54 -0400
-Received: from k100-159.bas1.dbn.dublin.eircom.net ([159.134.100.159]:55044
-	"EHLO corvil.com.") by vger.kernel.org with ESMTP
-	id <S316608AbSHTIky>; Tue, 20 Aug 2002 04:40:54 -0400
-Message-ID: <3D62015A.4000707@corvil.com>
-Date: Tue, 20 Aug 2002 09:44:10 +0100
-From: Padraig Brady <padraig.brady@corvil.com>
-Organization: Corvil Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
+	id <S316649AbSHTI4E>; Tue, 20 Aug 2002 04:56:04 -0400
+Received: from ws-002.ray.fi ([193.64.14.2]:64377 "EHLO behemoth.ts.ray.fi")
+	by vger.kernel.org with ESMTP id <S316610AbSHTI4D>;
+	Tue, 20 Aug 2002 04:56:03 -0400
+Date: Tue, 20 Aug 2002 11:59:49 +0300 (EEST)
+From: Tommi Kyntola <kynde@ts.ray.fi>
+X-X-Sender: kynde@behemoth.ts.ray.fi
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (0/4) Entropy accounting fixes
+In-Reply-To: <20020819135222.GB14427@waste.org>
+Message-ID: <Pine.LNX.4.44.0208201134570.3350-100000@behemoth.ts.ray.fi>
 MIME-Version: 1.0
-To: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
-CC: "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'andre@linux-ide.org'" <andre@linux-ide.org>,
-       "Warner, Bill (IndSys, GEFanuc, VMIC)" <Bill.Warner@gefanuc.com>
-Subject: Re: IDE-flash device and hard disk on same controller
-References: <A9713061F01AD411B0F700D0B746CA6802FC1463@vacho6misge.cho.ge.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heater, Daniel (IndSys, GEFanuc, VMIC) wrote:
-> The IDE driver, file ide-probe.c currently contains this test do prevent
-> hard drives and IDE-flash devices (ex CompactFlash) from co-existing on the
-> same IDE controller. 
+On Mon, 19 Aug 2002, Oliver Xymoron wrote:
+> On Mon, Aug 19, 2002 at 01:43:59AM -0400, Theodore Ts'o wrote:
+> > On Sat, Aug 17, 2002 at 09:15:22PM -0500, Oliver Xymoron wrote:
+> >
+> > >  Assuming the interrupt actually has a nice gamma-like distribution
+> > >  (which is unlikely in practice), then this is indeed true. The
+> > >  trouble is that Linux assumes that if a delta is 13 bits, it contains
+> > >  12 bits of actual entropy. A moment of thought will reveal that
+> > >  binary numbers of the form 1xxxx can contain at most 4 bits of
+> > >  entropy - it's a tautology that all binary numbers start with 1 when
+> > >  you take off the leading zeros. This is actually a degenerate case of
+> > >  Benford's Law (http://mathworld.wolfram.com/BenfordsLaw.html), which
+> > >  governs the distribution of leading digits in scale invariant
+> > >  distributions.
+> > > 
+> > >  What we're concerned with is the entropy contained in digits
+> > >  following the leading 1, which we can derive with a simple extension
+> > >  of Benford's Law (and some Python):
+> > 
+> > I'm not a statistician, and my last probability class was over 15
+> > years ago, but I don't buy your extension of Benford's law.  Sure, if
+> > we take street addresses numbering from 1 to 10000, the probability
+> > that the leading digit will be 1 will be roughly 30%.  But the
+> > distribution of the low two digits will be quite evenly distributed.
+> > Put another way, by picking a house at random, and looking at the low
+> > two digits, and can very fairly choose a number between 0 and 99.  
 > 
->         /*
->          * Prevent long system lockup probing later for non-existant
->          * slave drive if the hwif is actually a flash memory card of some
-> variety:
->          */
->         if (drive_is_flashcard(drive)) {
->                 ide_drive_t *mate =
-> &HWIF(drive)->drives[1^drive->select.b.unit];
->                 if (!mate->ata_flash) {
->                         mate->present = 0;
->                         mate->noprobe = 1;
->                 }
->         }
-> 
-> This test's assumption that a spinning hard drive cannot coexist on the same
-> controller as an IDE-flash device is incorrect.  I have a working setup with
-> such a configuration.  I don't think that the IDE subsystem should punish
-> everyone because _some_ hardware cannot tolerate this configuration.
-> 
-> One solution may be to remove this test from the IDE subsystem and force
-> users with buggy hardware to explicitly  disable probing for a second
-> device.  I think the parameters hdx=none or hdx=noprobe should work for
-> them.
-> 
-> Comments??
+> That's correct, and that's what's being calculated. The example Python
+> code calculates the Benford distribution not in base 2, but in base
+> 2^bits. Then it uses the Shannon entropy definition to calculate the
+> overall entropy of that distribution. For a 12 bit number, we've got
+> about 7 bits of entropy, most of it concentrated in the LSBs.
 
-Mentioned several times (and there is a workaround), see:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100446144028502&w=2
+I think you have it slightly wrong there. By snipping away the first digit 
+from a number leaves you with, not Benford's distribution, but 
+uniform distribution, for which the Shannon entropy is naturally roughly
+the bitcount.
 
-I really think some of the default CF logic is bogus.
+Benford's distribution as presented (1 being the first digit 30% of the 
+time) concerns firstly base 10 and secondly randomly upper bound sets.
+For base 2 the Benford's leading digit distribution naturally narrows down 
+to 1 being the first digit 100% of the time. Benford's law says little 
+about the remaining digits. Thus by snipping that first bit away leaves us 
+with a set that reflects the properties of the choice. Assuming it's 
+random, we get uniform distribution.
 
-Pádraig.
+Wether the bit count of the smallest of the three deltas is
+actually sufficient to guarantee us that amount of randomness in the 
+choice is another question. Like stated here already, it can be easily 
+fooled, and there's a strong possibility that it gets "fooled" already.
+
+Clearly periodic but not delta-wise detectable sequences would pass the 
+delta checks. If interrupts get timed like, 1 3 11 50 1 3 11 50 1 3 11 50,
+the deltas would indicate more entropy than there's present.
+
+Some level of fourier analysis would be necessary to go further than what 
+we can with the deltas.
+
+(For the record, I'm not one bit worried about the kernel rng, perhaps 
+the entropy bit count may be theoretically a bit off from time to time, but 
+remarks like "If someone then breaks SHA-1, he can do this and that..."
+only amuze me. If someone breaks SHA-1 we're bound to change the hash 
+then, eh? Not mention that we'd be in deep shit not just kernelwise.)
+
+-- 
+Tommi Kynde Kyntola		kynde@ts.ray.fi
+      "A man alone in the forest talking to himself and
+       no women around to hear him. Is he still wrong?"
 

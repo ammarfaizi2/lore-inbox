@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263205AbREWSe5>; Wed, 23 May 2001 14:34:57 -0400
+	id <S263213AbREWSnI>; Wed, 23 May 2001 14:43:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263206AbREWSes>; Wed, 23 May 2001 14:34:48 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63499 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263205AbREWSeb>; Wed, 23 May 2001 14:34:31 -0400
-Subject: Re: Selectively refusing TCP connections
-To: linux-kernel@slimyhorror.com (Ben Mansell)
-Date: Wed, 23 May 2001 19:31:32 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105231841230.1163-100000@baphomet.bogo.bogus> from "Ben Mansell" at May 23, 2001 06:59:02 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263214AbREWSm6>; Wed, 23 May 2001 14:42:58 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:45503 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263213AbREWSmn>;
+	Wed, 23 May 2001 14:42:43 -0400
+Date: Wed, 23 May 2001 14:42:42 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andries.Brouwer@cwi.nl
+cc: helgehaf@idb.hist.no, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <UTC200105231828.UAA89871.aeb@vlet.cwi.nl>
+Message-ID: <Pine.GSO.4.21.0105231430210.20269-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E152dPw-0003va-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any mechanism in Linux for refusing incoming TCP connections?
 
-Not unless Dave added one I dont know about
 
-> I'd like to be able to fetch the next incoming connection on a listen
-> queue, and selectively accept or reject it based on the IP address of the
+On Wed, 23 May 2001 Andries.Brouwer@cwi.nl wrote:
 
-By the time you are notified the connection has completed. Also because we
-use syn cookies you don't actually know about pending connections because the
-state is all kept on the client
+> > Andries, initrd code is _sick_.
+> 
+> Oh, but the fact that there exists a bad implementation
+> does not mean the idea is wrong. It is really easy to
+> make an elegant implementation.
+
+Andries, I've been doing cleanups of that logics (see namespaces-patch -
+they've got merged into it) and I have to say that you are sadly mistaken.
+
+It's not just an implementation that is ugly, it's behaviour currently
+implemented (and relied upon by existing boot setups) that is extremely
+ill-defined and crufty. I would rather get rid of the abortion, but that
+is impossible without breaking tons of existing setups.
+
+And that _is_ an area where "we can do something vaguely similar to
+current behaviour that wouldn't take pages to describe" does not work.
+You don't fsck with others' boot sequences, unless you want a free
+tar-and-feather ride. I don't want it.
+
+Besides, just on general principles, we'd better have clean interface
+for changing partitioning on the kernel side and rip that crap out of
+$BIGNUM fdisk implmentations. It can be made modular, so problem of
+teaching it new types of partitions is not hard.
 

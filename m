@@ -1,47 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315785AbSFUKXz>; Fri, 21 Jun 2002 06:23:55 -0400
+	id <S316496AbSFUKbv>; Fri, 21 Jun 2002 06:31:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315746AbSFUKXy>; Fri, 21 Jun 2002 06:23:54 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:15322 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S315785AbSFUKXy>; Fri, 21 Jun 2002 06:23:54 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Jakob Oestergaard <jakob@unthought.net>
-Date: Fri, 21 Jun 2002 20:24:29 +1000 (EST)
+	id <S316535AbSFUKbu>; Fri, 21 Jun 2002 06:31:50 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:44813 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316496AbSFUKbt> convert rfc822-to-8bit; Fri, 21 Jun 2002 06:31:49 -0400
+Message-ID: <3D130095.6050207@evision-ventures.com>
+Date: Fri, 21 Jun 2002 12:31:49 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15634.65245.599087.397914@notabene.cse.unsw.edu.au>
-Cc: William Thompson <wt@electro-mechanical.com>, linux-kernel@vger.kernel.org
-Subject: Re: partition md raid?
-In-Reply-To: message from Jakob Oestergaard on Friday June 21
-References: <20020619103611.A7291@coredump.electro-mechanical.com>
-	<15634.38076.959047.462763@notabene.cse.unsw.edu.au>
-	<20020621073657.GC19794@unthought.net>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: hda: error: DMA in progress..
+References: <20020621092459.GD27090@suse.de> <3D12FA4D.6060500@evision-ventures.com> <20020621101202.GF27090@suse.de>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday June 21, jakob@unthought.net wrote:
-> On Fri, Jun 21, 2002 at 12:51:40PM +1000, Neil Brown wrote:
-> > On Wednesday June 19, wt@electro-mechanical.com wrote:
-> > > Is this possible (w/o using lvm)
-> > 
-> > Yes, but you need a patch...
-> ...
+U¿ytkownik Jens Axboe napisa³:
+> On Fri, Jun 21 2002, Martin Dalecki wrote:
+
 > 
-> Any plans for getting this into the kernel Neil ?
+>>And I was asking about it's possible interactions with TCQ.
+> 
+> 
+> Haven't even tried TCQ yet, the above is just plain dma (no travelstarts
+> can do tcq).
 
-I've been hanging out for 2.4.19 to be released.  Then I hope to
-submit some of the changes that recently went into 2.5 (which sort out
-the locking) and then the partitioning.
+Argh...
 
-I suspect the functionality will end up in 2.5 one day, but I'm not
-sure how and I'm not going to push it until (unless) the block_dev
-layer settles down.
 
-NeilBrown
+>>
+>>	if (blk_queue_plugged(&drive->queue)) {
+>>			BUG_ON(!drive->using_tcq);
+>>			break;
+
+> 
+> Not exactly, let me see if I remember the race here... The queue can
+> become plugged when we queue one request with the drive (the only on the
+> queue at that time), and then try to queue another right after (hence
+> only a tcq issue). In that time period, we drop the queue lock, so it's
+> indeed possible for the block layer to plug the queue before we reach
+> the above code again. The drive can be in two states here, 1) IDE_DMA is
+> set because the drive didn't release the bus (or it did, and it already
+> reconnected), or 2) drive is disconnected from the bus.
+
+OK. We have now just one single place where IDE_DMA gets unset ->
+udma_stop. This to too early to reset IDE_BUSY. However it well
+may be that ide_dma_intr() simply doesn't care about IDE_BUSY.
+Let's have a look...
+
+> 
+> For non-tcq, hitting IDE_DMA set queue_commands() is a bug. The old
+> IDE_BUSY/IDE_DMA worked because IDE_DMA must not be set if IDE_BUSY is
+> not set.
+> 
+> 
+>>This time it's no new damage - just detecting weak code
+>>from the past...
+> 
+> 
+> Smells like new breakage to me :-)
+
+Well lets look at ata_irq_intr, the end of it:
+
+	 * Note that handler() may have set things up for another
+	 * interrupt to occur soon, but it cannot happen until
+	 * we exit from this routine, because it will be the
+	 * same irq as is currently being serviced here, and Linux
+	 * won't allow another of the same (on any CPU) until we return.
+	 */
+	if (startstop == ide_stopped) {
+		if (!ch->handler) {	/* paranoia */
+			clear_bit(IDE_BUSY, ch->active);
+			do_request(ch);
+		} else {
+			printk("%s: %s: huh? expected NULL handler on exit\n", drive->name, __FUNCTION__);
+		}
+	} else if (startstop == ide_released)
+		queue_commands(drive);
+
+I think the above needs more tough now...
+

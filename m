@@ -1,81 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264544AbTDXXz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 19:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTDXXu2
+	id S264552AbTDYAAy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 20:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbTDXX72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 19:50:28 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:11947 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264550AbTDXXpH convert rfc822-to-8bit
+	Thu, 24 Apr 2003 19:59:28 -0400
+Received: from A17-250-248-89.apple.com ([17.250.248.89]:23249 "EHLO
+	smtpout.mac.com") by vger.kernel.org with ESMTP id S264549AbTDXX6z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 19:45:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1051228746897@kroah.com>
-Subject: [PATCH] i2c driver changes for 2.5.68
-In-Reply-To: <20030424235836.GA29888@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 24 Apr 2003 16:59:06 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Mime-Version: 1.0
+	Thu, 24 Apr 2003 19:58:55 -0400
+Date: Fri, 25 Apr 2003 10:11:33 +1000
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: linux-kernel@vger.kernel.org
+To: Florian Weimer <fw@deneb.enyo.de>
+From: Stewart Smith <stewartsmith@mac.com>
+In-Reply-To: <87lly6flrz.fsf@deneb.enyo.de>
+Message-Id: <791E70DC-76B2-11D7-BE62-00039346F142@mac.com>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1179.3.1, 2003/04/23 11:32:48-07:00, hch@lst.de
+On Sunday, April 20, 2003, at 03:18  AM, Florian Weimer wrote:
+> IDE disks automatically remap defective sectors, so you won't see any
+> of them unless the disk is already quite broken.
 
-[PATCH] i2c: remove dead junk from i2c-sensors.h
-
-
- include/linux/i2c-sensor.h |   32 --------------------------------
- 1 files changed, 32 deletions(-)
-
-
-diff -Nru a/include/linux/i2c-sensor.h b/include/linux/i2c-sensor.h
---- a/include/linux/i2c-sensor.h	Thu Apr 24 16:47:45 2003
-+++ b/include/linux/i2c-sensor.h	Thu Apr 24 16:47:45 2003
-@@ -22,18 +22,6 @@
- #ifndef _LINUX_I2C_SENSOR_H
- #define _LINUX_I2C_SENSOR_H
- 
--#include <linux/sysctl.h>
--
--/* The type of callback functions used in sensors_{proc,sysctl}_real */
--typedef void (*i2c_real_callback) (struct i2c_client * client,
--				       int operation, int ctl_name,
--				       int *nrels_mag, long *results);
--
--/* Values for the operation field in the above function type */
--#define SENSORS_PROC_REAL_INFO 1
--#define SENSORS_PROC_REAL_READ 2
--#define SENSORS_PROC_REAL_WRITE 3
--
- /* A structure containing detect information.
-    Force variables overrule all other variables; they force a detection on
-    that place. If a specific chip is given, the module blindly assumes this
-@@ -350,24 +338,4 @@
- 	else
- 		return value;
- }
--
--
--/* The maximum length of the prefix */
--#define SENSORS_PREFIX_MAX 20
--
--/* Sysctl IDs */
--#ifdef DEV_HWMON
--#define DEV_SENSORS DEV_HWMON
--#else				/* ndef DEV_HWMOM */
--#define DEV_SENSORS 2		/* The id of the lm_sensors directory within the
--				   dev table */
--#endif				/* def DEV_HWMON */
--
--#define SENSORS_CHIPS 1
--struct i2c_chips_data {
--	int sysctl_id;
--	char name[SENSORS_PREFIX_MAX + 13];
--};
--
- #endif				/* def _LINUX_I2C_SENSOR_H */
--
+IIRC:
+A drive that has trouble reading a sector will remap it. If the sector 
+is dead and it can't read it at all, you're screwed and you don't get 
+your data. This is why you still see 'unreadable sector' error messages 
+from your drive.
+------------------------------
+Stewart Smith
+stewartsmith@mac.com
+Ph: +61 4 3884 4332
+ICQ: 6734154
 

@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130692AbQKQDVY>; Thu, 16 Nov 2000 22:21:24 -0500
+	id <S129145AbQKQD0q>; Thu, 16 Nov 2000 22:26:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130842AbQKQDVO>; Thu, 16 Nov 2000 22:21:14 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:10742 "HELO
-	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
-	id <S130667AbQKQDVG>; Thu, 16 Nov 2000 22:21:06 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Dan Aloni <karrde@callisto.yi.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, netfilter@us5.samba.org
-Subject: Re: (iptables) ip_conntrack bug? 
-In-Reply-To: Your message of "Thu, 16 Nov 2000 01:42:14 +0200."
-             <Pine.LNX.4.21.0011160131050.18364-100000@callisto.yi.org> 
-Date: Fri, 17 Nov 2000 13:50:56 +1100
-Message-Id: <20001117025056.6C92E813F@halfway.linuxcare.com.au>
+	id <S129147AbQKQD0h>; Thu, 16 Nov 2000 22:26:37 -0500
+Received: from clem.digital.net ([204.215.239.73]:7180 "EHLO clem.digital.net")
+	by vger.kernel.org with ESMTP id <S129145AbQKQD01>;
+	Thu, 16 Nov 2000 22:26:27 -0500
+From: Pete Clements <clem@clem.digital.net>
+Message-Id: <200011170256.VAA10669@clem.digital.net>
+Subject: 2.4.0-test11-pre6 fails compile (dev.c)
+To: linux-kernel@vger.kernel.org (linux-kernel)
+Date: Thu, 16 Nov 2000 21:56:23 -0500 (EST)
+X-Mailer: ELM [version 2.4ME+ PL48 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.21.0011160131050.18364-100000@callisto.yi.org> you write
-:
-> I think I got something, icmp_error_track() increases the use count
-> (calling ip_conntrack_find_get()) when it returns with no error (not NULL). 
+FYI:
 
-The reference count is now held by the skb.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o dev.o dev.c
+dev.c: In function `run_sbin_hotplug':
+dev.c:2736: `hotplug_path' undeclared (first use in this function)
+dev.c:2736: (Each undeclared identifier is reported only once
+dev.c:2736: for each function it appears in.)
+make[3]: *** [dev.o] Error 1
+make[3]: Leaving directory `/sda3/usr/src/linux-2.4.0-test11/net/core'
+make[2]: *** [first_rule] Error 2
 
-Hope that helps,
-Rusty.
---
-Hacking time.
+-- 
+Pete Clements 
+clem@clem.digital.net
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

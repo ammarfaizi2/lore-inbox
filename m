@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279986AbRKRXTX>; Sun, 18 Nov 2001 18:19:23 -0500
+	id <S281596AbRKRXWf>; Sun, 18 Nov 2001 18:22:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280047AbRKRXTN>; Sun, 18 Nov 2001 18:19:13 -0500
-Received: from dsl-65-185-241-169.telocity.com ([65.185.241.169]:43394 "HELO
-	mail.temp123.org") by vger.kernel.org with SMTP id <S279986AbRKRXTA>;
-	Sun, 18 Nov 2001 18:19:00 -0500
-Date: Sun, 18 Nov 2001 18:18:59 -0500
-From: Faux Pas III <fauxpas@temp123.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Maestro 2E vs. Power mgmt
-Message-ID: <20011118181859.B18252@temp123.org>
-In-Reply-To: <20011118175553.A18245@temp123.org> <E165b3o-0004es-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S280083AbRKRXWZ>; Sun, 18 Nov 2001 18:22:25 -0500
+Received: from mail012.mail.bellsouth.net ([205.152.58.32]:7930 "EHLO
+	imf12bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281728AbRKRXWK>; Sun, 18 Nov 2001 18:22:10 -0500
+Message-ID: <3BF84297.7FB77B3B@mandrakesoft.com>
+Date: Sun, 18 Nov 2001 18:21:59 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Faux Pas III <fauxpas@temp123.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Weird PCMCIA behavior
+In-Reply-To: <20011118180656.A18252@temp123.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E165b3o-0004es-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Nov 18, 2001 at 11:09:12PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 18, 2001 at 11:09:12PM +0000, Alan Cox wrote:
+Faux Pas III wrote:
+> 
+> Note: this is the same laptop mentioned above in the Maestro 2E
+> thread above, so the same weird-ass power behavior applies here.
+> 
+> When on AC power, everything is dandy with PCMCIA.  When on
+> battery power, PCMCIA device detection fails, emanating a lower
+> than normal pitched beep, followed by an even lower beep.
+> However, if the apm module is inserted, this makes it behave
+> properly, but ONLY if the apm module was compiled with 'Make
+> CPU idle calls when idle'.  Yeah, I know it's ucked fup.
+> 
+> Some possibly relevant details:
+> 
+> 2.4.{14,15-pre{3,5}}
+> pcmcia-cs-3.1.29
 
-> Intriguing - so its as if the sound driver isnt generating interrupts
-> (one way to test that would be to monitor /proc/interrupts both with power
-> on mains and off of mains)
+pcmcia-cs problems are reported to http://pcmcia-cs.sourceforge.net/
 
-When playing a particular mp3 with mpg123, the rate of increase of that
-field in /proc/interrupts is ~200/sec regardless of whether on AC or
-battery.  Of course, doing stuff to the other devices that share that
-interrupt blow it up.
+We encourage you to use the kernel's cardbus code instead :)
+(CONFIG_PCMCIA and CONFIG_CARDBUS)
+
+As a side note, with kernel cardbus support, you should no longer need
+external utilities or external drivers.  It should Just Work(tm).
 
 -- 
-Josh Litherland (fauxpas@temp123.org)
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

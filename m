@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286672AbRL1Brm>; Thu, 27 Dec 2001 20:47:42 -0500
+	id <S286670AbRL1Bmw>; Thu, 27 Dec 2001 20:42:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286653AbRL1Brc>; Thu, 27 Dec 2001 20:47:32 -0500
-Received: from bitmover.com ([192.132.92.2]:1184 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S286649AbRL1Br2>;
-	Thu, 27 Dec 2001 20:47:28 -0500
-Date: Thu, 27 Dec 2001 17:47:23 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Larry McVoy <lm@bitmover.com>, "Eric S. Raymond" <esr@thyrsus.com>,
-        Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system
-Message-ID: <20011227174723.V25698@work.bitmover.com>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	Larry McVoy <lm@bitmover.com>, "Eric S. Raymond" <esr@thyrsus.com>,
-	Dave Jones <davej@suse.de>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011227173739.U25698@work.bitmover.com> <18754.1009503708@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <18754.1009503708@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Fri, Dec 28, 2001 at 12:41:48PM +1100
+	id <S286655AbRL1Bmf>; Thu, 27 Dec 2001 20:42:35 -0500
+Received: from ns2.q-station.net ([202.66.128.35]:30982 "HELO
+	smtp.q-station.net") by vger.kernel.org with SMTP
+	id <S286679AbRL1BmO>; Thu, 27 Dec 2001 20:42:14 -0500
+Date: Fri, 28 Dec 2001 09:42:07 +0800 (CST)
+From: Leung Yau Wai <chris@gist.q-station.net>
+To: Douglas Gilbert <dougg@torque.net>
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: dd cdrom error
+In-Reply-To: <3C2BA1B4.EB853055@torque.net>
+Message-ID: <Pine.LNX.4.10.10112280937570.6257-100000@gist.q-station.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28, 2001 at 12:41:48PM +1100, Keith Owens wrote:
-> On Thu, 27 Dec 2001 17:37:39 -0800, 
-> Larry McVoy <lm@bitmover.com> wrote:
-> >A couple of questions:
+On Thu, 27 Dec 2001, Douglas Gilbert wrote:
+
+> Leung Yau Wai <chris@gist.q-station.net> wrote:
+> > I come across a problem which seem exist in kernel 
+> > 2.4.x but not in 2.2.x.
 > >
-> >a) will 2.5 be as fast as the current system?  Faster?
+> > The problem is that, when I try to using dd to create 
+> > a ISO image of a cdrom then around dumping the end of 
+> > the disc it will give out the following error message:
+> >
+> > e.g. dd if=/dev/cdrom of=n.iso
 > 
-> At the moment kbuild 2.5 ranges from 10% faster on small builds to 100%
-> slower on a full kernel build.  
+> If dd is used like that, it is surprising you do not get
+> more errors. An iso9660 image does not necessarily fill
+> the track. So the IDE equivalent of the SCSI READ CAPACITY 
+> command will often report a size that includes unwritten 
+> sectors at the end. Those unwritten sectors can/will cause
+> IO errors when an attempt is made to read them.
+> 
+> A very useful program called "isosize" has made a return to
+> util-linux-2.10s (and later). Execute:
+>   isosize -x /dev/cdrom
+> to find the number of sectors and the sector size of the iso9660
+> fs held _within_ the first track. Then use those numbers as the 
+> "count=" and "bs=" arguments to dd respectively.
+> 
+> 
+> If you still have problems try turning DMA off via hdparm
+> or set the DMA mode back to 33 MHz (-X34).
 
-I don't understand why it would be slower.  Maybe I'm clueless but I thought
-you were moving more towards a single makefile system, kind of like what
-BSD had about 15 years ago, you went to /sys/MYMACHINE and typed make and
-it did the build completely in that directory.  You did different configs
-by running a configure tool that made /sys/MYMACHINE /sys/YOURMACHINE, etc.
+	So, why problem will be happened when using DMA?
 
-If this is the general approach, shouldn't this be a lot faster than the
-current approach?  The current approach stats stuff many times.  Linux is
-really good at making stats cheap, but nothing is as good as not doing it
-twice.
+	Do you mean when not using DMA then the sectors at the end of the
+disc will be auto-filled (padded)? ( I think it is impossible )
 
-Am I completely misunderstanding what kbuild is all about?  My apologies
-if so...
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+	BTW, why kernel 2.2.X will success create the ISO image of the
+same disc with the same command?
+
+	Thx your reply!
+
+
+

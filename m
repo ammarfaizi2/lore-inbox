@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264818AbTAASr7>; Wed, 1 Jan 2003 13:47:59 -0500
+	id <S265058AbTAASsE>; Wed, 1 Jan 2003 13:48:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265058AbTAASr7>; Wed, 1 Jan 2003 13:47:59 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:53989 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264818AbTAASr6>;
-	Wed, 1 Jan 2003 13:47:58 -0500
-Date: Wed, 1 Jan 2003 10:53:24 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: John Bradford <john@grabjohn.com>
-cc: Bill Davidsen <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix os release detection in module-init-tools-0.9.6
-In-Reply-To: <200301011623.h01GN8Lw001696@darkstar.example.net>
-Message-ID: <Pine.LNX.4.33L2.0301011048490.20796-100000@dragon.pdx.osdl.net>
+	id <S265065AbTAASsE>; Wed, 1 Jan 2003 13:48:04 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:30953 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265058AbTAASsD>; Wed, 1 Jan 2003 13:48:03 -0500
+To: Albert Kajakas <Albert.Kajakas@mail.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3rdparty modules for 2.5.53
+References: <200301011719.h01HJOB21702@mail-fe2.tele2.ee>
+From: Andi Kleen <ak@muc.de>
+Date: 01 Jan 2003 19:56:11 +0100
+In-Reply-To: <200301011719.h01HJOB21702@mail-fe2.tele2.ee>
+Message-ID: <m3isx8em2c.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jan 2003, John Bradford wrote:
+Albert Kajakas <Albert.Kajakas@mail.ee> writes:
 
-| > > | Um, you read the .config, which hopefully is stored somewhere.
-| > > | (Although you could resurrect the /proc/config patch which goes around
-| > > | every so often).  There are many things you can't tell by reading
-| > > | /proc/ksyms.
-| > >
-| > > Right, the .config file is the answer.  And there are at least 2
-| > > patch solutions for it, the /proc/config that Rusty mentioned, or
-| > > the in-kernel config that Khalid Aziz and others from HP did along
-| > > with me, and it's in 2.4.recent-ac or 2.5.recent-dcl or 2.5.recent-cgl.
-| >
-| > It would be useful to have a few global options perhaps included in /proc
-| > (or wherever) on all kernels. By global I mean those which affect the
-| > entire kernel, like preempt or smp, rather than driver options. We already
-| > note 'tainted,' so this is not a totally new idea. It would seem that most
-| > of the processor options could fall in this class, MCE, IOAPIC, etc.
-| >
-| > If the aim is to speed stability, putting any of the "whole config"
-| > options in and defaulted on might be a step toward that.
-|
-| Having all of the config options in a /proc/config file would be a
-| great help for people using my new bug database, because it would
-| allow them to upload the .config for their current kernel even if it
-| is not one they have compiled themselves.
+> Hello!
+> I have a problem with compiling modules for 2.5.
 
-It seems that we still differ that putting them in /proc
-is required.  I don't see a hard requirement for that as long
-as the vmlinu[xz] or bzImage etc. file contains the config
-strings, which is what the other mentioned patch does.
+I recently tracked down the same problem.
 
-They are still affixed to a particular file, and they can be
-pulled from it whether it's the running kernel or not.
-Putting them in /proc wastes RAM and is undesirable, at least
-on small systems and most embedded platforms.
-However, that patch does also contain an option for putting
-the config entries in /proc.  :)
+Add a -DKBUILD_MODNAME="yourname" compile option to one of the files,
+the new loader requires a module name section. It should be only set
+once for each module.
 
-| At the moment, the facility to search for bugs via the config options
-| that cause them is only useful for people who are compiling their own
-| kernel.
+In addition make sure you're using the new style module_init/module_exit
+macros instead of init_module/cleanup_module.
 
--- 
-~Randy
+-Andi
 
+P.S.: I agree that the error reporting sucks for this one. It would
+be better if the kernel loader give some kind of text message back.

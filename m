@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269438AbRHGVJA>; Tue, 7 Aug 2001 17:09:00 -0400
+	id <S269457AbRHGVRu>; Tue, 7 Aug 2001 17:17:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269451AbRHGVIu>; Tue, 7 Aug 2001 17:08:50 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:956
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S269438AbRHGVIi>; Tue, 7 Aug 2001 17:08:38 -0400
-Date: Tue, 7 Aug 2001 14:08:47 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x IP aliase max eth0:16 (16 aliases), where to change?
-In-Reply-To: <20010807134830.B22821@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.33.0108071406100.17919-100000@kobayashi.soze.net>
+	id <S269462AbRHGVRk>; Tue, 7 Aug 2001 17:17:40 -0400
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:59783 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S269457AbRHGVRc>; Tue, 7 Aug 2001 17:17:32 -0400
+Message-ID: <3B704C86.5010401@earthlink.net>
+Date: Tue, 07 Aug 2001 16:16:06 -0400
+From: Brad Chapman <kakadu@earthlink.net>
+Reply-To: kakadu@adelphia.net
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.7 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Strange compilation messages with gcc 2.96.2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, Mike Fedyk wrote:
+Hello,
 
-> I would stop using the ifconfig aliases now, and start using the iproute
-> (ip) command that was introduced with the 2.2 kernels.
+   When I compile the 2.4.7 kernel on a RedHat system with an Athlon 
+1GHz processor
+and gcc 2.96.2, I get a LOT of messages similar to the following:
 
-Plus such aliases are much less ugly.  Deleting one will never delete all
-others, and maintenence doesn't rely on knowing the alias number of a
-particular ip address.
+   <source file>:<number>:<number>: pasting would not give a valid 
+preprocessor token
 
-however, afaict, ip provides no way to force link type, and some other
-link-layer settings also seem to be missing.
+   They don't seem to be a problem; they're annoying, but they don't 
+prevent the compilation
+of the kernel. Is this a problem? Or is it just another compile-time 
+annoyance?
 
+Thanks,
 
-justin
+Brad
 

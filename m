@@ -1,101 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267910AbTAHUCP>; Wed, 8 Jan 2003 15:02:15 -0500
+	id <S267897AbTAHUBH>; Wed, 8 Jan 2003 15:01:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267907AbTAHUCL>; Wed, 8 Jan 2003 15:02:11 -0500
-Received: from newmail.somanetworks.com ([216.126.67.42]:22190 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id <S267906AbTAHUCI>; Wed, 8 Jan 2003 15:02:08 -0500
-Date: Wed, 8 Jan 2003 15:10:44 -0500 (EST)
-From: Scott Murray <scottm@somanetworks.com>
-X-X-Sender: scottm@rancor.yyz.somanetworks.com
-To: Rusty Lynch <rusty@linux.co.intel.com>
-cc: greg@kroah.com, <harold.yang@intel.com>, <linux-kernel@vger.kernel.org>,
-       <pcihpd-discuss@lists.sourceforge.net>
-Subject: Re:[BUG] cpci patch for kernel 2.4.19 bug
-In-Reply-To: <200301081946.h08Jksh06332@linux.intel.com>
-Message-ID: <Pine.LNX.4.44.0301081453520.15466-100000@rancor.yyz.somanetworks.com>
+	id <S267894AbTAHUBG>; Wed, 8 Jan 2003 15:01:06 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:50641 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S267897AbTAHUBF>; Wed, 8 Jan 2003 15:01:05 -0500
+Date: Thu, 09 Jan 2003 09:09:30 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
+Message-ID: <81050000.1042056570@localhost.localdomain>
+In-Reply-To: <avht3k$qpo$1@cesium.transmeta.com>
+References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org>
+ <3E19B401.7A9E47D5@linux-m68k.org>
+ <17360000.1041899978@localhost.localdomain>
+ <20030107053146.A16578@kerberos.ncsl.nist.gov>
+ <avht3k$qpo$1@cesium.transmeta.com>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, Rusty Lynch wrote:
+Actually, talking to some people off-list, I realised that what happened 
+with the instances I saw was probably that the packets were corrupted 
+inside the host, somewhere after the ethernet checksum had done its job. 
+DMA problems or a slow address line on some RAM somewhere could easily beat 
+the TCP checksum, but as many folks have pointed out, ethernet CRC is much 
+stronger.
 
-> From: "Yang, Harold" <harold.yang@intel.com>
-> > 
-> > Hi, Scott & Greg:
-> > 
-> > I have applied the cpci patch for kernel 2.4.19, and test it
-> > thoroughly on ZT5084 platform. Two bugs are found:
-> > 
-> > 1. In my ZT5084, the driver can't correctly detect the cPCI
-> >    Hot Swap bridge device. Two DEC21154 exist on ZT5084,
-> >    however, only one is the right bridge. The driver can't 
-> >    distinguish them correctly.
-> 
-> I just got a couple of ZT5541 peripheral master boards
-> and can finally see what happens when an enumerable board
-> is plugged into a ZT5084 chassis using a ZT5550 system master 
-> board.
-> 
-> As of yet I have only tried a 2.5.54 kernel, but I see the 
-> same problems along with some other wacky behavior that I 
-> am trying to isolate.
-> 
-> Now about the multiple DEC21154 devices ==>  on my ZT5550 that
-> is in system master mode, the first DEC21154 device is a bridge
-> for the slots to the left of the system slots, and the second
-> DEC21154 is a bridge for the right of the system slots.
+Having seen something odd like that in practice, I overestimated the 
+probability of these problems.
 
-Okay, that's what I originally wanted to determine from the lspci
-output I requested when Harold mentioned this problem at the end
-of November.
+It was also pointed out that iSCSI also makes it's CRC optional only if 
+there is some other mechanism (ESP, AH or some other high-integrity 
+transport) providing the data integrity.  Partly this is because that 
+checksum is the same as used by Fiber Channel, and is therefore available 
+'for free' in some, but not all, hardware, so there needs to be another way 
+to integrity protect the data.
 
-> So if I boot the system master (I'll talk about problems with 
-> hotswaping in another email) with a peripheral board plugged
-> into one of the slots on the right of the master using the
-> current 2.5.54 kernel then I run into problems the first time 
-> cpci_hotplug_core.c::check_slots() runs because it only looks
-> at the first bus when trying to find the card that caused the
-> #ENUM.
+Andrew
 
-I assume by problems you mean that the cPCI event thread gets
-shut down (which is what I'd expect), or do you mean something more 
-severe?
+--On Wednesday, January 08, 2003 11:10:44 -0800 "H. Peter Anvin" 
+<hpa@zytor.com> wrote:
 
-> The following patch will register each of the cpci busses instead
-> of just the first one detected.
-
-Your patch is better than Harold's hack, but I'm probably going to
-try and think of some other alternative, as the while loop idea
-doesn't handle the possibility of someone having a 21154 bridge
-on a PMC card or actually as a bridge on a cPCI card.  The original
-code doesn't really handle that possiblity either, so I'll need to
-cook up something better anyway.
-
-> NOTE: I'm a little worried that the right way to do this is to
->       properly initialize the RSS bits, or at least see how the
->       chassis is configured via the RSS bits to determine which 
->       cpci bus to register.  The ZT5084 doesn't have near as many
->       configurations as newer designs like the ZT5088.
-[snip]
-
-I will investigate reading the active bus(es) out of the HC, as I've
-gotten the documentation for the HC from Performance Tech, I was just
-too busy before Christmas to dig into it then.  I'll try and have
-something that attempts to handle your ZT5084 chassis done in a few
-days.
-
-Scott
-
-
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
-
-
-
+> Followup to:  <20030107053146.A16578@kerberos.ncsl.nist.gov>
+> By author:    Olivier Galibert <galibert@pobox.com>
+> In newsgroup: linux.dev.kernel
+>>
+>> On Tue, Jan 07, 2003 at 01:39:38PM +1300, Andrew McGregor wrote:
+>> > Ethernet and TCP were both designed to be cheap to evaluate, not the
+>> > absolute last word in integrity.  There is a move underway to provide
+>> > an  optional stronger TCP digest for IPv6, and if used with that then
+>> > there is  no need for the iSCSI digest.  Otherwise, well, play dice
+>> > with the data.  Loaded in your favour, but still dice.
+>>
+>> Ethernet's checksum is a standard crc32, with all the usual good
+>> properties and, at least on FE and lower, 1500bytes max of payload.
+>> So it's quite reasonable.  TCP's checksum, though, is crap.
+>>
+>> I'm not entirely sure how crc32 would behave on jumbo frames.
+>>
+>
+> AUTODIN-II CRC32 (the one used by Ethernet) is stable up to 11454
+> bytes.  The jumbo frame size was chosen as the largest multiple of the
+> standard IP payload size to fit within this number.
+>
+> 	-hpa
 

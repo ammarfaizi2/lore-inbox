@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274815AbTHKTRp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273403AbTHKTQ4
+	id S273323AbTHKTXu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273019AbTHKTW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 15:16:56 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:23228 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S274809AbTHKTOx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 15:14:53 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Jocelyn Mayer <l_indien@magic.fr>
-Date: Mon, 11 Aug 2003 21:14:38 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.6.0-test2 does not boot with matroxfb
-Cc: davej@codemonkey.org.uk, linux kernel <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <9DA76F97593@vcnet.vc.cvut.cz>
+	Mon, 11 Aug 2003 15:22:57 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:787 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S272963AbTHKTVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 15:21:40 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Date: Mon, 11 Aug 2003 19:21:01 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <bh8qat$d7i$1@abraham.cs.berkeley.edu>
+References: <20030809173329.GU31810@waste.org> <20030811020919.GD10446@mail.jlokier.co.uk> <bh77pp$rhq$1@abraham.cs.berkeley.edu> <20030811053602.GL10446@mail.jlokier.co.uk>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1060629661 13554 128.32.153.211 (11 Aug 2003 19:21:01 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Mon, 11 Aug 2003 19:21:01 +0000 (UTC)
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Aug 03 at 21:00, Jocelyn Mayer wrote:
-> > On Mon, 2003-08-11 at 20:29, Petr Vandrovec wrote:
-> > On 11 Aug 03 at 20:01, Jocelyn Mayer wrote:
-> > > I now run a VGA console kernel without agpgart with a 16bps X.
-> > > 
-> > > So, there seems to be two issues:
-> > > - broken matrox fb: I lose the synchro when switching from X to fb.
-> > >   fbset configuration is lost when switching consoles.
-> > 
-> > It is feature, not a bug. fbset does not work on 2.6.x kernels
-> > anymore. Apply 
-> > ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/matroxfb-2.6.0-t3-c1149.gz
-> > if you prefer 2.4.x behavior.
-> > 
-> In fact, it works untill I switch to another console...
-> What is the right way to change the console configuration at run-time,
-> now ? Or where should I look for this info ?
-> Did it become impossible (would be a severe bug, at least for me...) ?
+Jamie Lokier  wrote:
+>It may be that an attacker knows about a systemic problem with our
+>machine that we don't know about.  For example the attacker might know
+>our pool state well enough shortly after boot time, to have a chance
+>at matching a dictionary of 2^32 hashes.  The attacker might have had
+>a chance to read our disk, which reseeding the pool at boot time does
+>not protect against.
+>
+>With the right algorithm, we can protect against weaknesses of this kind.
 
-"stty cols XXX rows YYY" sets size. How you'll set pixclock, color depth
-or other features is unknown to me - I use my patch above and others
-should ask James Simmons...
+How?  No matter what we do, the outputs are going to be a deterministic
+function of the state of the pool.  If the attacker can guess the entire
+state of our pool (or narrow it down to 2^32 possibilities), we're screwed,
+no matter what.  Right?
 
-> > Also if you are using DRI, even latest XFree mga driver I found still 
-> > reprograms hardware even if XFree server is not on a foreground, so you 
-> > must use same color depth and vxres for both X and console, and even in 
-> > this configuration display corruption on console may occur from time to
-> > time...
-> >                                             Petr Vandrovec
-> >        
-> OK, you confirm exactly the symptom I have seen.
-> So it seems to be an X driver problem...
-> But X is still buggy when it doesn't use DRI,
-> at least in 32 bits modes. I know it's quite certain that it's an X bug,
-> but I really would like to understand why it works with 2.4 kernels
-> and not with 2.6 ones. The X problem is there even if I use the VGA
-> console (I mean with a kernel with fb support _not_ activated).
-
-In 2.4.x kernels dri refused to work on couple of systems I have, while
-in 2.6.x it is willing to work even on more systems - if we are talking
-about console.
-
-I do not know why you have problems with X - 2.6.0-test3-bk-current
-works for me with G200, G450 and G550 with Debian's unstable XFree,
-(16/16bpp on G550 system and 24/32bpp on others).
-                                                Petr
-                                                
-
+I must be misunderstanding your point.  What am I missing?

@@ -1,48 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135975AbREGCHx>; Sun, 6 May 2001 22:07:53 -0400
+	id <S135978AbREGCat>; Sun, 6 May 2001 22:30:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135976AbREGCHo>; Sun, 6 May 2001 22:07:44 -0400
-Received: from babylon5.babcom.com ([216.36.71.34]:37760 "EHLO
-	babylon5.babcom.com") by vger.kernel.org with ESMTP
-	id <S135975AbREGCH2>; Sun, 6 May 2001 22:07:28 -0400
-Date: Sun, 6 May 2001 19:07:21 -0700
-From: Phil Stracchino <alaric@babcom.com>
-To: God <atm@sdk.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernelnotes.org down / loop device results
-Message-ID: <20010506190721.A3719@babylon5.babcom.com>
-Mail-Followup-To: God <atm@sdk.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0105061522440.23642-100000@scotch.homeip.net>
+	id <S135979AbREGCaj>; Sun, 6 May 2001 22:30:39 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:21768
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S135978AbREGCaW>; Sun, 6 May 2001 22:30:22 -0400
+Date: Sun, 6 May 2001 22:39:33 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Success 2.4.4 on noritake alpha
+Message-ID: <20010506223933.A4774@animx.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0105061522440.23642-100000@scotch.homeip.net>; from atm@sdk.ca on Sun, May 06, 2001 at 09:32:28PM -0400
-X-No-Archive: Yes
-X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
-X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
-X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
-X-Copyright: This message may not be reproduced, in part or in whole, for any commercial purpose without prior written permission.  Prior permission for securityfocus.com is implicit.
-X-UCE-Policy: No unsolicited commercial email is accepted at this site.  The sending of any UCE to this domain may result in the imposition of civil liability against the sender in accordance with Cal. Bus. & Prof. Code Section 17538.45, and all senders of UCE will be permanently blocked.
+X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 09:32:28PM -0400, God wrote:
-> If I make an image of a floppy:
-> then try to mount the image (no errors on the floppy):
-> Mount hangs ...  what do I mean by that? .. well:
+I tested 2.4.4 on my alpha server 1000a with an adaptec aha-2940UW card. 
+Before it would always give me some kinds of errors when doing simutanious
+writes to 3 drives on that card.
 
-> box:
-> Red Nut 7.1,
-> Linux scotch 2.4.2 #2 SMP Thu Mar 1 18:08:51 EST 2001 i686 unknown
-
-
-This is a known problem in the 2.4.2 kernel.  It's fixed in 2.4.3.
-
+I'm currently running with this controller on the same 3 drives using LVM
+and reiserfs ontop of that.  Works well.
 
 -- 
- Linux Now!   ..........Because friends don't let friends use Microsoft.
- phil stracchino   --   the renaissance man   --   mystic zen biker geek
-    Vr00m:  2000 Honda CBR929RR   --   Cage:  2000 Dodge Intrepid R/T
- Previous vr00mage:  1986 VF500F (sold), 1991 VFR750F3 (foully murdered)
+ Lab tests show that use of micro$oft causes cancer in lab animals

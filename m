@@ -1,105 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289631AbSAWB6u>; Tue, 22 Jan 2002 20:58:50 -0500
+	id <S289643AbSAWCDA>; Tue, 22 Jan 2002 21:03:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289639AbSAWB6l>; Tue, 22 Jan 2002 20:58:41 -0500
-Received: from h225-81.adirondack.albany.edu ([169.226.225.80]:40836 "EHLO
-	bouncybouncy.net") by vger.kernel.org with ESMTP id <S289631AbSAWB62>;
-	Tue, 22 Jan 2002 20:58:28 -0500
-Date: Tue, 22 Jan 2002 20:58:29 -0500
-From: Justin A <justin@bouncybouncy.net>
-To: Andy Carlson <naclos@swbell.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via-rhine timeouts
-Message-ID: <20020123015829.GC835@bouncybouncy.net>
-In-Reply-To: <20020122234201.GA835@bouncybouncy.net> <Pine.LNX.4.33.0201221905360.3606-100000@bigandy.naclos.org>
-Mime-Version: 1.0
+	id <S289644AbSAWCCu>; Tue, 22 Jan 2002 21:02:50 -0500
+Received: from [200.82.42.109] ([200.82.42.109]:11715 "EHLO
+	indra.zacarias.com.ar") by vger.kernel.org with ESMTP
+	id <S289643AbSAWCCo>; Tue, 22 Jan 2002 21:02:44 -0500
+Message-ID: <3C4E1983.CC5FD675@zacarias.com.ar>
+Date: Tue, 22 Jan 2002 23:01:39 -0300
+From: Gustavo Zacarias <gustavo@zacarias.com.ar>
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rene Rebe <rene.rebe@gmx.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Athlon PSE/AGP Bug
+In-Reply-To: <1011737673.10474.12.camel@psuedomode>
+		<c5qr4uk3adm53fgvuibld2tnjtnfnq0a5i@4ax.com>
+		<5.1.0.14.0.20020123112137.009ef8b0@mail.amc.localnet> <20020123.022054.884034824.rene.rebe@gmx.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0201221905360.3606-100000@bigandy.naclos.org>
-User-Agent: Mutt/1.3.26i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ahhh:)
-I managed to find that driver and installed it
-(http://www.viaarena.com/?PageID=60)
+Rene Rebe wrote:
 
-I transfered a 100M file to someone here via http at 1.1MB/s(according
-to IE, which is usually wrong but still)
+> Here I only see one Athlon system crashing all the time. This is a
+> 700Mhz Duron runnign in a Asus A7V. With a 2.4.16 kernel compiled with
+> Athlon optimization all applications are crashing all time (sed, cc,
+> gcc, sawfish - all. Simply sig-11), with a 2.4.4 kernel (using the
+> same .config) it seem to run just fine. 4 passes of memtest86 showed
+> no error, either ...
+> 
+> I see the broken via chips involved most of the time.
+> 
+> We will try a i386-only optimized kernel tomorrow.
 
-Seems to be working great now
-thanks:)
-
-I wonder if that driver was included on one of those cd's that came with
-the board, I never thought to look:)
-
--Justin
-
-On Tue, Jan 22, 2002 at 07:07:16PM -0600, Andy Carlson wrote:
-> I had problems on a Dragon+ using the kernel via-rhine driver.  I
-> started using the linxfet driver from the viahardware site.  Solved all
-> my problems.  I have not tried the kernel driver since early 2.4 series.
-> 
-> Andy Carlson                                    |\      _,,,---,,_
-> naclos@swbell.net                         ZZZzz /,`.-'`'    -.  ;-;;,_
-> Cat Pics: http://andyc.dyndns.org/animal.html  |,4-  ) )-,_. ,\ (  `'-'
-> St. Louis, Missouri                           '---''(_/--'  `-'\_)
-> 
-> 
-> On Tue, 22 Jan 2002, Justin A wrote:
-> 
-> > I've been getting many errors due to timeouts, everything was fine while
-> > I was at home, but here at school it's a major problem:
-> >
-> > Jan 22 18:10:00 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
-> > timed out
-> > Jan 22 18:10:00 bouncybouncy kernel: eth0: Transmit timed out, status
-> > 0000, PHY
-> > status 782d, resetting...
-> > Jan 22 18:10:10 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
-> > timed out
-> > Jan 22 18:10:10 bouncybouncy kernel: eth0: Transmit timed out, status
-> > 0000, PHY
-> > status 782d, resetting...
-> > Jan 22 18:10:18 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
-> > timed out
-> > Jan 22 18:10:18 bouncybouncy kernel: eth0: Transmit timed out, status
-> > 0000, PHY
-> > status 782d, resetting...
-> > Jan 22 18:10:26 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
-> > timed out
-> > Jan 22 18:10:26 bouncybouncy kernel: eth0: Transmit timed out, status
-> > 0000, PHY
-> > status 782d, resetting...
-> > Jan 22 18:10:34 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
-> > timed out
-> > Jan 22 18:10:34 bouncybouncy kernel: eth0: Transmit timed out, status
-> > 0000, PHY
-> > status 782d, resetting...
-> >
-> > Jan 22 18:10:34 bouncybouncy kernel: eth0: reset did not complete in 10
-> > ms.
-> >
-> > once it complains about that, it stops working until I reboot.
-> >
-> > It seems to happen everytime a large transer is done.(apt-get updgrade
-> > -d the last 3 times.)
-> >
-> > Is this a problem with me, or are the hubs screwy?  The hubs I'm on are
-> > "smart hubs", lets just say they aren't too bright:)
-> >
-> > I have a soyo k7vdragon+ using 2.4.17:
-> > eth0: VIA VT6102 Rhine-II at 0xe800, 00:50:2c:01:64:a9, IRQ 11.
-> > eth0: MII PHY found at address 1, status 0x782d advertising 01e1 Link
-> > 0021.
-> >
-> > CC replies...
-> > -Justin
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
+Hmmm... i'm running a Thunderbird 800 on an A7V (not the A7V133) without
+any major problems, with 2.4.17 and athlon optimized.
+Of course i have the latest BIOS from Asus (1009), with earlier ones i
+did have some AGP-related instabilities, with a GeForce2 GTS.
+Of course i also flashed the GF2, just the combination of both things
+solved my problems, though now my ASUS GF2 is a "generic nvidia" one.
+I compiled on the same run a full XFree86 4.2.0 + GNOME 1.4 without
+even one coredump / sig-11, and this is a FULLY compiled gnome.
+I have 2 out of 3 dimm slots populated with 256+64 pc133 dimms,
+el cheapo brand, and pass memtest86 without a hitch.
+HDD is an issue... i got en masse corruption once, but then it's no
+wonder with the good record IBM's 75GXP's have... (somehow traced
+to ext3+unmask irq on). It corrupted beyond his limits, destroying
+the windos partition data also. Now i'm with ext3 but without unmasking,
+and got no corruption so far.
+I'm using NVIDIA_kernel #2314 forced to AGP 4x w/ SBA & FW on,
+though no serious 3D load beyond xscreensaver eyecandy, with no
+problems whatsoever.
+Distro is (kinda) redhat 7.2, everything compiled with gcc 2.96, EXCEPT
+xfree that doesn't like it very much (which was compiled with 2.95.3).

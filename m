@@ -1,68 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269330AbUI3QUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269333AbUI3Q0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269330AbUI3QUP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 12:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269341AbUI3QUP
+	id S269333AbUI3Q0L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 12:26:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269329AbUI3Q0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 12:20:15 -0400
-Received: from mail.tmr.com ([216.238.38.203]:54534 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S269330AbUI3QSV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 12:18:21 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: __attribute__((always_inline)) fiasco
-Date: Thu, 30 Sep 2004 12:19:31 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cjhb65$5ka$1@gatekeeper.tmr.com>
-References: <20040926012925.GA14305@thundrix.ch><20040926012925.GA14305@thundrix.ch> <20040926020556.GR9106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 30 Sep 2004 12:26:11 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:56742 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S269333AbUI3Q0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 12:26:04 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Borislav Petkov <petkov@uni-muenster.de>
+Subject: Re: Fw: Re: 2.6.9-rc2-mm4
+Date: Thu, 30 Sep 2004 18:25:40 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040929214637.44e5882f.akpm@osdl.org> <200409301452.52134.bzolnier@elka.pw.edu.pl> <200409301732.03080.petkov@uni-muenster.de>
+In-Reply-To: <200409301732.03080.petkov@uni-muenster.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1096560646 5770 192.168.12.100 (30 Sep 2004 16:10:46 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-In-Reply-To: <20040926020556.GR9106@holomorphy.com>
+Message-Id: <200409301825.41124.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Thu, Sep 23, 2004 at 12:26:18PM -0400, Albert Cahalan wrote:
+On Thursday 30 September 2004 17:32, Borislav Petkov wrote:
+> On Thursday 30 September 2004 14:52, Bartlomiej Zolnierkiewicz wrote:
+> > On Thursday 30 September 2004 06:46, Andrew Morton wrote:
+> > > ide broke :(   Maybe Bart's bk tree?
+> >
+> > no, disk works just fine ;)  If it is my tree I will happilly fix it.
+> >
+> > Borislav, could you apply only these patches from -mm4 and retest?
+> >
+> > linus.patch
+> > bk-ide-dev.patch
+> >
+> > > Begin forwarded message:
+> > >
+> > > Date: Wed, 29 Sep 2004 12:43:35 +0200
+> > > From: Borislav Petkov <petkov@uni-muenster.de>
+> > > To: Andrew Morton <akpm@osdl.org>
+> > > Cc: linux-kernel@vger.kernel.org
+> > > Subject: Re: 2.6.9-rc2-mm4
+> > >
+> > >
+> > > <snip>
+> > >
+> > > Hello,
+> > >  I've already posted about problems with audio extraction but it went
+> > > unnoticed. Here's a recount: When I attempt to read an audio cd into wavs
+> > > with cdda2wav, the process starts but after a while the completion meter
+> > > freezes and klogd says "hdc: lost interrupt" and cdda2wav hangs itself.
+> > > Disabling DMA doesn't help as well as the boot option "pci=routeirq" too.
+> > > Older kernels like 2.6.7 do not show such behavior and there audio
+> > > extraction runs fine. Sysinfo attached.
+> > >
+> > > Regards,
+> > > Boris.
 > 
->>>>#define INLINE static inline  // an oxymoron
->>>>#define INLINE extern inline  // an oxymoron
+> Hi people,
 > 
-> 
-> On Thu, Sep 23, 2004 at 09:50:26AM -0700, William Lee Irwin III wrote:
-> 
->>>The // apart from being a C++ ism (screw C99; it's still non-idiomatic)
->>>will cause spurious ignorance of the remainder of the line, which is
->>>often very important. e.g.
->>>static INLINE int lock_need_resched(spinlock_t *lock)
->>>{
->>>	...
-> 
-> 
-> On Sun, Sep 26, 2004 at 03:29:25AM +0200, Tonnerre wrote:
-> 
->>Mmm, shouldn't the comments be filtered *before* the definition is set
->>in place? Just wondering...
-> 
-> 
-> I've already heard more about this than I ever cared to. I'll continue
-> to stick to saner subsets of C and refuse to use things such as how the
-> preprocessor committing incest with the compiler proper (no, I don't
-> need it explained to me, it's trivial) allows crappy code to be written.
-> Don't lecture me; there's nothing to explain and I don't want to hear it.
+>  well, I've applied the above patches but no change - same "hdc: lost 
+> interrupt" message. 2.6.9-rc3 behaves the same, as expected.
 
-Don't hold back, tell us how you really feel ;-)
+Well, if 2.6.9-rc3 fails then it is not my tree...
 
-And I agree, those tricks shouldn't be used.
+Please find kernel version which introduces this bug.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+> Regards,
+> Boris.
+> 
+> 

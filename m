@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVAWBk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVAWBlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbVAWBk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 20:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVAWBk0
+	id S261182AbVAWBlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 20:41:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVAWBls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 20:40:26 -0500
-Received: from brn35.neoplus.adsl.tpnet.pl ([83.29.107.35]:14129 "EHLO
-	thinkpaddie") by vger.kernel.org with ESMTP id S261176AbVAWBkV
+	Sat, 22 Jan 2005 20:41:48 -0500
+Received: from out005pub.verizon.net ([206.46.170.143]:59544 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S261177AbVAWBle
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 20:40:21 -0500
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-Organization: K4
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: can't compile 2.6.11-rc2 on sparc64
-Date: Sun, 23 Jan 2005 02:38:54 +0100
-User-Agent: KMail/1.7.91
-X-Face: ?m}EMc-C]"l7<^`)a1NYO-(=?utf-8?q?=27xy3=3A5V=7B82Z=5E-/D3=5E=5BMU8IHkf=24o=60=7E=25CC5D4=5BGhaIgk?=
- =?utf-8?q?/=24oN7=0A=09Y7=3Bf=7D!?=(<IG>ooAGiKCVs$m~P1B-8Vt=]<V,FX{h4@fK/?Qtg]5ofD|P~&)q:6H>
- =?utf-8?q?=7E1Nt2fh=0A=09s-iKbN=24=2ENe=5E1?=(4tdwmmW>ew'=LPv+{{=YE=LoZU-5kfYnZSa`P7Q4pW]tKmUk`@&}M,
- =?utf-8?q?dn-=0A=09Kh=7BhA=7B=7ELs4a=24NjJI?=@1_f')]3|_}!GoJZss[Q$D-#l^.4GxPp[p:s<S~B&+6)
-gj-laptop: yes
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501230238.55584@gj-laptop>
+	Sat, 22 Jan 2005 20:41:34 -0500
+Message-Id: <200501230141.j0N1fOAB022422@localhost.localdomain>
+To: Con Kolivas <kernel@kolivas.org>
+cc: "Jack O'Quin" <joq@io.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling 
+In-reply-to: Your message of "Sun, 23 Jan 2005 12:31:45 +1100."
+             <41F2FE81.7020002@kolivas.org> 
+Date: Sat, 22 Jan 2005 20:41:24 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.197.206.140] at Sat, 22 Jan 2005 19:41:32 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get this error :
- 
- CC      arch/sparc64/kernel/ioctl32.o
-include/asm/uaccess.h: In function `siocdevprivate_ioctl':
-fs/compat_ioctl.c:648: warning: ignoring return value of `copy_to_user', 
-declared with attribute warn_unused_result
-fs/compat_ioctl.c: In function `put_dirent32':
-fs/compat_ioctl.c:2346: warning: ignoring return value of `copy_to_user', 
-declared with attribute warn_unused_result
-fs/compat_ioctl.c: In function `serial_struct_ioctl':
-fs/compat_ioctl.c:2489: warning: ignoring return value of `copy_from_user', 
-declared with attribute warn_unused_result
-fs/compat_ioctl.c:2502: warning: ignoring return value of `copy_to_user', 
-declared with attribute warn_unused_result
-make[1]: *** [arch/sparc64/kernel/ioctl32.o] Error 1
+>The idea is to get equivalent performance to SCHED_FIFO. The results 
+>show that much, and it is 100 times better than unprivileged 
+>SCHED_NORMAL. The fact that this is an unoptimised normal desktop 
+>environment means that the conclusion we _can_ draw is that SCHED_ISO is 
+>as good as SCHED_FIFO for audio on the average desktop. I need someone 
 
+no, this isn't true. the performance you are getting isn't as good as
+SCHED_FIFO on a tuned system (h/w and s/w). the difference might be
+the fact that you have "an average desktop", or it might be that your
+desktop is just fine and SCHED_ISO actually is not as good as
+SCHED_FIFO. 
 
-gcc is 3.4, 64bit. That's ultra5.
+>with optimised hardware setup to see if it's as good as SCHED_FIFO in 
+>the critical setup.
 
--- 
-GJ
+agreed. i have every confidence that Lee and/or Jack will be
+forthcoming :)
+
+--p

@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137085AbREKJmM>; Fri, 11 May 2001 05:42:12 -0400
+	id <S137088AbREKJrm>; Fri, 11 May 2001 05:47:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137087AbREKJmC>; Fri, 11 May 2001 05:42:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57238 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S137085AbREKJlu>;
-	Fri, 11 May 2001 05:41:50 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S137089AbREKJrc>; Fri, 11 May 2001 05:47:32 -0400
+Received: from [24.70.141.118] ([24.70.141.118]:26357 "EHLO asdf.capslock.lan")
+	by vger.kernel.org with ESMTP id <S137088AbREKJrS>;
+	Fri, 11 May 2001 05:47:18 -0400
+Date: Fri, 11 May 2001 05:47:16 -0400 (EDT)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [OT] Keith Owens your email address isn't working
+Message-ID: <Pine.LNX.4.33.0105110544500.1590-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15099.46041.778542.342635@pizda.ninka.net>
-Date: Fri, 11 May 2001 02:41:45 -0700 (PDT)
-To: trond.myklebust@fys.uio.no
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.4 linearize UDP RPC requests using GFP_KERNEL...
-In-Reply-To: <15099.43446.132871.699151@charged.uio.no>
-In-Reply-To: <15099.43446.132871.699151@charged.uio.no>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Keith,
 
-Trond Myklebust writes:
- >   IMHO allocating the buffer using GFP_ATOMIC is a mistake. As I said
- > we're in a thread context, so sleeping in GFP_KERNEL is safe. In
- > addition, the cost of dropping the request if we can't allocate the
- > buffer is heavy in that the client has to wait for a timeout, and then
- > retry.
- > 
- > I'd therefore like to propose the following change.
- ...
- > --- linux-2.4.4/net/sunrpc/svcsock.c.orig	Fri Apr 27 23:15:01 2001
- > +++ linux-2.4.4/net/sunrpc/svcsock.c	Fri May 11 10:08:36 2001
- ...
- > -		if (skb_linearize(skb, GFP_ATOMIC) != 0) {
- > +		if (skb_linearize(skb, GFP_KERNEL) != 0) {
+Whenever I post to linux-kernel with your name in the Cc or To,
+the mail bounces back 5 days later with:
 
-No arguments here.
+----------------------------------------
 
-Later,
-David S. Miller
-davem@redhat.com
+The original message was received at Sun, 6 May 2001 05:16:14 -0400
+from mharris@localhost
+
+   ----- The following addresses had permanent fatal errors -----
+<kaos@ocs.com.au>
+
+   ----- Transcript of session follows -----
+<kaos@ocs.com.au>... Deferred: Connection refused by
+mail.ocs.com.au.
+Message could not be delivered for 5 days
+Message will be deleted from queue
+
+
+
+Just wanted to let you know so that you're not losing any
+important emails.  Seems your machine is refusing mail for some
+reason.  Hope this helps.
+
+Take care,
+TTYL
+
+
+
+------------------------------------------------------------------------
+Signature poll:  I'm planning on getting a 12 or 16 port autosensing
+10/100 ethernet switch soon for home use, and am interested in hearing
+others recommendations on what to buy.  Cost isn't as important as is
+functionality and quality.  Any suggestions appreciated.
+------------------------------------------------------------------------
+
+

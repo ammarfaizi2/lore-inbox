@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129470AbQKHSvJ>; Wed, 8 Nov 2000 13:51:09 -0500
+	id <S129103AbQKHTQ2>; Wed, 8 Nov 2000 14:16:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129668AbQKHSu7>; Wed, 8 Nov 2000 13:50:59 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:32008 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S129470AbQKHSur>; Wed, 8 Nov 2000 13:50:47 -0500
-Date: Wed, 8 Nov 2000 19:50:41 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "J . A . Magallon" <jamagallon@able.es>,
-        Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: Re: continuing VM madness
-In-Reply-To: <E13tZF5-0000EX-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1001108193706.18297B-100000@artax.karlin.mff.cuni.cz>
+	id <S129148AbQKHTQR>; Wed, 8 Nov 2000 14:16:17 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:54023 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129103AbQKHTQL>; Wed, 8 Nov 2000 14:16:11 -0500
+Message-ID: <3A09A674.52B60BCD@holly-springs.nc.us>
+Date: Wed, 08 Nov 2000 14:16:04 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Weinehall <tao@acc.umu.se>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre20
+In-Reply-To: <E13tKjj-00085w-00@the-village.bc.nu> <3A08B759.1C36A9C0@holly-springs.nc.us>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Sadly it is not a bug but a VM misdesign (and people are just making
-> > different workarounds that more or less work). I believe that this
-> > solution will break again, as it happened in 2.2.15 and 2.2.16.
+Hello?
+
+-M
+
+Michael Rothwell wrote:
 > 
-> 2.2.15->16 was the major transition in getting stuff right. 2.2.18 should be
-> pretty reasonable. With Andrea's additional patches its quite nice. If we
-> add page aging then in theory it'll be as good as 2.2 but in practice who 
-> knows
-
-What about the possibility that kernel shoots processes when the machine
-is receiving too much packets and runs out of atomic memory? It didn't
-seem to go away in 2.2.16. 2.0 behaved correctly in this case.
-
-Mikulas
-
+> Alan Cox wrote:
+> >
+> > > On Tue, Nov 07, 2000 at 09:02:36PM -0500, Michael Rothwell wrote:
+> > > > 64-bit printk.
+> > >
+> > > Please consider this one Alan, if not for v2.2.18, then at least for
+> > > v2.2.19pre1.
+> >
+> > Nobody has explained why we even need it.
+> 
+> Alan Cox wrote:
+> >
+> > Why do we need it ?
+> 
+> To print 64-bit debugging output on 32-bit machines. I personally need
+> it to aid with development of a 64-bit filesystem. We're maintaining our
+> own 2.2.17 patched kernel here, but I figure that other people can make
+> use of 64-bit printk in their efforts as well.
+> 
+> Perhaps a better question would be, why reject it? 2.4 supports 64-bit
+> printk, right? It would be nice to have it on 2.2 as well, as it may be
+> a while before 2.4 is widely used in production machines.
+> 
+> -M
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

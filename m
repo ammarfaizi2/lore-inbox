@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314885AbSF3MRd>; Sun, 30 Jun 2002 08:17:33 -0400
+	id <S315120AbSF3Mr2>; Sun, 30 Jun 2002 08:47:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314938AbSF3MRc>; Sun, 30 Jun 2002 08:17:32 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:51333 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S314885AbSF3MRb> convert rfc822-to-8bit;
-	Sun, 30 Jun 2002 08:17:31 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S315162AbSF3Mr1>; Sun, 30 Jun 2002 08:47:27 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:52869 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S315120AbSF3Mr1> convert rfc822-to-8bit;
+	Sun, 30 Jun 2002 08:47:27 -0400
+Content-Type: text/plain; charset=US-ASCII
 From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
 Organization: ProntoTV AS
-To: linux-raid@vger.rutgers.edu,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Can't boot from /dev/md0 (RAID-1)
-Date: Sun, 30 Jun 2002 14:19:26 +0200
+To: Juri Haberland <juri@koschikode.com>
+Subject: Re: Can't boot from /dev/md0 (RAID-1)
+Date: Sun, 30 Jun 2002 14:49:51 +0200
 User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <20020630124445.6E95B11979@a.mx.spoiled.org>
+In-Reply-To: <20020630124445.6E95B11979@a.mx.spoiled.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200206301419.26254.roy@karlsbakk.net>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206301449.51190.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+> Hi,
+> I had this once and resolved it with adding a "default" line to the
+> lilo.conf:
+> default = LinuxRaid
+>
+> Also have boot=/dev/md0, not boot=/dev/hda.
 
-I hope this is not OT - didn't find any LILO mailing list. after trying 
-virtually everything - can anyone help me with a tip?
+hm
 
-Running 2.4.19-pre10-ac2, RedHat 7.3 (LILO version 21.4-4), I have root on 
-/dev/md0 on RAID-1 on /dev/hda1 and /dev/hdb1. I've tried the howto at 
-http://www.tldp.org/HOWTO/mini/Boot+Root+Raid+LILO-3.html#ss3.1, but it still 
-doesn't help me. lilo just tells me "L 99 99 99 99 ..." some half a page, and 
-then stops.I'm trying. All the time it prints this, it seems to be searching 
-the floppy for some reason.
+I keep getting this one..
 
-The lilo.conf suggested by the above HOWTO, is this
+[root@jumbo root]# lilo
+boot = /dev/hda, map = /boot/map.0301
+Added linux2419rc1 *
+Added linux2418
+Added linux-orig
+Fatal: Duplicate geometry definition for /dev/md0
 
-# lilo.conf.hda - primary ide master
-disk=/dev/md0
-bios=0x80
-sectors=63
-heads=16
-cylinders=39770
-partition=/dev/md1
-start=63
-boot=/dev/hda
-map=/boot/map
-install=/boot/boot.b
+Any ideas?
 
-image=/boot/bzImage
-        root=/dev/md0
-        read-only
-        label=LinuxRaid
-
-sector/head/cylinder is corrected to the actual data reported from 'fdisk 
--ul'. 
-
-When trying to set. boot=/dev/hdm (which is the first drive on the on-board 
-chipset), lilo installs, and I get LI instead of L 99 99 ... Same result with 
-LBA32.
-
-I also have another box with Linux, running SuSE 7.2 (LILO version 21.7-5) 
-with RAID-1 on two drives. Here everything works fine
-
-thanks for all help
+thanks
 
 roy
+
 -- 
 Roy Sigurd Karlsbakk, Datavaktmester
 

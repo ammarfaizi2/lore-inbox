@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261885AbSIYDnR>; Tue, 24 Sep 2002 23:43:17 -0400
+	id <S261905AbSIYDuG>; Tue, 24 Sep 2002 23:50:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261886AbSIYDnR>; Tue, 24 Sep 2002 23:43:17 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:740 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S261885AbSIYDnQ>; Tue, 24 Sep 2002 23:43:16 -0400
-Message-ID: <3D913223.6060801@snapgear.com>
-Date: Wed, 25 Sep 2002 13:48:51 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261907AbSIYDuG>; Tue, 24 Sep 2002 23:50:06 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18182
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S261905AbSIYDuF>; Tue, 24 Sep 2002 23:50:05 -0400
+Date: Tue, 24 Sep 2002 20:54:38 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
+       "'Andy Pfiffer'" <andyp@osdl.org>, cgl_discussion@osdl.org,
+       "Rhoads, Rob" <rob.rhoads@intel.com>,
+       hardeneddrivers-discuss@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Hardeneddrivers-discuss] RE: [cgl_discussion] Some Initial
+ Comments on DDH-Spec-0.5h.pdf
+In-Reply-To: <3D900DBA.6080400@pobox.com>
+Message-ID: <Pine.LNX.4.10.10209242018450.6896-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: 2.5.38uc1 (MMU-less support)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 24 Sep 2002, Jeff Garzik wrote:
 
-Hi All,
+> Eric W. Biederman wrote:
+> > Oh, and don't forget that the hardware specification that drivers are
+> > written to, many times are not generally available greatly reducing 
+> > the pool of capable people who have the opportunity to review the and
+> > debug the drivers.  I would make it a requirement for a hardened
+> > driver that both the code and the hardware documentation be publicly
+> > available so the code can easily be reviewed by as many people as wish
+> > to.
+> 
+> 
+> This is a good point that bears highlighting.  Donald Becker's [and thus 
+> the kernel's] eepro100.c had certain bugs for years, simply because 
+> access to Intel E100 hardware docs was damn near impossible to obtain.
 
-A new iteration of the uClinux MMU-less support patches.
-The all-in-one patch is at:
+Jeff, 
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1.patch.gz
+You know that every hardware vendor will clam it works well under
+MicroSoft, so why does it fail under Linux.  This is the classic one-liner
+we all have gotten.  The reality is closed software is used to hide all
+the flaws and failures of made by the ASIC people.  I would love to shove
+the brain dead asic designer of the original PIIX4 AB/EB off a cliff on
+fire for being absolutely "stupid".  Sorry this is as nice an clean as I
+can say this and not dust off the flame thrower.
 
-And new this time around I have broken this up into a number
-of smaller self-contained patches. Each is a nice logical unit
-(like a driver, or framebuffer, etc). This should greatly
-simplify any merging into the mainline code :-)
+> I don't see driver hardening being very feasible on such drivers, where 
+> the vendor refuses to allow kernel engineers access needed to get their 
+> hardware working and stable.  [why vendors want crappy Linux support, 
+> I'll never know]
 
-So the here they are:
+Worse is getting a spec that says, "no work around".
+When the reality is the OEM hardware vendor will not take ownership of 
+their errors and disclose a good proper work-around.
 
-. Motorola 5272 ethernet driver
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1-fec.patch.gz
+Cheers,
 
-. Motorola 68328 and ColdFire serial drivers
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1-serial.patch.gz
-
-. MTD driver patches for uClinux supported platforms
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1-mtd.patch.gz
-
-. Motorola 68328 framebuffer
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1-fb.patch.gz
-
-. uClinux FLAT file format exe loader
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1-binflat.patch.gz
-
-. MMU-less support
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1-mmnommu.patch.gz
-
-. Motorola embedded m68k/ColdFire architecture support
-   (support for 68328, 68360, 5206, 5206e, 5249, 5272, 5307, 5407)
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.38uc1-m68knommu.patch.gz
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+Andre Hedrick
+LAD Storage Consulting Group
 

@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277398AbRJJUIp>; Wed, 10 Oct 2001 16:08:45 -0400
+	id <S277390AbRJJUIP>; Wed, 10 Oct 2001 16:08:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277397AbRJJUIg>; Wed, 10 Oct 2001 16:08:36 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:1290 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S277394AbRJJUIc>;
-	Wed, 10 Oct 2001 16:08:32 -0400
-Message-ID: <3BC4AACA.F7380F94@lexus.com>
-Date: Wed, 10 Oct 2001 13:08:42 -0700
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.11-pre6 i686)
-X-Accept-Language: en
+	id <S277391AbRJJUIF>; Wed, 10 Oct 2001 16:08:05 -0400
+Received: from oe64.law9.hotmail.com ([64.4.8.199]:53254 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S277390AbRJJUHu>;
+	Wed, 10 Oct 2001 16:07:50 -0400
+X-Originating-IP: [66.108.21.174]
+From: "Concerned Programmer" <tkhoadfdsaf@hotmail.com>
+To: "David Woodhouse" <dwmw2@infradead.org>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Alexander Viro" <viro@math.psu.edu>, "Keith Owens" <kaos@ocs.com.au>,
+        "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <E15rNBu-0008To-00@the-village.bc.nu> <4058.1002737910@redhat.com>
+Subject: Re: Tainted Modules Help Notices
+Date: Wed, 10 Oct 2001 16:06:42 -0400
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.11 BUG vs 2.4.10-ac 
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <OE64YU5ts1Tjkw1BzCf0000708c@hotmail.com>
+X-OriginalArrivalTime: 10 Oct 2001 20:08:16.0487 (UTC) FILETIME=[4C614770:01C151C7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings -
+    I was under the same impression about the module licensing tagging.  I
+had read that it was suppose to be for maintainability (.i.e. source
+available so kernel gods can debug) and not to enforce ideological
+conformity.  Now I read that anything not licensed under the GPL, including
+BSD or simply public domain source code, will taint my kernel and modprobe
+complains about non-GPL stuff including parport_pc which apparently did not
+have a license.  Should I expect a Linux kernel KGB to show up next?
 
-I have had but little time to pursue the problems I reported
-earlier, but I can provide some additional data points in the
-hope that they may be of use here -
+    Furthermore I have to agree with the previous poster.  Any module could
+easily lie to MODULE_LICENSE about its licensing terms and that would not
+make it's source automatically "free" and GPLable so I am now wondering if
+this tainting mechanism is of any use at all.
 
-To recap, the system is a Compaq 6500 with 4 CPUs and 1.2
-GB RAM.
+    Just out of curiosity do all of these license tags in the modules take
+up any permanent kernel memory, especially in a heavily modularize system?
 
-Previously I reported that 2.4.11-pre kernels can all be reliably
-made to lock hard within seconds, just by starting a dbench run.
-
-I also reported that redhat roswell and rawhide kernels are solid
-in this test, as is 2.4.10-ac6.
-
-I have tested 2.4.11 final on this system, and sadly I must report
-that it locks up hard within seconds of starting "dbench 16", and
-although I booted Linux with verbose debugging and nmi_watchdog,
-the oops scrolled by too quickly to catch, and as the system then
-played possum, the PGUP, PGDN keys could not be used to scroll back
-and inspect the oops, and the Magic SysRq keys also had no effect,
-so I had to power cycle the box to revive it.
-
-Just to confirm a hunch, I recompiled 2.4.11 with highmem support
-disabled (So, it sees just under 1 GB RAM, no major loss), and
-reran the dbench tests, with complete success - even with the load
-up over 80 for an extended period of time, it would not fall over.
-
-In short, it looks like a highmem bug, which is NOT in -ac.
-
-cu,
-
-jjs
-
+> I believe that statement is as true as the assertion that nobody, even in
+> the Free World, can write GPL'd code which use the algorithms covered by
+> the patent.
+>
+> Either way, I didn't think that a political stance against patents was the
+> point of the kernel tainting code - I thought it was about
+maintainability.
+>
+> >  The problem we have is that "BSD without advertisment" can be claimed
+> > by almost any binary only module whose author doesnt include source or
+> > let it out fo their company ever
+>
+> GPL can also be claimed by a module whose author doesn't publish either
+the
+> source or the binary, or who charges lots and lots of money for shipping
+the
+> binary and ships the source with it with a 'request' that the recipient
+> doesn't then give it away for free.
+>
+> But if we're not going to allow BSD-licensed modules to be loaded without
+> tainting the kernel, we shouldn't mark any of the code distributed with
+the
+> kernel as BSD-licensed - we should make it all "Dual BSD/GPL" instead.
+>
+> It might also be useful to have a 'Dual GPL/Other' option, for covering
+the
+> other randomly dual-licensed code (like JFFS2).
 

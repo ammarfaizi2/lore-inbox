@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbVBBD3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVBBDeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbVBBD3z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 22:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVBBD3r
+	id S262298AbVBBDeY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 22:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVBBDeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 22:29:47 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:60822 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262253AbVBBD1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 22:27:13 -0500
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, mkrikis@yahoo.com
-Subject: [PATCH 2.4.29] libata: fix ata_piix on ICH6R in RAID mode
-From: Martins Krikis <mkrikis@yahoo.com>
-Date: 01 Feb 2005 22:26:38 -0500
-Message-ID: <87d5vjtzf5.fsf@yahoo.com>
-MIME-Version: 1.0
+	Tue, 1 Feb 2005 22:34:21 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:27275 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262264AbVBBDOS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 22:14:18 -0500
+Date: Wed, 2 Feb 2005 12:14:17 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2 08/29] ide: do_identify() string termination fix
+Message-ID: <20050202031417.GO1187@htj.dyndns.org>
+References: <20050202024017.GA621@htj.dyndns.org> <20050202025020.GI621@htj.dyndns.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202025020.GI621@htj.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+ Sorry, this is the same 08 patch with the correct subject line.
 
-Here is the cleaned up patch (as you suggested)
-that enables ata_piix to work in RAID mode on ICH6R. 
-I tested it and it seems to behave correctly
-in all the modes---sees all 4 disks in IDE and RAID modes,
-doesn't see any in Compatibility mode (which is right, 
-because only two are available and the regular IDE driver 
-has picked them up already). 
+> 08_ide_do_identify_model_string_termination.patch
+> 
+> 	Terminates id->model string before invoking strstr() in
+> 	do_identify().
 
-Signed-off-by: Martins Krikis <mkrikis@yahoo.com>
 
---- linux-2.4.29/drivers/scsi/libata-core.c	2005-01-25 20:55:41.000000000 -0500
-+++ linux-2.4.29-iswraid/drivers/scsi/libata-core.c	2005-02-01 20:23:51.000000000 -0500
-@@ -3597,7 +3597,8 @@ int ata_pci_init_one (struct pci_dev *pd
- 	else
- 		port[1] = port[0];
+Signed-off-by: Tejun Heo <tj@home-tj.org>
+
+
+Index: linux-ide-export/drivers/ide/ide-probe.c
+===================================================================
+--- linux-ide-export.orig/drivers/ide/ide-probe.c	2005-02-02 10:27:15.858207205 +0900
++++ linux-ide-export/drivers/ide/ide-probe.c	2005-02-02 10:28:03.719442099 +0900
+@@ -165,11 +165,12 @@ static inline void do_identify (ide_driv
+ 	ide_fixstring(id->fw_rev,    sizeof(id->fw_rev),    bswap);
+ 	ide_fixstring(id->serial_no, sizeof(id->serial_no), bswap);
  
--	if ((port[0]->host_flags & ATA_FLAG_NO_LEGACY) == 0) {
-+	if ((port[0]->host_flags & ATA_FLAG_NO_LEGACY) == 0
-+	    && (pdev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
- 		/* TODO: support transitioning to native mode? */
- 		pci_read_config_byte(pdev, PCI_CLASS_PROG, &tmp8);
- 		mask = (1 << 2) | (1 << 0);
-
++	/* we depend on this a lot! */
++	id->model[sizeof(id->model)-1] = '\0';
++
+ 	if (strstr(id->model, "E X A B Y T E N E S T"))
+ 		goto err_misc;
+ 
+-	/* we depend on this a lot! */
+-	id->model[sizeof(id->model)-1] = '\0';
+ 	printk("%s: %s, ", drive->name, id->model);
+ 	drive->present = 1;
+ 	drive->dead = 0;

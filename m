@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293016AbSBVV5r>; Fri, 22 Feb 2002 16:57:47 -0500
+	id <S293017AbSBVV7h>; Fri, 22 Feb 2002 16:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293017AbSBVV5l>; Fri, 22 Feb 2002 16:57:41 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10250 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293016AbSBVV5X>;
-	Fri, 22 Feb 2002 16:57:23 -0500
-Message-ID: <3C76BEC1.5A13BCA1@mandrakesoft.com>
-Date: Fri, 22 Feb 2002 16:57:21 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: endre@interware.hu
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Eepro100 driver.
-In-Reply-To: <Pine.LNX.4.44.0202222133270.8602-100000@dusk.interware.hu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S293019AbSBVV72>; Fri, 22 Feb 2002 16:59:28 -0500
+Received: from f156.law11.hotmail.com ([64.4.17.156]:65287 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S293017AbSBVV7W>;
+	Fri, 22 Feb 2002 16:59:22 -0500
+X-Originating-IP: [156.153.254.10]
+From: "Balbir Singh" <balbir_soni@hotmail.com>
+To: marcus@infa.abo.fi, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Trivial patch against mempool
+Date: Fri, 22 Feb 2002 13:59:16 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F156NzW3l1GM3h3vLgA000074ec@hotmail.com>
+X-OriginalArrivalTime: 22 Feb 2002 21:59:16.0582 (UTC) FILETIME=[2BDF6060:01C1BBEC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-endre@interware.hu wrote:
-> 
-> On Fri, 22 Feb 2002, Jeff Garzik wrote:
-> 
-> > > Would be a lot nicer to see someone spending the time pulling the
-> > > useful bits out of e100 and putting it into eepro100. e100 is ugly and
-> > > bloated for no reason.
+
+You are absoultely correct. The correct patch is
+
+--- mempool.c.org       Fri Feb 22 12:00:58 2002
++++ mempool.c   Fri Feb 22 15:01:02 2002
+@@ -34,6 +34,9 @@
+        mempool_t *pool;
+        int i;
+
++       if (!alloc_fn || !free_fn)
++               return NULL;
++
+        pool = kmalloc(sizeof(*pool), GFP_KERNEL);
+        if (!pool)
+                return NULL;
+
+Balbir Singh.
+
+
+>From: Marcus Alanen <marcus@infa.abo.fi>
+>To: balbir_soni@hotmail.com, linux-kernel@vger.kernel.org
+>Subject: Re: [PATCH] Trivial patch against mempool
+>Date: Fri, 22 Feb 2002 23:40:43 +0200
+>
+> >Check if the alloc_fn and free_fn are not NULL. The caller generally
+> >ensures that alloc_fn and free_fn are valid. It would not harm
+> >to check. This makes the checking in mempool_create() more complete.
 > >
-> > When it passes my review, it will not be.
-> > e100 + my desired changes == eepro100 + my desired changes
-> 
-> Will it be possible to use the vlan code in the kernel with e100? From
-> what I can see Intel has its own way of doing vlans and that seems
-> powerful but overcomplicated to me.
+> >
+> >--- mempool.c.org       Fri Feb 22 12:00:58 2002
+> >+++ mempool.c   Fri Feb 22 12:01:13 2002
+> >@@ -35,7 +35,7 @@
+> >        int i;
+> >
+> >        pool = kmalloc(sizeof(*pool), GFP_KERNEL);
+> >-       if (!pool)
+> >+       if (!pool || !alloc_fn || !free_fn)
+> >                return NULL;
+> >        memset(pool, 0, sizeof(*pool));
+> >
+>
+>A successful allocation with alloc_fn or free_fn equal to NULL
+>would return NULL, without freeing pool. => This check would
+>leak memory? Wouldn't it be better to check for !alloc_fn || !free_fn
+>before the kmalloc()
+>
+>
+>--
+>Marcus Alanen
+>maalanen@abo.fi
 
-If it's non-standard, it's not getting in the kernel.  We have VLAN
-stuff already...
 
--- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |
+
+
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
+

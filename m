@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbTIKQdH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 12:33:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbTIKQdH
+	id S261356AbTIKQZV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 12:25:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbTIKQZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 12:33:07 -0400
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:28595 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S261395AbTIKQc4
+	Thu, 11 Sep 2003 12:25:21 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:40593 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261356AbTIKQZM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 12:32:56 -0400
-Date: Thu, 11 Sep 2003 18:17:08 +0200 (CEST)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-pre3-pac2
-In-Reply-To: <1063294146.2967.32.camel@dhcp23.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.56.0309111814560.2212@dot.kde.org>
-References: <Pine.LNX.4.56.0309111417580.31337@dot.kde.org>
- <1063294146.2967.32.camel@dhcp23.swansea.linux.org.uk>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Sep 2003 12:25:12 -0400
+Date: Thu, 11 Sep 2003 17:25:10 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Virtual alias cache coherency results (was: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this)
+Message-ID: <20030911162510.GA29532@mail.jlokier.co.uk>
+References: <20030910210416.GA24258@mail.jlokier.co.uk> <20030910233951.Q30046@flint.arm.linux.org.uk> <20030910233720.GA25756@mail.jlokier.co.uk> <20030911010702.W30046@flint.arm.linux.org.uk> <20030911123535.GB28180@mail.jlokier.co.uk> <20030911160929.A19449@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911160929.A19449@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Sep 2003, Alan Cox wrote:
+Russell King wrote:
+> Maybe those StrongARM chips don't exhibit the write buffer bug?  Remember,
+> I said _SOME_ StrongARM-110 chips exhibit the problem.  I did not say
+> _ALL_ StrongARM-110 chips exhibit the problem.
 
-> Cool stuff. I will probably put out a 22-ac3 later today to fix a couple
-> of small glitches, can you send me the acpi=off oops fix if .22 needs it
-> ?
+I never assumed they all have the bug.  Credit me with at least
+reading what you wrote before! :)
 
-The problem was introduced by a couple of ACPI fixes posted on lkml 
-recently; they aren't in base or -ac2 yet.
+The results indicate some StrongARM-110 systems which _don't_ exhibit
+the write buffer bug _do_ exhibit some _other_ cause of non-coherence.
 
-You may want to add the whole set of patches though;
-I've put the original patches at
-http://www.arklinux.org/~bero/kernel/acpi-fixes.patch
-and my fix for the Oops at
-http://www.arklinux.org/~bero/kernel/acpioff.patch
+> > It means that your VIVT explanation and workaround does not explain
+> > those results, so I cannot have confidence that your workaround fixes
+> > those particular ARM devices.
+> 
+> Well, as far as I'm concerned, I completely believe that I have explained
+> it entirely, and I still don't know why you're trying to make this more
+> difficult than it factually is.
 
-LLaP
-bero
+I'm thinking the same of you! :)
 
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
+All I asked is whether _all_ ARMs appear coherent to userspace now, and
+you replied with:
 
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
+> It's relatively simple, and I'm not sure why its causing such
+> misunderstanding.  Let me try one more time:
+
+and proceeding to answer a different question to the one I asked.
+
+So, neither of us knows if all ARMs appear coherent to userspace, with
+the latest kernel, ...
+
+> Well, once you collect the kernel information and forward it to me, I
+> can have a look.
+
+...until we learn what kernel versions the Netwinder folks are
+running, or they kindly run the test on a new kernel.
+
+Thanks,
+-- Jamie

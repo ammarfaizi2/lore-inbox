@@ -1,69 +1,153 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285666AbSBCFiO>; Sun, 3 Feb 2002 00:38:14 -0500
+	id <S285720AbSBCGAU>; Sun, 3 Feb 2002 01:00:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285720AbSBCFiE>; Sun, 3 Feb 2002 00:38:04 -0500
-Received: from mtiwmhc21.worldnet.att.net ([204.127.131.46]:32923 "EHLO
-	mtiwmhc21.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S285666AbSBCFhy>; Sun, 3 Feb 2002 00:37:54 -0500
-Date: Sat, 2 Feb 2002 21:38:43 -0800
-From: "Luis A. Montes" <Luis.A.Montes.1@worldnet.att.net>
-Message-Id: <200202030538.g135chu00602@penguin.montes2.org>
+	id <S285783AbSBCGAL>; Sun, 3 Feb 2002 01:00:11 -0500
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:45979 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S285720AbSBCGAC>; Sun, 3 Feb 2002 01:00:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.17 filesystem corruption
+Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
+Date: Sun, 3 Feb 2002 01:00:00 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: Ingo Molnar <mingo@elte.hu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020203060001.10E694D94@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Found a bug in the patch:
 
-I have been experiencing filesystem corruption very frequently with
-2.4.17. I've probably reinstalled my system more than 10 times in as
-many days. So far it seems to be related to the kernel version and
-perhaps to the UDMA settings. I haven't been able to crash the system
-running 2.4.5 or 2.2.19, but it has crashed with 2.4.17 every time,
-regardless of cpu optimization (Athlon, K6 or i386), AGP (built-in, as
-a module or not built), filesystem (ext2 or xfs). Last kernel I tried
-was a 2.4.17 with a ext2 fs and a patch I found by Lionel Bouton in
-this list to handle my SiS 735 chipset. It did seem more stable for a
-while, until I decided to try and enable ultra dma 66 on my primary
-drive. The two partitions that I had mounted got completely corrupted
-(on boot the kernel tried to mount it as a UMSDOS fs) and e2fsck
-wasn't able to fix it. It did seem to work with udma 33, I compiled
-the kernel without a problem as a test of disk IO, but I can't really
-tell for sure that there wasn't a subtle disk corruption just waiting
-to crop up.
+                if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq)) {
+                        if (!rq->expired_timestamp)
+                                rq->expired_timestamp = jiffies;
+                        enqueue_task(p, rq->expired);
+>>>                     goto out;
+                } else
+                        enqueue_task(p, rq->active);
+        }
 
-My system is as follows:
+        /*
+         * Here we stop a single interactive task or a group of tasks sharing
+         * a mm_struct (like java threads) from monopolizing the cpu.
+         */
+        if (p->mm) {
+>>>		if (p->mm->mm_hogstamp[smp_processor_id()] != rq->switch_timestamp) {
 
-ECS K7S5A Motherboard with the SiS 735 chipset, 128MB of PC133 SDRAM
-and Athlon XP 1700+ processor at 1.4 something MHz. Memory is good,
-tested with memtest86 overnight several full passes.
+I added a 'goto out;' after the enqueue_task(p, rq->expired);  Suspect bad
+things can happen if I dequeue from the wrong array...  Also changed the test
+in 'p->mm->mm_hogstamp[smp_processor_id()] < rq->switch_timestamp)' from <
+to != as it will be safer when jiffies rolls over.
 
-hda: Western Digital Caviar WDC AC313000R (it is *not* in the udma
-black list, should it be?)
+Ed Tomlinson
 
-hdb: Western Digital Caviar WDC AC23200L (this one is in the black
-list, but is not being mounted, so it shouldn't matter, right?)
-
-
-Software: Straight Slackware 8 install, with XFree86 from cvs. But
-lately I havent even tried glx, dri et al at all ...
-
-Questions: 
-
-- There is a patch by the IDE maintainer (Andre Hedrick?), but I don't
-  know if that is supposed to make the system behave better or is a
-  new major architectural change (if it is the latest I probably don't
-  want to compound my problem, do I?) although at this point I'm
-  willing to try almost anything, even windows ;-)
-
-- Has anybody gotten a system similar to mine to work on these
-  kernels. This same kernel (2.4.17-xfs with the rml patch) was rock
-  solid in my old motherboard, a VIA Apollo K6-III motherboard with
-  the same HD's.
-
-- Was there some change between 2.4.5 and 2.4.17 that could have
-  introduced problems in the IDE layer? I really tried to test 2.4.5
-  to the limits compiling two versions of the kernel and XFree86
-  simultaneously, and the filesystem survived. But unfortunately a
-  negative result is not proof of stability
+On February 2, 2002 10:50 am, Ed Tomlinson wrote:
+> The following patch improves the performance of O(1) when under load
+> and threaded programs are running.  For this patch, threaded is taken
+> to mean processes sharing their vm (p->mm).  While this type of
+> programming is usually not optimal it is very common (ie. java).
+>
+> Under load, with threaded tasks running niced, and a cpu bound task at
+> normal priority we quickly notice the load average shooting up.  What
+> is happening is all the threads are trying to run.  Due to the nature
+> of O(1) all the process in the current array must run to get on to the
+> inactive array.  This quickly leads to the higher priority cpu bound
+> task starving.  Running the threaded application at nice +19 can help
+> but does not solve the base issue.  On UP, I have observed loads of
+> between 20 and 40 when this is happening,
+>
+> I tried various approaches to correcting this.  Neither reducing the
+> timeslices or playing the the effective prio of the threaded tasks
+> helped much.  What does seems quite effective is to monitor the total
+> time _all_ the tasks sharing a vm use.  Once a threshold is exceeded
+> we move any tasks in the same group directly to the inactive array
+> temporarily increasing their effective prio.
+>
+> With this change the cpu bound tasks can get over 80% of the cpu.
+>
+> A couple of comments.  The patch applies its logic to all processes.
+> This limits the number of times interactive tasks can requeue.  With
+> this in place we can probably drop the expired_timeslice logic.
+>
+> I see no reason that some of the tunables should not become part of
+> the standard scheduler provided they are not adding significant
+> overhead.  The THREAD_PENALTY tunable is only used in the tick
+> processing logic (and not in the common path) - keeping it tunable
+> should not introduce measureable overhead.
+>
+> Patch against 2.4.17pre7
+>
+> Comments and feedback welcome,
+> Ed Tomlinson
+>
+> --- linux/include/linux/sched.h.orig	Fri Feb  1 23:19:44 2002
+> +++ linux/include/linux/sched.h	Fri Feb  1 23:16:34 2002
+> @@ -211,6 +211,8 @@
+>  	pgd_t * pgd;
+>  	atomic_t mm_users;			/* How many users with user space? */
+>  	atomic_t mm_count;			/* How many references to "struct mm_struct" (users
+> count as 1) */ +	unsigned long mm_hogstamp[NR_CPUS];	/* timestamp to reset
+> the hogslice */ +	unsigned long mm_hogslice[NR_CPUS];	/* when this reaches
+> 0, task using this mm are hogs */ int map_count;				/* number of VMAs */
+>  	struct rw_semaphore mmap_sem;
+>  	spinlock_t page_table_lock;		/* Protects task page tables and mm->rss */
+> @@ -486,6 +488,7 @@
+>  #define INTERACTIVE_DELTA       3
+>  #define MAX_SLEEP_AVG           (2*HZ)
+>  #define STARVATION_LIMIT        (2*HZ)
+> +#define THREAD_PENALTY		8
+>
+>  #define USER_PRIO(p)		((p)-MAX_RT_PRIO)
+>  #define MAX_USER_PRIO		(USER_PRIO(MAX_PRIO))
+> --- linux/kernel/sched.c.orig	Fri Feb  1 23:23:50 2002
+> +++ linux/kernel/sched.c	Fri Feb  1 23:12:49 2002
+> @@ -41,7 +41,7 @@
+>   */
+>  struct runqueue {
+>  	spinlock_t lock;
+> -	unsigned long nr_running, nr_switches, expired_timestamp;
+> +	unsigned long nr_running, nr_switches, expired_timestamp,
+> switch_timestamp; task_t *curr, *idle;
+>  	prio_array_t *active, *expired, arrays[2];
+>  	int prev_nr_running[NR_CPUS];
+> @@ -614,6 +614,28 @@
+> 		} else
+>  			enqueue_task(p, rq->active);
+>  	}
+> +
+> +	/*
+> +	 * Here we stop a single interactive task or a group of tasks sharing
+> +	 * a mm_struct (like java threads) from monopolizing the cpu.
+> +	 */
+> +	if (p->mm) {
+> +		if (p->mm->mm_hogstamp[smp_processor_id()] < rq->switch_timestamp) {
+> +			p->mm->mm_hogstamp[smp_processor_id()] = rq->switch_timestamp;
+> +			p->mm->mm_hogslice[smp_processor_id()] =
+> +				NICE_TO_TIMESLICE(p->__nice) * THREAD_PENALTY;
+> +		}
+> +		if (!p->mm->mm_hogslice[smp_processor_id()]) {
+> +			dequeue_task(p, rq->active);
+> +			p->need_resched = 1;
+> +			p->prio--;
+> +        		if (p->prio < MAX_RT_PRIO)
+> +                		p->prio = MAX_RT_PRIO;
+> +			enqueue_task(p, rq->expired);
+> +		} else
+> +			p->mm->mm_hogslice[smp_processor_id()]--;
+> +	}
+> +
+>  out:
+>  #if CONFIG_SMP
+>  	if (!(now % BUSY_REBALANCE_TICK))
+> @@ -676,6 +698,7 @@
+>  		rq->expired = array;
+>  		array = rq->active;
+>  		rq->expired_timestamp = 0;
+> +		rq->switch_timestamp = jiffies;
+>  	}
+>
+>  	idx = sched_find_first_bit(array->bitmap);

@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289871AbSA3SX1>; Wed, 30 Jan 2002 13:23:27 -0500
+	id <S290445AbSA3Sqg>; Wed, 30 Jan 2002 13:46:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289917AbSA3SVt>; Wed, 30 Jan 2002 13:21:49 -0500
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:61445 "EHLO
-	ringstrom.mine.nu") by vger.kernel.org with ESMTP
-	id <S290346AbSA3SVY>; Wed, 30 Jan 2002 13:21:24 -0500
-Date: Wed, 30 Jan 2002 19:20:56 +0100 (CET)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: tori@boris.prodako.se
-To: Corey Minyard <minyard@acm.org>
-cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: TCP/IP Speed
-In-Reply-To: <3C583655.6060707@acm.org>
-Message-ID: <Pine.LNX.4.44.0201301917110.14481-100000@boris.prodako.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290419AbSA3SpC>; Wed, 30 Jan 2002 13:45:02 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:12699 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S290309AbSA3SYW>; Wed, 30 Jan 2002 13:24:22 -0500
+Date: Wed, 30 Jan 2002 13:24:22 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200201301824.g0UIOMO32639@devserv.devel.redhat.com>
+To: raul@viadomus.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why 'linux/fs.h' cannot be included? I *can*...
+In-Reply-To: <mailman.1012391761.28301.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1012391761.28301.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Corey Minyard wrote:
+>     The problem is that I don't want to copy the definitions I need
+> from linux/fs.h, because this will lead to problems if those
+> definitions change.
 
-> If I remember correctly, the TCP stacks put in delays for small sends so 
+This is a common misconception. Traditional UNIX operates
+this way, indeed. They do "make world" and build everything
+in one go, so programs are automatically compatible with
+the kernel (in theory, anyways). Once programs outside
+of "make world" start to need access to these interfaces,
+the scheme crumbles to the ground.
 
-You do not remember correctly.  I think you are confused by Nagle and 
-delayed ACKs.  If there is no unacknowledged data, a small packet will be 
-sent immediately.
+Linus (and thus Linux) consciously decided that this
+so-called "souce compatibility" is a mirage. Only binary
+compatibility matters. So, you must copy headers that
+you wish to use, including linux/fs.h. Then, your program
+is binary compatible with the kernel from which you took
+them. New kernels may support your program by providing
+the same interface, and they may have NO linux/fs.h
+at all. If you included headers, you would not be
+able to compile your program at all, but the old binary
+would continue to work, and copied headers would continue
+to work.
 
-/Tobias
+Those who come from UNIX background keep insisting to
+include kernel headers, especially when they write
+drivers with ioctl argument structures. But there is
+no other way for them, but to educate themselves in
+the Linux lore. Kernel headers are not to be included
+in applications.
 
+-- Pete

@@ -1,105 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129130AbRBGPGu>; Wed, 7 Feb 2001 10:06:50 -0500
+	id <S129245AbRBGPRW>; Wed, 7 Feb 2001 10:17:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129186AbRBGPGb>; Wed, 7 Feb 2001 10:06:31 -0500
-Received: from tetsuo.zabbo.net ([204.138.55.44]:15626 "HELO tetsuo.zabbo.net")
-	by vger.kernel.org with SMTP id <S129130AbRBGPGV>;
-	Wed, 7 Feb 2001 10:06:21 -0500
-Date: Wed, 7 Feb 2001 10:06:19 -0500
-From: Zach Brown <zab@zabbo.net>
+	id <S129130AbRBGPRM>; Wed, 7 Feb 2001 10:17:12 -0500
+Received: from gatekeeper.gozer.weebeastie.net ([61.8.7.91]:37637 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S129245AbRBGPRE>; Wed, 7 Feb 2001 10:17:04 -0500
+Date: Thu, 8 Feb 2001 02:14:47 +1100
+From: CaT <cat@zip.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: maestro3 patch, resent
-Message-ID: <20010207100619.A8529@tetsuo.zabbo.net>
+Subject: suspecious ide hdparm results with 2.4.1 (and a minor capacity question)
+Message-ID: <20010208021447.C352@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-duh.  I sent this to rutgers originally..
+well I got my ATA100 IBM HD and my Promise ATA100 card to go with it and
+shoved them into my ultrafast VX MB (cough). I then ran hdparm
+to see how fast the sucker could get and got this:
 
---- 
+[02:02:24] root@gozer:/root>> free; hdparm -tT /dev/hde; free
+             total       used       free     shared    buffers     cached
+Mem:         94520      91760       2760          0      63272       6780
+-/+ buffers/cache:      21708      72812
+Swap:       266032          4     266028
 
-Date: Mon, 5 Feb 2001 07:42:25 -0500
-From: Zach Brown <zab@zabbo.net>
-To: linux-kernel@vger.rutgers.edu
-Subject: [PATCH] maestro3 2.4.1-ac2 shutdown fix
+/dev/hde:
+ Timing buffer-cache reads:   128 MB in  3.54 seconds = 36.16 MB/sec
+ Timing buffered disk reads:  64 MB in  3.13 seconds = 20.45 MB/sec
+Hmm.. suspicious results: probably not enough free memory for a proper test.
+             total       used       free     shared    buffers     cached
+Mem:         94520      91828       2692          0      63608       6524
+-/+ buffers/cache:      21696      72824
+Swap:       266032         12     266020
 
-Its a wonder that anyone lets me write code.
+Now... that suspicious results note makes me ponder that the results
+aren't for real but... if they are, gawddamn. That's more then I hoped
+for. 8)
 
-The following fixes a goofy shutdown problem with the 2.4 maestro3 driver
-as it appears in Alan's 2.4.1-ac2 patch.   If power management was
-disabled the maestro3 driver would oops trying to save the dsp state as
-the machine shut down.  
+Also, as an aside question, I want to get as much capacity out of this
+HD as possible, back and windows compatability be damned. It's currently
+in LBA mode (I believe) and that, to my knowledge, wastes the most space.
+Is there anything I can do to get more of my HD back for use?
 
-The full source for the up to date 2.4 driver can be found at:
+[02:02:41] root@gozer:/root>> hdparm -i /dev/hde
 
-	http://www.zabbo.net/maestro3/maestro3-2.4-20010204.tar.gz
+/dev/hde:
 
-thanks again to Andres Salomon for continuing to report my dumb bugs.
-Hopefully this will be the last of the trivial bugs, this driver needs
-some real meaningful cleaning up..
+ Model=IBM-DTLA-307045, FwRev=TX6OA50C, SerialNo=YMDYMT8X423
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+ BuffType=3(DualPortCache), BuffSize=1916kB, MaxMultSect=16, MultSect=16
+ DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=90069840
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2 
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4 
+ UDMA modes: mode0 mode1 mode2 mode3 mode4 *mode5 
 
 -- 
- zach
+CaT (cat@zip.com.au)		*** Jenna has joined the channel.
+				<cat> speaking of mental giants..
+				<Jenna> me, a giant, bullshit
+				<Jenna> And i'm not mental
+					- An IRC session, 20/12/2000
 
---- maestro3.c	Mon Feb  5 06:51:58 2001
-+++ maestro3.c	Mon Feb  5 07:40:53 2001
-@@ -28,6 +28,8 @@
-  * Shouts go out to Mike "DJ XPCom" Ang.
-  *
-  * History
-+ *  v1.21 - Feb 04 2001 - Zach Brown <zab@zabbo.net>
-+ *   fix up really dumb notifier -> suspend oops
-  *  v1.20 - Jan 30 2001 - Zach Brown <zab@zabbo.net>
-  *   get rid of pm callback and use pci_dev suspend/resume instead
-  *   m3_probe cleanups, including pm oops think-o
-@@ -147,7 +149,7 @@
- 
- #define M_DEBUG 1
- 
--#define DRIVER_VERSION      "1.20"
-+#define DRIVER_VERSION      "1.21"
- #define M3_MODULE_NAME      "maestro3"
- #define PFX                 M3_MODULE_NAME ": "
- 
-@@ -2763,7 +2765,6 @@
- static void m3_suspend(struct pci_dev *pci_dev)
- {
-     unsigned long flags;
--    int index;
-     int i;
-     struct m3_card *card = pci_dev->driver_data;
- 
-@@ -2788,15 +2789,18 @@
- 
-     m3_assp_halt(card);
- 
--    index = 0;
--    DPRINTK(DPMOD, "saving code\n");
--    for(i = REV_B_CODE_MEMORY_BEGIN ; i <= REV_B_CODE_MEMORY_END; i++)
--        card->suspend_mem[index++] = 
--            m3_assp_read(card, MEMTYPE_INTERNAL_CODE, i);
--    DPRINTK(DPMOD, "saving data\n");
--    for(i = REV_B_DATA_MEMORY_BEGIN ; i <= REV_B_DATA_MEMORY_END; i++)
--        card->suspend_mem[index++] = 
--            m3_assp_read(card, MEMTYPE_INTERNAL_DATA, i);
-+    if(card->suspend_mem) {
-+        int index = 0;
-+
-+        DPRINTK(DPMOD, "saving code\n");
-+        for(i = REV_B_CODE_MEMORY_BEGIN ; i <= REV_B_CODE_MEMORY_END; i++)
-+            card->suspend_mem[index++] = 
-+                m3_assp_read(card, MEMTYPE_INTERNAL_CODE, i);
-+        DPRINTK(DPMOD, "saving data\n");
-+        for(i = REV_B_DATA_MEMORY_BEGIN ; i <= REV_B_DATA_MEMORY_END; i++)
-+            card->suspend_mem[index++] = 
-+                m3_assp_read(card, MEMTYPE_INTERNAL_DATA, i);
-+    }
- 
-     DPRINTK(DPMOD, "powering down apci regs\n");
-     m3_outw(card, 0xffff, 0x54);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

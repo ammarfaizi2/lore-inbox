@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277142AbRJIGPE>; Tue, 9 Oct 2001 02:15:04 -0400
+	id <S272636AbRJIGnp>; Tue, 9 Oct 2001 02:43:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277726AbRJIGOz>; Tue, 9 Oct 2001 02:14:55 -0400
-Received: from rj.sgi.com ([204.94.215.100]:13756 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S277142AbRJIGOo>;
-	Tue, 9 Oct 2001 02:14:44 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: torvalds@transmeta.com, arjanv@redhat.com, andre@linux-ide.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ATA RAID breaks modular IDE compile 
-In-Reply-To: Your message of "Mon, 08 Oct 2001 23:59:39 CST."
-             <200110090559.f995xd923187@vindaloo.ras.ucalgary.ca> 
+	id <S272882AbRJIGnf>; Tue, 9 Oct 2001 02:43:35 -0400
+Received: from dot.cygnus.com ([205.180.230.224]:773 "EHLO dot.cygnus.com")
+	by vger.kernel.org with ESMTP id <S272636AbRJIGnU>;
+	Tue, 9 Oct 2001 02:43:20 -0400
+Date: Mon, 8 Oct 2001 23:43:35 -0700
+From: Richard Henderson <rth@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Paul.McKenney@us.ibm.com, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
+Message-ID: <20011008234335.A7127@redhat.com>
+In-Reply-To: <OF2F33BD66.440BE6A1-ON88256AE0.001DFF26@boulder.ibm.com> <20011008.225610.94885115.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 09 Oct 2001 16:15:04 +1000
-Message-ID: <27982.1002608104@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011008.225610.94885115.davem@redhat.com>; from davem@redhat.com on Mon, Oct 08, 2001 at 10:56:10PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Oct 2001 23:59:39 -0600, 
-Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
->  Hi, all. In 2.4.11-pre6, the ATA RAID code breaks compiling IDE as a
->module: I get duplicate "init_module" symbols. I don't even have
->ATA RAID enabled!
+On Mon, Oct 08, 2001 at 10:56:10PM -0700, David S. Miller wrote:
+> I somehow doubt that you need an IPI to implement the equivalent of
+> "membar #StoreStore" on Alpha.  Richard?
 
-Yeuch!  Who defined ide-mod-objs in terms of $(export-objs) and why?
-Fix against 2.4.11-pre6.
+Lol.  Of course not.  Is someone under the impression that AXP
+designers were smoking crack?
 
-Index: 11-pre6.1/drivers/ide/Makefile
---- 11-pre6.1/drivers/ide/Makefile Tue, 09 Oct 2001 11:09:32 +1000 kaos (linux-2.4/E/b/44_Makefile 1.1.2.3.1.1 644)
-+++ 11-pre6.1(w)/drivers/ide/Makefile Tue, 09 Oct 2001 16:13:01 +1000 kaos (linux-2.4/E/b/44_Makefile 1.1.2.3.1.1 644)
-@@ -75,7 +75,7 @@ obj-$(CONFIG_BLK_DEV_ATARAID_HPT)	+= hpt
- 
- ide-obj-$(CONFIG_PROC_FS)		+= ide-proc.o
- 
--ide-mod-objs		:= $(export-objs) $(ide-obj-y)
-+ide-mod-objs		:= ide.o ide-features.o $(ide-obj-y)
- ide-probe-mod-objs	:= ide-probe.o ide-geometry.o
- 
- include $(TOPDIR)/Rules.make
+"wmb" == "membar #StoreStore".
+"mb"  == "membar #Sync".
 
+See the nice mb/rmb/wmb macros in <asm/system.h>.
+
+
+r~

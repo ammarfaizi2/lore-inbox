@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129035AbRBFMhB>; Tue, 6 Feb 2001 07:37:01 -0500
+	id <S129072AbRBFMfv>; Tue, 6 Feb 2001 07:35:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129058AbRBFMgv>; Tue, 6 Feb 2001 07:36:51 -0500
-Received: from [195.6.125.97] ([195.6.125.97]:29961 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S129035AbRBFMgk>;
-	Tue, 6 Feb 2001 07:36:40 -0500
-Message-Id: <l0310280ab6a59b6a53d3@[172.30.8.86]>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="============_-1230659375==_============"
-Date: Tue, 6 Feb 2001 13:38:37 +0100
-To: linux-kernel@vger.kernel.org
-From: Eric Berenguier <Eric.Berenguier@sycomore.fr>
-Subject: PATCH: ipfwadm IP accounting (2.4.1)
+	id <S129118AbRBFMfl>; Tue, 6 Feb 2001 07:35:41 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:3602 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S129072AbRBFMfh>; Tue, 6 Feb 2001 07:35:37 -0500
+Message-ID: <3A7FE803.98740090@namesys.com>
+Date: Tue, 06 Feb 2001 15:03:15 +0300
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: Wenzhuo Zhang <wenzhuo@zhmail.com>
+CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] mongo.sh 2.2.18: do_try_to_free_pages failed ...
+In-Reply-To: <20010206102048.A816@zhmail.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---============_-1230659375==_============
-Content-Type: text/plain; charset="us-ascii"
+Wenzhuo Zhang wrote:
+> 
+> Hi,
+> 
+> I got the VM error "VM: do_try_to_free_pages failed for mongo_read..."
+> and then I couldn't log into the system, when stress testing
+> reiserfs+raid0 setup on a 2.2.18 box using the reiserfs benchmark
+> mongo.sh. The problem was reporduceable on each run of mongo.sh.
+> 
+> ./mongo.sh reiserfs /dev/md0 /mnt/testfs raid0-rfs 3
+> 
+> Thinking the raid code might cause the problem, I tested on reiserfs
+> only, but I got the same error message. Later, I found the same
+> problem running mongo.sh on an ext2 partition (stock kernel without
+> any patches).
+> 
+> I guess this problem is not reiserfs specific. What can I do now to
+> solve the problem?
+> 
+> Here is the hardware configuration of my test box:
+> PIII 600, 256M, Adaptec AIC-7896 SCSI controller, two Quantum SCSI
+> disks.
+> 
+> Regards,
+> --
+> Wenzhuo
 
-Hello,
+Honestly, the best thing to do is to upgrade to 2.4.1.  VM on 2.2.recent is
+not in good condition, and reiserfs exacerbates it.  
 
-
-Using ipfwadm on a 2.4.1 kernel, some ip accouting rules for outgoing
-packets have theirs packet and byte counter stuck to 0 value. There is no
-such problem with incoming packets.
-
-For example try this one: ipfwadm -A out -a -W eth0 -S 0/0 -D 0/0
-
-The included patch solves this problem (this was probably a typo).
-I've only tested it with ipfwadm and with simple rules like the one above.
-
-
-Eric Berenguier
-
---============_-1230659375==_============
-Content-Type: text/plain; name="2.4.1_ipfwadm_ip_acct_out_patch"; charset="us-ascii"
-Content-Disposition: attachment; filename="2.4.1_ipfwadm_ip_acct_out_patch"
-
---- linux-2.4.1/net/ipv4/netfilter/ip_fw_compat.c	Tue Feb  6 11:10:01
-2001
-+++ linux/net/ipv4/netfilter/ip_fw_compat.c	Tue Feb  6 09:03:17 2001
-@@ -132,7 +132,7 @@
- 		if (ret == FW_ACCEPT || ret == FW_SKIP) {
- 			if (fwops->fw_acct_out)
- 				fwops->fw_acct_out(fwops, PF_INET,
--						   (struct net_device *)in,
-+						   (struct net_device *)out,
- 						   (*pskb)->nh.raw, &redirpt,
- 						   pskb);
- 			confirm_connection(*pskb);
-
---============_-1230659375==_============
-Content-Type: text/plain; charset="us-ascii"
-
---
-Eric Berenguier
-
------------------------------------------------------------------
-                    SYCOMORE Groupe EADS
-63 Ter, Av. Edouard Vaillant - 92517 Boulogne-Billancourt Cedex
-  Tel. : +33 (0)1 46 08 61 55 - Fax : +33 (0)1 46 08 63 19
-                    http://www.sycomore.fr
------------------------------------------------------------------
-
-
---============_-1230659375==_============--
-
+Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

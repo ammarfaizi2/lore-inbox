@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135718AbRD2L03>; Sun, 29 Apr 2001 07:26:29 -0400
+	id <S135720AbRD2L03>; Sun, 29 Apr 2001 07:26:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135724AbRD2L0I>; Sun, 29 Apr 2001 07:26:08 -0400
-Received: from p3EE3CB32.dip.t-dialin.net ([62.227.203.50]:46609 "HELO
+	id <S135721AbRD2L0J>; Sun, 29 Apr 2001 07:26:09 -0400
+Received: from p3EE3CB32.dip.t-dialin.net ([62.227.203.50]:46353 "HELO
 	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S135721AbRD2L0F>; Sun, 29 Apr 2001 07:26:05 -0400
-Date: Sun, 29 Apr 2001 13:23:02 +0200
+	id <S135718AbRD2L0G>; Sun, 29 Apr 2001 07:26:06 -0400
+Date: Sun, 29 Apr 2001 13:21:45 +0200
 From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
 Subject: Re: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect sda
-Message-ID: <20010429132302.B30588@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <6C6D58C130D5D411ABF200A0C9E9216A1145B2@iserver.ingenuity.com>
+Message-ID: <20010429132145.A30588@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010428203143.A27784@oisec.net> <Pine.LNX.4.33.0104282039410.444-100000@3jane.ashpool.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <6C6D58C130D5D411ABF200A0C9E9216A1145B2@iserver.ingenuity.com>; from RTharakan@ingenuity.com on Sat, Apr 28, 2001 at 22:20:46 -0700
+In-Reply-To: <Pine.LNX.4.33.0104282039410.444-100000@3jane.ashpool.org>; from poptix@poptix.net on Sat, Apr 28, 2001 at 20:47:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Apr 2001, Royans Tharakan wrote:
+On Sat, 28 Apr 2001, poptix wrote:
 
-> SCSI subsystem driver Revision: 1.00
-> aacraid raid driver version, Apr 28 2001
-> percraid device detected
-> Device mapped to virtual address 0xf8806000
-> percraid:0 device initialization successful
-> percraid:0 AacHba_ClassDriverInit complete
-> scsi0 : percraid
->   Vendor: DELL      Model: PERCRAID Mirror   Rev: 0001
->   Type:   Direct-Access                      ANSI SCSI revision: 02
-> Detected scsi removable disk sda at scsi0, channel 0, id 0, lun 0
-> SCSI device sda: 35544577 512-byte hdwr sectors (18199 MB)
-> sda: Write Protect is off
-> Partition check:
->  sda: sda1 sda2 < sda5 sda6 >
-> scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.5
->         <Adaptec aic7899 Ultra160 SCSI adapter>
->         aic7899: Wide Channel B, SCSI Id=7, 32/255 SCBs
+> Howdy,
+> 
+> 	I've got an "Adaptec AHA-2940UW Pro Ultra SCSI host adapter" using
+> the aic7xxx driver (the new one, not the old one), and have had no
+> problems, I have a zip drive on ID5, and a 12X Smart & Friendly CD-RW on
+> ID6, haven't had any problems on 2.4.3-ac14, or 2.4.4, just an FYI.
 
-Your sda disk is attached to your RAID card, isn't it?
+You're not using SCSI hard disks, are you?

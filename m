@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbTE2LUH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 07:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbTE2LSn
+	id S262164AbTE2LSj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 07:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbTE2LSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 07:18:43 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:64517 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S262169AbTE2LQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 07:16:37 -0400
-Date: Thu, 29 May 2003 20:30:32 +0900 (JST)
-Message-Id: <20030529.203032.131225364.yoshfuji@wide.ad.jp>
-To: evil@g-house.de
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: IPv6 module oopsing on 2.5.69
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@wide.ad.jp>
-In-Reply-To: <3ED5E9E7.5070602@g-house.de>
-References: <3ED5E9E7.5070602@g-house.de>
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Thu, 29 May 2003 07:18:38 -0400
+Received: from holomorphy.com ([66.224.33.161]:14727 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262164AbTE2LPk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 07:15:40 -0400
+Date: Thu, 29 May 2003 04:28:41 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Stewart Smith <stewartsmith@mac.com>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: buffer_head.b_bsize type
+Message-ID: <20030529112841.GA8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	Stewart Smith <stewartsmith@mac.com>, linux-kernel@vger.kernel.org,
+	trivial@rustcorp.com.au
+References: <746529B0-91C0-11D7-9488-00039346F142@mac.com> <20030529103503.GZ8978@holomorphy.com> <20030529111517.GP14138@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030529111517.GP14138@parcelfarce.linux.theplanet.co.uk>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CC: netdev
+On Thu, May 29, 2003 at 03:35:03AM -0700, William Lee Irwin III wrote:
+>> Could we go the other way and make all users of b_size use unsigned?
 
-Upgrade to 2.5.70 and retest, please.
-Thank you.
+On Thu, May 29, 2003 at 12:15:17PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> Who the hell cares?  Size of buffer does not exceed the page size.
+> Unless you can show a platform with 2Gb pages...
 
-In article <3ED5E9E7.5070602@g-house.de> (at Thu, 29 May 2003 13:07:19 +0200), Christian <evil@g-house.de> says:
+The thought behind my comment was that it didn't make sense to allow
+the representation to go negative. There of course shouldn't ever be
+any need to allow >= 2GB b_size to be representable.
 
-> while booting the ipv6 module gets installed, along with this message in 
-> the log:
-...
+I'll defer to viro here.
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+
+-- wli

@@ -1,59 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbTFKErn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 00:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTFKErn
+	id S264143AbTFKEwI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 00:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTFKEwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 00:47:43 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.36.229]:1525 "EHLO
-	ms-smtp-01.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262363AbTFKErm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 00:47:42 -0400
-Message-ID: <3EE6B7A2.3000606@austin.rr.com>
-Date: Wed, 11 Jun 2003 00:01:22 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Compiling kernel with SuSE 8.2/gcc 3.3
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jun 2003 00:52:08 -0400
+Received: from [61.95.53.28] ([61.95.53.28]:44298 "EHLO dreamcraft.com.au")
+	by vger.kernel.org with ESMTP id S264143AbTFKEwF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 00:52:05 -0400
+Date: Wed, 11 Jun 2003 15:05:40 +1000
+From: Simon Fowler <simon@himi.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: jsimmons@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-bk radeonfb oops on boot.
+Message-ID: <20030611050540.GD2852@himi.org>
+Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
+	jsimmons@infradead.org, linux-kernel@vger.kernel.org
+References: <20030610061654.GB25390@himi.org> <20030610130204.GC27768@himi.org> <20030610141440.26fad221.akpm@digeo.com> <20030611021926.GA2241@himi.org> <20030610201641.220a4927.akpm@digeo.com> <20030611035525.GB2852@himi.org> <20030610211607.2bb55b41.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tNQTSEo8WG/FKZ8E"
+Content-Disposition: inline
+In-Reply-To: <20030610211607.2bb55b41.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski <skraw@ithnet.com> writes:
 
-> during tests with latest SuSE distro 8.2 compiling 2.4.21-pre6 showed a lot of
-> "comparison between signed and unsigned" warnings. It looks like SuSE ships gcc
+--tNQTSEo8WG/FKZ8E
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I also noticed lots of compiler warnings with gcc 3.3, now default in SuSE, 
-and cleaned up most of them for the cifs vfs but there are a few that just
-look wrong for gcc to spit out warnings on.   For example the following
-local variable definition and the similar ones in the same file
-(fs/cifs/inode.c):
+On Tue, Jun 10, 2003 at 09:16:07PM -0700, Andrew Morton wrote:
+> Simon Fowler <simon@himi.org> wrote:
+> >
+> > > > >=20
+> > > > > It might be worth reverting this chunk, see if that fixes it:
+> > > > >=20
+> > > > > --- b/drivers/char/mem.c        Thu Jun  5 23:36:40 2003
+> > > > > +++ b/drivers/char/mem.c        Sun Jun  8 05:02:24 2003
+> > > > > @@ -716 +716 @@
+> > > > > -__initcall(chr_dev_init);
+> > > > > +subsys_initcall(chr_dev_init);
+> > > > >=20
+> > > > And we have a winner . . . Reverting this hunk fixes the oops.
+> > > >=20
+<snippage>=20
+> Thanks for testing.
+>=20
+> All the initcall ordering of chardevs versus pci, pci versus pci and who
+> knows what else is all bollixed up.
+>=20
+> Unfortunately I do not have the bandwidth to work on this.
 
-	__u64 uid = 0xFFFFFFFFFFFFFFFF;
+Since this seems to be a showstopper for people using radeonfb,
+getting the 'fix' above in might be a good idea . . .
 
-generates a warning saying the value is too long for a long on 
-x86 SuSE 8.2 with gcc 3.3 - which makes no sense.  Any value
-above 0xFFFFFFFFF generates the same warning (intuitively
-36 bits should fit in an unsigned 64 bit local variable).
+Simon
 
-Defining the literal with the UL suffix didn't seem to help - and I 
-rebelled against the solutions that work for this case ie casting 
-the local variable which is already __u64 to __u64 but that 
-presumably would work for those three, as would a (__u64)cast 
-of -1 which seems equally ugly).  Unfortunately for the CIFS
-Unix Extensions these values really are supposed to be 64 bit
-on the wire (0xFFFFFFFFFFFFFFFF indicating ignore setting this value).
-In the current version of the cifs vfs (http://cifs.bkbits.net/linux-2.5cifs)
-the only other case that now generates compiler warnings (in this case
-signed/unsigned compares) is the comparison of unsigned local variables
-to the literal PAGE_CACHE_SIZE (which presumably is interpreted as 
-signed by the compiler).
+--=20
+PGP public key Id 0x144A991C, or http://himi.org/stuff/himi.asc
+(crappy) Homepage: http://himi.org
+doe #237 (see http://www.lemuria.org/DeCSS)=20
+My DeCSS mirror: ftp://himi.org/pub/mirrors/css/=20
 
-Any idea what is going on in this weird gcc 3.3 behavior where it thinks
-64 bits can't fit in a __u64 local variable? 
+--tNQTSEo8WG/FKZ8E
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE+5rijQPlfmRRKmRwRAqyVAKCdLP0taSrZhVDMB9Ne/0pfKrPZlwCffF3K
+vIgeSQ4dbvoE1mnoEnZFyaY=
+=xgHP
+-----END PGP SIGNATURE-----
+
+--tNQTSEo8WG/FKZ8E--

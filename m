@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274713AbRIUADP>; Thu, 20 Sep 2001 20:03:15 -0400
+	id <S274711AbRIUACP>; Thu, 20 Sep 2001 20:02:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274714AbRIUADF>; Thu, 20 Sep 2001 20:03:05 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:34062 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S274713AbRIUADA>;
-	Thu, 20 Sep 2001 20:03:00 -0400
-Date: Thu, 20 Sep 2001 16:59:52 -0700
-From: Greg KH <greg@kroah.com>
-To: lkml@krimedawg.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB hub broken between 2.4.10-pre6 and 2.4.10-pre12
-Message-ID: <20010920165952.A22273@kroah.com>
-In-Reply-To: <Pine.LNX.4.33.0109190110330.590-100000@mcgruff.krimedawg.org>
-Mime-Version: 1.0
+	id <S274713AbRIUACG>; Thu, 20 Sep 2001 20:02:06 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49935 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274711AbRIUABr>; Thu, 20 Sep 2001 20:01:47 -0400
+Subject: Re: VM or Netscape problem?
+To: reese@isn.net (Garst R. Reese)
+Date: Fri, 21 Sep 2001 01:06:27 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <3BAA74B4.63243DDF@isn.net> from "Garst R. Reese" at Sep 20, 2001 07:59:00 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109190110330.590-100000@mcgruff.krimedawg.org>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kDpr-0006dy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 01:15:52AM -0700, lkml@krimedawg.org wrote:
-> After upgrading from 2.4.10-pre6 and -pre12, my USB hub stopped working.
-> This happens with both of the UHCI drivers.  If there's anything I can do
-> to help (narrow it down to a specific release?) let me know...
+> This could be a long standing bug as it is difficult to reproduce.
+> Periodically Netscape(4.75) will tell me that it cannot find anybody,
+> including my mail server. This is after it has already been there in the
 
-It looks like your hub is working, for a while, then it starts having
-problems.
-Is this hub powered from the USB bus, or from an external power supply?
-Does your devices still work properly plugged into the computer
-directly?
+Seems to be netscape. I've seen this problem for years. I now run Mozilla
+and life is much happier
 
-thanks,
-
-greg k-h
+Alan

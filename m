@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131350AbRBWRew>; Fri, 23 Feb 2001 12:34:52 -0500
+	id <S131380AbRBWRsz>; Fri, 23 Feb 2001 12:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131380AbRBWRel>; Fri, 23 Feb 2001 12:34:41 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:16280 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S131350AbRBWRec>;
-	Fri, 23 Feb 2001 12:34:32 -0500
-Date: Fri, 23 Feb 2001 18:34:23 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: "Carl D. Speare" <carlds@attglobal.net>
-Cc: Quim K Holland <qkholland@my-deja.com>, linux-kernel@vger.kernel.org
-Subject: Re: need to suggest a good FS:
-Message-ID: <20010223183423.N5465@khan.acc.umu.se>
-In-Reply-To: <20010223143235.E5465@khan.acc.umu.se> <Pine.BSF.4.33.0102231216030.4359-100000@topgun.unixexchange.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.BSF.4.33.0102231216030.4359-100000@topgun.unixexchange.com>; from carlds@attglobal.net on Fri, Feb 23, 2001 at 12:20:34PM -0500
+	id <S131447AbRBWRsp>; Fri, 23 Feb 2001 12:48:45 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14354 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131380AbRBWRsf>; Fri, 23 Feb 2001 12:48:35 -0500
+Date: Fri, 23 Feb 2001 09:48:04 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI oddities on Dell Inspiron 5000e w/ 2.4.x 
+In-Reply-To: <200102230534.WAA460104@ibg.colorado.edu>
+Message-ID: <Pine.LNX.4.10.10102230938360.20762-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 23, 2001 at 12:20:34PM -0500, Carl D. Speare wrote:
-> Actually there isn't. Hmmm, sounds like I'll have some hacking to do...
+
+
+On Thu, 22 Feb 2001, Jeff Lessem wrote:
+>
+> In your message of: Thu, 22 Feb 2001 20:37:15 PST, you write:
+> >Hmm.. You shouldn't be loading any i82365 module at all. You should load
+> >the "yenta_socket" module. 
 > 
-> But I have to ask if this is something that would actually be desirable.
-> Given how rare it is, does the Linux community actually want to have YAFS
-> (yet another file system) added to the list, especially for an even more
-> rare OS like OpenServer 5.0.x? Maybe now that Caldera is involved more
-> with SCO, it might be something that happens in a few months anyway...
+> I had gone back to my old ways of useing the external PCMCIA stuff.
+> Here are the relevant lspci --vvxx listings using the yenta driver
+> builtin to the kernel.  The main difference I notice between the
+> working and broken setup is that the memory locations of the CardBus
+> controller are different.
 
-Make a read-only version; this will make transition from HTFS to
-{ext2fs, reiserfs, xfs, jfs, ...} easy. Read-only also has the property
-that it won't cause on-disk corruption; at worst, you get in-memory
-corruption...
+That should be harmless - they are both unique, and it's just due to
+different PCI region allocation for the new PCI code (and when
+soft-booting from an older setup it will remember and honor the old
+address).
 
+The much more likely cause is the "magic registers" for the Texas
+Instruments PCI1225, namely
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+		works		broken
+
+	81:	b0		90
+	a8:	11		10
+
+Although it worries me a bit that your second controller also seems to
+have differences in the BridgeCtl thing (16bInt).
+
+Can you try if a broken setup is fixed by doing a
+
+	setpci -s 00.04.0 81.b=b0
+	setpci -s 00.04.0 a8.b=11
+	setpci -s 00.04.1 81.b=b0
+	setpci -s 00.04.1 81.b=11
+
+or similar?
+
+Also, how much memory does this machine have? That "13ff0000" does worry
+me a bit..
+
+		Linus
+

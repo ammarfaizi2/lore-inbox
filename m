@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbTL2JgY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 04:36:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTL2JeW
+	id S263125AbTL2Jbx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 04:31:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbTL2Jbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 04:34:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:51417 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263185AbTL2JeF (ORCPT
+	Mon, 29 Dec 2003 04:31:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:46296 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263125AbTL2Jbw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 04:34:05 -0500
-Date: Mon, 29 Dec 2003 01:33:53 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: mfedyk@matchmail.com, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Anton Ertl <anton@mips.complang.tuwien.ac.at>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, phillips@arcor.de
-Subject: Re: Page Colouring (was: 2.6.0 Huge pages not working as expected)
-In-Reply-To: <20031229092203.GL27687@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0312290129510.11299@home.osdl.org>
-References: <2003Dec27.212103@a0.complang.tuwien.ac.at>
- <Pine.LNX.4.58.0312271245370.2274@home.osdl.org> <m1smj596t1.fsf@ebiederm.dsl.xmission.com>
- <Pine.LNX.4.58.0312272046400.2274@home.osdl.org> <20031228163952.GQ22443@holomorphy.com>
- <20031229003631.GE1882@matchmail.com> <20031229025507.GT22443@holomorphy.com>
- <Pine.LNX.4.58.0312282000390.11299@home.osdl.org> <20031229065240.GU22443@holomorphy.com>
- <Pine.LNX.4.58.0312290112450.11299@home.osdl.org> <20031229092203.GL27687@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Dec 2003 04:31:52 -0500
+Date: Mon, 29 Dec 2003 01:30:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jakma <paul@clubi.ie>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: chmod of active swap file blocks
+Message-Id: <20031229013040.0a953dd0.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.56.0312290434360.2270@fogarty.jakma.org>
+References: <Pine.LNX.4.56.0312290434360.2270@fogarty.jakma.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 29 Dec 2003, William Lee Irwin III wrote:
+Paul Jakma <paul@clubi.ie> wrote:
+>
+> Hi,
 > 
-> I can't say I'm particularly encouraged by what I've heard thus far,
+> Trying to chmod a file being used for swap causes chmod() to block,
+> with permissions change /not/ having taken effect, until the swap
+> file is swapoff'd, at which point chmod() carries on and chmod (the
+> command) finishes.
 
-Well, I don't even know what your approach is - mind giving an overview? 
+The kernel holds the swapfile's i_sem while it is in use.  This is to
+prevent the filesystem destruction which would result if some silly person
+were to truncate a swapfile while it was in active use.
 
-My original plan (and you can see some of it in the fact that 
-PAGE_CACHE_SIZE is separate from PAGE_SIZE), was to just have the page 
-cache be able to use bigger pages than the "normal" pages, and the 
-normal pages would continue to be the hardware page size.
+It is not a particularly important safety feature ("don't do that") and it
+can be taken out if it is causing serious side-effects.
 
-However, especially with mem_map[] becoming something of a problem, and 
-all the problems we'd have if PAGE_SIZE and PAGE_CACHE_SIZE were 
-different, I suspect I'd just be happier with increasing PAGE_SIZE 
-altogether (and PAGE_CACHE_SIZE with it), and then just teaching the VM 
-mapping about "fractional pages".
-
-What's your approach?
-
-		Linus
+Is chmod of an in-use swapfile an important thing to be able to do?

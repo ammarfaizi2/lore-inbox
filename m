@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVAPUdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVAPUhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbVAPUdg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 15:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbVAPUdg
+	id S262585AbVAPUhE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 15:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbVAPUhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 15:33:36 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52693 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262575AbVAPUcl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 15:32:41 -0500
-Date: Sun, 16 Jan 2005 12:32:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Robert Wisniewski <bob@watson.ibm.com>
-Cc: karim@opersys.com, hch@infradead.org, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org, bob@watson.ibm.com
-Subject: Re: 2.6.11-rc1-mm1
-Message-Id: <20050116123212.1b22495b.akpm@osdl.org>
-In-Reply-To: <16874.50688.68959.36156@kix.watson.ibm.com>
-References: <20050114002352.5a038710.akpm@osdl.org>
-	<1105740276.8604.83.camel@tglx.tec.linutronix.de>
-	<41E85123.7080005@opersys.com>
-	<20050116162127.GC26144@infradead.org>
-	<41EAC560.30202@opersys.com>
-	<16874.50688.68959.36156@kix.watson.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 16 Jan 2005 15:37:03 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:20538 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262585AbVAPUgp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 15:36:45 -0500
+Date: Sun, 16 Jan 2005 21:36:42 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] arch/i386/kernel/signal.o: sparse: cast remove address space ...
+Message-ID: <20050116203642.GA13016@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Wisniewski <bob@watson.ibm.com> wrote:
->
-> modify_val_spin()
->  {
->  	acquire_spin_lock()
->  	// calculate some_value based on global_val
->  	// for example c=global_val; if (c%0) some_value=10; else some_value=20;
->  	global_val = global_val + some_value
->  	release_spin_lock()
->  }
-> 
->  modify_val_atomic()
->  {
->  	do
->  	// calculate some_value based on global_val
->  	// for example c=global_val; if (c%0) some_value=10; else some_value=20;
->  	global_val = global_val + some_value
->  	while (compare_and_store(global_val, , ))
->  }
-> 
->  What's the difference.  The deal is if two processes execute this code
->  simultaneously and one gets interrupted in the middle of modify_val_spin,
->  then the other wastes its entire quantum spinning for the lock.  In the
->  modify_val_atomic if one process gets interrupted, no problem, the other
->  process can proceed through, then when the first one runs again the CAS
->  will fail, and it will go around the loop again.
+Fix sparse warning: cast removes address space of expression
+Fixed by declaring relevant pointers in sigframe and rt_sigframe as
+__user.
+This fixes several sparse warnings in arch/i386/kernel/signal.c
 
-One could use spin_lock_irq().  The performance would be similar.
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+---
 
-> Now imagine it was the kernel involved...
+===== arch/i386/kernel/sigframe.h 1.1 vs edited =====
+--- 1.1/arch/i386/kernel/sigframe.h	2003-05-04 07:45:16 +02:00
++++ edited/arch/i386/kernel/sigframe.h	2005-01-16 21:29:47 +01:00
+@@ -1,6 +1,6 @@
+ struct sigframe
+ {
+-	char *pretcode;
++	char __user *pretcode;
+ 	int sig;
+ 	struct sigcontext sc;
+ 	struct _fpstate fpstate;
+@@ -10,10 +10,10 @@
+ 
+ struct rt_sigframe
+ {
+-	char *pretcode;
++	char __user *pretcode;
+ 	int sig;
+-	struct siginfo *pinfo;
+-	void *puc;
++	struct siginfo __user *pinfo;
++	void __user *puc;
+ 	struct siginfo info;
+ 	struct ucontext uc;
+ 	struct _fpstate fpstate;
 
-Or are you saying that userspace does the above as well?

@@ -1,68 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266894AbUG1Mhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266897AbUG1MjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266894AbUG1Mhy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 08:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUG1Mhy
+	id S266897AbUG1MjY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 08:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUG1MjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 08:37:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26603 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266894AbUG1Mhw (ORCPT
+	Wed, 28 Jul 2004 08:39:23 -0400
+Received: from main.gmane.org ([80.91.224.249]:17053 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266896AbUG1MjG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 08:37:52 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16647.40347.365356.770724@segfault.boston.redhat.com>
-Date: Wed, 28 Jul 2004 08:35:39 -0400
+	Wed, 28 Jul 2004 08:39:06 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+Mail-Followup-To: linux-kernel@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-Subject: allow recursive die() on i386
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+From: Benjamin Rutt <rutt.4+news@osu.edu>
+Subject: Re: clearing filesystem cache for I/O benchmarks
+Date: Wed, 28 Jul 2004 08:38:59 -0400
+Message-ID: <87k6wocnmk.fsf@osu.edu>
+References: <87vfgeuyf5.fsf@osu.edu> <20040726002524.2ade65c3.akpm@osdl.org>
+ <87pt6iq5u2.fsf@osu.edu> <20040726234005.597a94db.akpm@osdl.org>
+ <4106013E.30408@namesys.com> <87vfg9nyqv.fsf@osu.edu>
+ <410698FA.40400@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dhcp065-025-157-254.columbus.rr.com
+Mail-Copies-To: nobody
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+Cancel-Lock: sha1:Fo2XpDAbdoXrvGv+wZuj+7k2u3U=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hans Reiser <reiser@namesys.com> writes:
 
-This patch allows for a recursive die() on i386.  This closely resembles
-what is done on x86_64, fwiw.
+> fsync performance gives you different performance.  Better to write
+> more stuff to flush the cache.
 
--Jeff
+I'm trying to understand how that would work.  Let's take an example
+of a 64GB file that I'm writing out from scratch.  I start a timer
+before writing.  With my fsync() way of testing, I expect to stop the
+timer the moment last byte has been written and fsync() has been
+called.
 
---- linux-2.6.7/arch/i386/kernel/traps.c.orig	2004-07-28 08:08:21.000000000 -0400
-+++ linux-2.6.7/arch/i386/kernel/traps.c	2004-07-28 08:10:54.000000000 -0400
-@@ -294,6 +294,7 @@ bug:
- }
- 
- spinlock_t die_lock = SPIN_LOCK_UNLOCKED;
-+static int die_owner = -1;
- 
- void die(const char * str, struct pt_regs * regs, long err)
- {
-@@ -301,7 +302,13 @@ void die(const char * str, struct pt_reg
- 	int nl = 0;
- 
- 	console_verbose();
--	spin_lock_irq(&die_lock);
-+	local_irq_disable();
-+	if (!spin_trylock(&die_lock)) {
-+		if (smp_processor_id() != die_owner)
-+			spin_lock(&die_lock);
-+		/* allow recursive die to fall through */
-+	}
-+	die_owner = smp_processor_id();
- 	bust_spinlocks(1);
- 	handle_BUG(regs);
- 	printk(KERN_ALERT "%s: %04lx [#%d]\n", str, err & 0xffff, ++die_counter);
-@@ -321,6 +328,7 @@ void die(const char * str, struct pt_reg
- 		printk("\n");
- 	show_registers(regs);
- 	bust_spinlocks(0);
-+	die_owner = -1;
- 	spin_unlock_irq(&die_lock);
- 	if (in_interrupt())
- 		panic("Fatal exception in interrupt");
+I gather you're saying that continuing writing past the 64GB mark,
+causing LRU expiration of the last bytes of the 64GB bytes from write
+buffers is a more fair way to test, versus just calling fsync() once
+at the end.  I'm happy to write my benchmarks this way too, except I
+need to know two configuration values now:
+
+1) when to stop the timer?
+2) how much more to write past 64GB?
+
+>>  Not including
+>>fsync() time would only test the ability of the various parts of the
+>>I/O systems to do write buffering.  It's easy to do lots of write
+>>buffering, if you buy enough memory.  Forcing the disks to write is
+>>the only fair way to compare writes between I/O systems.
+>>  
+>>
+> It isn't fair.  fsync is a different code path, and may be less
+> efficient.  Or more, depending on the fs.  reiser4 is currently not
+> well optimized for fsync, maybe next year I will change that but not
+> this week....
+
+I think we agree that forcing the disks to write all of the data
+before the timer stops is a fair way to compare between filesystems.
+Otherwise we're "almost" measuring disk throughput, except for what
+has been write-buffered...a real gray area.  But I think you're
+pointing out that the results could be different depending on whether
+the fsync() method or your "write past the intented amount" method for
+flushing is used.  I'd be happy to run these benchmarks both ways, as
+long as I knew how.  If you can help me answer my above questions,
+I'll run them both ways.
+
+Thanks,
+-- 
+Benjamin Rutt
+

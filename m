@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbUANTVL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 14:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbUANTTd
+	id S264233AbUANT2r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 14:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264258AbUANT2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 14:19:33 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:9673 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S263228AbUANTRU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 14:17:20 -0500
-Subject: Re: Laptops & CPU frequency
-From: Robert Love <rml@ximian.com>
-To: Daniel Gryniewicz <dang@fprintf.net>
-Cc: Dave Jones <davej@redhat.com>,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1074107508.4549.10.camel@localhost>
-References: <20040111025623.GA19890@ncsu.edu>
-	 <20040111025623.GA19890@ncsu.edu> <1073791061.1663.77.camel@localhost>
-	 <E1Afj2b-0004QN-00@chiark.greenend.org.uk>
-	 <E1Afj2b-0004QN-00@chiark.greenend.org.uk>
-	 <1073841200.1153.0.camel@localhost>
-	 <E1AfjdT-0008OH-00@chiark.greenend.org.uk>
-	 <1073843690.1153.12.camel@localhost>  <20040114045945.GB23845@redhat.com>
-	 <1074107508.4549.10.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1074107842.1153.959.camel@localhost>
+	Wed, 14 Jan 2004 14:28:31 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57300 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264233AbUANTZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 14:25:29 -0500
+Date: Wed, 14 Jan 2004 20:25:06 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org, jh@suse.cz
+Subject: Re: [PATCH] Add CONFIG for -mregparm=3
+Message-ID: <20040114192505.GJ23383@fs.tum.de>
+References: <20040114090603.GA1935@averell> <20040114012928.1e90af3b.akpm@osdl.org> <20040114093556.GB19652@colin2.muc.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Wed, 14 Jan 2004 14:17:22 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040114093556.GB19652@colin2.muc.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-01-14 at 14:11, Daniel Gryniewicz wrote:
+On Wed, Jan 14, 2004 at 10:35:56AM +0100, Andi Kleen wrote:
+>...
+> I think the popular modules like nvidia or ATI could be fixed 
+> relatively easily.  They usually consist of a glue layer with source and a 
+> binary blob that is only called from the glue layer. Basically all you 
+> have to do is the mark the prototypes for the binary blob in the glue layer
+> as "asmlinkage". In addition this can be done without any ifdefs
+> because asmlinkage does the right thing on a non regparm kernel.
+> 
+> Of course true binary only modules without glue layer would be more
+> difficult, but for those the vendors just have to recompile. Conceivable
+> it would be possible to write a glue layer even for them.
+>...
 
-> I have an athlon-xp laptop (HP pavilion ze4500) with powernow that
-> definitely goes into low power mode when the plug is pulled.  The screen
-> goes dark, and everything slows down.
+Did I miss Linus announcing a stable ABI between kernel versions?
 
-Dave did not mean that the other power management schemes cannot do the
-automatic reduction on loss of AC, just that there is no SMM/BIOS hacks
-to do it automatically.
+If some binary module vendor tries to support more than one kernel
+version it's his problem - this is nothing that is officially supported
+by the Linux kernel.
 
-Your APM scripts are probably adjusting your CPU speed when you go on
-AC.  Fedora does this, for example.
+> -Andi
 
-That is cool - the OS (user-space, even) controls the policy.
+cu
+Adrian
 
-What we don't like is how SpeedStep can be controlled from SMM.
+-- 
 
-	Robert Love
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

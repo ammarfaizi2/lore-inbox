@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269772AbUJAMsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269777AbUJAMse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269772AbUJAMsi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 08:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269775AbUJAMsh
+	id S269777AbUJAMse (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 08:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269775AbUJAMse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 08:48:37 -0400
-Received: from rzdspc1.informatik.uni-hamburg.de ([134.100.9.61]:48031 "EHLO
-	rzdspc1.informatik.uni-hamburg.de") by vger.kernel.org with ESMTP
-	id S269772AbUJAMrc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 08:47:32 -0400
-Date: Fri, 1 Oct 2004 14:46:43 +0200
-From: Axel Gordon Grossklaus <6grosskl@informatik.uni-hamburg.de>
-To: Martin Hermanowski <martin@mh57.de>
-Cc: Roland Dreier <roland.list@gmail.com>, linux-thinkpad@linux-thinkpad.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hard lockup on IBM ThinkPad T42
-Message-ID: <20041001124642.GH5579@rzdspc3.informatik.uni-hamburg.de>
-References: <f8ca0a1504093011206230ddea@mail.gmail.com> <20040930205851.GA6911@mh57.de>
+	Fri, 1 Oct 2004 08:48:34 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31448 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269785AbUJAMpm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 08:45:42 -0400
+Date: Fri, 1 Oct 2004 13:45:41 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Stephen Tweedie <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] [Patch 6/10]: ext3 online resize: remove on-stack bogus inode
+Message-ID: <20041001124541.GB16153@parcelfarce.linux.theplanet.co.uk>
+References: <200409301323.i8UDNjwG004790@sisko.scot.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040930205851.GA6911@mh57.de>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200409301323.i8UDNjwG004790@sisko.scot.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 10:58:51PM +0200, Martin Hermanowski wrote:
-
-moin,
-
-> I have lockups in X running xlock with my T41p about once a month,
-> running 2.6.7-rc3-mm1 with atheros and the XFree4.3 radeon driver.
+On Thu, Sep 30, 2004 at 02:23:45PM +0100, Stephen Tweedie wrote:
+> Remove the "bogus" on-stack inode.  It's only used as a marker for
+> indirectly passing the sb to various functions, so also add
+> ext3_journal_start_sb() which starts a transaction for a given
+> super_block rather than for an inode.
 > 
-> The only thing I noticed is that the hdd-led is constantly on when this
-> happens.
+> --- linux-2.6.9-rc2-mm4/fs/ext3/resize.c.=K0005=.orig
+> +++ linux-2.6.9-rc2-mm4/fs/ext3/resize.c
+> @@ -159,7 +159,7 @@ static void mark_bitmap_end(int start_bi
+>   *
+>   * We only pass inode because of the ext3 journal wrappers.
+>   */
 
-i had that problem on my T41p (kernel oops when unlocking xlock, usually
-if constant network traffic went on in the back).
-updating madwifi to CVS version helped. (i had the version that comes
-with suse 9.1 before).
+Should probably update the comment too ;-)
 
-tty, axel
+(who was it said inline documentation gets updated when the code does?  ;-P)
 
+> @@ -616,7 +616,7 @@ exit_free:
+>   *
+>   * We only pass inode because of the ext3 journal wrappers.
+>   */
 
+Same here.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

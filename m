@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267971AbUIAXV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUIAXkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267971AbUIAXV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUIAXTC
+	id S267507AbUIAXkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUIAXjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 19:19:02 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:33420 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S268026AbUIAXQR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 19:16:17 -0400
-Subject: [patch 07/14]  radio/radio-maxiradio: replace 	schedule_timeout() with msleep()
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Thu, 02 Sep 2004 01:16:17 +0200
-Message-ID: <E1C2eKv-0002oP-E2@sputnik>
+	Wed, 1 Sep 2004 19:39:55 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:13670 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267594AbUIAXWr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 19:22:47 -0400
+Message-ID: <4699bb7b04090116227ad1e7c0@mail.gmail.com>
+Date: Thu, 2 Sep 2004 11:22:41 +1200
+From: Oliver Hunt <oliverhunt@gmail.com>
+Reply-To: Oliver Hunt <oliverhunt@gmail.com>
+To: Jeremy Allison <jra@samba.org>
+Subject: Re: silent semantic changes with reiser4
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       reiserfs-list@namesys.com
+In-Reply-To: <20040901205140.GL4455@legion.cup.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.44.0408261011410.27909-100000@chimarrao.boston.redhat.com> <200408261819.59328.vda@port.imtp.ilyichevsk.odessa.ua> <1093789802.27932.41.camel@localhost.localdomain> <1093804864.8723.15.camel@lade.trondhjem.org> <20040829193851.GB21873@jeremy1> <20040901201945.GE31934@mail.shareable.org> <20040901202641.GJ4455@legion.cup.hp.com> <20040901203101.GG31934@mail.shareable.org> <20040901203543.GK4455@legion.cup.hp.com> <20040901204746.GI31934@mail.shareable.org> <20040901205140.GL4455@legion.cup.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The loss of forks in the file is exxactly the problem you used to have
+when transferring native Mac files to a PC...
 
+This meant in order to transfer files to different filesystem you
+often needed to tar/zip/whatever them first.
 
+Bare in mind this would let us do the whole MacOS thing of putting an
+entire application(plus plugins, etc) inside one "file"...
 
+--Oliver
 
-
-
-I would appreciate any comments from the janitor@sternweltens list.
-
-Thanks,
-Nish
-
-
-
-Description: Replaced sleep_125ms() with msleep(125) and replaced the
-replaced function's definition.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-
-
----
-
- linux-2.6.9-rc1-bk7-max/drivers/media/radio/radio-maxiradio.c |    9 +--------
- 1 files changed, 1 insertion(+), 8 deletions(-)
-
-diff -puN drivers/media/radio/radio-maxiradio.c~msleep-drivers_media_radio-maxiradio drivers/media/radio/radio-maxiradio.c
---- linux-2.6.9-rc1-bk7/drivers/media/radio/radio-maxiradio.c~msleep-drivers_media_radio-maxiradio	2004-09-01 19:35:12.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/media/radio/radio-maxiradio.c	2004-09-01 19:35:12.000000000 +0200
-@@ -104,13 +104,6 @@ static struct radio_device
- } radio_unit = {0, 0, 0, 0, };
- 
- 
--static void sleep_125ms(void)
--{
--	current->state = TASK_INTERRUPTIBLE;
--	schedule_timeout(HZ >> 3);
--}
--
--
- static void outbit(unsigned long bit, __u16 io)
- {
- 	if(bit != 0)
-@@ -228,7 +221,7 @@ inline static int radio_function(struct 
- 				return -EINVAL;
- 			card->freq = *freq;
- 			set_freq(card->io, FREQ2BITS(card->freq));
--			sleep_125ms();
-+			msleep(125);
- 			return 0;
- 		}
- 		case VIDIOCGAUDIO: {	
-
-_
+On Wed, 1 Sep 2004 13:51:40 -0700, Jeremy Allison <jra@samba.org> wrote:
+> On Wed, Sep 01, 2004 at 09:47:46PM +0100, Jamie Lokier wrote:
+> > Jeremy Allison wrote:
+> > > > I meant when I copy not using Samba.  For example, I copy the .doc
+> > > > file in Windows NT to an FTP server.
+> > > >
+> > > > Does the FTP operation magically linearise the .doc streams on demand?
+> > > > Or does FTP lose part of the Word document?
+> > >
+> > > Good question. It depends if the Microsoft ftp client is streams-aware,
+> > > and understands the Microsoft OLE structured storage format and will do
+> > > the linearisation on demand or not. I must confess I haven't tested this,
+> > > as I don't ever run Windows other than on vmware sessions for Samba testing
+> > > these days :-).
+> > >
+> > > Probably a non-Microsoft ftp client would lose part of the word doc.
+> > 
+> > So you're saying SCP, CVS, Subversion, Bitkeeper, Apache and rsyncd
+> > will _all_ lose part of a Word document when they handle it on a
+> > Window box?
+> >
+> > Ouch!
+> 
+> Yep. It's the meta data that Word stores in streams that will get lost.
+> 
+> 
+> 
+> Jeremy.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277802AbRJLRaG>; Fri, 12 Oct 2001 13:30:06 -0400
+	id <S277798AbRJLRdg>; Fri, 12 Oct 2001 13:33:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277799AbRJLR34>; Fri, 12 Oct 2001 13:29:56 -0400
-Received: from bitmover.com ([192.132.92.2]:3543 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S277798AbRJLR3v>;
-	Fri, 12 Oct 2001 13:29:51 -0400
-Date: Fri, 12 Oct 2001 10:30:19 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Mike Borrelli <mike@nerv-9.net>
+	id <S277799AbRJLRd0>; Fri, 12 Oct 2001 13:33:26 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:44535 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S277798AbRJLRdO>; Fri, 12 Oct 2001 13:33:14 -0400
+Message-ID: <3BC729B0.577C352E@nortelnetworks.com>
+Date: Fri, 12 Oct 2001 13:34:40 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: steveb@unix.lancs.ac.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: No love for the PPC
-Message-ID: <20011012103019.J30657@work.bitmover.com>
-Mail-Followup-To: Mike Borrelli <mike@nerv-9.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0110121002200.13818-100000@asuka.nerv-9.net>
-Mime-Version: 1.0
+Subject: Re: kernel not booting when configured for Athlon
+In-Reply-To: <200110121547.f9CFlXx11575@wing0.lancs.ac.uk>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0110121002200.13818-100000@asuka.nerv-9.net>; from mike@nerv-9.net on Fri, Oct 12, 2001 at 10:08:39AM -0700
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try the BK PPC trees at 
-
-	http://ppc.bkbits.net
-
-you can clone any one of those with a
-
-	bk clone http://ppc.bkbits.net/<TREE_NAME>
-
-you can get BK at http://www.bitmover.com/download
-
-On Fri, Oct 12, 2001 at 10:08:39AM -0700, Mike Borrelli wrote:
-> I'm sorry about the tone of this e-mail, but it is somewhat painful when,
-> after downloading a new kernel to play with, it doesn't compile on the
-> ppc.  It isn't even big problems either.  A single line (#include
-> <linux/pm.h>) is missing from pc_keyb.c and has been for at least three
-> -ac releases.  Now, process.c in arch/ppc/kernel/ dies from an undeclared
-> identifier (init_mmap).
+steveb@unix.lancs.ac.uk wrote:
 > 
-> I'm sure the appropriate response would be to fix them myself, but I don't
-> know enough about the kernel or the ppc arhitecture.  I'm also sure that
-> if Theo (or anyone like him) was to read this s/he would tell me to stop
-> whining.
+> I've just replace my Pentium-III system with an Athlon-based one, I rebuilt
+> the kernel with 'processor Family' changed from 'Pentium III' to Athlon/Duron/K7, and it failed to boot - it goes as far as "OK, booting the kernel" and hangs.
 > 
-> Anyway, the real question is, why does the ppc arhitecture /always/ break
-> between versions?
-> 
-> I'll stop complaining now.
-> 
-> Regards,
-> -Mike
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I can boot a kernel supposedly built for Pentium-III without any apparent problems.
+
+
+Check the archives.  Apparently there is an issue with the highly optimized
+Athlon specific memory access/clearing routines that leads to instability on
+some motherboards/BIOS revisions.
+
+There is a fix available that seems to clear this up, but it hasn't made it into
+the mainstream kernel yet.
+
+The only real difference between Athlon and PIII kernels are some
+Athlon-specific optimized assembly-code.  The PIII versions still run, just not
+quite as fast.
+
+Chris
 
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

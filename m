@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263342AbTBESmL>; Wed, 5 Feb 2003 13:42:11 -0500
+	id <S263366AbTBESgb>; Wed, 5 Feb 2003 13:36:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263491AbTBESmL>; Wed, 5 Feb 2003 13:42:11 -0500
-Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:16574 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S263342AbTBESmK>;
-	Wed, 5 Feb 2003 13:42:10 -0500
-Message-ID: <3E415D2C.8070103@candelatech.com>
-Date: Wed, 05 Feb 2003 10:51:24 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Nicolas Pitre <nico@cam.org>, andrea.glorioso@binary-only.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Monta Vista software license terms
-References: <20030205181512.A24002@infradead.org> <Pine.LNX.4.44.0302051322480.8496-100000@xanadu.home> <20030205183417.A24515@infradead.org>
-In-Reply-To: <20030205183417.A24515@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263491AbTBESgb>; Wed, 5 Feb 2003 13:36:31 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:18816 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S263366AbTBESg2>;
+	Wed, 5 Feb 2003 13:36:28 -0500
+Date: Wed, 5 Feb 2003 19:45:35 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+Message-ID: <20030205184535.GG19678@dualathlon.random>
+References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030205102308.68899bc3.akpm@digeo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Wed, Feb 05, 2003 at 01:31:43PM -0500, Nicolas Pitre wrote:
+On Wed, Feb 05, 2003 at 10:23:08AM -0800, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> >  void jfs_truncate(struct inode *ip)
+> >  {
+> > -       jFYI(1, ("jfs_truncate: size = 0x%lx\n", (ulong) ip->i_size));
+> > +       jfs_info("jfs_truncate: size = 0x%lx", (ulong) ip->i_size);
+> > 
+> >         nobh_truncate_page(ip->i_mapping, ip->i_size);
+> > 	^^^^^^^^^^^^^^^^^^
 > 
->>MontaVista contribute 98% of their modifications to GPL projects back into
->>their respective public repositories.  That's all a hacker like you should
->>care about.  For the rest of the people in the embedded world that don't
->>want to gather a distribution by themselves tailored to their commercial
->>product then that work comes with a price.
-> 
-> 
-> Anyone with a bit technical knowledge wouldn't use the shit provide by mvista
-> anyway.  The point is to have the trees for comparism, not for actually using
-> them.
+> This is the correct version.  Since 2.5.59, jfs was switched over to not use
+> buffer_heads.
 
-Nice attitude.  "Your shit sucks...but I want to see it all right now
-anyway."  No one seems to be arguing that MV is doing anything illegal,
-only that they may not in all cases be bending over backwards to please
-a few non-customers.
+In this context I don't mind which is the correct one.
 
-Why would anyone go out of their way to please someone who spouts
-such derogatory crap about them?
+I only would like to know what is supposed to be stored inside the
+2.5.59 tarball on kernel.org and what is supposed to be changed between
+2.5.59 and the 1.952.4.2 changeset.
 
+The one I see in 2.5.59 (I double checked the tar.gz) is this:
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+void jfs_truncate(struct inode *ip)
+{
+	jFYI(1, ("jfs_truncate: size = 0x%lx\n", (ulong) ip->i_size));
 
+	block_truncate_page(ip->i_mapping, ip->i_size, jfs_get_block);
 
+And I see no changes in this area starting from 2.5.59, until changeset
+1.952.4.2. So I deduce my software is right and that either the 2.5.59
+tarball or the 1.952.4.2 changeset are corrupt.
+
+I can't yet fetch a full tree out of bitkepper yet (you know the network
+protocol must be reverse engeneered first), I can only fetch
+incrementals with metadata and raw patch so far because this is the
+thing I care about most, after I've all the changesets in live form in
+my db I don't mind too much about the ability to checkout a the whole
+tree too, since I can do the same starting from my open db rather than
+using the proprietary one.
+
+Andrea

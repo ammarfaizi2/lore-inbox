@@ -1,98 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbULUL0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbULULde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbULUL0C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 06:26:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbULUL0C
+	id S261734AbULULde (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 06:33:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbULULde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 06:26:02 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:6551 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261733AbULULZu convert rfc822-to-8bit
+	Tue, 21 Dec 2004 06:33:34 -0500
+Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:6798 "EHLO
+	moving-picture.com") by vger.kernel.org with ESMTP id S261734AbULULd3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 06:25:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=C8p2TCKnl90cfCMhsMUaYSeggu6tu3MSqBQza3Z/dAXduMmenkx8YTBa/P7hWlvi8hwZ6/JV8ODs+p0l87wb40gBPMQ/Bt6+FMxwf0esbWCy55c+0oC+VSXqslCttN8wZJKl0+eJE6Nd36HQMypq6v7eCotRAemMwCz2vagN5vA=
-Message-ID: <f396da0804122103251c50bc5c@mail.gmail.com>
-Date: Tue, 21 Dec 2004 13:25:49 +0200
-From: Margus Eha <margus.eha@gmail.com>
-Reply-To: Margus Eha <margus.eha@gmail.com>
-To: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Re: Re : Re: Error - Kernel panic - not syncing:VFS:unable to mount root fs on unknown block (0,0)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041221111552.34872.qmail@web60608.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-References: <f396da0804122102561d30d04e@mail.gmail.com>
-	 <20041221111552.34872.qmail@web60608.mail.yahoo.com>
+	Tue, 21 Dec 2004 06:33:29 -0500
+Message-ID: <41C80A04.9070504@moving-picture.com>
+Date: Tue, 21 Dec 2004 11:33:24 +0000
+From: James Pearson <james-p@moving-picture.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040524
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reducing inode cache usage on 2.4?
+References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org> <20041220192046.GM4630@dualathlon.random>
+In-Reply-To: <20041220192046.GM4630@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Disclaimer: This email and any attachments are confidential, may be legally
+X-Disclaimer: privileged and intended solely for the use of addressee. If you
+X-Disclaimer: are not the intended recipient of this message, any disclosure,
+X-Disclaimer: copying, distribution or any action taken in reliance on it is
+X-Disclaimer: strictly prohibited and may be unlawful. If you have received
+X-Disclaimer: this message in error, please notify the sender and delete all
+X-Disclaimer: copies from your system.
+X-Disclaimer: 
+X-Disclaimer: Email may be susceptible to data corruption, interception and
+X-Disclaimer: unauthorised amendment, and we do not accept liability for any
+X-Disclaimer: such corruption, interception or amendment or the consequences
+X-Disclaimer: thereof.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well i said it a little fuzzy. You have IDE chipset support missing in kernel.
-No need to add all ide support. Just pick chipset you have or use generic.
+Andrea Arcangeli wrote:
+> 
+> My only suggestion for 2.4 is to try with vm_cache_scan_ratio = 20 or
+> higher (or alternatively vm_mapped_ratio = 50 or = 20).  There's a
+> reason why everything is tunable by sysctl.
+> 
+> I don't think the vm_lru_balance_ratio is the one he's interested
+> about. vm_lru_balance_ratio controls how much work is being done at
+> every dcache/icache shrinking.
+> 
+> His real objective is to invoke the dcache/icache shrinking more
+> frequently, how much work is being done at each pass is a secondary
+> issue. If we don't invoke it, nothing will be shrunk, no matter what is
+> the value of vm_lru_balance_ratio.
+> 
+> Hope this helps funding an optimal tuning for the workload.
 
-Margus
+Setting vm_mapped_ratio to 20 seems to give a 'better' memory usage 
+using my very contrived test - running a find will result in about 900Mb 
+of dcache/icache, but then running a cat to /dev/null will shrink the 
+dcache/icache down to between 100-300Mb - running the find and cat at 
+the same time results in about the same dcache/icache usage.
 
-On Tue, 21 Dec 2004 03:15:52 -0800 (PST), selvakumar nagendran
-<kernelselva@yahoo.com> wrote:
->   I am already having linux kernel 2.4 series which is
-> working quite well. It also resides on the same root
-> partition. I do have IDE.
->   Should I reconfigure  kernel 2.6 with all types of
-> IDE support or is there any other way?
-> 
-> Thanks,
-> selva
-> 
-> --- Margus Eha <margus.eha@gmail.com> wrote:
-> 
-> > Seems you are missing ide.
-> >
-> > Margus
-> >
-> >
-> > On Tue, 21 Dec 2004 02:34:54 -0800 (PST), selvakumar
-> > nagendran
-> > <kernelselva@yahoo.com> wrote:
-> > >   I installed the latest stable 2.6.9 kernel in my
-> > > system. When I rebooted the system with the kernel
-> > it
-> > > showed the following error.
-> > >
-> > >      "Kernel panic - not syncing:VFS:unable to
-> > mount
-> > > root fs on unknown block (3,1)"
-> > >
-> > >     What is the solution to get rid of this error?
-> > >     What is the measure to prevent such errors in
-> > the
-> > > future?
-> > >      I downloaded the kernel source tar ball from
-> > > kernel.org
-> > >     Can anyone help me regarding this?
-> > >
-> > > Thanks,
-> > > selva
-> > >
-> > > __________________________________
-> > > Do you Yahoo!?
-> > > All your favorites on one personal page â€" Try My
-> > Yahoo!
-> > > http://my.yahoo.com
-> > > -
-> > > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at
-> > http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> >
-> 
-> 
-> __________________________________________________
-> Do You Yahoo!?
-> Tired of spam?  Yahoo! Mail has the best spam protection around
-> http://mail.yahoo.com
->
+I'll give this a go on the production NFS server and I'll see if it 
+improves things.
+
+Thanks
+
+James Pearson
+
+
+
+

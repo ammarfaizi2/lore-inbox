@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbUDDBBr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 20:01:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUDDBBr
+	id S262100AbUDDBJF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 20:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUDDBJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 20:01:47 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33733
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262079AbUDDBBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 20:01:45 -0500
-Date: Sun, 4 Apr 2004 03:01:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: anon-vma (and now filebacked-mappings too) mprotect vma merging [Re:    2.6.5-rc2-aa vma merging]
-Message-ID: <20040404010147.GS2307@dualathlon.random>
-References: <20040403184639.GN2307@dualathlon.random> <Pine.LNX.4.44.0404031954250.10509-100000@localhost.localdomain>
+	Sat, 3 Apr 2004 20:09:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52651 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262100AbUDDBI7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 20:08:59 -0500
+Date: Sat, 3 Apr 2004 17:08:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: trini@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6-mm] early_param console_setup clobbers commandline
+Message-Id: <20040403170851.4de81c72.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0404031958450.16677@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0404022026560.11690@montezuma.fsmlabs.com>
+	<20040403030537.GF31152@smtp.west.cox.net>
+	<Pine.LNX.4.58.0404031028090.11690@montezuma.fsmlabs.com>
+	<20040403201450.GG31152@smtp.west.cox.net>
+	<20040403122252.5b0dba14.akpm@osdl.org>
+	<Pine.LNX.4.58.0404031958450.16677@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0404031954250.10509-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 03, 2004 at 08:29:15PM +0100, Hugh Dickins wrote:
-> I liked Andrew's vma->page_table_lock suggestion, was imagining we
+Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+>
+> On Sat, 3 Apr 2004, Andrew Morton wrote:
+> 
+> > Tom Rini <trini@kernel.crashing.org> wrote:
+> > >
+> > > > What is the patch name for Rusty's patch?
+> > >
+> > >  I don't know, since I think once he got it working he forgot to CC lkml.
+> > >  But I certainly hope it's in the next -mm since it replaced the
+> > >  parse_early_options parsing code with parse_args, so all of the stupid
+> > >  things my re-implementation got wrong, it doesn't.
+> >
+> > Yup, I added Rusty's patch.  It kinda wrecked everything and needs to be
+> > split up and sprintkled across the various earlier patches, but I haven't
+> > done that yet.
+> >
+> > I probably won't prepare another -mm until tomorrow though.
+> 
+> Do you still want the console_setup patch?
 
-vma->page_table_lock cannot help you with anonmm, the rbtree is global,
-for that you still need a mm-wide lock with anonmm. I serialize
-read/write the rbtree only with the mmap_sem, you cannot.
+If it is still relevant and if the bug which it fixes is still present, yes
+please.  I plonked my current rollup against rc3 at
+http://www.zip.com.au/~akpm/linux/patches/stuff/z.gz.  I think it compiles ;)
 
-vma->page_table_lock helps _only_ in the pagetable scanning: so only
-_after_ nuking the global page_table_lock like I can do thanks to
-anon_vma. you cannot drop the mm-wide page_table_lock with anonmm.
-vma->page_table_lock is a natural optimization for the anon-vma logic
-instead (after fixing the mremap/truncate race ;).
-
-To drop the page_table_lock during vma manipulations in anonmm (and so
-to give a real sense to a vma->page_table_lock in anonmm) you could use
-a down_read_trylock on the mm->mmap_sem, but that is not going to work
-well: the mmap_sem can be taken during extended period of times
-involving I/O, and you may never get it. BTW, now that the lookup on the
-prio-tree is immediate the i_shared_sem has no reason anymore to be a
-semaphore either, it should go back to a spinlock like in 2.4, like the
-anon_vma is also protected by a spinlock.

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136215AbRAMBuf>; Fri, 12 Jan 2001 20:50:35 -0500
+	id <S136279AbRAMBwP>; Fri, 12 Jan 2001 20:52:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136170AbRAMBu0>; Fri, 12 Jan 2001 20:50:26 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27149 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S136215AbRAMBuI>;
-	Fri, 12 Jan 2001 20:50:08 -0500
-Date: Sat, 13 Jan 2001 02:49:17 +0100
-From: Jens Axboe <axboe@suse.de>
+	id <S136280AbRAMBwF>; Fri, 12 Jan 2001 20:52:05 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:58378
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S136279AbRAMBvs>; Fri, 12 Jan 2001 20:51:48 -0500
+Date: Fri, 12 Jan 2001 17:51:10 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Frank de Lange <frank@unternet.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, dwmw2@infradead.org,
-        linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-Message-ID: <20010113024917.B22380@suse.de>
-In-Reply-To: <20010113014807.B29757@unternet.org> <Pine.LNX.4.10.10101121652160.8097-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+cc: John Heil <kerndev@sc-software.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <Pine.LNX.4.10.10101121726590.893-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10101121749390.2411-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10101121652160.8097-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 04:56:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12 2001, Linus Torvalds wrote:
-> [...] With disks it is very hard
-> to get the same kind of irq load - Linux will merge the requests and do at
-> least 1kB worth of transfer per interrupt etc. On a ne2k 100Mbps PCI card,
+On Fri, 12 Jan 2001, Linus Torvalds wrote:
 
-Actually, without mult count you will do only 512b of I/O per interrupt
-on IDE. Regardless of merging etc. Still doesn't reach nic levels, but
-it's _bad_ anyway :-)
+> 
+> 
+> On Fri, 12 Jan 2001, Andre Hedrick wrote:
+> > 
+> > It works perfectly and exactly as it is defined to work by the rules.
+> > Getting the rules correct == 'the concept of "working"'.
+> 
+> Don't be silly.
+> 
+> You're entirely ignoring the concept of hardware bugs. Which is one very
+> likely reason for this whole discussion in the first place.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+First you get the access correct and assume no bugs, round one.
+After this is fixed, then you address the "hardware bugs" by execption
+rules and not the basic premis, the endless round.
+
+Regards,
+
+Andre Hedrick
+Linux ATA Development
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265993AbSKTJSu>; Wed, 20 Nov 2002 04:18:50 -0500
+	id <S265705AbSKTJ33>; Wed, 20 Nov 2002 04:29:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266020AbSKTJSu>; Wed, 20 Nov 2002 04:18:50 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:51426 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265993AbSKTJSu>;
-	Wed, 20 Nov 2002 04:18:50 -0500
-Message-Id: <200211200925.gAK9Pl002345@owlet.beaverton.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.5.47: sysfs hierarchy can begin to disintegrate
-Date: Wed, 20 Nov 2002 01:25:47 -0800
-From: Rick Lindsley <ricklind@us.ibm.com>
+	id <S265713AbSKTJ33>; Wed, 20 Nov 2002 04:29:29 -0500
+Received: from samar.sasken.com ([164.164.56.2]:58797 "EHLO samar.sasken.com")
+	by vger.kernel.org with ESMTP id <S265705AbSKTJ32>;
+	Wed, 20 Nov 2002 04:29:28 -0500
+Date: Wed, 20 Nov 2002 15:06:26 +0530 (IST)
+From: Madhavi <madhavis@sasken.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel threads
+Message-ID: <Pine.LNX.4.33.0211201459400.20711-100000@pcz-madhavis.sasken.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.47 (top of bk tree on 11/14, to be precise)
 
-/sys has a sysfs file system on it.  I'd expect /sys/block to contain
-hd[abc], an assortment of ram disks, and perhaps some SCSI disks.
-However, these all appear under /sys instead of /sys/block.  /sys/block
-exists but is empty.
+Hi
 
-Interesting observation: the megaraid controller has some problem right
-now (suspected to be hardware) wherein its scsi disks appear at boot
-time but then cannot be accessed later and are subsequently detached.
-Since this could well be a little-used and little-tested path, my
-suspicion is that either the megaraid, scsi, or sysfs code has a bug when
-disks are detached.  So far, I've not been able to find one, however, so
-I thought I'd report this in case others might know just where to peek.
-Could it be that removing entries from sysfs is done incorrectly in
-some cases?
+Where can I get information about using linux kernel threads? Can anyone
+give me some pointers?
 
-This was reproduced consistently on a machine at OSDL with the assistance
-of Cliff White ... however I was not able to reproduce on my own 4-way
-machine which has IDE disks and RAM disks but no megaraid.
+Is there any function that I can use to exit from a thread? The
+exit_thread() function of linux kernel 2.4.19 for i386 platform doesn't
+seem to be doing anything.
 
-I'm continuing to investigate this but there are more of you than of me
-so ... :)
+If I can replace threads by tasklets, which would be advantageous in terms
+of performance?
 
-Rick
+thanks & regards
+Madhavi.
+

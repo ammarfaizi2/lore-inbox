@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130387AbQK0Xsg>; Mon, 27 Nov 2000 18:48:36 -0500
+        id <S129931AbQK0Xsh>; Mon, 27 Nov 2000 18:48:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129931AbQK0XsS>; Mon, 27 Nov 2000 18:48:18 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:16645 "EHLO
-        mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-        id <S130319AbQK0XsK>; Mon, 27 Nov 2000 18:48:10 -0500
-Date: 27 Nov 2000 23:12:00 +0200
+        id <S130319AbQK0XsV>; Mon, 27 Nov 2000 18:48:21 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:25360 "EHLO
+        mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+        id <S130383AbQK0XsM>; Mon, 27 Nov 2000 18:48:12 -0500
+Date: 28 Nov 2000 00:10:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <7qdCHL8Hw-B@khms.westfalen.de>
-In-Reply-To: <8vrstp$o7d$1@cesium.transmeta.com>
-Subject: Re: [PATCH] removal of "static foo = 0"
+Message-ID: <7qhCHlbmw-B@khms.westfalen.de>
+In-Reply-To: <E13xBNJ-0001r5-00@the-village.bc.nu>
+Subject: Re: VGA PCI IO port reservations
 X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <8vrstp$o7d$1@cesium.transmeta.com>
+In-Reply-To: <8v4oe5$vbl$1@cesium.transmeta.com> <E13xBNJ-0001r5-00@the-village.bc.nu>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa@zytor.com (H. Peter Anvin)  wrote on 26.11.00 in <8vrstp$o7d$1@cesium.transmeta.com>:
+alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 18.11.00 in <E13xBNJ-0001r5-00@the-village.bc.nu>:
 
-> The problem is that it doesn't.  One could argue this is a gcc bug or
-> rather missed optimization.
+> > It is.  There are plenty of devices for which an arbitrary IN is an
+> > irrecoverable state transition.
 >
-> One can, of course, also write:
->
->     static int a /* = 0 */;
->
-> ... to make it clear to human programmers without making gcc make bad
-> code.
+> The ne2000 clones being the most infamous of them. Blind ISA read probing is
+> not a safe business
 
-This (or similar) has the added advantage of making it obvious that this  
-is documentation, and not a superfluous initialization.
-
-Sure, if you (generic you) look at your own code, you may know what it  
-means if it's written a certain way. But if you look at other's code, or  
-others look at your code, that is not clear. It is clear with a comment.
-
+Hell, I've had machines crashing in the BIOS pre-boot stuff because it was  
+doing INs where a NE2000 sat.
 
 MfG Kai
 -

@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbUCBBoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 20:44:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbUCBBoQ
+	id S261537AbUCBBu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 20:50:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUCBBu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 20:44:16 -0500
-Received: from ktown.kde.org ([131.246.103.200]:27270 "EHLO dot.kde.org")
-	by vger.kernel.org with ESMTP id S261533AbUCBBoP (ORCPT
+	Mon, 1 Mar 2004 20:50:29 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:55175 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261537AbUCBBuY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 20:44:15 -0500
-Date: Tue, 2 Mar 2004 02:39:10 +0100 (CET)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] 2.6.4-rc1-mm1 SND_FM801_TEA575X Kconfig error
-Message-ID: <Pine.LNX.4.58.0403020237530.6219@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="658386544-526816557-1078191550=:6219"
+	Mon, 1 Mar 2004 20:50:24 -0500
+Date: Tue, 2 Mar 2004 02:50:22 +0100 (MET)
+Message-Id: <200403020150.i221oMpr024937@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: gf435@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re: GigaBit Netdriver instability
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sat, 28 Feb 2004 18:57:32 +0100, Otto Meier wrote:
+>I try to run a Dlink DGE-550T 64bit PCI Gigabit Card
+>with the driver dl2k and kernel 2.6.3-mm4. on a dual
+>athlon-MP MSI 6501 board.
+>
+>With some heavier load on the net (transfering 2 1-Gbyte files to 2 
+>different clients on the net
+>2 100Mbit connections)
+>
+>I get following messages in syslog
+>
+>APIC error on CPU0: 02(02)
+>Feb 28 16:23:33 gate2 kernel: APIC error on CPU1: 02(02)
+>Feb 28 16:23:38 gate2 kernel: eth0: Transmit error, TxStatus 400270f, 
+>FrameId 67108864
+>
+>after some several of these messages the network connection stops.
 
---658386544-526816557-1078191550=:6219
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+02 is "receive checksum error". Your mainboard is
+corrupting messages on the APIC bus. That's extremely bad.
 
-Kconfig names the option CONFIG_SND_FM801_TEA575X, but the makefiles don't 
-check for the resulting CONFIG_CONFIG_SND_FM801_TEA575X -- trivial fix 
-attached.
+Many people have had problems with older dual-Athlon boards.
+Ensure that the power supply and cooling solution are adequate,
+and that the memory modules are certified.
 
-LLaP
-bero
-
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
-
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
---658386544-526816557-1078191550=:6219
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="2.6.4-rc1-mm1-tea575x.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.58.0403020239100.6219@dot.kde.org>
-Content-Description: fix
-Content-Disposition: attachment; filename="2.6.4-rc1-mm1-tea575x.patch"
-
-LS0tIGxpbnV4LTIuNi4zL3NvdW5kL3BjaS9LY29uZmlnLmFyawkyMDA0LTAz
-LTAyIDAyOjQ1OjU4LjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNi4z
-L3NvdW5kL3BjaS9LY29uZmlnCTIwMDQtMDMtMDIgMDI6NDY6MDMuMDAwMDAw
-MDAwICswMTAwDQpAQCAtMTYwLDcgKzE2MCw3IEBADQogCWhlbHANCiAJICBT
-YXkgJ1knIG9yICdNJyB0byBpbmNsdWRlIHN1cHBvcnQgZm9yIEZvcnRlTWVk
-aWEgRk04MDEgYmFzZWQgc291bmRjYXJkcy4NCiANCi1jb25maWcgQ09ORklH
-X1NORF9GTTgwMV9URUE1NzVYDQorY29uZmlnIFNORF9GTTgwMV9URUE1NzVY
-DQogCXRyaXN0YXRlICJGb3J0ZU1lZGlhIEZNODAxICsgVEVBNTc1NyB0dW5l
-ciINCiAJZGVwZW5kcyBvbiBTTkRfRk04MDENCiAgICAgICAgIHNlbGVjdCBD
-T05GSUdfVklERU9fREVWDQo=
-
---658386544-526816557-1078191550=:6219--
+Failing that, try the "noapic" kernel parameter.

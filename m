@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267872AbUIVFma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUIVF6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267872AbUIVFma (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 01:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUIVFma
+	id S267904AbUIVF6l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 01:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267918AbUIVF6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 01:42:30 -0400
-Received: from relay.pair.com ([209.68.1.20]:9225 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S267872AbUIVFm2 (ORCPT
+	Wed, 22 Sep 2004 01:58:41 -0400
+Received: from [217.111.56.18] ([217.111.56.18]:2691 "EHLO spring.sncag.com")
+	by vger.kernel.org with ESMTP id S267904AbUIVF6j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 01:42:28 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <41511048.9000603@kegel.com>
-Date: Tue, 21 Sep 2004 22:40:24 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en, de-de
+	Wed, 22 Sep 2004 01:58:39 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rainer Weikusat <rweikusat@sncag.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: Implementation defined behaviour in read_write.c
+In-Reply-To: <1095764243.30748.55.camel@localhost.localdomain> (Alan Cox's
+ message of "Tue, 21 Sep 2004 11:57:48 +0100")
+References: <878yb5ey11.fsf@farside.sncag.com>
+	<1095764243.30748.55.camel@localhost.localdomain>
+From: Rainer Weikusat <rainer.weikusat@sncag.com>
+Date: Wed, 22 Sep 2004 13:58:06 +0800
+Message-ID: <87k6umetg1.fsf@farside.sncag.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8 link failure for sparc32 (vmlinux.lds.s: No such file or
- directory)?
-References: <414FC41B.7080102@kegel.com> <58517.194.237.142.24.1095763849.squirrel@194.237.142.24> <20040921105745.GJ9106@holomorphy.com>
-In-Reply-To: <20040921105745.GJ9106@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->>Look like arch/sparc/boot/Makefile is too old.
->>vmlinux.lds.s were renamed to vmlinux.lds 2004/08/15 - maybe you need to
->>checkout that file?
-> 
-> I don't see this kind of issue in current 2.6.x; what's going on?
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> On Llu, 2004-09-20 at 16:54, Rainer Weikusat wrote:
+>> The following code is in the function do_readv_writev in the file
+>> fs/read_write.c (2.6.8.1):
+>
+> The 2.4.x kernel has part of this fixed. In particular it does the
+> overflow check differently because gcc 3.x in some forms did appear to
+> be making use of the undefined nature of the test and that was a
+> potential security hole. ("its undefined lets say its always
+> false.."). The initial cast and test should be fine.
 
-Figured it out.  It was user error.  I had an outdated patch.
-Sorry for the noise.  Next time I'll check my patches more carefully.
-- Dan
+I assume you mean the cast at the beginning of the loop. According to
+the C-standard, both cases are exactly the same (they are both
+conversions of potentially nonrepresentable values).
 
-p.s. For what it's worth, I only need to apply five patches to
-vanilla 2.6.8 to get past various build errors:
-      60     258    2483 kaz-types.patch
-      50     207    2088 linux-2.6.8-arm-nonofpu.patch
-     683    2328   27265 linux-2.6.8-build_on_case_insensitive_fs-1.patch
-     285    1215   10145 linux-2.6.8-m68k-kludge.patch
-      28     122    1028 linux-2.6.8-noshared-kconfig.patch
-The build_on_case_insensitive_fs patch is the one that was out of date.
+	6.3.1.3 Signed and unsigned integers
 
--- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change
+	When a value with integer type is converted to another integer
+	type other than _Bool, if the value can be represented by the
+	new type, it is unchanged.
+
+	[...]
+
+	Otherwise, the new type is signed and the value cannot be
+	represented in it; either the result is implementation-defined
+	or an implementation-defined signal is raised.
+
+The requirement for implementation defined is that the implementation
+documents the behaviour (which gcc at least up to 3.4.4 doesn't). This
+not a problem with the current compiler, but I happen to know by
+coincedence that some people of unknown relations to the gcc team
+(like the person who wrote this advisory:
+<URL:http://cert.uni-stuttgart.de/advisories/c-integer-overflow.php>)
+would like to turn it into a problem, because they strongly believe it
+is "the right thing to do", so it may be unwise to rely on gcc for
+treating this sanely, ie so that it doesn't break idioms which are in
+rather common use.

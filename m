@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261302AbTCTDHP>; Wed, 19 Mar 2003 22:07:15 -0500
+	id <S261303AbTCTDOl>; Wed, 19 Mar 2003 22:14:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261303AbTCTDHP>; Wed, 19 Mar 2003 22:07:15 -0500
-Received: from h00c0263128af.ne.client2.attbi.com ([24.60.89.166]:39175 "EHLO
-	sapphire.no-ip.com") by vger.kernel.org with ESMTP
-	id <S261302AbTCTDHO>; Wed, 19 Mar 2003 22:07:14 -0500
-From: Rick Warner <rick@sapphire.no-ip.com>
-To: "Andrus" <andrus@members.ee>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernels 2.2 and 2.4 exploit (ALL VERSION WHAT I HAVE TESTED UNTILL NOW!)
-Date: Wed, 19 Mar 2003 22:18:07 -0500
-User-Agent: KMail/1.5
-References: <000001c2ee1f$02da6820$0100a8c0@andrus>
-In-Reply-To: <000001c2ee1f$02da6820$0100a8c0@andrus>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S261305AbTCTDOl>; Wed, 19 Mar 2003 22:14:41 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58284 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261303AbTCTDOk>;
+	Wed, 19 Mar 2003 22:14:40 -0500
+Date: Wed, 19 Mar 2003 19:23:31 -0800 (PST)
+Message-Id: <20030319.192331.95884882.davem@redhat.com>
+To: yoshfuji@wide.ad.jp
+Cc: dlstevens@us.ibm.com, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH] anycast support for IPv6, updated to 2.5.44 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030320.120136.108400165.yoshfuji@wide.ad.jp>
+References: <OFC909BFEE.F581E26E-ON88256C60.0072A662@boulder.ibm.com>
+	<20030319.163105.44963500.davem@redhat.com>
+	<20030320.120136.108400165.yoshfuji@wide.ad.jp>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303192218.07708.rick@sapphire.no-ip.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 March 2003 08:54 am, Andrus wrote:
-> You can download working exploit on
-> http://www.members.ee/ptrace-exploit.c
->
-> Its hell long exploit as I know, and still not patched!
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-This exploit is no longer available at that URL.  Can it please be either 
-reposted here or mailed directly to me?
--- 
-Rick Warner
-Systems Integrator
-"In a world without fences and doors, who needs Gates and Windows?"
+   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@wide.ad.jp>
+   Date: Thu, 20 Mar 2003 12:01:36 +0900 (JST)
+
+   In article <20030319.163105.44963500.davem@redhat.com> (at Wed, 19 Mar 2003 16:31:05 -0800 (PST)), "David S. Miller" <davem@redhat.com> says:
+   
+   > I'm going to apply this, with the small change that dev_getany() is
+   > renamed to dev_get_by_flags() which more accurately describes
+   > what the routine does.
+   
+   Again: I don't like API at all.
+   
+   Anycast address management itself in that patch would be ok.
+   However, JOIN/LEAVE is NOT useful and userland application will be 
+   incompatible with other implementation. (sigh...)
+   I think linux likes unicast model (assign address like unicast address), too.
+   
+Please propose alternative API, or do you suggest not
+to export this facility to user at all?
+
+   And, we see __constant_{hton,ntoh}{l,h}() again...
+   
+I will fix this, thank you for mentioning this.

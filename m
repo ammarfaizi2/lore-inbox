@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262854AbTC1J7V>; Fri, 28 Mar 2003 04:59:21 -0500
+	id <S262862AbTC1KHs>; Fri, 28 Mar 2003 05:07:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262857AbTC1J7U>; Fri, 28 Mar 2003 04:59:20 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:34948 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262854AbTC1J7T>;
-	Fri, 28 Mar 2003 04:59:19 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16004.8084.271596.293605@gargle.gargle.HOWL>
-Date: Fri, 28 Mar 2003 11:10:28 +0100
-From: mikpe@csd.uu.se
-To: Keith Owens <kaos@ocs.com.au>
-Cc: mikpe@csd.uu.se, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.21-pre5 correct scheduling of idle tasks [ all arch ] 
-In-Reply-To: <19527.1048803432@ocs3.intra.ocs.com.au>
-References: <16003.7879.340300.737153@gargle.gargle.HOWL>
-	<19527.1048803432@ocs3.intra.ocs.com.au>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+	id <S262868AbTC1KHs>; Fri, 28 Mar 2003 05:07:48 -0500
+Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:48138 "EHLO
+	net.cc.swin.edu.au") by vger.kernel.org with ESMTP
+	id <S262862AbTC1KHr>; Fri, 28 Mar 2003 05:07:47 -0500
+From: Tim Connors <tconnors@astro.swin.edu.au>
+Message-Id: <200303281018.h2SAIxq29603@tellurium.ssi.swin.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Delaying writes to disk when there's no need
+In-Reply-To: <20030327113014$37b4@gated-at.bofh.it>
+References: <20030326204012$188c@gated-at.bofh.it> <20030327091007$22a5@gated-at.bofh.it> <20030327113014$37b4@gated-at.bofh.it>
+Date: Fri, 28 Mar 2003 21:18:59 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens writes:
- > On Thu, 27 Mar 2003 16:54:47 +0100, 
- > mikpe@csd.uu.se wrote:
- > >Keith Owens writes:
- > > > There are several inconsistencies in the scheduling of idle tasks and,
- > > > for UP, tracking which task is on the cpu.  This patch standardizes
- > > > idle task scheduling across all architectures and corrects the UP
- > > > error, it is just a bug fix.
- > >...
- > > > To make it worse, on UP a task is assigned to a cpu but never released.
- > > > Very quickly, all tasks are marked as currently running on cpu 0 :(.
- > >
- > >->cpus_runnable and task_has_cpu() are SMP-only, as a quick grep
- > >through 2.4.20 will tell you. There is no UP bug here to fix.
- > 
- > cpus_runnable has task_has_cpu are not guarded by CONFIG_SMP.
- > task_set_cpu() is called for UP as well as SMP.  UP is missing the
- > corresponding call to task_release_cpu().
+In linux.kernel, you wrote:
+> Helge Hafting (helgehaf@aitel.hist.no) wrote:
+>> Erik Hensema wrote:
+>>> In all kernels I've tested writes to disk are delayed a long time even when
+>>> there's no need to do so.
+>>> 
+>> Short answer - it is supposed to do that!
+>> 
+>>> A very simple test shows this: on an otherwise idle system, create a tar of
+>>> a NFS-mounted filesystem to a local disk. The kernel starts writing out the
+>>> data after 30 seconds, while a slow and steady stream would be much nicer
+>>> to the system, I think.
 
-No generic kernel code _uses_ ->cpus_runnable on UP.
-arch/s390{,x}/kernel/traps.c appears to use task_has_cpu() on UP,
-but that's their bug and not an argument for slowing down UP kernels.
+Agreed. We have a cluster which is writing on average something like
+20 Megs/sec/node. We had to lower the write threshold from 30% to 0%,
+because with the constant writing, linux will buffer it for 30 secs,
+fill up RAM, try to empty the write-cache, stall, wash, rinse,
+repeat. Because it was being filled up at roughly the rate it was
+being emptied, once it got 30% behind, there was no catching up, so
+the realtime system would lose data. Ouch.
 
-Hence, kernel/sched.c not calling task_release_cpu() to reset
-->cpus_runnable to ~0 is not a bug.
+>> You're wrong then.  There's no need for a slow steady stream, why do
+>> you want that.  Of course you can set up cron to run sync at
+>> regular (short) intervals to achieve this.
 
-The only bug (apart from s390's trap.c) is that task_set_cpu() performs
-an unnecessary assignment to ->cpus_runnable on UP.
+Last time I checked, cron had 1 minute resolution.
+ 
+> I see that. However, I don't see why the kernel is writing out data
+> as agressively as it does now. Delaying a write for 30 seconds isn't the
+> problem: the aggressive writes are. Since the disks are otherwise idle, the
+> kernel can gently start writing out the dirty cache. No need to try and
+> write 40 MB in 1 sec when you can write 10 MB/sec in 4 seconds.
+> 
+> [...]
+> 
+>> For more detailed information, read a book about how filesystems and
+>> disk caching works.
+> 
+> I'm just reporting what's happening to me in practice, I don't really care
+> about what should happen in theory.
 
-/Mikael
+Exactly. 
+
+Helge's comment about /tmp files and rewriting files multiple times:
+in real life, how often does this happen? How often do you overwrite
+one file many times in 30 seconds? The occasional 20 kilobyte /tmp
+file perhaps, but I doubt it matters in real life. In real life, when
+writing to disk constantly (not just scientific applications - I
+believe this happens in the real world too!), waiting for 30 seconds
+is a liability!
+
+
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+
+White dwarf seeks red giant star

@@ -1,117 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S277145AbUKAQg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266744AbUKAQmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S277145AbUKAQg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 11:36:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S277049AbUKAQgf
+	id S266744AbUKAQmx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 11:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270616AbUKAQmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 11:36:35 -0500
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:56296 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S270313AbUKAQb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 11:31:26 -0500
-From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
-To: Andrew Morton <akpm@osdl.org>, William Lee Irwin III <wli@holomorphy.com>
-Subject: subj: [PATHC] user-defined profiling 
-Date: Tue, 2 Nov 2004 01:33:53 +0900
-User-Agent: KMail/1.5.4
-Cc: <linux-kernel@vger.kernel.org>
+	Mon, 1 Nov 2004 11:42:52 -0500
+Received: from dfw-gate3.raytheon.com ([199.46.199.232]:52421 "EHLO
+	dfw-gate3.raytheon.com") by vger.kernel.org with ESMTP
+	id S266744AbUKAQiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 11:38:46 -0500
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF45B54BA4.2C7A16BA-ON86256F3F.0059443C@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Mon, 1 Nov 2004 10:34:22 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/01/2004 10:35:40 AM
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411020133.53562.amgta@yacht.ocn.ne.jp>
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>I've uploaded -V0.6.5 to the usual place:
+>
+>  http://redhat.com/~mingo/realtime-preempt/
 
-This patch provides support for user-defined profiling. It is
-inspired by scheduler profiling.
+I built with this patch and had some problems with the system
+locking up.
 
-If you put the following code into interesting function
+First attempt:
+ - booted to single user without problem
+ - telinit 5 was OK as well
+ - logged in. After first window popped up, I did
+  su -
+to get root access and the system locked up. No display updates
+nor any mouse movement. Entering Alt-SysRq-L displayed
+  SysRq : Show Regs On All CPUs
+and no other messages appeared on the serial console. Attempts
+to use other Alt-SysRq keys were ignored, hard reset to reboot.
 
-	profile_hit(USR_PROFILNG, __buildin_return_address(0));
+Second attempt:
+ - booted to single user without problem
+ - telinit 5 failed after kudzu timed out (had "detected" a
+change due to the serial console)
 
-and boot with profile=user then the readprofile shows which functions
-called it, and how many times.
+No messages on serial console after the kudzu timeout. This time
+Alt-SysRq-L did work. Also did Alt-SysRq-T and -D and will send
+the all the serial console messages separately.
 
-Furthermore I much prefer to insert the user-defined profile point
-with Kprobe. This is why the profile_hits() was exported.
+Did notice an odd message during the dump of tasks...
+Losing too many ticks!
+TSC cannot be used as a timesource.
+Possible reasons for this are:
+  You're running with Speedstep.   [almost surely not]
+  You don't have DMA enabled for your hard disk (see hdparm), [udma4 should
+be set at this point]
+  Incorrect TSC synchronization on an SMP system (see dmesg). [can't look
+at that, system is hung]
+Falling back to a sane timesource now.
 
-Please apply.
+Alas, this "sane timesource" didn't help either, system still
+not responding right. Alt-SysRq-S said
+  SysRq : Emergency Sync
+[without any complete messages]
+and Alt-SysRq-B did reboot the system.
 
-Signed-off-by Akinobu Mita <amgta@yacht.ocn.ne.jp>
-
-
---- 2.6-mm/Documentation/kernel-parameters.txt.orig	2004-11-02 01:17:50.491934664 +0900
-+++ 2.6-mm/Documentation/kernel-parameters.txt	2004-11-02 01:18:47.552260176 +0900
-@@ -1002,8 +1002,9 @@ running once the system is up.
- 			Ranges are in pairs (memory base and size).
- 
- 	profile=	[KNL] Enable kernel profiling via /proc/profile
--			{ schedule | <number> }
-+			{ schedule | user| <number> }
- 			(param: schedule - profile schedule points}
-+			(param: user - profile user-defined points}
- 			(param: profile step/bucket size as a power of 2 for
- 				statistical time based profiling)
- 
---- 2.6-mm/include/linux/profile.h.orig	2004-11-02 01:18:40.740295752 +0900
-+++ 2.6-mm/include/linux/profile.h	2004-11-02 01:18:47.538262304 +0900
-@@ -11,6 +11,7 @@
- 
- #define CPU_PROFILING	1
- #define SCHED_PROFILING	2
-+#define USR_PROFILING	3
- 
- struct proc_dir_entry;
- struct pt_regs;
---- 2.6-mm/kernel/profile.c.orig	2004-11-02 01:18:27.490310056 +0900
-+++ 2.6-mm/kernel/profile.c	2004-11-02 01:18:47.550260480 +0900
-@@ -47,18 +47,26 @@ static DECLARE_MUTEX(profile_flip_mutex)
- static int __init profile_setup(char * str)
- {
- 	int par;
-+	char *desc;
- 
- 	if (!strncmp(str, "schedule", 8)) {
- 		prof_on = SCHED_PROFILING;
--		printk(KERN_INFO "kernel schedule profiling enabled\n");
--		if (str[7] == ',')
--			str += 8;
-+		desc = "schedule";
-+		str += 8;
-+	} else if (!strncmp(str, "user", 4)) {
-+		prof_on = USR_PROFILING;
-+		desc = "user-defined";
-+		str += 4;
-+
-+	} else {
-+		prof_on = CPU_PROFILING;
-+		desc = "";
- 	}
-+
- 	if (get_option(&str,&par)) {
- 		prof_shift = par;
--		prof_on = CPU_PROFILING;
--		printk(KERN_INFO "kernel profiling enabled (shift: %ld)\n",
--			prof_shift);
-+		printk(KERN_INFO "kernel %s profiling enabled (shift: %ld)\n",
-+			desc, prof_shift);
- 	}
- 	return 1;
- }
-@@ -392,6 +400,8 @@ void profile_hit(int type, void *__pc)
- }
- #endif /* !CONFIG_SMP */
- 
-+EXPORT_SYMBOL_GPL(profile_hit);
-+
- void profile_tick(int type, struct pt_regs *regs)
- {
- 	if (type == CPU_PROFILING)
-
-
-
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 

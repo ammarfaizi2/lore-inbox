@@ -1,47 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUIKQsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268207AbUIKQsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268206AbUIKQsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 12:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUIKQsI
+	id S268207AbUIKQsl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 12:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUIKQsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 12:48:08 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:59401 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268206AbUIKQp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 12:45:57 -0400
-Date: Sat, 11 Sep 2004 17:45:52 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Mike Mestnik <cheako911@yahoo.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
-       Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       =?iso-8859-1?Q?Felix=5FK=FChling?= <fxkuehl@gmx.de>,
+	Sat, 11 Sep 2004 12:48:40 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:59093 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268207AbUIKQqR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 12:46:17 -0400
+Message-ID: <9e47339104091109463694ffd3@mail.gmail.com>
+Date: Sat, 11 Sep 2004 12:46:13 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: radeon-pre-2
+Cc: Dave Airlie <airlied@linux.ie>,
+       =?ISO-8859-1?Q?Michel_D=E4nzer?= <michel@daenzer.net>,
+       =?ISO-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
        DRI Devel <dri-devel@lists.sourceforge.net>,
        lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: radeon-pre-2
-Message-ID: <20040911174552.B2956@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mike Mestnik <cheako911@yahoo.com>, Dave Airlie <airlied@linux.ie>,
-	Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	=?iso-8859-1?Q?Felix=5FK=FChling?= <fxkuehl@gmx.de>,
-	DRI Devel <dri-devel@lists.sourceforge.net>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20040911132727.A1783@infradead.org> <20040911124930.98551.qmail@web11906.mail.yahoo.com>
+In-Reply-To: <1094913222.21157.61.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040911124930.98551.qmail@web11906.mail.yahoo.com>; from cheako911@yahoo.com on Sat, Sep 11, 2004 at 05:49:30AM -0700
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
+	 <9e47339104091010221f03ec06@mail.gmail.com>
+	 <1094835846.17932.11.camel@localhost.localdomain>
+	 <9e47339104091011402e8341d0@mail.gmail.com>
+	 <Pine.LNX.4.58.0409102254250.13921@skynet>
+	 <1094853588.18235.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0409110137590.26651@skynet>
+	 <1094873412.4838.49.camel@admin.tel.thor.asgaard.local>
+	 <Pine.LNX.4.58.0409110600120.26651@skynet>
+	 <1094913222.21157.61.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 11, 2004 at 05:49:30AM -0700, Mike Mestnik wrote:
-> Not to step on toes, but...  From what I can tell the idea is to add code
-> into FB that calles functions in the DRM and vice vers.  This would seam
-> to  add another ABI.  Unless the code gets linked into one module, this
-> idea has been flamed and killed already.
+On Sat, 11 Sep 2004 15:33:43 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> For example I can see the radeon DRM driver providing
+> 
+>         ->queue_commands()
+>         ->quiesce()
+> 
+> to the 2D driver. And the 2D driver providing
+> 
+>         ->define_fb_layout()  for DRI to provide to X
+> 
+> That way it is only these calls between drivers you and the fb authors
+> have to argue about the functionality and interfaces between. (eg who
+> saves registers, which registers)
+> 
 
-in-kernel ABIs are absolutely not an issue for Linux.
+Take a system with two simultaneous users on two heads of a dual head
+card. The kernel will be process swapping between these two users as
+needed.
 
+User 1 is playing a 3D game. 
+User 2 is editing with emacs on fbdev
+
+User 1's game queues up 20ms of 3D drawing commands.
+Process swap to user 2.  ->quiesce() is going to take 20ms. 
+User 2's timeslice expires and we go back to user 1.
+User 1 queues up another 20ms.
+
+User 2's editor is never going to function.
+
+The correct solution is to leave the chip in 3D mode and merge DMA
+command streams. User 2 wouldn't have problems if it's console driver
+queued 3D commands instead of stopping the 3D coprocessor, changing
+the chip mode, executing a host based 2D command, and then restarting
+the coprocessor.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

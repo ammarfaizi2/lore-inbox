@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265102AbTFMByA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 21:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbTFMByA
+	id S265100AbTFMBxC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 21:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbTFMBxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 21:54:00 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20186 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S265102AbTFMBx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 21:53:58 -0400
-Date: Thu, 12 Jun 2003 19:07:40 -0700
-Message-Id: <200306130207.h5D27eH22519@magilla.sf.frob.com>
+	Thu, 12 Jun 2003 21:53:02 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:61515 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S265100AbTFMBxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 21:53:00 -0400
+Date: Thu, 12 Jun 2003 22:07:03 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: David Schwartz <davids@webmaster.com>
+cc: Muthian Sivathanu <muthian_s@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: limit resident memory size
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEBMDKAA.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.44.0306122206010.29919-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: davidm@hpl.hp.com
-X-Fcc: ~/Mail/linus
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: FIXMAP-related change to mm/memory.c
-In-Reply-To: David Mosberger's message of  Thursday, 12 June 2003 18:24:02 -0700 <200306130124.h5D1O2DT025311@napali.hpl.hp.com>
-X-Shopping-List: (1) Sacrilegious persuasion whips
-   (2) Fervent breath
-   (3) Presidential contribution watchers
-   (4) Atomic apparition ponds
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it possible to constrain the FIXADDR range on x86/x86-64
-> (FIXADDR_START-FIXADDR_TOP) such that the entire range is read-only by
-> user-level?  
+On Thu, 12 Jun 2003, David Schwartz wrote:
 
-The fixmap area is used for other kernel-only mappings for things that I
-doubt should be exposed to users, not just user-accessible pages.  At the
-moment, the vsyscall page is the only user-accessible page in the fixmap
-area.  I wrote the get_user_pages change to be as generic as possible, so
-it would do the right thing if other uses of the fixmap area were added.
-Your patch makes the various other kernel-internal fixmap pages readable by
-users, which is not right.
+> > I would like to limit the maximum resident memory size
+> > of a process within a threshold, i.e. if its virtual
+> > memory footprint exceeds this threshold, it needs to
+> > swap out pages *only* from within its VM space.
+> 
+> 	Why? If you think this is a good way to be nice to other
+> processes, you're wrong.
 
-The pte_user predicate was added just for this purpose.  It seems
-reasonable to me to replace its use with a new pair of predicates,
-pte_user_read and pte_user_write, whose meaning is clearly specified for
-precisely this purpose.  That is, those predicates check whether a user
-process should be allowed to read/write the page via something like ptrace.
+RSS limits are a good idea, provided that they are only
+enforced when the system is low on memory.  Once the system
+starts swapping and is into the "lots of disk IO" territory
+anyway, it can be a good idea to have the processes that
+exceed their RSS limit suffer more than the ones that don't.
 
-That's the obvious idea to me.  But I have no special opinions about this
-stuff myself.  The current code is as it is because that's what Linus wanted.
-
-
-Thanks,
-Roland

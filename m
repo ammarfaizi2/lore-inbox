@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262585AbRFEKgE>; Tue, 5 Jun 2001 06:36:04 -0400
+	id <S262622AbRFEKhO>; Tue, 5 Jun 2001 06:37:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262586AbRFEKfy>; Tue, 5 Jun 2001 06:35:54 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:39437 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S262585AbRFEKfn>; Tue, 5 Jun 2001 06:35:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Anil Kumar" <anilk@subexgroup.com>,
-        "Mihai Moise" <mmoise@giref.ulaval.ca>, <linux-kernel@vger.kernel.org>
-Subject: Re: semaphores and noatomic flag
-Date: Tue, 5 Jun 2001 12:37:53 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <NEBBIIKAMMOCGCPMPBJOCEGICEAA.anilk@subexgroup.com>
-In-Reply-To: <NEBBIIKAMMOCGCPMPBJOCEGICEAA.anilk@subexgroup.com>
+	id <S262630AbRFEKhE>; Tue, 5 Jun 2001 06:37:04 -0400
+Received: from s7n18.hfx.eastlink.ca ([24.222.7.18]:3468 "EHLO fop.ns.ca")
+	by vger.kernel.org with ESMTP id <S262629AbRFEKgx>;
+	Tue, 5 Jun 2001 06:36:53 -0400
+Date: Tue, 5 Jun 2001 07:36:39 -0300 (ADT)
+From: Steve Bromwich <kernel@fop.ns.ca>
+To: Andreas Hartmann <andihartmann@freenet.de>
+cc: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.5] Mysterious behaviour of pppd at 56K modem
+In-Reply-To: <01060510102500.09957@athlon>
+Message-ID: <Pine.LNX.4.10.10106050724140.29115-100000@chizz.foppity.org>
 MIME-Version: 1.0
-Message-Id: <01060512375300.00553@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Mihai Moise
-> 
-> up(semaphore 1)		/* wake up client */
-> down(semaphore 0)	/* put iself to sleep */
->
-> The problem is that the two system calls make the whole process twice
-> as slow as it needs to be, and they are both needed because the semop
-> system call is implemented in an atomic manner. If the semop system
-> call had an IPC_NOATOMIC flag, then the each process would only have
-> to do one call,
->
-> semop(up semaphore 0 & down semaphore 1, IPC_NOATOMIC)
->
-> which would be interpreted in the kernel as the sequence of two
-> system calls I have written previously.
+On Tue, 5 Jun 2001, Andreas Hartmann wrote:
 
-On Tuesday 05 June 2001 08:28, Anil Kumar wrote:
-> Will it not be a very specialized case rather than being general call
-> type?
+> The speed of the incoming data is always swinging between 5.9kB and 4.4kB. 
+> Why? I didn't have this problem with Kernel 2.2.x (with the same 
+> pppd-versions).
 
-The concept is general and useful, though I don't think its expression 
-here is correct.  A similar feature used in dynix was described earlier 
-in some detail by  Paul Cassella:
+Well, I'm not seeing the same thing here with 2.4, but I can give you some
+general bits and pieces to look at:
 
-    http://marc.theaimsgroup.com/?l=linux-kernel&m=97742705300697&w=2
-    (Re: [RFC] Semaphores used for daemon wakeup)
+* Check ATI6 after disconnect to make sure it's not bit errors (make sure
+your comms package doesn't do ATZ on startup or it'll wipe the ATI6 stats)
+* Force the mtu to 1500 in your /etc/ppp/options file. Note that this will
+stomp on interactive traffic.
+* Make sure your modem is well initialised; run minicom or similar, set
+the baud rate to 115200, and do ATZ\nAT&F1&W
+* Try setting low latency on your serial port, eg, setserial /dev/ttyS0
+low_latency
 
-The idea is to atomically release one serializer and grab another.  We 
-have quite a few flavors of lock so square that and you have the number 
-of primitives you'd need for a complete set.
+> Neverthless, the overallspeed seems to be equal to kernel 2.2.x (about 
+> 5.1kB/s) - but not slower; it even could be faster. But I think, the speed 
+> could be much higher, if it wouldn't swing as much.
 
-To sell the idea you'd have to come up with a few places where the new 
-primitives would make the kernel run better, then you'd have to 
-implement it or find someone with the necessary scheduler hacking 
-skills to do it for you.  The last part is the tricky one. ;-)
+If you're measuring this with pppstats, bear in mind that if you have a
+packet that's half transferred when pppstats does its calculation, that
+packet is included in the next second's stats (or so it appears to me).
 
---
-We had 
+> I'm using pppd 2.4.0b or 2.4.1. My modem (USR Sportster Message +) is 
+> connected with 115200 Baud (56000 tested but doesn't work properly), the 
+> connect to my provider is 50,6kB/s.
+
+USR modems don't set the serial interface rate to the connection rate.
+They also only use standard transfer speeds such as 300, 2400, 4800, 9600,
+19200, 38400, 57600, 115200, and the newer ones support speeds such as
+230400 and up. This is based on my experience working with the UK code
+back in the mid 90's (pre-3com takeover), though, so it may have changed
+since then.
+
+You might also want to confirm packet throughput with another utility (eg,
+iptraf) and see what that says. Also try tcpdumping a connection and see
+if there's any packets being lost.
+
+Cheers, Steve
+

@@ -1,92 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261573AbREOVds>; Tue, 15 May 2001 17:33:48 -0400
+	id <S261572AbREOVaj>; Tue, 15 May 2001 17:30:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261576AbREOVdl>; Tue, 15 May 2001 17:33:41 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:56583 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261573AbREOVco>; Tue, 15 May 2001 17:32:44 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200105152126.XAA23684@green.mif.pg.gda.pl>
+	id <S261559AbREOVaV>; Tue, 15 May 2001 17:30:21 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:58256 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S261565AbREOV3n>;
+	Tue, 15 May 2001 17:29:43 -0400
+Date: Tue, 15 May 2001 22:29:38 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Jonathan Lundell <jlundell@pobox.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        James Simmons <jsimmons@transvirtual.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
 Subject: Re: LANANA: To Pending Device Number Registrants
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 15 May 2001 23:26:44 +0200 (CEST)
-Cc: jlundell@pobox.com, jgarzik@mandrakesoft.com, jsimmons@transvirtual.com,
-        alan@lxorguk.ukuu.org.uk (Alan Cox), neilb@cse.unsw.edu.au,
-        hpa@transmeta.com, linux-kernel@vger.kernel.org (kernel list)
-X-Mailer: ELM [version 2.5 PL0pre8]
+Message-ID: <344250272.989965778@[169.254.198.40]>
+In-Reply-To: <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>
+X-Mailer: Mulberry/2.1.0a4 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 15 May 2001, Jonathan Lundell wrote:
-> > >
-> > >Keep it informational. And NEVER EVER make it part of the design.
-> > 
-> > What about:
-> > 
-> > 1 (network domain). I have two network interfaces that I connect to 
-> > two different network segments, eth0 & eth1;
-> 
-> So?
-> 
-> Informational. You can always ask what "eth0" and "eth1" are.
-> 
-> There's another side to this: repeatability. A setup should be
-> _repeatable_.
+> The argument that "if you use numbering based on where in the SCSI chain
+> the disk is, disks don't pop in and out" is absolute crap. It's not true
+> even for SCSI any more (there are devices that will aquire their location
+> dynamically), and it has never been true anywhere else. Give it up.
 
-It stops to be repetable unless you are able to define *which* interface
-become eg. eth0 after boot. Think of hotplug...
+Q: Let us assume you have dynamic numbering disk0..N as you suggest,
+   and you have some s/w RAID of SCSI disks. A disk fails, and is (hot)
+   removed. Life continues. You reboot the machine. Disks are now numbered
+   disk0..(N-1). If the RAID config specifies using disk0..N thusly, it
+   is going to be very confused, as stripes will appear in the wrong place.
+   Doesn't that mean the file specifying the RAID config is going to have
+   to enumerate SCSI IDs (or something configuration invariant) as
+   opposed to use the disk0..N numbering anyway? Sure it can interrogate
+   each disk0..N to see which has the ID that it actually wanted, but
+   doesn't this rather subvert the purpose?
 
-> This is what we have now. Network devices are called "eth0..N", and nobody
-                                                                      ^^^^^^
-Not true. I did. Once :)
-
-> is complaining about the fact that the numbering is basically random. It
-> is _repeatable_ as long as you don't change your hardware setup, and the
-> numbering has effectively _nothing_ to do with "location".
-
-Consider the following situation:
-- you have three ethernet adapters supported by a single driver; assume
-  they are *significantly* different
-- you hotplug a spare adapter, supported by the same driver
-- your spare adapter become eth0 after reboot...
-- you need access to a NFS server on former eth2 during boot
-
-How would you configure the system to boot regardless the spare adapter is
-plugged in or not?
-
-> You don't say "oh, I have my network card in PCI bus #2, slot #3,
-> subfunction #1, so I should do 'ifconfig netp2s3f1'". Right?
-
-ifconfig eth-00:20:12:34:ab:cd ?
-
-I'd prefer using MAC address here, but it is also not good as MAC need not
-to be unique.
-
-> The location of the device is _meaningless_. 
-
-Unfortunately sometimes it is. Rare cases. I used to hit one.
-
-> So? Same deal. You don't have eth0..N, you have disk0..N. 
-> 
-> What's the problem? It's _repeatable_, in that as long as you don't change
-> your disks, they'll show up the same way. But the 0..N doesn't imply that
-> the disks are anywhere special.
-
-Not good comparison. You can mount filesystems on disks by UUID.
-You should be independent on disk names then.
-
-> Linux gets this _somewhat_ right. The /dev/sdxxx naming is correct (or, if
-> you look at only IDE devices, /dev/hdxxx). The problem is that we don't
-> have a unified namespace, so unlike eth0..N we do _not_ have a unified
-> namespace for disks.
-
-Andrzej
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+IE, given one could create /dev/disk/?.+, isn't the important
+argument that they share common major device numbers etc., not whether
+they linearly reorder precisely to 0..N as opposed to have some form
+of identifier guaranteed to be static across reboot & config change.
+--
+Alex Bligh

@@ -1,128 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUIPMlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268033AbUIPMhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268069AbUIPMlh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 08:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUIPMik
+	id S268033AbUIPMhn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 08:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUIPMfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 08:38:40 -0400
-Received: from relay.felk.cvut.cz ([147.32.80.7]:4364 "EHLO relay.felk.cvut.cz")
-	by vger.kernel.org with ESMTP id S268048AbUIPMga convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 08:36:30 -0400
-From: "Bc. Michal Semler" <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: CD-ROM can't be ejected
-Date: Thu, 16 Sep 2004 14:36:05 +0200
-User-Agent: KMail/1.6.2
-CC: linux-kernel@vger.kernel.org
-References: <200409160025.35961.cijoml@volny.cz>
-            <200409161419.38264.cijoml@volny.cz> <20040916122400.GB3544@suse.de>
-In-Reply-To: <20040916122400.GB3544@suse.de>
-MIME-Version: 1.0
+	Thu, 16 Sep 2004 08:35:25 -0400
+Received: from colin2.muc.de ([193.149.48.15]:65293 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S268013AbUIPMeT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 08:34:19 -0400
+Date: 16 Sep 2004 14:34:17 +0200
+Date: Thu, 16 Sep 2004 14:34:17 +0200
+From: Andi Kleen <ak@muc.de>
+To: Sergei Haller <Sergei.Haller@math.uni-giessen.de>, g@muc.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lost memory on a 4GB amd64
+Message-ID: <20040916123417.GA68423@muc.de>
+References: <2EWxl-7CI-13@gated-at.bofh.it> <m3hdpyy9x3.fsf@averell.firstfloor.org> <Pine.LNX.4.58.0409162209450.26494@fb07-calculator.math.uni-giessen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain; charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <200409161436.05939.cijoml@volny.cz>
-X-MailScanner-felk: Found to be clean
-X-MailScanner-SpamCheck-felk: not spam, SpamAssassin (score=-4.9, required 5,
-	BAYES_00 -4.90)
+In-Reply-To: <Pine.LNX.4.58.0409162209450.26494@fb07-calculator.math.uni-giessen.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dne èt 16. záøí 2004 14:24 Jens Axboe napsal(a):
-> On Thu, Sep 16 2004, Bc. Michal Semler wrote:
-> > Dne ?t 16. zá?í 2004 12:22 Jens Axboe napsal(a):
-> > > On Thu, Sep 16 2004, Bc. Michal Semler wrote:
-> > > > > > > On Thu, Sep 16 2004, Bc. Michal Semler wrote:
-> > > > > > > > notas:/home/cijoml# mount /cdrom/
-> > > > > > > > notas:/home/cijoml# umount /cdrom/
-> > > > > > > > notas:/home/cijoml# strace -o eject /dev/hdc
-> > > > > > > > eject: unable to eject, last error: Nep?ípustný argument
-> > > > > > > >
-> > > > > > > > As you can see, I dont't enter to directory...
-> > > > > > > >
-> > > > > > > > And output is included
-> > > > > > > >
-> > > > > > > > ioctl(3, CDROMEJECT, 0xbffffac8)        = -1 EIO
-> > > > > > > > (Input/output error)
-> > > > > > >
-> > > > > > > That's the important bit, the reason you get EINVAL passed back
-> > > > > > > is because eject tries the floppy eject as well and decides to
-> > > > > > > print the warning from that. It really should just stop of it
-> > > > > > > sees -EIO, only continue if EINVAL/ENOTTY is passed back.
-> > > > > > >
-> > > > > > > Try this little c program and report back what it tells you.
-> > > > > > > Compile with
-> > > > > > >
-> > > > > > > gcc -Wall -o eject eject.c
-> > > > > > >
-> > > > > > > and run without arguments.
-> > > > > > >
-> > > > > > > #include <stdio.h>
-> > > > > > > #include <stdlib.h>
-> > > > > > > #include <fcntl.h>
-> > > > > > > #include <string.h>
-> > > > > > > #include <sys/ioctl.h>
-> > > > > > > #include <linux/cdrom.h>
-> > > > > > >
-> > > > > > > int main(int argc, char *argv[])
-> > > > > > > {
-> > > > > > > 	int fd = open("/dev/hdc", O_RDONLY | O_NONBLOCK);
-> > > > > > > 	struct cdrom_generic_command cgc;
-> > > > > > > 	struct request_sense sense;
-> > > > > > >
-> > > > > > > 	memset(&cgc, 0, sizeof(cgc));
-> > > > > > > 	memset(&sense, 0, sizeof(sense));
-> > > > > > >
-> > > > > > > 	cgc.cmd[0] = 0x1b;
-> > > > > > > 	cgc.cmd[4] = 0x02;
-> > > > > > > 	cgc.sense = &sense;
-> > > > > > > 	cgc.data_direction = CGC_DATA_NONE;
-> > > > > > >
-> > > > > > > 	if (ioctl(fd, CDROM_SEND_PACKET, &cgc) == 0) {
-> > > > > > > 		printf("eject worked\n");
-> > > > > > > 		return 0;
-> > > > > > > 	}
-> > > > > > >
-> > > > > > > 	printf("command failed - sense %x/%x/%x\n", sense.sense_key,
-> > > > > > > sense.asc, sense.ascq); return 1;
-> > > > > > > }
-> > > > > >
-> > > > > > 2.4.27-mh1
-> > > > > > notas:~# /home/cijoml/eject
-> > > > > > ATAPI device hdc:
-> > > > > >   Error: Not ready -- (Sense key=0x02)
-> > > > > >   (reserved error code) -- (asc=0x53, ascq=0x02)
-> > > > > >   The failed "Start/Stop Unit" packet command was:
-> > > > > >   "1b 00 00 00 02 00 00 00 00 00 00 00 "
-> > > > > > command failed - sense 2/53/2
-> > > > >
-> > > > > Your tray is still locked, are you sure it isn't mounted?
-> > > >
-> > > > Yes I am. This is written into console and I am logged only into this
-> > > > console and I copied whole commands from login to eject... :(
-> > >
-> > > For the third time, don't trim the cc list! group reply please.
-> > >
-> > > Something else must be keeping your drive locked. What else do you have
-> > > running in the system? It's enough if one app is just holding the drive
-> > > open, the drive wont get unlocked on umount then.
-> >
-> > only thing which access cdrom is cpudynd and it access harddrive too....
-> >
-> > notas:~# fuser /dev/hdc
-> > /dev/hdc:             8102
-> > notas:~# ps aux|grep 8102
-> > root      8102  0.0  0.1  1536  456 ?        SNs  13:49
-> > 0:00 /usr/sbin/cpudynd -i 1 -p 0.5 0.9 -l 7 -t 120 -h /dev/hda,/dev/hdc
->
-> well there you go, that is what is keeping the drive locked. cdrom
-> cannot know which process locked it or not, all it knows is that the
-> usage count is non-zero on umount, so it doesn't unlock the tray.
+On Thu, Sep 16, 2004 at 10:15:22PM +1000, Sergei Haller wrote:
+> I am sure you did read the rest of my mail, didn't you? I mean the part 
 
-And very important info is, that same harddisk image I use on about 25 laptops 
-in company and those works fine with it. Only this one doesn't. And I can't 
-send it to Acer, coz under WinXP cdrom works fine :(
+I did.
 
-Michal
+> where I describe that there is an option in the BIOS for that but the 
+> kernel crashes if I enable it.
+
+It means the memory was not correct configured. If you don't trust the kernel
+you can use memtest86 to confirm it.
+
+> If it is still a problem of the BIOS, could you please be more specific 
+> about what exactly is the problem with the BIOS?
+
+That it doesn't supply usable memory to the kernel with that option.
+
+-Andi

@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311523AbSDQSIL>; Wed, 17 Apr 2002 14:08:11 -0400
+	id <S311564AbSDQSXl>; Wed, 17 Apr 2002 14:23:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311530AbSDQSIK>; Wed, 17 Apr 2002 14:08:10 -0400
-Received: from bitmover.com ([192.132.92.2]:42181 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S311523AbSDQSIK>;
-	Wed, 17 Apr 2002 14:08:10 -0400
-Date: Wed, 17 Apr 2002 11:08:09 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>,
-        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB device support for 2.5.8 (take 2)
-Message-ID: <20020417110809.R745@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>,
-	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <074401c1e629$0a9ea020$6800000a@brownell.org> <Pine.LNX.4.33.0204171043260.17271-100000@home.transmeta.com>
+	id <S311577AbSDQSXk>; Wed, 17 Apr 2002 14:23:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:29194 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311564AbSDQSXk>;
+	Wed, 17 Apr 2002 14:23:40 -0400
+Date: Wed, 17 Apr 2002 20:23:36 +0200
+From: Dave Jones <davej@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW ARCHITECTURE FOR 2.5.8] support for NCR voyager (3/4/5xxx series)
+Message-ID: <20020417202336.I29982@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	James Bottomley <James.Bottomley@HansenPartnership.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200204161601.g3GG1nP03345@localhost.localdomain> <m1wuv6fdad.fsf@frodo.biederman.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 17, 2002 at 10:57:21AM -0700, Linus Torvalds wrote:
-> Since we're talking about the other end of a "host" driver, "client" makes
-> sense - in computers, I've always seen "client" as the reverse of the
-> "host", but maybe that's just me. Outside of computers, "guest" seems to
-> be the proper antonym, but that just strikes me as bizarre (a "USB guest
-> driver"?)
+On Wed, Apr 17, 2002 at 11:25:14AM -0600, Eric W. Biederman wrote:
 
-What about "target"?  In SCSI land, it's clear that a target is the device,
-and when you talk about code that runs on a computer and makes it be a 
-SCSI target, everyone knows what you mean, right?  So what about code that
-makes a computer a USB target?  Would that work?  That's the only thing I
-could think of that was similar.  Does USB already use the term target for
-something else?
+ > Currently you place the voyager information in the APM table,  which is problematic
+ > for the goal of being able to have a kernel that will support everything,
+ > and it is a little confusing.
+
+Kernels for many of the x86 subarch's that are popping up won't "do the
+right thing" on any 'normal' x86 if memory serves me correctly. For eg
+a kernel for IBM summit machines won't work on a regular PC.
+Getting them to do so would require things like apic.c to become an even
+bigger mess than what it currently is
+
+The idea behind the subarch patches is that you get a kernel
+specifically for your weirdo machine, whilst keeping the common code
+free of ifdefs and other uglies. So we'd end up with perhaps..
+
+ o  regular i386 boot on any PC kernel
+    (also things like Athlon etc optimised ones fit here)
+ o  IBM summit kernel
+ o  NCR Voyager kernel
+ o  SGI visws kernel
+ o  Whatever other weirdo subarch pops up.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

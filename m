@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275448AbRIZSZV>; Wed, 26 Sep 2001 14:25:21 -0400
+	id <S275445AbRIZSYL>; Wed, 26 Sep 2001 14:24:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275449AbRIZSZM>; Wed, 26 Sep 2001 14:25:12 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46606 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275448AbRIZSYz>; Wed, 26 Sep 2001 14:24:55 -0400
-Date: Wed, 26 Sep 2001 11:24:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dave Jones <davej@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-        <bcrl@redhat.com>, <marcelo@conectiva.com.br>, <andrea@suse.de>,
-        <linux-kernel@vger.kernel.org>
+	id <S275439AbRIZSYB>; Wed, 26 Sep 2001 14:24:01 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:63577 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S275444AbRIZSXq>; Wed, 26 Sep 2001 14:23:46 -0400
+Date: Wed, 26 Sep 2001 14:24:11 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Locking comment on shrink_caches()
-In-Reply-To: <Pine.LNX.4.30.0109261958290.8655-100000@Appserv.suse.de>
-Message-ID: <Pine.LNX.4.33.0109261123380.8558-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010926142411.G8223@redhat.com>
+In-Reply-To: <E15mHjL-0000t8-00@the-village.bc.nu> <Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com> <200109261743.f8QHhPU08423@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200109261743.f8QHhPU08423@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Wed, Sep 26, 2001 at 11:43:25AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 26, 2001 at 11:43:25AM -0600, Richard Gooch wrote:
+> BTW: your code had horrible control-M's on each line. So the compiler
+> choked (with a less-than-helpful error message). Of course, cat t.c
+> showed nothing amiss. Fortunately emacs doesn't hide information.
 
-On Wed, 26 Sep 2001, Dave Jones wrote:
-> On Wed, 26 Sep 2001, Alan Cox wrote:
->
-> > VIA Cyrix CIII (original generation 0.18u)
-> >
-> > nothing: 28 cycles
-> > locked add: 29 cycles
-> > cpuid: 72 cycles
->
-> Interesting. From a newer C3..
->
-> nothing: 30 cycles
-> locked add: 31 cycles
-> cpuid: 79 cycles
->
-> Only slightly worse, but I'd not expected this.
+You must be using some kind of broken MUA -- neither mutt nor pine 
+resulted in anything with a trace of 0x0d in it.
 
-That difference can easily be explained by the compiler and options.
-
-You should use "gcc -O2" at least, in order to avoid having gcc do
-unnecessary spills to memory in between the timings. And there may be some
-versions of gcc that en dup spilling even then.
-
-		Linus
-
+		-ben

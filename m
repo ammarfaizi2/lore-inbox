@@ -1,81 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263922AbTLJUVo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 15:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbTLJUVo
+	id S263927AbTLJUWT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 15:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263930AbTLJUWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 15:21:44 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43019
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263922AbTLJUVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 15:21:42 -0500
-Date: Wed, 10 Dec 2003 12:15:45 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Maciej Zenczykowski <maze@cela.pl>, David Schwartz <davids@webmaster.com>,
-       Jason Kingsland <Jason_Kingsland@hotmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.58.0312101115360.29676@home.osdl.org>
-Message-ID: <Pine.LNX.4.10.10312101211380.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Dec 2003 15:22:19 -0500
+Received: from dyn-213-36-224-2.ppp.tiscali.fr ([213.36.224.2]:11780 "EHLO
+	nsbm.kicks-ass.org") by vger.kernel.org with ESMTP id S263927AbTLJUWP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 15:22:15 -0500
+Date: Wed, 10 Dec 2003 21:22:09 +0100
+From: Witukind <witukind@nsbm.kicks-ass.org>
+To: mru@kth.se (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
+Message-Id: <20031210212209.7fce7dae.witukind@nsbm.kicks-ass.org>
+In-Reply-To: <yw1xd6aw4ge3.fsf@kth.se>
+References: <200312081536.26022.andrew@walrond.org>
+	<20031208154256.GV19856@holomorphy.com>
+	<3FD4CC7B.8050107@nishanet.com>
+	<20031208233755.GC31370@kroah.com>
+	<20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>
+	<20031209075619.GA1698@kroah.com>
+	<1070960433.869.77.camel@nomade>
+	<20031209090815.GA2681@kroah.com>
+	<buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<yw1xd6ayib3f.fsf@kth.se>
+	<20031210202354.7a3c429a.witukind@nsbm.kicks-ass.org>
+	<yw1xd6aw4ge3.fsf@kth.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Dec 2003 20:33:24 +0100
+mru@kth.se (Måns Rullgård) wrote:
 
-Linus:
-
-Okay, can you add to the approved license list "GPL/proprietary" and
-"proprietary/GPL" ?
-
-This would allow a legal shim for the hardcare folks to choke down, and
-provide the comfort level for others.
-
-Then the trick is when does the license flip modes?
-Compile time?
-Execution time?
-
-This starts to become more fuzzy than I care to look at right now.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Wed, 10 Dec 2003, Linus Torvalds wrote:
-
+> Witukind <witukind@nsbm.kicks-ass.org> writes:
 > 
-> 
-> On Wed, 10 Dec 2003, Andre Hedrick wrote:
+> > On Tue, 09 Dec 2003 10:39:32 +0100 mru@kth.se (Måns Rullgård) wrote:
 > >
-> > So given RMS and company state OSL and GPL are not compatable, how does
-> > the two exist in the current kernel?  Earlier, iirc, there were comments
-> > about dual license conflicts.
+> >> > Is there a specific case for which people want this feature?
+> >> > Offhand it seems like a slightly odd thing to ask for...
+> >> 
+> >> I believe the original motivation for module autoloading was to
+> >save> memory by unloading modules when their devices were unused. 
+> >Loading> them automatically on demand made for less trouble for
+> >users, who> didn't have to run modprobe manually to use the sound
+> >card, or> whatever.  This could still be a good thing in embedded
+> >systems.> 
+> >
+> > I don't see why it wouldn't be a good thing for regular systems
+> > also. Saving memory is usually a good idea.
 > 
-> They don't "co-exist".
-> 
-> Some parts of the kernel are dual-licensed, which basically means that the
-> author says "you can use this code under _either_ the GPL or the OSL".
-> 
-> When used in the kernel, the GPL is the one that matters. But being
-> dual-licensed means that the same thing may be used somewhere else under
-> another license (so you could use that particular instance of code under
-> the OSL in some _other_ project where the OSL would be ok).
-> 
-> This is pretty common. We have several drivers that are dual-GPL/BSD, and
-> there are some parts that are dual GPL/proprietary (which is just another
-> way of saying that the author is licensing it somewhere else under a
-> proprietary model - common for hardware manufacturers that write their
-> own driver and _also_ use it somewhere else: when in Linux, they license
-> it under the GPL, when somewhere else, they have some other license).
-> 
-> This isn't Linux-specific - you'll find the same thing in other projects.
-> Most well-known perhaps perl - which is dual Artistic/GPL (I think.
-> That's from memory).
-> 
-> And ghostscript was (is?) dual-licensed too (proprietary/GPL).
-> 
-> 		Linus
-> 
+> The biggest modules are about 100k.  Saving 100k of 1 GB doesn't
+> really seem worth any effort.
 
+I don't have 1 Gb of memory. On my laptop with 16 mb RAM saving 100k is worth
+the effort.
+
+-- 
+Jabber: heimdal@jabber.org

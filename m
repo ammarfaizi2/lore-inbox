@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265043AbRFVB1v>; Thu, 21 Jun 2001 21:27:51 -0400
+	id <S265214AbRFVBaC>; Thu, 21 Jun 2001 21:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265214AbRFVB1l>; Thu, 21 Jun 2001 21:27:41 -0400
-Received: from noc242.toshiba-eng.co.jp ([210.254.22.242]:37047 "EHLO
-	noc4.toshiba-eng.co.jp") by vger.kernel.org with ESMTP
-	id <S265043AbRFVB1a>; Thu, 21 Jun 2001 21:27:30 -0400
-Date: Fri, 22 Jun 2001 10:27:16 +0900
-From: Masaru Kawashima <masaru@scji.toshiba-eng.co.jp>
-To: John Madden <jmadden@ivy.tec.in.us>
-Cc: linux-kernel@vger.kernel.org, "Andrey V. Savochkin" <saw@saw.sw.com.sg>
-Subject: Re: eepro100: wait_for_cmd_done timeout
-Message-Id: <20010622102716.7db7bd4d.masaru@scji.toshiba-eng.co.jp>
-In-Reply-To: <0106210940470C.28098@ycn013>
-In-Reply-To: <20010620163134.A22173@technolunatic.com>
-	<20010621231939.757bddd6.masaru@scji.toshiba-eng.co.jp>
-	<0106210940470C.28098@ycn013>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.7; i686-pc-linux-gnu)
-Organization: Open Software Sec.  TOSHIBA ENGINEERING Corp.
+	id <S265306AbRFVB3w>; Thu, 21 Jun 2001 21:29:52 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:62293 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265214AbRFVB3h>; Thu, 21 Jun 2001 21:29:37 -0400
+Date: Fri, 22 Jun 2001 03:29:18 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Eric S. Raymond" <esr@snark.thyrsus.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Controversy over dynamic linking -- how to end the panic
+Message-ID: <20010622032918.H707@athlon.random>
+In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com>; from esr@snark.thyrsus.com on Thu, Jun 21, 2001 at 02:14:42PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jun 2001 09:37:47 -0500
-John Madden <jmadden@ivy.tec.in.us> wrote:
-> errors.  Think the patch with the udelay() will still work?
+> 1. Userland programs which request kernel services via normal system
+							 ^^^^^^
+>    calls *are not* to be considered derivative works of the kernel.
 
-In my system, the patch with the udelay() is working.
+Please, at least don't say "normal" or it will be non obvious that it is
+ok for the vsyscalls too (which aren't *that* normal system calls). I'd
+rather use "via any kind of official system call (vsyscalls included)".
+Otherwise I guess a malicious could try to say that the vsyscalls are
+basically dynamically linking the userspace with the kernel (dynamically
+linking GPL code in the kernel to whatever non GPL userspace).
 
---
-Masaru Kawashima
+vsyscalls cannot give any advantage to the dark side (satellite is
+flooding me with the star wars movies sorry ;) anything you can do with
+a vsyscall, you can do with a real syscall too, just slower.  They can
+only improve performance when it is possible to provide the same
+functionality without entering/exiting kernel. So nobody sane could ever
+complain about the vsyscalls but since you're writing that stuff it
+worth to make it explicit I think ;).
+
+Thanks,
+
+Andrea

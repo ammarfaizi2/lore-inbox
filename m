@@ -1,25 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136930AbREJVNn>; Thu, 10 May 2001 17:13:43 -0400
+	id <S136931AbREJVPX>; Thu, 10 May 2001 17:15:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136931AbREJVNd>; Thu, 10 May 2001 17:13:33 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:39594 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S136930AbREJVNU>;
-	Thu, 10 May 2001 17:13:20 -0400
-Date: Thu, 10 May 2001 23:13:18 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105102113.XAA26240.aeb@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: lp486e.c for 2.4
+	id <S136933AbREJVPN>; Thu, 10 May 2001 17:15:13 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:13101 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136931AbREJVO6>; Thu, 10 May 2001 17:14:58 -0400
+Date: Thu, 10 May 2001 23:13:00 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ulrich.Weigand@de.ibm.com,
+        linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Subject: Re: Deadlock in 2.2 sock_alloc_send_skb?
+Message-ID: <20010510231300.W848@athlon.random>
+In-Reply-To: <C1256A48.00451BD1.00@d12mta11.de.ibm.com> <E14xq0v-0004j0-00@the-village.bc.nu> <20010510193047.A22970@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010510193047.A22970@gruyere.muc.suse.de>; from ak@suse.de on Thu, May 10, 2001 at 07:30:47PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that on-board ethernet on the lp486e (also known as
-lpe486 and as elp486 and as PWS and as `Reuters') works
-out of the box under 2.2.19, people started asking about 2.4.
-A patch is found at
- ftp.XX.kernel.org/.../kernel/people/aeb/lp486e.c-for-2.4.4
-It works (has gotten all of two minutes testing).
-Comments are welcome.
+On Thu, May 10, 2001 at 07:30:47PM +0200, Andi Kleen wrote:
+> On Thu, May 10, 2001 at 01:57:49PM +0100, Alan Cox wrote:
+> > > If that happens, and the socket uses GFP_ATOMIC allocation, the while (1)
+> > > loop in sock_alloc_send_skb() will endlessly spin, without ever calling
+> > > schedule(), and all the time holding the kernel lock ...
+> > 
+> > If the socket is using GFP_ATOMIC allocation it should never loop. That is
+> > -not-allowed-. 
+> 
+> It is just not clear why any socket should use GFP_ATOMIC. I can understand
+> it using GFP_BUFFER e.g. for nbd, but GFP_ATOMIC seems to be rather radical
+> and fragile.
 
-Andries
+side note, the only legal use of GFP_ATOMIC in sock_alloc_send_skb is
+with noblock set and fallback zero, remeber GFP_BUFFER will sleep, it
+may not sleep in vanilla 2.2.19 but the necessary lowlatency hooks in
+the memory balancing that for example I have on my 2.2 tree will make it
+to sleep.
+
+The patch self contained looks perfect (I didn't checked that the
+callers are happy with a -ENOMEM errorcode though), if alloc_skb()
+failed that's a plain -ENOMEM. The caller must _not_ try again, they
+must take a recovery fail path instead.
+
+Andrea

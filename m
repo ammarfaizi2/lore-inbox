@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271184AbTGQLcF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 07:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271250AbTGQLcF
+	id S271139AbTGQLb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 07:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271184AbTGQLb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 07:32:05 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:43537 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S271184AbTGQLcC (ORCPT
+	Thu, 17 Jul 2003 07:31:58 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:1284 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S271139AbTGQLb5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 07:32:02 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+	Thu, 17 Jul 2003 07:31:57 -0400
+Date: Thu, 17 Jul 2003 13:46:47 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Joel Becker <Joel.Becker@oracle.com>, zippel@linux-m68k.org,
+       aebr@win.tue.nl, greg@kroah.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Date: Thu, 17 Jul 2003 11:46:56 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <bf62bg$9cp$1@news.cistron.nl>
-References: <20030716184609.GA1913@kroah.com> <20030717122600.A2302@pclin040.win.tue.nl> <bf5uqb$3ei$1@news.cistron.nl> <20030717131955.D2302@pclin040.win.tue.nl>
+Message-ID: <20030717134647.A2347@pclin040.win.tue.nl>
+References: <20030716213451.GA1964@win.tue.nl> <20030716143902.4b26be70.akpm@osdl.org> <20030716222015.GB1964@win.tue.nl> <20030716152143.6ab7d7d3.akpm@osdl.org> <20030717014410.A2026@pclin040.win.tue.nl> <20030716164917.2a7a46f4.akpm@osdl.org> <20030717082716.GA19891@ca-server1.us.oracle.com> <Pine.LNX.4.44.0307171037070.717-100000@serv> <20030717091515.GC19891@ca-server1.us.oracle.com> <20030717022444.19c204ef.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1058442416 9625 62.216.29.200 (17 Jul 2003 11:46:56 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030717022444.19c204ef.akpm@osdl.org>; from akpm@osdl.org on Thu, Jul 17, 2003 at 02:24:44AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030717131955.D2302@pclin040.win.tue.nl>,
-Andries Brouwer  <aebr@win.tue.nl> wrote:
->On Thu, Jul 17, 2003 at 10:46:35AM +0000, Miquel van Smoorenburg wrote:
->
->> The filesystem driver itself must convert from native rdev to linux 32:32.
->
->Look at the mknod utility.
->The user types major,minor.
->The system call uses dev_t.
->This means that user space needs to be able to combine
->major,minor into a dev_t.
+On Thu, Jul 17, 2003 at 02:24:44AM -0700, Andrew Morton wrote:
 
-Ah, I see. That is a different issue - converting the 32-bit dev_t
-from userspace into a 32:32 internal representation.
+> And surely the task of mangling whatever comes off the wire into a dev_t for
+> init_special_inode() should be private to the Linux NFS client?
+> 
+> Still wondering why we need to support a 16:16 encoding in [k]dev_t.
 
-But, a utility like mknod currently only knows about 8:8 anyway.
-It needs to be patched to know about >8:>8 ... why not add
-64bit (32:32) dev_t syscalls at the same time ?
+I think I answered this already in earlier posts today. Again:
+(i) We need support for 16/32/64-bit dev_t.
+(ii) User space (glibc) has 64-bit dev_t.
+(iii) The split into major/minor is hardwired in <sys/sysmacros.h>,
+independent of filesystem. Thus, we must define major(),minor(),makedev().
+(iv) For Linux the device number is a cookie - major and minor do not
+really have a significance - we just select a driver given a *dev_t
+interval. That means that there are no reasons for inventing more
+complicated setups like 12:20.
 
-I mean, if the 64 bit dev_t is not going to be exposed to userspace,
-why bother with it in the kernel ? And if it /is/ going to be
-exposed to userspace, why bother with a 32 bit encoding ?
+And since you add "[k]": a kdev_t is internal to the kernel,
+we do whatever we want. I wanted a pointer (say, to a struct gendisk or so),
+but these days it seems we are heading for an arithmetic type, with 32:32.
 
-Mike.
+Andries
 

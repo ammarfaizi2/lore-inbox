@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbUKLAbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbUKLAf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262426AbUKLAbk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 19:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbUKLA3I
+	id S262419AbUKLAf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 19:35:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUKLAdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 19:29:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16862 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262422AbUKLA1o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 19:27:44 -0500
-Date: Thu, 11 Nov 2004 16:27:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] VM accounting change
-Message-Id: <20041111162736.0c9d5dae.akpm@osdl.org>
-In-Reply-To: <20041112001337.GR1740@hygelac>
-References: <20041111223245.GA15759@hygelac>
-	<20041111150710.6855398a.akpm@osdl.org>
-	<20041112001337.GR1740@hygelac>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 11 Nov 2004 19:33:47 -0500
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:57252 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262431AbUKLA2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 19:28:55 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: Daniel Jacobowitz <dan@debian.org>
+Subject: Re: Fixing UML against NPTL (was: Re: [uml-devel] [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill host-OS processes (take #2))
+Date: Fri, 12 Nov 2004 01:09:02 +0100
+User-Agent: KMail/1.7.1
+Cc: Christophe Saout <christophe@saout.de>, Chris Wedgwood <cw@f00f.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <20041103113736.GA23041@taniwha.stupidest.org> <1100197911.11951.1.camel@leto.cs.pocnet.net> <20041111184523.GA11578@nevyn.them.org>
+In-Reply-To: <20041111184523.GA11578@nevyn.them.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411120109.03149.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terence Ripperda <tripperda@nvidia.com> wrote:
+On Thursday 11 November 2004 19:45, Daniel Jacobowitz wrote:
+> On Thu, Nov 11, 2004 at 07:31:51PM +0100, Christophe Saout wrote:
+> > Am Donnerstag, den 11.11.2004, 12:45 -0500 schrieb Daniel Jacobowitz:
+> > > Glibc caches the PID.  If you're going to use clone directly, use the
+> > > gettid/getpid syscall directly.  It's kind of rude that glibc breaks
+> > > getpid in this way; I recommend filing a bug in the glibc bugzilla at
+> > > sources.redhat.com.
 >
-> On Thu, Nov 11, 2004 at 03:07:10PM -0800, akpm@osdl.org wrote:
-> > VM_LOCKED|VM_IO doesn't seem to be a sane combination.  VM_LOCKED means
-> > "don't page it out" and VM_IO means "an IO region".  The kernel never even
-> > attempts to page out IO regions because they don't have reverse mappings. 
-> > Heck, they don't even have pageframes.
-> > 
-> > How about you drop the VM_LOCKED?
-> 
-> sounds good, I can do that.
-> 
-> on a related note, there are a couple of flags that I'm not 100% clear
-> on the difference between, mainly:
-> 
-> VM_LOCKED
-> PG_locked
-> PG_reserved
-> 
-> everything I've seen in the past has suggested that drivers set the
-> PG_reserved flag for memory allocations intended to be locked down in
-> memory for extensive dma (the bttv driver had always been pointed to
-> as an example of that).
-> 
-> I'm not clear how that differs from PG_locked and VM_LOCKED. is
-> PG_reserved still the suggested way to properly lock memory down, or
-> is there a more generally accepted method?
+> ... but, thinking about it, they'll probably close it as INVALID.
+>
+> > If glibc insists on caching the pid, it could also simply invalidate the
+> > pid cache in the clone function.
 
-VM_LOCKED means that someone did mlock() and the VMA isn't eligible for
-paging.
+> It currently does this for vfork, but not clone.  Basically, you can't
+> call into glibc at all if you use clone.  If you aren't using POSIX
+> threads, then the POSIX-compliant library is going to fall to pieces
+> around you.  For instance, all the file locking will break, and
+> anything else that, like the PID cache, relies on either global or
+> per-_thread_ data.
 
-PG_locked is very different: it provides the caller with exclusive access
-the page while its actual contents are being changed.  It's also used as a
-synchronisation point for adding to and removing from pagecache.  It's
-pretty much a pagecache concept rather than an MM concept.
+Yes, in fact I guess that the problem is for any _thread variable. And as 
+fork() is not a raw syscall, so clone() shouldn't be.
 
-PG_reserved does mean that the page is "special" and the VM should just
-leave the thing alone - some device driver owns the page and knows how to
-manage it.
-
-VM_RESERVED is a bit of a mystery, really and we've had some trouble over
-the semantics of this vs PG_reserved.  Presumably it's supposed to be like
-PG_reserved, only for whole mmap regions.  It may not work properly because
-it gets damn little testing.
-
-We really should have gone through and rationalised, consolidated and
-documented the PageReserved/VM_RESERVED code in the 2.5 cycle but it didn't
-happen.  The most noxious part is all the testing of PG_reserved in the
-core kernel page refcounting logic.
-
+I'll file a bugreport when I have time to do it properly - I don't want to 
+hear that "if I go into dirty things using clone(), I get to keep the pieces 
+and setup a different TLS for the new process"
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

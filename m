@@ -1,71 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267646AbUIJR4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267739AbUIJSBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267646AbUIJR4a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 13:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUIJR4C
+	id S267739AbUIJSBn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 14:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267689AbUIJSAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 13:56:02 -0400
-Received: from mail.tmr.com ([216.238.38.203]:2323 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S267689AbUIJRx4 (ORCPT
+	Fri, 10 Sep 2004 14:00:14 -0400
+Received: from mail4.utc.com ([192.249.46.193]:16773 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S267730AbUIJR6y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 13:53:56 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-Date: Fri, 10 Sep 2004 13:54:16 -0400
-Organization: TMR Associates, Inc
-Message-ID: <chspak$bla$1@gatekeeper.tmr.com>
-References: <1094807650.17041.3.camel@localhost.localdomain><1094807650.17041.3.camel@localhost.localdomain> <593560000.1094826651@[10.10.2.4]>
-Mime-Version: 1.0
+	Fri, 10 Sep 2004 13:58:54 -0400
+Message-ID: <4141EAE5.5080202@cybsft.com>
+Date: Fri, 10 Sep 2004 12:56:53 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "K.R. Foley" <kr@cybsft.com>
+CC: Ingo Molnar <mingo@elte.hu>, Mark_H_Johnson@raytheon.com,
+       Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
+       Eric St-Laurent <ericstl34@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
+References: <OFD3DB738F.105F62D0-ON86256F08.005CDE25-86256F08.005CDE44@raytheon.com> <20040908184231.GA8318@elte.hu> <41411214.4000205@cybsft.com>
+In-Reply-To: <41411214.4000205@cybsft.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1094838421 11946 192.168.12.100 (10 Sep 2004 17:47:01 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <593560000.1094826651@[10.10.2.4]>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> --Alan Cox <alan@lxorguk.ukuu.org.uk> wrote (on Friday, September 10, 2004 10:14:11 +0100):
+K.R. Foley wrote:
+> Ingo Molnar wrote:
 > 
-> 
->>On Gwe, 2004-09-10 at 07:40, Arjan van de Ven wrote:
+>> * Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 >>
->>>Well I always assumed the future plan was to remove 8k stacks entirely;
->>>4k+irqstacks and 8k basically have near comparable stack space, with
->>>this patch you create an option that has more but that is/should be
->>>deprecated. I'm not convinced that's a good idea.
 >>
->>Its probably appropriate to drop gcc 2.x support at that point too since
->>it's the major cause of remaining problems
+>>> If you look at the date / time of the traces, you will notice that
+>>> most occur in the latter part of the test. This is during the "disk
+>>> copy" and "disk read" parts of the testing. [...]
+>>
+>>
+>>
+>> would it be possible to test with DMA disabled? (hdparm -d0 /dev/hda) It
+>> might take some extra work to shun the extra latency reports from the
+>> PIO IDE path (which is quite slow) but once that is done you should be
+>> able to see whether these long 0.5 msec delays remain even if all (most)
+>> DMA activity has been eliminated.
+>>
+>>
+>>> preemption latency trace v1.0.5 on 2.6.9-rc1-VP-R1
+>>> --------------------------------------------------
+>>> latency: 550 us, entries: 6 (6)
+>>>    -----------------
+>>>    | task: cat/6771, uid:0 nice:0 policy:0 rt_prio:0
+>>>    -----------------
+>>> => started at: kmap_atomic+0x23/0xe0
+>>> => ended at:   kunmap_atomic+0x7b/0xa0
+>>> =======>
+>>> 00000001 0.000ms (+0.000ms): kmap_atomic (file_read_actor)
+>>> 00000001 0.000ms (+0.000ms): page_address (file_read_actor)
+>>> 00000001 0.000ms (+0.549ms): __copy_to_user_ll (file_read_actor)
+>>> 00000001 0.550ms (+0.000ms): kunmap_atomic (file_read_actor)
+>>> 00000001 0.550ms (+0.000ms): sub_preempt_count (kunmap_atomic)
+>>> 00000001 0.550ms (+0.000ms): update_max_trace (check_preempt_timing)
+>>
+>>
+>>
+>> this is a full page copy, from userspace into a kernelspace pagecache
+>> page. This shouldnt take 500 usecs on any hardware. Since this is a
+>> single instruction (memcpy's rep; movsl instruction) there's nothing
+>> that Linux can do to avoid (or even to cause) such a situation.
 > 
 > 
-> What problems does it cause? 2.95.4 still seems to work fine for me.
-
-The RH7.3 remnant 2.96 seems to work for me on my expendable test box, 
-and I don't really have space for an upgrade. I haven't seen any 
-problems, other than old systems being dog slow. And gcc3 is even slower 
-it seems, although my machines running that have enough CPU to pretty 
-much overpower the bloat.
+> I saw this one (or one very similar) on a system that I just started 
+> testing on some today. Not quite as high (~219 usec if I remember 
+> correctly). I don't have access to the system from here. I will forward 
+> the trace tomorrow when I'm there tomorrow. However, I haven't seen this 
+> on my slower system running the same stress tests.  There are several 
+> possible points of interest:
 > 
-> I agree about killing anything but 4K stacks though - having the single
-> page is very compelling - not only can we allocate it easier, but we can
-> also use cache-hot pages from the hot list.
+> System I saw this on:
+> P4 2.4GHz or 3.0GHz
+> 2GB memory
+> 2.6.9-rc1-bk12-S0 built for SMP (even though hyperthreading is off 
+> currently)
 
-I have no problems with making 4k the default, but I'd really like the 
-option of going back to 8k when I see problems, just to eliminate that 
-as a possible cause of hangs or other instances of evil.
+Actual system info for above is 2.4GHz with 512 memory.
 
-Is everyone claiming that everything in the kernel is 4k safe now? Or is 
-"stable" total fiction? The 8k code doesn't take up that much space, it 
-is well tested, and if you make 4k the default most people will try it 
-with 4k anyway.
+> 
+> System I haven't seen this on:
+> PII 450
+> 256MB memory
+> 2.6.9-rc1-bk12-R6 built for UP
+> 
+> Sorry I don't have more complete data in front of me. I will send the 
+> concrete info tomorrow with the trace.
+> 
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+As promised here is the trace:
+
+http://www.cybsft.com/testresults/2.6.9-rc1-bk12-S0/trace2.txt
+
+I also have some other traces from this system that I have not seen 
+before on my slower system. For instance this one where we spend ~204 
+usec in __spin_lock_irqsave:
+
+http://www.cybsft.com/testresults/2.6.9-rc1-bk12-S0/trace1.txt
+
+Or this one where we spend ~203 usec in sched_clock. That just doesn't 
+seem possible.
+
+http://www.cybsft.com/testresults/2.6.9-rc1-bk12-S0/trace4.txt
+
+kr

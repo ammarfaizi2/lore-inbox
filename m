@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbUJZRH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbUJZRJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbUJZRH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 13:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUJZRH7
+	id S261352AbUJZRJG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 13:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUJZRIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:07:59 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:50139 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261351AbUJZRHs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:07:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=j09lUfUdFgMvkmkK7QTDrPa11lyWuV0brEWyCeyafyvmVQwsDzSwskxr2n47dWls7v9nRSub6QCPwBs0znD5N4BrKJXiKH6WsjCg12Pw8WlnrQ4SJfJfpl1EY2UQGmXHGTmrrT+2JYNopJDp5i3goOmkEeihYlnx05xRjMpFJd4=
-Message-ID: <58cb370e0410261007145fc22c@mail.gmail.com>
-Date: Tue, 26 Oct 2004 19:07:45 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Mathieu Segaud <matt@minas-morgul.org>
-Subject: Re: 2.6.9-mm1: LVM stopped working
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <58cb370e041026070067daa404@mail.gmail.com>
+	Tue, 26 Oct 2004 13:08:10 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:31112 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261352AbUJZRHv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 13:07:51 -0400
+Date: Tue, 26 Oct 2004 21:08:15 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: David Vrabel <dvrabel@arcom.com>, Linus Torvalds <torvalds@osdl.org>,
+       Len Brown <len.brown@intel.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Versioning of tree
+Message-ID: <20041026190815.GA8338@mars.ravnborg.org>
+Mail-Followup-To: David Vrabel <dvrabel@arcom.com>,
+	Linus Torvalds <torvalds@osdl.org>, Len Brown <len.brown@intel.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <1098254970.3223.6.camel@gaston> <1098256951.26595.4296.camel@d845pe> <Pine.LNX.4.58.0410200728040.2317@ppc970.osdl.org> <20041025234736.GF10638@michonline.com> <417E39AE.5020209@arcom.com> <20041026122632.GH10638@michonline.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <87oeitdogw.fsf@barad-dur.crans.org>
-	 <58cb370e041026070067daa404@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041026122632.GH10638@michonline.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004 16:00:47 +0200, Bartlomiej Zolnierkiewicz
-<bzolnier@gmail.com> wrote:
-> On Sun, 24 Oct 2004 01:06:07 +0200, Mathieu Segaud
-> <matt@minas-morgul.org> wrote:
-> >
-> > Well, I gave a try to last -mm tree. The bot seemed good till it got to
-> > LVM stuff. Vgchange does not find any volume groups. I can't say much because
-> > lvm is pretty "early stuff" on this box; so it is pretty unusable. All I know
-> > for now, as I changed a little my boot scripts to be more verbose, is that
-> > vgchange -avvv y returns this kind of message:
-> > hdXN: cannot read LABEL
-> > and this message for all parts it can test....
-> > As I need this box up and running, I came back to 2.6.9-rc3-mm3 (it works
-> > pretty well). I will be able to run more tests on it, tomorrow but for now
-> > that's all I can provide.
-> >
-> > Oh and dmesg didn't have any oops or BUG in it, and seemed quite usual,
-> > in IDE detection and settings messages and device-mapper messages.
-> >
-> > However, I use dm-crypt to encrypt my / (no initrd, just initramfs) and
-> > it works under 2.6.9-mm1, so the bug is likely to be in IDE stuff.
+On Tue, Oct 26, 2004 at 08:26:33AM -0400, Ryan Anderson wrote:
+> On Tue, Oct 26, 2004 at 12:49:02PM +0100, David Vrabel wrote:
+> > Ryan Anderson wrote:
+> > >
+> > >Well, here's a patch that adds -BKxxxxxxxx to LOCALVERSION when a
+> > >top-level BitKeeper tree is detected.
+> > >[...]
+> > > LOCALVERSION = $(subst $(space),, \
+> > > 	       $(shell cat /dev/null $(localversion-files)) \
+> > >+	       $(subst ",,$(localversion-bk)) \
+> > 
+> > Surely there's no need for this?  Can't the script spit out an 
+> > appropriate localversion* file instead?
 > 
-> prove it ;)
+> It can, and yes, my first version used that method.
+> 
+> Except it never worked.  I was able to generate the file before
+> include/linux/version.h was rebuilt, but failed to get it picked up in
+> that.  I'm not really sure why.
 
-To make this task easier I prepared 2.6.9-rc3-mm3 to 2.6.9-mm1 IDE patch:
+The $(wildcard ...) function was executed before you created the file.
+If we shall retreive the version from a SCM then as you already do
+must hide it in a script.
+I want the script only to be executed when we actually ask kbuild to
+build a kernel - so it has to be part of the prepare rule set.
+Furthermore I like to avoid a dependency on perl for a basic kernel.
 
-http://home.elka.pw.edu.pl/~bzolnier/ide-2.6.9-rc3-mm3-to-2.6.9-mm1.patch.bz2
+Can you retreive the version from bk using a simple shell script?
 
-Just revert it from 2.6.9-mm1.
-
-> There were only minor IDE changes from 2.6.9-rc3-mm3 to 2.6.9-mm1,
-> I don't see any obvious suspects...
+	Sam

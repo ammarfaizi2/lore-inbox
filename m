@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267543AbSLLXgf>; Thu, 12 Dec 2002 18:36:35 -0500
+	id <S264919AbSLLXoo>; Thu, 12 Dec 2002 18:44:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267544AbSLLXgf>; Thu, 12 Dec 2002 18:36:35 -0500
-Received: from elin.scali.no ([62.70.89.10]:22788 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S267543AbSLLXgf>;
-	Thu, 12 Dec 2002 18:36:35 -0500
-Date: Fri, 13 Dec 2002 00:44:17 +0100 (CET)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: Richard Henderson <rth@twiddle.net>
-cc: Matt Reppert <arashi@arashi.yi.org>, <trivial@rustcorp.com.au>,
-       <linux-kernel@vger.kernel.org>
+	id <S264939AbSLLXoo>; Thu, 12 Dec 2002 18:44:44 -0500
+Received: from are.twiddle.net ([64.81.246.98]:25985 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S264919AbSLLXoo>;
+	Thu, 12 Dec 2002 18:44:44 -0500
+Date: Thu, 12 Dec 2002 15:52:26 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Steffen Persvold <sp@scali.com>
+Cc: Matt Reppert <arashi@arashi.yi.org>, trivial@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] "extern inline" to "static inline" allows compile
-In-Reply-To: <20021212152448.A5688@twiddle.net>
-Message-ID: <Pine.LNX.4.44.0212130041040.1854-100000@sp-laptop.isdn.scali.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021212155226.A5744@twiddle.net>
+Mail-Followup-To: Steffen Persvold <sp@scali.com>,
+	Matt Reppert <arashi@arashi.yi.org>, trivial@rustcorp.com.au,
+	linux-kernel@vger.kernel.org
+References: <20021212152448.A5688@twiddle.net> <Pine.LNX.4.44.0212130041040.1854-100000@sp-laptop.isdn.scali.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0212130041040.1854-100000@sp-laptop.isdn.scali.no>; from sp@scali.com on Fri, Dec 13, 2002 at 12:44:17AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Dec 2002, Richard Henderson wrote:
+On Fri, Dec 13, 2002 at 12:44:17AM +0100, Steffen Persvold wrote:
+> Is there a reason for the 'extern inline', to me it seems more natural to 
+> have 'static inline' ?
 
-> On Thu, Dec 12, 2002 at 05:09:02PM -0600, Matt Reppert wrote:
-> > Comments?
-> 
-> Revert the asm/pci.h change instead.
-> 
+Yes.  Examine the entire __EXTERN_INLINE structure with
+core_foo.[ch].
 
-Is there a reason for the 'extern inline', to me it seems more natural to 
-have 'static inline' ?
 
-Regards,
--- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com |  http://www.scali.com
-Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
-
+r~

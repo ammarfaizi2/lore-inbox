@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261326AbSI0Ior>; Fri, 27 Sep 2002 04:44:47 -0400
+	id <S261649AbSI0JNR>; Fri, 27 Sep 2002 05:13:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261380AbSI0Ior>; Fri, 27 Sep 2002 04:44:47 -0400
-Received: from CPE-144-132-195-245.nsw.bigpond.net.au ([144.132.195.245]:23426
-	"EHLO anakin.wychk.org") by vger.kernel.org with ESMTP
-	id <S261326AbSI0Ioq>; Fri, 27 Sep 2002 04:44:46 -0400
-Date: Fri, 27 Sep 2002 18:13:59 +1000
-From: Geoffrey Lee <glee@gnupilgrims.org>
-To: marcelo@conectiva.com.br, torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] MODULE_LICENSE for i82092 pcmcia.
-Message-ID: <20020927081359.GA19526@anakin.wychk.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="M9NhX3UHpAaciwkO"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261651AbSI0JNR>; Fri, 27 Sep 2002 05:13:17 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:49126 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261649AbSI0JNQ>;
+	Fri, 27 Sep 2002 05:13:16 -0400
+Date: Fri, 27 Sep 2002 11:27:05 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Martin Wirth <Martin.Wirth@dlr.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
+In-Reply-To: <3D941150.8060409@dlr.de>
+Message-ID: <Pine.LNX.4.44.0209271124440.4538-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=big5
-Content-Disposition: inline
+On Fri, 27 Sep 2002, Martin Wirth wrote:
 
-Yo,
+> Maybe you can resurrect your approach by using a sticky counter instead
+> of a flag. If there are really that many unused fields in struct page
+> for the case considered here this should be possible.
 
+well obviously it can be solved by putting more stuff into struct page,
+but this whole exercise centers around trying to avoid that.
 
-It appears that during the MODULE_LICENSE merge for pcmcia i82092 was
-missed.
+> But another point: what happens if get_user_pages (and the
+> sticky-setting) is called after the fork completed? If there was no
+> write access to the page between the fork and the futex call you may get
+> the same race.
 
-Here is a trivial patch to correct this.
+this is not a problem, the patch solves this, by using the 'writable' flag
+to get_user_page(), which un-COWs any potential COW page.
 
+	Ingo
 
-	-- G.
-
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=big5
-Content-Disposition: attachment; filename="i82092.c.patch"
-
---- linux-2.4.20/drivers/pcmcia/i82092.c	Wed Sep  4 16:49:36 2002
-+++ linux-2.4.20/drivers/pcmcia/i82092.c.new	Fri Sep 27 13:21:45 2002
-@@ -25,6 +25,8 @@
- #include "i82092aa.h"
- #include "i82365.h"
- 
-+MODULE_LICENSE("GPL");
-+
- /* PCI core routines */
- static struct pci_device_id i82092aa_pci_ids[] = {
- 	{
-
---M9NhX3UHpAaciwkO--

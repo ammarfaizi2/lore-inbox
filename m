@@ -1,112 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316594AbSG2M3c>; Mon, 29 Jul 2002 08:29:32 -0400
+	id <S316709AbSG2Mdt>; Mon, 29 Jul 2002 08:33:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316595AbSG2M3c>; Mon, 29 Jul 2002 08:29:32 -0400
-Received: from fw.2d3d.co.za ([66.8.28.230]:6277 "HELO mail.2d3d.co.za")
-	by vger.kernel.org with SMTP id <S316594AbSG2M3a>;
-	Mon, 29 Jul 2002 08:29:30 -0400
-Date: Mon, 29 Jul 2002 14:36:42 +0200
-From: Abraham vd Merwe <abraham@2d3d.co.za>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: question about incrementing stats counters in network drivers
-Message-ID: <20020729143642.A7130@crystal.2d3d.co.za>
-Mail-Followup-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+	id <S316884AbSG2Mds>; Mon, 29 Jul 2002 08:33:48 -0400
+Received: from gzp11.gzp.hu ([212.40.96.53]:42253 "EHLO gzp11.gzp.hu")
+	by vger.kernel.org with ESMTP id <S316709AbSG2Mdq>;
+	Mon, 29 Jul 2002 08:33:46 -0400
+Date: Mon, 29 Jul 2002 14:37:06 +0200
+From: "Gabor Z. Papp" <gzp@myhost.mynet>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.19-rc3-ac3 and ext3 problems
+Message-ID: <20020729123706.GC463@gzp2.gzp.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: 2d3D, Inc.
-X-Operating-System: Debian GNU/Linux crystal 2.4.17-pre4 i686
-X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
-X-Uptime: 2:29pm  up 10:27,  6 users,  load average: 0.05, 0.07, 0.06
-X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
+Organization: gzp.hu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Extreme usage of a IC35L060AVVA07-0 ATA DISK drive,
+120103200 sectors (61493 MB) w/1863KiB Cache, CHS=119150/16/63, UDMA(100)
+on a PDC20268: (U)DMA Burst Bit ENABLED Primary MASTER Mode
+Secondary MASTER Mode controller ends up with:
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #4325599: directory entry across blocks - offset=0, inode=4082854266, rec_len=55184, name_len=162
+Aborting journal on device ide2(33,1).
+Remounting filesystem read-only
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #4391169: rec_len % 4 != 0 - offset=0, inode=2583923720, rec_len=30815, name_len=118
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #5914810: rec_len % 4 != 0 - offset=0, inode=3706019706, rec_len=39806, name_len=198
+EXT3-fs error (device ide2(33,1)) in start_transaction: Journal has aborted
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #6553840: directory entry across blocks - offset=0, inode=501681528, rec_len=34100, name_len=165
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #6537472: rec_len % 4 != 0 - offset=0, inode=3987959021, rec_len=25889, name_len=144
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #4325597: rec_len % 4 != 0 - offset=0, inode=2071797251, rec_len=48853, name_len=133
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #5701833: inode out of bounds - offset=0, inode=11406299, rec_len=3036, name_len=174
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #4391167: rec_len % 4 != 0 - offset=0, inode=2583923720, rec_len=30815, name_len=118
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #6324474: rec_len % 4 != 0 - offset=0, inode=1687223295, rec_len=207, name_len=3
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #6553838: directory entry across blocks - offset=0, inode=3580267195, rec_len=59804, name_len=52
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #4620448: rec_len % 4 != 0 - offset=0, inode=1646798880, rec_len=26229, name_len=102
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #4767991: rec_len is smaller than minimal - offset=0, inode=3963995904, rec_len=0, name_len=0
+EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #4767992: rec_len % 4 != 0 - offset=0, inode=39302671, rec_len=35666, name_len=69
 
-Hi!
-
-If an error occur that falls into the "detailed errors" category, e.g. a
-fifo overrun, are we supposed to increment both the total error count and
-the detailed error count or just the detailed error count?
-
-=46rom isa-skeleton.c it seems that I'm supposed to increment both, but the=
-n I
-spotted things like this in there as well:
-
-------------< snip <------< snip <------< snip <------------
-        } else {
-            /* Malloc up new buffer. */
-            struct sk_buff *skb;
-
-            lp->stats.rx_bytes+=3Dpkt_len;
-
-            skb =3D dev_alloc_skb(pkt_len);
-            if (skb =3D=3D NULL) {
-                printk(KERN_NOTICE "%s: Memory squeeze, dropping packet.\n",
-                       dev->name);
-                lp->stats.rx_dropped++;
-                break;
-            }
-            skb->dev =3D dev;
-
-            /* 'skb->data' points to the start of sk_buff data area. */
-            memcpy(skb_put(skb,pkt_len), (void*)dev->rmem_start,
-                   pkt_len);
-            /* or */
-            insw(ioaddr, skb->data, (pkt_len + 1) >> 1);
-
-            netif_rx(skb);
-            dev->last_rx =3D jiffies;
-            lp->stats.rx_packets++;
-            lp->stats.rx_bytes +=3D pkt_len;
-        }
-------------< snip <------< snip <------< snip <------------
-
-Notice that rx_bytes gets incremented twice.
-
-Also it doesn't make sense to increment both since the total count can be
-derived from rx_errors+other rx errors or tx_errors+other tx errors, so I'm
-not sure what to do.
-
---=20
-
-Regards
- Abraham
-
-QOTD:
-	I love your outfit, does it come in your size?
-
-__________________________________________________________
- Abraham vd Merwe - 2d3D, Inc.
-
- Device Driver Development, Outsourcing, Embedded Systems
-
-  Cell: +27 82 565 4451         Snailmail:
-   Tel: +27 21 761 7549            Block C, Aintree Park
-   Fax: +27 21 761 7648            Doncaster Road
- Email: abraham@2d3d.co.za         Kenilworth, 7700
-  Http: http://www.2d3d.com        South Africa
-
-
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9RTbazNXhP0RCUqMRAugNAJ45JKTq0432LhbjVhPggnInVNFDMwCfZwVR
-HBpTMln5PzBlYTwbZETN4e0=
-=MrvC
------END PGP SIGNATURE-----
-
---T4sUOijqQbZv57TR--
+Same heavy usage (untargzipping several tarballs in total
+size of over 2GB) on 2.4.18 show up no error.

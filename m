@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275093AbTHLHqE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 03:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275094AbTHLHqE
+	id S275096AbTHLI3T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 04:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275103AbTHLI3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 03:46:04 -0400
-Received: from deepthought.resolution.de ([195.30.142.42]:63199 "EHLO
-	deepthought.resolution.de") by vger.kernel.org with ESMTP
-	id S275093AbTHLHqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 03:46:01 -0400
-Message-ID: <1060674355.3f389b33101b0@corporate.resolution.de>
-Date: Tue, 12 Aug 2003 09:45:55 +0200
-From: Christian Reichert <c.reichert@resolution.de>
-To: nagendra_tomar@adaptec.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: modprobe: QM_MODULES: Function not implemented ??
-References: <Pine.LNX.4.44.0308112338150.1464-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0308112338150.1464-100000@localhost.localdomain>
+	Tue, 12 Aug 2003 04:29:19 -0400
+Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:13978 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id S275096AbTHLI3S convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 04:29:18 -0400
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Chris Mason <mason@suse.com>, Grant Miner <mine0057@mrs.umn.edu>,
+       Jamie Lokier <jamie@shareable.org>
+Subject: Re: Filesystem Tests
+Date: Tue, 12 Aug 2003 10:27:28 +0200
+User-Agent: KMail/1.5.3
+Cc: Szakacsits Szabolcs <szaka@sienet.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+References: <20030809093337.GA28566@mail.jlokier.co.uk> <20030809161930.GA29647@mail.jlokier.co.uk> <3F36B331.9020200@mrs.umn.edu>
+In-Reply-To: <3F36B331.9020200@mrs.umn.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 192.107.26.131
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200308121027.28026.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-Search the archives, this has been explained too often ...
-
-Cheers,
-   Chris
-
-
-Zitat von Nagendra Singh Tomar <nagendra_tomar@adaptec.com>:
-
-> I am trying to load a module in 2.6.0-test2 downloaded from kernel.org
-> I am getting the above error. Probably this means the kernel does not 
-> support query_module() interface, but why ?? With 2.4.18 things were 
-> absolutely fine. Is it a deprecated interface. 
-> Any help is welcome.
-> 
-> Thanx
-> tomar
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Am Sonntag, 10. August 2003 23:03 schrieb Grant Miner:
+> Thanks everybody for suggestions.  I ran again, new benchmark code,
+> 2.6.0-pre3, all times in seconds now.
+>
+> http://epoxy.mrs.umn.edu/~minerg/fstests/results.html
+>
+> If you want bechmark code it is at
+> http://epoxy.mrs.umn.edu/~minerg/fstests/
 
 
+Chris,
+
+do you have ReiserFS 3.x data-logging Patches ready for 2.6?
+On 2.4.xx (2.4.22-rc at least) ReiserFS 3.x seems to be fastest.
+
+Regards,
+	Dieter
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
 

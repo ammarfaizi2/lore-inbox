@@ -1,61 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277820AbRJIQfC>; Tue, 9 Oct 2001 12:35:02 -0400
+	id <S277821AbRJIQsZ>; Tue, 9 Oct 2001 12:48:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277822AbRJIQew>; Tue, 9 Oct 2001 12:34:52 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:64196 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S277820AbRJIQel>;
-	Tue, 9 Oct 2001 12:34:41 -0400
-Date: Tue, 9 Oct 2001 09:35:10 -0700
-To: "Randy.Dunlap" <rddunlap@osdlab.org>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Wireless Extension update
-Message-ID: <20011009093510.C16176@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20011008191247.B6816@bougret.hpl.hp.com> <3BC3243A.D3B48880@osdlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BC3243A.D3B48880@osdlab.org>; from rddunlap@osdlab.org on Tue, Oct 09, 2001 at 09:22:18AM -0700
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S277822AbRJIQsP>; Tue, 9 Oct 2001 12:48:15 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:6546 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S277821AbRJIQsI>; Tue, 9 Oct 2001 12:48:08 -0400
+Date: Tue, 9 Oct 2001 10:48:31 -0600
+Message-Id: <200110091648.f99GmVS29516@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] devfs v194 available
+In-Reply-To: <Pine.GSO.4.21.0110091206100.15875-100000@weyl.math.psu.edu>
+In-Reply-To: <200110091603.f99G32o28831@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0110091206100.15875-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 09:22:18AM -0700, Randy.Dunlap wrote:
-> Jean Tourrilhes wrote:
+Alexander Viro writes:
+> On Tue, 9 Oct 2001, Richard Gooch wrote:
+> 
+> > Alexander Viro writes:
+> > > ... doesn't fix _under_run in try_modload() (see what happens if
+> > > namelen is 255 and parent is devfs root)
 > > 
-> >         Hi,
+> > What underrun?
+> > How can this be a problem? Before I use pos, I have the following
+> > check:
+> >     if (namelen >= STRING_LENGTH) return -ENAMETOOLONG;
+> > 
+> > so the maximum value that namelen can be is STRING_LENGTH-1. Thus we
+> > have:
+> >     pos = STRING_LENGTH - (STRING_LENGTH - 1) - 1;
+> > ->  pos = 0;
 > 
-> Hi-
-> 
-> > - * Version :   11      28.3.01
-> > + * Version :   12      5.10.01
-> 
-> nitpicking, i'm sure, but:
-> 
-> 5.10.01 could have several meanings, usually depending
-> on geographic location etc., and there is an ISO
-> standard (8601) which says:
-> 
->   The international standard date notation is 
->   YYYY-MM-DD
-> 
-> I'd prefer not to be confused by the '>' quoted notation
-> above, although I don't mind the dots instead of hyphens.
-> 
-> ~Randy
+> Certainly.  And
+>      buf[STRING_LENGTH - namelen - 2] = '/';
+> assigns '/' to
+> 	buf [ STRING_LENGTH - (STRING_LENGTH-1) - 2 ]
+> i.e.
+> 	buf[-1]
 
-	If it was visible to the user or other part of the kernel, I
-would worry. Consider this string as a random arbitrary string (an
-opaque data type) that has meaning only to the original developer.
-	On the other hand, the version (12) is what matters...
-	C'est la vie, ne se prenons pas trop au serieux... Ho meglio
-da fare che di cambiare questa data...
+Bugger. Didn't look further down. Ah, well. Incomplete bug report :-)
 
-	Ciao...
+> > Ah, shit. I just checked the rwsem implementation. It seems that once
+> > we do a down_write() (even if that blocks because someone else has a
+> > down_read() already), subsequent down_read() calls will block until
+> > the writer is granted access and then does up_write(). Damn. It would
+> > have been good for this to be documented somewhere. Those are the
+> > kinds of traps that should be mentioned in the header file.
+> >
+> > OK: is there a variant of rwsem which is "unfair" (i.e. readers can
+> > starve writers indefinately)?
+> 
+> 	IMO it's a wrong approach.  Notice that all these problems
+> have common reason - you are reusing entries.  There's absolutely no
+> need to do that.  Separate the logics for "search" and "create", so
+> that devfs_register() would fail if entry already exists.  Detach it
+> from the tree upon unregister().  And add a simple reference counter
+> to the damn thing.  Set it to 1 when entry is created. Bump it when
+> you use it up/drop when you stop.  And drop it when you detach from
+> the tree.  End of story.  Symlink contents is freed along with the
+> entry when refcount hits zero.  No semaphores, no new locking
+> primitives, no wheels to reinvent.
 
-	Jean
+This is exactly what I've done in my big re-write.
+
+> 	Now, given the unholy mess in your search_...() functions I
+> don't envy you - cleaning them up _will_ hurt.
+
+Yes, it *is* hurting :-( Those mutually recursive functions are the
+last bits left to convert/burn-at-the-stake in my re-write. They're
+the last bits precisely because they're the most ugly.
+
+> Ditto for auditing the code for places that would retain a reference
+> to unregistered entries.  But as far as I can see that's the only
+> realistic way to handle these problems.
+
+Yep. My new code is looking *much* cleaner.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,70 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267649AbUHMWz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267653AbUHMW5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267649AbUHMWz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 18:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267653AbUHMWz2
+	id S267653AbUHMW5n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 18:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267654AbUHMW5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 18:55:28 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:43241 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267649AbUHMWzQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 18:55:16 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix sn_console for CONFIG_SMP=n
-Date: Fri, 13 Aug 2004 15:54:57 -0700
-User-Agent: KMail/1.6.2
-Cc: Pat Gefre <pfg@sgi.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_BbUHBmQRq1G424X"
-Message-Id: <200408131554.57139.jbarnes@engr.sgi.com>
+	Fri, 13 Aug 2004 18:57:42 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:47578 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267653AbUHMW4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 18:56:44 -0400
+Subject: Re: x86 - Realmode BIOS and Code calling module
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jakub Vana <gugux@centrum.cz>
+Cc: vojtech@suse.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040813143618Z2102821-29041+51849@mail.centrum.cz>
+References: <20040813143618Z2102821-29041+51849@mail.centrum.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092434063.24989.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 13 Aug 2004 22:54:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Gwe, 2004-08-13 at 15:36, Jakub Vana wrote:
+> But when running in LRMI there are same problems, aren't ?
 
---Boundary-00=_BbUHBmQRq1G424X
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+vm86 mode running in user space faults I/O port accesses if you wish so
+you can decode them and re-run them through the kernel PCI layer as for
+example Xorg does.
 
-I found that sn_console was missing an include and a fix if CONFIG_SMP=n.  
-This patch fixes up the two small problems I found.
+Alan
 
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
-
-Jesse
-
---Boundary-00=_BbUHBmQRq1G424X
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="sn-console-no-smp-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="sn-console-no-smp-fix.patch"
-
-diff -Nru a/drivers/serial/sn_console.c b/drivers/serial/sn_console.c
---- a/drivers/serial/sn_console.c	2004-08-13 15:50:37 -07:00
-+++ b/drivers/serial/sn_console.c	2004-08-13 15:50:37 -07:00
-@@ -50,6 +50,7 @@
- #include <linux/miscdevice.h>
- #include <linux/serial_core.h>
- 
-+#include <asm/io.h>
- #include <asm/sn/simulator.h>
- #include <asm/sn/sn2/sn_private.h>
- #include <asm/sn/sn_sal.h>
-@@ -1085,7 +1086,9 @@
- 			spin_unlock_irqrestore(&port->sc_port.lock, flags);
- 
- 			puts_raw_fixed(port->sc_ops->sal_puts_raw, s, count);
-+#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
- 		}
-+#endif
- 	}
- 	else {
- 		/* Not yet registered with serial core - simple case */
-
---Boundary-00=_BbUHBmQRq1G424X--

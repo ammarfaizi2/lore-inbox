@@ -1,100 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293478AbSCASWC>; Fri, 1 Mar 2002 13:22:02 -0500
+	id <S293500AbSCAS0M>; Fri, 1 Mar 2002 13:26:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293479AbSCASVy>; Fri, 1 Mar 2002 13:21:54 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:5139 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S293478AbSCASVt>; Fri, 1 Mar 2002 13:21:49 -0500
-Date: Fri, 1 Mar 2002 19:21:45 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] enable uptime display > 497 days on 32 bit (1/2)
-In-Reply-To: <20020301105753.O22608@lynx.adilger.int>
-Message-ID: <Pine.LNX.4.33.0203011903110.9974-100000@gans.physik3.uni-rostock.de>
+	id <S293493AbSCAS0C>; Fri, 1 Mar 2002 13:26:02 -0500
+Received: from [216.66.12.254] ([216.66.12.254]:31934 "HELO
+	ep1.elevenprospect.com") by vger.kernel.org with SMTP
+	id <S293487AbSCASZq>; Fri, 1 Mar 2002 13:25:46 -0500
+Message-ID: <3C7FC7A7.1030405@xblox.net>
+Date: Fri, 01 Mar 2002 18:25:43 +0000
+From: Matthew Allum <mallum@xblox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020205
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multiple kernels OOPS at boot on Fujitsu pt510 ( AMD DX100 CPU ) - ksymoops output attached
+In-Reply-To: <E16gqxM-0004LV-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Mar 2002, Andreas Dilger wrote:
+Its booting !!!!
 
-> On Mar 01, 2002  03:55 +0100, Tim Schmielau wrote:
-[...]
-> > As no other comments turned up, this will go to Marcelo RSN.
-> > (wondered why noone vetoed this as overkill...)
-> 
-> Minor nit - the indenting of #ifdefs is not really used in the kernel.
-> 
-> > +u64 get_jiffies64(void)
-> > +{
-> > +	unsigned long jiffies_tmp, jiffies_hi_tmp;
-> > +
-> > +	spin_lock(&jiffies64_lock);
-> > +	jiffies_tmp = jiffies;   /* avoid races */
-> > +	jiffies_hi_tmp = jiffies_hi;
-> > +	if (unlikely(jiffies_tmp < jiffies_last))   /* We have a wrap */
-> > +		jiffies_hi++;
-> > +	jiffies_last = jiffies_tmp;
-> > +	spin_unlock(&jiffies64_lock);
-> > +
-> > +	return (jiffies_tmp | ((u64)jiffies_hi_tmp) << BITS_PER_LONG);
-> > +}
-> 
-> If jiffies_hi is incremented, then jiffies_hi_tmp will be wrong on return.
+I tried to build a 2.4.1kernel, but it had problems with my newer ld so 
+I tried again with a 2.4.17 following Alans instructions.
 
-Thanks!
-I thought I had corrected this but somehow must have posted a previous
-version. I will probably soon be known as a sloppy coder :-(
+I passed mem=6 and it booted. I then expeimented upping this value and 
+it still boots when I pass mem=32m ( the actual amount of ram in the 
+machine ). So I guess it was just a problem of the box lieing about its 
+memory.
 
-> note:----------------------------------------------------------------------^
-> 
-> Since check_jiffieswrap() and get_jiffies64() are substantially the same,
-> you may want to define a function _inc_jiffies64() which does:
-> 
-> +#ifdef NEEDS_JIFFIES64
-> +/* jiffies_hi and jiffies_last are protected by jiffies64_lock */
-> +static unsigned long jiffies_hi, jiffies_last;
-> +static spinlock_t jiffies64_lock = SPIN_LOCK_UNLOCKED;
-> +#endif
-> 
-> static inline void _inc_jiffies64(unsigned long jiffies_tmp)
-> {
-> 	jiffies_tmp = jiffies;   /* avoid races */
-> 	if (jiffies_tmp < jiffies_last)   /* We have a wrap */
-> 		jiffies_hi++;
-> 	jiffies_last = jiffies_tmp;
-> }
+Many thanks for all you help, its really appreciated.
 
-Shouldn't this be 
+  -- Matthew Allum
 
-static inline void _inc_jiffies64(unsigned long *jiffies_tmp)
-{
-	*jiffies_tmp = jiffies;   /* avoid races */
-	if (*jiffies_tmp < jiffies_last)   /* We have a wrap */
-		jiffies_hi++;
-	jiffies_last = *jiffies_tmp;
-}
+Alan Cox wrote:
 
-?
-So that we'd then need
+>>Id really appreciate some help on this matter. Theres plenty of these 
+>>510's on ebay at the moment going very cheapy ( 100$) and they'd make 
+>>nice wireless 'web pads'.
+>>
+>
+>I have a somewhat older beast (Fujitsu Stylistic 1000) which is somewhat
+>older and a little lower spec that I've been playing with a fair bit getting
+>Xfce + scribble etc running on with no problem.
+>
+>Generally when you get a crash very early you want to check
+>	-CPU type the kernel was built with - your oops isnt an illegal
+>	 instruction so thats not it
+>	-Disabling APM support
+>	-Disabling PnpBIOS support (-ac tree only)
+>	-Using mem=fooM where foo is a bit under what is fitted in case
+>	 the box lies about memory availability
+>
+>That generally gets successes. You might also want to do a test boot 
+>with mem=6M in case the machine has something funky like a 15-16Mb Vesa
+>local bus magic hole in the address map.
+>
+>Definitely looks a fun toy
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-static u64 get_jiffies64(void)
-{
-	unsigned long jiffies_tmp, jiffies_hi_tmp;
 
-	spin_lock(&jiffies64_lock);
-	_inc_jiffies64(&jiffies_tmp);
-	jiffies_hi_tmp = jiffies_hi;
-	spin_unlock(&jiffies64_lock);
-
-	return (jiffies_tmp | ((u64)jiffies_hi_tmp) << BITS_PER_LONG);
-}
-...
-
-And I'm still thinking of a better name that _inc_jiffies64(), since
-we most of the time don't increment anything.
-
-Tim
 

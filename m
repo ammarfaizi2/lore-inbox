@@ -1,247 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbTIQVMS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 17:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbTIQVMS
+	id S262756AbTIQVEk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 17:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbTIQVEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 17:12:18 -0400
-Received: from ns.suse.de ([195.135.220.2]:57034 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262762AbTIQVMC (ORCPT
+	Wed, 17 Sep 2003 17:04:40 -0400
+Received: from proxy.ovh.net ([213.244.20.42]:8978 "EHLO proxy.ovh.net")
+	by vger.kernel.org with ESMTP id S262779AbTIQVEg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 17:12:02 -0400
-Date: Wed, 17 Sep 2003 23:12:00 +0200
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Nick Piggin <piggin@cyberone.com.au>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       richard.brunner@amd.com
-Subject: Re: [PATCH] Athlon/Opteron Prefetch Fix for 2.6.0test5 + numbers
-Message-ID: <20030917211200.GA5997@wotan.suse.de>
-References: <20030917202100.GC4723@wotan.suse.de> <Pine.LNX.4.44.0309171332200.2523-100000@laptop.osdl.org>
+	Wed, 17 Sep 2003 17:04:36 -0400
+Date: Wed, 17 Sep 2003 23:05:45 +0200
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test5 oops at boot
+Message-ID: <20030917210545.GS1758@ovh.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309171332200.2523-100000@laptop.osdl.org>
+User-Agent: Mutt/1.5.4i
+From: bert@ovh.net (bertrand)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 17, 2003 at 01:50:59PM -0700, Linus Torvalds wrote:
-> 
-> On Wed, 17 Sep 2003, Andi Kleen wrote:
-> > 
-> > Also when the fault address is equal EIP we don't check.
-> 
-> And this is a good example of something that can break.
+Hello all,
 
-> 
-> The fault address is a linear address after segment translation. The EIP 
-> is _before_ segment translation.
+I tried several times to boot a 2.6 on my athlon .
+The 2.5 series looked to be fined, but i cannot boot the 2.6 one .
 
-It doesn't matter. The EIP check only catches kernel crashes, for 
-user mode it is not relevant because the earlier checks catch this.
+First, i tried a full kernel (all my options), but it froze after the
+line :
+>> mice: PS/2 mouse device common for all mice
 
-Even in kernel mode it is not critical, just gives a nicer 
-oops when you do call *0
+Today, i'm trying an 2.6.0-test5 with less options and I caught an oops .
 
-I added a check for LDT entries now. This means prefetch exceptions
-inside non standard code segments will be not handled (I will fix
-that in a follow up patch)
+In attached files, you will find the kernel config and the output of the
+boot.
 
-> You don't translate the EIP with the CS base.
-> 
-> Which means that the two can match even if they have nothing to do with 
-> each other. It will happen in vm86 mode and in things like wine. So that 
-> check is broken.
-> 
-> Also, for the same reason, you won't fix up prefetches in wine.
+If this can help .
 
-Hmm. I didn't think wine normally used non zero segment bases.
+    Bert.
 
-But you're right. When the segment is in a LDT it should add in the base.
+---------------------------------
+Call Trace:
+ [<c015e835>] kobject_get+0x35/0x3c
+ [<c0184f24>] class_get+0x18/0x30
+ [<c01851dc>] class_device_add+0x44/0x118
+ [<c018e5f4>] scsi_add_host+0x80/0xec
+ [<c01a8aaf>] ahc_linux_register_host+0x1f7/0x258
+ [<c0158bf2>] sysfs_add_file+0x72/0x7c
+ [<c0163962>] pci_populate_driver_dir+0x1e/0x24
+ [<c0163a0e>] pci_register_driver+0x5e/0x70
+ [<c01a7b9b>] ahc_linux_detect+0x37/0x60
+ [<c023b4da>] ahc_linux_init+0xa/0x18
+ [<c023262c>] do_initcalls+0x28/0x88
+ [<c0105047>] init+0x23/0x160
+ [<c0105024>] init+0x0/0x160
+ [<c0106d65>] kernel_thread_helper+0x5/0xc
+Unable to handle kernel NULL pointer dereference at virtual address
+00000008
+c0158d12
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c0158d12>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: 00000000   ebx: dfe76b38   ecx: dfe845f0   edx: dfe76b54
+esi: 00000000   edi: c0213e60   ebp: dfe76b30   esp: dff99ec0
+ds: 007b   es: 007b   ss: 0068
+Stack: dfe76b38 00000000 c0158dbc dfe76b38 00000000 dfe76b3c 00000000
+dfe76b38
+       c015e28c dfe76b38 dfe76b38 c0213e74 c015e5fd dfe76b38 dfe76b38
+dfe76b30
+       c0185203 dfe76b38 00000000 dfe76aa0 00000000 dfe76a00 dfe76aa0
+dfe76b30
+Call Trace:
+ [<c0158dbc>] sysfs_create_dir+0x24/0x5c
+ [<c015e28c>] create_dir+0x14/0x38
+ [<c015e5fd>] kobject_add+0x3d/0xe4
+ [<c0185203>] class_device_add+0x6b/0x118
+ [<c018e5f4>] scsi_add_host+0x80/0xec
+ [<c01a8aaf>] ahc_linux_register_host+0x1f7/0x258
+ [<c0158bf2>] sysfs_add_file+0x72/0x7c
+ [<c0163962>] pci_populate_driver_dir+0x1e/0x24
+ [<c0163a0e>] pci_register_driver+0x5e/0x70
+ [<c01a7b9b>] ahc_linux_detect+0x37/0x60
+ [<c023b4da>] ahc_linux_init+0xa/0x18
+ [<c023262c>] do_initcalls+0x28/0x88
+ [<c0105047>] init+0x23/0x160
+ [<c0105024>] init+0x0/0x160
+ [<c0106d65>] kernel_thread_helper+0x5/0xc
+Code: 8b 46 08 8d 48 68 ff 48 68 0f 88 56 02 00 00 ff 74 24 14 56
 
-I don't think it's a big problem because it could only hit
-in 16bit Wine and I doubt those programs use prefetch. But arguably
-it should be handled, agreed.
-
-But could you still consider merging the patch, I will fix it then in
-a follow up patch? It seems like a quite obscure issue.
-
-> Also, you do things like comparing pointers for less/greater than, and at
-> least some versions of gcc has done that wrong - using signed comparisons.  
-
-Really? Is that any version we still support (2.95+) ?
-It is certainly legal ISO-C. I changed it for now.
-
-> In short, this is harder than you seem to think. And right now you _do_ do 
-> the wrong things for Wine, and I think that not only should that be fixed, 
-> it should be made athlon-specific so that any other potential bugs won't 
-> impact people that it shouldn't impact.
-
-Ok, here is a new patch which also includes an Athlon/Opteron check
-and doesn't do pointer comparisons and ignores CS in LDT for now.
-
-Please consider applying.
-
--Andi
 
 
---- linux-2.6.0test5-work/arch/i386/mm/fault.c-o	2003-05-27 03:00:20.000000000 +0200
-+++ linux-2.6.0test5-work/arch/i386/mm/fault.c	2003-09-17 23:07:03.000000000 +0200
-@@ -55,6 +55,85 @@
- 	console_loglevel = loglevel_save;
- }
- 
-+/* Sometimes AMD K7/K8 reports invalid exceptions on prefetch.
-+   Check that here and ignore.
-+   Opcode checker based on code by Richard Brunner */
-+static int __is_prefetch(struct pt_regs *regs, unsigned long addr)
-+{ 
-+	unsigned char *instr = (unsigned char *)(regs->eip);
-+	int scan_more;
-+	int prefetch = 0; 
-+	int c;
-+
-+	/* Avoid recursive faults. This is just an optimization,
-+	   they must be handled correctly too */
-+	if (regs->eip == addr)
-+		return 0; 
-+
-+	/* Don't check for LDT code segments because they could have
-+	   non zero bases. Better would be to add in the base in this case. */
-+	if (regs->xcs & (1<<2))
-+		return 0;
-+
-+	scan_more = 1;
-+	for (c = 0; c < 15 && scan_more; c++) { 
-+		unsigned char opcode;
-+		unsigned char instr_hi;
-+		unsigned char instr_lo;
-+
-+		if (__get_user(opcode, instr))
-+			break; 
-+
-+		instr_hi = opcode & 0xf0; 
-+		instr_lo = opcode & 0x0f; 
-+		instr++;
-+
-+		switch (instr_hi) { 
-+		case 0x20:
-+		case 0x30:
-+			/* Values 0x26,0x2E,0x36,0x3E are valid x86
-+			   prefixes.  In long mode, the CPU will signal
-+			   invalid opcode if some of these prefixes are
-+			   present so we will never get here anyway */
-+			scan_more = ((instr_lo & 7) == 0x6);
-+			break;
-+			
-+		case 0x40:
-+			/* May be valid in long mode (REX prefixes) */
-+			break; 
-+			
-+		case 0x60:
-+			/* 0x64 thru 0x67 are valid prefixes in all modes. */
-+			scan_more = (instr_lo & 0xC) == 0x4;
-+			break;		
-+		case 0xF0:
-+			/* 0xF0, 0xF2, and 0xF3 are valid prefixes in all modes. */
-+			scan_more = !instr_lo || (instr_lo>>1) == 1;
-+			break;			
-+		case 0x00:
-+			/* Prefetch instruction is 0x0F0D or 0x0F18 */
-+			scan_more = 0;
-+			if (__get_user(opcode, instr)) 
-+				break;
-+			prefetch = (instr_lo == 0xF) &&
-+				(opcode == 0x0D || opcode == 0x18);
-+			break;			
-+		default:
-+			scan_more = 0;
-+			break;
-+		} 
-+	}
-+	return prefetch;
-+}
-+
-+static inline int is_prefetch(struct pt_regs *regs, unsigned long addr)
-+{
-+	if (likely(boot_cpu_data.x86_vendor != X86_VENDOR_AMD || 
-+		   boot_cpu_data.x86 < 6))
-+		return 0; 
-+	return __is_prefetch(regs, addr);
-+}
-+
- asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
- 
- /*
-@@ -110,7 +189,7 @@
- 	 * atomic region then we must not take the fault..
- 	 */
- 	if (in_atomic() || !mm)
--		goto no_context;
-+		goto bad_area_nosemaphore;
- 
- 	down_read(&mm->mmap_sem);
- 
-@@ -198,8 +277,12 @@
- bad_area:
- 	up_read(&mm->mmap_sem);
- 
-+bad_area_nosemaphore:
- 	/* User mode accesses just cause a SIGSEGV */
- 	if (error_code & 4) {
-+		if (is_prefetch(regs, address))
-+			return;
-+
- 		tsk->thread.cr2 = address;
- 		tsk->thread.error_code = error_code;
- 		tsk->thread.trap_no = 14;
-@@ -232,6 +315,9 @@
- 	if (fixup_exception(regs))
- 		return;
- 
-+ 	if (is_prefetch(regs, address))
-+ 		return;
-+
- /*
-  * Oops. The kernel tried to access some bad page. We'll have to
-  * terminate things with extreme prejudice.
-@@ -286,10 +372,13 @@
- do_sigbus:
- 	up_read(&mm->mmap_sem);
- 
--	/*
--	 * Send a sigbus, regardless of whether we were in kernel
--	 * or user mode.
--	 */
-+	/* Kernel mode? Handle exceptions or die */
-+	if (!(error_code & 4))
-+		goto no_context;
-+
-+	if (is_prefetch(regs, address))
-+		return;
-+
- 	tsk->thread.cr2 = address;
- 	tsk->thread.error_code = error_code;
- 	tsk->thread.trap_no = 14;
-@@ -298,10 +387,6 @@
- 	info.si_code = BUS_ADRERR;
- 	info.si_addr = (void *)address;
- 	force_sig_info(SIGBUS, &info, tsk);
--
--	/* Kernel mode? Handle exceptions or die */
--	if (!(error_code & 4))
--		goto no_context;
- 	return;
- 
- vmalloc_fault:
---- linux-2.6.0test5-work/include/asm-i386/processor.h-o	2003-09-09 20:55:46.000000000 +0200
-+++ linux-2.6.0test5-work/include/asm-i386/processor.h	2003-09-11 03:22:16.000000000 +0200
-@@ -578,8 +578,6 @@
- #define ARCH_HAS_PREFETCH
- extern inline void prefetch(const void *x)
- {
--	if (cpu_data[0].x86_vendor == X86_VENDOR_AMD)
--		return;		/* Some athlons fault if the address is bad */
- 	alternative_input(ASM_NOP4,
- 			  "prefetchnta (%1)",
- 			  X86_FEATURE_XMM,
+Trace; c015e835 <kobject_get+35/3c>
+Trace; c0184f24 <class_get+18/30>
+Trace; c01851dc <class_device_add+44/118>
+Trace; c018e5f4 <scsi_add_host+80/ec>
+Trace; c01a8aaf <ahc_linux_register_host+1f7/258>
+Trace; c0158bf2 <sysfs_add_file+72/7c>
+Trace; c0163962 <pci_populate_driver_dir+1e/24>
+Trace; c0163a0e <pci_register_driver+5e/70>
+Trace; c01a7b9b <ahc_linux_detect+37/60>
+Trace; c023b4da <ahc_linux_init+a/18>
+Trace; c023262c <do_initcalls+28/88>
+Trace; c0105047 <init+23/160>
+Trace; c0105024 <init+0/160>
+Trace; c0106d65 <kernel_thread_helper+5/c>
+
+>>EIP; c0158d12 <create_dir+6/74>   <=====
+
+>>ebx; dfe76b38 <_end+1fc22d5c/3fdaa224>
+>>ecx; dfe845f0 <_end+1fc30814/3fdaa224>
+>>edx; dfe76b54 <_end+1fc22d78/3fdaa224>
+>>edi; c0213e60 <shost_class+0/80>
+>>ebp; dfe76b30 <_end+1fc22d54/3fdaa224>
+>>esp; dff99ec0 <_end+1fd460e4/3fdaa224>
+
+Trace; c0158dbc <sysfs_create_dir+24/5c>
+Trace; c015e28c <create_dir+14/38>
+Trace; c015e5fd <kobject_add+3d/e4>
+Trace; c0185203 <class_device_add+6b/118>
+Trace; c018e5f4 <scsi_add_host+80/ec>
+Trace; c01a8aaf <ahc_linux_register_host+1f7/258>
+Trace; c0158bf2 <sysfs_add_file+72/7c>
+Trace; c0163962 <pci_populate_driver_dir+1e/24>
+Trace; c0163a0e <pci_register_driver+5e/70>
+Trace; c01a7b9b <ahc_linux_detect+37/60>
+Trace; c023b4da <ahc_linux_init+a/18>
+Trace; c023262c <do_initcalls+28/88>
+Trace; c0105047 <init+23/160>
+Trace; c0105024 <init+0/160>
+Trace; c0106d65 <kernel_thread_helper+5/c>
+
+Code;  c0158d12 <create_dir+6/74>
+00000000 <_EIP>:
+Code;  c0158d12 <create_dir+6/74>   <=====
+   0:   8b 46 08                  mov    0x8(%esi),%eax   <=====
+Code;  c0158d15 <create_dir+9/74>
+   3:   8d 48 68                  lea    0x68(%eax),%ecx
+Code;  c0158d18 <create_dir+c/74>
+   6:   ff 48 68                  decl   0x68(%eax)
+Code;  c0158d1b <create_dir+f/74>
+   9:   0f 88 56 02 00 00         js     265 <_EIP+0x265>
+Code;  c0158d21 <create_dir+15/74>
+   f:   ff 74 24 14               pushl  0x14(%esp,1)
+Code;  c0158d25 <create_dir+19/74>
+  13:   56                        push   %esi
+
+ <0>Kernel panic: Attempted to kill init!
+
+--------------------------------------------
+
+

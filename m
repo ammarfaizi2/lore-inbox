@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263743AbUJAUqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUJAVRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263743AbUJAUqW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 16:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUJAUmY
+	id S266512AbUJAVRj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 17:17:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbUJAVQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 16:42:24 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:38101 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S266574AbUJAUkc (ORCPT
+	Fri, 1 Oct 2004 17:16:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20147 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266684AbUJAVAC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:40:32 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230C986@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "Mukker, Atul" <Atulm@lsil.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
-       "Ju, Seokmann" <sju@lsil.com>
-Subject: RE: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
-Date: Fri, 1 Oct 2004 16:32:46 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 1 Oct 2004 17:00:02 -0400
+Date: Fri, 1 Oct 2004 14:03:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: george@mvista.com, drepper@redhat.com, johnstul@us.ibm.com,
+       Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
+Subject: Re: Posix compliant cpu clocks V6 [1/3]: Generic Kernel patch
+Message-Id: <20041001140315.579d4e10.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410011257510.18738@schroedinger.engr.sgi.com>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+	<Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
+	<4154F349.1090408@redhat.com>
+	<Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
+	<41550B77.1070604@redhat.com>
+	<B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
+	<Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
+	<4159B920.3040802@redhat.com>
+	<Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com>
+	<415AF4C3.1040808@mvista.com>
+	<B6E8046E1E28D34EB815A11AC8CA31290322B307@mtv-atc-605e--n.corp.sgi.com>
+	<Pine.LNX.4.58.0410011257510.18738@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Without CONFIG_COMPAT around them, I get "unresolved symbol"
-for (un)register_ioctl32_conversion while loading the module.
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> --- linux-2.6.9-rc3.orig/kernel/posix-timers.c	2004-09-29 20:04:47.000000000 -0700
+> +++ linux-2.6.9-rc3/kernel/posix-timers.c	2004-10-01 12:48:55.000000000 -0700
+> ...
+> +int do_posix_clock_notimer_create(int which_clock,
+> +		struct sigevent __user *time_event_spec,
+> +		timer_t __user *created_timer_id);
+> +int do_posix_clock_nonanosleep(int which_clock, int flags, struct timespec * t);
 
-Thanks,
-Sreenivas
+These guys are already declared in posix-timers.h.
 
->-----Original Message-----
->From: James Bottomley [mailto:James.Bottomley@SteelEye.com]
->Sent: Friday, October 01, 2004 4:24 PM
->To: Bagalkote, Sreenivas
->Cc: Mukker, Atul; 'linux-kernel@vger.kernel.org';
->'linux-scsi@vger.kernel.org'; 'bunk@fs.tum.de'; 'Andrew Morton';
->'Matt_Domsch@dell.com'; Ju, Seokmann
->Subject: RE: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
->
->
->On Fri, 2004-10-01 at 16:08, Bagalkote, Sreenivas wrote:
->> The submitted previous version of megaraid (2.20.3.1) had 
->> register_ioctl32_conversion & unregister_ioctl32_conversion 
->> defined to empty statements if CONFIG_COMPAT was _not_
->> defined.
->
->
->> But I think the preferred way was to have the occurances of 
->> (un)register_ioctl32_conversion in the code surrounded by 
->> #ifdef CONFIG_COMPAT ... #endif directly. In the kernel source
->> only register_ioctl32_conversion has these #ifdef .. #endif. The
->> unregister_ioctl32_conversion doesn't.
->
->Actually, because of the way linux/ioctl32 defines these, the #ifdef
->CONFIG_COMPAT is unnecessary even around register_ioctl32_...
->
->James
->
->
+I'll fix that up, queue the patch up.
+

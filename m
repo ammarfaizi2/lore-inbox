@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264730AbTB0MEf>; Thu, 27 Feb 2003 07:04:35 -0500
+	id <S264745AbTB0MRl>; Thu, 27 Feb 2003 07:17:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264745AbTB0MEf>; Thu, 27 Feb 2003 07:04:35 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:3602 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S264730AbTB0MEe>; Thu, 27 Feb 2003 07:04:34 -0500
-Message-Id: <200302271206.h1RC6Rs29598@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Mike Hayward <hayward@loup.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 corrupt file system, 2.4.20 Makefile problem
-Date: Thu, 27 Feb 2003 14:03:24 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <200302270513.h1R5DcG23996@flux.loup.net>
-In-Reply-To: <200302270513.h1R5DcG23996@flux.loup.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S264799AbTB0MRl>; Thu, 27 Feb 2003 07:17:41 -0500
+Received: from ltgp.iram.es ([150.214.224.138]:30080 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id <S264745AbTB0MRk>;
+	Thu, 27 Feb 2003 07:17:40 -0500
+From: Gabriel Paubert <paubert@iram.es>
+Date: Thu, 27 Feb 2003 13:26:51 +0100
+To: Miles Bader <miles@gnu.org>
+Cc: Kasper Dupont <kasperd@daimi.au.dk>, DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: About /etc/mtab and /proc/mounts
+Message-ID: <20030227122651.GA6444@iram.es>
+References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk> <buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DB2CA.32539D41@daimi.au.dk> <buon0kirym1.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DCB89.9086582F@daimi.au.dk> <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DDE5A.1BCD0747@daimi.au.dk> <buor89uqc2k.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <buor89uqc2k.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 February 2003 07:13, Mike Hayward wrote:
-> I've been running 2.4.19 for quite awhile, but today it locked up,
-> had to be hard rebooted, and trashed my ext3 file system.  Something
-> about a seemingly infinite number of Duplicate/Bad Blocks from fsck
-> even though the hard drive is fine.  I assumed with the journal the
-> file system would be rock solid, but ...  I'm hoping 2.4.20 proves
-> more stable; has anyone else seen 2.4.19 trash the hard drive?
+On Thu, Feb 27, 2003 at 06:58:59PM +0900, Miles Bader wrote:
+> Kasper Dupont <kasperd@daimi.au.dk> writes:
+> > > > But AFAIK fsck uses mtab.
+> > > 
+> > > It uses /etc/fstab.
+> > 
+> > [kasperd:pts/0:~] grep /etc/mtab /sbin/fsck*
+> > Binary file /sbin/fsck.ext2 matches
+> > Binary file /sbin/fsck.ext3 matches
+> > Binary file /sbin/fsck.minix matches
+> > [kasperd:pts/0:~] 
+> 
+> God know why; the versions (e2fsprogs 1.32) on my system don't, so it's
+> probably not something very important.  fsck should still work fine.
 
-Journalling saves you from data loss due to abrupt power off.
-No filesystem will ever save you from silent data corruption
-due to failing hardware or from bugs in filesystem code itself.
+Do you have a statically or dynamically linked e2fsck? On my system
+/etc/mtab is not in /sbin/e2fsck but it is in /lib/libext2fs.so.2 and
+also in the statically linked version of e2fsck.
 
-> 2.4.20 doesn't build on my RH7.2 box which uses gcc 2.96 due to a mod
-> to the Makefile which I just undid and subsequently compiled just
-> fine.  Without said line, stdarg.h (which isn't part of the linux
-> kernel includes) is not found since -nostdinc probably removes *all*
-> include directories not explicitly specified, including:
-> /usr/lib/gcc-lib/i386-redhat-linux/2.96/include
->
-> ---New make line---
-> kbuild_2_4_nostdinc    := -nostdinc -iwithprefix include
->
-> ---Old make line---
-> kbuild_2_4_nostdinc     := -nostdinc $(shell $(CC) -print-search-dirs
->
-> | sed -ne 's/install: \(.*\)/-I \1include/gp')
->
-> If stdarg.h doesn't belong in the kernel distribution, perhaps the
-> configure or make process could do some checking to make sure the
-> appropriate include directory for stdarg.h is included in that
-> variable?
-
-IIRC this can happen if your gcc is in non-standard location.
-Curiously, it will work just fine for 99,9% of other source packages,
-but not the kernel.
-
-Instead of playing with makefiles I got away with:
-
-GCC_EXEC_PREFIX=/path/to/gcc-3.2/lib/gcc-lib make ....
---
-vda
+	Gabriel

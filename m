@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269820AbUJHLUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269840AbUJHL0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269820AbUJHLUW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 07:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269837AbUJHLUV
+	id S269840AbUJHL0J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 07:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269852AbUJHLZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 07:20:21 -0400
-Received: from prosun.first.fraunhofer.de ([194.95.168.2]:37527 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S269820AbUJHLSW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 07:18:22 -0400
-Subject: Re: hang after resume with adb: starting probe task.
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097189899.16161.6.camel@gaston>
-References: <1097172895.3281.31.camel@localhost>
-	 <1097189899.16161.6.camel@gaston>
+	Fri, 8 Oct 2004 07:25:28 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:1201 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S269839AbUJHLWB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 07:22:01 -0400
+Subject: Re: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
+       lkml <linux-kernel@vger.kernel.org>, SELinux@tycho.nsa.gov,
+       Ingo Molnar <mingo@redhat.com>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+In-Reply-To: <20041008093154.GA5089@lkcl.net>
+References: <200410070542.i975gkHV031259@turing-police.cc.vt.edu>
+	 <1097157367.13339.38.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041008093154.GA5089@lkcl.net>
 Content-Type: text/plain
-Date: Fri, 08 Oct 2004 13:17:48 +0200
-Message-Id: <1097234268.3339.27.camel@localhost>
+Organization: National Security Agency
+Message-Id: <1097234322.16641.3.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 08 Oct 2004 07:18:42 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 08:58 +1000, Benjamin Herrenschmidt wrote:
-> On Fri, 2004-10-08 at 04:14, Soeren Sonnenburg wrote:
-> > As of at least kernel version 2.6.9-rc2 I pretty often see the kernel
-> > hang after returning from sleep mode hanging with the message "adb:
-> > starting with probe task". This still happens with 2.6.9-rc3 but never
-> > happened with 2.6.8.1.
-> 
-> I doubt it has anything to do with ADB. The ADB probe is asynchronous,
-> it's more something that is coming back at the same time that is
-> crashing, maybe ethernet link, or USB... Can you try without anything
-> plugged in ethernet if you had anything of course ? and with nothing
-> in USB as well ?
+On Fri, 2004-10-08 at 05:31, Luke Kenneth Casson Leighton wrote:
+>  an alternative possible solution is to get the packet _out_ from
+>  the interrupt context and have the aux pid comm exe information added.
 
-Actually there was nothing plugged into the ethernet nor usb port. Could
-it also be the airport failing ? I still use orinoco cvs, i.e. airport
-0.15rc2HEAD, but that one also on 2.6.8.1. 
+No, the network permission checks are intentionally layered to match the
+network protocol implementation.  There is a process-to-socket check
+performed in process context when the data is received from the socket
+by an actual process, but there is also the socket-to-netif/node/port
+check performed in softirq context when the packet is received on the
+socket from the network.
 
-I now have a more or less reliable way of making this pbook crash: put
-it to sleep and wake it up as soon it is sleeping.
-
-HTH
-Soeren
 -- 
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety." Benjamin Franklin
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

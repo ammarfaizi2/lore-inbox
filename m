@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbUCQXZm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 18:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUCQXZm
+	id S262170AbUCQX16 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 18:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUCQX16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 18:25:42 -0500
-Received: from ns.suse.de ([195.135.220.2]:4842 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262169AbUCQXZd (ORCPT
+	Wed, 17 Mar 2004 18:27:58 -0500
+Received: from main.gmane.org ([80.91.224.249]:42890 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262170AbUCQXZs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 18:25:33 -0500
-Subject: Re: 2.6.4-mm2
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: daniel@osdl.org, linux-kernel@vger.kernel.org, linux-aio@kvack.org
-In-Reply-To: <20040317150909.7fd121bd.akpm@osdl.org>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
-	 <1079474312.4186.927.camel@watt.suse.com>
-	 <20040316152106.22053934.akpm@osdl.org>
-	 <20040316152843.667a623d.akpm@osdl.org>
-	 <20040316153900.1e845ba2.akpm@osdl.org>
-	 <1079485055.4181.1115.camel@watt.suse.com>
-	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
-	 <20040316180043.441e8150.akpm@osdl.org>
-	 <1079554288.4183.1938.camel@watt.suse.com>
-	 <20040317123324.46411197.akpm@osdl.org>
-	 <1079563568.4185.1947.camel@watt.suse.com>
-	 <20040317150909.7fd121bd.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1079566076.4186.1959.camel@watt.suse.com>
+	Wed, 17 Mar 2004 18:25:48 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: Framebuffer with nVidia GeForce 2 Go on Dell Inspiron 8200
+Date: Thu, 18 Mar 2004 00:25:42 +0100
+Message-ID: <MPG.1ac2fce1bf9b0b3e989688@news.gmane.org>
+References: <MPG.1ac2f3b3ae2e948c989687@news.gmane.org> <Pine.LNX.4.44.0403172303070.19415-100000@phoenix.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Mar 2004 18:27:57 -0500
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-171-130.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-17 at 18:09, Andrew Morton wrote:
-> Chris Mason <mason@suse.com> wrote:
-> >
-> > wait_on_page_writeback_range() does a pagevec_lookup_tag on 
-> >  min(end - index + 1, (pgoff_t)PAGEVEC_SIZE)
+James Simmons wrote:
+> 
+> > > I need to add more info to the docs on what modes are supported. 
+> > > 	1600x1200		
+> > > 	---------
+> > > 256	0x119	  0x145	
+> > > 32K	0x11D	  0x146
+> > > 64K	0x11E
+> > > 16M		  0x14E
+> > > 
+> > > For lilo translate them to decimal number. I'm curious if the 14X numbers 
+> > > work.
 > > 
-> >  Which translates to: (unsigned long)-1 - 0 + 1, which is 0.
+> > I guess I would have to input 31e or 34e at the vga=ask prompt, 
+> > right? Well, I never managed to get a code with letters to work :( I 
+> > will try again ...
 > 
-> I made a mental note to test that code.
-> 
-> How's this look?
-> 
+> No. vga = 793
+> 	= 797
+> 	= 798
+>  
+> Give those a try.
 
-Looks good, but I'm still having problems convincing pagevec_lookup_tag
-to return anything other than 0 when called from
-wait_on_page_writeback_range (ext2, ext3, reiserfs).  Any ideas?
+(I was talking on the prompt I get at boot time when vga=ask :))
 
-I'm running with all the fixes discussed so far, including
-clear_page_dirty_for_io(page)
 
--chris
+-- 
+Giuseppe "Oblomov" Bilotta
 
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284370AbRLXDZG>; Sun, 23 Dec 2001 22:25:06 -0500
+	id <S284432AbRLXEF7>; Sun, 23 Dec 2001 23:05:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284398AbRLXDYz>; Sun, 23 Dec 2001 22:24:55 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:39065 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S284370AbRLXDYo>;
-	Sun, 23 Dec 2001 22:24:44 -0500
-Message-ID: <3C269FF1.5040402@candelatech.com>
-Date: Sun, 23 Dec 2001 20:24:33 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S284444AbRLXEFu>; Sun, 23 Dec 2001 23:05:50 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:1152 "HELO gherkin.frus.com")
+	by vger.kernel.org with SMTP id <S284432AbRLXEFi>;
+	Sun, 23 Dec 2001 23:05:38 -0500
+Message-Id: <m16IMMg-0005khC@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy)
+Subject: Re: "sr: unaligned transfer" in 2.5.2-pre1
+In-Reply-To: <m2vgexzv90.fsf@ppro.localdomain> "from Peter Osterlund at Dec 23,
+ 2001 06:44:43 pm"
+To: Peter Osterlund <petero2@telia.com>
+Date: Sun, 23 Dec 2001 22:05:26 -0600 (CST)
+CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-To: Tim Hockin <thockin@sun.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        arjanv@redhat.com, saw@sw-soft.com, sparker@sparker.net
-Subject: Re: [PATCH] eepro100 - need testers
-In-Reply-To: <E167w6n-0001dz-00@fenrus.demon.nl> <3C0D54DF.4E897B70@sun.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just tried this patch against the 2.4.17 kernel.  I was able to
-completely freeze my D815EEA2 motherboard based computer by trying
-to copy a large directory over NFS.  The machine is connected to a
-10bt HUB, and this setup has shown lockups before with various
-eepro100 drivers.  The e100 seems to work fine in this setup...
+Peter Osterlund wrote:
+> When trying to mount an ISO9660 CD on my USB CDRW unit, I get lots
+> of "sr: unaligned transfer" messages from the kernel and the mount
+> command fails. This message was added in kernel 2.5.1 and the
+> sr_scatter_pad() function was removed at the same time.
 
-An older eepro driver (the one with RH's 2.4.9-13 kernel) does not
-lock up the machine, but I do see incessant wait-for-cmd-done-timeout
-messages, and the network is basically un-usable.
+I'm in the same boat except for my CDRW unit being SCSI.
 
-On other machines, connected to a 100bt-FD switch, the new patch
-seems to work just fine, btw.
+> So, what changes are needed to make CD support work?
 
-The eepro lockup is repeatable, so let me know if there is any
-information I can get for you that will help.
-
-Thanks,
-Ben
-
-Tim Hockin wrote:
-
-> This patch was developed here to resolve a number of eepro100 issues we
-> were seeing. I'd like to get people to try this on their eepro100 chips and
-> beat on it for a while.
-> 
-> volunteers?
-
+Evidently non-trivial...  I tried a quick hack at putting the
+sr_scatter_pad() code back into sr.c, but without success: null
+pointer dereference when I tried to mount an ISO9660 CD.  I think
+I'll enjoy the holiday week and wait for Jens to produce the proper
+fix :-).
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

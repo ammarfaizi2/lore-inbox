@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316547AbSEPCiU>; Wed, 15 May 2002 22:38:20 -0400
+	id <S316545AbSEPCmp>; Wed, 15 May 2002 22:42:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316546AbSEPCiT>; Wed, 15 May 2002 22:38:19 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:11016 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S316545AbSEPCiS>;
-	Wed, 15 May 2002 22:38:18 -0400
-Message-Id: <200205160226.g4G2Qh5w008186@sleipnir.valparaiso.cl>
-To: Larry McVoy <lm@bitmover.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Changelogs on kernel.org 
-In-Reply-To: Your message of "Wed, 15 May 2002 15:59:35 PDT."
-             <20020515155935.K13795@work.bitmover.com> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Wed, 15 May 2002 22:26:43 -0400
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S316546AbSEPCmp>; Wed, 15 May 2002 22:42:45 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:4879 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S316545AbSEPCmo>; Wed, 15 May 2002 22:42:44 -0400
+Date: Wed, 15 May 2002 23:42:24 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre8aa3
+In-Reply-To: <20020516023238.GE1025@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0205152340250.32261-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> said:
-> On Wed, May 15, 2002 at 05:56:18PM -0500, Kai Germaschewski wrote:
+On Thu, 16 May 2002, Andrea Arcangeli wrote:
 
-[...]
+> I'm not using the full blown initrd of most distros that is aware of the
 
-> > So what's the undocumented option to turn off consistency checks? ;-)
+Then I guess we found the problem. ;)
 
-[...]
+> > --- snip from linuxrc ----
+> > mount --ro -t $rootfs $rootdev /sysroot
+> > pivot_root /sysroot /sysroot/initrd
+> > ------
 
-> We've got a release in the works which makes it so you can run them only
-> once in a 24 hour period.  I'm fixing up the stuff that caused the problems
-> on multiple patch imports and then we'll do a release.
+> both lines are completly superflous, very misleading as well. I
+> recommend to drop such two lines from all the full blown bug-aware
+> linuxrc out there (of course after you apply the ordering fix to the
+> kernel).
 
-What happened to "... gives you enough rope to shoot your feet"?
---
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+Personally I hope the special initrd code gets moved from
+kernelspace into userspace.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+

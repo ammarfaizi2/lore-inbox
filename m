@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTL3ASC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 19:18:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTL3ASB
+	id S261659AbTL3AeU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 19:34:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTL3AeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 19:18:01 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:32650 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262048AbTL3ASA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 19:18:00 -0500
-Date: Mon, 29 Dec 2003 19:17:23 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 performance problems
-In-Reply-To: <1072741422.25741.67.camel@nosferatu.lan>
-Message-ID: <Pine.LNX.4.58.0312291913270.5835@localhost.localdomain>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> 
- <Pine.LNX.4.58.0312291420370.1586@home.osdl.org> 
- <Pine.LNX.4.58.0312291803420.5835@localhost.localdomain>
- <1072741422.25741.67.camel@nosferatu.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Dec 2003 19:34:20 -0500
+Received: from mail.kroah.org ([65.200.24.183]:36331 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261659AbTL3AeT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 19:34:19 -0500
+Date: Mon, 29 Dec 2003 16:32:47 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: Andrew Morton <akpm@osdl.org>, maneesh@in.ibm.com, mgorse@mgorse.dhs.org,
+       linux-kernel@vger.kernel.org,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: oopses in kobjects in 2.6.0-test11 (was Re: kobject patch)
+Message-ID: <20031230003246.GB16187@kroah.com>
+References: <20031009014837.4ff71634.akpm@osdl.org> <20031208222526.GA31134@kroah.com> <20031208224810.GB31134@kroah.com> <200312281538.42309.arvidjaar@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312281538.42309.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 30 Dec 2003, Martin Schlemmer wrote:
-
-> >  UDMA modes: udma0 udma1 *udma2 udma3 udma4
-> >  AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
-> >  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:
-> > 
-> >  * signifies the current active mode
+On Sun, Dec 28, 2003 at 03:38:42PM +0300, Andrey Borzenkov wrote:
+> On Tuesday 09 December 2003 01:48, Greg KH wrote:
+> > Ok, I'm ccing lkml and everyone else who has been in on this thread at
+> > different times.  This is based on a patch from Andrey that was/is in
+> > the -mm tree for a while.
+> >
 > 
-> Any reason it is currently set to udma2 where it support udma4 ?
+> what about second part in sysfs/dir.c? How relevant is it?
 
-Not really.  The question was what mode the disk was running in.  This is 
-what it defaults to.  This is a laptop drive that only runs at 5400RPM.  
-Would changing the mode to udma4 make a dramatic difference?  
+Very relevant, that's why it's in the -mm tree right now :)
+
+thanks,
+
+greg k-h

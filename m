@@ -1,87 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbUEFOFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbUEFOGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbUEFOFR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 10:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbUEFOFR
+	id S262424AbUEFOGv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 10:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUEFOGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 10:05:17 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:18061 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S262381AbUEFOBM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 10:01:12 -0400
-Subject: Small problem, Can anybody help me?
-Date: Thu, 6 May 2004 19:31:56 +0530
+	Thu, 6 May 2004 10:06:44 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:64522 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S261798AbUEFOFc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 10:05:32 -0400
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Load hid.o module synchronously?
+References: <s5g8ygi4l3q.fsf@patl=users.sf.net>
+	<20040504200147.GA26579@kroah.com> <s5ghduvdg1u.fsf@patl=users.sf.net>
+	<200405060033.49380.oliver@neukum.org>
+From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Message-ID: <s5gekpxslti.fsf@patl=users.sf.net>
+Date: 06 May 2004 10:05:32 -0400
+In-Reply-To: <200405060033.49380.oliver@neukum.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <1118873EE1755348B4812EA29C55A97222F512@esnmail.esntechnologies.co.in>
-Content-class: urn:content-classes:message
-X-MS-Has-Attach: 
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: Small problem, Can anybody help me?
-Thread-Index: AcQzcrE7ftyqvwbTQlaFLeptwb+aOw==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Oliver Neukum <oliver@neukum.org> writes:
 
-Hi,
+> The set of devices connected to the machine is not static. Waiting
+> until all hardware is ready is very hard to even define.
 
-I have written a small hello.c program in the Linux Kernel version
-2.4.18-3.
+It is very easy to define for 99.999% of all keyboards, which start
+off connected and stay connected.
 
-The code is as follows.
------------------------
+This should be simple.  I want to load a driver at boot time and wait
+until it either binds to something or fails to do so.  If the user is
+adding or removing hardware while the module is loading, I simply do
+not care what the system does.  But if the hardware is not changing, I
+care a great deal...  And the latter case is perfectly well-defined.
 
+> > be glad to use any other mechanism to achieve the same effect; I just
+> > have not seen one yet.
+> 
+> Issue ioctl() USBDEVFS_CONNECT through usbfs. It does a synchronous
+> probe for a specific device.
 
-define MODULE
-#include <linux/module.h>
-#include <linux/init.h>
+I suppose this would solve my USB keyboard problem.  But a) it seems
+very complex for such a simple need; and b) it does not work for
+non-USB devices, which are also causing me grief.
 
-MODULE_LICENSE("GPL");
-
-int Test_init(void)
-{
-	printk("<1> Hello World\n");
-	return 0;
-}
-
-void Test_cleanup(void)
-{
-	printk("<1> Good bye\n");
-}
-
-module_init(Test_init);
-module_exit(Test_cleanup);
-
-
-I compiled it under same kernel version that is 2.4.18-3. It was showing
-the following errors.
-
-In file included from hello.c:2:
-/usr/include/linux/module.h:60: parse error before `atomic_t'
-/usr/include/linux/module.h:60: warning: no semicolon at end of struct
-or union
-/usr/include/linux/module.h:60: warning: no semicolon at end of struct
-or union
-/usr/include/linux/module.h:62: parse error before `}'
-/usr/include/linux/module.h:62: warning: data definition has no type or
-storage class
-/usr/include/linux/module.h:91: parse error before `}'
-
-
-The errors came due to a mistake in linux header file. Is it so...
-
-Thanks in advance for any help you can come up with.
-
-Regards,
-
-Srinivas G
-
-
-
-
+ - Pat

@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261693AbSLANVc>; Sun, 1 Dec 2002 08:21:32 -0500
+	id <S261723AbSLANwJ>; Sun, 1 Dec 2002 08:52:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbSLANVc>; Sun, 1 Dec 2002 08:21:32 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:8708 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261693AbSLANVb>;
-	Sun, 1 Dec 2002 08:21:31 -0500
-Date: Sun, 1 Dec 2002 14:27:04 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: alan@redhat.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: LM sensors into kernel?
-Message-ID: <20021201132704.GA387@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S261724AbSLANwJ>; Sun, 1 Dec 2002 08:52:09 -0500
+Received: from sysdoor.net ([62.212.103.239]:24324 "EHLO celia")
+	by vger.kernel.org with ESMTP id <S261723AbSLANwJ>;
+	Sun, 1 Dec 2002 08:52:09 -0500
+Message-ID: <001701c29941$e5a1b7e0$3803a8c0@descript>
+From: "Vergoz Michael \(SYSDOOR\)" <descript@worldakt.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: SCSI Question
+Date: Sun, 1 Dec 2002 14:59:41 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi list,
 
-What is preventing lm-sensors from being merged into kernel? Alan,
-given nice patch for current kernel, would you accept lm-sensors into
-your kernel?
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+There is a struct to know the name of the device (/dev/sdaX) on SCSI driver
+?
+
+Michael
+

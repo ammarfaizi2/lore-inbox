@@ -1,421 +1,250 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266318AbTAJUP4>; Fri, 10 Jan 2003 15:15:56 -0500
+	id <S266297AbTAJUTj>; Fri, 10 Jan 2003 15:19:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266322AbTAJUP4>; Fri, 10 Jan 2003 15:15:56 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54545
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266318AbTAJUPu>; Fri, 10 Jan 2003 15:15:50 -0500
-Date: Fri, 10 Jan 2003 12:22:13 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ross Biro <rossb@google.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: [2.4.21-pre3] Fix for SMP race condition in IDE code
-In-Reply-To: <3E1F0CF5.4000304@google.com>
-Message-ID: <Pine.LNX.4.10.10301101215020.31168-100000@master.linux-ide.org>
+	id <S266354AbTAJUTi>; Fri, 10 Jan 2003 15:19:38 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19727 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266297AbTAJUTc>; Fri, 10 Jan 2003 15:19:32 -0500
+Date: Fri, 10 Jan 2003 12:26:56 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux v2.5.56
+Message-ID: <Pine.LNX.4.44.0301101222510.1856-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ross,
+Trying to make releases slightly more often and slightly smaller.
 
-Sheesh, I know who is a candiated for me to dump the maintainership on in
-the future!  This will take a little time to reveiw; however, I know of no
-one who runs systems in this scale.
+ACPI, USB, networking (mainly netfilter) updates. Some syscall path
+updates and a thread bug in mm_release() that would miss updating the TID
+and cause a few extra traps at exec time.
 
-Also "t" is the last drive.
+And a watchdog forward port from 2.4.x by DaveJ.
 
-If you need more drives, use the upper half of the current majors
-/dev/hdu 3,128
-/dev/hdv 3,192
+			Linus
 
-Repeat ... that will make it to 20 channels.
+----
+Summary of changes from v2.5.55 to v2.5.56
+============================================
 
-Cheers,
+<blueflux@koffein.net>:
+  o [IPV4 ROUTE]: Fix some sysctl documentation
 
+<gandalf@wlug.westbo.se>:
+  o [NETFILTER]: Fix a locking bug in ip_conntrack_proto_tcp
 
-On Fri, 10 Jan 2003, Ross Biro wrote:
+<kadlec@blackhole.kfki.hu>:
+  o [NETFILTER]: Fix excess logging of reused FTP expectations
 
-> 
-> There is a race condition in all versions of the IDE code that I've 
-> looked at including 2.4.18 and 2.4.21-pre3. Basically on an SMP system 
-> if mutiple IDE channels are on the same interrupt and 1 channel sends 
-> has an interrupt pending on 1 processor while the other processor is 
-> calling ide_set_handler, then the interrupt can be mistaken for command 
-> completion on both channels, and a command can be completed before it is 
-> even issued.
-> 
-> This problem can be triggered with the following code
-> 
-> cd /proc/ide
-> (while true; do for i in hd[a-z]; do for j in 1 2 3 ; do cat 
-> $i/smart_values >/dev/null; done; done; done) &
-> (while true; do for i in hd[a-z]; do dd if=/dev/$i of=/dev/null bs=4096k 
-> skip=0 & done; wait; done) &
-> 
-> And can be seen by properly instrumenting drive_cmd_intr to check for 
-> errors.
-> 
-> On a dual proc machine with 4 channels on a single interrupt and 2.4.18 
-> I expec to see an error about once every twenty minutes with the above 
-> code.  I believe it should occur much less often on 2.4.20 and above.  
-> 
-> Drives react to this problem in different ways.  Often they simply lock 
-> up and refuse to talk to the host until they have been properly reset. 
->  Some drives require a power cycle before they will work properly again.
-> 
-> This problem required the use of over 200 machines, approximately 2000 
-> drives, a bus analyzer, and a lot of cooperation from a couple of drive 
-> manufacturers to go from "something goes wrong once in a while" to 
-> something we could easily reproduce.
-> 
-> This patch has only been minimally tested and then only with 1 brand of 
-> ide hard drive.
-> 
-> ----- snip ------
-> 
-> diff -durbB linux-2.4.20/drivers/ide/ide-cd.c 
-> linux-2.4.20-p1/drivers/ide/ide-cd.c
-> --- linux-2.4.20/drivers/ide/ide-cd.c    Thu Jan  9 11:14:01 2003
-> +++ linux-2.4.20-p1/drivers/ide/ide-cd.c    Wed Jan  8 16:25:04 2003
-> @@ -863,11 +864,15 @@
->          HWIF(drive)->OUTB(drive->ctl, IDE_CONTROL_REG);
->  
->      if (CDROM_CONFIG_FLAGS (drive)->drq_interrupt) {
-> +                unsigned long flags;
->          if (HWGROUP(drive)->handler != NULL)
->              BUG();
-> -        ide_set_handler (drive, handler, WAIT_CMD, cdrom_timer_expiry);
-> +                spin_lock_irqsave(&io_request_lock, flags);
->          /* packet command */
->          HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
-> +        ide_set_handler_nolock (drive, handler, WAIT_CMD, 
-> cdrom_timer_expiry);
-> +                ide_delay_400ns();
-> +                spin_unlock_irqrestore(&io_request_lock, flags);
->          return ide_started;
->      } else {
->          /* packet command */
-> diff -durbB linux-2.4.20/drivers/ide/ide-disk.c 
-> linux-2.4.20-p1/drivers/ide/ide-disk.c
-> --- linux-2.4.20/drivers/ide/ide-disk.c    Thu Jan  9 11:14:01 2003
-> +++ linux-2.4.20-p1/drivers/ide/ide-disk.c    Wed Jan  8 16:25:17 2003
-> @@ -467,12 +467,15 @@
->  #endif /* CONFIG_BLK_DEV_IDEDMA */
->          if (HWGROUP(drive)->handler != NULL)
->              BUG();
-> -        ide_set_handler(drive, &read_intr, WAIT_CMD, NULL);
->  
->          command = ((drive->mult_count) ?
->                 ((lba48) ? WIN_MULTREAD_EXT : WIN_MULTREAD) :
->                 ((lba48) ? WIN_READ_EXT : WIN_READ));
-> +                spin_lock_irqsave(&io_request_lock, flags);
->          hwif->OUTB(command, IDE_COMMAND_REG);
-> +        ide_set_handler_nolock(drive, &read_intr, WAIT_CMD, NULL);
-> +                ide_delay_400ns();
-> +                spin_unlock_irqrestore(&io_request_lock, flags);
->          return ide_started;
->      } else if (rq_data_dir(rq) == WRITE) {
->          ide_startstop_t startstop;
-> diff -durbB linux-2.4.20/drivers/ide/ide-dma.c 
-> linux-2.4.20-p1/drivers/ide/ide-dma.c
-> --- linux-2.4.20/drivers/ide/ide-dma.c    Thu Jan  9 11:14:01 2003
-> +++ linux-2.4.20-p1/drivers/ide/ide-dma.c    Thu Jan  9 15:32:09 2003
-> @@ -655,6 +655,7 @@
->      unsigned int count    = 0;
->      u8 dma_stat = 0, lba48    = (drive->addressing == 1) ? 1 : 0;
->      task_ioreg_t command    = WIN_NOP;
-> +        unsigned long flags;
->  
->      if (!(count = ide_build_dmatable(drive, rq, PCI_DMA_FROMDEVICE)))
->          /* try PIO instead of DMA */
-> @@ -673,7 +674,6 @@
->      /* paranoia check */
->      if (HWGROUP(drive)->handler != NULL)
->          BUG();
-> -    ide_set_handler(drive, &ide_dma_intr, 2*WAIT_CMD, dma_timer_expiry);
->  
->      /*
->       * FIX ME to use only ACB ide_task_t args Struct
-> @@ -691,7 +691,11 @@
->      }
->  #endif
->      /* issue cmd to drive */
-> +        spin_lock_irqsave(&io_request_lock, flags);
->      hwif->OUTB(command, IDE_COMMAND_REG);
-> +    ide_set_handler_nolock(drive, &ide_dma_intr, 2*WAIT_CMD, 
-> dma_timer_expiry);
-> +        ide_delay_400ns();
-> +        spin_unlock_irqrestore(&io_request_lock, flags);
->  
->      return HWIF(drive)->ide_dma_count(drive);
->  }
-> @@ -707,6 +711,7 @@
->      unsigned int count    = 0;
->      u8 dma_stat = 0, lba48    = (drive->addressing == 1) ? 1 : 0;
->      task_ioreg_t command    = WIN_NOP;
-> +        unsigned long flags;
->  
->      if (!(count = ide_build_dmatable(drive, rq, PCI_DMA_TODEVICE)))
->          /* try PIO instead of DMA */
-> @@ -725,7 +730,6 @@
->      /* paranoia check */
->      if (HWGROUP(drive)->handler != NULL)
->          BUG();
-> -    ide_set_handler(drive, &ide_dma_intr, 2*WAIT_CMD, dma_timer_expiry);
->      /*
->       * FIX ME to use only ACB ide_task_t args Struct
->       */
-> @@ -742,7 +746,13 @@
->      }
->  #endif
->      /* issue cmd to drive */
-> +        spin_lock_irqsave(&io_request_lock, flags);
->      hwif->OUTB(command, IDE_COMMAND_REG);
-> +    ide_set_handler_nolock(drive, &ide_dma_intr,
-> +                               2*WAIT_CMD, dma_timer_expiry);
-> +        ide_delay_400ns();
-> +        spin_unlock_irqrestore(&io_request_lock, flags);
-> +       
->      return HWIF(drive)->ide_dma_count(drive);
->  }
->  
-> diff -durbB linux-2.4.20/drivers/ide/ide-floppy.c 
-> linux-2.4.20-p1/drivers/ide/ide-floppy.c
-> --- linux-2.4.20/drivers/ide/ide-floppy.c    Thu Jan  9 11:14:01 2003
-> +++ linux-2.4.20-p1/drivers/ide/ide-floppy.c    Wed Jan  8 16:15:17 2003
-> @@ -1123,14 +1123,17 @@
->      }
->     
->      if (test_bit(IDEFLOPPY_DRQ_INTERRUPT, &floppy->flags)) {
-> +                unsigned long flags;
->          if (HWGROUP(drive)->handler != NULL)
->              BUG();
-> +        /* Issue the packet command */
-> +                spin_lock_irqsave(&io_request_lock, flags);
-> +        HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
->          ide_set_handler(drive,
->                  pkt_xfer_routine,
->                  IDEFLOPPY_WAIT_CMD,
->                  NULL);
-> -        /* Issue the packet command */
-> -        HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
-> +                spin_unlock_irqrestore(&io_request_lock, flags);
->          return ide_started;
->      } else {
->          /* Issue the packet command */
-> diff -durbB linux-2.4.20/drivers/ide/ide-io.c 
-> linux-2.4.20-p1/drivers/ide/ide-io.c
-> --- linux-2.4.20/drivers/ide/ide-io.c    Thu Jan  9 11:14:01 2003
-> +++ linux-2.4.20-p1/drivers/ide/ide-io.c    Wed Jan  8 16:25:37 2003
-> @@ -363,14 +363,21 @@
->  void ide_cmd (ide_drive_t *drive, u8 cmd, u8 nsect, ide_handler_t *handler)
->  {
->      ide_hwif_t *hwif = HWIF(drive);
-> +        unsigned long flags;
-> +
->      if (HWGROUP(drive)->handler != NULL)
->          BUG();
-> -    ide_set_handler(drive, handler, WAIT_CMD, NULL);
->      if (IDE_CONTROL_REG)
->          hwif->OUTB(drive->ctl,IDE_CONTROL_REG);    /* clear nIEN */
->      SELECT_MASK(drive,0);
->      hwif->OUTB(nsect,IDE_NSECTOR_REG);
-> +
-> +        spin_lock_irqsave(&io_request_lock, flags);
->      hwif->OUTB(cmd,IDE_COMMAND_REG);
-> +    ide_set_handler_nolock(drive, handler, WAIT_CMD, NULL);
-> +        ide_delay_400ns();
-> +        spin_unlock_irqrestore(&io_request_lock, flags);
-> +
->  }
->  
->  EXPORT_SYMBOL(ide_cmd);
-> diff -durbB linux-2.4.20/drivers/ide/ide-iops.c 
-> linux-2.4.20-p1/drivers/ide/ide-iops.c
-> --- linux-2.4.20/drivers/ide/ide-iops.c    Thu Jan  9 11:14:01 2003
-> +++ linux-2.4.20-p1/drivers/ide/ide-iops.c    Wed Jan  8 15:54:18 2003
-> @@ -908,13 +908,14 @@
->   * timer is started to prevent us from waiting forever in case
->   * something goes wrong (see the ide_timer_expiry() handler later on).
->   */
-> -void ide_set_handler (ide_drive_t *drive, ide_handler_t *handler,
-> +
-> +/* This version doesn't get the spinlock, so you must call it with a 
-> spinlock
-> +   on io_request_lock. */
-> +void ide_set_handler_nolock (ide_drive_t *drive, ide_handler_t *handler,
->                unsigned int timeout, ide_expiry_t *expiry)
->  {
-> -    unsigned long flags;
->      ide_hwgroup_t *hwgroup = HWGROUP(drive);
->  
-> -    spin_lock_irqsave(&io_request_lock, flags);
->      if (hwgroup->handler != NULL) {
->          printk("%s: ide_set_handler: handler not null; "
->              "old=%p, new=%p\n",
-> @@ -924,6 +925,15 @@
->      hwgroup->expiry        = expiry;
->      hwgroup->timer.expires    = jiffies + timeout;
->      add_timer(&hwgroup->timer);
-> +}
-> +
-> +/* This version grabs and releases the io_request_lock, so must be called
-> +   with out the spinlock grabbed. */
-> +void ide_set_handler (ide_drive_t *drive, ide_handler_t *handler,
-> +              unsigned int timeout, ide_expiry_t *expiry) {
-> +    unsigned long flags;
-> +    spin_lock_irqsave(&io_request_lock, flags);
-> +        ide_set_handler_nolock(drive, handler, timeout, expiry);
->      spin_unlock_irqrestore(&io_request_lock, flags);
->  }
->  
-> diff -durbB linux-2.4.20/drivers/ide/ide-tape.c 
-> linux-2.4.20-p1/drivers/ide/ide-tape.c
-> --- linux-2.4.20/drivers/ide/ide-tape.c    Thu Jan  9 11:14:01 2003
-> +++ linux-2.4.20-p1/drivers/ide/ide-tape.c    Wed Jan  8 16:20:09 2003
-> @@ -2457,13 +2457,17 @@
->          set_bit(PC_DMA_IN_PROGRESS, &pc->flags);
->  #endif /* CONFIG_BLK_DEV_IDEDMA */
->      if (test_bit(IDETAPE_DRQ_INTERRUPT, &tape->flags)) {
-> +                unsigned long flags;
->          if (HWGROUP(drive)->handler != NULL)
->              BUG();
-> -        ide_set_handler(drive,
-> +
-> +                spin_lock_irqsave(&io_request_lock, flags);
-> +        HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
-> +        ide_set_handler_nolock(drive,
->                  &idetape_transfer_pc,
->                  IDETAPE_WAIT_CMD,
->                  NULL);
-> -        HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
-> +                spin_unlock_irqrestore(&io_request_lock, flags);
->          return ide_started;
->      } else {
->          HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
-> diff -durbB linux-2.4.20/drivers/ide/ide-taskfile.c 
-> linux-2.4.20-p1/drivers/ide/ide-taskfile.c
-> --- linux-2.4.20/drivers/ide/ide-taskfile.c    Thu Jan  9 11:14:01 2003
-> +++ linux-2.4.20-p1/drivers/ide/ide-taskfile.c    Wed Jan  8 16:25:43 2003
-> @@ -173,6 +173,7 @@
->      task_struct_t *taskfile    = (task_struct_t *) task->tfRegister;
->      hob_struct_t *hobfile    = (hob_struct_t *) task->hobRegister;
->      u8 HIHI            = (drive->addressing == 1) ? 0xE0 : 0xEF;
-> +        unsigned long flags;
->  
->  #ifdef CONFIG_IDE_TASK_IOCTL_DEBUG
->      void debug_taskfile(drive, task);
-> @@ -201,8 +202,14 @@
->  
->      hwif->OUTB((taskfile->device_head & HIHI) | drive->select.all, 
-> IDE_SELECT_REG);
->      if (task->handler != NULL) {
-> -        ide_set_handler(drive, task->handler, WAIT_WORSTCASE, NULL);
-> +                spin_lock_irqsave(&io_request_lock, flags);
->          hwif->OUTB(taskfile->command, IDE_COMMAND_REG);
-> +                /* We need to give the drive time to set the busy
-> +                   flag, or we may mistake an interrupt from another drive
-> +                   for the command completion on this drive. */
-> +        ide_set_handler_nolock(drive, task->handler, WAIT_WORSTCASE, NULL);
-> +                ide_delay_400ns();
-> +                spin_unlock_irqrestore(&io_request_lock, flags);
->          if (task->prehandler != NULL)
->              return task->prehandler(drive, task->rq);
->          return ide_started;
-> @@ -1832,6 +1839,7 @@
->      ide_hwif_t *hwif    = HWIF(drive);
->      task_struct_t *taskfile    = (task_struct_t *) task->tfRegister;
->      hob_struct_t *hobfile    = (hob_struct_t *) task->hobRegister;
-> +        unsigned long flags;
->  #if DEBUG_TASKFILE
->      u8 status;
->  #endif
-> @@ -1929,9 +1937,13 @@
->               if (task->handler == NULL)
->                  return ide_stopped;
->  
-> -            ide_set_handler(drive, task->handler, WAIT_WORSTCASE, NULL);
-> +                       
->              /* Issue the command */
-> +                        spin_lock_irqsave(&io_request_lock, flags);
->              hwif->OUTB(taskfile->command, IDE_COMMAND_REG);
-> +            ide_set_handler_nolock(drive, task->handler,
-> +                                               WAIT_WORSTCASE, NULL);
-> +                        spin_unlock_irqrestore(&io_request_lock, flags);
->              if (task->prehandler != NULL)
->                  return task->prehandler(drive, HWGROUP(drive)->rq);
->      }
-> diff -durbB linux-2.4.20/include/asm-i386/ide.h 
-> linux-2.4.20-p1/include/asm-i386/ide.h
-> --- linux-2.4.20/include/asm-i386/ide.h    Thu Jan  9 11:17:05 2003
-> +++ linux-2.4.20-p1/include/asm-i386/ide.h    Fri Jan 10 09:54:07 2003
-> @@ -14,6 +14,7 @@
->  #ifdef __KERNEL__
->  
->  #include <linux/config.h>
-> +#include <linux/delay.h>
->  
->  #ifndef MAX_HWIFS
->  # ifdef CONFIG_BLK_DEV_IDEPCI
-> @@ -22,6 +23,16 @@
->  #define MAX_HWIFS    6
->  # endif
->  #endif
-> +
-> +
-> +
-> +/* The ATA spec requires 400ns delays all over the place. */
-> +/* Do the same fixed point trick the udelay does to get our delay. */
-> +#define IDE_DELAY_400NS
-> +static __inline__ void ide_delay_400ns(void)
-> +{
-> +        __const_udelay (400 * 4);
-> +}
->  
->  static __inline__ int ide_default_irq(ide_ioreg_t base)
->  {
-> diff -durbB linux-2.4.20/include/linux/ide.h 
-> linux-2.4.20-p1/include/linux/ide.h
-> --- linux-2.4.20/include/linux/ide.h    Thu Jan  9 11:17:05 2003
-> +++ linux-2.4.20-p1/include/linux/ide.h    Thu Jan  9 15:37:22 2003
-> @@ -18,6 +18,7 @@
->  #include <linux/bitops.h>
->  #include <linux/highmem.h>
->  #include <linux/pci.h>
-> +#include <linux/delay.h>
->  #include <asm/byteorder.h>
->  #include <asm/system.h>
->  #include <asm/hdreg.h>
-> @@ -354,6 +355,11 @@
->  
->  #include <asm/ide.h>
->  
-> +#ifndef IDE_DELAY_400NS
-> +#define IDE_DELAY_400NS
-> +static inline void ide_delay_400ns(void) { udelay(1); }
-> +#endif
-> +
->  /* Currently only m68k, apus and m8xx need it */
->  #ifdef IDE_ARCH_ACK_INTR
->  extern int ide_irq_lock;
-> @@ -1282,6 +1288,7 @@
->   * and also to start the safety timer.
->   */
->  extern void ide_set_handler(ide_drive_t *, ide_handler_t *, unsigned 
-> int, ide_expiry_t *);
-> +extern void ide_set_handler_nolock(ide_drive_t *, ide_handler_t *, 
-> unsigned int, ide_expiry_t *);
->  
->  /*
->   * Error reporting, in human readable form (luxurious, but a memory hog).
-> 
-> 
+<marcus@ingate.com>:
+  o [NETFILTER]: ipt_multiport invert fix
 
-Andre Hedrick
-LAD Storage Consulting Group
+<mulix@mulix.org>:
+  o fix "assignment from incompatible pointer type"
+
+<neilt@slimy.greenend.org.uk>:
+  o USB Serial patch for old pl2303 devices
+
+<netfilter@interlinx.bc.ca>:
+  o [NETFILTER]: UDP nat helper support
+
+<pablo@menichini.com.ar>:
+  o 2.5.54 dev_*(&<dev>,...): drivers/usb/input/pid.c
+
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+  o more unusual USB storage devices
+
+Anders Gustafsson <andersg@0x63.nu>:
+  o [IPV6]: cleanup_ipv6_mibs cannot be __exit, since it is called on
+    the ipv6_init error path
+
+Andrew Morton <akpm@digeo.com>:
+  o [NET]: Uninline skb_headerinit
+  o [AF_UNIX]: Uninline unix_get_socket/maybe_unmark_and_push, mark
+    {pop,empty}_stack static
+  o [UNIX]: Uninline unix_peer_get
+  o [IPSEC]: Uninline _decode_session
+  o [IPV4 ROUTE]: Uninline rt_hash_code and rt_may_expire
+  o [IPV4 OUTPUT]: Uninline ip_finish_output and skb_fill_page_desc
+  o [IPV4 FRAG]: Uninline ipq_kill
+  o [IPV4 FIBHASH]: extern inline --> static inline
+  o [IPV4 TCP]: Dont export or inline __tcp_put_port, but do inline
+    tcp_put_port
+  o [IPV4 TCP]: Uninline tcp_rtt_estimator and tcp_urg.  extern inline
+    --> static inline
+
+Andy Grover <agrover@groveronline.com>:
+  o ACPI: Use printk instead of pr_debug (Randy Dunlap)
+  o ACPI: Remove typedefs in favor of using "struct" and "union"
+    explicitly
+  o ACPI: Expose lid state to userspace (Zdenek OGAR Skalak)
+  o ACPI: Make button functions static (Pavel Machek)
+  o ACPI: Express state of lid in words, not a number
+  o cpufreq-ACPI: no longer use CPUFREQ_ALL_CPUS (Dominik Brodowski)
+  o ACPI: Eliminate spawning of thread from timer callback. Use
+    schedule_work for all cases. Thanks to Ingo Oeser, Andrew Morton,
+    and Pavel Machek for their wisdom.
+  o ACPI: Update version string to 20030109
+
+Dave Jones <davej@codemonkey.org.uk>:
+  o [WATCHDOG] wdt_pci nowayout fixes from 2.4
+  o [WATCHDOG] eurotech indentation fixes
+  o [WATCHDOG] eurotech nowayout fixes from 2.4
+  o [WATCHDOG] wdt nowayout changes from 2.4
+  o [WATCHDOG] wdt977 nowayout fixes from 2.4
+  o c99 initialisers
+  o [WATCHDOG] Add several new watchdog drivers from 2.4
+  o [WATCHDOG] pcwd driver update from 2.4
+  o [WATCHDOG] acquirewdt nowayout fixes from 2.4 (plus some
+    CodingStyle reformatting)
+  o [WATCHDOG] Acquirewdt C99 struct initialisers
+  o [WATCHDOG] Advantech fixes from 2.4
+  o [WATCHDOG] simplify advwdt_open, and add C99 struct initialisers
+  o [WATCHDOG] Fix up incorrect C99 struct conversion
+  o [WATCHDOG] acquirewdt compile fixes
+  o [WATCHDOG] advantech compile fixes
+  o [WATCHDOG] ALIM7101 fixes from 2.4 + C99 structs
+  o [WATCHDOG] More alim7101 cleanups
+  o [WATCHDOG] i810-tco fix from 2.4
+  o [WATCHDOG] ib700wdt fixes from 2.4
+  o [WATCHDOG] ib700wdt c99 structs
+  o [WATCHDOG] indydog nowayout fixes from 2.4
+  o [WATCHDOG] machzwd nowayout fixes from 2.4
+  o [WATCHDOG] mixcomwd nowayout fixes from 2.4
+  o [WATCHDOG] pcwd nowayout fixes from 2.4
+  o [WATCHDOG] sbc60xxwdt nowayout fixes from 2.4
+  o [WATCHDOG] SC1200WDT nowayout fixes from 2.4
+  o [WATCHDOG] SC520 nowayout fixes from 2.4
+  o [WATCHDOG] C99 struct initialisers for shwdt
+  o [WATCHDOG] softdog nowayout fixes from 2.4
+  o [WATCHDOG] w83877f nowayout fixes from 2.4
+  o [WATCHDOG] nowayout fixes for wafer5823
+
+David Brownell <david-b@pacbell.net>:
+  o ehci, remove potential hangs
+  o zaurus B500 (sl-5600?) & usbnet
+  o 2.5.54 -- ohci-dbg.c: 358: In function `show_list': `data1'
+  o usbtest, covers control queueing and fault cleanup
+
+David S. Miller <davem@nuts.ninka.net>:
+  o [SUNZILOG]: Adapt sun4u get_zs for Peters new scanning scheme
+  o [CRYPTO]: Fix typo in aes.o rule
+  o [NET]: Kill __tcp_put_port module export
+  o [TCP]: Fix tcp_put_port declaration
+  o [IPSEC]: Dont check algorithm availability unless CONFIG_CRYPTO
+  o [IPSEC]: Kill warning in xfrm_algo.c
+  o [CRYPTO]: Use appropriate defaults if AH/ESP is enabled
+  o [SUNZILOG]: Fix uart_get_baud_rate args
+  o [AIC7XXX]: Include asm/io.h, necessary to get at inb/outb/etc
+  o [SPARC64]: Update defconfig
+
+Duncan Sands <baldrick@wanadoo.fr>:
+  o USB: atmsar is not a module
+  o USB: speedtouch missing __init and __exit
+  o USB: speedtouch: add GPL notices
+
+Duncan Sands <duncan.sands@math.u-psud.fr>:
+  o USB: speedtouch: remove version string duplication
+
+Erich Focht <efocht@ess.nec.de>:
+  o small migration thread fix
+
+Filip Sneppe <filip.sneppe@cronos.be>:
+  o [NETFILTER]: ip_conntrack_ftp.c, fixes a typo in a DEBUG statement
+
+Gabriel Paubert <paubert@iram.es>:
+  o 'iret' segment fixup
+
+Greg Kroah-Hartman <greg@kroah.com>:
+  o USB: revert davem's compile time fix, now that it's fixed properly
+  o USB brlvger: Forward port 2.4 fix for misuse of types
+  o USB: removed MOD_INC_USE_COUNT and MOD_DEC_USE_COUNT from driver
+    that do not need it
+  o USB printer driver: forward port 2.4 fix for misuse of types
+  o USB mdc800: forward port 2.4 fix for misuse of types
+  o DEV: change dev_printk() to take a pointer to dev instead of the
+    structure itself
+  o USB: drivers/usb/core/ fixups due to dev_printk change
+  o USB: drivers/usb/host/ fixups due to dev_printk change
+  o USB: drivers/usb/serial/ fixups due to dev_printk change
+  o USB serial: pass the usb_device_id to the probe() function
+  o USB serial: fixup for probe function paramaters changing
+  o USB: fix ehci build for older versions of gcc
+
+Harald Welte <laforge@gnumonks.org>:
+  o [NETFILTER]: This patch fixes the ULOG target when logging packets
+    without any ethernet header (mac address).
+
+Henning Meier-Geinitz <henning@meier-geinitz.de>:
+  o scanner.c: fix race in ioctl_scanner()
+  o USB scanner driver: updated documentation
+  o USB scanner driver: updated Kconfig
+  o scanner.c, scanner.h: Added vendor/product ids
+  o scanner.c: print user-supplied ids only on start-up
+  o scanner.c, scanner.h: Remove PV8630 ioctls
+  o [PATCH 2.5.54] scanner.c: endpoint detection cleanup
+  o scanner.c, scanner.h: Use symbolic name for interface class
+
+James Morris <jmorris@intercode.com.au>:
+  o [IPSEC]: Clean up key manager algorithm handling
+  o [CRYPTO]: Add AES algorithm
+  o [SUNSAB]: Comment out powering down of chip for now
+  o [CRYPTO]: More credits for AES
+
+Linus Torvalds <torvalds@home.transmeta.com>:
+  o Fix exec_mmap() to release the MM while we still have it active, to
+    properly de-activate it and make the child_tid logic work
+    correctly.
+  o Fix kallsyms symbol lookup code. Let's do this trivial
+    one-character version before looking at more complicated changes.
+  o Make psmouse driver _much_ more lenient about packet data timeouts
+
+Luca Barbieri <ldb@ldb.ods.org>:
+  o Use %ebp rather than %ebx for thread_info pointer
+  o Remove all register pops before sysexit
+
+Matthew Dharm <mdharm-usb@one-eyed-alien.net>:
+  o USB storage: remove usb_stor_tranfer_length()
+
+Oliver Neukum <oliver@neukum.name>:
+  o USB: kaweth freeing skbs
+
+Patrick McHardy <kaber@trash.net>:
+  o [NETFILTER]: Fix ipt_REJECT udp checksums
+  o [NETFILTER]: Fix incremental TCP checksum in ECN module
+
+Paul Mackerras <paulus@samba.org>:
+  o PPC32: Add support for the IBM PPC 405GPR-based "Sycamore" board
+  o PPC32: Handle machine checks on 4xx processors better
+
+Petko Manolov <petkan@users.sourceforge.net>:
+  o USB pegasus: small patch for 2.5
+  o again rtl8150
+
+Rob Radez <rob@osinvestor.com>:
+  o [SPARC32]: Copy over sparc64 exception table changes
+
+Robert Olsson <robert.olsson@data.slu.se>:
+  o [NAPI]: Discuss some more issues in driver HOWTO
+
+Russell King <rmk@flint.arm.linux.org.uk>:
+  o [SERIAL] Add prototypes and rename UPF_FLAGS
+  o [SERIAL] Remove unused info->event
+  o [SERIAL] Convert change_speed() to settermios()
+  o [SERIAL] Change settermios to set_termios
+  o [SERIAL] Bug fix: remove infinite loop in sa1100 serial driver
+  o [SERIAL] Restrict the baud rates returnable from
+    uart_get_baud_rate()
+  o [SERIAL] Fix build errors caused in previous cset
+
+Stephen Rothwell <sfr@canb.auug.org.au>:
+  o [COMPAT]: Sparc64 use get/put compat_timespec
+
+Tom Rini <trini@kernel.crashing.org>:
+  o PPC32: Default to 768MB of lowmem
+
 

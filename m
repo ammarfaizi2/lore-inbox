@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264749AbUEESW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264752AbUEESWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264749AbUEESW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 14:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264756AbUEESW6
+	id S264752AbUEESWb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 14:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264756AbUEESWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 14:22:58 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:28351 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264749AbUEESWv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 14:22:51 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: <shai@ftcon.com>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Multiple (ICH3) IDE-controllers in a system
-Date: Wed, 5 May 2004 17:16:43 +0200
-User-Agent: KMail/1.5.3
-Cc: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <200405042213.BLD39867@ms6.netsolmail.com>
-In-Reply-To: <200405042213.BLD39867@ms6.netsolmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 5 May 2004 14:22:31 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:27522 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S264752AbUEESW3 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 14:22:29 -0400
+Message-Id: <200405051822.i45IM2uT018573@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK) 
+In-Reply-To: Your message of "Wed, 05 May 2004 13:12:30 +0200."
+             <200405051312.30626.dominik.karall@gmx.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040505013135.7689e38d.akpm@osdl.org>
+            <200405051312.30626.dominik.karall@gmx.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1688188716P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405051716.43909.bzolnier@elka.pw.edu.pl>
+Date: Wed, 05 May 2004 14:22:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-1688188716P
+Content-Type: text/plain; charset=us-ascii
 
-Hi Vojtech,
+On Wed, 05 May 2004 13:12:30 +0200, Dominik Karall <dominik.karall@gmx.net>  said:
 
-Do I correctly assume that these fixups for Intel chipsets are from you?
+> Is there any reason why this patch was applied? Because NVidia users can't 
+> work with the original drivers now without removing this patch every time.
 
-http://linus.bkbits.net:8080/linux-2.5/cset@3cfbacdfzHvfqp0Sa45QXt9pNn3LNg?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/pci|related/arch/i386/pci/fixup.c
-http://linus.bkbits.net:8080/linux-2.5/cset@3cfcec0fOJreGFyCWkPeT7EWiydYFw?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/pci|related/arch/i386/pci/fixup.c
+The NVidia users will also have to back out the regparm patch, or insert
+'asmlinkage' on all the appropriate definitions in the glue code.  Note that
+the patches on www.minion.de already fix this for the 5341 drivers as of
+03/24/2004.
 
-Care to explain why 'trash' fixup is needed in 2.6 but not in 2.4?
+In any case, even though I'm one of those NVidia users, I'm OK with the
+patch being in there - anybody who's clued enough to build and run a -mm
+kernel shouldn't have much trouble figuring out how to build it with 2 patches
+reverted.
 
-Cheers,
-Bartlomiej
+--==_Exmh_-1688188716P
+Content-Type: application/pgp-signature
 
-On Wednesday 05 of May 2004 00:13, Shai Fultheim wrote:
-> Hi,
->
-> I am working on an IO-robust custom-made PC server, which runs the Linux
-> kernel.  The machine is working very nicely with 2.4 kernels, but we
-> recently found out that in 2.6 it couldn't see all IDE controllers.
->
-> In Linux 2.6.x pcibios_fixups table (in arch/i386/pci/fixup.c), use the
-> pci_fixup_ide_trash() quirk for Intel's ICH3 (my case specifically
-> 8086:248b).  That quirk wasn't in use for ICH3 by the 2.4.x kernels.  The
-> result of the change is that the system, which has multiple ICH3's can't
-> use any of the IDE controllers beside the one on the first ICH3 (again,
-> that worked in 2.4 kernels).
->
-> Is there a real reason to call that quirk?  If there is not, why are you
-> calling that quirk?  If there is, can I suggest that the quirk will handle
-> only the first ICH3 (i.e. add check in the quirk that it is called for the
-> first time only).  This is better than "loosing" all these IDE controllers
-> in the case their BARs set right.
->
->
-> Blow references for bare 2.6.5 kernel:
->
-> Code walkup starts with pci_scan_single_device() at
-> http://lxr.linux.no/source/drivers/pci/probe.c?v=2.6.5#L590 which calls to
-> pci_fixup_device() (line 601) which in turn use the quirks table at
-> http://lxr.linux.no/source/arch/i386/pci/fixup.c?v=2.6.5#L190 (my chipset
-> is in line 248).  The quirks table for ICH3 use pci_fixup_ide_trash()at
-> http://lxr.linux.no/source/arch/i386/pci/fixup.c?v=2.6.5#L90 - this reset
-> the BARs for the device.  Resetting the all (4) BARs of (ICH3) IDE
-> controllers will cause them to use the defaults BARs (0x170, 0x1f0) in
-> ide_hwif_configure() at
-> http://lxr.linux.no/source/drivers/ide/setup-pci.c?v=2.6.5#L420.  This will
-> fail with any subsequent (ICH3) IDE controllers (two devices can't use the
-> same ports). 
->
-> I'm not sure if ICH3 needs to reset its BARs at all, but if it is, I
-> suggest making sure pci_fixup_ide_trash() reset BARs only for first time
-> being called.  In that way subsequent IDE controllers will use the BIOS
-> BARs (which we set fine, and worked GREAT at 2.4.x), as said above, this is
-> better than "loosing" all the other IDE controllers in the case their BARs
-> set right.
->
-> Thanks in advance,
-> Shai.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFAmTDJcC3lWbTT17ARAv68AKDyilbSnkS6BP98u1SsT+P5EAyo6wCeJHFZ
++t/pxFJrewHrHM8WHGngFU0=
+=KB4u
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1688188716P--

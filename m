@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUHGXdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUHGXkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbUHGXdr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 19:33:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUHGXdq
+	id S264726AbUHGXkw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 19:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbUHGXkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 19:33:46 -0400
-Received: from gate.crashing.org ([63.228.1.57]:7877 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264085AbUHGXdo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 19:33:44 -0400
-Subject: Re: [PATCH][RESENT] remove hardcoded offsets from ppc asm
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Vincent Hanquez <tab@snarc.org>
-Cc: Paul Mackerras <paulus@samba.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040807151838.GA6760@snarc.org>
-References: <20040807151838.GA6760@snarc.org>
+	Sat, 7 Aug 2004 19:40:52 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:43460 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264726AbUHGXkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 19:40:51 -0400
+Subject: Re: [0/3]kprobes-base-268-rc3.patch
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: prasanna@in.ibm.com
+Cc: Andi Kleen <ak@muc.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       suparna@in.ibm.com, shemminger@osdl.org, vamsi_krishna@in.ibm.com
+In-Reply-To: <20040806163114.GB3732@in.ibm.com>
+References: <2pMzT-XA-21@gated-at.bofh.it>
+	 <m3hdrhyhuy.fsf@averell.firstfloor.org> <20040806123757.GB3376@in.ibm.com>
+	 <20040806151625.GA96991@muc.de>  <20040806163114.GB3732@in.ibm.com>
 Content-Type: text/plain
-Message-Id: <1091921531.14102.2.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 08 Aug 2004 09:32:12 +1000
 Content-Transfer-Encoding: 7bit
+Message-Id: <1091918278.19092.40.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 07 Aug 2004 23:37:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-08 at 01:18, Vincent Hanquez wrote:
-> 	Hi LKML,
+On Gwe, 2004-08-06 at 17:31, Prasanna S Panchamukhi wrote:
+> > Is it good enough for kprobes?
+> > 
 > 
-> This patch removes hardcoded offsets from ppc asm.
-> It generate offsets for thread_info structure instead of hardcoding them.
-> 
-> Please apply or comments,
-> 
-> Signed-off-by: Vincent Hanquez <tab@snarc.org>
+> Its good enough for Kprobes. Also kprobes needs int3 handler to be an 
+> interrupt gate, as of now its system gate. Please see my next mail for updated 
+> kprobes patch.
 
-I have nothing against the idea, but why the hell did you change the
-constant names, turning them partially to lowercase ? They are just
-fine beeing uppercase, this is more consistent, and that would
-reduce the size of your patch signficantly.
+It also looks just right for a patch-free loadable gdbstubs module which
+will end years of wrangling with Linus over debugger hooks ;)
 
-Ben.
-
+Alan
 

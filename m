@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUGKHVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUGKHrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUGKHVK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 03:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUGKHVK
+	id S266512AbUGKHrw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 03:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUGKHrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 03:21:10 -0400
-Received: from mail6.speakeasy.net ([216.254.0.206]:37030 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP id S266511AbUGKHVG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 03:21:06 -0400
-Message-Id: <6.1.1.1.0.20040711010223.03d4ce60@no.incoming.mail>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
-Date: Sun, 11 Jul 2004 01:21:07 -0600
-To: Robert Lowery <rlowery@optusnet.com.au>
-From: Jeff Woods <Kazrak+kernel@cesmail.net>
-Subject: Re: [OT] Belkin Bluetooth Access Point GPL violation
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200407110608.i6B68Y621201@mail011.syd.optusnet.com.au>
-References: <200407110608.i6B68Y621201@mail011.syd.optusnet.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Sun, 11 Jul 2004 03:47:52 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:18077 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266512AbUGKHru (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 03:47:50 -0400
+Date: Sun, 11 Jul 2004 09:46:45 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Dmitry Torokhov <dtor_core@ameritech.net>, karim@opersys.com,
+       akropel1@rochester.rr.com,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Tim Bird <tim.bird@am.sony.com>, celinux-dev@tree.celinuxforum.org,
+       tpoynor@mvista.com
+Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
+In-Reply-To: <20040710222702.3718842e.akpm@osdl.org>
+Message-ID: <Pine.GSO.4.58.0407110945010.3013@waterleaf.sonytel.be>
+References: <40EEF10F.1030404@am.sony.com> <200407102351.05059.dtor_core@ameritech.net>
+ <40F0C8E8.2060908@opersys.com> <200407110019.14558.dtor_core@ameritech.net>
+ <20040710222702.3718842e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 7/11/2004 04:08 PM +1000, Robert Lowery wrote:
->Hi Denis
-
-I don't find the original of this message, but I presume that it's the 
-words of "Denis" mentioned in the salutation:
-
->>This means that their bluetooth stack is a derivative work of the kernel 
->>and they _must_ give you source free of charge
-
-Actually, the GPL says (in section 3.b):
-
-http://www.gnu.org/licenses/gpl.txt says (in part):
-
-"Accompany it with a written offer, valid for at least three years, to give 
-any third party, for a charge no more than your cost of physically 
-performing source distribution, a complete machine-readable copy of the 
-corresponding source code, to be distributed under the terms of Sections 1 
-and 2 above on a medium customarily used for software interchange;"
-
-If they offer to provide it on, for example, CD-R discs, they may charge 
-for their actual cost of creating and shipping them, but no more; e.g. 
-US$20 might be considered reasonable in such a case, but probably not 
-US$100, and certainly not US$5000.
-
->>Only owners of said hardware have right to request full source code of 
->>the modified Linux kernel and other GPLed software (uClibc?). If they do 
->>not give away source after many requests, owners may actually sue 'em.
+On Sat, 10 Jul 2004, Andrew Morton wrote:
+> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> >
+> > I am no longer question presence of the code in the kernel, I just don't like
+> >  the message...
 >
->I assume the copyyright holders also have this right (even if they don't 
->own the hardware).
+> yup, we shouldn't have the friendly message.
 
-The GPL is a copyright license which can only be enforced by the owner(s) 
-of the copyright involved.  Note that 
-http://www.gnu.org/licenses/gpl-violation.html says (in part):
+Just add the appropriate KERN_*, so it's not displayed by default, and people
+who want it can look it up in syslog.
 
-"Note that the GPL, and other copyleft licenses, are copyright licenses. 
-This means that only the copyright holders are empowered to act against 
-violations. The FSF acts on all GPL violations reported on FSF copyrighted 
-code, and we offer assistance to any other copyright holder who wishes to 
-do the same."
+Or what about a sysfs entry people can cat?
 
-I would think a company like Belkin has assets they would be wise to 
-protect.  Perhaps they're offering to involuntarily fund open-source 
-development.
+The alternative is to cat /proc/cpuinfo and grab a calculcator...
+
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-Jeff Woods <kazrak+kernel@cesmail.net> 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

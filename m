@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284681AbRLEUfG>; Wed, 5 Dec 2001 15:35:06 -0500
+	id <S284662AbRLEUeQ>; Wed, 5 Dec 2001 15:34:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284676AbRLEUe5>; Wed, 5 Dec 2001 15:34:57 -0500
-Received: from postfix2-2.free.fr ([213.228.0.140]:30660 "HELO
-	postfix2-2.free.fr") by vger.kernel.org with SMTP
-	id <S284681AbRLEUeq> convert rfc822-to-8bit; Wed, 5 Dec 2001 15:34:46 -0500
-Date: Wed, 5 Dec 2001 18:38:33 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.16: running *really* short on DMA buffers
-In-Reply-To: <3C0E6E77.A5365331@web-systems.net>
-Message-ID: <20011205182528.D1831-100000@gerard>
+	id <S284676AbRLEUeH>; Wed, 5 Dec 2001 15:34:07 -0500
+Received: from colorfullife.com ([216.156.138.34]:20243 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S284662AbRLEUd4>;
+	Wed, 5 Dec 2001 15:33:56 -0500
+Message-ID: <3C0E84B4.1070808@colorfullife.com>
+Date: Wed, 05 Dec 2001 21:33:56 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Shuji YAMAMURA <yamamura@flab.fujitsu.co.jp>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] task_struct + kernel stack colouring ...
+In-Reply-To: <Pine.LNX.4.40.0112051103100.1644-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Davide Libenzi wrote
 
-
-On Wed, 5 Dec 2001, Heinz-Ado Arnolds wrote:
-
-> Hi all,
 >
-> I get the message "kernel: Warning - running *really* short on DMA
-> buffers" frequently with medium to heavy disk i/o (running several
-> tar and/or moving huge directories).
 >
-> Can anybody give me some hints what the reason for this might be
-> and how to avoid this condition.
+>By adding three bits of colouring you're going to cut the collision of
+>about 1/8.
+>
+No, Shuji is right:
+You have just shifted the problem, without reducing collisions.
+256 kB, 4 way cache with 32 byte linesize.
 
-The reason is certainly not driver allocations (either sym53c8xx version 1
-or 2), since it performs all allocations of its internal data structures
-directly from the page pool. OTOH, the Symbios PCI devices are quite able
-to DMA the whole 32 bit physical address range.
+cacheline == bits 15..5
+offset within cacheline: bits 4..0
 
-So, they are the allocations internal to the scsi layer that may well
-exhaust the ISA DMA pool. This pool is divided into 512 bytes chunks.
-Under heavy reordering of IOs, it can get very fragmented and much memory
-being wasted as a result.
+The colouring must depend on more than just bits 13 to 15 - if these 
+bits are different, then the access goes into a different line even 
+without colouring, there won't be a collision.
 
-An immediate solution might be to hack the scsi code for it to allocate
-more memory.
+Shuij, I don't understand why you need both a shift and a modulo: 
+address % odd_number should generate a random distribution (i.e. all 
+bits affect the result), even without the shift.
 
-> Do you need more information (I'm using only SCSI disks attached
-> to a Symbios controller: <875> rev 0x26 on pci bus 0 device 11 func
-> tion 0 irq 15)? I even can't find this error string in the kernel
-> sources.
+--
+    Manfred
 
-The error string in well known since years, so you shouldn't have missed
-it from sources. :-)
-
-  Gérard.
 

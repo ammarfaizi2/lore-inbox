@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264160AbUFFVUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264155AbUFFVor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264160AbUFFVUv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 17:20:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264165AbUFFVUv
+	id S264155AbUFFVor (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 17:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264164AbUFFVor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 17:20:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60391 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264160AbUFFVUu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 17:20:50 -0400
-Date: Sun, 6 Jun 2004 14:20:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (urgent) ppc32: Fix CPUs with soft loaded TLB
-In-Reply-To: <1086556255.1859.14.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0406061418450.1730@ppc970.osdl.org>
-References: <1086556255.1859.14.camel@gaston>
+	Sun, 6 Jun 2004 17:44:47 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:61903 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S264155AbUFFVoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 17:44:46 -0400
+Date: Sun, 6 Jun 2004 17:46:20 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Disable scheduler debugging
+In-Reply-To: <40C3452B.5010500@pobox.com>
+Message-ID: <Pine.LNX.4.58.0406061742100.1838@montezuma.fsmlabs.com>
+References: <20040606033238.4e7d72fc.ak@suse.de> <20040606055336.GA15350@elte.hu>
+ <40C3452B.5010500@pobox.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 6 Jun 2004, Jeff Garzik wrote:
 
+> Unfortunately there are just, flat-out, way too many kernel messages at
+> boot-up.  Making them KERN_DEBUG doesn't solve the fact that SMP boxes
+> often overflow the printk buffer before you boot up to a useful userland
+> that can record the dmesg.
+>
+> The IO-APIC code is a _major_ offender in this area, but the CPU code is
+> right up there as well.
 
-On Sun, 6 Jun 2004, Benjamin Herrenschmidt wrote:
-> 
-> The recent introduction of ptep_set_access_flags() with the optimisation
-> of not flushing the TLB unfortunately broke ppc32 CPUs with no hash table.
-
-Makes sense, applied.
-
-However, wouldn't it make sense to have this on the ppc64 branch too?
-
-Admittedly on ppc64, the flush_tlb_page_nohash() function would be a
-no-op, since it always has the hash tables, but I'm a blue-eyed optimists,
-and I'm still hoping that some day IBM will see the error of their ways, 
-and get rid of the hash tables entirely. At which point ppc64 too will 
-need to flush the TLB entry.
-
-		Linus
+How about the configurable log buffer size patch? I think Andrew still has
+that amongst his wares.

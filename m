@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264611AbSJNKpw>; Mon, 14 Oct 2002 06:45:52 -0400
+	id <S264616AbSJNKue>; Mon, 14 Oct 2002 06:50:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264614AbSJNKpw>; Mon, 14 Oct 2002 06:45:52 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:152 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264611AbSJNKpw>;
-	Mon, 14 Oct 2002 06:45:52 -0400
-Date: Mon, 14 Oct 2002 03:44:47 -0700 (PDT)
-Message-Id: <20021014.034447.127180554.davem@redhat.com>
-To: raul@pleyades.net
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH] mmap.c (do_mmap_pgoff), against 2.4.19 and 2.4.20-pre10
+	id <S264619AbSJNKud>; Mon, 14 Oct 2002 06:50:33 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:4504 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264616AbSJNKud>;
+	Mon, 14 Oct 2002 06:50:33 -0400
+Date: Mon, 14 Oct 2002 03:48:53 -0700 (PDT)
+Message-Id: <20021014.034853.77257674.davem@redhat.com>
+To: kuznet@ms2.inr.ac.ru
+Cc: neilb@cse.unsw.edu.au, taka@valinux.co.jp, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: [PATCH] zerocopy NFS for 2.5.36
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021014102042.GC96@DervishD>
-References: <20021014093622.GA96@DervishD>
-	<20021014.025250.105171520.davem@redhat.com>
-	<20021014102042.GC96@DervishD>
+In-Reply-To: <200210141045.OAA10901@sex.inr.ac.ru>
+References: <20021013.231534.08939486.davem@redhat.com>
+	<200210141045.OAA10901@sex.inr.ac.ru>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -24,12 +24,17 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: DervishD <raul@pleyades.net>
-   Date: Mon, 14 Oct 2002 12:20:42 +0200
+   From: kuznet@ms2.inr.ac.ru
+   Date: Mon, 14 Oct 2002 14:45:33 +0400 (MSD)
 
-   > I bet if you explain this, Marcelo will take your fix.
+   I took two patches of the batch:
    
-       Marcelo told me to resend this patch at 2.4.20-pre time,
+   va10-hwchecksum-2.5.36.patch
+   va11-udpsendfile-2.5.36.patch
+   
+   I did not worry about the rest i.e. sunrpc/* part.
 
-Thanks for describing your fix all over again, and I hope
-this leads Marcelo to inspect your fix more closely :)
+Neil and the NFS folks can take care of those parts
+once the generic UDP parts are in.
+
+So, no worries.

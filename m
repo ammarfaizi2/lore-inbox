@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143800AbRA1SkV>; Sun, 28 Jan 2001 13:40:21 -0500
+	id <S143853AbRA1SlW>; Sun, 28 Jan 2001 13:41:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143807AbRA1SkL>; Sun, 28 Jan 2001 13:40:11 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16907 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S143800AbRA1Sj7>;
-	Sun, 28 Jan 2001 13:39:59 -0500
-Date: Sun, 28 Jan 2001 19:39:49 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Lorenzo Allegrucci <lenstra@tiscalinet.it>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre10 deadlock (Re: ps hang in 241-pre10)
-Message-ID: <20010128193949.A5522@suse.de>
-In-Reply-To: <20010128192306.C4871@suse.de> <Pine.LNX.4.10.10101281026250.3812-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10101281026250.3812-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Jan 28, 2001 at 10:29:53AM -0800
+	id <S143854AbRA1SlD>; Sun, 28 Jan 2001 13:41:03 -0500
+Received: from cx425802-a.blvue1.ne.home.com ([24.0.54.216]:10756 "EHLO
+	wr5z.localdomain") by vger.kernel.org with ESMTP id <S143807AbRA1Skd>;
+	Sun, 28 Jan 2001 13:40:33 -0500
+Date: Sun, 28 Jan 2001 12:27:46 -0600 (CST)
+From: Thomas Molina <tmolina@home.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <sensors@stimpy.netroedge.com>
+Subject: time in the future during make for 2.4.0
+Message-ID: <Pine.LNX.4.30.0101281210240.16358-100000@wr5z.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 28 2001, Linus Torvalds wrote:
-> On Sun, 28 Jan 2001, Jens Axboe wrote:
-> > 
-> > How about this instead?
-> 
-> I really don't like this one. It will basically re-introduce the old
-> behaviour of waking people up in a trickle, as far as I can tell. The
-> reason we want the batching is to make people have more requests to sort
-> in the elevator, and as far as I can tell this will just hurt that.
-> 
-> Are there any downsides to just _always_ batching, regardless of whether
-> the request freelist is empty or not? Sure, it will make the "effective"
-> size of the freelist a bit smaller, but that's probably not actually
-> noticeable under any load except for the one that empties the freelist (in
-> which case the old code would have triggered the batching anyway).
+I seem to recall a discussion on faster processors causing timing
+problems during a kernel make, but I'm unable to find it in the kernel
+archives.  I've now upgraded to an Athlon 900 MHz processor and an ASUS
+A7V motherboard and have started seeing this.  It shows up as the
+following messages during a make bzImage:
 
-The problem with removing the !list_empty test like you suggested
-is that batching is no longer controlled anymore. If we start
-batching once the lists are empty and start wakeups once batch_requests
-has been reached, we know we'll give the elevator enough to work
-with to be effective. With !list_empty removed, batch_requests is no
-longer a measure of how many requests we want to batch. Always
-batching is not a in problem in itself, the effective smaller freelist
-effect should be neglible.
+make[3]: *** Warning:  Clock skew detected.  Your build may be
+incomplete.
+make[3]: *** Warning: File
+`/mnt/hd/local/kernel/linux.24.new/include/linux/sched.h' has
+modification time in the future (2001-01-28 17:41:05 > 2001-01-28
+10:07:02)
 
-The sent patch will only trickle wakeups in case of batching already
-in effect, but batch_request wakeups were not enough to deplete
-the freelist again. At least that was the intended effect :-)
+I would appreciate any pointers to the discussion archive or solutions.
 
-> Performance numbers?
+It doesn't seem to have a major problem with kernel compiles, but it
+appears to send compiles of lm-sensors 2.5.5 into endless loops.  Each
+loop begins with the following:
 
-Don't have any right now, will test a bit later.
+make: *** Warning: File `/usr/local/kernel/linux/include/linux/types.h'
+has modification time in the future (2001-01-28 17:41:05 > 2001-01-28
+12:21:28)
+gcc -M -MG -I. -Ikernel/include -I/usr/local/include
+-I/usr/local/kernel/linux/include -O2  prog/detect/i2cdetect.c | \
+        sed -e 's@^\(.*\)\.o:@prog/detect/i2cdetect.rd
+prog/detect/i2cdetect.ro: Makefile '`dirname
+prog/detect/i2cdetect.rd`/Module.mk' @' > prog/detect/i2cdetect.rd
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+and ends with the following before starting over again:
+
+gcc -M -MG -I. -Ikernel/include -I/usr/local/include
+-I/usr/local/kernel/linux/include -O2  -D__KERNEL__ -DMODULE
+-fomit-frame-pointer  -DEXPORT_SYMTAB -DMODVERSIONS -include
+/usr/local/kernel/linux/include/linux/modversions.h kernel/sensors.c | \
+        sed -e 's@^\(.*\)\.o:@kernel/sensors.d kernel/sensors.o:
+Makefile '`dirname kernel/sensors.d`/Module.mk' @' > kernel/sensors.d
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

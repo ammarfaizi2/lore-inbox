@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264370AbTEPIIk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 04:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbTEPIIk
+	id S264372AbTEPINX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 04:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTEPINX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 04:08:40 -0400
-Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:64708 "EHLO
-	marauder.googgun.com") by vger.kernel.org with ESMTP
-	id S264370AbTEPIIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 04:08:38 -0400
-Date: Fri, 16 May 2003 04:19:12 -0400 (EDT)
-From: Ahmed Masud <masud@googgun.com>
-To: Yoav Weiss <ml-lkml@unpatched.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
- (fwd)
-In-Reply-To: <Pine.LNX.4.44.0305160157010.32563-100000@marcellos.corky.net>
-Message-ID: <Pine.LNX.4.33.0305160354500.23288-100000@marauder.googgun.com>
+	Fri, 16 May 2003 04:13:23 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:55000 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264372AbTEPINW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 04:13:22 -0400
+Date: Fri, 16 May 2003 10:24:22 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@infradead.org>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: [BK FBDEV] String drawing optimizations.
+In-Reply-To: <Pine.LNX.4.44.0305152104400.6330-100000@phoenix.infradead.org>
+Message-ID: <Pine.GSO.4.21.0305161018320.3722-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 15 May 2003, James Simmons wrote:
+> > What about getting rid of one-char putc, implementing it in terms of
+> > putcs? I'm doing it in matroxfb patches, and nobody complained yet, and
+> > with current length of {fbcon,accel}_putc{s,} I was not able to find
+> > measurable speed difference between putc and putc through putcs variants.
+> 
+> Hm. I compressed all the image drawing functions into accel_putcs which is 
+> used in many places. I then placed accel_putc() into fbcon_putc(). I could 
+> have accel_putcs() called in fbcon_putc(). The advantage is smaller 
+> amount of code. The offset is a big more overhead plus a function call. 
+> What do people think here?
 
+putc() is almost never called, IIRC. We did our best to combine as much data as
+possible and call putcs().
 
-On Fri, 16 May 2003, Yoav Weiss wrote:
+A quick grep showed ->con_putc() is called only in drivers/char/vt.c for:
+  - Complementing the pointer position (for gpm)
+  - Inserting/deleting single characters
+  - Softcursor
 
-> Hi,
->
-> I got the below from some guy, off the list.
-> He may has a point, at least when writable pages are shared between
-> processes.
->
-> What do you think ?
->
-> 	Yoav
->
->  My apologies; I was unclear.
->
->  I think that you need to associate swap encryption keys with memory
-> spaces, not with processes, precisely because you need to be able to
-> swap out and swap in from any process using that memory space. And
-> correspondingly the key can't die on a per-process basis, it has to
-> die if and only if the associated memory space is torn down (which
-> may be long after the PID that originally creates it goes away).
+I guess the small overhead won't have much influence here.
 
-Hi Yoav,
+Gr{oetje,eeting}s,
 
-After sort of thinking about it at this early friday hour (well late
-thursday for me), it occurs to me that we may want to maintain keys
-either in the vm_area_struct (vma) or for a vma group.
+						Geert
 
-We want to decrypt mostlikely after a page-fault, which triggers a vma
-nopage (code here?), has loaded the page so vma key, and swapping out of
-course is still in vma domain.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Since we can always go from process to vma to page and back again i think
-it is not going to cause any tracking issues.
-
-Further, we have different vma's for shared and other interesting pages
-so various optimizations are also doable on a case to case basis.
-
-Does this make any sense? or am I off the cuckoo train at this hour :)
-
-Please comment.
-
-Cheers,
-
-Ahmed.
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

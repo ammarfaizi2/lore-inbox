@@ -1,63 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVDFFyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVDFF64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbVDFFyV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 01:54:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVDFFyV
+	id S262114AbVDFF64 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 01:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVDFF64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 01:54:21 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:28329 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262113AbVDFFyQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 01:54:16 -0400
-Date: Wed, 6 Apr 2005 07:54:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [patch 3/5] sched: multilevel sbe and sbf
-Message-ID: <20050406055409.GA5973@elte.hu>
-References: <425322E0.9070307@yahoo.com.au> <42532317.5000901@yahoo.com.au> <42532346.5050308@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42532346.5050308@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 6 Apr 2005 01:58:56 -0400
+Received: from ctb-mesg5.saix.net ([196.25.240.77]:978 "EHLO
+	ctb-mesg5.saix.net") by vger.kernel.org with ESMTP id S262114AbVDFF6v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 01:58:51 -0400
+Message-ID: <42537A8F.6090509@kroon.co.za>
+Date: Wed, 06 Apr 2005 07:58:39 +0200
+From: Jaco Kroon <jaco@kroon.co.za>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.6) Gecko/20050328
+X-Accept-Language: en, af, en-gb, en-us
+MIME-Version: 1.0
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i8042 controller on Toshiba Satellite P10 notebook - patch
+References: <425166F9.1040800@kroon.co.za>	 <d120d500050404110374fe9deb@mail.gmail.com>	 <4251A515.8040802@kroon.co.za>	 <d120d500050404140253a77ab8@mail.gmail.com>	 <4251B6E2.3010506@kroon.co.za>	 <d120d50005040415506cd87287@mail.gmail.com>	 <4251D3CB.4010501@kroon.co.za> <4252D6F8.6000707@suse.de>	 <d120d500050405113744837bd7@mail.gmail.com>	 <4252FCA5.7040206@kroon.co.za> <d120d50005040514215535d78f@mail.gmail.com>
+In-Reply-To: <d120d50005040514215535d78f@mail.gmail.com>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms000002080304070101020509"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a cryptographically signed message in MIME format.
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+--------------ms000002080304070101020509
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> 3/5
-
-> The fundamental problem that Suresh has with balance on exec and fork
-> is that it only tries to balance the top level domain with the flag
-> set.
+Dmitry Torokhov wrote:
+> On Apr 5, 2005 4:01 PM, Jaco Kroon <jaco@kroon.co.za> wrote:
 > 
-> This was worked around by removing degenerate domains, but is still a
-> problem if people want to start using more complex sched-domains, especially
-> multilevel NUMA that ia64 is already using.
+>>btw Dmitri, that patch does not seem to work.  But the kernel panic that
+>>kicks in when X starts up does imply that _something_ changed.  No sync
+>>however, so no stack trace in the logs either.  In fact, looking at the
+>>dmesg part of those two boot attempts the serio i8042 driver doesn't
+>>even manage to find the KBD or AUX ports (No keyboard or mouse).
 > 
-> This patch makes balance on fork and exec try balancing over not just the
-> top most domain with the flag set, but all the way down the domain tree.
-> 
-> Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+> I wounder how it could be. The patch just does i8042_nomux=1, exactly
+> as i8042.nomux does. Can I get that panic trace, please? I assume you
+> see it on the screen?
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+I just realised that in my haste I tested it against the 2.6.11.6
+kernel, not the 2.6.12rc{1,2} as you instructed.  I'll retest as soon as
+I can.
 
-note that no matter how much scheduler logic, in the end 
-cross-scheduling of tasks between nodes on NUMA will always have a 
-permanent penalty (i.e. the 'migration cost' is 'infinity' in the long 
-run), so the primary focus _hast to be_ on 'get it right initially' When 
-tasks must spill over to other nodes will always remain a special case.  
-So balance-on-fork/exec/[clone] definitely needs to be aware of the full 
-domain tree picture.
+-- 
+There are only 10 kinds of people in this world,
+  those that understand binary and those that don't.
+http://www.kroon.co.za/
 
-	Ingo
+--------------ms000002080304070101020509
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII5TCC
+As0wggI2oAMCAQICAw3p1jANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDUwMTI4MjExMjIzWhcNMDYwMTI4MjExMjIz
+WjBCMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMR8wHQYJKoZIhvcNAQkBFhBq
+YWNvQGtyb29uLmNvLnphMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4CsLuOWD
+wimwAv4QLdlT99frJCwzUBVQNL7c7x4ufEquAH6RamWfQyQHzykEJM8NeMIrfb+k3fZEi+ZU
+g5sq2uIqzOuCJsIj0x3LnoydXTikbv1AFWQDEuqITlroA8bGJE/mMlbPrKyDACPo5cQAzUQz
+LAg7LQQQVkKNWH4eeXUwZ5lOZEWWno0P5DXHdSLQxCshgWVPRrbtKe25WGObqJMa//1T5qX8
+0mKIdAbHlz90BwgX/MjLp0BpXTii2653ScOujCLTC3cPdDUDK68qG7RqatVw5+HE/npJIWa1
+0TxJUp5Ii8nPbGPzpEWQmZ8TjkjMs26w80PPPKh2Vh2siQIDAQABoy0wKzAbBgNVHREEFDAS
+gRBqYWNvQGtyb29uLmNvLnphMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAqXNX
+QEMTVQoj3JoEwK9vlfqSVz5ZEUklpgEhwFJsD+PKa/LgUGVHk3Gw8wws4+wZxmpOsJ7vdiWL
+y8zlX7HfPWMcbibTi6C7nT6WahqdeAo3kVjhnMqJ3Sf6sX0JGl9bWfIhgmIVy/ZdM2ztrXwd
+rbWiT7un5lM05D4YPCNH9fcwggLNMIICNqADAgECAgMN6dYwDQYJKoZIhvcNAQEEBQAwYjEL
+MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAq
+BgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA1MDEyODIx
+MTIyM1oXDTA2MDEyODIxMTIyM1owQjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJl
+cjEfMB0GCSqGSIb3DQEJARYQamFjb0Brcm9vbi5jby56YTCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAOArC7jlg8IpsAL+EC3ZU/fX6yQsM1AVUDS+3O8eLnxKrgB+kWpln0Mk
+B88pBCTPDXjCK32/pN32RIvmVIObKtriKszrgibCI9Mdy56MnV04pG79QBVkAxLqiE5a6APG
+xiRP5jJWz6ysgwAj6OXEAM1EMywIOy0EEFZCjVh+Hnl1MGeZTmRFlp6ND+Q1x3Ui0MQrIYFl
+T0a27SntuVhjm6iTGv/9U+al/NJiiHQGx5c/dAcIF/zIy6dAaV04otuud0nDrowi0wt3D3Q1
+AyuvKhu0amrVcOfhxP56SSFmtdE8SVKeSIvJz2xj86RFkJmfE45IzLNusPNDzzyodlYdrIkC
+AwEAAaMtMCswGwYDVR0RBBQwEoEQamFjb0Brcm9vbi5jby56YTAMBgNVHRMBAf8EAjAAMA0G
+CSqGSIb3DQEBBAUAA4GBAKlzV0BDE1UKI9yaBMCvb5X6klc+WRFJJaYBIcBSbA/jymvy4FBl
+R5NxsPMMLOPsGcZqTrCe73Yli8vM5V+x3z1jHG4m04ugu50+lmoanXgKN5FY4ZzKid0n+rF9
+CRpfW1nyIYJiFcv2XTNs7a18Ha21ok+7p+ZTNOQ+GDwjR/X3MIIDPzCCAqigAwIBAgIBDTAN
+BgkqhkiG9w0BAQUFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTES
+MBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
+CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBl
+cnNvbmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0
+aGF3dGUuY29tMB4XDTAzMDcxNzAwMDAwMFoXDTEzMDcxNjIzNTk1OVowYjELMAkGA1UEBhMC
+WkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1Ro
+YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMIGfMA0GCSqGSIb3DQEBAQUAA4GN
+ADCBiQKBgQDEpjxVc1X7TrnKmVoeaMB1BHCd3+n/ox7svc31W/Iadr1/DDph8r9RzgHU5VAK
+MNcCY1osiRVwjt3J8CuFWqo/cVbLrzwLB+fxH5E2JCoTzyvV84J3PQO+K/67GD4Hv0CAAmTX
+p6a7n2XRxSpUhQ9IBH+nttE8YQRAHmQZcmC3+wIDAQABo4GUMIGRMBIGA1UdEwEB/wQIMAYB
+Af8CAQAwQwYDVR0fBDwwOjA4oDagNIYyaHR0cDovL2NybC50aGF3dGUuY29tL1RoYXd0ZVBl
+cnNvbmFsRnJlZW1haWxDQS5jcmwwCwYDVR0PBAQDAgEGMCkGA1UdEQQiMCCkHjAcMRowGAYD
+VQQDExFQcml2YXRlTGFiZWwyLTEzODANBgkqhkiG9w0BAQUFAAOBgQBIjNFQg+oLLswNo2as
+Zw9/r6y+whehQ5aUnX9MIbj4Nh+qLZ82L8D0HFAgk3A8/a3hYWLD2ToZfoSxmRsAxRoLgnSe
+JVCUYsfbJ3FXJY3dqZw5jowgT2Vfldr394fWxghOrvbqNOUQGls1TXfjViF4gtwhGTXeJLHT
+HUb/XV9lTzGCAzswggM3AgEBMGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
+b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFp
+bCBJc3N1aW5nIENBAgMN6dYwCQYFKw4DAhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUwNDA2MDU1ODM5WjAjBgkqhkiG9w0BCQQxFgQURj+J
+lV+dxWAF4Bi2dZk0dhh/3ocwUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG
+9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYB
+BAGCNxAEMWswaTBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcg
+KFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3Vpbmcg
+Q0ECAw3p1jB6BgsqhkiG9w0BCRACCzFroGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRo
+YXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBG
+cmVlbWFpbCBJc3N1aW5nIENBAgMN6dYwDQYJKoZIhvcNAQEBBQAEggEAxqE/W2mf46k5wAGK
+lCibfiMrgkvAatnkIeknWlKJEjbnM6lks07fDX3nT/CrST+Ow14Lum8Hb0uyQFrwrJPcDBZZ
+a/40BrlNV01QNGa6vgAFhy6J2r6oroHXI0sYF8ThzvPl9ANtqXXiXf2OBwg+RFYFXzbsxKOg
+2QrkUdSXRfixNbfp5HGUVcMZIn1MnxuYipWS9keVeHjwzrbEcXfhxQhs3uZ5Pk7+a5xYJDsP
+e7JkBwqL+XNrAROD2j1+Beaa4/hPve9orJ1slctUY6KF8XDsQ1opRwC2Ske2GyN2RbhMzKZt
+bTHIVQfYkoFOGY9+BtHA4YqU08jNPsLKtfEmswAAAAAAAA==
+--------------ms000002080304070101020509--

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264905AbTGBKja (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 06:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbTGBKja
+	id S264912AbTGBKo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 06:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbTGBKo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 06:39:30 -0400
-Received: from gprs2-63.eurotel.cz ([160.218.145.63]:20455 "EHLO
-	exuhome.dyn.jankratochvil.net") by vger.kernel.org with ESMTP
-	id S264905AbTGBKj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 06:39:29 -0400
-Date: Wed, 2 Jul 2003 12:53:28 +0200
-From: Jan Kratochvil 
-	<rcpt-linux-kernel.AT.vger.kernel.org@jankratochvil.net>
+	Wed, 2 Jul 2003 06:44:26 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12051 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264912AbTGBKoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 06:44:23 -0400
+Date: Tue, 1 Jul 2003 22:03:09 +0200
+From: Pavel Machek <pavel@ucw.cz>
 To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       chaffee@cs.berkeley.edu, zippel@linux-m68k.org
-Subject: Re: [PATCH] vfat+affs case preservation
-Message-ID: <20030702105328.GA17023@exuhome.dyn.jankratochvil.net>
-References: <20030702102538.GA16711@exuhome.dyn.jankratochvil.net> <20030702103457.GS27348@parcelfarce.linux.theplanet.co.uk>
+Cc: rmoser <mlmoser@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: File System conversion -- ideas
+Message-ID: <20030701200309.GB6810@zaurus.ucw.cz>
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl> <20030629192847.GB26258@mail.jlokier.co.uk> <20030629194215.GG27348@parcelfarce.linux.theplanet.co.uk> <200306291545410600.02136814@smtp.comcast.net> <20030629200020.GH27348@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030702103457.GS27348@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030629200020.GH27348@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Wed, 02 Jul 2003 12:34:57 +0200, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Wed, Jul 02, 2003 at 12:25:38PM +0200, Jan Kratochvil wrote:
-...
-> > http://www.jankratochvil.net/priv/vfat/linux-2.4.22-pre2-vfat6.diff
-> > http://www.jankratochvil.net/priv/vfat/linux-2.5.73-bk9-vfat6.diff
-...
-> > +/* We have to always do the revalidate as after unlink (etc.) there still may
-> > + * exist other case-different dentries for the same inode. It would be also
-> > + * possible to discard such aliases by going through d_alias links during the
-> > + * unlink. "strictcase" does not have case-different dentries but "longna~1"
-> > + * style aliases still exist there.
-> > + */
+> > >Uh-huh.  You want to get in-kernel conversion between ext* and reiserfs?
+> > >With recoverable state if aborted?  Get real.
+> > 
+> > no, in-kernel conversion between everything.  You don't think it can be done?
+> > It's not that difficult a problem to manage data like that :D
 > 
-> > -	alias = d_find_alias(inode);
-...
-> Broken.   With that we can get two active dentries for the same directory.
-> There goes any cache coherency, with all usual results.
+> I think that I will believe it when I see the patchset implementing it.
+> Provided that it will be convincing enough.  Other than that...  Not
+> really.  You will need code for each pair of filesystems, since
+> convertor will need to know *both* layouts.  No amount of handwaving
+> is likely to work around that.  And we have what, something between
+> 10 and 20 local filesystems?  Have fun...
+> 
+> If you want your idea to be considered seriously - take reiserfs code,
+> take ext3 code, copy both to userland and put together a conversion
+> between them.  Both ways.  That, by definition, is easier than doing
 
-Right, this patch will introduce virtual directory hardlinks - multiple dentries
-to one directory inode. But it also makes dentry validation mandatory for such
-filesystems to fix it. I was not able to prevent such hardlinking as there must
-already exist two valid dentries named "dir" and "DIR" to call rename("dir").
-Patch successfuly being used over 1.5 year on server to vindicate it a bit. :-)
+Actually partition surprise should be able
+to do ext2<=>reiser. It does not have journal, IIRC :-(.
+				Pavel
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 
-
-
-Regards,
-Lace

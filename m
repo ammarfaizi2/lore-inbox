@@ -1,85 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbTENN4H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTENNzs
+	id S262308AbTENOCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 10:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbTENOCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:55:48 -0400
-Received: from netline-be1.netline.ch ([195.141.226.32]:9998 "EHLO
-	netline-be1.netline.ch") by vger.kernel.org with ESMTP
-	id S262249AbTENNzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:55:35 -0400
-Subject: Re: Improved DRM support for cant_use_aperture platforms
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: davidm@hpl.hp.com
-Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-In-Reply-To: <16064.41491.952068.159814@napali.hpl.hp.com>
-References: <200305101009.h4AA9GZi012265@napali.hpl.hp.com>
-	 <1052653415.12338.159.camel@thor>
-	 <16062.37308.611438.5934@napali.hpl.hp.com>
-	 <20030511195543.GA15528@suse.de> <1052690133.10752.176.camel@thor>
-	 <16063.60859.712283.537570@napali.hpl.hp.com>
-	 <1052768911.10752.268.camel@thor>
-	 <16064.453.497373.127754@napali.hpl.hp.com>
-	 <1052774487.10750.294.camel@thor>
-	 <16064.5964.342357.501507@napali.hpl.hp.com>
-	 <1052786080.10763.310.camel@thor>
-	 <16064.41491.952068.159814@napali.hpl.hp.com>
-Content-Type: text/plain; charset=iso-8859-1
-Organization: Debian, XFree86
-Message-Id: <1052921284.18105.168.camel@thor>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.1.99 (Preview Release)
-Date: 14 May 2003 16:08:05 +0200
-Content-Transfer-Encoding: 8bit
+	Wed, 14 May 2003 10:02:11 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:9193 "EHLO dns.toxicfilms.tv")
+	by vger.kernel.org with ESMTP id S262308AbTENOAd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 10:00:33 -0400
+Date: Wed, 14 May 2003 16:13:15 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hdb: dma_timer_expiry: dma status == 0x64 [2.5.69]
+In-Reply-To: <20030514134704.GA1062@babylon.d2dc.net>
+Message-ID: <Pine.LNX.4.51.0305141611130.22227@dns.toxicfilms.tv>
+References: <Pine.LNX.4.51.0305132143570.19932@dns.toxicfilms.tv>
+ <20030514134704.GA1062@babylon.d2dc.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-23717851-1774618890-1052921595=:22227"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Die, 2003-05-13 at 09:43, David Mosberger wrote: 
-> >>>>> On 13 May 2003 02:34:41 +0200, Michel Dänzer <michel@daenzer.net> said:
-> 
->   >> It should be possible to add vmap() and vunmap() to kernel/vmalloc.c
->   >> on older kernels.  I think those are the only dependencies
-> 
->   Michel> There are a couple more, like pte_offset_kernel(), pte_pfn(),
->   Michel> pfn_to_page() and flush_tlb_kernel_range(). Getting this working with
->   Michel> 2.4 seems like a lot of work and/or ugly. :\
-> 
-> Actually, it turns out I'm really not well positioned to do this,
-> because the ia64 agp patch for 2.4 looks very different from the 2.5
-> and your tree looks rather different from the DRM stuff that's in the
-> official Linux tree (correct me if I'm wrong here).
-> 
-> Anyhow, this should get you close to compiling (and working,
-> hopefully), modulo vmap/vunmap:
-> 
-> #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-> # define pte_offset_kernel(dir, address)	pte_offset(dir, address)
-> # define pte_pfn(pte)				(pte_page(pte) - mem_map)
-> # define flush_tlb_kernel_range(s,e)		flush_tlb_all()
-> #endif
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-[...]
+---23717851-1774618890-1052921595=:22227
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> The above definition of pte_pfn() is not truly platform-independent,
-> but I believe it works on all platforms that support AGP.
+> I'm seeing it too, only with recent kernels.
+Exactly like me.
+Someone suggested Bartlomiej Zolnierkiewicz's patch.
+Try this on for size. I haven't tested it yet, but please give it a shot.
 
-Looks like it should work on sane PPC systems as well. :)
+Regards,
+Maciej
 
-# define pfn_to_page(pfn)			(mem_map + (pfn))
+# Fix masked_irq arg handling for ide_do_request().
+# Solves "hdx: lost interrupt" bug.
+#
+# Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
-is also needed.
+--- linux-2.5.68-bk6/drivers/ide/ide-io.c	Fri Apr 25 16:08:53 2003
++++ linux/drivers/ide/ide-io.c	Fri Apr 25 16:13:37 2003
+@@ -850,14 +850,14 @@
+ 		 * happens anyway when any interrupt comes in, IDE or otherwise
+ 		 *  -- the kernel masks the IRQ while it is being handled.
+ 		 */
+-		if (hwif->irq != masked_irq)
++		if (masked_irq != IDE_NO_IRQ && hwif->irq != masked_irq)
+ 			disable_irq_nosync(hwif->irq);
+ 		spin_unlock(&ide_lock);
+ 		local_irq_enable();
+ 			/* allow other IRQs while we start this request */
+ 		startstop = start_request(drive, rq);
+ 		spin_lock_irq(&ide_lock);
+-		if (hwif->irq != masked_irq)
++		if (masked_irq != IDE_NO_IRQ && hwif->irq != masked_irq)
+ 			enable_irq(hwif->irq);
+ 		if (startstop == ide_released)
+ 			goto queue_next;
+---23717851-1774618890-1052921595=:22227
+Content-Type: TEXT/plain; name="masked_irq.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.51.0305141613150.22227@dns.toxicfilms.tv>
+Content-Description: masked_irq.diff
+Content-Disposition: attachment; filename="masked_irq.diff"
 
+IyBGaXggbWFza2VkX2lycSBhcmcgaGFuZGxpbmcgZm9yIGlkZV9kb19yZXF1
+ZXN0KCkuDQojIFNvbHZlcyAiaGR4OiBsb3N0IGludGVycnVwdCIgYnVnLg0K
+Iw0KIyBCYXJ0bG9taWVqIFpvbG5pZXJraWV3aWN6IDxiem9sbmllckBlbGth
+LnB3LmVkdS5wbD4NCg0KLS0tIGxpbnV4LTIuNS42OC1iazYvZHJpdmVycy9p
+ZGUvaWRlLWlvLmMJRnJpIEFwciAyNSAxNjowODo1MyAyMDAzDQorKysgbGlu
+dXgvZHJpdmVycy9pZGUvaWRlLWlvLmMJRnJpIEFwciAyNSAxNjoxMzozNyAy
+MDAzDQpAQCAtODUwLDE0ICs4NTAsMTQgQEANCiAJCSAqIGhhcHBlbnMgYW55
+d2F5IHdoZW4gYW55IGludGVycnVwdCBjb21lcyBpbiwgSURFIG9yIG90aGVy
+d2lzZQ0KIAkJICogIC0tIHRoZSBrZXJuZWwgbWFza3MgdGhlIElSUSB3aGls
+ZSBpdCBpcyBiZWluZyBoYW5kbGVkLg0KIAkJICovDQotCQlpZiAoaHdpZi0+
+aXJxICE9IG1hc2tlZF9pcnEpDQorCQlpZiAobWFza2VkX2lycSAhPSBJREVf
+Tk9fSVJRICYmIGh3aWYtPmlycSAhPSBtYXNrZWRfaXJxKQ0KIAkJCWRpc2Fi
+bGVfaXJxX25vc3luYyhod2lmLT5pcnEpOw0KIAkJc3Bpbl91bmxvY2soJmlk
+ZV9sb2NrKTsNCiAJCWxvY2FsX2lycV9lbmFibGUoKTsNCiAJCQkvKiBhbGxv
+dyBvdGhlciBJUlFzIHdoaWxlIHdlIHN0YXJ0IHRoaXMgcmVxdWVzdCAqLw0K
+IAkJc3RhcnRzdG9wID0gc3RhcnRfcmVxdWVzdChkcml2ZSwgcnEpOw0KIAkJ
+c3Bpbl9sb2NrX2lycSgmaWRlX2xvY2spOw0KLQkJaWYgKGh3aWYtPmlycSAh
+PSBtYXNrZWRfaXJxKQ0KKwkJaWYgKG1hc2tlZF9pcnEgIT0gSURFX05PX0lS
+USAmJiBod2lmLT5pcnEgIT0gbWFza2VkX2lycSkNCiAJCQllbmFibGVfaXJx
+KGh3aWYtPmlycSk7DQogCQlpZiAoc3RhcnRzdG9wID09IGlkZV9yZWxlYXNl
+ZCkNCiAJCQlnb3RvIHF1ZXVlX25leHQ7DQo=
 
-After some more thinking, the way to go for deciding whether or not to
-use the new code probably isn't by checking the version but by using
-some Makefile trickery as there is already for do_munmap and
-remap_page_range. Once that is in place, it looks like I can finally
-commit it. :)
-
-
--- 
-Earthling Michel Dänzer   \  Debian (powerpc), XFree86 and DRI developer
-Software libre enthusiast  \     http://svcs.affero.net/rm.php?r=daenzer
-
+---23717851-1774618890-1052921595=:22227--

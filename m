@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316671AbSEVSi4>; Wed, 22 May 2002 14:38:56 -0400
+	id <S316672AbSEVSsj>; Wed, 22 May 2002 14:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316672AbSEVShh>; Wed, 22 May 2002 14:37:37 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:31493 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316668AbSEVSgK>; Wed, 22 May 2002 14:36:10 -0400
-Date: Wed, 22 May 2002 19:36:01 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jan Kara <jack@suse.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-Message-ID: <20020522193601.L16934@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0205220901430.7580-100000@home.transmeta.com> <3CEBB385.5040904@evision-ventures.com> <20020522165834.GD12982@atrey.karlin.mff.cuni.cz> <3CEBC29B.2050601@evision-ventures.com> <20020522175636.GB24755@atrey.karlin.mff.cuni.cz> <3CEBCDCA.8030905@evision-ventures.com> <20020522181753.GE24755@atrey.karlin.mff.cuni.cz>
+	id <S316675AbSEVSsi>; Wed, 22 May 2002 14:48:38 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:17544
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S316672AbSEVSsh>; Wed, 22 May 2002 14:48:37 -0400
+Date: Wed, 22 May 2002 11:47:22 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.17 IDE 67
+Message-ID: <20020522184722.GB5575@opus.bloom.county>
+In-Reply-To: <3CEB466B.3090604@evision-ventures.com> <20020522171329.GG1209@opus.bloom.county> <3CEBC576.4060703@evision-ventures.com> <20020522173137.GH1209@opus.bloom.county> <3CEBC9EE.2090701@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 08:17:53PM +0200, Jan Kara wrote:
->   OK. You convinced me that 'version' isn't needed. But how about
-> 'formats'? Currently quotaon(8) uses this field to check which format it
-> should try to turn on... I can live without it as quotaon(8) might try
-> new format and if it doesn't succeed it will try the old one but
-> anyway...
+On Wed, May 22, 2002 at 06:40:14PM +0200, Martin Dalecki wrote:
+> Uz.ytkownik Tom Rini napisa?:
+> >
+> >And when the PPC4xx drivers are ready to be submitted we'll need to add
+> >in __powerpc__ tests too.  Can't we just keep CONFIG_DMA_NONPCI for now?
+> 
+> Plese feel free to add them when and where they are needed.
+> It's no problem to clean this all up
+> then again if a true usage pattern emerges.
+> And I have no problem with patches toching "core" driver stuff as long
+> as the changes are justified I will integrate them with pleasure at time.
 
-Each sysctl file is only supposed to carry one bit of information - one
-number, one string.  There should be no formatting of data.
+Okay. :)
 
-Have a look at /proc/sys/net/ipv4/* as an example.
+BTW, maybe it's part of the great IDE rewrite and all, but the
+CONFIG_DMA_NONPCI part of drivers/ide/ide.c didn't get a __CRIS__ added
+back in.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

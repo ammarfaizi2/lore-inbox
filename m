@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUFWQAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266569AbUFWQCd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266006AbUFWQAz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 12:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265786AbUFWQAz
+	id S266569AbUFWQCd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 12:02:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265787AbUFWQBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 12:00:55 -0400
-Received: from web81304.mail.yahoo.com ([206.190.37.79]:63887 "HELO
-	web81304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266483AbUFWP7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 11:59:45 -0400
-Message-ID: <20040623155944.96871.qmail@web81304.mail.yahoo.com>
-Date: Wed, 23 Jun 2004 08:59:44 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: RE: Continue: psmouse.c - synaptics touchpad driver sync problem
-To: Marc Waeckerlin <marc.waeckerlin@siemens.com>
-Cc: t.hirsch@web.de, laflipas@telefonica.net, linux-kernel@vger.kernel.org
+	Wed, 23 Jun 2004 12:01:36 -0400
+Received: from chnmfw01.eth.net ([202.9.145.21]:45074 "EHLO ETH.NET")
+	by vger.kernel.org with ESMTP id S265786AbUFWQBP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 12:01:15 -0400
+From: "gud" <gud@eth.net>
+Reply-to: gud@eth.net
+To: linux-kernel@vger.kernel.org
+Date: Wed, 23 Jun 2004 21:38:55 +0550
+Subject: Elastic Quota File System (EQFS)
+X-Mailer: DMailWeb Web to Mail Gateway 2.8d, http://netwinsite.com/top_mail.htm
+Message-id: <40d9ab17.118.0@eth.net>
+X-User-Info: 202.9.130.223
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Jun 2004 15:53:34.0343 (UTC) FILETIME=[3D3A6970:01C4593A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Waeckerlin wrote:
-> >
-> > If your psmouse module is compiled it then use "psmouse.resetafter=3"
-> > as a boot parameter. If psmouse is a module then put
-> > "options psmouse resetafer=3" in your /etc/modprobe.conf
-> 
-> I am sorry, both options do not help at all - well, perhaps the jumping of
-> the
-> cursor when using the touchpad without external keyboard/mouse
-> disconnected
-> may be slightly better. But as soon as I plug in the external keyboard,
-> the
-> old problem occurs.
->
+Greetings,
 
-Hmm... OK, I see that you have an active multiplexing controller.
-I wonder if it gets reset back to legacy mode when you plug your
-external keyboard. (btw, it it just a keyboard or a docking station/
-port replicator?). Try passing i8042.nomux to the kernel and try using
-your touchpad/keyboard. If nomux does not help you may try to use
-psmouse.proto=bare or psmouse.proto=imps to disable Synaptics-specific
-extensions.
+	I think I should discuss this in the list...
 
-Also, if you have time, please change #undef DEBUG to #define DEBUG in
-drivers/input/serio/i8042.c, reboot, play a bit with touchpad; plug
-external keyboard and send me output of "dmesg -s 100000".
- 
-> Also I have a problem not yet mentioned, but it happened again this
-> morning:
-> Sometimes - without external keyboard/mouse, only using touchpad and
-> internal
-> keyboard -, sometimes the keyboard does not work anymore. If I hit any
-> arbitrary key, nothing happens anymore. The mouse still works with the
-> touchpad. Since I am often mobile, I can't acces the notebook through LAN
-> and
-> sice keynoard does not work anymore, I cant hit ctrl-alt-f1 or so to
-> switch
-> to a terminal or to watch the syslog on ctrl-alt-f10. The only thing I can
-> do
-> is to reboot using the mouse only.
-> 
+	Recently I'm into developing an Elastic Quota File System (EQFS). This
+file system works on a simple concept ... give it to others if you're not
+using it, let others use it, but on the guarantee that you get it back when
+you need it!!
 
-Ok, we were getting reports about this happening with Toshibas, no
-resolution yet...
+	Here I'm talking about disk quotas. In any typical network, e.g.
+sourceforge, each user is given a fixed amount of quota. 100 Mb in case of
+sourceforge. 100 Mb is way over some project requirements and too small for
+some projects. EQFS tries to solve this problem by exploiting the users'
+usage behavior at runtime. That is the user's quota which he doesn't need
+is given to the users who need it, but on 100% assurance that the originl
+user can any time reclaim his/her quota.
 
---
-Dmitry
+	Before getting into implementation details I want to have public opinion
+about this system. All EQFS tries to do is it maximizes the disk space
+usage, which otherwise is wasted if the user doesn't really need the
+allocated user..on the other hand it helps avoid the starvation of the user
+who needs more space. It also helps administrator to get away with the
+problem of variable quota needs..as EQFS itself adjusts according to the
+user needs.
 
+
+regs,
+AG
+
+
+	
+http://www.ddsl.net

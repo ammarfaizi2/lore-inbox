@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUIIRG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266273AbUIIRK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266274AbUIIRG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 13:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUIIRG2
+	id S266273AbUIIRK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 13:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUIIRK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 13:06:28 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:15606 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S266274AbUIIRGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 13:06:19 -0400
-Date: Thu, 9 Sep 2004 10:06:04 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.9-rc1-bk16] ppc32: Use $(addprefix ...) on arch/ppc/boot/lib/
-Message-ID: <20040909170604.GB2945@smtp.west.cox.net>
-References: <20040909153031.GA2945@smtp.west.cox.net> <20040909163705.GA7830@mars.ravnborg.org>
+	Thu, 9 Sep 2004 13:10:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:42712 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266273AbUIIRKz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 13:10:55 -0400
+Date: Thu, 9 Sep 2004 19:12:07 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Stearns <wstearns@pobox.com>
+Cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc1-bk15-VP-R9 latency traces
+Message-ID: <20040909171207.GA27904@elte.hu>
+References: <Pine.LNX.4.58.0409091227020.4188@sparrow>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040909163705.GA7830@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6+20040818i
+In-Reply-To: <Pine.LNX.4.58.0409091227020.4188@sparrow>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 09, 2004 at 06:37:05PM +0200, Sam Ravnborg wrote:
 
-> On Thu, Sep 09, 2004 at 08:30:31AM -0700, Tom Rini wrote:
-> > The following makes arch/ppc/boot/lib/Makefile use $(addprefix ...) to
-> > get lib/zlib_inflate/ source code.  Previously we were manually setting
-> > the dependancy and invoking cc_o_c.  Worse, we were invoking the cmd
-> > version, not the rule version and thus when MODVERSIONS=y, we wouldn't
-> > do the .tmp_foo.o -> foo.o rename, and thus the compile would break.
-> > Using $(addprefix ...) gets us using the standard rules again (and is
-> > shorter to boot).
+* William Stearns <wstearns@pobox.com> wrote:
+
+> Good day, Ingo,
+> 	Thanks for all your work on latency.
 > 
-> Your patch was pending my comments - sorry.
-> 
-> 
-> Why not:
-> 
-> lib-y := $(addprefix lib/zlib_inflate/,infblock.o infcodes.o inffast.o \
->                                        inflate.o inftrees.o infutil.o)
-> lib-y += div64.o
-> lib-$(CONFIG_VGA_CONSOLE) += vreset.o kbd.o
-> 
-> No need to use that ugly relative path.
+> 	I just rebooted my Dell Inspiron 8200 into 2.6.9-rc1-bk15-VP-R9
+> (using your bk12-R9 patch on top of bk15).  I got three latency traces
+> during boot.  I realize you're not as worried about those, but I thought
+> I'd report them anyways.
 
-If that works, OK.  The example Al Viro pointed me at was
-arch/arm/boot/compressed/Makefile.
+the boot ones can be pretty bad at times and usually they are not a
+worry: there's no user functionality during bootup so latencies have no
+ill effects - the bootup itself is one huge 30-60 second latency to the
+user!
 
-> I do not like this way of selectng .o files. It will so
-> obviously break the build with make -j if there is no synchronisation
-> point. vmlinux provide this synchronisation point in this case.
-> But in this particular case I see no better alternative.
+If they happen during regular use too they are a problem. (not including
+latencies that happen when suspending/resuming the laptop.)
 
-How hard would it be make some sort of synchronisation point?  I know
-SuSE folks who always build with -j5.
+> 	The above came from an untainted kernel.  Please let me know if
+> you need any more details.  Thanks again for your work.
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
---- 1.7/arch/ppc/boot/lib/Makefile	2004-09-07 23:33:06 -07:00
-+++ edited/arch/ppc/boot/lib/Makefile	2004-09-09 10:05:34 -07:00
-@@ -4,18 +4,7 @@
- 
- CFLAGS_kbd.o	+= -Idrivers/char
- 
--$(obj)/infblock.o: lib/zlib_inflate/infblock.c
--	$(call cmd,cc_o_c)
--$(obj)/infcodes.o: lib/zlib_inflate/infcodes.c
--	$(call cmd,cc_o_c)
--$(obj)/inffast.o: lib/zlib_inflate/inffast.c
--	$(call cmd,cc_o_c)
--$(obj)/inflate.o: lib/zlib_inflate/inflate.c
--	$(call cmd,cc_o_c)
--$(obj)/inftrees.o: lib/zlib_inflate/inftrees.c
--	$(call cmd,cc_o_c)
--$(obj)/infutil.o: lib/zlib_inflate/infutil.c
--	$(call cmd,cc_o_c)
--
--lib-y := infblock.o infcodes.o inffast.o inflate.o inftrees.o infutil.o div64.o
-+lib-y := $(addprefix lib/zlib_inflate/,infblock.o infcodes.o inffast.o \
-+				       inflate.o inftrees.o infutil.o)
-+lib-y += div64.o
- lib-$(CONFIG_VGA_CONSOLE) += vreset.o kbd.o
+i'd suggest to reset the latency max via this line in
+/etc/rc.d/rc.local:
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+   echo 30 > /proc/sys/kernel/preempt_max_latency
+
+this way you can delimit the boot-time ones from the ones that happen
+later during normal use.
+
+	Ingo

@@ -1,40 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBNGPr>; Wed, 14 Feb 2001 01:15:47 -0500
+	id <S129032AbRBNG2o>; Wed, 14 Feb 2001 01:28:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbRBNGPi>; Wed, 14 Feb 2001 01:15:38 -0500
-Received: from www.wen-online.de ([212.223.88.39]:31493 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129027AbRBNGPb>;
-	Wed, 14 Feb 2001 01:15:31 -0500
-Date: Wed, 14 Feb 2001 07:15:24 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: "C. D. Thompson-Walsh" <cdthompsonwalsh@home.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem: Floppy drive[?] hang
-In-Reply-To: <01021201172500.00922@ariel>
-Message-ID: <Pine.Linu.4.10.10102140711550.1209-100000@mikeg.weiden.de>
+	id <S130258AbRBNG2e>; Wed, 14 Feb 2001 01:28:34 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:32524 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129032AbRBNG2X>; Wed, 14 Feb 2001 01:28:23 -0500
+Date: Wed, 14 Feb 2001 00:27:53 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: "Zink, Dan" <Dan.Zink@compaq.com>
+cc: Tim Wright <timw@splhi.com>, Adam Lackorzynski <al10@inf.tu-dresden.de>,
+        Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: RE: PCI bridge handling 2.4.0-test10 -> 2.4.2-pre3
+In-Reply-To: <8C91B010B3B7994C88A266E1A72184D3116FD6@cceexc19.americas.cpqcorp.net>
+Message-ID: <Pine.LNX.3.96.1010214001811.24061I-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, C. D. Thompson-Walsh wrote:
-
-> [This sortof follows the format of the report form in REPORTING-BUGS]
-> 1. I've found a consistent set of circumstances which will hang 2.4.x kernels 
-> on my system.
+On Tue, 13 Feb 2001, Zink, Dan wrote:
+> Does it make sense to try and keep up with the latest and greatest in
+> chipsets
+> when there is a hardware independent way of doing things?  You may be able
+> to
+> get information on current chipsets, but every time something changes, the
+> kernel may be broken for a time.  If we rely on the BIOS, the kernel can
+> stay
+> out of the chipset information race.  I understand the reluctance to depend
+> on BIOS in general but isn't it safe to say that systems using the
+> ServerWorks
+> chipsets in question are likely servers with a non-broken BIOS?
 > 
-> 2. If the system is put under load to the point where it swaps heavily 
-> (swapping appears to be pre-requisite, based on a little messing about), and 
-> then given commands to use the floppy drive (mount, ls -- anything which 
-> necessitates reading/writing to the floppy), it will hang with no message (it 
-> does not OOPS, or at least it can not to the root console) I've done this 
-> several times, with different disks and kernels, with and without X.
+> I can tell you that if the BIOS doesn't report this stuff right on a
+> ProLiant
+> server, it would never make it out the door.  It would break too many things
+> to go unnoticed.  From this standpoint, the kernel is less likely to break
+> if
+> it relies on the BIOS rather than assuming some particular chipset design
+> that can easily change in the future.  This is a fundamental reason for the
+> BIOS's existence.
 
-Hi,
+It's common knowledge that Linux is often better for hardware testing
+than Microsoft's pitiful ACT software.  Intel and other companies have
+discovered hardware flaws that Linux exposes which all the Windows
+(and ACT) testing does not.  (see early P4's...)  Similarly, most
+BIOS out there work wonderfully with Windows but often have quirks
+with Linux.  An overall policy of BIOS independence minimizes if not
+eliminates the chances of such quirks affecting Linux users.
 
-I tried to reproduce this on my PIII-500 VIA chipset box and couldn't.
-(problem doesn't seem to be generic fwiw)
+Getting a vendor to fix a broken BIOS is like trying to get a reluctant
+cow out of the barn:  oftimes is just doesn't happen, especially if
+it is a Linux-only problem.  Toshiba laptops have had broken ACPI
+tables for ages, but I have yet to see any BIOS updates regardless
+of the number of reports sent to Toshiba.
 
-	-Mike
+Now, that said, in x86 land, we actually -do- allow the BIOS to
+setup the PCI bus for us, and for the most part, we leave that setup
+completely alone.  grep for 'pcibios_assign_all_busses'...  and note
+it is defined to zero for x86, and 1 for alpha.
+
+Finally, minimizing BIOS dependencies is also important for applications
+like linuxbios -- an embedded firmware that initializes the CPU and
+DRAM, and then passes control to a Linux kernel to do the rest.
+
+Regards,
+
+	Jeff
+
+
 

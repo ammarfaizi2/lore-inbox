@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314239AbSDRFzO>; Thu, 18 Apr 2002 01:55:14 -0400
+	id <S314241AbSDRF5W>; Thu, 18 Apr 2002 01:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314240AbSDRFzN>; Thu, 18 Apr 2002 01:55:13 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:478 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S314239AbSDRFzM>;
-	Thu, 18 Apr 2002 01:55:12 -0400
-MIME-Version: 1.0
+	id <S314242AbSDRF5V>; Thu, 18 Apr 2002 01:57:21 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:13068 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314241AbSDRF5V>;
+	Thu, 18 Apr 2002 01:57:21 -0400
+Date: Thu, 18 Apr 2002 07:55:17 +0200
+From: Jens Axboe <axboe@suse.de>
+To: peterc@gelato.unsw.edu.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A question about ll_10byte_cmd_build
+Message-ID: <20020418055517.GD858@suse.de>
+In-Reply-To: <E16y1rE-0001Zf-00@redback.cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15550.24352.446276.774799@gargle.gargle.HOWL>
-Date: Thu, 18 Apr 2002 15:52:32 +1000
-From: Christopher Yeoh <cyeoh@samba.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, anton@samba.org, paulus@samba.org,
-        davidm@hpl.hp.com
-Subject: [PATCH] SIGURG incorrectly delivered to process
-X-Mailer: VM 7.03 under Emacs 21.2.1
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 18 2002, peterc@gelato.unsw.edu.au wrote:
+> 
+> 
+> (Linux 2.5.8)
+> In ll_rw_blk.c there's a function, ll_10byte_cmd_build() which is
+> supposed to be used to generate `10-byte commands'.
+> 
+> It appears to generate a SCSI READ_10 or WRITE_10 command (which
+> happen to be identical in format to the ATAPI GPCMD_{READ,WRITE}_10 commands)
+> 
+> Is this IDE specific, or is it meant to cover all block devices?
+> If it's IDE specific, why is it in ll_rw_blk.c, which is meant to be
+> common to all block devices?
 
-If a process is sent a SIGURG signal and it is blocking SIGURG
-signals, when the process subsequently unblocks SIGURG signals it will
-be terminated even if it is set to the default action (SIG_DFL) which
-is specified by SUSv3 to ignore that signal.
+It's not IDE specific, since when does IDE use packet commands? It's
+not ATAPI specific either.
 
-The following patch fixes the problem:
+> As far as I can tell, only ide-cd.c actually uses the function in a
+> stock 2.5.8 kernel --- so it could theoretically be moved to ide-cd.c.
 
---- linux-2.4.18/arch/i386/kernel/signal.c~	Thu Mar 21 16:04:30 2002
-+++ linux-2.4.18/arch/i386/kernel/signal.c	Thu Apr 18 12:19:37 2002
-@@ -658,7 +658,7 @@
- 				continue;
- 
- 			switch (signr) {
--			case SIGCONT: case SIGCHLD: case SIGWINCH:
-+			case SIGCONT: case SIGCHLD: case SIGWINCH: case SIGURG:
- 				continue;
- 
- 			case SIGTSTP: case SIGTTIN: case SIGTTOU:
+It's meant to be an example of a generic prep_rq_fn() queue function, a
+start the conversion of using struct request as the generic passer of
+cdb's. Only ide-cd uses it for now as you see, that's merely because
+lots of bits of the infrastructure are still missing.
 
-A quick browse of the other architectures indicates that most (if not
-all) of them also need the same fix applied to their arch specific
-signal.c files.
-
-Chris
 -- 
-cyeoh@au.ibm.com
-IBM OzLabs Linux Development Group
-Canberra, Australia
+Jens Axboe
+

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286710AbRL1DUe>; Thu, 27 Dec 2001 22:20:34 -0500
+	id <S286704AbRL1DSE>; Thu, 27 Dec 2001 22:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286711AbRL1DUY>; Thu, 27 Dec 2001 22:20:24 -0500
-Received: from dsl-213-023-039-026.arcor-ip.net ([213.23.39.26]:57095 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S286710AbRL1DUM>;
-	Thu, 27 Dec 2001 22:20:12 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Date: Fri, 28 Dec 2001 04:23:54 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011223174608.A25335@thyrsus.com> <E16JTce-0000cp-00@starship.berlin> <20011227112431.GA1582@msp-150.man.olsztyn.pl>
-In-Reply-To: <20011227112431.GA1582@msp-150.man.olsztyn.pl>
+	id <S286708AbRL1DRy>; Thu, 27 Dec 2001 22:17:54 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:13575
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S286704AbRL1DRn>; Thu, 27 Dec 2001 22:17:43 -0500
+Date: Thu, 27 Dec 2001 19:16:15 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: Guolin@alexa.com, linux-kernel@vger.kernel.org
+Subject: Re: where is the patch  ide.2.4.14.11062001.patch, for supporting
+ EID E ata133 ??
+In-Reply-To: <200112271813.KAA30020@baldur.yggdrasil.com>
+Message-ID: <Pine.LNX.4.10.10112271854180.24491-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Jnci-000080-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 27, 2001 12:24 pm, Dominik Mierzejewski wrote:
-> On Thursday, 27 December 2001, Daniel Phillips wrote:
-> > Kilo, as in memory -> 1024
-> > Kilo, as in distance or weight -> 1,000
-> > 
-> > Difficult?
-> > 
-> > /me wonders when the kibblebytes thread is going to end
+On Thu, 27 Dec 2001, Adam J. Richter wrote:
+
+> >I will not merge until I can DOMAIN VALIDATE the pile of SHIT called 2.5.X
 > 
-> /me wonders when people will learn to read more carefully
-> (no offense intended) :-)
-> 
-> If you look at my post more closely, you'll see I used `kB' (that's small
-> k and capital B) for decimal kilobyte. I would never suggest using `KB'
-> (that's capital K and capital B) for it. I do agree that `KB' is 
-> traditionally used for binary kilobytes, but what about MB, GB and so on? 
-> These _are_ ambiguous. I am in favour of using Ki, Mi and Gi for binary 
-> quantities.
+> 	I would be interested in knowing what "domain validate" means
+> and how was done in previous kernels.
 
-So would you be happy with kB -> 1,000 bytes, and KB -> 1024 bytes?  Likewise
-mB for 1,000,000 bytes and MB for 1048576 bytes?
+"DOMAIN VALIDATION" is to test by emperical means and verification by bus
+analyzers considered standard to a given industry.
 
-Look, there's some precedent for it here:
+In storage it means to have access/creation of the low_level transport
+layer to the hardware and be able to verify all the capablities of the
+hardware.  This is regardless if you use them or not.
 
-   http://www.unc.edu/~rowlett/units/dictK.html
-   "K - an informal abbreviation for one thousand used in expressions where 
-   the unit is understood, such as "10K run" (10 kilometers) or "700K disk" 
-   (700 kilobytes or kibibytes). Note that "K" is also the symbol for the 
-   kelvin (see below). Also note that the symbol for the metric prefix kilo- 
-   (1000) is actually k-, not K-."
+Linux has never used this in the past to the best of my knowledge.
+I am the first to push the idea, regardless how obvious it seems.
+In the past it was a "WAG" or "BHAG" but nobody has ever taken it
+seriously and now that Linux is finally becoming a serious OS, it needs to
+grow some wisdom.
 
-If you believe that, then we don't have a problem, we never did:
+Now the short version is to perform a write-read-verify-compare.
 
-  kB -> 1,000 bytes
-  KB -> 1024 bytes
+Regards,
 
-So, KiB is a silly fix for a problem that doesn't exist.  Let's not have that 
-silliness creeping into our documentation, making it look silly too.
 
---
-Daniel
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
+

@@ -1,74 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268260AbUIKRwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUIKRxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268260AbUIKRwa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 13:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUIKRuL
+	id S268253AbUIKRxO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 13:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUIKRxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 13:50:11 -0400
-Received: from pimout5-ext.prodigy.net ([207.115.63.73]:64942 "EHLO
-	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S268248AbUIKRty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 13:49:54 -0400
-Date: Sat, 11 Sep 2004 13:49:34 -0400 (EDT)
-From: Vladimir Dergachev <volodya@mindspring.com>
-X-X-Sender: volodya@node2.an-vo.com
-Reply-To: Vladimir Dergachev <volodya@mindspring.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
-       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@gmail.com>,
-       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: radeon-pre-2
-In-Reply-To: <1094919630.21082.116.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0409111346170.15792@node2.an-vo.com>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> 
- <Pine.LNX.4.58.0409100209100.32064@skynet>  <9e47339104090919015b5b5a4d@mail.gmail.com>
-  <20040910153135.4310c13a.felix@trabant>  <9e47339104091008115b821912@mail.gmail.com>
-  <1094829278.17801.18.camel@localhost.localdomain>  <9e4733910409100937126dc0e7@mail.gmail.com>
-  <1094832031.17883.1.camel@localhost.localdomain>  <9e47339104091010221f03ec06@mail.gmail.com>
-  <1094835846.17932.11.camel@localhost.localdomain>  <9e47339104091011402e8341d0@mail.gmail.com>
-  <Pine.LNX.4.58.0409102254250.13921@skynet>  <1094853588.18235.12.camel@localhost.localdomain>
-  <Pine.LNX.4.58.0409110137590.26651@skynet>  <1094873412.4838.49.camel@admin.tel.thor.asgaard.local>
-  <Pine.LNX.4.58.0409110600120.26651@skynet>  <1094883136.6095.75.camel@admin.tel.thor.asgaard.local>
-  <Pine.LNX.4.61.0409110305070.13840@node2.an-vo.com> 
- <1094913414.21157.65.camel@localhost.localdomain> 
- <Pine.LNX.4.61.0409111144590.15458@node2.an-vo.com> 
- <1094915671.21290.77.camel@localhost.localdomain> 
- <Pine.LNX.4.61.0409111304300.15792@node2.an-vo.com>
- <1094919630.21082.116.camel@localhost.localdomain>
+	Sat, 11 Sep 2004 13:53:13 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:46690 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S268253AbUIKRvK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 13:51:10 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [patch 1/1] uml-update-2.6.8-finish
+Date: Sat, 11 Sep 2004 19:47:51 +0200
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20040908173855.68F518D0B@zion.localdomain> <200409111740.12121.blaisorblade_spam@yahoo.it> <20040911181550.GA2966@ccure.user-mode-linux.org>
+In-Reply-To: <20040911181550.GA2966@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409111947.51205.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 11 September 2004 20:15, Jeff Dike wrote:
+> On Sat, Sep 11, 2004 at 05:40:12PM +0200, BlaisorBlade wrote:
+> > And making it compile with the hash code, rather than the rb_tree one? I
+> > know ghash.h must be removed, but there is no reason at all to switch to
+> > Red-Black trees.
 
+> It is not just that ghash.h be removed.  It is that its contents have
+> to vanish.  That code shouldn't be anywhere.
 
-On Sat, 11 Sep 2004, Alan Cox wrote:
+Ok, if that is the reason it's ok. When I asked "Why remove it" I've been said 
+"look at the code and you'll see why". Probably I'm blind, then. (And it can 
+be true, because I'm somehow a new-comer in kernel hacking).
+The "Fuzzy retrieval" is probably useless, clearly, but it's not clear to me 
+the problem with the other code.
 
-> On Sad, 2004-09-11 at 18:10, Vladimir Dergachev wrote:
->> This is a good point - if we don't need DMA or 3d acceleration we can
->> reduce memory footprint. This would seem that current DRM driver would
->> need to be dependent on whatever driver contains the mode setting code.
->>
->> What do you think ?
->
-> Jon wants to get mode setting into a seperate piece of functionality -
-> preferably in user space for many cards. I'd dearly love to see hotplug
-> handing all but some "emergency" pre-computed mode settings.
+> There are good reasons to switch to rbtrees -
+> 	I need some sort of low-O lookup
+> 	there is no generic hash tree in the kernel
+> 	rbtree is O(lg n) and it's generic
+> 	rbtree is the only generic low-O lookup in the kernel that I see
 
-I think there is a misunderstanding.
+Hmm, everything is true, apart that we need some generic lookup way. That can 
+be true for now - using something means using something tested.
 
-My view was that PLL setting (and setting of a fixed mode) would be done 
-in DRM driver. This way it would be able to restore previous settings 
-after a lockup or respond to FB request to change modes.
+However, for the future, hashing is lower-O than rb-trees (if the hash 
+function is good), but while an empty rb-tree requires no memory (just the 
+root node), an hash requires anyway the table. That's the difference. And 
+there is no generic hash struct because (I guess) the developer prefer it not 
+to be generic - hashing is used for many things, but developed individually.
 
-However the decision of which mode to set, as well as where the 
-framebuffer is located is done in user-space. (So that subtleties of
-layout of offscreen memory are not in the kernel).
+> I'm not in the fancy data structure business, so I'll stick with the
+> infrastructure that I find in the pool already, and rbtree is about it.
 
-Jon - did I understand you correctly ?
+> > Even because, later, we will just see "Hey, I get a panic here" +
+> > backtrace.
 
-                             best
+> No, because currently there are no users of this.  We can get this tested
+> when UML starts mmapping into its page cache.
 
-                               Vladimir Dergachev
+Yes, and I meant at that moment.
+> > Doing things right in first place is better.
+
+> And inlining the grunge is right?
+
+It would be stabler, if it has been tested. But since I guess ubd-mmap was the 
+only tester, (and it did not work), it's ok to shift to rb-trees.
+
+Also, I still don't have clear why it's a "grunge".
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

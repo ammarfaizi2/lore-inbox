@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263169AbUFQU4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263166AbUFQU6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263169AbUFQU4M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 16:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUFQU4L
+	id S263166AbUFQU6q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 16:58:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbUFQU6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 16:56:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31442 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263147AbUFQUyv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 16:54:51 -0400
-Date: Thu, 17 Jun 2004 16:54:14 -0400
-From: Alan Cox <alan@redhat.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Anton Blanchard <anton@samba.org>, mark_salyzyn@adaptec.com,
-       Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+	Thu, 17 Jun 2004 16:58:23 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:14804 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263166AbUFQU6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 16:58:08 -0400
 Subject: Re: PATCH: Further aacraid work
-Message-ID: <20040617205414.GE8705@devserv.devel.redhat.com>
-References: <286GI-5y3-11@gated-at.bofh.it> <286Qp-5EU-19@gated-at.bofh.it> <m3smcut2z0.fsf@averell.firstfloor.org>
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Alan Cox <alan@redhat.com>, "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       y@redhat.com, Clay Haapala <chaapala@cisco.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20040617204828.GC1495@holomorphy.com>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189FD2407B@otce2k03.adaptec.com>
+	<20040617203842.GC8705@devserv.devel.redhat.com> 
+	<20040617204828.GC1495@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 17 Jun 2004 15:56:16 -0500
+Message-Id: <1087505777.2210.82.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3smcut2z0.fsf@averell.firstfloor.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 09:10:43PM +0200, Andi Kleen wrote:
-> The AMD64 IOMMU could do it too (and the code to do it exists in
-> 2.6). But the problem is that the current IO layer doesn't provide a
-> sufficient fallback path when this fails. You have to promise in
-> advance that you can merge and then later it's too late to change your
-> mind without signalling an IO error.
+On Thu, 2004-06-17 at 15:48, William Lee Irwin III wrote:
+> Say, could you guys try this? jejb seemed to get decent results with it.
 
-I would rather see it below the I/O layer for things like AMD64. The
-reason I say this is that many drivers would suffer from iommu merging not
-gain, and others may have limits.
+To quantify, my previous results showed 40 merges out of about 32k
+segments.
 
-Something like
+With this patch running the same test, I show 24,007 merges out of 19513
+segments (which is about a 55% merger rate).
 
-	new_sglist = sg_squash(old_sglist, [target max segments], [max per seg])
+I also see merges up to 128 segments (the maximum allowed).
 
-could be used by drivers when appropriate to hand back a better sg list
-(or if not possible the existing one). That would put control rather closer
-to the driver. 
+James
 
-Alan
 

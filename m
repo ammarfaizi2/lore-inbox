@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267343AbUJIUAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267345AbUJIUEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267343AbUJIUAV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267345AbUJIUAV
+	id S267345AbUJIUEd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUJIUEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:00:21 -0400
-Received: from ts2-075.twistspace.com ([217.71.122.75]:41176 "EHLO entmoot.nl")
-	by vger.kernel.org with ESMTP id S267343AbUJIUAQ (ORCPT
+	Sat, 9 Oct 2004 16:04:32 -0400
+Received: from opersys.com ([64.40.108.71]:4366 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S267345AbUJIUDV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 16:00:16 -0400
-Message-ID: <001d01c4ae43$06f83c30$161b14ac@boromir>
-From: "Martijn Sipkema" <martijn@entmoot.nl>
-To: "Mark Mielke" <mark@mark.mielke.cc>,
-       "David Schwartz" <davids@webmaster.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <000801c4ae35$3520ac90$161b14ac@boromir> <MDEHLPKNGKAHNMBLJOLKEEAPOOAA.davids@webmaster.com> <20041009184922.GA8032@mark.mielke.cc>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Sat, 9 Oct 2004 22:00:35 +0100
+	Sat, 9 Oct 2004 16:03:21 -0400
+Message-ID: <416845E4.206@opersys.com>
+Date: Sat, 09 Oct 2004 16:11:16 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Lee Revell <rlrevell@joe-job.com>
+CC: stefan.eletzhofer@eletztrick.de,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+References: <41677E4D.1030403@mvista.com> <416822B7.5050206@opersys.com>	 <1097346628.1428.11.camel@krustophenia.net>	 <20041009212614.GA25441@tier.local>	 <1097350227.1428.41.camel@krustophenia.net>	 <20041009213817.GB25441@tier.local> <1097351221.1428.46.camel@krustophenia.net>
+In-Reply-To: <1097351221.1428.46.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
-> Please - people who don't agree, just ensure that Linux is documented
-> to not implement select() on sockets without O_NONBLOCK properly.
 
-Actually, the behaviour isn't correct for sockets with O_NONBLOCK
-either, since EAGAIN may only be returned when recvmsg() would not
-block without O_NONBLOCK.
+Lee Revell wrote:
+> Yes.  The upper bound on the response time of an RT task is a function
+> of the longest non-preemptible code path in the kernel.  Currently this
+> is the processing of a single packet by netif_receive_skb.
 
+And this has been demonstrated mathematically/algorithmically to be
+true 100% of the time, regardless of the load and the driver set? IOW,
+if I was building an automated industrial saw (based on a VP+IRQ-thread
+kernel or a combination of the above-mentioned agregate) with a
+safety mechanism that depended on the kernel's responsivness to
+outside events to avoid bodily harm, would you be willing to put your
+hand beneath it?
 
---ms
+How about things like a hard-rt deterministic nanosleep() 100% of the
+time with RTAI/fusion?
 
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 

@@ -1,77 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269214AbUISKos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269090AbUISLPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269214AbUISKos (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 06:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269215AbUISKos
+	id S269090AbUISLPU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 07:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269215AbUISLPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 06:44:48 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:728 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S269214AbUISKop (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 06:44:45 -0400
-Date: Sun, 19 Sep 2004 12:44:26 +0200 (MEST)
-Message-Id: <200409191044.i8JAiQp9008476@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: R.E.Wolff@BitWizard.nl, akpm@osdl.org, vda@port.imtp.ilyichevsk.odessa.ua
-Subject: Re: [PATCH][2.6.9-rc2] Specialix RIO driver gcc-3.4 fixes
-Cc: linux-kernel@vger.kernel.org
+	Sun, 19 Sep 2004 07:15:20 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:5821 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S269090AbUISLPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 07:15:08 -0400
+Subject: Re: [PATCH 0/3] lockmeter: fixes
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Ray Bryant <raybry@austin.rr.com>, Andrew Morton <akpm@osdl.org>,
+       lse-tech@lists.sourceforge.net, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com>
+References: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com>
+Content-Type: text/plain
+Message-Id: <1095592506.619.8.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 19 Sep 2004 13:15:06 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Sep 2004 16:28:10 +0300, Denis Vlasenko wrote:
->On Saturday 18 September 2004 15:42, Mikael Pettersson wrote:
->> This patch fixes gcc-3.4 cast-as-lvalue warnings in the 2.6.9-rc2
->> kernel's Specialix RIO driver. This is a forward port of the fix
->> I made for the 2.4 kernel.
->> 
->> /Mikael
->> 
->> --- linux-2.6.9-rc2/drivers/char/rio/rio_linux.c.~1~	2004-03-11 14:01:27.000000000 +0100
->> +++ linux-2.6.9-rc2/drivers/char/rio/rio_linux.c	2004-09-18 14:27:33.000000000 +0200
->> @@ -1139,7 +1139,7 @@
->>        if (((1 << hp->Ivec) & rio_irqmask) == 0)
->>                hp->Ivec = 0;
->>        hp->CardP	= (struct DpRam *)
->> -      hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN);
->> +      (hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN));
->
->I think it's best to untangle assignments, it's easier to read this way:
->
->	hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN);
->	hp->CardP = (struct DpRam *) hp->Caddr;
+> Andrew,
+> 
+> The first patch in this series is a replacement patch for the prempt-fix
+> patch I sent earlier this morning.  There was a missing paren in that
+> previous version.
+> 
+> Adding this to 2.6.9-rc2-mm1 (just after lockmeter-2.patch) fixes the
+> preempt compile problem on ia64, at least.  However, I then started 
+> getting a missing symbol for generic_raw_read_trylock.  Hence the second
+> patch of this series.
 
-Ok. I don't want to get into general cleanups, but this one can
-easily be combined with the actual fix. Here's a revised patch:
+Hi Ray
 
---- linux-2.6.9-rc2/drivers/char/rio/rio_linux.c.~1~	2004-03-11 14:01:27.000000000 +0100
-+++ linux-2.6.9-rc2/drivers/char/rio/rio_linux.c	2004-09-19 12:26:42.000000000 +0200
-@@ -1138,8 +1138,8 @@
-       hp->Ivec = pdev->irq;
-       if (((1 << hp->Ivec) & rio_irqmask) == 0)
-               hp->Ivec = 0;
--      hp->CardP	= (struct DpRam *)
-       hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN);
-+      hp->CardP	= (struct DpRam *) hp->Caddr;
-       hp->Type  = RIO_PCI;
-       hp->Copy  = rio_pcicopy; 
-       hp->Mode  = RIO_PCI_BOOT_FROM_RAM;
-@@ -1196,8 +1196,8 @@
-       if (((1 << hp->Ivec) & rio_irqmask) == 0) 
-       	hp->Ivec = 0;
-       hp->Ivec |= 0x8000; /* Mark as non-sharable */
--      hp->CardP	= (struct DpRam *)
-       hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN);
-+      hp->CardP	= (struct DpRam *) hp->Caddr;
-       hp->Type  = RIO_PCI;
-       hp->Copy  = rio_pcicopy;
-       hp->Mode  = RIO_PCI_BOOT_FROM_RAM;
-@@ -1242,8 +1242,8 @@
-     hp->PaddrP = rio_probe_addrs[i];
-     /* There was something about the IRQs of these cards. 'Forget what.--REW */
-     hp->Ivec = 0;
--    hp->CardP = (struct DpRam *)
-     hp->Caddr = ioremap(p->RIOHosts[p->RIONumHosts].PaddrP, RIO_WINDOW_LEN);
-+    hp->CardP = (struct DpRam *) hp->Caddr;
-     hp->Type = RIO_AT;
-     hp->Copy = rio_pcicopy; /* AT card PCI???? - PVDL
-                              * -- YES! this is now a normal copy. Only the 
+I need the following to compile on x86-64, works fine otherwise.
+
+
+--- mm/kernel/lockmeter.c.orig	2004-09-19 12:49:52.000000000 +0200
++++ mm/kernel/lockmeter.c	2004-09-19 12:50:25.000000000 +0200
+@@ -1510,3 +1510,13 @@ int __lockfunc _spin_trylock_bh(spinlock
+ 	return 0;
+ }
+ EXPORT_SYMBOL(_spin_trylock_bh);
++
++int in_lock_functions(unsigned long addr)
++{
++	/* Linker adds these: start and end of __lockfunc functions */
++	extern char __lock_text_start[], __lock_text_end[];
++
++	return addr >= (unsigned long)__lock_text_start
++		&& addr < (unsigned long)__lock_text_end;
++}
++EXPORT_SYMBOL(in_lock_functions);
+--- mm/include/asm-x86_64/spinlock.h.orig	2004-09-19 12:31:32.000000000 +0200
++++ mm/include/asm-x86_64/spinlock.h	2004-09-19 13:04:56.117109248 +0200
+@@ -232,16 +232,6 @@ static inline void _raw_write_lock(rwloc
+ #define _raw_read_unlock(rw)		asm volatile("lock ; incl %0" :"=m" ((rw)->lock) : : "memory")
+ #define _raw_write_unlock(rw)	asm volatile("lock ; addl $" RW_LOCK_BIAS_STR ",%0":"=m" ((rw)->lock) : : "memory")
+ 
+-static inline int _raw_read_trylock(rwlock_t *lock)
+-{
+-	atomic_t *count = (atomic_t *)lock;
+-	atomic_dec(count);
+-	if (atomic_read(count) < RW_LOCK_BIAS)
+-		return 1;
+-	atomic_inc(count);
+-	return 0;
+-}
+-
+ static inline int _raw_write_trylock(rwlock_t *lock)
+ {
+ 	atomic_t *count = (atomic_t *)lock;
+@@ -262,6 +252,16 @@ static inline int _raw_read_trylock(rwlo
+ 	atomic_inc(count);
+ 	return 0;
+ }
++#else
++static inline int _raw_read_trylock(rwlock_t *lock)
++{
++	atomic_t *count = (atomic_t *)lock;
++	atomic_dec(count);
++	if (atomic_read(count) < RW_LOCK_BIAS)
++		return 1;
++	atomic_inc(count);
++	return 0;
++}
+ #endif
+ 
+ #if defined(CONFIG_LOCKMETER) && defined(CONFIG_HAVE_DEC_LOCK)
+ 
+

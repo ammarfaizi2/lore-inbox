@@ -1,79 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129688AbQLKJ44>; Mon, 11 Dec 2000 04:56:56 -0500
+	id <S130465AbQLKJ61>; Mon, 11 Dec 2000 04:58:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129765AbQLKJ4r>; Mon, 11 Dec 2000 04:56:47 -0500
-Received: from web1.clubnet.net ([206.126.128.3]:62728 "EHLO web1.clubnet.net")
-	by vger.kernel.org with ESMTP id <S129688AbQLKJ4c>;
-	Mon, 11 Dec 2000 04:56:32 -0500
-Message-ID: <000901c06354$7732e240$598d7ece@snowline.net>
-From: "Eddy" <edmc@snowline.net>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E144syy-0005sE-00@the-village.bc.nu>
-Subject: Re: Linux 2.2.18 almost...
-Date: Mon, 11 Dec 2000 01:26:28 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S130481AbQLKJ6R>; Mon, 11 Dec 2000 04:58:17 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:59152 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130465AbQLKJ6A>;
+	Mon, 11 Dec 2000 04:58:00 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Corisen" <csyap@starnet.gov.sg>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: warning during make modules 
+In-Reply-To: Your message of "Mon, 11 Dec 2000 17:15:53 +0800."
+             <004b01c06352$f6e8e4a0$050010ac@starnet.gov.sg> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 11 Dec 2000 20:27:23 +1100
+Message-ID: <1186.976526843@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-did we lose ip=autoconf. I see dhcp and arp transmitting infinitely. I was
-able to boot only after completely entering nfsroot= and ip= boot commands.
+On Mon, 11 Dec 2000 17:15:53 +0800, 
+"Corisen" <csyap@starnet.gov.sg> wrote:
+>i'm compiling kernel 2.4.0-test11 uder RH7. i've changed the CC= line to use
+>kgcc, executed "make clean" and "make mrproper". "make menuconfig" and "make
+>dep" went smoothly. however during the "make modules" process, several
+>warning messages (shown below) appeared:
+>
+>{standard input}: Assembler messages:
+>{standard input}:8: Warning: Ignoring changed section attributes for
+>.modinfo
+>
+>pls kindly advise how can i resolve the warning messages, or can i can
+>safely igonre the warning messages?
 
-2.2.17 worked thusley.
+You can safely ignore the messages.  But if they get too annoying,
+upgrade to modutils >= 2.3.19 (current is 2.3.22) and apply this patch.
 
-root=/dev/nfs ether=0,0,eth0
-
-2.2.18-pre26 works only
-
-root=/dev/nfs
-nfsroot=192.168.50.11:/tftpboot/191.168.50.2,rsize=8192,wsize=8192
-ip=192.168.50.2:192.168.50.11:::Eddys486:eth0:off ether=0,0,eth0
-
-for some reason
-
-root=/dev/nfs ether=0,0,eth0   gives this result
-
-Dec 10 22:48:24 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
-Dec 10 22:48:24 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
-(00:50:ba:05:7b:fb) via eth0
-Dec 10 22:48:26 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
-Dec 10 22:48:26 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
-(00:50:ba:05:7b:fb) via eth0
-Dec 10 22:48:29 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
-Dec 10 22:48:29 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
-(00:50:ba:05:7b:fb) via eth0
-Dec 10 22:48:36 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
-Dec 10 22:48:36 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
-(00:50:ba:05:7b:fb) via eth0
-Dec 10 22:48:47 Eddys dhcpd: BOOTREQUEST from 00:50:ba:05:7b:fb via eth0
-Dec 10 22:48:47 Eddys dhcpd: BOOTREPLY for 192.168.50.2 to eddys486
-(00:50:ba:05:7b:fb) via eth0
-
-and
-
-root=/dev/nfs ip=both ether=0,0,eth0     gives this result
-
-Dec 10 22:50:52 Eddys dhcpd: DHCPDISCOVER from 00:50:ba:05:7b:fb via eth0
-Dec 10 22:50:52 Eddys dhcpd: DHCPOFFER on 192.168.50.2 to 00:50:ba:05:7b:fb
-via eth0
-Dec 10 22:50:55 Eddys dhcpd: DHCPDISCOVER from 00:50:ba:05:7b:fb via eth0
-Dec 10 22:50:55 Eddys dhcpd: DHCPOFFER on 192.168.50.2 to 00:50:ba:05:7b:fb
-via eth0
-Dec 10 22:51:00 Eddys dhcpd: DHCPDISCOVER from 00:50:ba:05:7b:fb via eth0
-Dec 10 22:51:00 Eddys dhcpd: DHCPOFFER on 192.168.50.2 to 00:50:ba:05:7b:fb
-via eth0
-Dec 10 22:51:09 Eddys dhcpd: DHCPDISCOVER from 00:50:ba:05:7b:fb via eth0
-Dec 10 22:51:09 Eddys dhcpd: DHCPOFFER on 192.168.50.2 to 00:50:ba:05:7b:fb
-via eth0
-
+Index: 0-test12-pre7.1/include/linux/module.h
+--- 0-test12-pre7.1/include/linux/module.h Thu, 07 Dec 2000 09:20:04 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3.1.1 644)
++++ 0-test12-pre7.2(w)/include/linux/module.h Mon, 11 Dec 2000 20:26:22 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3.1.2 644)
+@@ -247,12 +247,6 @@ static const struct gtype##_id * __modul
+   __attribute__ ((unused)) = name
+ #define MODULE_DEVICE_TABLE(type,name)		\
+   MODULE_GENERIC_TABLE(type##_device,name)
+-/* not put to .modinfo section to avoid section type conflicts */
+-
+-/* The attributes of a section are set the first time the section is
+-   seen; we want .modinfo to not be allocated.  */
+-
+-__asm__(".section .modinfo\n\t.previous");
+ 
+ /* Define the module variable, and usage macros.  */
+ extern struct module __this_module;
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

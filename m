@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289877AbSBKRf0>; Mon, 11 Feb 2002 12:35:26 -0500
+	id <S289871AbSBKRir>; Mon, 11 Feb 2002 12:38:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289874AbSBKRfQ>; Mon, 11 Feb 2002 12:35:16 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:42244 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S289865AbSBKRfH>;
-	Mon, 11 Feb 2002 12:35:07 -0500
-Date: Mon, 11 Feb 2002 09:31:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.4-pre6 -- debug.c:190: In function `usb_stor_print_Scsi_Cmnd': structure has no member named `address'
-Message-ID: <20020211173134.GA11532@kroah.com>
-In-Reply-To: <1013403908.30864.41.camel@turbulence.megapathdsl.net>
-Mime-Version: 1.0
+	id <S289874AbSBKRik>; Mon, 11 Feb 2002 12:38:40 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:16352 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S289871AbSBKRiY>; Mon, 11 Feb 2002 12:38:24 -0500
+Date: Mon, 11 Feb 2002 09:39:07 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Daniel Egger <degger@fhm.edu>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Performance of Ingo's O(1) scheduler on NUMA-Q
+Message-ID: <400310000.1013449147@flay>
+In-Reply-To: <1013181364.31423.9.camel@sonja>
+In-Reply-To: <Pine.LNX.4.33.0202080021520.7544-100000@localhost.localdomain> <1013181364.31423.9.camel@sonja>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1013403908.30864.41.camel@turbulence.megapathdsl.net>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 14 Jan 2002 15:11:56 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 10, 2002 at 09:05:07PM -0800, Miles Lane wrote:
-> CONFIG_USB_STORAGE_DEBUG=y
+>> > Measuring kernel compile times on a 16 way NUMA-Q, adding Ingo's
+>> > scheduler patch takes kernel compiles down from 47 seconds to 31
+>> > seconds .... pretty impressive benefit.
+>  
+>> cool! By the way, could you try a test-compile with a 'big' .config file?
+> 
+> I'd assume that a 16way machine still taking 31s to compile the kernel
+> is already having a 'big' config file. 
 
-Change that item to =n and go bug the usb-storage author :)
+It's a fairly normal config file, but the machine isn't feeling very
+in touch with it's NUMAness, so it scales badly. If I only use one
+quad (4 processsors), the same compile takes 47s.
 
-thanks,
+M.
 
-greg k-h

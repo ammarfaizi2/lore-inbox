@@ -1,297 +1,243 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263920AbUDPWyd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 18:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263931AbUDPWyZ
+	id S263909AbUDPWz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 18:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263931AbUDPWz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 18:54:25 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:10982 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S263920AbUDPWwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 18:52:12 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BC543@exa-atlanta.se.lsil.com>
-From: "Mukker, Atul" <Atulm@lsil.com>
-To: "'Jeff Garzik'" <jgarzik@pobox.com>,
-       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-Cc: "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
-       "'paul@kungfoocoder.org'" <paul@kungfoocoder.org>,
-       "Mukker, Atul" <Atulm@lsil.com>,
-       "'James.Bottomley@SteelEye.com'" <James.Bottomley@SteelEye.com>,
-       "'arjanv@redhat.com'" <arjanv@redhat.com>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH][RELEASE]: megaraid unified driver version 2.20.0.B1
-Date: Fri, 16 Apr 2004 18:50:48 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 16 Apr 2004 18:55:26 -0400
+Received: from dialin-212-144-168-155.arcor-ip.net ([212.144.168.155]:22720
+	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S263909AbUDPWxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 18:53:32 -0400
+In-Reply-To: <1082132015.2581.30.camel@lade.trondhjem.org>
+References: <20040416011401.GD18329@widomaker.com> <1082079061.7141.85.camel@lade.trondhjem.org> <20040415185355.1674115b.akpm@osdl.org> <1082084048.7141.142.camel@lade.trondhjem.org> <20040416045924.GA4870@linuxace.com> <1082093346.7141.159.camel@lade.trondhjem.org> <20040416144433.GE2253@logos.cnet>  <408001E6.7020001@treblig.org> <1082132015.2581.30.camel@lade.trondhjem.org>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-26-756063771"
+Message-Id: <5FF89D68-8FD9-11D8-988A-000A958E35DC@fhm.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: NFS and kernel 2.6.x
+Date: Fri, 16 Apr 2004 21:07:58 +0200
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Transfer-Encoding: 7bit
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 0) Am I to judge from megaraid_mbox_build_cmd that megaraid does not 
-> really support SCSI, but it translates instead?  This may imply that 
-> implementation as a SCSI driver is inappropriate.
 
-MegaRAID is a very SCSI stack :-)
-
-> 
-> 
-> 1) Remove back-compat code from kdep.h.  It's OK for devel and for 
-> vendor-specific branch, but we wouldn't want this in 2.6.x mainline.
-
-The 2.4 portion of the code has a very small footprint in the driver. Thanks
-to earlier inputs from Christoph Hellwig, it will be even smaller.
-Maintaining single code for lk 2.4 and 2.6 makes very sense from logistics
-and maintenance point of view. lk 2.4 is still very popular :-) and we would
-like to provide support for the same with the latest drivers as well. 
-
-> 
-> 
-> 2) Buggy ADDR definitions:
-> 
-> +#define ADDR_LO(addr)  (((unsigned long)(addr)) & 0xffffffff)
-> +#define ADDR_HI(addr)  ((((ulong)(addr)) & 
-> 0xffffffff00000000ULL) >> 32)
-> +#define ADDR_64(hi, lo)        ((((uint64_t)(hi)) << 32) | (lo))
-> 
-> Don't cast to unsigned long, cast to u64.
-This will be removed, it is not used in the driver anyway
-
-> 
-> 
-> 3) Delete non-standard types:  ulong
-ok
-
-> 
-> 
-> 5) No foo_t structures.  Linux kernel style is "struct foo" 
-> not "foo_t":
-> 
-> +typedef struct mraid_hba_info {
-> +} __attribute__ ((packed)) mraid_hba_info_t;
-> +
-> +typedef struct mcontroller {
-> +} __attribute__ ((packed)) mcontroller_t;
-We also prefer to have "struct foo" mostly. But this should not be a rule.
-E.g., having adapter_t instead of "struct adapter" is very convenient,
-simply because it used so widely throughout the driver. But point taken :-)
-
-> 
-> 
-> 6) Kill uses of "volatile".  _Most_ of the time, this indicates buggy 
-> code.  You should have the proper barriers in place:  mb(), wmb(), 
-> rmb(), barrier(), and cpu_relax().  This has been mentioned before :)
-We have carefully used "volatile" only on the fields, which are touch by the
-hardware and/or firmware. The proper barriers are used when we want to make
-sure access is properly sequenced.
-
-> 
-> 
-> 7) Allow me to compliment you on proper kernel-doc documentation.
-> 
-Thanks!
-
-> 
-> 8) Consider adding ____cacheline_aligned markers to the definition of 
-> struct adapter (a.k.a. adapter_t, before item #5 is fixed).  
-> Re-arrange 
-> your adapter structure so that struct members that are used 
-> together are 
-> kept in the same cacheline.  For example, in net drivers, I usually 
-> split the structures into "TX", "RX", and "everything else" sections. 
-> Keep in mind that cacheline size varies (32/64/128 usually), 
-> so this is 
-> not an absolute limit, just a marker where to physically 
-> separate into 
-> distinct cachelines.
-ok
-
-> 
-> 
-> 9) {SET,IS}_PRV_INTF_AVAILABLE's use of atomic_foo() seems racy.
-> 
-This is not necessary and will be removed.
+--Apple-Mail-26-756063771
+Content-Type: multipart/mixed; boundary=Apple-Mail-25-756063768
 
 
-> 
-> 10) In 2.6, use the type-safe module_param() rather than MODULE_PARM()
-> 
-We will explore and reply
+--Apple-Mail-25-756063768
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
 
-> 
-> 11) Why is PAGE_SIZE chosen here?
-> 
-> +       /*
-> +        * Allocate all pages in a loop
-> +        */
-> +       for (i = 0; i < num_pages; i++) {
-> +
-> +               pool->page_arr[i] = pci_alloc_consistent( 
-> dev, PAGE_SIZE-1,
-> + 
-> &pool->dmah_arr[i] );
-> +               if (pool->page_arr[i] == NULL) {
-> +                       con_log(CL_ANN, (KERN_WARNING
-> +                               "megaraid: Failed to alloc 
-> page # %d\n", 
-> i ));
-> +                       goto memlib_fail_alloc;
-> +               }
-> +       }
-> 
-This API will only be used by low level drivers which require multiple small
-chunks of DMAable memory. This chunk are assumed to be much smaller than a
-PAGE therefore many can fit in a single PAGE. Driver portions requiring
-bigger buffers (>4KB) use pci_alloc_consistent directly.
+On 16.04.2004, at 18:13, Trond Myklebust wrote:
 
-> 
-> 12) Don't invent your own printk() wrappers.  I don't see the 
-> need for 
-> con_log()
-Actually we do, since the debug level can be changed on the fly using ioctl
-and sysfs
+> Then "some of you" can send in a proper bugreport in the usual format 
+> if
+> and when that problem actually occurs.
 
-> 
-> 
-> 13) try_assertion{}, catch_assertion{}, and end_assertion attempt to 
-> turn C code into C++ code.  This will inevitably fail :)
-We see it as better error handling. It would be very useful specially when
-we move to more fine-grained locks in the drivers.
+> So far I have NOTHING to tell me there is a problem here. Just a load 
+> of
+> people going ballistic over hot air....
 
-> 
-> 
-> 14) the following check doesn't scale, please remove:
-> 
-> +       if (subsysvid && (subsysvid != PCI_VENDOR_ID_AMI) &&
-> +                       (subsysvid != PCI_VENDOR_ID_DELL) &&
-> +                       (subsysvid != PCI_VENDOR_ID_HP) &&
-> +                       (subsysvid != PCI_VENDOR_ID_INTEL) &&
-> +                       (subsysvid != PCI_SUBSYS_ID_FSC) &&
-> +                       (subsysvid != PCI_VENDOR_ID_LSI_LOGIC)) {
-> +
-> +               con_log(CL_ANN, (KERN_WARNING
-> +                       "megaraid: not loading for 
-> subsysvid:%#4.04x\n",
-> +                       subsysvid));
-> +
-> +               return -ENODEV;
-> +       }
-> 
-Please elaborate. We simply want to make sure the pci vendor, device and
-subsystem ID are appropriate before loading the driver. 
+Great you want to help here. So I've a system which is NFS root using a
+3c940 gigabit onboard NIC on kernel 2.6.5 and which is dead fish in the
+water somewhere in between 10 seconds and 5 minutes after boot using
+NFS over UDP. The last thing I see are 3 or 4 messages of the type:
 
-> 
-> 15) Don't set a DMA mask, then change it.  in 
-> megaraid_probe_one() you 
-> have enough info to decide whether 64-bit can be supported.
-> 
-> 
-ok
+server 192.168.11.2 not responding, still trying
 
-> 16) Use normal Linux kernel style to handle errors.  Don't duplicate
-> +               kfree(adapter);
-> +
-> +               pci_disable_device(pdev);
-> 
-> in multiple error handling paths.
-ok
+NFS seems to work better with 2.6.4 which unfortuntely has other nasty
+bugs for me; currently I'm running 2.4.26 which works fine, over both
+UDP  and TCP.
 
-> 
-> 
-> 17) Eliminate MAX_CONTROLLERS.  There is no reason for this limit. 
-> Global structures such as mraid_driver_g are generally not needed.
-We need it, since management module and applications need to see a global
-picture of all adapters in the system
+Preempt is off as are the NFS features which I do not trust yet (v4 and
+direct IO). Attached is the config for your viewing pleasure.
 
-> 
-> 
-> 18) Use pci_request_regions() in megaraid_probe_one(), rather than 
-> request_region or request_mem_region.  To free, you use 
-> pci_release_regions().
-ok
+Please tell me how I can help here and I'll certainly do it.
 
-> 
-> 
-> 19) When hardware is malfunctioning or removed, the following 
-> code turns 
-> into an infinite loop:
-> 
-> +               // FIXME: this may not be required
-> +               while (RDINDOOR(raid_dev) & 0x02) cpu_relax();
-Is there is bette way to do it. If there is, please suggest - we will
-definitely us it. In fact, this is not the only such loop in the ISR - there
-are two more.
+Servus,
+       Daniel
 
-> 
-> 
-> 20) You don't need spin_lock_irqsave() in interrupt handler, only 
-> spin_lock()
-ok
 
-> 
-> 
-> 21) VERY unfriendly to shared interrupts.  
-> megaraid_iombox_ack_sequence 
-> MUST check immediately for
-> 	(a) no irq at all (shared interrupt)
-> 	(b) status return of 0xffffffff (hardware is 
-> malfunctioning/unplugged)
-This is for EOL controllers. We are planning to phase out this portion.
+--Apple-Mail-25-756063768
+Content-Transfer-Encoding: base64
+Content-Type: application/x-gzip;
+	x-unix-mode=0644;
+	name="config.gz"
+Content-Disposition: attachment;
+	filename=config.gz
 
-> 
-> 
-> 22) MAJOR bug:  sleep inside spinlock.  The SCSI error 
-> handler calls its 
-> error handling hooks with the adapter lock held.  You cannot yield() 
-> inside mbox_post_sync_cmd
-> 
-> 
-> 23) Alongside #22, the following code is unacceptable:
-> 
-> +               // wait for maximum 1 second for status to post
-> +               for (i = 0; i < 40000; i++) {
-> +                       if (mbox->numstatus != 0xFF) break;
-> +                       udelay(25); yield();
-> +               }
-> 
-> Besides yield(), the maximum delay with spinlock held is far too long.
-> 
-> 
-> 24) Same issues as #22 and #23 in __megaraid_busywait_mbox: 
-> unacceptable delay inside spinlock, and schedule inside spinlock:
-> 
-> +       for (counter = 0; counter < 10000; counter++) {
-> +
-> +               if (!mbox->busy) return MRAID_SUCCESS;
-> +
-> +               udelay(100); yield();
-> +       }
-> 
+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
 
-Very good point! We would fix in the next drop.
+--Apple-Mail-25-756063768--
 
-> 
-> 
-> 25) sleep_on_timeout() is deprecated and should not be used:
-> 
-> +       while (adp->outstanding_cmds > 0)
-> +               sleep_on_timeout( &wq, 1*HZ );
-> 
-What is the recommended way to do it?
+--Apple-Mail-26-756063771
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
-> 
-> 
-> 26) General question:  do you ever call down() inside a 
-> spinlock?  I did 
-> not look closely, but I think you do.  That would be wrong, as down() 
-> can sleep.
-That should not happen since down() is only done in ioctl() through
-management module. Will double check though.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
 
-> 
-> 
-> 27) drivers/scsi/megaraid/readme belongs in the 
-> Documentation/ directory
-ok
+iQEVAwUBQIAvGDBkNMiD99JrAQJk2QgAkRo1v0yO0F/W2sUnt3Z6lUYh620gk/0J
+xzcyHBRWZMSyxQW1zQY5vwA2iMX5f4DoXnL4DgSkWKvbccwtOKyQwucWG1NZis4l
+rq5kn8oDPfSbPYlvIeZgJDQgcXFAvhKbdlc20uQVaBsQ5xjwFa27TjsYCF0TNQmw
+1tGaXhjbS3ETCRXBPV1Ou4OHDY3het6n9dCHTLDcHxJo+nvwPdgxYC1BuPYr5qPY
+9nszhKotW4jLuptA3X+qGeTp7ZT27w3csqRvqqPBelKjgcsiI9vqNp7Xiv5ELYZq
+aMxUVIT/eXFrwhgv87nQtlYy0oGEnrqu+YvzYAELyk/uXOHI1yDMfQ==
+=8Ji2
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-26-756063771--
+

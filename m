@@ -1,79 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265802AbTL3VXh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 16:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbTL3VXh
+	id S265805AbTL3Vft (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 16:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbTL3Vfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 16:23:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17046 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265802AbTL3VXd (ORCPT
+	Tue, 30 Dec 2003 16:35:48 -0500
+Received: from holomorphy.com ([199.26.172.102]:34499 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265805AbTL3Vfr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 16:23:33 -0500
-Date: Tue, 30 Dec 2003 13:23:26 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
+	Tue, 30 Dec 2003 16:35:47 -0500
+Date: Tue, 30 Dec 2003 13:35:38 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Thomas Molina <tmolina@cablespeed.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
+Cc: Linus Torvalds <torvalds@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.0 performance problems
+Message-ID: <20031230213538.GH22503@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Thomas Molina <tmolina@cablespeed.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> <Pine.LNX.4.58.0312291420370.1586@home.osdl.org> <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain> <Pine.LNX.4.58.0312291502210.1586@home.osdl.org> <Pine.LNX.4.58.0312300903170.2825@localhost.localdomain> <20031230143929.GN27687@holomorphy.com> <Pine.LNX.4.58.0312301524220.3152@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.58.0312301524220.3152@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0312301318540.2065@home.osdl.org>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
- <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
- <Pine.LNX.4.58.0312291755080.5835@localhost.localdomain>
- <Pine.LNX.4.58.0312291502210.1586@home.osdl.org>
- <Pine.LNX.4.58.0312300903170.2825@localhost.localdomain>
- <20031230143929.GN27687@holomorphy.com> <Pine.LNX.4.58.0312301524220.3152@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 30, 2003 at 04:14:13PM -0500, Thomas Molina wrote:
+> I also get 90+ percent iowait under 2.6 and 0 iowait in 2.4.  I'm not sure 
+> how the alleged suckiness of 2.6 paging fits into this.  On this system 
+> the execution times are almost the same.  On this machine, in addition to 
+> the iowait differences, there are cpu use statistics as reported by top.  
+> On 2.4 idle time is 70 percent while on 2.6 the idle time is near zero 
+> percent.  I'm not sure what the significance of this is.
+
+2.4 does not report iowait; all iowait is reported as idle time on 2.4.
+
+On Tue, Dec 30, 2003 at 04:14:13PM -0500, Thomas Molina wrote:
+> CPU: PIII, speed 648.072 MHz (estimated)
+> Counted CPU_CLK_UNHALTED events (clocks processor is not halted) with a unit mask of 0x00 (No unit mask) count 324036
+> vma      samples  %           symbol name
+> c0115e20 22498    22.6776     mark_offset_tsc
+> c0110080 12707    12.8084     mask_and_ack_8259A
+> c018eec0 7115      7.1718     ext3_find_entry
+> c010ff60 4013      4.0450     enable_8259A_irq
+> c0168d50 2650      2.6712     __d_lookup
+> c015eb10 1727      1.7408     link_path_walk
+> c010afd0 1482      1.4938     irq_entries_start
+
+Well, it looks like Linus said various things along these lines in
+various ways before I finished writing this, but in case hearing it a
+second time is any reassurance:
+
+There's a slight problem here in that you're io-bound, not cpu-bound,
+so profiles won't actually tell us much about remaining overheads.
+
+One thing here is that since turning off all the debugging options got
+you down to about a 15% degradation, things aren't actually
+looking anywhere near as problematic as before when you had a near 90%
+degradation. One possible explanation is that the extensive padding
+done by CONFIG_DEBUG_PAGEALLOC created significant memory pressure.
+
+If you'd like further speedups, logging the things I suggested earlier
+and trying fiddling with swappiness might help.
+
+In fact, you are down to such a small margin of degradation that the
+remaining degradation vs. 2.4 may in fact be due to using oprofile,
+which has significant, though not overwhelming overhead.
 
 
-On Tue, 30 Dec 2003, Thomas Molina wrote:
-> 
-> The times for this operation is:
-> real	15m20s
-> user	0m35s
-> sys	0m20s
-
-Ok. This looks much closer to the 2.4.x numbers you reported:
-
-	real    13m50.198s
-	user    0m33.780s
-	sys     0m15.390s
-
-so I assume that we can consider this problem largely solved? There's 
-still some difference, that could be due to just VM tuning.. 
-
-I suspect that what happened is:
- - slab debugging adds a heavy CPU _and_ it also makes all the slab caches 
-   much less dense.
- - as a result, you see much higher system times, and you also end up 
-   needing much more memory for things like the dentry cache, so your 
-   memory-starved machine ended up swapping a lot more too.
-
-> On my main system (1.3GHz Athlon, 512MB memory, fast hard drive; in other 
-> words has plenty of resources) I get similar results, scaled down of 
-> course.
-> 
-> On 2.4 the times are
-> real	3m47s
-> user	14s
-> sys	7s
-> 
-> On 2.6 the times are
-> real	3m27s
-> user	14s
-> sys	7s
-
-So here 2.6.x actually outperforms 2.4.x
-
-> I also get 90+ percent iowait under 2.6 and 0 iowait in 2.4.
-
-This is likely just an issue of reporting. Under 2.6.x your idle time will 
-be reported as iowait, while in your 2.4.x kernel you don't even have the 
-iowait support, so all idle time is just "idle", and not split up into 
-_why_ it is idle.
-
-			Linus
+-- wli

@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131721AbRAWWZc>; Tue, 23 Jan 2001 17:25:32 -0500
+	id <S131529AbRAWWac>; Tue, 23 Jan 2001 17:30:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131567AbRAWWZX>; Tue, 23 Jan 2001 17:25:23 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:54101
+	id <S131414AbRAWWaN>; Tue, 23 Jan 2001 17:30:13 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:54613
 	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S130322AbRAWWZF>; Tue, 23 Jan 2001 17:25:05 -0500
-Date: Tue, 23 Jan 2001 23:24:59 +0100
+	id <S130098AbRAWW3z>; Tue, 23 Jan 2001 17:29:55 -0500
+Date: Tue, 23 Jan 2001 23:29:47 +0100
 From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH] drivers/scsi/qlogicfas.c: check_region -> request_region + cleanup (241p9)
-Message-ID: <20010123232459.K607@jaquet.dk>
+To: ehm@cris.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] make drivers/scsi/qlogicfc.c check_region -> request_region + cleanup (241p9)
+Message-ID: <20010123232947.L607@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,12 +21,12 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-(I have not been able to find a probable maintainer for this code.)
+(I am guessing you as the maintainer of this code. If you are not,
+I apologize for your inconvenience.)
 
-The follow patch makes drivers/scsi/qlogicfas.c use the return code
-from request_region instead of a call to check_region. It also
-adds a missing free_irq on an error path and makes us check the
-return from scsi_register.
+The following patch makes drivers/scsi/qlogicfc.c check the 
+return code of scsi_register, adds a missing pci64_free_consistent on
+an error path and makes it use request_region exclusively.
 
 It applies cleanly against ac10 and 241p9.
 
@@ -33,58 +34,52 @@ Comments?
 
 
 
---- linux-ac10-clean/drivers/scsi/qlogicfas.c	Mon Sep 18 22:36:25 2000
-+++ linux-ac10/drivers/scsi/qlogicfas.c	Mon Jan 22 22:26:04 2001
-@@ -132,7 +132,7 @@
- 
- /*----------------------------------------------------------------*/
- /* driver state info, local to driver */
--static int	    qbase = 0;	/* Port */
-+static int	    qbase;	/* Port */
- static int	    qinitid;	/* initiator ID */
- static int	    qabort;	/* Flag to cause an abort */
- static int	    qlirq = -1;	/* IRQ being used */
-@@ -556,7 +556,7 @@
- 
- 	if( !qbase ) {
- 		for (qbase = 0x230; qbase < 0x430; qbase += 0x100) {
--			if( check_region( qbase , 0x10 ) )
-+			if( !request_region( qbase , 0x10, "qlogicfas" ) )
+--- linux-ac10-clean/drivers/scsi/qlogicfc.c	Mon Sep 18 22:36:25 2000
++++ linux-ac10/drivers/scsi/qlogicfc.c	Sat Jan 20 23:07:09 2001
+@@ -756,6 +756,10 @@
  				continue;
- 			REG1;
- 			if ( ( (inb(qbase + 0xe) ^ inb(qbase + 0xe)) == 7 )
-@@ -616,8 +616,9 @@
- 	if (qlirq >= 0 && !request_irq(qlirq, do_ql_ihandl, 0, "qlogicfas", NULL))
- 		host->can_queue = 1;
- #endif
--	request_region( qbase , 0x10 ,"qlogicfas");
- 	hreg = scsi_register( host , 0 );	/* no host data */
-+	if (!hreg)
-+		goto err_release_mem;
- 	hreg->io_port = qbase;
- 	hreg->n_io_port = 16;
- 	hreg->dma_channel = -1;
-@@ -629,6 +630,13 @@
- 	host->name = qinfo;
  
- 	return 1;
-+
-+ err_release_mem:
-+	release_region(qbase, 0x10);
-+	if (host->can_queue)
-+		free_irq(qlirq, do_ql_ihandl);
-+	return 0;
-+
- }
+ 		        host = scsi_register(tmpt, sizeof(struct isp2x00_hostdata));
++			if (!host) {
++			        printk("qlogicfc%d : could not register host.\n", hostdata->host_id);
++				continue;
++			}
+ 			host->max_id = QLOGICFC_MAX_ID + 1;
+ 			host->max_lun = QLOGICFC_MAX_LUN;
+ 			host->hostt->use_new_eh_code = 1;
+@@ -767,6 +771,7 @@
  
- /*----------------------------------------------------------------*/
+ 			if (!hostdata->res){
+ 			        printk("qlogicfc%d : could not allocate memory for request and response queue.\n", hostdata->host_id);
++				pci64_free_consistent(pdev, RES_SIZE + REQ_SIZE, hostdata->res, busaddr);
+ 			        scsi_unregister(host);
+ 				continue;
+ 			}
+@@ -812,7 +817,7 @@
+ 				scsi_unregister(host);
+ 				continue;
+ 			}
+-			if (check_region(host->io_port, 0xff)) {
++			if (!request_region(host->io_port, 0xff, "qlogicfc")) {
+ 			        printk("qlogicfc%d : i/o region 0x%lx-0x%lx already "
+ 				       "in use\n",
+ 				       hostdata->host_id, host->io_port, host->io_port + 0xff);
+@@ -821,7 +826,6 @@
+ 				scsi_unregister(host);
+ 				continue;
+ 			}
+-			request_region(host->io_port, 0xff, "qlogicfc");
+ 
+ 			outw(0x0, host->io_port + PCI_SEMAPHORE);
+ 			outw(HCCR_CLEAR_RISC_INTR, host->io_port + HOST_HCCR);
+
 
 -- 
 Regards,
         Rasmus(rasmus@jaquet.dk)
 
-The president has kept all of the promises he intended to keep.
--Clinton aide George Stephanopolous speaking on "Larry King Live".
+Open Source. Closed Minds. We are Slashdot. 
+  --Anonymous Coward
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

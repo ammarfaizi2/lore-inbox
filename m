@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270136AbTGUOYw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270109AbTGUOYw
+	id S270117AbTGUO0y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 10:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270120AbTGUO0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:24:52 -0400
-Received: from sina187-143.sina.com.cn ([202.106.187.143]:60940 "HELO sina.com")
-	by vger.kernel.org with SMTP id S270136AbTGUOYl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:24:41 -0400
-Message-ID: <3F1C6E9D.1080702@sina.com>
-Date: Mon, 21 Jul 2003 22:52:13 +0000
-From: snoopyzwe <snoopyzwe@sina.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; zh-CN; rv:1.2.1) Gecko/20021130
-X-Accept-Language: zh-cn,zh
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: problem of keyboard input and mouse movement
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jul 2003 10:26:53 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:58515 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id S270117AbTGUO0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 10:26:39 -0400
+Message-Id: <200307211441.h6LEfQT02085@pincoya.inf.utfsm.cl>
+To: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Suggestion for a new system call: convert file handle to a cookie for transfering file handles between processes. 
+In-reply-to: Your message of "Mon, 21 Jul 2003 11:49:15 +0200."
+             <4cace4bf68.4bf684cace@teleline.es> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Mon, 21 Jul 2003 10:41:25 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I implemented a kernel thread, which runs every 1/5 HZ. My problem is
-how to make the kernel thread know whether there is keyboard input or
-mouse movement since last time it ran.
-thanks
+RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es> said:
+> Although it is posible to use unix sockets, my proposal
+> integrates better with shell scripts.
 
-
-
+I fail to see why using sockets et al in shell scripts is that important.
+You have full access to the API from Perl, for one; shell scripts are used
+mostly as scaffolding for calling "normal" programs, so inventing something
+to do what you want and call that from the shell is the way to go IMHO.
+Only if there is absolutely no way to do it sanely outside the kernel, and
+futhermore it is very important to do, should the kernel get involved
+(sure, Linux is way the largest Unix installed base around today, but still
+_far_ from the one that defines the standards in the area, which means a
+Linux-only system call is a step forward and three back, so...)
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

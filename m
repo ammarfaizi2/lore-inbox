@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVAYUjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVAYUmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbVAYUjL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:39:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVAYUjL
+	id S262125AbVAYUmU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:42:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVAYUmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:39:11 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:5267 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262129AbVAYUhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:37:39 -0500
-Subject: Re: i8042 access timings
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: dtor_core@ameritech.net, linux-input@atrey.karlin.mff.cuni.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <20050125194647.GB3494@pclin040.win.tue.nl>
-References: <200501250241.14695.dtor_core@ameritech.net>
-	 <20050125105139.GA3494@pclin040.win.tue.nl>
-	 <d120d5000501251117120a738a@mail.gmail.com>
-	 <20050125194647.GB3494@pclin040.win.tue.nl>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 15:37:35 -0500
-Message-Id: <1106685456.10845.40.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jan 2005 15:42:19 -0500
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:11921 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S262125AbVAYUlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 15:41:39 -0500
+Date: Tue, 25 Jan 2005 15:41:12 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: wait_for_completion API extension addition
+In-reply-to: <1106685023.4538.18.camel@tglx.tec.linutronix.de>
+To: tglx@linutronix.de
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Message-id: <41F6AEE8.70908@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <41F6AA83.20306@sun.com>
+ <1106685023.4538.18.camel@tglx.tec.linutronix.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 20:46 +0100, Andries Brouwer wrote:
-> On Tue, Jan 25, 2005 at 02:17:33PM -0500, Dmitry Torokhov wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Thomas Gleixner wrote:
+> On Tue, 2005-01-25 at 15:22 -0500, Mike Waychison wrote:
 > 
-> > Still, I wonder if implementing these delays will give IO controller
-> > better chances to react to our queries and will get rid of some
-> > failures.
+>>-----BEGIN PGP SIGNED MESSAGE-----
+>>Hash: SHA1
+>>
+>>Hi Ingo,
+>>
+>>I noticed that the wait_for_completion API extensions made it into mainline.
+>>
+>>However, I posted that the patch in question is broken a while back:
+>>
+>>http://marc.theaimsgroup.com/?l=linux-kernel&m=110131832828126&w=2
+>>
+>>Can we fix this?
 > 
-> My objection is this: by doing this you create myths that may
-> be difficult to dispel later. I recall other situations where
-> there were superfluous restrictions and I had a hard time convincing
-> others of the fact that the tests weren't there for any good reason,
-> that there was no single instance of hardware on earth known to
-> work better with the added restrictions.
+> 
+> We reposted a fixed version. It should not be the one from October which
+> made it upstream.
+> 
 
-Seems like a comment along the lines of "foo hardware doesn't work right
-unless we delay a bit here" is the obvious solution.  Then someone can
-easily disprove it later.
+Well, according to linux.bkbits.net/linux-2.5, it appears to have gotten
+the broken version :(
 
-Lee
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB9q7odQs4kOxk3/MRAhUbAJ9jhpFbrpqi2K+lakwy9mpdwiq/3QCdHovv
+16kp8J0NENFAKS/QCq6B1x4=
+=NjNB
+-----END PGP SIGNATURE-----

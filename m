@@ -1,62 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUBRQsh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 11:48:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266494AbUBRQsG
+	id S266232AbUBRQO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 11:14:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266652AbUBRQO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 11:48:06 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:2744 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S266340AbUBRQrv convert rfc822-to-8bit (ORCPT
+	Wed, 18 Feb 2004 11:14:56 -0500
+Received: from mail3.iserv.net ([204.177.184.153]:31123 "EHLO mail3.iserv.net")
+	by vger.kernel.org with ESMTP id S266232AbUBRQOw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 11:47:51 -0500
-X-Analyze: Velop Mail Shield v0.0.3
-Date: Wed, 18 Feb 2004 13:47:36 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [REALLY STUPID] Re: Linux 2.6.3
-In-Reply-To: <002f01c3f632$29783f90$0e25fe96@pysiak>
-Message-ID: <Pine.LNX.4.58.0402181342030.670@pervalidus.dyndns.org>
-References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org><yw1xad3gd7l5.fsf@ford.guide><200402181417.06553.ianh@iahastie.local.net>
- <yw1x1xoscvl8.fsf@ford.guide> <002f01c3f632$29783f90$0e25fe96@pysiak>
-X-Archive: encrypt
+	Wed, 18 Feb 2004 11:14:52 -0500
+Message-ID: <40338F51.1030502@didntduck.org>
+Date: Wed, 18 Feb 2004 11:14:09 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Matthew Wilcox <willy@debian.org>
+CC: Sundarapandian Durairaj <sundarapandian.durairaj@intel.com>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@zip.com.au>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Expanded PCI config space (against 2.6.3-rc4)
+References: <20040217163744.GU31168@parcelfarce.linux.theplanet.co.uk> <20040218142141.GK11824@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040218142141.GK11824@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Feb 2004, Maciej Soltysiak wrote:
+Matthew Wilcox wrote:
+> Updated for 2.6.3, and reinserted an ifdef I had thought was
+> unnecessary.
+> 
+> Patch against 2.6.3 for implementing extended PCI configuration space.
+> 
+>  - Enables MMCONFIG space on i386.
+>    - Move the acpi apic cruft into its own function on i386.
+>  - Uses the extended SAL call on ia64.
+>  - Makes the extended config space available through sysfs & proc.
+>  - Adds pci_find_ext_capability() to find extended capabilities.
+>  - Adds definitions for some of the extended capabilities.
+>  - Adds pci_cfg_space_size() to determine whether a given device supports
+>    extended PCI config space.
+>    - Now handles both Express and PCI-X 2 devices.
+>  - Changes the PCI-X capability definitions to correspond to the spec.
+>    No current users in-tree.
+> 
+> Patch by Sundarapandian Durairaj and Matthew Wilcox
+> 
 
-> > >> What?  No new code name?
-> > >
-> > > I suppose that'll come with the first 2.6.4-rc#.
-> >
-> > That's not logical.  2.6.2 was "Feisty Dunnart", so 2.6.3 should have
-> > a new name.
-> Okay, this one's the *most stupid* out of my stupid posts, but here goes:
->
-> How about choosing names from puppet names from different countries ?
-> Everyone likes to see something that relates to his country in international
-> projects, also there are people that wouldn't mind getting to know some
-> silly things about others.
->
-> Here in Poland, we have had a tv puppet show with a puppet dog called
-> "Pankracy". [prenounced: pan-krah-tzee]
+[SNIP]
 
-May I suggest ALF for americans, and Priscilla or Fofão for
-brazilians ?
+> diff -urpNX build-tools/dontdiff linus-2.6/arch/ia64/pci/pci.c pciexp-2.6/arch/ia64/pci/pci.c
+> --- linus-2.6/arch/ia64/pci/pci.c	2004-02-06 16:11:36.000000000 -0500
+> +++ pciexp-2.6/arch/ia64/pci/pci.c	2004-02-06 16:02:47.000000000 -0500
+> @@ -55,8 +55,11 @@ struct pci_fixup pcibios_fixups[1];
+>  
+>  #define PCI_SAL_ADDRESS(seg, bus, devfn, reg) \
+>  	((u64)(seg << 24) | (u64)(bus << 16) | \
+> -	 (u64)(devfn << 8) | (u64)(reg))
+> +	 (u64)(devfn << 8) | (u64)(reg)), 0
+>  
+> +#define PCI_SAL_EXT_ADDRESS(seg, bus, devfn, reg) \
+> +	((u64)(seg << 28) | (u64)(bus << 20) | \
+> +	 (u64)(devfn << 12) | (u64)(reg)), 1
+>  
+>  static int
+>  pci_sal_read (int seg, int bus, int devfn, int reg, int len, u32 *value)
+> @@ -64,10 +67,14 @@ pci_sal_read (int seg, int bus, int devf
+>  	int result = 0;
+>  	u64 data = 0;
+>  
+> -	if (!value || (seg > 255) || (bus > 255) || (devfn > 255) || (reg > 255))
+> +	if (!value || (seg > 65535) || (bus > 255) || (devfn > 255) || (reg > 4095))
+>  		return -EINVAL;
+>  
+> -	result = ia64_sal_pci_config_read(PCI_SAL_ADDRESS(seg, bus, devfn, reg), len, &data);
+> +	if ((seg < 256) && (reg < 256)) {
+> +		result = ia64_sal_pci_config_read(PCI_SAL_ADDRESS(seg, bus, devfn, reg), len, &data);
+> +	} else {
+> +		result = ia64_sal_pci_config_read(PCI_SAL_EXT_ADDRESS(seg, bus, devfn, reg), len, &data);
+> +	}
+>  
+>  	*value = (u32) data;
+>  
+> @@ -77,13 +84,17 @@ pci_sal_read (int seg, int bus, int devf
+>  static int
+>  pci_sal_write (int seg, int bus, int devfn, int reg, int len, u32 value)
+>  {
+> -	if ((seg > 255) || (bus > 255) || (devfn > 255) || (reg > 255))
+> +	if ((seg > 65535) || (bus > 255) || (devfn > 255) || (reg > 4095))
+>  		return -EINVAL;
+>  
+> -	return ia64_sal_pci_config_write(PCI_SAL_ADDRESS(seg, bus, devfn, reg), len, value);
+> +	if ((seg < 256) && (reg < 256)) {
+> +		return ia64_sal_pci_config_write(PCI_SAL_ADDRESS(seg, bus, devfn, reg), len, value);
+> +	} else {
+> +		return ia64_sal_pci_config_write(PCI_SAL_EXT_ADDRESS(seg, bus, devfn, reg), len, value);
+> +	}
+>  }
+>  
+> -struct pci_raw_ops pci_sal_ops = {
+> +static struct pci_raw_ops pci_sal_ops = {
+>  	.read = 	pci_sal_read,
+>  	.write =	pci_sal_write
+>  };
 
-> He entertained the kids for some time, and now everyone remembers him
-> and has good memories of him. He was a joyful and innocent puppy.
-> I remember watching the show in 1980s. Vote on pankracy, he's really cool.
-> Plus: there are audio files with the theme from the show.
->
-> http://www.polskaludowa.com/dzwiek/nagrania/piatek_z_pankracym.mp3
-> (111 kB)
->
-> An International touch to the naming scheme. That's my example proposal.
-> What do you say?
+Having PCI_SAL_*ADDRESS() return 2 values is counter-intuituitive, since 
+it looks like a normal function call.  Just add the type flag to the 
+ia64_sal_pci_config_* call directly.
 
--- 
-http://www.pervalidus.net/contact.html
+--
+				Brian Gerst

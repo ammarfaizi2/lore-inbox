@@ -1,35 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281362AbRKLMj5>; Mon, 12 Nov 2001 07:39:57 -0500
+	id <S281381AbRKLMnA>; Mon, 12 Nov 2001 07:43:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281357AbRKLMjq>; Mon, 12 Nov 2001 07:39:46 -0500
-Received: from t2.redhat.com ([199.183.24.243]:2296 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S281381AbRKLMje>; Mon, 12 Nov 2001 07:39:34 -0500
-Message-ID: <3BEFC301.A92C64D4@redhat.com>
-Date: Mon, 12 Nov 2001 12:39:29 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Oops in reiserfs w/2.4.7-10
-In-Reply-To: <Pine.LNX.4.33.0111122233530.26293-100000@bad-sports.com> <3BEFBDE0.6080804@namesys.com>
+	id <S281382AbRKLMmt>; Mon, 12 Nov 2001 07:42:49 -0500
+Received: from castle.nmd.msu.ru ([193.232.112.53]:47886 "HELO
+	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S281381AbRKLMml>;
+	Mon, 12 Nov 2001 07:42:41 -0500
+Message-ID: <20011112155003.A26401@castle.nmd.msu.ru>
+Date: Mon, 12 Nov 2001 15:50:03 +0300
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+        Andrew Morton <akpm@zip.com.au>
+Subject: eepro100 pm fix (fwd)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
-> Please upgrade to a recent linus kernel.  I don't know what went into
-> RedHat 7.2, but secondhand reports are that reiserfs is not stable in
-> that kernel.
+Could you apply it, please?
 
-Please stop badmouthing people that don't happen to pay you. (and don't
-mis-spell their name).
+	Andrey
 
-The Red Hat Linux 7.2 kernels don't have reiserfs patches so all bugs
-are
-yours and yours alone.....
+----- Forwarded message from Jens Axboe <axboe@suse.de> -----
+
+Date: Mon, 12 Nov 2001 13:24:53 +0100
+From: Jens Axboe <axboe@suse.de>
+To: saw@saw.sw.com.sg
+Subject: eepro100 pm fix
+Message-ID: <20011112132453.B786@suse.de>
+
+Hi Andrey,
+
+This patch posted by Andrew Morton makes the eepro100 actually survive a
+apm suspend and resume without totally croaking (a problem I reported
+probably a year or so ago :-). Any chance you could include it?
+
+-- 
+Jens Axboe
+
+
+--- /opt/kernel/linux-2.4.15-pre3/drivers/net/eepro100.c	Mon Nov 12 13:21:27 2001
++++ linux/drivers/net/eepro100.c	Mon Nov 12 13:20:47 2001
+@@ -499,6 +499,9 @@
+ 	unsigned short phy[2];				/* PHY media interfaces available. */
+ 	unsigned short advertising;			/* Current PHY advertised caps. */
+ 	unsigned short partner;				/* Link partner caps. */
++#ifdef CONFIG_PM
++	u32 pm_state[16];
++#endif
+ };
+ 
+ /* The parameters for a CmdConfigure operation.
+@@ -2193,8 +2196,11 @@
+ static int eepro100_suspend(struct pci_dev *pdev, u32 state)
+ {
+ 	struct net_device *dev = pci_get_drvdata (pdev);
++	struct speedo_private *sp = (struct speedo_private *)dev->priv;
+ 	long ioaddr = dev->base_addr;
+ 
++	pci_save_state(pdev, sp->pm_state);
++
+ 	if (!netif_running(dev))
+ 		return 0;
+ 
+@@ -2210,6 +2216,8 @@
+ 	struct net_device *dev = pci_get_drvdata (pdev);
+ 	struct speedo_private *sp = (struct speedo_private *)dev->priv;
+ 	long ioaddr = dev->base_addr;
++
++	pci_restore_state(pdev, sp->pm_state);
+ 
+ 	if (!netif_running(dev))
+ 		return 0;
+

@@ -1,93 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267697AbTASVaf>; Sun, 19 Jan 2003 16:30:35 -0500
+	id <S267694AbTASVt5>; Sun, 19 Jan 2003 16:49:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267698AbTASVaf>; Sun, 19 Jan 2003 16:30:35 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:44178 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S267697AbTASVae>;
-	Sun, 19 Jan 2003 16:30:34 -0500
-Subject: problems with nfs-server in 2.5 bk as of 030115
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S267696AbTASVt5>; Sun, 19 Jan 2003 16:49:57 -0500
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:53155
+	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with SMTP id <S267694AbTASVt4>; Sun, 19 Jan 2003 16:49:56 -0500
+Message-ID: <3E2B1F9E.8030105@tupshin.com>
+Date: Sun, 19 Jan 2003 13:58:54 -0800
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-pre3-ac oops
+References: <Pine.LNX.4.10.10301191327050.12087-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10301191327050.12087-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043012373.7986.94.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 19 Jan 2003 22:39:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Trond,
+Andre Hedrick wrote:
 
-This is the first time I've tried running an nfs-server in 2.5 and I
-believe the problem I'm seeing is caused by your recent changes.
+>Exactly when you want to flush the devices to platter.
+>The problem will be what to do if we get an error on flush-cache.
+>
+>Andre Hedrick
+>LAD Storage Consulting Group
+>
+>On Sun, 19 Jan 2003, Bryan Andersen wrote:
+>
+>  
+>
+Are these "no cach flush required" messages going to be removed? It does 
+clutter up the boot process output pretty badly.
 
-This kernel includes the two fixes you made.
-"[PATCH] Fix RPC client warning in 2.5.58..."
-and
-"[PATCH] Fix NFS root mount handling"
+-Tupshin
 
-I havn't seen any nfs/rpc related changes since these patches.
-
-This is what I get when trying to start the nfs-server
-(/etc/init.d/nfs-kernel-server in debian):
-
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-RPC: Couldn't create pipefs entry /portmap/clntcfac0540
-RPC: Couldn't create pipefs entry /portmap/clntcfac0540
-RPC: Couldn't create pipefs entry /portmap/clntcfac0540
-
-I've mounted the rpc_pipefs filesystem and the directory
-portmap/clntcfac0540 is created. It's empty but created.
-It gets created with 500 as permissions.
-
-the directories at the root of the rpc_pipefs filesystem get created
-correctly with the permissions that your patch changed but not the
-entries in these directories.
-
-portmap does run as user daemon on this system.
-
-I did check to make sure your patches were included and they were.
-
-Output from rpcinfo:
-# rpcinfo -p localhost
-   program vers proto   port
-    100000    2   tcp    111  portmapper
-    100000    2   udp    111  portmapper
-    100005    1   udp  32832  mountd
-    100005    1   tcp  35561  mountd
-    100005    2   udp  32832  mountd
-    100005    2   tcp  35561  mountd
-
-modules loaded:
-
-nfsd                  118640  0 
-exportfs                4224  1 nfsd
-lockd                  61040  1 nfsd
-sunrpc                115844  3 nfsd,lockd
-
-relevant parts of .config:
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y 
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-# CONFIG_NFSD_TCP is not set
-CONFIG_SUNRPC=m
-# CONFIG_SUNRPC_GSS is not set
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-
-kernel compiled with gcc 3.2.2 if that matters.
-
-Looking forward to suggestions/patches to test :)
-
--- 
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.

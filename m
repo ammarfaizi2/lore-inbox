@@ -1,111 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbUKECCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbUKECE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262552AbUKECCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 21:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbUKECCI
+	id S262562AbUKECE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 21:04:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbUKECE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 21:02:08 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:33701 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262552AbUKECBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 21:01:52 -0500
-Date: Thu, 4 Nov 2004 17:57:55 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, rusty@rustcorp.com.au,
-       mochel@digitalimplant.org, anton@samba.org
-Subject: Re: [RFC/PATCH 3/4] introduce cpu_add and cpu_remove
-Message-ID: <20041104175755.B9271@unix-os.sc.intel.com>
-References: <20041024094551.28808.28284.87316@biclops> <20041024094613.28808.17748.71291@biclops>
-Mime-Version: 1.0
+	Thu, 4 Nov 2004 21:04:27 -0500
+Received: from ozlabs.org ([203.10.76.45]:33181 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262562AbUKECEV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 21:04:21 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041024094613.28808.17748.71291@biclops>; from nathanl@austin.ibm.com on Sun, Oct 24, 2004 at 05:42:31AM -0400
+Content-Transfer-Encoding: 7bit
+Message-ID: <16778.54308.410570.309987@cargo.ozlabs.ibm.com>
+Date: Fri, 5 Nov 2004 12:15:16 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: hannal@us.ibm.com, anton@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64 iSeries_pci.c use for_each_pci_dev()
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 05:42:31AM -0400, Nathan Lynch wrote:
-> 
-> These functions safely update cpu_present_map (i.e. with the
-> cpucontrol semaphore held) and register or unregister the cpu device
-> as needed.  These are needed by systems which can add or remove cpus
-> from the system after boot (e.g. ppc64 and ia64), and are intended to
-> be called from the platform-specific code such as the ACPI or Open
-> Firmware layers.
-> 
-> Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
-> 
-> 
-> ---
-> 
-> 
-> +
-> +/*
-> + * Add a cpu to the system.  Return the number of the cpu added,
-> + * or NR_CPUS if no more slots available.
-> + */
-> +unsigned int cpu_add(void)
-> +{
-> +	unsigned int cpu = NR_CPUS;
-> +
-> +	lock_cpu_hotplug();
-> +
-> +	if (num_present_cpus() == num_possible_cpus())
-> +goto out;
-> +
-> +	for_each_cpu(cpu)
-> +		if (!cpu_present(cpu))
-> +			break;
+This patch is from Hanna Linder.
 
-     could we simplify this by
+As pci_find_device is going away using the new for_each_pci_dev macro.
+If someone with a PPC64 system could test it I would appreciate it.
 
-   cpus_compliment(cpu_compliment_map, cpu_present_map);
-   cpu = first_cpu(cpu_compliment_map);
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-> +
-> +	if (register_cpu(cpu)) {
-> +		cpu = NR_CPUS;
-> +		goto out;
-> +	}
-> +	cpu_set(cpu, cpu_present_map);
-
-I would prefer that register_cpu is performed in arch side, as there may be other setup 
-necessary to capture the hardware->logical associations before consuming these. 
-
-
-> +out:
-> +	unlock_cpu_hotplug();
-> +	return cpu;
-> +}
-> +
-> +/*
-> + * Remove a cpu from the system.
-> + */
-> +void cpu_remove(unsigned int cpu)
-> +{
-> +	lock_cpu_hotplug();
-> +
-> +	BUG_ON(cpu_present(cpu));
-> +
-> +	unregister_cpu(cpu);
-> +
-> +	cpu_clear(cpu, cpu_present_map);
-> +
-> +	unlock_cpu_hotplug();
-> +}
->  #else
->  static inline int cpu_run_sbin_hotplug(unsigned int cpu, const char *action)
->  {
-> 
-> _
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Cheers,
-Ashok Raj
-- Linux OS & Technology Team
+diff -urN linux-2.5/arch/ppc64/kernel/iSeries_pci.c test/arch/ppc64/kernel/iSeries_pci.c
+--- linux-2.5/arch/ppc64/kernel/iSeries_pci.c	2004-10-30 09:25:20.000000000 +1000
++++ test/arch/ppc64/kernel/iSeries_pci.c	2004-11-05 11:59:48.645822176 +1100
+@@ -312,8 +312,7 @@
+ 	mf_displaySrc(0xC9000100);
+ 
+ 	printk("pcibios_final_fixup\n");
+-	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev))
+-			!= NULL) {
++	for_each_pci_dev(pdev) {
+ 		node = find_Device_Node(pdev->bus->number, pdev->devfn);
+ 		printk("pci dev %p (%x.%x), node %p\n", pdev,
+ 		       pdev->bus->number, pdev->devfn, node);

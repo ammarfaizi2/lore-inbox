@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbTJAKp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 06:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTJAKp6
+	id S261824AbTJALBr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 07:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTJALBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 06:45:58 -0400
-Received: from mail.convergence.de ([212.84.236.4]:17364 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S261761AbTJAKp4
+	Wed, 1 Oct 2003 07:01:47 -0400
+Received: from bay99-f60.bay99.hotmail.com ([65.54.175.60]:59663 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261824AbTJALBq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 06:45:56 -0400
-Message-ID: <3F7AB062.9030505@convergence.de>
-Date: Wed, 01 Oct 2003 12:45:54 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030715
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-CC: Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE I/O disturbes other PCI busmasters on VIA platforms
-References: <3F79B630.8070308@convergence.de> <20030930171821.GL9523@vana.vc.cvut.cz> <3F79BFD2.5010006@wmich.edu>
-In-Reply-To: <3F79BFD2.5010006@wmich.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Oct 2003 07:01:46 -0400
+X-Originating-IP: [212.249.34.130]
+X-Originating-Email: [syn_uw@hotmail.com]
+From: "syn uw" <syn_uw@hotmail.com>
+To: xose@wanadoo.es, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com.br, atulm@lsil.com,
+       linux-megaraid-devel@dell.com
+Subject: RE: Megaraid does not work with 2.4.22
+Date: Wed, 01 Oct 2003 11:01:45 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY99-F60MLDthODt9C000008de@hotmail.com>
+X-OriginalArrivalTime: 01 Oct 2003 11:01:45.0975 (UTC) FILETIME=[678BF870:01C3880B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ed,
+>I don't know what is the opinion of other people :-?
+>Maybe linux-scsi members hold other opinion.
 
-> I get none of these problems. That is with a bt878 tv card, G450 agp 
-> video card, 2.6.0-test5, udma4 enabled, and using xawtv with xv via the 
-> v4l module for X.  If i disable dma, the tv is the only thing 
-> uneffected. This is on a Abit mobo with VIA vt82c686b ide chipset and 
-> VIA Twister-K/KT133x/KM133 agp chipset (using agpgart). DRI not loaded.
+Well I for example would be more than pleased to see megaraid 2.x included 
+in the next stable 2.4.x Linux kernel !! I had a look at the current 
+changelogs of 2.4.23 and still no traces about a megaraid v2 inclusion :(( 
+Hopefully that will happen soon !
 
-> If disabling dma gives you picture distortion, then it seems to me to be 
-> obvious that Busmastering has nothing to do with the problem and rather 
-> it's a rendering issue.  
+Regards
 
-Hm, I don't think so. I think that disabling dma and thus the polling of 
-the CPU on the IDE->PCI bus simply hogs it completely.
-
-> If you're using x11 to render the image than it 
-> will most certainly be effected by heavy io as the kernel will have 
-> issues scheduling under heavy io, especially in 2.4.   I would check to 
-> make sure you're using xv to render the tv window if you have that 
-> option, if not then maybe that's as best as you can do with X.
-
-I'm using the overlay facility, ie. the data is written directly to the 
-framebuffer. There is no CPU, no scheduling and no memcpy() involved, 
-just pure PCI-to-AGP busmaster transfer. If I see distortions there, 
-then I guess it's a busmastering issue.
-
-As I have already written, you can make things even worse, if you lower 
-the latencies vie setpci or shrink the dma burst sizes. Then you'll get 
-only pixel garbage... ;-)
-
-CU
-Michael.
+_________________________________________________________________
+Get McAfee virus scanning and cleaning of incoming attachments.  Get Hotmail 
+Extra Storage!   http://join.msn.com/?PAGE=features/es
 

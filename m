@@ -1,31 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136108AbREDJeb>; Fri, 4 May 2001 05:34:31 -0400
+	id <S136078AbREDJ5x>; Fri, 4 May 2001 05:57:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136078AbREDJeV>; Fri, 4 May 2001 05:34:21 -0400
-Received: from ems.flashnet.it ([194.247.160.44]:6672 "EHLO relay.flashnet.it")
-	by vger.kernel.org with ESMTP id <S136045AbREDJeQ>;
-	Fri, 4 May 2001 05:34:16 -0400
-Date: Fri, 4 May 2001 09:48:12 +0200
-From: David Santinoli <david@santinoli.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx: first mount always fails
-Message-ID: <20010504094812.A716@astrid.santinoli.com>
-In-Reply-To: <20010413114559.A1133@aidi.santinoli.com> <200104240427.f3O4Ros93448@aslan.scsiguy.com>
-Mime-Version: 1.0
+	id <S136127AbREDJ5n>; Fri, 4 May 2001 05:57:43 -0400
+Received: from femail2.sdc1.sfba.home.com ([24.0.95.82]:8866 "EHLO
+	femail2.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S136078AbREDJ5c>; Fri, 4 May 2001 05:57:32 -0400
+Message-ID: <3AF27C39.9BD7EC99@home.com>
+Date: Fri, 04 May 2001 02:54:01 -0700
+From: Seth Goldberg <bergsoft@home.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Gordon Sadler <gbsadler1@lcisp.com>
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Athlon/VIA Kernel Experimentation (mmx.c)
+In-Reply-To: <20010503150346.A18141@debian-home.lcisp.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <200104240427.f3O4Ros93448@aslan.scsiguy.com>; from gibbs@scsiguy.com on Mon, Apr 23, 2001 at 10:27:50PM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 10:27:50PM -0600, Justin T. Gibbs wrote:
-> My guess is that your CDROM drive takes longer than most to perform
-> the initial read capacity.  There is little to be done for this other
-> than uping the timeout value in the CD driver.
-It was a hardware issue indeed - an upgrade of the drive firmware solved the
-problem.
+Hi,
 
-Cheers,
- David
+  I implemented a small check loop at the end of the fast_page_copy
+routine in mmx.c for the Athlon.  Booting the resulting kernel
+yields an interesting result. Every single time, the kernel
+panics RIGHT AFTER it frees unused kernel memory from bootup.
+I encourage those of you with the same problem to try this and report
+when it panics.
+
+Here is my patch to mmx.c: (sorry about the long lines)
+-----------------------------------------------------cut here
+diff -r linux-ref/arch/i386/lib/mmx.c linux/arch/i386/lib/mmx.c
+204a205,216
+>
+>       {
+>               register int x = 0;
+>               /* do mem compares to ensure written == read */
+>               for ( /* initted above */; x < (4096/sizeof(int)); x++ )
+>               {
+>                       if ( ((int *)to)[x] != ((int *)from)[x] ) {
+>                               panic("fast_page_copy: dest value @ 0x%lx (%x) does not equal source value @ %lx (%x)!\n",
+>                                               (long) to, ((int *)to)[x], (long) from, ((int *) from)[x] );
+>                       }
+>               }
+>       }                                                                          
+-----------------------------------------------------cut here
+
+  Wouldn't it be correct to say that because it is panicking, the
+page copy was not completed properly?  If that is so, the next step
+is to find out why this copy is not working properly...
+
+For me the output is:
+
+...
+Freeing unused kernel memory: 188k freed     
+Kernel panic: fast_page_copy: dest value @ 0xcfed1000 (39312036) does
+not equal source value @ cfed4000(79005b)!
+
+--------
+
+It is interesting to note that these addresses are page aligned, meaning
+that the copy of even
+the first byte failed!
+
+ --Seth

@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272818AbRI3H3v>; Sun, 30 Sep 2001 03:29:51 -0400
+	id <S272980AbRI3Hxs>; Sun, 30 Sep 2001 03:53:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272838AbRI3H3l>; Sun, 30 Sep 2001 03:29:41 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:41489 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S272818AbRI3H3d>;
-	Sun, 30 Sep 2001 03:29:33 -0400
-Date: Sun, 30 Sep 2001 09:27:35 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Bernd Harries <bha@gmx.de>
-Cc: Bernd Harries <mlbha@gmx.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: __get_free_pages(): is the MEM really mine?
-In-Reply-To: <3BB601AD.8890EA1D@gmx.de>
-Message-ID: <Pine.LNX.4.33.0109300914490.1665-100000@localhost.localdomain>
+	id <S272991AbRI3Hxj>; Sun, 30 Sep 2001 03:53:39 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:60937 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S272980AbRI3HxX>;
+	Sun, 30 Sep 2001 03:53:23 -0400
+Date: Sun, 30 Sep 2001 04:52:49 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Kenneth Johansson <ken@canit.se>
+Cc: <mingo@elte.hu>, "Randy.Dunlap" <rddunlap@osdlab.org>,
+        Andreas Dilger <adilger@turbolabs.com>, <linux-kernel@vger.kernel.org>,
+        <linux-net@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: [patch] netconsole-2.4.10-B1
+In-Reply-To: <3BB693AC.6E2DB9F4@canit.se>
+Message-ID: <Pine.LNX.4.33L.0109300448210.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 29 Sep 2001, Bernd Harries wrote:
-
-> Roman Zippel looked at my driver and added code to print the usage
-> counter for each page after a 9-order __get_free_pages().
+On Sun, 30 Sep 2001, Kenneth Johansson wrote:
+> Ingo Molnar wrote:
 >
-> We found that only the first (!) page has a count of 1, the others
-> have 0!
-
-This is a property of Linux's buddy allocator. If you allocate a 9th order
-'big page', that does not mean you can free the pages one by one. Higher
-order pages are 'one unit' and are typically handled as such. Eg. the
-kernel stack is allocated and freed as order 1 pages.
-
->           struct page * page = virt_to_page(card_ptr->dma_blk1[n]);
->           int i;
->           for(i = 0; i < (1 << max_order); i++, page++)
->           {
->             atomic_set(&page->count, 1);
->           }
+> > sorry :-) definitions of netconsole-terms:
+> >
+> > 'server': the host that is the source of the messages. Ie. the box that
+> >           runs the netconsole.o module. It serves log messages to the
+> >           client.
+> >
+> > 'client': the host that receives the messages. This box is running the
+> >           netconsole-client.c program.
 >
-> And the freeing of the pages is now done page by page in the _vma_close()
-> function.
+> Servers is usually the thing waiting for something to be sent to it,
+> the client is the sending part(initiator). this works for web servers
+> , X servers, log servers but strangley not for netconsole where
+> everything is backwards.
 
-while unconventional, doing this is safe. There is nothing in the page
-structure that says that the page was allocated as a higher order page. So
-if you fix up the page counts, freeing them as separate entities is safe.
-(in fact it's even safe to split it up into 8k or 16k pages - not that
-this would be useful for you.) But the above is an 'internal' property of
-the Linux page allocator, so it's not guaranteed to stay so forever.
+Owww crap.  The majority of web traffic is _from_ the
+server _to_ the client. Same for ftp, realaudio, etc...
 
-(the Linux kernel does not do the above for understandable reasons: it
-takes a loop of 512 iterations to fix up the page counts in the above way,
-which is noticeable runtime overhead.)
+In fact, usually the server is the _remote_ machine and
+the client is the _local_ machine. Anybody who believes
+in having the client remote and the server local should
+be shipped off to whereever the server is ;)
 
-is it a fundamental property of the hardware that it needs a continuous
-physical memory buffer? If not then i'd strongly suggest updating the
-driver to do scatter-gather instead of trying to allocate a 2 MB page.
-Being able to allocate a 2 MB page is only guaranteed during bootup. There
-is just no mechanizm in Linux that guarantees it for you to be able to
-allocate a 2 MB page (let alone two adjacent 2 MB pages), in even a
-moderately utilized system. Scatter-gather avoids all these problems.
+regards,
 
-	Ingo
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

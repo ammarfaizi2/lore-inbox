@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267440AbTACGoE>; Fri, 3 Jan 2003 01:44:04 -0500
+	id <S265093AbTACG4H>; Fri, 3 Jan 2003 01:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267441AbTACGoE>; Fri, 3 Jan 2003 01:44:04 -0500
-Received: from holomorphy.com ([66.224.33.161]:15304 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267440AbTACGoD>;
-	Fri, 3 Jan 2003 01:44:03 -0500
-Date: Thu, 2 Jan 2003 22:52:20 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic device DMA (dma_pool update)
-Message-ID: <20030103065220.GA9704@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	David Brownell <david-b@pacbell.net>,
-	"Adam J. Richter" <adam@yggdrasil.com>,
-	linux-kernel@vger.kernel.org
-References: <200301022207.OAA00803@adam.yggdrasil.com> <3E1531D3.3070809@pacbell.net>
-Mime-Version: 1.0
+	id <S267418AbTACG4H>; Fri, 3 Jan 2003 01:56:07 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:49670
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265093AbTACG4G>; Fri, 3 Jan 2003 01:56:06 -0500
+Date: Thu, 2 Jan 2003 23:04:04 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source  drivers?
+In-Reply-To: <200301031729.36696.bhards@bigpond.net.au>
+Message-ID: <Pine.LNX.4.10.10301022259230.421-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E1531D3.3070809@pacbell.net>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter wrote:
->>	mempool_alloc does.  That's the point of it.  You calculate
->> how many objects you need in order to guarantee no deadlocks and
->> reserve that number in advance (the initial reservation can fail).
+On Fri, 3 Jan 2003, Brad Hards wrote:
 
-On Thu, Jan 02, 2003 at 10:46:43PM -0800, David Brownell wrote:
-> To rephrase that so it illustrates my point:  the whole reason to
-> use mempool is to try adding __GFP_NEVERFAIL when __GFP_WAIT is
-> given ... because __GFP_WAIT doesn't otherwise mean NEVERFAIL.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On Fri, 3 Jan 2003 17:04, Mike Galbraith wrote:
+> > Seriously though, just what is it that graphic CPU makers are
+> > protecting?  I can't imagine "how to program our spiffy CPU'" docs exposing
+> > anything important to their competition.  Imagine Intel or AMD trying that
+> > tactic for _their_ next CPU.  What makes graphics CPUs so special?
+> 
+> Giving away the technical detail probably shows where they are infringing 
+> other people's patents.
 
-Well, it's not quite that general. There is a constraint of the
-objects allocated with a mempool having a finite lifetime. And
-non-waiting mempool allocations are also available, but may fail.
+You could not hit the core point of this issue any harder!
+This is one of the reason I have to sign all those massive restrictive
+NDA's in order to obtain the SPEC's to publish "FREE SOURCE", and
+currently having to write off the expenses for the legalese to make sure I
+do not get trapped.
 
-So long as the queueing is fair everyone eventually gets their turn.
+If you get to close, you get tatooed with NDA's.
 
+I can heat my house for the winter in a few years when the first round of
+NDAs expire!
 
-Bill
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

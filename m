@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265513AbTABHlg>; Thu, 2 Jan 2003 02:41:36 -0500
+	id <S266199AbTABIKK>; Thu, 2 Jan 2003 03:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266199AbTABHlg>; Thu, 2 Jan 2003 02:41:36 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:23670 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S265513AbTABHlf>; Thu, 2 Jan 2003 02:41:35 -0500
-Subject: Re: ide harddisk freeze WDC WD1800JB vs VIA VT8235
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041493699.958.0.camel@sun>
-Mime-Version: 1.0
-Date: 02 Jan 2003 08:48:19 +0100
-Content-Transfer-Encoding: 7bit
+	id <S266200AbTABIKK>; Thu, 2 Jan 2003 03:10:10 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:17055 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266199AbTABIKK>; Thu, 2 Jan 2003 03:10:10 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi CD-recorder error reading burned disks
+References: <Pine.LNX.4.44.0301012323220.3378-100000@poirot.grange>
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+From: Markus Plail <linux-kernel@gitteundmarkus.de>
+Date: Thu, 02 Jan 2003 09:17:18 +0100
+In-Reply-To: <Pine.LNX.4.44.0301012323220.3378-100000@poirot.grange> (Guennadi
+ Liakhovetski's message of "Wed, 1 Jan 2003 23:55:30 +0100 (CET)")
+Message-ID: <87ptrgynht.fsf@web.de>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i686-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-01 at 18:37, Mark Hahn wrote:
+* Guennadi Liakhovetski writes:
+>I used -isosize (copying from another CD), which has an effect similar
+>to -pad. Just tried with -pad - same. -dao, as suggested by Kasper
+>Dupont <kasperd@daimi.au.dk>, doesn't help either. On the contrary, the
+>latter makes the error appear in all 3 reads - ide-scsi, ide, scsi (I
+>used it together with -isosize). Also strange, the number of blocks
+>read by dd bs=2048 on ide and scsi from the same disk differ...
 
+Try -raw. Some drives (e.g. my acer 2010A) have - according to Joerg
+Schilling - broken firmwares, that have problems in SAO mode.
 
-> ide cables are <= 18", PERIOD.  if only one connnector is used,
-> it must be the end one.  this is all quite clear in the ATA spec.
-
-the flat cables I tried were all ~24cm < 18"  (tried two different
-sets)... I have not measured the length of the round cables...
-
-> the original poster should consider simplifying his system first:
-> for instance, don't load all the random IO devices, especially not 
-> the NVidia module, consider testing with ext2/3, etc.
-
-I don't see the point with this. This system (with a K7- and older via
-chipset) was working reliably. All that changed is 180G harddisks +
-mainboard + processor. 
-
-Anyway the kernel is not crashing and it is very unlikely that a bug in
-whatever io device will cause this specific problem reproducably with
-different kernel versions isn't it ?
-
-Especially changing the file system type will not gain anything....
-
-However it *might* be that this is some 48bit ide-access problem as both
-disks are 180G in size.
-
-Unfortunately I failed to trigger the problem, i.e. I could run
-badblocks -p 0 /dev/hda and at the same time for /dev/hdc for more then
-a day (>16 passes) without any trouble.
-
-So it sounds as if the problem to occur is very very unlikely... IMHO
-this is some 'failure of transfer' between disk and controller... and
-this error condition is not properly handled...
-
-Not the slightest idea what that could be....
-Soeren.
+regards
+Markus
 

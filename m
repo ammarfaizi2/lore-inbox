@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265378AbSLCSc5>; Tue, 3 Dec 2002 13:32:57 -0500
+	id <S265085AbSLCSbw>; Tue, 3 Dec 2002 13:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265423AbSLCSc5>; Tue, 3 Dec 2002 13:32:57 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:3000 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265378AbSLCSc4>;
-	Tue, 3 Dec 2002 13:32:56 -0500
-Date: Tue, 3 Dec 2002 18:37:57 GMT
-Message-Id: <200212031837.gB3IbvQT008482@noodles.internal>
-To: linux-kernel@vger.kernel.org
-From: davej@codemonkey.org.uk
-Subject: [CFT][2.5] AGPGART reworking.
+	id <S265306AbSLCSbw>; Tue, 3 Dec 2002 13:31:52 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:34502 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S265085AbSLCSbv>; Tue, 3 Dec 2002 13:31:51 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A56B@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Arjan van de Ven'" <arjanv@redhat.com>, marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [BK PATCH] ACPI updates
+Date: Tue, 3 Dec 2002 10:39:18 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As per private discussion with Linus over the last few days,
-I've reworked the AGPGART driver considerably.  There's likely
-some gotchas left here, so I'd appreciate testers/code-review
-of this quite large change (>200KB worth of diff, but several
-files get moved about a bit).
+> From: Arjan van de Ven [mailto:arjanv@redhat.com] 
+> Marcelo,
+> 
+> Please don't merge this. This patch removes existing, small, working,
+> maintained functionality from the kernel and "replaces" it with
+> something else for which patches aren't even accepted and 
+> that is a lot
+> bigger and less readable code.
+> 
+> Not only is it rude on the side of the ACPI people to remove 
+> "competing"
+> functionality, but it will break all kinds of existing setups that now
+> have to change the way they configure their system. In 
+> addition it's not
+> even needed, the existing code can live together with the code Andrew
+> proposes just fine as the United Linux kernel proves.
 
-- Introduces a new 'agp_register_driver' function, which is used
-  to seperate the chipset drivers completely from the backend.
+The ACPI code's CPU-enumeration-only config option does what acpitable.[ch]
+did. This has been in 2.5 for a long time, so this would unify the 2.4 and
+2.5 approaches.
 
-- chipset drivers become modules in their own right.
-  This seems to work when everything is compiled in. Built as modules
-  is untested yet, but it means right now you have to insmod via-agp.o
-  or whatever chipset vendor you need before starting X.
-  agp_try_supported() is now a param to the chipset modules, not the
-  agpgart.o module.
+Is your concern with the code, or the cmdline option? We could certainly
+keep the same cmdline option "acpismp=force" if that is the issue, but that
+always seemed like kind of a strange name for the option, to me.
 
-- i8x0.c & i810.c have become intel-agp.c
-  CONFIG_AGP_I810 is currently broken, I'll fix this up soon.
-
-- agp.c becomes backend.c
-
-- split out generic routines into generic.c
-
-- version number bump to 1.0
-  This is a pretty major change IMO, and it's been stuck at 0.99 forever.
-
-- Cast fixes (Alan)
-
-- x86-64 fixes (Andi)
-
-- Add recognition for several new devices.
-
-- list myself as maintainer of 1.0+
-  Jeff Hartmann hasn't done any considerable work on agpgart since `99
-  to my knowledge. Attempts to contact him in the past have failed.
-
-You can get this from bk://linux-dj.bkbits.net/agpgart or for the
-bk-challenged, you can get the gnu diff at ..
- ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/2.5.50/agpgart-recore-2.diff.gz
-
-		Dave
-
+Regards -- Andy

@@ -1,75 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVCHRZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVCHR1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbVCHRZX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 12:25:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVCHRZX
+	id S261428AbVCHR1b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 12:27:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVCHR1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 12:25:23 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:59274 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261421AbVCHRZN (ORCPT
+	Tue, 8 Mar 2005 12:27:31 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:31120 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261431AbVCHR1E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 12:25:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=DEJeXmEx/KQfPwEFbY6Ds6VaCPNsn+QibfKj24rNFtoiqDPKUkSwOCePdUPYWdqCHAkozmNFpBqFeDGE6ezn0bPoLQiTZZ/8eLt4tLTf4TuWFb2dvy11UEbLOs7LMoSi6WaPCNRweyzCJeaZ7RBd591nQpXNbDgRH75IK7nON50=
-Message-ID: <d120d500050308092554b49728@mail.gmail.com>
-Date: Tue, 8 Mar 2005 12:25:09 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Hans-Christian Egtvedt <hc@mivu.no>
-Subject: Re: [PATCH] new driver for ITM Touch touchscreen
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-input@atrey.karlin.mff.cuni.cz
-In-Reply-To: <1110297660.3198.15.camel@server.customer.mivu.no>
+	Tue, 8 Mar 2005 12:27:04 -0500
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: suparna@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>,
+       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050308090946.GA4100@in.ibm.com>
+References: <1110189607.11938.14.camel@frecb000686>
+	 <20050307223917.1e800784.akpm@osdl.org>  <20050308090946.GA4100@in.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 Mar 2005 09:23:35 -0800
 Content-Transfer-Encoding: 7bit
-References: <1109932223.5453.16.camel@charlie.itk.ntnu.no>
-	 <200503041403.37137.adobriyan@mail.ru>
-	 <d120d50005030406525896b6cb@mail.gmail.com>
-	 <1109953224.3069.39.camel@charlie.itk.ntnu.no>
-	 <d120d50005030408544462c9ea@mail.gmail.com>
-	 <1110297660.3198.15.camel@server.customer.mivu.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Mar 2005 17:01:00 +0100, Hans-Christian Egtvedt <hc@mivu.no> wrote:
-> On Fri, 2005-03-04 at 11:54 -0500, Dmitry Torokhov wrote:
-> > On Fri, 04 Mar 2005 17:20:24 +0100, Hans-Christian Egtvedt <hc@mivu.no> wrote:
-> > > On Fri, 2005-03-04 at 09:52 -0500, Dmitry Torokhov wrote:
-> > > > On Fri, 4 Mar 2005 14:03:37 +0200, Alexey Dobriyan <adobriyan@mail.ru> wrote:
-> > > > > On Friday 04 March 2005 12:30, Hans-Christian Egtvedt wrote:
-> > > > As far as the driver goes:
-> > > >
-> > > > - yes, it does need input_sync;
-> > >
-> > > One problem with input_sync is that the panel get's too fast, and double
-> > > click is experienced quite often, maybe some threshold is needed for low
-> > > values in Z-direction?
-> > >
-> > > I'm probably doing something wrong here since I experience easy
-> > > doubleclicks when I just lightly touch the screen.
-> >
-> > Yes, I think you need to use some threshold when reporting BTN_TOUCH
-> > event. Still, always report ABS_PRESSURE as is. This way the
-> > touchscreen is useable via legacy interfaces (mousedev. tsdev) and if
-> > a specialized userspace driver is written it still can get pretty much
-> > unmangled data from /dev/input/eventX. This will also allow such
-> > driver adjust touchpad sensitivity, if needed.
+On Tue, 2005-03-08 at 01:09, Suparna Bhattacharya wrote:
+
 > 
-> Do you have any pointers to where I should go to implement this
-> threshold? Is there an easy or smart way doing it?
->
+> Hmm, shouldn't dio->result ideally have been adjusted to be within
+> i_size at the time of io submission, so we don't have to deal with
+> this during completion ? We are creating bios with the right size
+> after all. 
+> 
+> We have this: 
+> 		if (!buffer_mapped(map_bh)) {
+> 				....
+> 				if (dio->block_in_file >=
+>                                         i_size_read(dio->inode)>>blkbits) {
+>                                         /* We hit eof */
+>                                         page_cache_release(page);
+>                                         goto out;
+>                                 }
+> 
 
-I am not sure... that BTN_TOUCH - look slike it works off a single
-flag reported by hardware. You porobably do not need to change it.
+This check will catch only if there is no block on the disk. In the
+current test case, the filesize = 3K and filesystem blocksize=4K.
+So, we have a block (beyond filesize). The test tries to read 4K.
+None of the checks catch this case and it submits 4K IO. 
 
-Try loading mousedev module (after adding input_sync back to your
-driver) - it provides cooked PS/2 protocol to userspace - it should
-bind to your driver. Then you can use GPM or X (read from
-/dev/input/mice) to test the touchscreen and see if you have issue
-with double clicks.
+> and
+> 		dio->result += iov[seg].iov_len -
+>                         ((dio->final_block_in_request - dio->block_in_file) <<
+>                                         blkbits);
+> 
+> 
+> can you spot what is going wrong here that we have to try and
+> workaround this later ?
 
--- 
-Dmitry
+
+Andrew, please don't apply the original patch. We shouldn't even attempt
+to submit IO beyond the filesize. We should truncate the IO request to
+filesize. I will send a patch today to fix this.
+
+Thanks,
+Badari
+

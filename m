@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVAGWiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVAGWqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVAGWiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVAGWce
+	id S261677AbVAGWqh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVAGWnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:32:34 -0500
-Received: from marla.ludost.net ([194.12.255.250]:33246 "EHLO marla.ludost.net")
-	by vger.kernel.org with ESMTP id S261679AbVAGW0r (ORCPT
+	Fri, 7 Jan 2005 17:43:49 -0500
+Received: from pat.uio.no ([129.240.130.16]:21694 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261679AbVAGWlA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:26:47 -0500
-Subject: Re: Fix for new elf_loader bug?
-From: Vasil Kolev <vasil@ludost.net>
-Reply-To: vasil@ludost.net
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050107170514.GJ29176@logos.cnet>
-References: <41DEAF8F.3030107@bio.ifi.lmu.de>
-	 <20050107170514.GJ29176@logos.cnet>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6j9MLNBLXe9Akzoa+6eb"
-Organization: Ludost Networks
-Date: Sat, 08 Jan 2005 00:26:39 +0200
-Message-Id: <1105136799.1644.1.camel@doom.home.ludost.net>
+	Fri, 7 Jan 2005 17:41:00 -0500
+Subject: Re: [RFC] 2.4 and stack reduction patches
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1105134173.4000.105.camel@dyn318077bld.beaverton.ibm.com>
+References: <1105112886.4000.87.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050107141224.GF29176@logos.cnet>
+	 <1105134173.4000.105.camel@dyn318077bld.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Fri, 07 Jan 2005 17:40:46 -0500
+Message-Id: <1105137646.10979.155.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+fr den 07.01.2005 Klokka 13:42 (-0800) skreiv Badari Pulavarty:
 
---=-6j9MLNBLXe9Akzoa+6eb
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+> Here are the changes and savings.
+> 
+> do_execve                    320
+> number                       100
+> nfs_lookup                   184
+> nfs_cached_lookup             88
+> __revalidate_inode           112
+> rpc_call_sync                144
+> xprt_sendmsg                 120
 
-On =D0=BF=D1=82, 2005-01-07 at 15:05 -0200, Marcelo Tosatti wrote:
-> On Fri, Jan 07, 2005 at 04:49:35PM +0100, Frank Steiner wrote:
-> > Hi,
-> >=20
-> > is there already a patch for the new problem with the elf loader, maybe
-> > in the bitkeeper tree?
-> >=20
-> > http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
->=20
-> 2.6.10-ac6 contains a fix for the problem - a similar version should hit =
-the BK tree=20
-> RSN.
+There is no nfs_cached_lookup() in the mainline 2.4 tree. That is part
+of the READDIRPLUS code, and was therefore never merged.
 
-Looking at the advisory, it affects 2.4, too, where can a patch for it
-be found?=20
+You're better off using rpc_new_task() in rpc_call_sync(): no kfree()
+required, and no rpc_init_task() required.
 
---=-6j9MLNBLXe9Akzoa+6eb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Cheers,
+  Trond
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBB3wyfXGxMwFp5iTARAsqsAJ4sUctAor7COX8g1UJ9PoZLeWOmLwCgiEnB
-u0wXwynuPtUAXYftVThdzZw=
-=XoH6
------END PGP SIGNATURE-----
-
---=-6j9MLNBLXe9Akzoa+6eb--
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

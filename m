@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262859AbTJ3V2R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 16:28:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbTJ3V2R
+	id S262888AbTJ3Vdi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 16:33:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbTJ3Vdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 16:28:17 -0500
-Received: from uni01du.unity.ncsu.edu ([152.1.13.101]:31883 "EHLO
-	uni01du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S262859AbTJ3V2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 16:28:14 -0500
-From: jlnance@unity.ncsu.edu
-Date: Thu, 30 Oct 2003 16:28:12 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-Message-ID: <20031030212812.GA698@ncsu.edu>
-References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org> <3FA0475E.2070907@namesys.com> <1067466349.3077.274.camel@mentor.gurulabs.com> <20031030002005.GC3094@digitasaru.net> <16288.24913.844699.956689@notabene.cse.unsw.edu.au> <20031030013418.GD3094@digitasaru.net>
+	Thu, 30 Oct 2003 16:33:37 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:43762 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262888AbTJ3Vde
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 16:33:34 -0500
+Subject: [ANNOUNCE] JFS 1.1.4
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1067549605.29596.50.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031030013418.GD3094@digitasaru.net>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 30 Oct 2003 15:33:25 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 29, 2003 at 07:34:19PM -0600, Joseph Pingenot wrote:
+Release 1.1.4 of JFS was made available today.
 
-> I don't see any reason why we *shouldn't* look at the problem and try to
->   do it.  What reasons do you see for not persuing the problem to its
->   inevitible implementation?
+Drop 67 on October 30, 2003 includes fixes to the file system and
+utilities.
 
-Well I am not qualified to comment on this particular technology, I have
-not investigated it enough to understand what it is trying to accomplish.
+Utilities changes
 
-But there is a danger in letting MS marketing drive the direction of our
-OS.  Particularly since, as you note in another post, working on project
-X means that project Y suffers due to lack of developer attention.  I
-dont think that the MS idea of what a computer should be look bear much
-resembelence to what I want mine to look like.  Which is why I started
-using Linux.
+- Work around gcc 2.95 bug
+- Handle log full without crashing
+- Message format fix
 
-Unfortunatly, we probably dont really have a choice.  MS has enough market
-share that we must emulate not only their good, but even their bad ideas
-if we want Linux to be used by people other than those who develop it.
+File System changes
 
-my $0.02
+- Make sure journal buffer gets flushed to disk
+- Improved error handling
+- Remove racy, redundant call to block_flushpage
+- Fix race between link() and unlink()
 
-Jim
+Note: The 2.4.23 and 2.6 kernel.org development kernels are kept up to 
+date with the latest JFS code.  The file system updates available on 
+the web site are only needed for maintaining earlier 2.4 kernels.
+
+For more details about JFS, please see our website:
+http://oss.software.ibm.com/jfs
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

@@ -1,81 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266724AbUGVLcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266772AbUGVLgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266724AbUGVLcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 07:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266772AbUGVLcS
+	id S266772AbUGVLgz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 07:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266849AbUGVLgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 07:32:18 -0400
-Received: from tri-e2k.ethz.ch ([129.132.112.23]:25056 "EHLO tri-e2k.ethz.ch")
-	by vger.kernel.org with ESMTP id S266724AbUGVLcQ (ORCPT
+	Thu, 22 Jul 2004 07:36:55 -0400
+Received: from [213.133.101.250] ([213.133.101.250]:32922 "EHLO chroot.de")
+	by vger.kernel.org with ESMTP id S266772AbUGVLgx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 07:32:16 -0400
-Message-ID: <40FFA5BD.5000304@pixelized.ch>
-Date: Thu, 22 Jul 2004 13:32:13 +0200
-From: "Giacomo A. Catenazzi" <cate@pixelized.ch>
-User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@fs.tum.de>,
-       corbet@lwn.net, bgerst@didntduck.org, linux-kernel@vger.kernel.org
-Subject: Re: New dev model (was [PATCH] delete devfs)
-References: <40FEEEBC.7080104@quark.didntduck.org> <20040721231123.13423.qmail@lwn.net> <20040721235228.GZ14733@fs.tum.de> <20040722025539.5d35c4cb.akpm@osdl.org> <20040722070453.GA21907@kroah.com>
-In-Reply-To: <20040722070453.GA21907@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Jul 2004 11:32:14.0745 (UTC) FILETIME=[89706090:01C46FDF]
+	Thu, 22 Jul 2004 07:36:53 -0400
+Date: Thu, 22 Jul 2004 13:36:25 +0200
+From: Aiko Barz <aiko@chroot.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Delete cryptoloop
+Message-ID: <20040722113625.GA386@lain.chroot.de>
+References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <20040721230044.20fdc5ec.akpm@osdl.org> <4411.24.6.231.172.1090470409.squirrel@24.6.231.172> <20040722014649.309bc26f.akpm@osdl.org> <4546.24.6.231.172.1090476838.squirrel@24.6.231.172>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
+Content-Disposition: inline
+In-Reply-To: <4546.24.6.231.172.1090476838.squirrel@24.6.231.172>
+Organization: bofh
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Greg KH wrote:
+On Wed, Jul 21, 2004 at 11:13:58PM -0700, Dale Fountain wrote:
+> Dm-crypt is still unstable
 
-> On Thu, Jul 22, 2004 at 02:55:39AM -0700, Andrew Morton wrote:
-> 
-> Users have had the 6-12 month warning about devfs for a while now :)
-> And udev is currently available in the latest distro versions of:
-> 	- Red Hat
-> 	- SuSE
-> 	- Gentoo
-> 	- Debian
-> 	- Mandrake
-> 
-> While devfs is only supported in Gentoo at this time (and udev fills
-> that support issue for those users.)
+Did I miss something?
+I use dm-crypt since 2.6.5. ALL my disks are encrypted with
+dm-crypt/twofish. I couldn't detect any problems so far.
 
-I've still some bug report of people using home-compiled devfs kernels
-on Debian. So people still use it. You say "devfs" is buggy, but
-it works on nearly all cases, so people tend not to switch.
-
-The worse is the lack of stable name of devices, in udev too.
-I.e. microcode loader (Intel CPU) needs a device, which was so
-named (last time I controlled):
-   # device name in LANANA / devices.txt
-   DEVICE=/dev/cpu/microcode
-   # device name in devfsd
-   DEVICE2=/dev/misc/microcode
-   # device name in udev
-   DEVICE3=/dev/microcode
-
-If we a coherent *default* device name scheme, the switching
-from a kernel utility to other would be trivial.
-
-ciao
-	cate
-
-Note: /dev/cpu/microcode was also created by devfs until
-recent 2.4 kernels and the whole 2.6 serie.
+Bis denne,
+        Aiko
+--=20
+  .~.	 Aiko Barz
+  /v\ 	=20
+ // \\	 Mail: aiko@chroot.de
+/( _ )\  Web:  http://www.chroot.de
+ ^^ ^^   PGP:  http://www.chroot.de/index.php?navi=3DGnuPG
 
 
+--wac7ysb48OaltWcw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> 
-> 
->>That being said, mid-2005 would be an appropriate time to remove devfs.  If
->>that schedule pushes things along faster than they would otherwise have
->>progressed, well, good.
-> 
-> 
-> Ok, if people think that would really change anything, I'll wait a year.
-> I'm patient :)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFA/6a53EZTlJbgeiYRAh20AJ9Gjqo6/RIItx8aEFiD+H4WtBin8ACg4Xgc
+S+Tnlc5AXR5w/qVkazbkP5c=
+=j7Vy
+-----END PGP SIGNATURE-----
+
+--wac7ysb48OaltWcw--

@@ -1,87 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263145AbTJUPxu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 11:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbTJUPxt
+	id S263179AbTJUP5R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 11:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbTJUP5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 11:53:49 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55826 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263145AbTJUPxq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 11:53:46 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.0-test8-mm1
-Date: 21 Oct 2003 15:43:44 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bn3k7g$h24$1@gatekeeper.tmr.com>
-References: <20031020020558.16d2a776.akpm@osdl.org>
-X-Trace: gatekeeper.tmr.com 1066751024 17476 192.168.12.62 (21 Oct 2003 15:43:44 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 21 Oct 2003 11:57:17 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:47040 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263179AbTJUP5Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 11:57:16 -0400
+Date: Tue, 21 Oct 2003 08:55:42 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Joilnen Leite <knl_joi@yahoo.com.br>
+Cc: macro@ds2.pg.gda.pl, linux-kernel@vger.kernel.org
+Subject: Re: request_region
+Message-Id: <20031021085542.60a666f2.rddunlap@osdl.org>
+In-Reply-To: <20031021094451.33861.qmail@web40310.mail.yahoo.com>
+References: <20031021094451.33861.qmail@web40310.mail.yahoo.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031020020558.16d2a776.akpm@osdl.org>,
-Andrew Morton  <akpm@osdl.org> wrote:
-| 
-| ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test8/2.6.0-test8-mm1
-| 
-| 
-| . Included a much updated fbdev patch.  Anyone who is using framebuffers,
-|   please test this.
-| 
-| . Quite a large number of stability fixes.
-| 
-| 
-| 
-| Changes since 2.6.0-test7-mm1:
+On Tue, 21 Oct 2003 06:44:51 -0300 (ART) Joilnen Leite <knl_joi@yahoo.com.br> wrote:
 
-| +devfs-initrd-fix.patch
+| excuse me but
 | 
-|  Fix initrd when devfs is in use
-
-I casually followed the thread on this, is this a band-aid or a magic
-spell of healing? Do you consider this a "real fix" for the various
-problems people reported?
- 
-| +export-system_running.patch
-| +might_sleep-early-bogons.patch
+| line 400 in  drivers/net/skfp/skfddi.c there are a
+| request_region for dev->base_addr
 | 
-|  Stomp all the early might_sleep() warnings.
+| and I can't se it released in 428 line for example :) 
 
-Sort of the same question, were the warnings really bogus, or were
-people just not doing the things which might cause a real error?
+Why would the region be released at the end of skfp_probe()?
 
-| +slab-leak-detector.patch
-| +slab-leak-detector-tweaks.patch
-| 
-|  A slab debugging tool for finding memory leaks: do
-| 
-| 	echo "slab-name 0 0 0" > /proc/slabinfo
-| 
-|  and the kernel will inspect each live object in that cache and will print
-|  out the code address from which the allocation was performed.
-
-Neat!
-
-| +parport_pc-resource-release-fix.patch
-| 
-|  Fix an oopsable resource leak in parport_pc.
-
-I'll try my old parport ZIP drive (ppa) again this weekend.
-
-| +ext3-latency-fix.patch
-| 
-|  Improved scheduling latency in ext3.
-
-Did someone have measurements on this?
-
-
-Compiling as I type.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--
+~Randy

@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbULAAXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbULAAX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbULAAXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 19:23:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbULAAUV
+	id S261155AbULAAX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 19:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbULAAUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:20:21 -0500
-Received: from mail.kroah.org ([69.55.234.183]:51684 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261285AbULAAOZ convert rfc822-to-8bit
+	Tue, 30 Nov 2004 19:20:36 -0500
+Received: from mail.kroah.org ([69.55.234.183]:51940 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261296AbULAAO0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:14:25 -0500
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] More PCI fixes for 2.6.10-rc2
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <11018598042649@kroah.com>
-Date: Tue, 30 Nov 2004 16:10:04 -0800
-Message-Id: <1101859804154@kroah.com>
+	Tue, 30 Nov 2004 19:14:26 -0500
+Subject: Re: [PATCH] I2C fixes for 2.6.10-rc2
+In-Reply-To: <11018600191194@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 30 Nov 2004 16:13:39 -0800
+Message-Id: <11018600193456@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2223.2.5, 2004/11/30 11:54:13-08:00, greg@kroah.com
+ChangeSet 1.2223.2.6, 2004/11/24 14:26:15-08:00, aris@cathedrallabs.org
 
-PCI: fix build warning in pci-sysfs.c
+[PATCH] [2/2] i2c-elektor: adding missing casts
 
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+[I2C] i2c-elektor: adding missing casts
+
+Signed-off-by: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/pci-sysfs.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-elektor.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 
-diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
---- a/drivers/pci/pci-sysfs.c	2004-11-30 15:47:05 -08:00
-+++ b/drivers/pci/pci-sysfs.c	2004-11-30 15:47:05 -08:00
-@@ -45,8 +45,7 @@
+diff -Nru a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
+--- a/drivers/i2c/busses/i2c-elektor.c	2004-11-30 16:00:59 -08:00
++++ b/drivers/i2c/busses/i2c-elektor.c	2004-11-30 16:00:59 -08:00
+@@ -80,10 +80,10 @@
+ 		break;
+ 	case 2: /* double mapped I/O needed for UP2000 board,
+                    I don't know why this... */
+-		writeb(val, address);
++		writeb(val, (void *)address);
+ 		/* fall */
+ 	case 1: /* memory mapped I/O */
+-		writeb(val, address);
++		writeb(val, (void *)address);
+ 		break;
+ 	}
+ }
+@@ -91,7 +91,7 @@
+ static int pcf_isa_getbyte(void *data, int ctl)
+ {
+ 	int address = ctl ? (base + 1) : base;
+-	int val = mmapped ? readb(address) : inb(address);
++	int val = mmapped ? readb((void *)address) : inb(address);
  
- static ssize_t local_cpus_show(struct device *dev, char *buf)
- {		
--	struct pci_dev *pdev = to_pci_dev(dev);
--	cpumask_t mask = pcibus_to_cpumask(pdev->bus->number);
-+	cpumask_t mask = pcibus_to_cpumask(to_pci_dev(dev)->bus->number);
- 	int len = cpumask_scnprintf(buf, PAGE_SIZE-2, mask);
- 	strcat(buf,"\n"); 
- 	return 1+len;
+ 	pr_debug("i2c-elektor: Read 0x%X 0x%02X\n", address, val);
+ 
 

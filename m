@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293436AbSCEQfU>; Tue, 5 Mar 2002 11:35:20 -0500
+	id <S293447AbSCEQiK>; Tue, 5 Mar 2002 11:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293437AbSCEQfL>; Tue, 5 Mar 2002 11:35:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62989 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293436AbSCEQfA>; Tue, 5 Mar 2002 11:35:00 -0500
-Message-ID: <3C84F449.8090404@zytor.com>
-Date: Tue, 05 Mar 2002 08:37:29 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Transmeta Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S293445AbSCEQhx>; Tue, 5 Mar 2002 11:37:53 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:64950 "EHLO
+	pimout2-int.prodigy.net") by vger.kernel.org with ESMTP
+	id <S293437AbSCEQhd>; Tue, 5 Mar 2002 11:37:33 -0500
+Date: Tue, 5 Mar 2002 11:36:59 -0500 (EST)
+From: Bill Davidsen <davidsen@prodigy.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.4.18-pre/rc broke PLIP
+In-Reply-To: <200202242320.AAA15930@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.21.0203051123180.23567-100000@deathstar.prodigy.com>
 MIME-Version: 1.0
-To: Jeff Dike <jdike@karaya.com>
-CC: Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-In-Reply-To: <200203051443.JAA02111@ccure.karaya.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
-> hpa@zytor.com said:
-> 
->>This is not necessarily a bad thing, however.  If the user hadn't set
->>up  enough swap, they're probably better off getting the error message
->>early. 
->>
-> 
-> This is not a situation in which a lack of swap or a lack of RAM is a problem.
-> 
-> The problem is a tmpfs filling up.
-> 
-> You think that UML refusing to run if it can't get every bit of memory it
-> might ever need is preferable to UML running fine in somewhat less memory?
-> 
+On Mon, 25 Feb 2002, Mikael Pettersson wrote:
 
-Actually, yes, esp. since the only case you have been able to bring up is 
-one of the sysadmin being a moron.
+> Someone (sorry I forgot who) reported having problems with
+> PLIP in recent kernels. I've done some testing and can confirm
+> that PLIP worked up to 2.4.17 but broke in 2.4.18-pre/rc.
+> The only thing PLIP does is put "plip0: transmit timeout(1,87)"
+> messages in the kernel log.
+> 
+> After a lot of testing I've narrowed it down to the following
+> hunk in the 2.4.18-rc4 patch:
+> 
+> --- linux.orig/drivers/parport/parport_pc.c	Mon Feb 18 20:18:40 2002
+> +++ linux/drivers/parport/parport_pc.c	Mon Jan 14 19:08:50 2002
+> @@ -2212,7 +2233,7 @@
+>  	}
+>  	memcpy (ops, &parport_pc_ops, sizeof (struct parport_operations));
+>  	priv->ctr = 0xc;
+> -	priv->ctr_writable = 0xff;
+> +	priv->ctr_writable = ~0x10;
+>  	priv->ecr = 0;
+>  	priv->fifo_depth = 0;
+>  	priv->dma_buf = 0;
+> 
+> If I back this hunk out, PLIP starts working again.
+> Is this fix sufficient or is there something else that need fixing?
 
-	-hpa
+  I'm still looking at this, trying to figure out what they were trying to
+do here... but I note the same code in parport_gsc.c was NOT
+changed. Putting it back makes it work for me, but the code is not long on
+comments, and digging up all the data sheets for various supported chips
+is not a casual job.
 
+  I'm going to browse the code more this week, the bit not set isn't
+documented where I've looked :-(
+
+  Anyway, back to working, perhaps there was a note with the patch giving
+some hint of what it was doing?
+
+-- 
+bill davidsen <davidsen@tmr.com> CTO, TMR Associates, Inc
+  Programming without software engineering is like sculpting with a chain
+saw. The very talented can produce a work of art, the mediocre wind up with
+a misshapen lump in a pile of rubble, and in neither case does the end
+result have more than a passing resemblance to the original intent.
 

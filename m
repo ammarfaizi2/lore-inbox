@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbTJAPkr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 11:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTJAPkq
+	id S262111AbTJAQDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 12:03:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbTJAQDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 11:40:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31128 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262384AbTJAPkm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 11:40:42 -0400
-Date: Wed, 1 Oct 2003 16:40:40 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: "Lisa R. Nelson" <lisanels@cableone.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: File Permissions are incorrect. Security flaw in Linux
-Message-ID: <20031001154040.GU7665@parcelfarce.linux.theplanet.co.uk>
-References: <1065012013.4078.2.camel@lisaserver> <20031001132318.GS7665@parcelfarce.linux.theplanet.co.uk> <1065017722.2995.10.camel@localhost.localdomain>
+	Wed, 1 Oct 2003 12:03:08 -0400
+Received: from [61.95.227.64] ([61.95.227.64]:9118 "EHLO gateway.gsecone.com")
+	by vger.kernel.org with ESMTP id S262111AbTJAQDH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 12:03:07 -0400
+Subject: [PATCH 2.6] comx-hw-munich.c: trivial warning fix
+From: Vinay K Nallamothu <vinay.nallamothu@gsecone.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Global Security One
+Message-Id: <1065024212.7194.340.camel@lima.royalchallenge.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1065017722.2995.10.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 01 Oct 2003 21:33:32 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 08:15:23AM -0600, Lisa R. Nelson wrote:
-> Excuse me? Have you even read about permissions on Unix?  I tried this
-> on a Sun Unix system, and the Sun functions correctly.  What you are
-> saying is stupid; If all directories are wide open, NO files are
-> protected in any way, even if they are read only and owned by root?  Get
-> real.  
+Fix a pointer cast warning on 64 bit platforms
 
-What, create a world-writable directory without sticky bit and then wonder
-why everyone can remove files from there?
+--- linux-2.6.0-test6/drivers/net/wan/comx-hw-munich.c	2003-10-01 14:03:16.000000000 +0530
++++ linux-2.6.0-test6-nvk/drivers/net/wan/comx-hw-munich.c	2003-10-01 21:29:47.000000000 +0530
+@@ -1849,7 +1849,7 @@
+     if (board->isx21)
+     {
+ 	init_timer(&board->modemline_timer);
+-	board->modemline_timer.data = (unsigned int)board;
++	board->modemline_timer.data = (unsigned long)board;
+ 	board->modemline_timer.function = pcicom_modemline;
+ 	board->modemline_timer.expires = jiffies + HZ;
+ 	add_timer((struct timer_list *)&board->modemline_timer);
 
-Would you mind posting the list of systems (with versions, preferably)
-where that behaviour would *not* match v7, 2.xBSD, 4.xBSD and derivatives
-(including SunOS 4), SunOS 5.5, SunOS 5.6, SunOS 5.7,  SunOS 5.8, Linux,
-OSF/1, etc.?
 
-In particular, I'm most curious about the exact version of "Sun Unix"
-you claim to have tried that on.  That, and output of ls -ld on the
-directory in question.
-
-> I've worked on more OS's than you can imagine, and for many years.  This
-
-The sad thing being, that's one claim I do *not* doubt.  Lusers' ability
-to avoid learning for years had stopped amazing me a long time ago...

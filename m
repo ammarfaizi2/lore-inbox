@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318470AbSIKH4C>; Wed, 11 Sep 2002 03:56:02 -0400
+	id <S318473AbSIKH7X>; Wed, 11 Sep 2002 03:59:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318473AbSIKH4C>; Wed, 11 Sep 2002 03:56:02 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:228 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318470AbSIKH4B>;
-	Wed, 11 Sep 2002 03:56:01 -0400
-Date: Wed, 11 Sep 2002 10:00:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.34 IDE
-Message-ID: <20020911080036.GS21877@suse.de>
+	id <S318497AbSIKH7X>; Wed, 11 Sep 2002 03:59:23 -0400
+Received: from neckar.ipht-jena.de ([194.94.32.118]:5124 "EHLO
+	diamond.ipht-jena.de") by vger.kernel.org with ESMTP
+	id <S318473AbSIKH7W>; Wed, 11 Sep 2002 03:59:22 -0400
+Date: Wed, 11 Sep 2002 10:04:06 +0200
+From: Axel Siebenwirth <axel@hh59.org>
+To: Thomas Molina <tmolina@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 Problem Status Report
+Message-ID: <20020911080406.GA231@diamond.ipht-jena.de>
+Mail-Followup-To: Thomas Molina <tmolina@cox.net>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209102057340.944-100000@dad.molina>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209102057340.944-100000@dad.molina>
+User-Agent: Mutt/1.4i
+Organization: hh59.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Thomas!
 
-I've updated 2.5 IDE code to match what is currently in 2.4.20-pre5-ac4,
-since is much nicer and better structured. There have also been some
-cleanups along the way, all of which have been passed back to Alan for
-the 2.4 tree.
+On Tue, 10 Sep 2002, Thomas Molina wrote:
 
-If you feel adventorous, please try:
+> The most current version of this status report can be found at:
+> http://members.cox.net/tmolina/kernprobs/status.html
 
-*.kernel.org:/pub/linux/kernel/people/axboe/patches/v2.5/2.5.34/ide-2.5.34-4.gz
+>               2.5 Kernel Problem Reports as of 10 Sep
+>    Problem Title                Status                Discussion
+>    JFS oops                     open                  06 Sep 2002
 
-Note that the patch is _huge_ because it moves files around! I've also
-got this in a bk tree with proper file moving etc (and patch split in a
-million pieces), but that's mainly for Linus to pull (ie its on
-master right now, and I'm not inclined to move it). If someone wants to
-see it though, I can probably put it somewhere public.
+We have now figured out what causes this. It only happens when the kernel is
+compiled with CONFIG_PREEMPT enabled. Without CONFIG_PREEMPT JFS runs just
+prefectly.
+This preemption stuff seems to cause a lot of trouble.
 
-If you apply against 2.5.34-BK (instead of 2.5.34 virgin), note that
-some parts are already in. In that case, remove the parts of the diff
-that update:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103127160424684&w=2
 
-arch/i386/pci/common.c
-arch/i386/pci/i386.c
-arch/i386/pci/pci.h
-arch/i386/pci/visws.c
-drivers/pci/pci.c
-include/linux/blkdev.h
-include/linux/hdreg.h
-include/linux/pci.h
-include/linux/pci_ids.h
-
--- 
-Jens Axboe
-
+Best regards,
+Axel Siebenwirth

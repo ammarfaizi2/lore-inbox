@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRALKVS>; Fri, 12 Jan 2001 05:21:18 -0500
+	id <S129730AbRALKV6>; Fri, 12 Jan 2001 05:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbRALKU7>; Fri, 12 Jan 2001 05:20:59 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8977 "EHLO
+	id <S129718AbRALKVn>; Fri, 12 Jan 2001 05:21:43 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9745 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129431AbRALKUy>; Fri, 12 Jan 2001 05:20:54 -0500
-Subject: Re: 2.4 ate my filesystem on rw-mount
-To: tori@tellus.mine.nu (Tobias Ringstrom)
-Date: Fri, 12 Jan 2001 10:22:31 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.30.0101120951270.7175-100000@svea.tellus> from "Tobias Ringstrom" at Jan 12, 2001 10:15:45 AM
+	id <S129730AbRALKVV>; Fri, 12 Jan 2001 05:21:21 -0500
+Subject: Re: khttpd beaten by boa
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Fri, 12 Jan 2001 10:22:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <93mkpk$98k$1@cesium.transmeta.com> from "H. Peter Anvin" at Jan 12, 2001 02:03:32 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14H1Ls-00047Z-00@the-village.bc.nu>
+Message-Id: <E14H1MM-00047g-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is on a 450 MHz AMD-K6 with the following IDE controller:
-> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
+> > TUX is evidence that khttpd can be done properly and
+> > beat the pants off of anything done in userspace.
+> > 
+> 
+> Then why don't we unload khttpd and put in Tux?
 
-There are several people who have reported that the 2.4.0 VIA IDE driver
-trashes hard disks like that. The 2.2 one also did this sometimes but only
-with specific chipset versions and if you have dma autotune on (thats why
-currently 2.2 refuses to do tuning on VP3)
-
+Tux needs the zero copy patches I believe so zero copy has to precede it
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261352AbSIWUAk>; Mon, 23 Sep 2002 16:00:40 -0400
+	id <S261310AbSIWTcJ>; Mon, 23 Sep 2002 15:32:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261357AbSIWUAj>; Mon, 23 Sep 2002 16:00:39 -0400
-Received: from colin.muc.de ([193.149.48.1]:39440 "HELO colin.muc.de")
-	by vger.kernel.org with SMTP id <S261352AbSIWUAa>;
-	Mon, 23 Sep 2002 16:00:30 -0400
-Message-ID: <20020923220532.38086@colin.muc.de>
-Date: Mon, 23 Sep 2002 22:05:32 +0200
-From: Andi Kleen <ak@muc.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nanosecond resolution for stat(2)
-References: <20020923184705.GA8195@averell> <Pine.LNX.4.33.0209231154520.3512-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.88e
-In-Reply-To: <Pine.LNX.4.33.0209231154520.3512-100000@penguin.transmeta.com>; from Linus Torvalds on Mon, Sep 23, 2002 at 08:57:32PM +0200
+	id <S261330AbSIWTap>; Mon, 23 Sep 2002 15:30:45 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261310AbSIWSlh>;
+	Mon, 23 Sep 2002 14:41:37 -0400
+Date: Mon, 23 Sep 2002 12:28:49 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20pre7, aic7xxx-6.2.8: Panic: HOST_MSG_LOOP with invalid
+ SCB 0
+In-Reply-To: <1184680000.1032536231@aslan.scsiguy.com>
+Message-ID: <Pine.LNX.4.44.0209231227330.922-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 08:57:32PM +0200, Linus Torvalds wrote:
-> 
-> On Mon, 23 Sep 2002, Andi Kleen wrote:
-> > 
-> > Some drivers (like mouse drivers or tty) do dubious inode [mac] time 
-> > accesses of the on disk inode and without even marking it dirty. This is 
-> > likely a bug.
-> 
-> No, it is intentional. At least some versions of "w" (maybe all) will use
-> the tty access times to judge how long the tty has been idle. The point is
-> that this is all information that is interesting (and useful), but not
-> worth sending to disk - it is useful only as long as the inode remains
-> locked in-core for other reasons, ie being in use.
-> 
-> (It's not only "not worth it" to send to disk, but it would be positively 
-> wrong to even _try_ updating the disk with the access times, since we want 
-> these things to work even with a read-only /dev).
 
-Ok. But it is surely not needed for mouse drivers, isn't it ? 
-(I removed a few updates in them) 
 
-I didn't change tty in this regard anyways.
+On Fri, 20 Sep 2002, Justin T. Gibbs wrote:
 
-Would you consider to merge the patch ? 
+> > Celeron 1.3GHz, Intel i815 chipset, 512MB ram.
+> >
+> > AIC-2640 PCI card with uw and narrow connectors. A Seagate scsi disk
+> > (rootfs) attached to uw, and a HP tape drive attached to narrow. Tape
+> > drive never used.
+> >
+> > I only ran 2.4.20pre7 (no other patches) for a night and it crashed:
+> >
+> > -------------------------------------------------------------------
+> > Kernel panic: HOST_MSG_LOOP with invalid SCB 0
+> >
+> > In interrupt handler, not syncing
+>
+> I need all of the messages leading up to the panic in order to
+> diagnose this.  You may need to use a serial console to get
+> them all.
 
--Andi
+Justin,
+
+I guess is the second or third report of problems with the new aic7xxx :(
+

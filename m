@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267893AbTAMQmX>; Mon, 13 Jan 2003 11:42:23 -0500
+	id <S267675AbTAMQue>; Mon, 13 Jan 2003 11:50:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267896AbTAMQmX>; Mon, 13 Jan 2003 11:42:23 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:63623 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id <S267893AbTAMQmW>; Mon, 13 Jan 2003 11:42:22 -0500
-From: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>
-Organization: INFN
-To: robw@optonline.net, Scott Robert Ladd <scott@coyotegulch.com>
-Subject: Re: any chance of 2.6.0-test*?
-Date: Mon, 13 Jan 2003 17:51:57 +0100
-User-Agent: KMail/1.5
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       William Lee Irwin III <wli@holomorphy.com>,
+	id <S267827AbTAMQue>; Mon, 13 Jan 2003 11:50:34 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:10324
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267675AbTAMQud>; Mon, 13 Jan 2003 11:50:33 -0500
+Date: Mon, 13 Jan 2003 12:00:10 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Jens Axboe <axboe@suse.de>
+cc: Terje Eggestad <terje.eggestad@scali.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <FKEAJLBKJCGBDJJIPJLJEELGECAA.scott@coyotegulch.com> <1042418292.1209.247.camel@RobsPC.RobertWilkens.com>
-In-Reply-To: <1042418292.1209.247.camel@RobsPC.RobertWilkens.com>
+Subject: Re: any chance of 2.6.0-test*?
+In-Reply-To: <20030113164305.GZ14017@suse.de>
+Message-ID: <Pine.LNX.4.44.0301131158510.13513-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200301131751.57288.gabrielli@roma2.infn.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01:38, lunedì 13 gennaio 2003, Rob Wilkens wrote:
-> It only goes to show that the core of computer science hasn't changed
-> over the years.  While some technology changes, the science itself stays
-> the same.  Much like a physicist should know the outdated theories of
-> relativity by Albert Einstein (made way back in the 20th century as
-> well) a good computer scientist should appreciate the contributions of
-> its founders, and have a good grasp of their core contributions.  I'm
-> not claiming to be an expert in either field, however.
+On Mon, 13 Jan 2003, Jens Axboe wrote:
 
-You think Relativity is outdated ?!?  I can't beleave !
+> On Mon, Jan 13 2003, Terje Eggestad wrote:
+> > > > I have the console on a serial port, and a terminal server. With kdb,
+> > > > you can enter the kernel i kdb even when deadlocked.
+> > > 
+> > > Even if spinning with interrupt disabled?
+> > 
+> > Haven't painted myself into that corner yet. Doubt it, very much.
+> 
+> These are the nasty hangs, total lockup and no info at all if it wasn't
+> for the nmi watchdog triggering. That alone is reason enough for me :-)
 
+It uses NMI's to break into the debugger, so it would also work with 
+interrupts disabled and spinning on a lock, the same is also true for 
+kgdb.
 
+	Zwane
 -- 
-Emiliano Gabrielli
-
-dip. di Fisica
-2° Università di Roma "Tor Vergata"
+function.linuxpower.ca
 

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313595AbSDHJXc>; Mon, 8 Apr 2002 05:23:32 -0400
+	id <S313598AbSDHJcR>; Mon, 8 Apr 2002 05:32:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313596AbSDHJXc>; Mon, 8 Apr 2002 05:23:32 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:778 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S313595AbSDHJXb>;
-	Mon, 8 Apr 2002 05:23:31 -0400
-Message-ID: <3CB1530F.4030809@evision-ventures.com>
-Date: Mon, 08 Apr 2002 10:21:35 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S313599AbSDHJcQ>; Mon, 8 Apr 2002 05:32:16 -0400
+Received: from dialin-145-254-148-091.arcor-ip.net ([145.254.148.91]:55814
+	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
+	id <S313598AbSDHJcQ>; Mon, 8 Apr 2002 05:32:16 -0400
+Message-ID: <3CB16335.C4BF320C@loewe-komp.de>
+Date: Mon, 08 Apr 2002 11:30:29 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: B16
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.18-ul i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: paulus@samba.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ide-pmac.c update
-In-Reply-To: <15537.20957.722974.330178@argo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Pierre Ficheux <pierre.ficheux@openwide.fr>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 AND Geode GX1/200Mhz problem
+In-Reply-To: <3CB0D419.F785C6D0@openwide.fr> <E16uMHW-0006vK-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras wrote:
-> Martin,
+Alan Cox wrote:
 > 
-> The patch below updates drivers/ide/ide-pmac.c (the powermac IDE
-> driver) to use the PCI DMA API and to correspond with the recent
-> changes to the ide driver.  It also arranges for report_drive_dmaing
-> to be exported from ide-dma.c so ide-pmac.c can use it, and fixes a
-> minor problem in ide-probe.c where an instance of "ide_floppy" got
-> missed in the change to ATA_FLOPPY.
+> >       I have a strange problem with a Geode/GX1 200Mhz based system. My
+> > kernel is compiled  with 586 as processor type but the system stops just
+> > after the 'Uncompressing Linux...Ok, booting the kernel' message. It's
+> > strange as GX1 is claimed to work fine with 2.4.18. The same system
+> > works fine with 2.2.18 kernel.
+> 
+> With 586 and no TSC set it should work fine yes. You might want to plug a
+> serial port in and compile with serial console enabled, see if it gives any
+> clues
 
-Indeed I have noticed recently this omission already as well myself...
+I want to translate this to:
 
-> Assuming the patch looks OK to you, could you forward it to Linus for
-> him to apply to his linux-2.5 tree, please?  If you prefer I can make
-> this available in a bitkeeper tree for you to pull from.
+Processor -> 586/K5/5x86/6x86/6x86MX
 
-The patch looks fine - thank you.
-However I don't use BK myself, so "classical" patches are fine with me.
-I will submitt it, if I'm ready with the "killing" of the mate member
-in ata_channel (unit is sufficient to distinguish different channels
-and pointers are *evil*).
-
+right?

@@ -1,35 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264416AbRFZU4R>; Tue, 26 Jun 2001 16:56:17 -0400
+	id <S264494AbRFZVCr>; Tue, 26 Jun 2001 17:02:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264469AbRFZU4H>; Tue, 26 Jun 2001 16:56:07 -0400
-Received: from vena.lwn.net ([206.168.112.25]:43275 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S264416AbRFZU4D>;
-	Tue, 26 Jun 2001 16:56:03 -0400
-Message-ID: <20010626205602.19492.qmail@eklektix.com>
-To: jlamanna@its.caltech.edu
-Subject: Re: Making a module 2.4 compatible
-cc: linux-kernel@vger.kernel.org
-From: Jonathan Corbet <corbet-lk@lwn.net>
-Date: Tue, 26 Jun 2001 14:56:01 -0600
+	id <S264477AbRFZVCh>; Tue, 26 Jun 2001 17:02:37 -0400
+Received: from imo-m10.mx.aol.com ([64.12.136.165]:56292 "EHLO
+	imo-m10.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S264469AbRFZVCW>; Tue, 26 Jun 2001 17:02:22 -0400
+Date: Tue, 26 Jun 2001 17:02:12 -0400
+From: hunghochak@netscape.net (Ho Chak Hung)
+To: linux-kernel@vger.kernel.org
+Subject: about get_zeroed_page() and page_address()
+Mime-Version: 1.0
+Message-ID: <2BC44B50.39C55AFA.0F76C228@netscape.net>
+X-Mailer: Franklin Webmailer 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It would be nice to have it working under 2.4, so is there someplace
-> that outlines some of the major things that would have changed so I can
-> update the module accordingly?
+In the get_zeroed_page()function, address = page_address(page)
+1)Does address point to a contiguous block of 4KB of physical memory?     i.e.can I access the individual bytes by *address++?
+2)How is page_address() function defined? I did a grep and found something like: #define page_address(page) ({ if (!(page)->virtual) BUG(); (page)->virtual; })? What's (page)->virtual?
 
-<BlatantSelfPromotion>
+Thanks
+Any help would be greatly appreciated.
 
-Within a week or so, "Linux Device Drivers" second edition should hit the
-shelves.  It will also hit the net, but that's going to take a little
-longer.  If it doesn't answer all your questions, then we failed to achieve
-what we set out to do.
-
-</BlatantSelfPromotion>
-
-jon
-
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+__________________________________________________________________
+Get your own FREE, personal Netscape Webmail account today at http://webmail.netscape.com/

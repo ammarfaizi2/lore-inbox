@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbVC1UBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVC1UDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbVC1UBR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 15:01:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbVC1UBR
+	id S262024AbVC1UDa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 15:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVC1UDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 15:01:17 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:3774 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262055AbVC1UBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 15:01:15 -0500
-Message-Id: <200503282001.j2SK16g22781@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Dave Hansen'" <haveblue@us.ibm.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: Industry db benchmark result on recent 2.6 kernels
-Date: Mon, 28 Mar 2005 12:01:06 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUzz2JiRH8SsZx+RwWB91pANkmlcQAACRGw
-In-Reply-To: <1112039416.2087.25.camel@localhost>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 28 Mar 2005 15:03:30 -0500
+Received: from fire.osdl.org ([65.172.181.4]:51361 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262024AbVC1UD3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 15:03:29 -0500
+Date: Mon, 28 Mar 2005 12:02:52 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] isofs: unobfuscate rock.c
+Message-ID: <20050328200252.GN28536@shell0.pdx.osdl.net>
+References: <ie2p3m.2u2ccu.3z4p19m1j53m9pob6l5ceeebq.refire@cs.helsinki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ie2p3m.2u2ccu.3z4p19m1j53m9pob6l5ceeebq.refire@cs.helsinki.fi>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-28 at 11:33 -0800, Chen, Kenneth W wrote:
-> We will be taking db benchmark measurements more frequently from now on with
-> latest kernel from kernel.org (and make these measurements on a fixed interval).
-> By doing this, I hope to achieve two things: one is to track base kernel
-> performance on a regular base; secondly, which is more important in my opinion,
-> is to create a better communication flow to the kernel developers and to keep
-> all interested party well informed on the kernel performance for this enterprise
-> workload.
+* Pekka Enberg (penberg@cs.helsinki.fi) wrote:
+> This patch removes macro obfuscation from fs/isofs/rock.c and cleans it up
+> a bit to make it more readable and maintainable. There are no functional
+> changes, only cleanups. I have only tested this lightly but it passes
+> mount and read on small Rock Ridge enabled ISO image.
 
-Dave Hansen wrote on Monday, March 28, 2005 11:50 AM
-> I'd guess that doing it on kernel.org is too late, sometimes.  How high
-> is the overhead of doing a test?  Would you be able to test each -mm
-> release?  It's somewhat easier to toss something out of -mm for
-> re-review than it is out of Linus's tree.
+You might want to look at current -mm.  Andrew has a series or 13 or so
+patches that do very similar cleanup.  Perhaps you could start from there?
 
-The overhead is fairly high to run the benchmark.  It's not a one minute run.
-(more or less like a 5 hour exercise.  Benchmark run time along is 3+ hours).
--mm has so many stuff, I'm not sure we would have the bandwidth to do a search
-on which patch trigger N% regression, etc.  Let me try the base kernel first
-and if resources are available, I can attempt to do it on -mm tree.
-
-
+thanks,
+-chris

@@ -1,145 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVCaWI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVCaWIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbVCaWI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 17:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbVCaWI0
+	id S262015AbVCaWIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 17:08:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbVCaWIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 17:08:26 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:38333 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262014AbVCaWHx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 17:07:53 -0500
-Date: Fri, 1 Apr 2005 00:07:34 +0200 (MEST)
-Message-Id: <200503312207.j2VM7YUI011924@alkaid.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org
-Subject: [PATCH 2.6.12-rc1-mm5 1/3] perfctr: ppc64 arch hooks
-Cc: anton@samba.org, linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+	Thu, 31 Mar 2005 17:08:43 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:27826 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262015AbVCaWI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 17:08:28 -0500
+Date: Fri, 1 Apr 2005 00:08:22 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: 2.6.12-rc1-mm4 and suspend2ram (and synaptics)
+Message-ID: <20050331220822.GA22418@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a 3-part patch kit which adds a ppc64 driver to perfctr,
-written by David Gibson <david@gibson.dropbear.id.au>.
-ppc64 is sufficiently different from ppc32 that this driver
-is kept separate from my ppc32 driver. This shouldn't matter unless
-people actually want to run ppc32 kernels on ppc64 processors.
+Dear Andrew, dear developers!
 
-ppc64 perfctr driver from David Gibson <david@gibson.dropbear.id.au>:
-- ppc64 arch hooks: Kconfig, syscalls numbers and tables, task struct,
-  and process management ops (switch_to, exit, fork)
+Since 2.6.12-rc1-mmX I cannot get suspend2ram working again as it was
+with 2.6.11-mm4 with the same .config.
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+I suspends fine, but never resumes. No CapsLock, no sysrq, no network is
+working. Nothing in the log files. Is there anything which may cause
+these troubles when compiled into the kernel and not loaded as module?
+(as it was with my usb stuff until 2.6.11-mm2, after this I had to stop
+hotplug, before I could go with usb running).
 
- arch/ppc64/Kconfig            |    1 +
- arch/ppc64/kernel/misc.S      |   12 ++++++++++++
- arch/ppc64/kernel/process.c   |    6 ++++++
- include/asm-ppc64/processor.h |    2 ++
- include/asm-ppc64/unistd.h    |    8 +++++++-
- 5 files changed, 28 insertions(+), 1 deletion(-)
 
-diff -rupN linux-2.6.12-rc1-mm4/arch/ppc64/Kconfig linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/arch/ppc64/Kconfig
---- linux-2.6.12-rc1-mm4/arch/ppc64/Kconfig	2005-03-31 21:08:24.000000000 +0200
-+++ linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/arch/ppc64/Kconfig	2005-03-31 23:28:07.000000000 +0200
-@@ -297,6 +297,7 @@ config SECCOMP
- 
- endmenu
- 
-+source "drivers/perfctr/Kconfig"
- 
- menu "General setup"
- 
-diff -rupN linux-2.6.12-rc1-mm4/arch/ppc64/kernel/misc.S linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/arch/ppc64/kernel/misc.S
---- linux-2.6.12-rc1-mm4/arch/ppc64/kernel/misc.S	2005-03-31 21:08:24.000000000 +0200
-+++ linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/arch/ppc64/kernel/misc.S	2005-03-31 23:28:07.000000000 +0200
-@@ -956,6 +956,12 @@ _GLOBAL(sys_call_table32)
- 	.llong .sys32_request_key
- 	.llong .compat_sys_keyctl
- 	.llong .compat_sys_waitid
-+	.llong .sys_ni_syscall		/* 273 reserved for sys_ioprio_set */
-+	.llong .sys_ni_syscall		/* 274 reserved for sys_ioprio_get */
-+	.llong .sys_vperfctr_open	/* 275 */
-+	.llong .sys_vperfctr_control
-+	.llong .sys_vperfctr_write
-+	.llong .sys_vperfctr_read
- 
- 	.balign 8
- _GLOBAL(sys_call_table)
-@@ -1232,3 +1238,9 @@ _GLOBAL(sys_call_table)
- 	.llong .sys_request_key		/* 270 */
- 	.llong .sys_keyctl
- 	.llong .sys_waitid
-+	.llong .sys_ni_syscall		/* 273 reserved for sys_ioprio_set */
-+	.llong .sys_ni_syscall		/* 274 reserved for sys_ioprio_get */
-+	.llong .sys_vperfctr_open	/* 275 */
-+	.llong .sys_vperfctr_control
-+	.llong .sys_vperfctr_write
-+	.llong .sys_vperfctr_read
-diff -rupN linux-2.6.12-rc1-mm4/arch/ppc64/kernel/process.c linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/arch/ppc64/kernel/process.c
---- linux-2.6.12-rc1-mm4/arch/ppc64/kernel/process.c	2005-03-31 21:07:46.000000000 +0200
-+++ linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/arch/ppc64/kernel/process.c	2005-03-31 23:28:07.000000000 +0200
-@@ -36,6 +36,7 @@
- #include <linux/kallsyms.h>
- #include <linux/interrupt.h>
- #include <linux/utsname.h>
-+#include <linux/perfctr.h>
- 
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
-@@ -225,7 +226,9 @@ struct task_struct *__switch_to(struct t
- 
- 
- 	local_irq_save(flags);
-+	perfctr_suspend_thread(&prev->thread);
- 	last = _switch(old_thread, new_thread);
-+	perfctr_resume_thread(&current->thread);
- 
- 	local_irq_restore(flags);
- 
-@@ -323,6 +326,7 @@ void exit_thread(void)
- 		last_task_used_altivec = NULL;
- #endif /* CONFIG_ALTIVEC */
- #endif /* CONFIG_SMP */
-+	perfctr_exit_thread(&current->thread);
- }
- 
- void flush_thread(void)
-@@ -425,6 +429,8 @@ copy_thread(int nr, unsigned long clone_
-  	 */
- 	kregs->nip = *((unsigned long *)ret_from_fork);
- 
-+	perfctr_copy_task(p, regs);
-+
- 	return 0;
- }
- 
-diff -rupN linux-2.6.12-rc1-mm4/include/asm-ppc64/processor.h linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/include/asm-ppc64/processor.h
---- linux-2.6.12-rc1-mm4/include/asm-ppc64/processor.h	2005-03-31 21:08:31.000000000 +0200
-+++ linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/include/asm-ppc64/processor.h	2005-03-31 23:28:07.000000000 +0200
-@@ -574,6 +574,8 @@ struct thread_struct {
- 	unsigned long	vrsave;
- 	int		used_vr;	/* set if process has used altivec */
- #endif /* CONFIG_ALTIVEC */
-+	/* performance counters */
-+	struct vperfctr *perfctr;
- };
- 
- #define ARCH_MIN_TASKALIGN 16
-diff -rupN linux-2.6.12-rc1-mm4/include/asm-ppc64/unistd.h linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/include/asm-ppc64/unistd.h
---- linux-2.6.12-rc1-mm4/include/asm-ppc64/unistd.h	2005-03-31 21:07:54.000000000 +0200
-+++ linux-2.6.12-rc1-mm4.perfctr27-ppc64-arch-hooks/include/asm-ppc64/unistd.h	2005-03-31 23:28:07.000000000 +0200
-@@ -283,8 +283,14 @@
- #define __NR_request_key	270
- #define __NR_keyctl		271
- #define __NR_waitid		272
-+/* 273 is reserved for ioprio_set */
-+/* 274 is reserved for ioprio_get */
-+#define __NR_vperfctr_open	275
-+#define __NR_vperfctr_control	(__NR_vperfctr_open+1)
-+#define __NR_vperfctr_write	(__NR_vperfctr_open+2)
-+#define __NR_vperfctr_read	(__NR_vperfctr_open+3)
- 
--#define __NR_syscalls		273
-+#define __NR_syscalls		279
- #ifdef __KERNEL__
- #define NR_syscalls	__NR_syscalls
- #endif
+On a side node: Once suspend2ram couldn't stop all tasks, in fact
+cpufreq, although it was stopped with /etc/init.d/cpufreqd stop, was
+mentioned in syslog as not being able to be stopped, and after this
+halfway through suspend, my touchpad (synaptics) and kbd wasn't working
+anymore.  After resume the touchpad is somehow behaving strange.
+THe touchpad is not working at all, the keyboard seems to react to some
+events (Sysrq is working, but normal typing not, nor power button/acpi
+stuff).
+
+In the syslog I find:
+vmunix: psmouse.c: TouchPad at isa0060/serio1/input0 lost synchronization, throwing 4 bytes away.
+vmunix: psmouse.c: TouchPad at isa0060/serio1/input0 lot sync at byte 1
+
+I would be happy to test some stuff to get S2R back to work!
+
+Thanks a lot and all the best
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>                 Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+HARBLEDOWN (vb.)
+To manoeuvre a double mattress down a winding staircase.
+			--- Douglas Adams, The Meaning of Liff

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317078AbSGCQwc>; Wed, 3 Jul 2002 12:52:32 -0400
+	id <S317192AbSGCQtq>; Wed, 3 Jul 2002 12:49:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317253AbSGCQv6>; Wed, 3 Jul 2002 12:51:58 -0400
-Received: from pl425.nas921.ichikawa.nttpc.ne.jp ([210.165.235.169]:56086 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S317230AbSGCQvT>;
-	Wed, 3 Jul 2002 12:51:19 -0400
-Date: Thu, 4 Jul 2002 01:53:23 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc1
-Message-Id: <20020704015323.46cc07cf.bruce@ask.ne.jp>
-In-Reply-To: <Pine.LNX.4.44.0207021750560.14729-100000@freak.distro.conectiva>
-References: <Pine.LNX.4.33.0206290033320.22915-100000@devel.blackstar.nl>
-	<Pine.LNX.4.44.0207021750560.14729-100000@freak.distro.conectiva>
-X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
+	id <S317194AbSGCQti>; Wed, 3 Jul 2002 12:49:38 -0400
+Received: from mail.clsp.jhu.edu ([128.220.34.27]:52701 "EHLO
+	mail.clsp.jhu.edu") by vger.kernel.org with ESMTP
+	id <S317182AbSGCQrs>; Wed, 3 Jul 2002 12:47:48 -0400
+Date: Wed, 3 Jul 2002 05:02:09 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Automatically mount or remount EXT3 partitions with EXT2 when alaptop is powered by a battery?
+Message-ID: <20020703030208.GA474@elf.ucw.cz>
+References: <3D18A273.284F8EDD@zip.com.au> <1025025852.1519.54.camel@turbulence.megapathdsl.net> <3D18C5E4.B7423294@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D18C5E4.B7423294@zip.com.au>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Tue, 2 Jul 2002 17:51:09 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
-
+> > ..
+> > > If it's because of the disk-spins-up-too-much problem then
+> > > that can be addressed by allowing the commit interval to be
+> > > set to larger values.
+> > 
+> > Thanks Andrew,
+> > 
+> > Yes, the concern is the syncing every few seconds.
+> > Would it be possible and make sense to have this
+> > setting get adjusted dynamically when a laptop goes
+> > onto battery power?
 > 
-> Could you please 2.4.18 ?
+> If the APM/ACPI stuff can report the transition to userspace then yes,
+> that's something which their support scripts could do.
 
-Don't mean to bitch or anything, but do you think you could try trimming your
-quotes? A 38K mail for one actual line of message strikes me as being a bit
-inefficient, especially since I just had to scroll through the whole thing to
-see if you'd added comments anywhere else ;)
+ACPI should be able to pass that info.
 
+Please make that patch go to linus, it looks very usefull to me.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

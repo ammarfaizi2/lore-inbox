@@ -1,74 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318292AbSIOX10>; Sun, 15 Sep 2002 19:27:26 -0400
+	id <S318294AbSIOXf4>; Sun, 15 Sep 2002 19:35:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318300AbSIOX1Z>; Sun, 15 Sep 2002 19:27:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53259 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318292AbSIOX1X>;
-	Sun, 15 Sep 2002 19:27:23 -0400
-Message-ID: <3D851863.3040107@mandrakesoft.com>
-Date: Sun, 15 Sep 2002 19:31:47 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Albert Cranford <ac9410@attbi.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 9/9]Four new i2c drivers and __init/__exit cleanup to
- i2c
-References: <Pine.LNX.4.44.0209151845330.7637-200000@home1> <3D851556.7070203@mandrakesoft.com> <20020916002619.D30390@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318300AbSIOXfz>; Sun, 15 Sep 2002 19:35:55 -0400
+Received: from crack.them.org ([65.125.64.184]:8719 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S318294AbSIOXfy>;
+	Sun, 15 Sep 2002 19:35:54 -0400
+Date: Sun, 15 Sep 2002 19:41:08 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+Message-ID: <20020915234108.GA1348@nevyn.them.org>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <E17qRfU-0001qz-00@starship> <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com> <20020915190435.GA19821@nevyn.them.org> <20020915162412.A17345@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020915162412.A17345@work.bitmover.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Sun, Sep 15, 2002 at 07:18:46PM -0400, Jeff Garzik wrote:
+On Sun, Sep 15, 2002 at 04:24:12PM -0700, Larry McVoy wrote:
+> On Sun, Sep 15, 2002 at 03:04:35PM -0400, Daniel Jacobowitz wrote:
+> > Tracking this bug down took me about six hours.  Someone more familiar
+> > with that particular segment of code could, I assume, have done it more
+> > quickly.  One advantage of a debugger is that it's easier to look at
 > 
->>Albert Cranford wrote:
->>
->>>--- linux/drivers/i2c/i2c-elektor.c.orig	2002-09-14 22:10:45.000000000 -0400
->>>+++ linux-2.5.34/drivers/i2c/i2c-elektor.c	2002-09-15 01:18:55.000000000 -0400
->>>@@ -125,12 +125,12 @@
->>> 	int timeout = 2;
->>> 
->>> 	if (irq > 0) {
->>>-		cli();
->>>+		local_irq_disable();
->>> 		if (pcf_pending == 0) {
->>> 			interruptible_sleep_on_timeout(&pcf_wait, timeout*HZ );
->>> 		} else
->>> 			pcf_pending = 0;
->>>-		sti();
->>>+		local_irq_enable();
->>> 	} else {
->>> 		udelay(100);
->>> 	}
->>
->>
->>
->>this is _not_ the way to fix...   use a proper spinlock
+> I'm not speaking for Linus, but I wouldn't be surprised we share the 
+> same view on this one.  As someone who maintains a fairly large source
+> base I get nervous when people tell me they need a debugger to work on
+> the code.  Why?  Because if you really need that it is EXTREMELY likely
+> that you don't understand the code.  If you don't understand the code
+> then YOU SHOULDN'T BE CHANGING IT.  It is infuriating to have a section
+> of tricky code that used to work, you turn your back, only to find that
+> someone made a "simple change" which seems to work but actually makes
+> things worse and invariably seems to break the code in a far more
+> subtle way.  
 > 
+> My position is that you either understand the code or you don't.  Code
+> that you don't understand is read only.  Having a debugger show you some
+> variables isn't going to make you understand the code at the level which
+> is required in order to be making changes.
+
+That's a circular argument.  I use debuggers in order to understand
+code _better_.  And to understand how code that I do know interacts
+with code that I don't know.  I also rarely have the luxury of working in
+source bases that I've got long intimate association with - about the
+only code I can claim that for is GDB itself and it still surprises me.
+
+Using a debugger I can pick up greatly improved understanding of what's
+going on - both what is and what should be.  And what has changed in it
+recently, since I was last familiar with it, which was the problem
+here.
+
+> Does this mean I'm against debuggers?  Not at all.  But in 15 years of
+> doing kernel work and 5 years of doing BK work the only thing I've ever
+> used one for was to get a few variables printed out.  And I've written
+> a substantial chunk of a debugger years ago, it's not a question of lack
+> of debugger knowledge.  I just rarely find them useful.  
+
+Good for you; as I said, everyone operates differently.  The number of
+printing/thinking/rebooting cycles involved for me to work with a
+debugger is much shorter than without.
+
+> > Plus, in my experience the work model that BitKeeper encourages puts a
+> > significant penalty on including unrelated patches in the tree while
+> > you're debugging.  It can be gotten around but it's exceptionally
+> > awkward.  Adding in KGDB means time spent merging it into my tree and
+> > time spend merging it cleanly out when I'm done with it.
 > 
-> You can't hold a spinlock and sleep though, was one of my points back
-> in August.  (Albert submitted a patch with all cli()/sti() converted
-> to spin_lock_irqsave()/spin_unlock_irqrestore().)
+> Create a throwaway clone, merge in kdb, tag the tree with "baseline".
+> Now hack away until you have a fix.  If you never checked anything in
+> after the baseline then "bk -r diffs -u" creates the patch for your
+> bugfix.  If you did, then diff against the baseline.
 > 
+> If BK is awkward by comparison to diff and patch, something is wrong, it
+> definitely has the ability to make things far more pleasant than you
+> seem to be experiencing.
 
+Perhaps I (yet again) need to spend a day learning more about the
+depths of BitKeeper.  The last time I did it all I found were BitKeeper
+bugs, because the way I try to work with it appears to be contrary to
+the way other people want to work with it.
 
-whoops, you're right.
+I guess I just need to get more used to doing all of my development in
+throwaway clones, and when it's absolutely perfect checking it into a
+longer-lived tree via exporting a GNU patch and importing that.
 
-That follows along with my suggestion in another email, then :)  use a 
-semaphore.  The timeout can be handled with a kernel timer.  The timeout 
-is clearly multiple seconds, so there's no fine grain involved.
+The above model gets much more complicated when the development lasts
+longer than a couple of hours, and you have to pull from another tree;
+already, to upgrade my working trees I need to cascade three pulls -
+with two sets of resolves if Ingo's been changing CLONE_ flags on me
+again :)
 
-AND, since the timeout is multiple seconds, the code should not be 
-disable interrupts for that long anyway.
-
-	Jeff
-
-
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

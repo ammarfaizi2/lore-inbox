@@ -1,64 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbTKEXmg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 18:42:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTKEXmf
+	id S263302AbTKEXrF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 18:47:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTKEXrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 18:42:35 -0500
-Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:41963
-	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S263228AbTKEXme
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 18:42:34 -0500
-Date: Thu, 6 Nov 2003 00:42:31 +0100
-From: Antonio Vargas <wind@cocodriloo.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [DMESG] cpumask_t in action
-Message-ID: <20031105234231.GA16122@wind.cocodriloo.com>
-References: <B05667366EE6204181EABE9C1B1C0EB58023A6@scsmsx401.sc.intel.com> <20031105232438.GA24817@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031105232438.GA24817@sgi.com>
-User-Agent: Mutt/1.3.28i
+	Wed, 5 Nov 2003 18:47:05 -0500
+Received: from drifthost.com ([66.28.242.251]:3275 "EHLO drifthost.com")
+	by vger.kernel.org with ESMTP id S263302AbTKEXrB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 18:47:01 -0500
+Message-ID: <01ba01c3a3f7$1da22100$dfb21ad3@drifthost>
+From: "Steven Adams" <steve@drifthost.com>
+To: <linux-kernel@vger.kernel.org>
+References: <200311042029.38749.andy@asjohnson.com> <1805.61.88.244.7.1068001546.squirrel@mail.drifthost.com>
+Subject: Re: no DRQ after issuing WRITE
+Date: Thu, 6 Nov 2003 10:42:49 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 05, 2003 at 03:24:38PM -0800, Jesse Barnes wrote:
-> On Wed, Nov 05, 2003 at 03:18:29PM -0800, Chen, Kenneth W wrote:
-> > > Dentry cache hash table entries: 33554432 (order: 14, 268435456 bytes)
-> > > Inode-cache hash table entries: 33554432 (order: 14, 268435456 bytes)
-> > > IP: routing cache hash table of 8388608 buckets, 131072Kbytes
-> > > TCP: Hash tables configured (established 67108864 bind 65536)
-> > > swapper: page allocation failure. order:17, mode:0x20
-> > 
-> > Does these hash tables really need to that big? 33 million dentry and
-> > inode entry? Same thing with network, unless the machine is loaded
-> > with several gigabit cards, these hash table seems to be exceedingly
-> > large.
-> 
-> This one only has two gige cards:
-> 
-> tg3.c:v2.2 (August 24, 2003)
-> PCI: Found IRQ 54 for device 0000:01:04.0
-> ACPI: No IRQ known for interrupt pin A of device 0000:01:04.0 - using IRQ 54
-> eth0: Tigon3 [partno(030-1771-000) rev 0105 PHY(5701)] (PCI:66MHz:64-bit) 10/100/1000BaseT Ethernet 08:00:69:13:e6:a7
-> PCI: Found IRQ 66 for device 0000:11:04.0
-> ACPI: No IRQ known for interrupt pin A of device 0000:11:04.0 - using IRQ 66
-> eth1: Tigon3 [partno(030-1771-000) rev 0105 PHY(5701)] (PCI:66MHz:64-bit) 10/100/1000BaseT Ethernet 08:00:69:13:e4:a4
-> PCI: Found IRQ 53 for device 0000:01:03.0
-> ACPI: No IRQ known for interrupt pin A of device 0000:01:03.0 - using IRQ 53
-> 
-> As for the dentry and inode-cache tables, yes they're probably too big,
-> and they're also allocated on node 0 rather than being spread out.
-> 
+anyone?
+----- Original Message ----- 
+From: <steve@drifthost.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, November 05, 2003 2:05 PM
+Subject: hda: no DRQ after issuing WRITE
 
-Jesse, what about making hash_size = scale * log(mem_size), so that the
-tables are not scaled too high on your very-high-end boxes? ;)
 
--- 
-winden/network
+> Hey guys,
+>
+> i keep getting things like this in my dmesg
+>
+> ============================================
+> hda: status timeout: status=0xd0 { Busy }
+>
+> hda: no DRQ after issuing WRITE
+> ide0: reset: success
+> hda: status timeout: status=0xd0 { Busy }
+>
+> hda: no DRQ after issuing WRITE
+> ide0: reset: success
+> =============================================
+>
+> From hdparm
+> ============================================
+> /dev/hda:
+>
+>  Model=IC35L080AVVA07-0, FwRev=VA4OA52A, SerialNo=VNC402A4CBRJLA
+>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+>  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
+>  BuffType=DualPortCache, BuffSize=1863kB, MaxMultSect=16, MultSect=off
+>  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=160836480
+>  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes:  pio0 pio1 pio2 pio3 pio4
+>  DMA modes:  mdma0 mdma1 mdma2
+>  UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+>  AdvancedPM=yes: disabled (255) WriteCache=enabled
+>  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
+> =================================================
+>
+> Ive searched high and low to try find out what this means, all ive found
+> it people keep saying its all different kinds of things..
+>
+> I was wondering if this means my hdd is drying or is ti a setting?
+>
+> Thanks guys,
+> Steve
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-1. Dado un programa, siempre tiene al menos un fallo.
-2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
-3. Por induccion, todos los programas se pueden
-   reducir a una linea que no funciona.

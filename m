@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbTL2Vnx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 16:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbTL2Vnx
+	id S264255AbTL2Vso (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 16:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTL2Vso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 16:43:53 -0500
-Received: from as1-6-4.ld.bonet.se ([194.236.130.199]:5248 "HELO mail.nicke.nu")
-	by vger.kernel.org with SMTP id S264261AbTL2Vnv (ORCPT
+	Mon, 29 Dec 2003 16:48:44 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42406 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264255AbTL2Vsm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 16:43:51 -0500
-From: "Nicklas Bondesson" <nicke@nicke.nu>
-To: "'Arjan van de Ven'" <arjanv@redhat.com>
-Cc: "'Christophe Saout'" <christophe@saout.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: ataraid in 2.6.?
-Date: Mon, 29 Dec 2003 22:43:51 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20031229173012.GB21479@devserv.devel.redhat.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcPOMSB4zWGIfxvHTEmPCpgW+RI1mAAI5qFQ
-Message-Id: <S264261AbTL2Vnv/20031229214351Z+17930@vger.kernel.org>
+	Mon, 29 Dec 2003 16:48:42 -0500
+Date: Mon, 29 Dec 2003 21:46:34 +0000
+From: Dave Jones <davej@redhat.com>
+To: Duncan Sands <baldrick@free.fr>
+Cc: dan@eglifamily.dnsalias.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 problems
+Message-ID: <20031229214634.GA18738@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Duncan Sands <baldrick@free.fr>, dan@eglifamily.dnsalias.net,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0312251936200.3243-300000@eglifamily.dnsalias.net> <200312291151.50763.baldrick@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312291151.50763.baldrick@free.fr>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I agree. Duplicating it is rather silly :)
+On Mon, Dec 29, 2003 at 11:51:50AM +0100, Duncan Sands wrote:
+ > ftp://ftp.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt
 
-Where did he apply it?
+s/2.5/2.6/
 
-/Nicke
+That was a really old revision, latest just copied there from its
+new home at http://www.linux.org.uk/~davej/docs/
+Hopefully in the new year I'll have the data off the now dead
+codemonkey.org.uk server and all that stuff will go back online..
 
------Original Message-----
-From: Arjan van de Ven [mailto:arjanv@redhat.com] 
-Sent: den 29 december 2003 18:30
-To: Nicklas Bondesson
-Cc: 'Christophe Saout'; linux-kernel@vger.kernel.org
-Subject: Re: ataraid in 2.6.?
+		Dave
 
-On Mon, Dec 29, 2003 at 06:27:08PM +0100, Nicklas Bondesson wrote:
-> How do you set this (device mapping) up using the 2.6 kernel. I like 
-> the ease of using ataraid in 2.4.x. Why not have both alternatives as 
-> options (both ataraid and devicemapper)?
-
-because ataraid is nothing more than a devicemapper....
-duplicating that is rather silly... 
-The outcome is to be a /sbin/ataraid binary or some such that will do all
-the magic to detect the raid and tell the kernel device mapper to set it all
-up.
-
-> Also have anyone of you looked at the patch from Walt H that he sent 
-> in yesterday? I have to use this after replacing my old hard drives 
-> (Maxtor 30GB) with WDC 80GB. The patch is attached.
-
-I sent it to Marcelo for applying last week, and he applied it today
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

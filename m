@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbTLBE3O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 23:29:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTLBE3N
+	id S263364AbTLBFUV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 00:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263439AbTLBFUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 23:29:13 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:13838 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S262765AbTLBE3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 23:29:12 -0500
-Message-ID: <3FCC1542.1080008@snapgear.com>
-Date: Tue, 02 Dec 2003 14:29:54 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.0-test11-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Dec 2003 00:20:21 -0500
+Received: from codepoet.org ([166.70.99.138]:35818 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S263364AbTLBFUU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 00:20:20 -0500
+Date: Mon, 1 Dec 2003 22:20:15 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Joe Blow <joeblow341@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Promise 20378 + 2.6.0-test10 + libata patch 1
+Message-ID: <20031202052015.GA28551@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jeff Garzik <jgarzik@pobox.com>, Joe Blow <joeblow341@hotmail.com>,
+	linux-kernel@vger.kernel.org
+References: <BAY7-F848IdgO3RQppH0000114d@hotmail.com> <3FCC014A.7050109@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FCC014A.7050109@pobox.com>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Mon Dec 01, 2003 at 10:04:42PM -0500, Jeff Garzik wrote:
+> Joe Blow wrote:
+> >
+> >>From: Jeff Garzik <jgarzik@pobox.com>
+> >>
+> >>Nope, libata Promise driver only supports Serial ATA.
+> >
+> >
+> >Bummer.  Will it ever support PATA?
+> 
+> No plans.
 
-An update of the uClinux (MMU-less) fixups against 2.6.0-test11.
-No changes over linux-2.6.0-test10-uc0 just generated and tested
-against test11.
+What exactly is needed to get got SATA and PATA support
+comparable to the driver provided by promise?  Would it be
+possible to adapt the existing promise PATA IDE driver to drive
+the PATA port, while the libata Promise driver handles the SATA
+ports.  Or would a new driver be needed?
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.0-test11-uc0.patch.gz
+How would the two drivers share the same PCI device?
 
+ -Erik
 
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

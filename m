@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbTJHVTN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 17:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbTJHVTN
+	id S261791AbTJHVW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 17:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbTJHVW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 17:19:13 -0400
-Received: from maxlb1ip.uk2net.com ([213.239.57.81]:18842 "EHLO
-	maxio7.uk2net.com") by vger.kernel.org with ESMTP id S261782AbTJHVTK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 17:19:10 -0400
-Message-ID: <57145.212.113.164.100.1065647937.squirrel@maxproxy3.uk2net.com>
-In-Reply-To: <20031008200420.GA23545@redhat.com>
-References: <42450.212.113.164.100.1065637962.squirrel@maxproxy1.uk2net.com>
-    <20031008200420.GA23545@redhat.com>
-Date: Wed, 8 Oct 2003 22:18:57 +0100 (BST)
-From: "Nuno Monteiro" <nmonteiro@uk2.net>
-To: "Dave Jones" <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.1
+	Wed, 8 Oct 2003 17:22:29 -0400
+Received: from mx3.evanzo-server.de ([81.209.142.20]:10135 "EHLO
+	mx3.evanzo-server.de") by vger.kernel.org with ESMTP
+	id S261791AbTJHVW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 17:22:27 -0400
+From: Markus Schoder <markus_schoder@yahoo.de>
+To: linux-kernel@vger.kernel.org
+Subject: crash with 2.6.0-test7
+Date: Wed, 8 Oct 2003 23:22:20 +0200
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-X-Priority: 3
-Importance: Normal
-X-SA-Exim-Mail-From: nmonteiro@uk2.net
-Subject: Re: linking problem with 2.6.0-test6-bk10
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-SA-Exim-Version: 3.0 (built Tue May 27 21:41:10 CEST 2003)
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310082322.21024.markus_schoder@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Oct 08, 2003 at 07:32:42PM +0100, Nuno Monteiro wrote:
->
-> Try this.
->
-> 		Dave
+Running the nptl tests from nptl-0.60 my machine
+regularly freezes (SysRq keys not working any more)
+and/or panics and outputs the following (or similar)
+on the console:
 
 
-Hi Dave,
+...
+do_page_fault+0x12c/0x454
+poke_blanked_console+0x5c/0x70
+try_to_wake_up+0xa7/0x160
+default_wake_function+0x2a/0x30
+__wake_up_common+0x31/0x60
+do_page_fault+0x0/0x454
+error_code+0x2d/0x38
+do_exit+0x1d2/0x350
+do_page_fault+0x0/0x454
+die+0xe1/0xf0
+do_page_fault+0x12c/0x454
+sys_exit+0x13/0x20
+syscall_call+0x7/0xb
 
-Thanks for the input, but still no joy. I applied that to a pristine
--test7 tree, same error as before (altough the address is a little
-different: 2ebd, now 2eb6).
-
-        ld -m elf_i386  -T arch/i386/kernel/vmlinux.lds.s
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o  
-init/built-in.o --start-group  usr/built-in.o 
-arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o 
-arch/i386/mach-default/built-in.o  kernel/built-in.o 
-mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o 
-crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  lib/built-in.o 
-arch/i386/lib/built-in.o  drivers/built-in.o  sound/built-in.o 
-arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-arch/i386/kernel/built-in.o(.init.text+0x2eb6): In function
-`centaur_mcr_insert':
-: undefined reference to `mtrr_centaur_report_mcr'
-make: *** [vmlinux] Error 1
-nuno@hobbes:/usr/local/src/linux-2.6.0-test7$
+Code: 8b 5d 68 c7 44 24 20 01 00 03 00 8b 50 14 8b 00 81 e2 ff ff
+<6>note: ld-linux.so.2[2069] exited with preempt_count 1
 
 
-Regards,
+I have omitted the absolute addresses. The part between the
+`do_page_fault+0x12c/0x454' entries repeats again and again
+scrolling off the screen so I cannot see the beginning of the
+message.
 
-Nuno
+I experienced similar crashes with 2.6.0-test6 and 2.6.0-test6-mm4
+also for 2.6.0-test6-mm4 the stacktrace looked different (see my
+earlier post).
+
+Machine is a single processor Athlon XP 2000+, 768MB RAM. Kernel was 
+compiled with gcc-3.3.1. Preempt is enabled.
+
+--
+Markus
 

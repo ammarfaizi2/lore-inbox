@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268334AbUIXGaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267974AbUIXGaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268334AbUIXGaF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 02:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268490AbUIXG2E
+	id S267974AbUIXGaG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 02:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268488AbUIXG1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 02:28:04 -0400
-Received: from gate.crashing.org ([63.228.1.57]:33507 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268334AbUIXG0V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 02:26:21 -0400
-Subject: Re: [PATCH] matroxfb big-endian update (was Re: [PATCH] ppc64: Fix
-	__raw_* IO accessors)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, Roland Dreier <roland@topspin.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+	Fri, 24 Sep 2004 02:27:55 -0400
+Received: from mail.convergence.de ([212.227.36.84]:30614 "EHLO
+	email.convergence2.de") by vger.kernel.org with ESMTP
+	id S267974AbUIXGXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 02:23:54 -0400
+Message-ID: <4153BD2A.8030407@linuxtv.org>
+Date: Fri, 24 Sep 2004 08:22:34 +0200
+From: Michael Hunold <hunold@linuxtv.org>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Jean Delvare <khali@linux-fr.org>, sensors@Stimpy.netroedge.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040923202601.GA6586@vana.vc.cvut.cz>
-References: <1095761113.30931.13.camel@localhost.localdomain>
-	 <1095766919.3577.138.camel@gaston> <523c1bpghm.fsf@topspin.com>
-	 <Pine.LNX.4.58.0409211237510.25656@ppc970.osdl.org>
-	 <52mzzjnuq7.fsf@topspin.com>
-	 <Pine.LNX.4.58.0409211510150.25656@ppc970.osdl.org>
-	 <1095816897.21231.32.camel@gaston> <20040922185851.GA11017@vana.vc.cvut.cz>
-	 <1095900539.6359.46.camel@gaston> <20040923152530.GA9377@vana.vc.cvut.cz>
-	 <20040923202601.GA6586@vana.vc.cvut.cz>
-Content-Type: text/plain
-Message-Id: <1096007137.4009.38.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 24 Sep 2004 16:25:37 +1000
+Subject: Re: Adding .class field to struct i2c_client (was Re: [PATCH][2.6]
+ Add command function to struct i2c_adapter
+References: <41500BED.8090607@linuxtv.org> <20040921115442.M18286@linux-fr.org> <415067CB.1020101@linuxtv.org> <20040924000202.GO14868@kroah.com>
+In-Reply-To: <20040924000202.GO14868@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-24 at 06:26, Petr Vandrovec wrote:
-> Hi Andrew & Linus,
+Hi,
+
+On 24.09.2004 02:02, Greg KH wrote:
+> On Tue, Sep 21, 2004 at 07:41:31PM +0200, Michael Hunold wrote:
 > 
-> This change disconnects matroxfb accelerator endianess from processor endianess, plus
-> ports big-endian accessors from __raw_xxx to xxx + appropriate byte swaps.
+>>Please have a look and tell me what you think. The big problem will be, 
+>>that we cannot test all configurations, so it's possible that some 
+>>devices won't be recognized anymore, because the .class entries don't match.
 
-Applied to current bk, make oldconfig (FB_MATROX_BIG_ENDIAN_ACCEL is not set),
-works like a charm on the ppc POWER3 I have here, haven't had a chance to
-test X though.
+> I like the patches.  If you get them in a state you like (and drop the
+> printk(), and use dev_dbg() instead), 
 
-Ben.
+Ok.
 
+> and send them 1 patch per file
+> with the Signed-off-by: line, I'll be glad to apply them.
+
+I'll re-create them against 2.6.9-rc2-mm2.
+
+Do you really mean one patch per file, ie. about 50 separate patches? (I 
+don't care, I simply write a script that splits them up)
+
+> thanks,
+> greg k-h
+
+CU
+Michael.
 

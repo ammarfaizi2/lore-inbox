@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbULBAuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbULBA4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbULBAuk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 19:50:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbULBAuj
+	id S261524AbULBA4S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 19:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbULBA4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 19:50:39 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4624 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261529AbULBAuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 19:50:24 -0500
-Date: Thu, 2 Dec 2004 01:50:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul Laufer <paul@laufernet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] OSS sb_card.c: no need to include mca.h
-Message-ID: <20041202005022.GF5148@stusta.de>
-References: <20041201215012.GW2650@stusta.de> <1101944325.30819.71.camel@localhost.localdomain>
+	Wed, 1 Dec 2004 19:56:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:25041 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261509AbULBA4O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 19:56:14 -0500
+Date: Wed, 1 Dec 2004 16:55:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: clameter@sgi.com, hugh@veritas.com, benh@kernel.crashing.org,
+       nickpiggin@yahoo.com.au, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and
+ performance tests
+Message-Id: <20041201165538.015ee7a6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+	<Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101944325.30819.71.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 01, 2004 at 11:38:47PM +0000, Alan Cox wrote:
-> On Mer, 2004-12-01 at 21:50, Adrian Bunk wrote:
-> > I didn't find any reason why this file includes mca.h .
-> > 
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
 > 
-> It certainly used to need it to build MCA bus soundblaster support.
-> Whether it still does in 2.6 I don't know. I assume you tried an MCA
-> build of OSS ?
+> 
+> On Wed, 1 Dec 2004, Christoph Lameter wrote:
+> >
+> > Changes from V11->V12 of this patch:
+> > - dump sloppy_rss in favor of list_rss (Linus' proposal)
+> > - keep up against current Linus tree (patch is based on 2.6.10-rc2-bk14)
+> > 
+> > This is a series of patches that increases the scalability of
+> > the page fault handler for SMP. Here are some performance results
+> > on a machine with 512 processors allocating 32 GB with an increasing
+> > number of threads (that are assigned a processor each).
+> 
+> Ok, consider me convinced. I don't want to apply this before I get 2.6.10 
+> out the door, but I'm happy with it.
 
-Yes, I did.
+There were concerns about some architectures relying upon page_table_lock
+for exclusivity within their own pte handling functions.  Have they all
+been resolved?
 
-And a
+> I assume Andrew has already picked up the previous version.
 
-  grep -ri mca sound/oss/*
-
-only found false positives (nmcard_list, numcards).
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Nope.  It has major clashes with the 4-level-pagetable work.

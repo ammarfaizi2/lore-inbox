@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274269AbRI3XfX>; Sun, 30 Sep 2001 19:35:23 -0400
+	id <S274299AbRJAAaY>; Sun, 30 Sep 2001 20:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274270AbRI3XfN>; Sun, 30 Sep 2001 19:35:13 -0400
-Received: from mnh-1-20.mv.com ([207.22.10.52]:39174 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S274269AbRI3XfB>;
-	Sun, 30 Sep 2001 19:35:01 -0400
-Message-Id: <200110010053.TAA03739@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: bruce@cs.usyd.edu.au (Bruce Janson)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: the fault address of a traced process 
-In-Reply-To: Your message of "Sun, 30 Sep 2001 22:47:06 +1100."
-             <20010930125931Z273463-760+18683@vger.kernel.org> 
-Mime-Version: 1.0
+	id <S274305AbRJAAaO>; Sun, 30 Sep 2001 20:30:14 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37641 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274299AbRJAAaH>; Sun, 30 Sep 2001 20:30:07 -0400
+Subject: Re: PNPBios & lm_sensors don't mix on 440GX w/2.4.9-ac18
+To: sduchene@mindspring.com
+Date: Mon, 1 Oct 2001 01:35:32 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010930194909.Y14910@lapsony.mydomain.here> from "sduchene@mindspring.com" at Sep 30, 2001 07:49:09 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 30 Sep 2001 19:53:17 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15nr3U-00085h-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bruce@cs.usyd.edu.au said:
-> The tracer now wants to determine the traced process' faulted address.
-> According to the (2.2.19) kernel source 
- [snip]
-> How should a tracer extract this information under a current (2.2.*,
-> 2.4.*) Linux? 
+> Today I updated a system with a Intel 440GX (Lancewood) motherboard to 2.4.9-ac18
+> and normally I have PNP support turned on. Later I updated to the current i2c and
+> lm_sensors code and discovered that the PNPBios support allocates IO port 0x1040.
+> Since the i2c-piix4 wants to use the same port range, this module would not load
+> on the system. A modprobe of i2c-piix4 resulted in:
 
-Read some more UML source, specifically, 
+Yep. I know. The Pnpbios code needs fixing to allocate the regions as
+present but unused - so we dont map pci crap over them but at the same
+time we dont stop drivers allocating it.
 
-segv_handler() in arch/um/kernel/trap_user.c and also the i386 definitions
-in arch/um/include/sysdep-i386/sigcontext.h
+Its a bug.
 
-Basically, you are passed the necessary information in a sigcontext struct.
-
-				Jeff
-
+Alan

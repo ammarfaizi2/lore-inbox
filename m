@@ -1,49 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277170AbRJMRNA>; Sat, 13 Oct 2001 13:13:00 -0400
+	id <S277114AbRJMRNj>; Sat, 13 Oct 2001 13:13:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276815AbRJMRMj>; Sat, 13 Oct 2001 13:12:39 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:59877 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S276547AbRJMRMd> convert rfc822-to-8bit; Sat, 13 Oct 2001 13:12:33 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <mkingsbury@avayactc.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.51 (988) - Registered Version
-Date: Sat, 13 Oct 2001 10:13:02 -0700
-In-Reply-To: <CCE8403B91E4D4119E9300A0C9DDA22401C16AFD@pigpen.lucentctc.com>
-Subject: Re: High Rate of Sockets ->  No buffer space availible errors
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20011013171303.AAA7749@shell.webmaster.com@whenever>
+	id <S277370AbRJMRNa>; Sat, 13 Oct 2001 13:13:30 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3851 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277114AbRJMRNR>; Sat, 13 Oct 2001 13:13:17 -0400
+Date: Sat, 13 Oct 2001 10:13:17 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Security question: "Text file busy" overwriting executables but
+ not shared libraries?
+In-Reply-To: <20011013165332.A20499@kushida.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.33.0110130956350.8707-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 13 Oct 2001 11:08:48 -0400, Kingsbury, Michael wrote:
+On Sat, 13 Oct 2001, Jamie Lokier wrote:
+>
+> I can think of an efficiency-related use for MAP_COPY, and it has
+> nothing to do with shared libraries:
+>
+>  - An editor using mmap() to read a file.
 
->I have a network testing application that is opening & closing sockets with
->other machines at a high rate (multi-threaded,  1000 opens & closes a second
->with ~20 machines.)  There's a seperate thread per machine its connecting
->to, and each thread opens a socket, transmits 8k, and closes.
+No, you're thinking the wrong way.
 
-	Are these TCP sockets? It can take around 2 minutes to close a TCP 
-connection. So 1,000 opens/closes a second could potentially mean 120,000 
-connections sitting around. Are you sure you aren't running out of local 
-ports or something else?
+Trust me, MAP_COPY really _is_ stupid, and the Hurd is a piece of crap.
 
->The problem lies with an error of 'No buffer space availible' within the
->first couple of seconds.  I've tried the SO_SNDBUF&  SO_RVCBUF, but that
->doesn't make sense in my head anyways.  Anyone seen problems like this under
->similar conditions & maybe any remedys?
+People who think MAP_COPY is a good idea are people who cannot think about
+the implications of it, and cannot think about the alternatives.
 
-	Which system call returns the error? socket? bind? send? receive?
+In particular, you claim that you could use "mmap()" for "read()", and
+speed up the application that way. Ok, fair enough.
 
-	And why are you using so many threads? Are you under the misperception that 
-you need lots of thread to do lots of work? Perhaps your architecture is a 
-major part of the problem.
+Now, somebody who _isn't_ stupid (and that, of course, is me), immediately
+goes "well, _duh_, why don't you speed up read() instead?".
 
-	DS
+The fact is, all the problems that "MAP_COPY" has just go away if you
+instead of thinking about a mmap(), you think about doing a "read()" and
+just marking the pages PAGE_COPY if they are exclusive.
 
+In short: MAP_COPY is braindamaged, because it doesn't have enough
+information at the right level to do a reasonable job of it. What people
+want to use it for is really to emulate "read()" efficiently using mmap,
+and _nothing_ else. That is the only reason for it ever existing, and the
+fact is, that clearly shows just how _stupid_ the whole thing is.
+
+You migth as well just do a read() in the first place.
+
+Your arguments are
+ - read() implies a memcpy()
+ - read() dirties pages and causes more memory pressure
+
+but you don't actually _question_ those arguments.
+
+I will tell you that doing a read() that _acts_ like the MAP_COPY you so
+want is a LOT easier than doing MAP_COPY in the first place.
+
+Why?
+
+ - a read() call doesn't have any "history" - it doesn't leave (bogus)
+   VM data around like MAP_COPY does. MAP_COPY says "I want these pages to
+   have the contents they did _when_I_did_the_mapping_", which is a
+   temporal shift that just doesn't make sense in any sane VM model, and
+   which inherently implies versioning.
+
+ - a read() can fairly easily just do the optimization
+
+	(a) if we're reading a large area
+	(b) if the offset and the destination are page-aligned
+	(c) if the page is exclusive (ie no existing other owners)
+		then
+	just do the page move instead of the copy, and mark the page as
+	PAGE_COPY
+
+   Every other use of the page that can change it (ie a shared writable
+   mapping, or a "write()" call) will now check the PAGE_COPY bit on the
+   _page_, and just say "ok, I'll allocate a new page, and atomically
+   switch the ones, and leave the old page untouched and remove it from
+   the page cache"
+
+   (And the swap-out logic has to turn a PAGE_COPY page into a swap-cache
+   page - this is the real downside, because it implies that we will have
+   to write it out to swap if we're low on memory, unlike a real mmap)
+
+Notice? Same as MAP_COPY, but without any global state.
+
+And notice how this is actually conceptually much closer to what you
+actually _want_ to use MAP_COPY for.
+
+Could we implement MAP_COPY as such a read()? Yes, sure. But that's just
+confusing the issue - why call it a mmap() at all, when it isn't. The day
+when Hurd is so common that we want to emulate its braindamages is not
+going to be in my life-time, I suspect.
+
+		Linus
 

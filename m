@@ -1,135 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264854AbSLQICp>; Tue, 17 Dec 2002 03:02:45 -0500
+	id <S261733AbSLQIQa>; Tue, 17 Dec 2002 03:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264815AbSLQICp>; Tue, 17 Dec 2002 03:02:45 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:22242 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S264854AbSLQICm>; Tue, 17 Dec 2002 03:02:42 -0500
-Date: Tue, 17 Dec 2002 00:10:29 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: gh@us.ibm.com
-Subject: 2.5.52-mjb1 (scalability / NUMA patchset)
-Message-ID: <568990000.1040112629@titus>
-In-Reply-To: <32230000.1039502522@titus>
-References: <19270000.1038270642@flay> <134580000.1039414279@titus>
- <32230000.1039502522@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261894AbSLQIQa>; Tue, 17 Dec 2002 03:16:30 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:5388 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261733AbSLQIQa>; Tue, 17 Dec 2002 03:16:30 -0500
+Message-ID: <3DFEDE0B.E0F692A4@aitel.hist.no>
+Date: Tue, 17 Dec 2002 09:19:23 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@digeo.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.52-mm1 kernel BUG at mm/page_walk.c:430!
+References: <3DFD908D.14D7F6E7@digeo.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset contains mainly scalability and NUMA stuff, and
-anything else that stops things from irritating me. It's meant
-to be pretty stable, not so much a testing ground for new stuff.
-I'd be very interested in feedback from other people running
-large SMP or NUMA boxes.
+X suddenly died, and was restarted.  I found this in dmesg:
 
-http://www.aracnet.com/~fletch/linux/2.5.52/patch-2.5.52-mjb1.bz2
+kernel BUG at mm/page_walk.c:430!
+invalid operand: 0000
+CPU:    0
+EIP:    0060:[<c013beeb>]    Not tainted
+EFLAGS: 00013246
+EIP is at make_pages_present+0x77/0xbc
+eax: d0efa344   ebx: 6b6b6b6b   ecx: 000000a0   edx: c1604954
+esi: 6b6b6b6b   edi: 00009000   ebp: d0efa344   esp: de555ef8
+ds: 0068   es: 0068   ss: 0068
+Process XFree86 (pid: 246, threadinfo=de554000 task=dfc00d80)
+Stack: 00000000 de9c35cc 00000001 d0efa344 6b6b6b6b d0efa344 de555f00
+dfc00d80 
+       c1604954 00009000 c013be64 00000000 c0136d78 6b6b6b6b 6b6b6b6b
+d0efa344 
+       de554000 000a0000 00009000 d0efa344 00000000 d0efa344 c1604954
+d0efa344 
+Call Trace:
+ [<c013be64>] gup_mk_present+0x0/0x10
+ [<c0136d78>] move_vma+0x3d4/0x404
+ [<c01370c8>] do_mremap+0x320/0x34c
+ [<c0137142>] sys_mremap+0x4e/0x6f
+ [<c0108973>] syscall_call+0x7/0xb
 
-Since 2.5.50-mjb2
-+ thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-+ interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-+ stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-+ 4k_stack            (4K stacks pt 4)		Dave Hansen
-+ numameminfo					Martin Bligh / Keith Mannthey
+Code: 0f 0b ae 01 af 48 2d c0 3b 70 08 76 08 0f 0b af 01 af 48 2d 
+ 
 
-Returned from the dead:
-+ numaq_makefile				Martin Bligh
-+ numaq_apic					James Cleverdon / Martin Bligh
-+ numaq_mpparse1				James Cleverdon / Martin Bligh
-+ numaq_mpparse2				James Cleverdon / Martin Bligh
 
-Merged:
-- devclass_panic				Bill Irwin
+This is a UP kernel with preempt, compiled for pentium 4.
 
-Pending:
-Speed up page init on boot (Bill Irwin)
-Notsc automatic enablement
-Move more of NUMA-Q to subarch (James C / Martin / John)
-Full Summit support (James C / John)
-RCU routecache (?)
-scheduler callers profiling (Anton)
-PPC64 NUMA patches (Anton)
-Scheduler tunables (rml)
-
-kgdb						Various People
-	The older version of kgdb, not the shiny new stuff in Andrew's tree.
-	Yes, I'm boring and slow.
-
-noframeptr					Martin Bligh
-	Disable -fomit_frame_pointer
-
-i386_topo					Matt Dobson
-	Some i386 topology cleanups to make it cache the data.
-
-use_generic_topo				Matt Dobson
-	Something to do with tolopology that I forget.
-
-numasched1					Erich Focht
-	Numa scheduler general foundation work + pooling
-
-numasched2					Michael Hohnbaum
-	Numa scheduler lightweight initial load balancing.
-
-local_pgdat					Bill Irwin
-	Move the pgdat structure into the remapped space with lmem_map
-
-early_printk					Dave Hansen et al.
-	Allow printk before console_init
-
-confighz					Dave Hansen
-	Make HZ a config option
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-vmalloc_stats					Dave Hansen
-	Expose useful vmalloc statistics
-
-shpte						Dave McCracken
-	Shared pagetables (as a config option)
-
-subarch reorg					John Stultz
-	Move the header files for subarch under include/asm-i386
-
-numaq_makefile					James Cleverdon / Martin Bligh
-	Numa-Q subarch splitup
-
-numaq_apic					James Cleverdon / Martin Bligh
-	Numa-Q subarch splitup
-
-numaq_mpparse1					James Cleverdon / Martin Bligh
-	Numa-Q subarch splitup
-
-numaq_mpparse2					James Cleverdon / Martin Bligh
-	Numa-Q subarch splitup
-
-dcache_rcu					Dipankar / Maneesh
-	Use RCU type locking for the dentry cache.
-
-thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-	Prep work to reduce kernel stacks to 4K
-	
-interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-	Create a per-cpu interrupt stack.
-
-stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-	Check for kernel stack overflows.
-
-4k_stack            (4K stacks pt 4)		Dave Hansen
-	Config option to reduce kernel stacks to 4K
-
-notsc						Martin Bligh
-	Enable notsc option for NUMA-Q (new version for new config system)
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-mjb1						Martin Bligh
-	Add a tag to the makefile
-
+Helge Hafting

@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVBBHwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVBBI1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbVBBHwb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 02:52:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVBBHwb
+	id S262082AbVBBI1O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 03:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVBBI1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 02:52:31 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:41612 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261976AbVBBHwV (ORCPT
+	Wed, 2 Feb 2005 03:27:14 -0500
+Received: from thunk.org ([69.25.196.29]:5802 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262082AbVBBI1L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 02:52:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=suru5A6SS/uwhBMoZUpLp6BfvHtQBi14d5uyUEuuj65tPiyl2JppTBJPRNlJ2y9+P1CS6Zbe4AQohBm4gCA9zTV9UpSeHkDnJRrXM+WSbSM0nyyGTswQ8UM/QADk6Xd2Xqp3ERMWsKbh4VYoOk9z0/iL+AKDkgt/VXxUTenJVao=
-Message-ID: <84144f02050201235257d0ec1c@mail.gmail.com>
-Date: Wed, 2 Feb 2005 09:52:18 +0200
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: "pmarques@grupopie.com" <pmarques@grupopie.com>
-Subject: Re: [PATCH 2.6] 4/7 replace uml_strdup by kstrdup
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, penberg@cs.helsinki.fi
-In-Reply-To: <1107228511.41fef75f4a296@webmail.grupopie.com>
+	Wed, 2 Feb 2005 03:27:11 -0500
+Date: Wed, 2 Feb 2005 03:26:43 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Peter Busser <busser@m-privacy.de>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+Message-ID: <20050202082643.GA6172@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Peter Busser <busser@m-privacy.de>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <200501311015.20964.arjan@infradead.org> <200501311357.59630.busser@m-privacy.de> <1107189699.4221.124.camel@laptopd505.fenrus.org> <200502011044.39259.busser@m-privacy.de> <20050202001549.GA17689@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1107228511.41fef75f4a296@webmail.grupopie.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202001549.GA17689@thunk.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue,  1 Feb 2005 03:28:31 +0000, pmarques@grupopie.com
-<pmarques@grupopie.com> wrote:
-> diff -buprN -X dontdiff vanilla-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c linux-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c
-> --- vanilla-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c       2004-12-24 21:35:40.000000000 +0000
-> +++ linux-2.6.11-rc2-bk9/arch/um/os-Linux/drivers/tuntap_user.c 2005-01-31 20:39:08.591154025 +0000
+On Tue, Feb 01, 2005 at 07:15:49PM -0500, Theodore Ts'o wrote:
+> Umm, so exactly how many applications use multithreading (or otherwise
+> trigger the GLIBC mprotect call), 
 
-[snip]
+For the record, I've been informed that the glibc mprotect() call
+doesn't happen in any modern glibc's; there may have been one buggy
+glibc that was released very briefly before it was fixed in the next
+release.  But if that's what the paxtest developers are hanging their
+hat on, it seems awfully lame to me.....
 
-> -               pri->dev_name = uml_strdup(buffer);
-> +               pri->dev_name = kstrdup(buffer);
+"desabotaged" seems like the correct description from my vantage
+point.
 
-Please compile-test before submitting.
-
-                           Pekka
+						- Ted

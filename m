@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbTD0W2k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 18:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbTD0W2k
+	id S261903AbTD0Wmy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 18:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTD0Wmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 18:28:40 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:54923 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S261868AbTD0W2j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 18:28:39 -0400
-Date: Wed, 23 Apr 2003 20:04:09 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.5] include/asm-generic/bitops.h {set,clear}_bit return void
-Message-ID: <20030423180409.GC7131@zaurus.ucw.cz>
-References: <20030415174010_3e7e@gated-at.bofh.it> <200304152007.h3FK72sD003180@post.webmailer.de> <3E9C7955.7070605@gmx.net>
+	Sun, 27 Apr 2003 18:42:54 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32398
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261903AbTD0Wmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 18:42:53 -0400
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030427223612.GI23068@work.bitmover.com>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
+	 <20030424083730.5F79A2127F@dungeon.inka.de>
+	 <20030424085913.GH28253@mail.jlokier.co.uk>
+	 <3EA804A8.8070608@techsource.com>
+	 <1051209350.4004.6.camel@dhcp22.swansea.linux.org.uk>
+	 <20030424192941.E1425@almesberger.net>
+	 <20030427142106.GA24244@merlin.emma.line.org>
+	 <20030427165959.GC6820@work.bitmover.com>
+	 <1051479168.15485.12.camel@dhcp22.swansea.linux.org.uk>
+	 <20030427223612.GI23068@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051480586.15478.23.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E9C7955.7070605@gmx.net>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Apr 2003 22:56:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sul, 2003-04-27 at 23:36, Larry McVoy wrote:
+> But you are still missing the point.  As long as the feeling is that it is
+> OK to reverse engineer by staring at the file formats, the corporations
+> will respond by encrypting the data you want to stare at.
 
-> > 
-> > 
-> >>+     mask = 1 << (nr & 0x1f);
-> >>+     cli();
-> >>+     *addr |= mask;
-> >>+     sti();
-> > 
-> > 
-> > cli() and sti() are no more. Moreover, the file you are trying to fix is
+And government if it is smart will reply by enforcing reverse
+engineering rights *for compatibility* (not cloning), or business
+(the surviving bits anyway) will figure it out and do it themselves.
 
-No. That file is still usefull.
+> In other words, it's pretty much hopeless to try and catch up that way,
+> you might as well go try and build something better from the start.
 
-> What is the preferred way to achieve atomicity in an operation now that
-> cli() and sti() are gone?
-
-spin_lock_irqsave(&bitops_lock).
-
-> > not even used anywhere. Better submit a patch to remove it completely.
-> 
-> The point of asm-generic is not to use the files, but to give porters a
-> hint about the functionality. Quoting asm-generic/bitops.h:
-> 
-> /* For the benefit of those who are trying to port Linux to another
->  * architecture, here are some C-language equivalents.  You should
->  * recode these in the native assembly language, if at all possible.
->  * To guarantee atomicity, these routines call cli() and sti() to
->  * disable interrupts while they operate.  (You have to provide inline
->  * routines to cli() and sti().) */
-> 
-> Or is this comment wrong, too?
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+You have to interoperate to do that. 
 

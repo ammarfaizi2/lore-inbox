@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265515AbRF1EGY>; Thu, 28 Jun 2001 00:06:24 -0400
+	id <S265516AbRF1EP0>; Thu, 28 Jun 2001 00:15:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265521AbRF1EGO>; Thu, 28 Jun 2001 00:06:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58005 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265516AbRF1EGJ>;
-	Thu, 28 Jun 2001 00:06:09 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S265518AbRF1EPQ>; Thu, 28 Jun 2001 00:15:16 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:63759 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S265516AbRF1EO6>; Thu, 28 Jun 2001 00:14:58 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: torvalds@transmeta.com, alan@redhat.com
+cc: pmenage@ensim.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] mm/memory.c locking comments fix
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15162.44330.558687.314786@pizda.ninka.net>
-Date: Wed, 27 Jun 2001 21:06:02 -0700 (PDT)
-To: Tom Gall <tom_gall@vnet.ibm.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Changes for PCI
-In-Reply-To: <3B3A2ABC.B9B4CEB6@vnet.ibm.com>
-In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
-	<3B3A5B00.9FF387C9@mandrakesoft.com>
-	<20010628091704.B23627@krispykreme>
-	<15162.33445.396761.71174@pizda.ninka.net>
-	<3B3A2ABC.B9B4CEB6@vnet.ibm.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Date: Wed, 27 Jun 2001 21:14:45 -0700
+Message-Id: <E15FTCX-0007IY-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Tom Gall writes:
- > "David S. Miller" wrote:
- > 
- > > Looks, ppc64 is really still experimental right?
- > 
- > Heck no.
+Some of the comments in and before handle_pte_fault() are obsolete or
+misleading:
 
-So it is so stable that it isn't even merged into the mainline 2.4.x
-sources? :-)
+- page_table_lock has been pushed up into handle_mm_fault() and down
+into the various do_xxx_page() handlers.
 
-We're talking about a port which doesn't even exist in the mainline
-sources yet.
+- mmap_sem protects the adding of vma structures to the vmlist, not
+pages to the page tables.
 
- > > Which means it is
- > > 2.5.x material, and 2.5.x has been quoted as being a week or two away.
- > 
- > I sure hope that ppc64 is NOT considered 2.5.x material.
+Paul
 
-No, I'm saying that ppc64 with >=256 physical PCI busses, is 2.5.x
-material.
+--- linux/mm/memory.c	Fri Apr 27 14:23:25 2001
++++ linux.new/mm/memory.c	Wed Jun 27 20:57:48 2001
+@@ -1280,14 +1280,10 @@
+  * with external mmu caches can use to update those (ie the Sparc or
+  * PowerPC hashed page tables that act as extended TLBs).
+  *
+- * Note the "page_table_lock". It is to protect against kswapd removing
+- * pages from under us. Note that kswapd only ever _removes_ pages, never
+- * adds them. As such, once we have noticed that the page is not present,
+- * we can drop the lock early.
+- *
+- * The adding of pages is protected by the MM semaphore (which we hold),
+- * so we don't need to worry about a page being suddenly been added into
+- * our VM.
++ * The addition and removal of vma structures is protected by the MM
++ * semaphore (which we hold), so we don't need to worry about a vma
++ * being suddenly been added into our VM, or the vma that we hold
++ * becoming invalid.  
+  */
+ static inline int handle_pte_fault(struct mm_struct *mm,
+ 	struct vm_area_struct * vma, unsigned long address,
+@@ -1297,11 +1293,6 @@
+ 
+ 	entry = *pte;
+ 	if (!pte_present(entry)) {
+-		/*
+-		 * If it truly wasn't present, we know that kswapd
+-		 * and the PTE updates will not touch it later. So
+-		 * drop the lock.
+-		 */
+ 		if (pte_none(entry))
+ 			return do_no_page(mm, vma, address, write_access, pte);
+ 		return do_swap_page(mm, vma, address, pte, pte_to_swp_entry(entry), write_access);
 
- > A real solution would be nice. And if the real solution can ONLY be in 2.5, then
- > is it such a bad idea moving the bus number type to unsigned int for 2.4.x?
 
-Yes, no kludges for 2.4.x
-
-Look, I do not even feel for you.
-
-I waited patiently for a sane PCI dma architecture so I could support
->4GB ram on 64-bit PCI systems (sparc64, alpha, etc.).  And it was
-worth the wait, most of the important PCI drivers fully use this
-interface, and it was all done properly.
-
-Similarly you can wait for 2.5.x for >=256 physical PCI bus support.
-Ok?
-
-Later,
-David S. Miller
-davem@redhat.com

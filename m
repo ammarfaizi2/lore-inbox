@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVDEJ04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVDEJ12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVDEJ04 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVDEJ0y
+	id S261649AbVDEJ12 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVDEJ10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:26:54 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:54300 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261654AbVDEJZK (ORCPT
+	Tue, 5 Apr 2005 05:27:26 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51857 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261649AbVDEJYr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:25:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=bzFaE111bZCHGDFd1LyAwntz6zDS/Ja1u2tVym7kkna2JyX1uLzkLI42B2NFSfFJKg8IqbzAIJI1yAli60Row5Az2gY041b0jz4ct5bONlLwTP/l0aTe7yJSjgY8R3sfGjA+Exbx3tgnIB89a0y9JxSOBfWBU3t8Tr4Pt06i4Bo=
-Message-ID: <21d7e997050405022560e3f62f@mail.gmail.com>
-Date: Tue, 5 Apr 2005 19:25:10 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: 2.6.12-rc2-mm1
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
+	Tue, 5 Apr 2005 05:24:47 -0400
+Date: Tue, 5 Apr 2005 11:24:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Adam Belay <abelay@novell.com>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, Greg KH <greg@kroah.com>,
+       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] Re: [RFC] Driver States
+Message-ID: <20050405092423.GA7254@elf.ucw.cz>
+References: <1111963367.3503.152.camel@localhost.localdomain> <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net> <1112222717.3503.213.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050405000524.592fc125.akpm@osdl.org>
-	 <20050405074405.GE26208@infradead.org>
-	 <21d7e99705040502073dfa5e5@mail.gmail.com>
-	 <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112222717.3503.213.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
+
+> > You have a few things here that can easily conflict, and that will be
+> > developed at different paces. I like the direction that it's going, but
+> > how do you intend to do it gradually. I.e. what to do first?
 > 
-> > Paulus these look like your patches care to update them with the "new"
-> > method of doing stuff..
+> I think the first step would be for us to all agree on a design, whether
+> it be this one or another, so we can began planning for long term
+> changes.
 > 
-> What are we going to do about the DRM CVS?  Change it to the new way
-> and break everyone running 2.6.10 or earlier, or leave it at the old
-> way that will work for people with distro kernels, and have a
-> divergence between it and what's in the kernel?
+> My arguments for these changes are as follows:
 
-Yet more backwards compatibility is more than likely going to be
-needed, but if it is a biggie I'd be happy to drop the older 32/64-bit
-stuff from CVS and make it contingent on having 2.6.11 or greater as
-it is a new feature anyways and hasn't seen a release yet...
+0. I do not see how to gradually roll this in.
 
-> 
-> Also, the compat_ioctl method is called without the BKL held, unlike
-> the ioctl method.  What impact will that have?  Do we need to take the
-> BKL in the compat_ioctl method?
+>      4. Having responsibilities at each driver level encourages a
+>         layered and object based design, reducing code duplication and
+>         complexity.
 
-I don't think so as the DRM has its own locking that handles most of
-the issues at a higher level... I've been thinking of switching DRM to
-ioctl_unlocked but I'd really want someone with an SMP system to beat
-on it .. (not that the DRI has a great record on SMP anyways..)
-
-Dave.
-
-Dave.
+Unfortunately, you'll be retrofiting this to existing drivers. AFAICS,
+trying to force existing driver to "layered and object based design"
+can only result in mess.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

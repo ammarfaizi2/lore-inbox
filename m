@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261466AbTC0Wop>; Thu, 27 Mar 2003 17:44:45 -0500
+	id <S261470AbTC0WxQ>; Thu, 27 Mar 2003 17:53:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261454AbTC0Wop>; Thu, 27 Mar 2003 17:44:45 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:58126 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261466AbTC0Woo>; Thu, 27 Mar 2003 17:44:44 -0500
-Date: Thu, 27 Mar 2003 23:55:55 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andries.Brouwer@cwi.nl
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 64-bit kdev_t - just for playing
-In-Reply-To: <UTC200303272237.h2RMbRE25133.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0303272346280.12110-100000@serv>
-References: <UTC200303272237.h2RMbRE25133.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261471AbTC0WxQ>; Thu, 27 Mar 2003 17:53:16 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:30435 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S261470AbTC0WxP>; Thu, 27 Mar 2003 17:53:15 -0500
+Subject: Re: lm sensors sysfs file structure
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 27 Mar 2003 18:00:51 -0500
+Message-Id: <1048806052.10675.4440.camel@cube>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Greg KH writes:
 
-On Thu, 27 Mar 2003 Andries.Brouwer@cwi.nl wrote:
+> temp_max[1-3]   Temperature max value.
+>                 Fixed point value in form XXXXX and
+>                 should be divided by
+>                 100 to get degrees Celsius.
+>                 Read/Write value.
 
-> But, as I answered you several times already,
-> right now my topic is dev_t, not devices or partitions.
-> Just the number.
+Celsius can go negative, which may be yucky
+and hard to test. Kelvin generally doesn't
+suffer this problem. (yeah, yeah, quantum stuff...)
 
-Well, what can I do with that number? Your patches must provide some sort 
-of benefit when we have that number. I'm currently trying to find out, 
-what happens after we have this number, so I would be really grateful, if 
-you would answer my questions:
+Getting temperature display into "top" would sure
+be nice, but not if that means requiring a library
+that almost nobody has installed. It's good to give
+apps a simple way to get CPU temperature, including
+per-CPU data for SMP systems when available.
 
-How are these disks registered and how will the dev_t number look like?
-How will the user know about these numbers?
-Who creates these device entries (user or daemon)?
-SCSI has multiple majors, disks 0-15 are at major 8, disks 16-31 are at
-65, ...., disks 112-127 are at major 71. Will this stay the same? Where
-are the disk 128-xxx?
-Can I have now more than 15 partitions?
+Info about sensor quality would be good. For example,
+my CPU measures temperature in 4-degree increments
+and is not calibrated.
 
-bye, Roman
+
 

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263145AbRFENXk>; Tue, 5 Jun 2001 09:23:40 -0400
+	id <S263932AbRFENZA>; Tue, 5 Jun 2001 09:25:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263932AbRFENXa>; Tue, 5 Jun 2001 09:23:30 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:31236 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S263145AbRFENXS>;
-	Tue, 5 Jun 2001 09:23:18 -0400
+	id <S263973AbRFENYu>; Tue, 5 Jun 2001 09:24:50 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:32004 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S263932AbRFENYi>;
+	Tue, 5 Jun 2001 09:24:38 -0400
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: Stephen Wille Padnos <stephenwp@adelphia.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
+To: "Arthur Naseef" <arthur.naseef@ariel.com>
+cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
 Subject: Re: Exporting new functions from kernel 2.2.14 
-In-Reply-To: Your message of "Tue, 05 Jun 2001 08:54:31 MST."
-             <3B1D00B7.168B52D1@adelphia.net> 
+In-Reply-To: Your message of "Tue, 05 Jun 2001 09:10:56 -0400."
+             <OIBBKHIAILDFLNOGGFMNOEHLCBAA.arthur.naseef@ariel.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 05 Jun 2001 23:23:11 +1000
-Message-ID: <16863.991747391@ocs3.ocs-net>
+Date: Tue, 05 Jun 2001 23:24:33 +1000
+Message-ID: <16891.991747473@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 05 Jun 2001 08:54:31 -0700, 
-Stephen Wille Padnos <stephenwp@adelphia.net> wrote:
->When I add my new finctions to i386ksyms.c:
->EXPORT_SYMBOL(grab_timer_interrupt);
->EXPORT_SYMBOL(release_timer_interrupt);
+On Tue, 5 Jun 2001 09:10:56 -0400, 
+"Arthur Naseef" <arthur.naseef@ariel.com> wrote:
+>I still have not figured out the magic that creates the .ver files which
+>would resolve your concern with the symbol versions, but I do know that
+>you can edit the .ver file yourself (under /usr/src/linux/include/modules/)
+>and add entries.  This will eliminate the funny versioning, as in:
 >
->I get names like
+>    grab_timer_interrupt_R__ver_grab_timer_interrupt
 >
->grab_timer_interrupt_R__ver_grab_timer_interrupt
->release_timer_interrupt_R__ver_release_timer_interrupt
+>You can pick a hash value to use.  For example, you might add the following:
+>
+>	#define __ver_grab_timer_interrupt	a1b2c3d4
+>	#define grab_timer_interrupt	_set_ver(grab_timer_interrupt)
 
-Read the very last line of every message on linux-kernel.
+Remind me _NEVER_ to answer any of your module problems.  Make up your
+own hash indeed, complete and utter rubbish!
 

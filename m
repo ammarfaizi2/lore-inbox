@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265673AbUATTYs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 14:24:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUATTYs
+	id S265695AbUATTiA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 14:38:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265757AbUATTiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 14:24:48 -0500
-Received: from mcgroarty.net ([64.81.147.195]:47496 "EHLO pinkbits.internal")
-	by vger.kernel.org with ESMTP id S265673AbUATTYA (ORCPT
+	Tue, 20 Jan 2004 14:38:00 -0500
+Received: from main.gmane.org ([80.91.224.249]:64208 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265695AbUATThw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 14:24:00 -0500
-Date: Tue, 20 Jan 2004 13:24:01 -0600
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA vs. OSS
-Message-ID: <20040120192401.GA5685@mcgroarty.net>
-References: <1074532714.16759.4.camel@midux> <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org>
+	Tue, 20 Jan 2004 14:37:52 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: HPT370 status [2.4/2.6]
+Date: Tue, 20 Jan 2004 20:37:50 +0100
+Message-ID: <yw1x4quqo1gx.fsf@ford.guide>
+References: <1g0ZG-2q6-15@gated-at.bofh.it> <400D72B5.40705@gmx.at>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
-Content-Disposition: inline
-In-Reply-To: <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org>
-X-Debian-GNU-Linux: Rocks
-From: Brian McGroarty <brian@mcgroarty.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:WJ021o1U7zn7hFdU3SQtTG2A+i0=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Wilfried Weissmann <Wilfried.Weissmann@gmx.at> writes:
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Jan De Luyck wrote:
+>> Hello List,
+>> Before I start frying my disks and all, what's the usability status
+>> of the Hightpoint HPT370 ide "raid" controller on linux 2.4 and 2.6?
+>
+> 2.4 is fine if you use the ataraid code. mirroring is not fault
+> tolerant so you would not want to use that.
 
-On Tue, Jan 20, 2004 at 03:48:54AM +1000, Steve Youngs wrote:
-> * Markus H?stbacka <midian@ihme.org> writes:
->=20
->   > but ALSA didn't let me to open two sound sources (like XMMS and
->   > Quake3) at the same time, so I guess it is not really done yet, or
->   > is it?
->=20
-> Works for me.  Right now I've got 3 instances of mpg123 playing 3
-> different MP3s and XEmacs playing a big .wav file and an audio CD
-> playing.  It's a horrible jumbled mess of noise coming out of my
-> speakers, but it is working.
+Isn't fault tolerance the purpose of mirroring?
 
-You probably have a Soundblaster Live or similar, which has multiple
-hardware wave outputs.
+> raid-0 and jbod is ok. i am currently looking into 2.6. i will
+> probably write an evms plugin for the new kernel. the nice thing is
+> that it will work also for 2.4er kernels with the evms patches plus
+> we get a proper mirroring solution for free. :)
 
-OSS has software mixing. ALSA seems designed for people relying on
-esd, aRts or similar multiplexing daemons.
+The Linux md driver already does many different raid variants,
+including mirroring.
 
-It's possible to run a program via 'esddsp' or 'artsdsp' to reroute
-/dev/dsp to the daemon, but the overhead isn't so nice, and the output
-quality is often wanting.
+-- 
+Måns Rullgård
+mru@kth.se
 
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFADYBR2PBacobwYH4RAoktAJ0W/U3gAyCqHQzy2PTVBUKKcfa4OACdF2Pk
-BcsQ1NMu4kDpWdXcrwnUSWU=
-=84W+
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--

@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316843AbSFDVlQ>; Tue, 4 Jun 2002 17:41:16 -0400
+	id <S316796AbSFDVuJ>; Tue, 4 Jun 2002 17:50:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316844AbSFDVlP>; Tue, 4 Jun 2002 17:41:15 -0400
-Received: from mons.uio.no ([129.240.130.14]:4773 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S316843AbSFDVlJ>;
-	Tue, 4 Jun 2002 17:41:09 -0400
-To: Tim Hockin <thockin@hockin.org>
-Cc: kloczek@rudy.mif.pg.gda.pl (Tomasz =?iso-8859-2?q?K=B3oczko?=),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        austin@coremetrics.com (Austin Gonyou),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-Subject: Re: Max groups at 32?
-In-Reply-To: <200206042118.g54LINc12880@www.hockin.org>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 04 Jun 2002 23:40:46 +0200
-Message-ID: <shs3cw2rach.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316835AbSFDVuI>; Tue, 4 Jun 2002 17:50:08 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:36940 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S316796AbSFDVuH>; Tue, 4 Jun 2002 17:50:07 -0400
+Date: Tue, 4 Jun 2002 16:49:56 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200206042149.QAA93039@tomcat.admin.navo.hpc.mil>
+To: mhw@wittsend.com, J Sloan <joe@tmsusa.com>
+Subject: Re: please kindly get back to me
+Cc: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
+        Larry McVoy <lm@bitmover.com>, Matti Aarnio <matti.aarnio@zmailer.org>,
+        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+        linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Tim Hockin <thockin@hockin.org> writes:
+"Michael H. Warfield" <mhw@wittsend.com>:
+...
+> 
+> 	It's not theoretical and it's not just in the labs.  It's real
+> and it's in the wild now.  It just doesn't have the population
+> density and the monclonal culture to make it go BANG like the Windows
+> worms go.  Yet...
+> 
+...
 
-    >> Few months ago was release by me shadow package with some
-    >> neccessary for this changes. From
-    >> http://shadow.pld.org.pl/ChangeLog:
+So which do you think is better:
 
-     > We have a patch floating around that enables unlimited group
-     > membership at the kernel level, too.  We've never submitted it
-     > because it was suggested that we were crazy and should just
-     > bugger off.  If I thought it might be useful and acceptable, we
-     > could perhaps make it available in a cleanish form.
+1. buy/write/update virus software to catch/trap the virus
 
-Finally, the Linux *BSD cred patch also gets rid of that limit
-(amongst other things). I haven't updated it since 2.5.3 (and it needs
-breaking up into smaller patches), but it can still be found under
+2. Fix the security hole.
 
- http://www.fys.uio.no/~trondmy/src/2.5.3/linux-2.5.3-cred.dif
+I put my money on #2.
 
-Cheers,
-  Trond
+There are several ways to trap attacks on daemons that have such
+vulnerabilities. And using virus scanners CANNOT keep up.
+
+The obvious solution is:
+
+1. Use one of the high security  patches (SELinux or RSBAC) and use
+   compartmentalization to keep the problem under control.
+2. Use the detected problem to locate and fix the security problem in
+   the daemon.
+
+Virus scanners cannot keep up. The virus that does the damage is the one
+the scanner doesn't recognize. This is equivalent to the bug that wasn't
+fixed.
+
+Generation and propagation of a patch is nearly as fast if not faster
+than generating another virus signature; and is a LOT more effective.
+
+The high security patches allow the system to continue functioning even
+in the presence of the virus, as long as the virus itself is compartmented.
+At one time, there was some discription of the Ramen/lion worm attempting
+to attack a SELinux based system.. and failed. It did get in the daemon,
+but was then isolated from the rest of the system.
+
+I do believe that the kernel can be improved - not including daemon services
+in the kernel itself is one (tux?,nfs?,... yes they work faster, but is it
+worth the security risk?).
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

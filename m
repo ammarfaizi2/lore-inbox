@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265669AbTFVF5q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 01:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265670AbTFVF5q
+	id S261741AbTFVGw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 02:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTFVGwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 01:57:46 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:38943 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S265669AbTFVF5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 01:57:45 -0400
-Date: Sun, 22 Jun 2003 02:11:42 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Ishikawa <ishikawa@yk.rim.or.jp>
-Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>,
-       Alan Cox <alan@redhat.com>
-Subject: Re: Warning message during linux kernel 2.4.21 compilation (ymfpci.c)
-Message-ID: <20030622021142.A13819@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <no.id>; from ishikawa@yk.rim.or.jp on Sun, Jun 22, 2003 at 05:10:13AM +0900
+	Sun, 22 Jun 2003 02:52:55 -0400
+Received: from deepthot.org ([216.19.203.209]:56488 "EHLO dent.deepthot.org")
+	by vger.kernel.org with ESMTP id S261741AbTFVGwy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 02:52:54 -0400
+From: Jay Denebeim <denebeim@deepthot.org>
+X-Newsgroups: dt.kernel
+Subject: Redhat 2.4.20 kernel problems
+Date: Sun, 22 Jun 2003 06:55:35 +0000 (UTC)
+Organization: Deep Thought
+Message-ID: <slrnbfakn7.hsl.denebeim@hotblack.deepthot.org>
+X-Complaints-To: news@deepthot.org
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linuxkernel@deepthot.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Sun, 22 Jun 2003 05:10:13 +0900
-> From: Ishikawa <ishikawa@yk.rim.or.jp>
+In case anyone is still interested, I finally got around to trying a
+kernel.org 2.4.20 version.  No problem.  So it's not in the kernel
+tree.  I compiled it using the /boot/config-2.4.20(whatever) that
+Redhat shipped, so it's not a module/option issue.  The kernel was
+signifigantly smaller than the redhat one as well by several hundred
+K.
 
-> It certainly looks that  something is wrong with the code.
-> (Maybe some masking of the eid and the immediate value is missing?)
+The problem was this, under the redhat kernel shipped on CD for redhat
+9 and updated for redhat 8 my SO's computer locks up when she moves
+her mouse after booting.  It's a USB mouse.  The system just freezes.
 
->    u16 eid;
-> 	...
+I haven't seen an Ooops or anything like that.  The syslog is
+forwarded over tcp to my system, so I may see it even with the lock
+up.
 
->    2462	eid = ymfpci_codec_read(codec, AC97_EXTENDED_ID);
-> -->2463	if (eid==0xFFFFFF) {
-> 		printk(KERN_WARNING "ymfpci: no codec attached ?\n");
-> 		goto out_kfree;
-> 	}
+I assume the problem is a lost interrupt or something along that line,
+but this is just a gut feeling.
 
-This is indeed a bug, and ymfpci inherits it from cs46xx.c.
-I wonder why cs46xx.c does not trigger a warning.
+How should I contact redhat about this issue?  It's going to be a
+problem upgrading her system if she can't run a stock kernel.  I tried
+writing a friend of mine at Redhat Erik Troan, but his old redhat
+address doesn't work any more.
 
-Since the check never worked and nobody ever complained,
-I think the best fix is to remove the "if" statement with
-its block. If we repair the comparison to "eid == 0xFFFF",
-then we run a risk of breaking previously working systems.
+Jay
 
--- Pete
+-- 
+* Jay Denebeim  Moderator       rec.arts.sf.tv.babylon5.moderated *
+* newsgroup submission address: b5mod@deepthot.org                *
+* moderator contact address:    b5mod-request@deepthot.org        *
+* personal contact address:     denebeim@deepthot.org             *

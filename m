@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269394AbUICIfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269362AbUICIcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269394AbUICIfP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 04:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269372AbUICIcw
+	id S269362AbUICIcK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 04:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269374AbUICIbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 04:32:52 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:50341 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269394AbUICIcM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 04:32:12 -0400
-Message-ID: <2f4958ff04090301326e7302c1@mail.gmail.com>
-Date: Fri, 3 Sep 2004 10:32:07 +0200
-From: =?UTF-8?Q?Grzegorz_Ja=C5=9Bkiewicz?= <gryzman@gmail.com>
-Reply-To: =?UTF-8?Q?Grzegorz_Ja=C5=9Bkiewicz?= <gryzman@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: silent semantic changes with reiser4
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-In-Reply-To: <20040903082256.GA17629@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Sep 2004 04:31:55 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:18695 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S269378AbUICIYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 04:24:18 -0400
+Message-ID: <41382B37.1000901@hist.no>
+Date: Fri, 03 Sep 2004 10:28:39 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Spam <spam@tnonline.net>, Oliver Hunt <oliverhunt@gmail.com>,
+       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <4136E0B6.4000705@namesys.com> <4699bb7b04090202121119a57b@mail.gmail.com> <4136E756.8020105@hist.no> <4699bb7b0409020245250922f9@mail.gmail.com>            <812032218.20040902120259@tnonline.net> <200409022239.i82MdmnO015327@turing-police.cc.vt.edu>
+In-Reply-To: <200409022239.i82MdmnO015327@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <200408290004.i7T04DEO003646@localhost.localdomain> <20040901224513.GM31934@mail.shareable.org> <20040903082256.GA17629@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004 10:22:57 +0200, Greg KH <greg@kroah.com> wrote:
-> On Wed, Sep 01, 2004 at 11:45:13PM +0100, Jamie Lokier wrote:
-> > Horst von Brand wrote:
-> > > What happened to "code talks, bullshit walks"?
-> >
-> > devfs is a fine example of why code isn't enough.  With devfs the code
-> > came first, the >1 year of strategic bullshit politics from the "it's
-> > not traditional unix" crowd came later, then it went in, then lots of
-> > people used it, then it was replaced by something which still doesn't
-> > work as well as 2.4 does with or without devfs, and people are still
-> > using it despite it's faults.
-> 
-> What is udev's faults that have an issue with?
-> 
-> Yes, we don't do module autoloading when opening a device node, but
-> that's well known, documented, and the way the kernel has evolved to
-> anyway.
+Valdis.Kletnieks@vt.edu wrote:
 
-devfs was very natural, and simple solution. But to have it right, it
-would have to be the only /dev filesystem.
-But no, we like choices, so we have chaos. 
-Udev is just another thing adding to that chaos.
+>On Thu, 02 Sep 2004 12:02:59 +0200, Spam said:
+>
+>  
+>
+>>  The meta-data should be deleted if it the file is copied or moved to
+>>  a medium that doesn't support it. However a _warning_ may be shown
+>>  to the user if there is risk to loose data.
+>>    
+>>
+>
+>OK... I'll bite.  How do you report the warning to the user if you're using
+>an unenhanced utility to copy a file to a file system that may be lossy?
+>  
+>
+Well, _if_ you're using my sort of file-as-dir then you'd expect a
+plain "cp" to only copy the file.  You'd use cp -a to copy the
+file's subdirectory too.  If you're copying to anther filesystem
+that doesn't support file-as-directory then "cp -a" won't be able
+to create a directory with the same name as the file, and
+will do whatever cp does in such a situation.  I.e. something like
+"NAME exists but is not a directory".
 
-Someone was numbering things that are good in BSD design, in that
-thread. One of those things was going for devfs. No cheap solutions.
-One fs for /dev. And it works great.
+Helge Hafting
 
-Sorry for bit of trolling.
-
--- 
-GJ

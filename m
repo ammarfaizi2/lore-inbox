@@ -1,73 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288784AbSA2FPS>; Tue, 29 Jan 2002 00:15:18 -0500
+	id <S282511AbSA2Fmd>; Tue, 29 Jan 2002 00:42:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288800AbSA2FPI>; Tue, 29 Jan 2002 00:15:08 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:7563
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288784AbSA2FOx>; Tue, 29 Jan 2002 00:14:53 -0500
-Message-Id: <200201290515.g0T5ExU32452@snark.thyrsus.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: John Weber <weber@nyc.rr.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Tue, 29 Jan 2002 00:15:55 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <3C5600A6.3080605@nyc.rr.com>
-In-Reply-To: <3C5600A6.3080605@nyc.rr.com>
+	id <S287647AbSA2FmY>; Tue, 29 Jan 2002 00:42:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57617 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S282511AbSA2FmO>;
+	Tue, 29 Jan 2002 00:42:14 -0500
+Message-ID: <3C56348C.F516A2DB@zip.com.au>
+Date: Mon, 28 Jan 2002 21:35:08 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Daniel Jacobowitz <dan@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH?] Crash in 2.4.17/ptrace
+In-Reply-To: <20020128153210.A3032@nevyn.them.org> <3C55BC89.EDE3105C@zip.com.au>, <3C55BC89.EDE3105C@zip.com.au> <20020128161900.A9071@nevyn.them.org> <3C55C2AB.AE73A75D@zip.com.au>,
+		<3C55C2AB.AE73A75D@zip.com.au>; from akpm@zip.com.au on Mon, Jan 28, 2002 at 01:29:15PM -0800 <20020129005451.H1309@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 January 2002 08:53 pm, John Weber wrote:
-> I would be happy to serve as patch penguin, as I plan on collecting all
-> patches anyway in my new duties as maintainer of www.linuxhq.com.
->
-> I am currently writing code to scan the usual places for linux patches
-> and automatically add them to our databases.  This would be really
-> simplified by having patches sent to us.  And, since we already have a
-> functioning site, we have the hardware/network capacity to serve as
-> a limitless queue of waiting patches for Linus.  I would love nothing
-> more than to update the site with information as to the status of these
-> patches.
->
-> ( john.weber@linux.org )
+Andrea Arcangeli wrote:
+> 
+> ...
+> Well, I think your earlier suggestion to bale out with an error if an
+> invalid page is found sounds like the cleaner fix (possibly in function
+> of yet another bitflag, so if somebody wants to get the nearby pages
+> regardless of an invalid pages somewhere, it can).
+> 
 
-Philosophical question: Would you have a major philosophical objection to 
-acting as Dave Jones's secretary and webmaster?  (He is the de facto current 
-patch penguin.  I'm just asking for the position to be recognized.  We need 
-that before we can really move forward with anything else.  If you were to 
-queue patches for Linus and then be ignored by Linus, nothing would have been 
-accomplished, and if somebody ELSE then takes your work and integrates it, it 
-would be yet more pressure to fork the tree, pressure which I'm trying to 
-REDUCE here...)
+I find it rather hard to decide about this.  get_user_pages()
+leaves null page pointers in the page[] array for invalid
+pages, and that's a reasonable API, as long as all callers
+are actually aware of it....
 
-Remember minix?  Way way way back?  Andrew Tanenbaum had a little kernel, ran 
-on intel hardware, came with complete source code.  And he did not accept 
-patches, due to his minix book contract and the resulting licensing issues.  
-Collaborative development on Linux STARTED in the minix newsgroup, largely by 
-recruiting people who were frustrated at trying to get their patches into 
-minix.
+In the O_DIRECT case, the kernel does not crash, because
+brw_kiovec() does:
 
-Remember GNU?  Stalled in the late 80's?  For legal reasons, Richard Stallman 
-wanted people to physically sign over their copyrights (on paper he could put 
-in his file cabinet) to any code they submitted to the GNU project.  This 
-caused way too much friction (and Richard wasn't exactly a coalition building 
-statesman either), and eventually people got fed up with the project and took 
-their code elsewhere.
+                        map  = iobuf->maplist[pageind];
+                        if (!map) {
+                                err = -EFAULT;
+                                goto finished;
+                        }
 
-These are the kind of pressures that, if they build up high enough, cause 
-projects to fork.  It's all different trees with different patches in them, 
-and if the patch pressure builds up too high forking is inevitable.  
-(Re-integration of forks is also quite possible, they can be short lived.  
-But that's the same integration issue, just deferred a bit.)
+However, I think it _would_ crash if the first entry in the maplist[]
+was non-null, and the second is null, because that would cause
+generic_file_direct_IO() to call mark_dirty_kiobuf(), and
+mark_dirty_kiobuf() forgets to check for NULL page *'s in the maplist[].
 
-I'm not saying Linux is in immediate danger of forking, I'm just saying that 
-code integration can be a serious limiting factor, and is a potentially 
-seperable problem from being a code architect.  I think an explicit full-time 
-integration maintainer could reduce/buffer the patch pressure, and that this 
-could be good for the project.
+Given the difficulty of testing all this, and the dubious benefit
+in allowing a holey maplist[], I'm inclined to just disallow it
+in 2.4.   What do you think?
 
-Rob
+
+
+--- linux-2.4.18-pre7/mm/memory.c	Fri Dec 21 11:19:23 2001
++++ linux-akpm/mm/memory.c	Mon Jan 28 16:26:47 2002
+@@ -453,6 +453,7 @@ int get_user_pages(struct task_struct *t
+ 		vma = find_extend_vma(mm, start);
+ 
+ 		if ( !vma ||
++		     (vma->vm_flags & VM_IO) ||
+ 		    (!force &&
+ 		     	((write && (!(vma->vm_flags & VM_WRITE))) ||
+ 		    	 (!write && (!(vma->vm_flags & VM_READ))) ) )) {
+@@ -486,8 +487,9 @@ int get_user_pages(struct task_struct *t
+ 				/* FIXME: call the correct function,
+ 				 * depending on the type of the found page
+ 				 */
+-				if (pages[i])
+-					page_cache_get(pages[i]);
++				if (!pages[i])
++					goto bad_page;
++				page_cache_get(pages[i]);
+ 			}
+ 			if (vmas)
+ 				vmas[i] = vma;
+@@ -497,7 +499,19 @@ int get_user_pages(struct task_struct *t
+ 		} while(len && start < vma->vm_end);
+ 		spin_unlock(&mm->page_table_lock);
+ 	} while(len);
++out:
+ 	return i;
++
++	/*
++	 * We found an invalid page in the VMA.  Release all we have
++	 * so far and fail.
++	 */
++bad_page:
++	spin_unlock(&mm->page_table_lock);
++	while (i--)
++		page_cache_release(pages[i]);
++	i = -EFAULT;
++	goto out;
+ }
+ 
+ /*

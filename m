@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262453AbTCIEcS>; Sat, 8 Mar 2003 23:32:18 -0500
+	id <S262466AbTCIEdS>; Sat, 8 Mar 2003 23:33:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262466AbTCIEcO>; Sat, 8 Mar 2003 23:32:14 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:51328 "EHLO
+	id <S262470AbTCIEdS>; Sat, 8 Mar 2003 23:33:18 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:52096 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262453AbTCIEas>; Sat, 8 Mar 2003 23:30:48 -0500
-Date: Sun, 9 Mar 2003 13:40:53 +0900
+	id <S262466AbTCIEcy>; Sat, 8 Mar 2003 23:32:54 -0500
+Date: Sun, 9 Mar 2003 13:42:59 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] PC-9800 subarch. support for 2.5.64-ac3 (19/20) SMP
-Message-ID: <20030309044053.GT1231@yuzuki.cinet.co.jp>
+Subject: [PATCH] PC-9800 subarch. support for 2.5.64-ac3 (20/20) timer
+Message-ID: <20030309044259.GU1231@yuzuki.cinet.co.jp>
 References: <20030309035245.GA1231@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,304 +22,371 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.64-ac3. (19/20)
+against 2.5.64-ac3. (20/20)
 
-SMP support for PC98.
- - Support mpc table location.
- - Handling EBDA.
- - Hnadling warm reset vector.
+Support difference of timer, using mach-* scheme.
+ - Change CLOCK_TICK_RATE from constant to variable.
+   Some PC98 can select base clock at boottime.
+ - Replace calibrate_tsc function using anoter time counter on PC98.
+   Because PIT channel2 on notebook PC98 is stopped.
 
 Regards,
-Osamu tomita
+Osamu Tomita
 
 
-diff -Nru linux-2.5.61-ac1/arch/i386/kernel/mpparse.c linux98-2.5.61-ac1/arch/i386/kernel/mpparse.c
---- linux-2.5.61-ac1/arch/i386/kernel/mpparse.c	2003-02-18 08:58:20.000000000 +0900
-+++ linux98-2.5.61-ac1/arch/i386/kernel/mpparse.c	2003-02-18 15:52:44.000000000 +0900
-@@ -33,6 +33,7 @@
- 
- #include <mach_apic.h>
- #include <mach_mpparse.h>
-+#include <bios_ebda.h>
- 
- /* Have we found an MP table */
- int smp_found_config;
-@@ -654,7 +655,8 @@
- 		 * Read the physical hardware table.  Anything here will
- 		 * override the defaults.
- 		 */
--		if (!smp_read_mpc((void *)mpf->mpf_physptr)) {
-+		if (!smp_read_mpc(pc98 ? phys_to_virt(mpf->mpf_physptr)
-+					: (void *)mpf->mpf_physptr)) {
- 			smp_found_config = 0;
- 			printk(KERN_ERR "BIOS bug, MP table errors detected!...\n");
- 			printk(KERN_ERR "... disabling SMP support. (tell your hw vendor)\n");
-@@ -708,8 +710,23 @@
- 			printk(KERN_INFO "found SMP MP-table at %08lx\n",
- 						virt_to_phys(mpf));
- 			reserve_bootmem(virt_to_phys(mpf), PAGE_SIZE);
--			if (mpf->mpf_physptr)
--				reserve_bootmem(mpf->mpf_physptr, PAGE_SIZE);
-+			if (mpf->mpf_physptr) {
-+				/*
-+				 * We cannot access to MPC table to compute
-+				 * table size yet, as only few megabytes from
-+				 * the bottom is mapped now.
-+				 * PC-9800's MPC table places on the very last
-+				 * of physical memory; so that simply reserving
-+				 * PAGE_SIZE from mpg->mpf_physptr yields BUG()
-+				 * in reserve_bootmem.
-+				 */
-+				unsigned long size = PAGE_SIZE;
-+				unsigned long end = max_low_pfn * PAGE_SIZE;
-+				if (mpf->mpf_physptr + size > end)
-+					size = end - mpf->mpf_physptr;
-+				reserve_bootmem(mpf->mpf_physptr, size);
-+			}
+diff -Nru linux-2.5.63/arch/i386/kernel/timers/timer_pit.c linux98-2.5.63/arch/i386/kernel/timers/timer_pit.c
+--- linux-2.5.63/arch/i386/kernel/timers/timer_pit.c	2003-02-25 04:05:41.000000000 +0900
++++ linux98-2.5.63/arch/i386/kernel/timers/timer_pit.c	2003-03-04 14:58:59.000000000 +0900
+@@ -16,9 +16,13 @@
+ extern spinlock_t i8259A_lock;
+ extern spinlock_t i8253_lock;
+ #include "do_timer.h"
++#include "io_ports.h"
 +
- 			mpf_found = mpf;
- 			return 1;
- 		}
-@@ -752,9 +769,9 @@
- 	 * MP1.4 SPEC states to only scan first 1K of 4K EBDA.
- 	 */
++static int count_p; /* counter in get_offset_pit() */
  
--	address = *(unsigned short *)phys_to_virt(0x40E);
--	address <<= 4;
--	smp_scan_config(address, 0x400);
-+	address = get_bios_ebda();
-+	if (address)
-+		smp_scan_config(address, 0x400);
- }
- 
- 
-diff -Nru linux-2.5.63/arch/i386/kernel/smpboot.c linux98-2.5.63/arch/i386/kernel/smpboot.c
---- linux-2.5.63/arch/i386/kernel/smpboot.c	2003-02-25 04:05:31.000000000 +0900
-+++ linux98-2.5.63/arch/i386/kernel/smpboot.c	2003-02-28 13:52:18.000000000 +0900
-@@ -49,10 +49,10 @@
- #include <asm/tlbflush.h>
- #include <asm/desc.h>
- #include <asm/arch_hooks.h>
--#include "smpboot_hooks.h"
- 
- #include <mach_apic.h>
- #include <mach_wakecpu.h>
-+#include "smpboot_hooks.h"
- 
- /* Set if we find a B stepping CPU */
- static int __initdata smp_b_stepping;
-@@ -823,13 +823,7 @@
- 
- 	store_NMI_vector(&nmi_high, &nmi_low);
- 
--	CMOS_WRITE(0xa, 0xf);
--	local_flush_tlb();
--	Dprintk("1.\n");
--	*((volatile unsigned short *) TRAMPOLINE_HIGH) = start_eip >> 4;
--	Dprintk("2.\n");
--	*((volatile unsigned short *) TRAMPOLINE_LOW) = start_eip & 0xf;
--	Dprintk("3.\n");
-+	smpboot_setup_warm_reset_vector(start_eip);
- 
- 	/*
- 	 * Starting actual IPI sequence...
-@@ -1044,7 +1038,7 @@
- 	/*
- 	 * Cleanup possible dangling ends...
- 	 */
--	smpboot_setup_warm_reset_vector();
-+	smpboot_restore_warm_reset_vector();
- 
- 	/*
- 	 * Allow the user to impress friends.
-diff -Nru linux/include/asm-i386/mach-default/bios_ebda.h linux98/include/asm-i386/mach-default/bios_ebda.h
---- linux/include/asm-i386/mach-default/bios_ebda.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/include/asm-i386/mach-default/bios_ebda.h	2002-12-18 22:40:38.000000000 +0900
-@@ -0,0 +1,15 @@
-+#ifndef _MACH_BIOS_EBDA_H
-+#define _MACH_BIOS_EBDA_H
-+
-+/*
-+ * there is a real-mode segmented pointer pointing to the
-+ * 4K EBDA area at 0x40E.
-+ */
-+static inline unsigned int get_bios_ebda(void)
-+{
-+	unsigned int address = *(unsigned short *)phys_to_virt(0x40E);
-+	address <<= 4;
-+	return address;	/* 0 means none */
-+}
-+
-+#endif /* _MACH_BIOS_EBDA_H */
-diff -Nru linux/include/asm-i386/mach-default/smpboot_hooks.h linux98/include/asm-i386/mach-default/smpboot_hooks.h
---- linux/include/asm-i386/mach-default/smpboot_hooks.h	2003-02-25 04:05:15.000000000 +0900
-+++ linux98/include/asm-i386/mach-default/smpboot_hooks.h	2003-02-28 13:56:55.000000000 +0900
-@@ -6,7 +6,18 @@
- 	io_apic_irqs = 0;
- }
- 
--static inline void smpboot_setup_warm_reset_vector(void)
-+static inline void smpboot_setup_warm_reset_vector(unsigned long start_eip)
-+{
-+	CMOS_WRITE(0xa, 0xf);
-+	local_flush_tlb();
-+	Dprintk("1.\n");
-+	*((volatile unsigned short *) TRAMPOLINE_HIGH) = start_eip >> 4;
-+	Dprintk("2.\n");
-+	*((volatile unsigned short *) TRAMPOLINE_LOW) = start_eip & 0xf;
-+	Dprintk("3.\n");
-+}
-+
-+static inline void smpboot_restore_warm_reset_vector(void)
+ static int init_pit(void)
  {
++	count_p = LATCH;
+ 	return 0;
+ }
+ 
+@@ -77,7 +81,6 @@
+ {
+ 	int count;
+ 	unsigned long flags;
+-	static int count_p = LATCH;    /* for the first call after boot */
+ 	static unsigned long jiffies_p = 0;
+ 
  	/*
- 	 * Install writable page 0 entry to set BIOS data area.
-diff -Nru linux/include/asm-i386/mach-pc9800/bios_ebda.h linux98/include/asm-i386/mach-pc9800/bios_ebda.h
---- linux/include/asm-i386/mach-pc9800/bios_ebda.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/include/asm-i386/mach-pc9800/bios_ebda.h	2002-12-18 22:49:59.000000000 +0900
-@@ -0,0 +1,14 @@
-+#ifndef _MACH_BIOS_EBDA_H
-+#define _MACH_BIOS_EBDA_H
+@@ -87,9 +90,9 @@
+ 
+ 	spin_lock_irqsave(&i8253_lock, flags);
+ 	/* timer count may underflow right here */
+-	outb_p(0x00, 0x43);	/* latch the count ASAP */
++	outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
+ 
+-	count = inb_p(0x40);	/* read the latched count */
++	count = inb_p(PIT_CH0);	/* read the latched count */
+ 
+ 	/*
+ 	 * We do this guaranteed double memory access instead of a _p 
+@@ -97,13 +100,13 @@
+ 	 */
+  	jiffies_t = jiffies;
+ 
+-	count |= inb_p(0x40) << 8;
++	count |= inb_p(PIT_CH0) << 8;
+ 	
+         /* VIA686a test code... reset the latch if count > max + 1 */
+         if (count > LATCH) {
+-                outb_p(0x34, 0x43);
+-                outb_p(LATCH & 0xff, 0x40);
+-                outb(LATCH >> 8, 0x40);
++                outb_p(0x34, PIT_MODE);
++                outb_p(LATCH & 0xff, PIT_CH0);
++                outb(LATCH >> 8, PIT_CH0);
+                 count = LATCH - 1;
+         }
+ 	
+diff -Nru linux-2.5.63/arch/i386/kernel/timers/timer_tsc.c linux98-2.5.63/arch/i386/kernel/timers/timer_tsc.c
+--- linux-2.5.63/arch/i386/kernel/timers/timer_tsc.c	2003-02-25 04:05:37.000000000 +0900
++++ linux98-2.5.63/arch/i386/kernel/timers/timer_tsc.c	2003-03-04 14:39:42.000000000 +0900
+@@ -14,6 +14,9 @@
+ /* processor.h for distable_tsc flag */
+ #include <asm/processor.h>
+ 
++#include "io_ports.h"
++#include "mach_timer.h"
 +
+ int tsc_disable __initdata = 0;
+ 
+ extern spinlock_t i8253_lock;
+@@ -24,6 +27,8 @@
+ 
+ static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
+ 
++static int count2; /* counter for mark_offset_tsc() */
++
+ /* Cached *multiplier* to convert TSC counts to microseconds.
+  * (see the equation below).
+  * Equal to 2^32 * (1 / (clocks per usec) ).
+@@ -64,7 +69,7 @@
+ {
+ 	int count;
+ 	int countmp;
+-	static int count1=0, count2=LATCH;
++	static int count1 = 0;
+ 	/*
+ 	 * It is important that these two operations happen almost at
+ 	 * the same time. We do the RDTSC stuff first, since it's
+@@ -82,10 +87,10 @@
+ 	rdtscl(last_tsc_low);
+ 
+ 	spin_lock(&i8253_lock);
+-	outb_p(0x00, 0x43);     /* latch the count ASAP */
++	outb_p(0x00, PIT_MODE);     /* latch the count ASAP */
+ 
+-	count = inb_p(0x40);    /* read the latched count */
+-	count |= inb(0x40) << 8;
++	count = inb_p(PIT_CH0);    /* read the latched count */
++	count |= inb(PIT_CH0) << 8;
+ 	spin_unlock(&i8253_lock);
+ 
+ 	if (pit_latch_buggy) {
+@@ -127,26 +132,11 @@
+  * device.
+  */
+ 
+-#define CALIBRATE_LATCH	(5 * LATCH)
+ #define CALIBRATE_TIME	(5 * 1000020/HZ)
+ 
+ unsigned long __init calibrate_tsc(void)
+ {
+-       /* Set the Gate high, disable speaker */
+-	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
+-
+-	/*
+-	 * Now let's take care of CTC channel 2
+-	 *
+-	 * Set the Gate high, program CTC channel 2 for mode 0,
+-	 * (interrupt on terminal count mode), binary count,
+-	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
+-	 *
+-	 * Some devices need a delay here.
+-	 */
+-	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
+-	outb_p(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
+-	outb_p(CALIBRATE_LATCH >> 8, 0x42);       /* MSB of count */
++	mach_prepare_counter();
+ 
+ 	{
+ 		unsigned long startlow, starthigh;
+@@ -154,10 +144,7 @@
+ 		unsigned long count;
+ 
+ 		rdtsc(startlow,starthigh);
+-		count = 0;
+-		do {
+-			count++;
+-		} while ((inb(0x61) & 0x20) == 0);
++		mach_countup(&count);
+ 		rdtsc(endlow,endhigh);
+ 
+ 		last_tsc_low = endlow;
+@@ -273,6 +260,8 @@
+ 	cpufreq_register_notifier(&time_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
+ #endif
+ 
++	count2 = LATCH; /* initialize counter for mark_offset_tsc() */
++
+ 	if (cpu_has_tsc) {
+ 		unsigned long tsc_quotient = calibrate_tsc();
+ 		if (tsc_quotient) {
+diff -Nru linux/include/asm-i386/mach-default/mach_timer.h linux98/include/asm-i386/mach-default/mach_timer.h
+--- linux/include/asm-i386/mach-default/mach_timer.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-default/mach_timer.h	2003-03-04 15:39:44.000000000 +0900
+@@ -0,0 +1,46 @@
 +/*
-+ * PC-9800 has no EBDA.
-+ * Its BIOS uses 0x40E for other purpose,
-+ * Not pointer to 4K EBDA area.
++ *  include/asm-i386/mach-default/mach_timer.h
++ *
++ *  Machine specific calibrate_tsc() for generic.
++ *  Split out from timer_tsc.c by Osamu Tomita <tomita@cinet.co.jp>
 + */
-+static inline unsigned int get_bios_ebda(void)
++/* ------ Calibrate the TSC ------- 
++ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
++ * Too much 64-bit arithmetic here to do this cleanly in C, and for
++ * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
++ * output busy loop as low as possible. We avoid reading the CTC registers
++ * directly because of the awkward 8-bit access mechanism of the 82C54
++ * device.
++ */
++#ifndef _MACH_TIMER_H
++#define _MACH_TIMER_H
++
++#define CALIBRATE_LATCH	(5 * LATCH)
++
++static inline void mach_prepare_counter(void)
 +{
-+	return 0;	/* 0 means none */
++       /* Set the Gate high, disable speaker */
++	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
++
++	/*
++	 * Now let's take care of CTC channel 2
++	 *
++	 * Set the Gate high, program CTC channel 2 for mode 0,
++	 * (interrupt on terminal count mode), binary count,
++	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
++	 *
++	 * Some devices need a delay here.
++	 */
++	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
++	outb_p(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
++	outb_p(CALIBRATE_LATCH >> 8, 0x42);       /* MSB of count */
 +}
 +
-+#endif /* _MACH_BIOS_EBDA_H */
-diff -Nru linux/include/asm-i386/mach-pc9800/mach_wakecpu.h linux98/include/asm-i386/mach-pc9800/mach_wakecpu.h
---- linux/include/asm-i386/mach-pc9800/mach_wakecpu.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/include/asm-i386/mach-pc9800/mach_wakecpu.h	2003-01-10 11:40:16.000000000 +0900
-@@ -0,0 +1,45 @@
-+#ifndef __ASM_MACH_WAKECPU_H
-+#define __ASM_MACH_WAKECPU_H
++static inline void mach_countup(unsigned long *count)
++{
++	do {
++		*count++;
++	} while ((inb(0x61) & 0x20) == 0);
++}
 +
-+/* 
-+ * This file copes with machines that wakeup secondary CPUs by the
-+ * INIT, INIT, STARTUP sequence.
-+ */
++#endif /* !_MACH_TIMER_H */
+diff -Nru linux-2.5.64/include/asm-i386/mach-pc9800/do_timer.h linux98-2.5.64/include/asm-i386/mach-pc9800/do_timer.h
+--- linux-2.5.64/include/asm-i386/mach-pc9800/do_timer.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98-2.5.64/include/asm-i386/mach-pc9800/do_timer.h	2003-03-05 13:37:30.000000000 +0900
+@@ -0,0 +1,82 @@
++/* defines for inline arch setup functions */
 +
-+#define WAKE_SECONDARY_VIA_INIT
++#include <asm/apic.h>
 +
++/**
++ * do_timer_interrupt_hook - hook into timer tick
++ * @regs:	standard registers from interrupt
++ *
++ * Description:
++ *	This hook is called immediately after the timer interrupt is ack'd.
++ *	It's primary purpose is to allow architectures that don't possess
++ *	individual per CPU clocks (like the CPU APICs supply) to broadcast the
++ *	timer interrupt as a means of triggering reschedules etc.
++ **/
++
++static inline void do_timer_interrupt_hook(struct pt_regs *regs)
++{
++	do_timer(regs);
 +/*
-+ * On PC-9800, continuation on warm reset is done by loading
-+ * %ss:%sp from 0x0000:0404 and executing 'lret', so:
++ * In the SMP case we use the local APIC timer interrupt to do the
++ * profiling, except when we simulate SMP mode on a uniprocessor
++ * system, in that case we have to call the local interrupt handler.
 + */
-+#define TRAMPOLINE_LOW phys_to_virt(0x4fa)
-+#define TRAMPOLINE_HIGH phys_to_virt(0x4fc)
-+
-+#define boot_cpu_apicid boot_cpu_physical_apicid
-+
-+static inline void wait_for_init_deassert(atomic_t *deassert)
-+{
-+	while (!atomic_read(deassert));
-+	return;
-+}
-+
-+/* Nothing to do for most platforms, since cleared by the INIT cycle */
-+static inline void smp_callin_clear_local_apic(void)
-+{
-+}
-+
-+static inline void store_NMI_vector(unsigned short *high, unsigned short *low)
-+{
-+}
-+
-+static inline void restore_NMI_vector(unsigned short *high, unsigned short *low)
-+{
-+}
-+
-+#if APIC_DEBUG
-+ #define inquire_remote_apic(apicid) __inquire_remote_apic(apicid)
++#ifndef CONFIG_X86_LOCAL_APIC
++	x86_do_profile(regs);
 +#else
-+ #define inquire_remote_apic(apicid) {}
++	if (!using_apic_timer)
++		smp_local_timer_interrupt(regs);
 +#endif
-+
-+#endif /* __ASM_MACH_WAKECPU_H */
-diff -Nru linux/include/asm-i386/mach-pc9800/smpboot_hooks.h linux98/include/asm-i386/mach-pc9800/smpboot_hooks.h
---- linux/include/asm-i386/mach-pc9800/smpboot_hooks.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/include/asm-i386/mach-pc9800/smpboot_hooks.h	2003-02-28 13:53:53.000000000 +0900
-@@ -0,0 +1,52 @@
-+/* two abstractions specific to kernel/smpboot.c, mainly to cater to visws
-+ * which needs to alter them. */
-+
-+static inline void smpboot_clear_io_apic_irqs(void)
-+{
-+	io_apic_irqs = 0;
 +}
 +
-+static inline void smpboot_setup_warm_reset_vector(unsigned long start_eip)
++
++/* you can safely undefine this if you don't have the Neptune chipset */
++
++#define BUGGY_NEPTUN_TIMER
++
++/**
++ * do_timer_overflow - process a detected timer overflow condition
++ * @count:	hardware timer interrupt count on overflow
++ *
++ * Description:
++ *	This call is invoked when the jiffies count has not incremented but
++ *	the hardware timer interrupt has.  It means that a timer tick interrupt
++ *	came along while the previous one was pending, thus a tick was missed
++ **/
++static inline int do_timer_overflow(int count)
 +{
-+	/* reset code is stored in 8255 on PC-9800. */
-+	outb(0x0e, 0x37);	/* SHUT0 = 0 */
-+	local_flush_tlb();
-+	Dprintk("1.\n");
-+	*((volatile unsigned short *) TRAMPOLINE_HIGH) = start_eip >> 4;
-+	Dprintk("2.\n");
-+	*((volatile unsigned short *) TRAMPOLINE_LOW) = start_eip & 0xf;
-+	Dprintk("3.\n");
++	int i;
++
++	spin_lock(&i8259A_lock);
 +	/*
-+	 * On PC-9800, continuation on warm reset is done by loading
-+	 * %ss:%sp from 0x0000:0404 and executing 'lret', so:
++	 * This is tricky when I/O APICs are used;
++	 * see do_timer_interrupt().
 +	 */
-+	/* 0x3f0 is on unused interrupt vector and should be safe... */
-+	*((volatile unsigned long *) phys_to_virt(0x404)) = 0x000003f0;
-+	Dprintk("4.\n");
++	i = inb(0x00);
++	spin_unlock(&i8259A_lock);
++	
++	/* assumption about timer being IRQ0 */
++	if (i & 0x01) {
++		/*
++		 * We cannot detect lost timer interrupts ... 
++		 * well, that's why we call them lost, don't we? :)
++		 * [hmm, on the Pentium and Alpha we can ... sort of]
++		 */
++		count -= LATCH;
++	} else {
++#ifdef BUGGY_NEPTUN_TIMER
++		/*
++		 * for the Neptun bug we know that the 'latch'
++		 * command doesn't latch the high and low value
++		 * of the counter atomically. Thus we have to 
++		 * substract 256 from the counter 
++		 * ... funny, isnt it? :)
++		 */
++		
++		count -= 256;
++#else
++		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
++#endif
++	}
++	return count;
 +}
+diff -Nru linux/include/asm-i386/mach-pc9800/mach_timer.h linux98/include/asm-i386/mach-pc9800/mach_timer.h
+--- linux/include/asm-i386/mach-pc9800/mach_timer.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-pc9800/mach_timer.h	2003-03-04 15:43:29.000000000 +0900
+@@ -0,0 +1,31 @@
++/*
++ *  include/asm-i386/mach-pc9800/mach_timer.h
++ *
++ *  Machine specific calibrate_tsc() for PC-9800.
++ *  Written by Osamu Tomita <tomita@cinet.co.jp>
++ */
++/* ------ Calibrate the TSC ------- 
++ * PC-9800:
++ *  CTC cannot be used because some models (especially
++ *  note-machines) may disable clock to speaker channel (#1)
++ *  unless speaker is enabled.  We use ARTIC instead.
++ */
++#ifndef _MACH_TIMER_H
++#define _MACH_TIMER_H
 +
-+static inline void smpboot_restore_warm_reset_vector(void)
++#define CALIBRATE_LATCH	(5 * 307200/HZ) /* 0.050sec * 307200Hz = 15360 */
++
++static inline void mach_prepare_counter(void)
 +{
-+	/*
-+	 * Install writable page 0 entry to set BIOS data area.
-+	 */
-+	local_flush_tlb();
-+
-+	/*
-+	 * Paranoid:  Set warm reset code and vector here back
-+	 * to default values.
-+	 */
-+	outb(0x0f, 0x37);	/* SHUT0 = 1 */
-+
-+	*((volatile long *) phys_to_virt(0x404)) = 0;
++	/* ARTIC can't be stopped nor reset. So we wait roundup. */
++	while (inw(0x5c));
 +}
 +
-+static inline void smpboot_setup_io_apic(void)
++static inline void mach_countup(unsigned long *count)
 +{
-+	/*
-+	 * Here we can be sure that there is an IO-APIC in the system. Let's
-+	 * go and set it up:
-+	 */
-+	if (!skip_ioapic_setup && nr_ioapics)
-+		setup_IO_APIC();
-+}
-diff -Nru linux/include/asm-i386/mach-visws/smpboot_hooks.h linux98/include/asm-i386/mach-visws/smpboot_hooks.h
---- linux/include/asm-i386/mach-visws/smpboot_hooks.h	2003-02-25 04:05:10.000000000 +0900
-+++ linux98/include/asm-i386/mach-visws/smpboot_hooks.h	2003-02-28 13:57:13.000000000 +0900
-@@ -1,10 +1,21 @@
-+static inline void smpboot_setup_warm_reset_vector(unsigned long start_eip)
-+{
-+	CMOS_WRITE(0xa, 0xf);
-+	local_flush_tlb();
-+	Dprintk("1.\n");
-+	*((volatile unsigned short *) TRAMPOLINE_HIGH) = start_eip >> 4;
-+	Dprintk("2.\n");
-+	*((volatile unsigned short *) TRAMPOLINE_LOW) = start_eip & 0xf;
-+	Dprintk("3.\n");
++	do {
++		*count = inw(0x5c);
++	} while (*count < CALIBRATE_LATCH);
 +}
 +
- /* for visws do nothing for any of these */
++#endif /* !_MACH_TIMER_H */
+diff -Nru linux/include/asm-i386/timex.h linux98/include/asm-i386/timex.h
+--- linux/include/asm-i386/timex.h	2002-02-14 18:09:15.000000000 +0900
++++ linux98/include/asm-i386/timex.h	2002-02-14 23:58:57.000000000 +0900
+@@ -9,11 +9,15 @@
+ #include <linux/config.h>
+ #include <asm/msr.h>
  
- static inline void smpboot_clear_io_apic_irqs(void)
- {
- }
++#ifdef CONFIG_X86_PC9800
++   extern int CLOCK_TICK_RATE;
++#else
+ #ifdef CONFIG_MELAN
+ #  define CLOCK_TICK_RATE 1189200 /* AMD Elan has different frequency! */
+ #else
+ #  define CLOCK_TICK_RATE 1193180 /* Underlying HZ */
+ #endif
++#endif
  
--static inline void smpboot_setup_warm_reset_vector(void)
-+static inline void smpboot_restore_warm_reset_vector(void)
- {
- }
+ #define CLOCK_TICK_FACTOR	20	/* Factor of both 1000000 and CLOCK_TICK_RATE */
+ #define FINETUNE ((((((long)LATCH * HZ - CLOCK_TICK_RATE) << SHIFT_HZ) * \
+diff -Nru linux-2.5.63/kernel/timer.c linux98-2.5.63/kernel/timer.c
+--- linux-2.5.63/kernel/timer.c	2003-02-25 04:05:41.000000000 +0900
++++ linux98-2.5.63/kernel/timer.c	2003-03-04 15:13:37.000000000 +0900
+@@ -437,8 +437,13 @@
+ /*
+  * Timekeeping variables
+  */
++#ifdef CONFIG_X86_PC9800
++unsigned long tick_usec; 			/* ACTHZ   period (usec) */
++unsigned long tick_nsec;			/* USER_HZ period (nsec) */
++#else
+ unsigned long tick_usec = TICK_USEC; 		/* ACTHZ   period (usec) */
+ unsigned long tick_nsec = TICK_NSEC(TICK_USEC);	/* USER_HZ period (nsec) */
++#endif
  
+ /* The current time */
+ struct timespec xtime __attribute__ ((aligned (16)));

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264209AbTEGTXX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 15:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTEGTXH
+	id S264254AbTEGT1P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264244AbTEGT1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 15:23:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:42136 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264209AbTEGTVR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 15:21:17 -0400
-Date: Wed, 7 May 2003 21:33:47 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [IDE] trying to make MO drive work with ide-floppy/ide-cd
-Message-ID: <20030507193347.GU823@suse.de>
-References: <Pine.LNX.4.44.0305061608050.959-100000@neptune.local> <Pine.LNX.4.44.0305071956300.1118-100000@neptune.local>
+	Wed, 7 May 2003 15:27:15 -0400
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:16140
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S264252AbTEGT1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 15:27:01 -0400
+Date: Wed, 7 May 2003 12:39:32 -0700
+From: Brad Boyer <flar@allandria.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-hfsplus-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] HFS+ driver
+Message-ID: <20030507193932.GA17068@pants.nu>
+References: <Pine.LNX.4.44.0305071643030.5042-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305071956300.1118-100000@neptune.local>
+In-Reply-To: <Pine.LNX.4.44.0305071643030.5042-100000@serv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07 2003, Pascal Schmidt wrote:
-> On Tue, 6 May 2003, Pascal Schmidt wrote:
-> 
-> The below patch allows me to use the ATAPI MO drive read-only using 
-> ide-cd. It does not send the drive any commands it might not understand.
-> I'm still trying to get write support to work, but being able to read
-> from the drive is an independent feature and useful in itself, I think.
-> Would it be possible to apply this to 2.5?
-> 
-> Tested by reading an entire ext2 filesystem from an MO disk and comparing
-> against the result obtained from 2.4 with ide-scsi/sd. No differences.
+On Wed, May 07, 2003 at 05:06:59PM +0200, Roman Zippel wrote:
+> I'm proud to announce a complete new version of the HFS+ fs driver. This 
+> work was made possible by Ardis Technologies (www.ardistech.com). It's 
+> based on the driver by Brad Boyer (http://sf.net/projects/linux-hfsplus).
 
-Definitely, this looks like a fine start. As far as I'm concerned, it
-would be fine to commit to 2.5.
+I was starting to think noone was ever going to help out.  :)
 
--- 
-Jens Axboe
+If you don't mind, I'll start merging your changes into the CVS tree
+on SourceForge. I assume this is all GPL code, since you started from
+my original patches... I'll wait to hear back from you before merging
+it in, since it's a pretty big change.
+
+> The new driver now supports full read and write access. Perfomance has 
+> improved a lot, the btrees are kept in the page cache with a hash on top 
+> of this to speed up the access to the btree nodes.
+> I also added support for hard links and the resource fork is accessible 
+> via <file>/rsrc.
+
+These were features I was trying to put off until someone else was
+a little more active, I have to admit. I've been working on the code
+in between other projects, but I'm a terrible release engineer and
+other stuff got more interesting. It's good to see that someone else
+cares about it.
+
+	Brad Boyer
+	flar@allandria.com
 

@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUGPGNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUGPGOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUGPGNS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 02:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUGPGNR
+	id S266296AbUGPGOj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 02:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUGPGOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 02:13:17 -0400
-Received: from bart.webpack.hosteurope.de ([217.115.142.76]:1736 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S266295AbUGPGNP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 02:13:15 -0400
-Date: Fri, 16 Jul 2004 08:19:04 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Andi Kleen <ak@muc.de>
-cc: Jeff Garzik <jgarzik@pobox.com>, <netdev@oss.sgi.com>,
-       <irda-users@lists.sourceforge.net>, Jean Tourrilhes <jt@hpl.hp.com>,
-       <the_nihilant@autistici.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Drop ISA dependencies from IRDA drivers
-In-Reply-To: <20040716054550.GA21819@muc.de>
-Message-ID: <Pine.LNX.4.44.0407160801190.14037-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-HE-MXrcvd: no
+	Fri, 16 Jul 2004 02:14:38 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:53694 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S266296AbUGPGOX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 02:14:23 -0400
+Date: Fri, 16 Jul 2004 08:14:15 +0200
+From: David Weinehall <tao@debian.org>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+Subject: Re: [ltp] Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
+Message-ID: <20040716061415.GM22472@khan.acc.umu.se>
+Mail-Followup-To: Florian Weimer <fw@deneb.enyo.de>,
+	linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
+References: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com> <1089054013.15671.48.camel@dhcppc4> <pan.2004.07.06.14.14.47.995955@physik.hu-berlin.de> <slrncfb55n.dkv.jgoerzen@christoph.complete.org> <87oemhot7l.fsf@deneb.enyo.de> <20040715213711.GJ22472@khan.acc.umu.se> <87acy1osk1.fsf@deneb.enyo.de> <20040715214646.GK22472@khan.acc.umu.se> <87smbtndba.fsf@deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87smbtndba.fsf@deneb.enyo.de>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Jul 2004, Andi Kleen wrote:
-
-> > Admittedly I haven't tried either, but I'm pretty sure this patch will 
-> > break building those drivers because they are calling irda_setup_dma - 
-> > which is CONFIG_ISA. Maybe this can be dropped but I don't see what's 
-> > wrong with !64BIT instead.
+On Thu, Jul 15, 2004 at 11:57:45PM +0200, Florian Weimer wrote:
+> * David Weinehall:
 > 
-> Hmm, good point. 
+> > Strange.  suspend works for me (T40 though, not T40p), latest
+> > BIOS-version, ACPI enabled, APM disabled.
 > 
-> !64BIT is not needed - apparently they are 64bit clean.
+> Thanks for your /proc/interrupts file.  You have a lot less IRQ
+> sharing than me:
+> 
+>            CPU0       
+>   0:    5484369          XT-PIC  timer
+>   1:      13698          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>  11:     301909          XT-PIC  uhci_hcd, uhci_hcd, uhci_hcd, Intel 82801DB-ICH4, eth0, yenta, yenta, radeon@PCI:1:0:0
+>  12:      14446          XT-PIC  i8042
+>  14:      63403          XT-PIC  ide0
+>  15:         21          XT-PIC  ide1
+> NMI:          0 
+> ERR:          0
+> 
+> I wonder why the system has got such a high affinity to IRQ 11.  I've
+> never seen so much IRQ sharing before. 8-/
 
-I think you are right - however, AFAICS this is not the point in this 
-case. These drivers do DMA to legacy devices (call it ISA, LPC, whatever). 
-The documented way for those devices without struct pci_dev is to call the 
-dma api functions with dev=NULL. For i386 the generic dma functions are 
-overwritten so they use GFP_DMA f.e. in this case.
+The BIOS default setting is to have all PCI interrupts on 11.
+Try spreading them out manually.
 
-According to include/asm-x86_64/dma-mapping.h there is no such override 
-for x86-64. Hence the generic implementation is used which Oopses when 
-called with dev=NULL in dma_alloc_coherent because it dereferences dev 
-unconditionally.
+> I'm going to give it a try without the radeon DRM module.
+> 
+> By the way, here's a log message from the system when it tries to come
+> back from suspend:
 
-> The reason I want to drop the CONFIG_ISA depency is that they *should*
-> be built on x86-64 too. 
+Ohhh.  I recognize that one, I had problems with that one too.  I solved
+it by adding hci_usb to the hotplug blacklist.  However, after
+upgrading to 2.6.8-rc1-bk2 (from 2.6.6, so the fix might have been
+somewhere in between), I could safely remove that from the blacklist
+again.  YMMV.
 
-Yes, sure. The point is with current CONFIG_ISA requirement they cannot be 
-build on x86-64 - with CONFIG_ISA removed they can, but will Oops. See the 
-report Jean was refering to.
 
-I agree !64BIT isn't the clean way to handle this - IMHO x86-64 needs to 
-support legacy devices (dev=NULL) in its dma api implementation. If it 
-doesn't, I don't see how these drivers might work on this arch.
-
-Martin
-
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

@@ -1,129 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSG3HeN>; Tue, 30 Jul 2002 03:34:13 -0400
+	id <S315214AbSG3Heg>; Tue, 30 Jul 2002 03:34:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315214AbSG3HeN>; Tue, 30 Jul 2002 03:34:13 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:14232 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315198AbSG3HeM>;
-	Tue, 30 Jul 2002 03:34:12 -0400
-Date: Tue, 30 Jul 2002 09:37:12 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Nathan Conrad <conrad@bungled.net>
-Cc: linuxconsole-dev <linuxconsole-dev@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Customization of input drivers
-Message-ID: <20020730093712.B3027@ucw.cz>
-References: <20020729021110.GA25161@bungled.net> <20020730021731.GA26488@bungled.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020730021731.GA26488@bungled.net>; from conrad@bungled.net on Mon, Jul 29, 2002 at 10:17:31PM -0400
+	id <S315218AbSG3Heg>; Tue, 30 Jul 2002 03:34:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:19460 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315214AbSG3Hef>;
+	Tue, 30 Jul 2002 03:34:35 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Paul Larson <plars@austin.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] vfs_read/vfs_write small bug fix (2.5.29)
+References: <Pine.LNX.4.33.0207291510340.1492-100000@penguin.transmeta.com>
+X-Yow: It's the land of DONNY AND MARIE as promised in TV GUIDE!
+From: Andreas Schwab <schwab@suse.de>
+Date: Tue, 30 Jul 2002 09:37:50 +0200
+In-Reply-To: <Pine.LNX.4.33.0207291510340.1492-100000@penguin.transmeta.com> (Linus
+ Torvalds's message of "Mon, 29 Jul 2002 15:17:32 -0700 (PDT)")
+Message-ID: <jefzy1wtrl.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.3.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 29, 2002 at 10:17:31PM -0400, Nathan Conrad wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> Thanks for your reply. I accidently deleted your message after reading
-> it.
-> 
-> I believe that the following would not be kernel bloat. Currently, the
-> kernel does have keyboard remapping abilities (although I do not know
-> the implementation details). Keyboard mapping _needs_ to be done at
-> the kernel level because of the console layer. I need to be able to
-> type with the dvorak layout soon after init is loaded. I do not want
-> to run something like X in order to get a text console. If this
-> remapping was done inside of input.c or evdev.c, this would kill two
-> birds with one stone: keyboard re-mapping and mouse event re-mapping.
+|> On 29 Jul 2002, Paul Larson wrote:
+|> > > 
+|> > > (Or maybe glibc doesn't know that the kernel pread/pwrite system calls 
+|> > > were always 64-bit clean, and it just happened to work).
+|> ?
+|> > No, with just this patch it still fails on pread02 and pwrite02.
+|> 
+|> Ok, that just means that it's a library issue now - having looked at
+|> historical kernel behaviour (and a lot of 64/bit architectures emulating
+|> their old 32/bit system calls), the kernel system call interface is
+|> clearly a 64-bit value, ie the kernel only export pread64/pwrite64, not a
+|> "traditional" pread/pwrite at all.
+|> 
+|> So the question is what the library should do with a 32-bit negative 
+|> "offset_t" passed in to the user-level "pread()" implementation. 
+|> 
+|> Looking at the disassembly of glibc pread, the implementation seems to be 
+|> to just clear %edx on x86 (which are the high bits of the 64-bit offset 
+|> value passed into sys_pread64()). 
+|> 
+|> And equally clearly your test wants to get EINVAL.
+|> 
+|> Your test would pass if glibc just sign-extended the 32-bit value to 64 
+|> bits, instead of zero-extending it.
 
-Well, no again. Keyboard remapping is done in keyboard.c (and not in the
-input core) for a very good reason - the input core maps the
-hardware-dependent scancodes to linux input event keycodes, which are
-the same on every platform. Thus you can have the same keymap loaded
-into keyboard.c to use the dvorak layout on a Sun, PC, Amiga, Mac, etc.
+Yes, this was a bug in glibc, it has been fixed already in CVS.
 
-> Mouse mapping is not strictly needed here. It is just a nice side
-> effect of moving mapping into input.c
-
-But if you do it in userspace, you can also do all the nice gesture
-stuff and sliders at the edge of touchpads and ... which you wouldn't be
-able to do in the kernel generically enough and still pass the bloat
-measure.
-
-> Perhaps two mappings would be necessary: one for the scan codes->linux
-> keycodes (which would be in the keyboard's driver) and another for
-> linux codes->input events.
-> 
-> > I like for the left button sends a BTN_MIDDLE event while the touchpad
-> > sends BTN_TOUCH. Is there a map somewhere that can change these button
-> > mappings at runtime? Looking at mousdev.c, the BTN_TOUCH, BTN_LEFT,
-> > and BTN_0 all send a mouse-0 event to the mouse device.... I would
-> > like for my driver to be able to send a BTN_LEFT event when I click
-> > the left button and have that converted somewhere into a mouse-1 event.
-> 
-> The touchpad itself reports when there has been a touch click or a
-> drag. In order for this configuration to be done in userspace, there
-> are two options:
-> 
-> 1) report the finger movements and use some complex, time-critical
-> algorithm to determine if the user wants the touch to be translated
-> into holding the mouse button down or if the user wants a click and
-> then to move the mouse or a double click.
-
-Actually time is not critical anymore with input drivers, because we
-report precise timestamps to the userspace.
-
-> 2) Let the hareware handle it, and add some new event such as BTN_TOUCH_DRAG.
-> 
-> I am not sure as to if kernel configuration or the second choice above
-> would be the best.
-
-I quite like option #2. I'd call it BTN_DRAG probably only. 
-
-> > Another configuration flag that I would like to export to userspace is
-> > if the user wants to be able to use the touchpad to click, and if so,
-> > also be able to use a drag-lock. Many people that I know hate these
-> > options....
-> 
-> > The ABS_* events seem to be directed towards toucdscreens and drawing
-> > tablets. Is it the right thing to do to convert to REL_ events in
-> > psmouse.c?
-> 
-> Now that I think about it, this point seems moot. The psmouse driver
-> is the only place where it would have mattered. It is a hack and
-> should die. 
-> 
-> On a side note, I like being able to mix multiple mouse devices. This
-> should be done in gpm, etc.... What is supposed to happen when a
-> device is hot-plugged? Will the hotplug daemon have to restart gpm
-> (and supply the correct arguments) when a device is removed or added?
-
-The hotplug agent (not a daemon, it's executed again on each hotplug
-event) will do anything you want. Namely it can send a SIGUSR to gpm, or
-connect to the X socket and explain the existence of a new device via
-the XFree86-Misc extension.
-
-> On the same Sony laptop, a key sometimes gets stuck down. It is almost
-> always the shift key. The enter key started repeating right after I
-> typed 'sudo halt'. My guess is that the key-release event is
-> getting lost somewhere and the autorepeat (now done in software and
-> not the keyboard that knows the correct state) is doing its job too
-> well. Could you give me some pointers in debugging this? This happens
-> in X and in the console.
-
-There may be a bug in the autorepeat code. I think there is a small race
-window which can cause the autorepeat continue even after the key is
-released if the autorepeat timer code is running at the time the key is
-being released.
-
-I'll try to fix it today and if it still has problems on your machine
-after that, we'll debug it there.
-
-> Is there a mailing list somewhere to which I should be sending this
-> message?
-
-Cc:ed. Btw, linux-kernel could be interested, too.
+Andreas.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316662AbSHJIEY>; Sat, 10 Aug 2002 04:04:24 -0400
+	id <S316667AbSHJIOt>; Sat, 10 Aug 2002 04:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316667AbSHJIEY>; Sat, 10 Aug 2002 04:04:24 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5134 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316662AbSHJIEX>; Sat, 10 Aug 2002 04:04:23 -0400
-Date: Sat, 10 Aug 2002 09:08:04 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at /usr/src/linux-2.5.30/include/linux/dcache.h:261!
-Message-ID: <20020810090803.A7235@flint.arm.linux.org.uk>
-References: <3D542D75.7FEA9DDF@zip.com.au> <8412.1028941782@ocs3.intra.ocs.com.au>
+	id <S316672AbSHJIOt>; Sat, 10 Aug 2002 04:14:49 -0400
+Received: from [218.63.89.128] ([218.63.89.128]:34318 "HELO TOPGIRL")
+	by vger.kernel.org with SMTP id <S316667AbSHJIOs>;
+	Sat, 10 Aug 2002 04:14:48 -0400
+From: =?ISO-8859-1?Q? "=C2=BD=CC=CE" ?= <luren998@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?Re:=D3=D5=BB=F3?=
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <8412.1028941782@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sat, Aug 10, 2002 at 11:09:42AM +1000
+Content-Type: text/plain; charset="GB2312"
+Date: Sat, 10 Aug 2002 16:18:30 GMT
+X-Priority: 3
+X-Mailer: JiXing mailer V1.73 Design By JohnnieHuang
+Message-Id: <20020810081448Z316667-685+27542@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 10, 2002 at 11:09:42AM +1000, Keith Owens wrote:
-> On Fri, 09 Aug 2002 14:00:37 -0700, 
-> Andrew Morton <akpm@zip.com.au> wrote:
-> >It would be much more useful if the oops code were to dump the
-> >text preceding the exception EIP rather than after it, actually.
-> >I think Keith said that ksymoops supports that.
-> 
-> Not only does ksymoops support it but some architectures already do
-> this.  Mind you, they are not consistent :(
-> 
-> Alpha:  Code: 44220001  f4200003  46520400 <a77d9c38> 6b9b4a40  a44803a8  42425401  42c10403  40603401
-> Arm:    Code: e7973108 e1a02423 (e5c42001) e5c43000 e1a02823
-> 
-> If any instruction in the code line is enclosed in <> or () then
-> ksymoops assumes that the first byte is EIP.
 
-In 2.5, I changed ARM to indicate the last word as the EIP (so we get more
-context as Andrew Morton suggests.)  However, ksymoops now seems to ignore
-the '()' !
 
-At some point I plan to check what happens if its the second to last.  I
-suspect ksymoops is looking for the strings ' (' and ') ', the second of
-which obviously doesn't exist.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+您的旅行社上网了吗？您的旅行社上网仅仅只为了宣传吗？最新权威研究表明，旅游是最适
+合于在网络上开展电子商务的行业，到2004年，线上旅游预定量将全面超过常规旅游的预定
+量，您和您的旅行社准备好了吗？
 
+我们的软件能帮您和您的旅行社从网络上赚到钱 --- TopBoy在线旅游预定/管理系统
+
+演示网站：http://www.365hot.com
+
+★ 全新的旅行社电子商务解决方案
+★ 方便的旅游线路预定系统
+★ 简捷的旅游网站自助管理系统
+
+后台管理功能
+================================================================================
+★ 可方便的管理推荐线路，在任何时间自由的发布/修改新线路，并可在不同季节修改不
+同的价格；（不必再请专业的网页制作公司修改或制作新的网页）；
+★ 可方便的管理景点信息、酒店信息，修改报价；
+★ 可实时的处理旅游者的预定单，方便的向预定者发送确认邮件；可查询/管理历史定单；
+★ 可对旅游者进行会员制管理，保存会员的资料以便日后联系；
+★ 可方便的发布旅游新闻，并可随时进行删除或修改；
+★ 功能强大的旅游论坛可进行论坛分类、贴子子管理、用户管理、模版管理、不良语句过
+滤等管理；
+★ 可方便的设置网站的相关信息，如：所留的电话、邮件、页面标题、广告条、“用户需
+知”等内容，无需另外修改网页，只要会打字就可以管理好网站；
+★ 可对网友发表的游记文章进行审核管理，并进行分类、模版等管理；
+★ 可设置投票功能，并对之进行修改；
+★ 可邮件列表功能，对邮件列表进行保存、导出等管理
+
+
+前台预定功能
+================================================================================
+★ 旅游者可选择推荐线路进行浏览，并可了解行程中每个景点或下榻酒店的详细情况，如
+果满意的话即可预定该线路，如果您对所有推荐线路均不满意的话，旅游者还可以选择自
+选线路，进行自选线路的预定，他可自己选择旅游的天数、行程、下榻的酒店、交通工具
+等......选择好后程序自动为您计算出旅行大概需要的费用，一切满意后即可下定单；
+★ 可对推荐线路、酒店进行多条件关键字组合查询，并可对线路、酒店进行预定；
+★ 可发表游记、发表贴子、查询天气预报、定阅邮件列表、查询定单、查询景点信息；
+
+================================================================================
+如需要了解价格或其它更详尽的信息，请按以下方式联系我们，谢谢！
+================================================================================
+
+开发商：中国昆明TopBoy.Net网络工作室
+演示网站：http://hot-365.com      http://www.top-play.com    http://www.365hot.com     
+公司网站: http://www.topboy.net     http://www.e-chinabuy.com
+咨询电话：13888766299 / 0871-6644326
+OICQ: 13555735
+
+
+
+
+
+
+ 
+ 

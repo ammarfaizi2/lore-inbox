@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261857AbTCDWUr>; Tue, 4 Mar 2003 17:20:47 -0500
+	id <S261660AbTCDW31>; Tue, 4 Mar 2003 17:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261874AbTCDWUr>; Tue, 4 Mar 2003 17:20:47 -0500
-Received: from [195.208.223.248] ([195.208.223.248]:10112 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261857AbTCDWUq>; Tue, 4 Mar 2003 17:20:46 -0500
-Date: Wed, 5 Mar 2003 01:30:37 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Donald Becker <becker@scyld.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, jamal <hadi@cyberus.ca>,
-       Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Jeff Garzik <jgarzik@pobox.com>, kuznet@ms2.inr.ac.ru,
-       david.knierim@tekelec.com, Robert Olsson <Robert.Olsson@data.slu.se>,
-       linux-kernel@vger.kernel.org, alexander@netintact.se
-Subject: Re: PCI init issues
-Message-ID: <20030305013037.A678@localhost.park.msu.ru>
-References: <20030303151412.A15195@jurassic.park.msu.ru> <Pine.LNX.4.44.0303041312230.974-100000@beohost.scyld.com>
+	id <S261900AbTCDW31>; Tue, 4 Mar 2003 17:29:27 -0500
+Received: from buitenpost.surfnet.nl ([192.87.108.12]:16786 "EHLO
+	buitenpost.surfnet.nl") by vger.kernel.org with ESMTP
+	id <S261660AbTCDW30>; Tue, 4 Mar 2003 17:29:26 -0500
+Date: Tue, 4 Mar 2003 23:39:53 +0100
+To: Brian Litzinger <brian@top.worldcontrol.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Booting 2.5.63 vs 2.4.20 I can't read multicast data
+Message-ID: <20030304223953.GA3114@pangsit>
+References: <20030304073939.GA31394@top.worldcontrol.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0303041312230.974-100000@beohost.scyld.com>; from becker@scyld.com on Tue, Mar 04, 2003 at 01:16:22PM -0500
+In-Reply-To: <20030304073939.GA31394@top.worldcontrol.com>
+X-Mailer: Mutt on Debian GNU/Linux sid
+X-Editor: vim
+X-Organisation: SURFnet bv
+X-Address: Radboudburcht, P.O. Box 19035, 3501 DA Utrecht, NL
+X-Phone: +31 302 305 305
+X-Telefax: +31 302 305 329
+User-Agent: Mutt/1.5.3i
+From: Niels den Otter <otter@surfnet.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 04, 2003 at 01:16:22PM -0500, Donald Becker wrote:
-> Incorrect.
-> Most quad Tulip boards have the bus bridge wired so that all interrupts
-> are sent on the INTA output of the board.
+Hi Brian,
 
-This can be true for older cards, but post-1998 hardware must follow
-the spec.
-PCI-to-PCI Bridge Architecture Specification, Rev 1.1, Dec 18, 1998,
-pp 113-114:
+On Monday,  3 March 2003, brian@worldcontrol.com wrote:
+> I give the 2.5 series a try every once in a while and found the 2.5.63
+> booted and ran reasonably well.
+> 
+> I happen to working on some multicast stuff and found that I can't
+> read multicast data when running 2.5.63.
+> 
+> Switched back to 2.4.20 and the multicast data reads fine.
+> 
+> Back to 2.5.63 and nada.  tcpdump shows the data showing up
+> at the interface.  I double checked the obvious stuff like
+> multicast being turned on in the kernel.
+> 
+> I even have tulip and rtl-8139 based cards I can switch between
+> and that made no difference either.
+> 
+> Is there something I have to set someplace to get multicast support in
+> 2.5.x?
 
- "... The interrupt binding defined in this table is mandatory for
-  expansion boards utilizing a bridge.
+You appear to be strugling with the same problem I have. What I find is
+that the multicast application binds to the loopback instead of ethernet
+interface (also no IGMP joins are send out on the ethernet interface).
+Can you please check the output of 'netstat -n -g' and see if the
+multicast address shows up at the correct interface?
 
-  [table skipped]
+Various people have provided hints on how (and in what order) to setup
+the interfaces, but uptil now I have not been able to receive any
+multicast data with 2.5 kernels.
 
-  Device 0 on a secondary bus will have its INTA# line connected to
-  the INTA# line of the connector. Device 1 will have its INTA# line
-  connected to INTB# of the connector. This sequence continues and
-  then wraps around once INTD# has been assigned."
+It would be nice to know if anyone is able to join multicast groups on
+2.5 kernels. Especially for applications that don't bind to a very
+specific interface, but leave this choice to the kernel.
 
-I know for a fact that at least D-Link card mentioned in some reports
-utilizes all four INT# lines, because I have one.
 
-Ivan.
+-- Niels

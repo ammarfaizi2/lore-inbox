@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293606AbSCEEiy>; Mon, 4 Mar 2002 23:38:54 -0500
+	id <S293604AbSCEElE>; Mon, 4 Mar 2002 23:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293604AbSCEEip>; Mon, 4 Mar 2002 23:38:45 -0500
-Received: from mnh-1-27.mv.com ([207.22.10.59]:19979 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S293606AbSCEEig>;
-	Mon, 4 Mar 2002 23:38:36 -0500
-Message-Id: <200203050440.XAA07022@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages 
-In-Reply-To: Your message of "Mon, 04 Mar 2002 23:28:06 EST."
-             <20020304232806.A31622@redhat.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 04 Mar 2002 23:40:29 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S293605AbSCEEkz>; Mon, 4 Mar 2002 23:40:55 -0500
+Received: from lsanca1-ar27-4-63-184-089.lsanca1.vz.dsl.gtei.net ([4.63.184.89]:62592
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S293604AbSCEEko>; Mon, 4 Mar 2002 23:40:44 -0500
+Date: Mon, 4 Mar 2002 20:40:26 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: Robert Love <rml@tech9.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5: preemptive kernel on UP
+In-Reply-To: <1015292630.882.78.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0203042037510.2947-100000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bcrl@redhat.com said:
-> From your explanation of things, you only need to do the memsets once
-> at  startup of UML where the ram is allocated -> a uml booted with
-> 64MB of  ram would write into every page of the backing store file
-> before even  running the kernel.  Doesn't that accomplish the same
-> thing?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Sort of, but it's very heavy-handed.  The UML will force memory to be
-allocated on the host long before it will ever be needed, and it may never
-be needed.  This patch doesn't waste memory like that.
 
-				Jeff
+Robert,
+
+In one message you wrote:
+
+> Patch [...] is critical for all UP+preempt users.
+
+and in another (in the same thread) you write:
+
+> The above fix isn't needed for i386
+
+I don't understand what to do in the UP i386 case - apply or not apply?
+
+I suspect I'm misunderstanding what you mean by "the above fix".
+
+Ben
+
+- -- 
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8hEw+sYXoezDwaVARAmByAJ4iW2lVfJO61hRoAYmwige/7fyY3ACfS7Lk
+ytnH2rCLgTvKgchWtt3cvVw=
+=tb/c
+-----END PGP SIGNATURE-----
 

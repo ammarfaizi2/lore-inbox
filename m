@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbUKFVJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbUKFVMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbUKFVJq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 16:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbUKFVJq
+	id S261473AbUKFVMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 16:12:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbUKFVMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 16:09:46 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:40104 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261472AbUKFVJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 16:09:43 -0500
-Date: Sat, 6 Nov 2004 21:09:23 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Chiaki <ishikawa@yk.rim.or.jp>
-cc: mru@inprovide.com, <anton@samba.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Configuration system bug? : tmpfs listing in /proc/filesystems
-    when TMPFS was not configured!?
-In-Reply-To: <418D0EFB.2040002@yk.rim.or.jp>
-Message-ID: <Pine.LNX.4.44.0411062044120.4132-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sat, 6 Nov 2004 16:12:25 -0500
+Received: from adsl-70-241-70-1.dsl.hstntx.swbell.net ([70.241.70.1]:23944
+	"EHLO leamonde.no-ip.org") by vger.kernel.org with ESMTP
+	id S261473AbUKFVMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 16:12:23 -0500
+Date: Sat, 6 Nov 2004 15:12:22 -0600
+From: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Console 80x50 SVGA
+Message-ID: <20041106211222.GA18108@leamonde.no-ip.org>
+References: <20041105224206.GA16741@leamonde.no-ip.org> <20041106073901.GA783@alpha.home.local> <20041106184112.GC16891@leamonde.no-ip.org> <20041106194343.GA29874@middle.of.nowhere>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041106194343.GA29874@middle.of.nowhere>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Nov 2004, Chiaki wrote:
-
-> (Please cc: me since I am not subscribed to linux-kernel list.)
+On Sat, Nov 06, 2004 at 08:43:43PM +0100, Jurriaan wrote:
+> From: Camilo A. Reyes <camilo@leamonde.no-ip.org>
+> Date: Sat, Nov 06, 2004 at 12:41:12PM -0600
+> > 
+> > If I may ask what vga number are you using to set it to 1024x768.
+> > I believe I have tried it before with no success, but I'm willing
+> > to try again.
 > 
-> I think there is something fishy about kernel 2.6.9.
+> Might I again refer you to google?
 > 
-> I failed to enable TMPFS during configuration of
-> my linux kernel 2.6.9.
+> Searching for 'linux framebuffer 1024x768 vga=' gives me 11.800 hits,
+> which surely is enough to choose from. Also, this is mentioned in
+> /usr/src/linux-<whatever version>/Documentation/fb/<somefile, depending
+> on your framebuffer, which you didn't mention>. Those docs were lovingly
+> crafted by kernel hackers hoping to answer all the questions users may
+> have, so it would be a shame not to use them, right?
 > 
-> However, somehow /proc/filesystems lists "nodev tmpfs" line !?
-> 
-> Is this to be expected?
+> Good luck,
+> Jurriaan
+> -- 
+> A seminar on Time Travel will be held two weeks ago.
+> Debian (Unstable) GNU/Linux 2.6.9-mm1 2x6078 bogomips load 0.05
 
-It's been like that since 2.4.4.  I suspect it started out as a mistake,
-but it's been like that for so long, I've been reluctant to change it
-for fear of what might break instead.
+Actually I knew what the answer to that question was, its 795 for 1024x768
+and 32 bpp, I was just asking to check for consistency. :-P Anyhow, that
+documentation talks about using fbset, I gave that a shot and now my entire
+tty is dead. :-( It also mentions lots of bugs, hmmm not sure if it's even
+worth looking deeper into this. But let me set up some kernel parameters
+and restart my system to see what happens, I always refrain from restarting
+the system, but oh well.
 
-> Background:
-> I found this hard way. At least one program, namely,
-> Debian udev package checks whether the system
-> supports tmpfs by looking at the contents of /proc/filesystems.
-> Because of this entry in /proc/filesystems, the script fails miserably
-> now.
-
-That seems a reasonable thing to do, and it may be okay even
-despite the misleading advertizement of tmpfs in /proc/filesystems,
-if the mount fails as it should.
-
-> Because of the listing of tmpfs although TMPFS was not configured(!?),
-> a system initialization script for udev is fooled into believing that
-> tmpfs is supported and tries to mount tmpfs on /dev.
-> 
-> Worse. Somehow the mount command doesn't complain
-> about tmpfs not supported, and returns succcess code to the
-> invoking shell. (I checked.)
-> (If mount fails, then we can probably fix the script to detect the
-> internal consistency problem and quits.)
-
-This is the really bad part, that is new behaviour in 2.6.9, and
-my fault for not thinking harder about MS_NOUSER.  Worse than that,
-it leaves the directory in a bizarre state, "Not a directory" when
-you try to list it for example - Anton reported this weeks ago, but
-we couldn't reproduce it, not knowing it needed CONFIG_TMPFS off.
-
-Please try the patch below (against 2.6.9, I'll send Andrew and Linus
-the same for 2.6.10-rc later, with proper comment), it fixes mount to
-fail cleanly when CONFIG_TMPFS is off.  Let us (or Debian) know if it
-also then fixes the Debian udev initialization in this case.
-
-Thanks,
-Hugh
-
---- 2.6.9/mm/shmem.c	2004-10-18 22:56:29.000000000 +0100
-+++ linux/mm/shmem.c	2004-11-06 21:04:41.743173040 +0000
-@@ -1904,6 +1904,8 @@ static int shmem_fill_super(struct super
- 		sbinfo->max_inodes = inodes;
- 		sbinfo->free_inodes = inodes;
- 	}
-+#else
-+	sb->s_flags |= MS_NOUSER;
- #endif
- 
- 	sb->s_maxbytes = SHMEM_MAX_BYTES;
-
+BTW, my framebuffer its the aty128fb.

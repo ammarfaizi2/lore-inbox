@@ -1,148 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbTGBIGo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 04:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264806AbTGBIGk
+	id S263632AbTGBIFu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 04:05:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTGBIFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 04:06:40 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:9808 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S263945AbTGBIGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 04:06:32 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Washing suspend code
-From: <ffrederick@prov-liege.be>
-Date: Wed, 2 Jul 2003 10:43:11 CEST
-Reply-To: <ffrederick@prov-liege.be>
-X-Priority: 3 (Normal)
-X-Originating-Ip: [10.10.0.30]
-X-Mailer: NOCC v0.9.5
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <S263945AbTGBIGc/20030702080632Z+4079@vger.kernel.org>
+	Wed, 2 Jul 2003 04:05:50 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:19601 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S263632AbTGBIFr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 04:05:47 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] O1int 0307021808 for interactivity
+Date: Wed, 2 Jul 2003 18:23:56 +1000
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_capA/EyBZKljIsD"
+Message-Id: <200307021823.56904.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--replacing INTERESTING macro by touchable_process fx
--moving flags declaration fx global
--yield after 'time_after'
--some code washing
--removing 'lock comment' we already do the read_lock() on tasklist
 
+--Boundary-00=_capA/EyBZKljIsD
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---- linux-2.5.73/kernel/suspend.c	2003-06-22 20:32:38.000000000 +0200
-+++ edited/kernel/suspend.c	2003-07-02 10:07:44.000000000 +0200
-@@ -29,6 +29,9 @@
-  * Alex Badea <vampire@go.ro>:
-  * Fixed runaway init
-  *
-+ * Fabian Frédérick <ffrederick@users.sourceforge.net>
-+ * Washing code in freeze_processes
-+ * 
-  * More state savers are welcome. Especially for the scsi layer...
-  *
-  * For TODOs,FIXMEs also look in Documentation/swsusp.txt
-@@ -164,15 +167,6 @@ static const char name_resume[] = "Resum
-  * Refrigerator and related stuff
-  */
+This latest patch I'm formally announcing has the base O1int changes so far 
+but includes new semantics for freshly started applications so they can 
+become interactive very rapidly even during heavy load. This addresses the 
+"slow to start new apps" evident in O1int so far.
+
+Please test this one and note given just how rapidly things can become 
+interactive it may have regressions in other settings.
+
+This performs better in all settings than any previous one I've posted in my 
+testing, but hardware differs substantially!
+
+The latest should always be found:
+http://kernel.kolivas.org/2.5
+
+Con
+
+--Boundary-00=_capA/EyBZKljIsD
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch-O1int-0307021808"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-O1int-0307021808"
+
+--- linux-2.5.73/include/linux/sched.h	2003-06-30 10:06:40.000000000 +1000
++++ linux-2.5.73-test/include/linux/sched.h	2003-07-01 11:56:08.000000000 +1000
+@@ -336,6 +336,7 @@ struct task_struct {
+ 	prio_array_t *array;
  
--#define INTERESTING(p) \
--			/* We don't want to touch kernel_threads..*/ \
--			if (p->flags & PF_IOTHREAD) \
--				continue; \
--			if (p == current) \
--				continue; \
--			if (p->state == TASK_ZOMBIE) \
--				continue;
--
- /* Refrigerator is place where frozen processes are stored :-). */
- void refrigerator(unsigned long flag)
- {
-@@ -197,12 +191,20 @@ void refrigerator(unsigned long flag)
- 	PRINTK("%s left refrigerator\n", current->comm);
- 	current->state = save;
+ 	unsigned long sleep_avg;
++	unsigned long avg_start;
+ 	unsigned long last_run;
+ 
+ 	unsigned long policy;
+--- linux-2.5.73/kernel/sched.c	2003-06-30 10:06:40.000000000 +1000
++++ linux-2.5.73-test/kernel/sched.c	2003-07-02 17:57:04.000000000 +1000
+@@ -72,6 +72,7 @@
+ #define EXIT_WEIGHT		3
+ #define PRIO_BONUS_RATIO	25
+ #define INTERACTIVE_DELTA	2
++#define MIN_SLEEP_AVG		(HZ)
+ #define MAX_SLEEP_AVG		(10*HZ)
+ #define STARVATION_LIMIT	(10*HZ)
+ #define NODE_THRESHOLD		125
+@@ -297,6 +298,21 @@ static inline void enqueue_task(struct t
+ 	p->array = array;
  }
-+int touchable_process (struct task_struct *p)
+ 
++static inline void normalise_sleep(task_t *p)
 +{
-+	return(!((p->flags & PF_IOTHREAD) || (p == current) || (p->state == TASK_ZOMBIE)))
++	int old_avg_time, new_avg_time;
++	new_avg_time = MIN_SLEEP_AVG;
++	old_avg_time = jiffies - p->avg_start;
++	if (old_avg_time < new_avg_time) return;
 +
++	if (p->sleep_avg > MAX_SLEEP_AVG)
++		p->sleep_avg = MAX_SLEEP_AVG;
++	if (old_avg_time > MAX_SLEEP_AVG)
++		old_avg_time = MAX_SLEEP_AVG;
++	p->sleep_avg = p->sleep_avg * new_avg_time / old_avg_time;
++	p->avg_start = jiffies - new_avg_time;
 +}
- 
--/* 0 = success, else # of processes that we failed to stop */
-+/* Trying to freeze all processes without kernel threads, zombies and current 
-+ * Returns 0 : Success
-+ *         # : 
-+ */
- int freeze_processes(void)
++
+ /*
+  * effective_prio - return the priority that is based on the static
+  * priority but is modified by bonuses/penalties.
+@@ -314,11 +330,23 @@ static inline void enqueue_task(struct t
+ static int effective_prio(task_t *p)
  {
--       int todo;
--       unsigned long start_time;
-+	int todo;
-+	unsigned long start_time, flags;
- 	struct task_struct *g, *p;
- 	
- 	printk( "Stopping tasks: " );
-@@ -211,26 +213,23 @@ int freeze_processes(void)
- 		todo = 0;
- 		read_lock(&tasklist_lock);
- 		do_each_thread(g, p) {
--			unsigned long flags;
--			INTERESTING(p);
--			if (p->flags & PF_FROZEN)
--				continue;
--
--			/* FIXME: smp problem here: we may not access other process' flags
--			   without locking */
--			p->flags |= PF_FREEZE;
--			spin_lock_irqsave(&p->sighand->siglock, flags);
--			signal_wake_up(p, 0);
--			spin_unlock_irqrestore(&p->sighand->siglock, flags);
--			todo++;
-+			if(touchable_process(p)){
-+				if (p->flags & PF_FROZEN)
-+					continue;
-+				p->flags |= PF_FREEZE;
-+				spin_lock_irqsave(&p->sighand->siglock, flags);
-+				signal_wake_up(p, 0);
-+				spin_unlock_irqrestore(&p->sighand->siglock, flags);
-+				todo++;
-+			}
- 		} while_each_thread(g, p);
- 		read_unlock(&tasklist_lock);
--		yield();			/* Yield is okay here */
- 		if (time_after(jiffies, start_time + TIMEOUT)) {
- 			printk( "\n" );
- 			printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
- 			return todo;
- 		}
-+		yield();
- 	} while(todo);
- 	
- 	printk( "|\n" );
-@@ -245,12 +244,13 @@ void thaw_processes(void)
- 	printk( "Restarting tasks..." );
- 	read_lock(&tasklist_lock);
- 	do_each_thread(g, p) {
--		INTERESTING(p);
--		
--		if (p->flags & PF_FROZEN) p->flags &= ~PF_FROZEN;
--		else
--			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
--		wake_up_process(p);
-+		if(touchable_process(p)){
-+			if (p->flags & PF_FROZEN) 
-+				p->flags &= ~PF_FROZEN;
-+			else
-+				printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
-+			wake_up_process(p);
-+		}
- 	} while_each_thread(g, p);
+ 	int bonus, prio;
++	long sleep_period;
  
- 	read_unlock(&tasklist_lock);
+ 	if (rt_task(p))
+ 		return p->prio;
+ 
+-	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/MAX_SLEEP_AVG/100 -
++	sleep_period = jiffies - p->avg_start;
++
++	if (!sleep_period)
++		return p->static_prio;
++
++	if (sleep_period > MAX_SLEEP_AVG)
++		sleep_period = MAX_SLEEP_AVG;
++
++	if (p->sleep_avg > sleep_period)
++		sleep_period = p->sleep_avg;
++
++	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/sleep_period/100 -
+ 			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
+ 
+ 	prio = p->static_prio - bonus;
+@@ -349,7 +377,7 @@ static inline void activate_task(task_t 
+ 	long sleep_time = jiffies - p->last_run - 1;
+ 
+ 	if (sleep_time > 0) {
+-		int sleep_avg;
++		int runtime = jiffies - p->avg_start;
+ 
+ 		/*
+ 		 * This code gives a bonus to interactive tasks.
+@@ -359,7 +387,10 @@ static inline void activate_task(task_t 
+ 		 * spends sleeping, the higher the average gets - and the
+ 		 * higher the priority boost gets as well.
+ 		 */
+-		sleep_avg = p->sleep_avg + sleep_time;
++		p->sleep_avg += sleep_time;
++		if (runtime < MAX_SLEEP_AVG)
++			p->sleep_avg += (runtime - p->sleep_avg) * (MAX_SLEEP_AVG - runtime)/MAX_SLEEP_AVG;
++
+ 
+ 		/*
+ 		 * 'Overflow' bonus ticks go to the waker as well, so the
+@@ -367,12 +398,17 @@ static inline void activate_task(task_t 
+ 		 * boosting tasks that are related to maximum-interactive
+ 		 * tasks.
+ 		 */
+-		if (sleep_avg > MAX_SLEEP_AVG)
+-			sleep_avg = MAX_SLEEP_AVG;
+-		if (p->sleep_avg != sleep_avg) {
+-			p->sleep_avg = sleep_avg;
+-			p->prio = effective_prio(p);
++		if (p->sleep_avg > MAX_SLEEP_AVG * 12/10)
++			p->sleep_avg = MAX_SLEEP_AVG * 11/10;
++		if (sleep_time > MIN_SLEEP_AVG){
++			p->avg_start = jiffies - MIN_SLEEP_AVG;
++			p->sleep_avg = MIN_SLEEP_AVG / 2;
+ 		}
++		if (unlikely(p->avg_start > jiffies)){
++			p->avg_start = jiffies;
++			p->sleep_avg = 0;
++		}
++		p->prio = effective_prio(p);
+ 	}
+ 	__activate_task(p, rq);
+ }
+@@ -550,6 +586,8 @@ void wake_up_forked_process(task_t * p)
+ 	 * from forking tasks that are max-interactive.
+ 	 */
+ 	current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
++	p->avg_start = current->avg_start;
++	normalise_sleep(p);
+ 	p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
+ 	p->prio = effective_prio(p);
+ 	set_task_cpu(p, smp_processor_id());
 
-
-___________________________________
-
-
+--Boundary-00=_capA/EyBZKljIsD--
 

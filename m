@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267171AbUHOWIC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267176AbUHOWI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267171AbUHOWIC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 18:08:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267176AbUHOWIC
+	id S267176AbUHOWI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 18:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUHOWI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 18:08:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5003 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267171AbUHOWH6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 18:07:58 -0400
-Message-ID: <411FDEA9.2010802@pobox.com>
-Date: Sun, 15 Aug 2004 18:07:37 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: new tool:  blktool
-References: <411FD744.2090308@pobox.com> <1092603321.18410.5.camel@localhost.localdomain>
-In-Reply-To: <1092603321.18410.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 15 Aug 2004 18:08:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53431 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267176AbUHOWI0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 18:08:26 -0400
+Date: Sun, 15 Aug 2004 15:06:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: kai@germaschewski.name, sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] 2.6.8-rc4-mm1 - Fix UML build
+Message-Id: <20040815150635.5ac4f5df.akpm@osdl.org>
+In-Reply-To: <200408120414.i7C4EtJd010481@ccure.user-mode-linux.org>
+References: <200408120414.i7C4EtJd010481@ccure.user-mode-linux.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sul, 2004-08-15 at 22:36, Jeff Garzik wrote:
-> 
->>	$ hdparm -c1 /dev/hda
->>		becomes
->>	$ blktool /dev/hda pio-data 32-bit
-> 
-> 
-> So you've replaced hdparm's weird but unixish command line with an
-> even more demented non linuxish one that doesn't handle regexps for
-> drive names ?
-> 
-> Whatever happened to
-> 
-> 	blktool /dev/hda --pio-data=32
+Jeff Dike <jdike@addtoit.com> wrote:
+>
+> The patch below makes UML build in the face of the ldchk addition to 2.6.8.
+
+Confused.  Your vmlinux.lds.S doesn't look anything like mine:
 
 
-Yep, it's more like ethtool(8) or cvs(1) in its syntax.  There is big 
-difference in usability (for me anyway) between "command [options]..." 
-and an unordered list of --args.  Especially as the list of commands 
-grows longer.  It provides more structure.
+#include <asm-generic/vmlinux.lds.h>
+	
+OUTPUT_FORMAT(ELF_FORMAT)
+OUTPUT_ARCH(ELF_ARCH)
+ENTRY(_start)
+jiffies = jiffies_64;
 
-Each command can have options, --foo-bar=baz if you like, I suppose.
-
-	Jeff
-
+SECTIONS
+{
+#include "asm/common.lds.S"
+}
 

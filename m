@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313898AbSERTxt>; Sat, 18 May 2002 15:53:49 -0400
+	id <S313867AbSERU5N>; Sat, 18 May 2002 16:57:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313925AbSERTxs>; Sat, 18 May 2002 15:53:48 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:27873 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S313898AbSERTxr>; Sat, 18 May 2002 15:53:47 -0400
-Date: Sat, 18 May 2002 21:53:40 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Anton Altaparmakov <aia21@cantab.net>
-cc: mikeH <mikeH@notnowlewis.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: linux 2.5.16 and VIA Chipset
-In-Reply-To: <5.1.0.14.2.20020518194031.04025d10@pop.cus.cam.ac.uk>
-Message-ID: <Pine.NEB.4.44.0205182152080.27644-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S313925AbSERU5N>; Sat, 18 May 2002 16:57:13 -0400
+Received: from ucsu.Colorado.EDU ([128.138.129.83]:1238 "EHLO
+	ucsu.colorado.edu") by vger.kernel.org with ESMTP
+	id <S313867AbSERU5M>; Sat, 18 May 2002 16:57:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ivan Gyurdiev <ivangurdiev@linuxfreemail.com>
+Reply-To: ivangurdiev@linuxfreemail.com
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.5.16 Keyboard bug
+Date: Sat, 18 May 2002 08:51:32 -0600
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <02051808513200.01086@cobra.linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 May 2002, Anton Altaparmakov wrote:
+...is still there.
+Sure, acpi=off "fixes" it, but that's not really a fix.
 
->...
-> Not true in 2.5.x. ACPI is not dependent on config experimental. Just checked.
->...
-> Not true in 2.5.x. Power management is not a prerequisite for ACPI in
->...
+Question...is this an acpi bug or a keyboard bug?
+Is there an existing patch to correct this that hasn't been merged into the 
+kernel yet?
 
-Ups, sorry, my error. Despite the subject of the thread I was looking
-in 2.4 ...
+[root@cobra log]# grep "AT keyboard" messages
+May 14 17:58:57 cobra kernel: keyboard: Timeout - AT keyboard not present?(ed)
+May 14 17:59:00 cobra kernel: keyboard: Timeout - AT keyboard not present?(f4)
+May 14 18:26:56 cobra kernel: keyboard: Timeout - AT keyboard not present?(ed)
+May 14 18:26:59 cobra kernel: keyboard: Timeout - AT keyboard not present?(f4)
+.......
 
+etc
 
-> Anton
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+Mouse is fine until keyboard input freezes everything.
 

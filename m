@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289140AbSBSA7Y>; Mon, 18 Feb 2002 19:59:24 -0500
+	id <S289138AbSBSBEe>; Mon, 18 Feb 2002 20:04:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289138AbSBSA7R>; Mon, 18 Feb 2002 19:59:17 -0500
-Received: from ns.snowman.net ([63.80.4.34]:15624 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S289096AbSBSA7C>;
-	Mon, 18 Feb 2002 19:59:02 -0500
-Date: Mon, 18 Feb 2002 19:58:13 -0500
-From: Stephen Frost <sfrost@snowman.net>
-To: bert hubert <ahu@ds9a.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: jiffies rollover, uptime etc.
-Message-ID: <20020218195813.O20319@ns>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C717DEA.7090309@candelatech.com> <E16cwUx-00073d-00@the-village.bc.nu> <20020219002614.A27210@outpost.ds9a.nl>
+	id <S289117AbSBSBEY>; Mon, 18 Feb 2002 20:04:24 -0500
+Received: from sr1.terra.com.br ([200.176.3.16]:16078 "EHLO sr1.terra.com.br")
+	by vger.kernel.org with ESMTP id <S289115AbSBSBEO>;
+	Mon, 18 Feb 2002 20:04:14 -0500
+Date: Mon, 18 Feb 2002 21:39:17 -0300
+From: Gustavo Noronha Silva <kov@debian.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: gnome-terminal acts funny in recent 2.5 series
+Message-Id: <20020218213917.60e4dd5c.kov@debian.org>
+In-Reply-To: <3C719641.3040604@oracle.com>
+In-Reply-To: <3C719641.3040604@oracle.com>
+Organization: Debian-BR
+X-Mailer: Sylpheed version 0.7.1claws12 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Operating-System: Debian GNU/Linux SID
+X-Face: BUFAba1BC<T<>{/6^&XIbU0Ja-yvA>@_Aq,6x\\v4P|cLoc|[OA)cTjqB4<l3e_~P<1"De[ V9(^p$M9?\H#o13H!u&Ql-@@tc\6CtR`qw~-JLOW}vR^|t6EKEb.7JcLW1)#(/d(psSss+.StN-7j& !,6
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="P3sknYnWZi2jLDOU"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020219002614.A27210@outpost.ds9a.nl>; from ahu@ds9a.nl on Tue, Feb 19, 2002 at 12:26:14AM +0100
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.2.16 (i686)
-X-Uptime: 7:55pm  up 103 days, 22:06, 12 users,  load average: 1.01, 1.04, 1.01
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 19 Feb 2002 01:03:13 +0100
+Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
 
---P3sknYnWZi2jLDOU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Running Ximian-latest for rh72/i386, latest 2.5 kernels (including
+>   2.5.4-pre2, 2.5.4, 2.5.5-pre1).
+> 
+> Symptom:
+>    - clicking on the panel icon for gnome-terminal shows a flicker
+>       of the terminal window coming up then the window disappears.
+>      No leftover processes.
+> 
+> What works 100%:
+>    - regular xterm in 2.5.x
+>    - gnome-terminal in 2.4.x (x in .17, .18-pre9, .18-rc2)
+I noticed this problem also... it seems the problem lies on
+devpts, I enabled it on my 2.5.5pre1 build, mounting
+devpts with the options given on the "readme" file
+made gnome-terminal start on the second try, almost
+everytime
 
-* bert hubert (ahu@ds9a.nl) wrote:
-> $ uname -a ; uptime
-> Linux newyork-1 2.2.18 #3 Mon Dec 11 15:57:33 EST 2000 i686 unknown
->   6:22pm  up 425 days,  1:35,  3 users,  load average: 0.10, 0.05, 0.01
+[]s!
 
-Linux ns2 2.2.16 #1 Sun Jul 30 21:57:38 EDT 2000 i386 unknown
- 19:55:29 up 1 day, 15:06,  1 user,  load average: 0.00, 0.03, 0.00
-
--rw-r--r--    1 root     root         1569 Oct  8  2000 /var/log/dmesg
-
-No problems here so far, just wrapped.  Processes seemed to all handle
-it okay though ps now shows some things started in 2003.. :)
-
-> This server is pretty remote and hard to reach, and not sure to reboot
-> properly unattended - are there predictions about how well 2.2.18 will
-> survive jiffy wraparound?
-
-It's honestly not good to not know how to reboot a box unattended. :)
-
-> Would you consider it worth rebooting for? By the way, this is our second
-> most important production server, I'm exceedingly pleased with the
-> stability. We've abused it no end.
-
-I'd certainly make arrangements to have it rebooted if necessary.  If
-rebooting is a huge problem then I'd say just have someone on hand in
-case you *have* to.
-
-	Stephen
-
---P3sknYnWZi2jLDOU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8caMlrzgMPqB3kigRAraYAJ0bGmr82ZMqHDTkF3591jpQaP4O6ACfct8p
-xDKpL92D0/bp5108s6U6vYw=
-=0Ufc
------END PGP SIGNATURE-----
-
---P3sknYnWZi2jLDOU--
+-- 
+    Gustavo Noronha Silva - kov <http://www.metainfo.org/kov>
+*---------* -+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+-+
+|  .''`.  | Debian GNU/Linux: <http://www.debian.org>         |
+| : :'  : + Debian BR.......: <http://debian-br.cipsga.org.br>+
+| `. `'`  + Q: "Why did the chicken cross the road?"          +
+|   `-    | A: "Upstream's decision." -- hmh                  |
+*---------* -+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+-+

@@ -1,111 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319161AbSIJQLH>; Tue, 10 Sep 2002 12:11:07 -0400
+	id <S317611AbSIJQQq>; Tue, 10 Sep 2002 12:16:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319163AbSIJQLH>; Tue, 10 Sep 2002 12:11:07 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:45834 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S319161AbSIJQLG>;
-	Tue, 10 Sep 2002 12:11:06 -0400
-Date: Tue, 10 Sep 2002 09:16:05 -0700
-From: Dave Olien <dmo@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [2.5] DAC960
-Message-ID: <20020910091605.A23706@acpi.pdx.osdl.net>
-References: <E17odbY-000BHv-00@f1.mail.ru> <20020910062030.GL8719@suse.de>
+	id <S317619AbSIJQQq>; Tue, 10 Sep 2002 12:16:46 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:11149 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317611AbSIJQQj>;
+	Tue, 10 Sep 2002 12:16:39 -0400
+Date: Tue, 10 Sep 2002 09:20:15 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+Message-ID: <20020910092015.B7765@eng2.beaverton.ibm.com>
+References: <patmans@us.ibm.com> <200209091734.g89HY5p11796@localhost.localdomain> <20020909170847.A24352@eng2.beaverton.ibm.com> <10209100055.ZM65139@classic.engr.sgi.com> <20020910130427.GP2992@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020910062030.GL8719@suse.de>; from axboe@suse.de on Tue, Sep 10, 2002 at 08:20:30AM +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020910130427.GP2992@marowsky-bree.de>; from lmb@suse.de on Tue, Sep 10, 2002 at 03:04:27PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 10, 2002 at 03:04:27PM +0200, Lars Marowsky-Bree wrote:
+> On 2002-09-10T00:55:58,
+>    Jeremy Higdon <jeremy@classic.engr.sgi.com> said:
+> 
+> > Is there any plan to do something for hardware RAIDs in which two different
+> > RAID controllers can get to the same logical unit, but you pay a performance
+> > penalty when you access the lun via both controllers? 
+> 
+> This is implemented in the md multipath patch in 2.4; it distinguishes between
+> "active" and "spare" paths.
+> 
+> The LVM1 patch also does this by having priorities for each path and only
+> going to the next priority group if all paths in the current one have failed,
+> which IMHO is slightly over the top but there is always someone who might need
+> it ;-)
+> 
+> This functionality is a generic requirement IMHO.
+> 
+> 
+> Sincerely,
+>     Lars Marowsky-Brée <lmb@suse.de>
 
-I've also been mucking about with the DAC960 driver.  
-We've got several DAC960 devices in our lab, of
-two different versions, I believe.
+The current scsi multi-path has a default setting of "last path used", so
+that it will always work with such controllers (I refer to such controllers
+as fail-over devices). You have to modify the config, or boot with a
+flag to get round-robin path selection. Right now, all paths will start
+out on the same adapter (initiator), this is bad if you have more than
+a few arrays attached to and adapter.
 
-I've fixed a few minor typos in the version that's in
-the kernel.org source.  For example, the way the
-code references the controller lock doesn't quite work.
-The driver uses that lock before the request queue for the
-controller has been allocated.  So, the controller locking
-functions can't reference that lock through the request queue.
-I've changed it to reference the lock through the controller
-structure directly.
+I was planning on implementing something similiar to what you describe 
+for LVM1, with path weighting. Yes, it seems a bit heavy, but if there
+are only two weights or priorities, it looks just like your active/spare
+code, and is a bit more flexible.
 
-I've been working on the DMA mapping changes.   I've been
-doing a pretty straight-forward set of changes.  As a second
-pass, I'm thinking there might be some better ways to manage
-the DMA mappings.
+Figuring out what ports are active or spare is not easy, and varies
+from array to array. This is a (another) good canidate for user level
+probing/configuration. I will likely probably hard-code device
+personallity information into the kernel for now, and hopefully in
+2.7 we could move SCSI to user level probe/scan/configure.
 
-I'll post some initial changes at the endof the week, and perhaps
-you can give it some review?
+I have heard that some arrays at one time had a small penalty for
+switching controllers, and it was best to use the last path used,
+but it was still OK to use both at the same time (cache warmth). I
+was trying to think of a way to allow good load balancing in such
+cases, but didn't come up with a good solution. Like use last path
+used selection, and once a path is too "busy" move to another path
+- but then all devices might switch at the same time; some hearistics
+or timing could probably be added to avoid such problems. The code
+allows for path selection in a single function, so it should not
+be difficult to add more complex path selection.
 
+I have also put NUMA path selection into the latest code. I've tested
+it with 2.5.32, and a bunch of NUMA + NUMAQ patches on IBM/Sequent
+NUMAQ systems.
 
-On Tue, Sep 10, 2002 at 09:30:28AM +0400, Samium Gromoff wrote:
->       Hello folks, i`m looking at the DAC960 driver and i have
-> realised its implemented at the block layer, bypassing SCSI.
-> 
->    So given i have some motivation to have a working 2.5 DAC960
-> driver (i have one, being my only controller)
-> i`m kinda pondering the matter.
-> 
->    Questions:
->        1. Whether we need the thing to be ported to SCSI
-> layer, as opposed to leaving it being a generic block device? (i suppose yes)
->        2. Which 2.5 SCSI driver should i use as a start of learning?
->        3. Whether the SCSI driver API would change during 2.5?
-> 
-> ---
-> regards,
->    Samium Gromoff
-> ____________
-> ________________________________
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-On Tue, Sep 10, 2002 at 08:20:30AM +0200, Jens Axboe wrote:
-> On Tue, Sep 10 2002, Samium Gromoff wrote:
-> >       Hello folks, i`m looking at the DAC960 driver and i have
-> > realised its implemented at the block layer, bypassing SCSI.
-> > 
-> >    So given i have some motivation to have a working 2.5 DAC960
-> > driver (i have one, being my only controller)
-> > i`m kinda pondering the matter.
-> > 
-> >    Questions:
-> >        1. Whether we need the thing to be ported to SCSI
-> > layer, as opposed to leaving it being a generic block device? (i suppose yes)
-> 
-> No
-> 
-> >        2. Which 2.5 SCSI driver should i use as a start of learning?
-> 
-> Don't bother
-> 
-> >        3. Whether the SCSI driver API would change during 2.5?
-> 
-> Possibly
-> 
-> The DAC960 mainly needs updating to the pci dma api, and to be adjusted
-> for the bio changes. Please coordinate with Daniel Philips (and check
-> the list archives, we had a talk about this very driver some weeks ago),
-> since he's working on making it work in 2.5 again as well.
-> 
-> -- 
-> Jens Axboe
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- Patrick Mansfield

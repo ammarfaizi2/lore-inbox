@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVBJKCj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVBJKMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbVBJKCj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 05:02:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVBJKCj
+	id S262087AbVBJKMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 05:12:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVBJKMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 05:02:39 -0500
-Received: from ip213-185-37-13.laajakaista.mtv3.fi ([213.185.37.13]:640 "EHLO
-	three.holviala.com") by vger.kernel.org with ESMTP id S262081AbVBJKCh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 05:02:37 -0500
-Message-ID: <420B2B01.5020206@holviala.com>
-Date: Thu, 10 Feb 2005 11:36:01 +0200
-From: Kim Holviala <kim@holviala.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Thu, 10 Feb 2005 05:12:16 -0500
+Received: from village.ehouse.ru ([193.111.92.18]:23044 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S262087AbVBJKMJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 05:12:09 -0500
+From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
+To: admin@list.net.ru
+Subject: Re: 2.6.10 devfs oops without devfs mounted at all
+Date: Thu, 10 Feb 2005 13:12:02 +0300
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200502082013.50959.rathamahata@ehouse.ru> <20050209163624.44557750.akpm@osdl.org> <200502101249.30878.rathamahata@ehouse.ru>
+In-Reply-To: <200502101249.30878.rathamahata@ehouse.ru>
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Spontaneous reboot with 2.6.10 and NFSD
-References: <420B0FCD.4000801@holviala.com> <16907.10130.293919.399727@cse.unsw.edu.au>
-In-Reply-To: <16907.10130.293919.399727@cse.unsw.edu.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502101312.03026.rathamahata@ehouse.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Thursday February 10, kim@holviala.com wrote:
+On Thursday 10 February 2005 12:49, Sergey S. Kostyliov wrote:
+> On Thursday 10 February 2005 03:36, Andrew Morton wrote:
+> > "Sergey S. Kostyliov" <rathamahata@ehouse.ru> wrote:
+> > >
+> > > Here is an oops I've just get on my smp system:
+> > > 
+> > > Unable to handle kernel NULL pointer dereference at virtual address 0000001c
+> > >  printing eip:
+> > > c01afe5b
+> > > *pde = 00000000
+> > > Oops: 0000 [#1]
+> > > PREEMPT SMP
+> > > Modules linked in: ipt_REJECT ipt_state ip_conntrack iptable_filter
+> > > CPU:    2
+> > > EIP:    0060:[<c01afe5b>]    Not tainted VLI
+> > > EFLAGS: 00010286   (2.6.10)
+> > > EIP is at devfsd_close+0x1b/0xc8
+> > > eax: f7440a00   ebx: 00000000   ecx: c01afe40   edx: ed395280
+> > > esi: 00000000   edi: f7f17800   ebp: f74f96c8   esp: cdc70f84
+> > > ds: 007b   es: 007b   ss: 0068
+> > > Process megamgr.bin (pid: 12844, threadinfo=cdc70000 task=dd81e520)
+> > > Stack: ed395280 ed395280 00000000 f7f17800 c0150c76 ee9e87f8 ed395280 00000000
+> > >        f1985c80 cdc70000 c014f50f 00000003 00000003 080caa60 00000000 c01024df
+> > >        00000003 080cc700 bfffe4f8 080caa60 00000000 bfffe4fc 00000006 0000007b
+> > > Call Trace:
+> > >  [<c0150c76>] __fput+0x106/0x120
+> > >  [<c014f50f>] filp_close+0x4f/0x80
+> > >  [<c01024df>] syscall_call+0x7/0xb
+> > 
+> > Can you work out what file is being closed?  One way of doing that would be
+> > to work out how megamgr.bin is being invoked and to then run it by hand:
+> > 
+> >  strace -f -o log megamgr.bin <args>
+> > 
+> > and we can then use the strace output to work out the pathname of the
+> > offending file.
 > 
->>Anyway, I mount the export to a Linux client (tried with a few with 
->>different 2.6 kernels and distros) and then start copying files from 
->>clients CDROM to the server through NFS. After copying a few small 
->>files, the first big one reboots the server.
+> rathamahata@terror rathamahata $ grep 'open(' mg.log
+> 5255  open("/usr/share/terminfo/l/linux", O_RDONLY) = 3
+> 5255  open("/dev/megadev0", O_RDONLY)   = 3
+> rathamahata@terror rathamahata $
+Sorry, I forgot this part:
+rathamahata@terror rathamahata $ grep 'close(' mg.log
+5255  close(3)                          = 0
+rathamahata@terror rathamahata $
+
 > 
-> Can you be specific about the size of the "big" file?
+> I guess it's /dev/megadev0 (manually created character device)
+> 
+> rathamahata@terror rathamahata $ ls -la /dev/megadev0
+> crw-r--r--  1 root root 253, 0 Feb  8 16:26 /dev/megadev0
+> rathamahata@terror rathamahata 
+> 
 
-Well, there were two bigger files, the first 18 megs and the second 35 
-megs and the copying never got past those two. But in the end it wasn't 
-the size - I was able to make it reboot with a small C source file...
-
-> Also, what filesystem is being used on the server, what mount flags
-> (if any) and what export options.
-
-All the files are here:
-http://www.holviala.com/~kimmy/crash/mount
-
-Mount options:
-/dev/md8 on /boot type ext3 (rw,nosuid,noatime)
-
-I forgot to transfer the exports file, and now the server is dead... 
-Will do that later.
-
-> Having some sort of console, whether VGA, serial, or network, to view
-> the Oops would be invaluable.
-
-I'll carry the server next to a monitor once I get back home.
-
-
-
-Kim
+-- 
+Sergey S. Kostyliov <rathamahata@ehouse.ru>
+Jabber ID: rathamahata@jabber.org

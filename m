@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316433AbSEOQfE>; Wed, 15 May 2002 12:35:04 -0400
+	id <S316437AbSEOQev>; Wed, 15 May 2002 12:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316434AbSEOQfD>; Wed, 15 May 2002 12:35:03 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:272 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S316433AbSEOQfC>;
-	Wed, 15 May 2002 12:35:02 -0400
-Subject: Re: InfiniBand BOF @ LSM - topics of interest
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020515010107.A31154@devserv.devel.redhat.com>
+	id <S316435AbSEOQeu>; Wed, 15 May 2002 12:34:50 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:21241 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S316433AbSEOQeu>; Wed, 15 May 2002 12:34:50 -0400
+Subject: Re: Linux 2.4.19pre8-ac3 -- thread_info?
+From: Robert Love <rml@tech9.net>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Jan Nieuwenhuizen <janneke@gnu.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020515140455.GA2186@werewolf.able.es>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 15 May 2002 09:34:34 -0700
-Message-Id: <1021480474.32059.7.camel@dell_ss3.pdx.osdl.net>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 15 May 2002 09:34:45 -0700
+Message-Id: <1021480485.910.0.camel@sinai>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-14 at 22:01, Pete Zaitcev wrote:
- 
-> The thing about Infiniband is that its scope is so great.
-> If you consider Infiniband was only a glorified PCI with serial
-> connector, the congestion control is not an issue. Credits
-> are quite sufficient to provide per link flow control, and
-> everything would work nicely with a couple of switches.
-> Such was the original plan, anyways, but somehow cluster
-> ninjas managed to hijack the spec and we have the rabid
-> overengineering running amok. In fact, they ran so far
-> that Intel jumped ship and created PCI Express, and we
-> have discussions about congestion control. Sad, really...
-> 
-> -- Pete
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Wed, 2002-05-15 at 07:04, J.A. Magallon wrote:
 
-This sounds like deja vu all over again.
-Each new interconnect technology like ATM seems to go through the cycle:
+> On 2002.05.15 Jan Nieuwenhuizen wrote:
+> >
+> >It seems that 2.4.19pre8-ac3 introduced the use of thread_info, but
+> >it's not defined in sched.h?
+>
+> Sure it has been added ?
+> It can be the O1-sched patch or the O1-updates from rml, when extracted from
+> 2.5 still use that.
 
-	Assert: all other network protocols are crap
-	Deny: history
-	Assert: our problem is different, therefore we must
-	        reinvent everything from data transfer up to 		applications
+Yes, it was a typo on my behalf.  I posted a patch yesterday or get -ac4
+which has the fix.  Thanks.
 
-	Reality strikes!
-
-	New technology ends up being used with standard applications and
-	protocols.
-
+	Robert Love
 

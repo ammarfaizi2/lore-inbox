@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318546AbSIBXVk>; Mon, 2 Sep 2002 19:21:40 -0400
+	id <S318562AbSIBX1s>; Mon, 2 Sep 2002 19:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318562AbSIBXVk>; Mon, 2 Sep 2002 19:21:40 -0400
-Received: from hacksaw.org ([216.41.5.170]:9355 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id <S318546AbSIBXVk>; Mon, 2 Sep 2002 19:21:40 -0400
-Message-Id: <200209022327.g82NRgwE016228@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
-To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
-In-reply-to: Your message of "Tue, 03 Sep 2002 00:57:01 +0200."
-             <17m085-0bF1fsC@fmrl05.sul.t-online.com> 
+	id <S318572AbSIBX1s>; Mon, 2 Sep 2002 19:27:48 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:28367 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318562AbSIBX1r>;
+	Mon, 2 Sep 2002 19:27:47 -0400
+Date: Mon, 02 Sep 2002 16:25:42 -0700 (PDT)
+Message-Id: <20020902.162542.95902127.davem@redhat.com>
+To: cs@pixelwings.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.33 compile error in ipv6
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0209021304590.2696-100000@lynx.piwi.intern>
+References: <Pine.LNX.4.44.0209021304590.2696-100000@lynx.piwi.intern>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 02 Sep 2002 19:27:42 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It's not only useful, without it there can be no cooperation among
->operating systems. There are standards which have to be followed.
+   From: Clemens Schwaighofer <cs@pixelwings.com>
+   Date: Mon, 2 Sep 2002 13:06:13 +0200 (CEST)
+   
+   I saw no patch in ML yet for this ...
 
-Right. Of course, now we know that Thunder didn't mean to get rid of all 
-partition tables, but just the stupid one we are saddled with.
+Actually, there was, lines 666 and 667 of net/ipv6/af_inet6.c
+should read:
 
-I wonder if there is a working group anywhere for this topic. It would effect 
-every OS and all the BIOS shops.
--- 
-Listening changes what we are listening to.
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+                printk(KERN_CRIT "%s: Can't create protocol sock SLAB "
+                       "caches!\n", __FUNCTION__);
 
+Here is the patch against 2.5.33 that James Morris posted.
 
+diff -Nru a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+--- a/net/ipv6/af_inet6.c       Mon Sep  2 16:28:13 2002
++++ b/net/ipv6/af_inet6.c       Mon Sep  2 16:28:13 2002
+@@ -663,8 +663,8 @@
+                                           sizeof(struct raw6_sock), 0,
+                                            SLAB_HWCACHE_ALIGN, 0, 0);
+         if (!tcp6_sk_cachep || !udp6_sk_cachep || !raw6_sk_cachep)
+-                printk(KERN_CRIT __FUNCTION__
+-                        ": Can't create protocol sock SLAB caches!\n");
++                printk(KERN_CRIT "%s: Can't create protocol sock SLAB "
++                      "caches!\n", __FUNCTION__);
+
+        /* Register the socket-side information for inet6_create.  */
+        for(r = &inetsw6[0]; r < &inetsw6[SOCK_MAX]; ++r)

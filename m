@@ -1,103 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265596AbUEZNMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265653AbUEZNMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265596AbUEZNMk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 09:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUEZNIe
+	id S265653AbUEZNMj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 09:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265596AbUEZNJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 09:08:34 -0400
-Received: from ts46-01-qdr3367.knnwck.wa.charter.com ([68.118.221.54]:60301
-	"EHLO bob.felix.fam") by vger.kernel.org with ESMTP id S265679AbUEZNHH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 09:07:07 -0400
-Date: Wed, 26 May 2004 06:06:44 -0700
-From: evan-lkml@felix.homeip.net
-To: Andrey Nekrasov <andy@spylog.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sata promise and software raid5...
-Message-ID: <20040526130644.GA15042@felix.homeip.net>
-Reply-To: evan-lkml@felix.homeip.net
-References: <1236867749.20040526034657@spylog.ru>
+	Wed, 26 May 2004 09:09:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:65226 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265653AbUEZNFU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 09:05:20 -0400
+Date: Wed, 26 May 2004 15:05:00 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 4k stacks in 2.6
+Message-ID: <20040526130500.GB18028@devserv.devel.redhat.com>
+References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8GpibOaaTibBMecb"
 Content-Disposition: inline
-In-Reply-To: <1236867749.20040526034657@spylog.ru>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040526130047.GF12142@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You need to test all the disks running at once, this should give a much
-clearer picture of how the system will perform with a raid volume.  a
-simple test is like so:
 
--> hdparm -t /dev/sda2 & hdparm -t /dev/sdc2 & hdparm -t /dev/sdc2 &
-hdparm -t /dev/sdd2
+--8GpibOaaTibBMecb
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This will get them all going at once, but may jumble the output a bit.
+On Wed, May 26, 2004 at 03:00:47PM +0200, J=F6rn Engel wrote:
+> > > Experience indicates that for whatever reason, big stack consumers for
+> > > all three contexts never hit at the same time.  Big stack consumers
+> > > for one context happen too often, though.  "Too often" may be quite
+> > > rare, but considering the result of a stack overflow, even "quite
+> > > rare" is too much.  "Never" is the only acceptable target.
+> >=20
 
-Evan
+> > actually the 4k stacks approach gives MORE breathing room for the probl=
+em
+> > cases that are getting hit by our customers...
+>=20
+> For the cases you described, yes.  For some others like nvidia, no.
+> Not sure if we want to make things worse for some users in order to
+> improve things for others (better paying ones?).  I want the seperate
 
 
-On Wed, May 26, 2004 at 03:46:57AM +0400, Andrey Nekrasov wrote:
-> Hello,
-> 
-> controller - Promise SATA 150 TX4, linux 2.6.7-rc1-bk1, HDD Maxtor
-> 250Gb (x4)
-> 
-> Why so slowly reads (and writes) with software raid5?
-> 
-> gnome:~ # hdparm -t /dev/sda2
-> 
-> /dev/sda2:
->  Timing buffered disk reads:  148 MB in  3.01 seconds =  49.16 MB/sec
-> gnome:~ # hdparm -t /dev/sdb2
-> 
-> /dev/sdb2:
->  Timing buffered disk reads:  148 MB in  3.02 seconds =  49.01 MB/sec
-> gnome:~ # hdparm -t /dev/sdc2
-> 
-> /dev/sdc2:
->  Timing buffered disk reads:  148 MB in  3.03 seconds =  48.90 MB/sec
-> gnome:~ # hdparm -t /dev/sdd2
-> 
-> /dev/sdd2:
->  Timing buffered disk reads:  144 MB in  3.00 seconds =  47.96 MB/sec
-> gnome:~ #
-> gnome:~ #
-> gnome:~ # hdparm -t /dev/md0
-> 
-> /dev/md0:
->  Timing buffered disk reads:   64 MB in  3.12 seconds =  20.52 MB/sec
-> gnome:~ #
-> 
-> 
-> gnome:~ # cat /etc/raidtab
-> raiddev /dev/md0
->         raid-level              5
->         nr-raid-disks           4
->         nr-spare-disks          0
->         persistent-superblock   1
->         parity-algorithm        left-symmetric
->         chunk-size              1024
-> 
->         device                  /dev/sda2
->         raid-disk               0
-> 
->         device                  /dev/sdb2
->         raid-disk               1
-> 
->         device                  /dev/sdc2
->         raid-disk               2
-> 
->         device                  /dev/sdd2
->         raid-disk               3
-> 
->         
-> bye
-> --
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+You used the word "Never" and now you go away from it.... It wasn't Never,
+and it will never be never if you want to include random binary only
+modules. However in 2.4 for all intents and pruposes there was 4Kb already,
+and now there still is, for user context. Because those interrupts DO
+happen. NVidia was a walking timebomb, and with one function using 4Kb
+that's an obvious Needs-Fix case. The kernel had a few of those in rare
+drivers, most of which have been fixed by now. It'll never be never, but it
+never was never either.
+
+--8GpibOaaTibBMecb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAtJX7xULwo51rQBIRAouqAJ9zDJRkZIdNFytL4fENOLuFZTgEJgCfa8fg
+N50j/AtFPWjmG/0rXRZm4lY=
+=v4Qg
+-----END PGP SIGNATURE-----
+
+--8GpibOaaTibBMecb--

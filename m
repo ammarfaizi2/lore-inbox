@@ -1,165 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310306AbSCGWNb>; Thu, 7 Mar 2002 17:13:31 -0500
+	id <S310220AbSCGWTS>; Thu, 7 Mar 2002 17:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310251AbSCGWNV>; Thu, 7 Mar 2002 17:13:21 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:48539 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S310231AbSCGWNG>; Thu, 7 Mar 2002 17:13:06 -0500
-Message-Id: <5.1.0.14.2.20020307141124.084dbde8@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 07 Mar 2002 14:11:37 -0800
-To: Robert Love <rml@tech9.net>, Frode Isaksen <fisaksen@bewan.com>
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: [PATCH] ATM locking fix. [Re: [PATCH] spinlock not locked when
-  unlocking in atm_dev_register]
-Cc: mitch@sfgoth.com, linux-kernel@vger.kernel.org,
-        marcelo Tosatti <marcelo@conectiva.com.br>, alan@redhat.com,
-        alan@lxorguk.ukuu.org.uk
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S310456AbSCGWS6>; Thu, 7 Mar 2002 17:18:58 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:38405 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292631AbSCGWS4>;
+	Thu, 7 Mar 2002 17:18:56 -0500
+Date: Thu, 7 Mar 2002 19:17:48 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: michael bernstein <bernstein.46@osu.edu>
+Cc: Larry McVoy <lm@bitmover.com>, Andrew Morton <akpm@zip.com.au>,
+        Troy Benjegerdes <hozer@drgw.net>, Pavel Machek <pavel@ucw.cz>,
+        Kent Borg <kentborg@borg.org>,
+        The Open Source Club at The Ohio State University 
+	<opensource-admin@cis.ohio-state.edu>,
+        <linux-kernel@vger.kernel.org>, <opensource@cis.ohio-state.edu>
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of
+ BitKeeper by Linux Maintainers
+In-Reply-To: <10B32CBD-320F-11D6-BAF0-003065C60BC2@osu.edu>
+Message-ID: <Pine.LNX.4.44L.0203071915350.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folks,
+On Thu, 7 Mar 2002, michael bernstein wrote:
 
-Some time ago I promised a patch that fixes ATM device allocation code.
-Fix that Alan's got in his 2.4.19-pre2-ac3 is wrong because it just removes 
-locking instead of fixing it.
-So here goes my patch. Tested on dual Athlon box.
+> Last time I checked, it didn't matter if a person had "cashed out
+> their millions" for a program to go opensource.  So fucking what.
 
-Marcelo, Alan, please apply.
+> Serve others, not yourself.
 
-Patch URL:
-	http://bluez.sf.net/atm.patch-2.4.19-pre2.gz
+Larry is doing us all a service by getting bitkeeper the
+funding it needs to improve at the rate it has.
 
+If the program had to survive as an open source program
+without several people working on it full-time, I bet
+many of the boring but necessary tasks still wouldn't
+have been done ...
 
---- linux/net/atm/resources.c.orig	Thu Mar  7 13:56:00 2002
-+++ linux/net/atm/resources.c	Thu Mar  7 13:56:40 2002
-@@ -32,7 +32,7 @@
-  {
-  	struct atm_dev *dev;
+Source control just isn't one of those sexy things that
+everybody wants to work on and on top of that it's deep
+magic most people (especially me) can't figure out. ;)
 
--	dev = kmalloc(sizeof(*dev),GFP_KERNEL);
-+	dev = kmalloc(sizeof(*dev), GFP_ATOMIC);
-  	if (!dev) return NULL;
-  	memset(dev,0,sizeof(*dev));
-  	dev->type = type;
-@@ -40,32 +40,24 @@
-  	dev->link_rate = ATM_OC3_PCR;
-  	dev->next = NULL;
+regards,
 
--	spin_lock(&atm_dev_lock);
--
-  	dev->prev = last_dev;
+Rik
+-- 
+<insert bitkeeper endorsement here>
 
-  	if (atm_devs) last_dev->next = dev;
-  	else atm_devs = dev;
-  	last_dev = dev;
--	spin_unlock(&atm_dev_lock);
-  	return dev;
-  }
-
-
-  static void free_atm_dev(struct atm_dev *dev)
-  {
--	spin_lock (&atm_dev_lock);
--	
-  	if (dev->prev) dev->prev->next = dev->next;
-  	else atm_devs = dev->next;
-  	if (dev->next) dev->next->prev = dev->prev;
-  	else last_dev = dev->prev;
-  	kfree(dev);
--	
--	spin_unlock (&atm_dev_lock);
-  }
-
--
-  struct atm_dev *atm_find_dev(int number)
-  {
-  	struct atm_dev *dev;
-@@ -75,17 +67,18 @@
-  	return NULL;
-  }
-
--
-  struct atm_dev *atm_dev_register(const char *type,const struct atmdev_ops 
-*ops,
-      int number,atm_dev_flags_t *flags)
-  {
--	struct atm_dev *dev;
-+	struct atm_dev *dev = NULL;
-+
-+	spin_lock(&atm_dev_lock);
-
-  	dev = alloc_atm_dev(type);
-  	if (!dev) {
-  		printk(KERN_ERR "atm_dev_register: no space for dev %s\n",
-  		    type);
--		return NULL;
-+		goto done;
-  	}
-  	if (number != -1) {
-  		if (atm_find_dev(number)) {
-@@ -93,8 +86,7 @@
-  			return NULL;
-  		}
-  		dev->number = number;
--	}
--	else {
-+	} else {
-  		dev->number = 0;
-  		while (atm_find_dev(dev->number)) dev->number++;
-  	}
-@@ -102,20 +94,23 @@
-  	dev->dev_data = NULL;
-  	barrier();
-  	dev->ops = ops;
--	if (flags) dev->flags = *flags;
--	else memset(&dev->flags,0,sizeof(dev->flags));
-+	if (flags)
-+		dev->flags = *flags;
-+	else
-+		memset(&dev->flags,0,sizeof(dev->flags));
-  	memset((void *) &dev->stats,0,sizeof(dev->stats));
-  #ifdef CONFIG_PROC_FS
-  	if (ops->proc_read)
-  		if (atm_proc_dev_register(dev) < 0) {
-  			printk(KERN_ERR "atm_dev_register: "
-  			    "atm_proc_dev_register failed for dev %s\n",type);
--			spin_unlock (&atm_dev_lock);		
-  			free_atm_dev(dev);
--			return NULL;
-+			goto done;
-  		}
-  #endif
--	spin_unlock (&atm_dev_lock);		
-+
-+done:
-+	spin_unlock(&atm_dev_lock);
-  	return dev;
-  }
-
-@@ -125,10 +120,11 @@
-  #ifdef CONFIG_PROC_FS
-  	if (dev->ops->proc_read) atm_proc_dev_deregister(dev);
-  #endif
-+	spin_lock(&atm_dev_lock);
-  	free_atm_dev(dev);
-+	spin_unlock(&atm_dev_lock);
-  }
-
--
-  void shutdown_atm_dev(struct atm_dev *dev)
-  {
-  	if (dev->vccs) {
-@@ -146,7 +142,6 @@
-  	kfree(sk->protinfo.af_atm);
-  }
-
--
-  struct sock *alloc_atm_vcc_sk(int family)
-  {
-  	struct sock *sk;
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

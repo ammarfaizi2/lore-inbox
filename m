@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136303AbRA1BOl>; Sat, 27 Jan 2001 20:14:41 -0500
+	id <S136381AbRA1BPb>; Sat, 27 Jan 2001 20:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136333AbRA1BOV>; Sat, 27 Jan 2001 20:14:21 -0500
-Received: from mailgate1.zdv.Uni-Mainz.DE ([134.93.8.56]:7645 "EHLO
-	mailgate1.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S136303AbRA1BOJ>; Sat, 27 Jan 2001 20:14:09 -0500
-Date: Sun, 28 Jan 2001 02:10:25 +0100
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Gregory Maxwell <greg@linuxpower.cx>
-Cc: James Sutherland <jas88@cam.ac.uk>, David Schwartz <davids@webmaster.com>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-Message-ID: <20010128021025.D800@uni-mainz.de>
-Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
-	Gregory Maxwell <greg@linuxpower.cx>,
-	James Sutherland <jas88@cam.ac.uk>,
-	David Schwartz <davids@webmaster.com>,
-	Jamie Lokier <lk@tantalophile.demon.co.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKCECMNFAA.davids@webmaster.com> <Pine.SOL.4.21.0101272308030.701-100000@green.csi.cam.ac.uk> <20010127191159.B7467@xi.linuxpower.cx>
-Mime-Version: 1.0
+	id <S136333AbRA1BPV>; Sat, 27 Jan 2001 20:15:21 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:11322 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S136380AbRA1BPM>; Sat, 27 Jan 2001 20:15:12 -0500
+Message-ID: <3A737297.64FC5CB5@linux.com>
+Date: Sun, 28 Jan 2001 01:15:03 +0000
+From: David Ford <david@linux.com>
+Organization: Blue Labs Software
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ps hang in 241-pre10
+In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <3A7295F6.621BBEC4@Home.com> <3A731E65.8BE87D73@pobox.com> <3A7359BB.7BBEE42A@linux.com> <94voof$17j$1@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010127191159.B7467@xi.linuxpower.cx>; from greg@linuxpower.cx on Sat, Jan 27, 2001 at 07:11:59PM -0500
-X-No-Archive: yes
-Restrict: no-external-archive
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 27, 2001 at 07:11:59PM -0500, Gregory Maxwell wrote:
+It is important to note that when I hit the magic key and rebooted (SUB), a
+split second before it rebooted, a stalled 'lspci' snapped back to life and
+printed out my expected data.
 
-> It's this kind of ignorance that makes the internet a less secure and stable
-> place.
+-d
 
-You have obviously absolutely no idea what you are talking about. Period.
+--
+  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
 
-> The network should not be a stateful device. If you need stateful
-> firewalling the only place it should be implimented is on the end node. If
-> management of that is a problem, then make an interface solve that problem
-> insted of breaking the damn network.
 
-So how do you propose to secure devices like MRT's or X-Ray scanners or
-life-support in a hospital? Nowadays this equipment  is hooked to the
-internal network of the hospital and protected by really paranoid
-firewalls. Do you really want unneeded software on those devices?
 
-Or what about the computer systems in nuclear powerplants? In air defense
-systems?  Power grids? Water supply?
-
-Oh come on! Just reread some of the newspapers back from Dec 31 1999!
-
-Yours,
-  Dominik Kubla
--- 
-          A lovely thing to see:                   Kobayashi Issa
-     through the paper window's holes               (1763-1828)
-                the galaxy.               [taken from: David Brin - Sundiver]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

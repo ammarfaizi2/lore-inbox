@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbTCTINp>; Thu, 20 Mar 2003 03:13:45 -0500
+	id <S261320AbTCTITq>; Thu, 20 Mar 2003 03:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261313AbTCTINo>; Thu, 20 Mar 2003 03:13:44 -0500
-Received: from packet.digeo.com ([12.110.80.53]:63126 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261312AbTCTINo>;
-	Thu, 20 Mar 2003 03:13:44 -0500
-Date: Thu, 20 Mar 2003 00:20:50 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Joel.Becker@oracle.com, linux-kernel@vger.kernel.org
-Subject: Re: WimMark I report for 2.5.65-mm2
-Message-Id: <20030320002050.44f13857.akpm@digeo.com>
-In-Reply-To: <20030320080449.GL4990@suse.de>
-References: <20030319232812.GJ2835@ca-server1.us.oracle.com>
-	<20030319175726.59d08fba.akpm@digeo.com>
-	<20030320003858.GM2835@ca-server1.us.oracle.com>
-	<20030320080449.GL4990@suse.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261319AbTCTITq>; Thu, 20 Mar 2003 03:19:46 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:45486 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261320AbTCTITo>;
+	Thu, 20 Mar 2003 03:19:44 -0500
+Date: Thu, 20 Mar 2003 00:29:04 -0800 (PST)
+Message-Id: <20030320.002904.73362328.davem@redhat.com>
+To: chas@locutus.cmf.nrl.navy.mil
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] cleanup nicstar, suni and idt77105 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200303091239.h29CdkGi000928@locutus.cmf.nrl.navy.mil>
+References: <20030308.130112.09061347.davem@redhat.com>
+	<200303091239.h29CdkGi000928@locutus.cmf.nrl.navy.mil>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Mar 2003 08:20:41.0974 (UTC) FILETIME=[98CD3160:01C2EEB9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> Besides, deadline is still the most solid choice.
+   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+   Date: Sun, 09 Mar 2003 07:39:46 -0500
 
-Deadline will always be the best choice for OLTP workloads.  Or CFQ - it
-should perform the same.
+   In message <20030308.130112.09061347.davem@redhat.com>,"David S. Miller" writes:
+   >This patch doesn't apply at all, it deletes lines referencing
+   >idt77105_priv_lock but that does not appear in the sources.
+   
+   yes that's my fault.  i had an intermediate change i forgot about.
+   this would be the correct diff for idt77105 --
+   
+When I reject a patch, I typically just delete everything you
+sent me, so if you just resend one part of the fixed up patch
+the rest gets lost.
 
-All this workload does is seeks all over the disk doing teeny synchronous
-I/O's.  It is the worst-case for AS.
+Can you send the correct patch for all three drivers not just
+the idt77105 parts?
 
-What we are trying to do at present is to make AS not _too_ bad for these
-workloads so that people with mixed workloads or who are not familiar with
-kernel arcanery don't accidentally end up with something which is
-significantly slower than it should be.
-
-It is an interesting test case.
-
+It really isn't rocket science to send patches properly.  When I say
+"didn't apply" it means it went to /dev/null and you have to send me
+a new complete patch.

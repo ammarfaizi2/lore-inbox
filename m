@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271667AbRHUNwr>; Tue, 21 Aug 2001 09:52:47 -0400
+	id <S271678AbRHUN4Q>; Tue, 21 Aug 2001 09:56:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271670AbRHUNwg>; Tue, 21 Aug 2001 09:52:36 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28177 "EHLO
+	id <S271674AbRHUN4G>; Tue, 21 Aug 2001 09:56:06 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30225 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271667AbRHUNwW>; Tue, 21 Aug 2001 09:52:22 -0400
-Subject: Re: [Patch] sysinfo compatibility
-To: hugh@veritas.com (Hugh Dickins)
-Date: Tue, 21 Aug 2001 14:50:48 +0100 (BST)
-Cc: cr@sap.com (Christoph Rohland), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        andersee@debian.org (Erik Andersen),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.21.0108211137340.1320-100000@localhost.localdomain> from "Hugh Dickins" at Aug 21, 2001 11:59:53 AM
+	id <S271670AbRHUNz6>; Tue, 21 Aug 2001 09:55:58 -0400
+Subject: Re: massive filesystem corruption with 2.4.9
+To: cwidmer@iiic.ethz.ch
+Date: Tue, 21 Aug 2001 14:58:47 +0100 (BST)
+Cc: kristian@korseby.net (Kristian), linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "Christian Widmer" at Aug 21, 2001 10:34:49 AM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZBvd-0007q8-00@the-village.bc.nu>
+Message-Id: <E15ZC3L-0007s7-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> before) to make that decision; but concluded it was helping callers
-> who might well go on to add ram+swap, and felt no overriding reason
-> to change that.  But you can certainly argue that's inappropriate
+> > Aug 21 09:01:06 adlib kernel: EXT2-fs error (device ide0(3,5)):
+> > ext2_new_block: Allocating block in system zone - block =3D 3
+> > Aug 21 09:01:06 adlib kernel: EXT2-fs error (device ide0(3,5)):
+> > ext2_free_blocks: Freeing blocks in system zones - Block =3D 4, count=
+>  =3D 1
 
-There are callers who did add ram + swap
+Typically this indicates disk, memory or chipset problems. If your disk is
+in UDMA33/66 mode you can pretty rule the disk out as the data is
+protected
 
+If you have a VIA chipset, especially if there is an SB Live! in the machine
+then that may be the cause (fixes in 2.4.8-ac, should be a fix in 2.4.9 but
+Linus tree also applies another bogus change but which should be harmless)
+
+> > These fatal errors are occuring since 2.4.5 (2.4.8 I've not tested.).=
+>  When
+> > I work with 2.4.4 everything is fine !
+
+What hardware

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbTI3N0R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbTI3NZB
+	id S261470AbTI3N3e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbTI3N3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:25:01 -0400
-Received: from panda.sul.com.br ([200.219.150.4]:11535 "EHLO ns.sul.com.br")
-	by vger.kernel.org with ESMTP id S261375AbTI3NYw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 09:24:52 -0400
-Date: Tue, 30 Sep 2003 10:21:34 -0300
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: keyboard repeat / sound [was Re: Linux 2.6.0-test6]
-Message-ID: <20030930132134.GA17242@cathedrallabs.org>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <20030928085902.GA3742@k3.hellgate.ch> <20030929151643.GA15992@ucw.cz> <20030930075024.GA1620@squish.home.loc> <20030930125126.GA24122@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030930125126.GA24122@ucw.cz>
-From: aris@cathedrallabs.org (Aristeu Sergio Rozanski Filho)
+	Tue, 30 Sep 2003 09:29:34 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:56457 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261470AbTI3N31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 09:29:27 -0400
+Date: Tue, 30 Sep 2003 15:26:54 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200309301326.h8UDQsIM004454@burner.fokus.fraunhofer.de>
+To: axboe@suse.de, davem@redhat.com
+Cc: linux-kernel@vger.kernel.org, schilling@fokus.fraunhofer.de
+Subject: Re: Kernel includefile bug not fixed after a year :-(
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is because it is the same as on the latest 2.4 kernel. 2.6 used
-> software autorepeat up to test6. Now, because of hardware bugs, it was
-> necessary to switch back to hardware autorepeat, like 2.4 uses.
-and it fixes the problem with my notebook's keyboard, thanks :)
+>From davem@redhat.com  Tue Sep 30 14:28:23 2003
 
-> Interesting. This probably has much to do with mouse acceleration
-> settings. What was done was that the mouse report rate was made LOWER
-> (60 compared to 200) to cure problems with some systems that couldn't
-> handle the high report rate.
-> 
-> This makes the movement per report larger and thus the acceleration
-> formula in XFree then works more aggressively.
-test6 was the first 2.5/2.6 kernel that psmouse_noext=1 wasn't necessary
-to make my synaptics touchpad work. but i noticed it's much more
-sensible (with leads to be very difficult to hit xmms' pause button :)
-than using it with noext option. is anyone working in an user level
-application to configure 2.6's synaptics touchpad driver?
+>On Tue, 30 Sep 2003 14:06:29 +0200
+>Jens Axboe <axboe@suse.de> wrote:
 
-thanks again for your effort
+>> I asked you one simple question: when did the kernel/user interface
+>> break, and how?
 
---
-aris
+>I'll answer for him, about 20 or 30 times during IPSEC development.
+>It's still possible this could change even some more before 2.6.0
+>final is released if a large enough bug in the IPSEC socket APIs are
+>found in time.
 
+There is a simple rule of thumb:
+
+If the kernel code is not even ready for testing: don't inlcude it
+in external releases.
+
+If it makes sense to test the code and it uses new interfaces then you
+need to make the interfaces available to potential users of the interface.
+If the interface is going to change then the user should be informed about the
+fact, but you yould need the kernel interface include files.
+
+glibc exports own interaces and for this reason needs to supply own include 
+files. I see no reason however that glibc should deal with include files that
+do not even affect glibc code. This is true for most ioctl()s,
+it is definitely true for the SCSI related ioctl()s.
+
+
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

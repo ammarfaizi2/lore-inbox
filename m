@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132955AbRDJHv7>; Tue, 10 Apr 2001 03:51:59 -0400
+	id <S132951AbRDJHr7>; Tue, 10 Apr 2001 03:47:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132958AbRDJHvt>; Tue, 10 Apr 2001 03:51:49 -0400
-Received: from ki.yok.utu.fi ([130.232.129.100]:64144 "HELO ki")
-	by vger.kernel.org with SMTP id <S132955AbRDJHvp>;
-	Tue, 10 Apr 2001 03:51:45 -0400
-From: Tommi Virtanen <tv-nospam-32a552@debian.org>
-To: chip@valinux.com (Chip Salzenberg)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH] Documentation/ioctl-number.txt)
-In-Reply-To: <E14jdkF-0007Ps-00@tytlal> <E14kAK3-0008UM-00@tytlal>
-X-Attribution: Tv
-X-URL: <http://tv.debian.net/>
-Date: 10 Apr 2001 10:51:40 +0300
-In-Reply-To: <E14kAK3-0008UM-00@tytlal>
-Message-ID: <87snjh6vlf.fsf@ki.yok.utu.fi>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S132952AbRDJHrt>; Tue, 10 Apr 2001 03:47:49 -0400
+Received: from t2.redhat.com ([199.183.24.243]:22266 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S132951AbRDJHrk>; Tue, 10 Apr 2001 03:47:40 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: rw_semaphores 
+In-Reply-To: Your message of "Mon, 09 Apr 2001 22:43:53 PDT."
+             <Pine.LNX.4.31.0104092242320.11520-100000@penguin.transmeta.com> 
+Date: Tue, 10 Apr 2001 08:47:34 +0100
+Message-ID: <8623.986888854@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chip@valinux.com (Chip Salzenberg) writes:
 
-> AFAIK, Alex Viro's idea of bindable namespaces provides effective
-> transaction support *ONLY* if there are per-process bindings.  With
-> per-process bindings, each client that opens a connection does so
-> through a distinct binding; when that client's responses go back
-> through the same binding, only that client can see them.
+Since you're willing to use CMPXCHG in your suggested implementation, would it
+make it make life easier if you were willing to use XADD too?
 
-	Not really. We can both open /proc/partitions, read one char at a
-        time, and the kernel won't confuse our read positions. Different
-        file opens create different instances of state. See struct file,
-        void *private_data for how to store arbitrary data.
+Plus, are you really willing to limit the number of readers or writers to be
+32767? If so, I think I can suggest a way that limits it to ~65535 apiece
+instead...
 
--- 
-tv@{{hq.yok.utu,havoc,gaeshido}.fi,{debian,wanderer}.org,stonesoft.com}
-unix, linux, debian, networks, security, | First snow, then silence.
-kernel, TCP/IP, C, perl, free software,  | This thousand dollar screen dies
-mail, www, sw devel, unix admin, hacks.  | so beautifully.
+David

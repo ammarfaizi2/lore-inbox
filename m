@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbTJWEX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 00:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTJWEX5
+	id S261463AbTJWEmn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 00:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbTJWEmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 00:23:57 -0400
-Received: from d216-232-206-119.bchsia.telus.net ([216.232.206.119]:2567 "EHLO
-	cyclops.implode.net") by vger.kernel.org with ESMTP id S261649AbTJWEXz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 00:23:55 -0400
-Date: Wed, 22 Oct 2003 21:23:49 -0700
-From: John Wong <kernel@implode.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: via-rhine on 2.4.23-pre6 Too much work at interrupt, status=0x00001000. (fwd)
-Message-ID: <20031023042349.GA6861@gambit.implode.net>
-References: <Pine.LNX.4.44.0310171852330.12627-100000@logos.cnet> <3F90687E.8030601@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F90687E.8030601@pobox.com>
-User-Agent: Mutt/1.5.4i
+	Thu, 23 Oct 2003 00:42:43 -0400
+Received: from dp.samba.org ([66.70.73.150]:37796 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261463AbTJWEml (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 00:42:41 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Erik van Konijnenburg <ekonijn@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 2.6.0-test8] MODULE_ALIAS_BLOCK 
+In-reply-to: Your message of "Tue, 21 Oct 2003 23:20:22 +0200."
+             <20031021232022.A19672@banaan.localdomain> 
+Date: Thu, 23 Oct 2003 14:11:10 +1000
+Message-Id: <20031023044241.309A52C0CC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could the problem detailed in the thread:
+In message <20031021232022.A19672@banaan.localdomain> you write:
+> 
+> Hi Rusty,
+> 
+> Automatic loading of the loop device does not work under 2.6.0-test8
+> unless the loop device is explicitly mentioned in /etc/modules.conf.
+> This shows up when doing a kernel make install: mkinitrd uses the
+> loopback device.
+> 
+> This is because loop.c does not have MODULE_ALIAS_BLOCKDEV.
+> After adding that, the following problem shows: a mismatch between
+> the use of request_module in drivers/block/genhd.c:
+> 
+> 	request_module("block-major-%d", MAJOR(dev));
+> 
+> and the definition of MODULE_ALIAS_BLOCK in blkdev.h:
+> 
+> 	MODULE_ALIAS("block-major-" __stringify(major) "-*")
+> 
+> The following patch applies to 2.6.0-test8.  I tested under (mostly) RH9 that
+> automatic loading of loop.ko works with this patch but not without it.
+> The only other user of MODULE_ALIAS_BLOCK, floppy.c, also worked for
+> me with this patch, no idea whether it works without.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106687979128274&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106688008628516&w=2
+Hmm.  Disagree with your change, prefer to go the other way.  Sure,
+block drivers generally don't care about the minor, but (1) they might
+one day, and (2) this matches with the way char devices are handled.
 
-with reference to 8390-based drivers affect the via-rhine driver?
+Linus, please apply.
 
-John
+Name: Block Alias Fix in genhd.c
+Author: Rusty Russell
+Status: Trivial
 
-On Fri, Oct 17, 2003 at 06:09:02PM -0400, Jeff Garzik wrote:
-> >Date: Thu, 16 Oct 2003 12:27:17 -0700
-> >From: John Wong <kernel@implode.net>
-> >To: linux-kernel@vger.kernel.org
-> >Subject: via-rhine on 2.4.23-pre6 Too much work at interrupt,
-> >     status=0x00001000.
-> >
-> >The system used to run 2.4.22 and did not have this too much work
-> >problem.  There were some other hardware changes.  The system used to be
-> >a Pentium 100 on a Triton 430FX chipset Intel Advanced/EV board.  Now it 
-> >is a K6 2 - 500 on a Via Apollo MVP3 chipset on FIC VA-503+ board.
-> >The NIC stayed the same.  The kernel was recompiled and ACPI was
-> >enabled.
-> >
-> >I noticed in 2.4.23-pre2 -> pre3
-> >	 [netdrvr] sync with 2.5: epic100, fealnx, via-rhine, winbond-840
-> 
-> 
-> This cset contains no functional via-rhine changes...  First thing to do 
-> would be try to 2.4.23-pre2.  But my main suspect would be ACPI.
-> 
-> 	Jeff
-> 
-> 
-> 
+D: MODULE_ALIAS_BLOCK and genhd.c's request_module() don't match,
+D: which breaks autoloading of loop devices.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .2035-linux-2.6.0-test8-bk2/drivers/block/genhd.c .2035-linux-2.6.0-test8-bk2.updated/drivers/block/genhd.c
+--- .2035-linux-2.6.0-test8-bk2/drivers/block/genhd.c	2003-10-09 18:02:51.000000000 +1000
++++ .2035-linux-2.6.0-test8-bk2.updated/drivers/block/genhd.c	2003-10-23 14:09:35.000000000 +1000
+@@ -296,7 +296,7 @@ extern int blk_dev_init(void);
+ 
+ static struct kobject *base_probe(dev_t dev, int *part, void *data)
+ {
+-	request_module("block-major-%d", MAJOR(dev));
++	request_module("block-major-%d-%d", MAJOR(dev), MINOR(dev));
+ 	return NULL;
+ }
+ 
+
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263765AbTKTXwx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 18:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264024AbTKTXwx
+	id S264024AbTKTXx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 18:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264077AbTKTXx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 18:52:53 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:1636 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S263765AbTKTXwt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 18:52:49 -0500
-Date: Thu, 20 Nov 2003 15:52:11 -0800
-From: Paul Jackson <pj@sgi.com>
-To: mochel@osdl.org
-Cc: linux-kernel@vger.kernel.org, wli@holomorphy.com
-Subject: What keeps drivers/base/sys.c sysdev_show() from overrunning
- buffer?
-Message-Id: <20031120155211.5cd2897a.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Nov 2003 18:53:26 -0500
+Received: from mcomail04.maxtor.com ([134.6.76.13]:28936 "EHLO
+	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
+	id S264024AbTKTXxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 18:53:21 -0500
+Message-ID: <785F348679A4D5119A0C009027DE33C105CDB514@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@Maxtor.com>
+To: "'jt@hpl.hp.com'" <jt@hpl.hp.com>, Bill Davidsen <davidsen@tmr.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: RE: Announce: ndiswrapper
+Date: Thu, 20 Nov 2003 16:53:12 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The calls in drivers/base/sys.c to sysdev_show(), which seem to resolve
-to the routines node_read_cpumap() and node_read_meminfo() in node.c,
-do not take any buffer count (size).  They used to, by Patrick removed
-the count parameter in Jan 2003, from here and other such places.
 
-What's to keep the node_read_*() sprintf's from overrunning these
-buffers?
+I think the point being made is "Why spend an extra $150 on a PCMCIA wifi
+card when there's an integrated wifi device already in the laptop that
+ndiswrapper will allow to sortof work?"
 
-I am developing some changes to the cpumask_t print routines, which
-include using snprintf() instead of sprintf(), and watching buffer
-limits.  These changes are motivated by the need to handle such things
-as 512 CPUs.
+The person who bought this laptop and wants to run linux on it might not
+have the extra money handy to use buying additional hardware.
 
-I couldn't plug my new routine into read_cpumap() to display the
-node_dev->cpumap (a cpumask_t), for want of a buffer count.
+Not my point of view, but definitely "a" point of view.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--eric
+
+> -----Original Message-----
+> From: Jean Tourrilhes [mailto:jt@bougret.hpl.hp.com]
+> Sent: Thursday, November 20, 2003 4:45 PM
+> To: Bill Davidsen
+> Cc: Linux kernel mailing list
+> Subject: Re: Announce: ndiswrapper
+> 
+> 
+> On Thu, Nov 20, 2003 at 06:04:51PM -0500, Bill Davidsen wrote:
+> > You left out the step of "remove or disable the existing 
+> hardware in the
+> > system." Not everyone has a choice unlimited by budget and politics.
+> 
+> 	Why did you buy a bogus card in the first place ? That's
+> wasting money.
+> 
+> 	Jean

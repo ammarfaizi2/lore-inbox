@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUEKPFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUEKPOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264781AbUEKPFX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 11:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUEKPFX
+	id S262380AbUEKPOl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 11:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUEKPOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 11:05:23 -0400
-Received: from zork.zork.net ([64.81.246.102]:16822 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S264781AbUEKPFS (ORCPT
+	Tue, 11 May 2004 11:14:41 -0400
+Received: from dingo.clsp.jhu.edu ([128.220.117.40]:384 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262380AbUEKPOj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 11:05:18 -0400
-To: Thiago Robert <robert@inf.ufsc.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Write-combining
-References: <40A0E808.2020602@inf.ufsc.br>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Thiago Robert <robert@inf.ufsc.br>,
- linux-kernel@vger.kernel.org
-Date: Tue, 11 May 2004 16:05:16 +0100
-In-Reply-To: <40A0E808.2020602@inf.ufsc.br> (Thiago Robert's message of
- "Tue, 11 May 2004 11:49:44 -0300")
-Message-ID: <6uk6zjypg3.fsf@zork.zork.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 11 May 2004 11:14:39 -0400
+Date: Tue, 11 May 2004 04:51:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp documentation updates
+Message-ID: <20040511025157.GA3752@elf.ucw.cz>
+References: <20040505094719.GA4259@elf.ucw.cz> <1083750907.17294.27.camel@laptop-linux.wpcb.org.au> <20040505101158.GC1361@elf.ucw.cz> <1083798626.17294.79.camel@laptop-linux.wpcb.org.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Disposition: inline
+In-Reply-To: <1083798626.17294.79.camel@laptop-linux.wpcb.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thiago Robert <robert@inf.ufsc.br> writes:
+Hi!
 
-> Is the default behaviour of the Linux kernel to enable
-> write-combining? How can I be sure if it is enabled or not?
+> > And perhaps you want to write "What is swsusp2?" question/answer?
+> 
+> How does this sound?...
+> 
+> What is 'swsusp2'?
+> 
+> swsusp2 is Software Suspend 2, forked implementation of suspend-to-disk
+> which is available as separate patches for 2.4 and 2.6 kernels from
+> swsusp.sourceforge.net. It includes support for SMP, 4GB Highmem and
+> preemption. It also has a extensible architecture that allows for
+> arbitrary transformations on the image (compression, encryption) and
+> arbitrary backends for writing the image (eg to swap or an NFS
+> share[Work In Progress]). Questions regarding suspend2 should be sent to
+> the mailing list available through the Suspend2 website, and not to the
+> Linux Kernel Mailing List. We are working toward merging Suspend2 into
+> the mainline kernel.
 
-My /proc/mtrr lists the following region:
+You are using swsusp2, suspend2 and Suspend2. I figured out you mean
+suspend2 and applied this: (it will eventually propagate).
+								Pavel
 
-reg03: base=0xf8000000 (3968MB), size=  64MB: write-combining, count=2
+Q: What is 'suspend2'?
 
-which I am guessing is the PCI space, although I'm not certain.
+A: suspend2 is 'Software Suspend 2', forked implementation of
+suspend-to-disk which is available as separate patches for 2.4 and 2.6
+kernels from swsusp.sourceforge.net. It includes support for SMP, 4GB
+highmem and preemption. It also has a extensible architecture that
+allows for arbitrary transformations on the image (compression,
+encryption) and arbitrary backends for writing the image (eg to swap
+or an NFS share[Work In Progress]). Questions regarding suspend2
+should be sent to the mailing list available through the suspend2
+website, and not to the Linux Kernel Mailing List. We are working
+toward merging suspend2 into the mainline kernel.
+
+
+-- 
+When do you have heart between your knees?

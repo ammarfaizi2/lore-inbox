@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261773AbSJMWyZ>; Sun, 13 Oct 2002 18:54:25 -0400
+	id <S261766AbSJMWzJ>; Sun, 13 Oct 2002 18:55:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261776AbSJMWyZ>; Sun, 13 Oct 2002 18:54:25 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:23003 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261773AbSJMWyZ>; Sun, 13 Oct 2002 18:54:25 -0400
-Date: Sun, 13 Oct 2002 21:00:02 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
+	id <S261778AbSJMWzI>; Sun, 13 Oct 2002 18:55:08 -0400
+Received: from holomorphy.com ([66.224.33.161]:51595 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261766AbSJMWzG>;
+	Sun, 13 Oct 2002 18:55:06 -0400
+Date: Sun, 13 Oct 2002 15:57:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Richard Stallman <rms@gnu.org>
-cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Bitkeeper outragem, old and new
+Message-ID: <20021013225718.GG2032@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
+References: <E180rX3-0005dL-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <E180rX3-0005dL-00@fencepost.gnu.org>
-Message-ID: <Pine.LNX.4.44L.0210132057430.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Oct 2002, Richard Stallman wrote:
+On Sun, Oct 13, 2002 at 06:48:22PM -0400, Richard Stallman wrote:
+> The new restrictions on Bitkeeper, saying that people who contribute
+> to CVS or Subversion and even companies that distribute them cannot
+> even run Bitkeeper, have sparked outrage.  While these specific
 
-> If the latest outrage brings the spirit of the non-free Bitkeeper
-> license into clear view, perhaps that will be enough to convince the
-> developers of Linux to stop using Bitkeeper for Linux development.
+Outrage == non kernel hacking related flamewar. I was not particularly
+happy with that fluff flying across the list (and quickly procmailed
+that thread to /dev/null), and I'm not particularly happy with your
+new message on that subject appearing here. In fact, I had my own
+questions about BK, and I prudently directed them elsewhere.
 
-What would be even better is if it convinced free software people
-to develop a tool as good as, or better than, Bitkeeper.
+Please keep traffic on this list technical in nature. If you've got
+actual code or a discussion thereof to post, I'd be happy to see it.
 
-Until such a tool exists I'll tolerate Bitkeeper's licensing, since
-my use of bitkeeper seems to increase rather than decrease the amount
-of free software that's available.
 
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+Thanks,
+Bill

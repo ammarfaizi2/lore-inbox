@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSH0PjV>; Tue, 27 Aug 2002 11:39:21 -0400
+	id <S316430AbSH0Prz>; Tue, 27 Aug 2002 11:47:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSH0PjV>; Tue, 27 Aug 2002 11:39:21 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:11217 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S316535AbSH0PjT>;
-	Tue, 27 Aug 2002 11:39:19 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>, <andre@linux-ide.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: readsw/writesw readsl/writesl
-Date: Tue, 27 Aug 2002 08:49:59 +0200
-Message-Id: <20020827064959.1100@192.168.4.1>
-In-Reply-To: <20020827064632.27053@192.168.4.1>
-References: <20020827064632.27053@192.168.4.1>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S316437AbSH0Prz>; Tue, 27 Aug 2002 11:47:55 -0400
+Received: from crack.them.org ([65.125.64.184]:21516 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S316430AbSH0Pry>;
+	Tue, 27 Aug 2002 11:47:54 -0400
+Date: Tue, 27 Aug 2002 11:39:57 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Dave McCracken <dmccr@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
+Message-ID: <20020827153957.GA9953@nevyn.them.org>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Dave McCracken <dmccr@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.33.0208191427220.1484-100000@penguin.transmeta.com> <Pine.LNX.4.44.0208201634410.22388-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208201634410.22388-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The problem with that approach is that the "s" versions must also take
->care of byte swapping (or rather _not_ byteswapping while the non-"s"
->do the byteswapping).
->
->So we would need to have raw_{in,out}{b,w,l}. Currently, it's not
->possible to implement {in,out}s{b,w,l} in an efficient way because of
->that.
->
->Then we would also need to expose the io_barrier for CPUs like PPC
->
->etc...
->
->I tend to think that makes us expose too much CPU-specific things, which
->is why I'd rather have the {read,write}s{b,w,l} versions provided by the
->arch so those can be done "the right way" in the arch code, and drivers
->not care about some of the gory details.
+On Tue, Aug 20, 2002 at 04:36:19PM +0200, Ingo Molnar wrote:
+> 
+> the attached patch ontop of BK-curr fixes the ptrace wait4() anomaly that
+> can be observed in any previous Linux kernel i could get my hands at. So
+> in fact ->ptrace_children, besides being a speedup, also fixed a bug that
+> couldnt be fixed in any satisfactory way before.
+> 
+> 	Ingo
+> 
+> --- linux/kernel/exit.c.orig	Tue Aug 20 16:28:57 2002
+> +++ linux/kernel/exit.c	Tue Aug 20 16:30:13 2002
+> @@ -731,7 +731,7 @@
+>  		tsk = next_thread(tsk);
+>  	} while (tsk != current);
+>  	read_unlock(&tasklist_lock);
+> -	if (flag) {
+> +	if (flag || !list_empty(&current->ptrace_children)) {
+>  		retval = 0;
+>  		if (options & WNOHANG)
+>  			goto end_wait4;
 
-Ok, thinking more about it, I think finally that you are right. Since
-we also have the "_p" crap entering the dance, that would really make
-to much functions to abstract. However, if we decide to go the way
-you describe, the we should probably also provide the raw_{in,out}*
-ones.
+Ingo,
 
-Ben.
+At this point your ptrace changes have completely broken both
+_TRACEME/exec and _ATTACH debugging.  If an attached process finishes
+while a debugger is attached, its parent no longer gets the proper wait
+result for it:
 
+wait4(-1, [WIFEXITED(s) && WEXITSTATUS(s) == 0], WNOHANG|WUNTRACED, NULL) = 478
+wait4(-1, [WIFEXITED(s) && WEXITSTATUS(s) == 0], WNOHANG|WUNTRACED, NULL) = 478
+wait4(-1, [WIFEXITED(s) && WEXITSTATUS(s) == 0], WNOHANG|WUNTRACED, NULL) = 478
+wait4(-1, [WIFEXITED(s) && WEXITSTATUS(s) == 0], WNOHANG|WUNTRACED, NULL) = 478
+wait4(-1, [WIFEXITED(s) && WEXITSTATUS(s) == 0], WNOHANG|WUNTRACED, NULL) = 478
+wait4(-1, [WIFEXITED(s) && WEXITSTATUS(s) == 0], WNOHANG|WUNTRACED, NULL) = 478
 
+etc.  It is never removed from the list.  _TRACEME/exec debugging
+appears to have the same problem but it's harder to tell, since one can
+not strace GDB in 2.5 without the patch I posted here two weeks ago. 
+If you don't have a chance to look at this I'll investigate later
+today.
+
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

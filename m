@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267410AbTACBI2>; Thu, 2 Jan 2003 20:08:28 -0500
+	id <S267387AbTACA4y>; Thu, 2 Jan 2003 19:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267413AbTACBI2>; Thu, 2 Jan 2003 20:08:28 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28042
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267410AbTACBIY>; Thu, 2 Jan 2003 20:08:24 -0500
-Subject: Re: [PATCH] TCP Zero Copy for mmapped files
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Thomas Ogrisegg <tom@rhadamanthys.org>,
-       "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030103010107.GB6416@work.bitmover.com>
-References: <20021230012937.GC5156@work.bitmover.com>
-	<1041489421.3703.6.camel@rth.ninka.net>
-	<20030102221210.GA7704@window.dhis.org>
-	<20030102.151346.113640740.davem@redhat.com>
-	<20030103004543.GA12399@window.dhis.org> 
-	<20030103010107.GB6416@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Jan 2003 01:59:55 +0000
-Message-Id: <1041559195.24901.119.camel@irongate.swansea.linux.org.uk>
+	id <S267393AbTACA4y>; Thu, 2 Jan 2003 19:56:54 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:61391 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S267387AbTACA4w>; Thu, 2 Jan 2003 19:56:52 -0500
+Message-Id: <5.1.0.14.2.20030102165932.073a2f10@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 02 Jan 2003 17:05:10 -0800
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: [BK] Bluetooth fixes for 2.4.21-pre2
+Cc: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-03 at 01:01, Larry McVoy wrote:
-> And the list of applications which do
-> 
-> 	sock = socket(...);
-> 	map = mmap(...);
-> 	write(sock, map, bytes);
-> 
-> are?  There are not very many that I know of and if you look carefully
-> at the bandwidth graphs in LMbench you'll see why.  There is a cross
-> over point where mmap becomes cheaper but it used to be around 16-64K.
-> I don't know what it is now, I doubt it's moved much.  I can check if
-> you really want.
+Hi Marcelo,
 
-You may not be doing an mmap a send, its more likely to look like
+Happy New Year.
 
-	page = hash(url);
-	memcpy(current_time, page->clock, TIMESIZE);
-	write(sock, page->data, page->len);
+Here are some more Bluetooth fixes.
 
-that changes the breakeven point a lot
+Please pull from 
+        bk://linux-bt.bkbits.net/bt-2.4
 
-Alan
+This will update the following files:
+
+ arch/sparc64/kernel/ioctl32.c |   37 +++++++++++++++++++++++++++++--------
+ net/bluetooth/bnep/bnep.h     |   30 +++++++++++++++---------------
+ net/bluetooth/bnep/core.c     |   12 ++++++------
+ net/bluetooth/bnep/sock.c     |   20 ++++++++++----------
+ net/bluetooth/rfcomm/core.c   |   25 +++++++++++++------------
+ net/bluetooth/rfcomm/sock.c   |    6 +++---
+ 6 files changed, 76 insertions(+), 54 deletions(-)
+
+through these ChangeSets:
+
+<maxk@qualcomm.com> (02/12/16 1.803.1.4)
+   Move Bluetooth ioctls after USB and other stuff in sparc64/kernel/ioctl32.c.
+
+<maxk@qualcomm.com> (02/12/16 1.803.1.3)
+   Remove old BNEP ioctls. These are internal. Only one app is supposed
+   to use them, so there is no compatibility problem.
+<marcel@holtmann.org> (02/12/14 1.803.1.2)
+   [Bluetooth] Add some COMPATIBLE_IOCTL for SPARC64
+   
+   This patch adds the needed COMPATIBLE_IOCTL for SPARC64 to let
+   the HCIUART, RFCOMM and BNEP part of the Bluetooth subsystem
+   work correctly on this architecture.
+
+<marcel@holtmann.org> (02/12/11 1.803.1.1)
+   [Bluetooth] Convert dlci and channel variables to u8
+   
+   This patch converts all left over dlci and channel variables of
+   the RFCOMM code from int to u8.
+
+
+
+Max
+
+http://bluez.sf.net
+http://vtun.sf.net
 

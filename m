@@ -1,76 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbTI3B1p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 21:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263074AbTI3B1p
+	id S263091AbTI3Bbr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 21:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263092AbTI3Bbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 21:27:45 -0400
-Received: from adsl-67-124-157-90.dsl.pltn13.pacbell.net ([67.124.157.90]:3808
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S263064AbTI3B1n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 21:27:43 -0400
-Date: Mon, 29 Sep 2003 18:27:42 -0700
+	Mon, 29 Sep 2003 21:31:47 -0400
+Received: from brouzouf.zelya.net ([62.212.116.7]:47306 "EHLO
+	brouzouf.zelya.net") by vger.kernel.org with ESMTP id S263091AbTI3Bbo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 21:31:44 -0400
+Subject: [2.6.0-test6] broken IDE modules support
+From: =?ISO-8859-1?Q?S=E9bastien?= Villemot <Sebastien.Villemot@ens.fr>
 To: linux-kernel@vger.kernel.org
-Cc: stephena@users.sourceforge.net
-Subject: Re: Possible regression with 2.6.0-test6
-Message-ID: <20030930012742.GB10262@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
-	stephena@users.sourceforge.net
-References: <200309290822.09859.stephena@users.sourceforge.net>
+Content-Type: text/plain; charset=ISO-8859-15
+Message-Id: <1064885485.1253.8.camel@noustoulight.lan.zelya.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="R3G7APHDIzY6R/pk"
-Content-Disposition: inline
-In-Reply-To: <200309290822.09859.stephena@users.sourceforge.net>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 30 Sep 2003 03:31:26 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---R3G7APHDIzY6R/pk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In 2.6.0-test6, when compiling IDE support as modules, I get the
+following errors with depmod:
 
-On Mon, Sep 29, 2003 at 08:22:09AM -0230, Stephen Anthony wrote:
-> Since this new release has tweaked interactivity patches, I'm=20
-> wondering if this has anything to do with it.
+root@noustoulight:~# uname -a
+Linux noustoulight 2.6.0-test6 #1 Tue Sep 30 02:38:55 CEST 2003 i686
+GNU/Linux
+root@noustoulight:~# depmod -a
+WARNING: Module /lib/modules/2.6.0-test6/kernel/drivers/ide/ide.ko
+ignored, due to loop
+WARNING: Module
+/lib/modules/2.6.0-test6/kernel/drivers/ide/ide-taskfile.ko ignored, due
+to loop
+WARNING: Module
+/lib/modules/2.6.0-test6/kernel/drivers/ide/pci/via82cxxx.ko ignored,
+due to loop
+WARNING: Loop detected:
+/lib/modules/2.6.0-test6/kernel/drivers/ide/ide-iops.ko needs ide.ko
+which needs ide-iops.ko again!
+WARNING: Module /lib/modules/2.6.0-test6/kernel/drivers/ide/ide-iops.ko
+ignored, due to loop
+WARNING: Module /lib/modules/2.6.0-test6/kernel/drivers/ide/ide-io.ko
+ignored, due to loop
+WARNING: Module /lib/modules/2.6.0-test6/kernel/drivers/ide/ide-disk.ko
+ignored, due to loop
+WARNING: Module /lib/modules/2.6.0-test6/kernel/drivers/ide/ide-probe.ko
+ignored, due to loop
+WARNING: Module /lib/modules/2.6.0-test6/kernel/drivers/ide/ide-cd.ko
+ignored, due to loop
+WARNING: Module
+/lib/modules/2.6.0-test6/kernel/drivers/ide/ide-default.ko ignored, due
+to loop
 
-Yes. Con Kolivas' interactivity patches that have been merged into
-mainline mean that if Mandrake's XFree86 runs at a negative nice value,
-this will affect interactivity. Please set it to 0.
+There are also some warnings during the compilation, about the use of
+deprecated macros (MOD_INC_COUNT or something like this, I haven't
+logged it).
 
-FWIW for others reading this thread, in Debian it is a matter of running
-'dpkg-reconfigure xserver-common'.
+  Sébastien Villemot
 
-(As I was writing this message I realized that Nick Piggin had already
-answered, but because of the little Debian factoid I'm deciding to send
-it anyway.)
 
---=20
-Joshua Kwan
 
---R3G7APHDIzY6R/pk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+P.S.: Here is the IDE part of my kernel config:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=m
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+CONFIG_BLK_DEV_IDECD=m
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+CONFIG_IDE_TASKFILE_IO=y
 
-iQIVAwUBP3jcDaOILr94RG8mAQKuqw//d432dr4XBTTfCR/65w7y5bz/SWVu/3Ag
-h7Vt/q2jjjs8taS1D8QkvYf2h7Gw9bzE6l97vPsV9DAY3a9oQHAHyQ/iKlneRHf5
-Sz0GWo8igu8TAw4N/Ywn3ANFiTEx08yIFu+cZMWAyB7GeecTjbIgeNDYJ0xVvt2r
-q1f/b7a4/h94ImJHptJYP5UFHJgBGtX9HdjpB0dF3/d8ShzaDRZsyl4EEqju3GSy
-V702h6rk/NeFpzg3ZmxpEGEPFjPeQyX7W/kekUcdFQXpNIcE6HCXmkutAMFLSgiI
-NcRLBJrjy/1q1p0pWl7iFvT68KPAynSU1C0+YGGHPQ4eRS95GVamX9fRAGaXeXib
-trEeml6Z5mghlBAOGsgQ2ON5riJxAUjFWlNxgUIadszMpoCpfX08fvQ/7HOnwRsm
-DM177LKM3q0LUFjouDZg0BEhngzR8APA7/RjQyQbs9X/CSw2p8FpQjavHFHw9Hb3
-4LH85nGC9xL9/3yIIfa1bS0vobxonv8oRvhg/v6oKT+DFtIWAQdbfOraDDijbVLu
-XrRI5kAci1ydwXKJG8I64S3b+t1/Cy6I3SNM5AcSMkrRWb54egAIPBvNfHO3AOfg
-wz/l2dExHHSOa9F/8WkvMMmTW8L4eH0jv4k9VVEhjAaSa8auvquJPNKasew2KQbz
-6k0Gnza7sGg=
-=GDqO
------END PGP SIGNATURE-----
+#
+# IDE chipset support/bugfixes
+#
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_IDEPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_GENERIC is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDE_TCQ is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+# CONFIG_IDEDMA_PCI_WIP is not set
+CONFIG_BLK_DEV_ADMA=y
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_TRIFLEX is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5520 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_SC1200 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+CONFIG_BLK_DEV_VIA82CXXX=m
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_DMA_NONPCI is not set
+# CONFIG_BLK_DEV_HD is not set
 
---R3G7APHDIzY6R/pk--
+

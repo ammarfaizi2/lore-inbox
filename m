@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318696AbSHAKex>; Thu, 1 Aug 2002 06:34:53 -0400
+	id <S318700AbSHAKmQ>; Thu, 1 Aug 2002 06:42:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318699AbSHAKex>; Thu, 1 Aug 2002 06:34:53 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:59908 "EHLO
+	id <S318701AbSHAKmQ>; Thu, 1 Aug 2002 06:42:16 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:10501 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318696AbSHAKex>; Thu, 1 Aug 2002 06:34:53 -0400
-Message-ID: <3D490E5D.3070501@evision.ag>
-Date: Thu, 01 Aug 2002 12:33:01 +0200
+	id <S318700AbSHAKmP>; Thu, 1 Aug 2002 06:42:15 -0400
+Message-ID: <3D49101C.4010608@evision.ag>
+Date: Thu, 01 Aug 2002 12:40:28 +0200
 From: Marcin Dalecki <dalecki@evision.ag>
 Reply-To: martin@dalecki.de
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
 X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: martin@dalecki.de, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE from current bk tree, UDMA and two channels...
-References: <9B9F331783@vcnet.vc.cvut.cz> <3D48420F.5050407@evision.ag> <20020801095609.GE1096@suse.de> <3D4905DB.70305@evision.ag> <20020801100553.GA13494@suse.de>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: eject causes null null deref in wait_for_completion
+References: <Pine.LNX.4.44.0208010825080.2454-100000@linux-box.realnet.co.sz>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-
->>>that would work, but I think it would seriously starve the other device
->>>on the same channel.
+Zwane Mwaikambo wrote:
+> IIRC eject with a CD does this, Looks odd.
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000011
+> c011832a
+> *pde = 0662e001
+> Oops: 0002
+> CPU:    0
+> EIP:    0010:[<c011832a>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010046
+> eax: 00000000   ebx: 00000001   ecx: 00000000   edx: c5d7a000
+> esi: c5d7bf28   edi: c5d7bf2c   ebp: c5d7befc   esp: c5d7beb0
+> ds: 0018   es: 0018   ss: 0018
+> Stack: 00000000 ce14e660 c0117f30 00000000 00000000 c026ab54 c047832c cf5e5e04
+>        00000001 ce14e660 c0117f30 c5d7bf34 c5d7bf34 c5d7a000 c5d7bf28 c0243839
+>        00000000 c0478340 cf5e5e04 c5d7bf28 c024639f c0478340 00000000 00000001
+> Call Trace: [<c0117f30>] [<c026ab54>] [<c0117f30>] [<c0243839>] [<c024639f>]
+>    [<c011aa5f>] [<c0246433>] [<c0155a7a>] [<c015e687>] [<c014c5e6>] [<c010778f>]
+> Code: ff 43 10 81 7f 04 ad 4e ad de 74 1a 68 24 83 11 c0 68 d3 43
+> 
+> 
+>>>EIP; c011832a <wait_for_completion+11a/1d0>   <=====
 >>
->>We starve anyway, becouse the kernel isn't real time and we can't
->>guarantee "sleeping" for some maximum time and comming back.
->>We don't reschedule the kernel during this kind of "sleeping".
->>And we can't know that a command on the "mate" will not take 
->>extraordinary amounts of time. It's only a problem if mixing travan
->>tapes with disks on a channel.
-> 
-> 
-> I'm thinking about the alternation of the devices so one device can't
-> starve the other device off the channel.
+> Trace; c0117f30 <default_wake_function+0/40>
+> Trace; c026ab54 <do_ide_request+364/420>
+> Trace; c0117f30 <default_wake_function+0/40>
+> Trace; c0243839 <generic_unplug_device+119/170>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Ah so you are thinking about two equally powered devices
-competing for the channel. Something I would call the "sumo fight"
-situation. Well disks didn't use the "sleeping" mechanism at all anyway
-and the chances someone would do cp from CD-ROM to CD-ROM are low.
-
-Finally I think that the proper granularity of scheduling requests to
-the drive is, well, the request layer. The queue processing layer should
-handle this becouse otherwise we would have two "competing" optimization
-mechanisms. And there we are indeed able to actually relinquish some CPU 
-time. If you look at an request processing optimization as a low pass
-signal filter it's immediately obvious that the effects of chaining them
-can be, well at least "counter intuitive".
-
-
-
+This is indeed puzzling me. In esp. Since it started to
+appear at a time where there where no changes in code flow
+in this area. Well I have to lookup the bd-claim
+mechanisms. Perhaps doing what ide_spin_wait() does
+by using only ll_rw_blk.c functions will actually help here.
 

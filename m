@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272265AbRH3PV6>; Thu, 30 Aug 2001 11:21:58 -0400
+	id <S272270AbRH3P3s>; Thu, 30 Aug 2001 11:29:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272266AbRH3PVs>; Thu, 30 Aug 2001 11:21:48 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:61338 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S272265AbRH3PVj>;
-	Thu, 30 Aug 2001 11:21:39 -0400
-Date: Thu, 30 Aug 2001 16:21:48 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Stefan Fleiter <stefan.fleiter@gmx.de>, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [ANNOUNCE] Diet /sbin/hotplug package released
-Message-ID: <3117682009.999188508@[10.132.112.53]>
-In-Reply-To: <20010830124700.A3694@shuttle.mothership.home.dhs.org>
-In-Reply-To: <20010830124700.A3694@shuttle.mothership.home.dhs.org>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S272268AbRH3P3j>; Thu, 30 Aug 2001 11:29:39 -0400
+Received: from h157s242a129n47.user.nortelnetworks.com ([47.129.242.157]:56313
+	"EHLO zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S272270AbRH3P3Z>; Thu, 30 Aug 2001 11:29:25 -0400
+Message-ID: <3B8E5BD9.7CC0D854@nortelnetworks.com>
+Date: Thu, 30 Aug 2001 11:29:29 -0400
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: question about netlink/rtnetlink sockets
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I'm working on writing some code that talks to the kernel over a netlink socket
+and manipulates IP addresses, rules, and routes.
 
---On Thursday, August 30, 2001 12:47 PM +0200 Stefan Fleiter 
-<stefan.fleiter@gmx.de> wrote:
+I've gotten it working, except for the case of adding an address that is already
+present.  I would like to either ignore or replace it if it is already there
+(haven't decided which yet) but currently I get an EEXIST error. (Which is
+understandable, but I'd like to get rid of it.)  I tried setting the
+NLM_F_REPLACE flag (which works when trying to add a route that already exists)
+but this didn't seem to do anything.  Neither did NLM_F_EXCL.
 
-> Does it really make any sense to optimize for size and at the same time
-> force the user to install a bash compatible shell?
+Is this the expected behaviour?  Is there some reason why we don't replace it
+with the newly specified address?  If there is no serious reason, could you
+point me towards the code controlling this?  I'm on 2.2.
 
-No, that's why diet /sbin/hotplug didn't require any shell (as I understood
-it), whereas the normal hotplug suite does.
+Thanks,
 
---
-Alex Bligh
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

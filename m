@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266228AbTAYKIG>; Sat, 25 Jan 2003 05:08:06 -0500
+	id <S266233AbTAYKT6>; Sat, 25 Jan 2003 05:19:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266233AbTAYKIG>; Sat, 25 Jan 2003 05:08:06 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59408 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266228AbTAYKIF>;
-	Sat, 25 Jan 2003 05:08:05 -0500
-Date: Sat, 25 Jan 2003 10:17:19 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: willy's unreliable guide to softirqs, tasklets, timers and work queues
-Message-ID: <20030125101719.A7097@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
+	id <S266257AbTAYKT6>; Sat, 25 Jan 2003 05:19:58 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:1796 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266233AbTAYKT5>;
+	Sat, 25 Jan 2003 05:19:57 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301251029.h0PATZL5000197@darkstar.example.net>
+Subject: Re: Server down?
+To: matti.aarnio@zmailer.org (Matti Aarnio)
+Date: Sat, 25 Jan 2003 10:29:35 +0000 (GMT)
+Cc: yiding_wang@agilent.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030125002519.GO787@mea-ext.zmailer.org> from "Matti Aarnio" at Jan 25, 2003 02:25:19 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > For some reason, I don't receive mail send to linux kernel anymore.
+> > > Is that a server problem or I need to do the subscribe again.  It
+> > > happened fron yesterday.
+> > 
+> > The list server probably de-subscribed you.  Try re-subscribing.
+> 
+> Lets see what logs tell:
+> 
+>     @grabjohn.com linux-kernel relaying denied
+>   yiding_wang@agilent.com linux-kernel user unknown
+> 
+> Agilent had front-end system loosing its database/mind temporarily
+> (but 1 hour "temporary" is 10-60 bounces depending on the hour...)
+> 
+> Cases of "relaying denied" (wording varies) are fairly easy to understand.
+> Cases where systems have temporary insanities are most difficult to analyze...
 
-... well, that's what it'd be called if i were rusty.
+I *know* that one of my backup mailers is incorrectly configured, but
+that machine is not under my direct control, and I have asked for it
+to be re-configured.  What else can I do?
 
-my paper from linux.conf.au is available from
-
-ftp://ftp.uk.linux.org/pub/linux/willy/lca/
-
-in both TeX and pdf formats.  I'd like to turn this into documentation
-that's more suitable for linux/Documentation, but that's for a later time.
-I'll probably not check my email for the next week, so don't expect an
-immediate response.
-
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+John.

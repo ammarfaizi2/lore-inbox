@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264133AbUDRFn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 01:43:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUDRFn1
+	id S264134AbUDRFv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 01:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUDRFv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 01:43:27 -0400
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:34702 "EHLO
-	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264133AbUDRFnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 01:43:23 -0400
-From: Eric <eric@cisu.net>
-Reply-To: eric@cisu.net
-To: <stl@nuwen.net>
-Subject: Re: Process Creation Speed
-Date: Sun, 18 Apr 2004 00:44:02 -0500
-User-Agent: KMail/1.6.1
-Cc: <linux-kernel@vger.kernel.org>
-References: <200404170219.i3H2JYal007333@localhost.localdomain>
-In-Reply-To: <200404170219.i3H2JYal007333@localhost.localdomain>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 18 Apr 2004 01:51:28 -0400
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:35335 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S264134AbUDRFv1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 01:51:27 -0400
+Date: Sun, 18 Apr 2004 07:51:40 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Ian Morgan <imorgan@webcon.ca>
+Cc: helpdeskie@bencastricum.nl, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.5 Sensors & USB problems
+Message-Id: <20040418075140.6c118202.khali@linux-fr.org>
+In-Reply-To: <Pine.LNX.4.58.0404171944160.11425@dark.webcon.ca>
+References: <1081349796.407416a4c3739@imp.gcu.info>
+	<Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca>
+	<Pine.LNX.4.58.0404171944160.11425@dark.webcon.ca>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404180044.02850.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 April 2004 21:16, Stephan T. Lavavej wrote:
-> Why does creating and then terminating a process in GNU/Linux take about
-> 6.3 ms on a Prestonia-2.2?  I observe basically the same thing on a
-> PIII-600.
->
-> I'm pretty sure both systems run 2.4.x kernels.  Does this suck less under
-> 2.6.x?  Not sucking at all would mean about 100 microseconds to me.  I
-> don't understand why it doesn't scale with processor speed.  Does this
-> interact with the length of a timeslice?
->
-> It matters to me because the Common Gateway Interface spawns and destroys a
-> process to handle each request, and I wish it were just fast, rather than
-> having to use FastCGI.
-	The difference in speed between regular and FastCGI shouldnt be related to 
-process creation time. The speed up you see from FastCGI is because it 
-doesn't have to be read from disk each time. So, you're really looking for 
-performace enhancements in the wrong place. Tweaking process creation can't 
-make your platters spin faster.
+> Seems that the w83781d driver no longer detects whatever the sensor
+> chip on the P4PE is, but I see there is now a new driver called asb100
+> which does work. An old conflicting lm_sensors install was breaking
+> the sensors-detect script, but once resolved it nicely detected the
+> asb100.
 
-> A fair amount of Googling and RTFFAQ didn't answer this.
->
-> Stephan T. Lavavej
-> http://nuwen.net
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The hardware monitoring chip on the P4PE is an Asus ASB100 "Bach". It
+used to be somewhat supported by the w83781d driver (see as an
+"as99127f" kind) but then a new, dedicated driver was developed by Mark
+M. Hoffman, which works better. For this reason, support was dropped
+from the w83781d, which explains why it suddenly stopped working.
+
+I agree that this should have been advertised a little more, and I am
+adding information about this on our 2.6 kernel dedicated page at the
+moment.
+
+> Can anyone explain, however, why my i2c bus showed up as number 0
+> under linux <= 2.6.4, and now always as number 1 under linux 2.6.5?
+> The is no number 0 any more.
+
+The bus number allocation scheme is such that once a number has been
+used once (since the machine last booted) it will not be used again.
+This is admittedly not ideal and should be fixed. I suspect that the fix
+isn't trivial because the current structures would make the new scheme
+have a poor algorithmic complexity (O(2) maybe), but I haven't checked
+yet. Greg, can you confirm?
+
+This isn't critical (unless you cycle your i2c adapter drivers a great
+number of times, but nodoby does this) which is why no attempt has been
+made to fix it yet. Anyone with a nice fix is welcome however ;)
+
+Thanks.
+
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

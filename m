@@ -1,137 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUGNQcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUGNQe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUGNQcv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 12:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267447AbUGNQcv
+	id S267451AbUGNQe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 12:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUGNQe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 12:32:51 -0400
-Received: from core.ece.northwestern.edu ([129.105.5.1]:30864 "EHLO
-	core.ece.northwestern.edu") by vger.kernel.org with ESMTP
-	id S267445AbUGNQcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 12:32:45 -0400
-Message-ID: <1089822621.40f55f9dd4278@core.ece.northwestern.edu>
-Date: Wed, 14 Jul 2004 11:30:21 -0500
-From: lya755@ece.northwestern.edu
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: question about ramdisk
-References: <1089651469.40f2c30d44364@core.ece.northwestern.edu>  <ccugqu$tun$1@terminus.zytor.com>  <1089727279.40f3eb2f82a6c@core.ece.northwestern.edu>  <1089749203.22026.17.camel@mindpipe>  <1089753034.40f44fca074c2@core.ece.northwestern.edu> <1089753955.22175.8.camel@mindpipe> <1089817172.40f54a540e0c1@core.ece.northwestern.edu> <Pine.LNX.4.53.0407141154120.16363@chaos>
-In-Reply-To: <Pine.LNX.4.53.0407141154120.16363@chaos>
+	Wed, 14 Jul 2004 12:34:27 -0400
+Received: from out010pub.verizon.net ([206.46.170.133]:53992 "EHLO
+	out010.verizon.net") by vger.kernel.org with ESMTP id S267452AbUGNQeL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 12:34:11 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Organization: Organization: undetectable
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Mail System Error - Returned Mail
+Date: Wed, 14 Jul 2004 12:34:09 -0400
+User-Agent: KMail/1.6
+References: <200407132306.39569.gene.heskett@verizon.net> <20040714082336.GM1486@mea-ext.zmailer.org>
+In-Reply-To: <20040714082336.GM1486@mea-ext.zmailer.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 138.15.107.179
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407141234.09591.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [141.153.91.175] at Wed, 14 Jul 2004 11:34:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks so much for the hint! Really appreciate it. I'll try out your 
-suggestions.
+On Wednesday 14 July 2004 04:23, Matti Aarnio wrote:
+>On Tue, Jul 13, 2004 at 11:06:39PM -0400, Gene Heskett wrote:
+>> Greetings;
+>>
+>> I'm getting a lot of these bounces, any good reason?
+>
+>Dunno,  but we also see (every now and then) that Verizon
+>system rejects emails towards it with MAIL FROM giving
+>vger.kernel.org  domain.
 
-I am still a bit confused, though. If the code is in ramdisk, then it will be 
-mapped to the process address space, which as I understand, does not involve 
-any actual data copy and transfer. This sounds very reasonable. But what if 
-the code is in hard disk? Would the kernel copy it to memory (somewhere 
-allocated) then map this region as the text section for the address space, and 
-then run the instructions from ram? That's the way I understand it, but I 
-don't know whether that is correct.
+Yeah, I'm getting unsubbed from some mailing lists because of 
+excessive bounces.
 
-Thanks!
-Lei
+>Reading deeper, the visible "To:" header, and "remote mta"
+>line do say:   vgr.kernel.org   which isn't quite exactly right...
 
-Quoting "Richard B. Johnson" <root@chaos.analogic.com>:
+I think I found it, that miss-spelling was how it was here in kmails 
+folder preferences when the "folder contains a mailing list" option 
+is checked.  There I had the vgr as you see, instead of vger.
 
-> On Wed, 14 Jul 2004 lya755@ece.northwestern.edu wrote:
-> 
-> > Hello,
-> >
-> > I am now thinking of a way to verify what H. Peter Anvin says about the
-> > ramdisk, so that I can watch what is going on when the executable is
-> running.
-> > Is there any way to achieve that besides kernel debugging? I don't really
-> want
-> > to debug the kernel for now.
-> >
-> > Can I get the physical address of the text section with it's virtual
-> address?
-> > If I can know the physical address of the code in ramdisk and can know the
-> > physical address of the text section of process address space, maybe this
-> can
-> > be done.
-> >
-> > Any suggestions?
-> >
-> > Lei
-> >
-> 
-> The physical address will do you no good because your process
-> uses the virtual address to access everything.
-> 
-> Do `cat /proc/PID/maps` where PID is a process ID number. You
-> will see the virtual address of the executable and runtime
-> shared libraries that the task is using. These are memory-mapped
-> into the tasks address-space.
-> 
-> If your code is ANYWHERE, including on a RAM-Disk, it will
-> be memory-mapped into your address-space just like what you
-> see. This allows everybody to share all the executables and
-> all the run-time libraries so they don't need separate copies.
-> 
-> For instance, here's somebody running the `bash` shell:
-> 
-> 08048000-0808c000 r-xp 00000000 08:11 1440929    /usr/bin/bash
-> 0808c000-08092000 rw-p 00043000 08:11 1440929    /usr/bin/bash
-> 08092000-080a2000 rwxp 00000000 00:00 0
-> 40000000-4000a000 r-xp 00000000 08:11 475506     /usr/lib/ld-2.0.5.so
-> 4000a000-4000b000 rw-p 00009000 08:11 475506     /usr/lib/ld-2.0.5.so
-> 4000b000-4000c000 rwxp 00000000 00:00 0
-> 4000c000-40010000 r--p 00000000 08:11 163651     /etc/ld.so.cache
-> 40010000-40012000 rwxp 00000000 08:11 1030227    /lib/libtermcap.so.2.0.8
-> 40012000-40014000 rw-p 00001000 08:11 1030227    /lib/libtermcap.so.2.0.8
-> 40014000-4009f000 r-xp 00000000 08:11 475508     /usr/lib/libc-2.0.6.so
-> 4009f000-400a5000 rw-p 0008b000 08:11 475508     /usr/lib/libc-2.0.6.so
-> [SNIPPED...]
-> 
-> You can see the virtual address of your own stuff by compiling
-> and executing this:
-> 
-> #include <stdio.h>
-> extern char _start;
-> extern char _end;
-> char dat;
-> const char x[]="x";
-> 
-> int main()
-> {
->     char foo;
->     printf("start = %p\n", &_start);
->     printf(" main = %p\n", main);
->     printf(" data = %p\n", &dat);
->     printf("const = %p\n", x);
->     printf("stack = %p\n", &foo);
->     printf("  end = %p\n", &_end);
->     return 0;
-> }
-> 
-> The physical address in RAM could be anywhere. The kernel takes
-> pages of RAM from anywhere and makes them look contiguous for
-> each task. So what looks like linear address-space is made up
-> of (on ix86 0x1000 byte) pages of RAM.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
->             Note 96.31% of all statistics are fiction.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I'm pretty sure that fixes at least one glitch, and may explain why 
+some of my messages have been ignored.  I may not have seen the 
+bounce message because most of them are spam and are sorted to a 
+folder thats autocleaned when I quite kmail.
 
+But then I'm an old fart, and easliy ignored most of the time too :-)
 
+[...]
 
-_________________________________________________________
-This message was sent through the NU ECE webmail gateway.
+>From the symptoms I do suspect that Verizon's DNS server(s) are
+>malfunctioning somehow.
+
+They are in fact, in plain english, a pain in the ass. Miss-configured 
+pieces of M$ driven crap, occasionally viri infected even, up and 
+down like a Duncan yoyo.  Here about a year ago, I had just setup a 
+new Seimans dsl router.  It had been setup about 2 weeks, when one 
+day it wasn't working again and I couldn't access its web page.  
+There was just one line in my logs, giving their DNS's machines ip as 
+the cuplrit, indicating it had been hacked and they had actually 
+gotten thru to my firewall machine, but portsentry is set to be 
+paranoid & shut them off on the first syn packet.  The router had 
+been hacked, the password and apparently its ip address had been 
+hacked, I couldn't find a button to restore factory defaults, so I 
+said screw it, gave it back to Circuit City and brought home a 
+linksys for twice the money.  It's been bulletproof so far.
+
+>An alternate is that their MTA software is treating temporary DNS
+>failures (like lookup timeout) as instantly permanent failures and
+>as a valid reason for reject, which would be a mad thing to do.
+
+Thats possible, I've run query's to it, had them fail, work 10x in a 
+row, and fail twice in a row, all in the space of a minute or less.
+
+[snip the rest]
+
+Many thanks for looking into it, as usual, I was the little boy crying 
+wolf. Since I'll be 70 shortly, thats not a pretty sight :-)
+
+-- 
+Cheers, Gene
+There are 4 boxes to be used in defense of liberty. 
+Soap, ballot, jury, and ammo.
+Please use in that order, starting now.  -Ed Howdershelt, Author
+Additions to this message made by Gene Heskett are Copyright 2004, 
+Maurice E. Heskett, all rights reserved.

@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263455AbTEGUJG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 16:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbTEGUJG
+	id S264284AbTEGULF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 16:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTEGULF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 16:09:06 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:922 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263455AbTEGUJF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 16:09:05 -0400
-Subject: [RFC] SELinux security module 2.5.69
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@digeo.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, Chris Wright <chris@wirex.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051817849.1377.372.camel@moss-huskers.epoch.ncsc.mil>
-References: <1051817849.1377.372.camel@moss-huskers.epoch.ncsc.mil>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1052338851.1044.151.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 May 2003 16:20:54 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2003 16:11:05 -0400
+Received: from smtp013.mail.yahoo.com ([216.136.173.57]:48905 "HELO
+	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264284AbTEGULC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 16:11:02 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Nicolas Couture <nc@stormvault.net>
+Subject: Re: Kernel Panic - IDE-SCSI
+Date: Wed, 7 May 2003 22:23:15 +0200
+User-Agent: KMail/1.5.1
+References: <1052334839.3394.31.camel@gsiserver.gsitechusa.com>
+In-Reply-To: <1052334839.3394.31.camel@gsiserver.gsitechusa.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305072223.15436.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am again requesting comments on the SELinux module prior to submitting
-it.  An updated version of the SELinux module for 2.5.69 is now
-available from http://www.nsa.gov/selinux/lk/A07selinux.patch.gz.  This
-patch only modifies the security/ directory, updating its Makefile and
-Kconfig and adding the selinux subdirectory and files under it.  As with
-the prior RFC posting, this patch depends on the A0[1-6]*.patch.gz
-patches in the same directory that have been separately submitted, and
-the full patch against 2.5.69 is
-http://www.nsa.gov/selinux/lk/2.5.69-selinux1.patch.gz.   Some
-corresponding userland components are contained in
-http://www.nsa.gov/selinux/lk/selinux-2.5.tgz.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Changes since the prior RFC posting include:
-- Flattened the include hierarchy under security/selinux
-- Dropped the special handling of proc inode labeling, to be
-  revisited later as a separate patch, possibly via xattr handlers
-  in the virtual filesystems to support security labeling. 
-- Dropped avc_d_path. 
-- Various code cleanups.
+On Wednesday 07 May 2003 21:13, Nicolas Couture wrote:
+> Hi,
+>
+> I found a bug in the scsi emulation support in the 2.4 serie.
+>
+> --- snip ---
+> kung-foo:/home/user# echo foo > /proc/scsi/ide-scsi/0
+> <1>Unable to handle kernel NULL pointer dereference at virtual address
+> 00000000
+>  printing eip:
+> 00000000
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<00000000>]    Not tainted
+> EFLAGS: 00010246
+> eax: 00000000   ebx: c6b80000   ecx: 00000000   edx: c032c620
+> esi: c11ffdb0   edi: 00000004   ebp: 00000004   esp: c70c1f5c
+> ds: 0018   es: 0018   ss: 0018
+> Process bash (pid: 5072, stackpage=c70c1000)
+> Stack: c0207a4a c6b80000 c70c1f84 00000000 00000004 00000000 00000001
+> 00000000
+>        c47db120 ffffffea c010d09c c014c3df c47db120 40015000 00000004
+> c11ffdb0
+>        c0131715 c47db120 40015000 00000004 c47db140 c70c0000 00000004
+> 40015000
+> Call Trace:    [<c0207a4a>] [<c010d09c>] [<c014c3df>] [<c0131715>]
+> [<c01086df>]
+>
+> Code:  Bad EIP value.
+>  Segmentation fault
+> user@kung-foo:~$
+> --- snip ---
+>
+> Nicolas Couture
 
-As before, documentation of SELinux can be found at
-http://www.nsa.gov/selinux/docs.html.  That documentation does not
-reflect the changes to the SELinux API and implementation that we have
-been making in preparing for submission to mainline 2.5, but is useful
-in understanding the architecture and design.  Background information
-for the SELinux project is available at
-http://www.nsa.gov/selinux/background.html.
+can you please run ksymoops on it?
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 22:22:48 up  7:39,  2 users,  load average: 1.01, 1.00, 1.00
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+uWszoxoigfggmSgRAuLZAJ9EjAXjwxDKIMEoaJrPRO3VnkgHuACeM/IY
+QGS+mTf54H66EjERIWcC3d0=
+=rZo3
+-----END PGP SIGNATURE-----
 

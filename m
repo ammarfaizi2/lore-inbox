@@ -1,115 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVDCKXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVDCKZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbVDCKXY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 06:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVDCKXX
+	id S261638AbVDCKZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 06:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVDCKZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 06:23:23 -0400
-Received: from funkmunch.net ([202.173.190.158]:4056 "EHLO mail.funkmunch.net")
-	by vger.kernel.org with ESMTP id S261645AbVDCKWp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 06:22:45 -0400
-Message-ID: <424FC409.3020808@funkmunch.net>
-Date: Sun, 03 Apr 2005 20:23:05 +1000
-From: Triffid Hunter <triffid_hunter@funkmunch.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050321)
-X-Accept-Language: en-us, en
+	Sun, 3 Apr 2005 06:25:57 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:46039 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261638AbVDCKXo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 06:23:44 -0400
+Message-ID: <424FC42E.80503@yandex.ru>
+Date: Sun, 03 Apr 2005 14:23:42 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en, ru, en-us
 MIME-Version: 1.0
-To: "SuD (Alex)" <sud@latinsud.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in set_spdif_output in i810_audio
-References: <424F20F6.8010804@latinsud.com>
-In-Reply-To: <424F20F6.8010804@latinsud.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       "Artem B. Bityuckiy" <dedekind@infradead.org>,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+References: <20050401152325.GB4150@gondor.apana.org.au> <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org> <20050401221303.GA6557@gondor.apana.org.au> <424FA7B4.6050008@yandex.ru> <20050403084415.GA20326@gondor.apana.org.au> <424FB06B.3060607@yandex.ru> <20050403093044.GA20608@gondor.apana.org.au> <424FBB56.5090503@yandex.ru> <20050403100043.GA20768@gondor.apana.org.au> <1112522762.3899.182.camel@localhost.localdomain> <20050403101752.GA20866@gondor.apana.org.au>
+In-Reply-To: <20050403101752.GA20866@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try turning off your internal modem in bios until someone works out whats going on here
+Herbert Xu wrote:
+> You might be right.  But I'm not sure yet.
+> 
+> If we use the current code and supply zlib_deflate with 1048576-12 bytes
+> of (incompressible) input and 1048576 bytes of output buffer, wouldn't
+> zlib keep writing incompressible blocks and return when it can't do that
+> anymore because the output buffer has been exhausted?
+It must not. Look at the algoritm closer.
 
-SuD (Alex) wrote:
-> Hi, i got a new ahtec laptop and i get null pointer oops everytime i 
-> load i810_audio on 2.4 and 2.6 (including 2.6.11.6) kernels.
+stream->next_in = (u8 *)src;
+stream->next_out = dst;
+
+while (stream->total_in < *slen
+        && stream->total_out < *dlen - DEFLATE_PCOMPR_RESERVE) {
+
+         stream->avail_out = *dlen - DEFLATE_PCOMPR_RESERVE - 
+stream->total_out;
+         stream->avail_in = min((unsigned int)(*slen - 
+stream->total_in), stream->avail_out);
+
+         ret = zlib_deflate(stream, Z_SYNC_FLUSH);
+         if (ret != Z_OK)
+                 return -EINVAL;
+}
+
+stream->avail_out += DEFLATE_PCOMPR_RESERVE;
+stream->avail_in = 0; /* <------ no more input ! ---------- */
+
+ret = zlib_deflate(stream, Z_FINISH);
+if (ret != Z_STREAM_END)
+         return -EINVAL;
+
+
+
 > 
-> *** These are init messages & oops:
-> i810_audio: Unknown symbol ac97_set_dac_rate
-> i810_audio: Unknown symbol ac97_release_codec
-> i810_audio: Unknown symbol ac97_set_adc_rate
-> i810_audio: Unknown symbol ac97_alloc_codec
-> i810_audio: Unknown symbol ac97_probe_codec
-> Intel 810 + AC97 Audio, version 1.01, 04:15:45 Jan 24 2005
-> ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 10 (level, low) -> IRQ 10
-> i810: Intel ICH4 found at IO 0x18c0 and 0x1c00, MEM 0xe0100c00 and 
-> 0xe0100800, IRQ 10
-> i810: Intel ICH4 mmio at 0xde9f3c00 and 0xdea84800
-> i810_audio: Primary codec has ID 0
-> i810_audio: Audio Controller supports 6 channels.
-> i810_audio: Defaulting to base 2 channel mode.
-> i810_audio: Resetting connection 0
-> i810_audio: Connection 0 with codec id 0
-> ac97_codec: AC97 Modem codec, id: CXT48 (Unknown)
-> i810_audio: codec 0 is a softmodem - skipping.
-> ...
-> EIP:    0060:[<dec4b172>]    Not tainted
-> EFLAGS: 00010246   (2.6.8-2-686)
-> EIP is at i810_set_spdif_output+0x22/0x160 [i810_audio]
-> eax: ffffffff   ebx: 00000000   ecx: d9c28400   edx: d9c28400
-> esi: 00000000   edi: 00000000   ebp: d6edfb80   esp: d7383e30
-> ds: 007b   es: 007b   ss: 0068
-> Process insmod (pid: 3358, threadinfo=d7382000 task=dca643b0)
-> Stack: 00004461 ffffffce c011c7f4 00000000 d6edfb80 00000000 d6edfc18 
-> 00000000
->       dec4ff9f d6edfb80 ffffffff 00000000 dec51740 d7383e7c dda3c240 
-> 00000a04
->       d9c28400 dec4fdb0 d6edfbb0 d9c28400 00000000 00000001 00000000 
-> 00000001
-> Call Trace:
-> [<c011c7f4>] release_console_sem+0xc4/0xd0
-> [<dec4ff9f>] i810_configure_clocking+0xbf/0x4c0 [i810_audio]
-> [<dec4fdb0>] i810_ac97_init+0x4a0/0x5d0 [i810_audio]
-> [<dec5084f>] i810_probe+0x4af/0x690 [i810_audio]
-> 
-> *** This is my device:
-> 0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM 
-> (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 03)
->        Subsystem: QUANTA Computer Inc: Unknown device 0707
->        Flags: bus master, medium devsel, latency 0, IRQ 10
->        I/O ports at 1c00 [size=256]
->        I/O ports at 18c0 [size=64]
->        Memory at e0100c00 (32-bit, non-prefetchable) [size=512]
->        Memory at e0100800 (32-bit, non-prefetchable) [size=256]
->        Capabilities: [50] Power Management version 2
-> 
-> 
-> *** What happened in set_spdif_output:
->      struct ac97_codec *codec = state->card->ac97_codec[0];
->     // ... for some reason codec is NULL, and then
->      if(!codec->codec_ops->digital)
->     // ... oops
-> 
-> *** Why is that null?
->   Perhaps it is because the driver thinks that the card is a modem and 
-> releases it. So no codecs are available, but some functions expect at 
-> least one codec to exist.
-> 
->   if(codec->modem)
->                {
->                        printk(KERN_WARNING "i810_audio: codec %d is a 
-> softmodem - skipping.\n", ac97_id);
->                        ac97_release_codec(codec);
-> 
->  And is detected as modem because of this condition (in ac97_codec.c):
->  /* Check for an AC97 1.0 soft modem (ID1) */
->  if(codec->codec_read(codec, AC97_RESET) & 2)                       
-> I don't know much about ac97, i also have an ac97 modem. Anybody knows 
-> what is wrong?
-> 
-> Btw, Alsa snd-intel8x0 driver works, but as many distros still default 
-> to Oss i think this bug should be hunt.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> When it does return it has to finish writing the last block it's on.
+No, it must only put EOB and adler32, we won't give it more input.
+
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

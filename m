@@ -1,78 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUJAQ0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUJAQZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUJAQ0a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 12:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUJAQ0a
+	id S264665AbUJAQZs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 12:25:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJAQZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 12:26:30 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:60188 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S264726AbUJAQYW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 12:24:22 -0400
-Message-ID: <35fb2e5904100109246f43ee7b@mail.gmail.com>
-Date: Fri, 1 Oct 2004 17:24:21 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Ralph Corderoy <ralph@inputplus.co.uk>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone.
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410011559.i91FxfH13266@blake.inputplus.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 1 Oct 2004 12:25:47 -0400
+Received: from tomts45.bellnexxia.net ([209.226.175.112]:15275 "EHLO
+	tomts45-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S264795AbUJAQYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 12:24:32 -0400
+Reply-To: <ivan.kalatchev@esg.ca>
+From: "Ivan Kalatchev" <ivan.kalatchev@esg.ca>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel 2.6.8 bug in fs/locks.c
+Date: Fri, 1 Oct 2004 12:24:30 -0400
+Message-ID: <000001c4a7d3$21c62bb0$2e646434@ivans>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-References: <alan@lxorguk.ukuu.org.uk>
-	 <1096640407.21940.33.camel@localhost.localdomain>
-	 <200410011559.i91FxfH13266@blake.inputplus.co.uk>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Oct 2004 16:59:41 +0100, Ralph Corderoy
-<ralph@inputplus.co.uk> wrote:
 
-> Alan Cox wrote:
-> > Actually by the time this made the kernel list an answer turned up
-> > from Amstrad - the URL for the GPL source, and an offer valid for
-> > three years to supply it at cost is in the welcome email their units
-> > start up with.
+Hi all,
 
-The E3 uses Montavista Linux and as far as I am aware they made little
-or no changes to that for the product. Most of the perceived problem
-here is, I think, just misunderstanding.
+Application I'm developing has a web interface, so user can change
+configuration file for this application using IE browser e.g.
+I'm using pthreads for each user-application connections. To protect
+configuration file from corruption I used file locking mechanism - fcntl
+with F_WRLCK/F_RDLCK.
+ And at one point after posting web page back immediately after browser
+received it, I got this in dmesg:
 
-It also seems you're overly keen for Amstrad to be in the wrong here,
-but the reality is that Alan Sugar (or his son/relative in charge of
-various PR activities) is not going to have these answers readily
-available for you. Someone will know and provide you with the
-information that you are after - but it's worth treating the lack of
-informtation as a small oversight.
+------------[ cut here ]------------
+kernel BUG at fs/locks.c:1726!
+invalid operand: 0000 [#1]
+PREEMPT
+Modules linked in: hpac cdc_acm ohci_hcd usbcore e100
+CPU:    0
+EIP:    0060:[<c01555f1>]    Not tainted
+EFLAGS: 00010246   (2.6.8)
+EIP is at locks_remove_flock+0x69/0xbc
+eax: c113d781   ebx: c34ecf4c   ecx: c34eceb0   edx: c1dbff6c
+esi: c126f420   edi: c3fd0a40   ebp: c34eceb0   esp: c35b8f84
+ds: 007b   es: 007b   ss: 0068
+Process hdas (pid: 6875, threadinfo=c35b8000 task=c113d710)
+Stack: c126f420 c126f420 c0142d13 c126f420 c126f420 00000007 00000000
+bf5ff914
+       c3c9ce60 c0142cdf c01513e9 00000009 00000007 00000009 c35b8000
+c0105c4b
+       00000009 00000007 bf5ff914 00000007 00000009 bf5ff6f4 000000dd
+c010007b
+Call Trace:
+ [<c0142d13>] __fput+0x33/0x104
+ [<c0142cdf>] fput+0x13/0x14
+ [<c01513e9>] sys_fcntl64+0x69/0x70
+ [<c0105c4b>] syscall_call+0x7/0xb
+Code: 0f 0b be 06 de 4a 23 c0 89 d3 8b 13 85 d2 75 c7 ba 00 f0 ff
 
-While the E3 is quoted as not using any other "Open Source" software,
-it does use Monta's Linux. I would suggest that you contact the folks
-at Montavista's UK offices in Bracknell and ask them about obtaining a
-link to the source.mvista.com and similar websites where you can
-obtain a copy of the sources used in their distribution. They are
-friendly people.
+Configuration file was destroyed of course, as I opened it for writing with
+truncation.
+I'm changing code now to use pthread mutexes to control access to the
+configuration file,
+hopefully it will work better. So this message more like bug info, but I
+would like
+to be CC-ed  all answers/comments posted to the list in response to this
+posting.
 
-> And the written offer is in the welcome email *now* but probably wasn't
-> until I hassled them.
+Regards,
 
-They probably overlooked it. Yes that's not great - but I wouldn't get
-too worked up over it. The reality is that you asked for a copy of the
-source and eventually it seems that you will get what you want. It
-would be nice if this process were entirely seemless but it's
-certainly a lot better than many examples I've seen elsewhere.
+_________________________________________________
+Ivan Kalatchev
 
-> It also doesn't meet 3(b) so they're not complying.
+Senior Software Developer
+Engineering Seismology Group Canada Inc.
+ISO 9001-2000
+1 Hyperion Court, Kingston,
+Ontarion, Canada K7K 7G3
+phone: (613) 548-8287 ext.247
+fax:     (613) 548-8917
 
-Technically I think you might be correct there - but I'd give them the
-benefit of the doubt and assume they just need to read the license
-over and make a change to some packaging.
 
-I'm planning to do a review of the E3 so I'll be sure to look in to
-these issues then.
-
-Cheers,
-
-Jon.

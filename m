@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266011AbUBJR3P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:29:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265989AbUBJR0k
+	id S266050AbUBJSEA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 13:04:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265975AbUBJSCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:26:40 -0500
-Received: from hera.kernel.org ([63.209.29.2]:43475 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S265986AbUBJRXT (ORCPT
+	Tue, 10 Feb 2004 13:02:54 -0500
+Received: from mail.kroah.org ([65.200.24.183]:7815 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266188AbUBJR6G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:23:19 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: Does anyone still care about BSD ptys?
-Date: Tue, 10 Feb 2004 17:23:13 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c0b421$uj8$1@terminus.zytor.com>
-References: <20040209165711.2185.qmail@web41308.mail.yahoo.com>
+	Tue, 10 Feb 2004 12:58:06 -0500
+Date: Tue, 10 Feb 2004 09:58:03 -0800
+From: Greg KH <greg@kroah.com>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Newest fbdev patch to go mainline.
+Message-ID: <20040210175803.GG28111@kroah.com>
+References: <20040210173551.GC27779@kroah.com> <Pine.LNX.4.44.0402101747450.6600-100000@phoenix.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: terminus.zytor.com 1076433793 31337 63.209.29.3 (10 Feb 2004 17:23:13 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 10 Feb 2004 17:23:13 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0402101747450.6600-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040209165711.2185.qmail@web41308.mail.yahoo.com>
-By author:    =?iso-8859-1?q?Joerg=20Pommnitz?= <pommnitz@yahoo.com>
-In newsgroup: linux.dev.kernel
+On Tue, Feb 10, 2004 at 05:49:52PM +0000, James Simmons wrote:
 > 
-> It would be difficult to implement the same thing using SYSV ptys.
-> 
+> Thats coming :-) The problem only showes itself with modular drivers 
+> correct. So I will submit patches for those first. I just wanted to polish 
+> off a few really tiny patches fist.
 
-I find that hard to believe, although you might have to create links
-dynamically.
+Ok, just want to make sure that doesn't get dropped.
 
-	-hpa
+thanks,
 
--- 
-PGP public key available - finger hpa@zytor.com
-Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
-"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
-Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!
+greg k-h

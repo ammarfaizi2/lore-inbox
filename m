@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262708AbTCYQKu>; Tue, 25 Mar 2003 11:10:50 -0500
+	id <S262713AbTCYQOM>; Tue, 25 Mar 2003 11:14:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262711AbTCYQKu>; Tue, 25 Mar 2003 11:10:50 -0500
-Received: from CPE-144-132-194-153.nsw.bigpond.net.au ([144.132.194.153]:23937
-	"EHLO anakin.wychk.org") by vger.kernel.org with ESMTP
-	id <S262708AbTCYQKt>; Tue, 25 Mar 2003 11:10:49 -0500
-Date: Wed, 26 Mar 2003 00:13:58 +0800
-From: Geoffrey Lee <glee@gnupilgrims.org>
-To: linux-kernel@vger.kernel.org
-Cc: pleb@cse.unsw.edu.au
-Subject: [Patch] [arm] support older plebs
-Message-ID: <20030325161358.GA30538@anakin.wychk.org>
+	id <S262719AbTCYQOM>; Tue, 25 Mar 2003 11:14:12 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:11027 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S262713AbTCYQOK>;
+	Tue, 25 Mar 2003 11:14:10 -0500
+Date: Tue, 25 Mar 2003 17:25:20 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Deprecating .gz format on kernel.org
+Message-ID: <20030325162520.GI949@lug-owl.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1048183475.3427.112.camel@biznatch> <Pine.LNX.3.96.1030325110027.1437B-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="OXfL5xGRrasGEqWY"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="N8NGGaQn1mzfvaPg"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.3.96.1030325110027.1437B-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=big5
+--N8NGGaQn1mzfvaPg
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2003-03-25 11:04:51 -0500, Bill Davidsen <davidsen@tmr.com>
+wrote in message <Pine.LNX.3.96.1030325110027.1437B-100000@gatekeeper.tmr.c=
+om>:
+> On Thu, 20 Mar 2003, Thomas Duffy wrote:
+>=20
+> > On Thu, 2003-03-20 at 09:51, Eli Carter wrote:
+> > > So, who can beat his 15.10 bogomips?
+> >=20
+> > my firewall:
+>=20
+> At one point I ran Linux on a 386SX-16 with 12MB. That machine ran 1.2.13
+> (IIRC) until Dec 31 1999, when I was afraid it was not Y2k hardened. I
+> still see spam to glacial.tmr.com today. The name was NOT because it was
+> so cool ;-)
+>=20
+> I may still have that board, but I'm not about to put it back in service
+> to measure speed. Your firewall is the slowest "real machine" I've seen,
+
+I do have such a system, too (but only 4..8MB RAM) and I'm going to
+install it this evening (or tomorrow). I've just got back a 40GB HDD
+from IBM^WHitachi:) That box should have just about 1.2 BogoMips...
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+
+--N8NGGaQn1mzfvaPg
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
-Hi all,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE+gILwHb1edYOZ4bsRAvaJAJ4/CHGWilva/IqBOaqVQmZK5lqcaACeMgDB
+hgX8JOzJtdzmzjASibG92L4=
+=mLi7
+-----END PGP SIGNATURE-----
 
-This patch has been in my patch directory for a while.
-
-The PLEB is a SA-1100-based ARM computer developed at CSE at the
-University of New South Wales.  I have discovered some of the earlier
-models would not set register 1 properly, which was required for Linux
-to boot.  This was inside their (very old) kernel tree but which they 
-never submitted for inclusion (?)  It is a Photon1 with catapult
-bootloader combination.
-
-
-	- G.
-	
--- 
-char p[] = "\xeb\x1f\x5e\x89\x76\x08\x31\xc0\x88\x46\x07\x89\x46\x0c\xb0\x0b"
-  "\x89\xf3\x8d\x4e\x08\x8d\x56\x0c\xcd\x80\x31\xdb\x89\xd8\x40\xcd"
-  "\x80\xe8\xdc\xff\xff\xff/bin/sh";
-
-
-
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=big5
-Content-Disposition: attachment; filename="arm-pleb.patch"
-
-diff -urNp -X exclude linux-2.4.19-pleb.orig/arch/arm/kernel/head-armv.S linux-2.4.19-pleb/arch/arm/kernel/head-armv.S
---- linux-2.4.19-pleb.orig/arch/arm/kernel/head-armv.S	2002-10-29 18:57:10.000000000 +0800
-+++ linux-2.4.19-pleb/arch/arm/kernel/head-armv.S	2002-10-29 19:18:42.000000000 +0800
-@@ -130,6 +130,9 @@ __entry:
-  */
- 		mov	r1, #MACH_TYPE_L7200
- #endif
-+#if defined(CONFIG_SA1100_PLEB)
-+		mov	r1, #MACH_TYPE_PLEB
-+#endif
- 
- 		mov	r0, #F_BIT | I_BIT | MODE_SVC	@ make sure svc mode
- 		msr	cpsr_c, r0			@ and all irqs disabled
-
---OXfL5xGRrasGEqWY--
+--N8NGGaQn1mzfvaPg--

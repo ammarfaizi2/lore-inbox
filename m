@@ -1,22 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280755AbRKGDeu>; Tue, 6 Nov 2001 22:34:50 -0500
+	id <S280750AbRKGDfj>; Tue, 6 Nov 2001 22:35:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280754AbRKGDej>; Tue, 6 Nov 2001 22:34:39 -0500
-Received: from node1500a.a2000.nl ([24.132.80.10]:44976 "HELO mail.alinoe.com")
-	by vger.kernel.org with SMTP id <S280750AbRKGDe1>;
-	Tue, 6 Nov 2001 22:34:27 -0500
-Date: Wed, 7 Nov 2001 04:34:25 +0100
-From: Carlo Wood <carlo@alinoe.com>
+	id <S280754AbRKGDfa>; Tue, 6 Nov 2001 22:35:30 -0500
+Received: from cj46222-a.reston1.va.home.com ([65.1.136.109]:23736 "HELO
+	sanosuke.troilus.org") by vger.kernel.org with SMTP
+	id <S280750AbRKGDfS>; Tue, 6 Nov 2001 22:35:18 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: [ircu-development] Slow on high-MTU (local host) connections?
-Message-ID: <20011107043425.A15045@alinoe.com>
-Mime-Version: 1.0
+Subject: select() takes a long time after an EAGAIN read()?
+From: Entrope <entrope@users.sourceforge.net>
+Date: 06 Nov 2001 22:35:31 -0500
+Message-ID: <87ofmfs16k.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Carlo Wood diagnosed a problem that GamesNET has been seeing where
+traffic between two processes on the same machine takes a lot longer
+using the default configuration than the same traffic between
+different machines.  It's apparently entangled in the path MTU -- the
+slow transfers happen when the MTU is 16 KB, as in localhost, and does
+not happen when the MTU is smaller.  I don't know of any reason it
+should do this, and Carlo also chalks it up to kernel weirdness.
+
+Is this a kernel bug, or is it expected (just not by us)?
+
+-- Entrope
+
+-- From his email (originally sent to the old lkml address): --
 
 On Mon, Nov 05, 2001 at 09:17:52PM -0500, Entrope wrote:
 > GamesNET's seeing oddly long burst times when we connect srvx to ircu
@@ -84,6 +97,38 @@ Carlo Wood <carlo@alinoe.com>
 PS CC to kernel list, because I think this delay should not be there.
    If anyone on the kernel list knows what causes this, then please
    CC me as I am not subscribed to this list.
-PS2 Sent again to the kernel list because I used the wrong address
-   the first time.
 
+-- Following up on that: --
+
+The examples in the previous mail are from the case with MTU is 8000
+(and were to only two occurances of a EAGAIN for read() actually).
+
+Allow me show the statistics for both MTU's:
+
+MTU 16436:
+
+~>grep -B1 '\[srvx2\] select.*<0\.[1-9]' mtu16436 | grep '\[srvx2\] read' | wc --lines
+    323
+~>grep -B1 '\[srvx2\] select.*<0\.[1-9]' mtu16436 | grep '\[srvx2\] read.*EAGAIN' | wc --lines
+    323
+
+Conclusion: ALL calls to select() that took longer than 0.1 second
+were following a call to read() that failed with EAGAIN.  In total 323 times.
+
+
+MTU 8000:
+
+~>grep -B1 '\[srvx2\] select.*<0\.[1-9]' mtu8000 | grep '\[srvx2\] read' | wc --lines
+      2
+~>grep -B1 '\[srvx2\] select.*<0\.[1-9]' mtu8000 | grep '\[srvx2\] read.*EAGAIN' | wc --lines
+      2
+
+Idem, but only two occurences.
+
+
+The total number of calls to select in both are respectively:
+
+~>grep '\[srvx2\] select.*' mtu16436 | wc --lines
+   1221
+~>grep '\[srvx2\] select.*' mtu8000 | wc --lines
+   658

@@ -1,111 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131324AbRCWVhP>; Fri, 23 Mar 2001 16:37:15 -0500
+	id <S131361AbRCWVpg>; Fri, 23 Mar 2001 16:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131466AbRCWVhF>; Fri, 23 Mar 2001 16:37:05 -0500
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:56072 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S131324AbRCWVhA>; Fri, 23 Mar 2001 16:37:00 -0500
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.2-ac20 patch for process time double-counting (was: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.)
-In-Reply-To: <Pine.LNX.4.33.0103230844090.2031-100000@mikeg.weiden.de>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: Mike Galbraith's message of "Fri, 23 Mar 2001 08:44:59 +0100 (CET)"
-Date: 23 Mar 2001 15:36:03 -0600
-Message-ID: <vbalmpwxj5o.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S131461AbRCWVpQ>; Fri, 23 Mar 2001 16:45:16 -0500
+Received: from medusa.sparta.lu.se ([194.47.250.193]:47210 "EHLO
+	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
+	id <S131361AbRCWVpO>; Fri, 23 Mar 2001 16:45:14 -0500
+Date: Fri, 23 Mar 2001 21:25:59 +0100 (MET)
+From: Bjorn Wesen <bjorn@sparta.lu.se>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Amit D Chaudhary <amit@muppetlabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: CRAMFS 
+In-Reply-To: <Pine.LNX.4.30.0103231853280.2898-100000@imladris.demon.co.uk>
+Message-ID: <Pine.LNX.3.96.1010323194500.14171C-100000@medusa.sparta.lu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith <mikeg@wen-online.de> writes:
-> 
-> > Mike, would you like to try out the following (untested) patch against
-> > vanilla ac20 to see if it does the trick?
-> 
-> Yes, that fixed it.
+On Fri, 23 Mar 2001, David Woodhouse wrote:
+> > 1. RAMFS is just more stable in terms of less complexity, less bugs reported 
+> > over the time, etc.
+> > 2. RAMFS is a fairly robust filesystem and all features required as far as I can 
+> > tell.
 
-Great!  Can you test one more configuration, please?  I can't test it
-properly with my SMP motherboard.  Under "ac20", if you disable:
+Ok, ramfs is really simple, but heck, cramfs is not much more complex :)
+It's as simple a flash-filesystem as you can get.
 
-        Symmetric multi-processing support (CONFIG_SMP)
+I don't know why the comparision is made though, they are used for two
+completely different things... ramfs is for temporary file storage, cramfs
+is for immutable files stored on flash. Each by itself is quite optimal
+for what it's designed for, isn't it ?
 
-you'll get to say yes to:
+> I'm not aware of any bugs being found in cramfs recently - unless you 
+> wanted to use it on Alpha (or anything else where PAGE_SIZE != the 
+> hard-coded 4096 in mkcramfs.c).
 
-        APIC support on uniprocessors (CONFIG_X86_UP_APIC)
+I committed a patch that disappeared that added the choice of page size
+(trivial yes :), we have PAGE_SIZE == 8192 on our systems. Works fine.
 
-If you say yes to that, you'll also get to say yes to:
+> I wouldn't avoid it for those reasons - although if you're _really_ short 
+> of flash space, the same argument applies as for JFFS2 - a single 
+> compression stream (tar.gz) will be smaller than compressing individual 
+> pages like JFFS2 and cramfs do.
 
-        IO-APIC support on uniprocessors (CONFIG_X86_UP_IOAPIC)
+Here are some results from a quite mixed filesystem:
 
-Can you check that the following patch against vanilla "ac20" works
-correctly with SMP disabled and X86_UP_APIC enabled?  (The original
-patch I gave you won't compile with this configuration, since I put
-the declaration in the wrong include file.)  It shouldn't matter
-whether X86_UP_IOAPIC is enabled or disabled.
+[bjornw@godzilla linux]$ ls -l cram*
+-rw-r--r--   1 bjornw   users     1179648 Mar 23 22:38 cram32768
+-rw-r--r--   1 bjornw   users     1282048 Mar 23 22:38 cram4096
+-rw-r--r--   1 bjornw   users     1220608 Mar 23 22:38 cram8192
 
-In addition to checking that the sys/user times look right, please
-check for the message:
+(the numbers correspond to blocksize)
 
-        Using local APIC timer interrupts.
+There's not any big difference here. 
 
-in your boot messages (I *don't* think it'll be there, but I'm not
-sure, and I'd really like to know one way or the other).  In fact, if
-you could send me your kernel messages up to the PCI probe, that would
-be ideal.
+With bigger files though, the difference get larger. YMMV.
 
-Thanks muchly!
+Notice that you can change cramfs so it uses a blocksize that is bigger
+than PAGE_SIZE, of course, if it really is necessary. You'll get worse
+performance at run-time though since you need to cache the page and hope
+for read-ahead or similar (you can stuff the pages in the page-cache even
+if they are not requested for example).
 
-Kevin <buhr@stat.wisc.edu>
+-BW
 
-                        *       *       *
 
-diff -ru linux-2.4.2-ac20-vanilla/arch/i386/kernel/apic.c linux-2.4.2-ac20/arch/i386/kernel/apic.c
---- linux-2.4.2-ac20-vanilla/arch/i386/kernel/apic.c	Fri Mar 23 14:21:47 2001
-+++ linux-2.4.2-ac20/arch/i386/kernel/apic.c	Fri Mar 23 15:12:15 2001
-@@ -30,6 +30,9 @@
- #include <asm/mpspec.h>
- #include <asm/pgalloc.h>
- 
-+/* Using APIC to generate smp_local_timer_interrupt? */
-+int using_apic_timer = 0;
-+
- int prof_multiplier[NR_CPUS] = { 1, };
- int prof_old_multiplier[NR_CPUS] = { 1, };
- int prof_counter[NR_CPUS] = { 1, };
-@@ -872,6 +875,9 @@
- 
- void __init setup_APIC_clocks (void)
- {
-+	printk("Using local APIC timer interrupts.\n");
-+	using_apic_timer = 1;
-+
- 	__cli();
- 
- 	calibration_result = calibrate_APIC_clock();
-diff -ru linux-2.4.2-ac20-vanilla/arch/i386/kernel/time.c linux-2.4.2-ac20/arch/i386/kernel/time.c
---- linux-2.4.2-ac20-vanilla/arch/i386/kernel/time.c	Fri Mar 23 14:21:47 2001
-+++ linux-2.4.2-ac20/arch/i386/kernel/time.c	Fri Mar 23 14:04:43 2001
-@@ -422,7 +422,7 @@
- 	if (!user_mode(regs))
- 		x86_do_profile(regs->eip);
- #else
--	if (!smp_found_config)
-+	if (!using_apic_timer)
- 		smp_local_timer_interrupt(regs);
- #endif
- 
-diff -ru linux-2.4.2-ac20-vanilla/include/asm-i386/mpspec.h linux-2.4.2-ac20/include/asm-i386/mpspec.h
---- linux-2.4.2-ac20-vanilla/include/asm-i386/mpspec.h	Mon Jan  8 13:35:28 2001
-+++ linux-2.4.2-ac20/include/asm-i386/mpspec.h	Fri Mar 23 14:20:19 2001
-@@ -182,6 +182,7 @@
- extern int mp_current_pci_id;
- extern unsigned long mp_lapic_addr;
- extern int pic_mode;
-+extern int using_apic_timer;
- 
- #endif
- 

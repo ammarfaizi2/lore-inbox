@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131393AbQKPU0j>; Thu, 16 Nov 2000 15:26:39 -0500
+	id <S131397AbQKPUdN>; Thu, 16 Nov 2000 15:33:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131397AbQKPU02>; Thu, 16 Nov 2000 15:26:28 -0500
-Received: from mail.aslab.com ([205.219.89.194]:29204 "EHLO mail.aslab.com")
-	by vger.kernel.org with ESMTP id <S131393AbQKPU0M>;
-	Thu, 16 Nov 2000 15:26:12 -0500
-Date: Thu, 16 Nov 2000 13:04:41 -0800 (PST)
-From: "John D. Kim" <johnkim@aslab.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: APM oops with Dell 5000e laptop
-In-Reply-To: <E13wTbc-0008BC-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.04.10011161254110.2078-100000@mail.aslab.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131430AbQKPUdD>; Thu, 16 Nov 2000 15:33:03 -0500
+Received: from mirrors.planetinternet.be ([194.119.238.163]:24584 "EHLO
+	mirrors.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S131397AbQKPUc4>; Thu, 16 Nov 2000 15:32:56 -0500
+Date: Thu, 16 Nov 2000 21:02:53 +0100
+From: Kurt Roeckx <Q@ping.be>
+To: linux-kernel@vger.kernel.org
+Subject: chroot [Was: Re: Linux 2.2.18pre21]
+Message-ID: <20001116210253.A3862@ping.be>
+In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu> <20001116150704.A883@emma1.emma.line.org> <20001116171618.A25545@athlon.random> <20001116115249.A8115@wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <20001116115249.A8115@wirex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2000, Alan Cox wrote:
-> > The kernel works around/ignores/disables other broken hardware or broken
-> > features of otherwise working hardware with black lists.  There will be
-> > many *many* of these laptops sold.
-
-> And I hope many many of these people demand BIOS upgrades or send them back.
-
-Well, there will be a great number of these laptops sold, not just through
-dell, but other brands that buy from compal.  But most of them will be
-running Windows, and Windows seem to work fine with it.  So these
-companies aren't going to see too many requests unless anyone who's even
-considering buying a new laptop complain about this.  Compal provides no
-communication channel for the consumers, so we have to go through the big
-companies like dell.  When I e-mailed dell's tech support I got a response
-from a guy who had *no* idea what linux is.
-
-> > Is there a way to uniquely identify the affected BIOSes at boot time and
-
-> Im looking at one with some pointers from Dell. It won't be in 2.2.18 so its
-> quite likely a fixed BIOS will be out first anyway.
-
-Wherever the fix comes from, I sure hope it comes soon, because it's
-getting harder and harder to find cpus for the original 5000 series.  And
-this new model's been sitting on my desk for couple of weeks now
-collecting dust.
-
+On Thu, Nov 16, 2000 at 11:52:49AM -0800, jesse wrote:
+> On Thu, Nov 16, 2000 at 05:16:18PM +0100, Andrea Arcangeli wrote:
+> > On Thu, Nov 16, 2000 at 03:07:04PM +0100, Matthias Andree wrote:
+> > > It shows a program that saves the cwd -- open(".",...) in an open file,
+> > > then chroots [..]
+> > 
+> > This is known behaviour (I know Alan knows about it too), solution is to close
+> > open directories filedescriptors before chrooting.
+> > 
+> > Everything that happens before chroot(2) is trusted, so it's secure to rely
+> > on it to close directories first.
+> > 
+> > If this is not well documented and people doesn't know about it and so they
+> > writes unsafe code that's another issue...
 > 
-> Alan
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+> But the problem is because you can call chroot when you're already chrooted.
 
-John Kim
+Only if you're root.  There are other ways to break out of a
+chroot() if you're root too.
+
+
+Kurt
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

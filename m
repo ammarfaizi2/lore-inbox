@@ -1,52 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262671AbTHZT2s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 15:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbTHZT2s
+	id S262981AbTHZT1J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 15:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262978AbTHZT1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 15:28:48 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16659 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262671AbTHZT2q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 15:28:46 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.0-test4 shocking (HT) benchmarking (wrong logic./phys. HT CPU distinction?)
-Date: 26 Aug 2003 19:20:20 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bigbtk$i7v$1@gatekeeper.tmr.com>
-References: <200308261552.44541.max@vortex.physik.uni-konstanz.de>
-X-Trace: gatekeeper.tmr.com 1061925620 18687 192.168.12.62 (26 Aug 2003 19:20:20 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 26 Aug 2003 15:27:09 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:46819 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262981AbTHZT1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 15:27:03 -0400
+Message-ID: <3F4BB35D.6030705@namesys.com>
+Date: Tue, 26 Aug 2003 23:22:05 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Cole <elenstev@mesatop.com>
+CC: Oleg Drokin <green@namesys.com>, reiserfs-dev@namesys.com,
+       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: reiser4 snapshot for August 26th.
+References: <20030826102233.GA14647@namesys.com>	 <1061922037.1670.3.camel@spc9.esa.lanl.gov> <1061923101.1670.9.camel@spc9.esa.lanl.gov>
+In-Reply-To: <1061923101.1670.9.camel@spc9.esa.lanl.gov>
+X-Enigmail-Version: 0.76.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200308261552.44541.max@vortex.physik.uni-konstanz.de>,
- <max@vortex.physik.uni-konstanz.de> wrote:
+Steven Cole wrote:
 
-| The next strange thing is that using FFTW (in a single program) with two or 
-| four simulataneous FFT-threads on 2.6.0-test4 is significantly *slower* than 
-| in 2.4, where the hyperthreading/SMP is said to be inferior to 2.6. The 
-| simulation took almost 50% longer on 2.6, all other things being equal. 
-| Unfortunately, these results made me go back to 2.4 for the time being.
+>On Tue, 2003-08-26 at 12:20, Steven Cole wrote:
+>  
+>
+>>On Tue, 2003-08-26 at 04:22, Oleg Drokin wrote:
+>>    
+>>
+>>>Hello!
+>>>
+>>>   I have just released another reiser4 snapshot that I hope all interested
+>>>   parties will try. It is released against 2.6.0-test4.
+>>>   You can find it at http://namesys.com/snapshots/2003.08.26
+>>>   I include release notes below.
+>>>
+>>>Reiser4 snapshot for 2003.08.26
+>>>
+>>>      
+>>>
+>>I got this error while attempting to compile with reiser4.
+>>Snippet from .config follows.
+>>
+>>Steven
+>>
+>>  CC      fs/reiser4/plugin/file/tail_conversion.o
+>>  CC      fs/reiser4/sys_reiser4.o
+>>fs/reiser4/sys_reiser4.c:54:32: parser/parser.code.c: No such file or directory
+>>    
+>>
+>[snipped]
+>  
+>
+>>[steven@spc1 linux-2.6.0-test4-r4]$ grep REISER4 .config
+>>CONFIG_REISER4_FS=y
+>>CONFIG_REISER4_FS_SYSCALL=y
+>>    
+>>
+>
+>I should have read this more carefully :(
+>
+>config REISER4_FS_SYSCALL
+>        bool "Enable reiser4 system call"
+>        depends on REISER4_FS
+>        default n
+>        ---help---
+>      Adds sys_reiser4() syscall.
+>      This code is not in good shape yet and may not compile and stuff like that.
+>
+>Without REISER4_FS_SYSCALL, -test4 with reiser4 compiles fine.  Sorry about the noise.
+>
+>Steven
+>
+>
+>
+>
+>  
+>
+Users should not be expected to read help text in a case like this.If it 
+does not compile, it should not be visible.
 
-You may want to run w/o HT at all for your particular problem, or limit
-threads to the number of physical CPUs. Having multiple threads trying
-to do ffts is likely to thrash the cache, and will result in contention
-for the (single) FPU.
-
-The schedular would seem to lack the information to make a determination
-of the magnitude of the fpu contention, and by making better use of HT
-it makes the contention worse.
-
-Perhaps there should be a "don't hyperthread" attribute one could set to
-hint that running multiple threads in a single CPU is unlikely to work
-well. Since there isn't, I don't know a way to avoid the problem unless
-you can set maxthreads to Ncpu.
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Hans
+
+

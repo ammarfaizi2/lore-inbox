@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277533AbRJOOFd>; Mon, 15 Oct 2001 10:05:33 -0400
+	id <S277529AbRJOOCN>; Mon, 15 Oct 2001 10:02:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277540AbRJOOFN>; Mon, 15 Oct 2001 10:05:13 -0400
-Received: from samar.sasken.com ([164.164.56.2]:62638 "EHLO samar.sasken.com")
-	by vger.kernel.org with ESMTP id <S277533AbRJOOFI>;
-	Mon, 15 Oct 2001 10:05:08 -0400
-From: "Shiva Raman Pandey" <shiva@sasken.com>
-Subject: Netfilter  and Dynamics Mobile IP
-Date: Mon, 15 Oct 2001 19:36:50 +0530
-Message-ID: <9qeqf7$brv$1@ncc-z.sasken.com>
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-To: linux-kernel@vger.kernel.org
-X-News-Gateway: ncc-z.sasken.com
+	id <S277533AbRJOOCD>; Mon, 15 Oct 2001 10:02:03 -0400
+Received: from [213.97.184.209] ([213.97.184.209]:15749 "HELO piraos.com")
+	by vger.kernel.org with SMTP id <S277529AbRJOOBu>;
+	Mon, 15 Oct 2001 10:01:50 -0400
+Date: Mon, 15 Oct 2001 16:01:34 +0200 (CEST)
+From: German Gomez Garcia <german@piraos.com>
+To: Stephen Frost <sfrost@snowman.net>
+cc: Willem Riede <wriede@home.com>,
+        Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More on the 760MP
+In-Reply-To: <20011014174550.P29860@ns>
+Message-ID: <Pine.LNX.4.33.0110151557500.28028-100000@hal9000.piraos.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
-My testbed configurations are :-
-1. Linux Kernel - 2.4.9
-2. Dynamics Mobile IP 0.7.5
-3. Netfilter (iptables 1.2.3)
-I am able to grab IP packets using Netfilter. I tried with ping, telnet
-commands, and I am able to get the packet without any problem.
+On Sun, 14 Oct 2001, Stephen Frost wrote:
 
-Now I am trying to grab all mobile IP control messages and packets using
-Netfilter.
-Commands I used are : (on the PC running as Home Agent)
-iptables -A OUTPUT -p icmp -j QUEUE
-dynhad --fg --debug
+> * German Gomez Garcia (german@piraos.com) wrote:
+> > On Sun, 14 Oct 2001, Willem Riede wrote:
+> >
+> > 	It's important to change the type of thermal sensor to
+> > 3904 transistor ( set sensor1 2 ....) if not you won't get the right
+> > temperatures.
+>
+> 	Can you put up your sensors.conf file online somewhere so I/we
+> 	can take a look at it?  Perhaps your insmod line(s) as well and
+> 	the patch done to lm-sensors...  It'd be very useful to many of
+> 	us I think as I am trying to go through the steps to get
+> 	lm-sensors working for my on my Thunder S2462 board.
 
-The Dynhad tool is displaying lots of agent adv. messages being sent, even
-my Mobile Node is also getting them, but Netfilter is not getting any of the
-message?
-I am not able to understand why it is happening?
+	You can get everything at:
 
-Please help me by answering these questions in the above context as soon as
-possible
-1. Why Netfilter is not getting the packets?
-2. What should I do to get all the MIP packets?
+	http://www.piraos.com/~german/sensors
 
-Waiting for your earliest reply
+	Sorry for the delay but the server is in fact in the dual athlon,
+and I'm recompiling everything.
 
-Thanks and warm regards
-Shiva
+	Regards,
 
+	- german
 
+-------------------------------------------------------------------------
+German Gomez Garcia          | Send email with "SEND GPG KEY" as subject
+<german@piraos.com>          | to receive my GnuPG public key.
 

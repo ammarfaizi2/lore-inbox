@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129115AbRCZUQD>; Mon, 26 Mar 2001 15:16:03 -0500
+	id <S132574AbRCZUKO>; Mon, 26 Mar 2001 15:10:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129156AbRCZUPy>; Mon, 26 Mar 2001 15:15:54 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:34578 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129112AbRCZUPn>;
-	Mon, 26 Mar 2001 15:15:43 -0500
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Andreas Dilger <adilger@turbolinux.com>, LA Walsh <law@sgi.com>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: 64-bit block sizes on 32-bit systems
-In-Reply-To: <20010326181803.F31126@parcelfarce.linux.theplanet.co.uk> <200103261747.f2QHlEX19564@webber.adilger.int> <20010326190945.I31126@parcelfarce.linux.theplanet.co.uk>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 26 Mar 2001 22:14:06 +0200
-In-Reply-To: Matthew Wilcox's message of "Mon, 26 Mar 2001 19:09:45 +0100"
-Message-ID: <d33dc01e5t.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
+	id <S132573AbRCZUKD>; Mon, 26 Mar 2001 15:10:03 -0500
+Received: from snark.tuxedo.org ([207.106.50.26]:46856 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132571AbRCZUJr>;
+	Mon, 26 Mar 2001 15:09:47 -0500
+Date: Mon, 26 Mar 2001 15:12:23 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk, trini@kernel.crashing.org,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML1 cleanup patch, take 3
+Message-ID: <20010326151223.A20023@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
+	alan@lxorguk.ukuu.org.uk, trini@kernel.crashing.org,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <200103261924.f2QJOwL19694@snark.thyrsus.com> <3ABF9EA7.FD7EEAED@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3ABF9EA7.FD7EEAED@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 26, 2001 at 02:55:19PM -0500
+Organization: Eric Conspiracy Secret Labsnamespace-management
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Matthew" == Matthew Wilcox <matthew@wil.cx> writes:
+Jeff Garzik <jgarzik@mandrakesoft.com>:
+> Wow, your script was longer than your patch :)
 
-Matthew> On Mon, Mar 26, 2001 at 10:47:13AM -0700, Andreas Dilger
-Matthew> wrote:
->> What do you mean by problems 5 years down the road?  The real issue
->> is that this 32-bit block count limit affects composite devices
->> like MD RAID and LVM today, not just individual disks.  There have
->> been several postings I have seen with people having a problem
->> _today_ with a 2TB limit on devices.
+But independent of the version/patchlevel, which was the point of shipping it.
 
-Matthew> people who can afford 2TB of disc can afford to buy a 64-bit
-Matthew> processor.
+If CML2 is adopted and I become the config system maimtainer,
+symbolreplace is one of a number of small tools I'll drop into the scripts
+directory to address the namespace-management problem.  At over 1800
+symbols, power tools are needed.  Even just garbage-collecting unused
+symbols isn't trivial.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Oh great, and migrating a large application to a new architecture is
-soo cheap. Disk costs nothing these days and there is a legitimate
-need here.
-
-Jes
+"The power to tax involves the power to destroy;...the power to
+destroy may defeat and render useless the power to create...."
+	-- Chief Justice John Marshall, 1819.

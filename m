@@ -1,82 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129892AbQKISLV>; Thu, 9 Nov 2000 13:11:21 -0500
+	id <S129619AbQKISLV>; Thu, 9 Nov 2000 13:11:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129900AbQKISLL>; Thu, 9 Nov 2000 13:11:11 -0500
-Received: from baucis.sc.intel.com ([143.183.152.22]:49164 "EHLO
-	baucis.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S129892AbQKISKz>; Thu, 9 Nov 2000 13:10:55 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC86@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Steven_Snyder@3com.com'" <Steven_Snyder@3com.com>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Porting Linux v2.2.x Ethernet driver to v2.4.x?
-Date: Thu, 9 Nov 2000 10:10:34 -0800 
+	id <S129892AbQKISLL>; Thu, 9 Nov 2000 13:11:11 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:14861 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129619AbQKISKx>;
+	Thu, 9 Nov 2000 13:10:53 -0500
+Message-ID: <3A0AE88D.FCA19A5A@mandrakesoft.com>
+Date: Thu, 09 Nov 2000 13:10:21 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Steven_Snyder@3com.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Porting Linux v2.2.x Ethernet driver to v2.4.x?
+In-Reply-To: <88256992.00632296.00@hqoutbound.ops.3com.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Search the lkml archives.  Here are 2 instances
-to find:
-
-from jamal, 2000-jan-6: [ANNOUNCE] SOFTNETing Network Drivers HOWTO
-
-from kuznet, 2000-feb-14: "softnet" drivers: an attempt to clarify
-
-from dave miller, 2000-feb-9: new network driver interface changes, README
-  http://www.uwsg.indiana.edu/hypermail/linux/kernel/0002.1/0408.html
-from jamal, 2000-feb-10:      ditto
-  http://www.uwsg.indiana.edu/hypermail/linux/kernel/0002.1/0461.html
-from dave miller, 2000-feb-12: ditto
-
-_______________________________________________
-|randy.dunlap_at_intel.com        503-677-5408|
-|NOTE: Any views presented here are mine alone|
-|& may not represent the views of my employer.|
------------------------------------------------ 
-
-> -----Original Message-----
-> From: Steven_Snyder@3com.com [mailto:Steven_Snyder@3com.com]
-> Sent: Thursday, November 09, 2000 10:01 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: Porting Linux v2.2.x Ethernet driver to v2.4.x?
-> 
-> 
-> 
+Steven_Snyder@3com.com wrote:
 > 
 > Hello.
 > 
-> I am about to modify a Linux v2.2.x-compatible Ethernet 
-> driver to allow it to
-> work in the new v2.4.x kernel.  Are there any documents which 
-> describe the
-> differences in the device driver models (particularly PCI and 
-> Ethernet) of the 2
+> I am about to modify a Linux v2.2.x-compatible Ethernet driver to allow it to
+> work in the new v2.4.x kernel.  Are there any documents which describe the
+> differences in the device driver models (particularly PCI and Ethernet) of the 2
 > kernel versions?  If so, where can I find them?
-> 
-> Thank you.
-> 
-> (Sorry about the advertisement below.)
-> 
-> 
-> 
-> 
-> PLANET PROJECT will connect millions of people worldwide 
-> through the combined
-> technology of 3Com and the Internet. Find out more and register now at
-> http://www.planetproject.com
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
 
+Not all in one place.  Read:
+
+Documentation/pci.txt
+Documentation/DMA-mapping.txt
+Documentation/IO-mapping.txt
+and the attached document, regarding netdevice member locking rules.
+
+Your best reference is other PCI ethernet drivers.  grep for
+'pci_module_init' in drivers/net/*.c of the most recent 2.4.x kernel,
+for a good start.
+
+Also... before you start thinking about gunking-up your driver with all
+sorts of backwards-compatibility code...  remember that most 2.4.x
+drivers can easily be backported to 2.2.x with a few magic macros and
+static inline functions.  I have an example of this sort of thing at
+http://gtf.org/garzik/drivers/kcompat24/
+
+	Jeff
+
+
+-- 
+Jeff Garzik             |
+Building 1024           | Would you like a Twinkie?
+MandrakeSoft            |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

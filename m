@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263328AbTETA3t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbTETA3t
+	id S263264AbTETAbo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbTETAbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:29:49 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:21669 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP id S263328AbTETA3s
+	Mon, 19 May 2003 20:31:44 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:9891 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263264AbTETAbk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:29:48 -0400
-Message-ID: <3EC9807D.3080804@kegel.com>
-Date: Mon, 19 May 2003 18:10:21 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: de-de, en
+	Mon, 19 May 2003 20:31:40 -0400
+Date: Tue, 20 May 2003 02:44:12 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Corey Minyard <cminyard@mvista.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add boot command line parsing for the e100 driver
+In-Reply-To: <Pine.SOL.4.30.0305200215130.28757-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.SOL.4.30.0305200243380.28757-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: John Myers <jgmyers@netscape.com>, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Comparing the aio and epoll event frameworks.
-References: <200305192333.QAA12018@pagarcia.nscp.aoltw.net> <Pine.LNX.4.55.0305191657540.6565@bigblue.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.55.0305191657540.6565@bigblue.dev.mcafeelabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> Adding a single shot feature to epoll takes about 5 lines of code,
-> comments included :) You know how many reuqests I had ? Zero, nada.
 
-I thought edge triggered epoll *was* single-shot.
-- Dan
+On Tue, 20 May 2003, Bartlomiej Zolnierkiewicz wrote:
+> On Mon, 19 May 2003, Corey Minyard wrote:
+>
+> > Jeff Garzik wrote:
+> >
+> > >>instead of adding such horrible cruft Corey did it should just use the
+> > >>proper API.
+> > >>
+> > >>
+> > >
+> > >An API already exists, and it is source compatible between 2.4 and 2.5:
+> > >ethX=.... on the kernel command line.
+> > >
+> > >The proper patch would pick up options from there.
+> > >
+> > Can you tell me where this is?  I found the "ether=xxx" and
+> > "netdev=xxx", but they are not suitible.  I also could not find
+> > "module_parame" anywhere on google or in the kernel.
+> >
+> > -Corey
+>
+> :-) module_parm(), look at include/linux/moduleparam.h
+> and scsi for usage examples
 
--- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+ugh. s/module_parm/module_param/
+
+--
+Bartlomiej
 

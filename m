@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317521AbSGXU2t>; Wed, 24 Jul 2002 16:28:49 -0400
+	id <S317531AbSGXU3F>; Wed, 24 Jul 2002 16:29:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317531AbSGXU2t>; Wed, 24 Jul 2002 16:28:49 -0400
-Received: from rcpt-expgw.biglobe.ne.jp ([202.225.89.143]:48581 "EHLO
-	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
-	id <S317521AbSGXU2s>; Wed, 24 Jul 2002 16:28:48 -0400
-X-Biglobe-Sender: <t-kouchi@mvf.biglobe.ne.jp>
-Date: Wed, 24 Jul 2002 13:32:54 -0700
-From: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] aic7xxx driver doesn't release region
-Cc: pcihpd-discuss@lists.sourceforge.net
-Message-Id: <20020724132119.2803.T-KOUCHI@mvf.biglobe.ne.jp>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	id <S317544AbSGXU3F>; Wed, 24 Jul 2002 16:29:05 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:19163 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S317531AbSGXU3D>; Wed, 24 Jul 2002 16:29:03 -0400
+Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
+From: Steven Cole <elenstev@mesatop.com>
+To: Craig Kulesa <ckulesa@as.arizona.edu>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Ed Tomlinson <tomlins@cam.org>,
+       Steven Cole <scole@lanl.gov>
+In-Reply-To: <1027434665.12588.78.camel@spc9.esa.lanl.gov>
+References: <Pine.LNX.4.44.0207221520301.14311-100000@loke.as.arizona.edu> 
+	<1027434665.12588.78.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.04
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 24 Jul 2002 14:28:42 -0600
+Message-Id: <1027542523.7518.108.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 2002-07-23 at 08:31, I (Steven Cole) wrote:
+> On Mon, 2002-07-22 at 16:36, Craig Kulesa wrote:
+> > 
+> > On Mon, 22 Jul 2002, William Lee Irwin III wrote:
+> > 
+> > > The pte_chain mempool was ridiculously huge and the use of mempool for
+> > > this at all was in error.
+> > 
+> [snipped]
+> > 
+> > in dquot.c.  It'll be tested and fixed on the next go. :)
+> 
+> 1st the good news.  The 2.5.27-rmap-2b-dqcache patch fixed the compile
+> problem with CONFIG_QUOTA=y.
+> 
+> Then, I patched in 2.5.27-rmap-3-slaballoc from Craig's site and the
+> test machine got much further in the boot, but hung up here:
+> 
+> Starting cron daemon
+> /etc/rc.d/rc3.d/S50inet: fork: Cannot allocate memory
+> 
+> Sorry, no further information was available.
 
-This is a patch to fix releasing memory and io regions for the
-aic7xxx driver.  This applies both 2.4- and 2.5-series.
-Without this, you will fail to hot-remove the device.
+I finally got some time for more testing, and I booted this very same
+2.5.25-rmap-slablru kernel on the same machine, and this time it booted
+just fine. Then I began to exercise the box a little by running dbench
+with increasing numbers of clients.  At 28 clients, I got this:
 
-This patch is tested on an IA32 server with ACPI PCI hotplug,
-and reported to work.
+(31069) open CLIENTS/CLIENT16/~DMTMP/WORDPRO/BENCHS1.PRN failed for handle 4148 (Cannot allocate memory)
+(31070) nb_close: handle 4148 was not open
+(31073) unlink CLIENTS/CLIENT16/~DMTMP/WORDPRO/BENCHS1.PRN failed (No such file or directory)
 
---- aic7xxx_linux_pci.c.orig	Tue Nov 13 09:19:41 2001
-+++ aic7xxx_linux_pci.c	Wed Jul 17 18:03:51 2002
-@@ -98,6 +98,10 @@
- 			break;
- 		}
- 	}
-+#ifdef MMAPIO
-+	release_mem_region(pci_resource_start(pdev, 1), 0x1000);
-+#endif
-+	release_region(pci_resource_start(pdev, 0), 256);
- }
- #endif /* !LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0) */
- 
+Right after starting 32 dbench clients, the box locked up, no longer
+responding to the keyboard.  It did respond to pings, but nothing else.
 
+This hardware does run other kernels successfully, most recently
+2.4.19-rc3-ac3 and dbench 128 (load over 100).
 
-Thanks,
--- 
-KOCHI, Takayoshi <t-kouchi@cq.jp.nec.com/t-kouchi@mvf.biglobe.ne.jp>
+Steven
+
 

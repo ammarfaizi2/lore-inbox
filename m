@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290945AbSAaFb6>; Thu, 31 Jan 2002 00:31:58 -0500
+	id <S290943AbSAaFdS>; Thu, 31 Jan 2002 00:33:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290940AbSAaFbs>; Thu, 31 Jan 2002 00:31:48 -0500
-Received: from femail28.sdc1.sfba.home.com ([24.254.60.18]:21757 "EHLO
-	femail28.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S290945AbSAaFbc>; Thu, 31 Jan 2002 00:31:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Thu, 31 Jan 2002 00:32:40 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: "World Domination Now!" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200201302239.QAA39272@tomcat.admin.navo.hpc.mil> <20020131032832.KJVO14927.femail22.sdc1.sfba.home.com@there> <E16W85P-0000Kc-00@starship.berlin>
-In-Reply-To: <E16W85P-0000Kc-00@starship.berlin>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there>
+	id <S290940AbSAaFdI>; Thu, 31 Jan 2002 00:33:08 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:39431 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S290946AbSAaFcr>;
+	Thu, 31 Jan 2002 00:32:47 -0500
+Date: Wed, 30 Jan 2002 21:31:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Mark McClelland <mark@alpha.dyndns.org>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: ov511 verbose startup.
+Message-ID: <20020131053124.GI31006@kroah.com>
+In-Reply-To: <20020131023457.D31313@suse.de> <20020131035936.GD31006@kroah.com> <3C58D69B.6000205@alpha.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C58D69B.6000205@alpha.dyndns.org>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 03 Jan 2002 01:45:06 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 January 2002 10:40 pm, Daniel Phillips wrote:
+On Wed, Jan 30, 2002 at 09:31:07PM -0800, Mark McClelland wrote:
+> 
+> Greg (if you know): usbfs is not allowed to access claimed interfaces, 
+> correct? (ie. ones that are implicitly claimed because of a successful 
+> return from probe()). Are interfaces treated as claimed while probe() is 
+> active, so that user-space "probes" cannot interfere with driver probes()?
 
-> You will never figure that out, it isn't predefined.  It reshapes itself on
-> the fly, and is really defined by what is going on at any given time.  That
-> said, it's usually possible to figure out how the main maintainers are, and
-> what to send where, just don't hope to ever nail that down in a rigid
-> structure.  It's not rigid.
+Yes, but odds are, it is trying to read the configuration of the device,
+and we don't have control pipe locking, yet :)
 
-As long as the maintainers know who the lieutenants are, nobody under them 
-should really have to care that much...
+Dave, does this problem go away on 2.5.3-pre6?
+And which host controller driver are you using?
 
-> > I expect it will all get worked out eventually.  Now that the secret of
-> > the difference between maintainers and lieutenants is out.
->
-> By the way, that never was a secret to anybody in active development.
+thanks,
 
-I.E. the people who knew it knew it, and hence never noticed the problem...
-
-There are, however, some people writing largeish bits of code that did not in 
-fact seem to know it.  Andre Hedrick's IDE work, Eric Raymond with the help 
-files and CML2, Kieth Owens' new build process...  Maybe it was even a factor 
-in Alan Cox burning out (you'd have to ask him about that)...
-
-> > The thread seems to be dying down a bit... :)
->
-> Right, people are working on solutions.  As usual, though much dung did
-> fly, Linus comes out smelling like a rose.
-
-Gee, what a suprise. :)
-
-Rob
+greg k-h

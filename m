@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262591AbTKRNcz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 08:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTKRNcz
+	id S262719AbTKRNjL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 08:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTKRNjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 08:32:55 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:29595 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262591AbTKRNcx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 08:32:53 -0500
-Date: Tue, 18 Nov 2003 14:32:53 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Guillaume Chazarain <guichaz@yahoo.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cfq + io priorities
-Message-ID: <20031118133253.GK888@suse.de>
-References: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc> <20031109113928.GN2831@suse.de> <20031113125427.GB643@openzaurus.ucw.cz> <20031117081407.GI888@suse.de> <20031118132634.GB470@elf.ucw.cz>
+	Tue, 18 Nov 2003 08:39:11 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:2827 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S262719AbTKRNjC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 08:39:02 -0500
+Date: Tue, 18 Nov 2003 13:39:01 +0000
+From: John Levon <levon@movementarian.org>
+To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: HOWTO build modules in 2.6.0 ...
+Message-ID: <20031118133901.GA64922@compsoc.man.ac.uk>
+References: <Pine.LNX.4.58L.0311171939150.25906@alpha.zarz.agh.edu.pl> <20031117203336.GA1714@mars.ravnborg.org> <20031117235927.GA31611@compsoc.man.ac.uk> <20031118055007.GC1008@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031118132634.GB470@elf.ucw.cz>
+In-Reply-To: <20031118055007.GC1008@mars.ravnborg.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1AM64L-000MXI-Ov*cAUByYkYQzw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 18 2003, Pavel Machek wrote:
-> > > If semaphore is held over disk io somewhere (quota code? journaling?)
-> > > you have ugly possibility of priority inversion there.
-> > 
-> > Indeed yes. That's a general problem with all the io priorities though,
-> > RT io might end up waiting for nice 10 io etc. Dunno what to do about
-> > this yet...
-> 
-> Well, traditional (== scheduler) solution is not to have idle classes
-> and not guarantee anything about realtime classes.
-> 
-> At least idle class can not be used to hold important semaphore
-> forever (even low-priority prosses receive enough time not to hold
-> important semaphores too long)... I believe you should do the same (==
-> get rid of idle class for now, and clearly state that realtime ones
-> are not _guaranteed_ anything).
+On Tue, Nov 18, 2003 at 06:50:07AM +0100, Sam Ravnborg wrote:
 
-That's not doing something about it, that's giving up... I'm not giving
-any guarentees in the first place, just 'best effort'.
+> > This requires a kernel source tree empty of built files though, so it's
+> > really not a great solution ...
+> 
+> Correct - but why keep kernel trees around full of build files, when
+> there is a proper solution to keep them out of the src.
 
-You could allow idle prio to proceed, if it holds a resource that could
-potentially block others.
+Because people *will* have build trees that are in the source directory.
+You're effectively requiring everybody to rebuild their kernel using
+some new syntax the first time they want to compile an external module.
+
+External modules were compilable fine (if somewhat clumsily) in 2.4
+without any special setup; it's a pity that 2.6 regresses in this given
+how superior the build system is in every other way.
+
+> It can be avoided, but that required too much surgery in various
+> makefiles and include statements. So that part is 2.7 material.
+
+Would allowing non-O= builds to work again be 2.7 too ? It worked up
+until very recently.
+
+regards
+john
 
 -- 
-Jens Axboe
-
+Khendon's Law:
+If the same point is made twice by the same person, the thread is over.

@@ -1,288 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUFWIAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266376AbUFWIHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUFWIAb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 04:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUFWIAb
+	id S266376AbUFWIHH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 04:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbUFWIGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 04:00:31 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:1667 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265225AbUFWIAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 04:00:14 -0400
-Date: Wed, 23 Jun 2004 04:02:24 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: [PATCH][2.6] Fix module_text_address/store_stackinfo race
-Message-ID: <Pine.LNX.4.58.0406230349390.3273@montezuma.fsmlabs.com>
+	Wed, 23 Jun 2004 04:06:38 -0400
+Received: from guardian.hermes.si ([193.77.5.150]:29961 "EHLO
+	guardian.hermes.si") by vger.kernel.org with ESMTP id S265237AbUFWIGT
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 04:06:19 -0400
+Message-ID: <600B91D5E4B8D211A58C00902724252C01BC070B@piramida.hermes.si>
+From: David Balazic <david.balazic@hermes.si>
+To: David Balazic <david.balazic@hermes.si>,
+       "'Matt Domsch'" <Matt_Domsch@dell.com>
+Cc: "'Riley@Williams.Name'" <Riley@Williams.Name>,
+       "'Linux-Kernel@vger.kernel.org'" <Linux-Kernel@vger.kernel.org>
+Subject: RE: EDD code causes long boot delay
+Date: Wed, 23 Jun 2004 10:05:51 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-store_stackinfo() does an unlocked module list walk during normal runtime
-which opens up a race with the module load/unload code. This can be
-triggered by simply unloading and loading a module in a loop with
-CONFIG_DEBUG_PAGEALLOC resulting in store_stackinfo() tripping over bad
-list pointers.
+> From: 	Matt Domsch[SMTP:Matt_Domsch@dell.com]
+> 
+> On Tue, Jun 22, 2004 at 08:45:00AM +0200, David Balazic wrote:
+> > I use the commands ( in the grub shell that boots from my HD ):
+> > root (hd0,0)
+> > kernel /vmlinuz-2.6.xxx ro root=dev/hda2
+> > initrd /initrd-2.xxx
+> > boot
+> > 
+> > After entering the "boot" command, the screen is cleared and then
+> nothing
+> > happens for 93 seconds.
+> > After that linux boot normally ( beginning with the message
+> "Uncompressing
+> > linux..." and so on ).
+> > If I trim the kernel command line to only "kernel /vmlinuz-2.6.xxx ro" ,
+> > then the delay is 10 seconds.
+> 
+> Wow.  That's really interesting, and gives a good starting point to
+> look at, where the command line is stored.  But the EDD code shouldn't
+> be using any of the space that the command line occupies, ever...  
+> 
+Did some investigation in this area :
 
-root@arusha ~ {0:0} Unable to handle kernel paging request at virtual address 00100100
- printing eip:
-c013c46e
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT SMP DEBUG_PAGEALLOC
-Modules linked in: usbserial
-CPU:    1
-EIP:    0060:[<c013c46e>]    Not tainted
-EFLAGS: 00010083   (2.6.7)
-EIP is at module_text_address+0x4e/0x70
-eax: 001000fc   ebx: d736faec   ecx: 001000fc   edx: 00100100
-esi: d736faec   edi: dff2cef8   ebp: dff2ce8c   esp: dff2ce88
-ds: 007b   es: 007b   ss: 0068
-Process init (pid: 1, threadinfo=dff2c000 task=dff2da60)
-Stack: d736fb04 dff2ce98 c0134e16 d736faec dff2ceb4 c0147ecb d736faec 000004f4
-       c012b711 d736f000 dfffbc60 dff2cee8 c014ae85 dfffbc60 d736f000 c012b711
-       1736f000 c012b711 d736f000 dff0bf78 00000082 d611aa60 00000000 00000002
-Call Trace:
- [<c0107675>] show_stack+0x75/0x90
- [<c01077d5>] show_registers+0x125/0x180
- [<c0107966>] die+0xa6/0xd0
- [<c0118538>] do_page_fault+0x1e8/0x535
- [<c01072cd>] error_code+0x2d/0x40
- [<c0134e16>] kernel_text_address+0x36/0x50
- [<c0147ecb>] store_stackinfo+0x7b/0xa0
- [<c014ae85>] kmem_cache_free+0x1a5/0x340
- [<c012b711>] __exit_sighand+0x31/0x40
- [<c0122a1b>] release_task+0xab/0x2c0
- [<c0124dae>] wait_task_zombie+0x1be/0x260
- [<c01252a2>] sys_wait4+0x222/0x270
- [<c0125306>] sys_waitpid+0x16/0x1a
- [<c0106139>] sysenter_past_esp+0x52/0x79
+grub line                               |  delay between "boot" and
+"Uncompressing linux...."
+----------------------------------------------------------------------------
+-------------
+"kernel (hd0,0)/bzImage-2.6.7"                     10 seconds
+"kernel (hd0,0)/bzImage-2.6.7 a"                  10 seconds
+"kernel (hd0,0)/bzImage-2.6.7 a b"               10 seconds
+"kernel (hd0,0)/bzImage-2.6.7 a b c d"          10 seconds
+"kernel (hd0,0)/bzImage-2.6.7 a b c d e"       1 minute  54 seconds
+"kernel (hd0,0)/bzImage-2.6.7 a b c de"        10 seconds
+"kernel (hd0,0)/bzImage-2.6.7 a b c def"       1 minute  54 seconds
+"kernel (hd0,0)/bzImage-2.6.7 abcdefgh"       10 seconds
+"kernel (hd0,0)/bzImage-2.6.7 abcdefghi"      10 seconds
+"kernel (hd0,0)/bzImage-2.6.7 abcdefghij"     1 minute  30 seconds
+"kernel (hd0,0)/bzImage-2.6.7 abcdefghijk"   1 minute 30 seconds
 
-Code: 8b 40 04 8d 74 26 00 81 fa c0 d3 5d c0 75 c3 31 c0 5b 5d c3
 
-Patch against 2.6.7-mm1
+>  
+> > If I change the operating mode of the IDE adapter in BIOS to RAID,
+> > then the delay is infinite ( I waited 8 hours and it still did not
+> > print "Uncompressing linx ...." ). Note that with this option, there
+> > is no real difference, since the disks are not mirrored or striped
+> > or anything. GRUB can read everything just fine.
+> 
+> > I tested all kernels ( vanilla Linus release from kernel.org ) from
+> > 2.6.0 to 2.6.7 and saw that the problem appeared in 2.6.3. Then I
+> > found out that that the cause is the CONFIG_EDD option, if I turn it
+> > off, then linux-2.6.7 boot without the mentioned delay.
+> >
+> > So, is there some bug in the EDD code ? A BIOS bug ? Any other comment ?
+> > My hardware is a Gigabyte GA-7 VAXP Ultra motherboard ( see 
+> >
+> http://www.giga-byte.com/MotherBoard/Products/Products_GA-7VAXP%20Ultra.ht
+> m
+> > )
+> > BIOS version is F6.
+> > Disks : 
+> >  - Quantum lct20 20 GB
+> >  - IBM Deskstar 120GXP 60 GB
+> > Both on the Promise PDC 20276 on-board controller, each on its own
+> > channel(cable).
+> 
+> It *feels* like a BIOS bug (or bugs), as you're the first to report
+> such a problem.  I've got one success report with this motherboard
+> dated 8 Feb 2004.
+> 
+I downgraded thje BIOS to version F4 and then there is no delay :-(
 
- arch/i386/kernel/traps.c   |    2 +-
- arch/m68k/kernel/traps.c   |    2 +-
- arch/mips/kernel/traps.c   |    2 +-
- arch/parisc/kernel/traps.c |    2 +-
- arch/um/kernel/sysrq.c     |    2 +-
- arch/x86_64/kernel/traps.c |    6 +++---
- include/linux/kernel.h     |    1 +
- kernel/extable.c           |   12 ------------
- kernel/module.c            |   28 +++++++++++++++++++++++++++-
- 9 files changed, 36 insertions(+), 21 deletions(-)
+> Motherboard:  Gigabyte GA-7IXE4
+> BIOS version: FAd  (that's a beta version)
+> Kernel:       2.6.2-mm1
+> 
+> The question is, which of the int13 calls is messing up your BIOS?
+> The "read MBR sector and save the 4-byte MBR signature" code was added
+> there at 2.6.3, which is quite coincident.
+> 
+> This is the code, in arch/i386/boot/setup.S, which makes that int13
+> call.  Can you try #if 0'ing this chunk out and see if this helps?
+> 
+> +# Read the first sector of device 80h and store the 4-byte signature
+> +       movl    $0xFFFFFFFF, %eax
+> +       movl    %eax, (DISK80_SIG_BUFFER)       # assume failure
+> +       movb    $READ_SECTORS, %ah
+> +       movb    $1, %al                         # read 1 sector
+> +       movb    $0x80, %dl                      # from device 80
+> +       movb    $0, %dh                         # at head 0
+> +       movw    $1, %cx                         # cylinder 0, sector 0
+> +       pushw   %es
+> +       pushw   %ds
+> +       popw    %es
+> +       movw    $EDDBUF, %bx
+> +       int     $0x13
+> +       jc      disk_sig_done
+> +       movl    (EDDBUF+MBR_SIG_OFFSET), %eax
+> +       movl    %eax, (DISK80_SIG_BUFFER)       # store success
+> +disk_sig_done:
+> +       popw    %es
+> +
+> 
+My version (linux-2.6.7) has three additional lines around the int 13 call,
+commented as a workaround for buggy BIOS-es ( they are mov, cli and sti
+IIRC).
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+If I #if 0 out this block, then the delay disappears. I also tried to
+comment out the buggy-BIOS
+workaround code, but that did not make any difference ( the boot delay was
+still
+there ).
 
-Index: linux-2.6.7-mm1/arch/i386/kernel/traps.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7-mm1/arch/i386/kernel/traps.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 traps.c
---- linux-2.6.7-mm1/arch/i386/kernel/traps.c	22 Jun 2004 16:24:54 -0000	1.1.1.1
-+++ linux-2.6.7-mm1/arch/i386/kernel/traps.c	23 Jun 2004 07:57:26 -0000
-@@ -158,7 +158,7 @@ static void print_context_stack(struct t
+> If so, then I'd like to believe that it's definitely a BIOS bug, as
+> int13 reads to the MBR had better work (gee, that's how the boot
+> loader got loaded in the first place, right?)
+> 
+Maybe the linux code does something that confuses the BIOS before the EDD
+code
+is run ??? Guessing ...
 
- 	while (!kstack_end(stack)) {
- 		addr = *stack++;
--		if (kernel_text_address(addr)) {
-+		if (__kernel_text_address(addr)) {
- 			printk(" [<%08lx>]", addr);
- 			print_symbol(" %s", addr);
- 			printk("\n");
-Index: linux-2.6.7-mm1/arch/m68k/kernel/traps.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7-mm1/arch/m68k/kernel/traps.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 traps.c
---- linux-2.6.7-mm1/arch/m68k/kernel/traps.c	22 Jun 2004 16:24:57 -0000	1.1.1.1
-+++ linux-2.6.7-mm1/arch/m68k/kernel/traps.c	23 Jun 2004 07:57:10 -0000
-@@ -911,7 +911,7 @@ void show_trace(unsigned long *stack)
- 		 * down the cause of the crash will be able to figure
- 		 * out the call path that was taken.
- 		 */
--		if (kernel_text_address(addr)) {
-+		if (__kernel_text_address(addr)) {
- #ifndef CONFIG_KALLSYMS
- 			if (i % 5 == 0)
- 				printk("\n       ");
-Index: linux-2.6.7-mm1/arch/mips/kernel/traps.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7-mm1/arch/mips/kernel/traps.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 traps.c
---- linux-2.6.7-mm1/arch/mips/kernel/traps.c	22 Jun 2004 16:24:56 -0000	1.1.1.1
-+++ linux-2.6.7-mm1/arch/mips/kernel/traps.c	23 Jun 2004 07:57:10 -0000
-@@ -118,7 +118,7 @@ void show_trace(struct task_struct *task
- #endif
- 	while (!kstack_end(stack)) {
- 		addr = *stack++;
--		if (kernel_text_address(addr)) {
-+		if (__kernel_text_address(addr)) {
- 			printk(" [<%0*lx>] ", field, addr);
- 			print_symbol("%s\n", addr);
- 		}
-Index: linux-2.6.7-mm1/arch/parisc/kernel/traps.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7-mm1/arch/parisc/kernel/traps.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 traps.c
---- linux-2.6.7-mm1/arch/parisc/kernel/traps.c	22 Jun 2004 16:24:59 -0000	1.1.1.1
-+++ linux-2.6.7-mm1/arch/parisc/kernel/traps.c	23 Jun 2004 07:57:10 -0000
-@@ -188,7 +188,7 @@ void show_trace(struct task_struct *task
- 		 * down the cause of the crash will be able to figure
- 		 * out the call path that was taken.
- 		 */
--		if (kernel_text_address(addr)) {
-+		if (__kernel_text_address(addr)) {
- 			printk(" [<" RFMT ">] ", addr);
- #ifdef CONFIG_KALLSYMS
- 			print_symbol("%s\n", addr);
-Index: linux-2.6.7-mm1/arch/um/kernel/sysrq.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7-mm1/arch/um/kernel/sysrq.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 sysrq.c
---- linux-2.6.7-mm1/arch/um/kernel/sysrq.c	22 Jun 2004 16:24:55 -0000	1.1.1.1
-+++ linux-2.6.7-mm1/arch/um/kernel/sysrq.c	23 Jun 2004 07:57:10 -0000
-@@ -23,7 +23,7 @@ void show_trace(unsigned long * stack)
-         i = 1;
-         while (((long) stack & (THREAD_SIZE-1)) != 0) {
-                 addr = *stack++;
--		if (kernel_text_address(addr)) {
-+		if (__kernel_text_address(addr)) {
- 			if (i && ((i % 6) == 0))
- 				printk("\n   ");
- 			printk("[<%08lx>] ", addr);
-Index: linux-2.6.7-mm1/arch/x86_64/kernel/traps.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7-mm1/arch/x86_64/kernel/traps.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 traps.c
---- linux-2.6.7-mm1/arch/x86_64/kernel/traps.c	22 Jun 2004 16:24:59 -0000	1.1.1.1
-+++ linux-2.6.7-mm1/arch/x86_64/kernel/traps.c	23 Jun 2004 07:57:10 -0000
-@@ -143,7 +143,7 @@ void show_trace(unsigned long *stack)
- 	if (estack_end) {
- 		while (stack < estack_end) {
- 			addr = *stack++;
--			if (kernel_text_address(addr)) {
-+			if (__kernel_text_address(addr)) {
- 				i += printk_address(addr);
- 				i += printk(" ");
- 				if (i > 50) {
-@@ -172,7 +172,7 @@ void show_trace(unsigned long *stack)
- 			 * down the cause of the crash will be able to figure
- 			 * out the call path that was taken.
- 			 */
--			 if (kernel_text_address(addr)) {
-+			 if (__kernel_text_address(addr)) {
- 				 i += printk_address(addr);
- 				 i += printk(" ");
- 				 if (i > 50) {
-@@ -188,7 +188,7 @@ void show_trace(unsigned long *stack)
-
- 	while (((long) stack & (THREAD_SIZE-1)) != 0) {
- 		addr = *stack++;
--		if (kernel_text_address(addr)) {
-+		if (__kernel_text_address(addr)) {
- 			i += printk_address(addr);
- 			i += printk(" ");
- 			if (i > 50) {
-Index: linux-2.6.7-mm1/include/linux/kernel.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7-mm1/include/linux/kernel.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 kernel.h
---- linux-2.6.7-mm1/include/linux/kernel.h	22 Jun 2004 16:24:59 -0000	1.1.1.1
-+++ linux-2.6.7-mm1/include/linux/kernel.h	23 Jun 2004 07:57:10 -0000
-@@ -88,6 +88,7 @@ extern int get_option(char **str, int *p
- extern char *get_options(const char *str, int nints, int *ints);
- extern unsigned long long memparse(char *ptr, char **retptr);
-
-+extern int __kernel_text_address(unsigned long addr);
- extern int kernel_text_address(unsigned long addr);
- extern int session_of_pgrp(int pgrp);
-
-Index: linux-2.6.7-mm1/kernel/extable.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7-mm1/kernel/extable.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 extable.c
---- linux-2.6.7-mm1/kernel/extable.c	22 Jun 2004 16:25:12 -0000	1.1.1.1
-+++ linux-2.6.7-mm1/kernel/extable.c	23 Jun 2004 07:57:10 -0000
-@@ -40,15 +40,3 @@ const struct exception_table_entry *sear
- 	return e;
- }
-
--int kernel_text_address(unsigned long addr)
--{
--	if (addr >= (unsigned long)_stext &&
--	    addr <= (unsigned long)_etext)
--		return 1;
--
--	if (addr >= (unsigned long)_sinittext &&
--	    addr <= (unsigned long)_einittext)
--		return 1;
--
--	return module_text_address(addr) != NULL;
--}
-Index: linux-2.6.7-mm1/kernel/module.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.7-mm1/kernel/module.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 module.c
---- linux-2.6.7-mm1/kernel/module.c	22 Jun 2004 16:25:12 -0000	1.1.1.1
-+++ linux-2.6.7-mm1/kernel/module.c	23 Jun 2004 07:57:10 -0000
-@@ -35,6 +35,7 @@
- #include <linux/notifier.h>
- #include <linux/stop_machine.h>
- #include <asm/uaccess.h>
-+#include <asm/sections.h>
- #include <asm/semaphore.h>
- #include <asm/cacheflush.h>
-
-@@ -670,7 +671,7 @@ void symbol_put_addr(void *addr)
- 	unsigned long flags;
-
- 	spin_lock_irqsave(&modlist_lock, flags);
--	if (!kernel_text_address((unsigned long)addr))
-+	if (!__kernel_text_address((unsigned long)addr))
- 		BUG();
-
- 	module_put(module_text_address((unsigned long)addr));
-@@ -678,6 +679,31 @@ void symbol_put_addr(void *addr)
- }
- EXPORT_SYMBOL_GPL(symbol_put_addr);
-
-+int __kernel_text_address(unsigned long addr)
-+{
-+	if (addr >= (unsigned long)_stext &&
-+	    addr <= (unsigned long)_etext)
-+		return 1;
-+
-+	if (addr >= (unsigned long)_sinittext &&
-+	    addr <= (unsigned long)_einittext)
-+		return 1;
-+
-+	return module_text_address(addr) != NULL;
-+}
-+
-+int kernel_text_address(unsigned long addr)
-+{
-+	unsigned long flags;
-+	int ret;
-+
-+	spin_lock_irqsave(&modlist_lock, flags);
-+	ret = __kernel_text_address(addr);
-+	spin_unlock_irqrestore(&modlist_lock, flags);
-+
-+	return ret;
-+}
-+
- static int refcnt_get_fn(char *buffer, struct kernel_param *kp)
- {
- 	struct module *mod = container_of(kp, struct module, refcnt_param);
+> Thanks,
+> Matt
+> 
+> -- 
+> Matt Domsch
+> Sr. Software Engineer, Lead Engineer
+> Dell Linux Solutions linux.dell.com & www.dell.com/linux
+> Linux on Dell mailing lists @ http://lists.us.dell.com
+> 

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131764AbRCOQFk>; Thu, 15 Mar 2001 11:05:40 -0500
+	id <S131778AbRCOQOm>; Thu, 15 Mar 2001 11:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131770AbRCOQFb>; Thu, 15 Mar 2001 11:05:31 -0500
-Received: from changeofhabit.mr.itd.umich.edu ([141.211.144.17]:6902 "EHLO
-	changeofhabit.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S131764AbRCOQFU>; Thu, 15 Mar 2001 11:05:20 -0500
-Message-ID: <3AB0E997.2070603@engin.umich.edu>
-Date: Thu, 15 Mar 2001 11:11:03 -0500
-From: Krisztian Flautner <manowar@engin.umich.edu>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; 0.8) Gecko/20010215
-X-Accept-Language: en
+	id <S131779AbRCOQOc>; Thu, 15 Mar 2001 11:14:32 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4109 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131778AbRCOQOS>; Thu, 15 Mar 2001 11:14:18 -0500
+Date: Thu, 15 Mar 2001 20:26:35 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: christophe barbe <christophe.barbe@lineo.fr>
+Cc: "Mike A . Harris" <mharris@opensourceadvocate.org>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Is swap == 2 * RAM a permanent thing?
+In-Reply-To: <20010315170910.C4921@pc8.inup.com>
+Message-ID: <Pine.LNX.4.33.0103152025340.1320-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: task switch hook - crashes
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 15 Mar 2001, christophe barbe wrote:
 
-I am experimenting with adding a few hooks to the kernel.
-One of the hooks gets invoked every time the kernel switches
-two tasks. To do this I added a single line to schedule() right
-before the tasks are switched:
+> Please Rik, could you explain what you mean with "reclaim swap
+> space when we run out". In my (limited) understanding, when
+> there's no more free memory (ram and swap space), the kernel
+> starts to kill process (and the choice is a difficult point).
+> Are you proposing to add an API to reclaim swap instead of
+> killing process ?
 
-      ...
-      if (task_switch_hook) task_switch_hook(prev, next)
+When we swap something in from swap, it is in effect "duplicated"
+in memory and swap. Freeing the swap space of these duplicates
+will mean we have, effectively, more swap space.
 
-      switch_to(prev, next, prev);
-      ...
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
-I then wrote a module that attaches a function to this hook
-in its init_module() function. The problem is that if I do this,
-the kernel crashes. Sometimes, the hooks are invoked a few times,
-other times, the machine locks up immediately. I previous version
-that compiled everything into the kernel worked fine.
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-I don't quite understand why this does not work. Is this due
-to some virtual memory interactions? Maybe the problem is that
-modules are vmalloc-ed and the hook function should be kmalloc-ed?
-
-Any insights?
-
-
-Thanks, -- Kris
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

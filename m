@@ -1,130 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266214AbUH1K5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUH1K7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266214AbUH1K5t (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 06:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUH1K5s
+	id S261602AbUH1K7k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 06:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUH1K7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 06:57:48 -0400
-Received: from may.priocom.com ([213.156.65.50]:37806 "EHLO may.priocom.com")
-	by vger.kernel.org with ESMTP id S263736AbUH1K5K (ORCPT
+	Sat, 28 Aug 2004 06:59:40 -0400
+Received: from alias.nmd.msu.ru ([193.232.127.67]:52742 "EHLO alias.nmd.msu.ru")
+	by vger.kernel.org with ESMTP id S261602AbUH1K7c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 06:57:10 -0400
-Message-ID: <413065C9.3000404@ukrpost.net>
-Date: Sat, 28 Aug 2004 14:00:25 +0300
-From: Yury Umanets <torque@ukrpost.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christophe Saout <christophe@saout.de>
-CC: Rik van Riel <riel@redhat.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Matt Mackall <mpm@selenic.com>, Nicholas Miell <nmiell@gmail.com>,
-       Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
-       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+	Sat, 28 Aug 2004 06:59:32 -0400
+Date: Sat, 28 Aug 2004 14:59:29 +0400
+From: Alexander Lyamin <flx@msu.ru>
+To: Christoph Hellwig <hch@lst.de>, Christophe Saout <christophe@saout.de>,
+       Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <Pine.LNX.4.44.0408260736080.23532-100000@chimarrao.boston.redhat.com> <1093521627.9004.23.camel@leto.cs.pocnet.net>
-In-Reply-To: <1093521627.9004.23.camel@leto.cs.pocnet.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+Subject: Re:  reiser4 plugins (was: silent semantic changes with reiser4)
+Message-ID: <20040828105929.GB6746@alias>
+Reply-To: flx@msu.ru
+Mail-Followup-To: flx@msu.ru, Christoph Hellwig <hch@lst.de>,
+	Christophe Saout <christophe@saout.de>,
+	Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+References: <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040826132439.GA1188@lst.de>
+X-Operating-System: Linux 2.6.5-7.104-smp
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout wrote:
+Thu, Aug 26, 2004 at 03:24:39PM +0200, Christoph Hellwig wrote:
+> This VFS interface is an integral part of Фvery filesystem, and it
 
->Am Donnerstag, den 26.08.2004, 07:42 -0400 schrieb Rik van Riel:
->
->  
->
->>>>I like cat < a > b. You can keep your progress.
->>>>        
->>>>
->>>cat <a >b does not preserve following file properties even on standard
->>>UNIX filesystems: name,owner,group,permissions.
->>>      
->>>
->>Losing permissions is one thing.  Annoying, mostly.
->>
->>However, actual losing file data during such a copy is
->>nothing short of a disaster, IMHO.  
->>
->>In my opinion we shouldn't merge file-as-a-directory
->>semantics into the kernel until we figure out how to
->>fix the backup/restore problem and keep standard unix
->>utilities work.
->>    
->>
->
->Well, again, what about xattrs and ACLs...?
->
->Actually, reiser4 doesn't currently implement storage of arbitrary user
->data under a file.
->
->It's just some sysfs-like information that can be retrieved, some
->properties can be changed. If you copy a file the worst thing that can
->happen right now is that you lose the information whether that file
->should be encrypted or compressed. You don't lose data.
->
->In case some people are wondering, this is what you can find in the
->reiser4 metas:
->
->leto:/home/chtephan/.muttrc/metas > la
->insgesamt 1
->dr-xr-xr-x  1 chtephan users   0 26. Aug 13:52 .
->-rwx------  1 chtephan users 290 12. Jan 2004  ..
->-r--r--r--  1 chtephan users   0 26. Aug 13:52 bmap
->-rw-r--r--  1 chtephan users   0 26. Aug 13:52 gid
->-r--r--r--  1 chtephan users   0 26. Aug 13:52 items
->-r--r--r--  1 chtephan users   0 26. Aug 13:52 key
->-r--r--r--  1 chtephan users   0 26. Aug 13:52 locality
->--w-------  1 chtephan users   0 26. Aug 13:52 new
->-r--r--r--  1 chtephan users   0 26. Aug 13:52 nlink
->-r--r--r--  1 chtephan users   0 26. Aug 13:52 oid
->dr-xr-xr-x  1 chtephan users   0 26. Aug 13:52 plugin
->-r--r--r--  1 chtephan users   0 26. Aug 13:52 pseudo
->-r--r--r--  1 chtephan users   0 26. Aug 13:52 readdir
->-rw-r--r--  1 chtephan users   0 26. Aug 13:52 rwx
->-r--r--r--  1 chtephan users   0 26. Aug 13:52 size
->-rw-r--r--  1 chtephan users   0 26. Aug 13:52 uid
->
->Some of them are reiser4 specific things (items, key, locality, oid)
->which can only be queried anyway.
->
->The rest is what you can also get using other VFS calls.
->
->leto:/home/chtephan/.muttrc/metas/plugin > la
->insgesamt 0
->dr-xr-xr-x  1 chtephan users 0 26. Aug 13:52 .
->dr-xr-xr-x  1 chtephan users 0 26. Aug 13:52 ..
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 compression
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 crypto
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 digest
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 dir
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 dir_item
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 fibration
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 file
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 formatting
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 hash
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 perm
->-rwxr-xr-x  1 chtephan users 0 26. Aug 13:54 sd
->
->Here you can change reiser4 specific things. Here you can change some
->properties how the file is stored in the reiser4 tree. For example you
->can activate compression, encryption or authentication or set some hints
->to optimize speed.
->  
->
-I suppose that you are talking about the prinsiple ability to change 
-these things. Because in real life it will also need some kind of 
-convertion from one look (say with old plugin) to another one. Just like 
-tail conversion rebuilds file's body after tail policy plugin gets changed.
+VFS never was "an integral part" of ANY filesystem. my dog knows it.
+its just unified INTERFACE TO any filesystem (including reiser4).
 
 
+P.S. I imagine, how much flamed it would be if reiser4 made any intensive
+changes in linux VFS code...
 
 
 
 -- 
-umka
-
+"the liberation loophole will make it clear.."
+lex lyamin

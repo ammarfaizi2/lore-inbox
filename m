@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270015AbUJHQqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270028AbUJHQv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270015AbUJHQqo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 12:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270019AbUJHQqo
+	id S270028AbUJHQv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 12:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270037AbUJHQv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 12:46:44 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:45985 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S270015AbUJHQqm (ORCPT
+	Fri, 8 Oct 2004 12:51:56 -0400
+Received: from open.hands.com ([195.224.53.39]:45522 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S270028AbUJHQvy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 12:46:42 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: [RFC PATCH] scheduler: Dynamic sched_domains
-Date: Fri, 8 Oct 2004 09:43:21 -0700
-User-Agent: KMail/1.7
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Takayoshi Kochi <t-kochi@bq.jp.nec.com>, colpatch@us.ibm.com,
-       pj@sgi.com, mbligh@aracnet.com, akpm@osdl.org,
-       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       simon.derr@bull.net, frankeh@watson.ibm.com, hawkes@sgi.com
-References: <1097110266.4907.187.camel@arrakis> <20041008.145516.26538192.t-kochi@bq.jp.nec.com> <41662EC8.4040308@yahoo.com.au>
-In-Reply-To: <41662EC8.4040308@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Oct 2004 12:51:54 -0400
+Date: Fri, 8 Oct 2004 18:03:00 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
+Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
+Message-ID: <20041008170300.GM5551@lkcl.net>
+References: <20041008130442.GE5551@lkcl.net> <41669DE0.9050005@didntduck.org> <20041008151837.GI5551@lkcl.net> <1097248370.26463.0.camel@tara.firmix.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410080943.21326.jbarnes@engr.sgi.com>
+In-Reply-To: <1097248370.26463.0.camel@tara.firmix.at>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, October 7, 2004 11:08 pm, Nick Piggin wrote:
-> Takayoshi Kochi wrote:
-> > Yup, if SD_NODES_PER_DOMAIN is set to 4, our 32-way TX-7 have
-> > two disjoint domains ;(
-> > (though the current default is 6 for ia64...)
-> >
-> > I think the default configuration of the scheduler domains should be
-> > as identical to its real hardware topology as possible, and should
-> > modify the default only when necessary (e.g. for Altix).
->
-> That is the idea. Unfortunately the ia64 modifications are ia64 wide.
-> I don't think it should be too hard to make it sn2 only.
+On Fri, Oct 08, 2004 at 05:12:51PM +0200, Bernd Petrovitsch wrote:
 
-The NEC and Altix machines both use a SLIT table to describe the machine 
-layout, so it should be possible to build them correctly w/o special case 
-code (I hope).  The question is how big to make them, but if that's runtime 
-changeable, then no big deal.  Like I said, the main thing missing from my 
-changes is a system wide domain, but I think John has some ideas about that.
+> >  my alternative is to patch every single vfs-related sys_* in fs/*.c to
+> >  be able to "plug in" to these functions.
+> 
+> Why not implement it in user-space?
+ 
+ that is the base that i am working from (fuse).
 
-Jesse
+ the problem comes when adding support to fuse for xattrs, and the
+ subsequent use of those xattrs for SE/Linux.
+
+ security/selinux/hooks.c cannot cope with the -512 response
+ "please try later" which the fuse module always always always
+ sends, in order for fuse to give the userspace daemon a chance
+ to wake up and smell the roses.
+
+ ... and i sure ain't gonna hack selinux about!
+ 
+ l.
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 

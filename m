@@ -1,52 +1,166 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129614AbRBLRB2>; Mon, 12 Feb 2001 12:01:28 -0500
+	id <S130002AbRBLRFI>; Mon, 12 Feb 2001 12:05:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129698AbRBLRBS>; Mon, 12 Feb 2001 12:01:18 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:34654 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S129614AbRBLRBH>; Mon, 12 Feb 2001 12:01:07 -0500
-Date: Mon, 12 Feb 2001 06:57:20 +0100
-From: Christian Ullrich <chris@chrullrich.de>
+	id <S130190AbRBLRE6>; Mon, 12 Feb 2001 12:04:58 -0500
+Received: from dsl-64-34-176-225.telocity.com ([64.34.176.225]:19972 "HELO
+	fpn.dyndns.org") by vger.kernel.org with SMTP id <S130002AbRBLREn>;
+	Mon, 12 Feb 2001 12:04:43 -0500
+From: fpn@pobox.com
+Date: Mon, 12 Feb 2001 09:04:34 -0800
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1: Abnormal interrupt from RTL8139
-Message-ID: <20010212065720.A1120@christian.chrullrich.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010208093854.A1122@christian.chrullrich.de> <3A874CB4.717C101C@mandrakesoft.com>
+Subject: 2.2.16-22 -> 2.4.0 breaks cpuid on Cyrix/IBM 6x86L-PR200+
+Message-ID: <20010212090434.A8834@fpn.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/mixed; boundary="J2SCkAp4GZ/dPZZf"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <3A874CB4.717C101C@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sun, Feb 11, 2001 at 09:38:44PM -0500
-X-M$-Free-System: since 1999-11-28
-X-Current-Uptime: 0 d, 00:01:33 h
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jeff Garzik wrote on Sunday, 2001-02-11:
 
-> Christian Ullrich wrote:
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > I'm getting some of these messages in syslog:
-> > Feb  6 07:38:35 christian kernel: eth0: Abnormal interrupt, status 00000010.
-> > Feb  6 07:38:35 christian kernel: eth0: Abnormal interrupt, status 00000010.
-> > Feb  6 07:38:35 christian kernel: eth0: Abnormal interrupt, status 00000020.
-> > Feb  7 17:32:53 christian kernel: eth0: Abnormal interrupt, status 00000041.
-> [...]
-> > I have not observed any effects related to these messages.
-> 
-> Those messages are logged at the debugging level... if they bother you,
-> don't log kern.debug...
+Hi all,
 
-Well, doing something related to debugging implies that there _is_
-something to debug. But since I don't have any problems and not
-more than a few messages like these, thanks for your help.
+I run RedHat 7 with 2.2.16-22 and 2.4.0
 
--- 
-Christian Ullrich		     Registrierter Linux-User #125183
+when a program uses the cpuid instruction under 2.4.0 it gets an illegal
+instruction signal. 
 
-"Sie können nach R'ed'mond fliegen -- aber Sie werden sterben"
+Under 2.2.16-22 that is not the case (it just works). I think (but can't
+easily verify) that I never saw that problem under 2.2.x.
+
+The Processor in question is a 6x86-L-PR200 from Cyrix/IBM.
+
+I have attached a little test in back (run in gdb).
+
+best regards,
+ Florian Nierhaus
+
+P.S.
+Please CC me on this because I am not subscribed to the list. Sorry.
+
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/x-gzip
+Content-Disposition: attachment; filename="cpuidtest.tar.gz"
+Content-Transfer-Encoding: base64
+
+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
+unYQOwBQAAA=
+
+--J2SCkAp4GZ/dPZZf--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

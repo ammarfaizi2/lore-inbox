@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbULUSpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbULUStH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbULUSpj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 13:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbULUSpj
+	id S261828AbULUStH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 13:49:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbULUStH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 13:45:39 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:60553 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261851AbULUSpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 13:45:19 -0500
-Message-ID: <41C86F2A.7020409@grupopie.com>
-Date: Tue, 21 Dec 2004 18:44:58 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Tue, 21 Dec 2004 13:49:07 -0500
+Received: from mout.alturo.net ([212.227.15.21]:751 "EHLO mout.alturo.net")
+	by vger.kernel.org with ESMTP id S261828AbULUSsv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 13:48:51 -0500
+Message-ID: <41C87099.9040108@datafloater.de>
+Date: Tue, 21 Dec 2004 19:51:05 +0100
+From: Arne Caspari <arne@datafloater.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: jesse <jessezx@yahoo.com>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: Gurus, a silly question for preemptive behavior
-References: <20041221183216.56558.qmail@web52601.mail.yahoo.com>
-In-Reply-To: <20041221183216.56558.qmail@web52601.mail.yahoo.com>
+To: Greg KH <greg@kroah.com>
+CC: Arne Caspari <arnem@informatik.uni-bremen.de>,
+       linux1394-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+References: <20041220015320.GO21288@stusta.de> <41C694E0.8010609@informatik.uni-bremen.de> <20041220143901.GD457@phunnypharm.org> <1103555716.29968.27.camel@localhost.localdomain> <20041220154638.GE457@phunnypharm.org> <1103573716.31512.10.camel@localhost.localdomain> <41C7DFE9.5070604@informatik.uni-bremen.de> <20041221120012.GC5217@stusta.de> <41C81BF4.9070602@datafloater.de> <20041221171547.GD1459@kroah.com>
+In-Reply-To: <20041221171547.GD1459@kroah.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.25; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jesse wrote:
-> Con:
-> 
->    thank you for your prompt reply in the holiday
-> season. 
-> 
->    My point is: Even kernel 2.4 is not 
-> preemptive, the latence should be very
-> minimal.(<300ms)
-> why user space application with low nice priority
-> can't be effectively interrupted and holds the CPU
-> resource since all user space application is
-> preemptive?
+Greg KH schrieb:
 
-If your process has got work to do and has a higher priority than other 
-processes, it gets to run. If you don't want this behavior, don't give 
-it such a high priority.
+>On Tue, Dec 21, 2004 at 01:49:56PM +0100, Arne Caspari wrote:
+>  
+>
+>>To make a long decision short:
+>>
+>>There is no stable kernel API that an external developer can rely on?
+>>    
+>>
+>
+>That is correct.  Please see Documentation/stable_api_nonsense.txt for
+>details as to why this is so.
+>
+>  
+>
 
-If you want low latency to do some quick high priority task, just do it 
-quickly and relinquish the processor, instead of hogging it.
+There is no such file in the 2.6.9 release :-(
 
-What are you trying to accomplish, anyway?
-
--- 
-Paulo Marques - www.grupopie.com
-
-"A journey of a thousand miles begins with a single step."
-Lao-tzu, The Way of Lao-tzu
+/Arne

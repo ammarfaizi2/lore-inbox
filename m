@@ -1,94 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbUJZOn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbUJZPEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbUJZOn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 10:43:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUJZOn0
+	id S262285AbUJZPEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 11:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbUJZPEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 10:43:26 -0400
-Received: from out008pub.verizon.net ([206.46.170.108]:21659 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S262287AbUJZOl7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 10:41:59 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
+	Tue, 26 Oct 2004 11:04:16 -0400
+Received: from holomorphy.com ([207.189.100.168]:52964 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262285AbUJZPEJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 11:04:09 -0400
+Date: Tue, 26 Oct 2004 08:03:13 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Massimo Cetra <mcetra@navynet.it>
+Cc: "'Ed Tomlinson'" <edt@aei.ca>,
+       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
+       "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
 Subject: Re: My thoughts on the "new development model"
-Date: Tue, 26 Oct 2004 10:41:54 -0400
-User-Agent: KMail/1.7
-Cc: Ed Tomlinson <edt@aei.ca>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Bill Davidsen <davidsen@tmr.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <200410260142_MC3-1-8D2A-45C2@compuserve.com> <200410260644.47307.edt@aei.ca>
-In-Reply-To: <200410260644.47307.edt@aei.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20041026150313.GI17038@holomorphy.com>
+References: <200410260644.47307.edt@aei.ca> <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410261041.54140.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [141.153.91.102] at Tue, 26 Oct 2004 09:41:57 -0500
+In-Reply-To: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 06:44, Ed Tomlinson wrote:
->On Tuesday 26 October 2004 01:40, Chuck Ebbert wrote:
->> Bill Davidsen wrote:
->> > I don't see the need for a development kernel, and it is
->> > desirable to be able to run kernel.org kernels.
->>
->>   Problem is, kernel.org 'release' kernels are quite buggy.  For
->> example 2.6.9 has a long list of bugs:
->>
->>   - superio parports don't work
->>   - TCP networking using TSO gives memory allocation failures
->>   - s390 has a serious security bug (sacf)
->>   - ppp hangup is broken with some peers
->>   - exec leaks POSIX timer memory and loses signals
->>   - auditing can deadlock
->>   - O_DIRECT and mmap IO can't be used together
->>   - procfs shows the wrong parent PID in some cases
->>   - i8042 fails to initialize with some boards using legacy USB
->>   - kswapd still goes into a frenzy now and then
->>
-Then the question is begged, is there a common location where patches 
-for these known bugs can be downloaded, diffed against the current 
-stable kernel?  If not, there really should be.  As in the kernel.org 
-stable directory should have a subdir in the 2.6.9 directory  called 
-'bugfixes', with any patches that specifically fix known bugs that 
-have been developed since the release placed there.  No new features, 
-just the bugfix patches.  That would allow those of us who take the 
-chance and bleed, to bleed a bit less.
+On Tuesday 26 October 2004 01:40, Chuck Ebbert wrote:
+>> To my mind this just points out the need for a bug fix branch.
+>> e.g. a branch containing just bug/security fixes against the current 
+>> stable kernel.  It might also be worth keeping the branch active for
+>> the n-1 stable kernel too.
 
->>   Sure, the next release will (may?) fix these bugs, but it will
->> definitely add a whole set of new ones.
->
->To my mind this just points out the need for a bug fix branch.  
-> e.g. a branch containing just bug/security fixes against the
-> current stable kernel.  It might also be worth keeping the branch
-> active for the n-1 stable kernel too.
->
->Ed
->
->PS.  we could call this the Bug/Security or bs kernels.
+On Tue, Oct 26, 2004 at 01:09:59PM +0200, Massimo Cetra wrote:
+> To my mind, we only need to make clear that a stable kernel is a stable
+> kernel.
+> Not a kernel for experiments.
+> To my mind, stock 2.6 kernels are nice for nerds trying patches and
+> willing to recompile their kernel once a day. They are not suitable for
+> servers. Several times on testing machines, switching from a 2.6 to the
+> next one has caused bugs on PCI, acpi, networking and so on.
 
-Chuckle.  Nice play on words there, but I really do like this idea.  
-Just one suggestion. When the snapshot to start the next patch series 
-in the deveopment tree is done, take it from the latest, all bugfix 
-patches applied, .bs kernel.
+This is bunk. I'm running 2.6 on a number of machines I rely upon
+heavily as servers etc. on the open net as well as the usual dedicated
+kernel hacking machines. The uptimes of the relied-upon systems are
+measured in months, at times approaching a year. When it's time for a
+reboot, I upgrade to the latest available 2.6.x-mm every time. This is
+not just stable, it's running to hardware/power failure territory.
 
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+You seem to be under the mistaken assumption that change is frivolous
+and the result of masturbatory abuse of the kernel as a toy. This is
+very clearly not the case. Linux kernel programmers write their patches
+because there is a need for the change, and Linux kernel maintainers
+merge patches because they understand the need for the change is great
+enough.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+This process very successfully converges. More bugs are fixed than are
+introduced every release by a large margin. If you don't understand why
+regressions are inevitable, you don't understand that humans are
+imperfect. And not even your beloved 2.4 is immune to regressions.
+
+
+On Tue, Oct 26, 2004 at 01:09:59PM +0200, Massimo Cetra wrote:
+> The direction is lost. How many patchsets for vanilla kernel exist? 
+> Someone has decided that linux must go on desktops as well and
+> developing new magnificent features for desktop users is causing serious
+> problems to the ones who use linux at work on production servers.
+> 2.4 tree is still the best solution for production.
+> 2.6 tree is great for gentoo users who like gcc consuming all CPU
+> (maxumum respect to gentoo but I prefer debian)
+
+What does the number of patchsets have to do with anything? What's the
+obsession with featurework? Why do you assume it's frivolous?
+
+Deficiencies can arise in forms beyond bugs. Addressing those is one of
+the things the new development model was designed to cover. They are
+nowhere near as problematic as you suggest. For instance, anon_vma was
+merged almost entirely without incident, thanks to the efforts of Hugh
+Dickins.
+
+The fact is, you're not complaining about those features anyway. PCI,
+etc. normal driver and networking layer turnover, and networking is
+largely a different universe from the rest of the kernel. These areas
+are actually relatively conservatively maintained in comparison to what
+you're pointing at, so complaining about the new development model
+causing regressions in them is absurd (as in reductio ad asburdum).
+
+
+-- wli

@@ -1,68 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263089AbRFWXdq>; Sat, 23 Jun 2001 19:33:46 -0400
+	id <S263334AbRFWXdq>; Sat, 23 Jun 2001 19:33:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263340AbRFWXdg>; Sat, 23 Jun 2001 19:33:36 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:46739 "HELO
+	id <S263089AbRFWXdg>; Sat, 23 Jun 2001 19:33:36 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:47507 "HELO
 	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S263089AbRFWXdX>; Sat, 23 Jun 2001 19:33:23 -0400
+	id <S263257AbRFWXdY>; Sat, 23 Jun 2001 19:33:24 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@webofficenow.com>
 Reply-To: landley@webofficenow.com
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Date: Fri, 22 Jun 2001 09:29:49 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: For comment: draft BIOS use document for the kernel
+Date: Fri, 22 Jun 2001 11:50:32 -0400
 X-Mailer: KMail [version 1.2]
-Cc: Timur Tabi <ttabi@interactivesi.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1010622162213.32091B-100000@artax.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.3.96.1010622162213.32091B-100000@artax.karlin.mff.cuni.cz>
+In-Reply-To: <E15DTfd-0003gI-00@the-village.bc.nu>
+In-Reply-To: <E15DTfd-0003gI-00@the-village.bc.nu>
 MIME-Version: 1.0
-Message-Id: <0106220929490F.00692@localhost.localdomain>
+Message-Id: <0106221150320N.00692@localhost.localdomain>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 June 2001 10:46, Mikulas Patocka wrote:
+On Friday 22 June 2001 12:20, Alan Cox wrote:
 
-> I did some threaded programming on OS/2 and it was real pain. The main
-> design flaw in OS/2 API is that thread can be blocked only on one
-> condition. There is no way thread can wait for more events. For example 
+> int 0x10 service 3 is used during the boot loading sequence to obtain the
+> cursor position. int 0x10 service 13 is used to display loading messages
+> as the loading procedure continues. int 0x10 AH=0xE is used to display a
+> progress bar of '=' characters during the bootstrap
 
-Sure.  But you know what a race condition is, and how to spot one (in 
-potential during coding, or during debugging.)  You know how to use 
-semaphores and when and why, and when you DON'T need them.  You know about 
-the potential for deadlocks.
+I seem to remember '.' characters, not '='...
 
-And most of all, you know just because you got it to run once doesn't mean 
-it's RIGHT...
+> It then uses int 0x10 AH=0x0E in order to print initial progress banners so
+> that immediate feedback on the boot status is available. The 0x07 character
+> is issued as well as printable characters and is expected to generate a
+> bell.
 
-> When OS/2 designers realised this API braindamage, they somewhere randomly
-> added funtions to unblock threads waiting for variuos events - for example
-> VioModeUndo or VioSavRedrawUndo - quite insane.
+Hmmm...  About when during the boot is this?  (I get a beep from the bios 
+long before lilo, and another when the pcmcia stuff detects a card, but 
+that's it...)
 
-OS/2 had a whole raft of problems.  The fact half the system calls weren't 
-available if you didn't boot the GUI was my personal favorite annoyance.
+> usable memory data. It also handles older BIOSes that return AX/BX but not
+> AX/BX data.
 
-It was a system created _for_ users instead of _by_ users.  Think of the 
-great successes in the computing world: C, Unix, the internet, the web.  All 
-of them were developed by people who were just trying to use them, as the 
-tools they used which they modified and extended in response to their needs.
+What does that mean?  (Return garbage in AX/BX?)
 
-This is why C is a better language than pascal, why the internet beat 
-compuserve, and why Unix was better than OS/2.  Third parties writing code 
-"for" somebody else (to sell, as a teaching tool, etc) either leave important 
-stuff out or add in stuff people don't want (featuritis).  It's the nature of 
-the beast: design may be clever in spurts but evolution never sleeps.  
-(Anybody who doesn't believe that has never studied antibiotic resistant 
-bacteria, or had to deal with cockroaches.)
+> Having sized memory the kernel moves on to set up peripherals. The BIOS
+> INT 0x16, AH=0x03 service is invoked in order to set the keyboard repeat
+> rate and the video BIOS is the called to set up video modes.
 
-> Programming with select, poll and kqueue on Unix is really much better
-> than with threads on OS/2.
+"then called"...
 
-I still consider the difference between threads and processes with shared 
-resources (memory, fds, etc) to be largely semantic.
+> The kernel tries to identify the video in terms of its generic features.
+> Initially it invokes INT 0x10 AH=0x12 to test for the presence of EGA/VGA
+> as oppose to CGA/MGA/HGA hardware.
 
-> Mikulas
+"as opposed to"...
+
+> Having completed video set up the hard disk data for hda and hdb is copied
+> from the low memory BIOS area into the kernel tables. INT 0x13 AH-0x15 is
+> used to check if a second disk is present.
+
+Second disk or second IDE controller?  (We already copied hdb from low 
+memory, are we now confirming it?)
+
+> The kernel invokes the PCI_BIOS_PRESENT function initially, in order to
+> test the availability of PCI services in the firmware. Assuming this is
+> found them PCIBIOS_FIND_PCI_DEVICE, PCIBIOS_FIND_PCI_CLASS_CODE,
+> PCIBIOS_GENERATE_SPECIAL_CYCLE, PCIBIOS_READ/WRITE_CONFIG_BYTE/WORD/DWORD
+> calls are issued as the PCI service are configured, along with
+
+either "services are" or "service is"...
+
+> compatibility. One extension the Linux kernel makes to the official rules
+> for parsing this table, is that in the presence of PCI/ISA machines it will
+
+That is a totally gratuitous comma.  (Okay, I'm nit-picking.  It can stay if 
+you think it can be house-trained, but I'm not feeding it.)
+
+
+> 4.1	Boot Linux on the system
+>
+> 4.2	Insert a PCMCIA card, ensure the kernel detects it
+>
+> 4.3	Remove the PCMCIA card, ensure the kernel detects the change
+>
+> 4.4	Insert a cardbus card, ensure the kernel detects it
+>
+> 4.5	Verify the cardbus device is usable
+>
+> 4.6	Remove the cardbus device, ensure the kernel detects it
+
+
+I have a 100% reproducable crash on Red Hat 7.1 if I put in a cardbus card, 
+apm suspend, resume the system, then pop the cardbus card out.
+
+Kernel panic, every time.  (I assumed it had been fixed in newer versions.  
+I've been meaning to look into it, but it works fine with a 16 bit PCMCIA 
+card so I just swapped my 100baseT for a 10baseT and everything's fine.
+
+The cardbus card works fine if I put it in and pop it out without suspending, 
+and it suspend works fine by itself (Although sound never comes back after an 
+APM suspend.  I have to reboot the laptop to get sound back...)
+
+Aht he joys of the Dell inspiron 3500.  Nice big screen, though...
 
 Rob
+

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVCCHoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVCCHww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVCCHoi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 02:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVCCHof
+	id S261493AbVCCHww (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 02:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVCCHww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 02:44:35 -0500
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:13703 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261500AbVCCHob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 02:44:31 -0500
-Message-ID: <4226C058.4080108@yahoo.com.au>
-Date: Thu, 03 Mar 2005 18:44:24 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: "David S. Miller" <davem@davemloft.net>, Paul Mackerras <paulus@samba.org>,
-       Andrew Morton <akpm@osdl.org>, clameter@sgi.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, Anton Blanchard <anton@samba.org>
-Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>	 <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>	 <20050302174507.7991af94.akpm@osdl.org>	 <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>	 <20050302185508.4cd2f618.akpm@osdl.org>	 <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>	 <20050302201425.2b994195.akpm@osdl.org>	 <16934.39386.686708.768378@cargo.ozlabs.ibm.com>	 <20050302213831.7e6449eb.davem@davemloft.net>	 <1109829248.5679.178.camel@gaston>  <42274727.2070200@yahoo.com.au> <1109831428.5680.187.camel@gaston>
-In-Reply-To: <1109831428.5680.187.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Mar 2005 02:52:52 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:19730 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261493AbVCCHwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 02:52:34 -0500
+Date: Thu, 3 Mar 2005 08:52:20 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Philippe Troin <phil@fifi.org>
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, linux@syskonnect.de
+Subject: Re: 2.4.29 sk98lin patch for Asus K8W SE Deluxe
+Message-ID: <20050303075220.GG30106@alpha.home.local>
+References: <873bvdbtdt.fsf@ceramic.fifi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <873bvdbtdt.fsf@ceramic.fifi.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
-> On Fri, 2005-03-04 at 04:19 +1100, Nick Piggin wrote:
-> 
-> 
->>You don't want to do that for all architectures, as I said earlier.
->>eg. i386 can concurrently set the dirty bit with the MMU (which won't
->>honour the lock).
->>
->>So you then need an atomic lock, atomic pte operations, and atomic
->>unlock where previously you had only the atomic pte operation. This is
->>disastrous for performance.
-> 
-> 
-> Of course, but I was answering to David about sparc64 which uses
-> software TLB load :)
-> 
+On Wed, Mar 02, 2005 at 02:00:30PM -0800, Philippe Troin wrote:
+  
+> +	/* Asus K8V Se Deluxe bugfix. Correct VPD content */
+> +	/* MBo April 2004 */
+> +	if( ((unsigned char)pAC->vpd.vpd_buf[0x3f] == 0x38) &&
+> +	    ((unsigned char)pAC->vpd.vpd_buf[0x40] == 0x3c) &&
+> +	    ((unsigned char)pAC->vpd.vpd_buf[0x41] == 0x45) ) {
+> +		printk("sk98lin : humm... Asus mainboard with buggy VPD ? correcting data.\n");
+                      ^^^^^
+Please, could you put some KERN_XXX here to avoid a buggy message level ?
 
-Oh sorry, I completely misunderstood what you said... and the
-context in which you said it :P
+Willy
 

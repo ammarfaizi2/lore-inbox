@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267516AbSLSA3o>; Wed, 18 Dec 2002 19:29:44 -0500
+	id <S267519AbSLSAaA>; Wed, 18 Dec 2002 19:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267517AbSLSA3o>; Wed, 18 Dec 2002 19:29:44 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16654 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267516AbSLSA3n>; Wed, 18 Dec 2002 19:29:43 -0500
-Date: Thu, 19 Dec 2002 00:37:40 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S267522AbSLSAaA>; Wed, 18 Dec 2002 19:30:00 -0500
+Received: from bitmover.com ([192.132.92.2]:7605 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267519AbSLSA35>;
+	Wed, 18 Dec 2002 19:29:57 -0500
+Date: Wed, 18 Dec 2002 16:37:54 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-Message-ID: <20021219003740.C20566@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200212182237.gBIMbQmk000479@darkstar.example.net> <1040260157.26882.7.camel@irongate.swansea.linux.org.uk>
+Message-ID: <20021218163754.A2555@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+References: <20021218161506.M7976@work.bitmover.com> <200212190018.gBJ0Iir04816@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1040260157.26882.7.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 19, 2002 at 01:09:17AM +0000
+In-Reply-To: <200212190018.gBJ0Iir04816@devserv.devel.redhat.com>; from alan@redhat.com on Wed, Dec 18, 2002 at 07:18:44PM -0500
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 19, 2002 at 01:09:17AM +0000, Alan Cox wrote:
-> How the actual patches get applied really isnt relevant. I know Linus
-> hated jitterbug, Im guessing he hates bugzilla too ?
+On Wed, Dec 18, 2002 at 07:18:44PM -0500, Alan Cox wrote:
+> > > > I can understand it when we're discussing BK; other than that, it's pretty
+> > > > friggin lame.  If that's what was behind your posts, Alan, there is an
+> > > > easy procmail fix for that.
+> > > 
+> > > It wasnt me who brought up bitkeeper
+> > 
+> > PLONK.  Into kernel-spam you go.  I've had it with ax grinders.
+> 
+> Oh dear me. Larry McVoy has flipped
+> 
+> I'm now being added to his spam list for *not* mentioning bitkeeper
+> 
+> Poor Larry, I hope has a nice christmas break, he clearly needs it
 
-I'm waiting for the kernel bugzilla to become useful - currently the
-record for me has been:
+Look, Alan and anyone else, I'm sort of sick of the flames about BK.
+It's apparent that there will always be people who are looking for
+excuses to attack BK because it isn't GPLed and how dare the kernel
+hackers use it.  Your mail was so senseless that that was the only sane
+explanation I could find and apparently I wasn't being paranoid, that's
+what John thought as well.
 
-3 bugs total
-3 bugs for serial code for drivers I don't maintain, reassigned to mbligh.
+I have a bad habit of taking things personally and too seriously and
+the result is that attacks on me/BK/whatever, imagined or real, stress
+me out and waste my time.  Life's too short to for me to deal with that
+nonsense anymore.  I discovered procmail and I dump people into a spam
+file if I feel they have a track record of yanking my chain.  It's my
+fault that I'm such a wuss that I can't handle it but this works.
+It's not personal, it's about having a more pleasant life and I find
+things to be more pleasant without the flames.
 
-This means I write (choose one):
-
-1. non-buggy code (highly unlikely)
-2. code no one tests
-3. code people do test but report via other means (eg, email, irc)
-
-If it's (3), which it seems to be, it means that bugzilla is failing to
-do its job properly, which is most unfortunate.
-
+I'll still read your mail, I do so about every 2 weeks, but that way 
+whatever yankage you were (or were not) trying to do is in the past and
+I'll ignore it.
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

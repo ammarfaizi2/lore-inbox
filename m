@@ -1,71 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264543AbTF0Rif (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 13:38:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTF0Rif
+	id S264569AbTF0Rot (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 13:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264590AbTF0Rot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 13:38:35 -0400
-Received: from csl2.consultronics.on.ca ([204.138.93.2]:13448 "EHLO
-	csl2.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id S264543AbTF0Ri0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 13:38:26 -0400
-Date: Fri, 27 Jun 2003 13:52:27 -0400
-From: Greg Louis <glouis@dynamicro.on.ca>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.4.21-ac3 nfs v3 malfunctioning, -ac2 ok
-Message-ID: <20030627175227.GA5449@athame.dynamicro.on.ca>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+	Fri, 27 Jun 2003 13:44:49 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23016 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264569AbTF0Rop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 13:44:45 -0400
+Date: Fri, 27 Jun 2003 19:58:53 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [2.4 patch] some gcc 3.3 fixes from -ac
+Message-ID: <20030627175853.GJ24661@fs.tum.de>
+References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Dynamicro Consulting Limited
+In-Reply-To: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem summary: nfs v3 in -ac3 mishandles root directory exports:
-subdirectories exported with the nohide option are invisible to the
-client, and re-export on the server (exportfs -rv) shows exports of /
-failing with "Invalid parameter".
+Hi Marcelo,
 
-Config info:
+the patch below contains four trivial fixes for compile failures with 
+gcc 3.3 stolen from -ac.
 
-NFS file system support (CONFIG_NFS_FS) [Y/m/n/?] 
-  Provide NFSv3 client support (CONFIG_NFS_V3) [Y/n/?] 
-  Allow direct I/O on NFS files (EXPERIMENTAL) (CONFIG_NFS_DIRECTIO) [N/y/?] 
-NFS server support (CONFIG_NFSD) [Y/m/n/?] 
-  Provide NFSv3 server support (CONFIG_NFSD_V3) [Y/n/?] 
-  Provide NFS server over TCP support (EXPERIMENTAL) (CONFIG_NFSD_TCP) [N/y/?] 
+I've tested the compilation with 2.4.22-pre2.
 
-nfs-utils-1.0.3
+diffstat output:
 
-Details:
+ drivers/net/irda/ma600.c     |    6 +++---
+ drivers/net/wan/sdla_chdlc.c |    3 +--
+ drivers/sound/cs46xx.c       |    4 ++--
+ net/decnet/dn_table.c        |    3 +--
+ 4 files changed, 7 insertions(+), 9 deletions(-)
 
-I've got 3 Linux boxes at home that allow nfs mounts of each other's
-root trees, and each server exports its other mounted subtrees
-with the "nohide" option so that they should be visible to the clients
-after the NFS mount of / is performed.
 
-With an -ac2 client and -ac2 server, this works fine.  Mounts succeed,
-clients can see, read and write into exported subtrees.
+Please apply
+Adrian
 
-With -ac3 client and server, when the server offers to export / to that
-client, an initial mount seems to work; however, the nohide option for
-subdirectories that are also exported does not.  The client can't see
-the contents of such subdirectories, and a write to the mount point by
-the client writes to the parent disk as if the mounted tree wasn't
-there.  Further, if one then does exportfs -rv on the server, exports
-of / to the kernel fail with "Invalid parameter" and the client can no
-longer mount / at all.
 
-With an -ac2 client and -ac3 server, the initial mounts of the server /
-are successful, and mounted-and-exported subdirectory trees are visible
-to the client; I didn't try re-exporting in this configuration.  With
--ac2 on both ends, re-exporting is successful.
-
-The -ac2 tree's .config file was copied into the -ac3 tree and new
-options presented during 'make oldconfig' were declined.
-
--- 
-| G r e g  L o u i s          | gpg public key: finger     |
-|   http://www.bgl.nu/~glouis |   glouis@consultronics.com |
-| http://wecanstopspam.org in signatures fights junk email |
+--- linux.vanilla/drivers/net/irda/ma600.c	2002-11-29 21:27:18.000000000 +0000
++++ linux.21-ac3/drivers/net/irda/ma600.c	2003-05-29 01:40:07.000000000 +0100
+@@ -51,9 +51,9 @@
+ 	#undef ASSERT(expr, func)
+ 	#define ASSERT(expr, func) \
+ 	if(!(expr)) { \
+-	        printk( "Assertion failed! %s,%s,%s,line=%d\n",\
+-        	#expr,__FILE__,__FUNCTION__,__LINE__); \
+-	        ##func}
++		printk( "Assertion failed! %s,%s,%s,line=%d\n",\
++		#expr,__FILE__,__FUNCTION__,__LINE__); \
++		func}
+ #endif
+ 
+ /* convert hex value to ascii hex */
+--- linux.vanilla/drivers/net/wan/sdla_chdlc.c	2002-11-29 21:27:18.000000000 +0000
++++ linux.21-ac3/drivers/net/wan/sdla_chdlc.c	2003-05-28 15:35:56.000000000 +0100
+@@ -591,8 +591,7 @@
+ 	
+ 
+ 		if (chdlc_set_intr_mode(card, APP_INT_ON_TIMER)){
+-			printk (KERN_INFO "%s: 
+-				Failed to set interrupt triggers!\n",
++			printk (KERN_INFO "%s: Failed to set interrupt triggers!\n",
+ 				card->devname);
+ 			return -EIO;	
+         	}
+--- linux.vanilla/drivers/sound/cs46xx.c	2003-06-14 00:11:37.000000000 +0100
++++ linux.21-ac3/drivers/sound/cs46xx.c	2003-06-22 13:36:11.000000000 +0100
+@@ -947,8 +950,8 @@
+ 
+ struct InitStruct
+ {
+-    u32 long off;
+-    u32 long val;
++    u32 off;
++    u32 val;
+ } InitArray[] = { {0x00000040, 0x3fc0000f},
+                   {0x0000004c, 0x04800000},
+ 
+--- linux.vanilla/net/decnet/dn_table.c	2001-12-21 17:42:05.000000000 +0000
++++ linux.21-ac3/net/decnet/dn_table.c	2003-05-28 15:37:27.000000000 +0100
+@@ -836,8 +836,7 @@
+                 return NULL;
+ 
+         if (in_interrupt() && net_ratelimit()) {
+-                printk(KERN_DEBUG "DECnet: BUG! Attempt to create routing table 
+-from interrupt\n"); 
++                printk(KERN_DEBUG "DECnet: BUG! Attempt to create routing table from interrupt\n"); 
+                 return NULL;
+         }
+         if ((t = kmalloc(sizeof(struct dn_fib_table), GFP_KERNEL)) == NULL)

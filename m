@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265130AbRFZWXn>; Tue, 26 Jun 2001 18:23:43 -0400
+	id <S265131AbRFZWYn>; Tue, 26 Jun 2001 18:24:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265131AbRFZWXY>; Tue, 26 Jun 2001 18:23:24 -0400
-Received: from mailc.telia.com ([194.22.190.4]:50398 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id <S265130AbRFZWXV>;
-	Tue, 26 Jun 2001 18:23:21 -0400
-Message-ID: <3B390B48.D444B7C5@canit.se>
-Date: Wed, 27 Jun 2001 00:23:04 +0200
-From: Kenneth Johansson <ken@canit.se>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: EXT2 Filesystem permissions (bug)?
-In-Reply-To: <m28zigi7m4.fsf@boreas.yi.org.> <Pine.LNX.4.30.0106251729450.18996-100000@coredump.sh0n.net> <9h8b8q$s95$1@cesium.transmeta.com>
+	id <S265133AbRFZWYd>; Tue, 26 Jun 2001 18:24:33 -0400
+Received: from asooo.flowerfire.com ([63.104.96.247]:13583 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S265131AbRFZWY1>; Tue, 26 Jun 2001 18:24:27 -0400
+Date: Tue, 26 Jun 2001 17:24:23 -0500
+From: Ken Brownfield <brownfld@irridia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Tracking down semaphore usage/leak
+Message-ID: <20010626172421.A17393@asooo.flowerfire.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <no.id>; from brownfld@irridia.com on Tue, Jun 26, 2001 at 02:09:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Interesting but I wonder how much this helps someone that not already know what it is. Should not the ls manual also contain something that explains the meaning instead of just the mapping from bits to symbol.
+Urgh, learn something new everyday (ipcs, ipcrm).  My apologies; apropos
+didn't catch it on my boxes. :-(
+-- 
+Ken.
+brownfld@irridia.com
 
-Do linux even support the sticky bit (t) I can't see a reason to use it, why would I want the file to be stored in the swap ?? 
-
-Also I think S (setuid but no execute bit) have something to do with file locking but I'am not shure exactly how it works. 
-
-"H. Peter Anvin" wrote:
-> 
-> Followup to:  <Pine.LNX.4.30.0106251729450.18996-100000@coredump.sh0n.net>
-> By author:    Shawn Starr <spstarr@sh0n.net>
-> In newsgroup: linux.dev.kernel
-> >
-> > Is this a bug or something thats undocumented somewhere?
-> >
-> > d--------T
-> > and
-> > drwSrwSrwT
-> >
-> > are these special bits? I'm not aware of +S and +T
-> >
-> 
-> It's neither a bug nor undocumented.
-> 
-> "info ls" would have told you the following:
-> 
->      The permissions listed are similar to symbolic mode
->      specifications
->      (*note Symbolic Modes::.).  But `ls' combines multiple bits into
->      the third character of each set of permissions as follows:
->     `s'
->           If the setuid or setgid bit and the corresponding executable
->           bit are both set.
-> 
->     `S'
->           If the setuid or setgid bit is set but the corresponding
->           executable bit is not set.
-> 
->     `t'
->           If the sticky bit and the other-executable bit are both set.
-> 
->     `T'
->           If the sticky bit is set but the other-executable bit is not
->           set.
-> 
->     `x'
->           If the executable bit is set and none of the above apply.
-> 
->     `-'
->           Otherwise.
-> 
->         -hpa
+On Tue, Jun 26, 2001 at 02:09:16PM -0700, Ken Brownfield wrote:
+| With RedHat's new Samba 2.0.10 RPM (the one to patch the latest 
+| vulnerability) they seem to have sniffed enough glue to start using SysV 
+| IPC semaphores which apparently leak until SEM??? are reached.  semget() 
+| is returning "No space left on device", and disk/inodes/memory are all 
+| fine.
+| 
+| Anyway, could someone give me a very quick rundown of the options for 
+| tracking/force-freeing semaphores, or how to determine from proc, if 
+| possible, what the current semaphore allocation status is?  Or did RH 
+| slay a machine I really don't want to reboot?  I've restarted all 
+| semaphore-using processes to no avail, but even so the SEM??? limits are 
+| far above the normal needs of this machine.
+| 
+| Thanks much.  Searched the archives/Google/FAQ/semaphore docs; sorry if 
+| it's been covered.  I'll summarize if folks want to hit me on or off the 
+| list.
+| --
+| Ken.
+| brownfld@irridia.com

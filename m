@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267076AbTAPNg2>; Thu, 16 Jan 2003 08:36:28 -0500
+	id <S267080AbTAPNgc>; Thu, 16 Jan 2003 08:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267080AbTAPNg2>; Thu, 16 Jan 2003 08:36:28 -0500
-Received: from smtpcl3.fiducia.de ([195.200.32.20]:46008 "EHLO
-	smtpcl3.fiducia.de") by vger.kernel.org with ESMTP
-	id <S267076AbTAPNg2>; Thu, 16 Jan 2003 08:36:28 -0500
-Sensitivity: 
-Subject: [i2c-piix4.o: IBM Laptop detected; this module may corrupt your serial
- eeprom! Refusing to load module!] on xSeries 232 -Server
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-From: "Andreas Hartmann" <andreas.hartmann@fiducia.de>
-Date: Thu, 16 Jan 2003 14:45:12 +0100
-Message-ID: <OFDA940B31.E3BDE6F7-ON41256CB0.0049452E@fag.fiducia.de>
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S267084AbTAPNgc>; Thu, 16 Jan 2003 08:36:32 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:20756 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP
+	id <S267080AbTAPNgb>; Thu, 16 Jan 2003 08:36:31 -0500
+Date: Thu, 16 Jan 2003 14:45:24 +0100
+To: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: any brand recomendation for a linux laptop ?
+Message-ID: <20030116134524.GE12522@poup.poupinou.org>
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+User-Agent: Mutt/1.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thu, Jan 16, 2003 at 11:00:45AM +0100, Nicolas Turro wrote:
+> 
+> Hi, 
+> I am software engineer at a french research institute, in charge of the linux 
+> support on about 600 computers. I am looking for laptops whith linux
+> support/certification. I couln't find any recent laptop model on your
+> certification page. Would you recomend me any brand of computer ?
+> We curently buy Compaq Evos laptops, but enabling linux on those laptops
+> is terrible :
+> - power management seems to be ACPI only (which linux barely supports)
+> - sound is hard or impossible to setup correctly.
+> 
+> Any help/advice would be apreciated.
+>  
 
-I'm using kernel 2.4.19 (SuSE 8.1; k_deflt-2.4.19-174 - actual patch release) on
-an IBM xSeries 232 Server. When I'm trying to load the module i2c-piix4, the
-module claims, it would be running on an IBM Laptop. This is definitely wrong.
-The old SuSE kernel (k_deflt-2.4.19-49) didn't show this problem.
+You might consider other archs as ppc for example, especially
+if you really don't care about windows OS and you want more power
+saving on battery.
 
-Could you please fix this problem or am I wrong?
+Cheers,
 
-
-Thank you very much,
-kind regards,
-Andreas Hartmann
-
-
+-- 
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

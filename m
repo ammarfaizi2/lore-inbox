@@ -1,39 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129771AbRA3EDW>; Mon, 29 Jan 2001 23:03:22 -0500
+	id <S129143AbRA3Elm>; Mon, 29 Jan 2001 23:41:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130098AbRA3EDM>; Mon, 29 Jan 2001 23:03:12 -0500
-Received: from KZSU.Stanford.EDU ([171.66.118.90]:57609 "EHLO
-	kzsu.stanford.edu") by vger.kernel.org with ESMTP
-	id <S129771AbRA3EDF>; Mon, 29 Jan 2001 23:03:05 -0500
-Date: Mon, 29 Jan 2001 20:02:50 -0800
-From: Romain Kang <romain@kzsu.stanford.edu>
-To: peterw@dascom.com.au, lembark@wrkhors.com, gem@rellim.com,
-        Padraig@AnteFacto.com, dan@dcrdev.demon.co.uk, linuxadmin@softhome.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [META] proposal to set up digestifier for linux-kernel
-Message-ID: <20010129200231.A80669@kzsu.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S129274AbRA3Eld>; Mon, 29 Jan 2001 23:41:33 -0500
+Received: from mlx3.unm.edu ([129.24.8.189]:24434 "HELO mlx3.unm.edu")
+	by vger.kernel.org with SMTP id <S129143AbRA3ElX>;
+	Mon, 29 Jan 2001 23:41:23 -0500
+Date: Mon, 29 Jan 2001 21:41:21 -0700 (MST)
+From: Todd <todd@unm.edu>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
+In-Reply-To: <20010129164953.A15219@vger.timpanogas.org>
+Message-ID: <Pine.A41.4.31.0101292123270.54650-100000@aix06.unm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I received a note from Michael T. Babcock noting that there already
-is a digest operated by yahoogroups.com (formerly egroups.com):
+folx,
 
-> I read the Linux kernel list as a digest from egroups.com.
-> Do a quick search for 'linux kernel' and you'll find it.
+i must be missing something here.  i'm not aware of a PCI bus that only
+supports 70 MBps but i am probably ignorant.  this is why i was confused
+by jeff's performance numbers.  33MHz 32-bit PCI busses should do around
+120MB/s (just do the math 33*32/8 allowing for some overhead of PCI bus
+negotiation), much greater than the numbers jeff is reporting.  66 MHz
+64bit busses should do on the order of 500MB/s.
 
-If you don't care for the advertising that comes with it, I've been
-informed there's a site that hopes to make a Mailman server publically
-available to carry linux-kernel as a digest also.  They have to be
-prepared for 3000 digest users, since that's what vger.rutgers.edu
-used to carry.  Watch the list for a public announcement.
+the performance numbers that jeff is reporting are not very impressive
+even for the slowest PCI bus.  we're seeing 993 Mbps (124MB/s) using the
+alteon acenic gig-e cards on 32-bit cards on a 66MHz bus.  i would expect
+to get somewhat slower on a 33MHz bus but not catastrophically so
+(certainly nothing as slow as 60MB/s or 480Mb/s).
 
-Romain Kang                             Disclaimer: I speak for myself alone,
-romain@kzsu.stanford.edu                except when indicated otherwise.
+what am i misunderstanding here?
+
+todd
+
+On Mon, 29 Jan 2001, Jeff V. Merkey wrote:
+
+> Date: Mon, 29 Jan 2001 16:49:53 -0700
+> From: Jeff V. Merkey <jmerkey@vger.timpanogas.org>
+> To: linux-kernel@vger.kernel.org
+> Cc: jmerkey@timpanogas.org
+> Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
+>
+>
+> Relative to some performance questions folks have asked, the SCI
+> adapters are limited by PCI bus speeds.  If your system supports
+> 64-bit PCI you get much higher numbers.  If you have a system
+> that supports 100+ Megabyte/second PCI throughput, the SCI
+> adapters will exploit it.
+>
+> This test was performed in on a 32-bit PCI system with a PCI bus
+> architecture that's limited to 70 MB/S.
+>
+> Jeff
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
+
+=========================================================
+Todd Underwood, todd@unm.edu
+
+criticaltv.com
+news, analysis and criticism.  about tv.
+and other stuff.
+
+=========================================================
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

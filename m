@@ -1,43 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264521AbTH2Kh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 06:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbTH2Kh6
+	id S264526AbTH2Ktb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 06:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbTH2Ktb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 06:37:58 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:22954 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264521AbTH2Kh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 06:37:56 -0400
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030829100348.GA5417@werewolf.able.es>
-References: <20030829053510.GA12663@mail.jlokier.co.uk>
-	 <20030829100348.GA5417@werewolf.able.es>
-Content-Type: text/plain
+	Fri, 29 Aug 2003 06:49:31 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:47266 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264526AbTH2Kt1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 06:49:27 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <1062153389.26754.14.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 29 Aug 2003 11:36:31 +0100
+Message-ID: <16207.12213.252438.929875@gargle.gargle.HOWL>
+Date: Fri, 29 Aug 2003 12:49:25 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-08-29 at 11:03, J.A. Magallon wrote:
-> Sorry if this is a stupid question, but have you heard about 64K-aliasing ?
-> We have seen it in P3/P4, do not know if Athlons also suffer it.
-> In short, x86 is crap. It slows like a dog when accessing two memory
-> positions sparated by 2^n (address decoder has two 16 bits adders, instead
-> of 1 32 bits..., cache is 16 bit tagged, etc...)
+Jamie Lokier writes:
+ > Dear All,
+ > 
+ > I'd appreciate if folks would run the program below on various
+ > machines, especially those whose caches aren't automatically coherent
+ > at the hardware level.
 
-Pretty much all processors are bad at handling memory accesses on the
-same alignment within powers of two. Thats one of the reasons for slab
-and for things like the old kernel code putting skb structs at the end
-of the skbuff data.
+>From a dual Opteron 244 box:
 
-Grab a copy of "Unix systems for modern architectures".
+Test separation: 4096 bytes: FAIL - too slow
+Test separation: 8192 bytes: FAIL - too slow
+Test separation: 16384 bytes: FAIL - too slow
+Test separation: 32768 bytes: pass
+Test separation: 65536 bytes: pass
+Test separation: 131072 bytes: pass
+Test separation: 262144 bytes: pass
+Test separation: 524288 bytes: pass
+Test separation: 1048576 bytes: pass
+Test separation: 2097152 bytes: pass
+Test separation: 4194304 bytes: pass
+Test separation: 8388608 bytes: pass
+Test separation: 16777216 bytes: pass
+VM page alias coherency test: minimum fast spacing: 32768 (8 pages)
+0.08user 0.01system 0:00.08elapsed 101%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (131major+38minor)pagefaults 0swaps
 
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 15
+model		: 5
+model name	: AMD Opteron(tm) Processor 244
+stepping	: 1
+cpu MHz		: 1791.569
+cache size	: 1024 KB
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext lm 3dnowext 3dnow
+bogomips	: 3565.15
+TLB size	: 1088 4K pages
+clflush size	: 64
+address sizes	: 40 bits physical, 48 bits virtual
+power management: ts ttp
 
+processor	: 1
+vendor_id	: AuthenticAMD
+cpu family	: 15
+model		: 5
+model name	: AMD Opteron(tm) Processor 244
+stepping	: 1
+cpu MHz		: 1791.569
+cache size	: 1024 KB
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext lm 3dnowext 3dnow
+bogomips	: 3578.26
+TLB size	: 1088 4K pages
+clflush size	: 64
+address sizes	: 40 bits physical, 48 bits virtual
+power management: ts ttp

@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbUBUEUi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 23:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUBUERu
+	id S261533AbUBUEWG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 23:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUBUEWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 23:17:50 -0500
-Received: from hera.kernel.org ([63.209.29.2]:45238 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261534AbUBUEOS (ORCPT
+	Fri, 20 Feb 2004 23:22:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41648 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261533AbUBUEWC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 23:14:18 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: kernel too big
-Date: Sat, 21 Feb 2004 04:14:13 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c16lul$g2b$1@terminus.zytor.com>
-References: <UTC200402201400.i1KE0AH09811.aeb@smtp.cwi.nl> <403671FE.8090005@transmeta.com>
+	Fri, 20 Feb 2004 23:22:02 -0500
+Date: Fri, 20 Feb 2004 20:22:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Phil White <cerise@littlegreenmen.armory.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3 doesn't see my 2nd CPU
+Message-Id: <20040220202224.5f4394cf.akpm@osdl.org>
+In-Reply-To: <20040221031717.GB4827@littlegreenmen.armory.com>
+References: <20040221031717.GB4827@littlegreenmen.armory.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1077336853 16460 63.209.29.3 (21 Feb 2004 04:14:13 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sat, 21 Feb 2004 04:14:13 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <403671FE.8090005@transmeta.com>
-By author:    "H. Peter Anvin" <hpa@transmeta.com>
-In newsgroup: linux.dev.kernel
-> 
-> Alternative I could take a stab at making these tables auto-generated
-> and therefore completely eliminate this dependency for bzImage.
-> 
+Phil White <cerise@littlegreenmen.armory.com> wrote:
+>
+> ACPI disabled because your bios is from 99 and too old
+>  You can enable it with acpi=force
 
-Okay, I have a patch which makes this stuff generated fully dynamically:
-
-	ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/earlymem-1.diff
-
-Andries, if you test this out and it works I'll submit it to akpm.
-
-	-hpa
+Did you try acpi=force?  Look for a bios upgrade, too.

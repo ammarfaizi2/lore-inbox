@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTENNWS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbTENNWS
+	id S262063AbTENNXT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTENNXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:22:18 -0400
-Received: from prv-tm12.provo.novell.com ([192.108.102.142]:51019 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262050AbTENNWR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:22:17 -0400
-Subject: Re: Compile error including asm/uaccess.h
-From: "ismail donmez" <kde@smtp-send.myrealbox.com>
-To: storri@sbcglobal.net
-CC: bug-glibc@gnu.org, linux-kernel@vger.kernel.org
-Date: Wed, 14 May 2003 07:34:57 -0600
-X-Mailer: NetMail ModWeb Module
+	Wed, 14 May 2003 09:23:18 -0400
+Received: from ip64-48-93-2.z93-48-64.customer.algx.net ([64.48.93.2]:5897
+	"EHLO ns1.limegroup.com") by vger.kernel.org with ESMTP
+	id S262063AbTENNXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:23:17 -0400
+Date: Wed, 14 May 2003 09:35:57 -0400 (EDT)
+From: Ion Badulescu <ionut@badula.org>
+X-X-Sender: ion@guppy.limebrokerage.com
+To: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: FW: am-utils or kernel bug ? Seems to be kernel or glibc bug...
+In-Reply-To: <1052900861.24411.121.camel@atlas.inria.fr>
+Message-ID: <Pine.LNX.4.44.0305140933120.28685-100000@guppy.limebrokerage.com>
 MIME-Version: 1.0
-Message-ID: <1052919297.aaa917c0kde@smtp-send.myrealbox.com>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
-====== Errors (C++) ==========
+On 14 May 2003, Nicolas Turro wrote:
 
-In file included from /usr/include/linux/sched.h:14,
-                 from /usr/include/asm/uaccess.h:8,
-                 from test.cpp:1:
-/usr/include/linux/timex.h:173: field `time' has incomplete type
-In file included from /usr/include/linux/sched.h:17,
-                 from /usr/include/asm/uaccess.h:8,
-                 from test.cpp:1:
-/usr/include/asm/system.h:238: parse error before `new'
-/usr/include/asm/system.h: In function `long unsigned int
-__cmpxchg(...)':
-/usr/include/asm/system.h:241: `size' undeclared (first use this
-function)
-/usr/include/asm/system.h:241: (Each undeclared identifier is reported
-only 
+> You were right, Ion,
+> switching to a RH8 kernel ( 2.4.18-14 ) , solved the issue. I cannot
+> reproduce this futex bug on the father process...
+> 
+> Who should i contact in order to correct things ?
 
-</snip>
+bugzilla.redhat.com is a good first start.
 
-Well rule of thumb says "Do not include kernel headers in userspace" second rule of thumb says "if you have to do so take care of variables that is need to be defined..."
+Hmm. I just realized that I was also running my script on a plain vanilla 
+2.4.20 kernel, NOT rh9's own kernel, so that's probably why I couldn't 
+reproduce the problem. I'll try again tonight, but as you said this points 
+strongly towards some new RH kernel feature which is less than stable or 
+which modifies certain semantics in ways that occasionally break amd.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

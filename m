@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264829AbTIJOgA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 10:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264831AbTIJOgA
+	id S264848AbTIJOlh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 10:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbTIJOlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 10:36:00 -0400
-Received: from hal-4.inet.it ([213.92.5.23]:26097 "EHLO hal-4.inet.it")
-	by vger.kernel.org with ESMTP id S264829AbTIJOf6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 10:35:58 -0400
-Message-ID: <057301c377a9$59ad16c0$5aaf7450@wssupremo>
-Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
-From: "Luca Veraldi" <luca.veraldi@katamail.com>
-To: "Stewart Smith" <stewart@linux.org.au>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <1063203673.7631.35.camel@willster>
-Subject: Re: Efficient IPC mechanism on Linux
-Date: Wed, 10 Sep 2003 16:39:28 +0200
+	Wed, 10 Sep 2003 10:41:37 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:58642 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S264848AbTIJOki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 10:40:38 -0400
+Message-ID: <3F5F3D0A.8000700@techsource.com>
+Date: Wed, 10 Sep 2003 11:02:34 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Larry McVoy <lm@bitmover.com>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, "Brown, Len" <len.brown@intel.com>,
+       Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay> <20030904003633.GA5227@work.bitmover.com> <6130000.1062642088@[10.10.2.4]> <20030904023446.GG5227@work.bitmover.com> <9110000.1062643682@[10.10.2.4]> <20030904030227.GJ5227@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hrm, you may find things related to the Password-Capability system and
-> the Walnut kernel of interest - these systems take this kind of IPC to
-> the extreme :) (ahhh... research OS hw & sw - except you *do not* want
-> to see the walnut source - it makes ppl want to crawl up and cry).
-> 
-> http://www.csse.monash.edu.au/~rdp/fetch/castro-thesis.ps
-> 
-> and check the Readme.txt at
-> http://www.csse.monash.edu.au/courseware/cse4333/rdp-ma terial/
-> for stuff on Multi and password-capabilities.
-> 
-> interesting stuff, the Castro thesis does do some comparisons to FreeBSD
-> (1.1 amazingly enough) - although the number of real world applications
-> on these systems is minimal (and in the current state impossible -
-> nobody can remember how to get userspace going on Walnut, we may have
-> broken it) and so real-world comparisons just don't really happen these
-> days. Maybe after a rewrite (removing some brain-damage of the original
-> design).
 
-Thanks. It's really very interesting...
 
-Bye,
-Luca
+Larry McVoy wrote:
+
+> 
+> You don't make that much money, if any, on the high end, the R&D costs
+> dominate.  But you make money because people buy the middle of the road
+> because you have the high end.  If you don't, they feel uneasy that they
+> can't grow with you.  The high end enables the sales of the real money
+> makers.  It's pure marketing, the high end could be imaginary and as
+> long as you convinced the customers you had it you'd be more profitable.
+> 
+
+
+I think some time in the 90's, Chevy considered discontinuing the 
+Corvette.  Then they realized that that would kill their business. 
+People who would never buy a Corvette buy other GM cars just because the 
+Corvette exists.  Lots of reasons:  It's an icon that people recognize, 
+it makes them feel that other Chevys will share some of the Corvette 
+quality, etc.
+
+

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280594AbRKFVQp>; Tue, 6 Nov 2001 16:16:45 -0500
+	id <S280577AbRKFVWP>; Tue, 6 Nov 2001 16:22:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280587AbRKFVQ0>; Tue, 6 Nov 2001 16:16:26 -0500
-Received: from umbriel.xerox.com ([208.140.33.26]:57326 "EHLO
-	umbriel.eastgw.xerox.com") by vger.kernel.org with ESMTP
-	id <S280591AbRKFVQY>; Tue, 6 Nov 2001 16:16:24 -0500
-Message-Id: <200111062116.QAA05254@mailhost.eng.mc.xerox.com>
+	id <S280579AbRKFVV4>; Tue, 6 Nov 2001 16:21:56 -0500
+Received: from f272.law9.hotmail.com ([64.4.8.147]:62726 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S280577AbRKFVVv>;
+	Tue, 6 Nov 2001 16:21:51 -0500
+X-Originating-IP: [128.2.152.69]
+From: "William Knop" <w_knop@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: delaying "milliseconds" in the kernel
-Date: Tue, 06 Nov 2001 16:16:18 -0500
-From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+Date: Tue, 06 Nov 2001 16:21:45 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F272lT2NqFJ3sl3xbYi00004f63@hotmail.com>
+X-OriginalArrivalTime: 06 Nov 2001 21:21:45.0845 (UTC) FILETIME=[09B72A50:01C16709]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>1)  IT SHOULD NOT BE PRETTY.  No tabs to line up columns. No "progress
+>>bars."  No labels except as "proc comments" (see later).  No in-line
+>>labelling.
+>
+>It should not be pretty TO HUMANS. Slight difference. It should be >pretty 
+>to shellscripts and other applications though.
 
-I'm writing a driver, and want to delay n milliseconds
-in an algorithm.
+If this is the case, why are we using ASCII for everything? If the only 
+interface to /proc will be applications, then we could just as well let the 
+application turn four bytes into an ASCII IPv4 adddress. We could easily 
+have it set up to parse using the format [single byte type identifier (ie 4 
+for string with the first byte of "data" being the string length, 1 for 
+unsigned int, 2 for signed int, 19 for IPv4, 116 for progress bar, 
+etc.)][data]. Let people standardize away. Am I missing the point?
 
-Timers need jiffies, so I need to convert.
-
-Is there a standard to define time?  (I didn't see it -- seems
-everything is in HZ).
-
-I wanted a macro or something so I could express my constraint
-in milliseconds, and it would be converted to jiffies...
-
-I wanted something like a macro:
-#define MSECS_TO_JIFFIES(x)     (x*(HZ/1000))
-
-It seems there is no "standard" way to do this in the kernel
-(I ran gid on 2.4.5).
-
-The only think I easily saw was:
-drivers/isdn/sc/hardware.h:112:#define milliseconds(x)  (x/(1000/HZ))
-which would do what I wanted...I would want to see this at a higher level...
-
-Instead of throwing around HZ everywhere (and having to inuitate how this
-mapped time to jiffies), would it be a good idea to have some 
-standard way to express milliseconds -- since time is important,
-jiffies are an implementation detail.
-
-I think the code would be much clear if I saw
-MSECS_TO_JIFFIES(250)
-instead of 
-(HZ/4)
+I think every aspect of an OS should be intuitive (so long as it is 
+efficient), which IMO /proc isn't. If this means splitting it in two, as 
+some have suggested, so be it. It certainly should have a design 
+guideline/spec so we may at least be consistant. Just my 2 coppers.
 
 
-Just IMHO
+Will Knop
+w_knop@hotmail.com
 
-marty		mleisner@eng.mc.xerox.com   
-Don't  confuse education with schooling.
-	Milton Friedman to Yogi Berra
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+

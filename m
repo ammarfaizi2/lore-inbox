@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbTHOK6M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 06:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTHOK6M
+	id S262254AbTHOK6R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 06:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTHOK6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 06:58:12 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:6794 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262093AbTHOK6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 06:58:11 -0400
-Date: Fri, 15 Aug 2003 12:58:02 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030815105802.GA14836@ucw.cz>
-References: <16188.27810.50931.158166@gargle.gargle.HOWL> <20030815094604.B2784@pclin040.win.tue.nl>
+	Fri, 15 Aug 2003 06:58:16 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:62901 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S262254AbTHOK6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 06:58:14 -0400
+Date: Fri, 15 Aug 2003 11:57:33 +0100
+From: Dave Jones <davej@redhat.com>
+To: Jonathan Morton <chromi@chromatix.demon.co.uk>
+Cc: Robert Toole <tooler@tooleweb.homelinux.com>, linux-kernel@vger.kernel.org
+Subject: Re: agpgart failure on KT400
+Message-ID: <20030815105733.GC22433@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jonathan Morton <chromi@chromatix.demon.co.uk>,
+	Robert Toole <tooler@tooleweb.homelinux.com>,
+	linux-kernel@vger.kernel.org
+References: <3F3C2DA0.1030504@tooleweb.homelinux.com> <BD8AF95A-CEC1-11D7-A88B-003065664B7C@chromatix.demon.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030815094604.B2784@pclin040.win.tue.nl>
+In-Reply-To: <BD8AF95A-CEC1-11D7-A88B-003065664B7C@chromatix.demon.co.uk>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 09:46:04AM +0200, Andries Brouwer wrote:
+On Fri, Aug 15, 2003 at 02:42:33AM +0100, Jonathan Morton wrote:
 
-> >  I have a notebook (Dell Latitude D800) which has some keys (actual
-> >  fn+something combinations) that generate Down events but no Up events
-> >  (clever, isn't it).
-> > 
-> >  This makes those keys unusable with 2.6.0 as it is because the input
-> >  layer insists on there being up events.  Once it sees a down, it will
-> >  ignore any future down events until it sees an up event.  It will
-> >  also auto-repeat the key until some other key is pressed.  On the
-> >  whole, not very useful for these keys.
-> > 
-> >  After some thought, the simplest way I could think of to fix it was
-> >  to have a bitmap of keys that don't generate up events themselves.
-> 
-> I think we should go for a much simpler fix: only enable the timer-induced
-> repeat when the user asks for that (say, by boot parameter).
-> The keyboard already knows which keys repeat and which don't.
+ > Surely it's not too big a job to get basic, generic AGP3 support into 
+ > 2.4, even if it's not optimised?  If it's non-trivial to make all AGP3 
+ > features work in 2.4, then it's reasonable to require 2.6 for "better 
+ > performance".
 
-That won't solve it - the key, while not repeating would be still
-considered 'down' by the kernel and any more pressing of the key
-wouldn't do anything.
+It's more a maintenance burden. The 2.4 code is *shit*.
+If I was to be doing any amount of work on that code, I'd want the
+cleanups that came with the work I did in 2.6 too.
+Bending all the infrastructure in 2.6 to fit 2.4, testing, debugging etc
+is at least a few evenings work.  I'm just one guy.  Unless Red Hat
+decide that AGP3 is something they really really must have for some
+future 2.4 release, it isn't going to happen by me. Period.
+I'm just up to my eyes in other work.
 
-> If we forget about the kernel-invented repetition, we solve, I suppose,
-> the problems of those people who see impossibly fast repeat, and
-> also your problem.
+ > To be honest, I'd at least expect a fallback to AGP2 for hardware that 
+ > can support it, such as KT400.  The Windows drivers for my ATI card can 
+ > tell the hardware to drop to "AGP 4x" (which I believe implies AGP2 - I 
+ > could be wrong), and the card *did* work correctly with the KT266A 
+ > chipset I was using before.
 
-Only for those with PS/2 keyboards. We still need the kernel repeat for
-all other kinds of keyboards. And the impossibly fast repeat problem
-actually needs solving elsewhere - it's a bad interaction betwen ACPI
-and kernel timer, and that'll cause more trouble than just fast repeat.
+Nope. You can do X4 in AGP3 mode, which is different from X4 in AGP2.
 
-> Your solution, which involves an ioctl, would force changes to user space.
-> Too inconvenient.
+ > However, I did encounter a compilation problem with one of the USB 
+ > device drivers - not a major problem at present since that particular 
+ > device is attached to a different machine - but it does show that 2.6 
+ > isn't ready for primetime yet.  The major distros aren't going to make 
+ > that switch for a while.
 
-My proposed solution is to do an input_report_key(pressed) immediately
-followed by input_report_key(released) for these keys straight in
-atkbd.c. Possibly based on some flag in the scancode->keycode table for
-that scancode.
+Several distros (Red Hat included) have 2.6 based kernel packages for
+people to test with, which takes the pain off of compilation issues
+for most users.
 
-> [By the way, I am a collector of data on strange keyboards - could you
-> on a 2.4 system use showkey -s and tell me about the combinations
-> without Up events? - aeb@cwi.nl]
+		Dave
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ Dave Jones     http://www.codemonkey.org.uk

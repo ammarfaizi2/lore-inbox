@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264697AbSL0AYO>; Thu, 26 Dec 2002 19:24:14 -0500
+	id <S264699AbSL0Aa2>; Thu, 26 Dec 2002 19:30:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264699AbSL0AYO>; Thu, 26 Dec 2002 19:24:14 -0500
-Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:2820 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id <S264697AbSL0AYN>;
-	Thu, 26 Dec 2002 19:24:13 -0500
-Date: Thu, 26 Dec 2002 16:28:50 -0800
-From: carbonated beverage <ramune@net-ronin.org>
-To: torvalds@transmeta.com
+	id <S264702AbSL0Aa2>; Thu, 26 Dec 2002 19:30:28 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:38920 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id <S264699AbSL0Aa1>;
+	Thu, 26 Dec 2002 19:30:27 -0500
+Date: Fri, 27 Dec 2002 01:38:34 +0100
+From: romieu@fr.zoreil.com
+To: Ro0tSiEgE <lkml@ro0tsiege.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [TINY] Documentation/Changes for modutils
-Message-ID: <20021227002850.GA913@net-ronin.org>
+Subject: Re: Debian boot-flopppies and 2.5.53 dont mix
+Message-ID: <20021227013834.A18528@electric-eye.fr.zoreil.com>
+References: <200212261538.59540.lkml@ro0tsiege.org> <20021226214124.GA19961@conectiva.com.br> <200212261548.57903.lkml@ro0tsiege.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200212261548.57903.lkml@ro0tsiege.org>; from lkml@ro0tsiege.org on Thu, Dec 26, 2002 at 03:48:57PM -0600
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Ro0tSiEgE <lkml@ro0tsiege.org> :
+> Come on man, I'm not being lame. It IS a real bug but no one will tell me
+> why, or how to fix it.
 
-	Since I haven't heard any feedback, I'm assuming this
-patch is acceptable.  The current Documentation/Changes points
-to the wrong toolset for module support, here's a small patch
-to fix that.
+initrd on 2.5.53 behaves fine here, see:
+http://www.fr.zoreil.com/2.5.53/misc/dmesg.
+There's probably more than needed in the command line. Build options are at:
+http://www.fr.zoreil.com/2.5.53/misc/config.
+I have used module-init-tools-0.9.6. Tarball available under:
+ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modules/
 
-	Linus, please apply.
+You are supposed to do a bit of homework:
+- provide specific problem reports (Documentation/serial-console.txt should
+  be a lifesaver as you seem to have several computers);
+- search the mailing-list archive for current issues;
+- read the mailing-list FAQ for general issues (see bottom of messages).
 
--- DN
-Daniel
+Go read Arnaldo's mail, for real this time. It's Christmas/end of year/
+deadline/whatever/ for people on l-k too. Ok ?
 
---- Documentation/Changes.orig	Thu Dec 26 16:29:34 2002
-+++ Documentation/Changes	Thu Dec 26 16:29:38 2002
-@@ -52,7 +52,7 @@
- o  Gnu make               3.78                    # make --version
- o  binutils               2.9.5.0.25              # ld -v
- o  util-linux             2.10o                   # fdformat --version
--o  modutils               2.4.2                   # insmod -V
-+o  module-init-tools      0.9                     # insmod -V
- o  e2fsprogs              1.29                    # tune2fs
- o  jfsutils               1.0.14                  # fsck.jfs -V
- o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
-@@ -141,14 +141,11 @@
- version of ksymoops to decode the report; see REPORTING-BUGS in the
- root of the Linux source for more information.
- 
--Modutils
-+Module-Init-Tools
- --------
- 
--Upgrade to recent modutils to fix various outstanding bugs which are
--seen more frequently under 2.4.x, and to enable auto-loading of USB
--modules.  In addition, the layout of modules under
--/lib/modules/`uname -r`/ has been made more sane.  This change also
--requires that you upgrade to a recent modutils.
-+A new module loader is now in the kernel that requires module-init-tools
-+to use.  It is backward compatible with the 2.4.x series kernels.
- 
- Mkinitrd
- --------
-@@ -306,7 +303,7 @@
- 
- Modutils
- --------
--o  <ftp://ftp.kernel.org/pub/linux/utils/kernel/modutils/v2.4/>
-+o  <ftp://ftp.kernel.org/pub/linux/people/rusty/modules/>
- 
- Mkinitrd
- --------
+Thank you for your attention.
+
+--
+Ueimor

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276359AbRJCPTN>; Wed, 3 Oct 2001 11:19:13 -0400
+	id <S276364AbRJCPVD>; Wed, 3 Oct 2001 11:21:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276364AbRJCPTD>; Wed, 3 Oct 2001 11:19:03 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:61879 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S276359AbRJCPSw>;
-	Wed, 3 Oct 2001 11:18:52 -0400
-Date: Wed, 3 Oct 2001 11:16:33 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Arjan van de Ven <arjanv@redhat.com>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>
-Subject: Re: [patch] auto-limiting IRQ load take #2, irq-rewrite-2.4.11-F4
-In-Reply-To: <Pine.LNX.4.33.0110031625330.7342-101000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.30.0110031114490.4833-100000@shell.cyberus.ca>
+	id <S276370AbRJCPUy>; Wed, 3 Oct 2001 11:20:54 -0400
+Received: from mail1.panix.com ([166.84.0.212]:31487 "HELO mail1.panix.com")
+	by vger.kernel.org with SMTP id <S276364AbRJCPUr>;
+	Wed, 3 Oct 2001 11:20:47 -0400
+From: "Roy Murphy" <murphy@panix.com>
+Reply-To: murphy@panix.com
+To: linux-kernel@vger.kernel.org
+Date: Wed, 3 Oct 2001 11:21:16 -0500
+Subject: Re: [POT] Which journalised filesystem uses Linus Torvalds ?
+X-Mailer: DMailWeb Web to Mail Gateway 2.6k, http://netwinsite.com/top_mail.htm
+Message-id: <3bbb2cec.6d.0@panix.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+'Twas brillig when Sebastien Cabaniols scrobe:
+>With the availability of XFS,JFS,ext3 and ReiserFS I am a 
+>little lost and I don't know which one I should use for entreprise 
+>class servers. 
 
+Well, the Linus Torvalds filesystem (ltfs for short) is a highly developed,
+version control filesystem, but it still has a few shortcomings.
 
-Your approach is still wrong. Please do not accept this patch.
+When saving a file to ltfs, it sometimes suggests that you should do it a different
+way.  The ltfs is very particular about how things should be done.
 
-cheers,
-jamal
+Often, when saving a file, it is dropped without any notification.  Experienced
+users of the ltfs follow the mantra "submit early and submit often".  They repeatedly
+resave their files hoping that one of them will be accepted into a "version"
+that does get saved to disk.
 
-On Wed, 3 Oct 2001, Ingo Molnar wrote:
+Several forks of the ltfs (i.e the Alan Cox filesystem -- acfs and the Anread
+Arcangeli filesystem -- aafs) are a little better about saving files, but each
+of them has its own idea about which files are worthy of being saved.
 
->
-> the attached patch contains a cleaned up version of IRQ auto-mitigation.
->
-> - i've removed the max_rate limit and have streamlined the impact of the
->   load-estimator on do_IRQ() to this piece of code:
->
->         desc->total_contexts++;
->         if (unlikely(in_interrupt()))
->                 goto mitigate_irqload;
->
->   i dont think we can get much cheaper than this. (We could perhaps avoid
->   the total_contexts counter by saving a 'snapshot' of the existing
->   kstat.irqs array of counters in every timer tick and comparing the
->   snapshot to the current kstat.irqs values. That looked pretty unclean
->   though.)
->
-> - the per-cpu irq counting in -D9 was incorrect as it collapsed all irq
->   handlers into a single counter.
->
-> - i've removed the net-polling hacks - they are unrelated to this problem.
->
-> the patch is against 2.4.11-pre2. (the eepro100.c fixes from the -ac tree
-> are already included in -pre2, i only included them in this patch to make
-> patching & testing against 2.4.10 easier.).
->
-> (i'd like to stress the point again that the goal of this approach is
-> *not* to be nice. This is an airbag mechanizm, it can and will hurt
-> performance. But my box does not lock up anymore.)
->
-> 	Ingo
->
+While these advanced filesystems hold great promise for the future, they should
+probably not be used in a production server due to these failings.  In fact,
+one user of the acfs, Telsa Cox, reports that the acfs often dosn't work at
+all before noon local time.
 
+YMMV.
+ 

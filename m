@@ -1,60 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbUKDOtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbUKDOtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbUKDOtU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 09:49:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbUKDOtU
+	id S262245AbUKDOtp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 09:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbUKDOtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 09:49:20 -0500
-Received: from mail.gmx.net ([213.165.64.20]:42962 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262239AbUKDOtQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 09:49:16 -0500
-X-Authenticated: #21910825
-Message-ID: <418A415E.40104@gmx.net>
-Date: Thu, 04 Nov 2004 15:49:02 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Matt Domsch <Matt_Domsch@dell.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: boot option for CONFIG_EDD_SKIP_MBR?
-References: <418A303E.1050709@gmx.net> <20041104134534.GA5360@lists.us.dell.com> <20041104141233.GA32342@redhat.com>
-In-Reply-To: <20041104141233.GA32342@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Nov 2004 09:49:45 -0500
+Received: from dialin-212-144-169-006.arcor-ip.net ([212.144.169.6]:38336 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S262245AbUKDOta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 09:49:30 -0500
+In-Reply-To: <eGbz1eL6.1099573353.4166380.khali@gcu.info>
+References: <eGbz1eL6.1099573353.4166380.khali@gcu.info>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-49-1013475611"
+Message-Id: <B55F1204-2E70-11D9-BF00-000A958E35DC@fhm.edu>
 Content-Transfer-Encoding: 7bit
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: dmi_scan on x86_64
+Date: Thu, 4 Nov 2004 15:49:19 +0100
+To: "Jean Delvare" <khali@linux-fr.org>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones schrieb:
-> On Thu, Nov 04, 2004 at 07:45:34AM -0600, Matt Domsch wrote:
->  > On Thu, Nov 04, 2004 at 02:35:58PM +0100, Carl-Daniel Hailfinger wrote:
->  > > [please CC: me on replies]
->  > > having had problems (inifinte hang on boot) with some Fujitsu
->  > > Siemens Scenic computers when EDD was enabled, I asked myself
->  > > if it would be possible to add a boot option edd=nombr and
->  > > possibly also another boot option edd=off to the EDD code in
->  > > the kernel. These would correspond to CONFIG_EDD_SKIP_MBR
->  > > and CONFIG_EDD, respectively.
->  > >
->  > > Yes, option parsing before entering protected mode is ugly,
->  > > but the vga setup code does it, too.
->  > > 
->  > > What do you think?
->  > 
->  > I'd love it.  I hadn't done it as I thought it would be ugly, and so
->  > far I could blame buggy BIOSes for the delay.  If you want to work up
->  > a patch, I'll gladly review and apply something that does such.
-> 
-> But would this actually be useful for the cases where EDD has been
-> broken so far ? AFAIR, the bootparam parsing happens /after/
-> we do the 16-bit EDD asm foo.
 
-AFAIR the VGA setup code does its bootparam parsing by hand because it
-suffers from the same problem.
+--Apple-Mail-49-1013475611
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+On 04.11.2004, at 14:02, Jean Delvare wrote:
+
+> The (admittedly limited) documentation [1] I have for the S2875 states
+> that only 3 of the 6 fan headers have their tachometer pin wired. This
+> matches the W83627HF hardware monitoring chip capabilities, which is 
+> why
+> I see no evidence of any kind of multiplexing on that board.
+
+Ah, I start to make sense of what exactly you're doing.
+
+> Not all SMBus clients are hardware monitoring chips. The fact that
+> sensors-detect didn't recognize it would even suggest that your unknown
+> chip isn't. What you see may be about anything, including
+> pseudo-clients used for the SMBus protocol itself.
+
+> Feel free to submit a dump (using i2cdump) of that unknown chip if you
+> want me to comment on it.
+
+egger@ulli:~$ sudo i2cdetect -l
+i2c-2   unknown         SMBus2 AMD8111 adapter at c400          
+Algorithm unavailable
+i2c-1   dummy           ISA main adapter                        ISA bus 
+algorithm
+i2c-0   unknown         SMBus AMD756 adapter at 50e0            
+Algorithm unavailable
+
+egger@ulli:~$ sudo i2cdetect 2
+WARNING! This program can confuse your I2C bus, cause data loss and 
+worse!
+I will probe file /dev/i2c-2.
+I will probe address range 0x03-0x77.
+Continue? [Y/n] y
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          XX XX XX XX XX 08 XX XX XX XX XX XX XX
+10: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+20: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+30: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+40: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+50: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+60: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+70: XX XX XX XX XX XX XX XX
+
+egger@ulli:~$ sudo i2cdump 2 8
+No size specified (using byte-data access)
+WARNING! This program can confuse your I2C bus, cause data loss and 
+worse!
+I will probe file /dev/i2c-2, address 0x8, mode byte
+Continue? [Y/n] y
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+00: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+10: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+20: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+30: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+40: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+50: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+60: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+70: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+80: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+90: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+a0: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+b0: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+c0: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+d0: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+e0: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+f0: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX    XXXXXXXXXXXXXXXX
+
+Anything else I can try?
+
+Servus,
+       Daniel
+
+--Apple-Mail-49-1013475611
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iQEVAwUBQYpBbzBkNMiD99JrAQK0/Af/RsnxWBP7eCc4GB9hMbTA7cIpO4PMMmwJ
+CkyM2sfkn4irpFMQEqmNVilS55te7YW2uglwy2i2u2hhEvPyZiQs8o2QQYgTlZCi
+SLC5OuJpdJkd0WZg+JLRUyQd2HmryXDJ8y2G+kcr05SPRUlU0BXcckp7VyaHyYjY
+6J2j677+MfO5+ao/HzPm0E/oEc0ITu12K41ByMTLrtmeLK+uOzMXcsbt3fKP1aNM
+qsiNaOfll7Ct1pd2/v25ElJjipZsyqWJmd/YAEivA9rovBRlf91MZBiPwaFAN91x
+1zISE4VGJj8LD7wDbJTdh8769GFI3nSQMqMZ1hD9puDAcbvz9t44HQ==
+=HWh4
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-49-1013475611--
+

@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267294AbUJVRZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUJVRZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267294AbUJVRZT (ORCPT <rfc822;willy@w.ods.org>);
+	id S267423AbUJVRZT (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 22 Oct 2004 13:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUJVRVg
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUJVRV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 13:21:36 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:9680 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S266547AbUJVROe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 13:14:34 -0400
-Date: Fri, 22 Oct 2004 12:14:26 -0500
-From: Greg Edwards <edwardsg@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] increase max LOG_BUF_SHIFT value
-Message-ID: <20041022171425.GN3887@sgi.com>
+	Fri, 22 Oct 2004 13:21:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9704 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266578AbUJVROn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 13:14:43 -0400
+Date: Fri, 22 Oct 2004 13:14:27 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Shift key-related error codes up and insert ECANCELED
+Message-ID: <20041022171427.GN31909@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20498.1098464262@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20498.1098464262@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've run into problems at 512p with the kernel log buffer wrapping and
-overwriting some of the early boot output.  This is with a
-CONFIG_LOG_BUF_SHIFT value of 20 (1MB).  The patch below just bumps the
-max possible setting to 21 (2MB).
+On Fri, Oct 22, 2004 at 05:57:42PM +0100, David Howells wrote:
+> 
+> This patch shifts the key-related error codes up by one and inserts an
+> ECANCELED error code where not already defined. It seems that has been defined
+> in glibc without passing it back to the kernel:-/
 
-Signed-off-by: Greg Edwards <edwardsg@sgi.com>
+Not sure what's the story behind ECANCELED not being in kernel headers,
+certainly it is something only userland needs ATM.
+It is a POSIX mandated errno code used in aio_* that glibc is using
+since 1998, so it would be really bad to break all apps using aio.
 
-Regards,
-Greg Edwards
+The values you posted match exactly what glibc is using:
 
+libc/sysdeps/unix/sysv/sysv4/solaris2/bits/errno.h:# define ECANCELED   47      /* Operation canceled.  */
+libc/sysdeps/unix/sysv/aix/bits/errno.h:# define ECANCELED      117     /* Asynchronous i/o cancelled.  */
+libc/sysdeps/unix/sysv/linux/alpha/bits/errno.h:#  define ECANCELED     131
+libc/sysdeps/unix/sysv/linux/sparc/bits/errno.h:#  define ECANCELED     127
+libc/sysdeps/unix/sysv/linux/bits/errno.h:#  define ECANCELED   125
+libc/sysdeps/unix/sysv/linux/hppa/bits/errno.h:#  define ECANCELED      ECANCELLED
+libc/sysdeps/mach/hurd/bits/errno.h:#define     ECANCELED       _HURD_ERRNO (118)/* Operation canceled */
 
- Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+just maybe asm-parisc/errno.h could have
+#define ECANCELED ECANCELLED
+added (ECANCELED is the POSIX mandated spelling, while asm-parisc/errno.h
+for some reason defines ECANCELLED).
 
-Index: work-26-bk/init/Kconfig
-===================================================================
---- work-26-bk.orig/init/Kconfig	2004-10-21 15:38:25.000000000 -0500
-+++ work-26-bk/init/Kconfig	2004-10-22 11:54:55.000000000 -0500
-@@ -171,7 +171,7 @@ config AUDITSYSCALL
- 
- config LOG_BUF_SHIFT
- 	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
--	range 12 20
-+	range 12 21
- 	default 17 if ARCH_S390
- 	default 16 if X86_NUMAQ || IA64
- 	default 15 if SMP
+	Jakub

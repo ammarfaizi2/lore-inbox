@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265531AbUANJNl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 04:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265439AbUANJNj
+	id S265315AbUANJLk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 04:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265439AbUANJLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 04:13:39 -0500
-Received: from pD9E5637F.dip.t-dialin.net ([217.229.99.127]:21888 "EHLO
+	Wed, 14 Jan 2004 04:11:40 -0500
+Received: from pD9E5637F.dip.t-dialin.net ([217.229.99.127]:20864 "EHLO
 	averell.firstfloor.org") by vger.kernel.org with ESMTP
-	id S265531AbUANJMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 04:12:31 -0500
-Date: Wed, 14 Jan 2004 10:12:22 +0100
+	id S265315AbUANJJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 04:09:07 -0500
+Date: Wed, 14 Jan 2004 10:08:54 +0100
 From: Andi Kleen <ak@muc.de>
 To: akpm@osdl.org
 Cc: jh@suse.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix more gcc 3.4 warnings
-Message-ID: <20040114091222.GA1998@averell>
+Subject: [PATCH] Fixing gcc 3.4 warnings in x86-64
+Message-ID: <20040114090854.GA1987@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,249 +23,321 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Just many more warning fixes for a gcc 3.4 snapshot.
-
-It warns for a lot of things now, e.g. for ?: and ({ ... }) and casts
-as lvalues. And for functions marked inline in headers, but no body.
-
-Actually there are more warnings, i stopped fixing at some point.
-Some of the warnings seem to be dubious (e.g. the binfmt_elf.c
-one, which looks more like a compiler bug to me) 
-
-I also fixed the _exit() prototype to be void because gcc was complaining
-about this.
+Fix x86-64 warnings exposed by an gcc 3.4 snapshot.
 
 -Andi
 
-diff -u linux-34/fs/ext3/namei.c-o linux-34/fs/ext3/namei.c
---- linux-34/fs/ext3/namei.c-o	2003-09-28 10:53:18.000000000 +0200
-+++ linux-34/fs/ext3/namei.c	2004-01-13 13:16:01.000000000 +0100
-@@ -1311,7 +1311,7 @@
- 	memcpy (data1, de, len);
- 	de = (struct ext3_dir_entry_2 *) data1;
- 	top = data1 + len;
--	while (((char *) de2=(char*)de+le16_to_cpu(de->rec_len)) < top)
-+	while ((char *)(de2=(void*)de+le16_to_cpu(de->rec_len)) < top)
- 		de = de2;
- 	de->rec_len = cpu_to_le16(data1 + blocksize - (char *) de);
- 	/* Initialize the root; the dot dirents already exist */
-diff -u linux-34/fs/compat_ioctl.c-o linux-34/fs/compat_ioctl.c
---- linux-34/fs/compat_ioctl.c-o	2004-01-09 09:27:16.000000000 +0100
-+++ linux-34/fs/compat_ioctl.c	2004-01-13 13:26:26.000000000 +0100
-@@ -1897,12 +1897,14 @@
- 	struct blkpg_ioctl_arg a;
- 	struct blkpg_partition p;
- 	int err;
-+	compat_caddr_t data; 
- 	mm_segment_t old_fs = get_fs();
- 	
- 	err = get_user(a.op, &arg->op);
- 	err |= __get_user(a.flags, &arg->flags);
- 	err |= __get_user(a.datalen, &arg->datalen);
--	err |= __get_user((long)a.data, &arg->data);
-+	err |= __get_user(data, &arg->data);
-+	a.data = compat_ptr(data);
- 	if (err) return err;
- 	switch (a.op) {
- 	case BLKPG_ADD_PARTITION:
-@@ -2081,6 +2083,7 @@
- 		case FDDEFPRM32:
- 		case FDGETPRM32:
- 		{
-+			compat_uptr_t name;
- 			struct floppy_struct *f;
- 
- 			f = karg = kmalloc(sizeof(struct floppy_struct), GFP_KERNEL);
-@@ -2097,7 +2100,8 @@
- 			err |= __get_user(f->rate, &((struct floppy_struct32 *)arg)->rate);
- 			err |= __get_user(f->spec1, &((struct floppy_struct32 *)arg)->spec1);
- 			err |= __get_user(f->fmt_gap, &((struct floppy_struct32 *)arg)->fmt_gap);
--			err |= __get_user((u64)f->name, &((struct floppy_struct32 *)arg)->name);
-+			err |= __get_user(name, &((struct floppy_struct32 *)arg)->name);
-+			f->name = compat_ptr(name);
- 			if (err) {
- 				err = -EFAULT;
- 				goto out;
-diff -u linux-34/fs/readdir.c-o linux-34/fs/readdir.c
---- linux-34/fs/readdir.c-o	2003-10-09 00:28:55.000000000 +0200
-+++ linux-34/fs/readdir.c	2004-01-13 13:04:33.000000000 +0100
-@@ -159,7 +159,7 @@
- 	if (__put_user(0, dirent->d_name + namlen))
- 		goto efault;
- 	buf->previous = dirent;
--	((char *) dirent) += reclen;
-+	dirent = (void *)dirent + reclen;
- 	buf->current_dir = dirent;
- 	buf->count -= reclen;
- 	return 0;
-@@ -245,7 +245,7 @@
- 	if (__put_user(0, dirent->d_name + namlen))
- 		goto efault;
- 	buf->previous = dirent;
--	((char *) dirent) += reclen;
-+	dirent = (void *)dirent + reclen;
- 	buf->current_dir = dirent;
- 	buf->count -= reclen;
- 	return 0;
-diff -u linux-34/lib/crc32.c-o linux-34/lib/crc32.c
---- linux-34/lib/crc32.c-o	2003-05-27 03:00:20.000000000 +0200
-+++ linux-34/lib/crc32.c	2004-01-13 22:40:22.000000000 +0100
-@@ -99,7 +99,9 @@
- 	/* Align it */
- 	if(unlikely(((long)b)&3 && len)){
- 		do {
--			DO_CRC(*((u8 *)b)++);
-+			u8 *p = (u8 *)b; 
-+			DO_CRC(*p++);
-+			b = (void *)p;
- 		} while ((--len) && ((long)b)&3 );
- 	}
- 	if(likely(len >= 4)){
-@@ -120,7 +122,9 @@
- 	/* And the last few bytes */
- 	if(len){
- 		do {
--			DO_CRC(*((u8 *)b)++);
-+			u8 *p = (u8 *)b; 
-+			DO_CRC(*p++);
-+			b = (void *)p;
- 		} while (--len);
- 	}
- 
-@@ -200,7 +204,9 @@
- 	/* Align it */
- 	if(unlikely(((long)b)&3 && len)){
- 		do {
--			DO_CRC(*((u8 *)b)++);
-+			u8 *p = (u8 *)b;
-+			DO_CRC(*p++);
-+			b = (u32 *)p;
- 		} while ((--len) && ((long)b)&3 );
- 	}
- 	if(likely(len >= 4)){
-@@ -221,7 +227,9 @@
- 	/* And the last few bytes */
- 	if(len){
- 		do {
--			DO_CRC(*((u8 *)b)++);
-+			u8 *p = (u8 *)b; 
-+			DO_CRC(*p++);
-+			b = (void *)p;
- 		} while (--len);
- 	}
- 	return __be32_to_cpu(crc);
-diff -u linux-34/net/netlink/af_netlink.c-o linux-34/net/netlink/af_netlink.c
---- linux-34/net/netlink/af_netlink.c-o	2003-11-24 04:46:36.000000000 +0100
-+++ linux-34/net/netlink/af_netlink.c	2004-01-13 13:31:34.000000000 +0100
-@@ -230,7 +230,8 @@
- 	sock_init_data(sock,sk);
- 	sk_set_owner(sk, THIS_MODULE);
- 
--	nlk = nlk_sk(sk) = kmalloc(sizeof(*nlk), GFP_KERNEL);
-+	nlk = kmalloc(sizeof(*nlk), GFP_KERNEL);
-+	sk->sk_protinfo = nlk;
- 	if (!nlk) {
- 		sk_free(sk);
- 		return -ENOMEM;
-diff -u linux-34/net/packet/af_packet.c-o linux-34/net/packet/af_packet.c
---- linux-34/net/packet/af_packet.c-o	2004-01-09 09:27:21.000000000 +0100
-+++ linux-34/net/packet/af_packet.c	2004-01-13 13:33:27.000000000 +0100
-@@ -961,7 +961,8 @@
- 	sock_init_data(sock,sk);
- 	sk_set_owner(sk, THIS_MODULE);
- 
--	po = pkt_sk(sk) = kmalloc(sizeof(*po), GFP_KERNEL);
-+	po = kmalloc(sizeof(*po), GFP_KERNEL);
-+	sk->sk_protinfo = po;
- 	if (!po)
- 		goto out_free;
- 	memset(po, 0, sizeof(*po));
-diff -u linux-34/init/Kconfig-o linux-34/init/Kconfig
-diff -u linux-34/drivers/ieee1394/highlevel.c-o linux-34/drivers/ieee1394/highlevel.c
---- linux-34/drivers/ieee1394/highlevel.c-o	2004-01-09 09:27:12.000000000 +0100
-+++ linux-34/drivers/ieee1394/highlevel.c	2004-01-13 14:12:23.000000000 +0100
-@@ -504,7 +504,7 @@
-                                 rcode = RCODE_TYPE_ERROR;
-                         }
- 
--			(u8 *)data += partlength;
-+			data += partlength;
-                         length -= partlength;
-                         addr += partlength;
- 
-@@ -550,7 +550,7 @@
-                                 rcode = RCODE_TYPE_ERROR;
-                         }
- 
--			(u8 *)data += partlength;
-+			data += partlength;
-                         length -= partlength;
-                         addr += partlength;
- 
-diff -u linux-34/include/linux/efi.h-o linux-34/include/linux/efi.h
---- linux-34/include/linux/efi.h-o	2004-01-09 09:27:19.000000000 +0100
-+++ linux-34/include/linux/efi.h	2004-01-13 12:56:20.000000000 +0100
-@@ -297,8 +297,8 @@
- extern void efi_initialize_iomem_resources(struct resource *code_resource,
- 					struct resource *data_resource);
- extern efi_status_t phys_efi_get_time(efi_time_t *tm, efi_time_cap_t *tc);
--extern unsigned long inline __init efi_get_time(void);
--extern int inline __init efi_set_rtc_mmss(unsigned long nowtime);
-+extern unsigned long __init efi_get_time(void);
-+extern int __init efi_set_rtc_mmss(unsigned long nowtime);
- extern struct efi_memory_map memmap;
- 
- #ifdef CONFIG_EFI
-diff -u linux-34/include/linux/sched.h-o linux-34/include/linux/sched.h
---- linux-34/include/linux/sched.h-o	2004-01-09 09:27:20.000000000 +0100
-+++ linux-34/include/linux/sched.h	2004-01-13 12:56:30.000000000 +0100
-@@ -669,7 +669,7 @@
- extern struct mm_struct * mm_alloc(void);
- 
- /* mmdrop drops the mm and the page tables */
--extern inline void FASTCALL(__mmdrop(struct mm_struct *));
-+extern void FASTCALL(__mmdrop(struct mm_struct *));
- static inline void mmdrop(struct mm_struct * mm)
+diff -u linux-34/arch/x86_64/mm/fault.c-o linux-34/arch/x86_64/mm/fault.c
+--- linux-34/arch/x86_64/mm/fault.c-o	2004-01-09 09:27:11.000000000 +0100
++++ linux-34/arch/x86_64/mm/fault.c	2004-01-13 13:12:57.000000000 +0100
+@@ -141,6 +141,10 @@
+ void dump_pagetable(unsigned long address)
  {
- 	if (atomic_dec_and_test(&mm->mm_count))
-diff -u linux-34/include/linux/reiserfs_fs.h-o linux-34/include/linux/reiserfs_fs.h
---- linux-34/include/linux/reiserfs_fs.h-o	2004-01-09 09:27:20.000000000 +0100
-+++ linux-34/include/linux/reiserfs_fs.h	2004-01-13 22:28:16.000000000 +0100
-@@ -1781,25 +1781,25 @@
- /* stree.c */
- int B_IS_IN_TREE(const struct buffer_head *);
- extern inline void copy_short_key (void * to, const void * from);
--extern inline void copy_item_head(struct item_head * p_v_to, 
-+extern void copy_item_head(struct item_head * p_v_to, 
- 								  const struct item_head * p_v_from);
+ 	pml4_t *pml4;
++	pgd_t *pgd;
++	pmd_t *pmd;
++	pte_t *pte;
++
+ 	asm("movq %%cr3,%0" : "=r" (pml4));
  
- // first key is in cpu form, second - le
--extern inline int comp_keys (const struct key * le_key, 
-+extern int comp_keys (const struct key * le_key, 
- 			     const struct cpu_key * cpu_key);
--extern inline int  comp_short_keys (const struct key * le_key, 
-+extern int  comp_short_keys (const struct key * le_key, 
- 				    const struct cpu_key * cpu_key);
--extern inline void le_key2cpu_key (struct cpu_key * to, const struct key * from);
-+extern void le_key2cpu_key (struct cpu_key * to, const struct key * from);
+ 	pml4 = __va((unsigned long)pml4 & PHYSICAL_PAGE_MASK); 
+@@ -149,17 +153,17 @@
+ 	if (bad_address(pml4)) goto bad;
+ 	if (!pml4_present(*pml4)) goto ret; 
  
- // both are cpu keys
--extern inline int comp_cpu_keys (const struct cpu_key *, const struct cpu_key *);
--extern inline int comp_short_cpu_keys (const struct cpu_key *, 
-+extern  int comp_cpu_keys (const struct cpu_key *, const struct cpu_key *);
-+extern int comp_short_cpu_keys (const struct cpu_key *, 
- 				       const struct cpu_key *);
--extern inline void cpu_key2cpu_key (struct cpu_key *, const struct cpu_key *);
-+extern void cpu_key2cpu_key (struct cpu_key *, const struct cpu_key *);
+-	pgd_t *pgd = __pgd_offset_k((pgd_t *)pml4_page(*pml4), address); 
++	pgd = __pgd_offset_k((pgd_t *)pml4_page(*pml4), address); 
+ 	if (bad_address(pgd)) goto bad;
+ 	printk("PGD %lx ", pgd_val(*pgd)); 
+ 	if (!pgd_present(*pgd))	goto ret;
  
- // both are in le form
--extern inline int comp_le_keys (const struct key *, const struct key *);
--extern inline int comp_short_le_keys (const struct key *, const struct key *);
-+extern int comp_le_keys (const struct key *, const struct key *);
-+extern int comp_short_le_keys (const struct key *, const struct key *);
+-	pmd_t *pmd = pmd_offset(pgd, address); 
++	pmd = pmd_offset(pgd, address); 
+ 	if (bad_address(pmd)) goto bad;
+ 	printk("PMD %lx ", pmd_val(*pmd));
+ 	if (!pmd_present(*pmd))	goto ret;	 
  
- //
- // get key version from on disk key - kludge
+-	pte_t *pte = pte_offset_kernel(pmd, address);
++	pte = pte_offset_kernel(pmd, address);
+ 	if (bad_address(pte)) goto bad;
+ 	printk("PTE %lx", pte_val(*pte)); 
+ ret:
+diff -u linux-34/arch/x86_64/mm/k8topology.c-o linux-34/arch/x86_64/mm/k8topology.c
+--- linux-34/arch/x86_64/mm/k8topology.c-o	2003-11-24 04:46:35.000000000 +0100
++++ linux-34/arch/x86_64/mm/k8topology.c	2004-01-13 13:13:09.000000000 +0100
+@@ -48,6 +48,7 @@
+ 	int nodeid, i, nb; 
+ 	int found = 0;
+ 	int nmax; 
++	int rr;
+ 
+ 	nb = find_northbridge(); 
+ 	if (nb < 0) 
+@@ -153,7 +154,7 @@
+ 	   mapping. To avoid this fill in the mapping for all possible
+ 	   CPUs, as the number of CPUs is not known yet. 
+ 	   We round robin the existing nodes. */
+-	int rr = 0;
++	rr = 0;
+ 	for (i = 0; i < MAXNODE; i++) {
+ 		if (nodes_present & (1UL<<i))
+ 			continue;
+diff -u linux-34/arch/x86_64/lib/usercopy.c-o linux-34/arch/x86_64/lib/usercopy.c
+--- linux-34/arch/x86_64/lib/usercopy.c-o	2003-09-11 04:12:28.000000000 +0200
++++ linux-34/arch/x86_64/lib/usercopy.c	2004-01-13 13:19:51.000000000 +0100
+@@ -88,7 +88,7 @@
+ 		"	.quad 1b,2b\n"
+ 		".previous"
+ 		: [size8] "=c"(size), [dst] "=&D" (__d0)
+-		: [size1] "r"(size & 7), "[size8]" (size / 8), "[dst] "(addr),
++		: [size1] "r"(size & 7), "[size8]" (size / 8), "[dst]"(addr),
+ 		  [zero] "r" (0UL), [eight] "r" (8UL));
+ 	return size;
+ }
+diff -u linux-34/arch/x86_64/lib/csum-partial.c-o linux-34/arch/x86_64/lib/csum-partial.c
+--- linux-34/arch/x86_64/lib/csum-partial.c-o	2003-10-09 00:28:48.000000000 +0200
++++ linux-34/arch/x86_64/lib/csum-partial.c	2004-01-13 13:18:44.000000000 +0100
+@@ -56,6 +56,8 @@
+ 		}
+ 		count >>= 1;		/* nr of 32-bit words.. */
+ 		if (count) {
++			unsigned long zero;
++			unsigned count64;
+ 			if (4 & (unsigned long) buff) {
+ 				result += *(unsigned int *) buff;
+ 				count--;
+@@ -65,8 +67,8 @@
+ 			count >>= 1;	/* nr of 64-bit words.. */
+ 
+ 			/* main loop using 64byte blocks */
+-				unsigned long zero = 0; 
+-			unsigned count64 = count >> 3; 
++			zero = 0; 
++			count64 = count >> 3; 
+ 			while (count64) { 
+ 				asm("addq 0*8(%[src]),%[res]\n\t"
+ 				    "adcq 1*8(%[src]),%[res]\n\t"
+diff -u linux-34/arch/x86_64/ia32/sys_ia32.c-o linux-34/arch/x86_64/ia32/sys_ia32.c
+--- linux-34/arch/x86_64/ia32/sys_ia32.c-o	2004-01-09 09:27:11.000000000 +0100
++++ linux-34/arch/x86_64/ia32/sys_ia32.c	2004-01-13 13:22:50.000000000 +0100
+@@ -274,13 +274,16 @@
+ 		return -EINVAL;
+ 
+ 	if (act) {
++		compat_uptr_t handler, restorer;
++
+ 		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
+-		    __get_user((long)new_ka.sa.sa_handler, &act->sa_handler) ||
++		    __get_user(handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_flags, &act->sa_flags) ||
+-		    __get_user((long)new_ka.sa.sa_restorer, &act->sa_restorer)||
++		    __get_user(restorer, &act->sa_restorer)||
+ 		    __copy_from_user(&set32, &act->sa_mask, sizeof(compat_sigset_t)))
+ 			return -EFAULT;
+-
++		new_ka.sa.sa_handler = compat_ptr(handler);
++		new_ka.sa.sa_restorer = compat_ptr(restorer);
+ 		/* FIXME: here we rely on _COMPAT_NSIG_WORS to be >= than _NSIG_WORDS << 1 */
+ 		switch (_NSIG_WORDS) {
+ 		case 4: new_ka.sa.sa_mask.sig[3] = set32.sig[6]
+@@ -331,13 +334,18 @@
+ 
+         if (act) {
+ 		compat_old_sigset_t mask;
++		compat_uptr_t handler, restorer;
+ 
+ 		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
+-		    __get_user((long)new_ka.sa.sa_handler, &act->sa_handler) ||
++		    __get_user(handler, &act->sa_handler) ||
+ 		    __get_user(new_ka.sa.sa_flags, &act->sa_flags) ||
+-		    __get_user((long)new_ka.sa.sa_restorer, &act->sa_restorer) ||
++		    __get_user(restorer, &act->sa_restorer) ||
+ 		    __get_user(mask, &act->sa_mask))
+ 			return -EFAULT;
++
++		new_ka.sa.sa_handler = compat_ptr(handler);
++		new_ka.sa.sa_restorer = compat_ptr(restorer);
++
+ 		siginitset(&new_ka.sa.sa_mask, mask);
+         }
+ 
+@@ -525,7 +533,7 @@
+ 	put_user(reclen, &dirent->d_reclen);
+ 	copy_to_user(dirent->d_name, name, namlen);
+ 	put_user(0, dirent->d_name + namlen);
+-	((char *) dirent) += reclen;
++	dirent = ((void *)dirent) + reclen;
+ 	buf->current_dir = dirent;
+ 	buf->count -= reclen;
+ 	return 0;
+diff -u linux-34/arch/x86_64/kernel/aperture.c-o linux-34/arch/x86_64/kernel/aperture.c
+--- linux-34/arch/x86_64/kernel/aperture.c-o	2003-08-23 13:03:11.000000000 +0200
++++ linux-34/arch/x86_64/kernel/aperture.c	2004-01-13 13:20:08.000000000 +0100
+@@ -87,13 +87,15 @@
+ /* Find a PCI capability */ 
+ static __u32 __init find_cap(int num, int slot, int func, int cap) 
+ { 
++	u8 pos;
++	int bytes;
+ 	if (!(read_pci_config_16(num,slot,func,PCI_STATUS) & PCI_STATUS_CAP_LIST))
+ 		return 0;
+-	u8 pos = read_pci_config_byte(num,slot,func,PCI_CAPABILITY_LIST);
+-	int bytes;
++	pos = read_pci_config_byte(num,slot,func,PCI_CAPABILITY_LIST);
+ 	for (bytes = 0; bytes < 48 && pos >= 0x40; bytes++) { 
++		u8 id;
+ 		pos &= ~3; 
+-		u8 id = read_pci_config_byte(num,slot,func,pos+PCI_CAP_LIST_ID); 
++		id = read_pci_config_byte(num,slot,func,pos+PCI_CAP_LIST_ID); 
+ 		if (id == 0xff)
+ 			break;
+ 		if (id == cap) 
+@@ -106,26 +108,31 @@
+ /* Read a standard AGPv3 bridge header */
+ static __u32 __init read_agp(int num, int slot, int func, int cap, u32 *order)
+ { 
+-	printk("AGP bridge at %02x:%02x:%02x\n", num, slot, func); 
+-	u32 apsizereg = read_pci_config_16(num,slot,func, cap + 0x14);
++	u32 apsize;
++	u32 apsizereg;
++	int nbits;
++	u32 aper_low, aper_hi;
++	u64 aper;
+ 
++	printk("AGP bridge at %02x:%02x:%02x\n", num, slot, func); 
++	apsizereg = read_pci_config_16(num,slot,func, cap + 0x14);
+ 	if (apsizereg == 0xffffffff) {
+ 		printk("APSIZE in AGP bridge unreadable\n");
+ 		return 0;
+ 	}
+ 
+-	u32 apsize = apsizereg & 0xfff;
++	apsize = apsizereg & 0xfff;
+ 	/* Some BIOS use weird encodings not in the AGPv3 table. */
+ 	if (apsize & 0xff) 
+ 		apsize |= 0xf00; 
+-	int nbits = hweight16(apsize);
++	nbits = hweight16(apsize);
+ 	*order = 7 - nbits;
+ 	if ((int)*order < 0) /* < 32MB */
+ 		*order = 0;
+ 	
+-	u32 aper_low = read_pci_config(num,slot,func, 0x10); 
+-	u32 aper_hi = read_pci_config(num,slot,func,0x14); 
+-	u64 aper = (aper_low & ~((1<<22)-1)) | ((u64)aper_hi << 32); 
++	aper_low = read_pci_config(num,slot,func, 0x10); 
++	aper_hi = read_pci_config(num,slot,func,0x14); 
++	aper = (aper_low & ~((1<<22)-1)) | ((u64)aper_hi << 32); 
+ 
+ 	printk("Aperture from AGP @ %Lx size %u MB (APSIZE %x)\n", 
+ 	       aper, 32 << *order, apsizereg);
+@@ -155,6 +162,7 @@
+ 		for (slot = 0; slot < 32; slot++) { 
+ 			for (func = 0; func < 8; func++) { 
+ 				u32 class, cap;
++				u8 type;
+ 				class = read_pci_config(num,slot,func,
+ 							PCI_CLASS_REVISION);
+ 				if (class == 0xffffffff)
+@@ -172,7 +180,7 @@
+ 				} 
+ 				
+ 				/* No multi-function device? */
+-				u8 type = read_pci_config_byte(num,slot,func,
++				type = read_pci_config_byte(num,slot,func,
+ 							       PCI_HEADER_TYPE);
+ 				if (!(type & 0x80))
+ 					break;
+diff -u linux-34/arch/x86_64/kernel/pci-gart.c-o linux-34/arch/x86_64/kernel/pci-gart.c
+--- linux-34/arch/x86_64/kernel/pci-gart.c-o	2004-01-09 09:27:11.000000000 +0100
++++ linux-34/arch/x86_64/kernel/pci-gart.c	2004-01-13 13:10:29.000000000 +0100
+@@ -117,11 +117,11 @@
+ 
+ static void free_iommu(unsigned long offset, int size)
+ { 
++	unsigned long flags;
+ 	if (size == 1) { 
+ 		clear_bit(offset, iommu_gart_bitmap); 
+ 		return;
+ 	}
+-	unsigned long flags;
+ 	spin_lock_irqsave(&iommu_bitmap_lock, flags);
+ 	__clear_bit_string(iommu_gart_bitmap, offset, size);
+ 	spin_unlock_irqrestore(&iommu_bitmap_lock, flags);
+@@ -329,6 +329,7 @@
+ { 
+ 	unsigned long npages = to_pages(phys_mem, size);
+ 	unsigned long iommu_page = alloc_iommu(npages);
++	int i;
+ 	if (iommu_page == -1) {
+ 		if (!nonforced_iommu(dev, phys_mem, size))
+ 			return phys_mem; 
+@@ -338,7 +339,6 @@
+ 		return bad_dma_address;
+ 	}
+ 
+-	int i;
+ 	for (i = 0; i < npages; i++) {
+ 		iommu_gatt_base[iommu_page + i] = GPTE_ENCODE(phys_mem);
+ 		SET_LEAK(iommu_page + i);
+@@ -396,11 +396,11 @@
+ 		      struct scatterlist *sout, unsigned long pages)
+ {
+ 	unsigned long iommu_start = alloc_iommu(pages);
+-	if (iommu_start == -1)
+-		return -1;
+-
+ 	unsigned long iommu_page = iommu_start; 
+ 	int i;
++
++	if (iommu_start == -1)
++		return -1;
+ 	
+ 	for (i = start; i < stopat; i++) {
+ 		struct scatterlist *s = &sg[i];
+@@ -518,12 +518,12 @@
+ {
+ 	unsigned long iommu_page; 
+ 	int npages;
++	int i;
+ 	if (dma_addr < iommu_bus_base + EMERGENCY_PAGES*PAGE_SIZE || 
+ 	    dma_addr > iommu_bus_base + iommu_size)
+ 		return;
+ 	iommu_page = (dma_addr - iommu_bus_base)>>PAGE_SHIFT;	
+ 	npages = to_pages(dma_addr, size);
+-	int i;
+ 	for (i = 0; i < npages; i++) { 
+ 		iommu_gatt_base[iommu_page + i] = 0; 
+ 		CLEAR_LEAK(iommu_page + i);
+diff -u linux-34/arch/x86_64/kernel/nmi.c-o linux-34/arch/x86_64/kernel/nmi.c
+--- linux-34/arch/x86_64/kernel/nmi.c-o	2003-09-28 10:53:16.000000000 +0200
++++ linux-34/arch/x86_64/kernel/nmi.c	2004-01-13 13:09:50.000000000 +0100
+@@ -311,11 +311,11 @@
+ 
+ void nmi_watchdog_tick (struct pt_regs * regs, unsigned reason)
+ {
++	int sum, cpu = safe_smp_processor_id();
++
+ 	if (nmi_watchdog_disabled)
+ 		return;
+ 
+-	int sum, cpu = safe_smp_processor_id();
+-
+ 	sum = read_pda(apic_timer_irqs);
+ 	if (last_irq_sums[cpu] == sum) {
+ 		/*
+diff -u linux-34/arch/x86_64/kernel/x8664_ksyms.c-o linux-34/arch/x86_64/kernel/x8664_ksyms.c
+--- linux-34/arch/x86_64/kernel/x8664_ksyms.c-o	2003-11-24 04:46:35.000000000 +0100
++++ linux-34/arch/x86_64/kernel/x8664_ksyms.c	2004-01-13 13:09:27.000000000 +0100
+@@ -155,7 +155,7 @@
+ 
+ extern void * memset(void *,int,__kernel_size_t);
+ extern size_t strlen(const char *);
+-extern void bcopy(const char * src, char * dest, int count);
++extern void bcopy(const void * src, void * dest, size_t count);
+ extern void * memmove(void * dest,const void *src,size_t count);
+ extern char * strcpy(char * dest,const char *src);
+ extern int strcmp(const char * cs,const char * ct);
 diff -u linux-34/include/asm-x86_64/apic.h-o linux-34/include/asm-x86_64/apic.h
 --- linux-34/include/asm-x86_64/apic.h-o	2003-08-09 16:48:14.000000000 +0200
 +++ linux-34/include/asm-x86_64/apic.h	2004-01-13 12:57:39.000000000 +0100
@@ -302,39 +374,4 @@ diff -u linux-34/include/asm-x86_64/hw_irq.h-o linux-34/include/asm-x86_64/hw_ir
  
  /*
   * Various low-level irq details needed by irq.c, process.c,
-diff -u linux-34/include/asm-i386/apic.h-o linux-34/include/asm-i386/apic.h
---- linux-34/include/asm-i386/apic.h-o	2003-09-11 04:12:39.000000000 +0200
-+++ linux-34/include/asm-i386/apic.h	2004-01-13 12:57:30.000000000 +0100
-@@ -85,7 +85,7 @@
- extern void enable_lapic_nmi_watchdog(void);
- extern void disable_timer_nmi_watchdog(void);
- extern void enable_timer_nmi_watchdog(void);
--extern inline void nmi_watchdog_tick (struct pt_regs * regs);
-+extern void nmi_watchdog_tick (struct pt_regs * regs);
- extern int APIC_init_uniprocessor (void);
- extern void disable_APIC_timer(void);
- extern void enable_APIC_timer(void);
-diff -u linux-34/include/asm-i386/unistd.h-o linux-34/include/asm-i386/unistd.h
---- linux-34/include/asm-i386/unistd.h-o	2003-10-09 00:28:59.000000000 +0200
-+++ linux-34/include/asm-i386/unistd.h	2004-01-13 13:15:31.000000000 +0100
-@@ -394,7 +394,7 @@
- static inline _syscall3(int,execve,const char *,file,char **,argv,char **,envp)
- static inline _syscall3(int,open,const char *,file,int,flag,int,mode)
- static inline _syscall1(int,close,int,fd)
--static inline _syscall1(int,_exit,int,exitcode)
-+static inline _syscall1(void,_exit,int,exitcode)
- static inline _syscall3(pid_t,waitpid,pid_t,pid,int *,wait_stat,int,options)
- 
- #endif
-diff -u linux-34/include/asm-i386/hw_irq.h-o linux-34/include/asm-i386/hw_irq.h
---- linux-34/include/asm-i386/hw_irq.h-o	2004-01-09 09:27:18.000000000 +0100
-+++ linux-34/include/asm-i386/hw_irq.h	2004-01-13 13:00:26.000000000 +0100
-@@ -26,7 +26,7 @@
-  */
- 
- extern u8 irq_vector[NR_IRQ_VECTORS];
--#define IO_APIC_VECTOR(irq)	((int)irq_vector[irq])
-+#define IO_APIC_VECTOR(irq)	(irq_vector[irq])
- 
- extern void (*interrupt[NR_IRQS])(void);
- 
+

@@ -1,110 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbTEUJKk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 05:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTEUJKk
+	id S261322AbTEUJJH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 05:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbTEUJJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 05:10:40 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:14590 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261797AbTEUJKe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 05:10:34 -0400
-Date: Wed, 21 May 2003 14:56:05 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Paul McKenney <Paul.McKenney@us.ibm.com>
-Subject: Re: [patch 2/2] lockfree lookup_mnt
-Message-ID: <20030521092605.GE1198@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20030521092502.GD1198@in.ibm.com>
+	Wed, 21 May 2003 05:09:07 -0400
+Received: from imap.gmx.net ([213.165.65.60]:56611 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261322AbTEUJJG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 05:09:06 -0400
+Message-Id: <5.2.0.9.2.20030521111037.01ed0d58@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Wed, 21 May 2003 11:26:31 +0200
+To: davidm@hpl.hp.com
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: web page on O(1) scheduler
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+In-Reply-To: <16075.8557.309002.866895@napali.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030521092502.GD1198@in.ibm.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 11:49 PM 5/20/2003 -0700, David Mosberger wrote:
+>Recently, I started to look into some odd performance behaviors of the
+>O(1) scheduler.  I decided to document what I found in a web page
+>at:
+>
+>         http://www.hpl.hp.com/research/linux/kernel/o1.php
 
+<snip>
 
- - Following patch uses synchronize_kernel in detach_mnt() and facilitates
-   lockless lookup_mnt.
- - diff'ed over vfsmount_lock.patch
+>Comments welcome.
 
- fs/namespace.c |   22 ++++++++++++++++++----
- 1 files changed, 18 insertions(+), 4 deletions(-)
+The page mentions persistent starvation.  My own explorations of this issue 
+indicate that the primary source is always selecting the highest priority 
+queue.  Combine that with the round-robin, and you have a good chance of 
+being grossly unfair with some workloads.  I know for certain that lock 
+holders in the active array can be starved for very long periods by tasks 
+entering higher priority queues, thereby causing even more starvation when 
+they finally get the cpu and can release the lock (sleepers go through the 
+roof).
 
-diff -puN fs/namespace.c~lookup_mnt-rcu fs/namespace.c
---- linux-2.5.69/fs/namespace.c~lookup_mnt-rcu	2003-05-21 10:53:27.000000000 +0530
-+++ linux-2.5.69-maneesh/fs/namespace.c	2003-05-21 10:56:57.000000000 +0530
-@@ -74,6 +74,11 @@ void free_vfsmnt(struct vfsmount *mnt)
- /*
-  * Now, lookup_mnt increments the ref count before returning
-  * the vfsmount struct.
-+ *
-+ * lookup_mnt can be done without taking any lock, as now we 
-+ * do synchronize_kernel() while removing vfsmount struct
-+ * from mnt_hash list. rcu_read_(un)lock is required for 
-+ * pre-emptive kernels.
-  */
- struct vfsmount *lookup_mnt(struct vfsmount *mnt, struct dentry *dentry)
- {
-@@ -81,7 +86,7 @@ struct vfsmount *lookup_mnt(struct vfsmo
- 	struct list_head * tmp = head;
- 	struct vfsmount *p, *found = NULL;
- 
--	spin_lock(&vfsmount_lock);
-+	rcu_read_lock();
- 	for (;;) {
- 		tmp = tmp->next;
- 		p = NULL;
-@@ -93,7 +98,7 @@ struct vfsmount *lookup_mnt(struct vfsmo
- 			break;
- 		}
- 	}
--	spin_lock(&vfsmount_lock);
-+	rcu_read_unlock();
- 	return found;
- }
- 
-@@ -110,10 +115,19 @@ static void detach_mnt(struct vfsmount *
- {
- 	old_nd->dentry = mnt->mnt_mountpoint;
- 	old_nd->mnt = mnt->mnt_parent;
-+
-+	/* remove from the hash_list, before other things */
-+	list_del_rcu(&mnt->mnt_hash);
-+	spin_unlock(&vfsmount_lock);
-+
-+	/* There could be existing users doing lookup_mnt, let
-+	 * them finish their work.
-+	 */
-+	synchronize_kernel();
-+	spin_lock(&vfsmount_lock);
- 	mnt->mnt_parent = mnt;
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	list_del_init(&mnt->mnt_child);
--	list_del_init(&mnt->mnt_hash);
- 	old_nd->dentry->d_mounted--;
- }
- 
-@@ -121,7 +135,7 @@ static void attach_mnt(struct vfsmount *
- {
- 	mnt->mnt_parent = mntget(nd->mnt);
- 	mnt->mnt_mountpoint = dget(nd->dentry);
--	list_add(&mnt->mnt_hash, mount_hashtable+hash(nd->mnt, nd->dentry));
-+	list_add_rcu(&mnt->mnt_hash, mount_hashtable+hash(nd->mnt, nd->dentry));
- 	list_add_tail(&mnt->mnt_child, &nd->mnt->mnt_mounts);
- 	nd->dentry->d_mounted++;
- }
+Try the attached overly simplistic (KISS:) diff, and watch your starvation 
+issues be very noticably reduced.
 
-_
--- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/
+         -Mike 
+

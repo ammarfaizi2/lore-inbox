@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUJZUQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbUJZUSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbUJZUQj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 16:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbUJZUOJ
+	id S261424AbUJZUSL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 16:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbUJZUQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 16:14:09 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:60177 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261440AbUJZUNm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 16:13:42 -0400
-Date: Wed, 27 Oct 2004 00:14:08 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Jean-Christophe Dubois <jdubois@mc.com>,
-       kai@germaschewski.name, sam@ravnborg.org
-Subject: Re: [PATCH 2.6.9] kbuild warning fixes on Solaris 9
-Message-ID: <20041026221408.GB30918@mars.ravnborg.org>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Jean-Christophe Dubois <jdubois@mc.com>, kai@germaschewski.name,
-	sam@ravnborg.org
-References: <20041025224907.GL25154@smtp.west.cox.net>
+	Tue, 26 Oct 2004 16:16:56 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:50033 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261403AbUJZUQI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 16:16:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=V0hfZ+5+jRPuVaY5rppRkwzaRSLGXPUGV7t2RX98gDkX7G0i4tGx9Ws+cz2LH4fIO3TLpzQiOrxGMqCPXTAcedvTCpyD3F6STo3pu6L5GJ7E8+hmjow+oD8wgZmLbkrpXURdHDLwGHNZmeTEDcs4vo8B8bexzfx47It9lEW43WY=
+Message-ID: <4d8e3fd304102613165b2fb283@mail.gmail.com>
+Date: Tue, 26 Oct 2004 22:16:08 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, alan@lxorguk.ukuu.org.uk
+Subject: Let's make a small change to the process
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <877jpdcnf5.fsf@barad-dur.crans.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025224907.GL25154@smtp.west.cox.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200410260644.47307.edt@aei.ca>
+	 <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
+	 <4d8e3fd3041026050823d012dc@mail.gmail.com>
+	 <877jpdcnf5.fsf@barad-dur.crans.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 03:49:07PM -0700, Tom Rini wrote:
-> The following set of patches is based loosely on the patches that
-> Jean-Christophe Dubois came up with for 2.6.7.  Where as the original
-> patches added a number of casts to unsigned char, I went the route of
-> making the chars be explicitly signed.  I honestly don't know which
-> route is better to go down.  Doing this is the bulk of the patch.  Out
-> of the rest of the odds 'n ends is that on Solaris, Elf32_Word is a
-> ulong, which means all of the printf's are unhappy (uint format, ulong
-> arg) for most of the typedefs.
-> 
-> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
-> 
-> Comments?  Beatings?  Thanks.
+Hi all,
+despite I know you are all bored with the " I know how to improve the
+process" email but I want to share with you this idea .-)
 
-Looks much better. Applied.
+Both Andrew and Linus are doing an impressive job so I really don't
+think we need to change the way they are working.
 
-	Sam
+What I'm suggesting is start offering 2.6.X:Y kernel, you did for 2.6.8.1 so...
 
+The .Y patchset contains only important security fix (all stuff you
+think are important) and is weekly uploaded to kernel.org
+
+Doing that, people:
+-  can stop running "personal version of vanilla kernel
+-  don't need to wait till next Linus' release in order to have a
+security bug fixed
+
+We, of course, need a maintainer for it,
+maybe someone from OSDL (Randy?), maybe wli (he maintained his tree
+for a long time), maybe Alan (that is already applying these kind of
+fixes to his tree), maybe someone else... ?
+
+Sounds reasonable ?
+
+-- 
+Paolo

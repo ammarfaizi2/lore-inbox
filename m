@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269897AbRHTXsW>; Mon, 20 Aug 2001 19:48:22 -0400
+	id <S269909AbRHTXxx>; Mon, 20 Aug 2001 19:53:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269905AbRHTXsL>; Mon, 20 Aug 2001 19:48:11 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:46085 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269897AbRHTXsI>; Mon, 20 Aug 2001 19:48:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.8/2.4.9 VM problems
-Date: Tue, 21 Aug 2001 01:54:53 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0108201857400.538-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0108201857400.538-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010820234822Z16360-32383+599@humbolt.nl.linux.org>
+	id <S269918AbRHTXxm>; Mon, 20 Aug 2001 19:53:42 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:62857 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S269909AbRHTXxj>; Mon, 20 Aug 2001 19:53:39 -0400
+Date: Mon, 20 Aug 2001 16:53:53 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: Steve.Ralston@lsil.com
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH: linux-2.4.9/drivers/block/genhd.c eliminating unnecessary fusion_init call
+Message-ID: <20010820165353.A14554@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 21, 2001 12:05 am, Marcelo Tosatti wrote:
-> On Tue, 21 Aug 2001, Daniel Phillips wrote:
-> > On August 20, 2001 11:50 pm, Marcelo Tosatti wrote:
-> > > On Tue, 21 Aug 2001, Daniel Phillips wrote:
-> > 
-> > > > If you've seen streaming IO pages getting evicted before being used,
-> > > > I'd like to know about it because something is broken in that case.
-> > > 
-> > > I've seen the first page read by "swapin_readahead()" (which is the
-> > > actual
-> > > page we want to swapin) be evicted _before_ we could actually use it (so
-> > > the read_swap_cache_async() call had to read the same page _again_ from
-> > > disk).
-> > 
-> > is that even with yesterday's SetPageReferenced patch to do_swap_page?
-> 
-> No. It will not help: the call to read_swap_cache_async() is before the
-> SetPageReferenced call.
+	linux-2.4.9/drivers/block/genhd.c calls fusion_init, but
+fusion_init is again called unconditionally due to the
+module_init() call at the end of drivers/message/fusion/mptbase.c.
+The only effect of the second call is to possibly generate a printk,
+since the fusion driver has code to protect against this case.  However,
+the fusion driver also has code that automatically calls fusion_init
+if mpt_register is called before fusion_init, so there does not
+seem to be a need to an early call in drivers/block/genhd.c.
 
-Sure it will.  The readahead page will have to go all the way from one end of 
-the inactive_dirty list to the other, then all the way down the 
-inactive_clean list.  That should be plenty of time for the SetPageReferenced 
-to catch it.  The main possibility to screw up is if we scan the inactive 
-lists too fast, which probably happens sometimes because it's all grossly 
-uncalibrated right now.
+	So, the following patch removes the unnecessary call
+from genhd.c.  I believe no changes to the fusion driver or
+the initialization order in linux/Makefile are necessary.
 
-That's another issue, it needs fixing.  We'll never have really consistent, 
-predictable aging or any other vm behaviour until the list scanning is 
-operating in a rock-solid way.
+	By the way, this is a fake patch.  The kernel that I am
+actually using has no drivers/block/genhd.c anymore, since I
+have eliminating all of its calls.
 
-As long as it isn't happening frequently we will be ok for now.
+	Steven: could you please comment on this patch?  If you
+see no problems with it, I would like to ask Alan and Linus to
+integrate it into their kernels (or you can do so, or we can
+follow whatever procedure you prefer).  Please let me know.
+Thanks in advance.
 
---
-Daniel
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

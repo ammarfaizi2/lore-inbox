@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUERUia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263567AbUERUiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263555AbUERUia (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 16:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbUERUia
+	id S263567AbUERUiw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 16:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUERUiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 16:38:30 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:60688 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S263555AbUERUi2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 16:38:28 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Mike Black" <mblack@csi-inc.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Problem with mlockall() and Threads: memory usage
-Date: Tue, 18 May 2004 13:38:23 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEEIJMBAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 18 May 2004 16:38:52 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:10132 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263563AbUERUit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 16:38:49 -0400
+Subject: Re: [BK PATCH] SCSI updates for 2.6.6
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Kurt Garloff <garloff@suse.de>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0405182140050.3207-100000@poirot.grange>
+References: <Pine.LNX.4.44.0405182140050.3207-100000@poirot.grange>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <40AA06ED.50203@beam.ltd.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2096
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 18 May 2004 13:16:22 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 18 May 2004 13:16:25 -0700
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 May 2004 15:38:43 -0500
+Message-Id: <1084912724.2101.44.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-05-18 at 14:47, Guennadi Liakhovetski wrote:
+> Well, Kurt, thanks for the offer. I am prepared and willing to do the work
+> on supporting the driver, but I am, perhaps, not skilled enough to be a
+> maintainer of a SCSI LDD. My knowledge of the SCSI protocol and the SCSI
+> Linux subsystem is pretty limited. On one hand, the driver is little used,
+> so, even if I badly break something it is not likely to cause major
+> problems. On the other hand, I would feel more comfortable if, at least at
+> the beginning, somebody would review my patches. Besides, it would be a
+> good opportunity for me to really learn a bit more about SCSI, SCSI Linux
+> driver, BIO,...  oh well...
 
-> Thanks for that.
-> I have done some more investigating, and on my system (Standard RedHat 9)
-> the stack ulimit is set to 8192 KBytes. So it appears that the thread
-> library/kernel threads pre-allocates, and writes to, 8129 KBytes
-> of stack per
-> thread and so then mlockall() locks all of this in memory.
->
-> Should'nt the Thread library grow the stack rather than
-> preallocate it all even
-> with mlockall() like malloc ?
+OK, roll up for me what you'd currently like applied to the driver;
+anything that's less than solid, I'd rather mature in the -mm tree for a
+while.
 
-	I thought you wanted improved latency. Surely having to find a page for you
-when your stack grows will add unpredictable latency. So, no, the thread
-library should reserve the stack when 'mlockall(MCL_FUTURE)' is specified.
-
-	I do agree that having an 'initial stack size' in additional to a 'maximum
-stack size' would be a good idea. The former good for application that are
-concerned about physical memory usage and the latter for applications
-concerned about virtual memory usage.
-
-	DS
+James
 
 

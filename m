@@ -1,92 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129357AbRBOTN0>; Thu, 15 Feb 2001 14:13:26 -0500
+	id <S129326AbRBOTQ4>; Thu, 15 Feb 2001 14:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129881AbRBOTNQ>; Thu, 15 Feb 2001 14:13:16 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:14671 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S129793AbRBOTNH>; Thu, 15 Feb 2001 14:13:07 -0500
-From: Kanoj Sarcar <kanoj@google.engr.sgi.com>
-Message-Id: <200102151905.LAA62688@google.engr.sgi.com>
-Subject: Re: x86 ptep_get_and_clear question
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Thu, 15 Feb 2001 11:05:00 -0800 (PST)
-Cc: lk@tantalophile.demon.co.uk (Jamie Lokier), bcrl@redhat.com (Ben LaHaise),
-        linux-mm@kvack.org, mingo@redhat.com, alan@redhat.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A8C254F.17334682@colorfullife.com> from "Manfred Spraul" at Feb 15, 2001 07:51:59 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S129401AbRBOTQq>; Thu, 15 Feb 2001 14:16:46 -0500
+Received: from ns-inetext.inet.com ([199.171.211.140]:23733 "EHLO
+	ns-inetext.inet.com") by vger.kernel.org with ESMTP
+	id <S129326AbRBOTQi>; Thu, 15 Feb 2001 14:16:38 -0500
+Message-ID: <3A8C2B0F.A9EC2300@inet.com>
+Date: Thu, 15 Feb 2001 13:16:31 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Richard B. Johnson" <root@chaos.analogic.com>, tsbogend@alpha.franken.de,
+        Peter Missel <P.Missel@sbs-or.de>, linux-kernel@vger.kernel.org,
+        eli.carter@inet.com
+Subject: Re: [PATCH] pcnet32.c: MAC address may be in CSR registers
+In-Reply-To: <E14TRbL-0000AR-00@the-village.bc.nu>
+Content-Type: multipart/mixed;
+ boundary="------------96C2D79B143A8AE41EA32F9C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Kanoj Sarcar wrote:
-> > 
-> > Okay, I will quote from Intel Architecture Software Developer's Manual
-> > Volume 3: System Programming Guide (1997 print), section 3.7, page 3-27:
-> > 
-> > "Bus cycles to the page directory and page tables in memory are performed
-> > only when the TLBs do not contain the translation information for a
-> > requested page."
-> > 
-> > And on the same page:
-> > 
-> > "Whenever a page directory or page table entry is changed (including when
-> > the present flag is set to zero), the operating system must immediately
-> > invalidate the corresponding entry in the TLB so that it can be updated
-> > the next time the entry is referenced."
-> >
-> 
-> But there is another paragraph that mentions that an OS may use lazy tlb
-> shootdowns.
-> [search for shootdown]
-> 
-> You check the far too obvious chapters, remember that Intel wrote the
-> documentation ;-)
+This is a multi-part message in MIME format.
+--------------96C2D79B143A8AE41EA32F9C
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-:-) :-)
+Alan Cox wrote:
+> I'd rather keep the existing initialisation behaviour of using the eeprom
+> for 2.2. There are also some power management cases where I am not sure
+> the values are restored on the pcnet/pci.
+> 
+> For 2.2 conservatism is the key. For 2.4 by all means default to CSR12-14 and
+> print a warning if they dont match the eeprom value and we'll see what it
+> shows
+> 
+> > Alan, do you want me to put your inline version in <linux/etherdevice.h>
+> > while I'm at it, or what?
+> 
+> Sure
 
-The good part is, there are a lot of Intel folks now active on Linux,
-I can go off and ask one of them, if we are sufficiently confused. I
-am trying to see whether we are.
+Here is the 2.2.18 patch... I'll send the 2.4.1 patch shortly.
 
-> I searched for 'dirty' though Vol 3 and found
-> 
-> Chapter 7.1.2.1 Automatic locking.
-> 
-> .. the processor uses locked cycles to set the accessed and dirty flag
-> in the page-directory and page-table entries.
-> 
-> But that obviously doesn't answer your question.
-> 
-> Is the sequence
-> << lock;
-> read pte
-> pte |= dirty
-> write pte
-> >> end lock;
-> or
-> << lock;
-> read pte
-> if (!present(pte))
-> 	do_page_fault();
-> pte |= dirty
-> write pte.
-> >> end lock;
+This one still uses the PROM since we are going for least change in
+initialization.
+is_valid_ether_addr() is static inline in <linux/etherdevice.h>
 
-No, it is a little more complicated. You also have to include in the
-tlb state into this algorithm. Since that is what we are talking about.
-Specifically, what does the processor do when it has a tlb entry allowing
-RW, the processor has only done reads using the translation, and the 
-in-memory pte is clear?
+Is this one satisfactory?
 
-Kanoj
+Eli
+--------------------.              Rule of Accuracy: When working toward
+Eli Carter          |               the solution of a problem, it always 
+eli.carter@inet.com `--------------------- helps if you know the answer.
+--------------96C2D79B143A8AE41EA32F9C
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-pcnet32-mac22"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-pcnet32-mac22"
 
-> 
-> --
-> 	Manfred
-> 
+--- linux/drivers/net/pcnet32.c	2001/01/20 11:10:30	1.1.1.6
++++ linux/drivers/net/pcnet32.c	2001/02/15 19:08:55
+@@ -648,10 +648,33 @@
+ 
+     printk(KERN_INFO "%s: %s at %#3lx,", dev->name, chipname, ioaddr);
+ 
+-    /* There is a 16 byte station address PROM at the base address.
+-     The first six bytes are the station address. */
+-    for (i = 0; i < 6; i++)
+-      printk(" %2.2x", dev->dev_addr[i] = inb(ioaddr + i));
++    /* In most chips, there is a station address PROM at the base address.
++     * However, if that does not have a valid address, try the "Physical
++     * Address Registers" CSR12-CSR14
++     */
++    {
++	/* There is a 16 byte station address PROM at the base address.
++	 The first six bytes are the station address. */
++	for (i = 0; i < 6; i++) {
++	    dev->dev_addr[i] = inb(ioaddr + i);
++	}
++	if( !is_valid_ether_addr(dev->dev_addr) ) {
++	    /* also double check this station address */
++	    for (i = 0; i < 3; i++) {
++		unsigned int val;
++		val = a->read_csr(ioaddr, i+12) & 0x0ffff;
++		/* There may be endianness issues here. */
++		dev->dev_addr[2*i] = val & 0x0ff;
++		dev->dev_addr[2*i+1] = (val >> 8) & 0x0ff;
++	    }
++	    /* if this is not valid either, force to 00:00:00:00:00:00 */
++	    if( !is_valid_ether_addr(dev->dev_addr) )
++		for (i = 0; i < 6; i++)
++		    dev->dev_addr[i]=0;
++	}
++	for (i = 0; i < 6; i++)
++	    printk(" %2.2x", dev->dev_addr[i] );
++    }
+ 
+     if (((chip_version + 1) & 0xfffe) == 0x2624) { /* Version 0x2623 or 0x2624 */
+         i = a->read_csr(ioaddr, 80) & 0x0C00;  /* Check tx_start_pt */
+@@ -796,6 +819,10 @@
+ 		    lp->shared_irq ? SA_SHIRQ : 0, lp->name, (void *)dev)) {
+ 	return -EAGAIN;
+     }
++
++    /* Check for a valid station address */
++    if( !is_valid_ether_addr(dev->dev_addr) )
++	return -EINVAL;
+ 
+     /* Reset the PCNET32 */
+     lp->a.reset (ioaddr);
+--- linux/include/linux/etherdevice.h	2001/01/19 19:25:31	1.1.1.1
++++ linux/include/linux/etherdevice.h	2001/02/15 19:08:55
+@@ -51,6 +51,14 @@
+ 				unsigned char *src, int length, int base);
+ #endif
+ 
++/* Check that the ethernet address (MAC) is not 00:00:00:00:00:00 and is not
++ * a multicast address.  Return true if the address is valid.
++ */
++static __inline__ int is_valid_ether_addr( u8 *addr )
++{
++    return !(addr[0]&1) && memcmp( addr, "\0\0\0\0\0\0", 6);
++}
++
+ #endif
+ 
+ #endif	/* _LINUX_ETHERDEVICE_H */
+
+--------------96C2D79B143A8AE41EA32F9C--
 

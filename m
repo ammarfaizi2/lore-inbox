@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267749AbUI1Too@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267767AbUI1UIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267749AbUI1Too (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 15:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267713AbUI1Too
+	id S267767AbUI1UIO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 16:08:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267777AbUI1UIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 15:44:44 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54441 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267749AbUI1ToI (ORCPT
+	Tue, 28 Sep 2004 16:08:14 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:45317 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S267767AbUI1UIM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 15:44:08 -0400
-Date: Tue, 28 Sep 2004 21:43:51 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: heap-stack-gap for 2.6
-Message-ID: <20040928194351.GC5037@devserv.devel.redhat.com>
-References: <20040925162252.GN3309@dualathlon.random> <1096272553.6572.3.camel@laptop.fenrus.com> <20040927130919.GE28865@dualathlon.random>
+	Tue, 28 Sep 2004 16:08:12 -0400
+Date: Tue, 28 Sep 2004 14:54:55 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: akpm@osdl.org
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [patch 2.6.9-rc2] 3c59x: do not mask reset of aism logic at rmmod
+Message-ID: <20040928145455.C12480@tuxdriver.com>
+Mail-Followup-To: akpm@osdl.org, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040927130919.GE28865@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some (earlier?) versions of the 3c905(B) card get confused and refuse to
+work again after the 3c59x module is removed (even after reloading the
+module).  Changing vortex_remove_one() to allow the auto-initialize
+state machine logic to be reset when the module is removed alleviates
+this problem.
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+--- 
+See http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=133388 for more
+details.
 
-On Mon, Sep 27, 2004 at 03:09:19PM +0200, Andrea Arcangeli wrote:
-> > which "those apps" ?
-> 
-> those apps that wants to allocate as close as possible to the stack.
-> They're already using /proc/self/mapped_base, the gap of topdown isn't
-> configurable.
+If anyone can suggest a better way to fix this problem, please do so.
+I'll be happy to pursue it.
 
-/proc/self/mmaped_base doesn't exist...
+ drivers/net/3c59x.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
+This patch should apply (with a little fuzz) to 2.4 as well...
+
+--- linux-2.6/drivers/net/3c59x.c.orig
++++ linux-2.6/drivers/net/3c59x.c
+@@ -3162,7 +3162,7 @@ static void __devexit vortex_remove_one 
+ 			pci_restore_state(VORTEX_PCI(vp), vp->power_state);
+ 	}
+ 	/* Should really use issue_and_wait() here */
+-	outw(TotalReset|0x14, dev->base_addr + EL3_CMD);
++	outw(TotalReset|0x04, dev->base_addr + EL3_CMD);
  
-> Also topdown may screwup some MAP_FIXED usage below the 1G mark, no?
-
-no
-
-map_fixed is map_fixed... if you give a hint the kernel will try that of
-course.
-
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBWb72xULwo51rQBIRAoCcAJ9R7eZE8gk6uxYJkQXT0JbZRLO/mACfb6lg
-nVWyM3RhpJmmQmHx/PvBC8U=
-=3yqh
------END PGP SIGNATURE-----
-
---SLDf9lqlvOQaIe6s--
+ 	pci_free_consistent(pdev,
+ 						sizeof(struct boom_rx_desc) * RX_RING_SIZE

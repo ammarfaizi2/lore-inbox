@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbUJWPzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbUJWUW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261213AbUJWPzu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 11:55:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbUJWPzu
+	id S261307AbUJWUW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 16:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbUJWUWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 11:55:50 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:20437 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261213AbUJWPzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 11:55:46 -0400
-Message-ID: <417A7EF9.70007@namesys.com>
-Date: Sat, 23 Oct 2004 08:55:37 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>, vs <vs@thebsh.namesys.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
-       Nikita Danilov <Nikita@namesys.com>
-Subject: Re: 2.6.9-mm1
-References: <20041022032039.730eb226.akpm@osdl.org> <20041023143721.GB5110@stusta.de>
-In-Reply-To: <20041023143721.GB5110@stusta.de>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Oct 2004 16:22:30 -0400
+Received: from melos.informatik.uni-rostock.de ([139.30.241.22]:38917 "EHLO
+	melos.informatik.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261301AbUJWUSf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 16:18:35 -0400
+From: Denny Priebe <dpr@siglost.org>
+Date: Sat, 23 Oct 2004 22:10:50 +0200
+To: linux-kernel@vger.kernel.org
+Subject: CDROMEJECT using ide-scsi not working since 2.6.9-rc2
+Message-ID: <20041023201050.GA4673@nostromo.nofw.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi list,
 
+since 2.6.9-rc2 CDROMEJECT is no longer working when using ide-scsi.
+(At least for my Sony DVD RW DW-U55A. I've tried 2.6.8.1, 2.6.9-rc[1234], 
+and 2.6.9.)
 
-Adrian Bunk wrote:
+strace eject /dev/scd0 reports
+[...]
+open("/dev/scd0", O_RDONLY|O_NONBLOCK)  = 3
+ioctl(3, CDROMEJECT, 0xbffffbd8)        = 0
+close(3)                                = 0
+[...]
+but nothing happens.
 
->
->
->The REISER4_LARGE_KEY option must not be present if reiser4 was merged.
->
->Depending on the compile-time setting of this option, there are two 
->incompatible reiser4 file systems.
->
->cu
->Adrian
->
->  
->
-vs, I have yet to see a user do anything other than get confused by this 
-option. Please make large keys the default, and hide the ability to 
-choose small keys by taking it out of the configuration menu and burying 
-it in a .h file.
+I know that using ide-scsi is deprecated for cd burning but: is this a 
+feature or a bug?
 
-Hans
+Greetings,
+Denny

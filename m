@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVBXDIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbVBXDKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbVBXDIw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 22:08:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVBXDHk
+	id S261747AbVBXDKi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 22:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVBXDJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 22:07:40 -0500
-Received: from mta9.adelphia.net ([68.168.78.199]:30637 "EHLO
-	mta9.adelphia.net") by vger.kernel.org with ESMTP id S261712AbVBXDHW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 22:07:22 -0500
-Message-ID: <421D4460.6050308@nodivisions.com>
-Date: Wed, 23 Feb 2005 22:05:04 -0500
-From: Anthony DiSante <theant@nodivisions.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: mouse still losing sync and thus jumping around
-References: <421C83A2.9040502@vollwerbung.at>	 <d120d50005022306177069ffbe@mail.gmail.com>	 <421CAF7D.9080004@vollwerbung.at> <d120d50005022308536d29dab7@mail.gmail.com>
-In-Reply-To: <d120d50005022308536d29dab7@mail.gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Feb 2005 22:09:21 -0500
+Received: from fire.osdl.org ([65.172.181.4]:3496 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261761AbVBXDH4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 22:07:56 -0500
+Date: Wed, 23 Feb 2005 19:07:47 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>, Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH] set RLIMIT_SIGPENDING limit based on RLIMIT_NPROC
+Message-ID: <20050224030747.GG15867@shell0.pdx.osdl.net>
+References: <421D0D3F.40902@goop.org> <200502240224.j1O2OqHL010736@magilla.sf.frob.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502240224.j1O2OqHL010736@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Yes, It usually happens either under high load, when mouse interrupts are
-> significantly delayed. Or sometimes it happen when applications poll
-> battey status and on some boxes it takes pretty long time. And because
-> it is usually the same chip that serves keyboard/mouse it again delays
-> mouse interrupts.
+* Roland McGrath (roland@redhat.com) wrote:
+> While looking into the issues Jeremy had with the RLIMIT_SIGPENDING limit,
+> it occurred to me that the normal setting of this limit is bizarrely low.
+> The initial hard limit setting (MAX_SIGPENDING) was taken from the old
+> max_queued_signals parameter, which was for the entire system in aggregate.
+> But even as a per-user limit, the 1024 value is incongruously low for this.
 
-I have this problem with recent 2.6.10 kernels too, but it has nothing to do 
-with load in my case; it happens whenever I switch my KVM to the linux box.
+But the old default system-wide limit was 1024.  And you could have
+spawned 8k processes then as well.  So I don't think this matters much.
 
-Long ago and far away, it used to be that switching out of X, then back in 
-(ctrl-alt-F1, then ctrl-alt-F7) would reset the mouse and stop the jumping. 
-  At some point in late 2.4/early 2.6 that stopped working, and the only fix 
-was to unplug the mouse from the KVM switch and re-plug it.
+> On my machine, RLIMIT_NPROC allows me 8192 processes, but only 1024 queued
+> signals, i.e. fewer even than one pending signal in each process.  (To me,
+> this really puts in doubt the sensibility of using a per-user limit for
+> this rather than a per-process one, i.e. counted in sighand_struct or
+> signal_struct, which could have a much smaller reasonable value.  I don't
+> recall the rationale for making this new limit per-user in the first place.)
 
-In Oct 2004 I posted to lkml with subject "KVM -> jumping mouse... still no 
-solution?"  Dmitry Torokhov (hi :) responded that this would work on 2.6.9-rc3+:
+I don't either, the archives show using per-user as default choice
+(never saw a discussion otherwise).  Users can easily queue signals to
+themselves (using multiple processes or not), and there was some concern
+that somebody actually wanted to be able queue up to 1024 (since it's
+what was allowed in the past).
 
-	echo -n "reconnect" > /sys/bus/serio/devices/serioX/driver
+> This patch sets the default RLIMIT_SIGPENDING limit at boot time, using the
+> calculation that decides the default RLIMIT_NPROC limit.  This uses the
+> same value for those two limits, which I think is still pretty conservative
+> on the RLIMIT_SIGPENDING value.
 
-That was GREAT and it worked for a while, but now my last few 2.6.10 kernels 
-don't seem to care when I do that, and again, unplugging the mouse is the 
-only thing that works.  I'm currently running 2.6.10-gentoo-r6.
+It's an rlimit, so easily setable in userspace at login session time.  I
+think we could raise it if people start complaining it's too low (hasn't
+seemed to be a problem yet).
 
--Anthony DiSante
-http://nodivisions.com/
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263977AbTAVW5b>; Wed, 22 Jan 2003 17:57:31 -0500
+	id <S264625AbTAVXG7>; Wed, 22 Jan 2003 18:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264614AbTAVW5b>; Wed, 22 Jan 2003 17:57:31 -0500
-Received: from fw-az.mvista.com ([65.200.49.158]:14837 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id <S263977AbTAVW5a>; Wed, 22 Jan 2003 17:57:30 -0500
-Message-ID: <3E2F2350.8050107@mvista.com>
-Date: Wed, 22 Jan 2003 16:03:44 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S264631AbTAVXG7>; Wed, 22 Jan 2003 18:06:59 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:3213 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S264625AbTAVXG6> convert rfc822-to-8bit; Wed, 22 Jan 2003 18:06:58 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: John Bradford <john@grabjohn.com>, jsimmons@infradead.org (James Simmons)
+Subject: Re: [OT] Re: Linux in the News! WooHoo!
+Date: Wed, 22 Jan 2003 17:15:59 -0600
+User-Agent: KMail/1.4.1
+Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+References: <200301222238.h0MMcgk1000129@darkstar.example.net>
+In-Reply-To: <200301222238.h0MMcgk1000129@darkstar.example.net>
 MIME-Version: 1.0
-To: Tom Sanders <developer_linux@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux application level timers?
-References: <20030122221703.42913.qmail@web9806.mail.yahoo.com>
-In-Reply-To: <20030122221703.42913.qmail@web9806.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301221715.59623.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try select().
+On Wednesday 22 January 2003 04:38 pm, John Bradford wrote:
+> > > 2 for "X Window"
+> > > 10 for "X Windows"
+> > > 13 for Motif
+> >
+> > Unfoturnely the search engines are not that good.
+>
+> Actually, they are not that inaccurate, considering that there is no
+> such thing as "X Windows".
+>
+> The name of the software you are refering to is The X Window System,
+> or just X.  The version that is commonly in use these days is often
+> called X11R6, X11, or R6.
+>
+> Why is this mistake almost never mentioned, and yet the discussions
+> about whether Linux or GNU/Linux is the correct never seem to stop?
+>
+> John.
 
-Depending on your architecture (ie: if requests come in via TCP file 
-descriptors) you can use select.  Select takes as an argument a timeout 
-value.  You can calculate the minimum timeout value for a set of 
-timeouts by finding the minimum, and use that as your select timeout. 
- Before each time you call select, you can figure out all the timeout 
-values to find the minimum select period.  This way you can control what 
-you do when with the timeout.  After the select, you can then calculate 
-which timeouts have occured and act on them appropriately.
+Yes - I knew about that mistake, which is what I assumed when I made the 
+query. HR droids insist on putting the "s" on it because it "just rolls off 
+the tongue" so easily. It is also because M$ shoves the word as belonging to 
+them so hard in their advertising. 
 
-I use this for example to detect when a function should be polled while 
-also waiting on event-driven i/o from a tcp socket.  I also use this to 
-detect when a heartbeat message should have been received but was not in 
-the alloted time, causing the socket to close and reconnect.
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-Thanks
--steve
-
-Tom Sanders wrote:
-
->I'm writing an application server which receives
->requests from other applications. For each request
->received, I want to start a timer so that I can fail
->the application request if it could not be completed
->in max specified time.
->
->Which Linux timer facility can be used for this?
->
->I have checked out alarm() and signal() system calls,
->but these calls doesn't take an argument, so its not
->possible to associate application request with the
->matured alarm.
->
->Any inputs?
->
->Thanks in advance,
->Tom
->
->__________________________________________________
->Do you Yahoo!?
->Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
->http://mailplus.yahoo.com
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
->  
->
-
+Any opinions expressed are solely my own.

@@ -1,63 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129697AbQKYFPh>; Sat, 25 Nov 2000 00:15:37 -0500
+        id <S129153AbQKYGLg>; Sat, 25 Nov 2000 01:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130498AbQKYFP2>; Sat, 25 Nov 2000 00:15:28 -0500
-Received: from [209.249.10.20] ([209.249.10.20]:56762 "EHLO
-        freya.yggdrasil.com") by vger.kernel.org with ESMTP
-        id <S129697AbQKYFPV>; Sat, 25 Nov 2000 00:15:21 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 24 Nov 2000 20:45:19 -0800
-Message-Id: <200011250445.UAA02193@baldur.yggdrasil.com>
-To: kaos@ocs.com.au
-Subject: Re: Patch(?): isapnp_card_id tables for all isapnp drivers in 2.4.0-test11
-Cc: linux-kernel@vger.kernel.org
+        id <S129183AbQKYGL0>; Sat, 25 Nov 2000 01:11:26 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:24850 "EHLO saturn.cs.uml.edu")
+        by vger.kernel.org with ESMTP id <S129153AbQKYGLL>;
+        Sat, 25 Nov 2000 01:11:11 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200011250541.eAP5f1s242513@saturn.cs.uml.edu>
+Subject: Re: kernel-2.4.0-test11 crashed again; this time i send you the Oops-message
+To: kaos@ocs.com.au (Keith Owens)
+Date: Sat, 25 Nov 2000 00:41:01 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
+In-Reply-To: <3445.974945945@kao2.melbourne.sgi.com> from "Keith Owens" at Nov 23, 2000 01:19:05 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> wrote:
->"Adam J. Richter" <adam@yggdrasil.com> wrote:
->>	Note that this is not a "final" version.  I plan to go
->>through all of the changes and bracket all of these new tables
->>with #ifdef MODULE...#endif so they do not result in complaints
->>about the table being defined static and never used in cases where
->>the driver is compiled directly into the kernel.
+Keith Owens writes:
+> "Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
 
->This is cleaner.  Append MODULE_ONLY after __initdata and remove the
->ifdef.  It increases the size of initdata in the kernel, compared to
->ifdef, but since initdata is promptly reused as scratch space it should
->not be a problem.
-[patch elided]
+>> The infamous LINK_FIRST infrastructure was sort of half-way done.
+>>
+>> It would be best to cause drivers with an unspecified link order
+>> to move around a bit, so that errors may be discovered more quickly.
+>
+> The "other" list in LINK_FIRST is sorted by name.  It could be changed
+> to a random sort, probably based on a hash of size and mtime.  It would
+> be relatively expensive so would have to be restricted to a "exercise
+> the kernel" CONFIG option.
 
-	Thanks for the patch, but I think I'll stick with the ifdefs
-for now, for the following reasons.
+Yes, throwing out the low bits of mtime so that everybody gets the
+same link order for a week. (must be able to reproduce failures)
 
-	1. I think ifdef MODULE is more understandable to the casual observer.
-	2. There is often some other condition that I need to combine
-	   with (CONFIG_PCI, CONFIG_ISAPNP, CONFIG_ISAPNP_MODULE).
-	3. There is often an existing ifdef in the right place that I
-	   can just tuck the code into.
-	4. I would prefer that this change not have even a file size cost
-	   to people who want to build minimal monolithic kernels
-	   for applicance applications.
-	5. My feeling is that just the few kilobytes of file size cost
-	   associated with #4 and knowing that absolutely nothing is
-	   added for non-module usage will psychologically make
-	   maintainers feel better about it and have even fewer misgivings
-	   about integrating it.
-	6. We can expect the lines bracketing these table declarations
-	   to be changed in the near future as the drivers are changed
-	   to use the new PCI and isapnp interfaces or to use the ID
-	   tables just to eliminate the old custom data structures that
-	   hold the same information.
+>> LINK_FIRST is pretty coarse. One would want a topological sort,
+>> or at least LINK_0 through LINK_9 _without_ anything else.
+>
+> There is no need for multiple LINK_n entries, the objects partition
+> neatly into three groups.  LINK_FIRST objects, in the order they are
+> defined.  The rest of the objects (object list - (LINK_FIRST +
+> LINK_LAST), in an undefined order.  LINK_LAST objects, in the order
+> they are defined.
 
-	Thanks for the patch anyhow, though.  It's a clever idea that
-may be useful in other situations.
+Ah, but then Linus has an argument to crush you. There is no
+reason left to have anything but LINK_FIRST, and so the rest
+is redundant and you can just kill the whole idea.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+Going with multiple LINK_n entries and nothing else makes it
+possible to make order dynamic within any LINK_n group. This
+forces eventual discovery of any problems.
+
+> If you can come up with a concrete link order example that
+> cannot be handled by a three partition model then I will
+> listen.  Otherwise it is just over engineering.
+
+The three-partition model is over-engineering, because it adds
+extra complexity without getting rid of the fixed-order group.
+Instead you get two fixed-order groups and one dynamic-order one.
+
+If we are to leave the current model of a single fixed-order
+group, then we ought to switch to something else uniform.
+The three groups you desribe just isn't very regular.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRADVDz>; Thu, 4 Jan 2001 16:03:55 -0500
+	id <S129901AbRADVIg>; Thu, 4 Jan 2001 16:08:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129901AbRADVDp>; Thu, 4 Jan 2001 16:03:45 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:35764 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S129939AbRADVDh>;
-	Thu, 4 Jan 2001 16:03:37 -0500
-From: mkloppstech@freenet.de
-Message-Id: <200101042103.WAA01175@john.epistle>
-Subject: patch does not apply
-To: linux-kernel@vger.kernel.org
-Date: Thu, 4 Jan 2001 22:03:28 +0100 (CET)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S130006AbRADVIQ>; Thu, 4 Jan 2001 16:08:16 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:39180 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129773AbRADVH4>;
+	Thu, 4 Jan 2001 16:07:56 -0500
+Date: Thu, 4 Jan 2001 22:05:01 +0100 (CET)
+From: egger@suse.de
+Reply-To: egger@suse.de
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1010104155136.18796A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20010104220709.11E3D51E9@Nicole.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are two patches for the prerelease:
-pub/linux/kernel/testing/prerelease-diff and
-pub/linux/kernel/v2.4/patch-2.4.0-prerelease.tar.bz2.
+On  4 Jan, Richard B. Johnson wrote:
 
-The first does not fit to any of my kernels. Besides,
-the newer testing kernels are not
-accessible any more on www.kernel.org
+> Well they do! It's just not allowed for us (the users) to know that
+> they
+> __didn't__ run completely out of power!  If the thing is so dead
+> that it won't recharge, it still has 'power' (enough to keep static
+> RAM alive). Just remove the battery, wait about 120 seconds for a
+> capacitor to discharge,  and, zap, no more stored phone numbers.
+> Static RAM with an electrolytic capacitor, isolated with a diode,
+> takes so little power that you can normally change defective batteries
+> if you don't take too long.
 
-Mirko Kloppstech
+ I've several Nokias and Siemens phones here. All of them will survive
+ for weeks without any battery connected; and not only the phone numbers
+ on the SIM card. I guess they all have FlashRAM, although I haven't 
+ disassembled one recently. 
+
+-- 
+
+Servus,
+       Daniel
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

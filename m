@@ -1,92 +1,287 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316390AbSGYU2F>; Thu, 25 Jul 2002 16:28:05 -0400
+	id <S315946AbSGYUZe>; Thu, 25 Jul 2002 16:25:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316364AbSGYU2E>; Thu, 25 Jul 2002 16:28:04 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:32943 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316339AbSGYU17> convert rfc822-to-8bit;
-	Thu, 25 Jul 2002 16:27:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: 2.4.19-rc3-ac2 SMP
-Date: Thu, 25 Jul 2002 13:29:38 -0700
-User-Agent: KMail/1.4.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207250859590.17209-100000@linux-box.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.44.0207250859590.17209-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207251329.38011.jamesclv@us.ibm.com>
+	id <S316135AbSGYUZe>; Thu, 25 Jul 2002 16:25:34 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:19584 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315946AbSGYUZ0>;
+	Thu, 25 Jul 2002 16:25:26 -0400
+Date: Thu, 25 Jul 2002 12:37:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: vojtech@ucw.cz, kernel list <linux-kernel@vger.kernel.org>
+Subject: input: fix sleep support, kill bad ifdefs, cleanup comments
+Message-ID: <20020725103713.GA522@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 25 July 2002 12:11 am, Zwane Mwaikambo wrote:
-> On Wed, 24 Jul 2002, James Cleverdon wrote:
-> > Ah ha!  Note that while the CPU records in the {MPS,ACPI/MADT} table are
-> > in numerical order (as preserved in raw_phys_apicid), the boot CPU is #
-> > 02.  The flat code in smp_boot_cpus assumes that the boot CPU will be the
-> > first record in the list.  Oops.
->
-> Ok i'll give it a whirl, in that case how about the following code to do
-> the BSP check in another area too?
+Hi!
 
-That would work, too.  The bug was not in recognizing the boot cpu, but in 
-assuming that we would continue (for one reason or another) the first time 
-around the loop, because logical ID 0x01 was already assigned.
+It is possible to kill few #ifdefs from input.c, so I did that.
 
-The previous code got around this dependency in a weird and rather kludgey 
-way.  Check -rc3 for the two instances of boot_cpu_logical_apicid in 
-mpparse.c and smpboot.c, and the two entirely different sources of 
-boot_cpu_logical_apicid's value.  Bizarre.
+Comments far to the left hurt readability in my eyes (I believe
+input.c has *way* too much comments, too, but...).
 
-> Index: linux-2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c
-> ===================================================================
-> RCS file:
-> /home/zwane/source/cvs_rep/linux-2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c,
->v retrieving revision 1.2
-> diff -u -r1.2 smpboot.c
-> --- linux-2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c	2002/07/25 06:06:56	1.2
-> +++ linux-2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c	2002/07/25 06:15:05
-> @@ -46,6 +46,7 @@
->  #include <asm/mtrr.h>
->  #include <asm/pgalloc.h>
->  #include <asm/smpboot.h>
-> +#include <asm/msr.h>
->
->  /* Set if we find a B stepping CPU			*/
->  static int smp_b_stepping;
-> @@ -229,6 +230,14 @@
->  	return res;
->  }
->
-> +int smp_cpu_is_bsp (void)
-> +{
-> +	unsigned long l, h;
-> +
-> +	rdmsr(MSR_IA32_APICBASE, l, h);
-> +	return (l & MSR_IA32_APICBASE_BSP);
-> +}
-> +
->  static void __init synchronize_tsc_bp (void)
->  {
->  	int i;
-> @@ -1067,7 +1076,7 @@
->  	connect_bsp_APIC();
->  	setup_local_APIC();
->
-> -	if (GET_APIC_ID(apic_read(APIC_ID)) != boot_cpu_physical_apicid)
-> +	if (!smp_cpu_is_bsp())
->  		BUG();
->
->  	/*
+Fixed serio.c so its sleep support actually works.
+							Pavel
+
+--- clean/drivers/input/input.c	Tue Jul  9 04:54:08 2002
++++ linux-swsusp/drivers/input/input.c	Thu Jul 25 12:21:55 2002
+@@ -429,7 +429,10 @@
+ 	if (value != 0)
+ 		printk(KERN_WARNING "input.c: hotplug returned %d\n", value);
+ }
+-
++#else
++static void input_call_hotplug(char *verb, struct input_dev *dev)
++{
++}
+ #endif
+ 
+ void input_register_device(struct input_dev *dev)
+@@ -438,9 +441,9 @@
+ 	struct input_handle *handle;
+ 	struct input_device_id *id;
+ 
+-/*
+- * Initialize repeat timer to default values.
+- */
++	/*
++	 * Initialize repeat timer to default values.
++	 */
+ 
+ 	init_timer(&dev->timer);
+ 	dev->timer.data = (long) dev;
+@@ -448,16 +451,16 @@
+ 	dev->rep[REP_DELAY] = HZ/4;
+ 	dev->rep[REP_PERIOD] = HZ/33;
+ 
+-/*
+- * Add the device.
+- */
++	/*
++	 * Add the device.
++	 */
+ 
+ 	dev->next = input_dev;	
+ 	input_dev = dev;
+ 
+-/*
+- * Notify handlers.
+- */
++	/*
++	 * Notify handlers.
++	 */
+ 
+ 	while (handler) {
+ 		if ((id = input_match_device(handler->id_table, dev)))
+@@ -466,17 +469,15 @@
+ 		handler = handler->next;
+ 	}
+ 
+-/*
+- * Notify the hotplug agent.
+- */
++	/*
++	 * Notify the hotplug agent.
++	 */
+ 
+-#ifdef CONFIG_HOTPLUG
+ 	input_call_hotplug("add", dev);
+-#endif
+ 
+-/*
+- * Notify /proc.
+- */
++	/*
++	 * Notify /proc.
++	 */
+ 
+ #ifdef CONFIG_PROC_FS
+ 	input_devices_state++;
+@@ -491,21 +492,21 @@
+ 
+ 	if (!dev) return;
+ 
+-/*
+- * Turn off power management for the device.
+- */
++	/*
++	 * Turn off power management for the device.
++	 */
+ 	if (dev->pm_dev)
+ 		pm_unregister(dev->pm_dev);
+ 
+-/*
+- * Kill any pending repeat timers.
+- */
++	/*
++	 * Kill any pending repeat timers.
++	 */
+ 
+ 	del_timer(&dev->timer);
+ 
+-/*
+- * Notify handlers.
+- */
++	/*
++	 * Notify handlers.
++	 */
+ 
+ 	while (handle) {
+ 		dnext = handle->dnext;
+@@ -514,22 +515,20 @@
+ 		handle = dnext;
+ 	}
+ 
+-/*
+- * Notify the hotplug agent.
+- */
++	/*
++	 * Notify the hotplug agent.
++	 */
+ 
+-#ifdef CONFIG_HOTPLUG
+ 	input_call_hotplug("remove", dev);
+-#endif
+ 
+-/*
+- * Remove the device.
+- */
++	/*
++	 * Remove the device.
++	 */
+ 	input_find_and_remove(struct input_dev, input_dev, dev, next);
+ 
+-/*
+- * Notify /proc.
+- */
++	/*
++	 * Notify /proc.
++	 */
+ 
+ #ifdef CONFIG_PROC_FS
+ 	input_devices_state++;
+@@ -545,23 +544,23 @@
+ 
+ 	if (!handler) return;
+ 
+-/*
+- * Add minors if needed.
+- */
++	/*
++	 * Add minors if needed.
++	 */
+ 
+ 	if (handler->fops != NULL)
+ 		input_table[handler->minor >> 5] = handler;
+ 
+-/*
+- * Add the handler.
+- */
++	/*
++	 * Add the handler.
++	 */
+ 
+ 	handler->next = input_handler;	
+ 	input_handler = handler;
+ 	
+-/*
+- * Notify it about all existing devices.
+- */
++	/*
++	 * Notify it about all existing devices.
++	 */
+ 
+ 	while (dev) {
+ 		if ((id = input_match_device(handler->id_table, dev)))
+@@ -570,9 +569,9 @@
+ 		dev = dev->next;
+ 	}
+ 
+-/*
+- * Notify /proc.
+- */
++	/*
++	 * Notify /proc.
++	 */
+ 
+ #ifdef CONFIG_PROC_FS
+ 	input_devices_state++;
+@@ -585,9 +584,9 @@
+ 	struct input_handle *handle = handler->handle;
+ 	struct input_handle *hnext;
+ 
+-/*
+- * Tell the handler to disconnect from all devices it keeps open.
+- */
++	/*
++	 * Tell the handler to disconnect from all devices it keeps open.
++	 */
+ 
+ 	while (handle) {
+ 		hnext = handle->hnext;
+@@ -596,21 +595,21 @@
+ 		handle = hnext;
+ 	}
+ 
+-/*
+- * Remove it.
+- */
++	/*
++	 * Remove it.
++	 */
+ 	input_find_and_remove(struct input_handler, input_handler, handler,
+ 				next);
+ 
+-/*
+- * Remove minors.
+- */
++	/*
++	 * Remove minors.
++	 */
+ 	if (handler->fops != NULL)
+ 		input_table[handler->minor >> 5] = NULL;
+ 
+-/*
+- * Notify /proc.
+- */
++	/*
++	 * Notify /proc.
++	 */
+ 
+ #ifdef CONFIG_PROC_FS
+ 	input_devices_state++;
+@@ -820,11 +819,9 @@
+ 
+ static void __exit input_exit(void)
+ {
+-#ifdef CONFIG_PROC_FS
+ 	remove_proc_entry("devices", proc_bus_input_dir);
+ 	remove_proc_entry("handlers", proc_bus_input_dir);
+ 	remove_proc_entry("input", proc_bus);
+-#endif
+ 	devfs_unregister(input_devfs_handle);
+         if (devfs_unregister_chrdev(INPUT_MAJOR, "input"))
+                 printk(KERN_ERR "input: can't unregister char major %d", INPUT_MAJOR);
+--- clean/drivers/input/serio/serio.c	Tue Jul 23 10:40:01 2002
++++ linux-swsusp/drivers/input/serio/serio.c	Thu Jul 25 12:02:51 2002
+@@ -94,9 +94,9 @@
+ 
+ 	do {
+ 		serio_handle_events();
++		interruptible_sleep_on(&serio_wait); 
+ 		if (current->flags & PF_FREEZE)
+ 			refrigerator(PF_IOTHREAD);
+-		interruptible_sleep_on(&serio_wait); 
+ 	} while (!signal_pending(current));
+ 
+ 	printk(KERN_DEBUG "serio: kseriod exiting");
 
 -- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
-
-
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

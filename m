@@ -1,67 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264003AbTDJIHt (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 04:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264006AbTDJIHt (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 04:07:49 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:41929 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264003AbTDJIHq (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 04:07:46 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: fdavis@si.rr.com, linux-kernel@vger.kernel.org
-Subject: Re: kernel support for non-english user messages
-Date: Thu, 10 Apr 2003 10:19:26 +0200
-User-Agent: KMail/1.5
-References: <3E93A958.80107@si.rr.com> <20030409190700.H19288@almesberger.net> <3E94A1B4.6020602@si.rr.com>
-In-Reply-To: <3E94A1B4.6020602@si.rr.com>
+	id S264002AbTDJIGH (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 04:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264003AbTDJIGH (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 04:06:07 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:64263
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S264002AbTDJIGF (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 04:06:05 -0400
+Date: Thu, 10 Apr 2003 01:16:52 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Keith Ansell <keitha@edp.fastfreenet.com>
+cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       axboe@suse.de
+Subject: Re: bdflush flushing memory mapped pages.
+In-Reply-To: <01bc01c2ff9d$0dc1aca0$230110ac@kaws>
+Message-ID: <Pine.LNX.4.10.10304100111350.12558-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304101019.26134.oliver@neukum.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 10. April 2003 00:41 schrieb Frank Davis:
-> How about unifying the printk text messages into a limited set of
-> common/canned text statements? If that could be done, all that would be
-> needed in the kernel would be a small language translation table. The
-> output of the table, based on the english input and the user's language
-> setting, would be sent to the administrator/user.
 
-This is a nightmare to keep current.
+Keith,
 
-> On a similar note, Andreas Dilger mentioned this suggestion earlier,
-> which it seems has been echoed by others, and that might be agreeable...
->
-> "My suggestion would be to add the required i18n support to klogd, so
-> that kernel messages are translated as they are removed from dmesg into
-> syslog. Then, like any i18n support, you build a message catalog from
-> the printk strings in the kernel and have klogd do the
-> lookups/translation in user space."
+I know what you are asking for and need.
+It is a requirement to be "Enterprise".
+What you are seeking will take time, and effort.
 
-The strings are too variable. The kernel embeds strings into some of
-its messages. There must be hints in the output about what should
-be translated and what must be left alone.
-Like:
-<esc>xxxxxxxxDummyfs: Unknown flags for file <lit>myfile
+I have explained successfully to Jens (block maintainer) the issues of
+data integrity.  If you can prove this becomes a data integrity issue,
+which I know it is for the general case, your argument will have strength.
 
-That means that you have to parse and mangle the strings as they
-are in the kernel sources: "Dummyfs: Unknown flags for file %s\n"
-This is not very difficult, printk() does it already. The beauty of that
-would be that "Dummyfs: Unknown flags for file" now strictly speaking
-is unnecessary in the kernel image. The mangling tool can replace it
-with a number which klogd can replace with the original.
-However this means that kernel and 'messages file' need to be kept
-in sync, like System.map currently.
+Nothing stops "fastfreenet.com" from funding the development time.
 
-Now that is not all. Klogd will not run in some cases and cannot
-be assumed to always run in others. Eg klogd itself may oops or the
-drive with the messages file may break down, or we might be booting.
-You might remove the strings only for KERN_DEBUG and KERN_INFO
-strings. That should result in space savings and translation ability.
+ASS-GAS-GRASS-CASH, Linux is free but my time is not.
 
-	Regards
-		Oliver
+If you want to discuss more of this offline, I will listen and help make
+the case.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+
+On Thu, 10 Apr 2003, Keith Ansell wrote:
+
+> Thank you for your prompt replies.
+> 
+> I realise that Linux conforms to the letter of the specification, but maybe
+> not the spirit of the it.
+> 
+> I am porting a Database solution to Linux from Unix SVR4, Sco OpenServer and
+> AIX, where all write required memory mapped files are flushed to disk with
+> the system flusher, my users have large systems (some in excess of 600
+> concurrent connections) flushing memory mapped files is a big part of are
+> systems performance.  This ensures that in the event of a catastrophic
+> system failure the customers vitual business data has been written to disk .
+> 
+> Keith Ansell
+> 
+> 
+> 
+> 
+> 
+> 
+> ----- Original Message -----
+> From: "Andrew Morton" <akpm@digeo.com>
+> To: "Andre Hedrick" <andre@linux-ide.org>
+> Cc: <keitha@edp.fastfreenet.com>; <linux-kernel@vger.kernel.org>;
+> <axboe@suse.de>
+> Sent: Wednesday, April 09, 2003 10:27 AM
+> Subject: Re: bdflush flushing memory mapped pages.
+> 
+> 
+> > Andre Hedrick <andre@linux-ide.org> wrote:
+> > >
+> > >
+> > > Funny you mention this point!
+> > >
+> > > I just spent 30-45 minutes on the phone talking to Jens about this very
+> > > issue.  Jens states he can map the model in to 2.5. and will give it a
+> > > fling in a bit.  This issue is a must; however, I had given up on the
+> idea
+> > > until 2.7.  However, the issues he and I addressed, in combination to
+> your
+> > > request jive in sync.
+> >
+> > noooo.....   This isn't going to happen.  There are many reasons.
+> >
+> > Firstly, how can bdflush even know what pages to write?  The dirtiness of
+> > these pages is recorded *only* in some processor's hardware pte cache
+> and/or
+> > the software pagetables.  Someone needs to go tell all the CPUs to
+> writeback
+> > their pte caches into the pagetables and then someone needs to walk the
+> > pagetables propagating the pte dirty bit into the pageframes before we can
+> > even start the I/O.
+> >
+> > That's what msync does, in filemap_sync().
+> >
+> >
+> > And even if bdflush did this automagically, it's the wrong thing to do
+> > because the application could very well be repeatedly dirtying the pages.
+> > Very probably.  So we've just gone and done a ton of pointless I/O, over
+> and
+> > over.
+> >
+> > You can view MAP_SHARED as an IPC mechanism which uses the filesystem
+> > namespace for naming.  No way do these people want bdflush pointlessly
+> > hammering the disk.
+> >
+> > You can also view MAP_SHARED as a (strange) way of writing files out.  If
+> you
+> > want to do that then fine, but you need to tell the kernel when you've
+> > finished, just like write() does.   You do that with msync.
+> >
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
 

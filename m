@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbVBBUJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262775AbVBBUYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbVBBUJK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 15:09:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVBBUIE
+	id S262775AbVBBUYe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 15:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbVBBUTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 15:08:04 -0500
-Received: from asplinux.ru ([195.133.213.194]:28430 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S262647AbVBBTwR (ORCPT
+	Wed, 2 Feb 2005 15:19:14 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:26801 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262776AbVBBURf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:52:17 -0500
-Message-ID: <42012F0A.7080704@sw.ru>
-Date: Wed, 02 Feb 2005 22:50:34 +0300
-From: Vasily Averin <vvs@sw.ru>
-Organization: SW-soft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021224
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrey Melnikov <temnota+kernel@kmv.ru>, linux-kernel@vger.kernel.org,
-       Atul Mukker <Atul.Mukker@lsil.com>,
-       Sreenivas Bagalkote <Sreenivas.Bagalkote@lsil.com>
-Subject: Re: [PATCH] Prevent NMI oopser
-References: <41F5FC96.2010103@sw.ru> <20050131231752.GA17126@logos.cnet> <42011EFA.10109@sw.ru> <20050202190626.GB18763@lists.us.dell.com>
-In-Reply-To: <20050202190626.GB18763@lists.us.dell.com>
-X-Enigmail-Version: 0.70.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Feb 2005 15:17:35 -0500
+Date: Wed, 2 Feb 2005 21:17:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050202201715.GB9462@elte.hu>
+References: <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us> <20050127113530.GA30422@elte.hu> <873bwfo8br.fsf@sulphur.joq.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <873bwfo8br.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Domsch wrote:
-> On Wed, Feb 02, 2005 at 09:42:02PM +0300, Vasily Averin wrote:
->>This is megaraid2 driver update (2.10.8.2 version, latest 2.4-compatible
->>version that I've seen), taken from latest RHEL3 kernel update. I
->>believe it should prevent NMI in abort/reset handler.
-> 
-> Thanks Vasily, I was just looking at this again yesterday.
-> 
-> You'll also find that because the driver doesn't define its inline
-> functions prior to their use, newest compilers refuse to compile this
-> version of the driver.  Earlier compilers just ignore it and don't
-> inline anything.
-> 
-> As a hack, one could #define inline /*nothing*/ in megaraid2.h to
-> avoid this, but it would be nice if the functions could all get
-> reordered such that inlining works properly, and the need for function
-> declarations in megaraid2.h would disappear completely.
 
-Could you fix it by additional fix? Or you going to release new driver 
-version for 2.4 kernels?
+* Jack O'Quin <joq@io.com> wrote:
 
-Thank you,
-	Vasily Averin
+> The LSM was a stop-gap measure intended to tide us over until a real
+> fix could be "done right" for 2.8.  It had the advantage of being
+> minimally disruptive to the kernel and its maintainability. [...]
 
+i'm not opposed to the LSM solution per se, especially given that none
+of the other solutions in existence are fully satisfactory (and thus
+acceptable for the scheduler currently). The LSM patch is clearly the
+least intrusive solution.
+
+	Ingo

@@ -1,216 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265988AbUBCMed (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 07:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265989AbUBCMed
+	id S265995AbUBCMxt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 07:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbUBCMxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 07:34:33 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:29092 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265988AbUBCMe2 (ORCPT
+	Tue, 3 Feb 2004 07:53:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:9453 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265995AbUBCMxo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 07:34:28 -0500
-Date: Tue, 3 Feb 2004 13:05:05 +0100
-From: Ingo Molnar <mingo@elte.hu>
+	Tue, 3 Feb 2004 07:53:44 -0500
+Subject: [BUG] With size > XATTR_SIZE_MAX, getxattr(2) always returns E2BIG
+From: Andreas Gruenbacher <agruen@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: [patch] uml-fixes-2.6.2-rc3-mm1-A2
-Message-ID: <20040203120505.GA10527@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>, "Theodore Ts'o" <tytso@thunk.org>,
+       Nathan Scott <nathans@sgi.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ydLBgXRXp4y+ovxFMzdV"
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1075812739.21199.11.camel@E136.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: SpamAssassin 2.60
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 03 Feb 2004 13:52:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-ydLBgXRXp4y+ovxFMzdV
+Content-Type: multipart/mixed; boundary="=-LVqAoagDeM4SiMwfUbY0"
 
 
-the attached patch fixes UML on 2.6.2-rc3-mm1:
+--=-LVqAoagDeM4SiMwfUbY0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
- - generic: dmapool.o depends on CONFIG_PCI
+Hello,
 
- - x86: reshuffle the way TASK_SIZE is defined on x86. [UML relied 
-        on a specific order of definitions within the x86 header files, 
-        the  4/4 patch broke this assumption.]
+here is a fix for the getxattr and listxattr syscall. Explanation in the
+patch. Could you please apply? Thanks.
 
- - UML: sys_call_table.c: syscall layout changed
+Regards,
+--=20
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
 
- - UML: um_arch.c: handle_sysrq() changed
+--=-LVqAoagDeM4SiMwfUbY0
+Content-Disposition: attachment; filename=big-xattr.diff
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; name=big-xattr.diff; charset=UTF-8
 
-UML compiles & works fine with this patch applied.
+VGhlIGdldHhhdHRyIChsaXN0eGF0dHIpIHN5c2NhbGwgcmV0dXJucyBFMkJJRyBpZiB0aGUgYnVm
+ZmVyDQpwYXNzZWQgdG8gdGhlbSBpcyBiaWdnZXIgdGhhbiBYQVRUUl9TSVpFX01BWCAoWEFUVFJf
+TElTVF9NQVgpLA0Kbm8gbWF0dGVyIHdoYXQgYnVmZmVyIHNpemUgaXMgYWN0dWFsbHkgcmVxdWly
+ZWQuIEhlcmUgaXMgYQ0KZml4LiBJdCBhbHNvIHJlbW92ZXMgdGhlIHhhdHRyX2FsbG9jIGFuZCB4
+YXR0cl9mcmVlIGZ1bmN0aW9ucw0Kd2hpY2ggYXJlIG5vdCBvZiBtdWNoIHVzZSBhbnltb3JlLg0K
+DQpJbmRleDogbGludXgtMi42LjEvZnMveGF0dHIuYw0KPT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIGxpbnV4LTIu
+Ni4xLm9yaWcvZnMveGF0dHIuYw0KKysrIGxpbnV4LTIuNi4xL2ZzL3hhdHRyLmMNCkBAIC0xNiw0
+MCArMTYsNiBAQA0KICNpbmNsdWRlIDxhc20vdWFjY2Vzcy5oPg0KIA0KIC8qDQotICogRXh0ZW5k
+ZWQgYXR0cmlidXRlIG1lbW9yeSBhbGxvY2F0aW9uIHdyYXBwZXJzLCBvcmlnaW5hbGx5DQotICog
+YmFzZWQgb24gdGhlIEludGVybWV6em8gUFJFU1RPX0FMTE9DL1BSRVNUT19GUkVFIG1hY3Jvcy4N
+Ci0gKiBWYWx1ZXMgbGFyZ2VyIHRoYW4gYSBwYWdlIGFyZSB1bmNvbW1vbiAtIGV4dGVuZGVkIGF0
+dHJpYnV0ZXMNCi0gKiBhcmUgc3VwcG9zZWQgdG8gYmUgc21hbGwgY2h1bmtzIG9mIG1ldGFkYXRh
+LCBhbmQgaXQgaXMgcXVpdGUNCi0gKiB1bnVzdWFsIHRvIGhhdmUgdmVyeSBtYW55IGV4dGVuZGVk
+IGF0dHJpYnV0ZXMsIHNvIGxpc3RzIHRlbmQNCi0gKiB0byBiZSBxdWl0ZSBzaG9ydCBhcyB3ZWxs
+LiAgVGhlIDY0SyB1cHBlciBsaW1pdCBpcyBkZXJpdmVkDQotICogZnJvbSB0aGUgZXh0ZW5kZWQg
+YXR0cmlidXRlIHNpemUgbGltaXQgdXNlZCBieSBYRlMuDQotICogSW50ZW50aW9uYWxseSBhbGxv
+dyB6ZXJvIEBzaXplIGZvciB2YWx1ZS9saXN0IHNpemUgcmVxdWVzdHMuDQotICovDQotc3RhdGlj
+IHZvaWQgKg0KLXhhdHRyX2FsbG9jKHNpemVfdCBzaXplLCBzaXplX3QgbGltaXQpDQotew0KLQl2
+b2lkICpwdHI7DQotDQotCWlmIChzaXplID4gbGltaXQpDQotCQlyZXR1cm4gRVJSX1BUUigtRTJC
+SUcpOw0KLQ0KLQlpZiAoIXNpemUpCS8qIHNpemUgcmVxdWVzdCwgbm8gYnVmZmVyIGlzIG5lZWRl
+ZCAqLw0KLQkJcmV0dXJuIE5VTEw7DQotDQotCXB0ciA9IGttYWxsb2MoKHVuc2lnbmVkIGxvbmcp
+IHNpemUsIEdGUF9LRVJORUwpOw0KLQlpZiAoIXB0cikNCi0JCXJldHVybiBFUlJfUFRSKC1FTk9N
+RU0pOw0KLQlyZXR1cm4gcHRyOw0KLX0NCi0NCi1zdGF0aWMgdm9pZA0KLXhhdHRyX2ZyZWUodm9p
+ZCAqcHRyLCBzaXplX3Qgc2l6ZSkNCi17DQotCWlmIChzaXplKQkvKiBmb3IgYSBzaXplIHJlcXVl
+c3QsIG5vIGJ1ZmZlciB3YXMgbmVlZGVkICovDQotCQlrZnJlZShwdHIpOw0KLX0NCi0NCi0vKg0K
+ICAqIEV4dGVuZGVkIGF0dHJpYnV0ZSBTRVQgb3BlcmF0aW9ucw0KICAqLw0KIHN0YXRpYyBsb25n
+DQpAQCAtNTcsNyArMjMsNyBAQCBzZXR4YXR0cihzdHJ1Y3QgZGVudHJ5ICpkLCBjaGFyIF9fdXNl
+ciAqDQogCSBzaXplX3Qgc2l6ZSwgaW50IGZsYWdzKQ0KIHsNCiAJaW50IGVycm9yOw0KLQl2b2lk
+ICprdmFsdWU7DQorCXZvaWQgKmt2YWx1ZSA9IE5VTEw7DQogCWNoYXIga25hbWVbWEFUVFJfTkFN
+RV9NQVggKyAxXTsNCiANCiAJaWYgKGZsYWdzICYgfihYQVRUUl9DUkVBVEV8WEFUVFJfUkVQTEFD
+RSkpDQpAQCAtNjksMTMgKzM1LDE2IEBAIHNldHhhdHRyKHN0cnVjdCBkZW50cnkgKmQsIGNoYXIg
+X191c2VyICoNCiAJaWYgKGVycm9yIDwgMCkNCiAJCXJldHVybiBlcnJvcjsNCiANCi0Ja3ZhbHVl
+ID0geGF0dHJfYWxsb2Moc2l6ZSwgWEFUVFJfU0laRV9NQVgpOw0KLQlpZiAoSVNfRVJSKGt2YWx1
+ZSkpDQotCQlyZXR1cm4gUFRSX0VSUihrdmFsdWUpOw0KLQ0KLQlpZiAoc2l6ZSA+IDAgJiYgY29w
+eV9mcm9tX3VzZXIoa3ZhbHVlLCB2YWx1ZSwgc2l6ZSkpIHsNCi0JCXhhdHRyX2ZyZWUoa3ZhbHVl
+LCBzaXplKTsNCi0JCXJldHVybiAtRUZBVUxUOw0KKwlpZiAoc2l6ZSkgew0KKwkJaWYgKHNpemUg
+PiBYQVRUUl9TSVpFX01BWCkNCisJCQlyZXR1cm4gLUUyQklHOw0KKwkJa3ZhbHVlID0ga21hbGxv
+YyhzaXplLCBHRlBfS0VSTkVMKTsNCisJCWlmICgha3ZhbHVlKQ0KKwkJCXJldHVybiAtRU5PTUVN
+Ow0KKwkJaWYgKGNvcHlfZnJvbV91c2VyKGt2YWx1ZSwgdmFsdWUsIHNpemUpKSB7DQorCQkJa2Zy
+ZWUoa3ZhbHVlKTsNCisJCQlyZXR1cm4gLUVGQVVMVDsNCisJCX0NCiAJfQ0KIA0KIAllcnJvciA9
+IC1FT1BOT1RTVVBQOw0KQEAgLTkwLDcgKzU5LDggQEAgc2V0eGF0dHIoc3RydWN0IGRlbnRyeSAq
+ZCwgY2hhciBfX3VzZXIgKg0KIG91dDoNCiAJCXVwKCZkLT5kX2lub2RlLT5pX3NlbSk7DQogCX0N
+Ci0JeGF0dHJfZnJlZShrdmFsdWUsIHNpemUpOw0KKwlpZiAoa3ZhbHVlKQ0KKwkJa2ZyZWUoa3Zh
+bHVlKTsNCiAJcmV0dXJuIGVycm9yOw0KIH0NCiANCkBAIC0xNDYsNyArMTE2LDcgQEAgc3RhdGlj
+IHNzaXplX3QNCiBnZXR4YXR0cihzdHJ1Y3QgZGVudHJ5ICpkLCBjaGFyIF9fdXNlciAqbmFtZSwg
+dm9pZCBfX3VzZXIgKnZhbHVlLCBzaXplX3Qgc2l6ZSkNCiB7DQogCXNzaXplX3QgZXJyb3I7DQot
+CXZvaWQgKmt2YWx1ZTsNCisJdm9pZCAqa3ZhbHVlID0gTlVMTDsNCiAJY2hhciBrbmFtZVtYQVRU
+Ul9OQU1FX01BWCArIDFdOw0KIA0KIAllcnJvciA9IHN0cm5jcHlfZnJvbV91c2VyKGtuYW1lLCBu
+YW1lLCBzaXplb2Yoa25hbWUpKTsNCkBAIC0xNTUsOSArMTI1LDEzIEBAIGdldHhhdHRyKHN0cnVj
+dCBkZW50cnkgKmQsIGNoYXIgX191c2VyICoNCiAJaWYgKGVycm9yIDwgMCkNCiAJCXJldHVybiBl
+cnJvcjsNCiANCi0Ja3ZhbHVlID0geGF0dHJfYWxsb2Moc2l6ZSwgWEFUVFJfU0laRV9NQVgpOw0K
+LQlpZiAoSVNfRVJSKGt2YWx1ZSkpDQotCQlyZXR1cm4gUFRSX0VSUihrdmFsdWUpOw0KKwlpZiAo
+c2l6ZSkgew0KKwkJaWYgKHNpemUgPiBYQVRUUl9TSVpFX01BWCkNCisJCQlzaXplID0gWEFUVFJf
+U0laRV9NQVg7DQorCQlrdmFsdWUgPSBrbWFsbG9jKHNpemUsIEdGUF9LRVJORUwpOw0KKwkJaWYg
+KCFrdmFsdWUpDQorCQkJcmV0dXJuIC1FTk9NRU07DQorCX0NCiANCiAJZXJyb3IgPSAtRU9QTk9U
+U1VQUDsNCiAJaWYgKGQtPmRfaW5vZGUtPmlfb3AgJiYgZC0+ZF9pbm9kZS0+aV9vcC0+Z2V0eGF0
+dHIpIHsNCkBAIC0xNjUsMTMgKzEzOSwxOCBAQCBnZXR4YXR0cihzdHJ1Y3QgZGVudHJ5ICpkLCBj
+aGFyIF9fdXNlciAqDQogCQlpZiAoZXJyb3IpDQogCQkJZ290byBvdXQ7DQogCQllcnJvciA9IGQt
+PmRfaW5vZGUtPmlfb3AtPmdldHhhdHRyKGQsIGtuYW1lLCBrdmFsdWUsIHNpemUpOw0KKwkJaWYg
+KGVycm9yID4gMCkgew0KKwkJCWlmIChjb3B5X3RvX3VzZXIodmFsdWUsIGt2YWx1ZSwgZXJyb3Ip
+KQ0KKwkJCQllcnJvciA9IC1FRkFVTFQ7DQorCQl9IGVsc2UgaWYgKGVycm9yID09IC1FUkFOR0Ug
+JiYgc2l6ZSA+PSBYQVRUUl9TSVpFX01BWCkgew0KKwkJCS8qIFRoZSBmaWxlIHN5c3RlbSB0cmll
+ZCB0byByZXR1cm5lZCBhIHZhbHVlIGJpZ2dlcg0KKwkJCSAgIHRoYW4gWEFUVFJfU0laRV9NQVgg
+Ynl0ZXMuIE5vdCBwb3NzaWJsZS4gKi8NCisJCQllcnJvciA9IC1FMkJJRzsNCisJCX0NCiAJfQ0K
+LQ0KLQlpZiAoa3ZhbHVlICYmIGVycm9yID4gMCkNCi0JCWlmIChjb3B5X3RvX3VzZXIodmFsdWUs
+IGt2YWx1ZSwgZXJyb3IpKQ0KLQkJCWVycm9yID0gLUVGQVVMVDsNCiBvdXQ6DQotCXhhdHRyX2Zy
+ZWUoa3ZhbHVlLCBzaXplKTsNCisJaWYgKGt2YWx1ZSkNCisJCWtmcmVlKGt2YWx1ZSk7DQogCXJl
+dHVybiBlcnJvcjsNCiB9DQogDQpAQCAtMjI2LDExICsyMDUsMTUgQEAgc3RhdGljIHNzaXplX3QN
+CiBsaXN0eGF0dHIoc3RydWN0IGRlbnRyeSAqZCwgY2hhciBfX3VzZXIgKmxpc3QsIHNpemVfdCBz
+aXplKQ0KIHsNCiAJc3NpemVfdCBlcnJvcjsNCi0JY2hhciAqa2xpc3Q7DQorCWNoYXIgKmtsaXN0
+ID0gTlVMTDsNCiANCi0Ja2xpc3QgPSAoY2hhciAqKXhhdHRyX2FsbG9jKHNpemUsIFhBVFRSX0xJ
+U1RfTUFYKTsNCi0JaWYgKElTX0VSUihrbGlzdCkpDQotCQlyZXR1cm4gUFRSX0VSUihrbGlzdCk7
+DQorCWlmIChzaXplKSB7DQorCQlpZiAoc2l6ZSA+IFhBVFRSX0xJU1RfTUFYKQ0KKwkJCXNpemUg
+PSBYQVRUUl9MSVNUX01BWDsNCisJCWtsaXN0ID0ga21hbGxvYyhzaXplLCBHRlBfS0VSTkVMKTsN
+CisJCWlmICgha2xpc3QpDQorCQkJcmV0dXJuIC1FTk9NRU07DQorCX0NCiANCiAJZXJyb3IgPSAt
+RU9QTk9UU1VQUDsNCiAJaWYgKGQtPmRfaW5vZGUtPmlfb3AgJiYgZC0+ZF9pbm9kZS0+aV9vcC0+
+bGlzdHhhdHRyKSB7DQpAQCAtMjM4LDEzICsyMjEsMTggQEAgbGlzdHhhdHRyKHN0cnVjdCBkZW50
+cnkgKmQsIGNoYXIgX191c2VyIA0KIAkJaWYgKGVycm9yKQ0KIAkJCWdvdG8gb3V0Ow0KIAkJZXJy
+b3IgPSBkLT5kX2lub2RlLT5pX29wLT5saXN0eGF0dHIoZCwga2xpc3QsIHNpemUpOw0KKwkJaWYg
+KGVycm9yID4gMCkgew0KKwkJCWlmIChjb3B5X3RvX3VzZXIobGlzdCwga2xpc3QsIGVycm9yKSkN
+CisJCQkJZXJyb3IgPSAtRUZBVUxUOw0KKwkJfSBlbHNlIGlmIChlcnJvciA9PSAtRVJBTkdFICYm
+IHNpemUgPj0gWEFUVFJfTElTVF9NQVgpIHsNCisJCQkvKiBUaGUgZmlsZSBzeXN0ZW0gdHJpZWQg
+dG8gcmV0dXJuZWQgYSBsaXN0IGJpZ2dlcg0KKwkJCSAgIHRoYW4gWEFUVFJfTElTVF9NQVggYnl0
+ZXMuIE5vdCBwb3NzaWJsZS4gKi8NCisJCQllcnJvciA9IC1FMkJJRzsNCisJCX0NCiAJfQ0KLQ0K
+LQlpZiAoa2xpc3QgJiYgZXJyb3IgPiAwKQ0KLQkJaWYgKGNvcHlfdG9fdXNlcihsaXN0LCBrbGlz
+dCwgZXJyb3IpKQ0KLQkJCWVycm9yID0gLUVGQVVMVDsNCiBvdXQ6DQotCXhhdHRyX2ZyZWUoa2xp
+c3QsIHNpemUpOw0KKwlpZiAoa2xpc3QpDQorCQlrZnJlZShrbGlzdCk7DQogCXJldHVybiBlcnJv
+cjsNCiB9DQogDQo=
 
-	Ingo
+--=-LVqAoagDeM4SiMwfUbY0--
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="uml-fixes-2.6.2-rc3-mm1-A2"
+--=-ydLBgXRXp4y+ovxFMzdV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
---- linux/drivers/base/Makefile.orig	
-+++ linux/drivers/base/Makefile	
-@@ -2,7 +2,8 @@
- 
- obj-y			:= core.o sys.o interface.o bus.o \
- 			   driver.o class.o class_simple.o platform.o \
--			   cpu.o firmware.o init.o map.o dmapool.o
-+			   cpu.o firmware.o init.o map.o
-+obj-$(CONFIG_PCI)	+= dmapool.o
- obj-y			+= power/
- obj-$(CONFIG_FW_LOADER)	+= firmware_class.o
- obj-$(CONFIG_NUMA)	+= node.o
---- linux/arch/i386/kernel/head.S.orig	
-+++ linux/arch/i386/kernel/head.S	
-@@ -13,6 +13,7 @@
- #include <linux/linkage.h>
- #include <asm/segment.h>
- #include <asm/page.h>
-+#include <asm/processor.h>
- #include <asm/pgtable.h>
- #include <asm/desc.h>
- #include <asm/cache.h>
---- linux/arch/i386/kernel/vmlinux.lds.S.orig	
-+++ linux/arch/i386/kernel/vmlinux.lds.S	
-@@ -5,6 +5,7 @@
- #include <asm-generic/vmlinux.lds.h>
- #include <linux/config.h>
- #include <asm/page.h>
-+#include <asm/processor.h>
- #include <asm/asm_offsets.h>
- 	
- OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
---- linux/arch/i386/boot/setup.S.orig	
-+++ linux/arch/i386/boot/setup.S	
-@@ -61,6 +61,7 @@
- #include <asm/e820.h>
- #include <asm/edd.h>    
- #include <asm/page.h>
-+#include <asm/processor.h>
- 	
- /* Signature words to ensure LILO loaded us right */
- #define SIG1	0xAA55
---- linux/arch/um/kernel/sys_call_table.c.orig	
-+++ linux/arch/um/kernel/sys_call_table.c	
-@@ -151,7 +151,6 @@ extern syscall_handler_t sys_mlockall;
- extern syscall_handler_t sys_munlockall;
- extern syscall_handler_t sys_sched_setparam;
- extern syscall_handler_t sys_sched_getparam;
--extern syscall_handler_t sys_sched_setscheduler;
- extern syscall_handler_t sys_sched_getscheduler;
- extern syscall_handler_t sys_sched_get_priority_max;
- extern syscall_handler_t sys_sched_get_priority_min;
-@@ -275,7 +274,7 @@ extern syscall_handler_t um_mount;
- extern syscall_handler_t um_time;
- extern syscall_handler_t um_stime;
- 
--#define LAST_GENERIC_SYSCALL __NR_remap_file_pages
-+#define LAST_GENERIC_SYSCALL __NR_sys_fadvise64_64
- 
- #if LAST_GENERIC_SYSCALL > LAST_ARCH_SYSCALL
- #define LAST_SYSCALL LAST_GENERIC_SYSCALL
-@@ -442,7 +441,7 @@ syscall_handler_t *sys_call_table[] = {
- 	[ __NR_munlockall ] = sys_munlockall,
- 	[ __NR_sched_setparam ] = sys_sched_setparam,
- 	[ __NR_sched_getparam ] = sys_sched_getparam,
--	[ __NR_sched_setscheduler ] = sys_sched_setscheduler,
-+	[ __NR_sched_setscheduler ] = (syscall_handler_t *) sys_sched_setscheduler,
- 	[ __NR_sched_getscheduler ] = sys_sched_getscheduler,
- 	[ __NR_sched_yield ] = (syscall_handler_t *) yield,
- 	[ __NR_sched_get_priority_max ] = sys_sched_get_priority_max,
---- linux/arch/um/kernel/um_arch.c.orig	
-+++ linux/arch/um/kernel/um_arch.c	
-@@ -393,7 +393,7 @@ static int panic_exit(struct notifier_bl
- 		      void *unused2)
- {
- #ifdef CONFIG_MAGIC_SYSRQ
--	handle_sysrq('p', &current->thread.regs, NULL, NULL);
-+	handle_sysrq('p', &current->thread.regs, NULL);
- #endif
- 	machine_halt();
- 	return(0);
---- linux/include/asm-i386/page.h.orig	
-+++ linux/include/asm-i386/page.h	
-@@ -79,30 +79,6 @@ typedef struct { unsigned long pgprot; }
- #define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&PAGE_MASK)
- 
- /*
-- * This handles the memory map.. We could make this a config
-- * option, but too many people screw it up, and too few need
-- * it.
-- *
-- * A __PAGE_OFFSET of 0xC0000000 means that the kernel has
-- * a virtual address space of one gigabyte, which limits the
-- * amount of physical memory you can use to about 950MB. 
-- *
-- * If you want more physical memory than this then see the CONFIG_HIGHMEM4G
-- * and CONFIG_HIGHMEM64G options in the kernel configuration.
-- *
-- * Note: on PAE the kernel must never go below 32 MB, we use the
-- * first 8 entries of the 2-level boot pgd for PAE magic.
-- */
--
--#ifdef CONFIG_X86_4G_VM_LAYOUT
--#define __PAGE_OFFSET		(0x02000000)
--#define TASK_SIZE		(0xff000000)
--#else
--#define __PAGE_OFFSET		(0xc0000000)
--#define TASK_SIZE		(0xc0000000)
--#endif
--
--/*
-  * This much address space is reserved for vmalloc() and iomap()
-  * as well as fixmap mappings.
-  */
---- linux/include/asm-i386/processor.h.orig	
-+++ linux/include/asm-i386/processor.h	
-@@ -7,6 +7,8 @@
- #ifndef __ASM_I386_PROCESSOR_H
- #define __ASM_I386_PROCESSOR_H
- 
-+#ifndef __ASSEMBLY__
-+
- #include <asm/vm86.h>
- #include <asm/math_emu.h>
- #include <asm/segment.h>
-@@ -649,4 +651,30 @@ extern void select_idle_routine(const st
- #define ARCH_HAS_SCHED_WAKE_BALANCE
- #endif
- 
-+#endif /* ! __ASSEMBLY__ */
-+
-+/*
-+ * This handles the memory map.. We could make this a config
-+ * option, but too many people screw it up, and too few need
-+ * it.
-+ *
-+ * A __PAGE_OFFSET of 0xC0000000 means that the kernel has
-+ * a virtual address space of one gigabyte, which limits the
-+ * amount of physical memory you can use to about 950MB. 
-+ *
-+ * If you want more physical memory than this then see the CONFIG_HIGHMEM4G
-+ * and CONFIG_HIGHMEM64G options in the kernel configuration.
-+ *
-+ * Note: on PAE the kernel must never go below 32 MB, we use the
-+ * first 8 entries of the 2-level boot pgd for PAE magic.
-+ */
-+
-+#ifdef CONFIG_X86_4G_VM_LAYOUT
-+#define __PAGE_OFFSET		(0x02000000)
-+#define TASK_SIZE		(0xff000000)
-+#else
-+#define __PAGE_OFFSET		(0xc0000000)
-+#define TASK_SIZE		(0xc0000000)
-+#endif
-+
- #endif /* __ASM_I386_PROCESSOR_H */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
---r5Pyd7+fXNt84Ff3--
+iD8DBQBAH5mDmOIAAGuEUugRAnGwAKCeKw4n3ANgg2GLjKiURMKp9SNo6gCgjhkm
+m2cBIWxYt6ayu0ryA25gFLQ=
+=+j9b
+-----END PGP SIGNATURE-----
+
+--=-ydLBgXRXp4y+ovxFMzdV--
+

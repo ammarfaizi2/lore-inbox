@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbTIORB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 13:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbTIORB0
+	id S261563AbTIOQ5W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 12:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbTIOQ5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 13:01:26 -0400
-Received: from pat.uio.no ([129.240.130.16]:55181 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261571AbTIORBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 13:01:23 -0400
-MIME-Version: 1.0
+	Mon, 15 Sep 2003 12:57:22 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:46096 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S261563AbTIOQ5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 12:57:17 -0400
+Date: Mon, 15 Sep 2003 13:59:28 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, rusty@rustcorp.com.au
+Subject: Re: 2.6.0-test5-mm2
+Message-ID: <20030915165928.GC1142@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, rusty@rustcorp.com.au
+References: <20030914234843.20cea5b3.akpm@osdl.org> <1063636490.5588.10.camel@lorien>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16229.61532.593859.352036@charged.uio.no>
-Date: Mon, 15 Sep 2003 13:01:16 -0400
-To: russell@coker.com.au
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops on 2.4.22 when mounting from broken NFS server
-In-Reply-To: <200309160221.34621.russell@coker.com.au>
-References: <200309131938.40177.russell@coker.com.au>
-	<200309152247.20462.russell@coker.com.au>
-	<shs3ceyjc4k.fsf@charged.uio.no>
-	<200309160221.34621.russell@coker.com.au>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Disposition: inline
+In-Reply-To: <1063636490.5588.10.camel@lorien>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Russell Coker <russell@coker.com.au> writes:
+Em Mon, Sep 15, 2003 at 11:34:51AM -0300, Luiz Capitulino escreveu:
+> #ifdef CONFIG_NETFILTER_DEBUG
+>         nf_debug_ip_local_deliver(skb);
+>         skb->nf_debug =3D 0;
+                         ^^
 
-     > I expect the NFS client to behave sensibly in the face of all
-     > possible server errors, including the possibility of a hostile
-     > NFS server.
+Fixed in DaveM's tree, this kind of messages should be posted to the netfilter
+and/or netdev mailing lists.
 
-No can do... There are 100s of scenarios where the server can screw
-the client by giving it bogus information. You might possibly be able
-to protect against a few of them, but at a heavy price in the form of
-code bloat.
-Neither NFSv2 nor NFSv3 are protocols that were designed to operate
-safely in a hostile environment. They were designed for LANs where
-servers and clients trust one another.
-
-I agree that we shouldn't Oops though.
-
-    >> BTW: that Oops you posted looked very much like a memory
-    >> corruption problem. Were you running vanilla 2.4.22 on the
-    >> client, or was it too patched?
-
-     > It was also patched.  I will try and reproduce the error with
-     > an unpatched kernel and a tcpdump running.
-
-Please do...
-
-Cheers,
-  Trond
+- Arnaldo

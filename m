@@ -1,70 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135396AbRD3S06>; Mon, 30 Apr 2001 14:26:58 -0400
+	id <S135323AbRD3S3i>; Mon, 30 Apr 2001 14:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135323AbRD3S0s>; Mon, 30 Apr 2001 14:26:48 -0400
-Received: from rhenium.btinternet.com ([194.73.73.93]:33200 "EHLO rhenium")
-	by vger.kernel.org with ESMTP id <S135310AbRD3S0f>;
-	Mon, 30 Apr 2001 14:26:35 -0400
-Date: Mon, 30 Apr 2001 19:36:29 +0000 (GMT)
-From: James Stevenson <mistral@stev.org>
-To: cacook@freedom.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Common GUI Config for All Users
-In-Reply-To: <200104301908.f3UJ8Ds09687@mrburns.mantissa.net>
-Message-ID: <Pine.LNX.4.21.0104301935350.23195-100000@cyrix.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135497AbRD3S3a>; Mon, 30 Apr 2001 14:29:30 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:29000 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135323AbRD3S3W>; Mon, 30 Apr 2001 14:29:22 -0400
+Date: Mon, 30 Apr 2001 20:28:24 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ion Badulescu <ionut@cs.columbia.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19 locks up on SMP
+Message-ID: <20010430202824.I19620@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0104281402090.2487-100000@age.cs.columbia.edu> <E14uHtt-0008KA-00@the-village.bc.nu> <20010430201547.G19620@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010430201547.G19620@athlon.random>; from andrea@suse.de on Mon, Apr 30, 2001 at 08:15:47PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 30, 2001 at 08:15:47PM +0200, Andrea Arcangeli wrote:
+> suggest to try again with 2.2.19 but with the drivers/net/* of 2.2.18.
 
-Hi
+even better try vanilla 2.2.19aa2 and if it crashes too, try 2.2.19aa2
+plus the drivers/net/* of 2.2.18.
 
-yeah but i did not see those posts
-anyway you can either run X as a nice window
-system adn run gtk or kde on it i prefere gtk for my needs
-because i find kde a bit heavy
-
-On Mon, 30 Apr 2001 cacook@freedom.net wrote:
-
-> This was my point... Mohammad WAS the only one to help and not criticize.
-> 
-> I did not pass along the crap I got from the 'bad attitudes', like Jasper Jans, Mark Hahn, & Paul Dunne.  All grief, no guidance nor respect.  Tough to be a newbie.
-> --
-> C.
-> 
-> The best way out is always through.
->       - Robert Frost  A Servant to Servants, 1914
-> 
-> 
-> James Stevenson wrote:
-> 
-> > Hi
-> >
-> > >Thank you for the =constructive= answer Mohammad.  I have thusfar only received criticism for my question, with no further
-> > >  information, which I think is destructive to the spirit of the list, and to the culture.
-> >
-> > i belive he did give you extra information look at the section below
-> > is it just me or is there a web site address in there.
-> > also dont expect information to be handed to you on a plate.
-> >
-> > >> This list doesn't deal with what you are asking. Try
-> > >> http://www.linux.com and see if anything/anyone there can help you.
-> >
-> > --
-> > ---------------------------------------------
-> > Check Out: http://stev.org
-> > E-Mail: mistral@stev.org
-> >   6:50pm  up 6 days,  5:38,  4 users,  load average: 0.95, 1.13, 0.83
-> 
-> 
-> 
-> 
-
--- 
----------------------------------------------
-Check Out: http://stev.org
-E-Mail: mistral@stev.org
-  7:30pm  up 6 days,  6:18,  4 users,  load average: 0.58, 0.98, 1.11
-
+Andrea

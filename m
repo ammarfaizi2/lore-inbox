@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316895AbSGBSHa>; Tue, 2 Jul 2002 14:07:30 -0400
+	id <S316845AbSGBSXA>; Tue, 2 Jul 2002 14:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316896AbSGBSH3>; Tue, 2 Jul 2002 14:07:29 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:58777 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316895AbSGBSH3> convert rfc822-to-8bit; Tue, 2 Jul 2002 14:07:29 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: Tom Rini <trini@kernel.crashing.org>
-Subject: Re: [OKS] Module removal
-Date: Tue, 2 Jul 2002 20:10:50 +0200
-User-Agent: KMail/1.4.1
-Cc: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
-References: <20020702155319.25599.qmail@eklektix.com> <200207021807.06174.oliver@neukum.name> <20020702174831.GP20920@opus.bloom.county>
-In-Reply-To: <20020702174831.GP20920@opus.bloom.county>
+	id <S316848AbSGBSW7>; Tue, 2 Jul 2002 14:22:59 -0400
+Received: from h64-251-67-69.bigpipeinc.com ([64.251.67.69]:11276 "HELO
+	kelownamail.packeteer.com") by vger.kernel.org with SMTP
+	id <S316845AbSGBSW7>; Tue, 2 Jul 2002 14:22:59 -0400
+From: "Stephane Charette" <stephanecharette@telus.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Tue, 02 Jul 2002 11:25:27 -0700
+Reply-To: "Stephane Charette" <stephanecharette@telus.net>
+X-Mailer: PMMail 2000 Standard (2.20.2502) For Windows 2000 (5.0.2195;2)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207022010.50572.oliver@neukum.name>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: what is the performance impact of using "idle=poll"?
+Message-Id: <20020702182259Z316845-685+2263@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 2. Juli 2002 19:48 schrieb Tom Rini:
-> On Tue, Jul 02, 2002 at 06:07:06PM +0200, Oliver Neukum wrote:
-> > > developing drivers and such.  Aunt Tillie would no longer be able to
-> > > remove modules from her kernel, but that's not likely to bother her
-> > > too much...
-> >
-> > It would very much bother uncle John, who is in high availability.
->
-> Then the HA kernel turns on the ability to still remove modules, along
-> with all of the other things needed in an HA environment but not
-> elsewhere.  Provided removing a module doesn't become a horribly racy,
-> barely usable bit of functionality, which I hope it won't.
+I was reading through "The Linux BootPrompt-HowTo" at "http://www.ibiblio.org/mdw/HOWTO/BootPrompt-HOWTO.html".
 
-Either there is a race or there isn't. Such a thing is unusable on a
-production system.
+In section 3.5, I found the following:
 
-	Regards
-		Oliver
+   The `idle=' Argument
+
+   Setting this to `poll' causes the idle loop in the
+   kernel to poll on the need reschedule flag instead
+   of waiting for an interrupt to happen.  This can
+   result in an improvement in performance on SMP
+   systems (albeit at the cost of an increase in power
+   consumption).
+
+I tried to run a few performance tests with 2.4.19-pre9-vanilla-SMP running on a dual-CPU Athlon 1600MHz box.  Idle polling was enabled as evidenced by the message "using polling idle threads" on bootup.
+
+While my tests were limited in nature (webstone against an in-house web server, thus not reproducable within the open community), I saw a performance degrade with the "idle=poll" option instead of seeing any performance increase.  In one set of tests, idle=poll resulted in 1% degradation, while another run (with the scheduling patch) showed a 2.6% hit.  The actual values of my performance tests are not important -- the trend is what I wish to higlight.
+
+My questions:
+
+1) is this a known issue?
+2) Was "idle=poll" an old performance hack that no longer applies to the newer kernels but remains in the code?
+3) Should it still valid?
+4) Has anyone run benchmarks recently and seen a performance hit with idle=poll, instead of the possible "improvement in performance" as stated in the HOW-TO?
+
+A search on google has shown some fairly recent discussion on the kernel list about idle=poll, but nothing that was either definitive, nor conclusive, especially in regards to performance impacts on an SMP kernel running on an SMP box.
+
+Thanks,
+
+Stephane Charette
 
 

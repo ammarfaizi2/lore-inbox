@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292859AbSCFBQI>; Tue, 5 Mar 2002 20:16:08 -0500
+	id <S292858AbSCFBS2>; Tue, 5 Mar 2002 20:18:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292858AbSCFBPs>; Tue, 5 Mar 2002 20:15:48 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41604 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S292854AbSCFBPr>;
-	Tue, 5 Mar 2002 20:15:47 -0500
-Date: Tue, 05 Mar 2002 17:13:33 -0800 (PST)
-Message-Id: <20020305.171333.72710637.davem@redhat.com>
-To: adam@yggdrasil.com
-Cc: sp@scali.com, linux-kernel@vger.kernel.org
-Subject: Re: Does kmalloc always return address below 4GB?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200203051708.JAA05742@adam.yggdrasil.com>
-In-Reply-To: <200203051708.JAA05742@adam.yggdrasil.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S292879AbSCFBST>; Tue, 5 Mar 2002 20:18:19 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:18592 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292858AbSCFBSH>; Tue, 5 Mar 2002 20:18:07 -0500
+Message-ID: <3C856E42.50304@us.ibm.com>
+Date: Tue, 05 Mar 2002 17:17:54 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] remove BKL from ext2_get_block() version 2
+In-Reply-To: <E16iPdM-0004x1-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Adam J. Richter" <adam@yggdrasil.com>
-   Date: Tue, 5 Mar 2002 09:08:20 -0800
+Alan Cox wrote:
+> I certainly am not interested in it. 2.4 locking changes for very big boxes
+> strike me as a little dangerous.
 
-   Steffen Persvold writes:
-   >I know pci_map_single (and _sg) will
-   >use bounce buffers on platforms without an IOMMU [...]
-   
-   	For a moment I thought that must be the point that I
-   was missing, but I don't see any such bounce buffer support
-   in linux-2.5.6-pre2/include/asm-i386/pci.h or arch/i386/kernel/pci-dma.c.
-   I do not see how this is currently implemented on x86 systems with >4GB
-   of RAM.
+I think that I may have presented the patch in the wrong way.  The 
+primary reason I'm doing this is BKL removal.  The ext2 code just 
+happened to be one of the worst offenders that I'd run into.  I've been 
+using the 8-way with dbench because it produces a the worst-case 
+scenario I can think of.  I also like watching it compile kernels in 
+just over a minute.  :)
 
-You won't get HIGHMEM pages in your driver unless you are using
-2.5.x and tell the scsi layer you are capable to DMA to/from
-HIGHMEM pages.
+This patch was also a backport of an Al Viro 2.5 change, so I consider 
+it pretty safe.  Only time and testing can tell, but I've tested it 
+about as much as I can.
 
-Similarly for networking drivers, and setting NETIF_F_HIGHDMA in
-the net device feature flags.
+All of this becomes pretty academic if Al decides that he will backport 
+the 2.5 changes, which we all want to see.
+
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

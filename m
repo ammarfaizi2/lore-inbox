@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVCSGKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbVCSHJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262415AbVCSGKN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 01:10:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVCSGKN
+	id S262422AbVCSHJO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 02:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVCSHJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 01:10:13 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24736 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262415AbVCSGJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 01:09:51 -0500
-Subject: Re: [PATCH 2.4.30-pre3] x86_64: pci_alloc_consistent() match 2.6
-	implementation
-From: Arjan van de Ven <arjan@infradead.org>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20050318212344.GC26112@lists.us.dell.com>
-References: <20050318212344.GC26112@lists.us.dell.com>
-Content-Type: text/plain
-Date: Sat, 19 Mar 2005 07:09:45 +0100
-Message-Id: <1111212585.6291.41.camel@laptopd505.fenrus.org>
+	Sat, 19 Mar 2005 02:09:14 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:4825 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262422AbVCSHJK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 02:09:10 -0500
+Date: Sat, 19 Mar 2005 08:08:10 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "Jack O'Quin" <joq@io.com>
+Subject: Re: Latency tests with 2.6.12-rc1
+Message-ID: <20050319070810.GA20059@elte.hu>
+References: <1111204984.12740.22.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111204984.12740.22.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-18 at 15:23 -0600, Matt Domsch wrote:
-> For review and comment.
+
+* Lee Revell <rlrevell@joe-job.com> wrote:
+
+> I did the same quick latency tests with 2.6.12-rc1 that I posted about
+> for 2.6.11 a few weeks ago.
 > 
-> On x86_64 systems with no IOMMU and with >4GB RAM (in fact, whenever
-> there are any pages mapped above 4GB), pci_alloc_consistent() falls
-> back to using ZONE_DMA for all allocations, even if the device's
-> dma_mask could have supported using memory from other zones.  Problems
-> can be seen when other ZONE_DMA users (SWIOTLB, scsi_malloc()) consume
-> all of ZONE_DMA, leaving none left for pci_alloc_consistent() use.
+> 2.6.12-rc1 is significantly better than 2.6.11.  Running JACK at 64
+> frames (1.3 ms) works very well.  I was not able to produce xruns even
+> with "dbench 64", which slows the system to a crawl.  With 2.6.11, I
+> could easily produce xruns with much lighter loads.
+> 
+> It would appear that the latency issues related to the 4 level page
+> tables merge have been resolved.
 
-scsi_malloc no longer uses ZONE_DMA nowadays....
+great! The change in question is most likely the copy_page_range() fix
+that Hugh resurrected:
 
+ChangeSet 1.2037, 2005/03/08 09:26:46-08:00, hugh@veritas.com
 
+	[PATCH] copy_pte_range latency fix
+	
+	Ingo's patch to reduce scheduling latencies, by checking for lockbreak in
+	copy_page_range, was in the -VP and -mm patchsets some months ago; but got
+	preempted by the 4level rework, and not reinstated since. Restore it now
+	in copy_pte_range - which mercifully makes it easier.
+
+are the ext3 related latencies are gone as well - or are you working it
+around by not using data=ordered?
+
+    Ingo

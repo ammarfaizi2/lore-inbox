@@ -1,77 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129156AbRB1Xx3>; Wed, 28 Feb 2001 18:53:29 -0500
+	id <S129402AbRB1XuI>; Wed, 28 Feb 2001 18:50:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129359AbRB1XxT>; Wed, 28 Feb 2001 18:53:19 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:51214 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129156AbRB1XxI>; Wed, 28 Feb 2001 18:53:08 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: Thu, 1 Mar 2001 09:15:29 +1100 (EST)
-MIME-Version: 1.0
+	id <S129389AbRB1Xt6>; Wed, 28 Feb 2001 18:49:58 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:49424 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S129156AbRB1Xtl>;
+	Wed, 28 Feb 2001 18:49:41 -0500
+Date: Wed, 28 Feb 2001 16:50:26 -0700
+From: Cort Dougan <cort@fsmlabs.com>
+To: Andrew Morton <morton@nortelnetworks.com>
+Cc: ebuddington@wesleyan.edu, linux-kernel@vger.kernel.org
+Subject: Re: time drift and fb comsole activity
+Message-ID: <20010228165026.K28471@ftsoj.fsmlabs.com>
+In-Reply-To: <20010228170030.C2122@sparrow.nad.adelphia.net> <3A9D8BC4.45009947@asiapacificm01.nt.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15005.30849.720697.525157@notabene.cse.unsw.edu.au>
-Cc: David Fries <dfries@umr.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Stale NFS handles on 2.4.2
-In-Reply-To: message from Trond Myklebust on  February 28
-In-Reply-To: <20010214002750.B11906@unthought.net>
-	<20010224141855.B12988@d-131-151-189-65.dynamic.umr.edu>
-	<15000.39826.947692.141119@notabene.cse.unsw.edu.au>
-	<20010224235342.D483@d-131-151-189-65.dynamic.umr.edu>
-	<15000.53110.664338.230709@notabene.cse.unsw.edu.au>
-	<20010225131013.E483@d-131-151-189-65.dynamic.umr.edu>
-	<15004.16978.439300.108625@notabene.cse.unsw.edu.au>
-	<shsd7c3817s.fsf@charged.uio.no>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A9D8BC4.45009947@asiapacificm01.nt.com>; from morton@nortelnetworks.com on Wed, Feb 28, 2001 at 11:37:40PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  February 28, trond.myklebust@fys.uio.no wrote:
-> >>>>> " " == Neil Brown <neilb@cse.unsw.edu.au> writes:
-> 
->      > So... you can access things under /home/david, but you cannot
->      > access /home/david itself?  So, supposing that "fred" were some
->      > file that you happen to know is in /home/david, then
-> 
->      >     ls /home/david fails with ESTALE and does not cause
->      > 			       any traffic to the server and
-> 
-> This is normal. Once an inode gets flagged as being stale, then it
-> remains stale. After all it would be a bug too if a filehandle were
-> stale one moment, and then not the next.
-> 
-I don't think that is necessarily a bug.
-If I mis-configured the server to deny access to a particular client,
-the client would start getting NFSERR_STALE responses.  I notice the
-problem and reconfigure the server and I would expect the ESTALE
-errors to go away.  But apparently they don't.   Or atleast they don't
-as long as the inode stays in the cache.  Once it gets flushed from
-the cache, a lookup will cause everything to work again.
-But if an object below a "STALE" directory is being held open, the
-inode will never get flushed and so the inode stays stale.
+We have the same trouble on PPC but we make sure to re-sync on each
+interrupt.  We can see several lost timer interrupts after a ^L in emacs
+running on the fb console.  The resync lets us catch up on those interrupts
+(and not lose time) but we still spend a lot of time not servicing
+interrupts.
 
-What is really odd about this situation is that whenever David tries
-to access his home directory (/home/david) nfs_lookup_revalidate will
-be called which will (if the cache isn't fresh enough) do a "lookup"
-which returns the filehandle and attributes of /home/david.  This
-should be enough to convince the client that the filehandle isn't
-stale anymore.  However nfs_refresh_inode doesn't use this information
-to clear the NFS_INO_STALE flag.  Maybe it should.
+Does x86 not resync on timer interrupts?
 
-In short, I really don't think that NFS_INO_STALE (or any other item
-if information received from the server) should be considered to be
-permanent and never rechecked.
-
-NeilBrown
-
-
-> The question here is therefore really why did the server tell us that
-> the filehandle was stale in the first place.
-> 
-> Cheers,
->    Trond
+} Eric Buddington wrote:
+} > 
+} > I know this has been reported on the list recently, but I think I can
+} > provide better detail. I'm running 2.4.2 with atyfb on a K6-2/266
+} > running at 250. This system has no history of clock problems.
+} > 
+} > adjtimex-1.12 --compare gives me "2nd diff" readings of -0.01 in quiescent
+} > conditions.
+} > 
+} > flipping consoles rapidly cboosts this number to -3 or -4.
+} > 
+} > catting the full documentation to ntpd (seemed appropriate) gives me
+} > "2nd diff" numbers a little over 34. If I read the numbers correctly,
+} > 47 seconds of CMOS time passed while the system clock only passed 13
+} > seconds.
+} > 
+} > The processor and the CMOS clock were moving at zero velocity relative
+} > to each other, and were both in normal Earth gravity.
+} 
+} The kernel blocks interrupts during console output.  fbdev
+} consoles are slow.  Net result: many lost timer interrupts.
+} 
+} I'm working on it.  Slowly.  Should have something next week.

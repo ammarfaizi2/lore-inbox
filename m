@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262461AbSJ0QhG>; Sun, 27 Oct 2002 11:37:06 -0500
+	id <S262464AbSJ0Qtp>; Sun, 27 Oct 2002 11:49:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262464AbSJ0QhF>; Sun, 27 Oct 2002 11:37:05 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:11975 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id <S262461AbSJ0QhE>;
-	Sun, 27 Oct 2002 11:37:04 -0500
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Alex Romosan <romosan@sycorax.lbl.gov>, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at drivers/serial/core.c:1067 with 2.5.44
-References: <87elabdf1q.fsf@sycorax.lbl.gov>
-	<20021027163307.A9553@flint.arm.linux.org.uk>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: 27 Oct 2002 08:43:07 -0800
-In-Reply-To: <20021027163307.A9553@flint.arm.linux.org.uk> (message from Russell King on Sun, 27 Oct 2002 16:33:07 +0000)
-Message-ID: <87adkzde90.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S262465AbSJ0Qtp>; Sun, 27 Oct 2002 11:49:45 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:44728 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S262464AbSJ0Qtp>;
+	Sun, 27 Oct 2002 11:49:45 -0500
+Message-ID: <3DBC1A6B.7020108@colorfullife.com>
+Date: Sun, 27 Oct 2002 17:55:07 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Peter Waechtler <pwaechtler@mac.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re:  [PATCH] unified SysV and Posix mqueues as FS
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> writes:
+ > - notification not tested
+ > - still linear search in queues
 
-> On Sun, Oct 27, 2002 at 08:25:53AM -0800, Alex Romosan wrote:
-> > Oct 27 07:39:54 trinculo kernel: kernel BUG at drivers/serial/core.c:1067!
-> 
-> Someone called uart_set_termios without the BKL held, violating the locking
-> requirements.
-> 
-> Unfortunately:
-> 
-> 1. You appear to be running a klogd that'll translate the addresses.
+Is that a problem? Receive does one linear search of the queued 
+messages, send does one linear search of the waiting receivers. Both 
+lists should be short.
 
-i am not sure what this means. i am running debian unstable. i just
-realized i ran ksymoops with the -x option (if it makes any difference
-i can resend the oops without -x).
+Could you split your patch into the functional changes and cleanup? 
+(const, size_t, you move a few definitions around, whitespace cleanups)
 
-> 2. your ksymoops doesn't seem to know what modules are loaded.
+I don't like the deep integration of the mqueues into the sysv code - is 
+that really needed?
+For example, you add the mqueue messages into the sysv array, and then 
+add lots of code to separate both again - IPC_RMID cannot remove posix 
+queues, etc.
 
-isn't this the list of modules loaded at the time?
+Have you tried to separate both further? Create a ramfs like filesystem, 
+store msg_queue in the inode structure?
+The ids array is only for sysv, only the actual message handling is 
+shared between sysv msg and posix mqueues
 
-Oct 27 07:39:54 trinculo kernel: 3c574_cs irtty irda autofs4 microcode ppp_async uhci-hcd ohci-hcd usbcore nls_cp437 vfat snd-pcm-oss snd-mixer-oss snd-ymfpci snd-pcm snd-mpu401-uart snd-rawmidi snd-ac97-codec snd-opl3-lib snd-timer snd-hwdep snd-seq-device snd soundcore
+> +  msq->q_flags |= MSG_UNLK;
+Is a "unlinked" flag needed for sysv msg? When a message queue is 
+deleted, all pending writes and reads are cancleled.
+Copy and paste from shm? shm needs unlinked handling, msg doesn't.
 
---alex--
+> +  msq->q_perm.key = IPC_PRIVATE; /* Do not find it any more */
+Does that work? The key is only needed for msgget(), not for msgsnd() or 
+msgrcv()
+> +  msg_unlock (inode->i_ino);
 
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+--
+	Manfred
+
+

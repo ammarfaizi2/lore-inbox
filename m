@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267278AbTBSU1M>; Wed, 19 Feb 2003 15:27:12 -0500
+	id <S267188AbTBSU1I>; Wed, 19 Feb 2003 15:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267300AbTBSU1L>; Wed, 19 Feb 2003 15:27:11 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:23045 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267278AbTBSU1J>; Wed, 19 Feb 2003 15:27:09 -0500
-Date: Wed, 19 Feb 2003 15:33:39 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: Thomas Molina <tmolina@cox.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.62]: 2/3: Make SCSI low-level drivers also a seperate, complete selectable submenu
-In-Reply-To: <20030219102308.A19911@beaverton.ibm.com>
-Message-ID: <Pine.LNX.3.96.1030219152634.11297A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267278AbTBSU1I>; Wed, 19 Feb 2003 15:27:08 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:40464 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S267188AbTBSU1H>;
+	Wed, 19 Feb 2003 15:27:07 -0500
+Subject: Re: hard lockup on 2.4.20 w/ nfs over frees/wan
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1045634189.4761.44.camel@zaphod>
+References: <1045634189.4761.44.camel@zaphod>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1045686971.8084.2.camel@zaphod>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 19 Feb 2003 15:36:11 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003, Patrick Mansfield wrote:
+didn't get any responses on this, but its crashes again a few times
+again today, the status code it printed out was ffff.  
 
-> On Wed, Feb 19, 2003 at 08:55:22AM -0500, Bill Davidsen wrote:
-
-> > I don't think it matters, the idea is to avoid all the low-level SCSI
-> > menus in one place, without disabling the ability to handle ATAPI devices.
-> > Using the ide-scsi or not still uses SCSI drivers AFAIK.
+On Wed, 2003-02-19 at 00:56, Shaya Potter wrote:
+> I'm trying to use frees/wan 1.99 w/ NFSv3.  I've been testing it w/
+> large r and wsize's (32k each).  When used w/o ipsec, it seems to work
+> fine.  When used w/ ipsec, make dep on a kernel source tree has
+> consistently frozen up these IBM Netfinity boxes (2*933mhz P3s w/ smp
+> kernel).  One time the last thing the kernel printk'd was
 > 
-> But as far as linux scsi is concerned, ide-scsi is a low-level SCSI driver. 
->
-> IDE and USB have there own Kconfig options that enable low-level SCSI
-> driver emulation outside of drivers/scsi, pcmcia does not, and there are
-> probably other exceptions.
+> pcnet32.c:	    printk(KERN_ERR "%s: Bus master arbitration failure,
+> status %4.4x.\n",
 > 
-> The following is simpler, though I'm not suggesting anything like this be
-> applied, since we don't have consitency. If all of the low-level scsi
-> drivers and options were under drivers/scsi, and we could separate
-> emulated versus real, something like this might be OK:
-
-I think this is a very good idea. In the long run this is one of those
-matrix things, is SCSI on USB an entry in a menu of USB or SCSI? And until
-we can access the option from either place and still have exactly one
-option, we (someone) must decide which it is.
-
-Clearly unless we do it both way at some time, some portion of the users
-will find either choice unintuitive. What you propose is a step forward,
-and if extensions are made in 2.7 which suggest rethinking, so be it.
-
-Thanks for the patch, it's goin in my tree.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+> but didn't record the status number (well it was eth0: Bus master....,
+> and it's using a pcnet32 controller, so assume that's the line). 
+> Usually it's locked up w/o printk'ing anything, last things I see on
+> console are the normal ipsec printk's
+> 
+> Is it possible that the r/w size's are causing issues when used in
+> conjuction w/ ipsec?  Am I triggering some sort of race condition?  The
+> NFS client is running the exact same kernel on the same exact hardware
+> and hasn't had an issue yet.
+> 
+> any ideas on what I can do to debug it?
+> 
+> thanks,
+> 
+> shaya
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,79 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbTHYUDm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 16:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbTHYUDm
+	id S262274AbTHYTxt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 15:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbTHYTxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 16:03:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32976 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262198AbTHYUDk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 16:03:40 -0400
-Date: Mon, 25 Aug 2003 21:03:32 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Samphan Raruenrom <samphan@nectec.or.th>
-Cc: Jens Axboe <axboe@image.dk>, linux-kernel@vger.kernel.org,
-       Linux TLE Team <rdi1@opentle.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
-Message-ID: <20030825200332.GJ454@parcelfarce.linux.theplanet.co.uk>
-References: <3F4A53ED.60801@nectec.or.th>
+	Mon, 25 Aug 2003 15:53:49 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:32217 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262274AbTHYTxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 15:53:48 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0308251201310.1157-100000@cherise>
+References: <Pine.LNX.4.44.0308251201310.1157-100000@cherise>
+Message-Id: <1061841190.717.14.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F4A53ED.60801@nectec.or.th>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 25 Aug 2003 21:53:10 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: [PM] powering down special devices
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 01:22:37AM +0700, Samphan Raruenrom wrote:
-> Hi,
+On Mon, 2003-08-25 at 21:05, Patrick Mochel wrote:
+
+> How about a flag in the power struct, which would place the device on a 
+> completely separate list from the beginning. The drivers should know 
+> whether a device needs special handling a priori, so we don't even need to 
+> touch it during the first iteration of the lists.
 > 
-> This patch add a new ioctl MOUNT_STATUS to the 2.4 kernel's cdrom
-> device. It'll be used as an API to query the mount status of a
-> cdrom :-
-> 
-> CDROM_MOUNT_STATUS
-> Return :-
-> 0 = not mount.
-> 1 = mounted, but not in-use. It is ok to umount.
-> 2 = busy. Umount will result in getting EBUSY.
-> <0 = error.
+> This would eliminate the need to check in the drivers, have no impact on 
+> the majority of drivers, and allow us to easily determine whether or not 
+> the device supports runtime power management. 
 
-Huh?   And what, pray tell, makes cdrom special?  Not to mention
-the use of ioctl, the inherent raciness of the interface and the fact
-that yes,
- 
-> This same functionality can be done in user-space,
+Not sure if we don't actually want both iterations :) It's difficult to
+knwo for sure as I lack such a device actually... But I can imagine your
+need to run with IRQs enabled to properly "flush" pending requests, then
+have IRQs disabled to do the HW shutdown.
 
-... which should be the end of it.
+For example, if you are a block device, then you need IRQ enabled so you
+can send a SUSPEND request down your request queue like IDE does (that's
+the best way to get proper synchronisation) and wait on it to complete.
+But if your HW is then broken enough that when you actually want to turn
+it off (after the queue has been properly suspended) it will leave a
+dangling interrupt, then you need to do that last part with IRQs disabled.
 
-> +	case CDROM_MOUNT_STATUS: {
-> +		struct super_block *sb = get_super(dev);
-> +		if (sb == NULL) return -EINVAL;
-> +		down_read(&current->namespace->sem);
-> +		struct vfsmount *mnt = NULL;
-> +		struct list_head *p;
-> +		list_for_each(p, &current->namespace->list) {
-> +			struct vfsmount *m = list_entry(p, struct vfsmount, 
-> mnt_list);
-> +			if (sb == m->mnt_sb) {
-> +				mnt = m; break;
-> +			}
-> +		}
-> +		up_read(&current->namespace->sem);		
+Of course, the above only comes out of my imagination, I don't have such
+a device, I suspect Alan may know more about the kind of devices we may
+expect with an IRQ problem on suspend..
 
-And what about other namespaces?
+Ben.
 
-> +		drop_super(sb);		
-> +		int mstat = 0; /* 0 not mounted, 1 umount ok, 2 umount EBUSY 
-> */
-> +		if (mnt) mstat = 1 + (atomic_read(&mnt->mnt_count) > 1);
 
-Or the possibility that
-	* mnt might've been freed by that point.
-	* we might have the damn thing mounted in several places, some
-busy, some not.
-	* cdrom had been used not by mount.
-	* cdrom had been mounted just as we had decided to tell that it's
-not busy.

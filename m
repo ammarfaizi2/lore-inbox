@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267485AbUBSS5A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 13:57:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267481AbUBSSzz
+	id S267477AbUBSS7A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 13:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267492AbUBSS5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 13:55:55 -0500
-Received: from spf13.us4.outblaze.com ([205.158.62.67]:2983 "EHLO
-	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S267477AbUBSSyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 13:54:22 -0500
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	Thu, 19 Feb 2004 13:57:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59621 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267477AbUBSS4d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 13:56:33 -0500
+Date: Thu, 19 Feb 2004 10:56:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: hch@infradead.org, paulmck@us.ibm.com, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, torvalds@osdl.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-Id: <20040219105608.30d2c51e.akpm@osdl.org>
+In-Reply-To: <20040219123237.B22406@infradead.org>
+References: <20040217124001.GA1267@us.ibm.com>
+	<20040217161929.7e6b2a61.akpm@osdl.org>
+	<1077108694.4479.4.camel@laptop.fenrus.com>
+	<20040218140021.GB1269@us.ibm.com>
+	<20040218211035.A13866@infradead.org>
+	<20040218150607.GE1269@us.ibm.com>
+	<20040218222138.A14585@infradead.org>
+	<20040218145132.460214b5.akpm@osdl.org>
+	<20040218230055.A14889@infradead.org>
+	<20040218153234.3956af3a.akpm@osdl.org>
+	<20040219123237.B22406@infradead.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Clayton Weaver" <cgweav@email.com>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 19 Feb 2004 13:53:47 -0500
-Subject: Re: stty utf8
-X-Originating-Ip: 172.197.154.129
-X-Originating-Server: ws3-4.us4.outblaze.com
-Message-Id: <20040219185347.A94A23CE24D@ws3-4.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In an application that is taking input in utf-8,
-if I want to search, compare, yada yada, I need
-to convert to wchar_t first (for iswspace() et al),
-then convert back to utf-8 for output (so grep et al
-and operations on pathnames are not hosed by embedded
-nul bytes in the output).
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> On Wed, Feb 18, 2004 at 03:32:34PM -0800, Andrew Morton wrote:
+> > > Yes.  We've traditionally not exported symbols unless we had an intree user,
+> > > and especially not if it's for a module that's not GPL licensed.
+> > 
+> > That's certainly a good rule of thumb and we (and I) have used it before.
+> > 
+> > What is the reasoning behind it?
+> 
+> The reason is that someone who wants to distribute a binary only module
+> has to show it's module is not a derived work, and someone who needs new
+> core in the kernel and new exports pretty much shows his work is deeply
+> integrated with the kernel.
 
-Why would not terminals do the same thing?
-
-Done that way, Jamie's delete example is
-backspace-space-backspace and remove sizeof(wchar_t)
-from the input.
-
-Ok, it takes more space than operating on the utf-8
-encoding directly, but otherwise why not? All display
-characters begin at the same offset from the
-character before or after. It's up to the terminal
-code to convert to/from utf-8 when talking to the rest
-of the kernel.
-
-Regards,
-
-Clayton Weaver
-<mailto: cgweav@email.com>
-
--- 
-___________________________________________________________
-Sign-up for Ads Free at Mail.com
-http://promo.mail.com/adsfreejump.htm
+Needing access to invalidate_mmap_range() is surely not an indication of a
+derived work.  It is an indication of a need for a reliable way to achieve
+inter-node cache consistency.  Other distributed filesystems will need this
+and probably AIX already provides it.
 

@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263878AbUDPVwq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 17:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263863AbUDPVuz
+	id S263883AbUDPV7R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 17:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263867AbUDPV6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 17:50:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35712 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263772AbUDPVtO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 17:49:14 -0400
-Message-ID: <408054C9.5070202@pobox.com>
-Date: Fri, 16 Apr 2004 17:48:57 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 16 Apr 2004 17:58:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46767 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263846AbUDPVzB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 17:55:01 -0400
+Date: Fri, 16 Apr 2004 14:54:52 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Dave Jones <davej@redhat.com>
-CC: viro@parcelfarce.linux.theplanet.co.uk,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: baycom_par dereference before check.
-References: <20040416212004.GO20937@redhat.com> <20040416212541.GH24997@parcelfarce.linux.theplanet.co.uk> <20040416212738.GQ20937@redhat.com>
-In-Reply-To: <20040416212738.GQ20937@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: fix notify_change() potential null dereference.
+In-Reply-To: <20040416213743.GS20937@redhat.com>
+Message-ID: <Pine.LNX.4.58.0404161453340.3947@ppc970.osdl.org>
+References: <20040416213743.GS20937@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Fri, Apr 16, 2004 at 10:25:41PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+
+I disagree on this one - at least with the message.
+
+The fact is, "inode" can't be NULL. We have a BUG() check for it, but 
+getting a page fault would be equally effective.
+
+		Linus
+
+On Fri, 16 Apr 2004, Dave Jones wrote:
 > 
->  > > +++ linux-2.6.5/drivers/net/hamradio/baycom_par.c	2004-04-16 22:19:33.000000000 +0100
->  > > @@ -272,9 +272,13 @@
->  > >  static void par96_interrupt(int irq, void *dev_id, struct pt_regs *regs)
->  > >  {
->  > >  	struct net_device *dev = (struct net_device *)dev_id;
->  > > -	struct baycom_state *bc = netdev_priv(dev);
->  > > +	struct baycom_state *bc;
->  > >  
->  > > -	if (!dev || !bc || bc->hdrv.magic != HDLCDRV_MAGIC)
->  > > +	if (!dev)
->  > > +		return;
->  > > +
->  > > +	bc = netdev_priv(dev);
->  > 
->  > That's OK - netdev_priv(p) just adds a constant offset to p; no problem
->  > with doing that to NULL.
+> --- linux-2.6.5/fs/attr.c~	2004-04-16 22:36:00.000000000 +0100
+> +++ linux-2.6.5/fs/attr.c	2004-04-16 22:36:37.000000000 +0100
+> @@ -130,7 +130,7 @@
+>  int notify_change(struct dentry * dentry, struct iattr * attr)
+>  {
+>  	struct inode *inode = dentry->d_inode;
+> -	mode_t mode = inode->i_mode;
+> +	mode_t mode;
+>  	int error;
+>  	struct timespec now = CURRENT_TIME;
+>  	unsigned int ia_valid = attr->ia_valid;
+> @@ -138,6 +138,7 @@
+>  	if (!inode)
+>  		BUG();
+>  
+> +	mode = inode->i_mode;
+>  	attr->ia_ctime = now;
+>  	if (!(ia_valid & ATTR_ATIME_SET))
+>  		attr->ia_atime = now;
 > 
-> Good point. Still doesn't strike me as particularly nice though.
-
-
-I would rather just remove the checks completely.  The success of any of 
-those checks is a BUG() condition that should never occur.
-
-	Jeff
-
-
-

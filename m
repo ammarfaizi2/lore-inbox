@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVC0TWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVC0TZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVC0TWl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 14:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVC0TWl
+	id S261466AbVC0TZn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 14:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVC0TZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 14:22:41 -0500
-Received: from web52907.mail.yahoo.com ([206.190.39.184]:15462 "HELO
-	web52907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261465AbVC0TWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 14:22:38 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+	Sun, 27 Mar 2005 14:25:43 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:42292 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261466AbVC0TZi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 14:25:38 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=L665otUgJ76kU39rED8nL7wAFx6dQTRF3IDD2Dn18jGs5hy2WybS8rZ+59CwNbDntB32heYFdglQ8CldYSLlbuGMA7IypRQRM4YRqHvw0t04Id0omSBvjxKVLh2t33NuZ8FoQGIZqHT1lWD+ImAt04tLYBxyYCDbv1DCU6Z+2g8=  ;
-Message-ID: <20050327192237.14378.qmail@web52907.mail.yahoo.com>
-Date: Sun, 27 Mar 2005 20:22:37 +0100 (BST)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=FCFFf6wCmXHuMs+ZEy+D2BnezUOJ7P4lrbGdabSaJH27wWXTkYbP2Byan3ibiusC3S1iPwGiTnTe+7izU0dbruHQVvNV6d18KJ3NdAUWsrcCFs1/15z6IwjLRRryI9X4x9Q/ljaAcz7/bB+601I8NuQh1UcPRHAEQqUTElzichs=
+Message-ID: <84144f0205032711257b5ca1e2@mail.gmail.com>
+Date: Sun, 27 Mar 2005 22:25:37 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Dave Jones <davej@redhat.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       penberg@cs.helsinki.fi
+Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
+In-Reply-To: <20050327174026.GA708@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
+	 <Pine.LNX.4.61.0503251726010.6354@chaos.analogic.com>
+	 <1111825958.6293.28.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
+	 <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
+	 <1111881955.957.11.camel@mindpipe>
+	 <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
+	 <20050327065655.6474d5d6.pj@engr.sgi.com>
+	 <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
+	 <20050327174026.GA708@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[gcc-3.4.3, Linux-2.6.11-SMP, Dual P4 Xeon with HT enabled]
+On Sun, 27 Mar 2005 12:40:26 -0500, Dave Jones <davej@redhat.com> wrote:
+> Am I the only person who is completely fascinated by the
+> effort being spent here micro-optimising something thats
+> almost never in a path that needs optimising ?
+> I'd be amazed if any of this masturbation showed the tiniest
+> blip on a real workload, or even on a benchmark other than
+> one crafted specifically to test kfree in a loop.
 
-Hi,
+Indeed. The NULL checks are redundant and thus need to go. If someone
+can show a measurable performance regression in the kernel for a
+realistic workload, kfree() can be turned into an inline function
+which will take care of it. The microbenchmarks are fun but should not
+stand in the way of merging the kfree() cleanups from Jesper and
+others.
 
-My Linux 2.6.11 box oopsed when I tried to logout. I have switched to using the anticipatory
-scheduler instead.
-
-Cheers,
-Chris
-
-NMI Watchdog detected LOCKUP on CPU1, eip c0275cc7, registers:
-Modules linked in: snd_pcm_oss snd_mixer_oss snd_usb_audio snd_usb_lib snd_intel8x0 snd_seq_oss
-snd_seq_midi snd_emu10k1_synth snd_emu10k1 snd_ac97_codec snd_pcm snd_page_alloc snd_emux_synth
-snd_seq_virmidi snd_rawmidi snd_seq_midi_event snd_seq_midi_emul snd_hwdep snd_util_mem snd_seq
-snd_seq_device snd_rtctimer snd_timer snd nls_iso8859_1 nls_cp437 vfat fat usb_storage radeon drm
-i2c_algo_bit emu10k1_gp gameport deflate zlib_deflate zlib_inflate twofish serpent aes_i586
-blowfish des sha256 crypto_null af_key binfmt_misc eeprom i2c_sensor button processor psmouse
-pcspkr p4_clockmod speedstep_lib usbserial lp nfsd exportfs md5 ipv6 sd_mod scsi_mod autofs nfs
-lockd sunrpc af_packet ohci_hcd parport_pc parport e1000 video1394 raw1394 i2c_i801 i2c_core
-ohci1394 ieee1394 ehci_hcd soundcore pwc videodev uhci_hcd usbcore intel_agp agpgart ide_cd cdrom
-ext3 jbd
-CPU:    1
-EIP:    0060:[<c0275cc7>]    Not tainted VLI
-EFLAGS: 00200086   (2.6.11) 
-EIP is at _spin_lock+0x7/0xf
-eax: f7b8b01c   ebx: f7c82b88   ecx: f7c82b94   edx: f6c33714
-esi: eb68ad88   edi: f6c33708   ebp: f6c33714   esp: f5b32f70
-ds: 007b   es: 007b   ss: 0068
-Process nautilus (pid: 5757, threadinfo=f5b32000 task=f7518020)
-Stack: c01f7f79 00200282 f76bda24 f6c323e4 f7518020 00000000 00000000 c01f1d0c 
-       f5b32000 c011d7b3 00000001 00000000 b65ffa40 00000000 f5b32fac 00000000 
-       00000000 00000000 f5b32000 c011d8d6 c0102e7f 00000000 b65ffbf0 b6640bf0 
-Call Trace:
- [<c01f7f79>] cfq_exit_io_context+0x54/0xb3
- [<c01f1d0c>] exit_io_context+0x45/0x51
- [<c011d7b3>] do_exit+0x205/0x308
- [<c011d8d6>] next_thread+0x0/0xc
- [<c0102e7f>] syscall_call+0x7/0xb
-Code: 05 e8 3a e6 ff ff c3 ba 00 f0 ff ff 21 e2 81 42 14 00 01 00 00 f0 81 28 00 00 00 01 74 05 e8
-1d e6 ff ff c3 f0 fe 08 79 09 f3 90 <80> 38 00 7e f9 eb f2 c3 f0 81 28 00 00 00 01 74 05 e8 ff e5
-ff 
-console shuts up ...
-
-
-Send instant messages to your online friends http://uk.messenger.yahoo.com 
+                        Pekka

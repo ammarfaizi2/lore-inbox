@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbTDTWXI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 18:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbTDTWXI
+	id S263705AbTDTW2e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 18:28:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbTDTW2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 18:23:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64171 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263740AbTDTWXH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 18:23:07 -0400
-Date: Sun, 20 Apr 2003 23:35:08 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andries.Brouwer@cwi.nl
-Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [CFT] more kdev_t-ectomy
-Message-ID: <20030420223508.GK10374@parcelfarce.linux.theplanet.co.uk>
-References: <UTC200304202158.h3KLwIu10935.aeb@smtp.cwi.nl>
+	Sun, 20 Apr 2003 18:28:34 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:44231 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263705AbTDTW2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 18:28:33 -0400
+Subject: OpenSSH protocol version 2 doesn't support Kerberos authentication
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050878426.614.4.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200304202158.h3KLwIu10935.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 21 Apr 2003 00:40:27 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 20, 2003 at 11:58:18PM +0200, Andries.Brouwer@cwi.nl wrote:
- 
-> [Now that we are talking anyway, let me ask about something.
-> You wrote blk_register_region so that subregions override
-> superregions. At the bottom there is the full region.
-> Was this just a general good idea, or do you have definite
-> applications in mind? I ask this mostly because the hash
+Hi!
 
-A lot of them.  Consider, e.g., ide code.  Or any other driver with
-subdrivers - anything that can't be just done by blind "here's device
-number, that's enough to know what should be loaded".
+This is simply an informative message.
 
-In case of ide we have regions corresponding to hwifs (== IDE cables)
-and each of them can carry up to two devices.  We can see that 22:43
-is to be handled by IDE, no problems with that.  But then we get to
-decide whether it's ide-disk or ide-cd or ide-floppy.  IDE code knows
-what is needed - it had probed devices already and it knows that
-master on that cable is a disk.  So attempt to open that sucker
-should refer to IDE code, which, in turn, should know that we need
-to load a high-level driver (ide-disk.o).  After that we have a
-normal range (64 numbers) for master.  But not necessary for slave -
-if it is an ide-cd, we still might have no driver loaded.
+I have just deployed Kerberos authentication on my LAN. However, I have
+been smashing my head against a wall everytime I tried to configure and
+use OpenSSH with Kerberos authentication.
 
-We could play splitting these ranges and merging them (i.e. original range
-shrinks and subrange is added as the first-level one), but that gets very
-nasty when you try to get it right (you need to merge these suckers during
-cleanup, etc.)
- 
-> and that is OK for regions with constant major.
-> For multimajor regions a hash does not work very well, and
-> a tree looks better.]
+Such situation led me to browse the OpenSSH sources and, to my dismay, I
+have found that Kerberos V5 authentication is *not* implemented for
+protocol version 2, only in protocol version 1. Just take a look at
+sshconnect1.c and sshconnect2.c to check.
 
-Tree certainly looks better.  I'd played with route cache code (after
-all, that's exactly the same problem), but it looked like an overkill.
-I'm porting genhd.c code for character devices, if that will show up
-in profiles we'll always be able to optimize that stuff.  It is fairly
-isolated, so changes of lookup data structures should not affect anything
-else.
+So I reconfigured all my RHL9 boxes to just use Protocol 1. Now, OpenSSH
+and Kerberos work nicely and it's just beautiful to be able to log on at
+my laptop and being able to ssh to any machine in my LAN without
+supplying a password. This is Unix single-sign-on came true...
+
+-- 
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
+

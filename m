@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbTLOLU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 06:20:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTLOLU7
+	id S263518AbTLOL0i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 06:26:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTLOL0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 06:20:59 -0500
-Received: from fmr99.intel.com ([192.55.52.32]:7564 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262546AbTLOLU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 06:20:57 -0500
-Message-ID: <3FDD9915.3010801@intel.com>
-Date: Mon, 15 Dec 2003 13:20:53 +0200
-From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en, ru
+	Mon, 15 Dec 2003 06:26:38 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:62595 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S263518AbTLOL0h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 06:26:37 -0500
+Date: Mon, 15 Dec 2003 09:24:33 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.23] kernel BUG at page_alloc.c:235!
+In-Reply-To: <200312091907.04707.vs@namesys.com>
+Message-ID: <Pine.LNX.4.44.0312150923540.1344-100000@logos.cnet>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Greg KH <greg@kroah.com>, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: PCI Express support for 2.4 kernel
-References: <3FDCC171.9070902@intel.com> <20031215100724.GA1950@kroah.com>
-In-Reply-To: <20031215100724.GA1950@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
->>Hi,
->>PCI-Express platforms will soon appear on the market. It is worth to
->>support it.
->>    
->>
->
->Yes it is worth it, any chance to get access to hardware to test this
->out on?
->  
->
-If it were up to me, I will give away full specs and test platforms. But 
-it is not...
 
->No, we need to get this into 2.6 first.  Can you please forward port
->this to 2.6, clean up the formatting and address the issues everyone
->else has made so far and post it?
->  
->
-I will. It take some time, I did not installed 2.6 yet.
+On Tue, 9 Dec 2003, Vladimir Saveliev wrote:
 
->> * command line argument "pci=exp" to force PCI Express, similar to "conf1" and "conf2"
->>    
->>
->
->We should be able to do this automatically, and not force this on the
->boot command line, correct?
->  
->
-Yes. Default is autodetect. Command line is to suppress autodetection.
+> On Tuesday 09 December 2003 18:59, Stephan von Krawczynski wrote:
+> > On Mon, 8 Dec 2003 19:39:07 +0300
+> > Vladimir Saveliev <vs@namesys.com> wrote:
+> > 
+> > > Hi
+> > > 
+> > > A program which reads spontaneously 4k blocks from a device (sda1) causes the following quite fast.
+> > 
+> > > [...]
+> > > Ksymoops provides
+> > > 
+> > > vs@tribesman:/tmp/> ksymoops -m System.map file2 -V -O -K
+> > > ksymoops 2.4.9 on i686 2.4.21-144-default.  Options used
+> > 
+> > What kind of a kernel is this? Are you sure you are running 2.4.23 ?
+> > 
+> Yes, oops happened on 2.4.23. I ksymoopsed it with proper System.map having 2.4.21-144 running, though
 
->How about information on how to detect it as per chipset type?  We need
->to do this automatically some how.
->+ * 
->+ * There is no standard method to recognize presence of PCI Express,
->  
->
->
->Are you sure?  I thought there was (don't have my spec in front of me
->right now...)
->  
->
-I thought this way also. But I found that it is not. You may know 
-several chipsets,
-and do per-chipset stuff, but there is no generic procedure. At least 
-authors of PCI-E
-don't know (it is nice to have access to the authors ;-) ).
+After tracking this down we discovered its hardware problem (motherboard 
+was changed and the problem has vanished).
 
-Vladimir.
+
 

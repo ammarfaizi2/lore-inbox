@@ -1,27 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292588AbSCCMWB>; Sun, 3 Mar 2002 07:22:01 -0500
+	id <S284144AbSCCNTx>; Sun, 3 Mar 2002 08:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293503AbSCCMVv>; Sun, 3 Mar 2002 07:21:51 -0500
-Received: from www.smi-ps.com ([194.224.14.130]:29874 "EHLO server.smi-ps.com")
-	by vger.kernel.org with ESMTP id <S292588AbSCCMVp>;
-	Sun, 3 Mar 2002 07:21:45 -0500
-Message-ID: <3C82148E.E530824@wanadoo.es>
-Date: Sun, 03 Mar 2002 13:18:22 +0100
-From: janvapan <jvp@wanadoo.es>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17-0.18 i686)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Recommendations about a 100/10 NIC
+	id <S285060AbSCCNTe>; Sun, 3 Mar 2002 08:19:34 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:29448 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S284144AbSCCNT1>; Sun, 3 Mar 2002 08:19:27 -0500
+Date: Sun, 3 Mar 2002 14:19:24 +0100
+From: Jan Kara <jack@suse.cz>
+To: Craig Christophel <merlin@transgeek.com>
+Cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+Subject: Re: Quota patches for 2.5
+Message-ID: <20020303131924.GG29815@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020303092308Z293039-31668+14@thor.valueweb.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020303092308Z293039-31668+14@thor.valueweb.net>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Included in the following 13 emails are Jan Kara's current quota patches 
+> forward ported to 2.5.6-pre2. They comprise a rewrite of the quota system 
+> allowing for quota plugins much like filesystem plugins and a new quota 
+> structure.  He will have to comment on the stability, but they look good from 
+> where I sit.
+> 
+> 	He origionally has 12 patches which are included, and I added one patch to 
+> change sync_dquot_dev to sync_dquot_all and fix all of the references to 
+> dquot->dq_dev as Al Viro is getting rid of kdev_t in the places where this 
+> was to be used.  Also fixed are some compile errors created by me misspelling 
+> on the cut/paste portion.  
+  Thanks Craig for your porting. I'll include your changes in last patch into
+appropriate places in my patches, do some minor #ifdef changes in backward
+compatible interface and put the patches (probably against 2.5.5) on ftp...
+If there won't be objections I'll submit patches to Linus next week so you can
+work on standard kernel...
 
-What ethernet cards I should use for Linux 2.4?.
-I am looking for a NIC based on stability and performance.
-In short, Intel PRO/100 S Desktop Adapter(e100 driver) or
-3Com 10/100 3C905C-TX-M(3c59x driver) ?
-
-thank you,
+									Honza
+--
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

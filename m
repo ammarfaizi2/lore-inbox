@@ -1,96 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262930AbUKXX0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbUKXX2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbUKXX0M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 18:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbUKXXYd
+	id S262941AbUKXX2U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 18:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUKXX0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 18:24:33 -0500
-Received: from smtp.wp.pl ([212.77.101.160]:13114 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S262943AbUKXXPv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 18:15:51 -0500
-Subject: MTRR vesafb and wrong X performance
-From: Pawel Fengler <pawfen@wp.pl>
-Reply-To: pawfen@wp.pl
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 25 Nov 2004 00:15:39 +0100
-Message-Id: <1101338139.1780.9.camel@PC3.dom.pl>
+	Wed, 24 Nov 2004 18:26:18 -0500
+Received: from pool-151-203-245-3.bos.east.verizon.net ([151.203.245.3]:26116
+	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262944AbUKXXUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 18:20:35 -0500
+Message-Id: <200411242307.iAON7Mbn005428@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, Blaisorblade <blaisorblade_spam@yahoo.it>
+Subject: [PATCH] UML - Unregister signal handlers at reboot
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92-1mdk 
-Content-Transfer-Encoding: 7bit
-X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
-X-WP-SPAM: NO AS1=NO(Body=1 Fuz1=1 Fuz2=1) AS2=NO(0.603999) AS3=NO AS4=NO                          
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 24 Nov 2004 18:07:22 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 
-Dear Sirs,
+In most cases reboot failed on my system. After
+"Restarting system.", UML exited without further messages.
+I found an SIGIO being processed by sig_handler() resp.
+sig_handler_common_skas(). Don't know, why this exits,
+maybe the context is no longer valid at this time.
+So, I changed the sequence in the reboot part of main()
+to stop the timers and disable the fds before unblocking
+the signals. Since this wasn't enough, I also added
+set_handler(SIGXXX, SIG_IGN) calls to disable_timer() and
+deactivate_all_fds().
+Now reboot works fine in SKAS and it still works in TT.
 
-Recenly, I test five big distributions with almost all kernels
-from 2.4.21 to 2.6.9 on several slow computers with many different
-(not quite new) graphics cards (most of them - nvidia: Riva TNT,
-GeForce, GeForce2 and S3Savage).
-I observe very wrong Xserver performance on each of kernel 2.6.x
-and good performance on every 2.4.x kernel when computer boot
-with vesafb
-For example, when I try mplayer or xine - CPU utilization
-by X process is 30 times larger on 2.6.x kernel then 2.4.x
+Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-==> top_2.4.27-0.pre2.1mdk <==
-top - 14:27:50 up 7 min,  1 user,  load average: 0.67, 0.25, 0.11
-Tasks:  45 total,   3 running,  42 sleeping,   0 stopped,   0 zombie
-Cpu(s):  27.4% user,   1.5% system,   0.0% nice,  71.1% idle
-Mem:    190780k total,   106124k used,    84656k free,     5864k buffers
-Swap:   626452k total,        0k used,   626452k free,    63480k cached
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 1549 pf        25   0 16684  16m  12m R 26.4  8.7   0:16.00 mplayer
- 1398 root      25   0 42620 9596 3028 S  0.3  5.0   0:03.33 X
- 1561 pf        25   0 13032  12m  12m R  0.3  6.8   0:00.18 mplayer
-
-==> top_2.6.8.1-12mdk <==
-top - 20:41:33 up 13 min,  1 user,  load average: 0.93, 0.35, 0.21
-Tasks:  48 total,   2 running,  46 sleeping,   0 stopped,   0 zombie
-Cpu(s): 61.7% us,  3.5% sy,  0.0% ni, 34.5% id,  0.0% wa,  0.1% hi,
-0.0% si
-Mem:    191608k total,   113028k used,    78580k free,     6064k buffers
-Swap:   626452k total,        0k used,   626452k free,    66712k cached
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 3841 pf        15   0 34320  16m  27m S 36.2  8.7   0:21.94 mplayer
- 3655 root      16   0 44448 9708  36m R 26.0  5.1   0:17.99 X
- 3715 pf        15   0  3224 1768 2764 S  0.8  0.9   0:00.82 rxvt.bin
- 3842 pf        15   0 29932  12m  27m S  0.5  6.8   0:00.28 mplayer
-
-Every time when I use 2.6.x kernel I get warnigs (in xorg.log) similar
-this:
-(WW) NV(0): Failed to set up write-combining range
-(0xe3000000,0x1000000)
-
-When I use boot option "video=vesafb:nomtrr" with any 2.6.x kernel,
-Xserver performance is nearly as good as under 2.4.x kernel
-and warning (in xorg.log) does not appear.
-
-It seems to be a problem with mtrr and vesafb described several times,
-for example Jan 18, 2004 in thread "Overlapping MTRRs in 2.6.1"
-but it was a long time ago.
-
-My questions are simple:
-1. The problem is because of a kernel bug or because of kernel feature?
-2. Is this the same problem all the time not resolved yet
-   or I found several different kernel bugs (with the same symptoms)?
-   I did not test 2.6.0, 2.6.2 and 2.6.5 kernel yet:-)
-
-Inspite of this problem is not as important as for example kernel panic
-I am sure because of it many of trivial users think linux is slowly :-)
-
-Pawel Fengler
-
-P.S.
-Sorry for my English. It is not as perfect as I wish it to be.
-
---
-
-
+Index: 2.6.9/arch/um/kernel/irq_user.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/irq_user.c	2004-11-24 12:29:17.000000000 -0500
++++ 2.6.9/arch/um/kernel/irq_user.c	2004-11-24 12:29:36.000000000 -0500
+@@ -377,6 +377,8 @@
+ 		if(err)
+ 			return(err);
+ 	}
++	/* If there is a signal already queued, after unblocking ignore it */
++	set_handler(SIGIO, SIG_IGN, 0, -1);
+ 
+ 	return(0);
+ }
+Index: 2.6.9/arch/um/kernel/main.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/main.c	2004-11-24 12:23:13.000000000 -0500
++++ 2.6.9/arch/um/kernel/main.c	2004-11-24 12:29:36.000000000 -0500
+@@ -155,18 +155,20 @@
+ 		int err;
+ 
+ 		printf("\n");
+-
+-		/* Let any pending signals fire, then disable them.  This
+-		 * ensures that they won't be delivered after the exec, when
+-		 * they are definitely not expected.
+-		 */
+-		unblock_signals();
++		/* stop timers and set SIG*ALRM to be ignored */
+ 		disable_timer();
++		/* disable SIGIO for the fds and set SIGIO to be ignored */
+ 		err = deactivate_all_fds();
+ 		if(err)
+ 			printf("deactivate_all_fds failed, errno = %d\n",
+ 			       -err);
+ 
++		/* Let any pending signals fire now.  This ensures
++		 * that they won't be delivered after the exec, when
++		 * they are definitely not expected.
++		 */
++		unblock_signals();
++
+ 		execvp(new_argv[0], new_argv);
+ 		perror("Failed to exec kernel");
+ 		ret = 1;
+Index: 2.6.9/arch/um/kernel/time.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/time.c	2004-11-24 12:23:12.000000000 -0500
++++ 2.6.9/arch/um/kernel/time.c	2004-11-24 12:29:36.000000000 -0500
+@@ -60,6 +60,9 @@
+ 	   (setitimer(ITIMER_REAL, &disable, NULL) < 0))
+ 		printk("disnable_timer - setitimer failed, errno = %d\n",
+ 		       errno);
++	/* If there are signals already queued, after unblocking ignore them */
++	set_handler(SIGALRM, SIG_IGN, 0, -1);
++	set_handler(SIGVTALRM, SIG_IGN, 0, -1);
+ }
+ 
+ void switch_timers(int to_real)
 

@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272473AbRIRQii>; Tue, 18 Sep 2001 12:38:38 -0400
+	id <S272592AbRIRQq1>; Tue, 18 Sep 2001 12:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272531AbRIRQiS>; Tue, 18 Sep 2001 12:38:18 -0400
-Received: from h157s242a129n47.user.nortelnetworks.com ([47.129.242.157]:40350
-	"EHLO zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S272493AbRIRQiP>; Tue, 18 Sep 2001 12:38:15 -0400
-Message-ID: <3BA7786F.E07E41F2@nortelnetworks.com>
-Date: Tue, 18 Sep 2001 12:38:07 -0400
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S272828AbRIRQqS>; Tue, 18 Sep 2001 12:46:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27148 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272592AbRIRQqJ>; Tue, 18 Sep 2001 12:46:09 -0400
+Date: Tue, 18 Sep 2001 09:45:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <Pine.GSO.4.21.0109180527450.25323-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0109180935180.2077-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: how to display manually set proxy ARP entries with iproute2?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This issue was posted on the netdev list a while back and got no answer.
+On Tue, 18 Sep 2001, Alexander Viro wrote:
+>
+> Umm...  Linus, had you actually read through the fs/block_device.c part
+> of that?  It's not just ugly as hell, it's (AFAICS) not hard to oops
+> if you have several inodes sharing major:minor.  ->bd_inode and its
+> treatment are bogus.  Please, read it through and consider reverting -
+> in its current state code is an ugly mess.
 
-I'm quoting the original post here:
+Funny that you mention it, because I actually have a cunning plan, and
+you're an unwitting part of it.
 
-Lutz Pressler wrote:
-> 
-> Hello,
-> 
-> I am not able to get information about manually set proxy ARP entries
-> with the "ip" tool (iproute2-ss010824), tested on both 2.2.19 and
-> 2.4.8-ac7 kernels.
-> 
-> # ip neigh add proxy 172.20.1.1 dev eth0
-> 
-> The "arp" tool then yields (normal entries trimmed)
-> # arp -n
-> Address              HWtype  HWaddress           Flags Mask        Iface
-> 192.168.1.254        ether   00:80:C8:F6:47:6F   C                 eth0
-> 172.20.1.1           *       *                   MP                eth0
-> 
-> but "ip" only shows
-> # ip neigh show
-> 192.168.1.254 dev eth0 lladdr 00:80:c8:f6:47:6f nud reachable
-> 
-> Is this expected behaviour or a (kernel) bug?
+Or actually, I hope you're a "witting" part of it, because it's going to
+be your code.
 
-I'd like to know about this as well, since this is the only reason why I keep
-the "arp" command around.
+Take your "struct block_device" code, add a "struct address_space" to it,
+and whenever a block device inode is opened, make the inode->i_mapping
+point to &bdev->b_data, and voila..
 
-Chris
+You already get all the reference counting right, and it's the only
+sensible place to do it anyway, wouldn't you agree?
 
+I thought you'd be thrilled. It seems to match your lazy allocation patch
+very well..
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+		Linus
+

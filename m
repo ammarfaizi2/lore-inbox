@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264934AbRF0L4z>; Wed, 27 Jun 2001 07:56:55 -0400
+	id <S265302AbRF0Lzz>; Wed, 27 Jun 2001 07:55:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265312AbRF0L4q>; Wed, 27 Jun 2001 07:56:46 -0400
-Received: from hank-fep8-0.inet.fi ([194.251.242.203]:51451 "EHLO
-	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S264934AbRF0L43>; Wed, 27 Jun 2001 07:56:29 -0400
-Message-ID: <3B39C96D.8BCDB2D7@pp.inet.fi>
-Date: Wed, 27 Jun 2001 14:54:21 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-CC: Andries.Brouwer@cwi.nl, torvalds@transmeta.com, R.E.Wolff@BitWizard.nl,
-        axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: loop device broken in 2.4.6-pre5
-In-Reply-To: <UTC200106261041.MAA454888.aeb@vlet.cwi.nl> <5.1.0.14.2.20010626200527.03c285c0@pop.cus.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
+	id <S265189AbRF0Lzp>; Wed, 27 Jun 2001 07:55:45 -0400
+Received: from delrom.ro ([193.231.234.28]:24588 "HELO delrom.ro")
+	by vger.kernel.org with SMTP id <S264934AbRF0Lzg>;
+	Wed, 27 Jun 2001 07:55:36 -0400
+Date: Wed, 27 Jun 2001 14:57:17 +0300
+From: Silviu Marin-Caea <silviu@delrom.ro>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Realtek 8139 driver or sucky hardware?
+Message-Id: <20010627145717.21f11d00.silviu@delrom.ro>
+In-Reply-To: <3B39C4C3.C35D9900@mandrakesoft.com>
+In-Reply-To: <20010627105256.2e75fdca.silviu@delrom.ro>
+	<3B39C4C3.C35D9900@mandrakesoft.com>
+Organization: Delta Romania
+X-Mailer: Sylpheed version 0.4.99cvs3 (GTK+ 1.2.9; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: OK (checked by AntiVir Version 6.7.0.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> At 18:59 26/06/2001, Jari Ruusu wrote:
-> >Andries.Brouwer@cwi.nl wrote:
-> > >     From jari.ruusu@pp.inet.fi Tue Jun 26 10:20:51 2001
-> > >
-> > >     This patch fixes the problem. Please consider applying.
-> > >
-> > >     --- linux-2.4.6-pre5/drivers/block/loop.c    Sat Jun 23 07:52:39 2001
-> > >     +++ linux/drivers/block/loop.c    Tue Jun 26 09:21:47 2001
-> > >     @@ -653,7 +653,7 @@
-> > >          bs = 0;
-> > >          if (blksize_size[MAJOR(lo_device)])
-> > >              bs = blksize_size[MAJOR(lo_device)][MINOR(lo_device)];
-> > >     -    if (!bs)
-> > >     +    if (!bs || S_ISREG(inode->i_mode))
-> > >              bs = BLOCK_SIZE;
-> > >
-> > >          set_blocksize(dev, bs);
-> > >
-> > > But why 1024? Next week your neighbour comes and has a file-backed
-> > > loop device with an odd number of 512-byte sectors.
-> > > If you want a guarantee, then I suppose one should pick 512.
-> > > (Or make the set blocksize ioctl also work on loop devices.)
-> >
-> >Because 1024 was the previous default. Keeping the same default that was
-> >used before offers least surprises to users and tools.
-> 
-> But also makes it not work for odd number of sectors which is much worse IMHO.
-> 
-> Also it is far more surprising to find that the last sector is lost
-> silently than to have a difference in behaviour, incorrect behaviour needs
-> to be corrected not kept for backwards compatibility till the end of time.
-> And the sooner that happens, the better. Both people and utilities will get
-> used to it. Due to that 1024, mkntfs has to mark the disk dirty because it
-> can never be sure just how many sectors there really are and hence can't be
-> sure whether the backup boot sector was written to the correct place or not...
-> 
-> Also, the loop device is currently not consistent with the rest of the kernel:
-> 
-> * kernel physical block device: get_nr_sectors_sys_call returns the real
-> number of 512 byte sectors
-> * file mounted on loop device: sam sys_call returns the number of sectors & ~1.
-> 
-> This difference in behaviour causes a much bigger surprise than anything
-> else if we are talking about surprises!
+On Wed, 27 Jun 2001 07:34:27 -0400
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
 
-OK. My original complaint was that the default could be larger than 1024.
-I am happy with 512.
+> Silviu Marin-Caea wrote:
+> > I have a server that had a Realtek 8139 card that worked nicely
+under
+> > normal circumstances.
+> [...]
+> > This crazy situation had the server freeze solid, with only cold
+boot as
+> > remedy.
+> 
+> Driver.  Crash fix is in 2.4.6-pre5, and a more complete fix should be
+> out in the next day or two.
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+Impressive!! :-)
+
+-- 
+Systems and Network Administrator - Delta Romania
+Phone +4093-267961

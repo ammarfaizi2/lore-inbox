@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbTIWWFh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 18:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbTIWWFg
+	id S262094AbTIWWSF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 18:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTIWWSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 18:05:36 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:60441 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S262133AbTIWWFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 18:05:35 -0400
-Date: Tue, 23 Sep 2003 15:16:11 -0700
-From: Deepak Saxena <dsaxena@mvista.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linus Torvalds <torvalds@osdl.org>, Deepak Saxena <dsaxena@mvista.com>,
-       linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com.br
-Subject: Re: [PATCH] Fix %x parsing in vsscanf()
-Message-ID: <20030923221611.GA25464@xanadu.az.mvista.com>
-Reply-To: dsaxena@mvista.com
-References: <20030923212207.GA25234@xanadu.az.mvista.com> <Pine.LNX.4.44.0309231421450.24527-100000@home.osdl.org> <20030923213533.GN7665@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030923213533.GN7665@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4i
-Organization: MontaVista Software, Inc.
+	Tue, 23 Sep 2003 18:18:05 -0400
+Received: from mail.inter-page.com ([12.5.23.93]:64006 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S262094AbTIWWSB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 18:18:01 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "=?iso-8859-1?Q?'Markus_H=E4stbacka'?=" <midian@ihme.org>,
+       "'Justin Piszcz'" <jpiszcz@lucidpixels.com>
+Cc: "'Kernel Mailinglist'" <linux-kernel@vger.kernel.org>
+Subject: RE: Spam/LKML
+Date: Tue, 23 Sep 2003 15:17:31 -0700
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAA/3qAtyqDgUWIolxPnInj5QEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <1064341489.12580.4.camel@midux>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 23 2003, at 22:35, viro@parcelfarce.linux.theplanet.co.uk was caught saying:
-> On Tue, Sep 23, 2003 at 02:28:12PM -0700, Linus Torvalds wrote:
-> > Fixing strtoul[l] should fix vsscanf() automatically, no? So I don't see 
-> > the "have the check only once" argument.
-> 
-> C99 on behaviour of %x:
-> 
-> "Matches an optionally signed hexadecimal integer, whose format is the same as
-> expected for the subject sequence of the strtoul function with the value 16
-> for the base argument."
-> 
-> IOW, strtoul() is definitely the right place to fix that.
+It happens because someone on the list has the virus.  The virus, among
+other thing, harvests the email addresses to forge the From: header.
 
-OK, given that and your previous message, here's an updated patch:
+So they (probably multiples of them) run their unpatched and virus-infected
+Outlook.  Each of them both generates email to all the addresses they see
+and each of those emails is "From" one of the other addresses they see.
 
-===== lib/vsprintf.c 1.1 vs edited =====
---- 1.1/lib/vsprintf.c	Tue Jan 22 19:31:16 2002
-+++ edited/lib/vsprintf.c	Tue Sep 23 15:07:20 2003
-@@ -32,6 +32,8 @@
- {
- 	unsigned long result = 0,value;
- 
-+	if ((base == 16) && (cp[0] == '0' && (cp[1] == 'x' || cp[1] == 'X')))
-+		cp += 2;
- 	if (!base) {
- 		base = 10;
- 		if (*cp == '0') {
-@@ -76,6 +78,8 @@
- {
- 	unsigned long long result = 0,value;
- 
-+	if ((base == 16) && (cp[0] == '0' && (cp[1] == 'x' || cp[1] == 'X')))
-+		cp += 2;
- 	if (!base) {
- 		base = 10;
- 		if (*cp == '0') {
+So it harvests the current inbox, and does a splatter mailing.  When the
+mail servers see the email and bounce it, it is bounced to your address
+instead of the real senders'.
 
--- 
-Deepak Saxena
-MontaVista Software - Powering the Embedded Revolution - www.mvista.com
+Shame there are people that think they are smart enough to play in this
+space (LKML) and dumb enough to open an email attachment that they don't
+fully understand/appreciate.
+
+Further stupidity is using the "preview pane".  In Outlook, the preview pane
+"opens" the email, even if you are doing a left-click delete.  Since some of
+the viruses (and almost all of the spam) will validate the email account as
+interactively in use when you open it, they get hammered extra-hard.
+
+"Frend's don't ask friends to open Microsoft Documents" 
+
+Rob White
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Markus Hästbacka
+Sent: Tuesday, September 23, 2003 11:25 AM
+To: Justin Piszcz
+Cc: Kernel Mailinglist
+Subject: Re: Spam/LKML
+
+I've noticed this too. I get around 100 mails/day of the new "security
+update". And then I get 50 more which tell's me that some message could
+not be delivered, which is of course a lie. None of the mail's contain
+"To: ...snip..." and I think this happens because my mail adress is in
+LKML.
+
+Regards,
+----
+Markus Hästbacka <midian@ihme.org>
+
+

@@ -1,117 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317182AbSGSXBu>; Fri, 19 Jul 2002 19:01:50 -0400
+	id <S317189AbSGSXDJ>; Fri, 19 Jul 2002 19:03:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317189AbSGSXBu>; Fri, 19 Jul 2002 19:01:50 -0400
-Received: from quattro-eth.sventech.com ([205.252.89.20]:61714 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S317182AbSGSXBs>; Fri, 19 Jul 2002 19:01:48 -0400
-Date: Fri, 19 Jul 2002 19:04:52 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Austin Gonyou <austin@digitalroadkill.net>
-Cc: David Rees <dbr@greenhydrant.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc2aa1 VM too aggressive?
-Message-ID: <20020719190452.H28941@sventech.com>
-References: <20020719163350.D28941@sventech.com> <20020719135225.A4048@greenhydrant.com> <20020719170359.E28941@sventech.com> <1027117945.7776.11.camel@UberGeek>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1027117945.7776.11.camel@UberGeek>; from austin@digitalroadkill.net on Fri, Jul 19, 2002 at 05:32:25PM -0500
+	id <S317194AbSGSXDJ>; Fri, 19 Jul 2002 19:03:09 -0400
+Received: from hdfdns02.hd.intel.com ([192.52.58.11]:8905 "EHLO
+	mail2.hd.intel.com") by vger.kernel.org with ESMTP
+	id <S317189AbSGSXDI>; Fri, 19 Jul 2002 19:03:08 -0400
+Message-ID: <288F9BF66CD9D5118DF400508B68C4460283E2F5@orsmsx113.jf.intel.com>
+From: "Feldman, Scott" <scott.feldman@intel.com>
+To: "'J.A. Magallon'" <jamagallon@able.es>, Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.19rc2aa1
+Date: Fri, 19 Jul 2002 16:05:55 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 19, 2002, Austin Gonyou <austin@digitalroadkill.net> wrote:
-> On Fri, 2002-07-19 at 16:03, Johannes Erdfelt wrote:
-> > Web server. The only writing is for the log files, which is relatively
-> > minimal.
-> 
-> But IMHO, you are using prefork, and not a threaded model correct?
+Jamagallon wrote:
 
-Yes, it's a prefork.
+> >diff between 2.4.19rc1aa2 and 2.4.19rc1aa2:
+> >
+> >Only in 2.4.19rc1aa2: 000_e100-2.0.30-k1.gz
+> >Only in 2.4.19rc2aa1: 000_e100-2.1.6.gz
+> >Only in 2.4.19rc1aa2: 000_e1000-4.2.17-k1.gz
+> >Only in 2.4.19rc2aa1: 000_e1000-4.3.2.gz
+> >
 
-> > One thing also, is there is lots of process creation in this example.
-> > For a variety of reasons, PHP programs are forked often from the Apache
-> > server.
-> 
-> Also, here, even as a DSO, which I think you may not be running PHP as,
-> (cgi vs. dso), you will use a bit of memory, on top of apache, every
-> time the new child is created by apache to handle incoming requests.
+>More on this.
 
-Use both, but for legacy reasons there's still a signficant amount of
-children being forked for the CGI like version (caused by SSI).
+>We have two interfaces:
+>04:04.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
+03:01.0 Ethernet
+>controller: Intel Corp. 82543GC Gigabit Ethernet Controller (rev 02)
 
-The memory size for these children is about 40MB (which is strange in
-itself), and a couple per second get executed. However, they are very
-quick and typically won't see any in ps, but occassionally 1 or 2 will
-be seen.
+>NetPipe (tcp) shows numbers like 80Mb/s for e100 and 500Mb/s for e1000. So
+efficiency is much >much higher for e100 driver+card than e1000. I have to
+dig, perhaps e100 is doing zerocopy and >e1000 is not ?
 
-> > The systems running an older kernel (like RedHat's 2.4.9-21) are much
-> > more consistent in their usage of memory. There are no 150MB swings in
-> > cache utiliziation, etc.
-> 
-> Hrrmmm....I'd suggest a 2.4.17 or 2.4.19-rc1-aa2 in that case. I promise
-> you'll see drastic improvements over that kernel.
+>Any ideas ?
 
-2.4.17 wasn't good last time I tried it, but I've have much better results
-from Andrea's patches. I'll create 2.4.19-rc1-aa2 kernel and see how
-that fares.
+If e100 is sending from the zerocopy path, e1000 is doing the same.
 
-> > What's really odd in the vmstat output is the fact that there is no disk
-> > I/O that follows these wild swings. Where is this cache memory coming
-> > from? Or is the accounting just wrong?
-> 
-> I think the accounting is quite correct. Let's look real quick. 
+There are several factors that may be limiting your throughput on e1000.
+Assuming you have enough CPU umph and bus bandwidth, and your netpipe link
+partner and switch are willing, you should be able to approach wire speed.
 
-I suspect it's correct as well, but that doesn't mean something else
-isn't wrong :)
-
-> <vmstat>
-> > > >    procs                      memory    swap          io     system  cpu
-> > > >  3  0  0 106036 502288  10812  67236   0   0     0     0  802   494  46  37  17
-> > > >  5  0  2 106032 476188  10844  91496   0   0     4   316  905   573  54  37   8
-> > > > 16  0  2 106032 355400  10844 203880   0   0     4     0  909   540  51  49   0
-> > > > 10  0  2 106024 340108  10852 221548   0   0    28     0  975   659  36  64   0
-> > > >  0  0  0 106024 528340  10852  43572   0   0     4     0  569   426  17  17  67
-> > > >  0  1  0 106024 531304  10852  43612   0   0     4     0  542   342   9  14 
-> </vmstat>
-> 
-> Now let's take a closer look....
-> 
-> <vmstat2>
-> > > > 16  0  2 106032 355400  10844 203880   0   0     4     0  909   540  51  49   0
-> > > > 10  0  2 106024 340108  10852 221548   0   0    28     0  975   659  36  64   0
-> </vmstat2>
-> 
-> Notice you're memory utilization jumps here as your free is given to
-> cache.
-
-Are you saying that the cache value is the amount of memory available to
-be used by the cache, or actually used by the cache?
-
-It was my understanding that it's the memory actually used by the cache.
-If that's the case, I don't understand where the data to fill the cache
-is coming from with these blips.
-
-> <vmstat3>
-> > > >  0  0  0 106024 528340  10852  43572   0   0     4     0  569   426  17  17  67
-> > > >  0  1  0 106024 531304  10852  43612   0   0     4     0  542   342   9  14 
-> </vmstat3>
-> 
-> And then back again, probably on process termination.
-
-There are couple per second of those processes, so I would expect this
-to happen all of the time or atleast much more often.
-
-> At that rate, it's all in-memory shuffling going on, and for preforks,
-> that very likely is the case.
-
-One thing to note as well is a significant amount of system time spent
-during these situations as well. It looks like a lot of time is spent
-managing something.
-
-It's obvious the workload is inefficient, but it's constantly
-inefficient which is why these blips are strange.
-
-JE
-
+-scott

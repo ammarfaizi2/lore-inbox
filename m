@@ -1,95 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292752AbSCKUXv>; Mon, 11 Mar 2002 15:23:51 -0500
+	id <S292852AbSCKUaL>; Mon, 11 Mar 2002 15:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292841AbSCKUXm>; Mon, 11 Mar 2002 15:23:42 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:764 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S292752AbSCKUXb>;
-	Mon, 11 Mar 2002 15:23:31 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: RH7.2 running 2.4.9-21-SMP (dual Xeon's) yields "Illegal instructions"
-To: "Tom Epperly" <tepperly@llnl.gov>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
-Message-ID: <OF74E7C6B7.70CA5551-ON88256B79.00670A00@boulder.ibm.com>
-From: "James Washer" <washer@us.ibm.com>
-Date: Mon, 11 Mar 2002 12:26:14 -0800
-X-MIMETrack: Serialize by Router on D03NM038/03/M/IBM(Release 5.0.9a |January 7, 2002) at
- 03/11/2002 01:23:27 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S292855AbSCKUaD>; Mon, 11 Mar 2002 15:30:03 -0500
+Received: from zero.tech9.net ([209.61.188.187]:8720 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292852AbSCKU3x>;
+	Mon, 11 Mar 2002 15:29:53 -0500
+Subject: Re: [PATCH] 2.5.6-pre3 Fix small race in BSD accounting [part 2]
+From: Robert Love <rml@tech9.net>
+To: Bob Miller <rem@osdl.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020311120744.B5995@doc.pdx.osdl.net>
+In-Reply-To: <20020311120744.B5995@doc.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 11 Mar 2002 15:30:03 -0500
+Message-Id: <1015878604.853.66.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-03-11 at 15:07, Bob Miller wrote:
 
-Tom,
+> While looking at the bug fix for part 1 I coded up this patch
+> to change the BSD accounting code to use a spinlock instead
+> of the BKL.
 
-If I send you a patch to do a bit of debugging, would you be able to run
-it? Basically, my plan is just to call a die() like routine for  trap=6, so
-that we get a good stack frame (much like an oops).. From there, we should
-be able to figure out WHY the program is getting an illegal op..
+Oh, Good Job - BKL is evil.  And I think that is partly evident in the
+resulting code, and I have a couple comments about it.
 
-My guesses at this point in time are....  bad file io( i.e. the executable
-is corrupt) , or bad mem... (check to see if the same phys page is being
-used, for example)
+I suspect the recursive nature of the BKL (and perhaps the locking rules
+such that you don't always hold alock, i.e. if name is not NULL) are
+responsible for:
 
- - jim
+	if (!locked)
+		spin_lock(&acct_lock);
 
-"Tom Epperly" <tepperly@llnl.gov>@vger.kernel.org on 03/11/2002 08:07:05 AM
+which really isn't the prettiest or safest thing, although I don't
+actually see any problems with it here.  With the BKL removed, it may be
+better to rewrite the code in a cleaner and saner way.
 
-Sent by:    linux-kernel-owner@vger.kernel.org
+I'd much rather see sane locking rules where we knew the callers and
+each function entry clearly either held or does not hold the spin_lock. 
+Make sure we don't call anything holding the lock, et cetera ...
 
+Also, I like the struct but the defines are a bit ugly.  Why not just
+s/acct_lock/acct_globals.lock/, for example, in the code?  Or Just call
+the instance of the struct "acct" and have acct.lock, etc.
 
-To:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc:    linux-kernel@vger.kernel.org
-Subject:    Re: RH7.2 running 2.4.9-21-SMP (dual Xeon's) yields "Illegal
-       instructions"
+In other words, good job, but this is a development kernel - rip some of
+this cruft up and make it perfect, no?
 
-
-
-Alan Cox wrote:
-
->>Do you agree that this is likely to be a kernel problem?  Is upgrading
->>the kernel my best course of action?
->>
->
->Almost every other report I have ever seen that looked like that one has
-always
->turned out to be hardware related. The randomness in paticular tends to be
->a pointer to thinks like cache faults.
->
->You do have ECC main memory which is good.
->
->What other hardware is in the machine ?
->
->
-To recap from an earlier email, my nightly build & regression tests (a
-roughly 2 hour process involving Sun's JDK, GNU make, gcc, g++, g77 &
-Bourne shell scripts) has been failing intermittently on a dual-Xeon
-system usually with an "Illegal intruction" signal. I've tried removing
-the sound card and disabling the X11 server to avoid loading the nVidia
-kernel mod. The intermittent failures disappear when I run non-SMP. I've
-tried swapping the processors on the motherboard, and both processors
-appear to work fine individually. Most of the boxes I've run on have >=
-512MB ECC RAM. I've run Dell's hardware diagnostics (especially the
-memory ones) twice. The diagnostics don't seem to have SMP tests where
-both CPUs are being stressed.
-
-FYI when I upgraded to the 2.4.18-1smp kernel, the failure rate went
-from 20% to 100%. I have tried running the nightly build & regression on
-roughly 6 different dual processors Pentium III or better machines
-(cylcing it over and over), and they all have intermittent failures of
-one kind or another. All these machines are made by Dell, but they
-provide some evidence that it is not a hardware problem.
-
-Tom
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+	Robert Love
 

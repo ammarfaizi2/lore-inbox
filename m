@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268045AbUJTPS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267823AbUJTPSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268045AbUJTPS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 11:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJTPSu
+	id S267823AbUJTPSe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 11:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUJTPO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:18:50 -0400
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:55018 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S268045AbUJTPRT
+	Wed, 20 Oct 2004 11:14:58 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:25806 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S267866AbUJTPIA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:17:19 -0400
-Message-ID: <41768175.9000909@mvista.com>
-Date: Wed, 20 Oct 2004 08:17:09 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 20 Oct 2004 11:08:00 -0400
+Date: Wed, 20 Oct 2004 16:30:57 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
 To: Len Brown <len.brown@intel.com>
-CC: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: gradual timeofday overhaul
-References: <Pine.LNX.4.53.0410200441210.11067@gockel.physik3.uni-rostock.de> <1098258460.26595.4320.camel@d845pe>
-In-Reply-To: <1098258460.26595.4320.camel@d845pe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Andre Eisenbach <int2str@gmail.com>,
+       Alexander Clouter <alex-kernel@digriz.org.uk>,
+       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
+       "cpufreq@www.linux.org.uk" <cpufreq@www.linux.org.uk>
+Subject: Re: [PATCH] cpufreq_ondemand
+Message-ID: <20041020143057.GA7652@dominikbrodowski.de>
+Mail-Followup-To: Len Brown <len.brown@intel.com>,
+	Andre Eisenbach <int2str@gmail.com>,
+	Alexander Clouter <alex-kernel@digriz.org.uk>,
+	linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
+	"cpufreq@www.linux.org.uk" <cpufreq@www.linux.org.uk>
+References: <7f800d9f04101922031be5cfe8@mail.gmail.com> <1098257735.26595.4308.camel@d845pe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098257735.26595.4308.camel@d845pe>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
-> On Tue, 2004-10-19 at 23:05, Tim Schmielau wrote:
+On Wed, Oct 20, 2004 at 03:35:35AM -0400, Len Brown wrote:
+> On Wed, 2004-10-20 at 01:03, Andre Eisenbach wrote:
 > 
->>I think we could do it in the following steps:
->>
->>  1. Sync up jiffies with the monotonic clock,...
->>  2. Decouple jiffies from the actual interrupt counter...
->>  3. Increase HZ all the way up to 1e9....
+> > ... If the
+> > speed steps down slowly but shoots up 100% quickly (as it is right
+> > now), even a small task (like opening a folder, or scrolling down in a
+> > document) will cause a tiny spike to 100% which takes a while to go
+> > back down. The result is that the CPU spends most of it's time at 100%
+> > or calming down. I wrote a small test program on my notebook which
+> > confirms this.
 > 
-> 
->>Thoughts?
-> 
-> 
-> Yes, for long periods of idle, I'd like to see the periodic clock tick
-> disabled entirely.  Clock ticks causes the hardware to exit power-saving
-> idle states.
-> 
-> The current design with HZ=1000 gives us 1ms = 1000usec between clock
-> ticks.  But some platforms take nearly that long just to enter/exit low
-> power states; which means that on Linux the hardware pays a long idle
-> state exit latency (performance hit) but gets little or no power savings
-> from the time it resides in that idle state.
+> The question is what POLICY we're trying to implement.
 
+This is why there may be DIFFERENT policies a.k.a. governors in cpufreq.
 
-I (and MontaVista) will be expanding on the VST patches.  There are, currently, 
-two levels of VST.  VST-I when entering the idle state (task) looks ahead in the 
-timer list, finds the next event, and shuts down the "tick" until that time.  An 
-interrupts resets things, be it from the end of the time counter or another source.
+>  If the goal is
+> to to be energy efficient while the user notices no performance hit,
+> then fast-up/slow-down is an EXCELLENT strategy.  But if the goal is to
+> optimize for power savings at the cost of impacting performance, then
+> another strategy may work better.
 
-VST-II adds a call back list to idle entry and exit.  This allows one to add 
-code to change (or even remove) timers on idle entry and restore them on exit.
+> The point is that no strategy will be optimal for all policies.  Linux
+> needs a global power policy manager that the rest of the system can ask
+> about the current policy.  This way sub-systems can (automatically)
+> implement whatever local strategies are consistent with that global
+> policy.
 
-We are doing this work to support deeply embedded applications that often times 
-run on small batteries (think cell phone if you like).
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Put it in userspace, and let it ask the cpufreq core in the kernel to use a
+specific governor or another depending on what you want. That's what certain
+userspace daemons / scripts already do, btw.
 
+	Dominik

@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283594AbRLDXig>; Tue, 4 Dec 2001 18:38:36 -0500
+	id <S283599AbRLDXog>; Tue, 4 Dec 2001 18:44:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283588AbRLDXiR>; Tue, 4 Dec 2001 18:38:17 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40687 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S283016AbRLDXiH>; Tue, 4 Dec 2001 18:38:07 -0500
-Date: Tue, 04 Dec 2001 15:37:37 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Lars Brinkhoff <lars.spam@nocrew.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Larry McVoy <lm@bitmover.com>, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-Message-ID: <2457910296.1007480257@mbligh.des.sequent.com>
-In-Reply-To: <Pine.LNX.4.33L.0112042129160.4079-100000@imladris.surriel.com>
-X-Mailer: Mulberry/2.0.8 (Win32)
+	id <S283588AbRLDXo0>; Tue, 4 Dec 2001 18:44:26 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:17695 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S280357AbRLDXoJ>; Tue, 4 Dec 2001 18:44:09 -0500
+Message-ID: <3C0D5FC7.3040408@redhat.com>
+Date: Tue, 04 Dec 2001 18:44:07 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nathan Bryant <nbryant@optonline.net>
+CC: Mario Mikocevic <mozgy@hinet.hr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Premise 3: it is far easier to take a bunch of operating system images
->> >    and make them share the parts they need to share (i.e., the page
->> >    cache), than to take a single image and pry it apart so that it
->> >    runs well on N processors.
->> 
->> Of course it's easier. But it seems like you're left with much more
->> work to reiterate in each application you write to run on this thing.
->> Do you want to do the work once in the kernel, or repeatedly in each
->> application?
+Nathan Bryant wrote:
+
+> Doug Ledford wrote:
 > 
-> There seems to be a little misunderstanding here; from what
-> I gathered when talking to Larry, the idea behind ccClusters
-> is that they provide a single system image in a NUMA box, but
-> with separated operating system kernels.
+>> Yes, on underrun the DAC is stopped and dmabuf->enable is cleared. 
+>> That's clearly a bug in this case.  However, it should only cause your 
+>> problem if you are in fact getting an underrun.  Anyway, here's a 
+>> proposed fix you can try to see if that's what's causing the problem:
+> 
+> 
+> [snip]
+> 
+> That works.
 
-OK, then I've partially misunderstood this ... can people provide some 
-more reference material? Please email to me, and I'll collate the results
-back to the list (should save some traffic).
 
-I have already the following:
+OK, good.  I've fixed another bug related to MMAPed stuff (for the 
+people that like to play Quake on these sound cards).  I've put up a 
+0.08 version of the file on my web page.  If people could please verify 
+that this version works for them I would appreciate it.  Once I've 
+gotten a few "It works here" reports and no "It blew my computer up" 
+reports, I'll submit it to Marcello and Linus so we can finally get 
+these things working a bit more reliably.
 
-http://www.bitmover.com/talks/cliq/slide01.html 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0001.2/1172.html 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0001.3/0236.html 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0007.3/1222.html 
+Highlights of this release:
 
-Thanks,
+Fix GETOPTR and GETIPTR (thinko/typo in an if statement)
+Fix i810_poll() (side effect of fixing overrun/underrun handling in 0.06)
+Make handling of dmabuf->trigger more consistent throughout the source code
 
-Martin.
+http://people.redhat.com/dledford/i810_audio.c.gz
+
+
+
+
+
+-- 
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

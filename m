@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbVAKXiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVAKXm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262956AbVAKXiO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 18:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbVAKXen
+	id S262951AbVAKXm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 18:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbVAKXmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 18:34:43 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:27070 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262878AbVAKXeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 18:34:16 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Subject: Re: 2.6.10-mm2: swsusp problem with resuming on batteries (AMD64)
-Date: Wed, 12 Jan 2005 00:34:01 +0100
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>
-References: <200501112220.53011.rjw@sisk.pl> <20050111212647.GB1802@elf.ucw.cz> <20050111221412.GC4378@ip68-4-98-123.oc.oc.cox.net>
-In-Reply-To: <20050111221412.GC4378@ip68-4-98-123.oc.oc.cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501120034.02238.rjw@sisk.pl>
+	Tue, 11 Jan 2005 18:42:19 -0500
+Received: from coderock.org ([193.77.147.115]:10182 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262951AbVAKXfX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 18:35:23 -0500
+Subject: [patch 08/11] char/snsc: reorder set_current_state() and add_wait_queue()
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
+From: domen@coderock.org
+Date: Wed, 12 Jan 2005 00:35:14 +0100
+Message-Id: <20050111233514.0320B1F228@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 11 of January 2005 23:14, Barry K. Nathan wrote:
-> > > The box is an Athlon 64 laptop on NForce 3.
-> > 
-> > Can you try without cpufreq support? If we attempt to do 2GHz on AC
-> > power, machine may die ugly death.
-> 
-> Athlon 64 probably means it's running an x86_64 kernel. Wasn't there
-> another thread on lkml about -mm2 swsusp and x86_64?
 
-Yes, there was.
 
-> I wonder if it's  the same problem (or a related one).
 
-The other thread was about the hang caused by the timer driver on suspend 
-(which I'm still trying to understand, but it takes time ;-)).
+Any comments would be, as always, appreciated.
 
-That problem is rather not related to this one, because I'm currently using a 
-slightly modified kernel in which the function timer_resume() (that caused 
-the hang) is a noop.
+-Nish
 
-Greets,
-RJW
+Description: Reorder add_wait_queue() and set_current_state() as a
+signal could be lost in between the two functions.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+
+
+ kj-domen/drivers/char/snsc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN drivers/char/snsc.c~reorder-state-drivers_char_snsc drivers/char/snsc.c
+--- kj/drivers/char/snsc.c~reorder-state-drivers_char_snsc	2005-01-10 18:00:24.000000000 +0100
++++ kj-domen/drivers/char/snsc.c	2005-01-10 18:00:24.000000000 +0100
+@@ -192,8 +192,8 @@ scdrv_read(struct file *file, char __use
+ 		}
+ 
+ 		len = CHUNKSIZE;
+-		add_wait_queue(&sd->sd_rq, &wait);
+ 		set_current_state(TASK_INTERRUPTIBLE);
++		add_wait_queue(&sd->sd_rq, &wait);
+ 		spin_unlock_irqrestore(&sd->sd_rlock, flags);
+ 
+ 		schedule_timeout(SCDRV_TIMEOUT);
+@@ -288,8 +288,8 @@ scdrv_write(struct file *file, const cha
+ 			return -EAGAIN;
+ 		}
+ 
+-		add_wait_queue(&sd->sd_wq, &wait);
+ 		set_current_state(TASK_INTERRUPTIBLE);
++		add_wait_queue(&sd->sd_wq, &wait);
+ 		spin_unlock_irqrestore(&sd->sd_wlock, flags);
+ 
+ 		schedule_timeout(SCDRV_TIMEOUT);
+_

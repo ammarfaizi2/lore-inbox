@@ -1,101 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291559AbSBMLMZ>; Wed, 13 Feb 2002 06:12:25 -0500
+	id <S291576AbSBMLPT>; Wed, 13 Feb 2002 06:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291562AbSBMLMG>; Wed, 13 Feb 2002 06:12:06 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:38662 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S291559AbSBMLMB>; Wed, 13 Feb 2002 06:12:01 -0500
-Message-ID: <3C6A49F1.5000500@evision-ventures.com>
-Date: Wed, 13 Feb 2002 12:11:45 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S291566AbSBMLPF>; Wed, 13 Feb 2002 06:15:05 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:9737 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S291563AbSBMLO4>;
+	Wed, 13 Feb 2002 06:14:56 -0500
+Date: Wed, 13 Feb 2002 12:11:14 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Oleg Drokin <green@namesys.com>
+cc: Alex Riesen <fork0@users.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
+In-Reply-To: <20020213085653.A5957@namesys.com>
+Message-ID: <Pine.LNX.4.44.0202131206190.19885-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Andre Hedrick <andre@linuxdiskcert.org>, Vojtech Pavlik <vojtech@suse.cz>,
-        Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: another IDE cleanup: kill duplicated code
-In-Reply-To: <3C6A418A.8040105@evision-ventures.com> <Pine.LNX.4.10.10202130228180.1479-100000@master.linux-ide.org> <20020213105625.GI32687@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-
->Hi!
->
->>>Well, after looking at yours code close engough I have one advice for 
->>>you as well: LEARN C.
->>>
->>I specialize in storage, and C is self taught.
->>
->
->Okay, few things to keep in mind:
->
->*) cut-copy-paste is bad. If you fix error in one copy, it is _very_
->easy not to fix it in other copies.
->
->*) void *'s and casts are bad. They hide real errors. If you have 
->
->struct foo {} bar;
->
->and want 
->
->bar * baz;
->
->later;
->
->You can write it as struct foo * baz. That will make type checks
->actually work and save you lot of casts. 
->
->*) hungarian notation is considered evil in kernel.
->
->struct bla_s {} bla_t;
->
->*is* evil -- why have two types when one is enough? In kernel land,
->right way is to do 
->
->struct bla {};
->
->and then use "struct bla" everywhere you'd use bla_t. It might be
->slightly longer, but it helps you with casts (above) and everyone can
->see what is going on.
->
-
-Add the following:
-Silly code like that:
-
-      ide_add_setting(drive,  "bios_cyl",             
-SETTING_RW,            
-        ide_add_setting(drive,  "bios_sect",            
-SETTING_RW,            
-        ide_add_setting(drive,  "bswap",                
-SETTING_READ,          
-        ide_add_setting(drive,  "multcount",            id ? SETTING_RW 
-: SETTIN
-
-Can be replaced with somthing along:
-
-struct resource_record {
-} rr = {
-  { asjdkasdh, asdjhasjkd, asdjhjaskd }
-....
- { asdjaksd, adsjaksd, asdhjasdhasd }
-}
 
 
-....
+On Wed, 13 Feb 2002, Oleg Drokin wrote:
 
-
-for (i; i < nuofmemebers(rr); ++i )
-{
-    ide_add_setting(rr[i]);
-}
-
-to save you *a lot* of push stack call function and so on...
-
-
-
+> Hello!
+>
+> On Tue, Feb 12, 2002 at 06:13:18PM +0100, Luigi Genoni wrote:
+>
+> > I run slackware 8.0.49, and there was no log replaying.
+> Ok.
+>
+> > The corruption is the one we are talking about since some days,
+> > file are fille of 0s instead of their supposed content.
+> Hm. Was that a plain reboot?
+> Did you tried to run reiserfsck --rebuild-tree between reboots before
+> finding files with zeroes.
+> (if you did, that may somewhat explain what you've seen)
+NO, NO.
+I boot with 2.5, and I make some work, I edit dsome text file
+with jed and so on,
+then I do a normal reboot in 2.4.17, without any fsck,
+there is log reply, it is a normal reboot.
+Well, some files get corrupted.
+Please, notice, I even had been so lucky to check one of them immediatelly
+before the reboot (with cat), it was safe, and after it was corruted.
+Please note, are corrupted just files that i wrote in 2.5.3/4.
+I saw I am not the only one with this kind of corruption, I remember at
+less one related mail.
+I have no problem to check any patch.
+Luigi
+>
+> > I usually restore corrupted file, so I should keep one fopr you, I think.
+> Ok, if it became all zeroes, then I do not need it.
+>
+> Bye,
+>     Oleg
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

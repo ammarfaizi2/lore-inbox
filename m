@@ -1,95 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbUL0QM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbUL0QUD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbUL0QM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 11:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbUL0QM0
+	id S261923AbUL0QUD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 11:20:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbUL0QUD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 11:12:26 -0500
-Received: from fire.osdl.org ([65.172.181.4]:36014 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261920AbUL0QML (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 11:12:11 -0500
-Subject: Re: Ho ho ho - Linux v2.6.10 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+	Mon, 27 Dec 2004 11:20:03 -0500
+Received: from adsl-64-109-89-108.dsl.chcgil.ameritech.net ([64.109.89.108]:32129
+	"EHLO redscar") by vger.kernel.org with ESMTP id S261923AbUL0QT6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 11:19:58 -0500
+Subject: Re: [2.6 patch] i386: reboot.c cleanups
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, pazke@donpac.ru,
+       linux-visws-devel@lists.sf.net
+In-Reply-To: <20041206004127.GH2953@stusta.de>
+References: <20041206004127.GH2953@stusta.de>
 Content-Type: text/plain
-Message-Id: <1104163841.13099.1.camel@cherrybomb.pdx.osdl.net>
+Date: Mon, 27 Dec 2004 10:19:55 -0600
+Message-Id: <1104164395.5295.24.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 27 Dec 2004 08:10:41 -0800
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.4.1)
+On Mon, 2004-12-06 at 01:41 +0100, Adrian Bunk wrote:
+> The partch below includes the following changes:
+> - arch/i386/kernel/reboot.c: make reboot_thru_bios static
+> - arch/i386/mach-visws/reboot.c: remove the unused reboot_thru_bios and
+>                                  reboot_smp
+> - arch/i386/mach-voyager/voyager_basic.c: remove the unused reboot_thru_bios
+> - arch/i386/mach-voyager/voyager_smp.c: remove the unused reboot_smp
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+The description and the patch below don't match.  Do you have the
+correct patch?
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.10        13w/0e       0w/0e   778w/0e    6w/0e  15w/0e    861w/0e
-2.6.9-rc3     13w/0e       0w/0e   774w/0e    6w/0e  15w/0e    857w/0e
-2.6.9-rc2     14w/0e       0w/0e  1815w/11e  65w/0e  19w/0e   2157w/0e
-(Compiles with gcc 3.2.2)
-2.6.9-rc1      5w/0e       1w/0e  1069w/15e   6w/0e   4w/0e   1062w/1e
-2.6.9          0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-final    0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-rc4      0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-rc3      0w/0e       0w/0e  2752w/17e  41w/0e  11w/0e   2782w/5e
-2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
-2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
-2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc4      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc3      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc2      0w/0e       0w/0e    85w/ 0e   5w/0e   1w/0e     79w/0e
-2.6.8-rc1      0w/0e       0w/0e    87w/ 0e   5w/0e   1w/0e     82w/0e
-2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
-2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
-2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
-2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
-2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
-2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
-2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
-2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
-
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
-
-John
+James
 
 
--- 
-John Cherry
-cherry@osdl.org
-503-626-2455x29
-Open Source Development Labs
+> --- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/process.c.old	2004-12-06 01:25:27.000000000 +0100
+> +++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/process.c	2004-12-06 01:25:38.000000000 +0100
+> @@ -60,7 +60,7 @@
+>  
+>  asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
+>  
+> -int hlt_counter;
+> +static int hlt_counter;
+>  
+>  unsigned long boot_option_idle_override = 0;
+>  EXPORT_SYMBOL(boot_option_idle_override);
+> --- linux-2.6.10-rc2-mm4-full/arch/parisc/kernel/process.c.old	2004-12-06 01:25:55.000000000 +0100
+> +++ linux-2.6.10-rc2-mm4-full/arch/parisc/kernel/process.c	2004-12-06 01:26:01.000000000 +0100
+> @@ -54,7 +54,7 @@
+>  #include <asm/uaccess.h>
+>  #include <asm/unwind.h>
+>  
+> -int hlt_counter;
+> +static int hlt_counter;
+>  
+>  /*
+>   * Power off function, if any
+> --- linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/process.c.old	2004-12-06 01:26:17.000000000 +0100
+> +++ linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/process.c	2004-12-06 01:26:28.000000000 +0100
+> @@ -53,7 +53,7 @@
+>  
+>  unsigned long kernel_thread_flags = CLONE_VM | CLONE_UNTRACED;
+>  
+> -atomic_t hlt_counter = ATOMIC_INIT(0);
+> +static atomic_t hlt_counter = ATOMIC_INIT(0);
+>  
+>  unsigned long boot_option_idle_override = 0;
+>  EXPORT_SYMBOL(boot_option_idle_override);
 

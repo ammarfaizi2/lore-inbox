@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVCDJQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVCDJUR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbVCDJQj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 04:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVCDJQi
+	id S262715AbVCDJUR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 04:20:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbVCDJUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 04:16:38 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10128 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262694AbVCDJQV (ORCPT
+	Fri, 4 Mar 2005 04:20:16 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:9938 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262715AbVCDJR6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 04:16:21 -0500
-Date: Fri, 4 Mar 2005 10:16:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: tglx@linutronix.de, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050304091612.GG14764@suse.de>
-References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com> <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random> <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050304005450.05a2bd0c.akpm@osdl.org>
+	Fri, 4 Mar 2005 04:17:58 -0500
+Date: Fri, 4 Mar 2005 10:17:17 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: adaplas@pol.net, Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [2.6 patch] make savagefb one module
+In-Reply-To: <20050303230750.GT4608@stusta.de>
+Message-ID: <Pine.LNX.4.62.0503041017000.22831@numbat.sonytel.be>
+References: <20050301024118.GF4021@stusta.de> <200503040350.51163.adaplas@hotpop.com>
+ <20050303202039.GH4608@stusta.de> <200503040437.43495.adaplas@hotpop.com>
+ <20050303230750.GT4608@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04 2005, Andrew Morton wrote:
-> The average user has learnt "rc1 == pre1".  I don't expect that it
-> matters much at all.
+On Fri, 4 Mar 2005, Adrian Bunk wrote:
+> This patch links all selected files under drivers/video/savagefb/ into 
+> one module.
+> 
+> This required a renaming of savagefb.c to savagefb_driver.c .
+> 
+> As a side effect, the EXPORT_SYMBOL's in this directory are no longer 
+> required.
+> 
+> ---
+> 
+> Other names than savagefb_driver.c (e.g. savagefb_main.c) are easily 
+> possible - I do not claim being good at picking names...
 
-The average user and lkml reader, perhaps. But I don't understand
-why Linus refuses to use proper -preX/-rcX naming, it would
-clear up a lot of confusion imho. It's just the logical thing
-to do, Marcelo gets it completely right. That -rcX and -rcX+1
-differ in what they mean is really confusing and opposite of
-basically anything else out there.
+savagefb_core.c?
 
-With the 2.6.x-release tree and proper -pre/-rc naming, I would
-be perfectly happy :-)
+Gr{oetje,eeting}s,
 
--- 
-Jens Axboe
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

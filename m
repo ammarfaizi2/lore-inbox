@@ -1,92 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbUKKX6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbUKLABk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbUKKX6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 18:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbUKKXz4
+	id S262479AbUKLABk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 19:01:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUKKX72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 18:55:56 -0500
-Received: from fmr12.intel.com ([134.134.136.15]:47576 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262444AbUKKXxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 18:53:07 -0500
-Date: Fri, 12 Nov 2004 15:51:49 -0800 (PST)
-From: Radheka Godse <radheka.godse@intel.com>
-X-X-Sender: radheka@localhost.localdomain
-To: bonding-devel@lists.sourceforge.net, fubar@us.ibm.com,
-       ctindel@users.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: [Bonding-devel][PATCH]Zero Copy Transmit Support (Update)
-Message-ID: <Pine.LNX.4.61.0411121515530.15487@localhost.localdomain>
-ReplyTo: "Radheka Godse" <radheka.godse@intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.61.0411121515532.15487@localhost.localdomain>
+	Thu, 11 Nov 2004 18:59:28 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:26791 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262428AbUKKX4m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 18:56:42 -0500
+Date: Fri, 12 Nov 2004 00:54:39 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jason McMullan <jason.mcmullan@timesys.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] MII bus API for PHY devices
+Message-ID: <20041111235439.GB13327@electric-eye.fr.zoreil.com>
+References: <20041111224845.GA12646@jmcmullan.timesys>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041111224845.GA12646@jmcmullan.timesys>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please ignore previous submittal, it has reversed tags ('-'s instead of 
-'+'s; I had swapped the order for diff of modified and un-modified 
-src trees)
+Jason McMullan <jason.mcmullan@timesys.com> :
+[...]
+> --- /dev/null
+> +++ linux/drivers/net/mii_bus.c
+[...]
+> +struct phy_cmd {
+> +    u32 mii_reg;
+> +    u32 mii_data;
+> +    u16 (*funct) (u16 mii_reg, int bus, int id);
+   ^^^^
 
-The patch below ADDS Zero Copy Transmit Support to bonding device.
+-> spaces
 
-We saw around ~50% system utilization improvement with tcp sendfile() 
-function enabled netperf test in 802.3ad mode.
+[...]
+> +    /* Local state information */
+> +    struct {
+> +	int irq;
+> +	unsigned long msecs;
+> +	void (*func)(void *data);
+> +	void *data;
+> +    	struct work_struct tq;
+> +	struct timer_list timer;
+   ^^^^^
 
-Note that this patch was generated for 2.6.9 kernel after applying 
-bond-patch-2.6.1(also attached to this thread) that was submitted last week and 
-got accepted into the kernel.
+-> tab...
 
-Signed-off-by: Radheka Godse <radheka.godse@intel.com>
+> +    } delta;
+   ^^^^
 
-diff -uprN -X dontdiff linux-2.6.9_bond-patch-2.6.1/drivers/net/bonding/bonding.h linux-2.6.9/drivers/net/bonding/bonding.h
---- linux-2.6.9_bond-patch-2.6.1/drivers/net/bonding/bonding.h	2004-11-10 15:42:55.000000000 -0800
-+++ linux-2.6.9/drivers/net/bonding/bonding.h	2004-11-11 13:05:54.000000000 -0800
-@@ -36,8 +36,8 @@
-  #include "bond_3ad.h"
-  #include "bond_alb.h"
+-> ...spaces
 
--#define DRV_VERSION	"2.6.1"
--#define DRV_RELDATE	"October 29, 2004"
-+#define DRV_VERSION	"2.6.2"
-+#define DRV_RELDATE	"November 09, 2004"
-  #define DRV_NAME	"bonding"
-  #define DRV_DESCRIPTION	"Ethernet Channel Bonding Driver"
+[...]
+> +/* Write value to the PHY for this device to the register at regnum, */
+> +/* waiting until the write is done before it returns.  All PHY */
+> +/* configuration has to be done through the TSEC1 MIIM regs */
+> +EXPORT_SYMBOL(mii_bus_write);
+> +int mii_bus_write(int bus, int id, int regnum, uint16_t value)
+                                                  ^^^^^^^^
+-> the code of this file has already used some u16/u32 before this point.
 
-diff -uprN -X dontdiff linux-2.6.9_bond-patch-2.6.1/drivers/net/bonding/bond_main.c linux-2.6.9/drivers/net/bonding/bond_main.c
---- linux-2.6.9_bond-patch-2.6.1/drivers/net/bonding/bond_main.c	2004-11-10 15:42:55.000000000 -0800
-+++ linux-2.6.9/drivers/net/bonding/bond_main.c	2004-11-11 13:05:54.000000000 -0800
-@@ -475,6 +475,9 @@
-   *        Solution is to move call to dev_remove_pack outside of the
-   *        spinlock.
-   *        Set version to 2.6.1.
-+ * 2004/11/09 - Radheka Godse <radheka.godse at intel dot com>
-+ *      - Added Zero Copy Transmit Support by setting appropriate flags.
-+ *        Set version to 2.6.2.
-   *
-   */
+> +{
+> +	if (!VALID_BUS(bus))
+> +		return -EINVAL;
+> +
+> +       	mii_bus[bus]->write(mii_bus[bus]->priv,id,regnum,value);
+   ^^^^^^^^^^^^^
 
-@@ -4318,7 +4321,22 @@ static int __init bond_init(struct net_d
-  	bond_dev->features |= (NETIF_F_HW_VLAN_TX |
-  			       NETIF_F_HW_VLAN_RX |
-  			       NETIF_F_HW_VLAN_FILTER);
--
-+ 
-+	/* We let the bond device publish all hardware
-+	 * acceleration features possible. This is OK,
-+	 * since if an skb is passed from the bond to
-+	 * a slave that doesn't support one of those
-+	 * features, everything is fixed in the
-+	 * dev_queue_xmit() function (e.g. calculate
-+	 * check sum, linearize the skb, etc.).
-+	 */
-+	bond_dev->features |= (NETIF_F_SG      |
-+			       NETIF_F_IP_CSUM |
-+			       NETIF_F_NO_CSUM |
-+			       NETIF_F_HW_CSUM |
-+			       NETIF_F_HIGHDMA |
-+			       NETIF_F_FRAGLIST);
-+
-  #ifdef CONFIG_PROC_FS
-  	bond_create_proc_entry(bond);
-  #endif
+-> spaces instead of tab
+-> please add a space after a colon
+
+-> AFAIKS, the code guarantees that VALID_BUS will not fail.
+
+> +	return 0;
+> +}
+> +
+> +/* Reads from register regnum in the PHY for device dev, */
+> +/* returning the value.  Clears miimcom first.  All PHY */
+> +/* configuration has to be done through the TSEC1 MIIM regs */
+> +EXPORT_SYMBOL(mii_bus_read);
+> +int mii_bus_read(int bus, int id, int regnum)
+> +{
+> +	if (!VALID_BUS(bus))
+> +		return -EINVAL;
+> +
+> +       	return mii_bus[bus]->read(mii_bus[bus]->priv,id,regnum);
+
+-> see above.
+
+[...]
+> +#define BRIEF_MII_ERRORS
+> +/* Wait for auto-negotiation to complete */
+> +u16 mii_parse_sr(u16 mii_reg, int bus, int id)
+> +{
+> +	unsigned int timeout = MII_TIMEOUT;
+> +	struct phy_state *pstate;
+> +
+> +	if (!VALID(bus, id)) return 0xffff;
+
+-> the return on a separate line only costs an extra character
+   and makes the style more consistent (see the code above).
+
+[...]
+> +u16 mii_parse_cis8201(u16 mii_reg, int bus, int id)
+> +{
+> +	unsigned int speed;
+> +	struct phy_state *pstate;
+> +
+> +	if (!VALID(bus, id)) return 0xffff;
+> +	pstate = &mii_bus[bus]->phy[id]->state;
+> +
+> +	if (pstate->link) {
+> +		if (mii_reg & MIIM_CIS8201_AUXCONSTAT_DUPLEX)
+> +			pstate->duplex = 1;
+> +		else
+> +			pstate->duplex = 0;
+
+-> If you are really concerned about the size of the source code:
+		pstate->duplex =
+			(mii_reg & MIIM_CIS8201_AUXCONSTAT_DUPLEX) ? 1 : 0;
+> +	NULL
+> +};
+> +
+> +/* Use the PHY ID registers to determine what type of PHY is attached
+> + * to device dev.  return a struct phy_info structure describing that PHY
+> + */
+> +struct phy_info *mii_phy_get_info(int bus, int id)
+> +{
+> +	u16 phy_reg;
+> +	u32 phy_ID;
+> +	int i;
+> +	struct phy_info *theInfo = NULL;
+
+-> s/theInfo/info/ ?
+
+
+> +	if (mii_bus[bus] == NULL)
+> +		return NULL;
+
+-> This function is not exported and the caller has already
+   issued a VALID_BUS.
+
+[...]
+> +	/* loop through all the known PHY types, and find one that */
+> +	/* matches the ID we read from the PHY. */
+> +	for (i = 0; phy_info[i]; i++)
+> +		if (phy_info[i]->id == (phy_ID >> phy_info[i]->shift))
+> +			theInfo = phy_info[i];
+
+-> add braces around the for block + break ?
+
+> +
+> +	if (theInfo == NULL) {
+> +		printk("phy %d.%d: PHY id 0x%x is not supported!\n", bus, id, phy_ID);
+> +		return NULL;
+
+-> no need to return here.
+
+> +	} else {
+> +		printk("phy %d.%d: PHY is %s (%x)\n", bus, id, theInfo->name,
+> +		       phy_ID);
+> +	}
+> +
+> +	return theInfo;
+> +}
+[...]
+> +int mii_phy_attach(struct mii_if_info *mii, struct net_device *dev, int bus, int id)
+> +{
+> +	struct phy_info *phy,*info;
+> +
+> +	if (mii_bus[bus] == NULL) {
+> +		printk(KERN_ERR "mii_phy_attach: Can't attach %s, no MII bus %d present\n",dev->name,bus);
+> +		return -ENODEV;
+> +	}
+> +
+> +	if (VALID(bus,id)) {
+> +		printk(KERN_ERR "mii_phy_attach: PHY %d.%d is already attached to %s\n",bus,id,dev->name);
+> +		return -EBUSY;
+> +	}
+> +
+> +	info = mii_phy_get_info(bus, id);
+> +	if (info == NULL)
+> +		return -ENODEV;
+> +
+> +	phy = kmalloc(sizeof(*phy), GFP_KERNEL);
+> +	memcpy(phy,info,sizeof(*phy));
+
+-> kmalloc can fail.
+
+[...]
+> +int mii_bus_register(struct mii_bus *bus)
+> +{
+> +	int bus_id;
+> +
+> +	if (bus == NULL || bus->name == NULL || bus->read == NULL ||
+> +	    bus->write == NULL)
+> +		return -EINVAL;
+[...]
+> +	mii_bus[bus_id] = bus;
+> +
+> +	if (mii_bus[bus_id] == NULL) {
+
+-> bus is not NULL, neither is mii_bus[bus_id] (see above).
+
+> +		up(&mii_bus_lock);
+> +		return -EINVAL;
+> +	}
+> +
+> +	if (mii_bus[bus_id]->reset)
+> +		mii_bus[bus_id]->reset(mii_bus[bus_id]->priv);
+
+	if (bus->reset)
+		bus->reset(bus->priv);
+
+Please, pretty please, more polish (I did not say that it could
+be done instantly :o) ).
+
+--
+Ueimor

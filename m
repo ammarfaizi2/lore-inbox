@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129183AbQK3UnI>; Thu, 30 Nov 2000 15:43:08 -0500
+        id <S129257AbQK3UoI>; Thu, 30 Nov 2000 15:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129257AbQK3Um6>; Thu, 30 Nov 2000 15:42:58 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:9202 "EHLO
-        webber.adilger.net") by vger.kernel.org with ESMTP
-        id <S129183AbQK3Umq>; Thu, 30 Nov 2000 15:42:46 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200011302012.eAUKCG201943@webber.adilger.net>
-Subject: Re: DVD on Linux
-In-Reply-To: <002a01c05ae5$e4fefa60$7930000a@hcd.net> "from Timothy A. DeWees
- at Nov 30, 2000 10:54:54 am"
-To: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-Date: Thu, 30 Nov 2000 13:12:16 -0700 (MST)
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+        id <S129792AbQK3Un6>; Thu, 30 Nov 2000 15:43:58 -0500
+Received: from node10dfe.a2000.nl ([24.132.13.254]:12296 "EHLO
+        roswell.home.intercept.cx") by vger.kernel.org with ESMTP
+        id <S129257AbQK3Uns>; Thu, 30 Nov 2000 15:43:48 -0500
+From: "Jeroen Geusebroek" <Jeroen.Geusebroek@osc.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2.17 & Eepro(10)
+Date: Thu, 30 Nov 2000 21:13:32 +0100
+Message-ID: <NCBBJKHJIKHIFECNNOAMKEDLDLAA.Jeroen.Geusebroek@osc.nl>
 MIME-Version: 1.0
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy A. DeWees writes:
->     Can someone please point me to a doc on how to mount a DVD drive.
-> COrrect me if I am wrong but the DVD file format is UDF?  I did not see that
-> as an option when I compiled 2.2.17.  Do I need to use 2.4.0testX to mount
-> DVD's?  Thanks in advance!
 
-UDF is an extra patch for 2.2 kernels (it _may_ be in 2.2.18, I don't recall).
-It is standard on 2.4.  You can get the UDF patches at sourceforge, IIRC.
+Hello,
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+I'm having troubles with the eepro driver included in kernel 2.2.17.
+It stops sometimes with no apparent reason. The one thing i noticed
+is that it seems to have a lot of carrier problems(998!)
+
+This is part of the result from ifconfig:
+
+eth1      Link encap:Ethernet  HWaddr 00:AA:00:A6:05:01  
+          inet addr:24.132.xx.xxx  Bcast:24.132.xx.xxx  Mask:255.255.254.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:248714 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:64711 errors:1925 dropped:0 overruns:0 carrier:998
+          collisions:832 txqueuelen:100 
+          Interrupt:10 Base address:0x230
+
+Needless to say i didn't have this problem with previous kernels
+(including 2.2.16).
+
+Is there something changed in the driver for 2.2.17?
+
+Thanks for the help.
+
+Regards,
+
+Jeroen Geusebroek
+
+P.s. please CC me if you reply since i'm not subscribed to the list. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315949AbSEGTW2>; Tue, 7 May 2002 15:22:28 -0400
+	id <S315950AbSEGTXJ>; Tue, 7 May 2002 15:23:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315950AbSEGTW1>; Tue, 7 May 2002 15:22:27 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:22541 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315949AbSEGTWZ>; Tue, 7 May 2002 15:22:25 -0400
-Date: Tue, 7 May 2002 21:22:13 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pfn-Functionset out of order for sparc64 in current Bk tree?
-In-Reply-To: <Pine.LNX.4.44.0205051708420.23089-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.21.0205072115360.32715-100000@serv>
+	id <S315951AbSEGTXI>; Tue, 7 May 2002 15:23:08 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:64273 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S315950AbSEGTXG>; Tue, 7 May 2002 15:23:06 -0400
+Message-ID: <3CD82859.5060707@namesys.com>
+Date: Tue, 07 May 2002 23:17:45 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Oleg Drokin <green@namesys.com>
+CC: Chris Mason <mason@suse.com>, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] [BK] [2.4] Reiserfs changeset 2 out of 4, please
+ apply.
+In-Reply-To: <200205071505.g47F5iE04039@namesys.com> <1020785252.32097.165.camel@tiny> <20020507193719.A28170@namesys.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Oleg Drokin wrote:
 
-On Tue, 7 May 2002, Thunder from the hill wrote:
+>Hello!
+>
+>On Tue, May 07, 2002 at 11:27:32AM -0400, Chris Mason wrote:
+>  
+>
+>>> You can get this changeset from bk://thebsh.namesys.com/bk/reiser3-linux-2.4
+>>> This changeset are cleaning up reiserfscode, removes stale comments, and
+>>> rewrites some "borrowed" functions so that all of the code in reiserfs subdir
+>>> should now only belong to NAMESYS.
+>>>      
+>>>
+>>It is the end of a release cycle on a stable kernel with huge changes to
+>>the IDE layer, and we have at least one unconfirmed report of problems
+>>with reiserfs+IDE after a crash.
+>>    
+>>
+>
+>That's true.
+>
+>  
+>
+>>This is not the right time to send in cleanups like this, especially
+>>when they bits as useless as the stuff below.  #1, #2 and #4 look like
+>>valid fixes.  #3 should probably be mixed with the iput deadlock fix
+>>like Oleg did in 2.5, and should wait until after 2.4.19.
+>>    
+>>
+>
+>#2 and $4 are cleanups, #1 and #3 are bugfixes.
+>And iput deadlock fix is too big of a change for 2.4.19, so it is not included.
+>Let's see how will it behave in 2.5 first.
+>And cleanups are harmless ones, so there is no risk of getting these in.
+>
+>In short, these changes are not "huge", and mostly non-intrusive.
+>
+Chris, I had much the same reaction initially, and then I looked at the 
+details, and either it fixes a real bug in a simple manner, or it is a 
+comment change, etc.  It looks bigger than it is was what I finally 
+concluded.  Perhaps there is some detail in which I am wrong, but since 
+it was all tested together I didn't feel like picking out just a few 
+lines of change to leave out (since that would actually increase the 
+risk of introducing a bug).
 
-As long as CONFIG_DISCONTIGMEM isn't used the replacement functions are
-quite simple.
+Hans
 
->  - pfn_to_page(pfn) is declared as (mem_map + (pfn)) for i386. Can this 
->    apply to Sparc64 as well?
-
-Yes.
-
->  - pte_pfn(x) is declared as
->    ((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
->    in 2-level pgtable,
->    (((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT)))
->    in 3-level. I suppose 2-level shouldn't exactly match here, how far 
->    must the 3-level version be changed in order to fit sparc64? A lot?
-
-#define pte_pfn(x) (pte_val(x) >> PAGE_SHIFT)
-
->  - pfn_valid(pfn) is described as ((pfn) < max_mapnr). Suppose this is OK 
->    on Sparc64 either?
-
-Yes.
-
->  - pfn_pte(page,prot) is defined as
->    __pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
->    How far does this go for Sparc64?
-
-#define pfn_pte(pfn,prot) mk_pte_phys(pfn << PAGE_SHIFT, prot)
-but you should better replace mk_pte_phys completely.
-
-bye, Roman
 

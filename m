@@ -1,54 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261995AbSI3KCf>; Mon, 30 Sep 2002 06:02:35 -0400
+	id <S262003AbSI3KRf>; Mon, 30 Sep 2002 06:17:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261999AbSI3KCf>; Mon, 30 Sep 2002 06:02:35 -0400
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:52496 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S261995AbSI3KCe>; Mon, 30 Sep 2002 06:02:34 -0400
-Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pre8)
-In-Reply-To: <20020930094012.GC20605@redhat.com>
-To: Tim Waugh <twaugh@redhat.com>
-Date: Mon, 30 Sep 2002 12:07:51 +0200 (CEST)
-CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, serial24@macrolink.com,
-       linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17vxSx-0004cg-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+	id <S262004AbSI3KRf>; Mon, 30 Sep 2002 06:17:35 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:54789 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S262003AbSI3KRf>; Mon, 30 Sep 2002 06:17:35 -0400
+Date: Mon, 30 Sep 2002 12:22:28 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: jw schultz <jw@pegasys.ws>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAIDdevice driver
+Message-ID: <20020930102228.GB28157@louise.pinerecords.com>
+References: <Pine.LNX.4.44.0209262140380.1655-100000@home.transmeta.com> <Pine.LNX.4.44.0209280934540.13549-100000@localhost.localdomain> <20020928091634.GC32017@pegasys.ws> <200209300911.g8U9BKp18642@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209300911.g8U9BKp18642@Port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What was wrong with the original, much smaller patch that you sent me
-> previously (below)?
+> Technically correct. Major version jump should be made when there is
+> a binary incompatibility. It can be made without, but it is usually
+> done for marketing reasons. I hope we'll never have marketing reasons
+> for lk. :-) We can be actually _proud_ to have 2.$BIGNUM instead of
+> 3.0
 
-It was a hack (more a proof of concept where the problem was), and
-Pavel Janik had some trouble with it (it hung before detecting the PCI
-serial ports, while changing the link order worked fine - not sure why,
-could this be a kernel stack overflow resulting from calling rs_init()
-from within parport code instead of directly from the top level?).
+... and go Solaris, as in 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 7, 8, 9.  :D
 
-My most recent patch simply moves parport_serial.c to a different
-directory - that's why the patch is so big, but it doesn't otherwise
-change a single line in that moved file (I split NetMos support to
-the next patch, after this one is accepted and possible NetMos bugs
-are resolved - works fine here with parport in polling mode, IRQ
-sharing with serial ports not tested).
-
-After the parport_serial.c move, the init order would be:
- - parport
- - serial
- - parport_serial (needs both of the above initialized first)
- - other char/block/net drivers (some of them might need the parallel
-   ports, including the PCI ones: lp, paride, plip - so moving all of
-   parport after char/block/net would be wrong)
-
-> I'm happy to accept whichever patch is the better.
-
-I'd suggest the more recent (larger, but not really...) one.
-
-Thanks,
-Marek
-
+T.

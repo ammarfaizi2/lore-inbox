@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292627AbSCIKbj>; Sat, 9 Mar 2002 05:31:39 -0500
+	id <S292635AbSCIKsm>; Sat, 9 Mar 2002 05:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292629AbSCIKb3>; Sat, 9 Mar 2002 05:31:29 -0500
-Received: from infinity.pages.at ([195.58.183.83]:6644 "EHLO raptor.daham")
-	by vger.kernel.org with ESMTP id <S292627AbSCIKbW>;
-	Sat, 9 Mar 2002 05:31:22 -0500
-Message-ID: <3C89E44E.376C5F04@pages.at>
-Date: Sat, 09 Mar 2002 11:30:38 +0100
-From: Jens Riecken <jens@pages.at>
-Organization: PAGES.AT
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+	id <S292638AbSCIKsc>; Sat, 9 Mar 2002 05:48:32 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:516 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292635AbSCIKsS>;
+	Sat, 9 Mar 2002 05:48:18 -0500
+Message-ID: <3C89E887.D8B9E6C1@mandrakesoft.com>
+Date: Sat, 09 Mar 2002 05:48:39 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Promise Supertrack SX6000 problems with kernel 2.4.19-pre2-ac2
-In-Reply-To: <004701c1c6f6$37d90af0$ad05c080@chem.uga.edu>
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Rik van Riel <riel@conectiva.com.br>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: bk://linux.bkbits.net/linux-2.5
+In-Reply-To: <15497.26229.778087.419723@argo.ozlabs.ibm.com> <Pine.LNX.4.44L.0203082333380.2181-100000@imladris.surriel.com> <20020309081255.A26922@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A N Saravanaraj wrote:
+Russell King wrote:
 > 
-> Hi All
-> I installed RH 7.2 on a dual PIII serverworks mother board box. It has a
-> promise SX6000 card and it was working fine. Then I decided to upgrade the
-> kernel to the new version 2.4.18. I down loaded the sources and compiled the
-> I2O support as modules. Did the installation of the kernel and the machine
-> does not find the I2O card as before and hangs at finding new hardware. Can
-> anybody please tell me what I did wrong. And point me to where I can find an
-> I2O howto.
-> Thank You
-> Raj
+> On Fri, Mar 08, 2002 at 11:35:11PM -0300, Rik van Riel wrote:
+> > For now I've put up the 2.5 tree on bk://linuxvm.bkbits.net/linus-2.5
+> 
+> Jeff also does this - http://gkernel.bkbits.net/linus-2.5
+> 
+> Seems a little wasteful to have multiple trees of the same thing available
+> from the same place.
 
-Hmm, I'm running the SX6000 with both, the i2o support in 2.4.18 (as a
-module) and the driver offered by promise, who i informed two days ago
-about a small change in their makefile to make it compile with 2.4.18
-and modversions.
+Rik thinks that a cron job will somehow notice Linus updates faster than
+I do :)
 
-Just letting the card initialize by it's bios and assigning the
-resources at boot time (by choosing OS Other in it's setup) and
-inserting i2o_core + i2o_block makes it work fine for me.
-
-HTH
-
-Jens "Iwo" Riecken
+-- 
+Jeff Garzik      | Usenet Rule #2 (John Gilmore): "The Net interprets
+Building 1024    | censorship as damage and routes around it."
+MandrakeSoft     |

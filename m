@@ -1,87 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbUCJSvS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 13:51:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUCJSvS
+	id S262768AbUCJS5r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbUCJS5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 13:51:18 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5063 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262766AbUCJSvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 13:51:14 -0500
-Date: Wed, 10 Mar 2004 19:51:05 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Corey Minyard <minyard@acm.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Davis, Todd C" <todd.c.davis@intel.com>, greg@kroah.com,
-       sensors@stimpy.netroedge.com, "Simon G. Vogl" <simon@tk.uni-linz.ac.at>
-Subject: Re: 2.6.4-rc2-mm1: IPMI_SMB doesnt compile
-Message-ID: <20040310185105.GS14833@fs.tum.de>
-References: <20040307223221.0f2db02e.akpm@osdl.org> <20040309013917.GH14833@fs.tum.de> <404F3BC3.2090906@acm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <404F3BC3.2090906@acm.org>
-User-Agent: Mutt/1.4.2i
+	Wed, 10 Mar 2004 13:57:47 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:60394 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262768AbUCJS5o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 13:57:44 -0500
+Message-ID: <404F651B.1030202@matchmail.com>
+Date: Wed, 10 Mar 2004 10:57:31 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: VM patches in 2.6.4-rc1-mm2
+References: <20040302201536.52c4e467.akpm@osdl.org>	<40469E50.6090401@matchmail.com> <20040303193025.68a16dc4.akpm@osdl.org> <404ECFE5.7040005@matchmail.com> <404ED388.5050905@cyberone.com.au>
+In-Reply-To: <404ED388.5050905@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 10:01:07AM -0600, Corey Minyard wrote:
->...
-> I have included a patch from Todd Davis at Intel that adds this function 
-> to the I2C driver.  I believe Todd has been working on getting this in 
-> through the I2C driver writers, although the patch is fairly non-intrusive.
+Nick Piggin wrote:
 > 
-> However, I have no real way to test this patch.
->...
+> 
+> Mike Fedyk wrote:
+> 
+>> Andrew Morton wrote:
+>>
+>>> Mike Fedyk <mfedyk@matchmail.com> wrote:
+>>>
+>>>> Most of the previous 2.6 kernels I was running on these servers 
+>>>> would be lightly hitting swap by now.  This definitely looks better 
+>>>> to me.
+>>>
+>>>
+>>>
+>>>
+>>> It sounds worse to me.  "Lightly hitting swap" is good.  It gets rid 
+>>> of stuff,
+>>> freeing up physical memory.
+>>
+>>
+>>
+>> Andrew, it looks like you're right.  This[1] server doesn't seem to be 
+>> hitting swap enough.  But my other[2] file server is doing great with 
+>> it on the other hand (though, it hasn't swapped at all).
+>>
+> 
+> Just curious, what makes you say [1] isn't hitting swap enough and [2]
+> is OK? The graphs are better now, by the way. Thank you.
 
-I can only confirm that it fixes the compilation...
+Well, with [1], I know most of those apps aren't being used, so I'm sure 
+it should be hitting swap more.
 
+And with [2], it isn't fair since I'm just happy it's not swapping 
+throughout the day and all of userspace is in ram, but it's probably not 
+good either.  And I'm sure there are some gettys and such that aren't 
+being used, so they should have swapped out by now.
 
-The patch to i2c-core.c is strange:
+> 
+>> Maybe a little tuning is in order?
+>>
+>> Any patches I should try?
+>>
+> 
+> Mainline doesn't put enough pressure on slab with highmem systems. This
+> creates a lot more ZONE_NORMAL pressure and that causes swapping.
+> 
 
+Yep, saw that.  Especially with 128MB Highmem (eg, 1G RAM)
 
-> --- linux-v31/drivers/i2c/i2c-core.c	2004-02-19 19:31:07.000000000 -0600
-> +++ linux/drivers/i2c/i2c-core.c	2004-03-10 09:48:08.000000000 -0600
-> @@ -1256,6 +1256,12 @@
->  	return (func & adap_func) == func;
->  }
->  
-> +int i2c_spin_delay;
-> +void i2c_set_spin_delay(int val)
-> +{
-> +	i2c_spin_delay = val;
-> +}
-> +
->  EXPORT_SYMBOL(i2c_add_adapter);
->  EXPORT_SYMBOL(i2c_del_adapter);
->  EXPORT_SYMBOL(i2c_add_driver);
-> @@ -1292,6 +1298,8 @@
->  
->  EXPORT_SYMBOL(i2c_get_functionality);
->  EXPORT_SYMBOL(i2c_check_functionality);
-> +EXPORT_SYMBOL(i2c_set_spin_delay);
-> +EXPORT_SYMBOL(i2c_spin_delay);
->  
->  MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
->  MODULE_DESCRIPTION("I2C-Bus main module");
->...
+> Now with the 2.6 VM, you don't do any mapped memory scaning at all
 
+You mean 2.6-mm?
 
-You can either add get/set functions and export them (more an OO 
-paradigm) or export the variable.
+> while you only have a small amount of memory pressure. This means that
+> truely inactive mapped pages never get reclaimed.
+> 
 
-If you export the variable, it's quite useless to add such a set 
-function since everyone can set the variable directly.
+If I have enough pressure, they will be eventually?  But my caches will 
+still be smaller than optimal, right?
 
+> The patches you are using do not address this. My split active list
+> patches should do so. Alternatively you can increase
+> /proc/sys/vm/swappiness, but that isn't a complete solution, and might
+> make things too swappy. It is a difficult beast to control.
 
-cu
-Adrian
+Has akpm said that he would be including the active split patch in -mm?
 
--- 
+Do you have a patch against -mm (you wrote to ask for your latest...)?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Mike

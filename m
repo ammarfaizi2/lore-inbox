@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264929AbSJ3Uy7>; Wed, 30 Oct 2002 15:54:59 -0500
+	id <S264875AbSJ3UVQ>; Wed, 30 Oct 2002 15:21:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264930AbSJ3Uy6>; Wed, 30 Oct 2002 15:54:58 -0500
-Received: from hamal.ipal.net ([209.102.192.71]:24490 "EHLO hamal.ipal.net")
-	by vger.kernel.org with ESMTP id <S264929AbSJ3Uy6>;
-	Wed, 30 Oct 2002 15:54:58 -0500
-Date: Wed, 30 Oct 2002 15:01:22 -0600
-From: Phil Howard <phil-linux-kernel@ipal.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre11 mounts initrd read/only
-Message-ID: <20021030150122.A25561@hamal.ipal.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264883AbSJ3UVQ>; Wed, 30 Oct 2002 15:21:16 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:45971 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264875AbSJ3UVN>; Wed, 30 Oct 2002 15:21:13 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 30 Oct 2002 12:37:08 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Janet Morgan <janetmor@us.ibm.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sys_epoll 0.14 ...
+In-Reply-To: <200210302014.g9UKEr204332@eng4.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210301228430.1446-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just finished helping someone (who was trying to build a bootable CD
-using my BICK package) debug why they were getting a failure with
-2.4.20-pre11, but things worked OK with 2.4.18.  After several cycles
-of "try this" and finally getting his kernel output captured via a
-serial port, I found the problem.  The initial ram disk mounted at /
-was being mounted read/only in 2.4.20-pre11 whereas it was mounted
-read/write in 2.4.18 (I haven't tested 2.4.19 yet because previously
-upgrading the kernel on a rescue CD wasn't a priority).
+On Wed, 30 Oct 2002, Janet Morgan wrote:
 
-The work around is to either specify "rw" in the boot parameters or to
-do a remount to remove the read/only bit during initialization.  The
-next version of BICK will have this dealt with.
+> > Thanks to Andrew and John suggestions I coded another version of the
+> > sys_epoll patch ( 0.13 skipped ... superstition :) ). I won't send the
+> > patch to not waste bandwidth, the patch is available here :
+> >
+> > http://www.xmailserver.org/linux-patches/sys_epoll-2.5.44-last.diff
+> >
+> > Comments are welcome ...
+>
+>
+> The previous and current versions of the sys_epoll patch are performing
+> comparably and continue to far exceed the results from standard poll.
+> Hopefully this is another endorsement for it's inclusion in the 2.5 kernel.
+>
+> We re-ran the SMP tests that were used to collect the sys_epoll performance
+> data recently posted at http://lse.sourceforge.net/epoll/.  Detailed data
+> follows for those who want a closer look, or check out the website for
+> more information.
 
-I suspect this was just a change being made to default to read/only for
-hard disk mounted root filesystems.  I can see maybe a few suprises it
-might cause, but mostly no problems.  But it could be more problematic,
-or at least confusing, for initial ram disk situations.  Maybe it should
-test for whether / is initrd and turn off MS_RDONLY if so.
+Thank you very much Janet for doing performance and stability test.
+Working with Andrew we agreed to remove the main hash table since, by
+using in full the fcblist.c capabilities, it is not needed any more. Hash
+allocation was a big Andrew concern because of its dimension and because
+it was allocated with vmalloc() that might fail when fragmentation
+increase. The new patch will have a reviewed locking behavior and will
+introduce a slab allocator inside fs/fcblist.c. My plan is to release 0.16
+today so that you guys can run regression test on it. To test the locking
+"goodness" it should be run on an SMP system, with multiple copies of
+ephttpd running on different ports, each one stressed either by httperf
+or the sys_epoll HTTP blaster. Also, building an threaded application that
+makes "bad use" of the interface might help in checking the API robustness
+against every condition. Also, the usual performance test should be run to
+check if we loose something along the path ...
 
-ref:  http://freshmeat.net/projects/bick/
 
--- 
------------------------------------------------------------------
-| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
-| phil-nospam@ipal.net | Texas, USA | http://ka9wgn.ham.org/    |
------------------------------------------------------------------
+
+
+- Davide
+
+

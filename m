@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313867AbSE1LVY>; Tue, 28 May 2002 07:21:24 -0400
+	id <S313773AbSE1LaA>; Tue, 28 May 2002 07:30:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313767AbSE1LVY>; Tue, 28 May 2002 07:21:24 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:59808 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313743AbSE1LVX>;
-	Tue, 28 May 2002 07:21:23 -0400
-Date: Tue, 28 May 2002 04:05:24 -0700 (PDT)
-Message-Id: <20020528.040524.117889173.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: szepe@pinerecords.com, colin@gibbs.dhs.org, linux-kernel@vger.kernel.org,
-        tcallawa@redhat.com, sparclinux@vger.kernel.org,
-        aurora-sparc-devel@linuxpower.org
-Subject: Re: 2.4 SRMMU bug revisited
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1022587118.4124.49.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S313898AbSE1L37>; Tue, 28 May 2002 07:29:59 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:24843 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S313773AbSE1L37>; Tue, 28 May 2002 07:29:59 -0400
+Message-Id: <200205281124.g4SBOWY22443@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Matt Bernstein <matt@theBachChoir.org.uk>
+Subject: Re: VM oops in RH7.3 2.4.18-3
+Date: Tue, 28 May 2002 14:26:24 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0205280026160.13855-100000@nick.dcs.qmul.ac.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 28 May 2002 12:58:38 +0100
-   
-   Which is a concern since both Linus and Larry made it clear bitkeeper
-   would *NEVER* be required of contributors. Is there nothing generating
-   nightly tarballs off cron right now ?
-   
-As stated in a followup posting, that kind of thing is available.
+On 27 May 2002 21:28, Matt Bernstein wrote:
+> On May 27 Benjamin LaHaise wrote:
+> >On Mon, May 27, 2002 at 10:33:12AM -0400, Jes Sorensen wrote:
+> >> >>>>> "Matt" == Matt Bernstein <matt@theBachChoir.org.uk> writes:
+> >>
+> >> Matt> This is a dual Athlon, 1 gig registered ECC DDR RAM, will try
+> >> Matt> 2.4.18-4 but it doesn't look ext3-related (the only big local
+> >> Matt> filesystem is reiserfs over s/w raid0).
+> >>
+> >> Please send this to Red Hat before the kernel list. They are
+> >> responsible for maintaining their kernel.
+> >
+> >I'm sure Rik is interested in any feedback on the rmap patches that
+> >occur out in the wild...  even if they happen in vendor kernels.  With
+> >that said, we appreciate getting bugs like this filed in bugzilla.
+>
+> Thanks--I'll see what I can do, though I really don't have much more to go
+> on than the oops. I think power supply / cooling are not to blame.. :-/
 
-I don't see why people fly off the handle on this.  It only matters if
-you need the tree as of 5 minutes ago bleeding edge type stuff.  If
-you can wait a few days, then just hang on for Marcelo's next
-prepatch.
+You may slightly underclock your system. This will lower wattage and heat
+production.
+
+Wait a day or two for the oops. If it's gone, you have a hw problem.
+--
+vda

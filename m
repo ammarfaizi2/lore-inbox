@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbUK1IVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbUK1I3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbUK1IVT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 03:21:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbUK1IVT
+	id S261411AbUK1I3P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 03:29:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbUK1I3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 03:21:19 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:51419 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261410AbUK1IVP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 03:21:15 -0500
-Subject: Re: [PATCH] Document kfree and vfree NULL usage
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Tomas Carnecky <tom@dbservice.com>, Marcel Sebek <sebek64@post.cz>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <41A9190D.5020108@yahoo.com.au>
-References: <1101565560.9988.20.camel@localhost>
-	 <20041127171357.GA5381@penguin.localdomain>
-	 <41A9148E.6070501@dbservice.com>  <41A9190D.5020108@yahoo.com.au>
-Date: Sun, 28 Nov 2004 10:20:20 +0200
-Message-Id: <1101630020.9996.23.camel@localhost>
+	Sun, 28 Nov 2004 03:29:15 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:50351 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S261411AbUK1I3N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 03:29:13 -0500
+Date: Sun, 28 Nov 2004 09:29:12 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Suspend 2 merge
+Message-ID: <20041128082912.GC22793@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20041127220752.16491.qmail@science.horizon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041127220752.16491.qmail@science.horizon.com>
+User-Agent: Mutt/1.5.6+20040722i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Carnecky wrote:
-> > Isn't 'if (x) { free(x); }' faster than the call to free() with a NULL
-> > pointer?
-> > What about a macro ?
-> > #define fast_free(x) if (x) { free(x); }
-> > Or even
-> > #define kfree(x) if (x) { _kfree(x); }
-> > Or maybe a inline function so it doesn't break existing code.
-> > inline void kfree(x) { if (x) { _kfree(x); } }
+Previously linux@horizon.com wrote:
+> Lucky you.  My machine takes minutes.
+> (To be precise, it prints about a line and a half of dots in the
+> count_data_pages() loop, and often takes 2 seconds per dot.)
 
-On Sun, 2004-11-28 at 11:17 +1100, Nick Piggin wrote:
-> Well if a NULL parameter is the exceptional case, then you don't want to
-> litter the L1 cache with the extra code that will only save a function
-> call in rare cases.
-> 
-> And I think it should be the exceptional case, because it shouldn't really
-> be used for much other than streamline error handling or cleanup functions
-> to cope with failed allocations without adding checks everywhere. If you're
-> doing lots of kfree(NULL) as part of normal operation, then that may
-> suggest you aren't tracking your memory very well.
+It also seems to vary wildly. Most of the time it goes pretty fast for
+me (under one minute) but occasionaly it will take well over 10 minutes.
+Never managed to time it exactly since my battery tends to run out in
+the middle of a suspend when that happens.
 
-Agreed. The drivers also use NULL for optional fields btw. Removing the
-redundant checks reduce the size of source and object code so we get
-more readable code and smaller memory footprint at the same time (yay!).
-Furthermore, we get rid of the _confusion_ over the use of kfree() and
-vfree().
+Wichert.
 
-		Pekka
-
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

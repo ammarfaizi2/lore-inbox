@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284744AbRLJX5Y>; Mon, 10 Dec 2001 18:57:24 -0500
+	id <S284746AbRLJX6y>; Mon, 10 Dec 2001 18:58:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284746AbRLJX5O>; Mon, 10 Dec 2001 18:57:14 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11163 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S284744AbRLJX47>;
-	Mon, 10 Dec 2001 18:56:59 -0500
-Date: Mon, 10 Dec 2001 18:56:55 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] devfs=only and boot
-In-Reply-To: <200112101824.fBAIOLJ22603@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0112101847410.14238-100000@binet.math.psu.edu>
+	id <S284754AbRLJX6o>; Mon, 10 Dec 2001 18:58:44 -0500
+Received: from net128-053.mclink.it ([195.110.128.53]:4078 "EHLO
+	mail.mclink.it") by vger.kernel.org with ESMTP id <S284752AbRLJX6c>;
+	Mon, 10 Dec 2001 18:58:32 -0500
+Message-ID: <3C154C27.2030202@arpacoop.it>
+Date: Tue, 11 Dec 2001 00:58:31 +0100
+From: Carl Scarfoglio <scarfoglio@arpacoop.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.1-pre8: lockups whem mounting scsi cdrom
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+HW: MB Asus A7V, 256MB Ram, Athlon 800 MHz,four HD attache to standard
+ATA and ATA-100 Promise controller, 1 Realtek 8029 ethernet adapter,
+Adaptec 2904 (AIC 7850), 1 scsi CD-writer (Waitec. i.e. Philips 2200 or
+so), Teac scsi CD-ROM, 1 Mustek A3 plugged to external scsi connector.
+The Adaptec has Irq 11 exclusilively.
+SW: SuSE 6.3 with some changes, gcc 2.9.3.
 
+I am running 2.5.1-pre8. I cannot mount data CD. When I execute the
+mount command, on any drive, a hard lockup follows. No messages from the
+mount command, no noise from the drives.
+The PC hangs solid: keyboard and mouse are dead, no telnet access, when
+in X the session is dead. I must flip the power switch.
 
-On Mon, 10 Dec 2001, Richard Gooch wrote:
+But I can write CD's with cdrecord and play audio CD's!!
 
-> Alexander Viro writes:
-> > 	Richard, just how devfs=only is supposed to work with
-> > loading ramdisk from floppies?
-> 
-> IIRC, it's supposed to work just like normal reading from a
-> floppy. That should still work.
+Kernel 2.5.0 does not have this problem.
 
-How?  blkdev_get() is not going to work in that case...
- 
-> > 	BTW, with initrd exiting with real-root-dev set (regardless of
-> > devfs=only) your code still goes by root_device_name and ignores new
-> > ROOT_DEV.  Again, what behaviour is expected?
-> 
-> The intent is that root_device_name is changed, so it should just
-> work. Has something broken? AFAIK, this too used to work.
+TIA
 
-What would change it?  We have ROOT_DEV = new_root_dev; in change_root(),
-so your ROOT_DEVICE_NAME is non-NULL...  What's more, where are you going
-to get the new name?
-
-> I'll try to have a closer look at this tonight. Which kernel version
-> are you staring at?
-
-Pretty much anything - heck, 2.4.0 should be the same in that respect.
-
-> Alexander Viro writes:
-> > 	BTW, here's one more devfs rmmod race: check_disk_changed() in
-> > fs/devfs/base.c.  Calling ->check_media_change() with no protection
-> > whatsoever.  If rmmod happens at that point...
-> 
-> How about if I do this sequence:
-> 	lock_kernel();
-> 	devfs checks;
-> 	if (bd_op->owner)
-> 		__MOD_INC_USE_COUNT(bd_op->owner);
-> 	revalidate();
-> 	if (bd_op->owner)
-> 		__MOD_DEC_USE_COUNT(bd_op->owner);
-> 	unlock_kernel();
-> 
-> Is there any reason why that won't work?
-
-For one thing, the situation when you are already half-way through the
-module removal.  At least use try_inc_mod_count().
+Carlo Scarfoglio
 

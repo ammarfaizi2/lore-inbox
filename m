@@ -1,115 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262212AbTCMJqw>; Thu, 13 Mar 2003 04:46:52 -0500
+	id <S262214AbTCMJ7c>; Thu, 13 Mar 2003 04:59:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262213AbTCMJqv>; Thu, 13 Mar 2003 04:46:51 -0500
-Received: from packet.digeo.com ([12.110.80.53]:35272 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262212AbTCMJqu>;
-	Thu, 13 Mar 2003 04:46:50 -0500
-Date: Thu, 13 Mar 2003 01:58:40 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       bzzz@tmi.comex.ru
-Subject: Re: [PATCH] concurrent block allocation for ext2 against 2.5.64
-Message-Id: <20030313015840.1df1593c.akpm@digeo.com>
-In-Reply-To: <m3el5bmyrf.fsf@lexa.home.net>
-References: <m3el5bmyrf.fsf@lexa.home.net>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Mar 2003 09:57:29.0292 (UTC) FILETIME=[F55758C0:01C2E946]
+	id <S262215AbTCMJ7c>; Thu, 13 Mar 2003 04:59:32 -0500
+Received: from ims21.stu.nus.edu.sg ([137.132.14.228]:49043 "EHLO
+	ims21.stu.nus.edu.sg") by vger.kernel.org with ESMTP
+	id <S262214AbTCMJ7a> convert rfc822-to-8bit; Thu, 13 Mar 2003 04:59:30 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [BUG] module_init_tools 0.9.10
+Date: Thu, 13 Mar 2003 18:10:03 +0800
+Message-ID: <720FB032F37C0D45A11085D881B03368A2B4BA@MBXSRV24.stu.nus.edu.sg>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG] module_init_tools 0.9.10
+Thread-Index: AcLgJazH2S1FBKJYTw6yMgPsk/imhgJImkWg
+From: "Eng Se-Hsieng" <g0202512@nus.edu.sg>
+To: "Kai Germaschewski" <kai-germaschewski@uiowa.edu>
+X-OriginalArrivalTime: 13 Mar 2003 10:10:04.0291 (UTC) FILETIME=[B75B0D30:01C2E948]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas <bzzz@tmi.comex.ru> wrote:
->
-> 
-> Hi!
-> 
-> as Andrew said, concurrent balloc for ext3 is useless because of BKL.
-> and I saw it in benchmarks. but it may be useful for ext2.
-> 
-> Results:
->          9/100000   9/500000   16/100000  16/500000  32/100000  32/500000
-> ext2:    0m9.260s   0m46.160s  0m18.133s  1m33.553s  0m35.958s  3m4.164s
-> ext2-ca: 0m8.578s   0m42.712s  0m17.412s  1m28.637s  0m33.736s  2m53.824s
-> 
-> in those benchmarks, I run 2 process, each of them writes N blocks 
-> (9, 16, 32), truncates file and repeat these steps M times (100000, 500000).
+Dear Kai,
 
-OK.  The main gain here is from the large context switch rate which
-lock_super() can cause on big machines.
+This is in relation to your suggestions to get a module working in 2.5
+kernels.
 
-> -		if (!ext2_clear_bit(bit + i, bitmap_bh->b_data))
-> +		if (!test_and_clear_bit(bit + i, (void *) bitmap_bh->b_data))
+After tweaking my Makefile, I managed to get it working for 2.5.59 but
+now it no longer compiles under 2.5.64! 
 
-Nope.
+Here is my "tweaked" Makefile which compiled and loaded fine for 2.5.59.
+Grateful if you could kindly suggest how to adapt it to 2.5.64 as I
+really need to get it working. When compiling, vermagic.o can no longer
+be found.
 
-This is an on-disk bitmap.  ext2_clear_bit() is endian-neutral - see the
-ppc/ppc64/mips/etc implementations.  The code you have here will not work on
-big-endian architectures.
+Many thanks.
 
-We either need to create per-architecture atomic implementations of
-ext2_foo_bit(), or use the existing ones under spinlock.
+Regards,
+Se-Hsieng
 
-You could do:
+# Start of Makefile
+include ../config.mk
 
-int bzzz_set_bit(struct ext2_bg_info *bgi, void *addr, int bit)
-{
-#if __BIG_ENDIAN
-	int ret;
+# Options
+# -DD_DEBUG enables debug messages
+OPTIONS = -DD_DEBUG
 
-	spin_lock(&bgi->s_alloc_lock);
-	ret = ext2_set_bit(addr, bit);
-	spin_unlock(&bgi->s_alloc_lock);
-	return ret;
-#else
-	return test_and_set_bit(addr, bit);
-#endif
-}
+#CFLAGS = -O2 -Wall -Wstrict-prototypes -fomit-frame-pointer -pipe
+CFLAGS = -O2 -Wall -Wstrict-prototypes -fomit-frame-pointer -pipe
+-DKBUILD_MODNAME=nokia_cs
 
-I think that will work...
+MODFLAGS = -D__KERNEL__ -DMODULE
 
-> @@ -45,6 +45,7 @@
->  	u32 s_next_generation;
->  	unsigned long s_dir_count;
->  	u8 *s_debts;
-> +	spinlock_t s_alloc_lock;
->  };
+INCDIRS  = -I../include -I$(LINUX)/include $(DBE) $(DBM) 
 
-You can do better than this.  A spinlock per blockgroup will scale better,
-and is pretty easy.
+L_TARGET := nokia_cs.a
 
-See that s_debts thing?  That points to an array of bytes, one per
-blockgroup.  Turn it into:
+# Module settings
 
-	struct ext2_bg_info {
-		u8 s_debt;
-		spinlock_t s_alloc_lock;
-	};
+MODULE = nokia_cs.o
+MODDIR = $(ROOTDIR)/lib/modules/$(OS_RELEASE)
 
-And the locking can become per-blockgroup.
+# Locations ##############################################
 
-The problem with this is the fs-wide s_free_blocks_count thing.  It needs
-global locking.  But do we need it?
+srcs = dllc.c dmodule.c dtools.c dserial.c
+hdrs = $(wildcard *.h)
+objs = dllc.o dmodule.o dtools.o dserial.o
 
-If you look, you'll see that's not really used for much.  When we report the
-free block count to userspace you can just locklesly zoom across all the
-blockgroups adding them up.  You'll have to do the same in
-find_group_orlov(), which is a bit sucky, but that's only used by mkdir.
+# ALL_O := $(objs) $(L_TARGET)
+ALL_O := $(objs) $(L_TARGET) $(LINUX)/init/vermagic.o
 
-The only thing left which needs the global free blocks counter is the
-"reserved blocks for root" thing, which doesn't work very well anyway.  A way
-to fix that would be to add a "reserved to root" field to ext2_bg_info, and
-to precalculate these at mount time.
+# helps ##################################################
 
-So the mount code walks across the blockgroups reserving blocks in each one
-until it has reserved the required number of blocks.  This way the for-root
-reservation becomes per-block-group.  It should only be dipped into if all
-blockgroups are otherwise full.
+REALOPTS = $(CFLAGS) $(MODFLAGS) $(INCDIRS) $(OPTIONS)
 
-Or something like that ;)
+# Targets ################################################
+
+all : $(MODULE) 
+
+run : install
+	/etc/rc.d/init.d/pcmcia restart
+
+$(srcs) : $(hdrs)
+
+$(objs) : $(srcs)
+	$(CC) $(REALOPTS) -c $(patsubst %.o, %.c, $@)
+	chmod -x $@
+
+$(MODULE) : $(objs) $(L_TARGET)
+	$(LD) -m elf_i386 -r -o $@ $(ALL_O)
+	chmod -x $@
+
+install : $(MODULE)
+	echo "Installing module ("$(MODULE)" to "$(MODDIR)"/pcmcia)"
+	mkdir -p $(MODDIR)/pcmcia
+	cp -p $(MODULE) $(MODDIR)/pcmcia
+	mkdir -p $(ROOTDIR)/etc/pcmcia/bin
+	cp ../bin/$(SMAC2) $(ROOTDIR)/etc/pcmcia/bin/smac2.bin
+
+uninstall :
+	echo "Uninstalling module ("$(MODULE)" from "$(MODDIR)"/pcmcia)"
+	rm $(MODDIR)/pcmcia/$(MODULE) 
+	rm $(ROOTDIR)/etc/pcmcia/bin/smac2.bin
+
+clean: 
+	rm -f core *.o *~
+
+-----Original Message-----
+From: Kai Germaschewski [mailto:kai-germaschewski@uiowa.edu] 
+Sent: Sunday, March 02, 2003 3:06 AM
+To: Eng Se-Hsieng
+Subject: Re: [BUG] module_init_tools 0.9.10
+
+
+On Fri, 28 Feb 2003, Eng Se-Hsieng wrote:
+
+> I'm afraid I don't understand how to apply the solution you gave 
+> below.
+> Could you please help advise me on how I may modify my Makefile in
+order
+> to allow the driver and module and work?
+
+Put something like the following into your your_driver/Makefile
+
+---
+KERNELSRC=/lib/modules/`uname -r`/build
+
+all:
+        make -C $(KERNELSRC) SUBDIRS=$$PWD modules
+
+obj-m           := test.o
+
+test-objs       := test1.o test2.o
+---
+
+
+and then just do "make".
+
+If your kernel source isn't pointed to by /lib/modules/`uname -r`/build,
+override with "make KERNELSRC=/where/the/source/is"
+
+
+HTH,
+
+--Kai
 
 

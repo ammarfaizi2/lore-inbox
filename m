@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265546AbUBJEbx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 23:31:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265552AbUBJEbw
+	id S265572AbUBJEje (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 23:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265578AbUBJEje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 23:31:52 -0500
-Received: from fw.osdl.org ([65.172.181.6]:10649 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265546AbUBJEbv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 23:31:51 -0500
-Date: Mon, 9 Feb 2004 20:34:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/char/vt possible race
-Message-Id: <20040209203424.3fc85842.akpm@osdl.org>
-In-Reply-To: <1076386813.884.11.camel@gaston>
-References: <1076386813.884.11.camel@gaston>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 9 Feb 2004 23:39:34 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:14758 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S265572AbUBJEjd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 23:39:33 -0500
+Date: Mon, 9 Feb 2004 20:39:26 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 4.1GB limit with nfs3, 2.6 & knfsd?
+Message-ID: <20040210043926.GG18674@srv-lnx2600.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
-> Hi !
-> 
-> I falled again on the crash in con_do_write() with driver->data
-> beeing NULL. It happens during boot, when userland is playing
-> open/close games with tty's, I was intentionally typing keys like
-> mad during boot trying to trigger another problem when this one
-> poped up.
+Hi,
 
-OK.  Was this patch confirmed to prevent any reoccurrences?
+I was trying to tar and bzip2 some directories over the weekend and I think
+I may have found a bug.
 
-> Andrew: I suggest putting that in -mm for a while, and if it
-> doesn't trigger any new problem, upstream, maybe without my
-> 2 printk's "argh" :)
+The operation would consistantly fail when the bzip2ed tar file hit 4.1GB
+when directed at a 2.6.1-bk2-nfs-stale-file-handles knfsd server from
+another computer running the same kernel.
 
-Yup.  I'll also bring back the sysfs patch which somehow triggers
-this race.
+If I try the operation against a local filesystem, or a 2.4.24 knfsd server
+on the network there are no failures and the file is at 18GB and growing on
+the local filesystem (not enough space on the 2.4 server...).
 
+This is all from the same nfs client computer.
 
+I plan on doing some more tests with dd and cat against the server after the
+files have finished compressing.
+
+Anyone have any ideas?  I know this could be userspace, but why does it work
+against a 2.4 knfsd and on the local filesystem?

@@ -1,59 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263090AbTJEM3w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 08:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263092AbTJEM3w
+	id S263095AbTJEMnb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 08:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbTJEMnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 08:29:52 -0400
-Received: from johanna5.ux.his.no ([152.94.1.25]:54453 "EHLO
-	johanna5.ux.his.no") by vger.kernel.org with ESMTP id S263090AbTJEM3v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 08:29:51 -0400
-Date: Sun, 5 Oct 2003 14:29:25 +0200
-From: Erlend Aasland <erlend-a@ux.his.no>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: Matt Mackall <mpm@selenic.com>, Steven French <sfrench@us.ibm.com>,
-       James Morris <jmorris@intercode.com.au>,
-       Samba Technical Mailing List <samba-technical@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH CIFS] use CryptoAPI MD4/MD5
-Message-ID: <20031005122925.GA4183@badne3.ux.his.no>
-Reply-To: Erlend Aasland <erlend-a@ux.his.no>
-References: <OF9C1504BB.5FB00D5A-ON87256DB3.0015672E-86256DB3.001798AE@us.ibm.com> <20031002113759.GA19824@badne3.ux.his.no> <Pine.LNX.4.58.0310041058000.5954@twinlark.arctic.org> <20031004182417.GC13573@waste.org> <Pine.LNX.4.58.0310041127020.5954@twinlark.arctic.org>
+	Sun, 5 Oct 2003 08:43:31 -0400
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:14979
+	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
+	id S263095AbTJEMn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 08:43:28 -0400
+Date: Sun, 5 Oct 2003 14:43:21 +0200
+To: Christian Kujau <evil@g-house.de>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
+Subject: Re: crypto benchmark results with 2.6.0-test6
+Message-ID: <20031005124321.GA2529@leto2.endorphin.org>
+References: <20031004104131.GA1533@leto2.endorphin.org> <3F800BF8.3020800@g-house.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0310041127020.5954@twinlark.arctic.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3F800BF8.3020800@g-house.de>
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens-dated-1066221801.48ed@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On 10/04/03 11:51, dean gaudet wrote:
-> this CIFS patch alone replaces 89 lines with 250 lines of code!
-... you forgot that if we find a nice way to use the CryptoAPI, we can
-remove the old md4/md5 code: that makes 631 lines of code go away!
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> the code does not look anywhere near as readable as the original.  but perhaps
-> that's just because i've dealt with the same trivial MD5Init/Update/Final
-> API for years.
-I agree that it could have been a bit more readable.
+On Sun, Oct 05, 2003 at 02:18:00PM +0200, Christian Kujau wrote:
+> Sorry, took me a while to retest.
 
-It is trivial to wrap the code that deals with the CryptoAPI into nice
-"helper" functions. For example the cifs_do_hash() function does exactly
-that. Putting scatterlist setup into one function will probably help a
-lot on code readability and code size.
+Thanks :)
 
-> i gather a lot of this comes from the desire to have run-time selectable
-> sw and hw implementations of various algorithms for "optimal" performance.
-> but there generally isn't an optimal algorithm for all situations.
-> for small short digests like passwords it's probably more overhead to
-> use the cryptoapi than is saved from any blindingly fast implementation
-> behind the scenes.
-True, I agree that it's perhaps a bit overkill. Anyway, this is just a
-project for me to learn more about the kernel; it's not like I have a
-burning desire to convert CIFS to use the CryptoAPI ;-)
+> Fruhwirth Clemens schrieb:
+> >would you like to benchmark
+> >http://clemens.endorphin.org/patches/aes-i586-asm-2.6.0-test5.diff
+>
+> yes, i did so, results on:
+> http://www.nerdbynature.de/bench/prinz/
 
-Regards
-	Erlend
+Looks promising. But it's not going to be merged because of objections by
+the cryptoapi maintainer.
+
+> >http://clemens.endorphin.org/twofish-i586/ (experimential)=20
+>=20
+> uh, i guess this masm/windoze/elf32 stuff is too much for me, i could=20
+> try, but don't have time to dig into this. but you could try my script,=
+=20
+> and run benchmarks on your machine too.
+> but: how is this twofish optimization supposed to go into mainline=20
+> anyway? one had to use a special compiling environment to compile a kerne=
+l?
+
+It's not a patch, it's an add-on. I'm working on a gas version of the
+assembler code so it can be merged, but it's far from being complete
+(although it works).
+
+> i set up these benchmarks for me too, because i needed to know what=20
+> cipher is fast enough for my own use. usually i sticked to serpent, now=
+=20
+> aes-i586 looks quite good on this PC. i wonder if it will compile and so=
+=20
+> something on ppc32 too, but probably not. which is a pity, because my=20
+> primary use of the cryptoloop is a ppc :-(
+
+Well that's the cost of an assembler implementation ;) it's not portable.=
+=20
+Probably you can one of IBM's compilers to compile the cipher of your
+choice. http://www-3.ibm.com/software/awdtools/ccompilers/ ... Rumours say
+they're fast than gcc.
+
+Regards, Clemens
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/gBHpW7sr9DEJLk4RAiijAJ9n12Wmd4Jr+9n0dd9MYYu8KPCKLwCcDk62
+S1te3gHaiQ58Jg24rUXvgtE=
+=nhp/
+-----END PGP SIGNATURE-----
+
+--UugvWAfsgieZRqgk--

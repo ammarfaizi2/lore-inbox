@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbULKWJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbULKW0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbULKWJg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 17:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbULKWJf
+	id S262028AbULKW0U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 17:26:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbULKW0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 17:09:35 -0500
-Received: from adsl-70-241-115-85.dsl.hstntx.swbell.net ([70.241.115.85]:6784
-	"EHLO leamonde.no-ip.org") by vger.kernel.org with ESMTP
-	id S262037AbULKWIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 17:08:11 -0500
-Date: Sat, 11 Dec 2004 16:08:10 -0600
-From: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
-To: Sean Neakums <sneakums@zork.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: modprobe: QM_MODULES: Funtion not implemented on kernel 2.6.9
-Message-ID: <20041211220810.GA2432@leamonde.no-ip.org>
-References: <20041211195133.GA2210@leamonde.no-ip.org> <6uvfb8leqg.fsf@zork.zork.net> <20041211214625.GA2324@leamonde.no-ip.org> <6ur7lwlcrk.fsf@zork.zork.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Dec 2004 17:26:20 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:18876 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S262028AbULKW0S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 17:26:18 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Improved console UTF-8 support for the Linux kernel?
+Date: Sat, 11 Dec 2004 17:26:16 -0500
+User-Agent: KMail/1.7
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       David =?iso-8859-1?q?G=F3mez?= <david@pleyades.net>,
+       Simos Xenitellis <simos74@gmx.net>
+References: <1102784797.4410.8.camel@kl> <20041211212533.GA13739@fargo> <Pine.LNX.4.53.0412112234550.2492@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0412112234550.2492@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <6ur7lwlcrk.fsf@zork.zork.net>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200412111726.17242.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.42.94] at Sat, 11 Dec 2004 16:26:17 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 11, 2004 at 09:56:47PM +0000, Sean Neakums wrote:
-> "Camilo A. Reyes" <camilo@leamonde.no-ip.org> writes:
-> 
-> > On Sat, Dec 11, 2004 at 09:14:15PM +0000, Sean Neakums wrote:
-> >> "Camilo A. Reyes" <camilo@leamonde.no-ip.org> writes:
-> >> 
-> >> > Not sure if this has been raised before, but I get this error message
-> >> > every time I try to load a module, it is not the modprobe program it self
-> >> > causing the problem since I updated it to version 2.4.9 which is the
-> >> > latest out there...
-> >> 
-> >> For Linux 2.6 you will need the module-init-tools package.
-> >
-> > Thanks, I was talking 'bout the modutils package, not the mod-init-tools.
-> 
-> And I am telling you that modutils does not work with Linux 2.6.
-> If you want to load modules on Linux 2.6, you need module-init-tools.
+On Saturday 11 December 2004 16:39, Jan Engelhardt wrote:
+>>Indeed is weird. Are you sure you keyboard is generating an UTF-8
+>>enconded "ö"? Just check it with echo:
+>>
+>>$ echo -n ö | od -t x1
+>>
+>>0000000 c3 b6
+>>0000002
+>
+>Yes it does generate 0xC3B6 (otherwise it would show up as garbage,
+> because it would not be utf8-compliant if it only output 0xF6)
 
-Right, and I'm trying to find it as we speak, just wanted to clarify the
-confusion on my first email. Im looking for it in ftp.us.kernel.org but
-its kinda hard since there are all this different folders and things,
-not really sure in which one it would be...
+Which is exactly (0xF6) what I'm getting.  Kernel version
+2.6.10-rc2-mm3-V0.7.32-18
+
+As an american, I've often wondered how to go about getting those
+accented characters out of a std american keyboard.  I used to be
+able to get all those accented and other stuffs out of my amiga's
+keyboard, stuff like the Beta sign and so on.  No can do now, and I
+miss it.
+
+[...]
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+

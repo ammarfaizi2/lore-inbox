@@ -1,132 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264620AbTAEJRz>; Sun, 5 Jan 2003 04:17:55 -0500
+	id <S264624AbTAEJZo>; Sun, 5 Jan 2003 04:25:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264624AbTAEJRz>; Sun, 5 Jan 2003 04:17:55 -0500
-Received: from tag.witbe.net ([81.88.96.48]:32773 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S264620AbTAEJRx>;
-	Sun, 5 Jan 2003 04:17:53 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Steven Barnhart'" <sbarn03@softhome.net>,
-       "'Mark Hahn'" <hahn@physics.mcmaster.ca>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [2.5.54 - Oops] CPUFreq [Was: Re: [2.5.54] OOPS: unable to handle kernel paging request]
-Date: Sun, 5 Jan 2003 10:25:58 +0100
-Message-ID: <012501c2b49c$75000a70$2101a8c0@witbe>
+	id <S264625AbTAEJZo>; Sun, 5 Jan 2003 04:25:44 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:39945
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S264624AbTAEJZm>; Sun, 5 Jan 2003 04:25:42 -0500
+Date: Sun, 5 Jan 2003 01:33:19 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Shawn Starr <spstarr@sh0n.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Binary drivers and GPL
+In-Reply-To: <Pine.LNX.4.44.0301050359370.687-100000@coredump.sh0n.net>
+Message-ID: <Pine.LNX.4.10.10301050109360.421-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <1041627959.1862.2.camel@sbarn.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I've got it running my serial console. Full trace at boot time is :
-SBF: Simple Boot Flag extension found and enabled.
-SBF: Setting boot flags 0x1
-cpufreq: P4/Xeon(TM) CPU On-Demand Clock Modulation available
-divide error: 0000
-CPU:    0
-EIP:    0060:[<c01151bb>]    Not tainted
-EFLAGS: 00010246
-Unable to handle kernel paging request at virtual address ffffff8d
- printing eip:
-c012ebcf
-*pde = 00001067
-*pte = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0060:[<c012ebcf>]    Not tainted
-EFLAGS: 00010006
+Shawn,
 
-and ksymoops says :
-8 [10:21] rol@donald:~> ksymoops -v /usr/src/linux/vmlinux -K -m
-/boot/System.map-2.5.54 <oops-cpufreq2
-ksymoops 2.4.8 on i686 2.4.20.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -K (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.20/ (default)
-     -m /boot/System.map-2.5.54 (specified)
+Obviously you can not and will not listen to reason.
+I can make it become hardware, using a CAM card.
 
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-CPU:    0
-EIP:    0060:[<c01151bb>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-Unable to handle kernel paging request at virtual address ffffff8d
-c012ebcf
-*pde = 00001067
-Oops: 0002
-CPU:    0
-EIP:    0060:[<c012ebcf>]    Not tainted
-EFLAGS: 00010006
-Warning (Oops_read): Code line not seen, dumping what data is available
+Do not preach to me about DMCA, if it was not for me, you and everyone in
+the world would be saddled with it.  The other folks involved in that
+issue forced it underground, and I will bet we are saddled with it now.
 
+http://www.sigmadesigns.com/pdf_docs/harmony_brochure.pdf
 
->>EIP; c01151bb <time_cpufreq_notifier+14f/208>   <=====
->>EIP; c012ebcf <kallsyms_lookup+df/194>   <=====
+It is here dude like it or not!  Who is using it?
 
+The PVR people or the SETTOP box people using Linux, and my work!
+Read that document and see, where kernel 2.4 drivers for DRM/DMCA are
+active in the world.
 
-1 warning issued.  Results may not be reliable.
+Who owns a large stake in the copyright for ATA and all of SATA, me.
+Yet I have to stand around and wait for it to be quietly stolen, and I
+know whos, I know the whens, I know the hows of it all.  I do not know
+the exact wheres.  I have a list a mile long and much of the proof.
+But I have no money to fight.
 
-Problem is that ksymoops seems to decode the paging request fault,
-not the 0 divide error...
+There is a precedence about copyright that effects a very big issue, and
+bigger than me making money.  I will leave and use another platform over
+the issue.
 
-This comes from a plain 2.5.54 kernel, no patches applied.
+If it is deemed under copyright law and the holders reject binary
+modules and the precedene set and used as a legal basis from one statement
+in 1995, then it all goes.  Every embedded module, every appliance with a
+module, every binary module out there, and a dynamic shift away to other
+platforms will result.
 
-Dominik, you told me last week, with 2.5.53, that a patch was to
-be used. 
-Is it included in 2.5.54 ?
-If not, forget this mail... just tell me, I'll apply the patch and
-I'll tell you if it's better.
+So get over yourself, and you have to choice to load or not load a module.
+You have a choice to purchase hardware w/ or w/o binary modules.
+You have a choice to purchase software as a binary module.
 
-Regards,
-Paul
+I am part of the latter, but have the ability to stuff it in to a Digital
+Rights Management device aka Content Addressable Memory, and provide a
+legal gpl driver that is nothing but the original source code wrapper.
+You see people are creative enough to find ways to bypass GPL.
+
+If I can do it so can anyone else.
+Do I like being forced to use a CAM in order to operate in Linux, NO.
+
+Later ...
+
+Andre Hedrick
+LAD Storage Consulting Group
 
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Steven Barnhart
-> Sent: Friday, January 03, 2003 10:06 PM
-> To: Mark Hahn
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: [2.5.54] OOPS: unable to handle kernel paging request
+On Sun, 5 Jan 2003, Shawn Starr wrote:
+
 > 
+> I am not a copyright holder. The only patch that got added to 2.5 was
+> very, very minor (trivial fix, 2 lines). My patchset is GPL but I still
+> have no copyright on this either.
 > 
-> On Fri, 2003-01-03 at 10:48, Mark Hahn wrote:
-> > it's not very meaningful: some part of the kernel tried 
-> dereferencing 
-> > a null pointer (as it happens, with a negative offset, such as you 
-> > might expect from a variable sitting in the stack). the 
-> negativeness 
-> > is not surprising, and the value of the offset would depend on your 
-> > cpu/compiler/config.
+> I know you need to make money all and all and so do I. But, I could care
+> less if people decide to pull out of Linux because they can't make money
+> from it. It's not going to stop me from working on it for free.
 > 
-> Well I have a Intel Celeron 1.06 GHz (i686). 384MB ram, gcc 
-> 3.2 (redhat 8 release). I don't really know how to decode it 
-> since I have no serial console hookups...anything paticualr I 
-> could get from the oops report during bootup? i.e. what 
-> sections to copy?
+> I should mention this you do realize that if companies decide to use
+> binary only drivers it restricts my ability to work on a kernel thats
+> in constant development. This also ties in the DMCA (for those in the USA)
+> by not allowing reverse engineering on hardware and software
+> (because companies may decide to add 'security features') so now we can't
+> develop drivers anymore for fear of lawsuits. From there on it gets
+> really, really messy and that would bring development of drivers to a halt.
 > 
-> -- 
-> Steven
-> sbarn03@softhome.net
-> GnuPG Fingerprint: 9357 F403 B0A1 E18D 86D5  2230 BB92 6D64 D516 0A94
+> Shawn.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+>  On Sun, 5 Jan 2003, Andre Hedrick
+> wrote:
+> 
+> >
+> > Shawn,
+> >
+> > You can go download the IETF iSCSI working document.
+> > You and anyone less can go write a driver to replace me.
+> > I already stated, I will use another platform, like NetBSD if forced.
+> > This is not hardware unless I decide to use a CAM card, then the wrapper
+> > around the object in question becomes the GPL driver.
+> >
+> > I originally asked you offline as not to add more noise, while I am
+> > waiting to see what my peers who are the copyright holders have to say
+> > about the issue.
+> >
+> > Are you a copyright holder in the kernel today?
+> > If so, I can tell you will object on the LGPL issue and deny.
+> > Where is the files so I can evaluate my position now.
+> >
+> > Regards,
+> >
+> > Andre Hedrick
+> > LAD Storage Consulting Group
 

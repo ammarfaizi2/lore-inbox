@@ -1,99 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292150AbSCSTl6>; Tue, 19 Mar 2002 14:41:58 -0500
+	id <S291948AbSCSTm6>; Tue, 19 Mar 2002 14:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291948AbSCSTlw>; Tue, 19 Mar 2002 14:41:52 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:39148 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S292150AbSCSTlm>; Tue, 19 Mar 2002 14:41:42 -0500
-Message-Id: <5.1.0.14.2.20020319105838.02f70cf0@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 19 Mar 2002 11:41:18 -0800
-To: jt@hpl.hp.com
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: Re: Killing tasklet from interrupt
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Paul Mackerras <paulus@samba.org>
-In-Reply-To: <20020318153347.A26715@bougret.hpl.hp.com>
+	id <S292231AbSCSTmu>; Tue, 19 Mar 2002 14:42:50 -0500
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:13560 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S292229AbSCSTma>; Tue, 19 Mar 2002 14:42:30 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 19 Mar 2002 08:47:34 -0700
+To: John Jasen <jjasen1@umbc.edu>, Mike Galbraith <mikeg@wen-online.de>,
+        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: reading your email via tcpdump
+Message-ID: <20020319154734.GM470@turbolinux.com>
+Mail-Followup-To: John Jasen <jjasen1@umbc.edu>,
+	Mike Galbraith <mikeg@wen-online.de>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10203191009290.5694-100000@mikeg.wen-online.de> <Pine.SGI.4.31L.02.0203190915250.7550126-100000@irix2.gl.umbc.edu> <20020319181130.GQ2254@matchmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mar 19, 2002  10:11 -0800, Mike Fedyk wrote:
+> That's not the problem part of the tcpdump output.  The problem is that part
+> of an email previously read on the linux box (with no samba runing. (also,
+> no smbfs MikeG?)) showed up in the tcpdump output...
 
-> > Sounds like what you need is tasklet_disable.
-> > tasklet_kill needs process context so you can't use it in timer.
-> >
-> > >It's a shame that the code doesn't explitely allow for it (i.e. you will
-> > >deadlock every time
-> > >in tasklet_unlock_wait(t);).
-> > Use tasklet_disable_nosync within the tasklet itself.
->
->         Well. I thought about that. Not possible.
->         tasklet_disable is not the answer, because if the tasklet was
->scheduled, it will stay forever in the tasklet queue. Also, I need to
->forget forever about getting rid of the tasklet within the tasklet
->itself, because it will just crash.
-How about something like this ?
+I haven't been following the whole thread, but it is _possible_ that the
+email data was written to the end of a data block which was later re-used
+for a file exported via SMB.  Depending on how the SMB code works, is it
+possible that it is sending a whole block of data to the client and/or
+not zeroing out new blocks?
 
-void tasklet_kill_from_interrupt(struct tasklet_struct *t)
-{
-         while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state));
-         tasklet_unlock_wait(t);
-}
+Of course (not having looked at the original tcpdump output), is it
+possible that the email was captured by tcpdump because it arrived on
+the host via the network?
 
-So, in your timer you would do:
-         set_bit(CLOSING_PLEASE_DONT_SCHEDULE_ANYTHING, something->state);
-         tasklet_kill_from_interrupt(something->tasklet);
-         /* cleanup/kfree/etc */
-
->         Look below, comments by me (you've got to love uncommented
->code). So, it's not today that I will use tasklets.
-Well, I use them without any problems in Bluetooth code. May be you should
-redesign your code a bit. For example don't kill tasklets from the timer.
-
->P.S. : By the way, regarding flow control between TCP and netdevice
->(our previous e-mail exchange with Paul), have you investigated the
->effect of skb->destructor; (for example sock_wfree()).
-I'm sorry I must have missed skb->destructor part. How sock_wfree could 
-affect flow ctl between TCP and netdev ?
-sock_wfree just wakes up process sleeping in sock_alloc_send_skb or alike.
-
->-------------------------------------------------------------
->
->static void tasklet_action(struct softirq_action *a)
->{
->         int cpu = smp_processor_id();
->         struct tasklet_struct *list;
->
->         local_irq_disable();
->         list = tasklet_vec[cpu].list;
->         tasklet_vec[cpu].list = NULL;
->         local_irq_enable();
->
->         while (list) {
->                 struct tasklet_struct *t = list;
->
->                 list = list->next;
->
->                 if (tasklet_trylock(t)) {
->                         if (!atomic_read(&t->count)) {
->                                 if 
-> (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
->                                         BUG();
->         // Call tasklet handler
->                                 t->func(t->data);
->         // If tasklet was killed/destroyed/kfree above, we will die
->                                 tasklet_unlock(t);
->                                 continue;
->                         }
->                         tasklet_unlock(t);
->                 }
-"kill" means "wait until tasklet terminates and is not in the queue". So 
-it's not a problem
-And you would not want to destroy _locked_ tasklet. You'd wait until it's 
-unlocked.
-
-Max
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

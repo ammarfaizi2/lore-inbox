@@ -1,80 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130638AbQLNJ3R>; Thu, 14 Dec 2000 04:29:17 -0500
+	id <S130153AbQLNJu7>; Thu, 14 Dec 2000 04:50:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131575AbQLNJ3H>; Thu, 14 Dec 2000 04:29:07 -0500
-Received: from ziggy.one-eyed-alien.net ([216.51.112.145]:7433 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S130638AbQLNJ26>; Thu, 14 Dec 2000 04:28:58 -0500
-Date: Thu, 14 Dec 2000 00:58:26 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Brian Litzinger <brian@top.worldcontrol.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is this a compromise and how?
-Message-ID: <20001214005826.H12544@one-eyed-alien.net>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20001214005345.A3732@top.worldcontrol.com>
+	id <S130569AbQLNJuu>; Thu, 14 Dec 2000 04:50:50 -0500
+Received: from madjfppp.jazztel.es ([212.106.236.135]:896 "HELO
+	lightside.2y.net") by vger.kernel.org with SMTP id <S130153AbQLNJui>;
+	Thu, 14 Dec 2000 04:50:38 -0500
+Date: Wed, 13 Dec 2000 14:55:22 +0100
+From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Jussi Laako <jussi@jlaako.pp.fi>, Marc Mutz <Marc@Mutz.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VM problem (2.4.0-test11)
+Message-ID: <20001213145522.A118@lightside.2y.net>
+In-Reply-To: <3A36A163.3F01277D@jlaako.pp.fi> <3A36ADB8.3CE36940@Mutz.com> <3A36B3E5.CF9FC31D@jlaako.pp.fi> <20001213004119.A779@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="ewQ5hdP4CtoTt3oD"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20001214005345.A3732@top.worldcontrol.com>; from brian@worldcontrol.com on Thu, Dec 14, 2000 at 12:53:46AM -0800
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2000 Matthew Dharm, all rights reserved.
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <20001213004119.A779@werewolf.able.es>; from J . A . Magallon on Wed, Dec 13, 2000 at 12:41:19AM +0100
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://maculaisdeadsoimmovingit/lightside
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 13, 2000 at 12:41:19AM +0100, J . A . Magallon wrote:
+> There are various patches-ways-to-do available, kernel gurus are still working
+> on it...
+> (leave always some 4% of mem for root, kill some process when mem is exhausted,
+> which one to kill...)
 
---ewQ5hdP4CtoTt3oD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+which is a bad idea;  4% of 1GB is a waste, and 4% of 8mb is really pushing
+it (that is, if we are speaking about root just doing cleanup stuff)
 
-On Thu, Dec 14, 2000 at 12:53:46AM -0800, brian@worldcontrol.com wrote:
-> Sorry is this is too far off topic, but it seems to me the
-> kernel may be helping in this break in or maybe some magic
-> aspect of the filesystem.
+-- 
+____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
+\ o.O|                                                   2F0D27DE025BE2302C
+ =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
+   U     chaos and madness await thee at its end."       hkp://keys.pgp.com
 
-I doubt that.... from this description, you've been hacked.  Even if your
-/etc/inetd.conf is in good shape, it looks like someone got in.
-
-I'm guessing that your ls was also hijacked.  You're using RedHat, so try
-the rpm -V command to verify that the ls binary is the same as what should
-be in the package.  While you're at it, verify the package is the right one
-(compare to a CD or distr ftp site).
-
-Out of curiosity, are you running portmap?  Perhaps BIND?  There are lots
-of potential culprits here -- but I suggest you verify all of your binaries
-and go back and upgrade everything on your system, as well as re-visit the
-issue of what daemons are started up at boot time.
-
-Matt Dharm
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-C:  They kicked your ass, didn't they?
-S:  They were cheating!
-					-- The Chief and Stef
-User Friendly, 11/19/1997
-
---ewQ5hdP4CtoTt3oD
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6OIuyz64nssGU+ykRAgKOAJ9CQIfz/aYVb5B6khFD4qJun8+QQQCg3gJ0
-tcFKWQbBOGZXs5ij9jVLKeU=
-=99Ft
------END PGP SIGNATURE-----
-
---ewQ5hdP4CtoTt3oD--
+Handle via comment channels only.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

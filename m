@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUHBMZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUHBMnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUHBMZv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 08:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUHBMZv
+	id S264153AbUHBMnW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 08:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUHBMnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 08:25:51 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:31162 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262071AbUHBMZt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 08:25:49 -0400
-Date: Mon, 2 Aug 2004 14:25:31 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ide-cd problems
-Message-ID: <20040802122530.GP10496@suse.de>
-References: <20040801155753.GA13702@suse.de> <200408020320.i723KG9E007500@localhost.localdomain>
+	Mon, 2 Aug 2004 08:43:22 -0400
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:45840
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S264153AbUHBMnU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 08:43:20 -0400
+Date: Mon, 2 Aug 2004 05:43:18 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: MSI K8N Neo + powernow-k8: ACPI info is worse than BIOS PST
+Message-ID: <20040802124318.GA30100@atomide.com>
+References: <20040731140008.GJ4108@li2-47.members.linode.com> <20040802100658.GC10412@atomide.com> <20040802114655.GD18254@li2-47.members.linode.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408020320.i723KG9E007500@localhost.localdomain>
+In-Reply-To: <20040802114655.GD18254@li2-47.members.linode.com>
+User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt http://www.mutt.org/
+X-URL: http://www.muru.com/ http://www.atomide.com
+X-Accept-Language: fi en
+X-Location: USA, California, San Francisco
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 01 2004, Horst von Brand wrote:
-> Jens Axboe <axboe@suse.de> said:
-> > On Sun, Aug 01 2004, Alexander E. Patrakov wrote:
-> 
-> [...]
-> 
-> > > Remember that it is still possible to write CDs through ide-cd in 2.4.x 
-> > > using some pre-alpha code in cdrecord:
+* Randall Nortman <linuxkernellist@wonderclown.com> [040802 04:47]:
+> On Mon, Aug 02, 2004 at 03:07:01AM -0700, Tony Lindgren wrote:
+> > * Randall Nortman <linuxkernellist@wonderclown.com> [040731 07:01]:
 > > > 
-> > > cdrecord dev=ATAPI:1,1,0 image.iso
+> > > If anybody qualified to hack this code is interested in creating a
+> > > real workaround for BIOSes like this, I offer my system (and my time,
+> > > as I cannot give remote access) for testing.  I would suggest adding a
+> > > compile-time or load-time option to prefer the BIOS over ACPI (as in
+> > > powernow-k7, I think), and maybe a compile-time option to use Tony's
+> > > hardcoded tables.
+> > 
+> > Just to clarify a bit, my patch only uses the 800MHz hardcoded, which
+> > should work on all AMD64 processors. The max value used is the current
+> > running value.
 > 
-> [...]
 > 
-> > Don't ever use that interface, period.
-> 
-> Great! So I won't be able to use any of the CD burners I have now.
+> Actually, thanks to an off-list response from Anton Ertl (anton at
+> mips dot complang dot tuwien dot ac dot at), I have made an important
+> discovery that's relevant to my situation and your patch: newer amd64
+> cores (Newcastle cores) cannot clock down to 800MHz!  I apparently am
+> lucky enough to have gotten the CG stepping of my CPU, which supports
+> 1000, 1800, and 2000MHz modes, exactly as reported by the BIOS.  I
+> have therefore backed out your patch, and the result is that my system
+> is actually snappier.  (I suspect that really weird things were
+> happening when cpufreq tried to clock down to 800MHz; I was getting
+> high CPU load, periodic temporary freezes, and audio glitches, all of
+> which went away when I set the minimum clock to 1000MHz.  I hope I
+> didn't do any permanent damage.)  These new cores actually consume
+> less power at 1000MHz than the old ones did at 800MHz, so it's a
+> win-win for the lucky ones like me.
 
-Use the SG_IO interface, it should be the default if you just specify
-dev=/dev/hdc instead of faking some SCSI like device enumeration for
-ATAPI.
+OK, then my patch does not work any more unless there's some way to
+detect what's the correct minimum speed. Since my system works with
+just the ACPI tables, it's unlikely that I'll spend more time on 
+this :)
 
-> >                                        It's not just the cdrecord code
-> > that may be alpha (I doubt it matters, it's easy to use), the interface
-> > it uses is not worth the lines of code it occupies.
-> 
-> What do you suggest then? ide-scsi is gone, so AFAIK this is the only way
-> to burn CDs right now on 2.6.x
+> Now that I see that my BIOS table was correct after all, I'm left
+> wondering why MSI would have gotten that right but the ACPI wrong,
+> since Windows uses the ACPI information afaik.  And that leads me to
+> suspect that perhaps the bug is in the powernow-k8 ACPI code rather
+> than my firmware.  Any thoughts?
 
-If you read the above, it was about 2.4 and using ide-cd instead of
-ide-scsi there. In 2.6 you have two options outside of ide-scsi: one is
-the CDROM_SEND_PACKET (which is what the dev=ATAPI:1,1,0 above used)
-which works in both 2.4 and 2.6, but is absolutely crap and not
-recommended. The other is the SG_IO method, which is the recommended
-approach.
+No idea...
 
--- 
-Jens Axboe
-
+Tony

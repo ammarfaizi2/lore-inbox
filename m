@@ -1,84 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289350AbSAVSzp>; Tue, 22 Jan 2002 13:55:45 -0500
+	id <S289374AbSAVSzm>; Tue, 22 Jan 2002 13:55:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289346AbSAVSxG>; Tue, 22 Jan 2002 13:53:06 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53265
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S289347AbSAVSv2>; Tue, 22 Jan 2002 13:51:28 -0500
-Date: Tue, 22 Jan 2002 10:45:01 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Jens Axboe <axboe@suse.de>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-In-Reply-To: <Pine.LNX.4.33.0201220844120.1799-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10201221012150.18161-100000@master.linux-ide.org>
+	id <S289350AbSAVSxD>; Tue, 22 Jan 2002 13:53:03 -0500
+Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:20455 "HELO smeg")
+	by vger.kernel.org with SMTP id <S289346AbSAVSu7>;
+	Tue, 22 Jan 2002 13:50:59 -0500
+From: "Lee Packham" <linux@mswinxp.net>
+To: "'Daniel Nofftz'" <nofftz@castor.uni-trier.de>,
+        "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] amd athlon cooling on kt266/266a chipset
+Date: Tue, 22 Jan 2002 18:51:12 -0000
+Message-ID: <000901c1a375$c3493320$8119fea9@lee>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+In-Reply-To: <Pine.LNX.4.40.0201221801210.11025-100000@infcip10.uni-trier.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jan 2002, Linus Torvalds wrote:
+Maybe.... just maybe... attach the patch?
 
-> 
-> On Tue, 22 Jan 2002, Vojtech Pavlik wrote:
-> >
-> > That's pretty much nonsense, beg my pardon. The real correct way would
-> > be:
-> >
-> > issue read of 255 sectors using READ_MULTI, max_mult = 16
-> > receive interrupt
-> > 	inw() first 4k to buffer A
-> > 	inw() second 4k to buffer B
-> > don't do anything else until the next interrupt
-> 
-> Definitely.
-> 
-> There is no way the controller can even _know_ the difference between
-> 
->  - one large 8kB "rep insw" instruction
->  - two (or more) smaller chunks of "rep insw" adding up to 8kB worth of
->    "inw"
-> 
-> as long as there are no other IO instructions to that controller in
-> between. The two look _exactly_ the same on the bus - there aren't even
-> any bursting issues (you can only burst on MMIO, not PIO accesses).
-> 
-> Sure, there are some timing issues, but (a) data cache misses are much
-> bigger things than just a few instructions, and (b) we allow interrupts
-> from other devices anyway, so the timing _really_ isn't even an issue.
-> 
-> So just call "ata_input_data()" several times in a loop for discontinuous
-> buffers. I told Andre this before.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Daniel Nofftz
+Sent: 22 January 2002 17:15
+To: Linux Kernel Mailing List
+Subject: [patch] amd athlon cooling on kt266/266a chipset
 
-Linus,
+hi there!
 
-Then do you mind if we add a page alignment (on the page) to the buffer
-based on the rq->current_nr_sectors and to insure a complete page of all
-4k of data is present?  Only because during the transition between
-these two states HPIOO0:HPIOO1 is data permitted.  If you touch the data
-register to write or read and by chance (almost always in Linux) you do
-not have a enough data to complete the HPIOO1, the ide_end_request stops
-the data process.  It is only proper to to reject unaligned pages when it
-is known to invoke an cause HOST:DEVICE pair problems.
+a few month ago someone has posted a patch for enabling the disconneect
+on STPGND detect function in the kt133/kt133a chipset. for those who
+don't
+know what this does: it sets a bit in a register of the northbridge of
+the
+chipset to enable the power saving modes of the athlon/duron/athlon xp
+prozessors.
+i did not found any patch which enables this function on an kt266/kt266a
+board. so i modified this patch (
+http://groups.google.com/groups?q=via_disconnect&hl=en&selm=linux.kernel
+.20010903002855.A645%40gondor.com&rnum=1
+)
+to support the kt266 and kt266a chipset to.
 
-Since the only way to insure the correct amount data is present and not
-risk/create a device driver race, is to reject unaligned pages.
+now i am looking for people to test the patch and repord, whether it
+works
+allright on other computers than my computer (i tested this patch on an
+epox 8kha+ whith an xp1600+).
 
-So understand you (Linus) clearly and no mistakes are made in translation,
-you want, approve, and specify data transfers on on unaligned pages.  You
-require the data-phase at HPIOO1(trasnfer data) to leave and go hunt for
-more unaligned pages to complete the transaction.  There is a problem
-because nowhere can I find a transition point go find more data.
+if you want to test this patch:
+1. first apply the patch
+2. enable generel-setup -> acpi , acpi-bus-maager , prozessor
+   in the kernel config
+3. add to the "append" line in /etc/lilo.conf the "amd_disconnect=yes"
+statemand (or after reboot enter at the kernel-boot-prompt
+"amd_disconnect=yes")
+4. build a knew kernel
+5. report to me, whether you have problems ...
 
-Some how you have gotten it in you head it is legal and correct to issue
-partial data blocks, and has thrown me for a loop.
+if the patch gets a good feedback, maybe it is something for the
+official
+kernel tree ?
 
-Respectfully,
+daniel
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,87 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbUJ3XSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbUJ3XVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbUJ3XSD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 19:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUJ3XQQ
+	id S261437AbUJ3XVp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 19:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbUJ3XUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 19:16:16 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:14605 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261387AbUJ3XOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 19:14:17 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Tim Hockin <thockin@hockin.org>
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-Date: Sun, 31 Oct 2004 02:13:37 +0300
-User-Agent: KMail/1.5.4
-Cc: Lee Revell <rlrevell@joe-job.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua> <20041030222720.GA22753@hockin.org>
-In-Reply-To: <20041030222720.GA22753@hockin.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Oct 2004 19:20:06 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:65493 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261424AbUJ3XT3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 19:19:29 -0400
+Date: Sun, 31 Oct 2004 01:19:12 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+       Margit Schubert-While <margitsw@t-online.de>,
+       kernel-janitors@lists.osdl.org, mcgrof@studorgs.rutgers.edu,
+       prism54-devel@prism54.org, Domen Puncer <domen@coderock.org>,
+       linux-kernel@vger.kernel.org, hvr@gnu.org
+Subject: Re: [KJ] Re: [patch 2.4] back port msleep(), msleep_interruptible()
+Message-ID: <20041030231912.GC1456@stro.at>
+Mail-Followup-To: Nish Aravamudan <nish.aravamudan@gmail.com>,
+	Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+	Margit Schubert-While <margitsw@t-online.de>,
+	kernel-janitors@lists.osdl.org, mcgrof@studorgs.rutgers.edu,
+	prism54-devel@prism54.org, Domen Puncer <domen@coderock.org>,
+	linux-kernel@vger.kernel.org, hvr@gnu.org
+References: <20040923221303.GB13244@us.ibm.com> <5.1.0.14.2.20040924074745.00b1cd40@pop.t-online.de> <415CD9D9.2000607@pobox.com> <20041030222228.GB1456@stro.at> <41841886.2080609@pobox.com> <29495f1d041030155953a9a776@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <29495f1d041030155953a9a776@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 31 October 2004 01:27, Tim Hockin wrote:
-> On Sun, Oct 31, 2004 at 01:11:07AM +0300, Denis Vlasenko wrote:
-> > I am not a code genius, but want to help.
+On Sat, 30 Oct 2004, Nish Aravamudan wrote:
+
+> On Sat, 30 Oct 2004 18:41:10 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
+> > maximilian attems wrote:
+> > > diff -puN include/linux/delay.h~add-msleep-2.4 include/linux/delay.h
+> > > --- a/include/linux/delay.h~add-msleep-2.4    2004-10-30 22:48:46.000000000 +0200
+> > > +++ b/include/linux/delay.h   2004-10-30 22:48:46.000000000 +0200
+> > > @@ -34,4 +34,12 @@ extern unsigned long loops_per_jiffy;
+> > >       ({unsigned long msec=(n); while (msec--) udelay(1000);}))
+> > >  #endif
+> > >
+> > > +void msleep(unsigned int msecs);
+> > > +unsigned long msleep_interruptible(unsigned int msecs);
+> > > +
+> > > +static inline void ssleep(unsigned int seconds)
+> > [...]
+> > > +static inline unsigned int jiffies_to_msecs(const unsigned long j)
 > > 
-> > Hmm probably some bloat-detection tools would be helpful,
-> > like "show me source_lines/object_size ratios of fonctions in
-> > this ELF object file". Those with low ratio are suspects of
-> > excessive inlining etc.
+> > > +static inline unsigned int jiffies_to_usecs(const unsigned long j)
+> > 
+> > > +static inline unsigned long msecs_to_jiffies(const unsigned int m)
+> > 
+> > 
+> > I'm pretty sure more than one of these symbols clashes with a symbol
+> > defined locally in a driver.  I like the patch but we can't apply it
+> > until the impact on existing code is evaluated.
 > 
-> The problem with apps of this sort is the multiple layers of abstraction.
+> More than likely much of the code cleanup that was done before I began
+> my patches, like removing custom msleep()s from drivers will need to
+> be done again, as Jeff points out.
 > 
-> Xlib, GLib, GTK, GNOME, Pango, XML, etc.
+> -Nish
 
-I think it makes sense to start from lower layers first:
+thanks Jeff for your quick response,
+ooh i seee libata is defining an msleep().
+so there seems to be need for it.
 
-Kernel team is reasonably aware of the bloat danger.
+ok we'll come up with tougher patchset.
 
-glibc is worse, but thanks to heroic actions of Eric Andersen
-we have mostly feature complete uclibc, 4 times (!)
-smaller than glibc.
-
-Xlib, GLib.... - didn't look into them apart from cases
-when they do not build or in bug hunting sessions.
-Quick data point: glib-1.2.10 is 1/2 of uclibc in size.
-glib-2.2.2 is 2 times uclibc. x4 growth :(
-
-> No one wants to duplicate effort (rightly so).  Each of these libs tries
-> to do EVERY POSSIBLE thing.  They all end up bloated.  Then you have to
-> link them all in.  You end up bloated.  Then it is very easy to rely on
-> those libs for EVERYTHING, rather thank actually thinking.
-> 
-> So you end up with the mindset of, for example, "if it's text it's XML".
-> You have to parse everything as XML, when simple parsers would be tons
-> faster and simpler and smaller.
-> 
-> Bloat is cause by feature creep at every layer, not just the app.
-
-I actually tried to convince maintainers of one package
-that their code is needlessly complex. I did send patches
-to remedy that a bit while fixing real bugs. Rejected.
-Bugs were planned to be fixed by adding more code.
-I've lost all hope on that case.
-
-I guess this is a reason why bloat problem tend to be solved
-by rewrite from scratch. I could name quite a few cases:
-
-glibc -> dietlibc,uclibc
-coreutils -> busybox
-named -> djbdns
-inetd -> daemontools+ucspi-tcp
-sendmail -> qmail
-syslogd -> socklog (http://smarden.org/socklog/)
-
-It's sort of frightening that someone will need to
-rewrite Xlib or, say, OpenOffice :(
 --
-vda
+maks
+kernel janitor  	http://janitor.kernelnewbies.org/
 

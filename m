@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263060AbUCSR2e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 12:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbUCSR2d
+	id S263066AbUCSRhk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 12:37:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUCSRhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 12:28:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62403 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263044AbUCSR20
+	Fri, 19 Mar 2004 12:37:39 -0500
+Received: from [65.39.167.249] ([65.39.167.249]:31692 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S263077AbUCSRhi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 12:28:26 -0500
-Message-ID: <405B2DAC.8030903@pobox.com>
-Date: Fri, 19 Mar 2004 12:28:12 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Fri, 19 Mar 2004 12:37:38 -0500
+Date: Fri, 19 Mar 2004 12:37:37 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Peter Williams <peterw@aurema.com>
+cc: =?ISO-8859-1?Q?=22Fr=E9d=E9ric_L=2E_W=2E_Meunier=22?= 
+	<1@pervalidus.net>,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: XFree86 seems to be being wrongly accused of doing the wrong
+ thing
+In-Reply-To: <40594984.3010001@aurema.com>
+Message-ID: <Pine.LNX.4.58.0403191236170.10220@innerfire.net>
+References: <40593015.9090507@aurema.com> <Pine.LNX.4.58.0403180346000.1276@pervalidus.dyndns.org>
+ <40594984.3010001@aurema.com>
 MIME-Version: 1.0
-To: Uwe Koziolek <uwe.koziolek@gmx.net>
-CC: Zero10 <damouse@zero10.demon.co.uk>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: Fw: SiS 964 SerialATA developers anywhere?
-References: <003001c40d3b$dd275330$2200a8c0@glowworm>	 <405A2B4A.9090001@pobox.com> <1079720801.3147.7.camel@uk2.local>
-In-Reply-To: <1079720801.3147.7.camel@uk2.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uwe Koziolek wrote:
-> Hello,
-> 
-> i have found the problem (reset PCI_COMMAND_INTX_DISABLE), but the
-> source must be cleaned, and some tests must be executed before i submit
-> the source. 
+On Thu, 18 Mar 2004, Peter Williams wrote:
 
-Ah yes, that makes sense.
+> Frédéric L. W. Meunier wrote:
+> > Wrongly ?
+>
+> Yes, wrongly.  XFree86 wasn't even running when the messages appeared so
+> there's no way that it could be to blame.  Also no keys had been pressed
+> or released.
 
+I have a machine here I see that message on before the init scripts even
+load.
 
-> Who will check in the source?.
+	Gerhard
+--
+Gerhard Mack
 
-I will, just email me the driver you have tested...
+gmack@innerfire.net
 
-	Jeff
-
-
-
+<>< As a computer I find your faith in technology amusing.

@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbUAHDsm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 22:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbUAHDsl
+	id S263185AbUAHDwo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 22:52:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbUAHDwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 22:48:41 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:37049 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263584AbUAHDsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 22:48:41 -0500
-Date: Thu, 8 Jan 2004 03:48:09 +0000
-From: Dave Jones <davej@redhat.com>
+	Wed, 7 Jan 2004 22:52:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24023 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263185AbUAHDwn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 22:52:43 -0500
+Date: Wed, 7 Jan 2004 19:52:32 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
 To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Use of floating point in the kernel
-Message-ID: <20040108034809.GA20616@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-References: <20040107235912.GA23812@ee.oulu.fi> <3FFCCFAE.8090302@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <3FFCCFAE.8090302@zytor.com>
-User-Agent: Mutt/1.4.1i
+Message-ID: <Pine.LNX.4.58.0401071948470.2131@home.osdl.org>
+References: <20040107235912.GA23812@ee.oulu.fi> <3FFCCFAE.8090302@zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 07:34:06PM -0800, H. Peter Anvin wrote:
 
- > Has anyone considered asking the gcc people to add an -fno-fpu (or 
- > -mno-fpu) option, throwing an error if any FP instructions are used?
 
-building with -msoft-float gets you this.
+On Wed, 7 Jan 2004, H. Peter Anvin wrote:
+>
+> Pekka Pietikainen wrote:
+> > 
+> > There are a few instances of use of floating point in 2.6,
+> 
+> Has anyone considered asking the gcc people to add an -fno-fpu (or 
+> -mno-fpu) option, throwing an error if any FP instructions are used?
 
-		Dave
+We really should, but there really are some rare cases where it is 
+actually ok.
 
+In particular, you _can_ do math, if you just do the proper
+"kernel_fpu_begin()"/"kernel_fpu_end()" around it, and you have reason to 
+believe that you can assume a math processor exists. 
+
+Is it needed? I dunno. I'd frown on it in general, but I don't see it 
+being fundamentally wrong under the rigth circumstances.
+
+		Linus

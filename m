@@ -1,227 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262467AbUCCMk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 07:40:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbUCCMhv
+	id S261602AbUCCMrc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 07:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUCCMrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 07:37:51 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:26824 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262452AbUCCMf7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 07:35:59 -0500
-Date: Wed, 3 Mar 2004 18:10:35 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, Greg KH <greg@kroah.com>,
-       "Martin J. Bligh" <mjbligh@us.ibm.com>, Matt Mackall <mpm@selenic.com>,
-       Christian Borntraeger <CBORNTRA@de.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>
-Subject: [RFC] 3/6 sysfs backing store version 0.2
-Message-ID: <20040303124035.GF2469@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20040303123858.GC2469@in.ibm.com> <20040303123942.GD2469@in.ibm.com> <20040303124005.GE2469@in.ibm.com>
+	Wed, 3 Mar 2004 07:47:31 -0500
+Received: from grendel.firewall.com ([66.28.58.176]:43912 "EHLO
+	grendel.firewall.com") by vger.kernel.org with ESMTP
+	id S261602AbUCCMmh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 07:42:37 -0500
+Date: Wed, 3 Mar 2004 13:42:29 +0100
+From: Marek Habersack <grendel@caudium.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] with 2.4.25 - same on several machines
+Message-ID: <20040303124229.GA1221@thanes.org>
+Reply-To: grendel@caudium.net
+References: <20040302223616.GA1439@thanes.org> <Pine.LNX.4.44.0403030719300.2537-100000@dmt.cyclades>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
 Content-Disposition: inline
-In-Reply-To: <20040303124005.GE2469@in.ibm.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.44.0403030719300.2537-100000@dmt.cyclades>
+Organization: I just...
+X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
+X-message-flag: Outlook - A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-=> changes in version 0.2
-  > Nil, just re-diffed
+On Wed, Mar 03, 2004 at 07:21:23AM -0300, Marcelo Tosatti scribbled:
+[snip]
+> > Mar  1 17:47:24 colo19 kernel:=20
+> > Mar  1 17:47:24 colo19 kernel: Code: 8b 7d 08 ff 48 14 0f 94 c0 84 c0 7=
+5 18 8b 5c 24 08 8b 74 24=20
+> >=20
+> > The processes in all cases were different (a shell script, lsof, apache=
+).
+> > The kernels are patched with grsec2 and libsata, but it doesn't seem to=
+ be
+> > relevant in this case. Could anybody shed some light on it? If necessar=
+y, I
+> > will post the machine configs and all the information needed to diagnos=
+e.
+>=20
+> Hi Marek,=20
+>=20
+> <standard reply>
+>=20
+> Can you reproduce the problem on vanilla 2.4.25 ?=20
+I'll try, it will probably take a while, at least till the weekend. The only
+common pattern between the machines was the uptime - slightly above 36h. I
+will be able to install 2.4.25 vanilla tomorrow, so I suppose Sunday at the
+latest I will have some results.
 
-=> Changes:
-  > Removed the extra kobject_get from sysfs_release() 
+thanks
 
-o sysfs_create_file() will just link a new sysfs_dirent() structure representing
-  the attribute file to the kobject's s_children list.
+marek
 
-o in sysfs_create() we take extra ref. only for dentries corresponding to
-  non-regular files or in other words pin only non-leaf dentries.
+--6c2NcOVqGQ03X4Wi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFARdK1q3909GIf5uoRAjh6AJ9TaStaqr3/nPHmHk460s90MxVbhQCdEjxC
+q4Engp0nLgksY4y/LgLHZTY=
+=gJxs
+-----END PGP SIGNATURE-----
 
- fs/sysfs/file.c  |   63 +++++++++++++++++++++++++------------------------------
- fs/sysfs/inode.c |   14 +++++++++---
- 2 files changed, 40 insertions(+), 37 deletions(-)
-
-diff -puN fs/sysfs/file.c~sysfs-leaves-file fs/sysfs/file.c
---- linux-2.6.4-rc1/fs/sysfs/file.c~sysfs-leaves-file	2004-03-03 16:24:09.000000000 +0530
-+++ linux-2.6.4-rc1-maneesh/fs/sysfs/file.c	2004-03-03 16:24:09.000000000 +0530
-@@ -9,14 +9,6 @@
- 
- #include "sysfs.h"
- 
--static struct file_operations sysfs_file_operations;
--
--static int init_file(struct inode * inode)
--{
--	inode->i_size = PAGE_SIZE;
--	inode->i_fop = &sysfs_file_operations;
--	return 0;
--}
- 
- #define to_subsys(k) container_of(k,struct subsystem,kset.kobj)
- #define to_sattr(a) container_of(a,struct subsys_attribute,attr)
-@@ -77,8 +69,10 @@ struct sysfs_buffer {
-  */
- static int fill_read_buffer(struct file * file, struct sysfs_buffer * buffer)
- {
--	struct attribute * attr = file->f_dentry->d_fsdata;
--	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * sd_attr = file->f_dentry->d_fsdata;
-+	struct attribute * attr = sd_attr->s_element;
-+	struct sysfs_dirent * sd_kobj = file->f_dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = sd_kobj->s_element;
- 	struct sysfs_ops * ops = buffer->ops;
- 	int ret = 0;
- 	ssize_t count;
-@@ -198,8 +192,10 @@ fill_write_buffer(struct sysfs_buffer * 
- static int 
- flush_write_buffer(struct file * file, struct sysfs_buffer * buffer, size_t count)
- {
--	struct attribute * attr = file->f_dentry->d_fsdata;
--	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * sd_attr = file->f_dentry->d_fsdata;
-+	struct attribute * attr = sd_attr->s_element;
-+	struct sysfs_dirent * sd_kobj = file->f_dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = sd_kobj->s_element;
- 	struct sysfs_ops * ops = buffer->ops;
- 
- 	return ops->store(kobj,attr,buffer->page,count);
-@@ -238,8 +234,10 @@ sysfs_write_file(struct file *file, cons
- 
- static int check_perm(struct inode * inode, struct file * file)
- {
--	struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
--	struct attribute * attr = file->f_dentry->d_fsdata;
-+	struct sysfs_dirent * sd_attr = file->f_dentry->d_fsdata;
-+	struct attribute * attr = sd_attr->s_element;
-+	struct sysfs_dirent * sd_kobj = file->f_dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = kobject_get(sd_kobj->s_element);
- 	struct sysfs_buffer * buffer;
- 	struct sysfs_ops * ops = NULL;
- 	int error = 0;
-@@ -320,8 +318,10 @@ static int sysfs_open_file(struct inode 
- 
- static int sysfs_release(struct inode * inode, struct file * filp)
- {
--	struct kobject * kobj = filp->f_dentry->d_parent->d_fsdata;
--	struct attribute * attr = filp->f_dentry->d_fsdata;
-+	struct sysfs_dirent * sd_attr = filp->f_dentry->d_fsdata;
-+	struct attribute * attr = sd_attr->s_element;
-+	struct sysfs_dirent * sd_kobj = filp->f_dentry->d_parent->d_fsdata;
-+	struct kobject * kobj = sd_kobj->s_element;
- 	struct sysfs_buffer * buffer = filp->private_data;
- 
- 	if (kobj) 
-@@ -336,7 +336,7 @@ static int sysfs_release(struct inode * 
- 	return 0;
- }
- 
--static struct file_operations sysfs_file_operations = {
-+struct file_operations sysfs_file_operations = {
- 	.read		= sysfs_read_file,
- 	.write		= sysfs_write_file,
- 	.llseek		= generic_file_llseek,
-@@ -345,23 +345,18 @@ static struct file_operations sysfs_file
- };
- 
- 
--int sysfs_add_file(struct dentry * dir, const struct attribute * attr)
-+int sysfs_add_file(struct dentry * parent, const struct attribute * attr, int t)
- {
--	struct dentry * dentry;
--	int error;
-+	struct sysfs_dirent * sd;
-+	struct sysfs_dirent * parent_sd = parent->d_fsdata;
-+	int error = 0;
- 
--	down(&dir->d_inode->i_sem);
--	dentry = sysfs_get_dentry(dir,attr->name);
--	if (!IS_ERR(dentry)) {
--		error = sysfs_create(dentry,
--				     (attr->mode & S_IALLUGO) | S_IFREG,
--				     init_file);
--		if (!error)
--			dentry->d_fsdata = (void *)attr;
--		dput(dentry);
--	} else
--		error = PTR_ERR(dentry);
--	up(&dir->d_inode->i_sem);
-+	down(&parent->d_inode->i_sem);			
-+	sd = sysfs_new_dirent(parent_sd, (void *) attr, t);
-+	if (!sd)
-+		error =  -ENOMEM;
-+	up(&parent->d_inode->i_sem);			
-+	
- 	return error;
- }
- 
-@@ -374,8 +369,8 @@ int sysfs_add_file(struct dentry * dir, 
- 
- int sysfs_create_file(struct kobject * kobj, const struct attribute * attr)
- {
--	if (kobj && attr)
--		return sysfs_add_file(kobj->dentry,attr);
-+	if (kobj && kobj->dentry && attr) 
-+		return sysfs_add_file(kobj->dentry, attr, SYSFS_KOBJ_ATTR);
- 	return -EINVAL;
- }
- 
-diff -puN fs/sysfs/inode.c~sysfs-leaves-file fs/sysfs/inode.c
---- linux-2.6.4-rc1/fs/sysfs/inode.c~sysfs-leaves-file	2004-03-03 16:24:09.000000000 +0530
-+++ linux-2.6.4-rc1-maneesh/fs/sysfs/inode.c	2004-03-03 16:24:09.000000000 +0530
-@@ -11,6 +11,8 @@
- #include <linux/pagemap.h>
- #include <linux/namei.h>
- #include <linux/backing-dev.h>
-+#include "sysfs.h"
-+
- extern struct super_block * sysfs_sb;
- 
- static struct address_space_operations sysfs_aops = {
-@@ -61,7 +63,8 @@ int sysfs_create(struct dentry * dentry,
- 		error = init(inode);
- 	if (!error) {
- 		d_instantiate(dentry, inode);
--		dget(dentry); /* Extra count - pin the dentry in core */
-+		if (S_ISDIR(mode)) 
-+			dget(dentry);  /* pin only directory dentry in core */
- 	} else
- 		iput(inode);
-  Done:
-@@ -96,14 +99,19 @@ void sysfs_hash_and_remove(struct dentry
- 			pr_debug("sysfs: Removing %s (%d)\n", victim->d_name.name,
- 				 atomic_read(&victim->d_count));
- 
--			d_delete(victim);
--			simple_unlink(dir->d_inode,victim);
-+			if (S_ISDIR(victim->d_inode->i_mode)) {
-+				d_delete(victim);
-+				simple_unlink(dir->d_inode,victim);
-+			}
-+			else
-+				d_drop(victim);
- 		}
- 		/*
- 		 * Drop reference from sysfs_get_dentry() above.
- 		 */
- 		dput(victim);
- 	}
-+	sysfs_remove_dirent(dir->d_fsdata, name);
- 	up(&dir->d_inode->i_sem);
- }
- 
-
-_
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044999 Fax: 91-80-5268553
-T/L : 9243696
+--6c2NcOVqGQ03X4Wi--

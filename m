@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVCRKDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVCRKIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVCRKDv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 05:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVCRKDv
+	id S261554AbVCRKIH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 05:08:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVCRKIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 05:03:51 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:25762 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261553AbVCRKDt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 05:03:49 -0500
-Date: Fri, 18 Mar 2005 11:03:39 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: dipankar@in.ibm.com, shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
-       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
-       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050318100339.GA15386@elte.hu>
-References: <20050318002026.GA2693@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Mar 2005 05:08:07 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:36357 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261554AbVCRKID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 05:08:03 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] reduce inlined x86 memcpy by 2 bytes
+Date: Fri, 18 Mar 2005 12:07:32 +0200
+User-Agent: KMail/1.5.4
+Cc: Matt Mackall <mpm@selenic.com>
+References: <200503181121.42809.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200503181121.42809.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050318002026.GA2693@us.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200503181207.32659.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 18 March 2005 11:21, Denis Vlasenko wrote:
+> This memcpy() is 2 bytes shorter than one currently in mainline
+> and it have one branch less. It is also 3-4% faster in microbenchmarks
+> on small blocks if block size is multiple of 4. Mainline is slower
+> because it has to branch twice per memcpy, both mispredicted
+> (but branch prediction hides that in microbenchmark).
+> 
+> Last remaining branch can be dropped too, but then we execute second
+> 'rep movsb' always, even if blocksize%4==0. This is slower than mainline
+> because 'rep movsb' is microcoded. I wonder, tho, whether 'branchlessness'
+> wins over this in real world use (not in bench).
+> 
+> I think blocksize%4==0 happens more than 25% of the time.
 
-there's a problem in #5's rcu_read_lock():
+s/%4/&3 of course.
+--
+vda
 
-        void
-        rcu_read_lock(void)
-        {
-                preempt_disable();
-                if (current->rcu_read_lock_nesting++ == 0) {
-                        current->rcu_read_lock_ptr =
-                                &__get_cpu_var(rcu_data).lock;
-                        read_lock(current->rcu_read_lock_ptr);
-                }
-                preempt_enable();
-        }
-
-not only are read_lock()-ed sections preemptible, read_lock() itself may
-block, so it cannot be called from within preempt_disable(). How about
-something like:
-
-        void
-        rcu_read_lock(void)
-        {
-                preempt_disable();
-                if (current->rcu_read_lock_nesting++ == 0) {
-                        current->rcu_read_lock_ptr =
-                                &__get_cpu_var(rcu_data).lock;
-                        preempt_enable();
-                        read_lock(current->rcu_read_lock_ptr);
-                } else
-                        preempt_enable();
-        }
-
-this would still make it 'statistically scalable' - but is it correct?
-
-	Ingo

@@ -1,85 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbUCLSTP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 13:19:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbUCLSTO
+	id S262381AbUCLST1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 13:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbUCLST0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 13:19:14 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:2969 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S262378AbUCLSSa (ORCPT
+	Fri, 12 Mar 2004 13:19:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9445 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262381AbUCLSSs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 13:18:30 -0500
-Date: Fri, 12 Mar 2004 19:18:28 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for testing] cow behaviour for hard links
-Message-ID: <20040312181828.GA7087@wohnheim.fh-wedel.de>
-References: <20040310193429.GB4589@wohnheim.fh-wedel.de> <200403121849.03505.s.b.wielinga@student.utwente.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200403121849.03505.s.b.wielinga@student.utwente.nl>
-User-Agent: Mutt/1.3.28i
+	Fri, 12 Mar 2004 13:18:48 -0500
+Date: Fri, 12 Mar 2004 13:18:30 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: anon_vma RFC2
+In-Reply-To: <20040312174429.GE30940@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403121314590.6494-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 March 2004 18:48:57 +0100, Sytse Wielinga wrote:
+On Fri, 12 Mar 2004, Andrea Arcangeli wrote:
+> On Fri, Mar 12, 2004 at 12:23:22PM -0500, Rik van Riel wrote:
+
+> > ... and use the offset into the struct address_space as
+> > the page->index, NOT the virtual address inside the mm.
+
+> As I said in the last email the prio_tree will not work for the
+> anonvmas, because every vma in the same range will map to different
+> pages. So you'll find more vmas than the ones you're interested about.
+> This doesn't happen with inodes. with inodes every vma queued into the
+> i_mmap will be mapping to the right page _if_ it's pte_present == 1.
+
+You don't have multiple VMAs mapping to same pages, but in
+the same range in the address_space.
+
+Note that the per-process virtual memory != per "fork-group"
+backing address_space ...
+
+> with your anonymous address space shared by childs the prio_tree will
+> find lots of vmas in different vma->vm_mm, each one pointing to
+> different pages.
+
+Nope.  I wish I was better with graphical programs, or I'd
+draw you a picture. ;)
+
+> > Having the same code everywhere will definately help
+> > simplifying things.
 > 
-> I'm sorry to say this, but I stumbled upon a prohibitive problem...
-> 
-> The problem is that if a hard link would be broken up, one of the dentry's 
-> would get a link to a new inode with a new inode number. This would mean that 
-> right under the nose of the app, the file suddenly gets a new inode number. 
-> Apps don't like that. If anyone has any suggestion that might make this 
-> possible please say so, but I don't see it.
+> Reusing the same code would be good I agree, but I don't think it would
+> work as well as with the inodes,
 
-Different design.  How about this:
-- Files with just one link remain as-is.
-- Linking a file:
-  - Create a new inode and move all data into new inode.
-  - Make old inode a pointer to new inode.
-  - Create a second pointer to new inode.
-- Unlinking a file:
-  - Unlink pointer inode
-  - Unlink target inode
-- Writing to a pointer inode:
-  - Make pointer inode a regular one.
-  - Copy target inode data into former pointer inode.
-  - Unlink target inode
-  - If target count was 1, we don't even need to copy.
+> prio_tree is not free, it's still O(log(N)) and I prefer a design where
+> the common case is N == 1 like with anon_vma (with your address-space
+> design N would be >1 normally in a server app).
 
-Or in ascii art:
-
-Regular file:
-
-	inode 1
-
-Second link:
-
-	inode 1 ---> inode 2
-	             ^
-	inode 3 -----|
-
-Write to inode 1:
-
-	inode 1
-
-	inode 3 ---> inode 2
-
-Unlink of inode 3:
-
-	inode 1
-
-
-Not quite as simple and straightforward as my first design, but it has
-some advantages.  Would even be possible to extend it and allow links
-across different filesystems.
-
-Jörn
+It's all a space-time overhead.  Do you want more structures
+allocated and a more complex mremap, or do you eat the O(log(N))
+lookup ?
 
 -- 
-A quarrel is quickly settled when deserted by one party; there is
-no battle unless there be two.
--- Seneca
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269320AbUJKXci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269347AbUJKXgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269320AbUJKXci (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 19:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269342AbUJKXch
+	id S269347AbUJKXgT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 19:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269352AbUJKXgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 19:32:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51414 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269320AbUJKXak (ORCPT
+	Mon, 11 Oct 2004 19:36:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42714 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269347AbUJKXf6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 19:30:40 -0400
-Date: Mon, 11 Oct 2004 16:34:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1 OOPs on AMD64
-Message-Id: <20041011163431.073f9bae.akpm@osdl.org>
-In-Reply-To: <1097536210.12861.402.camel@dyn318077bld.beaverton.ibm.com>
-References: <1097527401.12861.383.camel@dyn318077bld.beaverton.ibm.com>
-	<20041011214304.GD31731@wotan.suse.de>
-	<1097532118.12861.395.camel@dyn318077bld.beaverton.ibm.com>
-	<20041011221519.GA11702@wotan.suse.de>
-	<20041011153830.495b7c2d.akpm@osdl.org>
-	<1097536210.12861.402.camel@dyn318077bld.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Oct 2004 19:35:58 -0400
+Date: Mon, 11 Oct 2004 16:35:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Andre Tomt <andre@tomt.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
+In-Reply-To: <1097522974.2029.161.camel@mulgrave>
+Message-ID: <Pine.LNX.4.58.0410111633410.3897@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+ <416A53D3.9020002@tomt.ne t>  <Pine.LNX.4.58.0410110758500.3897@ppc970.osdl.org>
+ <1097507381.2029.40.camel@mulgrave>  <416ACF5E.80407@tomt.net>
+ <1097522974.2029.161.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> > I'd be suspecting no-buddy-bitmap-patch-*.patch
-> > 
-> 
-> Nope. This is not it..
 
-.config, please...
+
+On Mon, 11 Oct 2004, James Bottomley wrote:
+> 
+> Yes, well, that's one of the things that worries me slightly ... no-one
+> has reported the data corruption that the patch claims to fix.  That's
+> one of the reasons I was planning to take it through the normal cycle.
+
+Well, as far as I can tell from the patch, the only way to get data 
+corruption from the bug is when you use the SCSI ioctl's at the same time 
+as the disk is busy.
+
+In other words, I think you'd have to do some special disk management, or
+possibly try to burn a CD on a SCSI CD-ROM (or other special device that
+uses the SCSI ioctl's) on the same controller. And nobody uses SCSI
+CD-burners any more, I'd think.
+
+		Linus

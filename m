@@ -1,51 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277554AbRJRCKw>; Wed, 17 Oct 2001 22:10:52 -0400
+	id <S277565AbRJRC5z>; Wed, 17 Oct 2001 22:57:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277565AbRJRCKm>; Wed, 17 Oct 2001 22:10:42 -0400
-Received: from gecius-0.dsl.speakeasy.net ([216.254.67.146]:39413 "EHLO
-	maniac.gecius.de") by vger.kernel.org with ESMTP id <S277554AbRJRCKa>;
-	Wed, 17 Oct 2001 22:10:30 -0400
-To: linux-kernel@vger.kernel.org
-Subject: /proc/interrupts on 2.4.13-1
-From: Jens Gecius <jens@gecius.de>
-Date: 17 Oct 2001 22:11:03 -0400
-Message-ID: <87n12pbsug.fsf@maniac.gecius.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Artificial Intelligence)
-MIME-Version: 1.0
+	id <S277567AbRJRC5p>; Wed, 17 Oct 2001 22:57:45 -0400
+Received: from [209.250.58.160] ([209.250.58.160]:35336 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S277565AbRJRC5f>; Wed, 17 Oct 2001 22:57:35 -0400
+Date: Wed, 17 Oct 2001 21:57:51 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10 - errors, freeze when burning CD-R
+Message-ID: <20011017215750.C5511@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	Michael Rothwell <rothwell@holly-springs.nc.us>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1003367175.1721.7.camel@gromit>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1003367175.1721.7.camel@gromit>; from rothwell@holly-springs.nc.us on Wed, Oct 17, 2001 at 09:06:14PM -0400
+X-Uptime: 5:58pm  up 1 day, 23:07,  0 users,  load average: 1.10, 1.10, 1.06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks!
+Just a question:  did you compile the kernel with gcc 3.0?  I had a
+similar problem with CD-R drives and ide-scsi, where the kernel would
+lock for a few seconds, spewing "x-order allocation failed" into dmesg.
+Recompiling the kernel with gcc-2.95.3 fixed things.
 
-/proc/interrupts shows
-
-           CPU0       CPU1       
-  0:    6700068    6617178    IO-APIC-edge  timer
-  1:      15716      15044    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  3:          0          1    IO-APIC-edge  serial
-  8:          1          1    IO-APIC-edge  rtc
-  9:     788995     790370   IO-APIC-level  eth0
- 10:      93412      93466   IO-APIC-level  aic7xxx, Ensoniq AudioPCI
- 11:    3476219    3482580   IO-APIC-level  nvidia
- 12:      31650      31277   IO-APIC-level  usb-uhci, usb-uhci
- 14:     505063     501971    IO-APIC-edge  ide0
- 15:         10          0    IO-APIC-edge  ide1
-NMI:          0          0 
-LOC:   13315157   13315147 
-ERR:          0
-MIS:       3690
-
-Especially the last makes me curious: does MIS mean "missed"? And:
-might this be related to esd running here having some trouble to keep
-playing without short little "breaks"? The count on MIS is actually
-growing steadily, the uptime is currently only 37 hours.
-
-The box is used most time with two niced seti-processes. Other than
-that, cpu stat is hardly at 10%. 
+On Wed, Oct 17, 2001 at 09:06:14PM -0400, Michael Rothwell wrote:
+> I'm running 2.4.10 with the ext3 patch. I got a total freeze when
+> burning a CD-R last night. The syslog has lots of "3-order allocation
+> failed" messages. 
+> 
+> The SCSI bus keeps getting reset. I'm wondering if Nautilus is
+> interfering with CD-R recording as well. I've got hundreds of "kernel:
+> cdrom: This disc doesn't have any tracks I recognize!" messages. In
+> fact, they are the last things in my syslog before the freeze. Nearly
+> 600 of them, consensed in groups of 30 or so ("message repeated...")
+> 
+> Oct 16 23:22:02 gromit kernel: cdrom: This disc doesn't have any tracks
+> I recognize!
+> Oct 16 23:22:33 gromit last message repeated 15 times
+> Oct 16 23:23:35 gromit last message repeated 31 times
+> Oct 16 23:24:19 gromit last message repeated 22 times
+> Oct 16 23:24:21 gromit gconfd (rothwell-1633): 19 items remain in the
+> cache after cleaning already-synced items older than $Oct 16 23:24:21
+> gromit kernel: cdrom: This disc doesn't have any tracks I recognize!
+> Oct 16 23:24:31 gromit last message repeated 5 times
+> Oct 16 23:24:33 gromit kernel: __alloc_pages: 3-order allocation failed
+> (gfp=0x20/0) from c012c920
+> Oct 16 23:24:33 gromit last message repeated 159 times
+> Oct 16 23:24:33 gromit kernel: cdrom: This disc doesn't have any tracks
+> I recognize!
+> Oct 16 23:25:05 gromit last message repeated 16 times
+> Oct 16 23:25:15 gromit last message repeated 5 times
+> Oct 16 23:25:16 gromit kernel: __alloc_pages: 3-order allocation failed
+> (gfp=0x20/0) from c012c920
+> Oct 16 23:25:16 gromit last message repeated 139 times
+> Oct 16 23:25:17 gromit kernel: cdrom: This disc doesn't have any tracks
+> I recognize!
+> Oct 16 23:25:40 gromit last message repeated 11 times
+> Oct 16 23:25:40 gromit kernel: __alloc_pages: 3-order allocation failed
+> (gfp=0x20/0) from c012c920
+> Oct 16 23:25:40 gromit last message repeated 139 times
+> Oct 16 23:25:42 gromit kernel: cdrom: This disc doesn't have any tracks
+> I recognize!
+> Oct 16 23:25:58 gromit last message repeated 8 times
+> Oct 16 23:25:58 gromit kernel: __alloc_pages: 3-order allocation failed
+> (gfp=0x20/0) from c012c920
+> Oct 16 23:25:58 gromit last message repeated 139 times
+> Oct 16 23:26:00 gromit kernel: cdrom: This disc doesn't have any tracks
+> I recognize!
+> Oct 16 23:26:28 gromit last message repeated 14 times
+> Oct 16 23:26:28 gromit kernel: __alloc_pages: 3-order allocation failed
+> (gfp=0x20/0) from c012c920
+> Oct 16 23:26:29 gromit last message repeated 109 times
+> Oct 16 23:26:30 gromit kernel: cdrom: This disc doesn't have any tracks
+> I recognize!
+> Oct 16 23:27:02 gromit last message repeated 16 times
+> Oct 16 23:27:14 gromit last message repeated 6 times
+> Oct 16 23:27:14 gromit modprobe: modprobe: Can't locate module
+> char-major-97
+> Oct 16 23:27:14 gromit last message repeated 3 times
+> Oct 16 23:27:16 gromit kernel: cdrom: This disc doesn't have any tracks
+> I recognize!
+> Oct 16 23:27:48 gromit last message repeated 16 times
+> Oct 16 23:28:28 gromit last message repeated 20 times
+> Oct 16 23:28:29 gromit su(pam_unix)[4163]: session opened for user root
+> by rothwell(uid=500)
+> Oct 16 23:28:30 gromit kernel: cdrom: This disc doesn't have any tracks
+> I recognize!
+> Oct 16 23:29:03 gromit last message repeated 16 times
+> Oct 16 23:29:07 gromit last message repeated 2 times
+> Oct 16 23:29:21 gromit gconfd (rothwell-1633): 18 items remain in the
+> cache after cleaning already-synced items older than $Oct 16 23:29:25
+> gromit kernel: cdrom: This disc doesn't have any tracks I recognize!
+> Oct 16 23:29:57 gromit last message repeated 17 times
+> Oct 16 23:30:25 gromit last message repeated 14 times
+> Oct 16 23:30:38 gromit kernel: scsi0:0:6:0: Attempting to queue an ABORT
+> message
+> Oct 16 23:30:38 gromit kernel: scsi0:0:6:0: Device is active, asserting
+> ATN
+> Oct 16 23:30:38 gromit kernel: Recovery code sleeping
+> Oct 16 23:30:38 gromit kernel: (scsi0:A:6:0): Abort Message Sent
+> Oct 16 23:30:38 gromit kernel: (scsi0:A:6:0): SCB 3 - Abort Completed.
+> Oct 16 23:30:38 gromit kernel: Recovery SCB completes
+> Oct 16 23:30:38 gromit kernel: Recovery code awake
+> Oct 16 23:30:38 gromit kernel: aic7xxx_abort returns 8194
+> Oct 16 23:30:38 gromit kernel: cdrom: This disc doesn't have any tracks
+> I recognize!
+> Oct 16 23:31:09 gromit last message repeated 16 times
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Tschoe,                http://gecius.de/gpg-key.txt - Fingerprint:
- Jens                  1AAB 67A2 1068 77CA 6B0A  41A4 18D4 A89B 28D0 F097
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+Freedom is slavery. Ignorance is strength. War is peace.
+			-- George Orwell
+Those that would give up a necessary freedom for temporary safety
+deserver neither freedom nor safety.
+			-- Ben Franklin

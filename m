@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266630AbUH0UWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267576AbUH0UWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266630AbUH0UWU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 16:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUH0UTP
+	id S267576AbUH0UWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 16:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUH0UWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 16:19:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36809 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266630AbUH0USJ (ORCPT
+	Fri, 27 Aug 2004 16:22:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54485 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267576AbUH0UVS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 16:18:09 -0400
-Date: Fri, 27 Aug 2004 13:17:39 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: airlied@linux.ie, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: drm fixup 2/2 - optimise i8x0 accesses..
-Message-Id: <20040827131739.6be24ee0.davem@redhat.com>
-In-Reply-To: <20040827200815.GE23505@devserv.devel.redhat.com>
-References: <Pine.LNX.4.58.0408271512330.32411@skynet>
-	<20040827130415.754d4451.davem@redhat.com>
-	<20040827200815.GE23505@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 16:21:18 -0400
+Date: Fri, 27 Aug 2004 13:21:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Kenneth Lavrsen <kenneth@lavrsen.dk>
+cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       pmarques@grupopie.com, greg@kroah.com, nemosoft@smcc.demon.nl,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: pwc+pwcx is not illegal
+In-Reply-To: <6.1.2.0.2.20040827215143.01d7b038@inet.uni2.dk>
+Message-ID: <Pine.LNX.4.58.0408271313060.14196@ppc970.osdl.org>
+References: <1093634283.431.6370.camel@cube> <Pine.LNX.4.58.0408271226400.14196@ppc970.osdl.org>
+ <6.1.2.0.2.20040827215143.01d7b038@inet.uni2.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Aug 2004 22:08:15 +0200
-Arjan van de Ven <arjanv@redhat.com> wrote:
 
-> On Fri, Aug 27, 2004 at 01:04:15PM -0700, David S. Miller wrote:
-> > On Fri, 27 Aug 2004 15:13:54 +0100 (IST)
-> > Dave Airlie <airlied@linux.ie> wrote:
-> > 
-> > >    the patch below optimises the drm code to not do put_user() on memory the
-> > >    kernel allocated and then mmap-installed to userspace, but instead makes it
-> > >    use the kernel virtual address directly instead.
-> > 
-> > This might cause major problems on systems with virtually indexed
-> > caches if precautions are not made at buffer allocation time such
-> > that the virtual cache color of the kernel mapping is the same
-> > as the user mapping.
+
+On Fri, 27 Aug 2004, Kenneth Lavrsen wrote:
 > 
-> actually it's uncachable memory ;)
+> Try and see this from the developers perspective and then remember that he 
+> is a human beeing.
 
-Then no problem :-)  Thanks for clearing that up.
+Hey, have you read the thread at all?
 
+Respecting the developer is exactly why the code has been removed.
+
+Being a developer gives you not only legal rights, but lots of other
+rights. One right IT DOES NOT give you, though, is the right to add binary
+hooks. That right is overridden by respecting other _developers_ rights.
+
+Linux is all about open source. It's about making the best possible OS, 
+and being as user-friendly as possible, but it's about doing so within the 
+overriding goal of everybody being able to work together on the thing. 
+
+So please respect _our_ work. 
+
+I'm personally pretty optimistic that something can be worked out.  But it
+will not happen by users whining - it will happen by users askign nemosoft
+politely to avoid the kernel hooks, or by other users deciding to step up
+to the plate and becoming developers.
+
+			Linus

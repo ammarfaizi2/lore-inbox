@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267131AbTA0PDB>; Mon, 27 Jan 2003 10:03:01 -0500
+	id <S267184AbTA0PFJ>; Mon, 27 Jan 2003 10:05:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267184AbTA0PDB>; Mon, 27 Jan 2003 10:03:01 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18183 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267131AbTA0PDA>; Mon, 27 Jan 2003 10:03:00 -0500
-Date: Mon, 27 Jan 2003 15:12:13 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-       Andrew Morton <AKPM@Digeo.COM>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: possible deadlock in sys_pivot_root()?
-Message-ID: <20030127151213.B28375@flint.arm.linux.org.uk>
-Mail-Followup-To: Nikita Danilov <Nikita@Namesys.COM>,
-	Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-	Andrew Morton <AKPM@Digeo.COM>, Alexander Viro <viro@math.psu.edu>
-References: <15925.15947.576552.209252@laputa.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15925.15947.576552.209252@laputa.namesys.com>; from Nikita@Namesys.COM on Mon, Jan 27, 2003 at 05:12:27PM +0300
+	id <S267203AbTA0PFJ>; Mon, 27 Jan 2003 10:05:09 -0500
+Received: from ns0.cobite.com ([208.222.80.10]:42757 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S267184AbTA0PFI>;
+	Mon, 27 Jan 2003 10:05:08 -0500
+Date: Mon, 27 Jan 2003 10:14:11 -0500 (EST)
+From: David Mansfield <lkml@dm.cobite.com>
+X-X-Sender: david@admin
+To: Andrew Morton <akpm@digeo.com>
+cc: piggin@cyberone.com.au, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.59mm5 database 'benchmark' results
+In-Reply-To: <20030124150340.32e57f19.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.44.0301241749220.32240-100000@admin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 27, 2003 at 05:12:27PM +0300, Nikita Danilov wrote:
-> sys_pivot_root() first takes BKL, then ->i_sem on the old root
-> directory. On the other hand, vfs_readdir() first takes ->i_sem on a
-> directory and then calls file system ->readdir() method, that usually
-> takes BKL. Isn't there a deadlock possibility? Of course,
-> sys_pivot_root() is probably not supposed to be called frequently, but
-> still.
+On Fri, 24 Jan 2003, Andrew Morton wrote:
 
-No, you can't deadlock here.  When you get contention on the i_sem,
-one thread will be put to sleep, and when that happens, the BKL will
-be automatically released.
+> > kernel           minutes     comment
+> > -------------    ----------- ---------------------------------
+> > 2.4.20-aa1       134         i consider this 'baseline'
+> > 2.5.59           124         woo-hoo
+> > 2.4.18-19.7.xsmp 128         not bad for frankenstein's montster
+> > 2.5.59-mm5       157         uh-oh
+> > 
 
-So:
+> > Oracle version 8.1.7 (no aio support in this release) is accessing
+> > datafiles on the two megaraid devices via /dev/raw stacked on top of
+> > device-mapper 
+> 
+> Rather impressed that you got all that to work ;)
+> 
 
-  CPU0				CPU1
+Me too.  It's still got some rough edges, but 2.5.59 was the first version 
+that made it through because of this or that reason.  I'm very impressed 
+personally.
 
-  BKL
-				i_sem
-				BKL (spins, waiting for BKL to be released)
+> 
+> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm5/broken-out/anticipatory_io_scheduling-2_5_59-mm3.patch
 
-  i_sem (finds it locked,
-       and sleeps, which
-       releases the BKL)
-                                (BKL is now released, CPU1 continues)
+Ok.  The results are basically the same as 2.5.59 vanilla:
+
+kernel                        minutes
+----------------------------- ----------
+2.5.59-mm5-no-anticipatory-io 125 
+
+Anything else?
+
+David
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+/==============================\
+| David Mansfield              |
+| lkml@dm.cobite.com           |
+\==============================/
+
 

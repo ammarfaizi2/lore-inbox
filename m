@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292062AbSBYRai>; Mon, 25 Feb 2002 12:30:38 -0500
+	id <S293457AbSBYR2t>; Mon, 25 Feb 2002 12:28:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292035AbSBYRaW>; Mon, 25 Feb 2002 12:30:22 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49936 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292481AbSBYRaA>; Mon, 25 Feb 2002 12:30:00 -0500
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-To: bcrl@redhat.com (Benjamin LaHaise)
-Date: Mon, 25 Feb 2002 17:42:59 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        rusty@rustcorp.com.au (Rusty Russell), mingo@elte.hu,
-        matthew@hairy.beasts.org (Matthew Kirkwood),
-        david@mysql.com (David Axmark),
-        wli@holomorphy.com (William Lee Irwin III),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020225113239.A11675@redhat.com> from "Benjamin LaHaise" at Feb 25, 2002 11:32:40 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S293298AbSBYR2b>; Mon, 25 Feb 2002 12:28:31 -0500
+Received: from ns.muni.cz ([147.251.4.33]:19151 "EHLO aragorn.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S293219AbSBYR2W>;
+	Mon, 25 Feb 2002 12:28:22 -0500
+Date: Mon, 25 Feb 2002 15:57:18 +0100
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: Kristian <kristian.peters@korseby.net>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Equal cost multipath crash
+Message-ID: <20020225145718.GV18777@informatics.muni.cz>
+In-Reply-To: <20020225083911.GA18777@informatics.muni.cz> <20020225155459.38cc7fb9.kristian.peters@korseby.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16fP9P-0005aB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20020225155459.38cc7fb9.kristian.peters@korseby.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are we sure that forcing semaphore overhead to the size of a page is a 
-> good idea?  I'd much rather see a sleep/wakeup mechanism akin to wait 
-> queues be exported by the kernel so that userspace can implement a rich 
-> set of locking functions on top of that in whatever shared memory is 
-> being used.
+Kristian wrote:
+: Jan Kasprzak <kas@informatics.muni.cz> wrote:
+: > 
+: > 	I had a strange failure of my Linux router yesterday. It is quite
+: > uncommon setup, but I wonder what could have caused this. The router
+: > started to dump the following messages into the syslog, and it stopped
+: > routing so our network was not reachable from the outside world:
+: > 
+: > Feb 24 21:26:49 router kernel: impossible 888
+: > Feb 24 21:39:20 router kernel: ible 888
+: > Feb 24 21:39:20 router kernel: impossible 888
+: > Feb 24 21:39:20 router last message repeated 42 times
+: > Feb 24 21:39:20 router kernel: impossible 888
+: > Feb 24 21:39:21 router kernel: NET: 344 messages suppressed.
+: > Feb 24 21:39:21 router kernel: dst cache overflow
+: > Feb 24 21:39:21 router kernel: impossible 888
+: > Feb 24 21:39:21 router last message repeated 275 times
+: > [... and so on ...]
+: 
+: Have you applied those grsecurity patches ? I'm getting the same messages with it from time to time when hosts forget to log off. But most of them are harmless and only useful for debugging your firewall-rules.
+: 
 
-The shared memory side of it has to be page sized. It doesn't mean you have
-to have 1 semaphore per page but it does mean you have to allocate in page
-sized chunks for mmu granularity
+	No. What are the grsecurity patches? This is stock 2.4.17 kernel.
 
+-Y.
+
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+|\    As anyone can tell you trying to force things on Linux developers   /|
+|\\   generally works out pretty badly.              (Alan Cox in lkml)  //|

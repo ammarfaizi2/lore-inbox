@@ -1,276 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262987AbSJBGme>; Wed, 2 Oct 2002 02:42:34 -0400
+	id <S262984AbSJBGz0>; Wed, 2 Oct 2002 02:55:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262988AbSJBGme>; Wed, 2 Oct 2002 02:42:34 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:1691 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S262987AbSJBGmb>;
-	Wed, 2 Oct 2002 02:42:31 -0400
-Date: Wed, 2 Oct 2002 16:47:25 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] create asm-generic/fcntl.h
-Message-Id: <20021002164725.3b2b1d17.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262985AbSJBGz0>; Wed, 2 Oct 2002 02:55:26 -0400
+Received: from smtp02.web.de ([217.72.192.151]:32796 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S262984AbSJBGzY>;
+	Wed, 2 Oct 2002 02:55:24 -0400
+Message-ID: <3D9A9994.3090400@web.de>
+Date: Wed, 02 Oct 2002 09:00:36 +0200
+From: Roy <roy_me@web.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.1) Gecko/20020826
+X-Accept-Language: de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.40 (2.5.39 too) Problems compiling radionfb ...
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Am I the only one who got problems with radeonfb?
 
-This patch creates asm-generic/fcntl.h in preparation for consolidating
-all the asm/fcntl.h files.  It also modifies asm-i386/fcntl.h to use
-it.  After you apply this, the other architectures can be modified in
-their own good time.  I have all the patches for the other architectures
-and I will send them to the appropriate maintainers (if I can find them)
-when this patch is merged.
+   gcc -Wp,-MD,./.radeonfb.o.d -D__KERNEL__ 
+-I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
+-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 
+-I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
+include    -DKBUILD_BASENAME=radeonfb   -c -o radeonfb.o radeonfb.c
+drivers/video/radeonfb.c:605: unknown field `fb_get_fix' specified in 
+initializer
+drivers/video/radeonfb.c:605: warning: initialization from incompatible 
+pointer type
+drivers/video/radeonfb.c:606: unknown field `fb_get_var' specified in 
+initializer
+drivers/video/radeonfb.c:606: warning: initialization from incompatible 
+pointer type
+drivers/video/radeonfb.c: In function `radeon_set_dispsw':
+drivers/video/radeonfb.c:1385: structure has no member named `type'
+drivers/video/radeonfb.c:1386: structure has no member named `type_aux'
+drivers/video/radeonfb.c:1387: structure has no member named `ypanstep'
+drivers/video/radeonfb.c:1388: structure has no member named `ywrapstep'
+drivers/video/radeonfb.c:1397: structure has no member named `visual'
+drivers/video/radeonfb.c:1398: structure has no member named `line_length'
+drivers/video/radeonfb.c:1405: structure has no member named `visual'
+drivers/video/radeonfb.c:1406: structure has no member named `line_length'
+drivers/video/radeonfb.c:1413: structure has no member named `visual'
+drivers/video/radeonfb.c:1414: structure has no member named `line_length'
+drivers/video/radeonfb.c:1421: structure has no member named `visual'
+drivers/video/radeonfb.c:1422: structure has no member named `line_length'
+drivers/video/radeonfb.c: In function `radeonfb_get_fix':
+drivers/video/radeonfb.c:1514: structure has no member named `type'
+drivers/video/radeonfb.c:1515: structure has no member named `type_aux'
+drivers/video/radeonfb.c:1516: structure has no member named `visual'
+drivers/video/radeonfb.c:1522: structure has no member named `line_length'
+drivers/video/radeonfb.c: In function `radeonfb_set_var':
+drivers/video/radeonfb.c:1578: structure has no member named `line_length'
+drivers/video/radeonfb.c:1579: structure has no member named `visual'
+drivers/video/radeonfb.c:1590: structure has no member named `line_length'
+drivers/video/radeonfb.c:1591: structure has no member named `visual'
+drivers/video/radeonfb.c:1606: structure has no member named `line_length'
+drivers/video/radeonfb.c:1607: structure has no member named `visual'
+drivers/video/radeonfb.c:1619: structure has no member named `line_length'
+drivers/video/radeonfb.c:1620: structure has no member named `visual'
+drivers/video/radeonfb.c: At top level:
+drivers/video/radeonfb.c:2487: warning: `fbcon_radeon8' defined but not used
+drivers/video/radeonfb.c:598: warning: `radeon_read_OF' declared 
+`static' but never defined
+drivers/video/radeonfb.c:1710: warning: `radeonfb_set_cmap' defined but 
+not used
+   gcc -Wp,-MD,./.fbcon-cfb8.o.d -D__KERNEL__ 
+-I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
+-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 
+-I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
+include    -DKBUILD_BASENAME=fbcon_cfb8 -DEXPORT_SYMTAB  -c -o 
+fbcon-cfb8.o fbcon-cfb8.c
+   gcc -Wp,-MD,./.fbcon-cfb16.o.d -D__KERNEL__ 
+-I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
+-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 
+-I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
+include    -DKBUILD_BASENAME=fbcon_cfb16 -DEXPORT_SYMTAB  -c -o 
+fbcon-cfb16.o fbcon-cfb16.c
+   gcc -Wp,-MD,./.fbcon-cfb24.o.d -D__KERNEL__ 
+-I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
+-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 
+-I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
+include    -DKBUILD_BASENAME=fbcon_cfb24 -DEXPORT_SYMTAB  -c -o 
+fbcon-cfb24.o fbcon-cfb24.c
+   gcc -Wp,-MD,./.fbcon-cfb32.o.d -D__KERNEL__ 
+-I/usr/src/linux-2.5.40/include -Wall -Wstrict-prototypes -Wno-trigraphs 
+-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 
+-I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc -iwithprefix 
+include    -DKBUILD_BASENAME=fbcon_cfb32 -DEXPORT_SYMTAB  -c -o 
+fbcon-cfb32.o fbcon-cfb32.c
+    ld -m elf_i386  -r -o built-in.o dummycon.o vgacon.o font_8x8.o 
+font_8x16.o fbmem.o fbcmap.o modedb.o fbcon.o fonts.o fbgen.o radeonfb.o 
+fbcon-cfb8.o fbcon-cfb16.o fbcon-cfb24.o fbcon-cfb32.o
+ld: cannot open radeonfb.o: No such file or directory
+make[2]: *** [built-in.o] Fehler 1
+make[2]: Verlassen des Verzeichnisses Verzeichnis 
+»/usr/src/linux-2.5.40/drivers/video«
+make[1]: *** [video] Fehler 2
+make[1]: Verlassen des Verzeichnisses Verzeichnis 
+»/usr/src/linux-2.5.40/drivers«
+make: *** [drivers] Fehler 2
 
-Please apply.
-
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.5.40/include/asm-generic/fcntl.h 2.5.40-fcntl.1/include/asm-generic/fcntl.h
---- 2.5.40/include/asm-generic/fcntl.h	1970-01-01 10:00:00.000000000 +1000
-+++ 2.5.40-fcntl.1/include/asm-generic/fcntl.h	2002-10-02 15:30:39.000000000 +1000
-@@ -0,0 +1,143 @@
-+#ifndef _ASM_GENERIC_FCNTL_H
-+#define _ASM_GENERIC_FCNTL_H
-+
-+/* open/fcntl - O_SYNC is only implemented on blocks devices and on files
-+   located on an ext2 file system */
-+#define O_ACCMODE	   0003
-+#define O_RDONLY	     00
-+#define O_WRONLY	     01
-+#define O_RDWR		     02
-+#ifndef O_CREAT
-+#define O_CREAT		   0100	/* not fcntl */
-+#endif
-+#ifndef O_EXCL
-+#define O_EXCL		   0200	/* not fcntl */
-+#endif
-+#ifndef O_NOCTTY
-+#define O_NOCTTY	   0400	/* not fcntl */
-+#endif
-+#ifndef O_TRUNC
-+#define O_TRUNC		  01000	/* not fcntl */
-+#endif
-+#ifndef O_APPEND
-+#define O_APPEND	  02000
-+#endif
-+#ifndef O_NONBLOCK
-+#define O_NONBLOCK	  04000
-+#endif
-+#ifndef O_NDELAY
-+#define O_NDELAY	O_NONBLOCK
-+#endif
-+#ifndef O_SYNC
-+#define O_SYNC		 010000
-+#endif
-+#ifndef FASYNC
-+#define FASYNC		 020000	/* fcntl, for BSD compatibility */
-+#endif
-+#ifndef O_DIRECT
-+#define O_DIRECT	 040000	/* direct disk access hint */
-+#endif
-+#ifndef O_LARGEFILE
-+#define O_LARGEFILE	0100000
-+#endif
-+#ifndef O_DIRECTORY
-+#define O_DIRECTORY	0200000	/* must be a directory */
-+#endif
-+#ifndef O_NOFOLLOW
-+#define O_NOFOLLOW	0400000 /* don't follow links */
-+#endif
-+
-+#define F_DUPFD		0	/* dup */
-+#define F_GETFD		1	/* get close_on_exec */
-+#define F_SETFD		2	/* set/clear close_on_exec */
-+#define F_GETFL		3	/* get file->f_flags */
-+#define F_SETFL		4	/* set file->f_flags */
-+#ifndef F_GETLK
-+#define F_GETLK		5
-+#endif
-+#ifndef F_SETLK
-+#define F_SETLK		6
-+#endif
-+#ifndef F_SETLKW
-+#define F_SETLKW	7
-+#endif
-+
-+#ifndef F_SETOWN
-+#define F_SETOWN	8	/*  for sockets. */
-+#endif
-+#ifndef F_GETOWN
-+#define F_GETOWN	9	/*  for sockets. */
-+#endif
-+#ifndef F_SETSIG
-+#define F_SETSIG	10	/*  for sockets. */
-+#endif
-+#ifndef F_GETSIG
-+#define F_GETSIG	11	/*  for sockets. */
-+#endif
-+
-+#ifndef __NO_FCNTL_LK64
-+#ifndef F_GETLK64
-+#define F_GETLK64	12	/*  using 'struct flock64' */
-+#endif
-+#ifndef F_SETLK64
-+#define F_SETLK64	13
-+#endif
-+#ifndef F_SETLKW64
-+#define F_SETLKW64	14
-+#endif
-+#endif /* __NO_FCNTL_LK64 */
-+
-+/* for F_[GET|SET]FL */
-+#define FD_CLOEXEC	1	/* actually anything with low bit set goes */
-+
-+/* for posix fcntl() and lockf() */
-+#ifndef F_RDLCK
-+#define F_RDLCK		0
-+#endif
-+#ifndef F_WRLCK
-+#define F_WRLCK		1
-+#endif
-+#ifndef F_UNLCK
-+#define F_UNLCK		2
-+#endif
-+
-+/* for leases */
-+#ifndef F_INPROGRESS
-+#define F_INPROGRESS	16
-+#endif
-+
-+/* operations for bsd flock(), also used by the kernel implementation */
-+#define LOCK_SH		1	/* shared lock */
-+#define LOCK_EX		2	/* exclusive lock */
-+#define LOCK_NB		4	/* or'd with one of the above to prevent
-+				   blocking */
-+#define LOCK_UN		8	/* remove lock */
-+
-+#define LOCK_MAND	32	/* This is a mandatory flock */
-+#define LOCK_READ	64	/* ... Which allows concurrent read operations */
-+#define LOCK_WRITE	128	/* ... Which allows concurrent write operations */
-+#define LOCK_RW		192	/* ... Which allows concurrent read & write ops */
-+
-+#ifndef HAVE_ARCH_STRUCT_FLOCK
-+struct flock {
-+	short l_type;
-+	short l_whence;
-+	off_t l_start;
-+	off_t l_len;
-+	pid_t l_pid;
-+};
-+#endif
-+
-+#ifndef HAVE_ARCH_STRUCT_FLOCK64
-+struct flock64 {
-+	short  l_type;
-+	short  l_whence;
-+	loff_t l_start;
-+	loff_t l_len;
-+	pid_t  l_pid;
-+};
-+#endif
-+
-+#define F_LINUX_SPECIFIC_BASE	1024
-+
-+#endif /* _ASM_GENERIC_FCNTL_H */
-diff -ruN 2.5.40/include/asm-i386/fcntl.h 2.5.40-fcntl.1/include/asm-i386/fcntl.h
---- 2.5.40/include/asm-i386/fcntl.h	2001-09-18 06:16:30.000000000 +1000
-+++ 2.5.40-fcntl.1/include/asm-i386/fcntl.h	2002-10-02 15:30:39.000000000 +1000
-@@ -1,87 +1,6 @@
- #ifndef _I386_FCNTL_H
- #define _I386_FCNTL_H
- 
--/* open/fcntl - O_SYNC is only implemented on blocks devices and on files
--   located on an ext2 file system */
--#define O_ACCMODE	   0003
--#define O_RDONLY	     00
--#define O_WRONLY	     01
--#define O_RDWR		     02
--#define O_CREAT		   0100	/* not fcntl */
--#define O_EXCL		   0200	/* not fcntl */
--#define O_NOCTTY	   0400	/* not fcntl */
--#define O_TRUNC		  01000	/* not fcntl */
--#define O_APPEND	  02000
--#define O_NONBLOCK	  04000
--#define O_NDELAY	O_NONBLOCK
--#define O_SYNC		 010000
--#define FASYNC		 020000	/* fcntl, for BSD compatibility */
--#define O_DIRECT	 040000	/* direct disk access hint */
--#define O_LARGEFILE	0100000
--#define O_DIRECTORY	0200000	/* must be a directory */
--#define O_NOFOLLOW	0400000 /* don't follow links */
--
--#define F_DUPFD		0	/* dup */
--#define F_GETFD		1	/* get close_on_exec */
--#define F_SETFD		2	/* set/clear close_on_exec */
--#define F_GETFL		3	/* get file->f_flags */
--#define F_SETFL		4	/* set file->f_flags */
--#define F_GETLK		5
--#define F_SETLK		6
--#define F_SETLKW	7
--
--#define F_SETOWN	8	/*  for sockets. */
--#define F_GETOWN	9	/*  for sockets. */
--#define F_SETSIG	10	/*  for sockets. */
--#define F_GETSIG	11	/*  for sockets. */
--
--#define F_GETLK64	12	/*  using 'struct flock64' */
--#define F_SETLK64	13
--#define F_SETLKW64	14
--
--/* for F_[GET|SET]FL */
--#define FD_CLOEXEC	1	/* actually anything with low bit set goes */
--
--/* for posix fcntl() and lockf() */
--#define F_RDLCK		0
--#define F_WRLCK		1
--#define F_UNLCK		2
--
--/* for old implementation of bsd flock () */
--#define F_EXLCK		4	/* or 3 */
--#define F_SHLCK		8	/* or 4 */
--
--/* for leases */
--#define F_INPROGRESS	16
--
--/* operations for bsd flock(), also used by the kernel implementation */
--#define LOCK_SH		1	/* shared lock */
--#define LOCK_EX		2	/* exclusive lock */
--#define LOCK_NB		4	/* or'd with one of the above to prevent
--				   blocking */
--#define LOCK_UN		8	/* remove lock */
--
--#define LOCK_MAND	32	/* This is a mandatory flock */
--#define LOCK_READ	64	/* ... Which allows concurrent read operations */
--#define LOCK_WRITE	128	/* ... Which allows concurrent write operations */
--#define LOCK_RW		192	/* ... Which allows concurrent read & write ops */
--
--struct flock {
--	short l_type;
--	short l_whence;
--	off_t l_start;
--	off_t l_len;
--	pid_t l_pid;
--};
--
--struct flock64 {
--	short  l_type;
--	short  l_whence;
--	loff_t l_start;
--	loff_t l_len;
--	pid_t  l_pid;
--};
--
--#define F_LINUX_SPECIFIC_BASE	1024
-+#include <asm-generic/fcntl.h>
- 
- #endif

@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317576AbSFNLuz>; Fri, 14 Jun 2002 07:50:55 -0400
+	id <S317205AbSFNLsp>; Fri, 14 Jun 2002 07:48:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317592AbSFNLuy>; Fri, 14 Jun 2002 07:50:54 -0400
-Received: from 205-158-62-93.outblaze.com ([205.158.62.93]:46469 "HELO
-	ws3-3.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S317576AbSFNLux>; Fri, 14 Jun 2002 07:50:53 -0400
-Message-ID: <20020614115049.16384.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S317895AbSFNLsp>; Fri, 14 Jun 2002 07:48:45 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:15240 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S317205AbSFNLso>;
+	Fri, 14 Jun 2002 07:48:44 -0400
+Date: Fri, 14 Jun 2002 13:48:37 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: George Foot <gfoot@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bug in matrox fb vsync code
+Message-ID: <20020614114837.GA24388@vana.vc.cvut.cz>
+In-Reply-To: <20020614001513.C1220@sutra.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Domcan Sami" <domca_psg@email.com>
-To: linux-mips@oss.sgi.com, linux-kernel@vger.kernel.org,
-        redhat-list@redhat.com
-Date: Fri, 14 Jun 2002 06:50:49 -0500
-Subject: Kernel - arch support(mips)
-X-Originating-Ip: 202.140.142.131
-X-Originating-Server: ws3-3.us4.outblaze.com
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Fri, Jun 14, 2002 at 12:15:13AM +0100, George Foot wrote:
+> I tried to mail this to Petr Vandrovec <vandrove@vc.cvut.cz> but
+> the domain does not resolve.
+> 
+>     static int matroxfb_get_vblank(CPMINFO struct fb_vblank *vblank)
+>     {
+>         unsigned int sts1;
+>     
+>         memset(vblank, 0, sizeof(*vblank));
+>         vblank->flags = FB_VBLANK_HAVE_VCOUNT | FB_VBLANK_HAVE_VSYNC |
+>                 FB_VBLANK_HAVE_VBLANK | FB_VBLANK_HAVE_HBLANK;
+>         sts1 = mga_inb(M_INSTS1);
+>         vblank->vcount = mga_inl(M_VCOUNT);
+>         /* BTW, on my PIII/450 with G400, reading M_INSTS1
+>            byte makes this call about 12% slower (1.70 vs. 2.05 us
+>            per ioctl()) */
+>         if (sts1 & 1)
+>             vblank->flags |= FB_VBLANK_HBLANKING;
+>         if (sts1 & 8)
+>             vblank->flags |= FB_VBLANK_VSYNCING;
+> ****    if (vblank->count >= ACCESS_FBINFO(currcon_display)->var.yres)
+>             vblank->flags |= FB_VBLANK_VBLANKING;
 
-I am trying to compile a program using a MIPS-LINUX cross compiler(gcc). I've set up a connection between my i386 Linux machine and a MIPS(RM7000) processor. This is again connected to a WinNT Terminal where there should be an output from the MIPS processor.
+It should be vblank->vcount. It is fixed in mga-2.5.20-tvout.gz
+at ftp://platan.vc.cvut.cz/pub/linux/matrox-latest. Obviously
+this patch does not apply to 2.4.x.
 
-I have 2 kernels in my Linux machine under the directories:
-1) /usr/src/linux - kernel version 2.2.14
-2) /root/kernels/linux - kernel version 2.4.14
+> The line in question (marked ****) reads from vblank->count
+> which is zeroed by the memset and not changed since then.  I
+> believe it should be reading from vblank->vcount instead.
 
-I am using a boot image generated from the older kernel for booting. The problem is the older kernel doesn't support MIPS architecture. What should I do to upgrade my kernel so that it supports MIPS architecture & that I'll be able to cross-compile my programs properly.
+Yes.
 
-Domcan
--- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+> I'm sorry not to have checked whether this has been fixed; I
+> found that some Matrox bugs were fixed since 2.4.18 in the
+> 2.4.19 prerelease changelog, but my Internet connection is only
+> a 56k modem so I can't afford to download either the prerelease
+> patch or the latest development branch.
 
-Save up to $160 by signing up for NetZero Platinum Internet service.
-http://www.netzero.net/?refcd=N2P0602NEP8
+AFAIK it is not fixed even in latest 2.4.x prepatches.
 
+> I'd also be interested to know if there's any documentation of
+> the difference between VSYNC and VBLANK in the context of the
+> fbdev code -- I haven't found any references in the kernel
+> documentation, perhaps there's some resource online?
+
+linux-fbdev.sourceforge.net maybe have some documentation.
+I wrote implementation according to flags names...
+					Petr Vandrovec
+					vandrove@vc.cvut.cz

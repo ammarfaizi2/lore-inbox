@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264061AbUE3Shw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264306AbUE3S4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbUE3Shw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 14:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264159AbUE3Shw
+	id S264306AbUE3S4q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 14:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbUE3S4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 14:37:52 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:18181 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264061AbUE3Shv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 14:37:51 -0400
-Subject: Re: Why is proper NTFS-driver difficult?
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Martin Olsson <mnemo@minimum.se>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <40BA1FD5.9080902@minimum.se>
-References: <40BA1FD5.9080902@minimum.se>
-Content-Type: text/plain
-Message-Id: <1085942265.1677.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Sun, 30 May 2004 20:37:45 +0200
+	Sun, 30 May 2004 14:56:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50852 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264306AbUE3S4o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 14:56:44 -0400
+Message-ID: <40BA2E5E.6090603@pobox.com>
+Date: Sun, 30 May 2004 14:56:30 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andries Brouwer <aebr@win.tue.nl>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andries Brouwer <aeb@cwi.nl>,
+       Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: 2.6.x partition breakage and dual booting
+References: <40BA2213.1090209@pobox.com> <20040530183609.GB5927@pclin040.win.tue.nl>
+In-Reply-To: <20040530183609.GB5927@pclin040.win.tue.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-05-30 at 19:54, Martin Olsson wrote:
+Andries Brouwer wrote:
+> The link you give describes a user space problem.
+> The fdisk versions that I maintain all work fine - apparently
+> Fedora Core uses something else to change partition tables,
+> and that something else makes assumptions that are invalid.
+> (Maybe it uses parted?)
+> 
+> I can tell you in great detail all about disk geometry,
+> and the 2.4 situation and the 2.6 situation.
 
-> I was wondering why is there no Linux NTFS-driver which allows full 
-> writing etc? Is there something that makes this particular difficult to 
-> implement? I mean Linux supports so many file systems, why has proper 
-> NTFS support been neglected?
 
-Maybe because our favorite monopolistic company wants to keep its
-internals well hidden to the public? The reason they are doing this is
-completely unknown to me.
+Please educate me :)  Brutally, and in public :)
+
+	Jeff
+
 

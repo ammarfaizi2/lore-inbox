@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311593AbSCUQXk>; Thu, 21 Mar 2002 11:23:40 -0500
+	id <S311858AbSCUQcM>; Thu, 21 Mar 2002 11:32:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311595AbSCUQXb>; Thu, 21 Mar 2002 11:23:31 -0500
-Received: from acolyte.thorsen.se ([193.14.93.247]:48901 "HELO
-	acolyte.hack.org") by vger.kernel.org with SMTP id <S311593AbSCUQXT>;
-	Thu, 21 Mar 2002 11:23:19 -0500
-From: Christer Weinigel <wingel@acolyte.hack.org>
+	id <S311868AbSCUQcE>; Thu, 21 Mar 2002 11:32:04 -0500
+Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:65294 "HELO
+	fancypants.trellisinc.com") by vger.kernel.org with SMTP
+	id <S311858AbSCUQbx>; Thu, 21 Mar 2002 11:31:53 -0500
+From: nicholas black <dank@trellisinc.com>
 To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hiroshi MIURA <miura@da-cha.org>,
-        anders.wallin@mvista.com
-Subject: NatSemi SC1200 timer problems
-Message-Id: <20020321162312.7241DF5B@acolyte.hack.org>
-Date: Thu, 21 Mar 2002 17:23:12 +0100 (CET)
+Cc: Vinolin <vinolin@nodeinfotech.com>
+Subject: Re: ip_options.c
+In-Reply-To: <02032116405005.00890@Vinolin>
+X-Newsgroups: mlist.linux-kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19ext3 (i686))
+Message-Id: <20020321163151.53841A3C21@fancypants.trellisinc.com>
+Date: Thu, 21 Mar 2002 11:31:51 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <02032116405005.00890@Vinolin> you wrote:
+> Can i get the summary of what exactly ip_options.c is doing ?
+> Through any web page or documents ...
 
-I'm seeing some very strange problems with a NatSemi SC1200 based
-system.  The problems is that the code to read the PIT counter
-sometimes returns the bytes swapped:
+it deals with ip options (see rfc's 791 and 1122).  
 
-    outb(0, 0x43);
-    count = inb(0x40);
-    count |= inb(0x40) << 8;
+ip_options_build is called while putting together the headers, but
+prior to checksumming from numerous places in net/ipv4/ip_output.c.  
 
-This sometimes gives 0x822e instead of 0x2e82 that is reasonable.  I
-first thought this was a bug in another driver, but sometimes the
-counter read from the timer would be 0xd5dd and that value should be
-impossible to get, so I'm starting to suspect the hardware.
+ip_options_fragment does special handling for options in fragmented
+datagrams (again, ip_output.c).
 
-Besides this, I have a report that the TSC sometimes jumps ahead, so
-that the reported time of day will be about 7 seconds more than it
-should be.  
+ip_options_echo is used to setup the options used in a reply; see
+net/ipv4/icmp.c et al.
 
-Does any of this sound familar?
+ip_options_compile and ip_options_get both seem to be used to extract raw
+options from an skb.
 
-Hiroshi MIURA <miura@da-cha.org> has a patch for a Cyrix CX5520 i8254
-timer bug on his web page, but I have been unable to find any
-information on the net on what the bug actually is.  Could you tell me
-a bit more about it?  I'm trying to figure out if it has reappeared in
-the SC1200 or if this is a completely new problem.
+ip_options_forward handles setting up source-routed packets, while 
+ip_options_rcv_srr handles their receipt.
 
-Alan, i think did a patch to disable the TSC on the MediaGX and I have
-seen posts by you where you say about the MediaGX that "It reports a
-TSC but the TSC is unreliable at least in certain strange
-circumstances".  Do you refer to the TSC being stopped or turned off
-on halt or suspend or is it a completely different problem?  Could you
-please tell me what kind of problems you saw?
-
-Regards,
-   Christer (pulling his hair in confusion)
+i am by not any mean at all an authority on these matters, so take this with
+a grain of salt :).
 
 -- 
-"Just how much can I get away with and still go to heaven?"
+nicholas black (dank@trellisinc.com)
+"c has types for a reason.  c++ improved the type system for a reason.  perl
+ and php programs have run-time failures for a reason." - lkml

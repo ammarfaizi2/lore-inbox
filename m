@@ -1,211 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315042AbSFITXO>; Sun, 9 Jun 2002 15:23:14 -0400
+	id <S315191AbSFITeF>; Sun, 9 Jun 2002 15:34:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314829AbSFITWW>; Sun, 9 Jun 2002 15:22:22 -0400
-Received: from mail315.mail.bellsouth.net ([205.152.58.175]:29406 "EHLO
-	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S314929AbSFITWD>; Sun, 9 Jun 2002 15:22:03 -0400
-Message-ID: <3D03AACF.E85DE83D@bellsouth.net>
-Date: Sun, 09 Jun 2002 15:21:51 -0400
-From: Albert Cranford <ac9410@bellsouth.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.21 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] 2.5.21 lm_sensor support 1/5
+	id <S314929AbSFITcs>; Sun, 9 Jun 2002 15:32:48 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:48637 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S315191AbSFIT3h>; Sun, 9 Jun 2002 15:29:37 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.44.0206091257340.8715-100000@hawkeye.luckynet.adm> 
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Dave Jones <davej@suse.de>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
+Subject: Re: [patch] fat/msdos/vfat crud removal 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 09 Jun 2002 20:29:00 +0100
+Message-ID: <2166.1023650940@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch adds lm_sensor support for 2.5.21
---- linux/drivers/Makefile.orig	2002-05-20 09:54:49.000000000 -0400
-+++ linux/drivers/Makefile	2002-05-30 00:36:36.000000000 -0400
-@@ -10,7 +10,7 @@
- 		message scsi md ieee1394 pnp isdn atm \
- 		fc4 i2c acpi bluetooth input/serio \
- 		input/gameport parport hotplug \
--		base char block misc net media cdrom
-+		base char block misc net media cdrom i2c/busses i2c/chips
- 
- obj-$(CONFIG_PCI)		+= pci/
- obj-$(CONFIG_ACPI)		+= acpi/
-@@ -42,6 +42,8 @@
- obj-$(CONFIG_SERIO)		+= input/serio/
- obj-$(CONFIG_I2O)		+= message/
- obj-$(CONFIG_I2C)		+= i2c/
-+obj-$(CONFIG_MAINBOARD)		+= i2c/busses/
-+obj-$(CONFIG_SENSORS)		+= i2c/chips/
- obj-$(CONFIG_PHONE)		+= telephony/
- obj-$(CONFIG_MD)		+= md/
- obj-$(CONFIG_BLUEZ)		+= bluetooth/
---- linux/drivers/i2c/Config.in.orig	2002-05-20 09:58:09.000000000 -0400
-+++ linux/drivers/i2c/Config.in	2002-05-20 10:00:17.000000000 -0400
-@@ -45,5 +45,7 @@
-    dep_tristate 'I2C device interface' CONFIG_I2C_CHARDEV $CONFIG_I2C
-    dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C $CONFIG_SYSCTL
- 
-+  source drivers/i2c/busses/Config.in
-+  source drivers/i2c/chips/Config.in
- fi
- endmenu
---- /dev/null	1994-07-17 19:46:18.000000000 -0400
-+++ linux/drivers/i2c/busses/Config.in	2002-05-20 10:00:58.000000000 -0400
-@@ -0,0 +1,32 @@
-+#
-+# Sensor device configuration
-+# All depend on CONFIG_I2C_PROC.
-+# ISA-only devices depend on CONFIG_I2C_ISA also.
-+#
-+
-+if [ "$CONFIG_I2C" = "m" -o "$CONFIG_I2C" = "y" ] ; then
-+if [ "$CONFIG_I2C_PROC" = "m" -o "$CONFIG_I2C_PROC" = "y" ] ; then
-+  mainmenu_option next_comment
-+  comment 'Hardware sensors mainboard support'
-+  
-+  dep_mbool 'Hardware sensors mainboard support' CONFIG_MAINBOARD $CONFIG_I2C $CONFIG_I2C_PROC
-+  
-+  if [ "$CONFIG_MAINBOARD" = "y" ]; then
-+    tristate '  Acer Labs ALI 1535' CONFIG_I2C_ALI1535 
-+    tristate '  Acer Labs ALI 1533 and 1543C' CONFIG_I2C_ALI15X3 
-+    tristate '  AMD 756/766' CONFIG_I2C_AMD756
-+    dep_tristate '  Apple Hydra Mac I/O' CONFIG_I2C_HYDRA $CONFIG_I2C_ALGOBIT
-+    tristate '  Intel 82801AA, 82801AB and 82801BA' CONFIG_I2C_I801
-+    dep_tristate '  Intel i810AA, i810AB and i815' CONFIG_I2C_I810 $CONFIG_I2C_ALGOBIT
-+    tristate '  Pseudo ISA adapter (for some hardware sensors)' CONFIG_I2C_ISA 
-+    tristate '  Intel 82371AB PIIX4(E), ServerWorks OSB4/CSB5' CONFIG_I2C_PIIX4
-+    tristate '  SiS 5595' CONFIG_I2C_SIS5595
-+    dep_tristate '  DEC Tsunami I2C interface' CONFIG_I2C_TSUNAMI $CONFIG_I2C_ALGOBIT
-+    dep_tristate '  VIA Technologies, Inc. VT82C586B' CONFIG_I2C_VIA $CONFIG_I2C_ALGOBIT
-+    tristate '  VIA Technologies, Inc. VT596A/B' CONFIG_I2C_VIAPRO
-+    dep_tristate '  Voodoo3 I2C interface' CONFIG_I2C_VOODOO3 $CONFIG_I2C_ALGOBIT
-+  fi
-+endmenu
-+fi
-+fi
-+
---- /dev/null	1994-07-17 19:46:18.000000000 -0400
-+++ linux/drivers/i2c/busses/Makefile	2002-05-20 02:09:47.000000000 -0400
-@@ -0,0 +1,27 @@
-+#
-+# Makefile for the kernel hardware sensors bus drivers.
-+#
-+
-+MOD_LIST_NAME := SENSORS_BUS_MODULES
-+
-+export-objs	:= i2c-ali1535.o
-+
-+obj-$(CONFIG_I2C_ALI1535)	+= i2c-ali1535.o
-+obj-$(CONFIG_I2C_ALI15X3)	+= i2c-ali15x3.o
-+obj-$(CONFIG_I2C_AMD756)	+= i2c-amd756.o
-+obj-$(CONFIG_I2C_HYDRA)		+= i2c-hydra.o
-+obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
-+obj-$(CONFIG_I2C_I810)		+= i2c-i810.o
-+obj-$(CONFIG_I2C_ISA)		+= i2c-isa.o
-+obj-$(CONFIG_I2C_KEYWEST)	+= i2c-keywest.o
-+obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
-+obj-$(CONFIG_I2C_SIS5595)	+= i2c-sis5595.o
-+ifeq ($(MACHINE),alpha)
-+  obj-$(CONFIG_I2C_TSUNAMI)	+= i2c-tsunami.o
-+endif
-+obj-$(CONFIG_I2C_VIA)		+= i2c-via.o
-+obj-$(CONFIG_I2C_VIAPRO)	+= i2c-viapro.o
-+obj-$(CONFIG_I2C_VOODOO3)	+= i2c-voodoo3.o
-+
-+
-+include $(TOPDIR)/Rules.make
---- /dev/null	1994-07-17 19:46:18.000000000 -0400
-+++ linux/drivers/i2c/chips/Config.in	2002-05-19 23:40:48.000000000 -0400
-@@ -0,0 +1,46 @@
-+#
-+# Sensor device configuration
-+# All depend on CONFIG_I2C_PROC.
-+# ISA-only devices depend on CONFIG_I2C_ISA also.
-+#
-+
-+if [ "$CONFIG_I2C" = "m" -o "$CONFIG_I2C" = "y" ] ; then
-+if [ "$CONFIG_I2C_PROC" = "m" -o "$CONFIG_I2C_PROC" = "y" ] ; then
-+  mainmenu_option next_comment
-+  comment 'Hardware sensors chip support'
-+  
-+  dep_mbool 'Hardware sensors chip support' CONFIG_SENSORS $CONFIG_I2C $CONFIG_I2C_PROC
-+  
-+  if [ "$CONFIG_SENSORS" != "n" ]; then
-+    dep_tristate '  Analog Devices ADM1021 and compatibles' CONFIG_SENSORS_ADM1021 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Analog Devices ADM1024' CONFIG_SENSORS_ADM1024 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Analog Devices ADM1025' CONFIG_SENSORS_ADM1025 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Analog Devices ADM9240 and compatibles' CONFIG_SENSORS_ADM9240 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Dallas DS1621 and DS1625' CONFIG_SENSORS_DS1621 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Fujitsu-Siemens Poseidon' CONFIG_SENSORS_FSCPOS $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Fujitsu-Siemens Scylla' CONFIG_SENSORS_FSCSCY $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Genesys Logic GL518SM' CONFIG_SENSORS_GL518SM $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Genesys Logic GL520SM' CONFIG_SENSORS_GL520SM $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  HP Maxilife' CONFIG_SENSORS_MAXILIFE $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  ITE 8705/8712, SiS950' CONFIG_SENSORS_IT87 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Myson MTP008' CONFIG_SENSORS_MTP008 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  National Semiconductors LM75 and compatibles' CONFIG_SENSORS_LM75 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  National Semiconductors LM78' CONFIG_SENSORS_LM78 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  National Semiconductors LM80' CONFIG_SENSORS_LM80 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  National Semiconductors LM87' CONFIG_SENSORS_LM87 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  Silicon Integrated Systems Corp. SiS5595' CONFIG_SENSORS_SIS5595 $CONFIG_I2C $CONFIG_I2C_PROC $CONFIG_I2C_ISA
-+    dep_tristate '  Texas Instruments THMC50 and compatibles' CONFIG_SENSORS_THMC50 $CONFIG_I2C $CONFIG_I2C_PROC
-+    dep_tristate '  VIA 686a Integrated Hardware Monitor' CONFIG_SENSORS_VIA686A $CONFIG_I2C $CONFIG_I2C_PROC $CONFIG_I2C_ISA
-+    dep_tristate '  Winbond W83781D, W83782D, W83783S, W83627HF, Asus AS99127F' CONFIG_SENSORS_W83781D $CONFIG_I2C $CONFIG_I2C_PROC
-+    bool 'Other I2C devices' CONFIG_SENSORS_OTHER 
-+    if [ "$CONFIG_SENSORS_OTHER" = "y" ] ; then
-+      dep_tristate '  Brooktree BT869 Video Modulator' CONFIG_SENSORS_BT869 $CONFIG_I2C $CONFIG_I2C_PROC
-+      dep_tristate '  DDC Monitor EDID EEPROM' CONFIG_SENSORS_DDCMON $CONFIG_I2C $CONFIG_I2C_PROC
-+      dep_tristate '  EEprom (DIMM) reader ' CONFIG_SENSORS_EEPROM $CONFIG_I2C $CONFIG_I2C_PROC
-+      dep_tristate '  Matrix-Orbital LCD Displays' CONFIG_SENSORS_MATORB $CONFIG_I2C $CONFIG_I2C_PROC
-+    fi
-+  fi
-+  endmenu
-+fi
-+fi
-+
---- /dev/null	1994-07-17 19:46:18.000000000 -0400
-+++ linux/drivers/i2c/chips/Makefile	2002-05-20 02:22:58.000000000 -0400
-@@ -0,0 +1,37 @@
-+#
-+# Makefile for the kernel hardware sensors chip drivers.
-+#
-+
-+MOD_LIST_NAME := SENSORS_CHIPS_MODULES
-+
-+obj-$(CONFIG_SENSORS)		+= sensors.o
-+obj-$(CONFIG_SENSORS_ADM1021)	+= adm1021.o
-+obj-$(CONFIG_SENSORS_ADM1024)	+= adm1024.o
-+obj-$(CONFIG_SENSORS_ADM1025)	+= adm1025.o
-+obj-$(CONFIG_SENSORS_ADM9240)	+= adm9240.o
-+obj-$(CONFIG_SENSORS_BT869)	+= bt869.o
-+obj-$(CONFIG_SENSORS_DDCMON)	+= ddcmon.o
-+obj-$(CONFIG_SENSORS_DS1621)	+= ds1621.o
-+obj-$(CONFIG_SENSORS_EEPROM)	+= eeprom.o
-+obj-$(CONFIG_SENSORS_FSCPOS)	+= fscpos.o
-+obj-$(CONFIG_SENSORS_FSCSCY)	+= fscscy.o
-+obj-$(CONFIG_SENSORS_GL518SM)	+= gl518sm.o
-+obj-$(CONFIG_SENSORS_GL520SM)	+= gl520sm.o
-+obj-$(CONFIG_SENSORS_ICSPLL)	+= icspll.o
-+obj-$(CONFIG_SENSORS_IT87)	+= it87.o
-+obj-$(CONFIG_SENSORS_LM75)	+= lm75.o
-+obj-$(CONFIG_SENSORS_LM78)	+= lm78.o
-+obj-$(CONFIG_SENSORS_LM80)	+= lm80.o
-+obj-$(CONFIG_SENSORS_LM87)	+= lm87.o
-+obj-$(CONFIG_SENSORS_LTC1710)	+= ltc1710.o
-+obj-$(CONFIG_SENSORS_MATORB)	+= matorb.o
-+obj-$(CONFIG_SENSORS_MAXILIFE)	+= maxilife.o
-+obj-$(CONFIG_SENSORS_MTP008)	+= mtp008.o
-+obj-$(CONFIG_SENSORS_PCF8574)	+= pcf8574.o
-+obj-$(CONFIG_SENSORS_PCF8591)	+= pcf8591.o
-+obj-$(CONFIG_SENSORS_SIS5595)	+= sis5595.o
-+obj-$(CONFIG_SENSORS_THMC50)	+= thmc50.o
-+obj-$(CONFIG_SENSORS_VIA686A)	+= via686a.o
-+obj-$(CONFIG_SENSORS_W83781D)	+= w83781d.o
-+
-+include $(TOPDIR)/Rules.make
 
--- 
-Albert Cranford Deerfield Beach FL USA
-ac9410@bellsouth.net
+thunder@ngforever.de said:
+>  Stop! The reason for _some_ includes there is actually to keep some
+> definitions in sync with the kernel, e.g. errno values! Stopping them
+> altogether is a Really Bad Thing[tm], IMO, since it means users will
+> have  to get a new glibc with almost every kernel they have (don't
+> tell me we  don't change much!).
+
+Er, no. If you randomly reassign errno values, the world breaks.
+Don't even contemplate it.
+
+The _only_ thing that userspace could possibly pick from the kernel headers 
+is the ABI. But if the ABI changes, that _must_ be a carefully-considered 
+thing.
+
+To that end, we should put '#ifndef __KERNEL__ #error' into all kernel
+headers, and C libraries should maintain a _separate_ set of headers which
+contain only the ABI definitions and are suitable for userspace. I believe 
+dietlibc already does this, and recent Red Hat distributions contain a 
+'glibc-kernheaders' package with a slightly-sanitised version of kernel 
+headers, which should become more sanitised over time.
+
+--
+dwmw2
+
+

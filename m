@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263593AbTLOMtI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 07:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbTLOMtI
+	id S263504AbTLONL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 08:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbTLONL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 07:49:08 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:46552 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263593AbTLOMtG
+	Mon, 15 Dec 2003 08:11:57 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:31201 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263504AbTLONL4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 07:49:06 -0500
-Date: Mon, 15 Dec 2003 13:49:04 +0100 (CET)
+	Mon, 15 Dec 2003 08:11:56 -0500
+Date: Mon, 15 Dec 2003 14:11:55 +0100 (CET)
 From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: ross.alexander@uk.neceur.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-In-Reply-To: <OFAC3015E2.784FA52E-ON80256DFD.003A2DB1-80256DFD.003C2F2D@uk.neceur.com>
-Message-ID: <Pine.LNX.4.55.0312151347040.26565@jurand.ds.pg.gda.pl>
-References: <OFAC3015E2.784FA52E-ON80256DFD.003A2DB1-80256DFD.003C2F2D@uk.neceur.com>
+To: Bob <recbo@nishanet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: Re: Working nforce2, was Re: Fixes for nforce2 hard lockup,
+ apic, io-apic, udma133 covered
+In-Reply-To: <3FDAFF79.5080509@nishanet.com>
+Message-ID: <Pine.LNX.4.55.0312151403190.26565@jurand.ds.pg.gda.pl>
+References: <200312132040.00875.ross@datscreative.com.au> <3FDAFF79.5080509@nishanet.com>
 Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003 ross.alexander@uk.neceur.com wrote:
+On Sat, 13 Dec 2003, Bob wrote:
 
-> 2) If the local apic is running is it necessary to use the 8254 as a 
-> timer?
+> APIC error on CPU0: 02(02)
+> what?? no crash though.
+[...]
+> bob@where cat /proc/interrupts
+>            CPU0      
+>   0:    3350153    IO-APIC-edge  timer
+>   1:       5775    IO-APIC-edge  i8042
+>   2:          0          XT-PIC  cascade
+>   8:          1    IO-APIC-edge  rtc
+>   9:          0   IO-APIC-level  acpi
+>  12:       5385    IO-APIC-edge  i8042
+>  14:         10    IO-APIC-edge  ide0
+>  15:         10    IO-APIC-edge  ide1
+>  16:    1717957   IO-APIC-level  ide2, ide3, eth0
+>  19:     472929   IO-APIC-level  ide4, ide5
+>  21:          0   IO-APIC-level  NVidia nForce2
+> NMI:        822
+> LOC:    3350073
+> ERR:         35
+> MIS:      15818
 
- The 8254 timer is used for timekeeping -- it would be unnecessarily ugly 
-to stuff this fuctionality to the APIC timer on one of CPUs.
+ It looks like the infamous APIC delivery bug -- the "MIS" counter shows
+how many level-triggered interrupts has been erronously delivered as
+edge-triggered ones.  No wonder the system shows instability -- you have 
+noise problems at the APIC bus.
 
 -- 
 +  Maciej W. Rozycki, Technical University of Gdansk, Poland   +

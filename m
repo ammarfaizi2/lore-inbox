@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293013AbSCKVDP>; Mon, 11 Mar 2002 16:03:15 -0500
+	id <S292983AbSCKVBp>; Mon, 11 Mar 2002 16:01:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293095AbSCKVDF>; Mon, 11 Mar 2002 16:03:05 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:9733 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293013AbSCKVC4>;
-	Mon, 11 Mar 2002 16:02:56 -0500
-Date: Mon, 11 Mar 2002 18:02:38 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19
-In-Reply-To: <3C8CEEFC.8137F5C0@redhat.com>
-Message-ID: <Pine.LNX.4.44L.0203111802070.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293013AbSCKVBf>; Mon, 11 Mar 2002 16:01:35 -0500
+Received: from bitmover.com ([192.132.92.2]:38320 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S292983AbSCKVBY>;
+	Mon, 11 Mar 2002 16:01:24 -0500
+Date: Mon, 11 Mar 2002 13:01:22 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Larry McVoy <lm@bitmover.com>,
+        "Jonathan A. George" <JGeorge@greshamstorage.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+Message-ID: <20020311130122.C26447@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+	"Jonathan A. George" <JGeorge@greshamstorage.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020311090512.N26447@work.bitmover.com> <Pine.LNX.4.44L.0203111731420.2181-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44L.0203111731420.2181-100000@imladris.surriel.com>; from riel@conectiva.com.br on Mon, Mar 11, 2002 at 05:36:23PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Arjan van de Ven wrote:
+On Mon, Mar 11, 2002 at 05:36:23PM -0300, Rik van Riel wrote:
+> ... and I prefer the one which is chosen with 'f2', nothing beats
+> the [left] [right] buttons!
 
-> > And apparently we see that there is nothing special about them... Just don't
-> > enable the write cache and all should be well with a timeout of 30 seconds.
->
-> Quite a few controllers enable the write cache in their bootstrap before
-> the OS gets involved.
-> Just "don't enable" is not an option.
+Hah.  Try the bk-2.1.x series and try the 3way filemerge.  The two way stuff
+is nice, and I use it all the time for simple stuff, but when things get
+nasty, the 3way filemerge is just amazingly good.  You have to invest more
+time to learn it because it is showing you more information, but our
+customers have one by one moved over to it and would scream bloody murder
+if we took it away, it's a huge timesaver.
 
-I've heard some talk about drives that turn it on
-automatically when they get "too busy".
-
-regards,
-
-Rik
+The fact that you can get by with the 2way merge says that the merges you
+are doing are easy.  When they get harder, you'll need better tools.  It's
+cool that 2way works for you, but it's more cool that when it doesn't, we
+already have the next level implemented.
 -- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

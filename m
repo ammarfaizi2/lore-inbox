@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271730AbRIJVKO>; Mon, 10 Sep 2001 17:10:14 -0400
+	id <S271751AbRIJVW5>; Mon, 10 Sep 2001 17:22:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271687AbRIJVKE>; Mon, 10 Sep 2001 17:10:04 -0400
-Received: from opengraphics.com ([216.208.162.194]:33208 "EHLO
-	hurricane.opengraphics.com") by vger.kernel.org with ESMTP
-	id <S271737AbRIJVJ5>; Mon, 10 Sep 2001 17:09:57 -0400
-Date: Mon, 10 Sep 2001 17:10:12 -0400
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB device not accepting new address
-Message-ID: <20010910171012.A3460@concord.opengraphics.com>
-In-Reply-To: <mailman.999666181.21742.linux-kernel2news@redhat.com> <200109051619.f85GJEo07592@devserv.devel.redhat.com> <3B967EDD.5A81F2DD@delusion.de> <20010905160940.B11067@devserv.devel.redhat.com> <3B96C59A.2EC7C768@delusion.de>
+	id <S271747AbRIJVWq>; Mon, 10 Sep 2001 17:22:46 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:61946 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S271741AbRIJVWg>; Mon, 10 Sep 2001 17:22:36 -0400
+Date: Mon, 10 Sep 2001 22:22:43 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: linux-2.4.10-pre5
+Message-ID: <20010910222243.B9166@redhat.com>
+In-Reply-To: <Pine.LNX.4.33L.0109090909001.21049-100000@duckman.distro.conectiva> <Pine.LNX.4.33.0109091105380.14479-100000@penguin.transmeta.com> <9ngirh$jsu$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3B96C59A.2EC7C768@delusion.de>
-User-Agent: Mutt/1.3.18i
-From: Len Sorensen <lsorense@opengraphics.com>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9ngirh$jsu$1@cesium.transmeta.com>; from hpa@zytor.com on Sun, Sep 09, 2001 at 01:18:57PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 06, 2001 at 02:38:50AM +0200, Udo A. Steinberg wrote:
-> I've just tried all -ac1 kernels from 2.4.5-ac1 to 2.4.9-ac1
-> and the problem exists with all of them. So it would appear that
-> it didn't work reliably with earlier kernels either. I find it
-> interesting however, that it is much harder to trigger in
-> earlier kernels and that it doesn't happen every time.
+Hi,
 
-I have seen a similar problem when I plugged in a creative nomad jukebox
-(which was misbehaving with windows as well).  It had been behaving
-properly in the past, but was of course an unrecognized usb device.
-However this time it failed to get a device id assigned.  The solution:
-replace the usb cable.  Turns out one of the wires had a break in it,
-and would loose the connection in one direction if you didn't bend it
-"just right".  if you have usb problems, treat it like scsi: blame the
-cable first.  With a different usb cable all the problems went away
-instantly and it accepted it's usb device id.
+On Sun, Sep 09, 2001 at 01:18:57PM -0700, H. Peter Anvin wrote:
 
-Len Sorensen
+> The ideal way to run backups I have found is on filesystems which
+> support atomic snapshots -- that way, your backup set becomes not only
+> safe (since it goes through the kernel etc. etc.) but totally
+> coherent, since it is guaranteed to be unchanging.  This is a major
+> win for filesystems which can do atomic snapshots, and I'd highly
+> encourage filesystem developers to consider this feature.
+
+It's already done.  LVM's snapshot facility has the ability to ask the
+filesystem to quiesce itself into a consistent state before the
+snapshot is taken, and both Reiserfs and ext3 support that function.
+
+Cheers,
+ Stephen

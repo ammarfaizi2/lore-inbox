@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbTEFGig (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 02:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbTEFGig
+	id S262409AbTEFGnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 02:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTEFGnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 02:38:36 -0400
-Received: from paiol.terra.com.br ([200.176.3.18]:42125 "EHLO
-	paiol.terra.com.br") by vger.kernel.org with ESMTP id S262382AbTEFGif
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 02:38:35 -0400
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-Organization: Ozzmosis Corp.
-To: sumit_uconn@lycos.com
-Subject: Re: inode number
-Date: Tue, 6 May 2003 03:51:05 -0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <MHCBNPOFCDJPBDAA@mailcity.com> <200305060343.50191.lucasvr@gobolinux.org>
-In-Reply-To: <200305060343.50191.lucasvr@gobolinux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 6 May 2003 02:43:46 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:8722 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S262409AbTEFGnp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 02:43:45 -0400
+Date: Mon, 5 May 2003 23:57:58 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rusty@rustcorp.com.au, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kmalloc_percpu
+Message-Id: <20030505235758.25f769fc.akpm@digeo.com>
+In-Reply-To: <20030505.223944.23027730.davem@redhat.com>
+References: <20030505.211606.28803580.davem@redhat.com>
+	<20030505224815.07e5240c.akpm@digeo.com>
+	<20030505234248.7cc05f43.akpm@digeo.com>
+	<20030505.223944.23027730.davem@redhat.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305060351.05480.lucasvr@gobolinux.org>
+X-OriginalArrivalTime: 06 May 2003 06:56:12.0309 (UTC) FILETIME=[9475F450:01C3139C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 May 2003 03:43, Lucas Correia Villa Real wrote:
+"David S. Miller" <davem@redhat.com> wrote:
+>
+>    From: Andrew Morton <akpm@digeo.com>
+>    Date: Mon, 5 May 2003 23:42:48 -0700
+>    
+>    Can't think of anything very clever there, except to go and un-percpuify the
+>    disk stats.  I think that's best, really - disk requests only come in at 100
+>    to 200 per second - atomic_t's or int-plus-per-disk-spinlock will be fine.
+>    
+> Use some spinlock we already have to be holding during the
+> counter bumps.
 
-> Given you have the inode number, you can get one of the references to it by
+Last time we looked at that, q->lock was already held in almost all the right
+places so yes, that'd work.
 
-Sorry, I mean the struct file.
+> Frankly, these things don't need to be %100 accurate.  Using
+> a new spinlock or an atomic_t for this seems rediculious.
 
-Lucas
+The disk_stats structure has an "in flight" member.  If we don't have proper
+locking around that, disks will appear to have -3 requests in flight for all
+time, which would look a tad odd.
+
+

@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVCAPM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVCAPOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVCAPM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 10:12:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVCAPM4
+	id S261935AbVCAPOe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 10:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVCAPOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 10:12:56 -0500
-Received: from mummy.ncsc.mil ([144.51.88.129]:64657 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261934AbVCAPMx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 10:12:53 -0500
-Subject: Re: [PATCH] SELinux: null dereference in error path
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jmorris@redhat.com
-In-Reply-To: <1109637174.3839.13.camel@boxen>
-References: <1109637174.3839.13.camel@boxen>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Tue, 01 Mar 2005 10:05:10 -0500
-Message-Id: <1109689510.10589.28.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Mar 2005 10:14:34 -0500
+Received: from lantana.tenet.res.in ([202.144.28.166]:27546 "EHLO
+	lantana.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
+	id S261935AbVCAPNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 10:13:42 -0500
+Date: Tue, 1 Mar 2005 20:43:16 +0530 (IST)
+From: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
+To: linux-kernel@vger.kernel.org
+Subject: Writng daemon and wake up on demand.
+Message-ID: <Pine.LNX.4.60.0503012038170.13310@lantana.cs.iitm.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Mail-scanner Found to be clean
+X-MailScanner-From: pmanohar@lantana.cs.iitm.ernet.in
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-01 at 01:32 +0100, Alexander Nyberg wrote:
-> The 'bad' label will call function that unconditionally dereferences
-> the NULL pointer.
-> 
-> Found by the Coverity tool
-> 
-> Signed-off-by: Alexander Nyberg <alexn@dsv.su.se>
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+I have two doubts,
+    1) Can we design a linux daemon which will call some shell scripts.
+    2) How to call this daemon from the keyboard driver  and how
+       to kill it on demand.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Please cc ur replies to my mail id.
+
+   Thanks&Regards,
+   P.Manohar,
 

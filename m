@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVC2Spb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVC2SqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVC2Spb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 13:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVC2Spa
+	id S261290AbVC2SqL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 13:46:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVC2SqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 13:45:30 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:63409 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261292AbVC2SpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 13:45:06 -0500
-Message-Id: <200503291844.j2TIiqg00464@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Jens Axboe'" <axboe@suse.de>
-Cc: "'Dave Jones'" <davej@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] optimization: defer bio_vec deallocation
-Date: Tue, 29 Mar 2005 10:44:53 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcU0NyTvIRa9PMdgQw2sXy7BjJLFGgAVTi/Q
-In-Reply-To: <20050329081305.GG16636@suse.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 29 Mar 2005 13:46:11 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64420 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261290AbVC2SqB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 13:46:01 -0500
+Date: Tue, 29 Mar 2005 20:42:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mister Google <binary-nomad@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Keystroke simulator
+Message-ID: <20050329184214.GA7929@elf.ucw.cz>
+References: <BAY10-F55DA0F654CE67C2B4DC2F684450@phx.gbl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <BAY10-F55DA0F654CE67C2B4DC2F684450@phx.gbl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Dave Jones wrote on Monday, March 28, 2005 7:00 PM
-> > If you can't publish results from that certain benchmark due its stupid
-> > restrictions,
+On Út 29-03-05 11:53:32, Mister Google wrote:
+> Is there a way to simulate a keystroke to a program, ie. have a program 
+> send it something so that as far as it's concerned, say, the "P" key has 
+> been pressed?
 
-Forgot to thank Dave earlier for his understanding.  I can't even mention the
-4 letter acronym for the benchmark.  Sorry, I did not make the rule nor have
-the power to change the rule.
+See /dev/input/uinput
 
+								Pavel
 
-Jens Axboe wrote on Tuesday, March 29, 2005 12:13 AM
-> Just _some_ results would be nice, Dave is right in that 'measurable
-> gains' doesn't really say anything at all. Personally I would like to
-> see a profile diff, for instance. And at least something like 'we get 1%
-> gain bla bla'.
-
-OK, performance gain for this industry db benchmark is 0.3%.
-
-
-> Now, about the patch. I cannot convince myself that it is not deadlock
-> prone, if someone waits for a bvec to be freed. Will slab reclaim always
-> prune the bio slab and push the bvecs back into the mempool, or can
-> there be cases where this doesn't happen?
-
-So on allocation, I should always get memory from slab first, if fail then
-get from mempool.  Mark the bvec appropriately where the memory came from.
-On deallocating bio, check bvec flag and return memory if they came from
-mempool.  Would that address your concern?
-
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

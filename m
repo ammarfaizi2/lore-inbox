@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262597AbSJ1NZ1>; Mon, 28 Oct 2002 08:25:27 -0500
+	id <S261415AbSJ1N3d>; Mon, 28 Oct 2002 08:29:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262617AbSJ1NZ1>; Mon, 28 Oct 2002 08:25:27 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:38071 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262597AbSJ1NZ0>;
-	Mon, 28 Oct 2002 08:25:26 -0500
-Date: Mon, 28 Oct 2002 13:31:34 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
-Message-ID: <20021028133134.GA8187@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-References: <200210272017.56147.landley@trommello.org> <3DBD1182.1000402@walrond.org>
+	id <S262273AbSJ1N3d>; Mon, 28 Oct 2002 08:29:33 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:47582 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261415AbSJ1N3c>;
+	Mon, 28 Oct 2002 08:29:32 -0500
+Date: Mon, 28 Oct 2002 14:35:52 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: buytenh@gnu.org, linux-kernel@vger.kernel.org
+Subject: Silly advise in bridge Configure help
+Message-ID: <20021028133552.GA15701@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, buytenh@gnu.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DBD1182.1000402@walrond.org>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 10:29:22AM +0000, Andrew Walrond wrote:
- > A concise and very useful summary of upcoming/potential features, not 
- > only for you kernel hackers but also for people using linux and trying 
- > to keep half an eye on whats brewing...
+In the Configure HELP of Ethernet bridging:
 
-I got bored a few days back, and hacked up a quick list of
-do's and don'ts for potential 2.5 testers to use.
-(In a cunning ploy hoping to get more people hammering on 2.5
- post freeze to get bugs the exposure they deserve).
+"Note that if your box acts as a bridge, it probably contains several
+ Ethernet devices, but the kernel is not able to recognize more than one at
+ boot time without help; for details read the Ethernet-HOWTO, available from
+ in <http://www.linuxdoc.org/docs.html#howto>."
 
-A first draft is at http://www.codemonkey.org.uk/post-halloween-2.5.txt
+This is extremely bogus these days and prone to confuse people. I suggest
+this warning is removed.
 
-		Dave
+Kind regards,
+
+bert hubert
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

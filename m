@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131437AbRBENlL>; Mon, 5 Feb 2001 08:41:11 -0500
+	id <S129057AbRBENkL>; Mon, 5 Feb 2001 08:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131424AbRBENlB>; Mon, 5 Feb 2001 08:41:01 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:59320 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S129313AbRBENks>; Mon, 5 Feb 2001 08:40:48 -0500
-Date: Mon, 5 Feb 2001 14:40:43 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't work)
-Message-ID: <20010205144043.H849@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <20010203230544.A549@MourOnLine.dnsalias.org> <20010205020952.B1276@suse.de> <20010205013424.A15384@iname.com>
+	id <S129313AbRBENjw>; Mon, 5 Feb 2001 08:39:52 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:62472 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129057AbRBENjn>; Mon, 5 Feb 2001 08:39:43 -0500
+Date: Mon, 5 Feb 2001 07:39:29 -0600
+To: Ishikawa <ishikawa@yk.rim.or.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /usr/src/linux/scripts/ver_linux prints out incorrect info when "ls" is aliased.
+Message-ID: <20010205073929.A32155@cadcamlab.org>
+In-Reply-To: <3A7D7210.EA87572A@yk.rim.or.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010205013424.A15384@iname.com>; from rbrito@iname.com on Mon, Feb 05, 2001 at 01:34:24AM -0200
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A7D7210.EA87572A@yk.rim.or.jp>; from ishikawa@yk.rim.or.jp on Mon, Feb 05, 2001 at 12:15:28AM +0900
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 05, 2001 at 01:34:24AM -0200, Rogerio Brito wrote:
-> 	Well, this has nothing to do with the above, but is there any
-> 	utility or /proc entry that lets me say to my CD drive that it
-> 	should not work at full speed?
 
-/proc/ide/hdX/settings ? The (current,init)_speed settings there?
+[Ishikawa]
+> I just noticed that running
+> 
+>         .   /usr/src/linux/script/ver_linux
+> 
+> prints out strange libc version
+[...]
+> I found that if the command "ls" is aliased to "ls -aF"
 
-Give it a try at least ;-)
+So ... don't use '.' to execute scripts.  If there is some
+documentation somewhere that told you to do this, please notify the
+author that it is wrong.
 
-Regards
+  sh scripts/ver_linux
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

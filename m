@@ -1,80 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316492AbSE3IrV>; Thu, 30 May 2002 04:47:21 -0400
+	id <S316499AbSE3Itc>; Thu, 30 May 2002 04:49:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316496AbSE3IrV>; Thu, 30 May 2002 04:47:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53007 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316492AbSE3IrU>;
-	Thu, 30 May 2002 04:47:20 -0400
-Message-ID: <3CF5E698.2020806@mandrakesoft.com>
-Date: Thu, 30 May 2002 04:45:12 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-CC: Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.19 - What's up with the kernel build?
-In-Reply-To: <Pine.LNX.4.44.0205292019090.9971-100000@chaos.physics.uiowa.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316500AbSE3Itb>; Thu, 30 May 2002 04:49:31 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:18927 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S316499AbSE3Ita>; Thu, 30 May 2002 04:49:30 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <1022698033.12888.279.camel@irongate.swansea.linux.org.uk> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Vojtech Pavlik <vojtech@suse.cz>, Gerald Champagne <gerald@io.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.18 IDE 73 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 30 May 2002 09:48:56 +0100
+Message-ID: <12607.1022748536@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski wrote:
 
->On Wed, 29 May 2002, Jeff Garzik wrote:
->
->  
->
->>Well, I really like Keith's kbuild25 too, but Linus said (at least once) 
->>he wanted an evolution to a new build system... not an unreasonable 
->>request to at least consider.  Despite Keith's quality of code (again -- 
->>I like kbuild25), his 3 patch submissions seemed a lot like ultimatums, 
->>very "take it or leave it dammit".  Not the best way to win friends and 
->>influence people.
->>
->>If Keith is indeed leaving it, I'm hoping someone will maintain it, or 
->>work with Kai to integrate it into 2.5.x.
->>    
->>
->
->Oh well, it really wasn't my intention to start the good old kbuild-2.5
->thread at all.
->
->Anyway, I believe kbuild-2.5 has lots of useful ideas and I'll go pick 
->pieces - from kbuild-2.5, from dancing-makefiles, from stuff I've done 
->myself and work on improving the current build system. But I believe in 
->make, and don't think I'll move away from it.
->
->One thing these patches show is that gradual improvement is actually
->possible, so far the kbuild process has gained quite some features with a
->lot of small patches - and some bigger ones, but these are only trivial
->cleanups.
->
->Of course it happened that I introduced some bugs in the process, but the
->fact that fixes were posted to linux-kernel by the next morning shows that
->it's obviously possible for other people to grasp what's going on and fix
->bugs. Rules.make is some 400 lines currently, that's quite a difference to 
->kbuild-2.5 core's 30000 lines of code.
->
->Anyway, fortunately it's not up to me to decide what happens. From my 
->perspective the plan is to go on with this gradual improvement, in
->particular 
->o fix dependencies / modversions (that includes "make dep" going away)
->o allow for separate objdir (this one is actually easy for 95% of the
->  compiled files which use standard rules, and lots of work for the 
->  remaining 5%. So it'll take time to remove the 5% special cases, after
->  that things are pretty easy)
->  
->
+On the subject of blacklists -- when downgrading the speed of a drive 
+because it's found a blacklist, or indeed for any other reason, please 
+_print_ the reason for doing so. 
 
-A small request to add to the list:
+I have drives which work fine at UDMA66, but which some kernels randomly 
+refuse to configure above UDMA33 without telling me why. 
 
-Current 2.4.x kernels build (at least on x86) with
-     -nostdinc -I /usr/lib/gcc-lib/i586-mandrake-linux-gnu/3.0.4/include
-added to CFLAGS...  IMOit is a good idea in general to build all kernel 
-code this way.  (note that userland programs created during build should 
-not use this rule, of course)
+Basically, any time you run a drive at a transfer speed lower than the 
+minimum of the drive's and host's listed capabilities, you should say why 
+you're doing so. 
+
+--
+dwmw2
 
 

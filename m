@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291022AbSB0BCV>; Tue, 26 Feb 2002 20:02:21 -0500
+	id <S291026AbSB0BDv>; Tue, 26 Feb 2002 20:03:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291020AbSB0BCL>; Tue, 26 Feb 2002 20:02:11 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:20419 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S290797AbSB0BCE>; Tue, 26 Feb 2002 20:02:04 -0500
-Date: Tue, 26 Feb 2002 19:01:49 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] ServerWorks autodma behavior
-Message-ID: <20020226190149.B16048@asooo.flowerfire.com>
-In-Reply-To: <20020226032629.A930@asooo.flowerfire.com> <3C7B6DAE.1090809@evision-ventures.com>
-Mime-Version: 1.0
+	id <S290797AbSB0BDm>; Tue, 26 Feb 2002 20:03:42 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:19691 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S291020AbSB0BD2>; Tue, 26 Feb 2002 20:03:28 -0500
+Date: Tue, 26 Feb 2002 17:03:49 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Rainer Ellinger <rainer@ellinger.de>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Congrats Marcelo,
+Message-ID: <48250000.1014771829@flay>
+In-Reply-To: <3C7C2CA1.5080607@ellinger.de>
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <20020226140644.U12832@lynx.adilger.int> <1014760581.5993.159.camel@jen.americas.sgi.com> <E16f8Ey-0002qn-00@starship.berlin> <3C7C18EB.4090509@ellinger.de> <38790000.1014767994@flay> <3C7C2CA1.5080607@ellinger.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C7B6DAE.1090809@evision-ventures.com>; from dalecki@evision-ventures.com on Tue, Feb 26, 2002 at 12:12:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 12:12:46PM +0100, Martin Dalecki wrote:
-| Ken Brownfield wrote:
-[...]
-| > In any case, I've appended the patch I'm using to be able to turn off
-| > auto-DMA at config-time rather than run-time for ServerWorks.  One
-| > alternative is to shed this code altogether, since ide-pci.c seems to
-| > set a rational default.
-| 
-| I think (not 100% becouse not re-checked against the code),
-| you could just have removed the lines
-| 
-| if (!noautodma)
-| 	hwif->autodma = 1;
-| 
-| and all should be well ;-).
+>> the same goals .... feel free to take what is in 2.5 right now,
+>> stabilise it, and add these patches, making your own tree
+>  > probably make a lot of people happy.
+> 
+> That's the arrogant point of view, you can have, if you get 
+> paid for it. Please correct me, but I don't know any major tree 
+> from volunteers.
 
-Yes, and that's what I found as well.  That was my first patch until I
-noticed the AUTO check in the VIA driver around this same code.
+I was merely pointing out that his goals probably don't align
+with yours, therefore it's a little pointless to tell him what he
+should and shouldn't be concentrating on.
 
-That being said, which of these solutions is worthy of going into the
-kernel (if any) and should that decision be applied to the other IDE
-drivers?
+> I have my own tree integrating XFS, LoopAES, UML, IPVS, 
+> Freeswan with X.509, LSM, TUX  and some smaller netfilter 
+> things. It's not a big deal integrating these patches, but it's 
+> still too much work. Guess, why i am not able to release this 
+> to public?
 
-I feel like I'm okay with my own little patchbase, but this seems like a
-useful type of change to make for everyone and all drivers in 2.4 (and
-2.5 if it's even still applicable).  And it's just dirt simple enough
-for me to do it. ;)
+I have no idea. My psychic powers seem to be fading of late.
 
-Thanks,
--- 
-Ken.
-brownfld@irridia.com
+M.
+
 

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265390AbRGBS1A>; Mon, 2 Jul 2001 14:27:00 -0400
+	id <S265407AbRGBSmm>; Mon, 2 Jul 2001 14:42:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265391AbRGBS0u>; Mon, 2 Jul 2001 14:26:50 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:56992 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265390AbRGBS0g>;
-	Mon, 2 Jul 2001 14:26:36 -0400
-Message-ID: <3B40BCDA.CFA5750E@mandrakesoft.com>
-Date: Mon, 02 Jul 2001 14:26:34 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
-X-Accept-Language: en
+	id <S265408AbRGBSmc>; Mon, 2 Jul 2001 14:42:32 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:60174 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S265407AbRGBSmU>;
+	Mon, 2 Jul 2001 14:42:20 -0400
+Date: Mon, 2 Jul 2001 15:42:07 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Marco Colombo <marco@esi.it>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, <mike_phillips@urscorp.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VM Requirement Document - v0.0
+In-Reply-To: <Pine.LNX.4.33.0106281723490.4236-100000@Megathlon.ESI>
+Message-ID: <Pine.LNX.4.33L.0107021538030.14332-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-        David Howells <dhowells@redhat.com>, Jes Sorensen <jes@sunsite.dk>,
-        linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: [RFC] I/O Access Abstractions
-In-Reply-To: <19921.994092096@redhat.com> <E15H70K-0006Cn-00@the-village.bc.nu> <20010702192227.B29246@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> On Mon, Jul 02, 2001 at 05:56:56PM +0100, Alan Cox wrote:
-> > Case 1:
-> >       You pass a single cookie to the readb code
-> >       Odd platforms decode it
-> 
-> Last time I checked, ioremap didn't work for inb() and outb().
+On Thu, 28 Jun 2001, Marco Colombo wrote:
 
-It should :)
+> I'm not sure that, in general, recent pages with only one access are
+> still better eviction candidates compared to 8 hours old pages. Here
+> we need either another way to detect one-shot activity (like the one
+> performed by updatedb),
 
--- 
-Jeff Garzik      | "I respect faith, but doubt is
-Building 1024    |  what gives you an education."
-MandrakeSoft     |           -- Wilson Mizner
+Fully agreed, but there is one problem with this idea.
+Suppose you have a maximum of 20% of your RAM for these
+"one-shot" things, now how are you going to be able to
+page in an application with a working set of, say, 25%
+the size of RAM ?
+
+If you don't have any special measures, the pages from
+this "new" application will always be treated as one-shot
+pages and the process will never be able to be cached in
+memory completely...
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

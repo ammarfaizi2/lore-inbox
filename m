@@ -1,70 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269976AbUJNGpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269980AbUJNHCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269976AbUJNGpv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 02:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269979AbUJNGpv
+	id S269980AbUJNHCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 03:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269981AbUJNHCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 02:45:51 -0400
-Received: from lugor.de ([217.160.170.124]:52609 "EHLO solar.linuxob.de")
-	by vger.kernel.org with ESMTP id S269976AbUJNGps (ORCPT
+	Thu, 14 Oct 2004 03:02:25 -0400
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:58050 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S269980AbUJNHCW convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 02:45:48 -0400
-From: Christian Hesse <christian.hesse@linuxob.de>
-Organization: Linux Oberhausen
-To: linux-kernel@vger.kernel.org
-Subject: Re: Software Suspend with ck
-Date: Thu, 14 Oct 2004 08:45:45 +0200
-User-Agent: KMail/1.7
-References: <200410111348.45497.mail@earthworm.de>
-In-Reply-To: <200410111348.45497.mail@earthworm.de>
+	Thu, 14 Oct 2004 03:02:22 -0400
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1153455.lpq0hSnmjN";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410140845.45157.christian.hesse@linuxob.de>
-X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.86
+To: torvalds@osdl.org
+Subject: BK-kernel-tools/shortlog update
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Thu,_14_Oct_2004_07_02_16_+0000_0@merlin.emma.line.org>
+Content-type: text/plain; charset=iso-8859-1
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20041014070216.E7F04C9711@merlin.emma.line.org>
+Date: Thu, 14 Oct 2004 09:02:16 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1153455.lpq0hSnmjN
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hello Linus,
 
-On Monday 11 October 2004 13:48, Christian Hesse wrote:
-> Hello!
->
-> Con Kolivas repoted this to work for him, but he also told me he's
-> clutching at straws since his swsusp knowledge is small and
-> Pavel Machek explained freeing memory is basically vm code he only
-> calls. So I post this here everybody can read it.
->
-> Trying to suspend an ck-kernel results in the system hanging while freeing
-> memory. This behavior is caused by Staircase scheduler. Sane 2.6.9-rc{3,4}
-> works fine.
->
-> Any chance to get it working? Let me know if you need more inforamtion.
+you can either use "bk receive" to patch with this mail,
+or you can
+Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
+or in cases of dire need, you can apply the patch below.
 
-If anybody is interested: Suspend works just fine with 2.6.9-rc4-ck2.
+BK: Parent repository is http://bktools.bkbits.net/bktools
 
-=2D-=20
-Christian Hesse
+Patch description:
+ChangeSet@1.231, 2004-10-14 08:58:37+02:00, samel@mail.cz
+  shortlog: 3 new addresses
 
-geek by nature
-linux by choice
+Matthias
 
---nextPart1153455.lpq0hSnmjN
-Content-Type: application/pgp-signature
+------------------------------------------------------------------------
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.10 (GNU/Linux)
+##### DIFFSTAT #####
+ shortlog |    3 +++
+ 1 files changed, 3 insertions(+)
 
-iD8DBQBBbiCZlZfG2c8gdSURAki+AJ0Wq4qrb9stoL7e6xK0l9N920BRJQCg6ISu
-8dSvH0c51LBPG38wJ4Ko6jM=
-=s/Ja
------END PGP SIGNATURE-----
+##### GNUPATCH #####
+--- 1.202/shortlog	2004-10-11 05:13:47 +02:00
++++ 1.203/shortlog	2004-10-14 08:58:06 +02:00
+@@ -276,6 +276,7 @@
+ 'andre.breiler:null-mx.org' => 'André Breiler',
+ 'andre.landwehr:gmx.net' => 'Andre Landwehr',
+ 'andre:linux-ide.org' => 'Andre Hedrick',
++'andrea:novell.com' => 'Andrea Arcangeli',
+ 'andrea:suse.de' => 'Andrea Arcangeli',
+ 'andreas:xss.co.at' => 'Andreas Haumer',
+ 'andrej.filipcic:ijs.si' => 'Andrej Filipcic',
+@@ -1322,6 +1323,7 @@
+ 'laforge:gnumonks.org' => 'Harald Welte',
+ 'laforge:netfilter.org' => 'Harald Welte',
+ 'laforge:org.rmk.(none)' => 'Harald Welte', # guessed
++'lars.ellenberg:linbit.com' => 'Lars Ellenberg',
+ 'lathiat:sixlabs.org' => 'Trent Lathiat Lloyd',
+ 'latten:austin.ibm.com' => 'Joy Latten',
+ 'laubrycomm:free.fr' => 'Ludovic Aubry',
+@@ -2096,6 +2098,7 @@
+ 'spyro:com.rmk.(none)' => 'Ian Molton',
+ 'spyro:f2s.com' => 'Ian Molton',
+ 'src:flint.arm.linux.org.uk' => 'Russell King',
++'sreenib:lsil.com' => 'Sreenivas Bagalkote',
+ 'sri:us.ibm.com' => 'Sridhar Samudrala',
+ 'sridhar:dyn9-47-18-140.beaverton.ibm.com' => 'Sridhar Samudrala',
+ 'sridhar:dyn9-47-18-86.beaverton.ibm.com' => 'Sridhar Samudrala',
 
---nextPart1153455.lpq0hSnmjN--
+
+
+##### BKPATCH #####
+
+## Wrapped with gzip_b64 ##
+H4sIAHgkbkECA7WU327aMBTGr/FTWOoFFx3h2M5/iarQVhtqpVVUfQCTHEKEEyPbpWzKwzcB
+AaPbLrZ1SW58fD77O+ennAs6vU17TpuNVLm9XmNdvJS154ysbYVOepmumpulrAt8QtdwAN6+
+jAsIg6ThSRgEDXIMgsxnch7FEWacXNBniybtVdK5ZSmtJ+vcILbxL9q6tFdUWy/vljOt2+Vw
+I81wXroV4hrNcHI/WKGpUQ2c1sqSNu9RumxJN2hs2mOeOEbctzWmvdnd5+eH8YyQ0YgerdLR
+iHxwWafj1lkSgadtrjxtivODfAaMgWDCjxqASETkljKPC0bBHzIYMp9CnAZxKqJL4CkAtbJC
+dV3JUnnZd3rJ6ADIhH6w+RuSUbvUxildpFTQGl+pzFss1qIl9zQMeBySx1MDyeAPH0JAArk6
+GV/qCt+5PjjYmw5YDJEfsbgRLEqCZoGJXGQRJBIwl/P8vDNn4q7LfltvDGHDOUuCHf1Dxhn8
+f7bxe/DvHR24M/DDYM8dxHvuEP6au/hv3H+mvW/ZVzowr9vuG2xb9Idq/oL8lEcxZaS/+9Fl
+WusNKtX57dPRFe2Pd2E6NllnXpX9T2TKBPc7iZLGem021nM0RarKuh0FJ+lDu03vDtudkEOy
+u8u2I6Uu56my5Q9XPe2iG2npRBZSrbTDVnScGNkSs5V9qUb+AoQvgJM3zT9/AgIFAAA=
+

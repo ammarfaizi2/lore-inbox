@@ -1,82 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266853AbRGSF3p>; Thu, 19 Jul 2001 01:29:45 -0400
+	id <S266967AbRGSGco>; Thu, 19 Jul 2001 02:32:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266797AbRGSF3e>; Thu, 19 Jul 2001 01:29:34 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:64342 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S266853AbRGSF3U>; Thu, 19 Jul 2001 01:29:20 -0400
-Message-ID: <3B56706C.893FD2AE@redhat.com>
-Date: Thu, 19 Jul 2001 01:30:20 -0400
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+	id <S266973AbRGSGcY>; Thu, 19 Jul 2001 02:32:24 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:5564 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S266967AbRGSGcH>; Thu, 19 Jul 2001 02:32:07 -0400
+Message-ID: <3B567F22.29BA20DA@uow.edu.au>
+Date: Thu, 19 Jul 2001 16:33:06 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-pre6 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
-CC: "'Florin Andrei'" <florin@sgi.com>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: noapic strikes back
-In-Reply-To: <7FADCB99FC82D41199F9000629A85D1A01C6506A@dcmtechdom.dcmtech.co.in>
+To: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Too much memory causes crash when reading/writing to disk
+In-Reply-To: <200107181617.KAA326921@ibg.colorado.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nitin Dhingra wrote:
+Jeff Lessem wrote:
 > 
-> I guess the problem is mostly of the scsi driver.
-> Get the latest version scsi driver of that particular
-> card and then try again.
+> Andrew Morton wrote:
+> 
+> >Jeff Lessem wrote:
+> >> I tried that, but the Symbios SCSI controller freaks out with noapic.
+> >> I can be more detailed if that would be useful.
+> >
+> >Please do - that sounds like a strange interaction.
+> 
+> I tried with nosmp and that gave the same response as noapic, so here
+> it is:  It will keep repeating sym53c8xx_reset until the machine is
+> reset.  I banged on SysRq to try to get some useful information.
 
-No, this has been gone over a thousand times already.  It's the interrupt
-routing table in these particular Intel motherboard is busted.
+Does the other machine also play up in this manner?
 
-> -----Original Message-----
-> From: Florin Andrei [mailto:florin@sgi.com]
-> Sent: Thursday, July 19, 2001 1:05 AM
-> To: linux-xfs@oss.sgi.com; seawolf-list@redhat.com; dledford@redhat.com;
-> linux-kernel@vger.kernel.org
-> Subject: noapic strikes back
-> 
-> I have a SGI 1200 (L440GX+ motherboard, dual PIII) and i'm trying to
-> install at least one version of Red Hat 7.1 on it.
-> The problem is, while booting up the installer, when it comes to loading
-> up the SCSI driver (AIC7xxx) the system is frozen.
-> 
-> I tried the following boot disks:
-> - stock Red Hat 7.1
-> - Doug Ledford's updates from people.redhat.com
-> - SGI XFS 1.0.1
-> 
-> I tried to boot the installer with and without "noapic" option.
-> 
-> I tried to enable and disable the APIC option in BIOS ("PCI IRQs to
-> IO-APIC Mapping").
-> 
-> I tried all the combinations of these. No luck. :-(
-> 
-> Please, is there anything to do about this problem? I *have* to install
-> something newer than RH7.0 on that system.
-> 
-> Guys, i will try whatever boot disks you will send to me. I'm willing to
-> be you guinea pig. :-) Just let's kill the APIC problem for good!
-> 
-> --
-> Florin Andrei
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>...
+> SysRq: Show Memory
+> Mem-info:
+> Free pages:      8492416kB (7733248kB HighMem)
+> ( Active: 0, inactive_dirty: 0, inactive_clean: 0, free: 2123104 (638 1276 1914) )
+> 1*4kB 2*8kB 3*16kB 3*32kB 2*64kB 1*128kB 2*256kB 0*512kB 1*1024kB 6*2048kB = 14244kB)
+> 1*4kB 1*8kB 1*16kB 0*32kB 1*64kB 1*128kB 1*256kB 0*512kB 1*1024kB 363*2048kB = 744924kB)
+> 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 3776*2048kB = 7733248kB)
+> Swap cache: add 0, delete 0, find 0/0
+> Free swap:            0kB
+> 2162688 pages of RAM
+> 1933312 pages of HIGHMEM
+> 36506 reserved pages
+> -13 pages shared
 
--- 
+An interesting statistic.  It's not obvious how this happened.
 
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
+>...
+> 
+> >>EIP; c010b5d7 <timer_interrupt+43/130>   <=====
+> Trace; c0108431 <handle_IRQ_event+4d/78>
+> Trace; c0108616 <do_IRQ+a6/ec>
+> Trace; c01051d0 <default_idle+0/34>
+> Trace; c01051d0 <default_idle+0/34>
+> Trace; c0106d84 <ret_from_intr+0/7>
+> Trace; c01051d0 <default_idle+0/34>
+> Trace; c01051d0 <default_idle+0/34>
+> Trace; c01051fc <default_idle+2c/34>
+> Trace; c0105262 <cpu_idle+3e/54>
+
+Again, spinning in the timer interrupt handler.  It does
+appear that the interrupt is not being negated.  Try -ac
+and other kernels if/when you can, but it does seem that
+the hardware is unwell.
+
+-

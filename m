@@ -1,129 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264142AbTLaKGy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 05:06:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTLaKGy
+	id S264132AbTLaKEv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 05:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTLaKEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 05:06:54 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:55455 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S264142AbTLaKF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 05:05:57 -0500
-Date: Wed, 31 Dec 2003 11:05:48 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-rc1
-Message-ID: <20031231100548.GA16860@louise.pinerecords.com>
-References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org>
+	Wed, 31 Dec 2003 05:04:51 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:55717 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264132AbTLaKEU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 05:04:20 -0500
+Date: Wed, 31 Dec 2003 15:39:49 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: daniel@osdl.org, janetmor@us.ibm.com, pbadari@us.ibm.com,
+       linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6.0-test10-mm1] filemap_fdatawait.patch
+Message-ID: <20031231100949.GA4099@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <3FCD4B66.8090905@us.ibm.com> <1070674185.1929.9.camel@ibm-c.pdx.osdl.net> <1070907814.707.2.camel@ibm-c.pdx.osdl.net> <1071190292.1937.13.camel@ibm-c.pdx.osdl.net> <1071624314.1826.12.camel@ibm-c.pdx.osdl.net> <20031216180319.6d9670e4.akpm@osdl.org> <20031231091828.GA4012@in.ibm.com> <20031231013521.79920efd.akpm@osdl.org> <20031231095503.GA4069@in.ibm.com> <20031231015913.34fc0176.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031231015913.34fc0176.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec-31 2003, Wed, 00:36 -0800
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Wed, Dec 31, 2003 at 01:59:13AM -0800, Andrew Morton wrote:
+> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> >
+> > > If you are referring to this code in mpage_writepage():
+> >  > 
+> >  > 		lock_page(page);
+> >  > 
+> >  > 		if (wbc->sync_mode != WB_SYNC_NONE)
+> >  > 			wait_on_page_writeback(page);
+> >  > 
+> >  > 		if (page->mapping == mapping && !PageWriteback(page) &&
+> >  > 					test_clear_page_dirty(page)) {
+> >  > 
+> >  > 
+> >  > then I don't see the race - the page lock synchronises the two threads?
+> >  > 
+> > 
+> >  But filemap_fdatawait does not look at the page lock. So there's a
+> >  tiny window when the page is on locked_pages with PG_dirty cleared
+> >  and PG_writeback not set.
+> 
+> OK, but the thread which is running fdatawrite/fdatawait isn't interested
+> in that page, because it must have been dirtied _after_ this thread has
+> passed through filemap_fdatawrite(), yes?
 
-> Most of the updates is for stuff that has been in -mm for a long while and 
-> is stable, along with driver updates (SCSI, network, i2c and USB).
+Not exactly. The page could actually have been dirtied _before_ this 
+thread passes through filemap_datawrite, but is just being parallely 
+written back by a background thread.
 
-Linus, would you please consider applying the following patch (taken
-from -mm) that puts radeonfb back in shape?
+Regards
+Suparna
+
+> 
+> Which is desired behaviour for fsync(), but perhaps not suitable when this
+> code is reused for the O_DIRECT pagecache synchronisation function.
+> 
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 
-
-radeon-line-length-fix.patch
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
- drivers/video/radeonfb.c |   30 +++++++++++++++++-------------
- 1 files changed, 17 insertions(+), 13 deletions(-)
-
-diff -puN drivers/video/radeonfb.c~radeon-line-length-fix drivers/video/radeonfb.c
---- 25/drivers/video/radeonfb.c~radeon-line-length-fix	2003-11-13 19:48:31.000000000 -0800
-+++ 25-akpm/drivers/video/radeonfb.c	2003-11-13 19:48:31.000000000 -0800
-@@ -679,7 +679,7 @@ static __inline__ int _max(int val1, int
-  */
-         
- static char *mode_option __initdata;
--static char noaccel = 1;
-+static char noaccel = 0;
- static char mirror = 0;
- static int panel_yres __initdata = 0;
- static char force_dfp __initdata = 0;
-@@ -1241,9 +1241,6 @@ static void radeon_engine_init (struct r
- 	radeon_fifo_wait (1);
- 	OUTREG(RB2D_DSTCACHE_MODE, 0);
- 
--	/* XXX */
--	rinfo->pitch = ((rinfo->xres_virtual * (rinfo->bpp / 8) + 0x3f)) >> 6;
--
- 	radeon_fifo_wait (1);
- 	temp = INREG(DEFAULT_PITCH_OFFSET);
- 	OUTREG(DEFAULT_PITCH_OFFSET, ((temp & 0xc0000000) | 
-@@ -1782,6 +1779,7 @@ static int radeonfb_set_par (struct fb_i
- 	int hsync_start, hsync_fudge, bytpp, hsync_wid, vsync_wid;
- 	int primary_mon = PRIMARY_MONITOR(rinfo);
- 	int depth = var_to_depth(mode);
-+        int accel = (mode->accel_flags & FB_ACCELF_TEXT) != 0;
- 
- 	rinfo->xres = mode->xres;
- 	rinfo->yres = mode->yres;
-@@ -1878,7 +1876,15 @@ static int radeonfb_set_par (struct fb_i
- 	newmode.crtc_v_sync_strt_wid = (((vSyncStart - 1) & 0xfff) |
- 					 (vsync_wid << 16) | (v_sync_pol  << 23));
- 
--	newmode.crtc_pitch = (mode->xres_virtual >> 3);
-+	if (accel) {
-+		/* We first calculate the engine pitch */
-+		rinfo->pitch = ((mode->xres_virtual * ((mode->bits_per_pixel + 1) / 8) + 0x3f)
-+ 				& ~(0x3f)) >> 6;
-+
-+		/* Then, re-multiply it to get the CRTC pitch */
-+		newmode.crtc_pitch = (rinfo->pitch << 3) / ((mode->bits_per_pixel + 1) / 8);
-+	} else
-+		newmode.crtc_pitch = (mode->xres_virtual >> 3);
- 	newmode.crtc_pitch |= (newmode.crtc_pitch << 16);
- 
- #if defined(__BIG_ENDIAN)
-@@ -2085,18 +2091,21 @@ static int radeonfb_set_par (struct fb_i
- 	if (!rinfo->asleep) {
- 		radeon_write_mode (rinfo, &newmode);
- 		/* (re)initialize the engine */
--		if (!noaccel)
-+		if (noaccel)
- 			radeon_engine_init (rinfo);
- 	
- 	}
- 	/* Update fix */
--        info->fix.line_length = rinfo->pitch*64;
-+	if (accel)
-+        	info->fix.line_length = rinfo->pitch*64;
-+        else
-+		info->fix.line_length = mode->xres_virtual * ((mode->bits_per_pixel + 1) / 8);
-         info->fix.visual = rinfo->depth == 8 ? FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_DIRECTCOLOR;
- 
- #ifdef CONFIG_BOOTX_TEXT
- 	/* Update debug text engine */
- 	btext_update_display(rinfo->fb_base_phys, mode->xres, mode->yres,
--			     rinfo->depth, rinfo->pitch*64);
-+			     rinfo->depth, info->fix.line_length);
- #endif
- 
- 	return 0;
-@@ -3022,11 +3031,6 @@ static int radeonfb_pci_register (struct
- 	 */
- 	radeon_save_state (rinfo, &rinfo->init_state);
- 
--	if (!noaccel) {
--		/* initialize the engine */
--		radeon_engine_init (rinfo);
--	}
--
- 	/* set all the vital stuff */
- 	radeon_set_fbinfo (rinfo);
- 

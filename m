@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268100AbUIJFKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268113AbUIJFNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268100AbUIJFKo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 01:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268113AbUIJFKn
+	id S268113AbUIJFNY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 01:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268094AbUIJFNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 01:10:43 -0400
-Received: from mail4.speakeasy.net ([216.254.0.204]:17368 "EHLO
-	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S268100AbUIJFKe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 01:10:34 -0400
-Date: Thu, 9 Sep 2004 22:10:31 -0700
-Message-Id: <200409100510.i8A5AVD7025919@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Sep 2004 01:13:24 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:29324
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S268113AbUIJFNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 01:13:19 -0400
+Date: Thu, 9 Sep 2004 22:12:44 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ppc: fix sungem NAPI
+Message-Id: <20040909221244.0d0a91db.davem@davemloft.net>
+In-Reply-To: <1094788157.2543.111.camel@gaston>
+References: <1094788157.2543.111.camel@gaston>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix sigqueue accounting for posix-timers broken by new RLIMIT_SIGPENDING tracking code
-X-Fcc: ~/Mail/linus
-X-Zippy-Says: I want EARS!  I want two ROUND BLACK EARS to make me feel warm 'n secure!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 10 Sep 2004 13:49:17 +1000
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-The introduction of RLIMIT_SIGPENDING and the associated tracking code was
-broken for the case of preallocated sigqueue elements, i.e. posix-timers.
-It wrongly includes the timer's preallocated sigqueue structs in the count
-towards the per-user when allocating them, but (rightly) does not decrement
-the count when they are freed.  
+> The recent sungem NAPI change introduced a bug: dev_kfree_skb() is called
+> within the spinlock, thus triggers all sort of WARN_ON's later on down the
+> stack.
+> 
+> This patch changes it to dev_kfree_skb_any(), I hope that is fine
+> as we aren't really in interrupt, are we ? (I don't know in what
+> context NAPI polling occurs, is it a timer IRQ ?)
 
-This patch fixes it by keeping preallocated sigqueue structs out of the
-per-user accounting altogether.
+NAPI polling occurs from softirq context.
 
+Thanks for making me aware of this.  This fix is fine for
+now, but it may be possible to simplify it and I'll look
+into that.
 
-Thanks,
-Roland
-
-
-Signed-off-by: Roland McGrath <roland@redhat.com>
-
---- vanilla-linux-2.6/kernel/signal.c.orig	2004-09-09 22:07:56.492060454 -0700
-+++ vanilla-linux-2.6/kernel/signal.c	2004-09-09 21:55:45.604292751 -0700
-@@ -264,7 +264,7 @@ next_signal(struct sigpending *pending, 
- 	return sig;
- }
- 
--static struct sigqueue *__sigqueue_alloc(void)
-+static struct sigqueue *__sigqueue_alloc(int flags)
- {
- 	struct sigqueue *q = NULL;
- 
-@@ -273,10 +273,13 @@ static struct sigqueue *__sigqueue_alloc
- 		q = kmem_cache_alloc(sigqueue_cachep, GFP_ATOMIC);
- 	if (q) {
- 		INIT_LIST_HEAD(&q->list);
--		q->flags = 0;
- 		q->lock = NULL;
--		q->user = get_uid(current->user);
--		atomic_inc(&q->user->sigpending);
-+		q->user = NULL;
-+		q->flags = flags;
-+		if (!(flags & SIGQUEUE_PREALLOC)) {
-+			q->user = get_uid(current->user);
-+			atomic_inc(&q->user->sigpending);
-+		}
- 	}
- 	return(q);
- }
-@@ -1331,11 +1334,7 @@ kill_proc(pid_t pid, int sig, int priv)
-  
- struct sigqueue *sigqueue_alloc(void)
- {
--	struct sigqueue *q;
--
--	if ((q = __sigqueue_alloc()))
--		q->flags |= SIGQUEUE_PREALLOC;
--	return(q);
-+	return __sigqueue_alloc(SIGQUEUE_PREALLOC);
- }
- 
- void sigqueue_free(struct sigqueue *q)

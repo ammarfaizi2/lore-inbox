@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289174AbSAVFtW>; Tue, 22 Jan 2002 00:49:22 -0500
+	id <S289171AbSAVFum>; Tue, 22 Jan 2002 00:50:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289171AbSAVFtM>; Tue, 22 Jan 2002 00:49:12 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:53246 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S289173AbSAVFs5>; Tue, 22 Jan 2002 00:48:57 -0500
-Date: Tue, 22 Jan 2002 00:48:57 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org, zaitcev@redhat.com
-Subject: Two small things around sd_init() in 2.4.18-pre4
-Message-ID: <20020122004857.B21332@devserv.devel.redhat.com>
+	id <S289175AbSAVFuZ>; Tue, 22 Jan 2002 00:50:25 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:34980
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289171AbSAVFt6>; Tue, 22 Jan 2002 00:49:58 -0500
+Date: Tue, 22 Jan 2002 00:31:54 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Ross Vandegrift <ross@willow.seitz.com>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+Message-ID: <20020122003154.B18290@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Ross Vandegrift <ross@willow.seitz.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20020115145324.A5772@thyrsus.com> <20020115152643.A6846@willow.seitz.com> <20020115230211.A5177@thyrsus.com> <20020118133253.A14488@willow.seitz.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020118133253.A14488@willow.seitz.com>; from ross@willow.seitz.com on Fri, Jan 18, 2002 at 01:32:53PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys & gals:
+Ross Vandegrift <ross@willow.seitz.com>:
+> 1) I noticed you've been pining the lists for EISA information.  I don't 
+> know a whole lot about EISA systems or anything, but I do have a 486 EISA
+> board and an EISA network card I'd be willing to send you if you wanted a
+> system to play around with.  I don't use it anymore and it's just gathering
+> dust in my basement.
 
-Recenly, Marcelo took my bugfix for ->init() failure recovery.
-When I worked on it, I noticed two small unrelated thinkos which
-I'd like someone to verify.
+Thanks for the offer, but the question I was after has been answered.
 
-1. It seems that sd_gendisks[i].de_arr and sd_gendisks[i].flags
-are never freed, thus rmmod leaks.
+> 2) It seems that searching is broken.
 
-2. The sd.c sets blksize_size and clears blk_size, which looks
-dubious.
+Got it, I think I've fixed this.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Are these two bugs or not?
-
-Cheers,
--- Pete
-
---- linux-2.4.18-pre4/drivers/scsi/sd.c.0	Mon Jan 21 21:22:25 2002
-+++ linux-2.4.18-pre4/drivers/scsi/sd.c	Mon Jan 21 21:22:43 2002
-@@ -1412,10 +1412,14 @@
- 		kfree(sd_blocksizes);
- 		kfree(sd_hardsizes);
- 		kfree((char *) sd);
-+		for (i = 0; i < N_USED_SD_MAJORS; i++) {
-+			kfree(sd_gendisks[i].de_arr);
-+			kfree(sd_gendisks[i].flags);
-+		}
- 	}
- 	for (i = 0; i < N_USED_SD_MAJORS; i++) {
- 		del_gendisk(&sd_gendisks[i]);
--		blk_size[SD_MAJOR(i)] = NULL;
-+		blksize_size[SD_MAJOR(i)] = NULL;
- 		hardsect_size[SD_MAJOR(i)] = NULL;
- 		read_ahead[SD_MAJOR(i)] = 0;
- 	}
+Nearly all men can stand adversity, but if you want to test a man's character,
+give him power.
+	-- Abraham Lincoln

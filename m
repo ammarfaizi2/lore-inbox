@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265081AbTIDRD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 13:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbTIDRD4
+	id S265258AbTIDRHN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 13:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbTIDRHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 13:03:56 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54024 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265081AbTIDRDy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 13:03:54 -0400
-Date: Thu, 4 Sep 2003 18:03:51 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Same problem with pcmcia in 2.4.22 as in 2.6.0-test4
-Message-ID: <20030904180351.G8414@flint.arm.linux.org.uk>
-Mail-Followup-To: kernel <linux-kernel@vger.kernel.org>
-References: <1061936739.10642.6.camel@garaged.fis.unam.mx> <20030826223405.GA2746@iain-vaio-fx405> <20030831121019.GB22771@iain-vaio-fx405> <20030831133846.C3017@flint.arm.linux.org.uk> <20030902203043.GA12997@iain-vaio-fx405> <20030902224433.F9345@flint.arm.linux.org.uk> <20030904123258.GA7674@iain-vaio-fx405>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030904123258.GA7674@iain-vaio-fx405>; from ibroadfo@cis.strath.ac.uk on Thu, Sep 04, 2003 at 01:32:58PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Thu, 4 Sep 2003 13:07:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9388 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265258AbTIDRHF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 13:07:05 -0400
+Date: Thu, 4 Sep 2003 10:06:48 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: geert@linux-m68k.org, <paulus@samba.org>, <hch@infradead.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix ppc ioremap prototype
+In-Reply-To: <20030904094328.59961739.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0309040958420.6676-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 01:32:58PM +0100, iain d broadfoot wrote:
-> * Russell King (rmk@arm.linux.org.uk) wrote:
-> > Could you try the updated debugging patch there please?  It should
-> > print something extra no matter what.
-> > 
-> > Could you also provide the kernel messages which include the
-> > initialisation of your PCMCIA or CardBus bridge please?
+
+On Thu, 4 Sep 2003, David S. Miller wrote:
 > 
-> are these the right lines?
+> > So clearly ioremap() has to work for other buses too.
 > 
-> =======================================================================
-> cs: IO port probe 0x0c00-0x0cff: clean.
-> cs: IO port probe 0x0800-0x08ff: clean.
-> cs: IO port probe 0x0100-0x04ff: excluding 0x3c0-0x3df 0x4d0-0x4d7
-> cs: IO port probe 0x0a00-0x0aff: clean.
-> cs: memory probe 0xa0000000-0xa0ffffff: clean.
-> cs: request irq: pci irq 11 mask 0090
-> orinoco_cs: RequestIRQ: Resource in use
-> =======================================================================
-> 
-> that's from my boot sequence - I pulled and inserted the card and got
-> the last two lines again.
+> What if they are like I/O ports on x86 and require special
+> instructions to access?
 
-Ok, I'm mostly happy that it isn't a generic PCMCIA bug as such now -
-it seems that orinoco_cs may be passing a mask which doesn't include
-any reasonable IRQs, or the two available IRQs (7 and 4) are already
-in use by other devices.
+ioremap() is very easy to explain to a mathematician: its "domain" is
+_exactly_ that which is in the "iomem_resource" tree. The "range" is a
+virtual address.
 
-Hmm, I wonder if we could fall back to the PCI IRQ when this occurs.
-Unfortunately I can't look into the issue as deeply as I'd like at
-present, so I'll create a "wouldn't it be nice if" (WIBNI) list of
-things to do on pcmcia.arm.linux.org.uk.
+In other words, something like I/O ports, that aren't in the 
+iomem_resource, are not covered by ioremap(). It's that simple. 
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+Another way opf saying it: "iomem_resource" is one special set of
+"physical resource mappings". The way you make sure they are accessible is 
+"ioremap()".
 
+This is how it has always been on x86, and it is self-consistent.
+
+NOTE! That doesn't preclude having other resource trees, and other ways to
+map those. We've never needed to have a "ioportremap()" for the
+"ioport_resource" tree, because that resource is so limited that it can be
+statically mapped (on x86 it's mapped by hardware, and on other
+architectures it is often mapped into the virtual address space like iomem
+is).
+
+And some architectures may end up deciding that "iomem_resource" isn't 
+sufficient for them, and want to maybe have _multiple_ totally independent 
+address trees. Then you'd have to do something else.
+
+		Linus
 

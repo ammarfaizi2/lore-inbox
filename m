@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263387AbTHWNAo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 09:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263386AbTHWNAo
+	id S263344AbTHWNGd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 09:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbTHWNGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 09:00:44 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:20235 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S263379AbTHWNAn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 09:00:43 -0400
-Subject: [PATCH 2.6.0-test4][NET] sk_mca.c: fix linker error
-From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-To: netdev@oss.sgi.com
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 23 Aug 2003 18:52:18 +0530
-Message-Id: <1061644938.2787.22.camel@lima.royalchallenge.com>
-Mime-Version: 1.0
+	Sat, 23 Aug 2003 09:06:33 -0400
+Received: from modemcable009.53-202-24.mtl.mc.videotron.ca ([24.202.53.9]:16256
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263344AbTHWNG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 09:06:29 -0400
+Date: Sat, 23 Aug 2003 08:00:23 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Jan De Luyck <lkml@kcore.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Pentium-M?
+In-Reply-To: <200308231350.02369.lkml@kcore.org>
+Message-ID: <Pine.LNX.4.53.0308230759050.15935@montezuma.fsmlabs.com>
+References: <200308231350.02369.lkml@kcore.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 23 Aug 2003, Jan De Luyck wrote:
 
-This patch fixes the following linker error due to a typo:
+> Hello List,
+> 
+> Just a short question. For the Pentium-M as used in the centrino platform, 
+> what do I select in the 2.6.0-test4 kernel configuration as the CPU?
+> 
+> I figure it's not a PIV, but is it a P3? Or is it something special?
 
-*** Warning: "spin_lock_irqrestore" [drivers/net/sk_mca.ko] undefined!
+For all intents and purposes it's a P4, so select P4.
 
---- linux-2.6.0-test4/drivers/net/sk_mca.c	2003-07-28 10:43:57.000000000 +0530
-+++ linux-2.6.0-test4-nvk/drivers/net/sk_mca.c	2003-08-23 18:47:55.000000000 +0530
-@@ -280,7 +280,7 @@
- 
- 	/* reenable interrupts */
- 
--	spin_lock_irqrestore(&priv->lock, flags);
-+	spin_unlock_irqrestore(&priv->lock, flags);
- }
- 
- /* get LANCE register */
+	Zwane
 

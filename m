@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316663AbSEVS3A>; Wed, 22 May 2002 14:29:00 -0400
+	id <S316644AbSEVS1h>; Wed, 22 May 2002 14:27:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSEVS2s>; Wed, 22 May 2002 14:28:48 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57610 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316643AbSEVS1r>; Wed, 22 May 2002 14:27:47 -0400
-Date: Wed, 22 May 2002 11:27:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        "M. Edward Borasky" <znmeb@aracnet.com>,
-        <linux-kernel@vger.kernel.org>, <andrea@suse.de>, <riel@surriel.com>,
-        <akpm@zip.com.au>
-Subject: Re: Have the 2.4 kernel memory management problems on large machines
-In-Reply-To: <E17Aawp-0002Vt-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0205221125020.23621-100000@penguin.transmeta.com>
+	id <S316659AbSEVS0T>; Wed, 22 May 2002 14:26:19 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58885 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316644AbSEVSZT>; Wed, 22 May 2002 14:25:19 -0400
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Wed, 22 May 2002 18:46:59 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3CEBC496.9030900@evision-ventures.com> from "Martin Dalecki" at May 22, 2002 06:17:26 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17AaCR-0002NK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> BTW> Under java it's rather hard to get around
+> CAP_RAWIO if you ask me without going down to JNI.
 
-On Wed, 22 May 2002, Alan Cox wrote:
+People run them as root. Thats not rocket science
+
+> > I've seen it used in tools written in java, python, perl, even tcl
+> > 
+> > Other examples include libieee1284, the pic 16x84 programmer, hwclock,
+> > older kbdrate, /sbin/clock on machines that don't have /dev/rtc.
 > 
-> That assumes you want to page out the page table only after the pages it
-> references are paged out. There is no reason I can see for not flushing it
-> first.
+> All the examples above are samples of bad coding practice - I have
+> uncovered already here in C what can be expected inside there!
 
-Dirty state and mixed vma's on the same pmd would make this more complex 
-than I really like, but sure..
+Portable code is good practice.
 
-However, the pmd almost certainly gets re-created very quickly anyway, so 
-I seriously doubt you get any real wins.
+> > Not everything in the world is an x86, and not every app wants to be Linux/x86
+> > specific or use weird syscalls
+> 
+> Yes and in esp. everything in the world is a __m68000__!
 
-Remember: the point of swapping stuff out (or just dropping them) is that
-we don't need them in the near future. With a 4MB (or 2MB) granularity,
-that's not very likely.
+When you look at the kernel codebase its abundantly obvious that its much
+more "if its not 32bit with hardware managed caches, little endian, with
+no more than one root pci bridge, has a 32/64bit machine word, is byte 
+addressed, has sane store ordering rules, conventional not reverse mapped
+mmu, machine word sized cache coherency, and no more than 3 level page
+tables" and so forth its going to be hard to get it to work well.
+ 
+A lot of that /dev/port using code is portable to everything from Minix through
+most BSD's. It works on pretty much anything with PC style devices.
 
-		Linus
-
+Alan

@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264440AbUDZHKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbUDZHFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264440AbUDZHKL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 03:10:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUDZHKL
+	id S262956AbUDZHFo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 03:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbUDZHFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 03:10:11 -0400
-Received: from [203.97.82.178] ([203.97.82.178]:64897 "EHLO treshna.com")
-	by vger.kernel.org with ESMTP id S264440AbUDZHKE (ORCPT
+	Mon, 26 Apr 2004 03:05:44 -0400
+Received: from zaphod.lin-gen.com ([195.64.80.164]:62646 "EHLO zaphod.dth.net")
+	by vger.kernel.org with ESMTP id S262956AbUDZHFn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 03:10:04 -0400
-Message-ID: <408CB5BA.1060301@treshna.com>
-Date: Mon, 26 Apr 2004 19:09:46 +1200
-From: Dru <andru@treshna.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312 Debian/1.6-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Kernel lockup on alpha with heavy IO
-References: <408C75E4.50908@treshna.com> <20040426041515.GO17014@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040426041515.GO17014@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Apr 2004 03:05:43 -0400
+Date: Mon, 26 Apr 2004 09:05:42 +0200
+From: Danny ter Haar <dth@dth.net>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: No luck getting 2.6.x kernel to work with ACPI on compaq laptop
+Message-ID: <20040426070542.GA20973@dth.net>
+References: <c65252$9cs$1@news.cistron.nl> <20040426062512.GA11567@bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040426062512.GA11567@bitwizard.nl>
+X-Message-Flag: WARNING!! You are using MS (f)outlook: Please consider upgrading to software with less bugs.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
+Quoting Rogier Wolff (R.E.Wolff@BitWizard.nl):
+> > After this the machine is dead in the water.
+> > No magic sysrq or anything.
+> 
+> It sounds as if some driver is using IRQ10, and that another device
+> is also on that IRQ. This will create an interrupt storm the moment
+> you switch the triggering from edge to level....
+> So: Which devices use IRQ10 when the computer works?
 
->On Mon, Apr 26, 2004 at 02:37:24PM +1200, Dru wrote:
->  
->
->>I've recently installed debian on a alpha box and have a problem with  
->>the kernel locking up
->>after a couple of hours of heavy use.  An individual partition will stop 
->>responding, all processes
->>that try and access it will just sit there waiting and you have to 
->>reboot the server.
->>I've been using a mixture of IDE drives and they all do this. I thought 
->>it might be the motherboard
->>so i've installed a pci ide controller card, had same effect. I've tried 
->>accessing files over usb devices
->>as a finial ditch effort but it also does it there also so i am sure it 
->>is in the kernel and not
->>the hardware that is at fault.
->>    
->>
->
->... or you have problems with heat dissipation.  Get into SRM right after
->the deadlock and say show power - that should, IIRC, give you temperatures.
->  
->
-Its a pretty heavy duty case with lots of cooling fans. Its very easy to
-reproduce. Start up 10 cp commands on the same partition, run hdparm
--t -T /dev/sda and it will lockup within 10 seconds.  The machine is rock
-solid under heavy cpu, with no io traffic. It never has kernel panic'ked
-(as i would expect with temperature problems.)  If you perform more
-than one write command to the same partition at the very same time,
-no matter what the type drive/device it is, it locks up.
+Len Brown from Intel sent me :
 
-Does anyone else successfully run linux and debian testing on alpha's
-with 2.6 kernels?
+"try booting with "nolapic" (or disable LOCAL_APIC in the kernel build)"
 
+That indeed solved my problem, i can now use poweroff etc.
+I will add a bugreport to http://bugzilla.kernel.org/show_bug.cgi?id=1682
+l8er this week ;-)
+
+Danny
+
+-- 
+"If Microsoft had been the innovative company that it calls itself, it 
+would have taken the opportunity to take a radical leap beyond the Mac, 
+instead of producing a feeble, me-too implementation." - Douglas Adams -

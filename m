@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286590AbSABBnc>; Tue, 1 Jan 2002 20:43:32 -0500
+	id <S286557AbSABBlm>; Tue, 1 Jan 2002 20:41:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286584AbSABBnM>; Tue, 1 Jan 2002 20:43:12 -0500
-Received: from fep04.swip.net ([130.244.199.132]:52711 "EHLO
-	fep04-svc.swip.net") by vger.kernel.org with ESMTP
-	id <S286575AbSABBnE>; Tue, 1 Jan 2002 20:43:04 -0500
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] kernel BUG at scsi_merge.c:83
-From: Peter Osterlund <petero2@telia.com>
-Date: 02 Jan 2002 02:38:01 +0100
-Message-ID: <m2zo3xr0qu.fsf@pengo.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S286574AbSABBlW>; Tue, 1 Jan 2002 20:41:22 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:63951 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S286557AbSABBlU>; Tue, 1 Jan 2002 20:41:20 -0500
+Date: Tue, 1 Jan 2002 18:41:13 -0700
+Message-Id: <200201020141.g021fDT19909@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Larry McVoy <lm@bitmover.com>, Oliver Xymoron <oxymoron@waste.org>,
+        samson swanson <intellectcrew@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: a great C++ book?
+In-Reply-To: <20020102014233.C5968@werewolf.able.es>
+In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com>
+	<Pine.LNX.4.43.0201011214560.7188-100000@waste.org>
+	<20020101104331.F4802@work.bitmover.com>
+	<200201012001.g01K1NF15702@vindaloo.ras.ucalgary.ca>
+	<20020102014233.C5968@werewolf.able.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+J. A. Magallon writes:
+> 
+> On 20020101 Richard Gooch wrote:
+> >
+> >Object-oriented programming is a good tool. One of many. But it
+> >shouldn't be a religion, nor do you need to write in C++ to make use
+> 
+> Use the right tool for the purpose. You bet for rewriting half the
+> C++ runtime in C instead of not-using the bloated part of C++.
+> Pretty. If you're going to program in a OO way, use an oo language.
+> And I get tired of people saying C++ is bloat.
 
-While doing some stress testing on the 2.5.2-pre5 kernel, I am hitting
-a kernel BUG at scsi_merge.c:83, followed by a kernel panic. The
-problem is that scsi_alloc_sgtable fails because the request contains
-too many physical segments. I think this patch is the correct fix:
+Actually, I didn't say that C++ is bloat. I said C++ makes "it much
+easier to write bloatware". Big difference.
 
---- linux-2.5.2-pre5/drivers/scsi/scsi.c	Fri Dec 28 12:38:01 2001
-+++ linux-2.5-packet/drivers/scsi/scsi.c	Wed Jan  2 02:27:45 2002
-@@ -201,11 +201,6 @@
- 	/* Hardware imposed limit. */
- 	blk_queue_max_hw_segments(q, SHpnt->sg_tablesize);
- 
--	/*
--	 * When we remove scsi_malloc soonish, this can die too
--	 */
--	blk_queue_max_phys_segments(q, PAGE_SIZE / sizeof(struct scatterlist));
--
- 	blk_queue_max_sectors(q, SHpnt->max_sectors);
- 
- 	if (!SHpnt->use_clustering)
+> My pupils at 5th course of Computer Science still think C++ is
+> bloat.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Good. That means they'll approach it with caution, rather than jumping
+on the bandwagon.
+
+> They have no idea on compilers. And they bless Ada.  A 5th level
+> virtual function still has only a one-level indirection overhead
+> when called. Low level code is just as efficient as C. If a C++
+> program is bloated it is the programmers matter, not the language.
+
+Not when the language seduces you into writing bloatware. The more
+powerful the language and the more abstract the concepts it supports,
+the further the programmer is taken away from understanding what's
+happening at the low level. That leads to bloatware.
+
+If I had my way, no CS student would graduate unless they understood
+what's happening at the low level and had experience benchmarking and
+optimising code. A good start would be to have at least one assignment
+where they have to write a reasonably complex piece of code, in any
+language, and their marks are based on how fast the code runs. And the
+marks should be scaled down if everyone writes code which is much
+slower than the instructor's.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

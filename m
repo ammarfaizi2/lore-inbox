@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135491AbREHVwc>; Tue, 8 May 2001 17:52:32 -0400
+	id <S135504AbREHV4c>; Tue, 8 May 2001 17:56:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135504AbREHVwW>; Tue, 8 May 2001 17:52:22 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:58118 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135491AbREHVwT>; Tue, 8 May 2001 17:52:19 -0400
-Date: Tue, 8 May 2001 14:51:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Rik van Riel <riel@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: oddity with page_launder() handling of dirty pages
-In-Reply-To: <Pine.LNX.4.21.0105081514420.7774-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.31.0105081449160.3375-100000@penguin.transmeta.com>
+	id <S135521AbREHV4M>; Tue, 8 May 2001 17:56:12 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:11956 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135504AbREHV4D>;
+	Tue, 8 May 2001 17:56:03 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15096.27479.707679.544048@pizda.ninka.net>
+Date: Tue, 8 May 2001 14:55:35 -0700 (PDT)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), zaitcev@redhat.com (Pete Zaitcev),
+        david-b@pacbell.net, johannes@erdfelt.com, rmk@arm.linux.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: pci_pool_free from IRQ
+In-Reply-To: <E14xFD5-0000hh-00@the-village.bc.nu>
+In-Reply-To: <200105082108.f48L8X1154536@saturn.cs.uml.edu>
+	<E14xFD5-0000hh-00@the-village.bc.nu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Alan Cox writes:
+ > I suspect we should fix the documentation (and if need be the code) to reflect
+ > the fact that you have to be completely out of your tree to handle device 
+ > removal in the irq handler
 
-On Tue, 8 May 2001, Marcelo Tosatti wrote:
->
-> Linus, since you wrote that part of the code, I ask you: do you have any
-> reason to not remove a page being writepage()'d from the
-> inactive_dirty_list to avoid this kind of problems ?
->
-> (the page must be added back to the inactive_dirty_list again after the
-> writeout, yes).
+Agreed.
 
-This is the reason. I think it is absolutely _wrong_ to add it back after
-the writeout - anything could have happened to the page, including the
-page moving to other lists or not being a page cache page AT ALL.
-
-We had tons of bugs in this area when the page lists were introduced.
-
-Leaving it on the list and letting anybody who changed the state of the
-page remove it cleanly fixed all the bugs. And I'm not going back to the
-old and broken code.
-
-You can move it to the "active_list" if you want to while it is being
-written out ("it's busy, so it's active"). As long as you move it _before_
-you start the write-out.
-
-		Linus
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265263AbSKFBLF>; Tue, 5 Nov 2002 20:11:05 -0500
+	id <S265262AbSKFBKm>; Tue, 5 Nov 2002 20:10:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265264AbSKFBLF>; Tue, 5 Nov 2002 20:11:05 -0500
-Received: from packet.digeo.com ([12.110.80.53]:56487 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265263AbSKFBLC>;
-	Tue, 5 Nov 2002 20:11:02 -0500
-Message-ID: <3DC86DAC.4EBB59C8@digeo.com>
-Date: Tue, 05 Nov 2002 17:17:32 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: linux-aio@kvack.org, lkml <linux-kernel@vger.kernel.org>, bcrl@redhat.com
-Subject: Re: [PATCH 2/2] 2.5.46 AIO support for raw/O_DIRECT
-References: <200211060103.gA613a321256@eng2.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S265263AbSKFBKm>; Tue, 5 Nov 2002 20:10:42 -0500
+Received: from [212.18.235.100] ([212.18.235.100]:40713 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id <S265262AbSKFBKl>; Tue, 5 Nov 2002 20:10:41 -0500
+Subject: Re: promise ide problem: missing disks
+From: Justin Cormack <justin@street-vision.com>
+To: Justin Cormack <justin@street-vision.com>
+Cc: Brian Jackson <brian-kernel-list@mdrx.com>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1036543602.2292.54.camel@lotte>
+References: <1036525756.2291.45.camel@lotte>
+	<1036539902.2291.48.camel@lotte> 
+	<20021106000052.21645.qmail@escalade.vistahp.com> 
+	<1036543602.2292.54.camel@lotte>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Nov 2002 01:17:32.0113 (UTC) FILETIME=[47E95C10:01C28532]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Nov 2002 01:17:11 +0000
+Message-Id: <1036545436.2291.61.camel@lotte>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
+On Wed, 2002-11-06 at 00:46, Justin Cormack wrote:
+> On Wed, 2002-11-06 at 00:00, Brian Jackson wrote:
+> > I may be able to help you narrow it down a bit. I have used 2.4.19-vanilla 
+> > and it worked fine(all drives showed up). When I tried 
+> > fnk10(www.cipherfunk.org) the drive on the secondary channel doesn't show 
+> > up. I don't know exactly what changes fnk10 has with regards to ide, but I 
+> > know he has put a bunch of stuff from the 20-pre series in fnk10. Hope this 
+> > helps. 
 > 
-> Hi,
+> Actually my previous mail wasnt accurate - it was the RH 7.3 kernel that
+> works not 8.0 - I forgot which distro I had on it. I think it is the
+> changes between 2.4.19 to 2.4.20-pre as you suggest (I have to change my
+> ethernet card to check this). Its the big ide change from -ac perhaps.
+> The diff is very big, so it is hard to narrow down quickly.
 > 
-> This is (part 2/2) 2.5.46 patch to support AIO for raw/O_DIRECT.
-> 
-> This patch adds AIO support for DIO code path. This patch also
-> has a work around for calling set_page_dirty() from interrupt
-> context problem.
-> 
-> Andrew, could you please check to see if I did "set_page_dirty()"
-> hack (you suggested) correctly (in the right place) ?
-> 
+> Andre, Alan any idea? does your second channel work?
 
-Looks like it.  It's such a hack, I want to hide ;)
+hmm, well 2.4.19 vanilla doesnt work for me, but RH 7.3 and 8.0 do.
+Guess lots of regression tests needed...
 
-Sigh.  I think I'd prefer to just go and make ->page_lock
-and ->private_lock irq-safe.
 
-Or not proceed with this patch at all.  If this is to be the
-only code which wishes to perform page list motion at interrupt
-time, perhaps it's not justifiable?
 
-I really don't have a feeling for how valuable this is, nor
-do I know whether there will be other code which wants to
-perform page list manipulation at interrupt time.
-
-In fact I also don't know where the whole AIO thing sits at
-present.  Is it all done and finished?  Is there more to come,
-and if so, what??

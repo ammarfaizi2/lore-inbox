@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287647AbSBGNnK>; Thu, 7 Feb 2002 08:43:10 -0500
+	id <S289159AbSBGNwL>; Thu, 7 Feb 2002 08:52:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289372AbSBGNnA>; Thu, 7 Feb 2002 08:43:00 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:19844 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S287647AbSBGNmm> convert rfc822-to-8bit; Thu, 7 Feb 2002 08:42:42 -0500
-Date: Thu, 7 Feb 2002 08:44:21 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: want opinions on possible glitch in 2.4 network error reporting
-In-Reply-To: <3C61ACDB.6759302F@nortelnetworks.com>
-Message-ID: <Pine.LNX.3.95.1020207084153.4784A-100000@chaos.analogic.com>
+	id <S289372AbSBGNwB>; Thu, 7 Feb 2002 08:52:01 -0500
+Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:23947 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289159AbSBGNvo>;
+	Thu, 7 Feb 2002 08:51:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH] __free_pages_ok oops
+Date: Thu, 7 Feb 2002 14:55:37 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "David S. Miller" <davem@redhat.com>, <akpm@zip.com.au>, <bcrl@redhat.com>,
+        Hugh Dickins <hugh@lrel.veritas.com>, <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0202071120160.17850-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0202071120160.17850-100000@imladris.surriel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Yp1W-0000al-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Feb 2002, Chris Friesen wrote:
-
-> "Richard B. Johnson" wrote:
+On February 7, 2002 02:27 pm, Rik van Riel wrote:
+> On Thu, 7 Feb 2002, Hugh Dickins wrote:
 > 
-> [snip]
-> > Hackers code sendto as:
-> >         sendto(s,...);
-> > Professional programmers use:
-> >         (void)sendto(s,...);
-> > 
-> > checking the return value is useless.
-> > 
-> > Note that the man-page specifically states that ENOBUFS can't happen.
+> > > if (PageLRU(page)) {
+> > > 	if (in_interrupt()) {
+> > > 		add_page_to_special_list(page);
+> > > 		return;
+> > > 	} else
+> > > 		lru_cache_del(page);
+> > > }
+> >
+> > If this were a common case where many pages end up, yes, we'd
+> > need a separate special list; but it's a very rare case
 > 
-> I don't know what your manpage says, but my manpage doesn't say anything about
-> ENOBUFS not being possible.  From the man page: 
+> Think of a web or ftp server doing nothing but sendfile()
+
+But still, you're
+
+> > I was proposing we revert to distinguishing page_cache_release
+> > from put_page, page_cache_release doing the lru_cache_del; and
+> > I'd like to add my in_interrupt() BUG() there for now, just as
+> > a sanity check.  You are proposing that we keep the current,
+> > post-Ben, structure of doing it in __free_pages_ok if possible.
 > 
-> "ENOBUFS The system was unable to allocate an internal memory block.  The
-> operation may succeed when buffers become available."
+> So how exactly would pages be freed ?
+> You still need to do the check of whether the page can
+> be freed somewhere.
 
+He suggested letting shrink_caches find it.  But since we already know the 
+page is free there's no sense scanning for it, so on balance I think your
+approach is better.  An atomic_put_page, used from any context that could end 
+up in an interrupt, would be better yet, just because it imposes the extra 
+check only on users that require it.  Otoh, I did note davem's objection 
+above.
 
-
-       ENOBUFS
-              The output queue for a network interface was  full.
-              This  generally  indicates  that  the interface has
-              stopped sending, but may  be  caused  by  transient
-              congestion.   (This  cannot occur in Linux, packets
-              are just silently dropped when a device queue over­
-              flows.)
-
-
-Linux Man Page              July 1999                           1
-
-Script done on Thu Feb  7 08:35:39 2002
-
-Distributed with RedHat 7
-
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-- 
+Daniel

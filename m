@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277229AbRJVRa6>; Mon, 22 Oct 2001 13:30:58 -0400
+	id <S277210AbRJVRcS>; Mon, 22 Oct 2001 13:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277210AbRJVRau>; Mon, 22 Oct 2001 13:30:50 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:37421 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S277223AbRJVRaj>; Mon, 22 Oct 2001 13:30:39 -0400
-Date: Mon, 22 Oct 2001 13:31:09 -0400
-Message-Id: <200110221731.f9MHV9r15979@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <20011022.082935.74750744.wscott@bitmover.com>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S277214AbRJVRbJ>; Mon, 22 Oct 2001 13:31:09 -0400
+Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:17391 "HELO
+	duron.intern.kubla.de") by vger.kernel.org with SMTP
+	id <S277210AbRJVRbB>; Mon, 22 Oct 2001 13:31:01 -0400
+Date: Mon, 22 Oct 2001 19:31:27 +0200
+From: Dominik Kubla <kubla@sciobyte.de>
+To: Allan Sandfeld <linux@sneulv.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+Message-ID: <20011022193127.A3504@duron.intern.kubla.de>
+In-Reply-To: <20011022112149.A5625@lightning.swansea.linux.org.uk> <E15vcVm-000290-00@Princess>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15vcVm-000290-00@Princess>
+User-Agent: Mutt/1.3.23i
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011022.082935.74750744.wscott@bitmover.com> wscott@bitmover.com asked:
+On Mon, Oct 22, 2001 at 12:40:49PM +0200, Allan Sandfeld wrote:
+> On Monday 22 October 2001 12:21, Alan Cox wrote:
+> > Things took a bit longer than intended with various security fixes needing
+> > to be done. If this tree tests out ok it will be 2.2.20
+> >
+> > 2.2.20pre11
+> > o	Security fixes
+> > 	| Details censored in accordance with the US DMCA
+> 
+> Why? I didnt think you like it, nor lived in the US?
+> 
+> If v'ger is in the US, I can understand not putting it in the changelog 
+> there. But why not on the mailing list?
 
-| So if I am adding files while reading the directory the directory
-| structure gets rewritten and I might return files more than once?
-| What happens if files are being deleted?  Can files be skipped?!?
-| 
-| Any reason we have never seen this on ext2 on other filesystems on 10+
-| versions of UNIX?  BitKeeper is pretty paranoid and includes a lot of
-| sanity checks.
+Because the mailing list is hosted in the US of A...
 
-  I think you can see this on any typical UNIX directory. Assume that a
-directory is created with some number of entries. Assume then that the
-first ten or so are deleted. Then start your program doing readdir().
-After reading a few entries, create a file in that directory. When the
-deleted directory entry is reused you have already read past it, and
-will not see it until the next time you read the directory.
-
-  Obviously there is a timing window here, but I used to see this with
-usenet news when each article was in a separate file and files were
-created and deleted in large numbers. Missing a file doesn't seem to be
-a problem, because the behaviour is the same as if the file were created
-after the readdir() pass, but getting the same directory entry more than
-once is likely to produce anything from confusing output to serious
-malfunction, depending on what's done with the informaction.
-
+Dominik
 -- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+ScioByte GmbH    Zum Schiersteiner Grund 2     55127 Mainz (Germany)
+Phone: +49 700 724 629 83                    Fax: +49 700 724 629 84
+
+GnuPG: 717F16BB / A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB

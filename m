@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262548AbUJ0TuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbUJ0TuD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbUJ0TuD (ORCPT <rfc822;willy@w.ods.org>);
+	id S262560AbUJ0TuD (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 27 Oct 2004 15:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbUJ0Tsb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbUJ0Tsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 15:48:31 -0400
-Received: from delta.ece.northwestern.edu ([129.105.5.125]:508 "EHLO
-	delta.ece.northwestern.edu") by vger.kernel.org with ESMTP
-	id S262656AbUJ0TlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:41:17 -0400
-Message-ID: <417FFA38.8000602@ece.northwestern.edu>
-Date: Wed, 27 Oct 2004 14:42:48 -0500
-From: Lei Yang <lya755@ece.northwestern.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040921
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-os@analogic.com
+	Wed, 27 Oct 2004 15:48:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62647 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262632AbUJ0Tk6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 15:40:58 -0400
+Date: Wed, 27 Oct 2004 12:40:55 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: ak@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: loopback on block device
-References: <417FE703.3070608@ece.northwestern.edu> <Pine.LNX.4.61.0410271452390.4669@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0410271452390.4669@chaos.analogic.com>
-X-Enigmail-Version: 0.76.8.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Early call_usermodehelper causes double fault on x86_64
+Message-ID: <20041027124055.B2357@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why /dev/ram0 is a file? Can you get into more details? For example, if 
-I want to do some system level programming and write to a /dev/ram0, how 
-do I do it?
+Hi,
 
-Thanks very much for your reply!
+I'm seeing a double fault on recent (2.6.10-rc1-bk) kernels during
+driver_init().  The upcall to userspace gets far enough to schedule the
+work, khelper picks it up, calls kernel_thread, the child thread does
+execve, then double faults.  Bootup continues, I get three more double
+faults, then the system appears fine (even w/ continued upcalls).
 
-Lei
+I have an example of the fault below.  It shows a rip and rsp
+of 0.  I poked about a bit and see that the FAKE_STACK_FRAME $0 in
+arch/x86-64/kernel/entry.S sets up a 0 rip, and if I change the \rip
+in that macro call, that's the rip in the double fault.  Any ideas on
+further debugging?
 
-linux-os wrote:
+thanks,
+-chris
 
-> On Wed, 27 Oct 2004, Lei Yang wrote:
->
->> Hello,
->>
->> Here is a question for loopback device. As far as I understand,  the 
->> loopback device is used to mount files as if they were block devices.
->>
->> Then Why I could do "losetup -e XOR /dev/loop0 /dev/ram0" ? Notice 
->> that ram0 is not mounted anywhere and does not have a filesystem on 
->> it. I've tried that command and there seems to be no error. I got 
->> confused and looked into loop.c, it seems to me that a loopback 
->> device should be associated with a "backing file", why would it work 
->> on a block device anyway?
->>
->> I'd appreciate your comments greatly!
->>
->> TIA,
->> Lei
->>
->
-> `man losetup`
-> You just set up the loop device to enable encryption on
-> /dev/ram0. /dev/ram0 is a "file". It's a special-file,
-> but a file nevertheless. It can contain a file-system,
-> therefore act as a RAM disk, but it doesn't have to.
->
-> In principle, you could make an encrypted file-system
-> in which you couldn't even know what kind of file-
-> system it was, without an encryption key.
->
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
->  Notice : All mail here is now cached and reviewed by John Ashcroft.
->                  98.36% of all statistics are fiction.
->
->
+double fault: 0000 [1] PREEMPT SMP 
+CPU 1 
+Modules linked in:
+Pid: 9, comm: khelper Tainted: G   M  2.6.10-rc1
+RIP: 0010:[<0000000000000000>] [<0000000000000000>]
+RSP: 0000:0000000000000000  EFLAGS: 00010202
+RAX: 0000000000000000 RBX: 000001007ff09dc8 RCX: 000001007ff0e870
+RDX: 000001003fff9e88 RSI: 000001007ff09e58 RDI: ffffffff805b8fe0
+RBP: 00000000ffffffff R08: 0000000000000000 R09: 0000000000000000
+R10: 00000000ffffffff R11: 0000000000000000 R12: 0000010037e87120
+R13: 0000000000000206 R14: 000001007ff09dc8 R15: ffffffff80149200
+FS:  0000000000000000(0000) GS:ffffffff816daa40(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000000000 CR3: 000000007ff0a000 CR4: 00000000000006e0
+Process khelper (pid: 9, threadinfo 000001000258c000, task 000001007ff0e870)
+Stack: 0000010037ea8e58 0000000000000000 0000010037ea8f58 0000000000000000 
+       0000000000000001 ffffffff80111f78 0000000000000004 0000010037ea8f58 
+       0000000000000000 0000000000000000 
+Call Trace:<ffffffff80111f78>{show_registers+200} <ffffffff8011222b>{__die+155} 
+       <ffffffff801122a6>{die+54} <ffffffff80112bbf>{do_double_fault+175} 
+       <ffffffff801118ed>{double_fault+125} <ffffffff80149200>{__call_usermodehelper+0} 
+       
 
-
+Code:  Bad RIP value.
+RIP [<0000000000000000>] RSP <0000000000000000>

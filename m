@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263587AbUBCADX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 19:03:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbUBCADW
+	id S264534AbUBCAJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 19:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUBCAJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 19:03:22 -0500
-Received: from mail5.speakeasy.net ([216.254.0.205]:24726 "EHLO
-	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S263587AbUBCADV
+	Mon, 2 Feb 2004 19:09:57 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7301 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264534AbUBCAJw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 19:03:21 -0500
-Date: Mon, 2 Feb 2004 16:03:19 -0800
-Message-Id: <200402030003.i1303JQE016298@magilla.sf.frob.com>
+	Mon, 2 Feb 2004 19:09:52 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Mark Haverkamp <markh@osdl.org>
+Subject: Re: ide taskfile and cdrom hang
+Date: Tue, 3 Feb 2004 01:13:49 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Cliff White <cliffw@osdl.org>
+References: <1075502193.26342.61.camel@markh1.pdx.osdl.net> <200402030037.32701.bzolnier@elka.pw.edu.pl> <1075765927.13805.3.camel@markh1.pdx.osdl.net>
+In-Reply-To: <1075765927.13805.3.camel@markh1.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore protections after forced fault in get_user_pages
-In-Reply-To: Linus Torvalds's message of  Monday, 2 February 2004 15:55:51 -0800 <Pine.LNX.4.58.0402021551320.9720@home.osdl.org>
-X-Fcc: ~/Mail/linus
-X-Antipastobozoticataclysm: Bariumenemanilow
+Content-Disposition: inline
+Message-Id: <200402030113.49852.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That should be sufficient, I think: since "handle_mm_fault()" marks the 
-> page dirty (but not writable) and will have done all the work to do a COW, 
-> we know that once we do the "follow_page()", we'll be getting a private 
-> copy. Which is what we wanted.
+On Tuesday 03 of February 2004 00:52, Mark Haverkamp wrote:
+> On Mon, 2004-02-02 at 15:37, Bartlomiej Zolnierkiewicz wrote:
+> > On Monday 02 of February 2004 22:44, Mark Haverkamp wrote:
+> > > On Mon, 2004-02-02 at 13:35, Bartlomiej Zolnierkiewicz wrote:
+> > > > On Monday 02 of February 2004 21:45, Mark Haverkamp wrote:
+> > > > > On Mon, 2004-02-02 at 11:45, Bartlomiej Zolnierkiewicz wrote:
+> > > > > > On Monday 02 of February 2004 19:46, Mark Haverkamp wrote:
+> > > > > > > On Sun, 2004-02-01 at 12:48, Bartlomiej Zolnierkiewicz wrote:
+>
+> [ ... ]
+>
+> > Now, can you comment out "(UDELAY(10))" printk and add printk for
+> > "retries" variable after while {} loop.  I thought there will be more
+> > "(UDELAY(10))" messages - but I forgot about delay introduced by printk()
+> > call :-).
+> >
+> > --bart
+>
+> I ran twice, got the same results:
+>
+> 1)
+> hda: (WAIT_NOT_BUSY) status=0x50 retry 94
+> hda: (CHECK_STATUS) status=0x50
+> hda: (WAIT_NOT_BUSY) status=0x50 retry 94
+> hda: (CHECK_STATUS) status=0x50
 
-The only potential hole I can see here is if there is an (exceedingly rare)
-race where the page could be ejected after handle_mm_fault, then brought
-back in but not marked dirty, before follow_page looks it up and returns a
-page to be used for writing without marking it dirty.  Obviously this is a
-ridiculously unlikely case.  But what I don't know is whether it is
-strictly speaking impossible.  That is, that a page once dirty then later
-not present, would ever again be present without also being dirty.
+Is this output for single 'cat /proc/ide/hda/identify' run?
+There should be only one WAIT_NOT_BUSY and one CHECK_STATUS.
 
+> 2)
+> hda: (WAIT_NOT_BUSY) status=0x50 retry 94
+> hda: (CHECK_STATUS) status=0x50
+> hda: (WAIT_NOT_BUSY) status=0x50 retry 94
+> hda: (CHECK_STATUS) status=0x50
+
+Wow, 94 retries vs. limit of 5 previously.
+
+Please also check if  'hdparm -Istdin</proc/ide/hda/identify'
+returns correct information now.
 
 Thanks,
-Roland
+--bart
+

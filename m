@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbTELOGl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 10:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbTELOGl
+	id S262157AbTELOTC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 10:19:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTELOTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 10:06:41 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42760 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262144AbTELOGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 10:06:40 -0400
-Date: Mon, 12 May 2003 16:19:23 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ioctl32: kill code duplication (sparc64 tester wanted)
-Message-ID: <20030512141923.GA23352@atrey.karlin.mff.cuni.cz>
-References: <20030512114055.GA3539@atrey.karlin.mff.cuni.cz> <20030512134353.A28931@infradead.org> <20030512130518.GA15227@atrey.karlin.mff.cuni.cz> <20030512140834.A29260@infradead.org> <20030512131326.GB15227@atrey.karlin.mff.cuni.cz> <20030512141600.A29386@infradead.org>
+	Mon, 12 May 2003 10:19:02 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:60056 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262157AbTELOTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 10:19:01 -0400
+Date: Mon, 12 May 2003 15:32:11 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new kconfig goodies
+Message-ID: <20030512143207.GA6459@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030512141600.A29386@infradead.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, May 12, 2003 at 03:39:11PM +0200, Roman Zippel wrote:
 
+ > config AGP
+ > 	tristate "/dev/agpgart (AGP Support)" if !GART_IOMMU
+ > 	default y if GART_IOMMU
+ > 
+ > this can be changed into:
+ > 
+ > config AGP
+ > 	tristate "/dev/agpgart (AGP Support)"
+ > 
+ > config GART_IOMMU
+ > 	bool "IOMMU support"
+ > 	enable AGP
+ > 
+ > This will cause AGP to be selected if GART_IOMMU is selected.
 
-> > > What's the reason you can't build fs/compat_ioctl.c normally and pull
-> > > in the arch magic through a magic asm/ header?  
-> > 
-> > Some architectures need special stuff (mtrr's), so I'd have to include
-> > .c files, too (the other way). [Look at how the table of ioctls is
-> > generated, its asm magic].
-> 
-> Shouldn't that special stuff move to the dynamic ioctl handler
-> registration method or the new ->compat_ioctl?
+Looks good. However, will this still offer the CONFIG_AGP tristate
+in the menu? If IOMMU is on, there must be no way to switch off
+the agpgart support on which it depends.
 
-Davem probably would not like bloat
-resulting from that (There's a lot of
-arch specific stuff out there). Agreed it
-would be nice to do that, but I feel
-we need to make small steps.
+		Dave
 
-
-> 
-> > Are you asking why are there #includes in compat_ioctl.c? Its because
-> > there is so many of them, and having to update all archs when you
-> > tuoch fs/compat_ioctl.c would be bad.
-> 
-> I'm asking for the #ifdef INCLUDES in fs/compat_ioctl.c.  Why do you
-> need it instead of including the headers uncondtionally?
-
-Because I'm including compat_ioctl.c from few places.
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.

@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270025AbRHGCAE>; Mon, 6 Aug 2001 22:00:04 -0400
+	id <S270031AbRHGCIF>; Mon, 6 Aug 2001 22:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270031AbRHGB7y>; Mon, 6 Aug 2001 21:59:54 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:41860 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270025AbRHGB7l>; Mon, 6 Aug 2001 21:59:41 -0400
-Date: Mon, 6 Aug 2001 20:00:02 -0600
-Message-Id: <200108070200.f77202G27928@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <Pine.GSO.4.21.0108062129030.16817-100000@weyl.math.psu.edu>
-In-Reply-To: <200108070127.f771RNe27524@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0108062129030.16817-100000@weyl.math.psu.edu>
+	id <S270032AbRHGCHz>; Mon, 6 Aug 2001 22:07:55 -0400
+Received: from dict.and.org ([63.113.167.10]:21391 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id <S270031AbRHGCHq>;
+	Mon, 6 Aug 2001 22:07:46 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <01080317471707.01827@starship>
+	<20010803121638.A28194@cs.cmu.edu> <0108031854120A.01827@starship>
+	<Pine.LNX.4.33L.0107301320370.11893-100000@imladris.rielhome.conectiva>
+	<s5gvgkacqlm.fsf@egghead.curl.com>
+	<200107301711.f6UHBWHE001945@acap-dev.nas.cmu.edu>
+	<20010803132457.A30127@cs.cmu.edu> <s5g3d78261g.fsf@egghead.curl.com>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 06 Aug 2001 22:09:59 -0400
+In-Reply-To: <s5g3d78261g.fsf@egghead.curl.com>
+Message-ID: <nnk80gd3ig.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Academic Rigor)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> 
-> On Mon, 6 Aug 2001, Richard Gooch wrote:
-> 
-> > I'm referring specifically to this code:
-> >     new->inode.ino = fs_info.num_inodes + FIRST_INODE;
-> >     fs_info.table[fs_info.num_inodes++] = new;
-> > 
-> > This is not SMP safe. Besides, even the allocation loop isn't SMP
-> > safe. If two tasks both allocate a table, they each could end up
-> > calling:
-> > 	kfree (fs_info.table);
-> > for the same value. Or for a different one (which is also bad).
-> 
-> BKL. kfree() is non-blocking. IOW, critical area can be placed under a
-> spinlock and BKL acts as such. We can trivially replace it with
-> a spinlock (static in function).
-> 
-> Actually, there is another problem with that code and it has nothing
-> to SMP. You never shrink that table and AFAICS you never reuse the
-> entries.  IOW, you've got a leak there.
+"Patrick J. LoPresti" <patl@cag.lcs.mit.edu> writes:
 
-The devfs entries are reused *for the same name*. But yes, if "fred"
-is registered and unregistered, and is never registered again, it will
-indeed stick around forever. In general, this is not a significant
-problem, since the same name tends to be re-registered later. Said
-another way: there aren't many different temporary entries.
 
-The reason for not freeing stuff is simplicity. Without proper
-locking, I was able to avoid a lot of races. Now that I'm putting
-locks in, I can consider freeing stuff (after the locks are in).
+[snip sendmail/cyrus/qmail/postfix]
 
-> Why on the Earth do you need it, in the first place? Just put the
-> pointer to entry into inode->u.generic_ip and be done with that - it
-> kills all that mess for good. AFAICS the only places where you
-> really use that table is your get_devfs_entry_from_vfs_inode() and
-> devfs_write_inode(). In both cases pointer would be obviously more
-> convenient.
+ Just in case anyone cares here's what exim does (AFAICS)...
 
-Again, historical reasons. When I wrote devfs, the pipe data trampled
-the inode->u.generic_ip pointer. So that's no good. I see that the
-pipe data has been moved away. Good. Hm. But there's still the
-inode->u.socket_i structure. I'd need to check where that gets
-trampled.
+ int fd1 = open(f1);
+ write(fd1);
+ fsync(fd1);
+ 
+ int fd2 = open(tmp);
+ write(fd2);
+ fsync(fd2);
+ rename(tmp, f2); // Good at this point.
 
-				Regards,
+ So that seems to rely on all dir operations being sync.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+ Ps. I did a patch for exim to do the dir sync though...
+
+http://www.and.org/exim-3.31-dirfsync.patch
+
+-- 
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

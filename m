@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbUCAOeL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 09:34:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUCAOeL
+	id S261303AbUCAOiw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 09:38:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbUCAOiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 09:34:11 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:25798 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S261278AbUCAOeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 09:34:02 -0500
-Date: Mon, 01 Mar 2004 22:33:43 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: arjanv@redhat.com
-Subject: Re: [Swsusp-devel] Re: Dropping CONFIG_PM_DISK?
-Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Micha Feigin" <michf@post.tau.ac.il>,
-       "Software suspend" <swsusp-devel@lists.sourceforge.net>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>
-References: <1ulUA-33w-3@gated-at.bofh.it>  <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz>  <yw1x4qt93i6y.fsf@kth.se> <opr348q7yi4evsfm@smtp.pacific.net.th>  <20040229213302.GA23719@luna.mooo.com>  <opr35wvvrw4evsfm@smtp.pacific.net.th> <1078139361.21578.65.camel@gaston>  <opr36ljbsu4evsfm@smtp.pacific.net.th> <1078141191.28288.83.camel@gaston>  <opr36ojxik4evsfm@smtp.pacific.net.th> <1078148843.4443.2.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr36tehrr4evsfm@smtp.pacific.net.th>
-In-Reply-To: <1078148843.4443.2.camel@laptop.fenrus.com>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+	Mon, 1 Mar 2004 09:38:52 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:39692 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261303AbUCAOgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 09:36:08 -0500
+Date: Mon, 1 Mar 2004 14:36:06 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Steven J. Hill" <Steve.Hill@timesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Make linux/swap.h usable by userspace code.
+Message-ID: <20040301143606.A6460@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Steven J. Hill" <Steve.Hill@timesys.com>,
+	linux-kernel@vger.kernel.org
+References: <4043498F.7050101@timesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4043498F.7050101@timesys.com>; from Steve.Hill@timesys.com on Mon, Mar 01, 2004 at 09:32:47AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 Mar 2004 14:47:23 +0100, Arjan van de Ven <arjanv@redhat.com> wrote:
+On Mon, Mar 01, 2004 at 09:32:47AM -0500, Steven J. Hill wrote:
+> Greetings.
+> 
+> This patch allows 'swap.h' to be included by userspace code. AFAIK the
+> LTP suite is the only code that does this so far.
 
->
->> Then one could just drop in a driver from 2.4 and use it.
->>
->> People having time to make new "pretty" drivers could
->> also use this facility for cross checking.
->
-> I'm sorry but this is a load of bull ;)
+Gack.  Including swap.h is really silly.  Fix ltp to not do such things
+instead.
 
-Thank you, I do fully concur with you from an ideal scientific perspective
-where resources are not constrained. Applying the same perspective I might
-like to craft lots of drivers in assembler or even reinvent whatever...,
-but I do not live an ideal world.
-
-> New kernel revisions come with a new API. If we keep the old one around
-> forever that achieves two things
-> 1) The kernel bloats up
-
-By a few %, only when old API is used, the benefits far outweighs the cost.
-
-The old API should be an independent glue layer where incompatible.
-Performance is not a concern here, functionality is.
-
-> 2) Nobody puts effort into using the new (better) API
-
-Could be fixed by the simple policy that drivers which did not exist before
-must use new API.
-
->
-> A proof of 2 is the scsi error handling; the old one was kept around as
-> compat for the last 5 years and only 2 or 3 drivers bothered to use the
-> new one.
-
-I am not around here that long, but if those drivers were added after the
-API was finalized, it would have been a policy issue which does not have to
-be repeated.
-
-At least, (hopefully not from an ideal perspective), the new API is good
-enough to last and will not have to be trown away in 2.7 or even 2.9 :)
-
-Regards
-Michael

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263745AbTJ0DmS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 22:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263747AbTJ0DmS
+	id S263747AbTJ0EAT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 23:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263753AbTJ0EAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 22:42:18 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:49353 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263745AbTJ0DmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 22:42:17 -0500
-Date: Mon, 27 Oct 2003 04:42:14 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: CONFIG_IP_NF_IPTABLES=m breaks 2.6 BK compile
-Message-ID: <20031027034214.GA26161@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+	Sun, 26 Oct 2003 23:00:19 -0500
+Received: from main.gmane.org ([80.91.224.249]:30115 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263747AbTJ0EAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 23:00:16 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kevin Puetz <puetzk@puetzk.org>
+Subject: Re: Alsa deadlock fix
+Date: Sun, 26 Oct 2003 22:00:11 -0600
+Message-ID: <bni58b$hbt$1@sea.gmane.org>
+References: <200310261145.18537.puetzk@puetzk.org> <yw1xbrs3g9r2.fsf@kth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: KNode/0.7.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Måns Rullgård wrote:
 
-there is a configuration problem in the current BK kernel. With
-CONFIG_IP_NF_IPTABLES=m, I'm getting these errors:
+> Kevin Puetz <puetzk@puetzk.org> writes:
+> 
+>> But a deadlock that results in two unkillable state 'D' processes
+>> whenever you an OSS and an alsa-native app access the soundcard at
+>> the same time, which happens on both VIA and Intel integrated sound,
+>> seems like a hang which might meet his criteria of problems which
+>> "causes lockups or just basic nonworkingness: and this happens on
+>> hardware that normal people are expected to have". So I figured it's
+>> worth asking if someone who already knows what the fix consisted of
+>> could push it toward Linus ...
+> 
+> It's fixed in -test9.
+> 
+Thanks, sorry about the bogus report then. I looked at the -test8 -> -test9
+changes before I sent it, but missed it since it was from akpm (not
+jaroslav) and didn't mention alsa in the changelog message. Thus it missed
+both categories I thought to search for in the applied changes :-P
 
-net/built-in.o(.init.text+0x248e): In function `init':
-: undefined reference to `ipt_register_match'
-net/built-in.o(.exit.text+0x1ae): In function `fini':
-: undefined reference to `ipt_unregister_match'
-
-These go away with CONFIG_IP_NF_IPTABLES=y.
-
-.config file at
-http://mandree.home.pages.de/linux-2.6-BK-config
-(MD5 hash is 5e32c5b9305943587f977711cf8a8c66)
-
-BK checked out a moment ago, 1.1359 is the rightmost entry in bk
-histtool. Parent repository is bk://linux.bkbits.net/linux-2.5/
-
--- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95

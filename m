@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269962AbRHEOCZ>; Sun, 5 Aug 2001 10:02:25 -0400
+	id <S269959AbRHEOJQ>; Sun, 5 Aug 2001 10:09:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269960AbRHEOCF>; Sun, 5 Aug 2001 10:02:05 -0400
-Received: from [144.137.82.31] ([144.137.82.31]:23054 "EHLO localhost")
-	by vger.kernel.org with ESMTP id <S269959AbRHEOB6>;
-	Sun, 5 Aug 2001 10:01:58 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Keith Owens <kaos@ocs.com.au>
+	id <S269960AbRHEOJG>; Sun, 5 Aug 2001 10:09:06 -0400
+Received: from web13103.mail.yahoo.com ([216.136.174.148]:22790 "HELO
+	web13103.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269959AbRHEOJB>; Sun, 5 Aug 2001 10:09:01 -0400
+Message-ID: <20010805140911.38188.qmail@web13103.mail.yahoo.com>
+Date: Sun, 5 Aug 2001 07:09:11 -0700 (PDT)
+From: szonyi calin <caszonyi@yahoo.com>
+Subject: Re:(OT) university studies?
+To: asmith@14inverleith.freeserve.co.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] /proc/ksyms change for IA64 
-In-Reply-To: Your message of "Sun, 05 Aug 2001 17:16:33 +1000."
-             <13470.996995793@ocs3.ocs-net> 
-Date: Mon, 06 Aug 2001 00:02:51 +1000
-Message-Id: <E15TOUV-00012J-00@localhost>
+In-Reply-To: <Pine.LNX.4.33.0108051222530.14422-100000@vtrl22.vtrl.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <13470.996995793@ocs3.ocs-net> you write:
-> >Eewwww....
-> >
-> >	How about just adding /proc/ksyms-ia64 with the code pointers
-> >which contains the ia64 code addresses required by ksymoops and
-> >debuggers.  These are, after all, less vital than insmod.
+
+--- asmith@14inverleith.freeserve.co.uk wrote:
+
+
+> When you posted your initial message I thought you
+> were thinking of software.
+> Windows products are I believe full of bugs
+> basically because the source is
+> not available for scrutiny.
 > 
-> That requires changes to every kernel debugger, oops decoder etc.  I
-> don't control all of Linux debugging yet ;).  It is also more work
-> because it requires kernel changes as well as lots of user space.
+> --
 
-For ia64 only.  IMHO, that's a better line to draw.
+There are no bugs in windows, only features. :-))
+(or it's a hardware problem :-) )
+As i recall windows is not shiped with a
+known-bugs.txt
+or similar to tell you about it's hidden features.
+:-))
 
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+Thanks for help in the fanning problem.  
+I don't have a temperature sensor, so i have to
+inspect
+the case to see if the cooling fan is working.
+Right now it's stopped (again)
+
+Bye
+
+P.S. Thanks again for the mail. I woldn't look at the
+fan if you would'n write to me so something terrible
+could happend... :-))
+
+
+
+ 
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291543AbSBHKeH>; Fri, 8 Feb 2002 05:34:07 -0500
+	id <S291533AbSBHKi4>; Fri, 8 Feb 2002 05:38:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291539AbSBHKdq>; Fri, 8 Feb 2002 05:33:46 -0500
-Received: from dns.logatique.fr ([213.41.101.1]:53238 "HELO
-	persephone.dmz.logatique.fr") by vger.kernel.org with SMTP
-	id <S291533AbSBHKdp>; Fri, 8 Feb 2002 05:33:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Thomas Capricelli <tcaprice@logatique.fr>
-To: linux-kernel@vger.kernel.org
-Subject: linux-zeta 0.1 release
-Date: Fri, 8 Feb 2002 11:33:18 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S291539AbSBHKiq>; Fri, 8 Feb 2002 05:38:46 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291533AbSBHKie>;
+	Fri, 8 Feb 2002 05:38:34 -0500
+Message-ID: <3C63AAA8.FCE95544@mandrakesoft.com>
+Date: Fri, 08 Feb 2002 05:38:32 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020208103109.C825023CCD@persephone.dmz.logatique.fr>
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: Tim Hockin <thockin@sun.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Rx FIFO Overrun error found
+In-Reply-To: <3C40A6F2.18A8C3E6@colorfullife.com> <3C422C59.90E7D5CB@mandrakesoft.com> <3C430802.8B8A273E@colorfullife.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-A quick note to tell anybody interested that zeta-0.1 is out.. It may be of 
-interest for those who are trying to understand the kernel internals, and 
-don't want to bother big kernel guys.
-
->From the homepage, http://orzel.freehackers.org/zeta/ : 
------------------------------------------------------------------------------
-Porting linux to a new platform has always been one of my dreams. Nowadays,
-almost all the platforms I can think of already run linux (or will soon). As
-I don't have time to look for specs and/or be really useful for any port being
-done, I've decided to create my own 'virtual' platform to port linux to. This
-way, I'll be able to learn linux kernel internals without bothering any other
-project.
------------------------------------------------------------------------------
-
-
-best wishes,
-Thomas
+patch (finally) applied, to 2.4 and 2.5
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

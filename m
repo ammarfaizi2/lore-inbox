@@ -1,89 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbTICIE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 04:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTICIE0
+	id S261611AbTICIEz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 04:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbTICIEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 04:04:26 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:53740 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261595AbTICIES (ORCPT
+	Wed, 3 Sep 2003 04:04:55 -0400
+Received: from dp.samba.org ([66.70.73.150]:37025 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261611AbTICIEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 04:04:18 -0400
-Date: Wed, 3 Sep 2003 09:59:02 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Kars de Jong <jongk@linux-m68k.org>
-cc: Jamie Lokier <jamie@shareable.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <1062535375.3501.11.camel@kars.perseus.home>
-Message-ID: <Pine.GSO.4.21.0309030958130.6985-100000@waterleaf.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Sep 2003 04:04:44 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: neilb@cse.unsw.edu.au
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [PATCH] MODULE_ALIAS for md
+Date: Wed, 03 Sep 2003 18:04:05 +1000
+Message-Id: <20030903080444.559AA2C013@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Sep 2003, Kars de Jong wrote:
-> fikkie:/tmp# ./jamie_test
-> Test separation: 4096 bytes: pass
-> Test separation: 8192 bytes: pass
-> Test separation: 16384 bytes: pass
-> Test separation: 32768 bytes: pass
-> Test separation: 65536 bytes: pass
-> Test separation: 131072 bytes: pass
-> Test separation: 262144 bytes: pass
-> Test separation: 524288 bytes: pass
-> Test separation: 1048576 bytes: pass
-> Test separation: 2097152 bytes: pass
-> Test separation: 4194304 bytes: pass
-> Test separation: 8388608 bytes: pass
-> Test separation: 16777216 bytes: pass
-> VM page alias coherency test: all sizes passed
-> 
-> New program:
-> 
-> fikkie:/tmp# time ./jamie_test2
-> (2048) [10000,10000,0] Test separation: 4096 bytes: pass
-> (2048) [10000,10000,0] Test separation: 8192 bytes: pass
-> (2048) [10000,10000,0] Test separation: 16384 bytes: pass
-> (2048) [10000,10000,0] Test separation: 32768 bytes: pass
-> (2048) [10000,10000,0] Test separation: 65536 bytes: pass
-> (2048) [10000,10000,0] Test separation: 131072 bytes: pass
-> (2048) [10000,10000,0] Test separation: 262144 bytes: pass
-> (2048) [10000,10000,0] Test separation: 524288 bytes: pass
-> (2048) [10000,10000,0] Test separation: 1048576 bytes: pass
-> (2048) [10000,10000,0] Test separation: 2097152 bytes: pass
-> (2048) [10000,10000,0] Test separation: 4194304 bytes: pass
-> (2048) [10000,10000,0] Test separation: 8388608 bytes: pass
-> (2048) [10000,10000,0] Test separation: 16777216 bytes: pass
-> VM page alias coherency test: all sizes passed
->                                                                                 
-> real    1m51.210s
-> user    1m44.950s
-> sys     0m4.930s
-> fikkie:/tmp# cat /proc/cpuinfo
-> CPU:            68020
-> MMU:            68851
-> FPU:            68881
-> Clocking:       15.6MHz
-> BogoMips:       3.90
-> Calibration:    19520 loops
-> fikkie:/tmp#
+Rather than hardcoded names in modprobe, modules can offer their own
+aliases (which are overridden by config files).
 
-So the store buffer is coherent on 68020 with external MMU, while it isn't on
-68040 with internal MMU...
+Here are the drivers/md ones.  Also uses try_then_request_module() to
+clean up some request_module code.
 
-Now all that's left is the 68030.
+Name: Module Aliases Inside Modules: md
+Author: Rusty Russell
+Status: Trivial
 
-Gr{oetje,eeting}s,
+D: MODULE_ALIAS() macros for md.  Also uses try_then_request_module in 
+D: dm_get_target_type().
 
-						Geert
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12741-linux-2.6.0-test4-bk4/drivers/md/dm-target.c .12741-linux-2.6.0-test4-bk4.updated/drivers/md/dm-target.c
+--- .12741-linux-2.6.0-test4-bk4/drivers/md/dm-target.c	2003-06-15 11:29:53.000000000 +1000
++++ .12741-linux-2.6.0-test4-bk4.updated/drivers/md/dm-target.c	2003-09-03 15:58:19.000000000 +1000
+@@ -56,20 +56,11 @@ static struct tt_internal *get_target_ty
+ 	return ti;
+ }
+ 
+-static void load_module(const char *name)
+-{
+-	request_module("dm-%s", name);
+-}
+-
+ struct target_type *dm_get_target_type(const char *name)
+ {
+-	struct tt_internal *ti = get_target_type(name);
+-
+-	if (!ti) {
+-		load_module(name);
+-		ti = get_target_type(name);
+-	}
++	struct tt_internal *ti;
+ 
++	ti = try_then_request_module(get_target_type(name), "dm-%s", name);
+ 	return ti ? &ti->tt : NULL;
+ }
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12741-linux-2.6.0-test4-bk4/drivers/md/linear.c .12741-linux-2.6.0-test4-bk4.updated/drivers/md/linear.c
+--- .12741-linux-2.6.0-test4-bk4/drivers/md/linear.c	2003-08-25 11:58:18.000000000 +1000
++++ .12741-linux-2.6.0-test4-bk4.updated/drivers/md/linear.c	2003-09-03 15:55:16.000000000 +1000
+@@ -296,3 +296,4 @@ static void linear_exit (void)
+ module_init(linear_init);
+ module_exit(linear_exit);
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("md-personality-1"); /* LINEAR */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12741-linux-2.6.0-test4-bk4/drivers/md/multipath.c .12741-linux-2.6.0-test4-bk4.updated/drivers/md/multipath.c
+--- .12741-linux-2.6.0-test4-bk4/drivers/md/multipath.c	2003-08-25 11:58:18.000000000 +1000
++++ .12741-linux-2.6.0-test4-bk4.updated/drivers/md/multipath.c	2003-09-03 15:55:16.000000000 +1000
+@@ -509,3 +509,4 @@ static void __exit multipath_exit (void)
+ module_init(multipath_init);
+ module_exit(multipath_exit);
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("md-personality-7"); /* MULTIPATH */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12741-linux-2.6.0-test4-bk4/drivers/md/raid0.c .12741-linux-2.6.0-test4-bk4.updated/drivers/md/raid0.c
+--- .12741-linux-2.6.0-test4-bk4/drivers/md/raid0.c	2003-09-03 09:55:15.000000000 +1000
++++ .12741-linux-2.6.0-test4-bk4.updated/drivers/md/raid0.c	2003-09-03 15:55:16.000000000 +1000
+@@ -461,3 +461,4 @@ static void raid0_exit (void)
+ module_init(raid0_init);
+ module_exit(raid0_exit);
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("md-personality-2"); /* RAID0 */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12741-linux-2.6.0-test4-bk4/drivers/md/raid1.c .12741-linux-2.6.0-test4-bk4.updated/drivers/md/raid1.c
+--- .12741-linux-2.6.0-test4-bk4/drivers/md/raid1.c	2003-08-25 11:58:18.000000000 +1000
++++ .12741-linux-2.6.0-test4-bk4.updated/drivers/md/raid1.c	2003-09-03 15:55:16.000000000 +1000
+@@ -1197,3 +1197,4 @@ static void raid_exit(void)
+ module_init(raid_init);
+ module_exit(raid_exit);
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("md-personality-3"); /* RAID1 */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12741-linux-2.6.0-test4-bk4/drivers/md/raid5.c .12741-linux-2.6.0-test4-bk4.updated/drivers/md/raid5.c
+--- .12741-linux-2.6.0-test4-bk4/drivers/md/raid5.c	2003-09-03 09:55:15.000000000 +1000
++++ .12741-linux-2.6.0-test4-bk4.updated/drivers/md/raid5.c	2003-09-03 15:55:16.000000000 +1000
+@@ -1780,3 +1780,4 @@ static void raid5_exit (void)
+ module_init(raid5_init);
+ module_exit(raid5_exit);
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("md-personality-4"); /* RAID5 */
+
 
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

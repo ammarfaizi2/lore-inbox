@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317946AbSGKXZs>; Thu, 11 Jul 2002 19:25:48 -0400
+	id <S313060AbSGKXcK>; Thu, 11 Jul 2002 19:32:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317948AbSGKXZr>; Thu, 11 Jul 2002 19:25:47 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:52192 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317946AbSGKXZq>;
-	Thu, 11 Jul 2002 19:25:46 -0400
-Date: Thu, 11 Jul 2002 13:07:38 -0500
-From: Anton Blanchard <anton@samba.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry Kessler <kessler@us.ibm.com>, Kurt Garloff <garloff@suse.de>,
-       Perches Joe <joe.perches@spirentcom.com>, thunder@ngforever.de,
-       bunk@fs.tum.de, boissiere@adiglobal.com, linux-kernel@vger.kernel.org,
-       "'Martin.Bligh@us.ibm.com'" <Martin.Bligh@us.ibm.com>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [STATUS 2.5]  July 10, 2002
-Message-ID: <20020711180738.GB6002@krispykreme>
-References: <3D2C88B2.FF9ECD5C@us.ibm.com> <E17SOoL-0007q9-00@the-village.bc.nu>
+	id <S313087AbSGKXcK>; Thu, 11 Jul 2002 19:32:10 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:33009 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S313060AbSGKXcJ>; Thu, 11 Jul 2002 19:32:09 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Thu, 11 Jul 2002 17:32:26 -0600
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Dawson Engler <engler@csl.Stanford.EDU>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8
+Message-ID: <20020711233226.GC8738@clusterfs.com>
+Mail-Followup-To: Thunder from the hill <thunder@ngforever.de>,
+	Dawson Engler <engler@csl.Stanford.EDU>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	mc@cs.Stanford.EDU
+References: <200207112135.OAA03801@csl.Stanford.EDU> <Pine.LNX.4.44.0207111711530.26269-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E17SOoL-0007q9-00@the-village.bc.nu>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.44.0207111711530.26269-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> You need a bit more than that. You need a consistent way to report
-> an IRQ number, a device name, a PCI object etc. That does mean tidying up
-> printk but not in a bad way. One can imagine either
-> 
-> 	"%s", irq_name(irq)
-> 
-> or
-> 	"%I", irq
-> 
-> type solutions
+On Jul 11, 2002  17:14 -0600, Thunder from the hill wrote:
+> --- fs/hpfs/dir.c	19 Jun 2002 02:11:50 -0000	1.1.1.1
+> +++ fs/hpfs/dir.c	11 Jul 2002 22:12:53 -0000
+> @@ -211,7 +211,9 @@ struct dentry *hpfs_lookup(struct inode 
+>  
+>  	lock_kernel();
+>  	if ((err = hpfs_chk_name((char *)name, &len))) {
+> -		if (err == -ENAMETOOLONG) return ERR_PTR(-ENAMETOOLONG);
+> +		if (err == -ENAMETOOLONG) {
+> +			return ERR_PTR(-ENAMETOOLONG);
+> +		}
+>  		goto end_add;
+>  	}
 
-This would be nice. Ive been meaning to clean up the sparc64 irq
-printing macros so I can use them on ppc64 (we have sparse irqs and
-map them dynamically into the irq_desc array).
+So, how does adding braces and a linefeed fix the locking problem here?
+;-)
 
-Same problem once we get PCI domains. So this cleanup will help more
-than just event logging.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-Anton

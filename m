@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266959AbTBHB5E>; Fri, 7 Feb 2003 20:57:04 -0500
+	id <S266955AbTBHB42>; Fri, 7 Feb 2003 20:56:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266958AbTBHB5E>; Fri, 7 Feb 2003 20:57:04 -0500
-Received: from packet.digeo.com ([12.110.80.53]:41114 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266959AbTBHB5C>;
-	Fri, 7 Feb 2003 20:57:02 -0500
-Date: Fri, 7 Feb 2003 18:06:39 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: possible partition corruption
-Message-Id: <20030207180639.046eb256.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0302071943500.844-100000@localhost.localdomain>
-References: <20030207154045.5080b1b0.akpm@digeo.com>
-	<Pine.LNX.4.44.0302071943500.844-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S266958AbTBHB42>; Fri, 7 Feb 2003 20:56:28 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:1779 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266955AbTBHB41>;
+	Fri, 7 Feb 2003 20:56:27 -0500
+Date: Fri, 07 Feb 2003 17:57:46 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, Joel Becker <Joel.Becker@oracle.com>
+Subject: Re: [RFC][PATCH] linux-2.5.59_getcycles_A0
+Message-ID: <516500000.1044669465@flay>
+In-Reply-To: <20030208015235.GA25432@wotan.suse.de>
+References: <1044649542.18673.20.camel@w-jstultz2.beaverton.ibm.com.suse.lists.linux.kernel> <p73ptq3bxh6.fsf@oldwotan.suse.de> <1044659375.18676.80.camel@w-jstultz2.beaverton.ibm.com> <20030208001844.GA20849@wotan.suse.de> <1044665441.18670.106.camel@w-jstultz2.beaverton.ibm.com> <20030208015235.GA25432@wotan.suse.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Feb 2003 02:06:37.0192 (UTC) FILETIME=[B6254080:01C2CF16]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Molina <tmolina@cox.net> wrote:
->
-> On Fri, 7 Feb 2003, Andrew Morton wrote:
+>> However this doesn't work on systems w/o a synced TSC, so by simply
 > 
-> > I couldn't immediately see the reason for this.  You have your whole input
-> > layer configured as a module, perhaps that has upset things.
-> > 
-> > I suggest that you work on the config settings and find out what it is that
-> > is causing the tty layer to not come up.
+> Why not? This shouldn't be performance critical and you can make 
+> it monotonous with an additional variable + lock if backwards jumps
+> should be a problem.
 > 
-> OK, Hold the phone Susan, and stamp IDIOT on my forehead.  The erason for 
-> not getting any output on the console was that I had configured the kernel 
-> without support for virtual terminals or console on virtual terminals.  
-> Once I configured that correctly, things worked. Duh!
+> Also the variations between non synced TSCs should be far below 
+> any watchdog's radar screen.
 
-Yes, but you had CONFIG_VGA_CONSOLE=y.
+Not true. They'll drift further and further apart over time.
+Even a 0.01% crystal difference will eventually kill you.
 
-> The thing I don't understand is why would not having that configured in 
-> give me the lost journal and an inability to boot and mount the root 
-> partition when I booted back into a "normal" kernel.
+And if that isn't bad enough think about what happens when I run 180 MHz
+processors in one node, and 900MHz in another.
 
-Don't know.  It didn't do that when I tested it.
+You really can't make any assumptions about TSC sync on boxes where
+they're not synced.
+
+M.
+

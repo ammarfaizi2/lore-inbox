@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132839AbRDIUTv>; Mon, 9 Apr 2001 16:19:51 -0400
+	id <S132838AbRDIUbX>; Mon, 9 Apr 2001 16:31:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132840AbRDIUTb>; Mon, 9 Apr 2001 16:19:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38929 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132838AbRDIUTQ>; Mon, 9 Apr 2001 16:19:16 -0400
-Subject: Re: ISIcom cards by Multi-tech
-To: reinelt@eunet.at (Michael Reinelt)
-Date: Mon, 9 Apr 2001 21:20:37 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3AD21264.7EA4C687@eunet.at> from "Michael Reinelt" at Apr 09, 2001 09:49:56 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132840AbRDIUbO>; Mon, 9 Apr 2001 16:31:14 -0400
+Received: from d-airlock141.esatclear.ie ([194.145.133.141]:41230 "HELO
+	tcob1.net") by vger.kernel.org with SMTP id <S132838AbRDIUbD>;
+	Mon, 9 Apr 2001 16:31:03 -0400
+From: "Sean Rima" <lists@tcob1.net>
+To: linux-kernel@vger.kernel.org
+Subject: Sound problem with 2.2.19
+Message-ID: <9at636$pf9$2@tcob1.net>
+Date: Monday, 09 Apr 2001 21:29:26 +000
+X-Mailer: Internet Rex gateway (2.57 beta 4)
+X-Fido-From: Sean Rima, 2:0/0
+X-Fido-To: All
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14mi9Q-0002q4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I did a quick port of the old driver over (it wasnt very hard) and people then
-> > added additional bits of support later.
-> > 
-> > multitech never sent me many updates
-> 
-> O well. I thought it went this way....
-> 
-> Do you have sort of a 'patch' from your port? I could take this as a
-> guideline for what has to be changed from 2.2 to 2.4. If I compare the
-> 2.4 driver to the actual 2.2 one, there are far too much differences for
-> me...
+Originally to: All
 
-I dontt. Other than comparing the 2.2 and 2.4 driver
+I am sorry if this is old news but I have not seen any mention of it in the
+list.
+
+I keep getting "kernel: Sound error: Couldn't allocate DMA buffer" in my
+syslog. However sound was working until this morning. The machine uptime is
+below :)
+
+The PC is a IBM PS/2 486DX2, with an AWE32 with 256k. The PC is fitted with
+16mb of ram. I have never reported a problem before so excuse if it is a bit
+strange.
+
+Sean
+-- 
+GNUPG ID 92B9D0CF    | YAIM: thecivvie                | Fidonet and BBS
+ICQ: 679813          | Homepage: http://www.tcob1.net | Newsportal at
+Linux User: #124682  | AIM: tcobone                   | tcob1.uklinux.net
+My last power cut was 3d, 4h and 25m ago on Linux 2.2.19.
+<-> Information
+This message originated from a Fidonet system and was gated at
+There Can Only be 1 (http://www.tcob1.net)
+For information of Fidonet visit http://www.fidonet.org
+Please do not respond direct to this message but via the 
+

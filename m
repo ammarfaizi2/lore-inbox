@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132359AbRD1NPe>; Sat, 28 Apr 2001 09:15:34 -0400
+	id <S132462AbRD1NLY>; Sat, 28 Apr 2001 09:11:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132465AbRD1NPY>; Sat, 28 Apr 2001 09:15:24 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:52850 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S132359AbRD1NPL>; Sat, 28 Apr 2001 09:15:11 -0400
-Date: Sat, 28 Apr 2001 16:15:02 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Fabio Riccardi <fabio@chromium.com>, linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-Message-ID: <20010428161502.I3529@niksula.cs.hut.fi>
-In-Reply-To: <3AEA0C52.FA7CE1F1@chromium.com> <Pine.LNX.4.33.0104281029390.15790-100000@localhost.localdomain>
+	id <S132359AbRD1NLO>; Sat, 28 Apr 2001 09:11:14 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:19215 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S132465AbRD1NLF>; Sat, 28 Apr 2001 09:11:05 -0400
+Date: Sat, 28 Apr 2001 14:55:00 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Xiong Zhao <xz@gatekeeper.ncic.ac.cn>
+Cc: majordomo linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: kernel newbie question
+Message-ID: <20010428145500.N978@arthur.ubicom.tudelft.nl>
+In-Reply-To: <77457D7612D.AAA2712@gatekeeper.ncic.ac.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0104281029390.15790-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Apr 28, 2001 at 10:42:29AM +0200
+In-Reply-To: <77457D7612D.AAA2712@gatekeeper.ncic.ac.cn>; from xz@gatekeeper.ncic.ac.cn on Sat, Apr 28, 2001 at 03:16:34PM +0800
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 28, 2001 at 10:42:29AM +0200, you [Ingo Molnar] claimed:
-> 
-> per RFC 2616:
-> .............
-> The Date general-header field represents the date and time at which the
-> message was originated, [...]
-> 
-> Origin servers MUST include a Date header field in all responses, [...]
-> .............
-> 
-> i considered the caching of the Date field for TUX too, and avoided it
-> exactly due to this issue, to not violate this 'MUST' item in the RFC. It
-> can be reasonably expected from a web server to have a 1-second accurate
-> Date: field.
-> 
-> the header-caching in X15 gives it an edge against TUX, obviously, but IMO
-> it's a questionable practice.
-> 
-> if caching of headers was be allowed then we could the obvious trick of
-> sendfile()ing complete web replies (first header, then body).
+On Sat, Apr 28, 2001 at 03:16:34PM +0800, Xiong Zhao wrote:
+> hello. i read linux kernel internal. are there other books/papers
+> like that which dwell with linux kernel in detail,especially on 
+> process mechanism,for example,how pthread and fork are implemented,
+> how clone actually work.are there other materials on these topics
+> on internet that can be downloaded freely.
 
-Uhh, perhaps I'm stupid, but why not cache the date field and update the
-field once a five seconds? Or even once a second?
-
-I mean, at the rate of thousands of requests per second that should give you
-some advantage over dynamically generating it -- especially if that's the
-only thing hindering copletely sendfile()'ing the answer.
+Check out the books and links sections from
+http://www.kernelnewbies.org/ .
 
 
--- v --
+Erik
 
-v@iki.fi
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

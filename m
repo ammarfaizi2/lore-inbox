@@ -1,58 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263539AbUAXFpt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 00:45:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUAXFpt
+	id S266702AbUAXFxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 00:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUAXFxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 00:45:49 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:61657 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S263539AbUAXFps (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 00:45:48 -0500
-Date: Sat, 24 Jan 2004 13:40:34 +0800
-From: Hugang <hugang@soulinfo.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Patrick Mochel <mochel@digitalimplant.org>,
-       Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       ncunningham@clear.net.nz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
-Message-Id: <20040124134034.4e9c51e2@localhost>
-In-Reply-To: <1074912854.834.61.camel@gaston>
-References: <20040119105237.62a43f65@localhost>
-	<1074483354.10595.5.camel@gaston>
-	<1074489645.2111.8.camel@laptop-linux>
-	<1074490463.10595.16.camel@gaston>
-	<1074534964.2505.6.camel@laptop-linux>
-	<1074549790.10595.55.camel@gaston>
-	<20040122211746.3ec1018c@localhost>
-	<1074841973.974.217.camel@gaston>
-	<20040123183030.02fd16d6@localhost>
-	<1074912854.834.61.camel@gaston>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 24 Jan 2004 00:53:19 -0500
+Received: from [204.117.83.22] ([204.117.83.22]:43280 "HELO
+	netpublications.net") by vger.kernel.org with SMTP id S266702AbUAXFxQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 00:53:16 -0500
+Message-ID: <2dfa01c3e235$115fc920$cdbbd3d1@rdxjmorvfwseb>
+Reply-To: <infoktoww@netpublications.net>
+From: <infoktoww@netpublications.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Subventions, prets, financement / Finance your projects
+Date: Sat, 24 Jan 2004 09:46:44 +0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Jan 2004 13:54:15 +1100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Publications Canadiennes / Canadian Publications
+1556 Grand Marnier
+Val David
+Qc
+J0T 2N0
 
-> Ok, I hammered that for a day and got pmdisk (patrick's version)
-> suspending and resuming on a pismo G3 (with XFree etc.. running). Lots
-> of rough edges still (via-pmu sleep need to be improved, ADB need
-> porting to the new driver model to be properly suspended/resumed, a
-> sysdev for RTC is needed too for time, the asm code should be fixed
-> for G5, etc...)
+English message included below
 
-Yes, It works in my laptop too. Cool.
+ANNUAIRE DES SUBVENTIONS AU QUÉBEC 2004 / CANADIAN SUBSIDY DIRECTORY 2004
+Dépot légal-Bibliothèque Nationale du Québec
+ISBN 2-922870-06-5
 
-thanks for greate work.
+COMMUNIQUÉ DE PRESSE
 
--- 
-Hu Gang / Steve
-Linux Registered User 204016
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
+Les Publications Canadiennes offrent au public une édition révisée de
+l'ANNUAIRE DES
+SUBVENTIONS AU QUÉBEC contenant plus de 1900 programmes d'aides et de
+subventions provenant des divers paliers gouvernementaux et organismes.
+Dans la nouvelle édition 2004 on trouve la description des programmes ainsi
+que
+les montants alloués.
+
+L'ANNUAIRE DES SUBVENTIONS AU QUÉBEC est l'outil idéal soit pour démarrer
+son
+entreprise, améliorer une entreprise existante, mettre sur pied son plan
+d'affaires ou obtenir l'aide de conseillers experts dans le domaine des
+affaires:
+Démarrage d'entreprises, études, recherches, arts, agriculture, import
+export,
+main d'oeuvre, cinéma, prêts, promotion, bourses, théatre, transports,
+communications, mise sur pied et développement d'entreprises, construction
+et
+rénovation, aérospatial, concours, nouveaux talents, aide aux associations,
+organismes et fondations, informatique, musique, industrie du disque, plans
+d'affaires, études de marchés, infrastructures, aide aux travailleurs
+autonomes
+et plus encore !
+
+Informations.....................819-322-5756
+
+Visitez notre site web : http://www.netpublications.net
+
+****************************************************************
+
+Publications Canadiennes / Canadian Publications
+4865 Hwy 138, r.r. 1
+St-Andrews west
+Ontario, KOC 2A0
+
+
+PRESS RELEASE
+
+CANADIAN SUBSIDY DIRECTORY YEAR 2004 EDITION
+
+Legal Deposit-National Library of Canada
+ISBN 2-922870-05-7
+
+The Canadian Subsidy Directory 2004 is now available, newly revised it is
+the most
+complete and affordable reference for anyone looking for financing.
+It is the perfect tool for new and existing businesses, individuals,
+foundations 
+and associations.
+
+This Publication contains  more than 2000 direct and indirect
+financial subsidies, grants and loans offered by government departments and
+agencies, foundations, associations and organisations.  In this new 2004
+edition
+all programs are well described.
+
+The Canadian Subsidy Directory is the most comprehensive tool to start up a
+business, improve existent activities, set up a business plan, or obtain
+assistance from experts in fields such as: Industry, transport,
+agriculture,
+communications, municipal infrastructure, education, import-export, labor,
+construction and renovation, the service sector, hi-tech industries,
+research
+and development, joint ventures, arts, cinema, theatre, music and recording
+industry, the self employed, contests, and new talents.
+Assistance from and for foundations and associations, guidance to prepare a
+business plan, market surveys, computers, and much more!
+
+The Canadian Subsidy Directory is sold $ 69.95, to obtain a copy please
+call 
+819-322-5756 or visit the web site at: www.netpublications.net

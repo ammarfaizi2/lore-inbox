@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266006AbTFWL3M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 07:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbTFWL3M
+	id S266005AbTFWL3C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 07:29:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbTFWL3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 07:29:12 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:50950 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S266006AbTFWL3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 07:29:08 -0400
-Message-Id: <200306231132.h5NBWVu10803@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: John Bradford <john@grabjohn.com>, felipe_alfaro@linuxmail.org,
-       helgehaf@aitel.hist.no
-Subject: Re: O(1) scheduler & interactivity improvements
-Date: Mon, 23 Jun 2003 14:36:37 +0300
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <200306231050.h5NAo8EE000843@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200306231050.h5NAo8EE000843@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	Mon, 23 Jun 2003 07:29:01 -0400
+Received: from firewall.ocs.com.au ([203.34.97.9]:5510 "EHLO
+	firewall.ocs.com.au") by vger.kernel.org with ESMTP id S266005AbTFWL26
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 07:28:58 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: simon@nuit.ca
+cc: linux-kernel@vger.kernel.org
+Subject: Re: problems patching XFS against current benh 
+In-reply-to: Your message of "Mon, 23 Jun 2003 10:17:51 GMT."
+             <20030623101751.GD2102@nuit.ca> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 23 Jun 2003 21:42:40 +1000
+Message-ID: <17391.1056368560@firewall.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 June 2003 13:50, John Bradford wrote:
-> > Maybe I have different a different idea of what "interactive" should be.
-> 
-> [snip]
-> 
-> > moving windows around the screen do feel jerky and laggy at best
-> > when the machine is loaded. For a normal desktop usage, I prefer all
-> > my intensive tasks to start releasing more CPU cycles so moving a
-> > window around the desktop feels completely smooth
-> 
-> That's fine for a desktop box, but I wouldn't really want a heavily
-> loaded server to have database queries starved just because somebody
-> is scrolling through a log file, or moving windows about doing admin
-> work.
+On Mon, 23 Jun 2003 10:17:51 +0000, 
+simon raven <simon@nuit.ca> wrote:
+>/usr/src/kernel_benh/include/linux/modules/ksyms.ver:387:1: warning: "__ver_mark_page_accessed" redefined
+>In file included from /usr/src/kernel_benh/include/linux/modversions.h:100,
+>                 from /usr/src/kernel_benh/include/linux/module.h:21,
+>                 from exec_domain.c:14:
+>/usr/src/kernel_benh/include/linux/modules/filemap.ver:7:1: warning: this is the location of the previous definition
 
-Well... a heavily loaded database server is typically sit headless
-or with monitor turned off. ;)
+mark_page_accessed is exported in both ksyms.c and filemap.c, both XFS
+and benh add that export.  Remove one of the
+EXPORT_SYMBOL(mark_page_accessed).
 
-Scrolling thru log file won't eat much CPU anyway, and if
-your database admin do *lots* of window moving on a heavily
-loaded database server... may I suggest looking for a better
-admin? ;);)
+>in include/linux/sysctl.h, two resources (?) want a VM_ set to 14:
+>
+>1 =>        VM_HEAP_STACK_GAP=14,   /* int: page gap between heap and stack */
+>2 =>        VM_PAGEBUF=14,          /* struct: Control pagebuf parameters */
+>        VM_LAPTOP_MODE=15,
+>        VM_BLOCK_DUMP=16,
+>
+>number 1 is from benh, and number 2 is from XFS. i need both - benh's for some drivers for my hardware, and XFS 
+>because most of my FSes are XFS. 
 
-(*lots* defined as "enough to noticeably slow db querires")
---
-vda
+The sysctl numbers have nothing to do with the compile error.  Pick
+another number for one of the conflicting sysctls.
+

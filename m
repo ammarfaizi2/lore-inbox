@@ -1,61 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267329AbUHPCKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267324AbUHPCOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267329AbUHPCKc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 22:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUHPCKc
+	id S267324AbUHPCOk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 22:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267336AbUHPCOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 22:10:32 -0400
-Received: from mail3.speakeasy.net ([216.254.0.203]:10967 "EHLO
-	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S267336AbUHPCKN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 22:10:13 -0400
-Date: Sun, 15 Aug 2004 19:10:08 -0700
-Message-Id: <200408160210.i7G2A8HZ029707@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Andi Kleen <ak@muc.de>
-X-Fcc: ~/Mail/linus
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] waitid system call
-In-Reply-To: Andi Kleen's message of  Monday, 16 August 2004 02:03:37 +0200 <m3smaoc5k6.fsf@averell.firstfloor.org>
-X-Zippy-Says: ...It's REAL ROUND..  And it's got a POINTY PART right in the
-   MIDDLE!!  The shape is SMOOTH..  ..And COLD.. It feels very
-   COMFORTABLE on my CHEEK..  I'm getting EMOTIONAL..
+	Sun, 15 Aug 2004 22:14:40 -0400
+Received: from adsl-68-121-86-223.dsl.irvnca.pacbell.net ([68.121.86.223]:33808
+	"EHLO abn-tepuk8gy00w") by vger.kernel.org with ESMTP
+	id S267324AbUHPCOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 22:14:36 -0400
+From: bizsale@37.com
+Subject: Hurricane Charley Caused Damages $11 Billion in Florida
+To: linux-kernel@vger.kernel.org
+Date: Sun, 15 Aug 2004 19:14:43 -0700
+X-Priority: 3
+X-Mailer: CSM2.8
+Message-Id: <S267324AbUHPCOg/20040816021436Z+274@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are you sure you converted the new _rusage member properly 
-> in the 64->32bit siginfo converter? struct rusage uses long.
+World Hongming Foundation Calls for Assistance: 
+Hurricane Charley Caused Damages as High as $11 Billion in Florida
 
-Aha!  Indeed I did not.  Thanks for pointing that out.
+            Full report with photos and videos, see 
+            www.hongming.us/foundation/2004-8-15-Hurricane.htm
 
-> Better use compat_alloc_user_space() for this. Otherwise it won't
-> work for UML/x86-64. Also that will make it easier to port to other
-> architectures. 
+On August 15, 2004, as the remnants of Hurricane Charley disintegrated off the New England coast on Sunday, 
+Florida residents began the massive task of cleaning up from a storm that state officials estimated caused 
+damages as high as $11 billion for insured homes alone. According to Tami Torres, a spokeswoman for state Chief 
+Financial Officer Tom Gallagher, uninsured homes, business losses and damage to automobiles were not included. 
+Thirty-one mobile-home parks in Charlotte County sustained major damage, some with more than 1,000 units, 
+said Bob Carpenter, a sheriff's spokesman. He said teams were sent to each park to search for bodies and 
+survivors, but "we just couldn't get the vehicles in — there is so much debris."
 
-I followed the model of sys32_rt_sigtimedwait and various compat_*
-functions in kernel/compat.c.  In fact, nothing in kernel/compat.c uses
-compat_alloc_user_space--and most things in arch/x86_64/ia32/sys_ia32.c use
-the direct stack method as well.  To address your concerns, I imagine all
-these places should be changed en masse.  
+In order to relieve the people in disasters, as a 501(c)(3) charitable and educational foundation in USA, the World 
+Hongming Foundation would like to invite public donations to help the victims of the natural calamity.
+ 
+President Bush flew over the most heavily damaged areas in a Marine helicopter Sunday before landing in this 
+retirement haven of 15,000 people, which was devastated by Charley. The storm left thousands temporarily 
+homeless. "All the clothes that I've got now is just what I'm wearing now," one resident, George Nickols, told the 
+president. 
 
-> 
-> +	/* 1 if group stopped since last SIGCONT, -1 if SIGCONT since report */
-> +  	int			stop_state;
-> 
-> Can't this be merged into some other field? No need to waste memory
-> unnecessarily.
+Chad Maxwell shoveled up soggy ceiling tiles and shattered glass Sunday from the floor of the real estate office 
+where he works in Punta Gorda. Looking at the coffee shop next door, which lost its second floor, and a florist with 
+only one wall standing, he described his impression of downtown: "Beirut." "It looks like a bomb zone. Everything's 
+gone. Everything's tore up," he said. 
 
-I think it could be merged into group_stop_count.  I just didn't really
-want to perturb all that code for the first go-round.  I can make an
-attempt at that if all the other potential concerns with the patch are
-ironed out.  So far the patch doesn't really touch existing signal code
-paths much at all, so it's easier to evaluate.
+The hardest-hit areas appeared to be Punta Gorda and Port Charlotte in Charlotte County, though the Federal 
+Emergency Management Agency declared 25 counties eligible for disaster aid after the worst hurricane to hit 
+Florida in a dozen years.
 
+As a weakened Charley churned up the East Coast and was downgraded Sunday to a tropical depression, 
+emergency officials pronounced it the worst hurricane to wallop Florida since Hurricane Andrew tore through in 
+1992. Twenty-six deaths were directly linked to Andrew, which caused $19.9 billion in insured property losses.
 
+State officials said it was impossible to estimate the number of missing people, and downed power lines and debris 
+made the task of searching for bodies "tedious and dangerous," said Mike McHargue, director of investigations for 
+the Florida Department of Law Enforcement.
 
-Thanks,
-Roland
+In Florida, Charley knocked out power to an estimated 2 million people as it hit southwest Florida as a Category 4 
+storm, pummeling the coast with winds reaching 145 mph and a surge of sea water of 13 feet to 15 feet. 
 
+The storm devastated citrus groves, and could have a "huge impact" on this year's crop, said Andy LaVigne, chief 
+executive of the trade group Florida Citrus Mutual. 
+ 
+Charley cut northeast across Florida, hit open ocean again and made landfall again at South Carolina's Grand 
+Strand resort region Saturday. The weakened but still-powerful system moved into North Carolina and up the 
+eastern seaboard. 
+
+Three hospitals in the county sustained significant damage, Sallade said. Officials at Charlotte Regional Medical 
+Center said they were evacuating all patients Saturday, and spokesman Josh Cutter said Sunday that the hospital 
+hoped to reopen within three weeks. "This place just isn't safe," said Peggy Greene, chief nursing officer. She said 
+windows were blown out, part of the roof was blown off, and there was no power or phone service. 
+
+Charlotte County officials requested help in obtaining necessities. Supermarkets gave away free water in five cities 
+from Fort Myers to Wauchula. 
+
+Any generous assistance is needed and will be deeply appreciated. Donations please be made payable to:
+
+          World Hongming Foundation
+          P. O. Box 4820
+          El Monte, CA 91734-0820
+          USA
+
+Website: http://www.hongming.us/foundation/en.htm
+Email: donation@hongming.us
+Fax: +1-561-431-7612
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Note: This is a useful message; please do not reply directly. Any inquiry regarding the information in this email 
+should be sent to the mentioned institution. If you do not wish to receive additional message from us, please click 
+optout@37.com?subject=Remove. This request may take two business days to complete. Alternatuvely, your 
+may send a mail to PO Box 1022, Resemead, CA 91770 to drop out.

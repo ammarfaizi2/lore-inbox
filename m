@@ -1,84 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132883AbREBMZM>; Wed, 2 May 2001 08:25:12 -0400
+	id <S132850AbREBMXm>; Wed, 2 May 2001 08:23:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132909AbREBMYw>; Wed, 2 May 2001 08:24:52 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:40324 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132883AbREBMYo> convert rfc822-to-8bit; Wed, 2 May 2001 08:24:44 -0400
-Date: Wed, 2 May 2001 08:24:37 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
-cc: Ofer Fryman <ofer@shunra.co.il>,
-        liste noyau linux <linux-kernel@vger.kernel.org>,
-        liste dev network device <netdev@oss.sgi.com>
-Subject: Re: ioctl call for network device
-In-Reply-To: <20010502131920.478e50be.sebastien.person@sycomore.fr>
-Message-ID: <Pine.LNX.3.95.1010502075944.14806A-100000@chaos.analogic.com>
+	id <S132883AbREBMXc>; Wed, 2 May 2001 08:23:32 -0400
+Received: from cr803443-a.flfrd1.on.wave.home.com ([24.156.64.178]:22161 "EHLO
+	fxian.jukie.net") by vger.kernel.org with ESMTP id <S132850AbREBMXR>;
+	Wed, 2 May 2001 08:23:17 -0400
+Date: Wed, 2 May 2001 08:22:54 -0400 (EDT)
+From: Feng Xian <fxian@fxian.jukie.net>
+X-X-Sender: <fxian@tiger>
+To: "Sim, CT (Chee Tong)" <CheeTong.Sim@sin.rabobank.com>
+cc: "'Michel Wilson'" <michel@procyon14.yi.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: Linux NAT questions- (kernel upgrade??)
+In-Reply-To: <1E8992B3CD28D4119D5B00508B08EC5627E8A4@sinxsn02.ap.rabobank.com>
+Message-ID: <Pine.LNX.4.33.0105020821480.1388-100000@tiger>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 May 2001, [ISO-8859-1] sébastien person wrote:
+i think iptables is a new feature in kernel 2.4.x(and you have to build
+it in the kernel or as module). you can use ipchains if
+you are running kernel with lower version, 2.2.something.
 
-> Le Wed, 2 May 2001 13:55:34 +0200 
-> Ofer Fryman <ofer@shunra.co.il> à écrit :
-> 
-> > The definition of ioctl is "extern int __ioctl __P ((int __fd, unsigned long
-> > int __request, ...));" on Linux 2.0.x, and I believe it is also on any other
-> > Linux version.
-> 
-> yes but I use an network device specific ioctl call wich perform interface-specific
-> ioctl commands.
-> the prototype of the ioctl reception in the module is (as described in rubini book,
-> O reilly, linux device drivers):
-> 
-> int (*do_ioctl) (struct device *dev, struct ifreq *ifr, int cmd);
-> 
-> so can I pass over the limitations of the definition ?
-> I do ioctl that use private ioctl flags (e.g. SIOCDEVPRIVATE)
-> 
+Alex
 
-struct ifreq has a member called ifr_data. It is a pointer. You can
-put a pointer to any of your data, including the most complex structure
-you might envision, in that area. This allows you to pass anything
-to and from your module. This pointer can be properly dereferenced
-in kernel space but you should use copy_to/from_user and friends so a
-user-space coding bug won't panic the kernel.
+On Wed, 2 May 2001, Sim, CT (Chee Tong) wrote:
 
-Also, the value of the commands that you want to use for the ioctl() can
-(probably should), start at SIOCDEVPRIVATE.
+> Hi.. I follow your instruction, but I encounter this issue, my kernel need
+> to be upgrade? MAy I know how to determine the current kernel version and
+> how to upgrade it??
+>
+>
+> [root@guava /root]# iptables -t nat -A PREROUTING -p tcp --dst 1.1.1.160 -i
+> eth1 -j D
+> NAT --to-destination 192.168.200.2
+> iptables v1.1.1: can't initialize iptables table `nat': iptables who? (do
+> you need to insm
+> od?)
+> Perhaps iptables or your kernel needs to be upgraded.
+>
+>
+> [root@guava simc]# rpm -ivh iptables-1_2_0-6_i386.rpm
+> error: failed dependencies:
+>         kernel >= 2.4.0 is needed by iptables-1.2.0-6
+>
+>
+> -----Original Message-----
+> From: Michel Wilson [mailto:michel@procyon14.yi.org]
+> Sent: Wednesday, May 02, 2001 5:13 PM
+> To: Sim, CT (Chee Tong)
+> Cc: linux-kernel@vger.kernel.org
+> Subject: RE: Linux NAT questions
+>
+>
+> > what I am trying to do is this. I have a genuine network, say 1.1.1.x, and
+> > my Linux host is on it, as 1.1.1.252 (eth0). I also have a second
+> > network at
+> > the back of the Linux box, 192.168.200.x, and a web server on
+> > that network,
+> > 192.168.200.2. The Linux address is 192.168.200.1 on eth1.
+> >
+> > What I want to do is make the web server appear on the 1.1.1.x network as
+> > 1.1.1.160. I have done this before with Firewall-1 on NT, by
+> > putting an arp
+> > entry for 1.1.1.160 to point to the Linux machine eth0. The packets get
+> > redirected into the Linux machine, then translated, and then routed out of
+> > eth1.
+> >
+> > The benefit is that there is no routing change to the 1.1.1.x network, and
+> > the Linux box isn't even seen as a router.
+> >
+> > I would appreciate any help with this. Any command to do this?
+> >
+> > Chee Tong
+> This isn't really a kernel question. I think you'd better ask it on some
+> linux network list/newsgroup. But here's an answer anyway....
+>
+> You could add 1.1.1.160 to eth0:
+>    ip addr add 1.1.1.160 dev eth0
+> and then use NAT to redirect these to the webserver:
+>    iptables -t nat -A PREROUTING -p tcp --dst 1.1.1.160 -i eth1 -j
+> DNAT --to-destination 192.168.200.2
+>
+> This should work, AFAIK, but i didn't try it myself. You could also try to
+> use the arp command (see 'man arp'), but i don't know exactly how that
+> works.
+>
+> Good luck!
+>
+> Michel Wilson.
+>
+>
+> ==================================================================
+> De informatie opgenomen in dit bericht kan vertrouwelijk zijn en
+> is uitsluitend bestemd voor de geadresseerde. Indien u dit bericht
+> onterecht ontvangt wordt u verzocht de inhoud niet te gebruiken en
+> de afzender direct te informeren door het bericht te retourneren.
+> ==================================================================
+> The information contained in this message may be confidential
+> and is intended to be exclusively for the addressee. Should you
+> receive this message unintentionally, please do not use the contents
+> herein and notify the sender immediately by return e-mail.
+>
+>
+> ==================================================================
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-In other words, given the commands DEV_START, DEV_STOP, DEV_DESTROY,
-they should be defined as:
-
-#define DEV_START   SIOCDEVPRIVATE
-#define DEV_STOP    SIOCDEVPRIVATE + 1
-#define DEV_DESTROY SIOCDEVPRIVATE + 2
-
-Given a user-space aggregate of type FOO, to be accessed by the
-module, it would be coded as:
-
-FOO foo;
-struct ifreq ifr;
-
-    strcpy(ifr.ifr_name, "eth0");
-    ifr.ifr_data = (char *) &foo;
-    ioctl(sock, DEV_DESTROY, &ifr);
-    
-So, as you can see, there are no limitations of the definition.
-In fact, it's a really well designed interface.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+-- 
+        Feng Xian
+   _o)     .~.      (o_
+   /\\     /V\      //\
+  _\_V    // \\     V_/_
+         /(   )\
+          ^^-^^
+           ALEX
 

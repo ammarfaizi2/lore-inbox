@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285410AbRLSS5g>; Wed, 19 Dec 2001 13:57:36 -0500
+	id <S283672AbRLSTB4>; Wed, 19 Dec 2001 14:01:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282495AbRLSS5Q>; Wed, 19 Dec 2001 13:57:16 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:43466 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S282502AbRLSS5J>; Wed, 19 Dec 2001 13:57:09 -0500
-Date: Wed, 19 Dec 2001 13:57:08 -0500
-From: Ben LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: aio
-Message-ID: <20011219135708.A12608@devserv.devel.redhat.com>
-In-Reply-To: <E16Gjuw-0000UT-00@starship.berlin> <Pine.LNX.4.33.0112190859050.1872-100000@penguin.transmeta.com>
+	id <S282495AbRLSTBq>; Wed, 19 Dec 2001 14:01:46 -0500
+Received: from femail18.sdc1.sfba.home.com ([24.0.95.145]:58308 "EHLO
+	femail18.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S282499AbRLSTBg>; Wed, 19 Dec 2001 14:01:36 -0500
+Date: Wed, 19 Dec 2001 14:01:34 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
+Message-ID: <20011219190134.GA15197@cy599856-a.home.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org> <lnitb3drx6.fsf_-_@walhalla.agaha> <20011219175616.GD19236@0xd6.org> <x88itb3njfr.fsf@rpppc1.hns.com> <20011219184745.GF19236@0xd6.org> <3C20E1F8.9C8D2825@lexus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112190859050.1872-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Dec 19, 2001 at 09:01:59AM -0800
+In-Reply-To: <3C20E1F8.9C8D2825@lexus.com>
+User-Agent: Mutt/1.3.24i
+X-Editor: GNU Emacs 21.1
+X-Operating-System: Debian GNU/Linux 2.4.17-rc2 i586 K6-3+
+X-Uptime: 13:57:54 up 12:16,  3 users,  load average: 0.00, 0.01, 0.00
+From: Josh McKinney <forming@home.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 19, 2001 at 09:01:59AM -0800, Linus Torvalds wrote:
+On approximately Wed, Dec 19, 2001 at 10:52:40AM -0800, J Sloan wrote:
+> "M. R. Brown" wrote:
 > 
-> On Wed, 19 Dec 2001, Daniel Phillips wrote:
+> > * nbecker@fred.net <nbecker@fred.net> on Wed, Dec 19, 2001:
 > >
-> > It's AIO we're talking about, right?  AIO is interesting to quite a few
-> > people.  I'd read the thread.  I'd also read any background material that Ben
-> > would be so kind as to supply.
-> 
-> Case closed.
-> 
-> Dan didn't even _know_ of the patches.
+> > > Is it safe to use gcc-3.0.2 to compile the kernel?
 
-He doesn't read l-k apparently.
+ Just another side note, gcc-3.0.3 prerelease is out, and it compiles kernels fine here so far.
 
-> Ben: end of discussion. I will _not_ apply any patches for aio if they
-> aren't openly discussed. We're not microsoft, and we're not Sun. We're
-> "Open Source", not "cram things down peoples throat and spring new
-> features on them as a fait accompli".
-
-Discuss them then to your heart's content.  I've posted announcements to 
-both l-k and linux-aio which are both on marc.theaimsgroup.com if you're 
-too lazy to get your IS to add a new list yo the internal news gateway.
-
-> The ghost of "binary compatibility" is not an issue - if Ben or anytbody
-> else finds a flaw with the design, it's a hell of a lot better to have
-> that flaw fixed _before_ it's part of my kernel rather than afterwards.
-
-Thanks for the useful feedback on the userland interface then.  Evidently 
-nobody cares within the community about improving functionality on a 
-reasonable timescale.  If this doesn't change soon, Linux is doomed.
-
-		-ben
+Josh
+-- 
+Linux, the choice                | Ever feel like life was a game and you had 
+of a GNU generation       -o)    | the wrong instruction book? 
+Kernel 2.4.17-rc2          /\    | 
+on a i586                 _\_v   | 
+                                 | 

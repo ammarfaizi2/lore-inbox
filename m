@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131216AbRCGV5j>; Wed, 7 Mar 2001 16:57:39 -0500
+	id <S131129AbRCGW56>; Wed, 7 Mar 2001 17:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131217AbRCGV5U>; Wed, 7 Mar 2001 16:57:20 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:59858 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S131215AbRCGV4c>; Wed, 7 Mar 2001 16:56:32 -0500
-Date: Wed, 7 Mar 2001 22:55:48 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Q. about oops backtrace
-In-Reply-To: <20010307152847.C19671@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.30.0103072240200.3057-100000@cola.teststation.com>
+	id <S131151AbRCGW5s>; Wed, 7 Mar 2001 17:57:48 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:35728 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S131129AbRCGW5k>;
+	Wed, 7 Mar 2001 17:57:40 -0500
+Message-ID: <3AA6BCB3.F74C4ED7@mandrakesoft.com>
+Date: Wed, 07 Mar 2001 17:56:51 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Knernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.3 and new aic7xxx
+In-Reply-To: <200103072243.f27MhdO31896@aslan.scsiguy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Pete Zaitcev wrote:
+"Justin T. Gibbs" wrote:
+> How often is the list manipulated?  My guess is not very often.
 
-> Trace; c0127414 <handle_mm_fault+114/1a0>
-> Trace; c0136a2d <kunmap_high+7d/90>
-> Trace; c012722e <do_anonymous_page+de/110>
-> Trace; c0127290 <do_no_page+30/a0>
-> Trace; c0127414 <handle_mm_fault+114/1a0>
-> Trace; c014cdec <dput+1c/170>
-> Trace; c0143f80 <cached_lookup+10/50>
-> Trace; c0144aae <path_walk+85e/940>
-> Trace; c014cdec <dput+1c/170>
-> Trace; c01392c9 <chrdev_open+59/a0>
-> Trace; c0138130 <dentry_open+c0/150>
-> Trace; c013805d <filp_open+4d/60>
-> Trace; c0148b97 <sys_ioctl+247/2a0>
-> Trace; c01091c7 <system_call+33/38>
-> 
-> What is with those recursive handle_mm_fault calls?
+Modified very infrequently...  at boot, and for each hotplug insertion
+or removal.  It's not even read very often.
 
-Unless I'm mistaken the call trace in an i386 oops is printed by
-arch/i386/kernel/traps.c:show_trace()
 
-And it simply prints any value within certain limits.
-                if (((addr >= (unsigned long) &_stext) &&
-                     (addr <= (unsigned long) &_etext)) ||
-                    ((addr >= module_start) && (addr <= module_end))) {
-			/* ... print it ... */
+> You can allow people to read the list without taking a spinlock and
+> only acquire the spinlock on list manipulations.  Inserting an
+> element can be performed atomically so there isn't an SMP issue
+> so long as you don't allow more than one processor to insert at
+> the same time.  This would allow you to perform insertion sort
+> meaning that everything from /proc to device drivers auto-magically
+> sees the devices in the order they were probed.
 
-If a function is passed as a parameter it will of course be on the stack,
-even when it isn't a return value.
+I was just thinking the same thing.  list_splice and an insertion sort
+can be used instead of all that allocation crap.
 
-The dput entries are strange too, does dput call path_walk?
-(is the translation from numbers to symbols correct?)
 
-/Urban
+> For hot plug devices
+> you might want to insert them at the end to follow the "order probed"
+> motif.
 
+hmmm..  Is there a reason why this would be -needed-?  It wouldn't be
+hard to implement, but I would rather not have drivers dealing with a
+list whose normal state is defined as "mostly sorted"...
+
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

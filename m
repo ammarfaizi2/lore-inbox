@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272726AbTG1IWV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 04:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272728AbTG1IWV
+	id S272734AbTG1I11 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 04:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272728AbTG1I11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 04:22:21 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:24848 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S272726AbTG1IWU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 04:22:20 -0400
-Date: Mon, 28 Jul 2003 01:37:30 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: malloc problem to allocate very large blocks
-Message-ID: <20030728083730.GB1333@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20030728064428.GA32138@xcin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030728064428.GA32138@xcin>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: The contents of this message may cause sleeplessness, irritability, loss of appetite, anxiety, depression, or other psychological disorders.  Consult your doctor if these symptoms persist.
+	Mon, 28 Jul 2003 04:27:27 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:26530
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272734AbTG1I10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 04:27:26 -0400
+Message-ID: <1059381752.3f24e1f8ad4b5@kolivas.org>
+Date: Mon, 28 Jul 2003 18:42:32 +1000
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
+References: <5.2.1.1.2.20030728093215.01be8f68@pop.gmx.net> <5.2.1.1.2.20030728100955.01bf5410@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20030728100955.01bf5410@pop.gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 02:44:28PM +0800, Tung-Han Hsieh wrote:
-> Hello,
+Quoting Mike Galbraith <efault@gmx.de>:
+
+> At 09:44 AM 7/28/2003 +0200, Ingo Molnar wrote:
 > 
-> I am developing applications which requires more than 2GB memory.
-> But I found that in my Linux system the malloc() cannot allocate
-> more than 2GB memory. Here is the details of my system:
+> >On Mon, 28 Jul 2003, Mike Galbraith wrote:
+> >
+> > > >Yes I can reproduce it, but we need the Kirk approach and cheat. Some
+> > > >workaround for tasks that have fallen onto the expired array but 
+> > shouldn't be
+> > > >there needs to be created. But first we need to think of one before we
+> can
+> > > >create one...
+> > >
+> > > Oh good, it's not my poor little box.  My experimental tree already has
+> > > a "Kirk" ;-)
+> >
+> >could you give -G7 a try:
+> >
+> >         redhat.com/~mingo/O(1)-scheduler/sched-2.6.0-test1-G7
+> 
+> The dd case is improved.  The dd if=/dev/zero is now prio 25, but it's 
+> of=/dev/null partner remains at 16.  No change with the xmms gl thread.
 
-Malloc is a library function, not a syscall.
+Well O10 is not prone to the dd/of problem (obviously since it doesn't use 
+nanosecond timing [yet?]) but I can exhibit your second weird one if I try hard 
+enough.
 
-That said i'm not surprised.  Malloc front-ends sbrk and
-sometimes mmap.  Sbrk uses a ptrdiff_t to indicate the size
-desired.  ptrdiff_t is signed and on 32 bit platforms should
-be 32 bits.  Therefore, the maximum you can allocate at one
-time with sbrk is going to be 2GB.  That malloc would
-inherit this limitation is to be expected.
-
-If you need to allocate that much memory in one chunk, don't
-use malloc.
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+Con

@@ -1,128 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbUKRDnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbUKRDsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbUKRDnA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 22:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUKRDm7
+	id S261737AbUKRDsr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 22:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUKRDsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 22:42:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:31189 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262387AbUKRDmy (ORCPT
+	Wed, 17 Nov 2004 22:48:47 -0500
+Received: from ozlabs.org ([203.10.76.45]:8864 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261737AbUKRDso (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 22:42:54 -0500
-Date: Wed, 17 Nov 2004 22:42:37 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
-cc: netdev@oss.sgi.com, Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
- using SELinux and SOCK_SEQPACKET
-In-Reply-To: <419BE847.90307@blueyonder.co.uk>
-Message-ID: <Xine.LNX.4.44.0411172222160.2531-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Nov 2004 22:48:44 -0500
+Subject: Re: modprobe + request_module() deadlock
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Johannes Stezenbach <js@linuxtv.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Gerd Knorr <kraxel@bytesex.org>
+In-Reply-To: <20041117222949.GA9006@linuxtv.org>
+References: <20041117222949.GA9006@linuxtv.org>
+Content-Type: text/plain
+Date: Thu, 18 Nov 2004 14:48:22 +1100
+Message-Id: <1100749702.5865.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004, Ross Kendall Axe wrote:
-
-> Ross Kendall Axe wrote:
-> > 
-> > A possibility that hadn't occurred to me was using sendto to send packets
-> > without connecting. Is this supposed to work? If so, then my patch is
-> > indeed inappropriate. If not, then that needs fixing also.
-> > 
+On Wed, 2004-11-17 at 23:29 +0100, Johannes Stezenbach wrote:
+> Hi,
 > 
-> Well, my reading of socket(2) suggests that it's _not_ supposed to work.
+> it seems that modprobe in newer versions of module-init-tools
+> (here: 3.1-pre6) gets an exclusive lock on the module's .ko file:
+> 
+>                 struct flock lock;
+>                 lock.l_type = F_WRLCK;
+>                 lock.l_whence = SEEK_SET;
+>                 lock.l_start = 0;
+>                 lock.l_len = 1;
+>                 fcntl(fd, F_SETLKW, &lock);
+> 
+> This leads to a deadlock when the loaded module calls
+> request_module() in its module_init() function, to load
+> a module which in turn depends on the first module.
 
-sendto() on a non connected socket should fail with ENOTCONN.
+My bug, I think.  Does this help?
 
-> This patch causes sendmsg on SOCK_SEQPACKET unix domain sockets to return
-> EISCONN or ENOTSUPP as appropriate if the 'to' address is specified.
+Rusty.
 
-For sendto():
+--- modprobe.c.~70~	2004-09-30 20:16:19.000000000 +1000
++++ modprobe.c	2004-11-18 14:44:57.000000000 +1100
+@@ -735,6 +735,11 @@
+ 		       strip_vermagic, strip_modversion);
+ 	}
+ 
++	/* Don't do ANYTHING if already in kernel. */
++	if (!ignore_proc
++	    && module_in_kernel(newname ?: mod->modname, NULL) == 1)
++		goto exists_error;
++
+ 	fd = lock_file(mod->filename);
+ 	if (fd < 0) {
+ 		error("Could not open '%s': %s\n",
+@@ -742,11 +747,6 @@
+ 		goto out_optstring;
+ 	}
+ 
+-	/* Don't do ANYTHING if already in kernel. */
+-	if (!ignore_proc
+-	    && module_in_kernel(newname ?: mod->modname, NULL) == 1)
+-		goto exists_error;
+-
+ 	command = find_command(mod->modname, commands);
+ 	if (command && !ignore_commands) {
+ 		/* It might recurse: unlock. */
+@@ -799,7 +799,7 @@
+ 	if (first_time)
+ 		error("Module %s already in kernel.\n",
+ 		      newname ?: mod->modname);
+-	goto out_unlock;
++	goto out_optstring;
+ }
+ 
+ /* Do recursive removal. */
 
-The address must be ignored on a connected mode socket (i.e. in this 
-case).
-
-According to the send(2) man page, we may return EISCONN if the address
-and addr length are not NULL and zero.  I think that the man page is
-incorrect.  Posix says that EISCONN means "A destination address was
-specified and the socket is already connected", not "A destination address
-was specified and the socket is connected mode".  i.e. we should only 
-return EISCONN if the socket is in a connected state.
-
-I'm not sure if we should return any error at all if an address is 
-supplied to sendto() on SOCK_SEQPACKET.  We're only required to ignore it.
-
-I would say that we should return an error as it is likely a progamming 
-mistake in the application and we should let them know.
-
-However, as mentioned above, I don't think EISCONN is appropriate in this 
-case.  EINVAL might be better.
-
-> It also causes recvmsg to return EINVAL on unconnected sockets. This
-> behaviour is consistent with SOCK_STREAM sockets.
-
-This seems incorrect too, Posix says to use ENOTCONN.
-
-There is a non SELinux-related bug lurking in this code.  I got this oops
-when trying to kill a modified version of seqpacket-crash which keeps
-sending in a loop and uses sendto() and an address with SOCK_SEQPACKET.
-
-------------[ cut here ]------------
-kernel BUG at include/asm/spinlock.h:133!
-invalid operand: 0000 [#1]
-PREEMPT SMP
-Modules linked in: ipv6 binfmt_misc video ac e1000 3c59x
-CPU:    0
-EIP:    0060:[<c03393b2>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.10-rc2)
-EIP is at _spin_lock_bh+0x4b/0x55
-eax: 0000000e   ebx: f757b04c   ecx: c038c60c   edx: 00000292
-esi: f757b04c   edi: f73f096c   ebp: c1bf8ed4   esp: c1bf8ec8
-ds: 007b   es: 007b   ss: 0068
-Process seqpacket-crash (pid: 4989, threadinfo=c1bf8000 task=f75fd530)
-Stack: c034c39c c02c171e f757b02c c1bf8ee4 c02c171e f79448d4 f73f098c c1bf8f0c
-       c02be9d4 f73f0960 f757b02c 00000000 00000000 ffffffff f73f098c 00000000
-       dfff3b20 c1bf8f1c c02be96b 00000000 f79448d4 c1bf8f38 c0151b2c f73f098c
-Call Trace:
- [<c010336d>] show_stack+0x7a/0x90
- [<c01034ee>] show_registers+0x152/0x1ca
- [<c01036f5>] die+0x100/0x184
- [<c0103b53>] do_invalid_op+0xd2/0xea
- [<c010301b>] error_code+0x2b/0x30
- [<c02c171e>] lock_sock+0x20/0x50
- [<c02be9d4>] sock_fasync+0x45/0x147
- [<c02be96b>] sock_close+0x19/0x3d
- [<c0151b2c>] __fput+0x11d/0x15b
- [<c015052a>] filp_close+0x42/0x74
- [<c011a699>] put_files_struct+0x87/0xfc
- [<c011b440>] do_exit+0x17b/0x48d
- [<c011b7f9>] do_group_exit+0x32/0x9e
- [<c0102525>] sysenter_past_esp+0x52/0x
-
---------------------
-
-i.e.:
-
-static inline void _raw_spin_lock(spinlock_t *lock)
-{
-#ifdef CONFIG_DEBUG_SPINLOCK
-        if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
-                printk("eip: %p\n", __builtin_return_address(0));
-                BUG();
-        }
-#endif
-
-
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 

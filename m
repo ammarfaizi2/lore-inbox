@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318855AbSH1OpS>; Wed, 28 Aug 2002 10:45:18 -0400
+	id <S318856AbSH1Opi>; Wed, 28 Aug 2002 10:45:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318856AbSH1OpR>; Wed, 28 Aug 2002 10:45:17 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:38821 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318855AbSH1OpR>;
-	Wed, 28 Aug 2002 10:45:17 -0400
-Date: Wed, 28 Aug 2002 16:49:08 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Mikael Pettersson <mikpe@csd.uu.se>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.32 doesn't beep?
-Message-ID: <20020828164908.B17287@ucw.cz>
-References: <20020828150522.A13090@ucw.cz> <Pine.LNX.4.44.0208280957530.14061-100000@innerfire.net>
+	id <S318857AbSH1Opi>; Wed, 28 Aug 2002 10:45:38 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:48785 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318856AbSH1Oph>; Wed, 28 Aug 2002 10:45:37 -0400
+Subject: LTP Nightly BK Test Failure
+From: Paul Larson <plars@austin.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>, scott.feldman@intel.com
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 28 Aug 2002 09:40:03 -0500
+Message-Id: <1030545604.2601.3.camel@plars.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0208280957530.14061-100000@innerfire.net>; from gmack@innerfire.net on Wed, Aug 28, 2002 at 09:58:42AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 09:58:42AM -0400, Gerhard Mack wrote:
-> On Wed, 28 Aug 2002, Vojtech Pavlik wrote:
-> 
-> > 2.5.32 still has quite complex input core config options - sorry, my
-> > fault, and I'll fix it soon. You have to enable CONFIG_INPUT_MISC and
-> > CONFIG_INPUT_PCSPKR.
-> 
-> That begs the question:
-> How do I input using the PC speaker ?
 
-Reverse the time? Anyway, it makes sense, since for example Sun
-keyboards (and others) have a beeper built into them, and those are
-input devices. So the easiest way is to define PC speaker to be an input
-device as well and then the common code can be the same.
+The nightly bk testing last night found a build error that I don't
+believe showed up in the stock 2.5.32.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+This bk tree covered up to cset 1.523.1.3 and there were several e100
+driver updates immediately following the 2.5.32 tag that are probably
+the likely suspects.  Here's the end of the compile log:
+
+  ld -m elf_i386 -T arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/
+i386/kernel/init_task.o init/init.o --start-group
+arch/i386/kernel/kernel.o arch
+/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o
+security/built-in.o /ker
+nel/bk/linux-2.5/arch/i386/lib/lib.a lib/lib.a
+/kernel/bk/linux-2.5/arch/i386/li
+b/lib.a drivers/built-in.o sound/sound.o arch/i386/pci/pci.o
+net/network.o --end
+-group -o vmlinux
+drivers/built-in.o: In function `e100_diag_config_loopback':
+drivers/built-in.o(.text+0x49393): undefined reference to
+`e100_force_speed_dupl
+ex'
+make[1]: *** [vmlinux] Error 1
+make[1]: Leaving directory `/kernel/bk/linux-2.5'
+make: *** [bzImage] Error 2
+
+
+Thanks,
+Paul Larson
+

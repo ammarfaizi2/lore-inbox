@@ -1,170 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbUJZQ0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbUJZQ0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbUJZQ0J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 12:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbUJZQ0J
+	id S261329AbUJZQ0P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 12:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUJZQ0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 12:26:09 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:60879 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261314AbUJZQZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 12:25:51 -0400
-Message-ID: <417E7A8F.7000501@biomail.ucsd.edu>
-Date: Tue, 26 Oct 2004 09:25:51 -0700
-From: John Gilbert <jgilbert@biomail.ucsd.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: svgalib_helper from svgalib-1.9.19  and RTL 2.6.9-mm1-V0.2 lockup
-Content-Type: multipart/mixed;
- boundary="------------000402050505010704040006"
+	Tue, 26 Oct 2004 12:26:15 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:5545 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S261329AbUJZQZ5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 12:25:57 -0400
+Date: Tue, 26 Oct 2004 18:22:44 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+Message-ID: <20041026162244.GA7739@thundrix.ch>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org> <20041023030356.GA5005@animx.eu.org> <20041024133333.GA16901@hh.idb.hist.no> <20041025232654.GC30574@thundrix.ch> <Pine.GSO.4.61.0410261310350.19019@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.61.0410261310350.19019@waterleaf.sonytel.be>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000402050505010704040006
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello all,
-I've built and loaded the 1.9.19 svgalib_helper driver, on 
-2.6.9-mm1-V0.2 and when I run a svgalib program the entire system locks 
-up hard.
-The screen blanks, no keyboard, network, serial, all completely dead.
-It seems to work mostly fine on 2.6.9-mm1-U10.3 (it's starting to not 
-play as nice with XWindows).
-It would be great to see svgalib's interrupt code used in the DRI 
-interface. Spin waits spend valuable CPU resources and are not reliable 
-(see attached code).
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On a completely other note, what replaces __bad_sema_init_use? The 
-proprietary ATI drivers use it, and it seems to have been recently retired.
-Belayed thanks to Panagiotis for the remap_page_range info.
+Salut,
 
-John Gilbert
-jgilbert@biomail.ucsd.edu
+On Tue, Oct 26, 2004 at 01:11:12PM +0200, Geert Uytterhoeven wrote:
+> > 6.8.1 is the current X.Org release  that we did because 6.8 turned out
+> > to have a nasty idiot bug.
+>=20
+> What a coincidence: use s/X11R/2./ to convert from X11 to Linux :-)
+
+Yes,  and it  was even  around  the same  time, just  some days  later
+IIRC. And the culprit was a TLA: it was XPM, not NFS.
+
+			    Tonnerre
 
 
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
---------------000402050505010704040006
-Content-Type: text/plain;
- name="vsync.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="vsync.c"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
 
-/* A work in progress, hope to have a smoothly rotating curser and count as first test of vsync */
-/* Done. works pretty good now, and simplified a few things as well */
-/* curser rotates 60 times a second along with vsync */
+iD8DBQFBfnnT/4bL7ovhw40RAuO2AJ9qEpiy584PcJ6564t0QS/MZjPlMwCePui8
+pIHGpior1mTgZS/tYc470oo=
+=CwS3
+-----END PGP SIGNATURE-----
 
-#include <fcntl.h> /* where does O_RDWR come from? */
-#include <stdio.h> /* where does stderr come from? */
-#include <stdlib.h> /* where does stderr come from? */
-#include <signal.h> /* where SIGINT lives */
-#include <unistd.h> /* where close lives */
-#include <errno.h> /* where errno lives */
-#include <sys/ioctl.h> /* where _IOWR lives */
-#include <asm-i386/msr.h> /* where rdtscll lives */
-#include "/usr/src/linux/drivers/char/drm/drm.h" /* all the drm ioctls and structures */
-#include "vsync.h" /* where vsync stuff lives */
-
-
-
-int dri_fd = -1;
-
-#ifdef RUNVSYNC
-
-int
-main()
-{
-	unsigned long long int lasttick, thistick, ticks, maxval = 0, minval = ~0, total = 0, meanval;
-	int count = 1;
-
-	if (dri_init() == -1) {
-		printf("can't open dri device\n");
-		exit(1);
-	}
-	signal(SIGINT, (__sighandler_t) dri_close);
-		
-	dri_vblank();
-	rdtscll(lasttick);
-
-	for (;;) {
-	/* note: need to use fprintf, as printf will cache and only really print every once in a while */
-		dri_vblank();
-		rdtscll(thistick);
-		ticks = thistick - lasttick;
-		lasttick = thistick;
-		maxval = (maxval > ticks) ? maxval : ticks;
-		minval = (minval < ticks) ? minval : ticks;
-		total += ticks;
-		meanval = total / count;
-		fprintf(stderr, "\\:%i\t:%llu\t:%llu\t:%llu\t:%llu   \r", count++, ticks, maxval, minval, meanval);
-		
-		dri_vblank();
-		rdtscll(thistick);
-		ticks = thistick - lasttick;
-		lasttick = thistick;
-		maxval = (maxval > ticks) ? maxval : ticks;
-		minval = (minval < ticks) ? minval : ticks;
-		total += ticks;
-		meanval = total / count;
-		fprintf(stderr, "|:%i\t:%llu\t:%llu\t:%llu\t:%llu   \r", count++, ticks, maxval, minval, meanval);
-
-		dri_vblank();
-		rdtscll(thistick);
-		ticks = thistick - lasttick;
-		lasttick = thistick;
-		maxval = (maxval > ticks) ? maxval : ticks;
-		minval = (minval < ticks) ? minval : ticks;
-		total += ticks;
-		meanval = total / count;
-		fprintf(stderr, "/:%i\t:%llu\t:%llu\t:%llu\t:%llu  \r", count++, ticks, maxval, minval, meanval);
-
-		dri_vblank();
-		rdtscll(thistick);
-		ticks = thistick - lasttick;
-		lasttick = thistick;
-		maxval = (maxval > ticks) ? maxval : ticks;
-		minval = (minval < ticks) ? minval : ticks;
-		total += ticks;
-		meanval = total / count;
-		fprintf(stderr, "-:%i\t:%llu\t:%llu\t:%llu\t:%llu   \r", count++, ticks, maxval, minval, meanval);
-	}
-}
-
-#endif /* RUNVSYNC */
-
-int dri_init(void)
-{
-	dri_fd = open ("/dev/dri/card0", O_RDWR);
-	return (dri_fd);
-}
-
-void dri_close(void)
-{
-	fprintf(stderr, "\nShutting down!\n");
-	if (dri_fd != -1)
-		close(dri_fd);
-	exit(0);
-}
-
-void dri_vblank(void)
-{
-	int ret;
-	drm_wait_vblank_t vbl;
-
-	vbl.request.type = _DRM_VBLANK_RELATIVE;
-	vbl.request.sequence = 1;
-
-	do {
-		ret = ioctl( dri_fd, DRM_IOCTL_WAIT_VBLANK, &vbl );
-		vbl.request.type &= ~_DRM_VBLANK_RELATIVE;
-	} while (ret && errno == EINTR);
-	return;
-}
-
-
-
---------------000402050505010704040006--
+--2fHTh5uZTiUOsy+g--

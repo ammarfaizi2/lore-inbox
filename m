@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131386AbRDJKBU>; Tue, 10 Apr 2001 06:01:20 -0400
+	id <S132970AbRDJKs0>; Tue, 10 Apr 2001 06:48:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131407AbRDJKBL>; Tue, 10 Apr 2001 06:01:11 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:2063 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S131386AbRDJKBB>;
-	Tue, 10 Apr 2001 06:01:01 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104101000.f3AA0nZ517534@saturn.cs.uml.edu>
-Subject: Re: No 100 HZ timer !
-To: mj@suse.cz (Martin Mares)
-Date: Tue, 10 Apr 2001 06:00:49 -0400 (EDT)
-Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010410113309.A16825@atrey.karlin.mff.cuni.cz> from "Martin Mares" at Apr 10, 2001 11:33:09 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S132971AbRDJKsQ>; Tue, 10 Apr 2001 06:48:16 -0400
+Received: from swing.yars.free.net ([193.233.48.88]:31431 "EHLO
+	swing.yars.free.net") by vger.kernel.org with ESMTP
+	id <S132970AbRDJKsD>; Tue, 10 Apr 2001 06:48:03 -0400
+Date: Tue, 10 Apr 2001 14:47:46 +0400
+From: "Alexander V. Lukyanov" <lav@yars.free.net>
+To: linux-kernel@vger.kernel.org
+Cc: sparc-list@redhat.com
+Subject: nfs_fsinfo->bsize size (2.4.2)
+Message-ID: <20010410144746.A23745@swing.yars.free.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, sparc-list@redhat.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares writes:
-> [lost]
+Hello!
 
->> Just how would you do kernel/user CPU time accounting then ?
->> It's currently done on every timer tick, and doing it less
->> often would make it useless.
->
-> Except for machines with very slow timers we really should account time
-> to processes during context switch instead of sampling on timer ticks.
-> The current values are in many situations (i.e., lots of processes
-> or a process frequently waiting for events bound to timer) a pile
-> of random numbers.
+Some time ago I had an undefined symbol in kernel compilation (__mul64) It
+was sparc architecture, cross compilation on solaris/sparc. I have found
+that 64-bit multiplication is in nfs2xdr.c, nfs_xdr_statfsres function. The
+multiplication is by nfs_fsinfo->bsize.
 
-Linux should maintain some sort of per-process decaying average.
-This data is required for a Unix98-compliant ps program. (for %CPU)
-Currently ps is using total CPU usage over the life of the process.
+For some reason nfs_fsinfo->bsize is declared as __u64. I don't see how
+block size can be greater that 2G. What is the reason behind such type
+for block size?
+
+I did the following change and nfs still works fine. I've also rearranged
+structure fields for alignment reasons.
+
+--- include/linux/nfs_xdr.h.1	Fri Apr  6 17:57:25 2001
++++ include/linux/nfs_xdr.h	Fri Apr  6 17:59:14 2001
+@@ -47,8 +47,8 @@
+ 	__u32			wtpref;	/* pref. write transfer size */
+ 	__u32			wtmult;	/* writes should be multiple of this */
+ 	__u32			dtpref;	/* pref. readdir transfer size */
++	__u32			bsize;	/* block size */
+ 	__u64			maxfilesize;
+-	__u64			bsize;	/* block size */
+ 	__u64			tbytes;	/* total size in bytes */
+ 	__u64			fbytes;	/* # of free bytes */
+ 	__u64			abytes;	/* # of bytes available to user */
+
+-- 
+   Alexander.                      | http://www.yars.free.net/~lav/  

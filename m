@@ -1,94 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVAYOhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVAYOj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbVAYOhx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 09:37:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVAYOhr
+	id S261961AbVAYOj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 09:39:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVAYOj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 09:37:47 -0500
-Received: from [83.102.214.158] ([83.102.214.158]:40910 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S261962AbVAYOhX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 09:37:23 -0500
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Alex Tomas <alex@clusterfs.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Ext2-devel] [PATCH] JBD: journal_release_buffer()
-References: <m3wtu9v3il.fsf@bzzz.home.net>
-	<1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk>
-	<m3brbebh43.fsf@bzzz.home.net>
-	<1106609725.2103.616.camel@sisko.sctweedie.blueyonder.co.uk>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: HOME
-Date: Tue, 25 Jan 2005 17:36:08 +0300
-In-Reply-To: <1106609725.2103.616.camel@sisko.sctweedie.blueyonder.co.uk> (Stephen
- C. Tweedie's message of "Mon, 24 Jan 2005 23:35:26 +0000")
-Message-ID: <m3sm4p8tk7.fsf@bzzz.home.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Tue, 25 Jan 2005 09:39:26 -0500
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:28601 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261961AbVAYOjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 09:39:02 -0500
+Message-ID: <41F659CD.9070904@kolivas.org>
+Date: Wed, 26 Jan 2005 01:38:05 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "Jack O'Quin" <joq@io.com>, Alexander Nyberg <alexn@dsv.su.se>,
+       Ingo Molnar <mingo@elte.hu>, linux <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>	<87pszvlvma.fsf@sulphur.joq.us> <41F42BD2.4000709@kolivas.org>	<877jm3ljo9.fsf@sulphur.joq.us> <41F44AC2.1080609@kolivas.org>	<87hdl7v3ik.fsf@sulphur.joq.us> <87651nv356.fsf@sulphur.joq.us>	<87ekgbqr2a.fsf@sulphur.joq.us> <41F49735.5000400@kolivas.org> <873bwrpb4o.fsf@sulphur.joq.us> <41F57D94.4010500@kolivas.org> <41F5C347.4030605@kolivas.org> <41F64410.4000702@kolivas.org>
+In-Reply-To: <41F64410.4000702@kolivas.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig6359AF205C4D211A19F49F1E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig6359AF205C4D211A19F49F1E
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi, could you review the following solution?
+Con Kolivas wrote:
+> There were numerous bugs in the SCHED_ISO design prior to now, so it 
+> really was not performing as expected. What is most interesting is that 
+> the DSP load goes to much higher levels now if xruns are avoided and 
+> stay at those high levels. If I push the cpu load too much so that they 
+> get transiently throttled from SCHED_ISO, after the Xrun the dsp load 
+> drops to half. Is this expected behaviour?
+> 
+> Anyway the next patch works well in my environment. Jack, while I 
+> realise you're getting the results you want from Ingo's dropped 
+> privilege, dropped cpu limit patch I would appreciate you testing this 
+> patch. It is not clear yet what direction we will take, but even if we 
+> dont do this, it would be nice just because of the effort on my part.
+> 
+> This version of the patch has full priority support and both ISO_RR and 
+> ISO_FIFO.
+> 
+> This is the patch to apply to 2.6.11-rc2-mm1:
+> http://ck.kolivas.org/patches/SCHED_ISO/2.6.11-rc2-mm1/2.6.11-rc2-mm1-iso-prio-fifo.diff 
 
+Just for completeness, benchmarks:
+logs and pretty pictures:
+http://ck.kolivas.org/patches/SCHED_ISO/iso3-benchmarks/
 
- t_outstanding_credits - number of _modified_ blocks in the transaction
- t_reserved - number of blocks all running handle reserved
-
- transaction size = t_outstanding_credits + t_reserved;
-
- 
-
-
-
-#define TSIZE(t)	((t)->t_outstanding_credits + (t)->t_reserved)
-
-journal_start(blocks)
-{
-	if (TSIZE(transaction) + blocks > MAX)
-		wait_for_space(journal);
-		
-	transaction->t_reserved += blocks;
-	handle->h_buffer_credits = blocks;
-}
-
-
-journal_get_write_access(handle, bh)
-{
-	if (jh->b_tcount >= 0)
-		jh->b_tcount++;
-}
-
-journal_dirty_metadata(handle, bh)
-{
-	transaction->t_reserved--;
-	handle->h_buffer_credits--;
-	if (jh->b_tcount > 0) {
-                /* modifed, no need to track it any more */
-		transaction->t_outstanding_credits++;
-		jh->b_tcount = -1;
-	}
-}
-
-journal_release_buffer(handle, bh)
-{
-	if (jh->b_tcount > 0) {
-                /* it's not modified yet */
-		jh->b_tcount--;
-                if (jh->b_tcount == 0) {
-                       /* remove from the transaction */
-                }
-        }
-}
-
-journal_stop(handle)
-{
-	transaction->t_outstanding_credits -= handle->h_buffer_credits;
-}
+SCHED_ISO:
+Total seconds ran . . . . . . :   300
+Number of clients . . . . . . :    10
+Ports per client  . . . . . . :     4
+Frames per buffer . . . . . . :    64
+Number of runs  . . . . . . . :(    3)
+Timeout Count . . . . . . . . :(    0)
+XRUN Count  . . . . . . . . . :     0
+Delay Count (>spare time) . . :     0
+Delay Count (>1000 usecs) . . :     0
+Delay Maximum . . . . . . . . :   150   usecs
+Cycle Maximum . . . . . . . . :   725   usecs
+Average DSP Load. . . . . . . :    32.3 %
+Average CPU System Load . . . :     6.0 %
+Average CPU User Load . . . . :    33.6 %
+Average CPU Nice Load . . . . :     0.0 %
+Average CPU I/O Wait Load . . :     0.1 %
+Average CPU IRQ Load  . . . . :     0.1 %
+Average CPU Soft-IRQ Load . . :     0.0 %
+Average Interrupt Rate  . . . :  1758.9 /sec
+Average Context-Switch Rate . :  9208.7 /sec
 
 
-thanks, Alex
+and SCHED_ISO in the presence of continuous compile:
+
+Total seconds ran . . . . . . :   300
+Number of clients . . . . . . :    10
+Ports per client  . . . . . . :     4
+Frames per buffer . . . . . . :    64
+Number of runs  . . . . . . . :(    3)
+Timeout Count . . . . . . . . :(    0)
+XRUN Count  . . . . . . . . . :     0
+Delay Count (>spare time) . . :     0
+Delay Count (>1000 usecs) . . :     0
+Delay Maximum . . . . . . . . :   375   usecs
+Cycle Maximum . . . . . . . . :   726   usecs
+Average DSP Load. . . . . . . :    35.8 %
+Average CPU System Load . . . :    15.1 %
+Average CPU User Load . . . . :    82.9 %
+Average CPU Nice Load . . . . :     0.0 %
+Average CPU I/O Wait Load . . :     1.8 %
+Average CPU IRQ Load  . . . . :     0.2 %
+Average CPU Soft-IRQ Load . . :     0.0 %
+Average Interrupt Rate  . . . :  1772.6 /sec
+Average Context-Switch Rate . :  9565.2 /sec
 
 
+Cheers,
+Con
+
+--------------enig6359AF205C4D211A19F49F1E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB9lnNZUg7+tp6mRURAlWkAJ0R0DqXx+rV0xWNP5BQ517i/AVXngCfeB0p
+rU4+WPKpOEu7UQzs6Ro/N20=
+=z66c
+-----END PGP SIGNATURE-----
+
+--------------enig6359AF205C4D211A19F49F1E--

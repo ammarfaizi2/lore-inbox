@@ -1,100 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263333AbSLKWyl>; Wed, 11 Dec 2002 17:54:41 -0500
+	id <S267353AbSLKXCF>; Wed, 11 Dec 2002 18:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266114AbSLKWyk>; Wed, 11 Dec 2002 17:54:40 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57885 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263333AbSLKWyi>; Wed, 11 Dec 2002 17:54:38 -0500
-Date: Wed, 11 Dec 2002 18:03:17 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Oliver Jehle <oliver.jehle@monex.li>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems using /proc/scsi/gdth/ with 2.4.20aa1
-Message-ID: <20021211230317.GD6513@redhat.com>
-Mail-Followup-To: Oliver Jehle <oliver.jehle@monex.li>,
-	linux-kernel@vger.kernel.org
-References: <1039502939.1054.12.camel@vorab.monex.li>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="9amGYk9869ThD9tj"
-Content-Disposition: inline
-In-Reply-To: <1039502939.1054.12.camel@vorab.monex.li>
-User-Agent: Mutt/1.4i
+	id <S267361AbSLKXCF>; Wed, 11 Dec 2002 18:02:05 -0500
+Received: from packet.digeo.com ([12.110.80.53]:14822 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267353AbSLKXCD>;
+	Wed, 11 Dec 2002 18:02:03 -0500
+Message-ID: <3DF7C5B2.D9E0249C@digeo.com>
+Date: Wed, 11 Dec 2002 15:09:38 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steven Roussey <sroussey@network54.com>
+CC: robm@fastmail.fm, linux-kernel@vger.kernel.org
+Subject: Re: Strange load spikes on 2.4.19 kernel
+References: <000b01c2a168$37e747d0$026fa8c0@wehohome>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Dec 2002 23:09:38.0521 (UTC) FILETIME=[60F72490:01C2A16A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Dec 10, 2002 at 07:49:00AM +0100, Oliver Jehle wrote:
-> Running linux 2.4.20-aa1 and the gdth driver works ,but accessing
-> /proc/scsi/gdth/0 for example with cat or the supplied icpcon utility
-> don't work...
+Steven Roussey wrote:
 > 
-> these messages are in system log when accessing /proc/scsi/gdth/0 with
-> cat for example (works with 2.4.18)
-> ...
+> Was there ever a solution to this issue?
+
+No.  It wasn't clear what was going on.
+
+>  Is it kernel or ext3 based issue?
+
+One of those.
+
+> Is there a workaround?
+
+Tried mounting all filesystems `-o noatime'?
+
+> I've spent two months looking for a source and
+> solution to this issue. It is pressing for me since all our users get locked
+> out at the height of the spike. Ours is a webserver.
 > 
-> Dec 10 06:37:47 arena1 kernel: Unable to handle kernel NULL pointer
-> dereference at virtual address 00000000
-> Dec 10 06:37:47 arena1 kernel:  printing eip:
-> Dec 10 06:37:47 arena1 kernel: c024c879
-> Dec 10 06:37:47 arena1 kernel: *pde = 00000000
-> Dec 10 06:37:47 arena1 kernel: Oops: 0002 2.4.20aa1 #2 SMP Mon Dec 9
-> 16:55:18 CET 2002
-> Dec 10 06:37:47 arena1 kernel: CPU:    0
-> Dec 10 06:37:47 arena1 kernel: EIP:   
-> 0010:[scsi_release_commandblocks+17/92]    Not tainted
 
-/me chuckles
+Is there much disk write activity?  What journalling mode
+are you using?
 
-That looks *amazingly* familiar...a patch I wrote introduced that bug,
-sorry.  It's fix is attached (assuming that Andrea picked up the same
-version of the 2.4.x iorl contention patch that we are using now, which 
-is what introduced this problem for us here).
-
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
-
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4.9-gdthoops.patch"
-
---- linux/drivers/scsi/scsi.c-stock	Fri Oct 25 15:41:03 2002
-+++ linux/drivers/scsi/scsi.c	Fri Oct 25 15:47:04 2002
-@@ -2672,10 +2672,10 @@
-         SDpnt->type = -1;
-         SDpnt->queue_depth = 1;
-         
--	scsi_build_commandblocks(SDpnt);
--
- 	scsi_initialize_queue(SDpnt, SHpnt);
- 
-+	scsi_build_commandblocks(SDpnt);
-+
- 	SDpnt->online = TRUE;
- 
-         /*
-@@ -2705,13 +2705,12 @@
-                 panic("Attempt to delete wrong device\n");
-         }
- 
--        blk_cleanup_queue(&SDpnt->request_queue);
--
-         /*
-          * We only have a single SCpnt attached to this device.  Free
-          * it now.
-          */
- 	scsi_release_commandblocks(SDpnt);
-+        blk_cleanup_queue(&SDpnt->request_queue);
-         kfree(SDpnt);
- }
- 
-
---9amGYk9869ThD9tj--
+The output of `ps aux' during a stall would be interesting,
+as would the `vmstat 1' ouptut.

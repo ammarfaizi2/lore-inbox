@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbTKDPak (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 10:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTKDPak
+	id S262323AbTKDPzs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 10:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTKDPzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 10:30:40 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:11961 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S262308AbTKDPaj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 10:30:39 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [Alsa-devel] [2.6.0-test9 ALSA] ALSA-OSS-emulation unable to register
-Date: Tue, 4 Nov 2003 16:30:11 +0100
-User-Agent: KMail/1.5.4
-References: <200311021458.59759.mbuesch@freenet.de> <200311032106.28125.mbuesch@freenet.de> <s5hoevstbx8.wl@alsa2.suse.de>
-In-Reply-To: <s5hoevstbx8.wl@alsa2.suse.de>
-Cc: alsa-devel@alsa-project.org,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200311041630.22807.mbuesch@freenet.de>
+	Tue, 4 Nov 2003 10:55:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28046 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262323AbTKDPzq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 10:55:46 -0500
+Date: Tue, 4 Nov 2003 07:52:11 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Shirley Shi <shirley@kasenna.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: All filesystems hang under long periods of heavy load (read and
+ write) on a filesystem
+Message-Id: <20031104075211.5adcb42a.rddunlap@osdl.org>
+In-Reply-To: <3FA6E8CE.6040208@kasenna.com>
+References: <3FA6E8CE.6040208@kasenna.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 03 Nov 2003 15:46:22 -0800 Shirley Shi <shirley@kasenna.com> wrote:
 
-On Tuesday 04 November 2003 16:01, you wrote:
-> what parameter did you pass exactly?
+| Can anyone know why all filesystems hang under periods of heavy load on 
+| one of the filesystem? Once the filesystems hang, any command related to 
+| the filesystem, like 'ls', 'cat',etc., will stick forever until re-power 
+| cycling the machine.
+| 
+| I kept running the following script to read and write the data on a same 
+| filesystem(ext2 or XFS) since we need do some tests for the storage. Is 
+| half day, onn the beginning, the system was running well. But after 
+| running the script for a long time, such a half day, one day or two 
+| days,  all filesystems would get hung, including the root filesystem 
+| although I didn't do any heavy load on it. The file(M.1) I used for 
+| reading and writing is about 2.5GB.
+| 
+| 
+| @ total = 115
+| while (1)
+|   @ cc = 2
+|   while ($cc <= $total)
+|      dd bs=512k if=/data/M.1 of=/data/M.$cc
+|     echo "copying $cc  of   $total..."
+|     @ cc = $cc + 1
+|   end
+|   rm -f  /data/M.*
+| end
+| 
+| 
+| I tried RH8.0 with kernel 2.4.18 and kernel 2.4.21 with XFS and patch 
+| rmap15j. I have the same issue running with the two kernels. Basically I 
+| have two filesytems configured. One for the root configured with ext3, 
+| and another is for the data configured with ext2 or XFS. With either 
+| ext2 or XFS, I have the same problem.
 
-snd-ens1371=1
-.. and so on.
+Can you try a recent kernel, like 2.4.23-pre8 or -pre9?
 
-Or did I misunderstand you?
-
-> Takashi
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/p8YNoxoigfggmSgRArjDAJ4uUViosyBidVre60ilJw/cNkN1ZwCgh0Qj
-vkLSESn69GrReHkga3LLexs=
-=rxWh
------END PGP SIGNATURE-----
-
+--
+~Randy

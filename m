@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262525AbREUWvb>; Mon, 21 May 2001 18:51:31 -0400
+	id <S262526AbREUW6v>; Mon, 21 May 2001 18:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262526AbREUWvV>; Mon, 21 May 2001 18:51:21 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61193 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262525AbREUWvQ>; Mon, 21 May 2001 18:51:16 -0400
-Subject: Re: SMC-IRCC broken? 2.4.5-pre4 / -ac5+
-To: pawel.worach@mysun.com
-Date: Mon, 21 May 2001 23:48:35 +0100 (BST)
+	id <S262527AbREUW6m>; Mon, 21 May 2001 18:58:42 -0400
+Received: from venus.Sun.COM ([192.9.25.5]:34522 "EHLO venus.Sun.COM")
+	by vger.kernel.org with ESMTP id <S262526AbREUW6b>;
+	Mon, 21 May 2001 18:58:31 -0400
+From: "Pawel Worach" <pworach@mysun.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <32f42309df.309df32f42@mysun.com> from "Pawel Worach" at May 22, 2001 12:16:13 AM
-X-Mailer: ELM [version 2.5 PL3]
+Reply-To: pawel.worach@mysun.com
+Message-ID: <31cdf321e1.321e131cdf@mysun.com>
+Date: Tue, 22 May 2001 00:49:48 +0200
+X-Mailer: Netscape Webmail
 MIME-Version: 1.0
+Content-Language: en
+Subject: Re: SMC-IRCC broken? 2.4.5-pre4 / -ac5+
+X-Accept-Language: en
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-Message-Id: <E151yTb-00012f-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The kernel stops while booting at:
-> TCP: Hash tables configured (established 16384 bind 16384)
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> SMC IrDA Controller found; IrCC version 2.0, port 0x118, dma=3, irq=3
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> IRDA compiled in  ? If so is it ok modular . It sounds like yet 
+> another boot
+> ordering wonder
 
-IRDA compiled in  ? If so is it ok modular . It sounds like yet another boot
-ordering wonder
+If I use it as a module it won't load
+It says 'Device or resource busy'. (and yes i'm using the same io/irq
+params as detected during bootup while compiled in).
+
+That's why "half" of the irda subsys is compiled in. The protocol
+code is modules.
 

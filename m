@@ -1,67 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132044AbRDJUBd>; Tue, 10 Apr 2001 16:01:33 -0400
+	id <S132072AbRDJUCN>; Tue, 10 Apr 2001 16:02:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132056AbRDJUBY>; Tue, 10 Apr 2001 16:01:24 -0400
-Received: from delta.Colorado.EDU ([128.138.139.9]:30221 "EHLO
-	ibg.colorado.edu") by vger.kernel.org with ESMTP id <S132044AbRDJUBL>;
-	Tue, 10 Apr 2001 16:01:11 -0400
-Message-Id: <200104102001.OAA209123@ibg.colorado.edu>
-To: linux-kernel@vger.kernel.org
-Subject: kswapd, kupdated, and bdflush at 99% under intense IO
-Organization: Institute for Behavioral Genetics
-              University of Colorado
-              Boulder, CO  80309-0447
-X-Phone: +1 303 492 2843
-X-FAX: +1 303 492 0852
-X-URL: http://ibgwww.Colorado.EDU/~lessem/
-X-Copyright: All original content is copyright 2001 Jeff Lessem.
-X-Copyright: Quoted and non-original content may be copyright the
-X-Copyright: original author or others.
-Date: Tue, 10 Apr 2001 14:01:10 -0600
-From: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
+	id <S132056AbRDJUCF>; Tue, 10 Apr 2001 16:02:05 -0400
+Received: from tux.mkp.net ([130.225.60.11]:16390 "EHLO tux.mkp.net")
+	by vger.kernel.org with ESMTP id <S132057AbRDJUBx>;
+	Tue, 10 Apr 2001 16:01:53 -0400
+To: linux-lvm@sistina.com
+Cc: lvm-devel@sistina.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [linux-lvm] *** ANNOUNCEMENT *** LVM 0.9.1 Beta 7 available at www.sistina.com
+In-Reply-To: <20010410182550.A20569@sistina.com>
+From: "Martin K. Petersen" <mkp@mkp.net>
+Organization: mkp.net
+Date: 10 Apr 2001 16:01:04 -0400
+In-Reply-To: <20010410182550.A20569@sistina.com>
+Message-ID: <yq1puekr0cf.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.2 (Urania)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My machine is an 8 processor Dell P-III 700Mhz with 8GB of memory.
-The disk system I am using is a 12 drawer JBOD with 5 disks in a raid
-5 arrangement attached to an AMI Megaraid 438/466/467/471/493
-controller with a total of 145GB of space.  The machine has been in
-use for about 6 months doing primarily cpu and memory intensive
-scientific computing tasks.  It has been very stable in this role and
-everybody involved has been pleased with its performance.  Recently a
-decision was made to conglomerate people's home directories from
-around the network and put them all on this machine (hence the JBOD
-and RAID).
+>>>>> "Heinz" == Heinz J Mauelshagen <Mauelshagen@sistina.com> writes:
 
-These tests are all being done with Linux 2.4.3 + the bigpatch fix for
-knfsd and quotas.  The rest of the OS is Debian unstable.
+Heinz> a tarball of the Linux Logical Volume Manager 0.9.1 Beta 7 is
+Heinz> available now at
 
-Before moving the storage into production I am performing tests on it
-to gauge its stability.  The first test I performed was a single
-bonnie++ -s 16096 instance, and the timing results are inline with
-what I would expect from fast SCSI disks.
+The following code is baaaad, m'kay...
 
-However, multiple instance of bonnie++ completely kill the machine.
-Once two or three bonnies are running kswapd, kupdated, and bdflush
-each jump to using 99% of a cpu and the machine becomes incredibly
-unresponsive.  Even using a root shell at nice -20 it can take several
-minutes for "killall bonnie++" to appear after being typed and then
-run.  After the bonnies are killed and kswapd, kupdated, and bdflush
-are given a minute or two to finish whatever they are doing, the
-machine becomes responsive again.
+[...]
 
-I don't think the machine should be behaving like this.  I certainly
-expect some slowdowns with that much IO, but the computer should still
-be resonably responsive, particularly because no system or user files
-that need to be accessed are on that channel of the SCSI controller.
+	down(&_pe_lock);
+	if((pe_lock_req.lock == LOCK_PE) &&
+	   (rdev_map == pe_lock_req.data.pv_dev) &&
+	   (rsector_map >= pe_lock_req.data.pv_offset) &&
+	   (rsector_map < (pe_lock_req.data.pv_offset + vg_this->pe_size)) &&
+	   ((rw == WRITE) || (rw == WRITEA))) {
+		/* defer this bh until the PE has moved */
+		if(((int) bh) & 0x3) {
+			printk(KERN_ERR 
+			       "%s -- bh uses low 2 bits of pointer\n",
+			       lvm_name);
+			up(&_pe_lock);
+			goto bad;
+		}
 
-Any advice on approaching this problem would be appreciated.  I will
-try my best to provide any debugging information that would be useful,
-but the machine is on another continent from myself, so without a
-serial console I have a hard time getting any information that doesn't
-make it into a logfile.
+		bh->b_reqnext = _pe_requests;
+		_pe_requests = (struct buffer_head *) ((int) bh | rw);
+		up(&_pe_lock);
+		up(&lv->lv_snapshot_sem);
+		return 0;
+	}
+	up(&_pe_lock);
 
---
-Thanks,
-Jeff Lessem.
+[...]
+
+		/* handle all deferred io for this PE */
+		while(q) {
+			struct buffer_head *d_bh = 
+			       (struct buffer_head *) (q & ~0x3);
+			int rw = q & 0x3;
+			q = (uint) d_bh->b_reqnext;
+ 
+			/* resubmit this buffer head */
+			d_bh->b_reqnext = 0;
+			generic_make_request(rw, d_bh);
+		}
+
+
+Not only is this an evil hack from hell, I don't understand why you go
+through such a huge effort of storing rw in the pointer.  Afaict, the
+only valid value is WRITE.  And WRITEA is #defined to WRITE in lvm.c.
+
+-- 
+Martin K. Petersen, Principal Linux Consultant, Linuxcare, Inc.
+mkp@linuxcare.com, http://www.linuxcare.com/
+SGI XFS for Linux Developer, http://oss.sgi.com/projects/xfs/

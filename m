@@ -1,85 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbTDUSH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTDUSH4
+	id S261825AbTDUSKx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbTDUSKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:07:56 -0400
-Received: from web8002.mail.in.yahoo.com ([203.199.70.20]:48216 "HELO
-	web8005.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S261809AbTDUSHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:07:54 -0400
-Message-ID: <20030421181951.98096.qmail@web8005.mail.in.yahoo.com>
-Date: Mon, 21 Apr 2003 11:19:51 -0700 (PDT)
-From: =?iso-8859-1?q?Yours=20Lovingly?= <ylovingly@yahoo.co.in>
-Subject: Qn: Queer error in kernel
-To: linux-kernel@vger.kernel.org
+	Mon, 21 Apr 2003 14:10:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9741 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261825AbTDUSKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:10:51 -0400
+Date: Mon, 21 Apr 2003 11:22:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Roman Zippel <zippel@linux-m68k.org>, "David S. Miller" <davem@redhat.com>,
+       <Andries.Brouwer@cwi.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new system call mknod64
+In-Reply-To: <20030421191013.A9655@infradead.org>
+Message-ID: <Pine.LNX.4.44.0304211117260.3101-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I have a small hack for the linux kernel's nfs
-module which was working just fine before the
-following code was introduced:
 
-static void nfs_print_path(struct dentry *d) {
-	struct dentry *parent;
-	struct inode *inode_parent, *inode;
-	unsigned long p, me;
+On Mon, 21 Apr 2003, Christoph Hellwig wrote:
+> 
+> Not anymore for blockdevices.  And now that Al's back not anymore soon
+> for charater devices, too :)
 
-	if(!d) {
-		return;
-	}	
-	parent = d->d_parent;
-	
-	if(parent) {
-		inode_parent = parent->d_inode;
-		inode = d->d_inode;
-// till here everything works just fine
-		
-/* the following code just doesn't work. None of it
-works, neither the assignments to 'p' and 'me', nor
-the printk, nor the comparision in the if statement
-after that. I tested each of these 3 different cases
-separately and each time i got the same error (see
-below) */
-                p = (unsigned long)inode_parent;
-		me = (unsigned long)inode;
+Actually, we still do it for both block _and_ character devices.
 
-		printk("parent inode: %x child inode: %x\n",
-inode_parent, inode);
+Look at "nfs*xdr.c" to see what's up.
 
-                if( ((char *)inode_parent == 
-                              (char *)inode) ) { 
-		       
-............
-}
+In other words, that split is definitely not virtual. It's a real thing 
+with real visibility for users.
 
+The fact that the kernel internally has generalized it away doesn't 
+matter. Any kernel virtualization of the number still _has_ to account for 
+the fact that it's a real thing.
 
-I got an error something like this: 
-Unable to handle kernel NULL pointer dereference at
-virtual address 0...0f 
-printing eip ....
-		
+Put another way:
 
-As i see it, if there is really an error where it
-appears to be to me, there is error in just 'reading'
-the values of the variable 'inode_parent' and 'inode'.
-But considering the object code the C Compiler must
-have produced, there is nothing that actually *does*
-some real task - all that is being done is reading
-some
-arbit value from the function's stack: whats so wrong
-with that ???
+	0x0000000000000101
 
-thanks in advance
-abhishek
+_has_ to open the same file as
 
+	0x0000000100000001
 
-__________________________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo
-http://search.yahoo.com
+because otherwise the kernel virtualization is broken (since they will
+look the same to a user, and they will end up being written to disk the
+same way).
+
+Thus any code that only looks at 64-bit dev_t without taking this into 
+account is BUGGY. 
+
+One way to avoid the bug is to always keep all dev_t numbers in "canonical 
+format". Which happens automatically if the interface is <major, minor> 
+rather than a 64-bit blob.
+
+I personally think that anything that uses "dev_t" in _any_ other way than 
+<major,minor> is fundamentally broken.
+
+		Linus
+

@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUJHDQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267730AbUJHDQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267702AbUJHDQX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 23:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267561AbUJHDPo
+	id S267730AbUJHDQY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 23:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267648AbUJHDPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 23:15:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55481 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267487AbUJHDID (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 23:08:03 -0400
-Date: Thu, 7 Oct 2004 20:01:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: chrisw@osdl.org, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
-Message-Id: <20041007200109.57ce24ae.akpm@osdl.org>
-In-Reply-To: <4165FF7B.1070302@cyberone.com.au>
-References: <20041007142019.D2441@build.pdx.osdl.net>
-	<20041007164044.23bac609.akpm@osdl.org>
-	<4165E0A7.7080305@yahoo.com.au>
-	<20041007174242.3dd6facd.akpm@osdl.org>
-	<20041007184134.S2357@build.pdx.osdl.net>
-	<20041007185131.T2357@build.pdx.osdl.net>
-	<20041007185352.60e07b2f.akpm@osdl.org>
-	<4165FF7B.1070302@cyberone.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 7 Oct 2004 23:15:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6871 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267561AbUJHDIW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 23:08:22 -0400
+Date: Thu, 7 Oct 2004 22:05:39 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Cc: "Gabor Z. Papp" <gzp@papp.hu>, Michael Buesch <mbuesch@freenet.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4] 0-order allocation failed
+Message-ID: <20041008010539.GB16968@logos.cnet>
+References: <200410071318.21091.mbuesch@freenet.de> <20041007153929.GB14614@logos.cnet> <x67jq2bcy3@gzp> <200410072054.17097@WOLK>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410072054.17097@WOLK>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->
-> >Chris Wright <chrisw@osdl.org> wrote:
->  >
->  >>(whereas I could get the mainline code, and the
->  >> one-liner to spin right off).  
->  >>
->  >
->  >How?  (up to and including .config please).
->  >
->  >
->  >
+On Thu, Oct 07, 2004 at 08:54:16PM +0200, Marc-Christian Petersen wrote:
+> On Thursday 07 October 2004 20:28, Gabor Z. Papp wrote:
 > 
->  Ah, free_pages <= pages_high, ie. 0 <= 0, which is true;
->  commence spinning.
+> Hi all,
+> 
+> > | > > Can you check how much swap space is there available when
+> > | > > the OOM killer trigger? I bet this is the case.
+> > | > The machine doesn't have swap.
+> > | Well then you're probably facing true OOM.
+> > | Add some swap.
+> 
+> > There is really no way to run 2.4 without swap?
+> > I have the same problem with nfsroot and ramdisk based setups after
+> > 1-2 weeks uptime.
+> 
+> stop whining about braindead 2.4 mainline vm. Apply the attached patch and be 
+> happy :p
 
-Maybe.  It requires that the zonelists be screwy:
+As I told you in private, I can't see how badly this patch could affect performance.
+But then, as you answered, with all anonymous pages added to LRU you see much better
+behavior (tons less swapping) on several workloads. That must be due to 
+refill_inactive()/shrink_cache() balancing.
 
- Node 1 DMA free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:0kB
- protections[]: 0 0 0
- Node 1 Normal free:25272kB min:1020kB low:2040kB high:3060kB active:624172kB inactive:282700kB present:1047936kB
- protections[]: 0 0 0
- Node 1 HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB
- protections[]: 0 0 0
- Node 0 DMA free:728kB min:12kB low:24kB high:36kB active:788kB inactive:7848kB present:16384kB
- protections[]: 0 0 0
- Node 0 Normal free:27200kB min:1004kB low:2008kB high:3012kB active:332792kB inactive:422744kB present:1032188kB
- protections[]: 0 0 0
- Node 0 HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB
- protections[]: 0 0 0
+The same patch also fixes kswapd excessive CPU consumption on huge
+memory box.
 
-See that DMA zone on node 1?  Wonder how it got like that.  It
-should not be inside pgdat->nrzones anyway.
+Its easy enough to be applied because behaviour is unchanged by default
+(you need to change a sysctl value for that).
 
-David, is your setup NUMA?  Can you show us a sysrq-M dump?
+I would like to understand why does it cause so much improved behaviour
+though.
 
+> Marcelo: Is there something wrong with my VM documentation update patches for 
+> 2.4? Or do you not care and think: "Hello my friend, let's stick with 2.2 VM 
+> documentation even if almost all of the documentation is not longer valid"
+
+As I said to you in private, please resend.
+
+Thanks!

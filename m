@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135576AbREHXAU>; Tue, 8 May 2001 19:00:20 -0400
+	id <S135590AbREHXji>; Tue, 8 May 2001 19:39:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135588AbREHXAA>; Tue, 8 May 2001 19:00:00 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30726 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135576AbREHW75>; Tue, 8 May 2001 18:59:57 -0400
-Subject: Re: [patch] 2.4.4: mmap() fails for certain legal requests
-To: davem@redhat.com (David S. Miller)
-Date: Tue, 8 May 2001 23:59:33 +0100 (BST)
-Cc: macro@ds2.pg.gda.pl (Maciej W. Rozycki), linux-kernel@vger.kernel.org,
-        linux-mips@fnet.fr, linux-mips@oss.sgi.com
-In-Reply-To: <15096.27432.381478.837650@pizda.ninka.net> from "David S. Miller" at May 08, 2001 02:54:48 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135593AbREHXja>; Tue, 8 May 2001 19:39:30 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44810 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135590AbREHXjW>; Tue, 8 May 2001 19:39:22 -0400
+Date: Tue, 8 May 2001 16:38:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() bug
+In-Reply-To: <Pine.LNX.4.21.0105081813160.9717-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.31.0105081635530.3618-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14xGS7-0000r5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  >  Thanks for your response, though -- maybe there is someone interested,
->  > after all. 
-> 
-> That's pretty arrogant that cut and pasting a few lines into some
-> architecture specific files and reporting the updated patch is too
-> much to ask.
 
-And just how is he going to test it ? Considering he was just asking if the
-concept was reasonable I think you are a little out of order
+
+On Tue, 8 May 2001, Marcelo Tosatti wrote:
+>
+> There are two issues which I missed yesterday: we have to get a reference
+> on the page, mark it clean, drop the locks and then call writepage(). If
+> the writepage() fails, we'll have to set_page_dirty(page).
+
+We can move the "mark it clean" into writepage, which would actually
+simplify the error cases for shared memory writepage (no need to mark it
+dirty again etc).
+
+> I guess this is too much overhead for the common case, don't you?
+
+You could easily be right.
+
+On the other hand, remember that a noticeable part of the time you should
+be seeing a real write too, so the CPU overhead compared to the IO might
+not be prohibitive. Ie, let's assuem that 10% of the time we actually end
+up doing writes, then that 10% is going to be _soo_ much more than the
+extra 10 cycles 90% of the time that the cleanup may well be worth it.
+
+Especially if the cleanup means that we can avoid doing some of the real
+writes altogether, by being better able to release dead memory to the
+system.
+
+Tradeoffs..
+
+		Linus
 

@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265592AbSJSMF0>; Sat, 19 Oct 2002 08:05:26 -0400
+	id <S265599AbSJSMSD>; Sat, 19 Oct 2002 08:18:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265596AbSJSMF0>; Sat, 19 Oct 2002 08:05:26 -0400
-Received: from [211.167.76.68] ([211.167.76.68]:26505 "HELO soulinfo")
-	by vger.kernel.org with SMTP id <S265592AbSJSMFZ>;
-	Sat, 19 Oct 2002 08:05:25 -0400
-Date: Sat, 19 Oct 2002 20:05:00 +0800
-From: Hu Gang <hugang@soulinfo.com>
-To: Jaroslav Kysela <perex@suse.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, mochel@osdl.org
-Subject: [PATCH]1/2: fix intel8x0.c suspend problem.
-Message-Id: <20021019200500.18d8f6df.hugang@soulinfo.com>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.8.2claws28 (GTK+ 1.2.10; i386-linux-debian-i386-linux-gnu)
+	id <S265598AbSJSMSD>; Sat, 19 Oct 2002 08:18:03 -0400
+Received: from dp.samba.org ([66.70.73.150]:4573 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265599AbSJSMSC>;
+	Sat, 19 Oct 2002 08:18:02 -0400
+Date: Sat, 19 Oct 2002 22:22:36 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [lart] /bin/ps output
+Message-ID: <20021019122236.GA3545@krispykreme>
+References: <3DA798B6.9070400@us.ibm.com> <20021012035141.GC7050@krispykreme> <20021012035958.GD10722@holomorphy.com> <20021012040959.GE7050@krispykreme> <3DA9C896.621CC3D3@digeo.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.t5HRkYAvpkN0(l"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA9C896.621CC3D3@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.t5HRkYAvpkN0(l
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-Hello Patrick Mochel, Pavel Machek, Jaroslav Kysela :
+> Half of which is in timer.c.
+> 
+> mnm:/usr/src/25> size kernel/timer.o
+>    text    data     bss     dec     hex filename
+>    4960     100  167648  172708   2a2a4 kernel/timer.o
+> 
+> That's with NR_CPUS=32.  Show me yours.
 
-When I use the 1/2 patch, the core suspend have works, but when the sound driver loaded the system still hang. This patch can fix it. Please apply.
----------------------------------------------------
---- linux-2.5.44-clean/sound/pci/intel8x0.c	Sat Oct 19 15:55:30 2002
-+++ linux-2.5.44-suspend/sound/pci/intel8x0.c	Sat Oct 19 19:51:35 2002
-@@ -1909,6 +1909,7 @@
- 	snd_card_t *card = chip->card;
- 	int i;
- 
-+	chip->in_suspend = 0;
- 	snd_power_lock(card);
- 	if (card->power_state == SNDRV_CTL_POWER_D0)
- 		goto __skip;
-@@ -1919,7 +1920,6 @@
- 		if (chip->ac97[i])
- 			snd_ac97_resume(chip->ac97[i]);
- 
--	chip->in_suspend = 0;
- 	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
-       __skip:
-       	snd_power_unlock(card);
+Its not like me to miss show and tell.
 
--- 
-		- Hu Gang
+CONFIG_NR_CPUS=32:
+text	   data	    bss	    dec	    hex	filename
+8488	 267544	  71392	 347424	  54d20	kernel/timer.o
 
---=.t5HRkYAvpkN0(l
-Content-Type: application/pgp-signature
+CONFIG_NR_CPUS=64:
+text	   data	    bss	    dec	    hex	filename
+8488	 533784	 137568	 679840	  a5fa0	kernel/timer.o
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+Ouch.
 
-iD8DBQE9sUpsPM4uCy7bAJgRAs8NAJ4xsrJgfLMNYi8yBMw6UiJDI0eppgCeMGvU
-lqwAmJ83j8IK9o/ES8n9OuE=
-=uEaE
------END PGP SIGNATURE-----
-
---=.t5HRkYAvpkN0(l--
+Anton

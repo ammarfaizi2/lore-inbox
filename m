@@ -1,90 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262161AbTCMIbs>; Thu, 13 Mar 2003 03:31:48 -0500
+	id <S262197AbTCMIjF>; Thu, 13 Mar 2003 03:39:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262194AbTCMIbs>; Thu, 13 Mar 2003 03:31:48 -0500
-Received: from noc7.BelWue.de ([129.143.2.15]:17025 "EHLO smtp2.BelWue.DE")
-	by vger.kernel.org with ESMTP id <S262161AbTCMIbq>;
-	Thu, 13 Mar 2003 03:31:46 -0500
-Date: Thu, 13 Mar 2003 09:42:26 +0100 (MET)
-From: Oliver Tennert <tennert@science-computing.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel setup() and initrd problems
-Message-ID: <Pine.GHP.4.53.0303130942100.16619@alderaan.science-computing.de>
+	id <S262198AbTCMIjE>; Thu, 13 Mar 2003 03:39:04 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:3014 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S262197AbTCMIiJ>;
+	Thu, 13 Mar 2003 03:38:09 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Onur Yalazi <onuryalazi@mersin.edu.tr>
+Date: Thu, 13 Mar 2003 09:48:41 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: matroxfb blank screen
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <12A0B77A5B06@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12 Mar 03 at 23:54, Onur Yalazi wrote:
+> 
+> I'm trying 2.4.19 gentoo 1.4 rc2 kernel on a p3 450 512mb ram HP vectra 
+> using a mga200 on board. When the system boots i get normal  video. 
+> After the screen fulls and tries to switch fb mod to  put the shiny logo 
+> ( :) ) the video signal goes (I see yellow no signal led lit on the 
+> monitor). I've tried many of video=matrox:vesa:... kernel parameters. 
+> Sometimes i get "refresh rate out of range" and sometimes "no signal".
 
+Try 2.4.21-preHighest-acGreatest (or 2.4.21-preHighest and enable all
+matroxfb related options as last time I checked drivers/video/Config.in
+was still wrong in Marcelo's tree). 
 
-Seems some more have problems, too. It is possibly related.
+Problem is that your onboard G200 uses 14.318MHz XTAL, while all other 
+G200's use 27.000MHz, so you are getting 32Hz vertical refresh instead 
+of 60Hz... As a temporary solution booting with 
+'video=matrox:vesa:....,fv:113' could give you picture, but accelerator 
+will run at 53% of its nominal speed and so on.
 
-> pivot_root() is the currently preferred method. Depending on where
-> the initramfs is by the time Linux 2.6 comes out it may be replaced by
-> then, but for 2.4, pivot_root() is the way to go.
+Or you can replace 27000 with 14318 in drivers/video/matrox/matroxfb_DAC1064.c
+and rebuild your kernel. But upgrading to latest Alan's 2.4.x is preferred
+solution.
+                                                        Petr Vandrovec
 
-OK, I am pretty aware of the fact that it is the DOCUMENTED way to go. But
-can you tell me ONE SINGLE current distribution using the pivot_root()
-call in their initrd to mount the realrootdev?
-
-Have a look at the following linuxrc script:
-
-<SHELLSCRIPT>
-
-#! /bin/sh
-
-export PATH=/bin
-
-echo "Loading module sym53c8xx  ..."
-insmod sym53c8xx
-
-echo "Loading module jbd  ..."
-insmod jbd
-
-echo "Loading module ext3  ..."
-insmod ext3
-
-mount -n -t proc proc /proc
-echo 0x0100 > /proc/sys/kernel/real-root-dev   ## <<<---- THIS LINE IS IMPORTANT!!
-mount -n -t ext3 /dev/sda4 /mnt
-rm -f /mnt/.initrd 2>/dev/null
-mkdir -p /mnt/.initrd
-cd /mnt
-pivot_root . .initrd
-umount -n /.initrd/proc
-exec sh -c 'umount -n /.initrd ; rmdir /.initrd ; mount -n -oremount,ro /' </dev/console >/dev/console 2>&1
-
-</SHELLSCRIPT>
-
-The fact is, without the "echo 0x0100 ..." line this linuxrc script WILL
-NOT be able to mount your root device for kernel >=2.4.19. This is
-independent of the distribution used.
-
-So why is that?
-
-I always thought the pivot_root() would make this echo-stuff unnecessary.
-
-The way used by virtually all latest distributions is getting rid of the
-pivot stuff altogether, leaving the loading of the modules, and that's it.
-
-Seems totally unclear (and unclean) to me.
-
-best regards
-
-Oliver Tennert
-
-
-
-
-
-		   Dr. Oliver Tennert
-
-  		   +49 -7071 -9457-598
-
- 		   e-mail: O.Tennert@science-computing.de
-  		   science + computing AG
-  		   Hagellocher Weg 71
-   		   D-72070 Tuebingen
-
+P.S.: Of course this assumes that your G200 has connected BIOS to it.
+If you'll get "matroxfb: Your Matrox device does not have BIOS" or
+"matroxfb: BIOS on your Matrox device does not contain powerup info",
+you are lost and I'll have to find another solution for Vectra owners.
+                                                        
 

@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVC2Uvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVC2UxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbVC2Uvb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 15:51:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVC2Uva
+	id S261380AbVC2UxE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 15:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVC2UxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 15:51:30 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:6309 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261388AbVC2UvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 15:51:08 -0500
-Date: Tue, 29 Mar 2005 21:50:56 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: "Luck, Tony" <tony.luck@intel.com>, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
-In-Reply-To: <20050323111955.728f03d5.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0503292132090.17913@goblin.wat.veritas.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0324516D@scsmsx401.amr.corp.intel.com> 
-    <20050323111955.728f03d5.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 29 Mar 2005 15:53:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7057 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261380AbVC2Uwn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 15:52:43 -0500
+Date: Tue, 29 Mar 2005 22:52:25 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Stefan Seyfried <seife@suse.de>, Andy Isaacson <adi@hexapodia.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Message-ID: <20050329205225.GF8125@elf.ucw.cz>
+References: <4242CE43.1020806@suse.de> <20050324181059.GA18490@hexapodia.org> <4243252D.6090206@suse.de> <20050324235439.GA27902@hexapodia.org> <4243D854.2010506@suse.de> <d120d50005032908183b2f622e@mail.gmail.com> <20050329181831.GB8125@elf.ucw.cz> <d120d50005032911114fd2ea32@mail.gmail.com> <20050329192339.GE8125@elf.ucw.cz> <d120d50005032912051fee6e91@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d50005032912051fee6e91@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Mar 2005, David S. Miller wrote:
-> On Wed, 23 Mar 2005 11:16:27 -0800
-> "Luck, Tony" <tony.luck@intel.com> wrote:
+Hi!
+
+> > > Well, there lies a problem - some devices have to do execve because
+> > > they need firmware to operate. Also, again, some buses with
+> > > hot-pluggable devices will attempt to clean up unsuccessful resume and
+> > > this will cause hotplug events. The point is you either resume system
+> > > or you don't. We probably need a separate "unfreeze" callback,
+> > > although this is kind of messy.
+> > 
+> > There's a better solution for firmware: You should load your firmware
+> > prior to suspend and store it in RAM. Anything else just plain does
+> > not work. (Because your wireless firmware might be on NFS mounted over
+> > that wireless card).
+> > 
+> > Hotplug... I guess udev just needs to hold that callbacks before
+> > system is fully up... it has to do something similar on regular boot,
+> > no?
 > 
-> > Can we legislate that "end==0" isn't possible.
+> Well, I did not really look into udev but hotplug (which can iteract
+> with udev) does not keep anything. If it fails its ok - that's why
+> there are coldplug scripts that "recover" lost events. But here we
+> block trying to start hotplug - we not getting an error - and this is
+> bad. Unfortunately I am not familiar with block devices working to say
+> why it hangs.
 > 
-> It is possible with some out-of-tree patches.
-> 
-> I could certainly support it on sparc64, the only
-> glitch is that this is where the virtually mapped
-> linear page tables sit right now :-)
+> Should we pull Jens into the discussion?
 
-Though my knowledge of out-of-tree patches is very limited,
-I believe "end == 0" is not possible on any arch - when "end"
-originates from vma->vm_end (or vm_struct->addr + size).  There
-are plenty of "BUG_ON(addr >= end)"s dotted around to support that,
-and other places that would be confused by vm_start > vm_end.
+I don't really want us to try execve during resume... Could we simply
+artifically fail that execve with something if (in_suspend()) return
+-EINVAL; [except that in_suspend() just is not there, but there were
+some proposals to add it].
 
-(And when Linus first proposed the sysenter page at 0xfffff000,
-I protested, and he brought it down to 0xffffe000: I think we'll
-do well ever to keep that last virtual page invalid.)
+Or just avoid calling hotplug at all in resume case? And then do
+coldplug-like scan when userspace is ready...
 
-But certainly "ceiling == 0" is possible and common, and "rounded-up
-end" may well be 0 with out-of-tree patches.  When I did those
-free_pgtables tests, it seemed simpler to treat "end" in the same
-way as "ceiling", implicitly allowing it the 0 case.  Perhaps
-that's not so in Nick's version, I've yet to think through it.
-
-Hugh
+But we perhaps should cc linux-pm list.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

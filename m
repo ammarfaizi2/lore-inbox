@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129134AbRBGEt1>; Tue, 6 Feb 2001 23:49:27 -0500
+	id <S129026AbRBGE5R>; Tue, 6 Feb 2001 23:57:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129180AbRBGEtQ>; Tue, 6 Feb 2001 23:49:16 -0500
-Received: from 218-MADR-X32.libre.retevision.es ([62.83.5.218]:55570 "EHLO
-	vivaldi.ddts.net") by vger.kernel.org with ESMTP id <S129089AbRBGEs5>;
-	Tue, 6 Feb 2001 23:48:57 -0500
-Date: Wed, 7 Feb 2001 05:48:47 +0100 (MET)
-From: Roberto Diaz <rdiazmartin@vivaldi.net.dhis.org>
-To: linux-kernel@vger.kernel.org
-Subject: Software Mestizo Manifesto 
-Message-ID: <Pine.LNX.4.21.0102070547440.494-100000@vivaldi.ddts.net>
+	id <S129028AbRBGE5H>; Tue, 6 Feb 2001 23:57:07 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:56306 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129026AbRBGE44>; Tue, 6 Feb 2001 23:56:56 -0500
+Date: Wed, 7 Feb 2001 02:56:42 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+Reply-To: linux-legal@nl.linux.org
+To: Roberto Diaz <rdiazmartin@vivaldi.net.dhis.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Software Mestizo Manifesto 
+In-Reply-To: <Pine.LNX.4.21.0102070547440.494-100000@vivaldi.ddts.net>
+Message-ID: <Pine.LNX.4.21.0102070252580.1535-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi this is off-topic sorry.
+On Wed, 7 Feb 2001, Roberto Diaz wrote:
 
-I am trying to make a manifesto in order to attach it to all my gpl'd
-developments.. due to limitations in my english I would like to ask for
-your help... and maybe you can have a couple of new ideas to improve it.
+> I am trying to make a manifesto in order to attach it to all my
+> gpl'd developments..
 
-I am doing this because gpl'd developments usually involves people all
-around the world.. and being aware that a lot of gpl'd / GNU resources are
-used by fascist, terrorist and that kind of "people" everyday.. well maybe 
-is a begginig.
+> I am doing this because gpl'd developments usually involves
+> people all around the world.. and being aware that a lot of
+> gpl'd / GNU resources are used by fascist, terrorist and that
+> kind of "people" everyday.. well maybe is a begginig.
 
-Please help the way you can.
+Quoted from the GPL:
+-------
+  6. Each time you redistribute the Program (or any work based on the
+Program), the recipient automatically receives a license from the
+original licensor to copy, distribute or modify the Program subject to
+these terms and conditions.  You may not impose any further
+restrictions on the recipients' exercise of the rights granted herein.
+You are not responsible for enforcing compliance by third parties to
+this License.
+-------
 
-for now is just this:
+Your "ethical" statement is incompatible with the GPL.
 
-/******************  Software Mestizo Manifesto  *********************
- * This code is **Software Mestizo** meaning it has been developed with 
- * the help of a lot of individuals no matter their racial or cultural 
- * origin, they all work together in peace and harmony in the belief of 
- * humankind fraternity, using this software with the purpose to harm 
- * this principles is to harm this software itself, uncivilizated and
- * completely unethical. Please use it only in the context of this 
- * principles or dont use it if you dont agree the spirit of the Authors.
- */
+(And, IMHO, unethical since it restricts the freedom of
+use on free software, but lets not start about that since
+we're off-topic for linux-kernel anyway...)
 
+regards,
 
-Regards
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
-Roberto
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-------------------------------------------------------------------------
-Roberto Diaz <rdiazmartin@vivaldi.dtts.net>
-http://vivaldi.dtts.net 
-Powered by ddt dynamic DNS
-Powered by GNU running on a Linux kernel.
-Powered by Debian (The real wonder)
-
-Concerto Grosso Op. 3/8 A minor
-Antonio Vivaldi (so... do you need beautiful words?)
-------------------------------------------------------------------------
-
-
-
-
-
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

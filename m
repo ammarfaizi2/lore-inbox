@@ -1,103 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129152AbQKJFU7>; Fri, 10 Nov 2000 00:20:59 -0500
+	id <S129786AbQKJG4h>; Fri, 10 Nov 2000 01:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130013AbQKJFUt>; Fri, 10 Nov 2000 00:20:49 -0500
-Received: from [203.126.247.144] ([203.126.247.144]:41396 "EHLO
-	esngs144.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S129152AbQKJFUb>; Fri, 10 Nov 2000 00:20:31 -0500
-Message-ID: <3A0B8511.5A0BEC8@asiapacificm01.nt.com>
-Date: Fri, 10 Nov 2000 05:18:09 +0000
-From: "Andrew Morton" <morton@nortelnetworks.com>
-Organization: Nortel Networks, Wollongong Australia
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.0-test4 i686)
-X-Accept-Language: en
+	id <S129834AbQKJG42>; Fri, 10 Nov 2000 01:56:28 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26632 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129786AbQKJG4V>; Fri, 10 Nov 2000 01:56:21 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: [i386] CPU detection cleanup version 2
+Date: 9 Nov 2000 22:55:51 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8ug65n$53t$1@cesium.transmeta.com>
 MIME-Version: 1.0
-To: John Kacur <jkacur@home.com>, Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [patch] Re: test11-pre2 compile error undefined reference to 
-         `bust_spinlocks'
-In-Reply-To: <3A0B8881.F444DF5@home.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <morton@asiapacificm01.nt.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Kacur wrote:
-> 
-> When attempting to compile test11-pre2, I get the following compile
-> error.
-> 
-> arch/i386/mm/mm.o: In function `do_page_fault':
-> arch/i386/mm/mm.o(.text+0x781): undefined reference to `bust_spinlocks'
-> make: *** [vmlinux] Error 1
+I have produced another version of the CPU detection cleanup patch.
+Now I have ported over mtrr.c, and fix a small handful of places I had
+missed because of the configurations I had used.
 
-It was inside an ifdef.  Apologies.
+The number one thing I *haven't* yet done with it -- which I'd like to
+-- is to integrate the handling of bugs (except the P6 SEP bug) into
+the same framework and pretty much eliminate asm/bugs.h, as well as
+splitting off the CPU detection into a separate file.  However, due to
+the very late stage in the game, I wanted to worry about things that
+are important for correctness for now.
 
-This patch against test11-pre2 moves it to fault.c.
+Please do keep in mind this is not merely a cosmetic change.  The old
+code was rather shockingly klugy and incorrect in a number of places.
+A lot of problems I thought were AMD CPUID bugs were in fact caused by
+Linux trying to use the Intel-defined and the AMD-defined flags as
+interchangeable (they're not.)
+
+The patch is at:
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/cpuid-2.4.0-test11-pre2-2.diff
+
+Please give me reports on works/not works with output from
+/proc/cpuinfo and the cpuid.c program (in the same directory as the
+patch.)
+
+	-hpa
 
 
---- linux-2.4.0-test11-pre2/arch/i386/kernel/traps.c	Fri Nov 10 15:59:15 2000
-+++ linux/arch/i386/kernel/traps.c	Fri Nov 10 15:52:40 2000
-@@ -63,6 +63,7 @@
- struct desc_struct idt_table[256] __attribute__((__section__(".data.idt"))) = { {0, 0}, };
- 
- extern int console_loglevel;
-+extern void bust_spinlocks(void);
- 
- static inline void console_silent(void)
- {
-@@ -394,19 +395,7 @@
- 
- __setup("nmi_watchdog=", setup_nmi_watchdog);
- 
--extern spinlock_t console_lock, timerlist_lock;
- static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
--
--/*
-- * Unlock any spinlocks which will prevent us from getting the
-- * message out (timerlist_lock is aquired through the
-- * console unblank code)
-- */
--void bust_spinlocks(void)
--{
--	spin_lock_init(&console_lock);
--	spin_lock_init(&timerlist_lock);
--}
- 
- inline void nmi_watchdog_tick(struct pt_regs * regs)
- {
---- linux-2.4.0-test11-pre2/arch/i386/mm/fault.c	Fri Nov 10 15:59:15 2000
-+++ linux/arch/i386/mm/fault.c	Fri Nov 10 16:02:03 2000
-@@ -24,7 +24,6 @@
- #include <asm/hardirq.h>
- 
- extern void die(const char *,struct pt_regs *,long);
--extern void bust_spinlocks(void);
- 
- /*
-  * Ugly, ugly, but the goto's result in better assembly..
-@@ -76,6 +75,19 @@
- 
- bad_area:
- 	return 0;
-+}
-+
-+extern spinlock_t console_lock, timerlist_lock;
-+
-+/*
-+ * Unlock any spinlocks which will prevent us from getting the
-+ * message out (timerlist_lock is aquired through the
-+ * console unblank code)
-+ */
-+void bust_spinlocks(void)
-+{
-+	spin_lock_init(&console_lock);
-+	spin_lock_init(&timerlist_lock);
- }
- 
- asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
+
+
+
+
+
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

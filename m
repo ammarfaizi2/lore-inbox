@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273866AbRIRG1D>; Tue, 18 Sep 2001 02:27:03 -0400
+	id <S273881AbRIRHdw>; Tue, 18 Sep 2001 03:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273867AbRIRG0w>; Tue, 18 Sep 2001 02:26:52 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:56847 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S273866AbRIRG0g>; Tue, 18 Sep 2001 02:26:36 -0400
-Date: Tue, 18 Sep 2001 02:02:37 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-In-Reply-To: <20010918081146.J698@athlon.random>
-Message-ID: <Pine.LNX.4.21.0109180201460.7152-100000@freak.distro.conectiva>
+	id <S273880AbRIRHdm>; Tue, 18 Sep 2001 03:33:42 -0400
+Received: from colorfullife.com ([216.156.138.34]:33799 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S273879AbRIRHdV>;
+	Tue, 18 Sep 2001 03:33:21 -0400
+Message-ID: <000901c14014$494f9380$010411ac@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "Andrea Arcangeli" <andrea@suse.de>,
+        "Linus Torvalds" <torvalds@transmeta.com>
+Cc: <dhowells@redhat.com>, <Ulrich.Weigand@de.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <001701c13fc2$cda19a90$010411ac@local> <200109172339.f8HNd5W13244@penguin.transmeta.com> <20010918020139.B698@athlon.random>
+Subject: Re: Deadlock on the mm->mmap_sem
+Date: Tue, 18 Sep 2001 09:31:40 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Andrea Arcangeli" <andrea@suse.de>
+> > The mmap semaphore is a read-write semaphore, and it _is_
+permissible to
+> > call "copy_to_user()" and friends while holding the read lock.
+> >
+> > The bug appears to be in the implementation of the write semaphore -
+> > down_write() doesn't undestand that blocked writes must not block
+new
+> > readers, exactly because of this situation.
+>
+> Exactly, same reason for which we need the same property from the rw
+> spinlocks (to be allowed to read_lock without clearing irqs). Thanks
+so
+> much for reminding me about this! Unfortunately my rwsemaphores are
+> blocking readers at the first down_write (for the better fairness
+> property issuse, but I obviously forgotten that doing so I would
+> introduce such a deadlock).
 
+i386 has a fair rwsemaphore, too - probably other archs must be modified
+as well.
 
-On Tue, 18 Sep 2001, Andrea Arcangeli wrote:
+> The fix is a few liner for my
+> implementation, here it is:
+>
 
-> On Mon, Sep 17, 2001 at 10:48:34PM -0700, Andrew Morton wrote:
-> > Linus Torvalds wrote:
-> > > 
-> > > Ok, the big thing here is continued merging, this time with Andrea.
-> > > 
-> > 
-> > In one test here the VM changes seem fragile, and slower.
-> > 
-> > Dual x86, 512 megs RAM, 512 megs swap.  No highmem.
-> > 
-> > The workload is:
-> > 
-> > 	while true
-> > 	do
-> > 		/usr/src/ext3/tools/usemem 300
-> > 	done
-> > 
-> > 	(This just mallocs 300 megs, touches it then exits)
-> > 
-> > in parallel with
-> > 
-> > 	time /usr/src/ext3/tools/bash-shared-mapping -n 5 -t 3 foo 300000000
-> > 
-> > on ext2.
-> > 
-> > (bash-shared-mapping is a tool which I wrote for ext3.  It's one of the
-> >  most aggressive VM/MM stress testers around, and has found a number of
-> >  kernel bugs).
-> > 
-> > On 2.4.9-ac10, the b-s-m run took 294 seconds.  On 2.4.10-pre11 it
-> > took 330 seconds DESPITE the fact that one of the b-s-m instances
-> > was oom-killed quite early in the test.
-> > 
-> > `vmstat' took about thirty seconds to start (this is usual), but
-> > was promptly killed, despite having (presumably) a small RSS.  Instances
-> > of `usemem' were oom-killed quite frequently.  In 2.4.9-ac10, nothing
-> > was oom-killed.
-> 
-> should be the very same problem identified by Marcelo. I'm wondering why
-> I didn't reproduced here during testing, 512mbytes is not highmem and my
-> desktop has 512mbytes too and it didn't killed anything yet. As for the
-> slowdown there are a few localized places to look at. but let's fix the
-> oom first.
+Obivously your patch fixes the race, but we could starve down_write() if
+there are many page faults.
+Which multithreaded apps rely on mmap for file io? innd, perhaps samba
+if mmap is enabled (I'm not sure what's the default and if samba is
+multithreaded).
 
-Try to run several memory hungry threads (thus hiding more pages).
+If you compile a kernel for 80386, then i386 uses the generic
+semaphores.
+Could someone with innd compile his kernel for i386, apply Andrea's
+patch and check that the performance doesn't break down?
+
+IMHO modifying proc_pid_read_maps() is far simpler - I'm not aware of
+another recursive mmap_sem user.
+--
+    Manfred
+
 

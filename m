@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267740AbUIUPC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267746AbUIUPGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267740AbUIUPC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 11:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267745AbUIUPC4
+	id S267746AbUIUPGR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 11:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267748AbUIUPGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 11:02:56 -0400
-Received: from agent1.tuc.com ([12.106.254.36]:30104 "EHLO agent1.tuc.com")
-	by vger.kernel.org with ESMTP id S267740AbUIUPCy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 11:02:54 -0400
-Subject: 2.6.9-rc2-mm1 usb breakage
-From: Paul Giordano <giordano@covad.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1095778967.12904.7.camel@pgiorda.tuc.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 21 Sep 2004 10:02:47 -0500
+	Tue, 21 Sep 2004 11:06:17 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:18893 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S267746AbUIUPGK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 11:06:10 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Torben Mathiasen <torben.mathiasen@hp.com>
+Subject: Re: [Patch][RFC] conflicting device major numbers in devices.txt
+Date: Tue, 21 Sep 2004 17:03:46 +0200
+User-Agent: KMail/1.6.2
+Cc: David Woodhouse <dwmw2@infradead.org>, "Cagle, John" <john.cagle@hp.com>,
+       Christian Borntraeger <linux-kernel@borntraeger.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Torben Mathiasen <device@lanana.org>, linux-mtd@lists.infradead.org
+References: <C50AB9511EE59B49B2A503CB7AE1ABD108F82153@cceexc19.americas.cpqcorp.net> <1095580254.5065.172.camel@localhost.localdomain> <20040921092356.GD4055@linux>
+In-Reply-To: <20040921092356.GD4055@linux>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_TLEUBF5F515ZQer";
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409211703.47188.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Booting a TYAN S2462 motheboard with 2.6.9-rc2-mm1:
 
-09:00:17 CDT pgiorda [debug] ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host
-Controller (OHCI) Driver (PCI) ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host
-Controller (OHCI) Driver (PCI)
-09:00:17 CDT pgiorda [info] ACPI: PCI interrupt 0000:00:07.4[D] -> GSI
-19 (level, low) -> IRQ 19 ACPI: PCI interrupt 0000:00:07.4[D] -> GSI 19
-(level, low) -> IRQ 19
-09:00:17 CDT pgiorda [info] ohci_hcd 0000:00:07.4: Advanced Micro
-Devices [AMD] AMD-766 [ViperPlus] USB ohci_hcd 0000:00:07.4: Advanced
-Micro Devices [AMD] AMD-766 [ViperPlus] USB
-09:00:17 CDT pgiorda [info] ohci_hcd 0000:00:07.4: irq 19, pci mem
-0xdc000 ohci_hcd 0000:00:07.4: irq 19, pci mem 0xdc000
-09:00:17 CDT pgiorda [info] ohci_hcd 0000:00:07.4: new USB bus
-registered, assigned bus number 1 ohci_hcd 0000:00:07.4: new USB bus
-registered, assigned bus number 1
-09:00:17 CDT pgiorda [err] ohci_hcd 0000:00:07.4: init err (00002edf
-2a2f) ohci_hcd 0000:00:07.4: init err (00002edf 2a2f)
-09:00:17 CDT pgiorda [err] ohci_hcd 0000:00:07.4: can't start ohci_hcd
-0000:00:07.4: can't start
-09:00:17 CDT pgiorda [err] ohci_hcd 0000:00:07.4: init error -75
-ohci_hcd 0000:00:07.4: init error -75
-09:00:17 CDT pgiorda [info] ohci_hcd 0000:00:07.4: remove, state 0
-ohci_hcd 0000:00:07.4: remove, state 0
-09:00:17 CDT pgiorda [info] ohci_hcd 0000:00:07.4: USB bus 1
-deregistered ohci_hcd 0000:00:07.4: USB bus 1 deregistered
-09:00:17 CDT pgiorda [warning] ohci_hcd: probe of 0000:00:07.4 failed
-with error -75 ohci_hcd: probe of 0000:00:07.4 failed with error -75
+--Boundary-02=_TLEUBF5F515ZQer
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-No USB after that.
+On Dienstag, 21. September 2004 11:23, Torben Mathiasen wrote:
+> s/390 dasd moved to major 94.
+> s/390 VM/ESA moved to major 95.
+> INFTL moved to major 96.
 
-Please cc me, I'm not on the list.
+Actually, major 95 has never been used for VM minidisks or any other
+s390 block device in any 2.4 or 2.6 based distribution, because that
+driver was integrated into the dasd driver (it just uses a different
+access method on the same devices). You might want to document that
+this number is currently unused, even if it doesn't get assigned to
+any other driver.
 
-Thanks,
-Gio
+	Arnd <><
 
+--Boundary-02=_TLEUBF5F515ZQer
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBUELT5t5GS2LDRf4RAscdAJ9oPSOir2My40I5vIgrpaA/ffMmzACff7Rp
+rX/b6IL5Exd6VtjfjrkJml0=
+=oa36
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_TLEUBF5F515ZQer--

@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267520AbUHPKQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUHPKSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267520AbUHPKQo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 06:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267514AbUHPKQo
+	id S267515AbUHPKSz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 06:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267514AbUHPKSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 06:16:44 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28859 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267515AbUHPKPX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 06:15:23 -0400
-Date: Mon, 16 Aug 2004 12:14:26 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Keith Whitwell <keith@tungstengraphics.com>
-Cc: Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: DRM and 2.4 ...
-Message-ID: <20040816101426.GB31696@devserv.devel.redhat.com>
-References: <Pine.LNX.4.58.0408160652350.9944@skynet> <1092640312.2791.6.camel@laptop.fenrus.com> <412081C6.20601@tungstengraphics.com> <20040816094622.GA31696@devserv.devel.redhat.com> <412088A5.6010106@tungstengraphics.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i0/AhcQY5QxfSsSZ"
+	Mon, 16 Aug 2004 06:18:55 -0400
+Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:40966 "EHLO
+	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S267515AbUHPKSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 06:18:36 -0400
+From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
+To: Martin Zwickel <martin.zwickel@technotrend.de>
+Subject: Re: inconsistency in thread/signal interaction in 2.6.5 and =?iso-8859-2?q?previous=09vs=2E_2=2E6=2E6_and_later?= (possibly a bug?)
+Date: Mon, 16 Aug 2004 12:18:22 +0200
+User-Agent: KMail/1.7
+Cc: Glyph Lefkowitz <glyph@divmod.com>, linux-kernel@vger.kernel.org
+References: <1092650465.3394.13.camel@localhost> <20040816121136.49bb3fc2@phoebee>
+In-Reply-To: <20040816121136.49bb3fc2@phoebee>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <412088A5.6010106@tungstengraphics.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200408161218.23718.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 16 of August 2004 12:11, Martin Zwickel wrote:
+> On Mon, 16 Aug 2004 06:01:05 -0400
+>
+> Glyph Lefkowitz <glyph@divmod.com> bubbled:
+> > Hello Kernel People,
+> >
+> > Firstly, here is a brief example of some code that behaves very
+> > differently on 2.6.5 and 2.6.6:
+> >
+> > http://www.twistedmatrix.com/users/glyph/signal-bug.c
+> >
+> > I have verified that it says "Completed" on kernel 2.6.5, 2.6.3 and
+> > 2.6.1, and says "Died" on 2.6.6, 2.6.7 and 2.6.8.1, so I am pretty
+> > sure the difference is between 2.5.6 and 2.6.6.
+>
+> FYI:
+> # gcc signal-bug.c -Wall -lutil -lpthread -o signal-bug; ./signal-bug
+> Completed.
+>
+> # cat /proc/version
+> Linux version 2.6.8-rc2-mm1 (root@phoebee) (gcc version 3.3.3 20040412
+> (Gentoo Linux 3.3.3-r6, ssp-3.3.2-2, pie-8.7.6)) #1 Wed Jul 28 11:39:48
+> CEST 2004
 
---i0/AhcQY5QxfSsSZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+# gcc signal-bug.c -Wall -lpthread -lutil -o signal-bug; ./signal-bug
+Died.
 
-On Mon, Aug 16, 2004 at 11:12:53AM +0100, Keith Whitwell wrote:
-> Most of the abstractions that you're complaining about existed prior to the 
-> addition of freebsd support
+# cat /proc/version
+Linux version 2.6.8 (pluto@vmx) (gcc version 3.4.2 20040806 (prerelease)
+(PLD Linux)) #1 Sun Aug 15 19:58:30 CEST 2004
 
-DRM_IOCTL_ARGS, DRM_ERR, DRM_CURRENTPID, DRM_UDELAY, DRM_READMEMORYBARRIER,
-DRM_COPY_FROM_USER_IOCTL etc etc existed prior to freebsd support? Oh my
-god...
+# rpm -q glibc
+glibc-2.3.4-0.20040722.2+nptl
 
---i0/AhcQY5QxfSsSZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+-- 
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
 
-iD8DBQFBIIkBxULwo51rQBIRAiGGAJ9IUDUqXya3xBDYWrA6rdgyD/LmuwCdFd5I
-i/mV4gjY+c7HzIB7uODrRpk=
-=jWXK
------END PGP SIGNATURE-----
-
---i0/AhcQY5QxfSsSZ--
+                           #define say(x) lie(x)

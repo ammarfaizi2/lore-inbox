@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269967AbRHSEC5>; Sun, 19 Aug 2001 00:02:57 -0400
+	id <S269971AbRHSEao>; Sun, 19 Aug 2001 00:30:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269970AbRHSECq>; Sun, 19 Aug 2001 00:02:46 -0400
-Received: from altus.drgw.net ([209.234.73.40]:26123 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S269967AbRHSECi>;
-	Sun, 19 Aug 2001 00:02:38 -0400
-Date: Sat, 18 Aug 2001 23:02:49 -0500
-From: Troy Benjegerdes <hozer@drgw.net>
+	id <S269974AbRHSEae>; Sun, 19 Aug 2001 00:30:34 -0400
+Received: from c003-h000.c003.snv.cp.net ([209.228.32.214]:20619 "HELO
+	c003.snv.cp.net") by vger.kernel.org with SMTP id <S269971AbRHSEa0> convert rfc822-to-8bit;
+	Sun, 19 Aug 2001 00:30:26 -0400
+X-Sent: 19 Aug 2001 04:30:34 GMT
+Subject: Problem: kernel hang up after restart X and use i810 with DRM 4.1
+	aceleration.
+From: Tigrux <tigrux@avantel.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
-Message-ID: <20010818230249.O22585@altus.drgw.net>
-In-Reply-To: <Pine.LNX.4.33.0108101557180.1048-100000@penguin.transmeta.com> <20010811095051.A28624@gondor.apana.org.au> <20010810170407.G28914@mikef-linux.matchmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 18 Aug 2001 23:31:11 -0500
+Message-Id: <998195473.10645.21.camel@Terror.comp99>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010810170407.G28914@mikef-linux.matchmail.com>; from mfedyk@matchmail.com on Fri, Aug 10, 2001 at 05:04:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 10, 2001 at 05:04:07PM -0700, Mike Fedyk wrote:
-> On Sat, Aug 11, 2001 at 09:50:51AM +1000, Herbert Xu wrote:
-> > On Fri, Aug 10, 2001 at 03:58:02PM -0700, Linus Torvalds wrote:
-> > > 
-> > > Besides, does the reboot system call actually get the BKL? I don't think
-> > > it should need it..
-> > 
-> > Actually, the machine in question turned out to be UP :)
-> > 
-> > However, it does have RAID 1 and the notifier call chain stuff looks like
-> > a killer to me since it leads to do_md_stop.
-> > 
-> > Perhaps we need a RESTART3 that restarts without notifying?
-> 
-> Interesting...
-> 
-> I have an oldworld ppc mac with RAID1 compiled on 2.2.19, and a bad floppy
-> made badblocks unkillable.
+I use kernel-2.4.8-ac7, but the problem is general to kernel more newer
+that 2.4.8-ac5 (all kernel with native support to DRM 4.1 and XFree
+4.1).
 
-I think that was probably because the pmac floppy driver has some issues..
+I start my X sessione, then I run any OpenGL programm (Heavy Gear,
+TuxRacer, Gears, etc), the I restart X, and the... KERNEL DIE!!
 
+In another hand, if I start X, and do not use OpenGL programms, and then
+restart X, the kernel do not die.
 
--- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Shulz
+I'm using:
+  XFree86 4.1
+  Pentium 3 Coppermine 550MHz, 100MHz bus.
+  256 MB swap.
+  256 DIMM RAM.
+  i810 acelerator card on board.
+
+I think the problem is related to the implementation of DRM.
+
+-- End of report
+
+-- BEGIN ver_linux_info
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux Terror.comp99 2.4.8-ac7 #4 sáb ago 18 01:37:06 CDT 2001 i686
+unknown
+ 
+Gnu C                  2.95.3
+Gnu make               3.79.1
+binutils               2.10.0.24
+util-linux             2.10o
+mount                  2.10o
+modutils               2.4.6
+e2fsprogs              1.22
+PPP                    2.4.0
+Linux C Library        2.1.3
+Dynamic linker (ldd)   2.1.3
+Procps                 2.0.7
+Net-tools              1.57
+Console-tools          0.2.3
+Sh-utils               2.0
+Modules Loaded         ppp_deflate ymf724 audiobuf opl3 uart401 pnp midi
+ac97 soundbase sndshield ac97_codec imm
+-- END ver_linux_info
+
+  
+  
+

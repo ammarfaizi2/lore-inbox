@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265305AbSKSAXC>; Mon, 18 Nov 2002 19:23:02 -0500
+	id <S265339AbSKSA2C>; Mon, 18 Nov 2002 19:28:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265308AbSKSAXB>; Mon, 18 Nov 2002 19:23:01 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:33279 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S265305AbSKSAXB>; Mon, 18 Nov 2002 19:23:01 -0500
-Message-ID: <3DD98B79.20102@kegel.com>
-Date: Mon, 18 Nov 2002 16:53:13 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-References: <Pine.LNX.4.44.0211181533501.979-100000@blue1.dev.mcafeelabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265355AbSKSA2C>; Mon, 18 Nov 2002 19:28:02 -0500
+Received: from mailhost.nmt.edu ([129.138.4.52]:36625 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S265339AbSKSA2C>;
+	Mon, 18 Nov 2002 19:28:02 -0500
+Date: Mon, 18 Nov 2002 17:34:57 -0700
+From: Val Henson <val@nmt.edu>
+To: Mike Dresser <mdresser_l@windsormachine.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RTL8139D support for 2.4?
+Message-ID: <20021119003457.GB28304@boardwalk>
+References: <3DD9688F.8030202@pobox.com> <Pine.LNX.4.33.0211181755560.24054-100000@router.windsormachine.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0211181755560.24054-100000@router.windsormachine.com>
+User-Agent: Mutt/1.4i
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
->>I'd be happy to contribute better doc... has the man page
->>for sys_epoll been written yet?
+On Mon, Nov 18, 2002 at 05:57:34PM -0500, Mike Dresser wrote:
 > 
-> http://www.xmailserver.org/linux-patches/epoll.2
-> http://www.xmailserver.org/linux-patches/epoll_create.2
-> http://www.xmailserver.org/linux-patches/epoll_ctl.2
-> http://www.xmailserver.org/linux-patches/epoll_wait.2
+> Took the card out, tried another, 10ec:8139 as expected.
 > 
-> it is going to change though with the latest talks about the interface.
+> Put the old card back in, didn't come up in BIOS or lspci.  Pulled the
+> card out, put it back in, comes up as 10ec:8139.
+> 
+> I suspect there's something flaky about this card :D
 
-Hmm.  Right off the bat, I see a terminology problem.
-The man page says
+In the past, I've seen similar problems caused by a not-completely
+seated PCI card.  If the problem goes away when you take the card out
+and put it back, I would suspect poor seating rather than a bad card.
 
-.SH NAME
-epoll \- edge triggered asynchronous I/O facility
+> So yeah, ignore all the pci_id stuff, this card is just fubar :)
 
-That's going to confuse some users.  They might think
-epoll can actually initiate I/O.  Better to say
+Don't toss it out just yet. :)
 
-epoll \- edge triggered I/O readiness notification facility
-
-Second, epoll_ctl(2) doesn't define the meaning of the
-event mask.  It should give the allowed bits and define
-their meanings.  If we use the traditional POLLIN etc, we
-can say
-   POLLIN - the fd has become ready for reading
-   POLLOUT - the fd has become ready for writing
-   Note: If epoll tells you e.g. POLLIN, it means that
-            poll will tell you the same thing,
-            since poll gives the current status,
-            and epoll gives changes in status.
-
-- Dan
-
-
+-VAL

@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267361AbSIRQdt>; Wed, 18 Sep 2002 12:33:49 -0400
+	id <S267604AbSIRQqz>; Wed, 18 Sep 2002 12:46:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267441AbSIRQdt>; Wed, 18 Sep 2002 12:33:49 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:50662 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S267361AbSIRQdp>;
-	Wed, 18 Sep 2002 12:33:45 -0400
-Date: Wed, 18 Sep 2002 18:46:03 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
- elimination, 2.5.35-BK
-In-Reply-To: <Pine.LNX.4.44.0209180915350.1913-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209181843240.23619-100000@localhost.localdomain>
+	id <S267605AbSIRQqy>; Wed, 18 Sep 2002 12:46:54 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:34198 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S267604AbSIRQqV>;
+	Wed, 18 Sep 2002 12:46:21 -0400
+Message-ID: <3D88AF06.7060108@candelatech.com>
+Date: Wed, 18 Sep 2002 09:51:18 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Joerg Pommnitz <pommnitz@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  Networking:  send-to-self
+References: <20020918134907.13218.qmail@web13308.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joerg Pommnitz wrote:
+> Hi Ben,
+> I had the exact same problem in March (see 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=101679264814811&w=2). The 
+> hacky solution I came up with was to use the following NAT rule:
+> 
+> iptables -t nat -A POSTROUTING -o eth0 -d 10.1.12.151 -p udp --dport 12345
+> -j SNAT --to 1.2.3.4
+> 
+> This way the packets claimed to come from a foreign IP address and were 
+> accepted. However, when the packets hit an ingress filter on their way,
+> this will fail. 
+> 
+> Will you push this to DaveM for inclusion?
 
-On Wed, 18 Sep 2002, Linus Torvalds wrote:
+Dave has the link to the patch, but whether or not he will include
+it in the kernel proper I do not know.  I hope he does, of course.
 
-> Yeah. It increases memory pressure for the _complex_ and _slow_
-> algorithms. Agreed.
+Ben
 
-what complex and slow algorithms? Take a look at the alloc_pid() and 
-free_pid() fastpaths:
+> 
+> Regards
+>   Jörg
+> 
+> =====
 
-void free_pid(unsigned long pid)
-{
-        pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
-        int offset = pid & BITS_PER_PAGE_MASK;
 
-        atomic_inc(&map->nr_free);
-        test_and_clear_bit(offset, map->page));
-}
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-it's all bitshifts.
-
-int alloc_pid(void)
-{
-        pid = last_pid + 1;
-        if (pid >= pid_max)
-                pid = RESERVED_PIDS;
-
-        offset = pid & BITS_PER_PAGE_MASK;
-        map = pidmap_array + pid / BITS_PER_PAGE;
-
-        if (likely(map->page && !test_and_set_bit(offset, map->page))) {
-		atomic_dec(&map->nr_free);
-                last_pid = pid;
-                return pid;
-	[...]
-}
-
-> See my two-liner suggestion (which is admittedly not even compiled, so
-> the one disadvantage it might have is that it might need to be debugged.
-> But it's only two lines and doesn't actually change any fundamental part
-> of any existing algorithms, so debugging shouldn't be a big problem.
-
-it solves the PID-space-squeeze problem, but it does not solve the
-fundamental problem: possibly thousands of consecutive PIDs allocated.
-
-	Ingo
 

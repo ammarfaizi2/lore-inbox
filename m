@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316857AbSFKGmj>; Tue, 11 Jun 2002 02:42:39 -0400
+	id <S316861AbSFKGp0>; Tue, 11 Jun 2002 02:45:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316860AbSFKGmi>; Tue, 11 Jun 2002 02:42:38 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:10761 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316857AbSFKGmi>;
-	Tue, 11 Jun 2002 02:42:38 -0400
-Date: Mon, 10 Jun 2002 23:38:54 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
-Message-ID: <20020611063854.GA6839@kroah.com>
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D048CFD.2090201@evision-ventures.com> <20020611004000.GH5202@kroah.com> <3D0599AE.7080809@evision-ventures.com>
-Mime-Version: 1.0
+	id <S316863AbSFKGpZ>; Tue, 11 Jun 2002 02:45:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52232 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316861AbSFKGpY>;
+	Tue, 11 Jun 2002 02:45:24 -0400
+Message-ID: <3D059D5E.C9F9F659@zip.com.au>
+Date: Mon, 10 Jun 2002 23:49:02 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
+In-Reply-To: Your message of "Mon, 10 Jun 2002 23:17:27 MST."
+	             <3D0595F7.A21AE62B@zip.com.au> <11043.1023776994@kao2.melbourne.sgi.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Tue, 14 May 2002 05:33:52 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 08:33:18AM +0200, Martin Dalecki wrote:
-> Greg KH wrote:
-> >On Mon, Jun 10, 2002 at 01:26:53PM +0200, Martin Dalecki wrote:
-> >
-> >>Fix improper usage of __FUNCTION__ in usb code.
-> >
-> >
-> >It's not improper.  Well it wasn't when it was written, but the gcc
-> >authors decided to change their minds... :(
-> >
-> >As stated before, I'll clean up all of the USB drivers later all at
-> >once, and the pci hotplug drivers as well.  The USB drivers could use
-> >with some good debugging macro cleanup in general...
-> >
-> >Martin, any reason you are doing all of this "cleanup" without sending
-> >the patches to the relevant maintainers?
+Keith Owens wrote:
 > 
-> 1. I know you read lkml.
+> On Mon, 10 Jun 2002 23:17:27 -0700,
+> Andrew Morton <akpm@zip.com.au> wrote:
+> >Keith Owens wrote:
+> >>
+> >> fd = open("foo", O_RDWR);
+> >> map = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+> >> ... modify the mapped pages ...
+> >> munmap(map, size);
+> >> close(fd);
+> >>
+> >> The timestamp on foo is not updated, even though the contents have
+> >> changed.  Adding msync(map, size, MS_[A]SYNC) before munmap makes no
+> >> difference.  2.4.19-pre10 has no obvious fixes for this problem.
+> 
+> >What do the standards say?
+> >
+> >http://www.opengroup.org/onlinepubs/007904975/functions/mmap.html
+> >
+> >     The st_ctime and st_mtime fields of a file that is mapped with MAP_SHARED
+> >     and PROT_WRITE shall be marked for update at some point in the interval
+> >     between a write reference to the mapped region and the next call to msync() with
+> >     MS_ASYNC or MS_SYNC for that portion of the file by any process. If there is
+> >     no such call and if the underlying file is modified as a result of a write reference,
+> >     then these fields shall be marked for update at some time after the write reference.
+> 
+> That says nothing about a file where the only updates are via mmap.  My
+> file had grown to its final size so there were no more writes, only
+> pages being dirtied via mmap.
 
-Yeah, but not all the other maintainers do, it's still good form to at
-least CC: them on things like this.
+It is specifically referring to updates via mmap!  "a write reference
+to the mapped region".  This is the mmap documentation.
 
-And remember, other maintainers aren't as nice as I am :)
+What you want is what the standard says we should do.  And we aren't
+doing it.  Your application should perform msync(MS_ASYNC) and the
+mtime should be updated.
 
-greg k-h
+-

@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130576AbQKCQKA>; Fri, 3 Nov 2000 11:10:00 -0500
+	id <S130604AbQKCQOK>; Fri, 3 Nov 2000 11:14:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130620AbQKCQJv>; Fri, 3 Nov 2000 11:09:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64524 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130576AbQKCQJe>;
-	Fri, 3 Nov 2000 11:09:34 -0500
-Date: Fri, 3 Nov 2000 16:09:18 +0000
-From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-To: tytso@mit.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-Message-ID: <20001103160918.X2272@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <200011031509.eA3F9V719729@trampoline.thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200011031509.eA3F9V719729@trampoline.thunk.org>; from tytso@mit.edu on Fri, Nov 03, 2000 at 10:09:31AM -0500
+	id <S130620AbQKCQOC>; Fri, 3 Nov 2000 11:14:02 -0500
+Received: from beaker.bluetopia.net ([64.90.13.161]:5160 "EHLO
+	beaker.bluetopia.net") by vger.kernel.org with ESMTP
+	id <S130604AbQKCQNr>; Fri, 3 Nov 2000 11:13:47 -0500
+Date: Fri, 3 Nov 2000 11:13:37 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetopia.net>
+To: bert hubert <ahu@ds9a.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Dual XEON - >>SLOW<< on SMP
+In-Reply-To: <20001103010431.A3977@home.ds9a.nl>
+Message-ID: <Pine.LNX.4.04.10011031103490.1436-100000@beaker.bluetopia.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 3. Security
-> 
->      * Fix module remove race bug (still to be done: TTY, ldisc, I2C,
->        video_device - Al Viro) (Rogier Wolff will handle ATM)
+On Fri, 3 Nov 2000, bert hubert wrote:
+>> Thanks! That patch did the trick - our machine is now running lovely.
+>
+>Your very rare problem was solved in 3 hours and 50 minutes. Most commercial
+>support shops try and fail to deliver 4 hour response times - this makes me
+>feel warm inside :-)
 
-TBD: sysctl, kernel_thread
+To be fair, the _problem_ wasn't solved in under 4 hours.  He was given an
+answer to a known problem in less than 4 hours.
 
-* drivers/input/mousedev.c dereferences userspace pointers directly.  We
-should make this fail for a bit to catch those bugs
+However, you are correct in implying linux support is, in many respects,
+far better than that of any commercial OS.  Anyone tried explaining to
+Microsoft or Sun that something is broken?  They both immidiately assume
+you are an idiot (I;m sure that's true more offen than not) and proceed
+with an attitude of "how dare you suggest our OS is broken."
+
+<Insert stories about USR here.  I was just dealing with RADIUS.  God help
+ us if their modem code looks like that crap.>
+
+--Ricky
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

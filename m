@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264415AbTDPOrY (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 10:47:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTDPOrY 
+	id S264446AbTDPOzq (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 10:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264447AbTDPOzq 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 10:47:24 -0400
-Received: from h000.c000.snv.cp.net ([209.228.32.64]:55806 "HELO
-	c000.snv.cp.net") by vger.kernel.org with SMTP id S264415AbTDPOrW 
+	Wed, 16 Apr 2003 10:55:46 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59269 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264446AbTDPOzp 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 10:47:22 -0400
-X-Sent: 16 Apr 2003 14:59:14 GMT
-Message-ID: <003e01c30428$bb6de410$6901a8c0@athialsinp4oc1>
-From: "Brien" <admin@brien.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: my dual channel DDR 400 RAM won't work on any linux distro
-Date: Wed, 16 Apr 2003 10:59:07 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 16 Apr 2003 10:55:45 -0400
+Date: Wed, 16 Apr 2003 08:00:44 -0700 (PDT)
+Message-Id: <20030416.080044.25878686.davem@redhat.com>
+To: ak@muc.de
+Cc: willy@debian.org, akpm@digeo.com, linux-kernel@vger.kernel.org,
+       anton@samba.org, schwidefsky@de.ibm.com, davidm@hpl.hp.com,
+       matthew@wil.cx, ralf@linux-mips.org, rth@redhat.com
+Subject: Re: Reduce struct page by 8 bytes on 64bit
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030416150427.GA2496@averell>
+References: <20030416144312.GA2327@averell>
+	<20030416145532.GA1505@parcelfarce.linux.theplanet.co.uk>
+	<20030416150427.GA2496@averell>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I posted this on some forums and they recommended that I try here)
+   From: Andi Kleen <ak@muc.de>
+   Date: Wed, 16 Apr 2003 17:04:27 +0200
 
-Hi,
-
-I have a Gigabyte SINXP1394 motherboard, and 2 Kingston 512 MB DDR 400 (CL
-2.5) RAM modules installed. Whenever I try to install any Linux
-distribution, I always get a black screen after the kernel loads, when I
-have dual channel enabled; If I take out 1 of the RAM modules (either one),
-everything works as it should -- it's not a bad module (works perfectly
-under Windows by the way). I can't disable dual channel without taking out
-half of my RAM, and I really do not want to run with only half of it. Does
-anyone have any idea how I can fix this problem, or is it something that
-needs to be updated in the kernel?
-
-Thanks for any info.
-
-
+   Sure, but you use a 64bit read/store in set_bit/clear_bit etc., right? 
+   
+   If yes then you can't use this unless you rewrite them to use 32bit store
+   - otherwise it will conflict with the atomic_t counter in the 64bit slot
+   which is not protected.
+   
+It will be protected by the same spinlock, look at how the
+thing works :-)

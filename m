@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265657AbTABEoW>; Wed, 1 Jan 2003 23:44:22 -0500
+	id <S265667AbTABEvC>; Wed, 1 Jan 2003 23:51:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265661AbTABEoW>; Wed, 1 Jan 2003 23:44:22 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:52439 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S265657AbTABEoV>; Wed, 1 Jan 2003 23:44:21 -0500
-Date: Wed, 1 Jan 2003 23:52:45 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.54 - OHCI-HCD build fails
-Message-ID: <20030102045245.GA1464@Master.Wizards>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com>
+	id <S265568AbTABEvC>; Wed, 1 Jan 2003 23:51:02 -0500
+Received: from are.twiddle.net ([64.81.246.98]:6019 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S265667AbTABEvA>;
+	Wed, 1 Jan 2003 23:51:00 -0500
+Date: Wed, 1 Jan 2003 20:58:36 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rusty@rustcorp.com.au, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, ak@suse.de,
+       paulus@samba.org, rmk@arm.linux.org.uk
+Subject: Re: [PATCH] Modules 3/3: Sort sections
+Message-ID: <20030101205836.A30574@twiddle.net>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	rusty@rustcorp.com.au, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, ak@suse.de,
+	paulus@samba.org, rmk@arm.linux.org.uk
+References: <20030102030044.D066C2C05E@lists.samba.org> <20030101205404.B30272@twiddle.net> <20030101.205003.37279830.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030101.205003.37279830.davem@redhat.com>; from davem@redhat.com on Wed, Jan 01, 2003 at 08:50:03PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 07:43:40PM -0800, Linus Torvalds wrote:
+On Wed, Jan 01, 2003 at 08:50:03PM -0800, David S. Miller wrote:
+>    Incidentally, why do we do strstr(name, ".init") instead
+>    of strncmp(name, ".init", 5)?  Is there any particular
+>    need for the .init to come at the end?
 > 
-> Happy new year to you all, hopefully most of you are back from the dead 
-> and the hangovers are all long gone.  And if not, I'm told reading a large 
-> kernel patch is _just_ the medication for whatever ails you.
-> 
-> The 2.5.54 patch is largely mainly a big collection of various small
-> things, all over the place (diffstat shows a long list of small changes,
-> with some noticeable activity in UML, the MPT fusion driver and some of
-> the fbcon drivers).
-> 
-> Various module updates (deprecated functions, updated loaders etc), usb, 
-> m68k, x86-64 updates, kbuild stuff etc etc.
+> I think this is to get .foo.init sections.
 
-Build error:
-
-In file included from drivers/usb/host/ohci-hcd.c:137:
-drivers/usb/host/ohci-dbg.c: In function `show_list':
-drivers/usb/host/ohci-dbg.c:358: `data1' undeclared (first use in this function)
-drivers/usb/host/ohci-dbg.c:358: (Each undeclared identifier is reported only once
-drivers/usb/host/ohci-dbg.c:358: for each function it appears in.)
-drivers/usb/host/ohci-dbg.c:358: `data0' undeclared (first use in this function)
-make[3]: *** [drivers/usb/host/ohci-hcd.o] Error 1
+Obviously.  Perhaps the question was worded badly.  Instead read
+it as "Why don't we force this to be called .init.foo instead?"
 
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker
-  #cooker = moderated Mandrake Cooker
-
+r~

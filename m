@@ -1,58 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbULKQed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbULKQic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbULKQed (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 11:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbULKQed
+	id S261297AbULKQic (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 11:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbULKQic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 11:34:33 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:50369 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261960AbULKQeb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 11:34:31 -0500
-Message-ID: <41BB2108.70606@colorfullife.com>
-Date: Sat, 11 Dec 2004 17:32:08 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: George Anzinger <george@mvista.com>, Lee Revell <rlrevell@joe-job.com>,
-       dipankar@in.ibm.com, ganzinger@mvista.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: RCU question
-References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>  <41B9FC3F.50601@mvista.com>  <20041210204003.GC4073@in.ibm.com> <1102711532.29919.35.camel@krustophenia.net> <41BA0ECF.1060203@mvista.com> <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com> <41BA59F6.5010309@mvista.com> <Pine.LNX.4.61.0412101943260.1101@montezuma.fsmlabs.com> <41BA698E.8000603@mvista.com> <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Dec 2004 11:38:32 -0500
+Received: from eth13.com-link.com ([208.242.241.164]:43906 "EHLO
+	real.realitydiluted.com") by vger.kernel.org with ESMTP
+	id S261297AbULKQiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 11:38:24 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Speedstep for 2.0GHz Centrino (Dothan Core)...
+Cc: sjhill@realitydiluted.com
+Message-Id: <E1CdAGG-0000ZL-9T@real.realitydiluted.com>
+From: sjhill@realitydiluted.com
+Date: Sat, 11 Dec 2004 10:38:24 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
+This patch adds the 2GHz Dothan based core to the speedstep infrastructure
+for Linux. I have been able to utilize 600MHz and 2GHz with no troubles,
+but the intermediate V/f pairs do not work. When I attempt to change the
+frequency in /proc, the command hangs. I then have to kill the process
+from a different terminal. If anyone else is utilizing this core and has
+different experiences, I would be interested. Also, I am not on LKML, so
+kindly CC: on replies. Cheers.
 
->On Fri, 10 Dec 2004, George Anzinger wrote:
->
->  
->
->>That is ok.  Either we have interrupts off and no softirqs are pending and we
->>proceed to the "hlt" (where the interrupt will be taken), or softirqs are
->>pending, we turn interrupts on, do the softirq, turn interrupts off and try
->>again.  Unless some tasklet (RCU?) never "gives up" or we will exit the while
->>with interrupts off and move on to the "hlt".  Or did I miss something?
->>    
->>
->
->But the point is that you cannot execute hlt with interrupts disabled.
->  
->
-The trick is the sti instruction: It enables interrupt processing after 
-the following instruction.
+-Steve
 
-Thus
-    sti
-    hlt
-
-cannot race - it atomically enables interrupts and waits.
-
---
-    Manfred
-
+--- linux-2.6.9/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c.orig	2004-12-01 08:27:00.000000000 -0600
++++ linux-2.6.9/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2004-12-01 09:13:33.000000000 -0600
+@@ -197,7 +197,25 @@
+ 	OP(1700, 1484),
+ 	{ .frequency = CPUFREQ_TABLE_END }
+ };
+-#undef OP
++
++/*
++ * These voltage tables were derived from the Intel Pentium M on 90-nm
++ * Process with 2-MB L2 Cache, document 30218904.pdf, Table 5, VID#C.
++ */
++
++/* Intel Pentium M processor 2.00GHz (Dothan) */
++static struct cpufreq_frequency_table dothan_2000[] =
++{
++	OP( 600,  988),
++	OP( 800, 1036),
++	OP(1000, 1084),
++	OP(1200, 1132),
++	OP(1400, 1180),
++	OP(1600, 1228),
++	OP(1800, 1276),
++	OP(2000, 1308),
++	{ .frequency = CPUFREQ_TABLE_END }
++};
+ 
+ #define _BANIAS(cpuid, max, name)	\
+ {	.cpu_id		= cpuid,	\
+@@ -207,6 +225,13 @@
+ }
+ #define BANIAS(max)	_BANIAS(&cpu_ids[CPU_BANIAS], max, #max)
+ 
++#define _DOTHAN(cpuid, max_khz, max_ghz)	\
++{	.cpu_id		= cpuid,		\
++	.model_name	= "Intel(R) Pentium(R) M processor" max_ghz "GHz", \
++	.max_freq	= (max_khz)*1000,	\
++	.op_points	= dothan_##max_khz,	\
++}
++
+ /* CPU models, their operating frequency range, and freq/voltage
+    operating points */
+ static struct cpu_model models[] =
+@@ -224,12 +249,15 @@
+ 	/* NULL model_name is a wildcard */
+ 	{ &cpu_ids[CPU_DOTHAN_A1], NULL, 0, NULL },
+ 	{ &cpu_ids[CPU_DOTHAN_A2], NULL, 0, NULL },
+-	{ &cpu_ids[CPU_DOTHAN_B0], NULL, 0, NULL },
++
++	_DOTHAN(&cpu_ids[CPU_DOTHAN_B0], 2000, " 2.00"),
+ 
+ 	{ NULL, }
+ };
+ #undef _BANIAS
+ #undef BANIAS
++#undef _DOTHAN
++#undef OP
+ 
+ static int centrino_cpu_init_table(struct cpufreq_policy *policy)
+ {

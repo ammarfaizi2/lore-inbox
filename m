@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316223AbSGQSu0>; Wed, 17 Jul 2002 14:50:26 -0400
+	id <S316210AbSGQTBj>; Wed, 17 Jul 2002 15:01:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316604AbSGQSu0>; Wed, 17 Jul 2002 14:50:26 -0400
-Received: from dsl-213-023-038-064.arcor-ip.net ([213.23.38.64]:59069 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316223AbSGQSuZ>;
-	Wed, 17 Jul 2002 14:50:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] new module format
-Date: Wed, 17 Jul 2002 20:54:48 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <Pine.LNX.4.44.0207161446400.8911-100000@serv>
-In-Reply-To: <Pine.LNX.4.44.0207161446400.8911-100000@serv>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Utwm-0004Oy-00@starship>
+	id <S316258AbSGQTBj>; Wed, 17 Jul 2002 15:01:39 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:32756 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S316210AbSGQTBj>; Wed, 17 Jul 2002 15:01:39 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 17 Jul 2002 13:02:59 -0600
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020717190259.GA31503@clusterfs.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net> <20020716153926.GR7955@tahoe.alcove-fr> <20020716194542.GD22053@merlin.emma.line.org> <20020716150422.A6254@q.mn.rr.com> <20020716161158.A461@shookay.newview.com> <20020716152231.B6254@q.mn.rr.com> <20020717114501.GB28284@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020717114501.GB28284@merlin.emma.line.org>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 July 2002 15:04, Roman Zippel wrote:
-> 1. Properly fixing module races: I'm playing with a init/start/stop/exit
-> model, this has the advantage that we can stop anyone from reusing a
-> module and we only have to wait for remaining users to go away until we
-> can safely unload the module.
+On Jul 17, 2002  13:45 +0200, Matthias Andree wrote:
+> On Tue, 16 Jul 2002, Shawn wrote:
+> > In this case, can you use a RAID mirror or something, then break it?
+> > 
+> > Also, there's the LVM snapshot at the block layer someone already
+> > mentioned, which when used with smaller partions is less overhead.
+> > (less FS delta)
+> 
+> All these "solutions" don't work out, I cannot remount R/O my partition,
+> and LVM low-level snapshots or breaking a RAID mirror simply won't work
+> out. I would have to remount r/o the partition to get a consistent image
+> in the first place, so the first step must fail already...
 
-I'm satisfied that, for filesystems at least, all the module races can be 
-solved without adding start/stop, and I will present code in due course.
-However, Rusty tells me there are harder cases than filesystems.  At this
-point I'm waiting for a specific example.
+Have you been reading my emails at all?  LVM snapshots DO ensure that
+the snapshot filesystem is consistent for journaled filesystems.
 
-For filesystems, we rely on the filesystem code itself to know when all users 
-have gone away.  If somebody is still executing in a filesystem module after 
-all umounts are done, it's a horrible nasty bug.  We might still want to play 
-games with checking execution addresses of processes to see if anybody is 
-still in a module, but that would just be for debug; sys_delete_module can 
-rely on the filesystem's opinion about whether a module is quiescent or not.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-Somebody please give me an example of why this same strategy will not
-work for all types of modular code.
-
--- 
-Daniel

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263719AbTDDOsm (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 09:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263720AbTDDOnU (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 09:43:20 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:10500 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S263710AbTDDO3R (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 09:29:17 -0500
-Date: Fri, 4 Apr 2003 16:40:44 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] only use 48-bit lba when necessary
-Message-ID: <20030404144044.GA14371@win.tue.nl>
-References: <20030404122936.GB786@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030404122936.GB786@suse.de>
-User-Agent: Mutt/1.3.25i
+	id S263741AbTDDPAn (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 10:00:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263745AbTDDO7w (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 09:59:52 -0500
+Received: from mail.explainerdc.com ([212.72.36.220]:47015 "EHLO
+	mail.explainerdc.com") by vger.kernel.org with ESMTP
+	id S263742AbTDDO41 convert rfc822-to-8bit 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 09:56:27 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Promise TX4 100: neither IDE port enabled
+Date: Fri, 4 Apr 2003 17:07:54 +0200
+Message-ID: <73300040777B0F44B8CE29C87A0782E101FA98E9@exchange.explainerdc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Promise TX4 100: neither IDE port enabled
+Thread-Index: AcL6p09KYT2Y3OMwRTyl/6R6pZ/ZXwAE5nZg
+From: "Jonathan Vardy" <jonathan@explainerdc.com>
+To: "Adam Johansson" <adam.johansson@madsci.se>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 02:29:36PM +0200, Jens Axboe wrote:
+> Without knowing the cause or fix for it I instead run ac-patches.
+> The card(s) are than configured correctly.
+> I now run 2.4.21pre5ac3 and I remember 2.4.21pre4ac4 also worked fine.
 
-> 48-bit lba has a non-significant overhead (twice the outb's, 12 instead
+I tried 2.4.21-pre5-ac3 but still I get the same problems, with what
+settings did you compile the kernel?
 
-s/non-// ?
+I used these:
 
-> of 6 per command), so it makes sense to use 28-bit lba commands whenever
-> we can.
-> 
+On:  PROMISE PDC202{46|62|65|67} support
+On:  Special UDMA Feature
+On:  PROMISE PDC202{68|69|70|71|75|76|77} support
 
-> +	if (drive->addressing == 1 && block > 0xfffffff)
-> +		lba48 = 1;
+Off: Special FastTrak Feature
+Off: Support for IDE Raid controllers (EXPERIMENTAL)
 
-Hmm. I wonder whether we should be more cautious, and ask for lba48
-as soon as some part of the interval is past this limit.
-(say, block+nsectors > 0xfffffff)
-
-I don't know whether the standard spells out what happens
-at the boundary, but for example the LBA low/mid/high, DEV is required
-to contain the sector number at the place the error occurred,
-and that is possible only if one stays below the 28-byte sector limit.
-
-Andries
-
+Yours sincerey, Jonathan Vardy

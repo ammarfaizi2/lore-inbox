@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265080AbSKAQMN>; Fri, 1 Nov 2002 11:12:13 -0500
+	id <S265067AbSKAQIi>; Fri, 1 Nov 2002 11:08:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265091AbSKAQMN>; Fri, 1 Nov 2002 11:12:13 -0500
-Received: from mamona.cetuc.puc-rio.br ([139.82.74.4]:53376 "EHLO
-	mamona.cetuc.puc-rio.br") by vger.kernel.org with ESMTP
-	id <S265080AbSKAQMM>; Fri, 1 Nov 2002 11:12:12 -0500
-Subject: [PATCH] 2.5.45 [TRIVIAL] Fixed pmtu usage in iptunnel
-From: Marcelo Roberto Jimenez <mroberto@cetuc.puc-rio.br>
-To: trivial@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S265070AbSKAQIh>; Fri, 1 Nov 2002 11:08:37 -0500
+Received: from [203.117.131.12] ([203.117.131.12]:16307 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S265067AbSKAQIg>; Fri, 1 Nov 2002 11:08:36 -0500
+Message-ID: <3DC2A888.5010502@metaparadigm.com>
+Date: Sat, 02 Nov 2002 00:15:04 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
+Subject: Re: What's left over.
+References: <20021031181252.GB24027@tapu.f00f.org> <Pine.LNX.4.44.0210311040080.1526-100000@penguin.transmeta.com> <20021031194351.GA24676@tapu.f00f.org> <apu6cd$4db$1@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 01 Nov 2002 13:18:23 -0200
-Message-Id: <1036163903.18289.8.camel@genipapo>
-Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.858   -> 1.859  
-#	net/ipv4/netfilter/ipt_TCPMSS.c	1.5     -> 1.6    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/11/01	mroberto@cetuc.puc-rio.br	1.859
-# ipt_TCPMSS.c:
-#   Fixed broken code to use inline shorthand dst_pmtu()
-# --------------------------------------------
-#
-diff -Nru a/net/ipv4/netfilter/ipt_TCPMSS.c b/net/ipv4/netfilter/ipt_TCPMSS.c
---- a/net/ipv4/netfilter/ipt_TCPMSS.c	Fri Nov  1 13:13:29 2002
-+++ b/net/ipv4/netfilter/ipt_TCPMSS.c	Fri Nov  1 13:13:29 2002
-@@ -85,14 +85,14 @@
- 			return NF_DROP; /* or IPT_CONTINUE ?? */
- 		}
- 
--		if((*pskb)->dst->pmtu <= (sizeof(struct iphdr) + sizeof(struct tcphdr))) {
-+		if(dst_pmtu((*pskb)->dst) <= (sizeof(struct iphdr) + sizeof(struct tcphdr))) {
- 			if (net_ratelimit())
- 				printk(KERN_ERR
--		       			"ipt_tcpmss_target: unknown or invalid path-MTU (%d)\n", (*pskb)->dst->pmtu);
-+		       			"ipt_tcpmss_target: unknown or invalid path-MTU (%d)\n", dst_pmtu((*pskb)->dst));
- 			return NF_DROP; /* or IPT_CONTINUE ?? */
- 		}
- 
--		newmss = (*pskb)->dst->pmtu - sizeof(struct iphdr) - sizeof(struct tcphdr);
-+		newmss = dst_pmtu((*pskb)->dst) - sizeof(struct iphdr) - sizeof(struct tcphdr);
- 	} else
- 		newmss = tcpmssinfo->mss;
- 
+On 11/01/02 23:25, Linus Torvalds wrote:
+> In article <20021031194351.GA24676@tapu.f00f.org>,
+> Chris Wedgwood  <cw@f00f.org> wrote:
+> 
+>>On Thu, Oct 31, 2002 at 10:49:10AM -0800, Linus Torvalds wrote:
+>>
+>>
+>>>Any hardware that needs to go off and think about how to encrypt
+>>>something sounds like it's so slow as to be unusable. I suspect that
+>>>anything that is over the PCI bus is already so slow (even if it
+>>>adds no extra cycles of its own) that you're better off using the
+>>>CPU for the encryption rather than some external hardware.
+>>
+>>Except almost all hardware out there that does this stuff is async to
+>>some extent...
+> 
+> 
+> That's not my argument.  I realize that external hardware on a PCI bus
+> _has_ to be asynchronous, simply because it is so slow. 
+> 
+> The question I have is whether such external hardware is even worth it
+> any more for any standard crypto work.  With a regular PCI bus
+> fundamentally limiting throughput to something like a maximum of 66MB/s
+> (copy-in and copy-out, and that's so theoretical that it's not even
+> funny - I'd be surprised if RL throughput copying back and forth over a
+> PCI bus is more than 25-30MB/s), I suspect that you can do most crypto
+> faster on the CPU directly these days. 
+> 
+> Maybe not. The only numbers I have is the slowness of PCI.
+
+A 1GHz PIII will do about 8MBytes/sec of 3DES
+
+Plug in a 2.4Gbs broadcom crypto chip into a 64bit PCI-X slot with the
+same CPU and you should be capable of doing at least 10 times that.
+
+Stuff like RSA is much slower (and benefits more from hardware)
+
+BTW - there are some outdated cryptolib patches with an async
+interface around somewhere (along with patches for freeswan to use
+the async api).
+
+I guess the crypto guys like Chris will add the async API if they need
+it (which they do i think ;).
+
+~mc
 

@@ -1,225 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313080AbSDLAHX>; Thu, 11 Apr 2002 20:07:23 -0400
+	id <S313060AbSDLAFb>; Thu, 11 Apr 2002 20:05:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313082AbSDLAHW>; Thu, 11 Apr 2002 20:07:22 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:60940 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S313080AbSDLAHU>; Thu, 11 Apr 2002 20:07:20 -0400
-Date: Thu, 11 Apr 2002 21:07:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, <wli@holomorphy.com>
-Subject: [PATCH] for_each_zone / for_each_pgdat
-In-Reply-To: <Pine.LNX.4.44L.0204111522000.31387-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.44L.0204112106000.31387-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S313080AbSDLAFa>; Thu, 11 Apr 2002 20:05:30 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:56075 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S313060AbSDLAFa>; Thu, 11 Apr 2002 20:05:30 -0400
+Message-ID: <3CB6163B.EAC8F633@zip.com.au>
+Date: Thu, 11 Apr 2002 16:03:23 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+CC: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [prepatch] address_space-based writeback
+In-Reply-To: <3CB5FFB5.693E7755@zip.com.au> <Pine.SOL.3.96.1020411235415.24708A-100000@virgo.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-replace slightly obscure while loops with for_each_zone and
-for_each_pgdat macros, this version has the added optimisation
-of skipping empty zones       (thanks to William Lee Irwin)
+Anton Altaparmakov wrote:
+> 
+> ...
+> It would be great to be able to submit variable size "io entities" even
+> greater than PAGE_CACHE_SIZE (by giving a list of pages, starting offset
+> in first page and total request size for example) and saying write that to
+> the device starting at offset xyz. That would suit ntfs perfectly. (-:
+> 
 
--- 
-Please apply,
+Yes, I'll be implementing that.  Writeback will hit the filesystem
+via a_ops->writeback_mapping(mapping, nr_pages).  The filesytem
+will then call in to generic_writeback_mapping(), which will walk
+the pages, assemble BIOs and send them off.
 
-Rik
+The filesystem needs to pass a little state structure into the
+generic writeback function.  An important part of that is a
+semaphore which is held while writeback is locking multiple
+pages.  To avoid ab/ba deadlocks.
 
+The current implementation of this bio-assembler is for no-buffer
+(delalloc) fileystems only.  It need to be enhanced (or forked)
+to also cope with buffer-backed pages. It will need to peek
+inside the buffer-heads to detect clean buffers (maybe.  It
+definitely needs to skip unmapped ones).  When such a buffer
+is encountered the BIO will be sent off and a new one will be started.
+The code for this is going to be quite horrendous.  I suspect
+the comment/code ratio will exceed 1.0, which is a bad sign :)
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.388   ->
-#	include/linux/mmzone.h	1.7     -> 1.9
-#	     mm/page_alloc.c	1.43    -> 1.44
-#	         mm/vmscan.c	1.59    -> 1.60
-#	        mm/bootmem.c	1.6     -> 1.7
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/04/11	riel@duckman.distro.conectiva	1.389
-# replace slightly obscure while loops with for_each_zone and
-# for_each_pgdat macros  (thanks to William Lee Irwin)
-# --------------------------------------------
-# 02/04/11	riel@duckman.distro.conectiva	1.390
-# skip zones of size 0
-# --------------------------------------------
-#
-diff -Nru a/include/linux/mmzone.h b/include/linux/mmzone.h
---- a/include/linux/mmzone.h	Thu Apr 11 21:05:52 2002
-+++ b/include/linux/mmzone.h	Thu Apr 11 21:05:52 2002
-@@ -158,6 +158,62 @@
+One thing upon which I am undecided:  for syncalloc filesystems
+like ext2, do we attach buffers at ->readpages() time, or do
+we just leave the page bufferless?
 
- extern pg_data_t contig_page_data;
+That's a hard call.  It helps the common case, but in the uncommon
+case (we overwrite the file after reading it), we need to run
+get_block again.
 
-+/**
-+ * for_each_pgdat - helper macro to iterate over all nodes
-+ * @pgdat - pg_data_t * variable
-+ *
-+ * Meant to help with common loops of the form
-+ * pgdat = pgdat_list;
-+ * while(pgdat) {
-+ *     ...
-+ *     pgdat = pgdat->node_next;
-+ * }
-+ */
-+#define for_each_pgdat(pgdat) \
-+	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+
-+/*
-+ * next_zone - helper magic for for_each_zone()
-+ * Thanks to William Lee Irwin III for this piece of ingenuity.
-+ */
-+static inline zone_t *next_zone(zone_t *zone)
-+{
-+	pg_data_t *pgdat = zone->zone_pgdat;
-+
-+	do {
-+		if (zone - pgdat->node_zones < MAX_NR_ZONES - 1)
-+			zone++;
-+
-+		else if (pgdat->node_next) {
-+			pgdat = pgdat->node_next;
-+			zone = pgdat->node_zones;
-+		} else
-+			zone = NULL;
-+	/* Skip zones of size 0 ... */
-+	} while (zone && !zone->size);
-+
-+	return zone;
-+}
-+
-+/**
-+ * for_each_zone - helper macro to iterate over all memory zones
-+ * @zone - zone_t * variable
-+ *
-+ * The user only needs to declare the zone variable, for_each_zone
-+ * fills it in. This basically means for_each_zone() is an
-+ * easier to read version of this piece of code:
-+ *
-+ * for(pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-+ *     for(i = 0; i < MAX_NR_ZONES; ++i) {
-+ *             zone_t * z = pgdat->node_zones + i;
-+ *             ...
-+ *     }
-+ * }
-+ */
-+#define for_each_zone(zone) \
-+	for(zone = pgdat_list->node_zones; zone; zone = next_zone(zone))
-+
-+
- #ifndef CONFIG_DISCONTIGMEM
-
- #define NODE_DATA(nid)		(&contig_page_data)
-diff -Nru a/mm/bootmem.c b/mm/bootmem.c
---- a/mm/bootmem.c	Thu Apr 11 21:05:52 2002
-+++ b/mm/bootmem.c	Thu Apr 11 21:05:52 2002
-@@ -326,12 +326,11 @@
- 	pg_data_t *pgdat = pgdat_list;
- 	void *ptr;
-
--	while (pgdat) {
-+	for_each_pgdat(pgdat)
- 		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
- 						align, goal)))
- 			return(ptr);
--		pgdat = pgdat->node_next;
--	}
-+
- 	/*
- 	 * Whoops, we cannot satisfy the allocation request.
- 	 */
-diff -Nru a/mm/page_alloc.c b/mm/page_alloc.c
---- a/mm/page_alloc.c	Thu Apr 11 21:05:52 2002
-+++ b/mm/page_alloc.c	Thu Apr 11 21:05:52 2002
-@@ -479,14 +479,10 @@
- {
- 	unsigned int sum;
- 	zone_t *zone;
--	pg_data_t *pgdat = pgdat_list;
-
- 	sum = 0;
--	while (pgdat) {
--		for (zone = pgdat->node_zones; zone < pgdat->node_zones + MAX_NR_ZONES; zone++)
-+	for_each_zone(zone)
- 			sum += zone->free_pages;
--		pgdat = pgdat->node_next;
--	}
- 	return sum;
- }
-
-@@ -498,7 +494,7 @@
- 	pg_data_t *pgdat = pgdat_list;
- 	unsigned int sum = 0;
-
--	do {
-+	for_each_pgdat(pgdat) {
- 		zonelist_t *zonelist = pgdat->node_zonelists + (GFP_USER & GFP_ZONEMASK);
- 		zone_t **zonep = zonelist->zones;
- 		zone_t *zone;
-@@ -509,9 +505,7 @@
- 			if (size > high)
- 				sum += size - high;
- 		}
 -
--		pgdat = pgdat->node_next;
--	} while (pgdat);
-+	}
-
- 	return sum;
- }
-@@ -519,13 +513,12 @@
- #if CONFIG_HIGHMEM
- unsigned int nr_free_highpages (void)
- {
--	pg_data_t *pgdat = pgdat_list;
-+	pg_data_t *pgdat;
- 	unsigned int pages = 0;
-
--	while (pgdat) {
-+	for_each_pgdat(pgdat)
- 		pages += pgdat->node_zones[ZONE_HIGHMEM].free_pages;
--		pgdat = pgdat->node_next;
--	}
-+
- 	return pages;
- }
- #endif
-diff -Nru a/mm/vmscan.c b/mm/vmscan.c
---- a/mm/vmscan.c	Thu Apr 11 21:05:52 2002
-+++ b/mm/vmscan.c	Thu Apr 11 21:05:52 2002
-@@ -649,10 +649,8 @@
-
- 	do {
- 		need_more_balance = 0;
--		pgdat = pgdat_list;
--		do
-+		for_each_pgdat(pgdat)
- 			need_more_balance |= kswapd_balance_pgdat(pgdat);
--		while ((pgdat = pgdat->node_next));
- 	} while (need_more_balance);
- }
-
-@@ -675,12 +673,11 @@
- {
- 	pg_data_t * pgdat;
-
--	pgdat = pgdat_list;
--	do {
-+	for_each_pgdat(pgdat) {
- 		if (kswapd_can_sleep_pgdat(pgdat))
- 			continue;
- 		return 0;
--	} while ((pgdat = pgdat->node_next));
-+	}
-
- 	return 1;
- }
-
-

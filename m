@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268802AbUIHE0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268805AbUIHE24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268802AbUIHE0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 00:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268805AbUIHE0Q
+	id S268805AbUIHE24 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 00:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268864AbUIHE2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 00:26:16 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:42972 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268802AbUIHE0G (ORCPT
+	Wed, 8 Sep 2004 00:28:55 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:3988 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268182AbUIHE2o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 00:26:06 -0400
+	Wed, 8 Sep 2004 00:28:44 -0400
 From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: multi-domain PCI and sysfs
-Date: Tue, 7 Sep 2004 21:25:41 -0700
+To: mita akinobu <amgta@yacht.ocn.ne.jp>
+Subject: Re: [PATCH] ia64: fix show_mem() for discontig machines
+Date: Tue, 7 Sep 2004 21:28:34 -0700
 User-Agent: KMail/1.7
-Cc: jonsmirl@gmail.com, willy@debian.org, linux-kernel@vger.kernel.org
-References: <9e4733910409041300139dabe0@mail.gmail.com> <200409072115.09856.jbarnes@engr.sgi.com> <20040907211637.20de06f4.davem@davemloft.net>
-In-Reply-To: <20040907211637.20de06f4.davem@davemloft.net>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       tony.luck@intel.com
+References: <200409060132.03951.amgta@yacht.ocn.ne.jp>
+In-Reply-To: <200409060132.03951.amgta@yacht.ocn.ne.jp>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200409072125.41153.jbarnes@engr.sgi.com>
+Message-Id: <200409072128.34693.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, September 7, 2004 9:16 pm, David S. Miller wrote:
-> > A potentially cleaner option which Ben and I would prefer is to use
-> > the vga device Jon is creating to do legacy I/O with explicit
-> > read/write or ioctl calls.
+On Sunday, September 5, 2004 9:32 am, mita akinobu wrote:
+> Hello,
 >
-> Definitely.  Note that xfree86 already has a signal handler for this
-> stuff, ppc generates traps like sparc64 too.
+> On multi-node ia64 system, SysRq-M seems to dump wrong memory info.
+> (Since I don't have such a large machine, I don't confirm it)
+> It should reset counters every iteration each node in show_mem().
 
-Doing SIGBUS on ia64 was painful, due to the way the CPU chooses to not 
-generate errors until bad data is actually consumed, but that's the approach 
-we're taking at the moment.  I'd rather have the ioctls though, so I'm glad 
-you're up for it.  My hope is that we can have a unified Linux device access 
-method in X and get rid of all (or at least most) of the ppc/sparc/ia64/etc. 
-specific hacks in the tree...
+This looks good, though the bug sounds familiar.  Tony, care to apply?
 
+Thanks,
 Jesse

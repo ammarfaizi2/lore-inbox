@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUJNOWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUJNOWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUJNOWN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 10:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUJNOWN
+	id S265051AbUJNOWt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 10:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUJNOWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 10:22:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53720 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265144AbUJNOWI
+	Thu, 14 Oct 2004 10:22:49 -0400
+Received: from ihemail1.lucent.com ([192.11.222.161]:63630 "EHLO
+	ihemail1.lucent.com") by vger.kernel.org with ESMTP id S265051AbUJNOWq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 10:22:08 -0400
-Message-ID: <416E8B7F.9050401@pobox.com>
-Date: Thu, 14 Oct 2004 10:21:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Thu, 14 Oct 2004 10:22:46 -0400
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Hirokazu Takata <takata.hirokazu@renesas.com>, takata@linux-m32r.org,
-       linux-kernel@vger.kernel.org, paul.mundt@nokia.com, nico@cam.org,
-       netdev@oss.sgi.com
-Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
-References: <416BFD79.1010306@pobox.com>	<20041013.105243.511706221.takata.hirokazu@renesas.com>	<416C8E0B.4030409@pobox.com>	<20041013.121547.863739114.takata.hirokazu@renesas.com> <20041012223227.45a62301.akpm@osdl.org>
-In-Reply-To: <20041012223227.45a62301.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16750.35738.230789.561852@gargle.gargle.HOWL>
+Date: Thu, 14 Oct 2004 10:22:18 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Ganesan R <rganesan@myrealbox.com>
+Cc: John Stoffel <stoffel@lucent.com>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, torsten.scherer@uni-bielefeld.de
+Subject: Re: Linux 2.6.x wrongly recognizes USB 2.0 DVD writer
+In-Reply-To: <416E7E39.4040102@myrealbox.com>
+References: <ckln33$c3e$1@sea.gmane.org>
+	<16750.30914.666243.108593@gargle.gargle.HOWL>
+	<416E7E39.4040102@myrealbox.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> smc91x-revert-11923358-m32r-modify-drivers-net-smc91xc.patch
-> smc91x-assorted-minor-cleanups.patch
-> smc91x-set-the-mac-addr-from-the-smc_enable-function.patch
-> smc91x-fold-smc_setmulticast-into-smc_set_multicast_list.patch
-> smc91x-simplify-register-bank-usage.patch
-> smc91x-move-tx-processing-out-of-irq-context-entirely.patch
-> smc91x-use-a-work-queue-to-reconfigure-the-phy-from.patch
-> smc91x-fix-possible-leak-of-the-skb-waiting-for-mem.patch
-> smc91x-display-pertinent-register-values-from-the.patch
-> smc91x-straighten-smp-locking.patch
-> smc91x-cosmetics.patch
-> m32r-trivial-fix-of-smc91xh.patch
-> smc91x-fix-smp-lock-usage.patch
-> smc91x-more-smp-locking-fixes.patch
-> smc91x-fix-compilation-with-dma-on-pxa2xx.patch
-> smc91x-receives-two-bytes-too-many.patch
-> smc91x-release-on-chip-rx-packet-memory-asap.patch
-> 
-> I'll unload all those onto Jeff...
 
+Ganesan> Thanks for the info. As I mentioned, the enclosure works
+Ganesan> flawlessly for me under 2.4.27. It's getting detected
+Ganesan> incorrectly only in 2.6.x.  Another user reported a similar
+Ganesan> problem but was able to get dvd burning working by removing
+Ganesan> the checks from the writing tool. So, it looks like detection
+Ganesan> has been messed up only in 2.6.x.
 
-I'll wait for these patches, and drop other smc91x patches...
+I'm an idiot.  I mis-read your initial post thinking it was like my
+ByteCC which has the dual Firewire/USB ports and since I can't get
+EITHER interface type to work reliablely, I've given up on it for now.
 
-	Jeff
+What's the output of 'lsusb'?  You want to see what the vendor/product
+ID is as a comparison.  I should check mine again under USB and see
+what happens under 2.6.8, though earlier it would just hang the entire
+system after copying a GB or two of data.  At least under FireWire
+when it hung, I could recover the system without having to reboot.
 
-
+Gah... time for more caffeine.

@@ -1,69 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261345AbREPXhc>; Wed, 16 May 2001 19:37:32 -0400
+	id <S261351AbREPXiC>; Wed, 16 May 2001 19:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261351AbREPXhW>; Wed, 16 May 2001 19:37:22 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:31648 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S261345AbREPXhK>; Wed, 16 May 2001 19:37:10 -0400
-Date: Wed, 16 May 2001 17:37:00 -0600
-Message-Id: <200105162337.f4GNb0j12743@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <3B030C76.40BB4558@transmeta.com>
-In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
-	<200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
-	<3B02D6AB.E381D317@transmeta.com>
-	<200105162001.f4GK18X10128@vindaloo.ras.ucalgary.ca>
-	<3B02DD79.7B840A5B@transmeta.com>
-	<200105162054.f4GKsaF10834@vindaloo.ras.ucalgary.ca>
-	<3B02F2EC.F189923@transmeta.com>
-	<20010517001155.H806@nightmaster.csn.tu-chemnitz.de>
-	<3B02FBA6.86969BDE@transmeta.com>
-	<200105162303.f4GN3n212178@vindaloo.ras.ucalgary.ca>
-	<3B030C76.40BB4558@transmeta.com>
+	id <S262141AbREPXhw>; Wed, 16 May 2001 19:37:52 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32013 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261351AbREPXhf>; Wed, 16 May 2001 19:37:35 -0400
+Subject: Re: [PATCH] rootfs (part 1)
+To: viro@math.psu.edu (Alexander Viro)
+Date: Thu, 17 May 2001 00:33:32 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0105160756210.24199-100000@weyl.math.psu.edu> from "Alexander Viro" at May 16, 2001 08:12:52 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150AnM-0004cy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
-> Richard Gooch wrote:
-> > We have this aliasing anyway. sg and sr are just one example. If you
-> > care about conflicts, then make sure the drivers lock each other out.
-> > It's got nothing to do with the mechanism to find out whether
-> > something can behave like a CD-ROM or not.
-> 
-> No fscking way.  What you're saying "well, my design is broken, so
-> break your driver even further."  You're suggesting prohibiting
-> legal (and useful) operations because you're advocating an idiotic
-> design to identify devices?  Give me a break.
+> 	Linus, patch is the first chunk of rootfs stuff. I've tried to
+> get it as small as possible - all it does is addition of absolute root
+> on ramfs and necessary changes to mount_root/change_root/sys_pivot_root
+> and follow_dotdot. Real root is mounted atop of the "absolute" one.
 
-Erm, let's start again. My central point is that you can use devfs
-names to reliably figure out what kind of device a FD is, as a cleaner
-alternative to comparing major numbers. Therefore, I'm challenging the
-notion that you need to reserve magic major numbers in order to
-distinguish devices.
+Surely this is getting right into 2.5 stuff. 
 
-I suspect you're thinking about a different problem, which is finding
-out what a device can do. Implementing some kind of capability list
-may well be a good approach to *that* problem. There are some details
-to figure out, like how multiple drivers interact with each other.
-They could be tricky.
-
-Now, with the above said, what operations do you think I'm
-prohibiting?
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

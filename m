@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUJPTkD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUJPTgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266683AbUJPTkD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 15:40:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268799AbUJPTg5
+	id S266679AbUJPTgs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 15:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268799AbUJPTgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 15:36:57 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:5248 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S266683AbUJPTfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 15:35:54 -0400
-Date: Sat, 16 Oct 2004 14:35:51 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
-In-Reply-To: <20041016192402.GA10445@elte.hu>
-Message-ID: <Pine.LNX.4.58.0410161434580.1223@gradall.private.brainfood.com>
-References: <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu>
- <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu>
- <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu>
- <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
- <20041016153344.GA16766@elte.hu> <Pine.LNX.4.58.0410161353530.1219@gradall.private.brainfood.com>
- <20041016192402.GA10445@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 16 Oct 2004 15:36:31 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:61271 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266679AbUJPT26
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 15:28:58 -0400
+Date: Sat, 16 Oct 2004 23:29:00 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, olh@suse.de, akpm@osdl.org,
+       sam@ravnborg.org
+Subject: Re: [PATCH] kconfig: OVERRIDE: save kernel version in .config file
+Message-ID: <20041016212859.GC8765@mars.ravnborg.org>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>, olh@suse.de, akpm@osdl.org,
+	sam@ravnborg.org
+References: <20040917154346.GA15156@suse.de> <20040917102024.50188756.rddunlap@osdl.org> <20040917104334.1b7d7d19.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040917104334.1b7d7d19.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Oct 2004, Ingo Molnar wrote:
+On Fri, Sep 17, 2004 at 10:43:34AM -0700, Randy.Dunlap wrote:
+> On Fri, 17 Sep 2004 10:20:24 -0700 Randy.Dunlap wrote:
+> 
+> | On Fri, 17 Sep 2004 17:43:46 +0200 Olaf Hering wrote:
+> | 
+> | | Randy,
+> | | 
+> | | we need a way to turn the timestamp off when running make oldconfig.
+> | | Running make oldconfig gives always a delta, even if the .config is
+> | | unchanged. This is bad for cvs repos, it generates conflicts now if 2
+> | | people work on the same config file.
+> | | Please provide a patch to not call ctime if a non-empty enviroment
+> | | variable of your choice is set.
+> | 
+> | How's this?
+> 
+> Let's be a little safer in checking "NOTIMESTAMP".
+> 
+> Omit .config file timestamp in the file if the environment variable
+> "NOTIMESTAMP" exists and is non-null.
+> 
+> Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
->
-> * Adam Heath <doogie@debian.org> wrote:
->
-> > >    http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U4
-> > >
-> > > this is a fixes-only release, and it is still experimental code.
-> >
-> > You forgot to lowercase RT and U in the EXTRAVERSION.
->
-> i changed my mind because lowercase it looks pretty ugly in uname,
-> appended to the already lowercase -mm string. Why does Debian need to
-> have it in lowercase anyway? It doesnt seem to make much sense.
+Applied - but I named it KCONFIG_TIMESTAMP so people would not
+think that kbuild suddenly stopped checking timestamps.
 
-It's only a minor annoyance right now.  I have to edit Makefile before
-starting make-kpkg, and before backing out the previous patch.  I'll file a
-bug on kernel-package at some point, but it probably won't be fixed anytime
-soon(debian is preparing to release soon(HAHA!)).
+	Sam

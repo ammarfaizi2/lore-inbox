@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265000AbTIJP3j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 11:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbTIJP3j
+	id S265080AbTIJPmx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 11:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbTIJPmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 11:29:39 -0400
-Received: from gprs145-173.eurotel.cz ([160.218.145.173]:49281 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265000AbTIJP3b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 11:29:31 -0400
-Date: Wed, 10 Sep 2003 17:29:02 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Mitchell Blank Jr <mitch@sfgoth.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops_in_progress is unlikely()
-Message-ID: <20030910152902.GA2764@elf.ucw.cz>
-References: <20030907064204.GA31968@sfgoth.com> <20030907221323.GC28927@redhat.com> <20030910142031.GB2589@elf.ucw.cz> <20030910142308.GL932@redhat.com>
+	Wed, 10 Sep 2003 11:42:53 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:63118 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265080AbTIJPmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 11:42:44 -0400
+Subject: Re: NFS/MOUNT/sunrpc problem?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marco Bertoncin - Sun Microsystems UK - Platform OS
+	 Development Engineer <Marco.Bertoncin@Sun.COM>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309101437.h8AEbV108262@brk-mail1.uk.sun.com>
+References: <200309101437.h8AEbV108262@brk-mail1.uk.sun.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063208491.32726.66.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910142308.GL932@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Wed, 10 Sep 2003 16:41:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mer, 2003-09-10 at 15:37, Marco Bertoncin - Sun Microsystems UK -
+Platform OS Development Engineer wrote:
+> - PXE booting x86 'headless' blades (2.0 Ghz 2P Xeon) to install RedHat 8.0 
+> (kernel 2.4.18).
 
->  > > none of this patch seems to touch particularly performance critical code.
->  > > Is it really worth adding these macros to every if statement in the kernel?
->  > > There comes a point where readability is lost, for no measurable gain.
->  > 
->  > Perhaps we should have macros ifu() and ifl(), that would be used as a
->  > plain if, just with likelyness-indication? That way we could have it
->  > in *every* statement and readability would not suffer that much...
-> 
-> You've got to be kidding.
+Update the kernel once installed, the 2.4.18- kernels are obsoleted by
+other security fixes
 
-I'm pretty serious.
+> - the blade, after 3 seconds, starts a storm of retransmit (MOUNT reqs) that 
+> won't stop, unless an ACK (one of the several ACKS sent for each retransmitted 
+> requests) has the chance to get through. This is sometimes after a few hundreds 
+> packets, sometimes after a lot more, causing an apparent hang of the 
+> installation process, and what's even worse, bringing to a grinding halt the  
+> server (bombarded by near 1Gbit/sec packets).
 
-	ifu (a==b) {
-		something();
-	}
+I've seen one other report of this (with a via chip),
 
-looks better than 
+> Ah, one last experiment I did was to try and reproduce the problem on an 
+> installed blade (same version of the kernel). No chance. I noticed, though that 
+> the MOUNT request sent by the 'installed linux' (it would be a proper i686-smp 
+> build instead of a up i386) is V3, whilst that during installation is V2. 
+> Thinking this might have been a hunch, I tried "mount -o nfsvers=2 
+> server:/export /mnt": I saw the requests, the dropped ack (on the server side, 
+> of course) but no storm ...!).
 
-	if (unlikely(a==b)) {
-		something();
-	}
+Are you using NFS root or just NFS mounts ?
 
-sched.c alone probably would get more readable as a result of such
-conversion...
 
-[Okay, having it at every statement is prbably bad idea.]
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,124 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbTKVPAW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 10:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTKVPAW
+	id S262324AbTKVPPW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 10:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTKVPPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 10:00:22 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:61676 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262303AbTKVPAQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 10:00:16 -0500
-MIME-Version: 1.0
-To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
-Subject: lk-changelog.pl 0.198
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Sat_Nov_22_15_00_13_UTC_2003_0@merlin.emma.line.org>
-Content-type: text/plain; charset=iso-8859-1
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20031122150013.5E3179423C@merlin.emma.line.org>
-Date: Sat, 22 Nov 2003 16:00:13 +0100 (CET)
+	Sat, 22 Nov 2003 10:15:22 -0500
+Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:47876 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262324AbTKVPPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 10:15:12 -0500
+Date: Sat, 22 Nov 2003 16:15:10 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo@cyclades.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Cc: LM Sensors <sensors@Stimpy.netroedge.com>, Greg KH <greg@kroah.com>
+Subject: [PATCH 2.4] Trivial changes to I2C stuff
+Message-Id: <20031122161510.7d5b4d20.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a semi-automatic announcement.
+Hi Marcelo, hi list,
 
-lk-changelog.pl aka. shortlog version 0.198 has been released.
+Below is a simple patch that does some trivial changes to a few i2c
+drivers in 2.4.23-rc3. The changes are only white space and comment
+changes, and line reordering. There are also two simple changes to
+i2c-id.h to keep it in line with the one in Linux 2.6.0-test9.
 
-This script is used by Linus and Marcelo to rearrange and reformat BK
-ChangeSet logs into a more human-readable format, and the official
-repository is bk://kernel.bkbits.net/torvalds/tools/
+Nothing dangerous here, as you'll see (and nothing very important
+either, I admit), but I plan to submit a patch that updates the whole
+i2c subsystem for Linux 2.4.24, and would like these changes done before
+so that the diffs look better. I already made the required changes to
+our CVS repository to ensure that all changes made to the kernel tree
+since the last sync (i2c 2.6.1 in Linux 2.4.13) had been correctly back
+ported. (Actually, this is how I found the little differences that the
+patch below fixes.)
 
-As the script has grown large, this mail only contains a diff against
-the last released version.
+Please apply,
+thanks.
 
-You can always download the full script and GPG signatures from
-http://mandree.home.pages.de/linux/kernel/
+diff -ru linux-2.4.23-rc3/drivers/i2c/i2c-core.c linux-2.4.23-rc3-k1/drivers/i2c/i2c-core.c
+--- linux-2.4.23-rc3/drivers/i2c/i2c-core.c	Mon Aug 25 13:44:41 2003
++++ linux-2.4.23-rc3-k1/drivers/i2c/i2c-core.c	Sat Nov 22 09:14:37 2003
+@@ -1427,9 +1427,10 @@
+ #ifdef MODULE
+ MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
+ MODULE_DESCRIPTION("I2C-Bus main module");
++MODULE_LICENSE("GPL");
++
+ MODULE_PARM(i2c_debug, "i");
+ MODULE_PARM_DESC(i2c_debug,"debug level");
+-MODULE_LICENSE("GPL");
+ 
+ int init_module(void) 
+ {
+diff -ru linux-2.4.23-rc3/drivers/i2c/i2c-dev.c linux-2.4.23-rc3-k1/drivers/i2c/i2c-dev.c
+--- linux-2.4.23-rc3/drivers/i2c/i2c-dev.c	Mon Aug 25 13:44:41 2003
++++ linux-2.4.23-rc3-k1/drivers/i2c/i2c-dev.c	Sat Nov 22 10:07:25 2003
+@@ -159,9 +159,9 @@
+ 
+ 	struct i2c_client *client = (struct i2c_client *)file->private_data;
+ 
+-	if(count > 8192)
++	if (count > 8192)
+ 		count = 8192;
+-		
++
+ 	/* copy user space data to kernel space. */
+ 	tmp = kmalloc(count,GFP_KERNEL);
+ 	if (tmp==NULL)
+@@ -190,9 +190,9 @@
+ 	struct inode *inode = file->f_dentry->d_inode;
+ #endif /* DEBUG */
+ 
+-	if(count > 8192)
++	if (count > 8192)
+ 		count = 8192;
+-		
++
+ 	/* copy user space data to kernel space. */
+ 	tmp = kmalloc(count,GFP_KERNEL);
+ 	if (tmp==NULL)
+diff -ru linux-2.4.23-rc3/drivers/i2c/i2c-elv.c linux-2.4.23-rc3-k1/drivers/i2c/i2c-elv.c
+--- linux-2.4.23-rc3/drivers/i2c/i2c-elv.c	Thu Oct 11 17:05:47 2001
++++ linux-2.4.23-rc3-k1/drivers/i2c/i2c-elv.c	Sat Nov 22 09:15:25 2003
+@@ -202,7 +202,6 @@
+ MODULE_DESCRIPTION("I2C-Bus adapter routines for ELV parallel port adapter");
+ MODULE_LICENSE("GPL");
+ 
+-
+ MODULE_PARM(base, "i");
+ 
+ int init_module(void)
+diff -ru linux-2.4.23-rc3/drivers/media/video/saa7110.c linux-2.4.23-rc3-k1/drivers/media/video/saa7110.c
+--- linux-2.4.23-rc3/drivers/media/video/saa7110.c	Sat Nov 22 09:09:37 2003
++++ linux-2.4.23-rc3-k1/drivers/media/video/saa7110.c	Sat Nov 22 09:20:40 2003
+@@ -404,7 +404,7 @@
+ {
+ 	"saa7110",			/* name */
+ 
+-	I2C_DRIVERID_VIDEODECODER,	/* in i2c.h */
++	I2C_DRIVERID_VIDEODECODER,	/* in i2c-old.h */
+ 	I2C_SAA7110, I2C_SAA7110+1,	/* Addr range */
+ 
+ 	saa7110_attach,
+diff -ru linux-2.4.23-rc3/include/linux/i2c-id.h linux-2.4.23-rc3-k1/include/linux/i2c-id.h
+--- linux-2.4.23-rc3/include/linux/i2c-id.h	Sat Nov 22 09:09:41 2003
++++ linux-2.4.23-rc3-k1/include/linux/i2c-id.h	Sat Nov 22 15:23:13 2003
+@@ -90,7 +90,7 @@
+ #define I2C_DRIVERID_DRP3510	43     /* ADR decoder (Astra Radio)	*/
+ #define I2C_DRIVERID_SP5055	44     /* Satellite tuner		*/
+ #define I2C_DRIVERID_STV0030	45     /* Multipurpose switch		*/
+-#define I2C_DRIVERID_ADV717X   48     /* video encoder                 */
++#define I2C_DRIVERID_ADV7175	48     /* ADV 7175/7176 video encoder	*/
+ 
+ #define I2C_DRIVERID_EXP0	0xF0	/* experimental use id's	*/
+ #define I2C_DRIVERID_EXP1	0xF1
+@@ -199,7 +199,7 @@
+ #define I2C_HW_SMBUS_AMD756	0x05
+ #define I2C_HW_SMBUS_SIS5595	0x06
+ #define I2C_HW_SMBUS_ALI1535	0x07
+-#define I2C_HW_SMBUS_W9968CF	0x08
++#define I2C_HW_SMBUS_W9968CF	0x0d
+ 
+ /* --- ISA pseudo-adapter						*/
+ #define I2C_HW_ISA 0x00
 
-My thanks go to Vitezslav Samel who has spent a lot of time on digging
-out the real names for addresses sending in BK ChangeSets.
-
-Note that your mailer must be MIME-capable to save this mail properly,
-because it is in the "quoted-printable" encoding.
-
-= <- if you see just an equality sign, but no "3D", your mailer is fine.
-= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
-= <- into metamail.
 
 -- 
-A sh script on behalf of Matthias Andree
--------------------------------------------------------------------------
-Changes since last release:
-
-----------------------------
-revision 0.198
-date: 2003/11/22 14:59:50;  author: emma;  state: Exp;  lines: +5 -1
-Add Andreas Beckmann's address.
-----------------------------
-revision 0.197
-date: 2003/11/21 21:13:59;  author: emma;  state: Exp;  lines: +5 -1
-Re-add Steffen Klassert's typoed address, bug report by Vita.
-----------------------------
-revision 0.196
-date: 2003/11/20 23:30:18;  author: emma;  state: Exp;  lines: +5 -2
-Fix Steffen Klassert's address.
-----------------------------
-revision 0.195
-date: 2003/11/19 16:08:02;  author: emma;  state: Exp;  lines: +5 -1
-Add 2nd address of Atul Mukker of LSI Logic.
-=============================================================================
-Index: lk-changelog.pl
-===================================================================
-RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
-retrieving revision 0.195
-retrieving revision 0.198
-diff -u -r0.195 -r0.198
---- lk-changelog.pl	19 Nov 2003 16:08:02 -0000	0.195
-+++ lk-changelog.pl	22 Nov 2003 14:59:50 -0000	0.198
-@@ -8,7 +8,7 @@
- #			Tomas Szepe <szepe@pinerecords.com>
- #			Vitezslav Samel <samel@mail.cz>
- #
--# $Id: lk-changelog.pl,v 0.195 2003/11/19 16:08:02 emma Exp $
-+# $Id: lk-changelog.pl,v 0.198 2003/11/22 14:59:50 emma Exp $
- # ----------------------------------------------------------------------
- # Distribution of this script is permitted under the terms of the
- # GNU General Public License (GNU GPL) v2.
-@@ -416,6 +416,7 @@
- 'ddstreet:ieee.org' => 'Dan Streetman',
- 'ddstreet:us.ibm.com' => 'Dan Streetman',
- 'dean:arctic.org' => 'Dean Gaudet',
-+'debian:abeckmann.de' => 'Andreas Beckmann',
- 'defouwj:purdue.edu' => 'Jeff DeFouw',
- 'deller:gmx.de' => 'Helge Deller',
- 'dent:cosy.sbg.ac.at' => "Thomas 'Dent' Mirlacher",
-@@ -786,7 +787,8 @@
- 'kisza:sch.bme.hu' => 'Andras Kis-Szabo', # google (netfilter-ext HOWTO)
- 'kkeil:isdn4linux.de' => 'Karsten Keil',
- 'kkeil:suse.de' => 'Karsten Keil',
--'klassert:mathematik.ru-chemnitz.de' => 'Steffen Klassert',
-+'klassert:mathematik.ru-chemnitz.de' => 'Steffen Klassert', # typo, leave in
-+'klassert:mathematik.tu-chemnitz.de' => 'Steffen Klassert',
- 'kml:patheticgeek.net' => 'Kevin Lahey',
- 'kmsmith:umich.edu' => 'Kendrick M. Smith',
- 'knan:mo.himolde.no' => 'Erik Inge Bolsø',
-@@ -2128,6 +2130,15 @@
- __END__
- # --------------------------------------------------------------------
- # $Log: lk-changelog.pl,v $
-+# Revision 0.198  2003/11/22 14:59:50  emma
-+# Add Andreas Beckmann's address.
-+#
-+# Revision 0.197  2003/11/21 21:13:59  emma
-+# Re-add Steffen Klassert's typoed address, bug report by Vita.
-+#
-+# Revision 0.196  2003/11/20 23:30:18  emma
-+# Fix Steffen Klassert's address.
-+#
- # Revision 0.195  2003/11/19 16:08:02  emma
- # Add 2nd address of Atul Mukker of LSI Logic.
- #
-
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

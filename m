@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbUABAXu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 19:23:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbUABAXu
+	id S262030AbUABASJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 19:18:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUABASJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 19:23:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58568 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261956AbUABAXs (ORCPT
+	Thu, 1 Jan 2004 19:18:09 -0500
+Received: from pallas.cela.pl ([213.134.162.12]:47378 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S261973AbUABARn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 19:23:48 -0500
-Date: Thu, 1 Jan 2004 16:24:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: axboe@suse.de, packet-writing@suse.com, linux-kernel@vger.kernel.org
-Subject: Re: ext2 on a CD-RW
-Message-Id: <20040101162427.4c6c020b.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
-References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jan 2004 19:17:43 -0500
+Date: Fri, 2 Jan 2004 01:17:20 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Rob Landley <rob@landley.net>
+cc: Rob Love <rml@ximian.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Pascal Schmidt <der.eremit@email.de>, <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+In-Reply-To: <200401010634.28559.rob@landley.net>
+Message-ID: <Pine.LNX.4.44.0401020051590.29346-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->
-> If I create an ext2 filesystem
->  with 2kb blocksize, I hit a bug when I try to write some large files to
->  the filesystem. The problem is that the code in mpage_writepage() fails if
->  a page is mapped to disk across a packet boundary. In that case, the
->  bio_add_page() call at line 543 in mpage.c can fail even if the bio was
->  previously empty. The code then passes an empty bio to submit_bio(), which
->  triggers a bug at line 2303 in ll_rw_blk.c. This patch seems to fix the
->  problem.
-> 
->  --- linux/fs/mpage.c.old	2004-01-02 00:26:19.000000000 +0100
->  +++ linux/fs/mpage.c	2004-01-02 00:26:50.000000000 +0100
->  @@ -541,6 +541,11 @@
->   
->   	length = first_unmapped << blkbits;
->   	if (bio_add_page(bio, page, length, 0) < length) {
->  +		if (!bio->bi_size) {
->  +			bio_put(bio);
->  +			bio = NULL;
->  +			goto confused;
->  +		}
->   		bio = mpage_bio_submit(WRITE, bio);
->   		goto alloc_new;
->   	}
+> Solve 90% of the problem space and have a human deal with the exceptions.
+> How big's the unique number being exported, anyway?  (If it's 32 bits, the 
+> exceptions are 1 in 4 billion.  It may never be seen in the wild...)
 
-Confused.  We initially have an empty BIO, and we run bio_add_page()
-against it, adding one page.
+Wouldn't this be a classical birthday problem with 50% collision chance
+popping up in and around a few hundred devices? [20 for 8 bits, 23 for
+365, 302 for 16 bits, 77163 for 32 bits], and that's only in a single
+system - with hundreds of thousands of systems even a 0.1% collision rate
+is deadly. [0.1% collision rate at 32 bits with 2932 devices]  Even with 
+only 300 devices per system, you'll still get a collision (at 32 bits) on 
+more than 1 system in a hundred thousand.
 
-How can that bio_add_page() fail to add the page?
+Cheers,
+MaZe.
 
-Cold you describe the failure a little more please?
 
->  I noted that performance is quite bad with 2kb blocksize. It is a lot
->  faster with 4kb blocksize. (2kb blocksize with the udf filesystem is not
->  slow, only ext2 seems to have this problem.) Maybe the "confused" case
->  (which calls a_ops->writepage()) in mpage_writepage() isn't really meant
->  to be fast. Is there a better way to fix this problem?
-
-How much slower is it?

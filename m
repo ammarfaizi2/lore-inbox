@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318039AbSGWMQ6>; Tue, 23 Jul 2002 08:16:58 -0400
+	id <S318045AbSGWM0l>; Tue, 23 Jul 2002 08:26:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318040AbSGWMQ6>; Tue, 23 Jul 2002 08:16:58 -0400
-Received: from tartarus.telenet-ops.be ([195.130.132.34]:16787 "EHLO
-	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S318039AbSGWMQ5>; Tue, 23 Jul 2002 08:16:57 -0400
-Date: Tue, 23 Jul 2002 14:20:13 +0200 (CEST)
-From: Michael De Nil <michael@aerythmic.be>
-X-X-Sender: linux@LiSa
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Tulip-driver && SMC1255TX -> kernel fails
-Message-ID: <Pine.LNX.4.44.0207231409280.21178-100000@LiSa>
+	id <S318046AbSGWM0l>; Tue, 23 Jul 2002 08:26:41 -0400
+Received: from moutvdom.kundenserver.de ([195.20.224.200]:40424 "EHLO
+	moutvdomng3.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S318045AbSGWM0k>; Tue, 23 Jul 2002 08:26:40 -0400
+Date: Tue, 23 Jul 2002 06:29:38 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Ingo Molnar <mingo@elte.hu>
+cc: Marcel Holtmann <marcel@holtmann.org>,
+       Thunder from the hill <thunder@ngforever.de>,
+       Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
+       Maksim Krasnyanskiy <maxk@qualcomm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       BlueZ Mailing List <bluez-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] Bluetooth Subsystem PC Card drivers for 2.5.27
+In-Reply-To: <Pine.LNX.4.44.0207231424380.9226-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0207230628500.3200-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey
+Hi,
 
-I have bought an SMC 1255TX-card.
-In the manual is said that I should use the Tulip-driver.
-I was able to load the module tulip.o from kernel 2.4.19-pre10, but when I
-start my network (/etc/init.d/networking start) on my debian-machine, the
-screen starts flashing the message:
-Eth0: (i) System Error occured (0)
-with i = number increasing by 1
+On Tue, 23 Jul 2002, Ingo Molnar wrote:
+> why?
 
-I didn't see any of this in the changelog up to rc3..
+Because once it became standard, we want to remove it somewhen. It's 
+sometimes a bit ridiculous when you read it...
 
-
-Greetings
-	Michael
-
------------------------------------------------------------------------
-                Michael De Nil -- michael@aerythmic.be
-      Linux LiSa 2.4.19-rc2 #1 vr jul 19 22:10:00 CEST 2002 i686
-  14:09:01 up 3 days,  3:24, 10 users,  load average: 0.00, 0.00, 0.00
------------------------------------------------------------------------
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287855AbSANR4c>; Mon, 14 Jan 2002 12:56:32 -0500
+	id <S287854AbSANR4m>; Mon, 14 Jan 2002 12:56:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287848AbSANR4N>; Mon, 14 Jan 2002 12:56:13 -0500
-Received: from ns1.system-techniques.com ([199.33.245.254]:34947 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S287854AbSANRz7>; Mon, 14 Jan 2002 12:55:59 -0500
-Date: Mon, 14 Jan 2002 12:55:19 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: esr@thyrsus.com, Giacomo Catenazzi <cate@debian.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA hardware discovery -- the elegant solution
-In-Reply-To: <E16QBE1-0002LX-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0201141254001.3238-100000@filesrv1.baby-dragons.com>
+	id <S287848AbSANR4c>; Mon, 14 Jan 2002 12:56:32 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5592 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S287854AbSANR4S>;
+	Mon, 14 Jan 2002 12:56:18 -0500
+Date: Mon, 14 Jan 2002 12:56:15 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [RFLART] kdev_t in ioctls
+Message-ID: <Pine.GSO.4.21.0201141227260.224-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Linus, at least some ioctls (e.g. lvm ones) pass kdev_t from/to
+userland.  While the common policy with ioctls is "anything goes", this
+kind of abuse is IMNSHO over the top.
 
-	Hello All ,  And what mechanism is going to be used for an -all-
-	compiled in kernel ?  Everyone and there brother is so enamoured
-	of Modules .  Not everyone uses nor will use modules .
-		Tia ,  JimL
+	Example: ioctl(fd, VG_CREATE, ptr) expects the following:
+at ptr -
+struct {
+	/* bunch of sane fields */
+        struct proc_dir_entry *proc;	/* ignored */
+        pv_t *pv[ABS_MAX_PV + 1];
+        lv_t *lv[ABS_MAX_LV + 1];
+      	/* bunch of stuff */
+}
 
-On Mon, 14 Jan 2002, Alan Cox wrote:
+and pointers in the second array are to the following:
+struct {
+	/* lots of stuff */
+        kdev_t lv_dev;
+	/* lots of other stuff */
+}
 
-> > That would be fine with me.  But wouldn't it involve adding a new
-> > initialization-time call to every driver.
->
-> man lsmod
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+They _are_ dereferenced and values of ptr->lv[i]->lv_dev are stored in
+kernel data structures.  And used afterwards.  As kdev_t.
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+The same goes for the rest of LVM ioctls - pretty much all of them
+pull such stunts.  I'm not going to comment on harmless gross indecencies
+like struct proc_dir_entry * passed from the userland (and fortunately
+ignored), but kdev_t instances are _not_ harmless.
+
+Public statement along the lines "any API that passes kdev_t values
+across the kernel boundary is unacceptable" would be a nice thing...
 

@@ -1,63 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135601AbREFATv>; Sat, 5 May 2001 20:19:51 -0400
+	id <S135616AbREFAik>; Sat, 5 May 2001 20:38:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135608AbREFATl>; Sat, 5 May 2001 20:19:41 -0400
-Received: from vill.ha.smisk.nu ([212.75.83.8]:58372 "HELO mail.fbab.net")
-	by vger.kernel.org with SMTP id <S135601AbREFATh>;
-	Sat, 5 May 2001 20:19:37 -0400
-X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
-X-Qmail-Scanner-Rcpt-To: marko@l-t.ee linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 0.94 (No viruses found. Processed in 7.654526 secs)
-Message-ID: <018701c0d5c2$67a2ad20$020a0a0a@totalmef>
-From: "Magnus Naeslund\(f\)" <mag@fbab.net>
-To: "Marko Kreen" <marko@l-t.ee>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <00fb01c0d596$afb30690$020a0a0a@totalmef> <20010505223034.C9629@l-t.ee>
-Subject: Re: 2.4.4 fork() problems (maybe)
-Date: Sun, 6 May 2001 02:20:50 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S135613AbREFAia>; Sat, 5 May 2001 20:38:30 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:60514 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S135611AbREFAiQ>;
+	Sat, 5 May 2001 20:38:16 -0400
+Message-ID: <20010506023813.A5041@win.tue.nl>
+Date: Sun, 6 May 2001 02:38:13 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: andy.piper@freeuk.com
+Cc: linux-kernel@vger.kernel.org, aeb@cwi.nl
+Subject: Re: Dane-Elec PhotoMate Combo
+In-Reply-To: <3AF18F40.BD741542@ukgateway.net> <20010503205929.A4187@win.tue.nl> <3AF42A82.C05A2F51@ukgateway.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3AF42A82.C05A2F51@ukgateway.net>; from Andy Piper on Sat, May 05, 2001 at 05:29:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Marko Kreen" <marko@l-t.ee>
-> On Sat, May 05, 2001 at 09:07:53PM +0200, Magnus Naeslund(f) wrote:
-> > Hello, I saw that there was something changed on how fork() works, and
-> > wonder if this could be the cause my problem.
-> > When i do a "su - <user>" it just hangs.
-> > When i run strace on it i see that it forks and wait()s on the child.
-> > 
-> > Sometimes when i strace the su command it succeeds to give me a shell,
-> > sometimes not.
-> > But it allways fails when i don't strace it.
+On Sat, May 05, 2001 at 05:29:54PM +0100, Andy Piper wrote:
+
+> > For me the Dane-Elec is working and stable.
 > 
-> 2.4.4 has some problems with fork() but your problem seems to be
-> something else.  Are you using RedHat 7.1?  (Or whatever it was
-> the latest...)  The su-acting-weird problem has been reported 
-> before and was traced to some PAM problems.  Try to download
-> some upgrades from RedHat, maybe it will help.
+> You are using the Compact Flash reader part of the device, right?
+
+Yes.
+
+> I don't think it is working with SmartMedia.
+
+I cannot test that part - don't think I have any SmartMedia.
+
+> I've tried the latest
+> kernel 2.4.5-pre1, which incorporates your patch to allow the device
+> to be recognised. The Dane-Elec / SCM eUSB adapter can be seen in
+> /proc/bus/usb/devices, but I cannot mount a SmartMedia card (which I'm
+> assuming I should be able to mount on /dev/sda; mind you,
+
+Probably sdb.
+
+> /proc/scsi/scsi shows it only as a Compact Flash device, and doesn't
+> mention SmartMedia...)
 > 
-> -- 
-> marko
+> This part looks good:
 > 
+> castor kernel:   Vendor: eUSB      Model: Compact Flash     Rev:     
+> castor kernel:   Type:   Direct-Access                      ANSI SCSI
+> 
+> ... this bit doesn't look good ...
+> 
+> castor kernel: Detected scsi removable disk sda at scsi1, channel 0,
+> castor kernel: sda : READ CAPACITY failed.
+> 
+> I've also tried another hack I found in a news posting, advising that
+> CONFIG_USB_STORAGE_SDDR09 support should be added to the Config.in for
+> /usr/src/linux/drivers/usb and enabled; it hasn't helped.
 
-No i use redhat 6.2 (on a alpha system).
-It works fine with 2.4.3, which i am running now ( i backed out 2.4.4 ).
+Yes. If I do that, I see:
 
-Magnus
+ <4>  Vendor: eUSB      Model: Compact Flash     Rev:
+ <4>  Type:   Direct-Access                      ANSI SCSI revision: 02
+ <4>  Vendor: SCM Micr  Model: eUSB SmartMedia   Rev: 0207
+ <4>  Type:   Direct-Access                      ANSI SCSI revision: 02
 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- Programmer/Networker [|] Magnus Naeslund
- PGP Key: http://www.genline.nu/mag_pgp.txt
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+that is, the enabling of CONFIG_USB_STORAGE_SDDR09 turns this reader
+into two devices: a CF reader and a SM reader.
 
+Inserting sd.o yields
 
+ Detected scsi removable disk sdb at scsi2, channel 0, id 0, lun 0
+ Detected scsi removable disk sdc at scsi2, channel 0, id 0, lun 1
 
+that is, the two logical units of this device turn into sdb (the CF reader)
+and sdc (the SM reader). The CF reader contains a card, and reading
+capacity is successful:
 
+ SCSI device sdb: 15872 512-byte hdwr sectors (8 MB)
+
+If one makes the MODE SENSE command read the vendor page 0, it succeeds, and:
+
+ sdb: Write Protect is off
+
+There is a single partition on sdb:
+
+   sdb1
+
+On the other hand, sdc does not contain anything, so unsurprisingly:
+
+ sdc : READ CAPACITY failed.
+
+> Is this a discussion I should take to the usb-devel mailing list?
+
+Probably, yes. You might cc me, I am not subscribed to that list.
+
+Andries - aeb@cwi.nl

@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264154AbUFVONZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264076AbUFVORx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264154AbUFVONZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 10:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbUFVOFJ
+	id S264076AbUFVORx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 10:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264212AbUFVORw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 10:05:09 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:54750 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S263786AbUFVN7z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 09:59:55 -0400
+	Tue, 22 Jun 2004 10:17:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27104 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264076AbUFVOPT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 10:15:19 -0400
+Message-ID: <40D83EE8.6090700@pobox.com>
+Date: Tue, 22 Jun 2004 10:15:04 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: gin@ginandtonic.ca
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Don't want to share interrupts
+References: <000001c4585d$98896340$0c501709@IBM3B3C778F126>
+In-Reply-To: <000001c4585d$98896340$0c501709@IBM3B3C778F126>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16600.15183.989137.233305@alkaid.it.uu.se>
-Date: Tue, 22 Jun 2004 15:59:43 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: core
-In-Reply-To: <20040622015311.561a73bf.akpm@osdl.org>
-References: <200405312218.i4VMIISg012277@harpo.it.uu.se>
-	<20040622015311.561a73bf.akpm@osdl.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Mikael Pettersson <mikpe@csd.uu.se> wrote:
- > >
- > > perfctr-2.7.3 for 2.6.7-rc1-mm1, part 1/6:
- > >
- > 
- > OK, I spent a couple hours on the perfctr code.  It looks sane, although a
- > bit hard to follow.  The above changelog (which is _all_ you gave us) makes
- > this large and complex patch hard to review, hard to understand, hard for
- > others to support.
- > 
- > One can look at the code, sort-of-see what it's doing, query micro-issues,
- > but it is hard (and a bad use of one's time) to try and reverse-engineer
- > the big-picture "how it all hangs together" from the implementation.
- > 
- > We need (especially at this stage in the kernel cycle) at least a couple of
- > pages of design documentation which describes
+gin@ginandtonic.ca wrote:
+> I have been trying to get some platforms to work with a quad port
+> Ethernet card.
+> Some hardware is OK, others...well, not so OK.
+> 
+> An IBM x335 works OK under Linux (2.4.9) and Win2K3
 
-Speaking of documentation, I have a strong preference for using
-LaTeX for all papers, reports, docs, etc, except man pages.
-Is that an acceptable format?
+methinks this is a vendor kernel, not vanilla 2.4.9.  As such, who knows 
+what's in there...
+
+
+> An IBM x365 Does not work under Linux.
+> 
+> Looks like Linux shares an IRQ between all 4 ports whereas win2k3
+> doesn't .... each is assigned it's own IRQ.  Is there anyway to
+> duplicate this behavior under Linux? (i.e. have an IRQ assigned to each
+> port instead of sharing one for the whole card?).
+
+IRQs are assigned by firmware.  Try turning on/off io-apic or ACPI.
+
+But regardless, you'll need to provide a lot more information.  See 
+REPORTING-BUGS in the kernel tree.
+
+	Jeff
+
+

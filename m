@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263536AbRFFQUS>; Wed, 6 Jun 2001 12:20:18 -0400
+	id <S263553AbRFFQZt>; Wed, 6 Jun 2001 12:25:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263539AbRFFQUI>; Wed, 6 Jun 2001 12:20:08 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:59526 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S263536AbRFFQUC>; Wed, 6 Jun 2001 12:20:02 -0400
-Date: Wed, 6 Jun 2001 10:19:45 -0600
-Message-Id: <200106061619.f56GJjw15740@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        "Christian =?iso-8859-1?Q?Borntr=E4ger?=" 
-	<linux-kernel@borntraeger.net>,
-        Derek Glidden <dglidden@illusionary.com>
-Subject: Re: Requirement: swap = RAM x 2.5 ??
-In-Reply-To: <3B1E572B.1CEEF41B@mandrakesoft.com>
-In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com>
-	<991815578.30689.1.camel@nomade>
-	<20010606095431.C15199@dev.sportingbet.com>
-	<0106061316300A.00553@starship>
-	<200106061528.f56FSKa14465@vindaloo.ras.ucalgary.ca>
-	<000701c0ee9f$515fd6a0$3303a8c0@einstein>
-	<3B1E52FC.C17C921F@mandrakesoft.com>
-	<200106061612.f56GCbA14901@vindaloo.ras.ucalgary.ca>
-	<3B1E572B.1CEEF41B@mandrakesoft.com>
+	id <S263540AbRFFQZi>; Wed, 6 Jun 2001 12:25:38 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:24056 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S263546AbRFFQZX>; Wed, 6 Jun 2001 12:25:23 -0400
+Date: Wed, 6 Jun 2001 17:22:09 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrej Borsenkow <Andrej.Borsenkow@mow.siemens.ru>,
+        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: NULL characters in file on ReiserFS again.
+Message-ID: <20010606172209.A3362@redhat.com>
+In-Reply-To: <000201c0e9c5$7643d540$21c9ca95@mow.siemens.ru> <3B16780F.D5FF04D8@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B16780F.D5FF04D8@namesys.com>; from reiser@namesys.com on Thu, May 31, 2001 at 09:57:51AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
-> Richard Gooch wrote:
-> > 
-> > Jeff Garzik writes:
-> > >
-> > > I'm sorry but this is a regression, plain and simple.
-> > >
-> > > Previous versons of Linux have worked great on diskless workstations
-> > > with NO swap.
-> > >
-> > > Swap is "extra space to be used if we have it" and nothing else.
-> > 
-> > Sure. But Linux still works without swap. It's just that if you *do*
-> > have swap, it works best with 2* RAM.
-> 
-> Yes, but that's not the point of the discussion.  Currently 2*RAM is
-> more of a requirement than a recommendation.
+Hi,
 
-Um, do you mean "2*RAM is required, always", or "2*RAM or more swap is
-required if swap != 0"?
+On Thu, May 31, 2001 at 09:57:51AM -0700, Hans Reiser wrote:
 
-				Regards,
+> > /etc/hosts (or anywhere). As a tesult, startx hung starting X server; it was
+> > not possible to switch to alpha console or kill X server. I pressed reset
+> > and after reboot looked into /var/log/XFree86*log - and there were a bunch
+> > of ^@ there.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+> this is the nature of metadata journaling filesystems.
+
+Umm, no, it isn't.  Ext3 would never allow that to happen in ordered
+metadata-journaling mode, and Chris Mason is already working to remove
+that window in reiserfs.  It is by no means a necessary consequence of
+doing metadata-only journaling.
+
+--Stephen

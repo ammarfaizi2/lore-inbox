@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283204AbSABO4p>; Wed, 2 Jan 2002 09:56:45 -0500
+	id <S287832AbSABPE4>; Wed, 2 Jan 2002 10:04:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287827AbSABO4h>; Wed, 2 Jan 2002 09:56:37 -0500
-Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:6861 "EHLO
-	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S283204AbSABO4b>; Wed, 2 Jan 2002 09:56:31 -0500
-Date: Wed, 2 Jan 2002 14:56:03 +0000 (GMT)
-From: "Joseph S. Myers" <jsm28@cam.ac.uk>
-X-X-Sender: <jsm28@kern.srcf.societies.cam.ac.uk>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Momchil Velikov <velco@fadata.bg>, <linux-kernel@vger.kernel.org>,
-        <gcc@gcc.gnu.org>, <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <20020101234350.GN28513@cpe-24-221-152-185.az.sprintbbd.net>
-Message-ID: <Pine.LNX.4.33.0201021451390.18982-100000@kern.srcf.societies.cam.ac.uk>
+	id <S287827AbSABPEq>; Wed, 2 Jan 2002 10:04:46 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:64153 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S287839AbSABPEa>;
+	Wed, 2 Jan 2002 10:04:30 -0500
+Date: Wed, 2 Jan 2002 15:59:29 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Larry McVoy <lm@bitmover.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: The direction linux is taking
+In-Reply-To: <E16KSQt-0005zf-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0201021557360.1574-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jan 2002, Tom Rini wrote:
+On Sat, 29 Dec 2001, Alan Cox wrote:
+> The big exception is Configure.help which is a nightmare for patch, and the
+> one file I basically always did hand merges on
 
-> 3) We could also try turning off this particular optimization
-> (-fno-builtin perhaps) on this file, and not worry about it.
+Perhaps it would help if the entries in Configure.help were sorted?
 
-In particular, it would probably make sense for the kernel to use 
--ffreestanding (which implies -fno-builtin) throughout then selectively 
-enable the built-in functions that are wanted with macros such as
+It's very difficult to merge anything in that file, since in many cases the
+`new' entries added by the new patch, already existed in our local tree
+(speaking about m68k). Someone just wrote new explanations, and inserted them
+someplace else in the file.
 
-#define strcpy(d, s) __builtin_strcpy((d), (s))
+Gr{oetje,eeting}s,
 
-in an appropriate header, then #undef these macros in the files that
-shouldn't use the built-in functions.
+						Geert
 
--- 
-Joseph S. Myers
-jsm28@cam.ac.uk
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,71 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291589AbSBMLg7>; Wed, 13 Feb 2002 06:36:59 -0500
+	id <S291591AbSBMLi6>; Wed, 13 Feb 2002 06:38:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291591AbSBMLgt>; Wed, 13 Feb 2002 06:36:49 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:21002
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S291589AbSBMLga>; Wed, 13 Feb 2002 06:36:30 -0500
-Date: Wed, 13 Feb 2002 03:26:04 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: another IDE cleanup: kill duplicated code
-In-Reply-To: <20020213122607.A31348@suse.cz>
-Message-ID: <Pine.LNX.4.10.10202130323230.1888-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S291597AbSBMLis>; Wed, 13 Feb 2002 06:38:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:7042 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291591AbSBMLib>;
+	Wed, 13 Feb 2002 06:38:31 -0500
+Date: Wed, 13 Feb 2002 03:36:41 -0800 (PST)
+Message-Id: <20020213.033641.102576462.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org, ralf@uni-koblenz.de
+Subject: Re: [patch] printk and dma_addr_t
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E16awZq-0004s4-00@the-village.bc.nu>
+In-Reply-To: <20020213.013557.74564240.davem@redhat.com>
+	<E16awZq-0004s4-00@the-village.bc.nu>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Vojtech Pavlik wrote:
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Wed, 13 Feb 2002 10:23:50 +0000 (GMT)
+   
+   So how do they modify the printf format rules in gcc ?
+   
+Because they can claim that they are part of the C environment, and
+for the most part they are right so their extensions go into gcc's
+magic list.
 
-> > > None of this is relevant to IDE on Linux.
-> > 
-> > Well not yet but here is a hint, all future hardware will be MMIO.
-> 
-> That's nice. Actually, that's the case on many archs already.
+In fact I'd claim their case to be plugging holes in the standards
+specified set of printf format strings. :-)
 
-Well I am totally aware of this issue and know it needs to be addressed.
-
-> > Meaning all IO is performed under DMA over the ATA-Bridge.
-> 
-> Ugh? This is not the meaning of your first sentence. 
-
-Surprise
-
-> > Specifically PIO operations are transacted over VDMA to the Bridge and
-> > executed as PIO by the Bridge.
-> 
-> Care to explain in more detail? Hmm, I suppose not.
-> 
-> I suppose you mean that the IDE controller will use BM DMA w/ SG for
-> every transaction and the PIO/DMA/UDMA mode will only be different on
-> the IDE BUS. That's very nice, and actually will make things simpler.
-> 
-> I still don't see how any of the proposed patches kill the possibility
-> to do this.
-> 
-> > > Perhaps you mean PIO using SG-lists to put the data into the right
-> > > places. But I still don't see a problem with this and the proposed patch.
-> > > 
-> > > > Does a function struct for handling IO and MMIO help?
-> > > 
-> > > Ugh? What is "function struct"?
-> > 
-> > Since the future will be a mess, and it is possible to have IO/MMIO on the
-> > same HOST it will be come more fun than you can imagine.
-> 
-> The future (kernel point of view) will be how we make it to be. If we
-> make a lot of messy code, the future will be a mess. This seems to be
-> what you're doing. (Sorry.)
-
-Oh I have the hardware and the newest stuff will have in a few days.
-The future is Q3 2002 or sooner.
-
-regards,
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
+Hey... we could "borrow" one of these printf format strings we
+don't have any need for in the kernel and pretend that is for
+"dma_addr_t". :-)

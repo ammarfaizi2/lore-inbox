@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289045AbSAIWPV>; Wed, 9 Jan 2002 17:15:21 -0500
+	id <S289050AbSAIWQV>; Wed, 9 Jan 2002 17:16:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289049AbSAIWPG>; Wed, 9 Jan 2002 17:15:06 -0500
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:55789 "HELO
-	dardhal") by vger.kernel.org with SMTP id <S289045AbSAIWOH>;
-	Wed, 9 Jan 2002 17:14:07 -0500
-Date: Wed, 9 Jan 2002 23:13:55 +0100
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG]: bonding module parameter problem
-Message-ID: <20020109221354.GB3965@localhost>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+	id <S289055AbSAIWQN>; Wed, 9 Jan 2002 17:16:13 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:15365 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S289049AbSAIWPa>; Wed, 9 Jan 2002 17:15:30 -0500
+Date: Wed, 9 Jan 2002 23:15:28 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Greg KH <greg@kroah.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Message-ID: <20020109231528.B25786@devcon.net>
+Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
+	Greg KH <greg@kroah.com>,
+	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+	felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <20020109214022.GE21963@kroah.com> <5.1.0.14.2.20020109215335.02cfc780@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <5.1.0.14.2.20020109215335.02cfc780@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Wed, Jan 09, 2002 at 09:55:34PM +0000
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+On Wed, Jan 09, 2002 at 09:55:34PM +0000, Anton Altaparmakov wrote:
+> 
+> I would think that is a good idea but I am not sure that is what is planned 
+> / will happen. Keeping it outside would have the advantage that a newer 
+> partition recognizer (or whatever other code) can be applied to any 
+> existing kernel version (that supports initramfs).
 
-There seems to be a problem in module bonding.o (just the interesting
-part follows, kernel version is 2.4.17):
-user@machine:/tmp$ /sbin/modinfo bonding
-license:     "GPL"
-warning: parameter max_bonds has max < min!
-parm:  max_bonds unknown format character '('parm:  miimon int, description "Link check interval in milliseconds"
+This could be done anyway: just replace the initramfs image built by 
+the kernel build with anotherone built from another source tree. It
+would be helpful though if the tools were distributed both standalone
+and included into the kernel tree.
 
-At /usr/src/linux/drivers/net/bonding.c, line 229:
-MODULE_PARM(max_bonds, "1-" __MODULE_STRING(INT_MAX) "i");
-MODULE_PARM_DESC(max_bonds, "Max number of bonded devices");
-
-And at /usr/src/linux/include/linux/kernel.h, line 19:
-#define INT_MAX                ((int)(~0U>>1))
-
-There are some places (/usr/src/linux/net/ipv4/netfilter/ip_conntrack_ftp.c
-line 19) with similar macro invocations that work OK. It seems macro
-MODULE_PARM gets confused with those parentheses in #define INT_MAX
-
-This problem is still in 2.4.18-pre2, but seems that is solved upstream
-(http://sf.net/projects/bonding/), see:
-http://telia.dl.sourceforge.net/bonding/bonding-2.4.17-20020102
-
+Andreas
 -- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo AT internautas DOT   org  => Spam at your own risk
-
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

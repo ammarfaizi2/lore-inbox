@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261424AbSJCXMo>; Thu, 3 Oct 2002 19:12:44 -0400
+	id <S261281AbSJCXEr>; Thu, 3 Oct 2002 19:04:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261422AbSJCXMn>; Thu, 3 Oct 2002 19:12:43 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:25821 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261424AbSJCXMm>;
-	Thu, 3 Oct 2002 19:12:42 -0400
-Message-ID: <3D9CCD11.3020506@pobox.com>
-Date: Thu, 03 Oct 2002 19:04:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Jaroslav Kysela <perex@suse.cz>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ALSA fixes #1
-References: <Pine.LNX.4.33.0210031241280.23619-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261412AbSJCXEq>; Thu, 3 Oct 2002 19:04:46 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:33293 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261281AbSJCXEq>;
+	Thu, 3 Oct 2002 19:04:46 -0400
+Date: Thu, 3 Oct 2002 16:07:28 -0700
+From: Greg KH <greg@kroah.com>
+To: Kevin Corry <corryk@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+Subject: Re: EVMS Submission for 2.5
+Message-ID: <20021003230728.GF2289@kroah.com>
+References: <02100216332002.18102@boiler> <20021002224343.GB16453@kroah.com> <02100316563708.05904@boiler>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <02100316563708.05904@boiler>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Thu, 3 Oct 2002, Jaroslav Kysela wrote:
-> 
->>>Note that BK really only helps if you are careful, and I can synchronize 
->>>with your BK tree. The fact that your BK tree contains non-alsa stuff 
->>
->>Please, remove the bksend script from Documentation/BK-usage/bksend . 
->>You don't like it and it's completely crappy. BK does renumbering of 
->>ChangeSets itselves. So everybody has different numbers for changesets.
+On Thu, Oct 03, 2002 at 04:56:37PM -0500, Kevin Corry wrote:
+>      http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/evms/runtime/linux-2.5/
 
-The bksend script works just fine, provided you use it correctly...
+Heh, looks like you ran the thing through Lindent without looking at the
+output.  Lindent is a great place to start, but it does generate lines
+like the following which you will probably want to fix up by hand
+(unless you really want to try to maintain things like this...)
 
-I think the main use of the script is not merging with Linus but posting 
-public, reviewable BK patches.
+						volume_group->
+						    volume_list[AIXppent->
+								lv_index -
+								1]->
+						    le_to_pe_map_mir1
+						    [le_number].
+						    pe_sector_offset = offset;
 
+oh, here's another one that's even messier:
 
-> But if there is a clean tree to pull from, that is absolutely the 
-> preferred method for me to sync up, _especially_ with things like drivers. 
-> Then an email that just says
-> 
-> 	Linus,
-> 	  please do
-> 
-> 		bk pull .....
-> 
-> 	to receive changes to the following files
-> 
-> 	.. diffstat list ..
-> 
-> 	through the following changes
-> 
-> 	 .. changset list ..
-> 
-> and then I don't even need to see the diffs themselves if I can just see
-> that it only touches the ALSA files (that's another reason why I really
-> want clean trees - immediately that there is a changeset to a non-ALSA
-> file I want to see diffs, so that I have a clue about potential conflicts)
+							volume_group->
+							    volume_list
+							    [AIXppent->
+							     lv_index -
+							     1]->
+							    le_to_pe_map_mir2
+							    [le_number].
+							    pe_sector_offset =
+							    offset;
 
+You also have a number of local variables that use InterCaps.
 
-And "Documentation/BK-usage/bk-make-sum ~/repo/linus-2.5" helpfully 
-generates this output  ;-)
+But, 80 column rants aside, the code looks much better, thank you for
+cleaning it up.
 
-	Jeff
+thanks,
 
-
-
+greg k-h

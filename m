@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262824AbRFDXSz>; Mon, 4 Jun 2001 19:18:55 -0400
+	id <S263022AbRFDXYG>; Mon, 4 Jun 2001 19:24:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262856AbRFDXSp>; Mon, 4 Jun 2001 19:18:45 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26126 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262824AbRFDXSl>; Mon, 4 Jun 2001 19:18:41 -0400
-Subject: Re: disk-based fds in select/poll
-To: pp@ludusdesign.com (Pierre Phaneuf)
-Date: Tue, 5 Jun 2001 00:16:29 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B1C0EE9.9F8F58A4@ludusdesign.com> from "Pierre Phaneuf" at Jun 04, 2001 06:42:49 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263025AbRFDXXz>; Mon, 4 Jun 2001 19:23:55 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:5061 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S263022AbRFDXXr>;
+	Mon, 4 Jun 2001 19:23:47 -0400
+Message-ID: <3B1C1872.8D8F1529@mandrakesoft.com>
+Date: Mon, 04 Jun 2001 19:23:30 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: bjornw@axis.com, linux-kernel@vger.kernel.org,
+        linux-mtd@lists.infradead.org
+Subject: Re: Missing cache flush.
+In-Reply-To: <13942.991696607@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1573aH-00068I-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok, so while knowing about select "lying" about readability of a file
-> fd, if I would stick a file fd in my select-based loop anyway, but would
+David Woodhouse wrote:
+> I was pointed at Documentation/DMA-mapping.txt but that doesn't seem very
+> helpful - it's very PCI-specific, and a quick perusal of pci_dma_sync() on
+> i386 shows that it doesn't do what's required anyway.
 
-You could fix select to return when the page was cachied and return EWOULDBLOCK
-on reads if the page was not present to be honest. I don't think that would
-actually break any apps, and the specs seem to allow it
+What should it do on i386?  mb()?
 
-> only try to read a bit at a time (say, 4K or 8K) would trigger
-> readahead, yet finish quickly enough that I can get back to processing
-> other fds in my select loop?
-
-Probably
-
-> Wouldn't that cause too many syscalls to be done? Or if this is actually
-> the way to go without an actual thread, how should I go determining an
-> optimal block size?
-
-fs block size I suspect or small multiple thereof
-
+-- 
+Jeff Garzik      | Echelon words of the day, from The Register:
+Building 1024    | FRU Lebed HALO Spetznaz Al Amn al-Askari Glock 26 
+MandrakeSoft     | Steak Knife Kill the President anarchy echelon
+                 | nuclear assassinate Roswell Waco World Trade Center

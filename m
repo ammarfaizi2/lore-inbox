@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129300AbRAaWYr>; Wed, 31 Jan 2001 17:24:47 -0500
+	id <S129351AbRAaWZT>; Wed, 31 Jan 2001 17:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129351AbRAaWYi>; Wed, 31 Jan 2001 17:24:38 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:12019 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S129300AbRAaWYZ>; Wed, 31 Jan 2001 17:24:25 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101312223.f0VMNjP30699@webber.adilger.net>
-Subject: Re: kernel BUG at inode.c:889!
-In-Reply-To: From "(env:" "adilger)" at "Jan 31, 2001 12:42:27 pm"
-To: adilger@webber.adilger.net
-Date: Wed, 31 Jan 2001 15:23:44 -0700 (MST)
-CC: Timo Jantunen <jeti@iki.fi>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S129386AbRAaWZC>; Wed, 31 Jan 2001 17:25:02 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:63249 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129351AbRAaWY5>; Wed, 31 Jan 2001 17:24:57 -0500
+Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE61D@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Pavel Machek'" <pavel@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: RE: ACPI fix + comments
+Date: Wed, 31 Jan 2001 14:23:21 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I previously wrote:
-> Below is a patch which should fix this.  It _should_ prevent you from
-> mounting this filesystem in the first place, and should also stop the BUG
-> in inode.c.  I'm not 100% sure of correctness, however:
-> - is calling clear_inode() in these error cases OK?
-> - is calling dput() the right thing to do for the root dentry?  This
->   is what kill_super() does when cleaning up the filesystem.
+The problem the diff below fixes is a BIOS issue - the _STA control method
+should always be returning a value, but in this case it doesn't. The
+approach we're taking is "get everything working and THEN worry about broken
+ACPI implementations" and hopefully in the meantime, people will release
+fixed BIOSs ;-).
+
+> And working around error in running sta makes it actually
+> usefull. This is ugly workaround, should not be applied to official
+> tree.
+[snip]
+
+> And now questions: Why are numbers reported in hexadecimal? Reporting
+> voltage in hexadecimal is nice nonsense to me...
+
+This is a temporary interface, just to see if we're returning values
+properly. Your points below are well taken. People really care about
+minutes/percentage remaining. In your opinion should we just report that
+through /proc or should we keep the data low-level like it is now, and have
+a user app do the math, or what?
+
+> I believe that we should keep description: value format, and switch to
+> decimal. Plus, units are nonsensical in some cases:
 > 
-> Cheers, Andreas
-> ============================================================================
-> --- fs/ext2/super.c.orig	Tue Jan 23 17:24:45 2001
-> +++ fs/ext2/super.c	Wed Jan 31 12:27:25 2001
-> @@ -628,13 +628,19 @@
->  	 */
->  	sb->s_op = &ext2_sops;
->  	sb->s_root = d_alloc_root(iget(sb, EXT2_ROOT_INO));
-> -	if (!sb->s_root) {
-> +	if (!sb->s_root || !S_ISDIR(sb->s_root->d_inode) ||
+> Remaining Capacity: 59a
+> 		    ~~~ should be in mAh, probably
 
-This should be !S_ISDIR(sb->s_root->d_inode->i_mode).
+[snip]
 
-> +	    !sb->s_root->d_inode->i_blocks || !sb->s_root->d_inode->i_size) {
-> +		if (sb->s_root) {
-> +			dput(sb->s_root);
-> +			sb->s_root = NULL;
-> +			printk ("EXT2-fs: corrupt root inode, run e2fsck\n");
-> +		} else
-> +			printk ("EXT2-fs: get root inode failed\n");
+> PS: What should be difference between _info and _status? Both contain
+> fields that change with time...
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+*info corresponds with the _BIF control method, and *status with _BST. I
+thought _BIF stuff is static - is it not?
+
+Regards -- Andy
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

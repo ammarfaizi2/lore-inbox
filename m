@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316797AbSFDVhV>; Tue, 4 Jun 2002 17:37:21 -0400
+	id <S316828AbSFDViF>; Tue, 4 Jun 2002 17:38:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316828AbSFDVhU>; Tue, 4 Jun 2002 17:37:20 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17672 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316797AbSFDVhU>; Tue, 4 Jun 2002 17:37:20 -0400
-Date: Tue, 4 Jun 2002 14:37:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 12/16] fix race between writeback and unlink
-In-Reply-To: <3CFD25A2.FCC7F66A@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0206041428080.983-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316835AbSFDViE>; Tue, 4 Jun 2002 17:38:04 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:53633 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316828AbSFDViB>;
+	Tue, 4 Jun 2002 17:38:01 -0400
+Date: Tue, 04 Jun 2002 14:34:53 -0700 (PDT)
+Message-Id: <20020604.143453.35012407.davem@redhat.com>
+To: mochel@osdl.org
+Cc: anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.19] Oops during PCI scan on Alpha
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0206041427260.654-100000@geena.pdx.osdl.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Patrick Mochel <mochel@osdl.org>
+   Date: Tue, 4 Jun 2002 14:29:21 -0700 (PDT)
 
+   
+   On Tue, 4 Jun 2002, David S. Miller wrote:
+   
+   > Linkers are allowed to reorder object files unless you tell them
+   > explicitly not to.
+   > 
+   > This is why you need to put this stuff into a seperate initcall level.
+   > This is precisely why I suggest postcore_initcall as the fix.
+   
+   Ok, how about just keeping it a subsys_initcall, like it was in the first 
+   place? 
 
-On Tue, 4 Jun 2002, Andrew Morton wrote:
->
-> There's a patch at
-> http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre10/ext3-reloc-page.patch
-> which provides a simple `relocate page' ioctl for ext3 files.
+Then there are ordering problems with subsys_initcalls which want to
+add devices to sys_bus.  In fact, arch_initcalls are the places where
+most of the actual uses of subsys_bus registry.
 
-That's a good start, but before even egtting that far there is some need
-for a way to get a picture of the FS layout in a reasonably fs-independent
-way.
+So for the ump-teenth time, you need to init this thing EXACTLY after
+core_initcalls.  I can only say this so many times, this is the
+initcall classification we need to fix this bug, "POST CORE INITCALL"
+and "BEFORE ANYTHING ELSE".
 
-Sure, bmap() actually does part of this (the "where are my blocks" part),
-but right now there is no way to query the FS for the "where can I put
-blocks" part.
+One way to do that, for the ump-teenth time, is to rename
+unused_initcall to postcore_initcall and use that new initcall
+to fix the pci_bus and sys_bus generic bus initialization ordering
+problems.
 
-You can do it with direct disk access and knowledge of the FS internals,
-but it should not be all that hard to add some simple interface to get a
-"block usage byte array" kind of thing (more efficient than doing bmap on
-all files, _and_ can tell about blocks reserved for inodes, superblocks
-and other special uses), which together with a user-level interface to
-"preallocate" and your "relocate page" should actually make it possible to
-make a fairly FS-independent defragmenter.
-
-Add a nice graphical front-end, and you can make it a useful screen-saver.
-
-			Linus
-
+We're talking in circles and the fixes you're proposing are not
+going to fix the bug, just create new versions of the old bug.

@@ -1,92 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132756AbREEQ1B>; Sat, 5 May 2001 12:27:01 -0400
+	id <S132737AbREEQSK>; Sat, 5 May 2001 12:18:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132834AbREEQ0m>; Sat, 5 May 2001 12:26:42 -0400
-Received: from 4dyn183.delft.casema.net ([195.96.105.183]:44812 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132756AbREEQ0c>; Sat, 5 May 2001 12:26:32 -0400
-Message-Id: <200105051626.SAA16651@cave.bitwizard.nl>
-Subject: Re: Athlon possible fixes
-In-Reply-To: <E14vwaq-0000Jk-00@the-village.bc.nu> from Alan Cox at "May 5, 2001
- 08:35:06 am"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Sat, 5 May 2001 18:26:30 +0200 (MEST)
-CC: linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S132756AbREEQSA>; Sat, 5 May 2001 12:18:00 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:20232
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S132737AbREEQRl>; Sat, 5 May 2001 12:17:41 -0400
+Date: Sat, 05 May 2001 12:16:47 -0400
+From: Chris Mason <mason@suse.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum files per Directory
+Message-ID: <476470000.989079407@tiny>
+In-Reply-To: <20010505154920.A4571@pcep-jamie.cern.ch>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> +		__asm__ __volatile__ (
-> +		"   movq (%0), %%mm0\n"
-> +		"   movq 8(%0), %%mm1\n"
-> +		"   movq 16(%0), %%mm2\n"
-> +		"   movq 24(%0), %%mm3\n"
-> +		"   movq %%mm0, (%1)\n"
-> +		"   movq %%mm1, 8(%1)\n"
-> +		"   movq %%mm2, 16(%1)\n"
-> +		"   movq %%mm3, 24(%1)\n"
-> +		"   movq 32(%0), %%mm0\n"
-> +		"   movq 40(%0), %%mm1\n"
-> +		"   movq 48(%0), %%mm2\n"
-> +		"   movq 56(%0), %%mm3\n"
-> +		"   movq %%mm0, 32(%1)\n"
-> +		"   movq %%mm1, 40(%1)\n"
-> +		"   movq %%mm2, 48(%1)\n"
-> +		"   movq %%mm3, 56(%1)\n"
->  		: : "r" (from), "r" (to) : "memory");
->  		from+=64;
->  		to+=64;
 
-As all this is trying to avoid bus turnarounds (i.e. switching from
-reading to writing), wouldn't it be fastest to just trust that the CPU
-has at least 4k worth of cache? (and hope for the best that we don't
-get interrupted in the meanwhile).
+On Saturday, May 05, 2001 03:49:20 PM +0200 Jamie Lokier
+<lk@tantalophile.demon.co.uk> wrote:
 
-void copy_page (char *dest, char *source)
-{
-	long *dst = (long *)dest, 
-		*src=(long *)source, 
-		*end= (long *)(source+PAGE_SIZE);
-#if 1
-	register int  i;
-	long t=0;
-	static long tt;
+> Chris Mason wrote:
+>> > Is there a reason that
+>> > reiserfs chose to have "large number of directories" represented by "1"
+>> > and not "LINK_MAX+1"?
+>> 
+>> find and a few others consider a link count of 1 to mean there is no link
+>> count tracking being done.
+> 
+> Indeed, and thank you for getting this right!
+> 
+> Btw, is it possible to add dirent->d_type information to reiserfs, and
+> would there be any performance gain in doing so?
 
-  	for (i=0;i<PAGE_SIZE/sizeof (long);i += cache_line_size()/sizeof(long))
-	/* Actually the innards of this loop should be:
-		(void) from[i];
-	   however, the compiler will probably optimize that away. */ 
-     		t += src[i];
+reiserfs doesn't store that information in its directory items right now,
+but there are plenty of free bits to do so.  It wouldn't be hard to add the
+feature, and yes there should be a performance gain.
 
-	tt = t;
-#endif
-	while (src < end)
-		*dst++ = *src++;
+> 
+> I have code to add d_type for every other filesystem that can support it
+> without additional disk reads, but I couldn't figure out whether
+> reiserfs can do it or whether stat() following readdir() is cheap anyway.
 
-}
+stat is actually a little more expensive than ext2, since we have to search
+for the inode data in the tree.  It is a fast search, but...
 
-So, this is 15 lines of C, and it'd be interesting to benchmark this
-against the assembly.
+-chris
 
-I'm assuming that the "loop variable handling" is not going to
-influence the overall performance: that would run at 500 - 1000MHz,
-and around 1 clock cycle (1-2ns) per loop. Set this against the stalls
-against the memory unit whose output buffer is full, and memory writes
-that take on the order of 30 ns per 64bits.
 
-At least, that's what I expect, however, I haven't been optimizing
-cycles for quite a while....
 
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

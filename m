@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbUBXLV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 06:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbUBXLV5
+	id S262225AbUBXLU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 06:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbUBXLU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 06:21:57 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:29315 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262227AbUBXLVz (ORCPT
+	Tue, 24 Feb 2004 06:20:26 -0500
+Received: from linux-bt.org ([217.160.111.169]:5524 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S262225AbUBXLUZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 06:21:55 -0500
-Date: Tue, 24 Feb 2004 12:21:54 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Does Flushing the Queue after PG REALLY a Necessity?
-Message-ID: <20040224112154.GA19216@MAIL.13thfloor.at>
-Mail-Followup-To: Coywolf Qi Hunt <coywolf@greatcn.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-References: <c16rdh$gtk$1@terminus.zytor.com> <4039D599.7060001@greatcn.org> <20040223151815.GA403@zaniah> <403AB897.8070002@greatcn.org> <20040223205522.66d7fb4f.rddunlap@osdl.org> <403B169E.4000006@greatcn.org>
+	Tue, 24 Feb 2004 06:20:25 -0500
+Subject: Re: Please back out the bluetooth sysfs support
+From: Marcel Holtmann <marcel@holtmann.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040223232149.5dd3a132.davem@redhat.com>
+References: <20040223103613.GA5865@lst.de>
+	 <20040223101231.71be5da2.davem@redhat.com>
+	 <1077560544.2791.63.camel@pegasus> <20040223184525.GA12656@lst.de>
+	 <1077582336.2880.12.camel@pegasus>
+	 <20040224004151.GF31035@parcelfarce.linux.theplanet.co.uk>
+	 <20040223232149.5dd3a132.davem@redhat.com>
+Content-Type: text/plain
+Message-Id: <1077621601.2880.27.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403B169E.4000006@greatcn.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 24 Feb 2004 12:20:01 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 05:17:18PM +0800, Coywolf Qi Hunt wrote:
-> Btw, could you please do not show others email address when you reply? 
-> Change your mail client's configuration. I don't like my this email 
-> address be grabbed by spammers. thanks
+Hi Dave,
 
-hmm, ever heard of the evil From: header?
-
-best,
-Herbert
-
-> 	Coywolf
+> > > -		skb->dev = (void *) &bfusb->hdev;
+> > > +		skb->dev = (void *) bfusb->hdev;
+> > 
+> > Wait a bloody minute.  skb->dev is supposed to be net_device; what's going
+> > on here?
 > 
-> -- 
-> Coywolf Qi Hunt
-> Admin of http://GreatCN.org and http://LoveCN.org
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Oh yeah, this is busted.
+> I'm surprised this doesn't explode.
+
+we used this from the beginning and I don't see where this can explode,
+because the SKB's are only used inside the Bluetooth subsystem.
+
+Regards
+
+Marcel
+
+

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263780AbUCPJgF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 04:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUCPJgE
+	id S263749AbUCPJdY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 04:33:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263748AbUCPJdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 04:36:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19101 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263780AbUCPJgA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 04:36:00 -0500
-Date: Tue, 16 Mar 2004 08:29:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeremy Higdon <jeremy@sgi.com>
-Cc: linux-kernel@vger.kernel.org, jbarnes@sgi.com
-Subject: Re: [PATCH] per-backing dev unplugging #2
-Message-ID: <20040316072900.GC5320@suse.de>
-References: <20040316052256.GA647970@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040316052256.GA647970@sgi.com>
+	Tue, 16 Mar 2004 04:33:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10723 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263749AbUCPJb2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 04:31:28 -0500
+Message-ID: <4056B0DB.9020008@pobox.com>
+Date: Tue, 16 Mar 2004 02:46:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, Greg KH <greg@kroah.com>,
+       bos@serpentine.com, Andrew Morton <akpm@osdl.org>,
+       linux-raid <linux-raid@vger.kernel.org>
+Subject: [PATCH] klibc update
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 15 2004, Jeremy Higdon wrote:
-> | Hi,
-> | 
-> | Final version, unless something stupid pops up. Changes:
-> | 
-> | - Adapt to 2.6.4-mm1
-> | - Cleaned up the dm bits, much nicer with the lockless unplugging
-> |   (thanks Joe)
-> | - md and loop unplugging, stacked devices should unplug their targets.
-> |   Otherwise they'll end up waiting for the unplug timer, which sucks.
-> | - XFS fixed up, I hope. XFS folks still encouraged to look at this,
-> |   looks better this time around though (and works, I tested).
-> | - blk_run_* inlined in blkdev.h
-> | 
-> | Against 2.6.4-mm1 (note you need other attached patch to boot it).
-> 
-> I got a chance to try this.
-> 
-> It makes a huge improvement.
-> 
-> Prior to the last per-cpu patch, I was getting about 75000 to 80000
-> IOPS at 100% cpu usage.
-> 
-> With the per-cpu patch, that went up to 110000 IOPS at 100% CPU.
-> 
-> With this patch, I'm seeing 200000 IOPS at about 65% CPU usage.
-> 
-> So it makes a tremendous improvement in I/O scalability, dramatically
-> improving performance in small size I/O, high I/O count workloads.
-> 
-> My tests were on an 8 CPU x 1300 MHz Altix with 64 disks.
+Too big to post,
 
-That's awesome results, thanks for sharing! And I'm happy to see it's so
-worth it, even with the various minor issues we've had with the patch
-(hope they are all resolved now).
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.5-rc1-klibc1.patch.bz2
+	or
+bk://kernel.bkbits.net/jgarzik/klibc-2.5
 
--- 
-Jens Axboe
+IIRC, this is:  my update of Bryan O'Sullivan's update of Greg KH's 
+update of my merge of hpa's and viro's hacking :)
+
+WRT overall klibc merge:  when it can do md RAID autorun, it's 
+mergeable.  And didn't somebody write a tiny mdctl program...
+
+	Jeff
+
+
 

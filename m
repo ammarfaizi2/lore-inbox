@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270623AbTGZWlt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 18:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270626AbTGZWlt
+	id S270592AbTGZWnX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 18:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270624AbTGZWnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 18:41:49 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:50576 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S270623AbTGZWlo (ORCPT
+	Sat, 26 Jul 2003 18:43:23 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:145 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S270592AbTGZWnG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 18:41:44 -0400
-Date: Sun, 27 Jul 2003 00:56:46 +0200
+	Sat, 26 Jul 2003 18:43:06 -0400
+Date: Sun, 27 Jul 2003 00:58:10 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: kernel list <linux-kernel@vger.kernel.org>,
        Patrick Mochel <mochel@osdl.org>
-Subject: [PM] save/restore screen support for ACPI S3 sleep
-Message-ID: <20030726225646.GA519@elf.ucw.cz>
+Subject: [PM] suspend.c cleanups
+Message-ID: <20030726225809.GA528@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,129 +25,95 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This way console should be correctly restored after S3...
+These are only cleanups.
+							Pavel
 
-[Prototype should be added to include/linux/suspend.h].
-
-kernel/suspend.c part only moves code out of "SWSUSP_ONLY"
-section.
-
-
-
-Index: linux/drivers/acpi/sleep/main.c
-===================================================================
---- linux.orig/drivers/acpi/sleep/main.c	2003-07-22 13:39:42.000000000 +0200
-+++ linux/drivers/acpi/sleep/main.c	2003-07-22 12:53:27.000000000 +0200
-@@ -226,6 +234,7 @@
- 	if (state == ACPI_STATE_S4 && !acpi_gbl_FACS->S4bios_f)
- 		return AE_ERROR;
- 
-+	prepare_suspend_console();
- 	/*
- 	 * TBD: S1 can be done without device_suspend.  Make a CONFIG_XX
- 	 * to handle however when S1 failed without device_suspend.
-@@ -270,6 +279,7 @@
- 	/* reset firmware waking vector */
- 	acpi_set_firmware_waking_vector((acpi_physical_address) 0);
- 	thaw_processes();
-+	restore_console();
- 
- 	return status;
- }
 Index: linux/kernel/suspend.c
 ===================================================================
 --- linux.orig/kernel/suspend.c	2003-07-22 13:39:43.000000000 +0200
 +++ linux/kernel/suspend.c	2003-07-22 13:46:26.000000000 +0200
-@@ -5,7 +5,7 @@
-  * machine suspend feature using pretty near only high-level routines
-  *
-  * Copyright (C) 1998-2001 Gabor Kuti <seasons@fornax.hu>
-- * Copyright (C) 1998,2001,2002 Pavel Machek <pavel@suse.cz>
-+ * Copyright (C) 1998,2001-2003 Pavel Machek <pavel@suse.cz>
-  *
-  * I'd like to thank the following people for their work:
-  * 
-@@ 1,-1 1,-1 @@
+@@ -139,40 +139,45 @@
  
-+int prepare_suspend_console(void)
-+{
-+	orig_loglevel = console_loglevel;
-+	console_loglevel = new_loglevel;
-+
-+#ifdef CONFIG_VT
-+	orig_fgconsole = fg_console;
-+#ifdef SUSPEND_CONSOLE
-+	if(vc_allocate(SUSPEND_CONSOLE))
-+	  /* we can't have a free VC for now. Too bad,
-+	   * we don't want to mess the screen for now. */
-+		return 1;
-+
-+	set_console (SUSPEND_CONSOLE);
-+	if (vt_waitactive(SUSPEND_CONSOLE)) {
-+		printk(KERN_ERR "Bummer. Can't switch VCs.\n");
-+		return 1;
-+	}
-+	orig_kmsg = kmsg_redirect;
-+	kmsg_redirect = SUSPEND_CONSOLE;
-+#endif
-+#endif
-+	return 0;
-+}
-+
-+void restore_console(void)
-+{
-+	console_loglevel = orig_loglevel;
-+#ifdef SUSPEND_CONSOLE
-+	set_console (orig_fgconsole);
-+#endif
-+	return;
-+}
-+
-+#ifdef CONFIG_SOFTWARE_SUSPEND
+ static const char name_suspend[] = "Suspend Machine: ";
+ static const char name_resume[] = "Resume Machine: ";
+ #endif
+ 
  /*
-  * Saving part...
+  * Debug
   */
+-#define	DEBUG_DEFAULT
+-#undef	DEBUG_PROCESS
++#undef	DEBUG_DEFAULT
+ #undef	DEBUG_SLOW
+-#define TEST_SWSUSP 0		/* Set to 1 to reboot instead of halt machine after suspension */
++#define TEST_SWSUSP 1		/* Set to 1 to reboot instead of halt machine after suspension */
+ 
+ #ifdef DEBUG_DEFAULT
+-# define PRINTK(f, a...)       printk(f, ## a)
++# define PRINTK(f, a...)	printk(f, ## a)
+ #else
+-# define PRINTK(f, a...)
++# define PRINTK(f, a...)	do {} while (0)
+ #endif
+ 
+ #ifdef DEBUG_SLOW
+ #define MDELAY(a) mdelay(a)
+ #else
+-#define MDELAY(a)
++#define MDELAY(a) do {} while (0)
+ #endif
 
-@@ -569,39 +603,6 @@
- 	return pagedir;
+@@ -283,17 +329,6 @@
+ 	return 0;
  }
  
--static int prepare_suspend_console(void)
+-/*
+- * This is our sync function. With this solution we probably won't sleep
+- * but that should not be a problem since tasks are stopped..
+- */
+-
+-static inline void do_suspend_sync(void)
 -{
--	orig_loglevel = console_loglevel;
--	console_loglevel = new_loglevel;
--
--#ifdef CONFIG_VT
--	orig_fgconsole = fg_console;
--#ifdef SUSPEND_CONSOLE
--	if(vc_allocate(SUSPEND_CONSOLE))
--	  /* we can't have a free VC for now. Too bad,
--	   * we don't want to mess the screen for now. */
--		return 1;
--
--	set_console (SUSPEND_CONSOLE);
--	if(vt_waitactive(SUSPEND_CONSOLE)) {
--		PRINTK("Bummer. Can't switch VCs.");
--		return 1;
--	}
--	orig_kmsg = kmsg_redirect;
--	kmsg_redirect = SUSPEND_CONSOLE;
--#endif
--#endif
--	return 0;
+-	blk_run_queues();
+-#warning This might be broken. We need to somehow wait for data to reach the disk
 -}
 -
--static void restore_console(void)
--{
--	console_loglevel = orig_loglevel;
--#ifdef SUSPEND_CONSOLE
--	set_console (orig_fgconsole);
--#endif
--	return;
--}
+ /* We memorize in swapfile_used what swap devices are used for suspension */
+ #define SWAPFILE_UNUSED    0
+ #define SWAPFILE_SUSPEND   1	/* This is the suspending device */
+@@ -861,20 +861,13 @@
+ 	if (prepare_suspend_console())
+ 		printk( "%sCan't allocate a console... proceeding\n", name_suspend);
+ 	if (!prepare_suspend_processes()) {
+-
+ 		/* At this point, all user processes and "dangerous"
+                    kernel threads are stopped. Free some memory, as we
+                    need half of memory free. */
+-
+ 		free_some_memory();
+ 		
+-		/* No need to invalidate any vfsmnt list -- they will be valid after resume, anyway.
+-		 *
+-		 * We sync here -- so you have consistent filesystem state when things go wrong.
+-		 * -- so that noone writes to disk after we do atomic copy of data.
+-		 */
+-		PRINTK("Syncing disks before copy\n");
+-		do_suspend_sync();
++		/* No need to invalidate any vfsmnt list -- they will be valid after resume, anyway. */
++		blk_run_queues();
  
- static int prepare_suspend_processes(void)
- {
+ 		/* Save state of all device drivers, and stop them. */		   
+ 		if(drivers_suspend()==0)
+@@ -906,7 +898,7 @@
+ 		return;
+ 
+ 	software_suspend_enabled = 0;
+-	BUG_ON(in_interrupt());
++	BUG_ON(in_atomic());
+ 	do_software_suspend();
+ }
+ 
+
 
 -- 
 When do you have a heart between your knees?

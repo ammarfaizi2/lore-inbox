@@ -1,91 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263485AbTLXJOR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 04:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbTLXJOR
+	id S263491AbTLXJZC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 04:25:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTLXJZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 04:14:17 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:55557 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id S263485AbTLXJOP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 04:14:15 -0500
-Date: Wed, 24 Dec 2003 10:13:47 +0100 (CET)
-From: venom@sns.it
-To: pZa1x <pZa1x@rogers.com>
-cc: Karol Kozimor <sziwan@hell.org.pl>, <linux-kernel@vger.kernel.org>
-Subject: Re: Laptops and 2.6.0 - momentum? (was Re: 2.6.0 release + ALSA +
- suspend = not work)
-In-Reply-To: <3FE8388F.1020302@rogers.com>
-Message-ID: <Pine.LNX.4.43.0312241011410.5141-100000@cibs9.sns.it>
+	Wed, 24 Dec 2003 04:25:02 -0500
+Received: from unlabelled-198-29-58-81.versatel.net ([81.58.29.198]:65507 "EHLO
+	server.vanthiel.nl") by vger.kernel.org with ESMTP id S263491AbTLXJY6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 04:24:58 -0500
+Message-Id: <1072258230.909@vanthiel.nl>
+Date: Wed, 24 Dec 2003 10:30:30 0100
+To: linux-kernel@vger.kernel.org
+From: "Recreatie Media" <noreply@recreatiemedia.nl>
+Subject: Gratis kamperen en meer...
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="US-ASCII"; format=flowed
+X-OriginalArrivalTime: 24 Dec 2003 09:30:33.0581 (UTC) FILETIME=[9471E9D0:01C3CA00]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-same problem with alsa on CS4236B ISA card, and sound is horrible.
-no problems with OSS.
+Win een GRATIS WEEK KAMPEREN in Oostenrijk!
 
-alsa work fine on Maestro pci and old good SB16 ISA.
+Meldt u vóór 9 januari as. aan voor onze nieuwsbrieven op één van 
+onderstaande websites:
 
-So, probably depends on the specific driver.
+www.campings.nl
+www.vakantiebungalows.nl
+www.vakantiehuisjes.nl
 
-Luigi
+en maak kans op een gratis kampeerweek in Oostenrijk.
+Meer info vindt u op de website: www.campings.nl.
+De winnaar wordt op 10 januari as. aldaar bekendgemaakt.
 
-On Tue, 23 Dec 2003, pZa1x wrote:
+www.campings.nl: De meest recreatieve site van Nederland!
+Ruim 1000 campings in Europa. (Online boeken)
 
-> Date: Tue, 23 Dec 2003 12:43:59 +0000
-> From: pZa1x <pZa1x@rogers.com>
-> To: Karol Kozimor <sziwan@hell.org.pl>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Laptops and 2.6.0 - momentum? (was Re: 2.6.0 release + ALSA +
->     suspend = not work)
->
-> Well, I'm volunteering time to do testing on my notebook for 2.6.0. I
-> wonder if there is anyway to generate some momentum for it? If the aim
-> is enterprise, doesn't enterprise use thousands of notebooks? I got mine
-> refurbished from some large business. There are many organizations that
-> collect thousands of old notebooks used by businesses, refurbish them
-> and re-sell them. It's a great way of acquiring a durable, light
-> business-class notebook at bargain prices.
->
-> This is a great target for Linux especially as it runs fine (even with
-> the infamous Gnome) on my 700Mhz T20 Thinkpad. ie. a multi-gigahertz
-> system seems a complete waste of money and a risk re weight and build
-> quality.
->
-> I couldn't code a hello world to save my life but I can test patches and
-> collect data. Currently, I am running 2.4.22 on my notebook because on
-> 2.6.0:
->
-> (a) suspend kills ALSA and ALSA mut be restarted
-> (b) suspend fails to function if yenta_socket (PCMCIA services) is running
->
->
-> Karol Kozimor wrote:
-> > Thus wrote pZa1x:
-> >
-> >>ALSA stops producing sound after any time I suspend my Thinkpad T20
-> >>notebook. I am using 2.6.0 release and the snd-cs46xx driver.
-> >>
-> >>I have to log out of Gnome and remove the sound card module and re
-> >>modprobe it then restart Gnome to get sound back.
-> >>
-> >>No problems with 2.4.20 with OSS drivers.
-> >
-> >
-> > I have a similar problem here (ICH3M, CS4299, snd-intel8x0). In my case,
-> > using OSS emulation in userspace and ALSA modules in kernel works fine, so
-> > it must be a locking problem of some kind, anyway probably something
-> > trivial to fix.
-> > A similar problem occurs under 2.4, FYI.
-> > Best regards,
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+www.vakantiebungalows.nl: De grootste online aanbieder van Nederland!
+Keuze uit ruim 60.000 vakantiebungalows in heel Europa. (Online boeken)
+
+www.vakantiehuisjes.nl: De leukste vakantiesite van Nederland!
+Zoek & Boek hier uw vakantiehuisje. (Online boeken)
+
+Wij wensen u alvast fijne feestdagen en een gezond 2004!
+
+Team Recreatie Media
+
+
 

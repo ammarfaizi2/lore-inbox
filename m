@@ -1,31 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292908AbSB0Vsb>; Wed, 27 Feb 2002 16:48:31 -0500
+	id <S292924AbSB0WJN>; Wed, 27 Feb 2002 17:09:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292993AbSB0VsQ>; Wed, 27 Feb 2002 16:48:16 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46596 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S292960AbSB0Vma>; Wed, 27 Feb 2002 16:42:30 -0500
-Date: Wed, 27 Feb 2002 17:33:48 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Michael Cohen <me@ohdarn.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Submissions for 2.4.19-pre [RivaFB Blanking Fix (Author Unknown)]
-In-Reply-To: <20020225210011.490d7131.me@ohdarn.net>
-Message-ID: <Pine.LNX.4.21.0202271733300.1460-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292991AbSB0WIs>; Wed, 27 Feb 2002 17:08:48 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:60876 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S292989AbSB0WIb>;
+	Wed, 27 Feb 2002 17:08:31 -0500
+Date: Wed, 27 Feb 2002 17:09:13 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+To: Joshua MacDonald <jmacd@namesys.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+Message-ID: <20020227170913.A2021@elinux01.watson.ibm.com>
+In-Reply-To: <20020227163834.GF322@reload.nmd.msu.ru> <20020227115842.C1308@elinux01.watson.ibm.com> <20020227173307.GH322@reload.nmd.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020227173307.GH322@reload.nmd.msu.ru>; from jmacd@namesys.com on Wed, Feb 27, 2002 at 08:33:07PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+To followup on this. I have posted the latest version of this under
+http://prdownloads.sourceforge.net/lse/ulocks-2.4.17.tar.bz2
 
-Please send that to the RivaFB maintainer.
+- I followed the suggestion below to minimize ulock_t datastructure
+  to do so go to ./make.setup and comment out the -DLOCK_STATISTICS flag
+  this will bring the ulockt_t down to 2 words, otherwise 28 bytes.
+- The ulockflex program will irrespectively allocate all locks on cacheline
+  boundaries regardless of size.
+- I fixed a problem in ulockflex that was introduced in the last version.
+- I have now number of queues instead of an explicite lock type. Hence
+  the kernel only knows about number of queues to maintain.
 
-On Mon, 25 Feb 2002, Michael Cohen wrote:
+-- Hubertus Franke
 
+On Wed, Feb 27, 2002 at 08:33:07PM +0300, Joshua MacDonald wrote:
+> On Wed, Feb 27, 2002 at 11:58:42AM -0500, Hubertus Franke wrote:
+> > On Wed, Feb 27, 2002 at 07:38:34PM +0300, Joshua MacDonald wrote:
+> > > Hi Hubertus,
+> > > 
+> > > I have a question for you about these semaphores.  I took a glance at
+> > > <linux/ulocks.h> to try and find out how large an object the
+> > > user-space lock is.  I see that you have it written like this:
+> > > 
+> > > typedef struct ulock_t {
+> > > 	unsigned long  status;
+> > > 	unsigned long  type;
+> > > 	unsigned long  counters[ULOCK_STAT_COUNTERS];
+> > > 	char           pad[SMP_CACHE_BYTES - 
+> > > 			   (ULOCK_STAT_COUNTERS+2)*sizeof(unsigned long)];
+> > > } ulock_t ____cacheline_aligned;
+> > > 
+> > > I would like to suggest that you offer a version of the ulock_t that
+> > > is as small as possible so that the user can make use of the entire
+> > > cacheline rather than waste it on padding.
+> > > 
+> > > The reason I'm interested is that I have written a concurrent,
+> > > cache-optimized skip list and I did all of my testing using the
+> > > standard Linux spinlocks.  Those are 4 bytes per lock.  I use one lock
+> > > per cacheline-sized node of the data structure.  If you can get your
+> > > locks down to one or two words that would be really interesting, since
+> > > spinlocks don't work terribly well in user-space.  I would really like
+> > > to be able to use this data structure outside of the kernel, and your
+> > > locks might just solve my problem, but only if they are small enough.
+> > > 
+> > > Do you see my point?  You can find my latest skiplist code at:
+> > 
+> > I have seen the light. Seriously, I initially had it as you said, but
+> > Linus was strongly recommending cacheline size objects to 
+> > avoid false sharing other than on the lock word
+> > However, there should be no problem whatsoever to bring that back
+> > to 2 words.
 > 
-> This is the fourth (there were two seconds with different contents, oops) of several mails containing patches to be included in 2.4.19.  Some are worthy of dicussion prior to inclusion and have been marked as such.  The majority of these patches were found on lkml; the remaining ones have URLs listed.
+> Sounds good.  There is nothing to prevent the declaration of a ulock_t
+> variable from using __cacheline_aligned, so I think Linus is off on
+> this one.
 > 
-> The origin of this patch is unknown, but it is believed to be from lkml.
-
+> I'd like to test this out sometime.  The SLPC code uses a lots of CPP
+> trickery to configure itself with various different read/write or
+> exclusive locking packages, so its fairly easy to port to a new
+> locking primitive.
+> 
+> -josh
 

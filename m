@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130198AbRCESgW>; Mon, 5 Mar 2001 13:36:22 -0500
+	id <S130304AbRCESoC>; Mon, 5 Mar 2001 13:44:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130200AbRCESgM>; Mon, 5 Mar 2001 13:36:12 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:2176 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S130198AbRCESgE>; Mon, 5 Mar 2001 13:36:04 -0500
-Date: Mon, 5 Mar 2001 13:35:32 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Loop stuck in -D state
-In-Reply-To: <Pine.LNX.4.33.0103051901580.558-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.3.95.1010305133108.884B-100000@chaos.analogic.com>
+	id <S130306AbRCESnw>; Mon, 5 Mar 2001 13:43:52 -0500
+Received: from staffnet.com ([207.226.80.14]:47888 "EHLO staffnet.com")
+	by vger.kernel.org with ESMTP id <S130304AbRCESnf>;
+	Mon, 5 Mar 2001 13:43:35 -0500
+Message-ID: <3AA3DE27.E34DD4B3@staffnet.com>
+Date: Mon, 05 Mar 2001 13:42:47 -0500
+From: Wade Hampton <whampton@staffnet.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jim Breton <jamesb-kernel@alongtheway.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: eject weirdness on NEC disc changer, kernel 2.4.2
+In-Reply-To: <20010304205046.15690.qmail@alongtheway.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Mar 2001, Mike Galbraith wrote:
+Jim Breton wrote:
+> 
+> Hi all, I've gotten a response from the "eject" author and he seems to
+> agree that this is something in the kernel causing this issue.
+Have you had it where the drive would not eject the disc?  I seem 
+to be having this on several ATAPI drives (CD-R, CD-ROM, DVD), 
+all with ide-scsi running....
 
-> On Mon, 5 Mar 2001, Mike Galbraith wrote:
-> 
-> > On Mon, 5 Mar 2001, Richard B. Johnson wrote:
-> >
-> > > I tried Linux 2.4.2
-> > > Now I'm in a load of trouble. I can't make a boot-disk to get back
-> > > to 2.4.1 because I use initrd for my hard disk modules and the loop
-> > > device is broken.
-> >
-> > What's wrong with 2.4.2 that makes you want to go back?  Anyway, if
-> > you grab Jens' patch, all will be peachy (at least for that kind of
-> > basic usage).
-> 
-> P.S.
-> Are you saying that the initrd is broken again as well?  (having
-> trouble understanding the problem.. don't see why you need the
-> loop device or rather how its being busted is connected to your
-> [interpolation] difficulty in creating a new initrd)
-> 
-> 	-EAGAIN ;-)
-> 
-
-The initial RAM disk image is created using the loop device. You
-can create a RAM disk image for initrd by using the ram device.
-However, that doesn't work once the system has been booted off
-it (try it, be ready for a complete hang).
+Note, this has forced me to reboot both 2.4.0, 2.4.1, and 2.4.2
+(multiple boxes).
 
 Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+-- 
+W. Wade, Hampton  <whampton@staffnet.com>  
+If Microsoft Built Cars:  Every time they repainted the 
+lines on the road, you'd have to buy a new car.
+Occasionally your car would just die for no reason, and 
+you'd have to restart it, but you'd just accept this.

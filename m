@@ -1,65 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbULORMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbULORVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbULORMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 12:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbULORMY
+	id S262401AbULORVo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 12:21:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbULORVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 12:12:24 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:25822 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S262398AbULORMS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 12:12:18 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: realtime preempt 2.6.10-rc3-mm1-V0.33-0
-Date: Wed, 15 Dec 2004 12:12:17 -0500
-User-Agent: KMail/1.7
-Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-References: <200412141123.02293.gene.heskett@verizon.net> <41C032E5.3060404@stud.feec.vutbr.cz>
-In-Reply-To: <41C032E5.3060404@stud.feec.vutbr.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Dec 2004 12:21:43 -0500
+Received: from colo.lackof.org ([198.49.126.79]:8393 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262401AbULORVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 12:21:40 -0500
+Date: Wed, 15 Dec 2004 10:21:28 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Grant Grundler <grundler@parisc-linux.org>, frahm@irsamc.ups-tlse.fr,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.org
+Subject: Re: [Fwd: 2.6.10-rc3: tulip-driver: tulip_stop_rxtx() failed]
+Message-ID: <20041215172128.GB27818@colo.lackof.org>
+References: <20041212214803.GB22514@colo.lackof.org> <200412130313.iBD3DAF4004365@albireo.free.fr> <20041213035936.GB26501@colo.lackof.org> <20041215005722.GE4357@tuxdriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412151212.17243.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.42.94] at Wed, 15 Dec 2004 11:12:17 -0600
+In-Reply-To: <20041215005722.GE4357@tuxdriver.com>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 December 2004 07:49, Michal Schmidt wrote:
->Gene Heskett wrote:
->> Q: Where have the 'nv' drivers gone in the make xconfig display?
->> I just bought a Chaintech Gforce 5200 and cannot find the driver
->> in the menu so I can make the module.
->
->It was never in the kernel. The 'nv' driver is a part of
-> XFree86/X.org.
->
->Michal
+On Tue, Dec 14, 2004 at 07:57:22PM -0500, John W. Linville wrote:
+> On Sun, Dec 12, 2004 at 08:59:36PM -0700, Grant Grundler wrote:
+> 
+> > But still, I'm hopeing for two code changes as a result:
+> > 1) include CSR5 and CSR6 in the printk output
+> > 2) the date of the tulip driver revision needs to be updated (or dropped).
+> 
+> Patches?
 
-Yes, I was rather pleasantly surprised to see my BDI install boot to
-X just fine with nothing more than plugging in the card and setting
-the bios to AGP first.  But I haven't tried the FC3RC3 install to see
-if it boots yet, its secondary to what this machine is intended to do.
+Sorry...appended below.
 
-Unforch, the mouse, which I also changed from a ps2 GE optical to a
-USB optical logitek, is not being found by the xserver so it bails
-out.
+> If you don't want to post them publicly yourself, send them to me
+> and I'll be happy to test/package/post them...
 
-Thats a debian/morphix based release, does anyone know the inittab
-setting for a non x boot with full facilities?, I'm confused, too many
-years of redhat experience :(
+Thanks!
+But I don't mind posting them...I just spaced out and send the first bit
+to jgarzik directly instead of "reply all".
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Commit Log:
+	add CSR5 and CSR6 output to debug tulip_stop_rxtx failures.
+	Update version release date
 
+Signed-off-by:
+	Grant Grundler <grundler@parisc-linux.org>
+
+thanks,
+grant
+
+Index: drivers/net/tulip/tulip.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/net/tulip/tulip.h,v
+retrieving revision 1.11
+diff -u -p -r1.11 tulip.h
+--- drivers/net/tulip/tulip.h	4 Dec 2004 07:02:42 -0000	1.11
++++ drivers/net/tulip/tulip.h	12 Dec 2004 21:51:43 -0000
+@@ -474,8 +474,11 @@ static inline void tulip_stop_rxtx(struc
+ 			udelay(10);
+ 
+ 		if (!i)
+-			printk(KERN_DEBUG "%s: tulip_stop_rxtx() failed\n",
+-					tp->pdev->slot_name);
++			printk(KERN_DEBUG "%s: tulip_stop_rxtx() failed"
++					" (CSR5 0x%x CSR6 0x%x)\n",
++					tp->pdev->slot_name,
++					ioread32(ioaddr + CSR5),
++					ioread32(ioaddr + CSR6));
+ 	}
+ }
+ 
+
+Index: drivers/net/tulip/tulip_core.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/net/tulip/tulip_core.c,v
+retrieving revision 1.24
+diff -u -p -r1.24 tulip_core.c
+--- drivers/net/tulip/tulip_core.c	4 Dec 2004 07:02:42 -0000	1.24
++++ drivers/net/tulip/tulip_core.c	15 Dec 2004 17:18:39 -0000
+@@ -22,7 +22,7 @@
+ #else
+ #define DRV_VERSION	"1.1.13"
+ #endif
+-#define DRV_RELDATE	"May 11, 2002"
++#define DRV_RELDATE	"December 15, 2004"
+ 
+ 
+ #include <linux/module.h>

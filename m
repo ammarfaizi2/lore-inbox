@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290797AbSARUNh>; Fri, 18 Jan 2002 15:13:37 -0500
+	id <S290801AbSARURr>; Fri, 18 Jan 2002 15:17:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290798AbSARUN1>; Fri, 18 Jan 2002 15:13:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1546 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290797AbSARUNP>; Fri, 18 Jan 2002 15:13:15 -0500
-Subject: Re: OOPS in APM 2.4.18-pre4 with i830MP agpgart
-To: moensd@xs4all.be (Didier Moens)
-Date: Fri, 18 Jan 2002 20:25:19 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, Nicolas.Aspert@epfl.ch (Nicolas Aspert)
-In-Reply-To: <3C487E68.1000404@xs4all.be> from "Didier Moens" at Jan 18, 2002 08:58:32 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16RfZf-0007nk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S290800AbSARURh>; Fri, 18 Jan 2002 15:17:37 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:6786 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S290799AbSARURX> convert rfc822-to-8bit; Fri, 18 Jan 2002 15:17:23 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.51 (995) - Registered Version
+Date: Fri, 18 Jan 2002 12:17:14 -0800
+In-Reply-To: <E16Rec7-0007fg-00@the-village.bc.nu>
+Subject: Re: vm philosophising
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020118201715.AAA18233@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately, loading agpgart yields an oops when APM ("apm -s") is 
-> invoked, both in terminal and in X. APM functions perfectly when agpgart 
-> is absent.
 
-Looks like the author forgot to set the suspend/resume methods in the
-structure to the generic ones
+
+On Fri, 18 Jan 2002 19:23:47 +0000 (GMT), Alan Cox wrote:
+
+>Overcommit control is just a book keeping
+>exercise on address space commits.
+
+	A bookkeeping technique developed by Arthur Anderson.
+
+	DS
+
+

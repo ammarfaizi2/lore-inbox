@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263524AbTDIPgh (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 11:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTDIPgh (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 11:36:37 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:50201 "EHLO
-	dyn94194207.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S263524AbTDIPgf (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 11:36:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Steven Cole <elenstev@mesatop.com>, Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: 2.5.67 - reiserfs go boom.
-Date: Wed, 9 Apr 2003 10:48:07 -0500
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20030409011802.GD25834@suse.de> <1049853413.31551.27.camel@spc>
-In-Reply-To: <1049853413.31551.27.camel@spc>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304091048.07659.shaggy@austin.ibm.com>
+	id S263527AbTDIPhZ (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 11:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTDIPhY (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 11:37:24 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:9143 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S263527AbTDIPhU (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 11:37:20 -0400
+Date: Wed, 9 Apr 2003 08:48:36 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: O_DIRECT alignment requirements ?
+Message-ID: <20030409154836.GA31739@ca-server1.us.oracle.com>
+References: <20030409141608.A12136@verdi.et.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030409141608.A12136@verdi.et.tudelft.nl>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 April 2003 20:56, Steven Cole wrote:
-> On Tue, 2003-04-08 at 19:18, Dave Jones wrote:
-> > Whilst running fsx.. (Though fsx didn't trigger any error,
-> > and is still running)..
->
-> Gee, that looks remarkably similar to what I was getting
-> with ext3.  This happened on every boot with 2.5.67 with
-> the base distro being Mandrake 9.1.  Then, I replaced LM 9.1
-> with Redhat 9 and I never saw this again with 2.5.67.
+On Wed, Apr 09, 2003 at 02:16:08PM +0200, Rob van Nieuwkerk wrote:
+> I plan to use O_DIRECT in my application (on a partition, no fs).
+> It is hard to find info on the exact requirements on the mandatory
+> alignments of buffer, offset, transfer size: it's easy to find many
+> contradicting documents.  And checking the kernel source itself isn't
+> trivial.
 
-FWIW, I've seen the same thing on JFS.  :^)
+	In 2.4, your buffer, offset, and transfer size must be soft
+blocksize aligned.  That's the output of BLKBSZGET against the block
+device.  For unmounted partitions that is 512b, for most people's ext3
+filesystems that is 4K.  It is, FYI, the number set by set_blocksize().
+	In 2.5, the alignment restrictions have been relaxed.  Your
+offset, buffer, and transfer size must all be aligned on the hardware
+sector size.  That is the output of BLKSSZGET against the block device,
+and is also what get_hardsect_size() returns in the kernel.  For almost
+all disks this number is 512b, so you can do O_DIRECT on 512b alignment
+for a raw disk or for an ext3 filesystem.  About the only thing that
+may not have a 512b hardware sector size is a CD-ROM.
+
+Joel
+
 -- 
-David Kleikamp
-IBM Linux Technology Center
 
+"Hey mister if you're gonna walk on water,
+ Could you drop a line my way?"
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

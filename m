@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262689AbUCJT7s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 14:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbUCJT7s
+	id S262759AbUCJT77 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 14:59:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbUCJT7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 14:59:48 -0500
-Received: from emn-agsl-4744.mxs.adsl.euronet.nl ([212.129.199.68]:51217 "EHLO
-	kapteyn.telox.net") by vger.kernel.org with ESMTP id S262689AbUCJT7n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 14:59:43 -0500
-Date: Wed, 10 Mar 2004 20:49:02 +0100
-From: Wouter Lueks <wouter@telox.net>
-To: davidm@hpl.hp.com
+	Wed, 10 Mar 2004 14:59:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42373 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262759AbUCJT7o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 14:59:44 -0500
+Date: Wed, 10 Mar 2004 12:01:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
-Message-ID: <20040310194902.GB8375@telox.net>
-References: <20040308061802.GA25960@cup.hp.com> <16460.49761.482020.911821@napali.hpl.hp.com> <404CEA36.2000903@pacbell.net> <16461.35657.188807.501072@napali.hpl.hp.com> <404E00B5.5060603@pacbell.net> <16462.1463.686711.622754@napali.hpl.hp.com> <404E2B98.6080901@pacbell.net> <16462.48341.393442.583311@napali.hpl.hp.com> <20040310075211.GA8375@telox.net> <16463.18183.341946.76971@napali.hpl.hp.com>
+Subject: Re: /dev/root: which approach ? [PATCH]
+Message-Id: <20040310120145.248ae62d.akpm@osdl.org>
+In-Reply-To: <20040310162003.GA25688@cistron.nl>
+References: <20040310162003.GA25688@cistron.nl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16463.18183.341946.76971@napali.hpl.hp.com>
-X-Operating-System: Linux kapteyn 2.6.3 #1 Sat Mar 6 10:06:04 CET 2004 i686 GNU/Linux
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 08:49:11AM -0800, David Mosberger wrote:
-> >>>>> On Wed, 10 Mar 2004 08:52:12 +0100, Wouter Lueks <wouter@telox.net> said:
->   http://marc.theaimsgroup.com/?l=linux-usb-devel&m=107889747301413
+Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+>
+> Currently if you boot from a blockdevice with a dynamically
+> allocated major number (such as LVM or partitionable raid),
+> there is no way to check the root filesystem. The root
+> fs is still read-only, so you cannot create a device node
+> anywhere to point fsck at.
 > 
->   http://marc.theaimsgroup.com/?l=linux-usb-devel&m=107889855108618
-> 
-> I'd be interested in hearing if that fixes the problems for your machine.
+> This was discussed on the linux-raid mailinglist, and I proposed
+> (as proof of concept) a simple check in bdget() to see if the
+> device is being opened is the /dev/root node and if so redirect
+> it to the current root device. This is a 8-line patch, the only
+> disadvantage I can think of is that for an open file, inode->i_rdev
+> is then different from blockdevice->bd_dev.
 
-I applied both patches and it workes fine now, the keyboard gets
-recognised withouth any further problems.
+The /dev/root alias resolution looks nice to me, which probably means that
+it has a fatal flaw.
 
-Wouter Lueks
+Is it not possible to create a device node on ramfs or ramdisk and point
+fsck at that?
+

@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbULNNhc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbULNNjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbULNNhc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 08:37:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbULNNhc
+	id S261510AbULNNjh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 08:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbULNNjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 08:37:32 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:14979 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261507AbULNNh1 (ORCPT
+	Tue, 14 Dec 2004 08:39:35 -0500
+Received: from main.gmane.org ([80.91.229.2]:22439 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261511AbULNNjW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 08:37:27 -0500
-Date: Tue, 14 Dec 2004 14:37:25 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Time sliced cfq with basic io priorities
-Message-ID: <20041214133725.GG3157@suse.de>
-References: <20041213125046.GG3033@suse.de> <20041213130926.GH3033@suse.de> <20041213175721.GA2721@suse.de>
+	Tue, 14 Dec 2004 08:39:22 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9 (with changes)
+Date: Tue, 14 Dec 2004 08:39:16 -0500
+Message-ID: <87mzwhov7f.fsf@coraid.com>
+References: <87k6rmuqu4.fsf@coraid.com> <20041213201941.GC3399@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041213175721.GA2721@suse.de>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:x7hnV+5Pyyl9zaILCbIxNFnr8g4=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jens Axboe <axboe@suse.de> writes:
 
-Version -12 has been uploaded. Changes:
+> On Mon, Dec 13 2004, Ed L Cashin wrote:
+>>   * use mempool allocation in make_request_fn
+>
+> It's not good enough, if cannot use a higher allocation priority
+> that GFP_NOIO here - basically guarantee that your allocation will
+> not block on further io. Currently you have the very same deadlock
+> as before, the mempool does not help you since you call into the
+> allocator and deadlock before ever blocking on the mempool.
 
-- Small optimization to choose next request logic
+Do you mean that with GFP_KERNEL we may still deadlock on line 199 of
+the snippet below (from mm/mempool.c)?  That alloc pointer points to
+mempool_alloc_slab, which gets called with __GFP_WAIT turned off.  The
+kmem_cache allocator doesn't get called with the allocation priority
+we specify in our make_request_fn, so we won't block there.
 
-- An idle queue that exited would waste time for the next process
+   190	void * mempool_alloc(mempool_t *pool, int gfp_mask)
+   191	{
+   192		void *element;
+   193		unsigned long flags;
+   194		DEFINE_WAIT(wait);
+   195		int gfp_nowait = gfp_mask & ~(__GFP_WAIT | __GFP_IO);
+   196	
+   197		might_sleep_if(gfp_mask & __GFP_WAIT);
+   198	repeat_alloc:
+   199		element = pool->alloc(gfp_nowait|__GFP_NOWARN, pool->pool_data);
+   200		if (likely(element != NULL))
+   201			return element;
+   202	
 
-- Request allocation changes. Should get a smooth stream for writes now,
-  not as bursty as before. Also simplified the may_queue/check_waiters
-  logic, rely more on the regular block rq allocation congestion and
-  don't waste sys time doing multiple wakeups.
+If we block later on the pool, that's because there are 16 objects in
+use, which means that mempool_free is going to get called 16 times as
+I/O completes, so I/O is throttled and forward progress is guaranteed.
+Otherwise, how does the mempool mechanism help in preventing deadlock?
 
-- Fix compilation on x86_64
-
-No io priority specific fixes, the above are all to improve the cfq time
-slicing.
-
-For 2.6.10-rc3-mm1:
-
-http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3-mm1/cfq-time-slices-12-2.6.10-rc3-mm1.gz
-
-For 2.6-BK:
-
-http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3/cfq-time-slices-12.gz
+It looks like we can simply change GFP_KERNEL to GFP_IO in our
+make_request_fn, but I'd also like to understand why that's necessary
+when there's a dedicated pre-allocated pool per aoe device.
 
 -- 
-Jens Axboe
+  Ed L Cashin <ecashin@coraid.com>
 

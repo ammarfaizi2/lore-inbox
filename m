@@ -1,87 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268311AbUJHJx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUJHKAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268311AbUJHJx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 05:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268368AbUJHJx7
+	id S268368AbUJHKAP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 06:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUJHKAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 05:53:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54689 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268311AbUJHJx4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 05:53:56 -0400
-Date: Fri, 8 Oct 2004 02:50:34 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 8 Oct 2004 06:00:15 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:58451 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268368AbUJHKAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 06:00:06 -0400
+Message-ID: <416663B7.5000901@yahoo.com.au>
+Date: Fri, 08 Oct 2004 19:53:59 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Erich Focht <efocht@hpce.nec.com>
-Cc: mbligh@aracnet.com, pj@sgi.com, Simon.Derr@bull.net, colpatch@us.ibm.com,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
+       Simon.Derr@bull.net, colpatch@us.ibm.com, pwil3058@bigpond.net.au,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
        ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
        hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
        sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
        ak@suse.de, sivanich@sgi.com
 Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041008025034.3deedac5.akpm@osdl.org>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20041007105425.02e26dd8.pj@sgi.com> <1344740000.1097172805@[10.10.2.4]> <200410081123.45762.efocht@hpce.nec.com>
 In-Reply-To: <200410081123.45762.efocht@hpce.nec.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20041007105425.02e26dd8.pj@sgi.com>
-	<1344740000.1097172805@[10.10.2.4]>
-	<200410081123.45762.efocht@hpce.nec.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erich Focht <efocht@hpce.nec.com> wrote:
->
->  May I translate the first sentence to: the requirements and usage
->  models described by Paul (SGI), Simon (Bull) and myself (NEC) are
->  "fairly obscure" and the group of users addressed (those mainly
->  running high performance computing (AKA HPC) applications) is "very
->  limited"? If this is what you want to say then it's you whose view is
->  very limited.
+Erich Focht wrote:
+> On Thursday 07 October 2004 20:13, Martin J. Bligh wrote:
+> 
+>>It all just seems like a lot of complexity for a fairly obscure set of
+>>requirements for a very limited group of users, to be honest. Some bits
+>>(eg partitioning system resources hard in exclusive sets) would seem likely
+>>to be used by a much broader audience, and thus are rather more attractive.
+> 
+> 
+> May I translate the first sentence to: the requirements and usage
+> models described by Paul (SGI), Simon (Bull) and myself (NEC) are
+> "fairly obscure" and the group of users addressed (those mainly
+> running high performance computing (AKA HPC) applications) is "very
+> limited"? If this is what you want to say then it's you whose view is
+> very limited. Maybe I'm wrong with what you really wanted to say but I
+> remember similar arguing from your side when discussing benchmark
+> results in the context of the node affine scheduler.
+> 
+> This "very limited group of users" (small part of them listed in
+> www.top500.org) is who drives computer technology, processor design,
+> network interconnect technology forward since the 1950s. Their
+> requirements on the operating system are rather limited and that might
+> be the reason why kernel developers tend to ignore them. All that
+> counts for HPC is measured in GigaFLOPS or TeraFLOPS, not in elapsed
+> seconds for a kernel compile, AIM-7, Spec-SDET or Javabench. The way
+> of using these machines IS different from what YOU experience in day
+> by day work and Linux is not yet where it should be (though getting
+> close). Paul's endurance in this thread is certainly influenced by the
+> perspective of having to support soon a 20x512 CPU NUMA cluster at
+> NASA...
+> 
+> As a side note: put in the right context your statement on fairly
+> obscure requirements for a very limited group of users is a marketing
+> argument ... against IBM.
+> 
+> Thanks ;-)
+> Erich
+> 
 
-Martin makes a legitimate point.  We're talking here about a few tens or
-hundreds of machines world-wide, yes?  And those machines are very
-high-value so it is a relatively small cost for their kernel providers to
-add such a highly specialised patch as cpusets.
+With all due respect, Linux gets driven as much from the bottom up
+as it does from the top down I think. Compared to desktop and small
+servers, yes you are obscure :)
 
-These are strong arguments for leaving cpusets as an out-of-kernel.org
-patch, for those who need it.
+My view on it is this, we can do *exclusive* dynamic partitioning
+today (we're very close to it - it wouldn't add complexity in the
+scheduler to support it). You can also hack up a fair bit of other
+functionality with cpu affinity masks.
 
-On the other hand, the impact is small:
-
- 25-akpm/fs/proc/base.c            |   19 
- 25-akpm/include/linux/cpuset.h    |   63 +
- 25-akpm/include/linux/sched.h     |    7 
- 25-akpm/init/Kconfig              |   10 
- 25-akpm/init/main.c               |    5 
- 25-akpm/kernel/Makefile           |    1 
- 25-akpm/kernel/cpuset.c           | 1550 ++++++++++++++++++++++++++++++++++++++
- 25-akpm/kernel/exit.c             |    2 
- 25-akpm/kernel/fork.c             |    3 
- 25-akpm/kernel/sched.c            |    8 
- 25-akpm/mm/mempolicy.c            |   13 
- 25-akpm/mm/page_alloc.c           |   13 
- 25-akpm/mm/vmscan.c               |   19 
-
-So it's a quite cheap patch for the kernel.org people to carry.
-
-So I'm (just) OK with it from that point of view.  My main concern is that
-the CKRM framework ought to be able to accommodate the cpuset function,
-dammit.  I don't want to see us growing two orthogonal resource management
-systems partly because their respective backers have no incentive to make
-their code work together.
-
-I realise there are technical/architectural problems too, but I do fear
-that there's a risk of we-don't-have-a-business-case happening here too.
-
-I don't think there are any architectural concerns around cpusets - the
-major design question here is "is CKRM up to doing this and if not, why
-not?".  From what Hubertus has been saying CKRM _is_ up to the task, but
-the cpuset team may decide that the amount of rework involved isn't
-worthwhile and they're better off carrying an offstream patch.
-
-But we're not there yet - we're still waiting for the design dust to
-settle.
-
+So with any luck, that will hold you over until everyone working on
+this can agree and produce a nice implementation that doesn't add
+complexity to the normal case (or can be configured out), and then
+pull it into the kernel.

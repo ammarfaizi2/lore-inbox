@@ -1,58 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131374AbRAaBHz>; Tue, 30 Jan 2001 20:07:55 -0500
+	id <S131124AbRAaBLg>; Tue, 30 Jan 2001 20:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132553AbRAaBHp>; Tue, 30 Jan 2001 20:07:45 -0500
-Received: from cheetah.STUDENT.CWRU.Edu ([129.22.164.229]:12419 "EHLO
-	cheetah.STUDENT.cwru.edu") by vger.kernel.org with ESMTP
-	id <S131374AbRAaBHf>; Tue, 30 Jan 2001 20:07:35 -0500
-Date: Tue, 30 Jan 2001 20:06:58 -0500 (EST)
-From: Matthew Gabeler-Lee <msg2@po.cwru.edu>
-X-X-Sender: <cheetah@cheetah.STUDENT.cwru.edu>
-To: John Jasen <jjasen1@umbc.edu>
-cc: <linux-kernel@vger.kernel.org>, AmNet Computers <amnet@amnet-comp.com>
-Subject: Re: bttv problems in 2.4.0/2.4.1
-In-Reply-To: <Pine.SGI.4.31L.02.0101301951040.887333-100000@irix2.gl.umbc.edu>
-Message-ID: <Pine.LNX.4.32.0101302004420.1138-100000@cheetah.STUDENT.cwru.edu>
+	id <S132283AbRAaBL2>; Tue, 30 Jan 2001 20:11:28 -0500
+Received: from palrel1.hp.com ([156.153.255.242]:60427 "HELO palrel1.hp.com")
+	by vger.kernel.org with SMTP id <S131124AbRAaBLL>;
+	Tue, 30 Jan 2001 20:11:11 -0500
+Message-ID: <3A77661C.5D7FD4C@cup.hp.com>
+Date: Tue, 30 Jan 2001 17:10:52 -0800
+From: Rick Jones <raj@cup.hp.com>
+Organization: the Unofficial HP
+X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jamal <hadi@cyberus.ca>
+Cc: Ion Badulescu <ionut@cs.columbia.edu>, Andrew Morton <andrewm@uow.edu.au>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: Still not sexy! (Re: sendfile+zerocopy: fairly sexy (nothing to 
+ dowith ECN)
+In-Reply-To: <Pine.GSO.4.30.0101301944181.3017-100000@shell.cyberus.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001, John Jasen wrote:
+> ** I reported that there was also an oddity in throughput values,
+> unfortunately since no one (other than me) seems to have access
+> to a gige cards in the ZC list, nobody can confirm or disprove
+> what i posted. Here again as a reminder:
+> 
+> Kernel     |  tput  | sender-CPU | receiver-CPU |
+> -------------------------------------------------
+> 2.4.0-pre3 | 99MB/s |   87%      |  23%         |
+> NSF        |        |            |              |
+> -------------------------------------------------
+> 2.4.0-pre3 | 86MB/s |   100%     |  17%         |
+> SF         |        |            |              |
+> -------------------------------------------------
+> 2.4.0-pre3 | 66.2   |   60%      |  11%         |
+> +ZC        | MB/s   |            |              |
+> -------------------------------------------------
+> 2.4.0-pre3 | 68     |   8%       |  8%          |
+> +ZC  SF    | MB/s   |            |              |
+> -------------------------------------------------
+> 
+> Just ignore the CPU readings, focus on throughput. And could someone plese
+> post results?
 
-> On Tue, 30 Jan 2001, Matthew Gabeler-Lee wrote:
->
-> > These errors all occur in the same way (as near as I can tell) in
-> > kernels 2.4.0 and 2.4.1, using bttv drivers 0.7.50 (incl. w/ kernel),
-> > 0.7.53, and 0.7.55.
-> >
-> > I am currently using 2.4.0-test10 with bttv 0.7.47, which works fine.
-> >
-> > I have sent all this info to Gerd Knorr but, as far as I know, he hasn't
-> > been able to track down the bug yet.  I thought that by posting here,
-> > more eyes might at least make more reports of similar situations that
-> > might help track down the problem.
->
-> Try flipping the card into a different slot. A lot of the cards
-> exceptionally do not like IRQ/DMA sharing, and a lot of the motherboards
-> share them between different slots.
+In the spirit of the socratic method :)
 
-I will try this, but my card has (and does) worked with irq sharing for
-a long time.  Its entry in /proc/interrupts:
-  9:     164935     165896   IO-APIC-level  acpi, bttv
-I find it strange that a driver that had worked with shared interrupts
-for a long time would suddenly cease to function with shared interrupts,
-and would consider this a bug.  I will try changing the slot, but
-getting it to not share interrupts will be difficult considering the
-number of pci devices I have.
+Is your gige card based on Alteon?
+
+How does ZC/SG change the nature of the packets presented to the NIC?
+
+How well does the NIC do with that changed nature?
+
+rick jones
+
+sometimes, performance tuning is like squeezing a balloon. one part gets
+smaller, but then you start to see the rest of the balloon...
 
 -- 
-	-Matt
-
-Today's weirdness is tomorrow's reason why.
-		-- Hunter S. Thompson
-
+ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
+these opinions are mine, all mine; HP might not want them anyway... :)
+feel free to email, OR post, but please do NOT do BOTH...
+my email address is raj in the cup.hp.com domain...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVBOQNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVBOQTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVBOQNU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 11:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVBOQMJ
+	id S261776AbVBOQTF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 11:19:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVBOQTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 11:12:09 -0500
-Received: from upco.es ([130.206.70.227]:39402 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261772AbVBOQJx (ORCPT
+	Tue, 15 Feb 2005 11:19:05 -0500
+Received: from postman.ripe.net ([193.0.0.199]:33468 "EHLO postman.ripe.net")
+	by vger.kernel.org with ESMTP id S261776AbVBOQOh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 11:09:53 -0500
-Date: Tue, 15 Feb 2005 17:09:51 +0100
-From: Romano Giannetti <romanol@upco.es>
-To: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Repost: BUG 2.6.11-rc1: ACPI keys events: only "arrive" after 8 of them.
-Message-ID: <20050215160951.GB20951@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: Romano Giannetti <romanol@upco.es>,
-	linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-References: <20050214182112.GA11686@pern.dea.icai.upco.es> <20050214210528.GA11884@hell.org.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20050214210528.GA11884@hell.org.pl>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 15 Feb 2005 11:14:37 -0500
+Message-ID: <42122016.80107@colitti.com>
+Date: Tue, 15 Feb 2005 17:15:18 +0100
+From: Lorenzo Colitti <lorenzo@colitti.com>
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
+References: <20050214211105.GA12808@elf.ucw.cz>	 <200502150605.11683.s0348365@sms.ed.ac.uk>  <4211E729.1090305@colitti.com> <1108482083.12031.10.camel@elrond.flymine.org>
+In-Reply-To: <1108482083.12031.10.camel@elrond.flymine.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-RIPE-Spam-Level: 
+X-RIPE-Spam-Tests: ALL_TRUSTED,BAYES_00
+X-RIPE-Spam-Status: N 0.004079 / -5.9
+X-RIPE-Signature: f34c5deceb162d46cd2a27edf4b4d057
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 10:05:28PM +0100, Karol Kozimor wrote:
-> Thus wrote Romano Giannetti:
-> >      I'm stymied. If anyone can help me with this, or simply tell me how to
-> >      have more data on this, I will try to obtain all the data I can. 
-> >      I'm using a vanilla 2.6.11-rc1, which config is available here: 
+Matthew Garrett wrote:
+>>I beg to differ: it works for me on 2.6.11-rc3 (even with the swsusp2 
+>>patch). However, I need to use acpi_sleep=s3_bios, and I can't use 
+>>radeonfb or it will lock up on resume.
 > 
-> See http://bugme.osdl.org/show_bug.cgi?id=4124 -- sounds similar, but you
-> seem to experience some regularities that I think I ruled out in my case.
-> Best regards,
-> 
+> Could you grab dmidecode from http://www.nongnu.org/dmidecode/ and
+> provide the output? It'd be interesting to compare working with
+> non-working machines. It might also be good to see lspci and acpidmp
+> output.
 
-I have added a comment to the bug. I am available for whatever test. The
-thing is really annoying... 
+Ok, here is the output from dmidecode (Debian package) and from lspci. I 
+don't have acpidmp and I don't know where to get it, but if you think 
+it's necessary I can download it if you tell me where to find it.
 
-Romano
 
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+Cheers,
+Lorenzo

@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268300AbUIBNSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268301AbUIBNWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268300AbUIBNSp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 09:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268306AbUIBNSo
+	id S268301AbUIBNWM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 09:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268305AbUIBNWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 09:18:44 -0400
-Received: from dfw-gate1.raytheon.com ([199.46.199.230]:17218 "EHLO
-	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S268300AbUIBNSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 09:18:30 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q7
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>,
-       Thomas Charbonnel <thomas@undata.org>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF4A93C101.C3FFA1E6-ON86256F03.004851E5@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Thu, 2 Sep 2004 08:18:02 -0500
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 09/02/2004 08:18:04 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Thu, 2 Sep 2004 09:22:12 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:15024 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268301AbUIBNWI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 09:22:08 -0400
+Date: Thu, 2 Sep 2004 15:23:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Charbonnel <thomas@undata.org>
+Cc: linux-kernel@vger.kernel.org, "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
+Message-ID: <20040902132342.GA8677@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <1094130969.5652.13.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094130969.5652.13.camel@localhost>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->(you mean 500+ usec, correct?)
->
->there's no way the scheduler can have 500 usecs of overhead going from
->dequeue_task() to __switch_to(): we have all interrupts disabled and
->take zero locks! This is almost certainly some hardware effect (i
->described some possibilities and tests a couple of mails earlier).
->
->In any case, please enable nmi_watchdog=1 so that we can see (in -Q7)
->what happens on the other CPUs during such long delays.
 
-Booted with nmi_watchdog=1, saw the kernel message indicating that
-NMI was checked OK.
+* Thomas Charbonnel <thomas@undata.org> wrote:
 
-The first trace looks something like this...
+> With ACPI compiled in and booting with acpi=off (which again doesn't
+> seem to be honoured), here's another weird one :
 
-latency 518 us, entries: 79
-...
-started at schedule+0x51/0x740
-ended at schedule+0x337/0x740
+> 00010000 0.003ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
+> 00010001 0.003ms (+2.878ms): mark_offset_tsc (timer_interrupt)
+> 00010001 2.882ms (+0.000ms): do_timer (timer_interrupt)
 
-00000001 0.000ms (+0.000ms): schedule (io_schedule)
-00000001 0.000ms (+0.000ms): sched_clock (schedule)
-00010001 0.478ms (+0.478ms): do_nmi (sched_clock)
-00010001 0.478ms (+0.000ms): do_nmi (<08049b21>)
-00010001 0.482ms (+0.003ms): profile_tick (nmi_watchdog_tick)
-...
-and a few entries later ends up at do_IRQ (sched_clock).
+do you have the NMI watchdog enabled? That could help us debugging this. 
+Enabling the APIC/IO_APIC and using nmi_watchdog=1 would be the ideal
+solution - if that doesnt work then nmi_watchdog=2 would be fine too,
+but remove this code from arch/i386/kernel/nmi.c:
 
-The second trace goes from dequeue_task to __switch_to with a
-similar pattern - the line with do_nmi has +0.282ms duration and
-the line notifier_call_chain (profile_hook) as +0.135ms duration.
+	if (nmi_watchdog == NMI_LOCAL_APIC)
+		nmi_hz = 1;
 
-I don't see how this provides any additional information but will
-provide several additional traces when the test gets done in a
-few minutes.
+(otherwise nmi_watchdog=2 would result in one NMI per second, not enough
+to shed light on the above 2.8 msec latency.)
 
-
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
-
+	Ingo

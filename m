@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267532AbTAQPoq>; Fri, 17 Jan 2003 10:44:46 -0500
+	id <S267540AbTAQPtO>; Fri, 17 Jan 2003 10:49:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267534AbTAQPop>; Fri, 17 Jan 2003 10:44:45 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:57063 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267532AbTAQPoo>; Fri, 17 Jan 2003 10:44:44 -0500
-Date: Fri, 17 Jan 2003 07:53:41 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: MAX_IO_APICS #ifdef'd wrongly
-Message-ID: <224570000.1042818820@titus>
-In-Reply-To: <20030117090031.GD940@holomorphy.com>
-References: <20030117090031.GD940@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267543AbTAQPtO>; Fri, 17 Jan 2003 10:49:14 -0500
+Received: from tomts9.bellnexxia.net ([209.226.175.53]:15043 "EHLO
+	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S267540AbTAQPtM>; Fri, 17 Jan 2003 10:49:12 -0500
+Date: Fri, 17 Jan 2003 10:57:32 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: unresolved symbols building 2.5.59
+Message-ID: <Pine.LNX.4.44.0301171055180.8002-100000@dell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summit needs this too, so it should really be CONFIG_NUMA at least.
-Ideally this would go into subarch if we can move it cleanly (hint, hint ;-))
-But other than that, yes ... I'll merge it.
 
-Thanks,
+tail end of "make modules_install":
 
-M.
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.59; fi
+depmod: *** Unresolved symbols in /lib/modules/2.5.59/kernel/drivers/i2c/i2c-proc.ko
+depmod: 	i2c_check_functionality
+depmod: 	i2c_smbus_xfer
+depmod: 	i2c_check_addr
+depmod: 	i2c_adapter_id
+depmod: *** Unresolved symbols in /lib/modules/2.5.59/kernel/fs/cramfs/cramfs.ko
+depmod: 	zlib_inflate
+depmod: 	zlib_inflate_workspacesize
+depmod: 	zlib_inflateInit_
+depmod: 	zlib_inflateReset
+depmod: 	zlib_inflateEnd
 
---On Friday, January 17, 2003 01:00:31 -0800 William Lee Irwin III <wli@holomorphy.com> wrote:
+  the first one seems to be i2c-proc looking for symbols in i2c-core,
+which i selected and which was built.
 
-> CONFIG_X86_NUMA no longer exists. This changes the MAX_IO_APICS
-> definition to 32, where it is required to be so large on NUMA-Q
-> in order to boot.
-> 
-> 
-> diff -urpN linux-2.5.59/include/asm-i386/apicdef.h ioapic-2.5.59/include/asm-i386/apicdef.h
-> --- linux-2.5.59/include/asm-i386/apicdef.h	2003-01-16 18:22:15.000000000 -0800
-> +++ ioapic-2.5.59/include/asm-i386/apicdef.h	2003-01-17 00:58:04.000000000 -0800
-> @@ -115,7 +115,7 @@
->  
->  #define APIC_BASE (fix_to_virt(FIX_APIC_BASE))
->  
-> -#ifdef CONFIG_X86_NUMA
-> +#ifdef CONFIG_X86_NUMAQ
->   #define MAX_IO_APICS 32
->  #else
->   #define MAX_IO_APICS 8
-> 
-> 
+  the second seems to be that cramfs needs zlib_inflate, which once
+again i selected and which was built.
 
+  beyond that, i'm not sure how to further debug these.
+
+rday
 

@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312412AbSDJC5J>; Tue, 9 Apr 2002 22:57:09 -0400
+	id <S312414AbSDJDWS>; Tue, 9 Apr 2002 23:22:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312413AbSDJC5I>; Tue, 9 Apr 2002 22:57:08 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:10999 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S312412AbSDJC5I>; Tue, 9 Apr 2002 22:57:08 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Tue, 9 Apr 2002 20:55:04 -0600
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: "Alexis S. L. Carvalho" <alexis@cecm.usp.br>, linux-kernel@vger.kernel.org
-Subject: Re: implementing soft-updates
-Message-ID: <20020410025504.GD424@turbolinux.com>
-Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	"Alexis S. L. Carvalho" <alexis@cecm.usp.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020409184605.A13621@cecm.usp.br> <200204100041.g3A0fSj00928@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S312417AbSDJDWR>; Tue, 9 Apr 2002 23:22:17 -0400
+Received: from 202-77-223-23.outblaze.com ([202.77.223.23]:43485 "EHLO
+	testdcc.outblaze.com") by vger.kernel.org with ESMTP
+	id <S312414AbSDJDWR>; Tue, 9 Apr 2002 23:22:17 -0400
+Message-ID: <20020410032212.29074.qmail@fastermail.com>
+Content-Type: multipart/mixed; boundary="----------=_1018408932-28940-0"
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "mark manning" <mark.manning@fastermail.com>
+To: <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Date: Tue, 09 Apr 2002 22:22:12 -0500
+Subject: Re: nanosleep
+X-Originating-Ip: 67.241.61.228
+X-Originating-Server: ws4.hk5.outblaze.com
+X-DCC-Outblaze-Metrics: testdcc.outblaze.com 100; env_From=5 From=5 Message-ID=1 Received=1 Body=1
+	Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 09, 2002  20:41 -0400, Albert D. Cahalan wrote:
-> In case you are still thinking about what to do, here are a
-> few filesystem ideas that you might like:
+This is a multi-part message in MIME format...
+
+------------=_1018408932-28940-0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+hi - yes i read the man pages, im already using nanosleep for doing 1 second delays and i chose nanosleep because a signal can interrupt the delay which might be useful (and might not :)
+
+----- Original Message -----
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+Date: Tue, 9 Apr 2002 20:32:03 -0400 (EDT)
+To: mark manning <mark.manning@fastermail.com>
+Subject: Re: nanosleep
+
+
+> > could someone show me how to do a delay of N miliseconds using nanosleep ?
+> > (given n delay n mili seconds etc) - i cant seem to get my code to work
+> > doh! 
 > 
-> ext2 compression (e2compr)
-- project needs polishing, integration
-> delayed allocation (allocate space only when about to do IO)
-- Andrew Morton has done this for 2.5
-> while rw mounted: defrag, undelete (not trash bin), grow, shrink, fsck
-- Andrew Morton has implemented for ext3 (kernel space, needs user tool)
-> make ext2 extents work
-- yes, discussion ongoing on ext2-devel, no real progress yet
-> make ext2 handle huge block sizes
-- kernel issues w.r.t. buffers > PAGE_SIZE
-> mark idle filesystems clean; mark dirty before non-atomic updates
-- maybe marginally useful
-> tools for in-place filesystem conversion (ufs --> ext2)
-- existing project
-> try larger inodes (example: 168-byte, 3 in 512 bytes, 0,1,2,x,4,5,6,x,8...)
-- discussion ongoing on ext2-devel with some good progress
+> did you read the fine man page, esp the section on resolution
+> and busy-waits?  also, using select for its timeout is probably
+> more portable.
+> 
+> 
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+-- 
 
+_______________________________________________
+Get your free email from http://www.fastermail.com
+
+Powered by Outblaze
+
+------------=_1018408932-28940-0--

@@ -1,105 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbTIYR15 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 13:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTIYR0V
+	id S261409AbTIYRhm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 13:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTIYRgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 13:26:21 -0400
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:8140 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261397AbTIYRVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:21:12 -0400
-Date: Thu, 25 Sep 2003 19:20:31 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (12/19): tape driver.
-Message-ID: <20030925172031.GM2951@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Thu, 25 Sep 2003 13:36:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4288 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261409AbTIYRbq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:31:46 -0400
+Date: Thu, 25 Sep 2003 10:30:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: andrea@kernel.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+In-Reply-To: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- - Fix use of tape block request queue pointer.
- - Remove unnecessary includes.
 
-diffstat:
- drivers/s390/char/tape.h       |    1 -
- drivers/s390/char/tape_block.c |   12 ++++++------
- drivers/s390/char/tape_char.c  |    1 -
- 3 files changed, 6 insertions(+), 8 deletions(-)
+On 25 Sep 2003, Eric W. Biederman wrote:
+> > 
+> > However, that only explains why you don't use BitKeeper. And everybody
+> > accepts that. When I started to use BK, I made it _very_ clear that
+> > service for non-BK users will be _at_least_ as good as it ever was before
+> > I started using BK.
+> 
+> And for the core kernel development this is true.  There are subprojects
+> that are currently using BK that you can't even get the code without
+> BK.  And the only reason they are using BK is they are attempting to
+> following how Linux is managed.  So having the Linux kernel
+> development use BK does have some down sides.
 
-diff -urN linux-2.6/drivers/s390/char/tape.h linux-2.6-s390/drivers/s390/char/tape.h
---- linux-2.6/drivers/s390/char/tape.h	Mon Sep  8 21:50:16 2003
-+++ linux-2.6-s390/drivers/s390/char/tape.h	Thu Sep 25 18:33:30 2003
-@@ -15,7 +15,6 @@
- #include <linux/config.h>
- #include <linux/blkdev.h>
- #include <linux/kernel.h>
--#include <linux/version.h>
- #include <linux/module.h>
- #include <linux/mtio.h>
- #include <linux/interrupt.h>
-diff -urN linux-2.6/drivers/s390/char/tape_block.c linux-2.6-s390/drivers/s390/char/tape_block.c
---- linux-2.6/drivers/s390/char/tape_block.c	Mon Sep  8 21:50:19 2003
-+++ linux-2.6-s390/drivers/s390/char/tape_block.c	Thu Sep 25 18:33:30 2003
-@@ -10,7 +10,6 @@
-  */
- 
- #include <linux/config.h>
--#include <linux/version.h>
- #include <linux/module.h>
- #include <linux/blkdev.h>
- #include <linux/interrupt.h>
-@@ -68,7 +67,7 @@
- 		device->blk_data.block_position = -1;
- 	device->discipline->free_bread(ccw_req);
- 	if (!list_empty(&device->req_queue) ||
--	    elv_next_request(&device->blk_data.request_queue))
-+	    elv_next_request(device->blk_data.request_queue))
- 		tasklet_schedule(&device->blk_data.tasklet);
- }
- 
-@@ -88,7 +87,7 @@
- 	   owns the device. tape_state != TS_IN_USE is NOT enough. */
- 	if (device->tape_state != TS_IN_USE)
- 		return;
--	queue = &device->blk_data.request_queue;
-+	queue = device->blk_data.request_queue;
- 	nr_queued = 0;
- 	/* Count number of requests on ccw queue. */
- 	list_for_each(l, &device->req_queue)
-@@ -186,7 +185,7 @@
- 	struct tape_device *device;
- 
- 	device = (struct tape_device *) data;
--	while (elv_next_request(&device->blk_data.request_queue)) {
-+	while (elv_next_request(device->blk_data.request_queue)) {
- 		INIT_LIST_HEAD(&new_req);
- 		spin_lock_irq(get_ccwdev_lock(device->cdev));
- 		__tape_process_blk_queue(device, &new_req);
-@@ -219,9 +218,10 @@
- 
- 	spin_lock_init(&d->request_queue_lock);
- 	q = blk_init_queue(tapeblock_request_fn, &d->request_queue_lock);
--	if (!q)
-+	if (!q) {
-+		rc = -ENXIO;
- 		goto put_disk;
--
-+	}
- 	d->request_queue = q;
- 	elevator_exit(q);
- 	rc = elevator_init(q, &elevator_noop);
-diff -urN linux-2.6/drivers/s390/char/tape_char.c linux-2.6-s390/drivers/s390/char/tape_char.c
---- linux-2.6/drivers/s390/char/tape_char.c	Mon Sep  8 21:50:21 2003
-+++ linux-2.6-s390/drivers/s390/char/tape_char.c	Thu Sep 25 18:33:30 2003
-@@ -11,7 +11,6 @@
-  */
- 
- #include <linux/config.h>
--#include <linux/version.h>
- #include <linux/module.h>
- #include <linux/types.h>
- #include <linux/proc_fs.h>
+That's actually a pretty good point. I end up releasing "sparse" only as a
+BK archive, simply because I'm too lazy to care and there aren't enough
+people involved (and those that _are_ involved do actually end up
+re-exporting it as non-BK, but that doesn't invalidate your point).
+
+I don't know what the solution to it might be - but I don't think the 
+reason they are using BK is that they are trying to emulate "the great 
+kernel project". I know it wasn't for me - it's just that once you get 
+used to BK, there's no way you'll ever go back to CVS willingly. 
+
+> In addition there are some major gains to be had in standardizing on a
+> distributed version control system that everyone can use, and
+> unfortunately BK does not fill that position.
+
+I don't disagree, but I don't see a real way to solve it. As Larry will 
+tell you, the technical problems are bigger than you imagine.  So a BK 
+killer won't be coming any time soon, methinks.
+
+		Linus
+

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293439AbSCKGlL>; Mon, 11 Mar 2002 01:41:11 -0500
+	id <S293626AbSCKGmv>; Mon, 11 Mar 2002 01:42:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293628AbSCKGlB>; Mon, 11 Mar 2002 01:41:01 -0500
-Received: from angband.namesys.com ([212.16.7.85]:61838 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S293439AbSCKGkv>; Mon, 11 Mar 2002 01:40:51 -0500
-Date: Mon, 11 Mar 2002 09:40:50 +0300
-From: Oleg Drokin <green@namesys.com>
-To: system_lists@nullzone.org
-Cc: Edward Shushkin <edward@namesys.com>, linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com
-Subject: Re: [reiserfs-list] Opss! on 2.5.6 with ReiserFS
-Message-ID: <20020311094050.A24782@namesys.com>
-In-Reply-To: <5.1.0.14.2.20020310165035.00caf5c0@192.168.2.131> <5.1.0.14.2.20020310193611.00caf1f8@192.168.2.131>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20020310193611.00caf1f8@192.168.2.131>
-User-Agent: Mutt/1.3.22.1i
+	id <S293628AbSCKGmm>; Mon, 11 Mar 2002 01:42:42 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:35761 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S293626AbSCKGm3>; Mon, 11 Mar 2002 01:42:29 -0500
+Date: Sun, 10 Mar 2002 23:42:20 -0700
+Message-Id: <200203110642.g2B6gKX29945@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Alexander Viro <viro@math.psu.edu>, Itai Nahshon <itai@siftology.com>,
+        Larry McVoy <lm@bitmover.com>, Tom Lord <lord@regexps.com>,
+        jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <3C8C4B8A.2070508@namesys.com>
+In-Reply-To: <Pine.GSO.4.21.0203110051500.9713-100000@weyl.math.psu.edu>
+	<3C8C4B8A.2070508@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hans Reiser writes:
+> Alexander Viro wrote:
+> 
+> >
+> >On Mon, 11 Mar 2002, Hans Reiser wrote:
+> >
+> >>So the problem was that it was not optional?
 
-On Sun, Mar 10, 2002 at 07:37:22PM +0100, system_lists@nullzone.org wrote:
-> I'll apply and let me inform u about result ( just like a beta-tester )
+At the least.
 
-   Can we also ask you to decode your oopses
-   (as described in /usr/src/linux/Documentation/oops-tracing.txt)
-   This is absolute requirement if you want unknown bugs you are hitting to
-   be resolved.
-   Luckily this bug was already known, so we was able to provide a patch
-   without the decoded oops, but this is not always the case.
+> >The problem is that it doesn't play well with other things.
+> >
+> Your statement is information free so far, but could be the intro to an 
+> informative statement....;-)
 
-Bye,
-    Oleg 
+I found the Unix structure and API much easier to deal with than
+VMS. File versioning was just another complication that I sometimes
+had to deal with (it was a *long* time ago, so don't ask for
+details:-).
+
+Funny thing about VMS. It was a much richer programming environment
+(the OS had a lot of functions you could call), but I found that it
+was easier to get stuff done with Unix, even if there wasn't some
+fancy function to help you out. Unix gets in the way less, whereas
+with VMS I found myself battling the API more to force it to do what I
+wanted.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,84 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVCEJHD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVCEJGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVCEJHD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 04:07:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVCEJHD
+	id S261511AbVCEJGO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 04:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVCEJGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 04:07:03 -0500
-Received: from smtprelay02.ispgateway.de ([80.67.18.14]:6844 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S261517AbVCEJGi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 04:06:38 -0500
-Date: Sat, 5 Mar 2005 10:06:37 +0100
-From: Florian Engelhardt <flo@dotbox.org>
-To: linux-kernel@vger.kernel.org
-Cc: Brad Campbell <brad@wasp.net.au>
-Subject: Re: freezes with reiser4 in a raid1 with 2.6.11-rc5-mm1
-Message-ID: <20050305100637.3aa6e1b8@discovery.hal.lan>
-In-Reply-To: <422597C3.5020207@wasp.net.au>
-References: <1109758204.422590fca7872@domainfactory-webmail.de>
-	<422597C3.5020207@wasp.net.au>
-X-Mailer: Sylpheed-Claws 1.0.1cvs11.1 (GTK+ 2.6.4; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 5 Mar 2005 04:06:14 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:18109 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261511AbVCEJGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 04:06:04 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: ncunningham@cyclades.com
+Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
+Date: Sat, 5 Mar 2005 10:08:05 +0100
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       paul.devriendt@amd.com
+References: <200502252237.04110.rjw@sisk.pl> <20050304234149.GD2647@elf.ucw.cz> <1109985002.3772.325.camel@desktop.cunningham.myip.net.au>
+In-Reply-To: <1109985002.3772.325.camel@desktop.cunningham.myip.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503051008.05681.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-On Wed, 02 Mar 2005 14:38:59 +0400
-Brad Campbell <brad@wasp.net.au> wrote:
-
-> Florian Engelhardt wrote:
+On Saturday, 5 of March 2005 02:10, Nigel Cunningham wrote:
+> Hi.
+> 
+> On Sat, 2005-03-05 at 10:41, Pavel Machek wrote:
+> > > non-RAM areas with PG_nosave, at least for sanity reasons (eg to be sure that
+> > > we do not break things by dumping stuff to where we should not write to).
 > > 
-> > I activated the raid (/dev/md0), then mounted it, and after
-> > that i was starting nfs. I was able to mount the share
-> > on my desktop, creating direcrotys was no problem, but
-> > as soon as i was copying a file to the share, the server
-> > freezed.
-> > Creating files localy (while loged in via ssh) is leading
-> > to the process is staying in state D.
-> > Sometimes, when i start nfsd, the system reboots immediately,
-> > sometimes not.
-> > At the momment, most of the processes are in state D, reboot
-> > does not work, and i am not at home, so i am unable to reboot
-> > the machine manualy.
-> 
-> Neat trick which I only discovered in desparation last week when
-> battling a RAID lockup on the -rc4-mm1 kernel on a remote box.
-> 
-> I was also having hard lockup issues, but reseating all my PCI cards
-> appear to have rectified that one.
+> > I'm not sure if it is not better to save & restore non-RAM areas, but
+> > it probably just does not matter.
 
-Well, there are not much PCI-Cards in this server and reseating them
-didnt fix it.
+For the address ranges that are reported by the BIOS as reserved, it
+probably doesn't matter indeed, but for the address ranges that are
+not reported at all, it's potentially dangerous.  Unfortunately
+they all are generally treated in the same way, so why should we do it
+differently?
+ 
+> IIRC, it does matter. I think there were situations where you got
+> something nasty (MCE/oops/freeze) if you tried reading memory that
+> doesn't exist. If you push me I'll put the effort into looking up
+> suspend2 archives to find the discussion :>
 
-> As root. echo b > /proc/sysrq-trigger
-> 
-> Of course only if you have alt-sysrq built in.
+If you're so kind, that would be great!
 
-Thanks for that, i was able to reboot the machine with that trick, but
-i couldnt find anything bad in the messages file.
+Greets,
+Rafael
 
-I made some further tests with the server:
-Deactivating the raid, and formating the hd´s (hdc and hdd) with
-reiser4, mounting them and sharing them via nfs and ftp worked great, no
-freezes, no reboots, everything perfect, even the performance.
-But as soon, as i activated the raid, the server freezed, or rebooted.
-
-Maybe this problem is not a bug in a single component (eg: nfs or
-reiser4), i think it is the combination of linux raid with reiser4, but
-i dont know.
-I will try to get the raid up and running with ext3 and/or jfs.
-
-Then we know exactly, if it is the combination of raid and reiser4.
-
-Kind regards
-
-Florian Engelhardt
 
 -- 
-"I may have invented it, but Bill made it famous"
-David Bradley, who invented the (in)famous ctrl-alt-del key combination
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

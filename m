@@ -1,156 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264323AbSIVPtB>; Sun, 22 Sep 2002 11:49:01 -0400
+	id <S264321AbSIVPtM>; Sun, 22 Sep 2002 11:49:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264321AbSIVPtA>; Sun, 22 Sep 2002 11:49:00 -0400
-Received: from gr.189.11.20.dial.global.net.uk ([80.189.11.20]:50699 "HELO
-	localhost") by vger.kernel.org with SMTP id <S264323AbSIVPs7>;
-	Sun, 22 Sep 2002 11:48:59 -0400
-Message-ID: <000501c2624d$8dc9ed60$0100a8c0@nth.local>
-From: "A1 Web Design" <info@secondsup.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Are YOU looking for a new website, to develop an existing website, for cheaper hosting or domain names?
-Date: Sun, 22 Sep 2002 16:34:27 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S264327AbSIVPtM>; Sun, 22 Sep 2002 11:49:12 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:21664 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S264321AbSIVPtJ>; Sun, 22 Sep 2002 11:49:09 -0400
+Date: Sun, 22 Sep 2002 08:52:31 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Erich Focht <efocht@ess.nec.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+cc: LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [Lse-tech] [PATCH 1/2] node affine NUMA scheduler
+Message-ID: <73440311.1032684750@[10.10.2.3]>
+In-Reply-To: <200209211159.41751.efocht@ess.nec.de>
+References: <200209211159.41751.efocht@ess.nec.de>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We can help YOU to develop a new or existing website or even provide cheaper hosting and domain names.
+A few comments ... mainly just i386 arch things (which aren't
+really your fault, was just a lack of the mechanisms being in
+mainline), and a request to push a couple of things down into
+the arch trees from rearing their ugly head into generic code ;-)
 
-Remove instructions below.
+M.
 
-We are a UK based company who can offer YOU our considerable experience and expertise in the field of website
-design, eCommerce development, all types of web hosting, any domain name available and search engine
-positioning with excellent  prices while maintaining a personal service tailored for YOU.
+> +static int __initdata nr_lnodes = 0;
+> +
 
-You can find more details at www.secondsup.co.uk
+Use numnodes.
 
-We can offer you cheaper solutions for YOUR website design, both new and updated sites undertaken from £100,
-160 Euro, 150 USD or 285 AUD website hosting from £60, 95 Euro, 90 USD or 170 AUD per year, domain name
-registration from £10, 16 Euro, 15 USD or 28 AUD per year, secure server space and security certificates from
-£50, 80 Euro, 75 USD or 142 AUD per year, full professional after sales service, marketing tips and advice
-free to our clients, top ranking search engine positioning and email marketing available.
+>  	cpu = ++cpucount;
+> +#ifdef CONFIG_NUMA_SCHED
+> +	cell = SAPICID_TO_PNODE(apicid);
+> +	if (pnode_to_lnode[cell] < 0) {
+> +		pnode_to_lnode[cell] = nr_lnodes++;
+> +	}
+> +#endif
 
-We can also help you market your business in the UK and Europe.
+pnodes and lnodes are all 1-1, so they're just called nodes for
+i386, and there's no such thing as a SAPICID on this platform.
 
-All of our websites are custom designed to meet our client's requirements and are our best advert. Please ask
-to see our portfolio.
+>  	/*
+>  	 * We can't use kernel_thread since we must avoid to
+>  	 * reschedule the child.
+> @@ -996,6 +1004,10 @@ static void __init smp_boot_cpus(unsigne
+>  	set_bit(0, &cpu_callout_map);
+>  	boot_cpu_logical_apicid = logical_smp_processor_id();
+>  	map_cpu_to_boot_apicid(0, boot_cpu_apicid);
+> +#ifdef CONFIG_NUMA_SCHED
+> +	pnode_to_lnode[SAPICID_TO_PNODE(boot_cpu_apicid)] = nr_lnodes++;
+> +	printk("boot_cpu_apicid = %d, nr_lnodes = %d, lnode = %d\n", boot_cpu_apicid, nr_lnodes, pnode_to_lnode[0]);
+> +#endif
 
-Our hosting services are independently tested on a daily basis and are consistently in the top of the
-performance listings of all the major ISP hosting companies in the UK.
+Ditto. All these mappings exist already. No need to reinvent them.
+The -mm tree has a generic cpu_to_node macro, which keys off the
+logical_apic_id.
 
-Most of our clients prefer to discuss their requirements by telephone, please send us a contact telephone
-number, together with a best time to call you and we will phone you shortly to discuss your needs in more
-detail.
+http://www.zipworld.com.au/~akpm/linux/patches/2.5/2.5.37/2.5.37-mm1/broken-out/topology-api.patch
 
-Alternatively, please ask for more details by replying to this email for a prompt response.
+> +#ifdef CONFIG_NUMA_SCHED
+> +#define NR_NODES               8
 
-We look forward to hearing from you.
+MAX_NUMNODES exists for every arch (except maybe ia64 ;-))
 
-You can be assured that this email is sent in compliance with strict anti-abuse and NO SPAM regulations. Your
-address was collected as a result of posting to a link, a classified ad, a message to my FFA Page, you have
-sent me an E-mail recently, or you are on a list that I have purchased.
+> +#define cpu_physical_id(cpuid) (cpu_to_physical_apicid(cpuid))
 
-TO REMOVE: If your email address was used without your permission or you no longer want to receive email from
-us, we apologise for any inconvenience caused and ask that you simply reply to this email putting REMOVE as
-the subject.
+Not needed, should be buried within a wrapper, not exposed to
+generic code.
 
+> +#define SAPICID_TO_PNODE(hwid)  (hwid >> 4)
 
+Grrr. No such thing.
 
+> diff -urNp a/include/linux/sched.h b/include/linux/sched.h
 
+> +extern int pnode_to_lnode[NR_NODES];
+> +extern char lnode_number[NR_CPUS] __cacheline_aligned;
 
+Can't you push all this down into the arch ....
 
+> +#define CPU_TO_NODE(cpu) lnode_number[cpu]
 
+... by letting them define cpu_to_node() themselves?
+(most people don't have lnodes and pnodes, etc).
 
+> +EXPORT_SYMBOL(runqueues_address);
+> +EXPORT_SYMBOL(numpools);
+> +EXPORT_SYMBOL(pool_ptr);
+> +EXPORT_SYMBOL(pool_cpus);
+> +EXPORT_SYMBOL(pool_nr_cpus);
+> +EXPORT_SYMBOL(pool_mask);
+> +EXPORT_SYMBOL(sched_migrate_task);
 
+Aren't these internal scheduler things?
 
+> diff -urNp a/kernel/sched.c b/kernel/sched.c
 
+> +int pnode_to_lnode[NR_NODES] = { [0 ... NR_NODES-1] = -1 };
+> +char lnode_number[NR_CPUS] __cacheline_aligned;
 
+Ditto.
 
+> +	int this_pool = CPU_TO_NODE(this_cpu);
+> +	int this_pool=CPU_TO_NODE(this_cpu), weight, maxweight=0;
 
+Howcome you can use the CPU_TO_NODE abstraction here ...
 
+> +	/* build translation table for CPU_TO_NODE macro */
+> +	for (i = 0; i < NR_CPUS; i++)
+> +		if (cpu_online(i))
+> +			lnode_number[i] = pnode_to_lnode[SAPICID_TO_PNODE(cpu_physical_id(i))];
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+But not here?
 
 

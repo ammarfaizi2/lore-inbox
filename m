@@ -1,86 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264827AbTIIWr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 18:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264828AbTIIWr4
+	id S265012AbTIIW4X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 18:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265005AbTIIWxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 18:47:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31132 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264827AbTIIWrw (ORCPT
+	Tue, 9 Sep 2003 18:53:52 -0400
+Received: from smtp02.web.de ([217.72.192.151]:36113 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S264978AbTIIWxW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 18:47:52 -0400
-Date: Tue, 9 Sep 2003 15:47:34 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix modularization of Siemens line discipline
-Message-Id: <20030909154734.65f2b4ac.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 9 Sep 2003 18:53:22 -0400
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: inode generation numbers
+Date: Wed, 10 Sep 2003 00:53:22 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+References: <200309092108.37805.bernd-schubert@web.de> <20030909140751.E18851@schatzie.adilger.int>
+In-Reply-To: <20030909140751.E18851@schatzie.adilger.int>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309100053.23352.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert SIEMENS R3964 tty line discipline on 2.6.0-test5 to use tty_ldisc owner
-instead of explicit MOD_INC/DEC.
+On Tuesday 09 September 2003 22:07, Andreas Dilger wrote:
+> On Sep 09, 2003  21:08 +0200, Bernd Schubert wrote:
+> > for a user space nfs-daemon it would be helpful to get the inode
+> > generation numbers. However it seems the fstat() from the glibc doesn't
+> > support this, but refering to some google search fstat() from some (not
+> > all) other unixes does.
+> > Does anyone know how to read those numbers from userspace with linux?
+>
+> For ext2/ext3 filesystems you can use EXT2_GET_VERSION ioctl for this.
 
-diff -Nru a/drivers/char/n_r3964.c b/drivers/char/n_r3964.c
---- a/drivers/char/n_r3964.c	Tue Sep  9 15:40:12 2003
-+++ b/drivers/char/n_r3964.c	Tue Sep  9 15:40:12 2003
-@@ -150,22 +150,18 @@
- static int  r3964_receive_room(struct tty_struct *tty);
- 
- static struct tty_ldisc tty_ldisc_N_R3964 = {
--        TTY_LDISC_MAGIC,       /* magic */
--	"R3964",               /* name */
--        0,                     /* num */
--        0,                     /* flags */
--        r3964_open,            /* open */
--        r3964_close,           /* close */
--        0,                     /* flush_buffer */
--        0,                     /* chars_in_buffer */
--        r3964_read,            /* read */
--        r3964_write,           /* write */
--        r3964_ioctl,           /* ioctl */
--        r3964_set_termios,     /* set_termios */
--        r3964_poll,            /* poll */            
--        r3964_receive_buf,     /* receive_buf */
--        r3964_receive_room,    /* receive_room */
--        0                      /* write_wakeup */
-+	.owner	 = THIS_MODULE,
-+	.magic	= TTY_LDISC_MAGIC, 
-+	.name	= "R3964",
-+	.open	= r3964_open,
-+	.close	= r3964_close,
-+	.read	= r3964_read,
-+	.write	= r3964_write,
-+	.ioctl	= r3964_ioctl,
-+	.set_termios = r3964_set_termios,
-+	.poll	= r3964_poll,            
-+	.receive_buf = r3964_receive_buf,
-+	.receive_room = r3964_receive_room,
- };
- 
- 
-@@ -1070,8 +1066,6 @@
- {
-    struct r3964_info *pInfo;
-    
--   MOD_INC_USE_COUNT;
--
-    TRACE_L("open");
-    TRACE_L("tty=%x, PID=%d, disc_data=%x", 
-           (int)tty, current->pid, (int)tty->disc_data);
-@@ -1188,8 +1182,6 @@
-     TRACE_M("r3964_close - tx_buf kfree %x",(int)pInfo->tx_buf);
-     kfree(pInfo);
-     TRACE_M("r3964_close - info kfree %x",(int)pInfo);
--
--    MOD_DEC_USE_COUNT;
- }
- 
- static ssize_t r3964_read(struct tty_struct *tty, struct file *file,
+regarding to fs/ext2/ioctl.c it should be EXT2_IOC_GETVERSION, shouldn't it?
+
+> Maybe reiserfs as well.
+>
+
+Hello,
+
+thanks a lot, it seems to work pretty well.
+Since I have never used the ioctl() call before I only want to be sure I don't 
+do something wrong,  I think this is correct, isn't it?
+
+int ret, igen;
+ret = ioctl(fd, EXT2_IOC_GETVERSION, &igen);
+
+
+It also works for reiserfs-partitions with the very same call, @reiserfs-team, 
+this won't change in the future, will it?
+
+
+Cheers,
+	Bernd
+

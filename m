@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272416AbTHNPSu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 11:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272423AbTHNPSu
+	id S272405AbTHNPWk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 11:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272410AbTHNPWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 11:18:50 -0400
-Received: from zeke.inet.com ([199.171.211.198]:39924 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id S272416AbTHNPS2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 11:18:28 -0400
-Message-ID: <3F3BA839.8020207@inet.com>
-Date: Thu, 14 Aug 2003 10:18:17 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030708
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Jeff Garzik <jgarzik@pobox.com>, davej@redhat.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
-References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com> <3F37CB44.5000307@pobox.com> <20030811170425.GA4418@work.bitmover.com> <3F3B9AF8.4060904@inet.com> <20030814144711.GA5926@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Aug 2003 11:22:40 -0400
+Received: from law10-f41.law10.hotmail.com ([64.4.15.41]:36613 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S272405AbTHNPWi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 11:22:38 -0400
+X-Originating-IP: [217.158.179.18]
+X-Originating-Email: [allymcw2000@hotmail.com]
+From: "Alasdair McWilliam" <allymcw2000@hotmail.com>
+To: solca@guug.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Unresolved symbols of _mmx_memcpy in modules on an Athlon XP system
+Date: Thu, 14 Aug 2003 16:22:37 +0100
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Law10-F417rkWLoLBNJ0005120b@hotmail.com>
+X-OriginalArrivalTime: 14 Aug 2003 15:22:37.0596 (UTC) FILETIME=[E4CFCDC0:01C36277]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> On Thu, Aug 14, 2003 at 09:21:44AM -0500, Eli Carter wrote:
-> 
->>>That ought to be balanced with "don't screw up the revision history, people
->>>use it".  It's one thing to reformat code that is unreadable, for the most
->>>part this code didn't come close to unreadable.
->>
->>Devil's advocate:
->>Then perhaps the (revision control) tool is getting in the way of doing 
->>the job and should be fixed?  :)
->>Perhaps being able to flag a changeset as a 'formatting change', and 
->>have the option to hide it or make it 'transparent' in some fashion? 
->>Hmm... "Annotate only the changes that relate to feature X."...
->>Oh, and a complete AI with that if you don't mind. ;)
->>
->>But you've probably already thought about all this...
-> 
-> 
-> Indeed I have. 
+The configuration file has never been setup for an Intel chip, it was 
+originally an AMD K6-II/500MHz. I've tried reconfiguring from a brand new 
+tarball for Athlon. What do I get?
 
-Figured. :)
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.22-rc2/kernel/drivers/block/floppy.o
+depmod:         _mmx_memcpy
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.22-rc2/kernel/drivers/block/loop.o
+depmod:         _mmx_memcpy
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.22-rc2/kernel/drivers/cdrom/cdrom.o
+depmod:         _mmx_memcpy
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.22-rc2/kernel/drivers/ide/ide-cd.o
+depmod:         _mmx_memcpy
+.....etc
 
- > And there is a reason that we have a policy at BitMover
-> where "formatting changes" are prohibited and we make people redo their
-> changesets until they get them right.
+Alasdair :(
 
-Ah yes, I do see the value of enforcing a coding style from the get-go.
 
-> In other words, you are welcome to write a revision control system
-> which can look through the formatting changes and give you the semantic
-> knowledge that you want.  We'd love to see how it is done and then do
-> it in BitKeeper :)
+>From: Otto Solares <solca@guug.org>
+>To: Alasdair McWilliam <allymcw2000@hotmail.com>
+>CC: linux-kernel@vger.kernel.org
+>Subject: Re: PROBLEM: Unresolved symbols of _mmx_memcpy in modules on an 
+>Athlon XP system
+>Date: Wed, 13 Aug 2003 20:41:29 -0600
+>
+>On Thu, Aug 14, 2003 at 02:02:02AM +0100, Alasdair McWilliam wrote:
+> > 1. PROBLEM: Unresolved symbols of _mmx_memcpy in modules on an Athlon XP
+> > system
+>
+>you must save your .config to another dir, then make mrproper,
+>then move your .config to your source tree, then make normally.
+>
+>happens to me when i had an intel configured source tree, then
+>compile for amd.
+>
+>-solca
+>
 
-<troll>What?!  And _copy_ someone else's hard work?!</troll> *cough* 
-(Sorry, couldn't resist. ;) )
-
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+_________________________________________________________________
+Tired of 56k? Get a FREE BT Broadband connection 
+http://www.msn.co.uk/specials/btbroadband
 

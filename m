@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267425AbTBDTQj>; Tue, 4 Feb 2003 14:16:39 -0500
+	id <S267367AbTBDT06>; Tue, 4 Feb 2003 14:26:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267426AbTBDTQj>; Tue, 4 Feb 2003 14:16:39 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:44015 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S267425AbTBDTQi>; Tue, 4 Feb 2003 14:16:38 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A84725A152@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: Adam Belay <ambx1@neo.rr.com>, Jaroslav Kysela <perex@perex.cz>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: RE: PnP model
-Date: Tue, 4 Feb 2003 11:25:42 -0800 
+	id <S267426AbTBDT06>; Tue, 4 Feb 2003 14:26:58 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:7177 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267367AbTBDT05>;
+	Tue, 4 Feb 2003 14:26:57 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302041935.h14JZ69G002675@darkstar.example.net>
+Subject: Re: gcc 2.95 vs 3.21 performance
+To: wookie@osdl.org (Timothy D. Witham)
+Date: Tue, 4 Feb 2003 19:35:06 +0000 (GMT)
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, root@chaos.analogic.com,
+       mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+In-Reply-To: <1044385759.1861.46.camel@localhost.localdomain> from "Timothy D. Witham" at Feb 04, 2003 11:09:19 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Adam Belay [mailto:ambx1@neo.rr.com] 
-> In many cases, Auto configuration can be better then manual 
-> configuration.
-> 1.) The auto configuration engine in my patch is able to 
-> resolve almost any
-> resource conflict and provides the greatest chance for all 
-> devices to have
-> resources allocated.
-> 2.) Certainly some driver developers would like to manually 
-> set resources
-> but many may prefer the option to auto config.
+>    I'm hesitant to enter into this.  But from my own experience
+> the issue with big companies supporting these sort of changes 
+> in gcc have more to do with the acceptance process of changes 
+> into gcc than a lack of desire on the large companies part.
 
-I think the people who want to manually configure their device's
-resources need to step up and justify why this is really necessary.
+Maybe we should create a KGCC fork, optimise it for kernel
+complilations, then try to get our changes merged back in to GCC
+mainline at a later date.
 
-If someone is manually configuring something, that means the automatic
-config *failed*. Why did it fail? It should never fail. Manual config is
-only giving the user to opportunity to get something wrong.
-
-Regards -- Andy
+John.

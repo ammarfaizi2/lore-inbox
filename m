@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbUKUT1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbUKUTmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbUKUT1B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 14:27:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbUKUT1B
+	id S261801AbUKUTmI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 14:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbUKUTmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 14:27:01 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:64720 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S261796AbUKUT05
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 14:26:57 -0500
-Message-ID: <41A0EC04.6070100@free.fr>
-Date: Sun, 21 Nov 2004 20:27:00 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: fr-fr, en, en-us
+	Sun, 21 Nov 2004 14:42:08 -0500
+Received: from web41407.mail.yahoo.com ([66.218.93.73]:60586 "HELO
+	web41407.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261801AbUKUTmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 14:42:03 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=ya3gLRnd0NjE33jEth5wMIZmMME4rIvkQQEmfrzTNK8UG1UAlgOKmQXcsGt+K8vuV3dEl2htVS+9NJmgVT8NV5vwscxoTuHMmaa5Keqfq9B3X4DzJuC2gX4Ofnd0DHDRDgthqgtdFLWlH3t0p2PiYqHKnJmRyB86kdzUte4y8pc=  ;
+Message-ID: <20041121194202.14581.qmail@web41407.mail.yahoo.com>
+Date: Sun, 21 Nov 2004 11:42:02 -0800 (PST)
+From: cranium2003 <cranium2003@yahoo.com>
+Subject: Re: how netfilter handles fragmented packets
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
+In-Reply-To: <29495f1d04112109372bb8ebe4@mail.gmail.com>
 MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [Patch] PnPacpi parser fix
-Content-Type: multipart/mixed;
- boundary="------------070005000902040508080904"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070005000902040508080904
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi,
+--- Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+Hello Nish,
 
-this patch fix a bug in the pnpacpi parser : the pnpacpi parser supposed 
-that are no resource after EndDependentFn.
+> On Sun, 21 Nov 2004 17:15:12 +0100 (MET), Jan
+> Engelhardt
+> <jengelh@linux01.gwdg.de> wrote:
+> > >hello,
+> > >          In ip_output.c file ip_fragmet function
+> when
+> > >create a new fragmented packet given to
+> output(skb)
+> > >function. i want to know which function are
+> actually
+> > >called by output(skb)?
+> > 
+> > use stack_dump() (or was it dump_stack()?)
+> 
+> dump_stack(), if you want to dump the current
+> process' stack context.
+> 
+> -Nish
+> 
 
-Please apply.
+can you please tell me how can i use dump_stack()
+method? so using dump_stack i will come to know which
+function will be called by output(skb) right? But
+where i get dump_stack()???
+regards,
+cranium
 
 
-Signed-Off-By: Matthieu Castet <castet.matthieu@free.fr>
-
---------------070005000902040508080904
-Content-Type: text/x-patch;
- name="pnpacpi_parser.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pnpacpi_parser.patch"
-
---- linux-2.6.9/drivers/pnp/pnpacpi/rsparser.c.old	2004-11-12 22:55:10.000000000 +0100
-+++ linux-2.6.9/drivers/pnp/pnpacpi/rsparser.c	2004-11-20 10:44:36.000000000 +0100
-@@ -443,6 +443,7 @@
+		
+__________________________________ 
+Do you Yahoo!? 
+Meet the all-new My Yahoo! - Try it today! 
+http://my.yahoo.com 
  
- struct acpipnp_parse_option_s {
- 	struct pnp_option *option;
-+	struct pnp_option *independent_option;
- 	struct pnp_dev *dev;
- };
- 
-@@ -506,7 +507,15 @@
- 			parse_data->option = option;	
- 			break;
- 		case ACPI_RSTYPE_END_DPF:
--			return AE_CTRL_TERMINATE;
-+			/*only one EndDependentFn is allowed*/
-+			if (!parse_data->independent_option) {
-+				pnp_warn("PnPACPI: more than one EndDependentFn");
-+				return AE_ERROR;
-+			}
-+			parse_data->option = parse_data->independent_option;
-+			parse_data->independent_option = NULL;
-+			break;
- 		default:
- 			pnp_warn("PnPACPI:Option type: %d not handle", res->id);
- 			return AE_ERROR;
-@@ -524,6 +533,7 @@
- 	parse_data.option = pnp_register_independent_option(dev);
- 	if (!parse_data.option)
- 		return AE_ERROR;
-+	parse_data.independent_option = parse_data.option;
- 	parse_data.dev = dev;
- 	status = acpi_walk_resources(handle, METHOD_NAME__PRS, 
- 		pnpacpi_option_resource, &parse_data);
 
---------------070005000902040508080904--

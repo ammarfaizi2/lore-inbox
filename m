@@ -1,29 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270299AbRIAKdU>; Sat, 1 Sep 2001 06:33:20 -0400
+	id <S270279AbRIAKck>; Sat, 1 Sep 2001 06:32:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270280AbRIAKdK>; Sat, 1 Sep 2001 06:33:10 -0400
-Received: from mx4.port.ru ([194.67.57.14]:55310 "EHLO mx4.mail.ru")
-	by vger.kernel.org with ESMTP id <S270299AbRIAKdA>;
-	Sat, 1 Sep 2001 06:33:00 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109011455.f81Ethw00685@vegae.deep.net>
-Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
-To: linux-kernel@vger.kernel.org
-Date: Sat, 1 Sep 2001 14:55:42 +0000 (UTC)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S270274AbRIAKcb>; Sat, 1 Sep 2001 06:32:31 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:55310 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S270266AbRIAKcX>; Sat, 1 Sep 2001 06:32:23 -0400
+Date: Sat, 1 Sep 2001 12:32:38 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Jeremiah Johnson <miah@netcis.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 UDP broke?
+Message-ID: <20010901123238.C6174@emma1.>
+Mail-Followup-To: Jeremiah Johnson <miah@netcis.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <8477538250.20010830232007@netcis.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <8477538250.20010830232007@netcis.com>; from miah@netcis.com on Thu, Aug 30, 2001 at 11:20:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- ANdreas Dilger wrote: 
-> Win2K even abstracts all SMP/UP code into a module (the HAL) and loads this
-> at boot, thus using the same kernel for both.
-    the only possibility of this shows how ugly is SMP in win2k...
-   this is a situation where they are or geniuses or idiots.
-   MS never proved to be geniuses so they still are idiots...
+On Thu, 30 Aug 2001, Jeremiah Johnson wrote:
 
-cheers,
- Sam
+>   I am having very strange problems with 2.4.9 and UDP.  Basically,
+>   anything using UDP wont work.  Anything using TCP/ICMP works fine.
+
+NTP (which relies on UDP traffic to port #123) works fine here with
+2.4.9. Check your packet filter setup, please.

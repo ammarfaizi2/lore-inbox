@@ -1,51 +1,161 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263400AbRFFIXs>; Wed, 6 Jun 2001 04:23:48 -0400
+	id <S263402AbRFFI0I>; Wed, 6 Jun 2001 04:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263402AbRFFIX2>; Wed, 6 Jun 2001 04:23:28 -0400
-Received: from AMontpellier-201-1-3-224.abo.wanadoo.fr ([193.252.1.224]:10489
-	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S263400AbRFFIXW>; Wed, 6 Jun 2001 04:23:22 -0400
-Subject: Re: Break 2.4 VM in five easy steps
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Derek Glidden <dglidden@illusionary.com>
-Cc: Andrew Morton <andrewm@uow.edu.au>, Jeffrey "W." Baker <jwbaker@acm.org>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010605231908.A10520@illusionary.com>
-In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com>
-	<Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
-	<3B1D927E.1B2EBE76@uow.edu.au>  <20010605231908.A10520@illusionary.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 06 Jun 2001 10:19:30 +0200
-Message-Id: <991815578.30689.1.camel@nomade>
-Mime-Version: 1.0
+	id <S263405AbRFFIZ6>; Wed, 6 Jun 2001 04:25:58 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:65297 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S263402AbRFFIZn>;
+	Wed, 6 Jun 2001 04:25:43 -0400
+Date: Wed, 6 Jun 2001 10:22:54 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: [patch] softirq-2.4.6-C3
+In-Reply-To: <Pine.LNX.4.33.0106060935160.1712-200000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0106061013430.2612-200000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1998459672-991815774=:2612"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05 Jun 2001 23:19:08 -0400, Derek Glidden wrote:
-> On Wed, Jun 06, 2001 at 12:16:30PM +1000, Andrew Morton wrote:
-> > "Jeffrey W. Baker" wrote:
-> > > 
-> > > Because the 2.4 VM is so broken, and
-> > > because my machines are frequently deeply swapped,
-> > 
-> > The swapoff algorithms in 2.2 and 2.4 are basically identical.
-> > The problem *appears* worse in 2.4 because it uses lots
-> > more swap.
-> 
-> I disagree with the terminology you're using.  It *is* worse in 2.4,
-> period.  If it only *appears* worse, then if I encounter a situation
-> where a 2.2 box has utilized as much swap as a 2.4 box, I should see the
-> same results.  Yet this happens not to be the case. 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Did you try to put twice as much swap as you have RAM ? (e.g. add a 512M
-swapfile to your box)
-This is what Linus recommended for 2.4 (swap = 2 * RAM), saying that
-anything less won't do any good: 2.4 overallocates swap even if it
-doesn't use it all. So in your case you just have enough swap to map
-your RAM, and nothing to really swap your apps.
+--8323328-1998459672-991815774=:2612
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Xav
 
+a number of softirq.c updates (the patch is still relative to -B4 and
+includes all -C2 changes as well):
+
+- do_softirq() does not have to keep irqs disabled when returning.
+
+- in do_softirq(), disable_local_bh() can be done after checking for
+  pending softirqs.
+
+- the goto retry thing has no effect on gcc's code, so it's an unnecessery
+  complication of the code.
+
+- ditto the in_interrupt() check, no point in doing a goto, gcc optimizes
+  this already.
+
+do_softirq() is now a very compact and straightforward function.
+
+	Ingo
+
+--8323328-1998459672-991815774=:2612
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="softirq-2.4.6-C3"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0106061022530.2612@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="softirq-2.4.6-C3"
+
+LS0tIGxpbnV4L2tlcm5lbC9zb2Z0aXJxLmMub3JpZwlXZWQgSnVuICA2IDA5
+OjAwOjEzIDIwMDENCisrKyBsaW51eC9rZXJuZWwvc29mdGlycS5jCVdlZCBK
+dW4gIDYgMDk6NTY6MDYgMjAwMQ0KQEAgLTUyLDE3ICs1MiwxNyBAQA0KIAlp
+bnQgY3B1ID0gc21wX3Byb2Nlc3Nvcl9pZCgpOw0KIAlfX3UzMiBwZW5kaW5n
+Ow0KIA0KLQlsb2NhbF9pcnFfZGlzYWJsZSgpOw0KIAlpZiAoaW5faW50ZXJy
+dXB0KCkpDQotCQlnb3RvIG91dDsNCisJCXJldHVybjsNCiANCi0JbG9jYWxf
+YmhfZGlzYWJsZSgpOw0KKwlsb2NhbF9pcnFfZGlzYWJsZSgpOw0KIA0KIAlw
+ZW5kaW5nID0gc29mdGlycV9wZW5kaW5nKGNwdSk7DQogDQogCWlmIChwZW5k
+aW5nKSB7DQogCQlzdHJ1Y3Qgc29mdGlycV9hY3Rpb24gKmg7DQogDQorCQls
+b2NhbF9iaF9kaXNhYmxlKCk7DQogcmVzdGFydDoNCiAJCS8qIFJlc2V0IHRo
+ZSBwZW5kaW5nIGJpdG1hc2sgYmVmb3JlIGVuYWJsaW5nIGlycXMgKi8NCiAJ
+CXNvZnRpcnFfcGVuZGluZyhjcHUpID0gMDsNCkBAIC04MiwyMCArODIsMTEg
+QEANCiANCiAJCXBlbmRpbmcgPSBzb2Z0aXJxX3BlbmRpbmcoY3B1KTsNCiAJ
+CWlmIChwZW5kaW5nKQ0KLQkJCWdvdG8gcmV0cnk7DQorCQkJZ290byByZXN0
+YXJ0Ow0KKwkJX19sb2NhbF9iaF9lbmFibGUoKTsNCiAJfQ0KIA0KLQlfX2xv
+Y2FsX2JoX2VuYWJsZSgpOw0KLW91dDoNCi0NCi0JLyogTGVhdmUgd2l0aCBs
+b2NhbGx5IGRpc2FibGVkIGhhcmQgaXJxcy4gSXQgaXMgY3JpdGljYWwgdG8g
+Y2xvc2UNCi0JICogd2luZG93IGZvciBpbmZpbml0ZSByZWN1cnNpb24sIHdo
+aWxlIHdlIGhlbHAgbG9jYWwgYmggY291bnQsDQotCSAqIGl0IHByb3RlY3Rl
+ZCB1cy4gTm93IHdlIGFyZSBkZWZlbmNlbGVzcy4NCi0JICovDQotCXJldHVy
+bjsNCi0NCi1yZXRyeToNCi0JZ290byByZXN0YXJ0Ow0KKwlsb2NhbF9pcnFf
+ZW5hYmxlKCk7DQogfQ0KIA0KIA0KLS0tIGxpbnV4L2luY2x1ZGUvYXNtLWkz
+ODYvc29mdGlycS5oLm9yaWcJV2VkIEp1biAgNiAwODo1MTo1NCAyMDAxDQor
+KysgbGludXgvaW5jbHVkZS9hc20taTM4Ni9zb2Z0aXJxLmgJV2VkIEp1biAg
+NiAwOTo0ODoyMiAyMDAxDQpAQCAtMTEsMTAgKzExLDM5IEBADQogDQogI2Rl
+ZmluZSBsb2NhbF9iaF9kaXNhYmxlKCkJY3B1X2JoX2Rpc2FibGUoc21wX3By
+b2Nlc3Nvcl9pZCgpKQ0KICNkZWZpbmUgX19sb2NhbF9iaF9lbmFibGUoKQlf
+X2NwdV9iaF9lbmFibGUoc21wX3Byb2Nlc3Nvcl9pZCgpKQ0KLSNkZWZpbmUg
+bG9jYWxfYmhfZW5hYmxlKCkJZG8geyBpbnQgX19jcHUgPSBzbXBfcHJvY2Vz
+c29yX2lkKCk7IGlmICghLS1sb2NhbF9iaF9jb3VudChfX2NwdSkgJiYgc29m
+dGlycV9wZW5kaW5nKF9fY3B1KSkgeyBkb19zb2Z0aXJxKCk7IF9fc3RpKCk7
+IH0gfSB3aGlsZSAoMCkNCiAjZGVmaW5lIF9fY3B1X3JhaXNlX3NvZnRpcnEo
+Y3B1LG5yKSBzZXRfYml0KChuciksICZzb2Z0aXJxX3BlbmRpbmcoY3B1KSk7
+DQogI2RlZmluZSByYWlzZV9zb2Z0aXJxKG5yKSBfX2NwdV9yYWlzZV9zb2Z0
+aXJxKHNtcF9wcm9jZXNzb3JfaWQoKSwgKG5yKSkNCiANCiAjZGVmaW5lIGlu
+X3NvZnRpcnEoKSAobG9jYWxfYmhfY291bnQoc21wX3Byb2Nlc3Nvcl9pZCgp
+KSAhPSAwKQ0KKw0KKy8qDQorICogTk9URTogdGhpcyBhc3NlbWJseSBjb2Rl
+IGFzc3VtZXM6DQorICoNCisgKiAgICAoY2hhciAqKSZsb2NhbF9iaF9jb3Vu
+dCAtIDggPT0gKGNoYXIgKikmc29mdGlycV9wZW5kaW5nDQorICoNCisgKiBJ
+ZiB5b3UgY2hhbmdlIHRoZSBvZmZzZXRzIGluIGlycV9zdGF0IHRoZW4geW91
+IGhhdmUgdG8NCisgKiB1cGRhdGUgdGhpcyBjb2RlIGFzIHdlbGwuDQorICov
+DQorI2RlZmluZSBsb2NhbF9iaF9lbmFibGUoKQkJCQkJCVwNCitkbyB7CQkJ
+CQkJCQkJXA0KKwl1bnNpZ25lZCBpbnQgKnB0ciA9ICZsb2NhbF9iaF9jb3Vu
+dChzbXBfcHJvY2Vzc29yX2lkKCkpOwlcDQorCQkJCQkJCQkJXA0KKwlpZiAo
+IS0tKnB0cikJCQkJCQkJXA0KKwkJX19hc21fXyBfX3ZvbGF0aWxlX18gKAkJ
+CQkJXA0KKwkJCSJjbXBsICQwLCAtOCglMCk7IgkJCQlcDQorCQkJImpueiAy
+ZjsiCQkJCQlcDQorCQkJIjE6OyIJCQkJCQlcDQorCQkJCQkJCQkJXA0KKwkJ
+CSIuc2VjdGlvbiAudGV4dC5sb2NrLFwiYXhcIjsiCQkJXA0KKwkJCSIyOiBw
+dXNobCAlJWVheDsgcHVzaGwgJSVlY3g7IHB1c2hsICUlZWR4OyIJXA0KKwkJ
+CSJjYWxsIGRvX3NvZnRpcnE7IgkJCQlcDQorCQkJInBvcGwgJSVlZHg7IHBv
+cGwgJSVlY3g7IHBvcGwgJSVlYXg7IgkJXA0KKwkJCSJqbXAgMWI7IgkJCQkJ
+XA0KKwkJCSIucHJldmlvdXM7IgkJCQkJXA0KKwkJCQkJCQkJCVwNCisJCTog
+Lyogbm8gb3V0cHV0ICovCQkJCQlcDQorCQk6ICJyIiAocHRyKQkJCQkJCVwN
+CisJCS8qIG5vIHJlZ2lzdGVycyBjbG9iYmVyZWQgKi8gKTsJCQkJXA0KK30g
+d2hpbGUgKDApDQogDQogI2VuZGlmCS8qIF9fQVNNX1NPRlRJUlFfSCAqLw0K
+LS0tIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYvaGFyZGlycS5oLm9yaWcJV2Vk
+IEp1biAgNiAwOTowNDo1OSAyMDAxDQorKysgbGludXgvaW5jbHVkZS9hc20t
+aTM4Ni9oYXJkaXJxLmgJV2VkIEp1biAgNiAwOToxNjoyNiAyMDAxDQpAQCAt
+NSw3ICs1LDcgQEANCiAjaW5jbHVkZSA8bGludXgvdGhyZWFkcy5oPg0KICNp
+bmNsdWRlIDxsaW51eC9pcnEuaD4NCiANCi0vKiBlbnRyeS5TIGlzIHNlbnNp
+dGl2ZSB0byB0aGUgb2Zmc2V0cyBvZiB0aGVzZSBmaWVsZHMgKi8NCisvKiBh
+c3NlbWJseSBjb2RlIGluIHNvZnRpcnEuaCBpcyBzZW5zaXRpdmUgdG8gdGhl
+IG9mZnNldHMgb2YgdGhlc2UgZmllbGRzICovDQogdHlwZWRlZiBzdHJ1Y3Qg
+ew0KIAl1bnNpZ25lZCBpbnQgX19zb2Z0aXJxX3BlbmRpbmc7DQogCXVuc2ln
+bmVkIGludCBfX2xvY2FsX2lycV9jb3VudDsNCi0tLSBsaW51eC9hcmNoL2kz
+ODYva2VybmVsL2VudHJ5LlMub3JpZwlXZWQgSnVuICA2IDA4OjQ4OjA5IDIw
+MDENCisrKyBsaW51eC9hcmNoL2kzODYva2VybmVsL2VudHJ5LlMJV2VkIEp1
+biAgNiAwODo1MTozOSAyMDAxDQpAQCAtMTMzLDE4ICsxMzMsNiBAQA0KIAlt
+b3ZsICQtODE5MiwgcmVnOyBcDQogCWFuZGwgJWVzcCwgcmVnDQogDQotI2lm
+ZGVmIENPTkZJR19TTVANCi0jZGVmaW5lIENIRUNLX1NPRlRJUlEgXA0KLQlt
+b3ZsIHByb2Nlc3NvciglZWJ4KSwlZWF4OyBcDQotCXNobGwgJENPTkZJR19Y
+ODZfTDFfQ0FDSEVfU0hJRlQsJWVheDsgXA0KLQl4b3JsICVlY3gsJWVjeDsg
+XA0KLQl0ZXN0bCBTWU1CT0xfTkFNRShpcnFfc3RhdCkrNCgsJWVheCksJWVj
+eA0KLSNlbHNlDQotI2RlZmluZSBDSEVDS19TT0ZUSVJRIFwNCi0JeG9ybCAl
+ZWN4LCVlY3g7IFwNCi0JdGVzdGwgU1lNQk9MX05BTUUoaXJxX3N0YXQpKzQs
+JWVjeA0KLSNlbmRpZg0KLQ0KIEVOVFJZKGxjYWxsNykNCiAJcHVzaGZsCQkJ
+IyBXZSBnZXQgYSBkaWZmZXJlbnQgc3RhY2sgbGF5b3V0IHdpdGggY2FsbCBn
+YXRlcywNCiAJcHVzaGwgJWVheAkJIyB3aGljaCBoYXMgdG8gYmUgY2xlYW5l
+ZCB1cCBsYXRlci4uDQpAQCAtMjE1LDkgKzIwMyw3IEBADQogCWNhbGwgKlNZ
+TUJPTF9OQU1FKHN5c19jYWxsX3RhYmxlKSgsJWVheCw0KQ0KIAltb3ZsICVl
+YXgsRUFYKCVlc3ApCQkjIHNhdmUgdGhlIHJldHVybiB2YWx1ZQ0KIEVOVFJZ
+KHJldF9mcm9tX3N5c19jYWxsKQ0KLQljbGkNCi0JQ0hFQ0tfU09GVElSUQ0K
+LQlqbmUgaGFuZGxlX3NvZnRpcnENCisJY2xpCQkJCSMgbmVlZF9yZXNjaGVk
+IGFuZCBzaWduYWxzIGF0b21pYyB0ZXN0DQogCWNtcGwgJDAsbmVlZF9yZXNj
+aGVkKCVlYngpDQogCWpuZSByZXNjaGVkdWxlDQogCWNtcGwgJDAsc2lncGVu
+ZGluZyglZWJ4KQ0KQEAgLTIzMywxMyArMjE5LDYgQEANCiAJam5lIHY4Nl9z
+aWduYWxfcmV0dXJuDQogCXhvcmwgJWVkeCwlZWR4DQogCWNhbGwgU1lNQk9M
+X05BTUUoZG9fc2lnbmFsKQ0KLSNpZmRlZiBDT05GSUdfU01QDQotCUdFVF9D
+VVJSRU5UKCVlYngpDQotI2VuZGlmDQotCWNsaQ0KLQlDSEVDS19TT0ZUSVJR
+DQotCWplIHJlc3RvcmVfYWxsDQotCWNhbGwgU1lNQk9MX05BTUUoZG9fc29m
+dGlycSkNCiAJam1wIHJlc3RvcmVfYWxsDQogDQogCUFMSUdODQpAQCAtMjQ4
+LDEzICsyMjcsNiBAQA0KIAltb3ZsICVlYXgsJWVzcA0KIAl4b3JsICVlZHgs
+JWVkeA0KIAljYWxsIFNZTUJPTF9OQU1FKGRvX3NpZ25hbCkNCi0jaWZkZWYg
+Q09ORklHX1NNUA0KLQlHRVRfQ1VSUkVOVCglZWJ4KQ0KLSNlbmRpZg0KLQlj
+bGkNCi0JQ0hFQ0tfU09GVElSUQ0KLQlqZSByZXN0b3JlX2FsbA0KLQljYWxs
+IFNZTUJPTF9OQU1FKGRvX3NvZnRpcnEpDQogCWptcCByZXN0b3JlX2FsbA0K
+IA0KIAlBTElHTg0KQEAgLTI3Niw4ICsyNDgsNiBAQA0KIAlBTElHTg0KIHJl
+dF9mcm9tX2V4Y2VwdGlvbjoNCiAJY2xpDQotCUNIRUNLX1NPRlRJUlENCi0J
+am5lIGhhbmRsZV9zb2Z0aXJxDQogCWNtcGwgJDAsbmVlZF9yZXNjaGVkKCVl
+YngpDQogCWpuZSByZXNjaGVkdWxlDQogCWNtcGwgJDAsc2lncGVuZGluZygl
+ZWJ4KQ0KQEAgLTI5MiwxMSArMjYyLDYgQEANCiAJam5lIHJldF9mcm9tX3N5
+c19jYWxsDQogCWptcCByZXN0b3JlX2FsbA0KIA0KLQlBTElHTg0KLWhhbmRs
+ZV9zb2Z0aXJxOg0KLQljYWxsIFNZTUJPTF9OQU1FKGRvX3NvZnRpcnEpDQot
+CWptcCByZXRfZnJvbV9pbnRyDQotCQ0KIAlBTElHTg0KIHJlc2NoZWR1bGU6
+DQogCWNhbGwgU1lNQk9MX05BTUUoc2NoZWR1bGUpICAgICMgdGVzdA0K
+--8323328-1998459672-991815774=:2612--

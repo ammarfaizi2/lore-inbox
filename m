@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283278AbRLDSnK>; Tue, 4 Dec 2001 13:43:10 -0500
+	id <S281547AbRLDSqL>; Tue, 4 Dec 2001 13:46:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281547AbRLDSmC>; Tue, 4 Dec 2001 13:42:02 -0500
-Received: from hal.grips.com ([62.144.214.40]:29387 "EHLO hal.grips.com")
-	by vger.kernel.org with ESMTP id <S283163AbRLDSih>;
-	Tue, 4 Dec 2001 13:38:37 -0500
-Message-Id: <200112041837.fB4Iboq23957@hal.grips.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Gerold Jury <geroldj@grips.com>
-To: manu@agat.net, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: what happened with thread, from 2.2 to 2.4 ?!
-Date: Tue, 4 Dec 2001 19:37:50 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <01120215334302.00742@extasia>
-In-Reply-To: <01120215334302.00742@extasia>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S282910AbRLDSpB>; Tue, 4 Dec 2001 13:45:01 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:40643 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S283232AbRLDSnZ>; Tue, 4 Dec 2001 13:43:25 -0500
+Date: Tue, 4 Dec 2001 11:43:08 -0700
+Message-Id: <200112041843.fB4Ih8l09767@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v199.3 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel version may not be the reason for this.
-glibc 2.2.1 or 2.2.2 had a problem which some uninitialised variables when 
-linked to pthread. (i think i can remember the strfmon call)
-What is your glibc version ?
+  Hi, all. Version 199.3 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-Gerold
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-On Sunday 02 December 2001 15:33, Blindauer Emmanuel wrote:
-> Hi
-> what happenned with thread from 2.2 to 2.4?
-> I have some problems with threaded programs, working under 2.2 and no more
-> under 2.4
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+
+This is against 2.4.17-pre2. Highlights of this release:
+
+- Use SLAB_ATOMIC in <devfsd_notify_de> from <devfs_d_delete>
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

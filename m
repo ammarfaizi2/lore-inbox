@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129977AbRADKya>; Thu, 4 Jan 2001 05:54:30 -0500
+	id <S131083AbRADLAL>; Thu, 4 Jan 2001 06:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131195AbRADKyU>; Thu, 4 Jan 2001 05:54:20 -0500
-Received: from mta13-acc.tin.it ([212.216.176.44]:11999 "EHLO fep13-svc.tin.it")
-	by vger.kernel.org with ESMTP id <S129977AbRADKyD>;
-	Thu, 4 Jan 2001 05:54:03 -0500
-Message-ID: <3A546385.C50B1092@tin.it>
-Date: Thu, 04 Jan 2001 11:50:29 +0000
-From: "A.D.F." <adefacc@tin.it>
-Reply-To: adefacc@tin.it
-Organization: Private
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Confirmation request about new 2.4.x. kernel limits
+	id <S129764AbRADLAA>; Thu, 4 Jan 2001 06:00:00 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:6916 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129641AbRADK7p>;
+	Thu, 4 Jan 2001 05:59:45 -0500
+Message-ID: <20010103233052.B9834@bug.ucw.cz>
+Date: Wed, 3 Jan 2001 23:30:52 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dan Aloni <karrde@callisto.yi.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Cc: mark@itsolve.co.uk
+Subject: Re: [RFC] prevention of syscalls from writable segments, breaking bug exploits
+In-Reply-To: <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org>; from Dan Aloni on Wed, Jan 03, 2001 at 11:13:31PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I would like to know whether following limits are right for kernel
-2.4.x:
+Hi!
 
-Max. N. of CPU:			32	(SMP)
-Max. CPU speed:			> 2 Ghz	(up to ?)
-Max. RAM size:			64 GB	(any slowness accessing RAM over 4 GB
-					 with 32 bit machines ?)
-Max. file size:	 		1 TB	(?)
-Max. file system size:		2 TB	(?)
-Max. N. of files per FS:	2^32	(depending on max. n. of inodes ?)
-Max. N. of users/groups:	2^32	(well, that's in theory, probably 						
-practical limits, due to RAM usage,
-					 access time, etc., are much lower).
+> It is known that most remote exploits use the fact that stacks are
+> executable (in i386, at least).
+> 
+> On Linux, they use INT 80 system calls to execute functions in the kernel
+> as root, when the stack is smashed as a result of a buffer overflow bug in
+> various server software.
+> 
+> This preliminary, small patch prevents execution of system calls which
+> were executed from a writable segment. It was tested and seems to work,
+> without breaking anything. It also reports of such calls by using
+> printk.
 
-Other upper limits, eventually compared with those of latest 2.2.x
-kernels, would be appreciated.
+Haha.
 
-	Thanks in advance for your patience.
+So exploit needs to call libc function to do dirty work for it. Not so
+big deal.
+
+Okay, it might do a trick and deter script kiddies; still it is even
+weaker then non-executable stack patches.
+
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

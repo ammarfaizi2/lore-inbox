@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261509AbTCKSqG>; Tue, 11 Mar 2003 13:46:06 -0500
+	id <S261520AbTCKSuZ>; Tue, 11 Mar 2003 13:50:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261515AbTCKSqG>; Tue, 11 Mar 2003 13:46:06 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:8632 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261509AbTCKSqG>;
-	Tue, 11 Mar 2003 13:46:06 -0500
-Date: Tue, 11 Mar 2003 10:46:37 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Zack Brown <zbrown@tumblerings.org>, Daniel Phillips <phillips@arcor.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <22230000.1047408397@flay>
-In-Reply-To: <20030311184043.GA24925@renegade>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030309000514.GB1807@work.bitmover.com> <20030309024522.GA25121@renegade> <20030309225857.0FAC7101207@mx12.arcor-online.net> <20030311184043.GA24925@renegade>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261521AbTCKSuZ>; Tue, 11 Mar 2003 13:50:25 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26304
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261520AbTCKSuY>; Tue, 11 Mar 2003 13:50:24 -0500
+Subject: Re: kernel bug page_alloc.c 2.4.18-14
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jeff@AmeriCom.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030311183138.13152.qmail@solo.americom.com>
+References: <20030311183138.13152.qmail@solo.americom.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+Message-Id: <1047413311.19953.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 11 Mar 2003 20:08:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've taken a lot of stuff from that wish list, combined it with what I gathered
-> from Larry's earlier post, and from Petr Baudis' recent post, and elsewhere,
-> and organized it into something that might be interesting. If anyone would
-> like to host this document on the web, please let me know.
+On Tue, 2003-03-11 at 18:31, jeff@AmeriCom.com wrote:
+> This dual CPU system will stay up for a few days, and then it starts reporting these
+> errors to the console, shortly after these messages start appearing it will lock up.
+> Below is the output from dmesg. Below that is my system info. Is there a patch for
+> this? This is the standard redhat 8.0 kernel (2.4.18-14smp).
 
-Not sure if this was captured before (I don't see it explicitly in what
-you sent), but one thing that I don't think current tools do well is to
-keep changes seperated out. We need to be able to put a stack of 200
-patches on top of 2.5.10, then be able to break those out again easily
-come 2.5.60, once we've merged forward. Treating things as one big blob
-will work great for Linus, but badly for others.
-
-At the moment, I slap the patches back on top of every new version 
-seperately, which works well, but is a PITA. I hear this is something
-of a pain to do with Bitkeeper (don't know, I've never tried it). 
-People muttered things about keeping 200 different views, which is
-fine for hardlinked diff & patch (takes < 1s to clone normally), but
-I'm not sure how long a merge would take in Bitkeeper this way? Perhaps
-people who've done this in other SCM's could comment?
-
-M.
+>From the trace its hard to tell, its random corruption by the look of
+it. Could be hw or sw. The best place to file bugs on Red Hat kernels
+is http://bugzilla.redhat.com. There is a newer kernel update but I 
+don't know if it fixes anything you might be hitting from the info
+given.
 

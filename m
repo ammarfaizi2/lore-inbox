@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbUKCIl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbUKCIoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbUKCIl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 03:41:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbUKCIl3
+	id S261473AbUKCIoG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 03:44:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbUKCIoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 03:41:29 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:38633 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261471AbUKCIlZ (ORCPT
+	Wed, 3 Nov 2004 03:44:06 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:928 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261473AbUKCIoB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 03:41:25 -0500
-Date: Wed, 3 Nov 2004 09:42:17 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       LKML <linux-kernel@vger.kernel.org>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
-Message-ID: <20041103084217.GA27404@elte.hu>
-References: <OF9F489E60.B8B3EA93-ON86256F40.007C1401-86256F40.007C1430@raytheon.com> <20041103083900.GA27211@elte.hu>
+	Wed, 3 Nov 2004 03:44:01 -0500
+Date: Wed, 3 Nov 2004 09:43:30 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: still no cd/dvd burning as user with 2.6.9
+Message-ID: <20041103084330.GB10434@suse.de>
+References: <41889857.5040506@tequila.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041103083900.GA27211@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <41889857.5040506@tequila.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 03 2004, Clemens Schwaighofer wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Hi,
+> 
+> I use 2.6.9-ac3 on my Laptop and I just wanted to burn a DVD-Video with
+> my external Pioneer DVD writer which is connected via fire-wire to the
+> Laptop.
+> 
+> Before 2.6.9-ac3 I used 2.6.9-rc2-mm2 and with this I could write CDs/DVDs.
+> 
+> <rant>
+> So why is it still impossible that users can write CDs/DVDs. I, as a
+> user, find this rather ridicolous that you have to patch the kernel to
+> get this simple thing running. Security is important, yes, but this is
+> just annoying.
+> 
+> I really hope that gets fixed soon, because its just annoying to reboot
+> to a different kernel, just to write CDs ...
+> </rant>
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+It should work, are the permissions on your device file correct?
 
-> yeah, this is yet another networking deadlock, nicely detected and
-> logged. Since the deadlock locks up ksoftirqd, timer handling (also
-> driven by ksoftirqd) wont work - i think this explains the followup
-> symptoms you got.
+-- 
+Jens Axboe
 
-the patch below should fix this deadlock but there might be others
-around ...
-
-	Ingo
-
---- linux/include/net/sock.h.orig2	
-+++ linux/include/net/sock.h	
-@@ -706,8 +706,8 @@ extern void FASTCALL(lock_sock(struct so
- extern void FASTCALL(release_sock(struct sock *sk));
- 
- /* BH context may only use the following locking interface. */
--#define bh_lock_sock(__sk)	spin_lock(&((__sk)->sk_lock.slock))
--#define bh_unlock_sock(__sk)	spin_unlock(&((__sk)->sk_lock.slock))
-+#define bh_lock_sock(__sk)	do { rcu_read_lock_read(&ptype_lock); spin_lock(&((__sk)->sk_lock.slock)); } while (0)
-+#define bh_unlock_sock(__sk)	do { spin_unlock(&((__sk)->sk_lock.slock)); rcu_read_unlock_read(&ptype_lock); } while (0)
- 
- extern struct sock *		sk_alloc(int family, int priority, int zero_it,
- 					 kmem_cache_t *slab);

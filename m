@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVCPU2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262789AbVCPUb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbVCPU2X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 15:28:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVCPU2X
+	id S262789AbVCPUb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 15:31:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbVCPUb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 15:28:23 -0500
-Received: from everest.2mbit.com ([24.123.221.2]:36290 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S261409AbVCPU2U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 15:28:20 -0500
-Date: Wed, 16 Mar 2005 15:28:00 -0500
-From: Coywolf Qi Hunt <coywolf@sosdg.org>
-To: pavel@suse.cz
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch] SUSPEND_PD_PAGES-fix
-Message-ID: <20050316202800.GA22750@everest.sosdg.org>
-Reply-To: coywolf@gmail.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: coywolf@mail.sosdg.org
+	Wed, 16 Mar 2005 15:31:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58775 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262786AbVCPUbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 15:31:53 -0500
+Message-ID: <42389797.7000004@pobox.com>
+Date: Wed, 16 Mar 2005 15:31:19 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI updates for 2.6.11
+References: <1110934411.5685.39.camel@mulgrave> <42387C7C.9040407@pobox.com> <1111003679.5635.3.camel@mulgrave>
+In-Reply-To: <1111003679.5635.3.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Bottomley wrote:
+> On Wed, 2005-03-16 at 13:35 -0500, Jeff Garzik wrote:
+> 
+>>Are my 3ware bugfixes in the queue?  Currently 3ware claims it handled 
+>>the interrupt, even the interrupt is a shared one and the event was 
+>>meant for another driver.
+> 
+> 
+> Not in my queue ... you could try Adam Radford directly ...
 
-Hello,
+More info?  Were they dropped on purpose, or just never arrived?
+If dropped on purpose, what was the reason?
 
-This fixes SUSPEND_PD_PAGES, which wastes one page under most cases.
+http://marc.theaimsgroup.com/?l=linux-scsi&m=110974795732192&w=2
+http://marc.theaimsgroup.com/?l=linux-scsi&m=110974807701325&w=2
+http://marc.theaimsgroup.com/?l=linux-scsi&m=110974812119775&w=2
+http://marc.theaimsgroup.com/?l=linux-scsi&m=110974869410494&w=2
+
+	Jeff
 
 
-	Coywolf
-
-
-Signed-off-by: Coywolf Qi Hunt <coywolf@gmail.com>
-diff -pruN 2.6.11-mm4/include/linux/suspend.h 2.6.11-mm4-cy/include/linux/suspend.h
---- 2.6.11-mm4/include/linux/suspend.h	2005-03-17 01:22:16.000000000 +0800
-+++ 2.6.11-mm4-cy/include/linux/suspend.h	2005-03-17 04:14:16.000000000 +0800
-@@ -34,7 +34,7 @@ typedef struct pbe {
- #define SWAP_FILENAME_MAXLENGTH	32
- 
- 
--#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
-+#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe)+PAGE_SIZE-1)/PAGE_SIZE)
- 
- extern dev_t swsusp_resume_device;
-    

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbULZK0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbULZKct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbULZK0r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 05:26:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbULZK0r
+	id S261629AbULZKct (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 05:32:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbULZKct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 05:26:47 -0500
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:3282 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261624AbULZK0p convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 05:26:45 -0500
-To: Larry McVoy <lm@bitmover.com>
+	Sun, 26 Dec 2004 05:32:49 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:61829
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261631AbULZKcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 05:32:41 -0500
+Date: Sun, 26 Dec 2004 02:32:00 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Nick Warne <nick@linicks.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: lease.openlogging.org is unreachable
-References: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
-	<20041226011222.GA1896@work.bitmover.com>
-	<20041226030957.GA8512@work.bitmover.com>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-In-Reply-To: <20041226030957.GA8512@work.bitmover.com> (Larry McVoy's
- message of "Sat, 25 Dec 2004 19:09:57 -0800")
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Date: Sun, 26 Dec 2004 11:26:42 +0100
-Message-ID: <yw1x7jn5bbj1.fsf@inprovide.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: Re: 2.6.10 typo in include/linux/netfilter.h
+Message-Id: <20041226023200.1bbf594d.davem@davemloft.net>
+In-Reply-To: <200412260917.38717.nick@linicks.net>
+References: <200412260917.38717.nick@linicks.net>
+X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
+On Sun, 26 Dec 2004 09:17:38 +0000
+Nick Warne <nick@linicks.net> wrote:
 
-> The interesting thing is that the code already has a backup in it and I just
-> checked that code path and it works.
->
-> Has anyone else been shut down because of lease.openlogging.org being down
-> and if so what version of BK were you running please?
->
-> It is true that both servers are at our offices so if the network had been
-> down you would have been out of luck.
+> Breaks the build.
+> 
+> Line 161
+> 
+> /* Call setsockopt() */
+> int nf_setsockopt(struct sock *sk, int pf, int optval, char __user *opt,
+>                   int len(;  <-------
 
-I've been bitten by that one, as I occasionally work off-line.  Is
-there some way I can make BK renew the leases a week or so before they
-expire?
-
-It would also be nice if a simple read-only 'get' were allowed without
-a lease at all.
-
--- 
-Måns Rullgård
-mru@inprovide.com
+That doesn't exist in the 2.6.10 sources.  Something is
+up with the source tree you have.  Lots of people would
+be complaining if this simplistic error were actually
+in the real 2.6.10 tree.

@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287868AbSA3B3o>; Tue, 29 Jan 2002 20:29:44 -0500
+	id <S287886AbSA3Bcy>; Tue, 29 Jan 2002 20:32:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287858AbSA3B3e>; Tue, 29 Jan 2002 20:29:34 -0500
-Received: from adsl-187-220.38-151.net24.it ([151.38.220.187]:23055 "EHLO
-	karis.localdomain") by vger.kernel.org with ESMTP
-	id <S287872AbSA3B3W>; Tue, 29 Jan 2002 20:29:22 -0500
-Message-Id: <200201300132.g0U1WDB24547@karis.localdomain>
-Date: Wed, 30 Jan 2002 02:32:13 +0100
-From: Francesco Munda <syylk@tiscalinet.it>
-To: Padraig Brady <padraig@antefacto.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S287882AbSA3Bco>; Tue, 29 Jan 2002 20:32:44 -0500
+Received: from mail1.amc.com.au ([203.15.175.2]:1541 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S287858AbSA3Bca>;
+	Tue, 29 Jan 2002 20:32:30 -0500
+Message-Id: <5.1.0.14.0.20020130122650.023213c0@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 30 Jan 2002 12:32:25 +1100
+To: linux-kernel@vger.kernel.org
+From: Stuart Young <sgy@amc.com.au>
 Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <3C56943E.60405@antefacto.com>
-In-Reply-To: <200201282213.g0SMDcU25653@snark.thyrsus.com>
-	<200201290137.g0T1bwB24120@karis.localdomain>
-	<3C56943E.60405@antefacto.com>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.6; i686-pc-linux-gnu)
+Cc: Jeff Garzik <garzik@havoc.gtf.org>,
+        Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
+        John Weber <weber@nyc.rr.com>
+In-Reply-To: <20020129201806.B12201@havoc.gtf.org>
+In-Reply-To: <5.1.0.14.0.20020130113958.00a04390@mail.amc.localnet>
+ <3C5600A6.3080605@nyc.rr.com>
+ <87n0yxqa6e.fsf@tigram.bogus.local>
+ <5.1.0.14.0.20020130113958.00a04390@mail.amc.localnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002 12:23:26 +0000
-Padraig Brady <padraig@antefacto.com> wrote:
+At 08:18 PM 29/01/02 -0500, Jeff Garzik wrote:
+>On Wed, Jan 30, 2002 at 12:00:11PM +1100, Stuart Young wrote:
+> > Perhaps it's time we set up a specific lkml-patch mailing list, and leave
+>
+>I like the suggestion (most recently, of Daniel?  pardon if I
+>miscredit) of having patches-2.[45]@vger.kernel.org type addresses,
+>which would archive patches, and have a high noise-to-signal ratio.
+>Maybe even filter out all non-patches.
+>
+>The big issue I cannot decide upon is whether standard e-mails should be
+>         To: torvalds@
+>         CC: patches-2.4@
+>or just
+>         To: patches-2.4@
+>
+>(I'm guessing Linus would prefer the first, but who knows)
 
-> Currently the way I see it [should be] currently is:
-> 
-> [cut-n-pasted graph]
-> 
-> I.E. Linus just gets input from the combiners which
-> test logic from the maintainers in combination. Also
-> random hackers should input to the combiners and not Linus
-> if there isn't an appropriate maintainer for their code.
+Perhaps it'd be easier for patches-2.4 to actually send a copy to whoever 
+is the relevant maintainer of a "section" (which could be worked out from 
+the path in the patch, as long as it's made relevant to linux/) as well as 
+the 2.4 maintainer? There is a lot of things that can be done here.
 
-Quite descriptive and useful, thanks.
+>Also, something noone has mentioned is out-of-band patches.  Security 
+>fixes and other patches which for various reasons go straight to Linus.
 
-Let me raise a point. And extend your graph:
+Perhaps that is a good use for my lkml-patches idea, which gives those who 
+have no avenue a place to post patches so they get picked up.
 
-random hackers
-| | | | | | |
-| maintainers -< subsys testers
-| | | |
-combiners -< tree testers
-| |
-Linus
+Something that does need to be done is that various directories under the 
+kernel tree need to have someone "who receives patches" for that part, and 
+who forwards them onto the kernel maintainer (eg: Linus, Marcello, etc) for 
+further review/inclusion/rejection. This way, anything that doesn't fall 
+under a particular maintainer gets sectioned off to someone, so it does get 
+review, and hopefully a reply.
 
-Who you call combiners... How many of them should release independent trees
-to be thrown at us test-dogs? My point of view is neither the hacker, nor the
-maintainer nor the combiner one. Nor Linus, thank god! :) It's the guy who
-risks his filesystem integrity with some 2.X.Y-preZ-testW-QQ-KK kernel.
 
-How many crosspatched sources I should look at, to try my luck with?
+Stuart Young - sgy@amc.com.au
+(aka Cefiar) - cefiar1@optushome.com.au
 
-Have fun,
-
--- Francesco
+[All opinions expressed in the above message are my]
+[own and not necessarily the views of my employer..]
 

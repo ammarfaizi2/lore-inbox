@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUEXA1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUEXA3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUEXA1x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 20:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUEXA1x
+	id S263772AbUEXA3q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 20:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbUEXA3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 20:27:53 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:64143 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263770AbUEXA1w
+	Sun, 23 May 2004 20:29:46 -0400
+Received: from mailgw.aecom.yu.edu ([129.98.1.16]:4819 "EHLO
+	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP id S263772AbUEXA3o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 20:27:52 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 23 May 2004 17:27:17 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: scheduler: IRQs disabled over context switches
-In-Reply-To: <20040524003308.B4818@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0405231635300.512@bigblue.dev.mdolabs.com>
-References: <20040523174359.A21153@flint.arm.linux.org.uk>
- <Pine.LNX.4.58.0405231125420.512@bigblue.dev.mdolabs.com>
- <20040523203814.C21153@flint.arm.linux.org.uk>
- <Pine.LNX.4.58.0405231241450.512@bigblue.dev.mdolabs.com>
- <20040524003308.B4818@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 23 May 2004 20:29:44 -0400
+Mime-Version: 1.0
+Message-Id: <a0610055abcd6f1c60429@[129.98.90.227]>
+In-Reply-To: <40AE4DDC.7050508@pobox.com>
+References: <a06100547bcd3f33b5b73@[129.98.90.227]>
+ <40AE4DDC.7050508@pobox.com>
+Date: Sun, 23 May 2004 20:27:33 -0400
+To: linux-kernel@vger.kernel.org
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: Re: tg3 module in kernel 2.6.5 panics
+Cc: Jeff Garzik <jgarzik@pobox.com>, aj@andaco.de, davem@nuts.davemloft.net,
+       mchan@broadcom.com
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 May 2004, Russell King wrote:
+>Maurice Volaski wrote:
+>>The tg3 module in (gentoo) kernel 2.6.5 panics on boot on a 
+>>dual-opteron 248 box with 4G RAM. I copied the following screen 
+>>output...
+>
+>
+>This looks like kobject stuff unrelated to tg3.
+>
+>Does 2.6.6 fail similarly?
+>
+>	Jeff
 
-> On Sun, May 23, 2004 at 04:04:39PM -0700, Davide Libenzi wrote:
-> > On Sun, 23 May 2004, Russell King wrote:
-> > > Not quite - look harder.  They use spin_unlock_irq in finish_arch_switch
-> > > rather than prepare_arch_switch.
-> > 
-> > Hmm, they do indeed. Hmm, if we release the rq lock before the ctx switch, 
-> > "prev" (the real one) will result not running since we already set 
-> > "rq->curr" to "next" (and we do not hold "prev->switch_lock").
-> 
-> We do hold prev->switch_lock - we hold it all the time that the thread
-> is running.  Consider what prepare_arch_switch() is doing - it's taking
-> the next threads switch_lock.  It only gets released _after_ we've
-> switched away from that thread.
+Yes, it does.
+-- 
 
-It is flawed indeed :) (/me looking at it after ages). Even looking at the 
-scheduler tick code, it does not play with mm fields, so it should be fine 
-after the rq lock (and IRQ) release. Preempt is fine due to the preempt_disable()
-(plus switch_lock held), tasks result running (due switch_lock held) so 
-remote CPUs won't touch them, and scheduler_tick() looking innocuous with 
-respect to the fields that matters for switch. Is it blowing up on ARM?
-
-
-
-- Davide
-
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

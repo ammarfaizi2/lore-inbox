@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262568AbREVEov>; Tue, 22 May 2001 00:44:51 -0400
+	id <S262574AbREVFO5>; Tue, 22 May 2001 01:14:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262570AbREVEol>; Tue, 22 May 2001 00:44:41 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:22958 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S262568AbREVEog>;
-	Tue, 22 May 2001 00:44:36 -0400
-Date: Tue, 22 May 2001 06:44:30 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Dave Jones <davej@suse.de>
-Cc: Steven Walter <srwalter@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-Message-ID: <20010522064430.D4934@khan.acc.umu.se>
-In-Reply-To: <20010521215927.B31289@hapablap.dyn.dhs.org> <Pine.LNX.4.30.0105220519160.20545-100000@Appserv.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.30.0105220519160.20545-100000@Appserv.suse.de>; from davej@suse.de on Tue, May 22, 2001 at 05:22:35AM +0200
+	id <S262575AbREVFOr>; Tue, 22 May 2001 01:14:47 -0400
+Received: from idiom.com ([216.240.32.1]:47111 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S262574AbREVFOj>;
+	Tue, 22 May 2001 01:14:39 -0400
+Message-ID: <3B09F53E.FE67E795@namesys.com>
+Date: Mon, 21 May 2001 22:12:30 -0700
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: Ricardo Galli <gallir@uib.es>
+CC: linux-kernel@vger.kernel.org, timothy@monkey.org,
+        Guillem Cantallops Ramis <guillem@cantallops.net>,
+        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>,
+        reiserfs-dev@namesys.com
+Subject: Re: New XFS, ReiserFS and Ext2 benchmarks
+In-Reply-To: <LOEGIBFACGNBNCDJMJMOKEADCJAA.gallir@uib.es>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 05:22:35AM +0200, Dave Jones wrote:
-> On Mon, 21 May 2001, Steven Walter wrote:
+Ricardo Galli wrote:
 > 
-> > > Any particular reason this needs to be done in the kernel, as opposed
-> > > to having your script read /dev/cpu/*/cpuid?
-> > Wouldn't that be the same reason we have /anything/ in cpuinfo?
+> Hi,
+>         you can find at http://bulma.lug.net/static/ a few new benchmarks among
+> Reiser, XFS and Ext2 (also one with JFS).
 > 
-> When /proc/cpuinfo was added, we didn't have /dev/cpu/*/cpuid
-> Now that we do, we're stuck with keeping /proc/cpuinfo for
-> compatability reasons.
+> This time there is a comprehensive Hans' Mongo benchmarks
+> (http://bulma.lug.net/static/mongo/ )and a couple of kernel compilations and
+> read/write/fsync operations tests (I was very careful of populating the
+> cache before the measures for the last two cases).
+> 
+> Regards,
+> 
+> --ricardo
+> http://m3d.uib.es/~gallir/
 
-AFAIK, not all processors support cpuid.
+These are interesting benchmarks, my only caveats are that make bzImage is
+probably CPU bound not IO bound (the traditional value of compiles as FS
+benchmarks does not apply to Linux filesystems, as they don't do the misdesigned
+synchronization policy of older Unices, and compiles are CPU bound for them in
+my experience), that I don't understand fully why we are so much faster at the
+cp -ar, and I would like Yura to try to reproduce the cp -ar as it seems too
+good to be true.
 
+Thanks for investing the time into this Ricardo.
 
-/david
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Hans

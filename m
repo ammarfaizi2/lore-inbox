@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUHJHl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUHJHwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUHJHl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 03:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUHJHlZ
+	id S261252AbUHJHwl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 03:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUHJHwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 03:41:25 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:27581 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261451AbUHJHkz (ORCPT
+	Tue, 10 Aug 2004 03:52:41 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:1725 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261252AbUHJHwk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 03:40:55 -0400
-Message-Id: <200408100740.i7A7e0N05113@owlet.beaverton.ibm.com>
-To: Andrew Theurer <habanero@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, mingo@elte.hu,
-       akpm@osdl.org
-Subject: Re: 2.6.8-rc2-mm2 performance improvements (scheduler?)
-In-reply-to: Your message of "Mon, 09 Aug 2004 23:10:01 CDT."
-	     <200408092308.56160.habanero@us.ibm.com>
-Date: Tue, 10 Aug 2004 00:40:00 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Tue, 10 Aug 2004 03:52:40 -0400
+Date: Tue, 10 Aug 2004 09:52:39 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Robert Crawford <flacycads@access4less.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: [cdrecord ('Cannot allocate memory') breakage] Re: 2.6.8-rc3-mm1 & mm2 break k3b
+Message-ID: <20040810075239.GA23087@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Robert Crawford <flacycads@access4less.net>,
+	linux-kernel@vger.kernel.org
+References: <200408100011.30730.flacycads@access4less.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408100011.30730.flacycads@access4less.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    What's quite interesting is that there is a very noticeable surge in
-    load_balance with staircase in the early stage of the test, but there
-    appears to be -no- direct policy changes to load-balance at all in
-    Con's patch (or at least I didn't notice it -please tell me if you
-    did!).  You can see it in busy load_balance, sched_balance_exec, and
-    pull_task.  The runslice and latency stats confirm this -no-staircase
-    does not balance early on, and the tasks suffer, waiting on a cpu
-    already loaded up.  I do not have an explanation for this; perhaps
-    it has something to do with eliminating expired queue.
+On Tue, Aug 10, 2004 at 12:11:30AM +0000, Robert Crawford wrote:
 
-Possibly.  The other factor thrown in here is that this was on an SMT
-machine, so it's possible that the balancing is no different but we are
-seeing tasks initially assigned more poorly.  Or, perhaps we're drawing
-too much from one data point.
 
-    It would be nice to have per cpu runqueue lengths logged to see how
-    this plays out -do the cpus on staircase obtain a runqueue length
-    close to nr_running()/nr_online_cpus sooner than no-staircase?
+> Unable to determine the last tracks data mode. using default
+> cdrecord returned an unknown error (code 12)
+> Cannot allocate memory
 
-The only difficulty there is do we know how long it normally takes for
-this to balance out?  We're taking samples every five seconds; might this
-not work itself out between one snapshot and the next?  Shrug.  It would
-be easy enough to add another field to report nr_running at the moment
-the statistics snapshot was taken, but on anything but compute-intensive
-benchmarks I'm afraid we might miss all the interesting data.
+This error has also been reported by:
+Alexander Gran      ( 0.5K) Re: Cannot burn without strace on 2.6.8-rc3-mm1
 
-    Also, one big change apparent to me, the elimination of
-    TIMESLICE_GRANULARITY.  Do you have cswitch data?  I would not
-    be surprised if it's a lot higher on -no-staircase, and cache is
-    thrashed a lot more.  This may be something you can pull out of the
-    -no-staircase kernel quite easily.
+In his case it goes away when stracing the process.
 
-Yes, sar data was collected every five seconds so I do have context switch
-data.  The bad news is that it was collected for each of 10 runs times
-four different loads, and I don't have any handy dandy scripts to pretty
-it up :)  (Pause.) A quick exercise with a calculator, though, suggests
-you are right. cswitches were 10%-20% higher on the no staircase runs.
-
-Rick
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

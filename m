@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264229AbTLUWFf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 17:05:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTLUWFf
+	id S264162AbTLUWXt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 17:23:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264163AbTLUWXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 17:05:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57273 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264229AbTLUWFb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 17:05:31 -0500
-Date: Sun, 21 Dec 2003 14:05:08 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] use rcu for fasync_lock
-In-Reply-To: <3FE616AE.5030103@colorfullife.com>
-Message-ID: <Pine.LNX.4.58.0312211357200.1621@home.osdl.org>
-References: <3FE492EF.2090202@colorfullife.com> <8765ga6moe.fsf@devron.myhome.or.jp>
- <3FE5F116.9020608@colorfullife.com> <Pine.LNX.4.58.0312211250370.13039@home.osdl.org>
- <3FE60BCC.5090305@colorfullife.com> <Pine.LNX.4.58.0312211313070.13039@home.osdl.org>
- <3FE616AE.5030103@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 21 Dec 2003 17:23:48 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:11527 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264162AbTLUWXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 17:23:47 -0500
+Date: Sun, 21 Dec 2003 23:23:38 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Octave <oles@ovh.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: lot of VM problem with 2.4.23
+Message-ID: <20031221222338.GC1323@alpha.home.local>
+References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local> <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221150312.GJ25043@ovh.net> <20031221154227.GB1323@alpha.home.local> <20031221161324.GN25043@ovh.net> <Pine.LNX.4.58L.0312211643470.6632@logos.cnet> <20031221191431.GP25043@ovh.net> <Pine.LNX.4.58L.0312211832320.6632@logos.cnet> <20031221210917.GB4897@ovh.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031221210917.GB4897@ovh.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 21, 2003 at 10:09:17PM +0100, Octave wrote:
+> > This is not a kernel panic, its the VM debugging output.
+> > 
+> > Can you please apply the attached patch on top of 2.4.23 and rerun the
+> > test with "echo 1 > /proc/sys/vm_gfp_debug" ?
+> > 
+> > It will printout the number of available swap pages when processes get
+> > killed.
+> 
+> Marcelo,
+> 
+> How about this ?
+> 
+> Dec 21 22:08:44 stock kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> Dec 21 22:08:44 stock kernel: OOM: nr_swap_pages=0cd865e6c c012e1e8 c0262e3c 00000000 000001d2 00000000 00000001 cd863c00 
 
+OK, so there's no available swap anymore (nr_swap_pages=0, Marcelo forgot the
+'\n' in the patch). I simply think that with other kernels, you're very short
+of memory, but it runs, while with this one, all memory gets consumed, and
+since there's no smart oom killer, one process has to get killed.
 
-On Sun, 21 Dec 2003, Manfred Spraul wrote:
->
-> >Here's a big clue: if you make code worse than it is today, it won't be 
-> >accepted. I don't even see why you'd bother in the first place.
->
-> fasync_helper != kill_fasync
-> fasync_helper is rare, and usually running under lock_kernel().
+Cheers,
+Willy
 
-But we want to get rid of lock_kernel(), not create new code that depends 
-on it.
-
-And _especially_ if fasync_helper() is rarely used, that means that 
-changing the callers to have a nicer calling convention would not be 
-painful.
-
-> kill_fasync is far more common (every pipe_read and _write), I want to 
-> remove the unconditional read_lock(&global_lock).
-
-Note that my personal preference would be to kill off "kill_fasync()" 
-entirely.
-
-We actually have almost all the infrastructure in place already: it's 
-called a "wait queue". In 2.5.x it took a callback function, and the only 
-thing missing is really the "band" information at wakeup time.
-
-So if we instead made the whole fasync infrastructure use the existing 
-wait-queues, and made wakeup() say what kind of wakeup it is, we could 
-probably get rid of the specific fasync datastructures entirely. And we'd 
-only take locks that we take _anyway_.
-
-I dunno. But to me that at least sounds like a real cleanup.
-
-> Today's solution is two copies of fasync_helper: one with lock_sock in 
-> net/socket.c, one with write_lock_irq(&fasync_lock) in fs/fcntl.c.
-
-And two functions that statically do something different is actually 
-_better_ than one function that does two different things dynamically.
-
-And if the two cases have different locking, then they should remain as 
-two separate cases.
-
-			Linus

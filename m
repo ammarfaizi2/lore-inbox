@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310168AbSCKP4R>; Mon, 11 Mar 2002 10:56:17 -0500
+	id <S310172AbSCKP75>; Mon, 11 Mar 2002 10:59:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310171AbSCKP4H>; Mon, 11 Mar 2002 10:56:07 -0500
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:52746 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id <S310168AbSCKP4E>; Mon, 11 Mar 2002 10:56:04 -0500
-Date: Mon, 11 Mar 2002 10:44:41 -0500
-From: Jay Estabrook <Jay.Estabrook@compaq.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ink@jurassic.park.msu.ru, garloff@suse.de, jochen@scram.de,
-        linux-kernel@vger.kernel.org, rth@twiddle.net
-Subject: Re: Busmaster DMA broken in 2.4.18 on Alpha
-Message-ID: <20020311104441.A1628@linux04.mro.cpqcorp.net>
-In-Reply-To: <20020311124511.J2346@nbkurt.etpnet.phys.tue.nl> <20020311171058.A9038@jurassic.park.msu.ru> <20020311100200.A1181@linux04.mro.cpqcorp.net> <20020311.071656.15433588.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020311.071656.15433588.davem@redhat.com>; from davem@redhat.com on Mon, Mar 11, 2002 at 07:16:56AM -0800
+	id <S310174AbSCKP7r>; Mon, 11 Mar 2002 10:59:47 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:61314 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S310172AbSCKP7i>; Mon, 11 Mar 2002 10:59:38 -0500
+Date: Mon, 11 Mar 2002 11:01:48 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: IDE on linux-2.4.18
+Message-ID: <Pine.LNX.3.95.1020311110057.2492A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 07:16:56AM -0800, David S. Miller wrote:
->    From: Jay Estabrook <Jay.Estabrook@compaq.com>
->    Date: Mon, 11 Mar 2002 10:02:00 -0500
->    
->    Since ISA devices don't have pci_dev structures, there's (currently)
->    no way to pass an ISA device-dependent DMA mask to the IOMMU routines.
->    Perhaps there needs to be an addition to the API that would allow
->    for this (pci_set_isa_device_dma_mask()) ???
-> 
-> What you could do currently is whip up a dummy pci_dev structure with
-> the mask you want and pass that into the PCI dma routines.  So you
-> could, for example, default to 24-bit DMA mask when you get "NULL"
-> as pci_dev, but cook up a special one using a 32-bit DMA mask for the
-> floppy ISA device in question.
 
-Yup, that'd work, though it would put the floppy's resources in with
-the PCI devices, rather than kept separate as ISA. Should work fine,
-though.
+Hello IDE gurus,
 
-> The idea in 2.5.x is to move to a generic struct device, at which time
-> something like this can be done much more cleanly.
+I tried to install Linux-2.4.18 on a machine with IDE drives.
+The machine ran fine with Linux-2.4.1. It won't mount the
+root file-system because:
 
-Sounds good, if only it'd compile on Alpha... ;-}
+hda:	Cannot handle device with more than 16 heads giving up.
 
---Jay++
+That's a real nice help. The device has 1024 cylinders, 255 heads
+and 63 sectors. This is 6,422 MB. An attempt to set 16 heads in
+the BIOS will allow access to only 528 MB, which is wrong.
 
------------------------------------------------------------------------------
-Jay A Estabrook                            Alpha Engineering - LINUX Project
-Compaq Computer Corp. - MRO1-2/K15         (508) 467-2080
-200 Forest Street, Marlboro MA 01752       Jay.Estabrook@compaq.com
------------------------------------------------------------------------------
+So what is the magic incantation necessary to get the IDE
+subsystem to work like it used to?
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+	Bill Gates? Who?
+

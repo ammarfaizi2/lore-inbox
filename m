@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVBTKVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVBTKVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbVBTKVY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 05:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVBTKVY
+	id S261795AbVBTKVC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 05:21:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVBTKVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 05:21:24 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:27297 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261780AbVBTKVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 05:21:03 -0500
-Date: Sun, 20 Feb 2005 11:20:59 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM Thinkpad G41 PCMCIA problems
-Message-ID: <20050220102059.GA17462@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>,
-	linux-kernel@vger.kernel.org
-References: <20050220092208.GA12738@hardeman.nu> <20050220092659.A9509@flint.arm.linux.org.uk> <20050220095211.GB12738@hardeman.nu>
+	Sun, 20 Feb 2005 05:21:02 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48652 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261780AbVBTKUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 05:20:46 -0500
+Date: Sun, 20 Feb 2005 10:20:37 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Steven Rostedt <rostedt@goodmis.org>, Linus Torvalds <torvalds@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
+Subject: Re: IBM Thinkpad G41 PCMCIA problems [Was: Yenta TI: ... no PCI interrupts. Fish. Please report.]
+Message-ID: <20050220102037.C9509@flint.arm.linux.org.uk>
+Mail-Followup-To: Steven Rostedt <rostedt@goodmis.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>, Greg KH <gregkh@suse.de>
+References: <1108858971.8413.147.camel@localhost.localdomain> <Pine.LNX.4.58.0502191648110.14176@ppc970.osdl.org> <1108863372.8413.158.camel@localhost.localdomain> <20050220082226.A7093@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050220095211.GB12738@hardeman.nu>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050220082226.A7093@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sun, Feb 20, 2005 at 08:22:26AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 20, 2005 at 10:52:12AM +0100, David Härdeman wrote:
-> On Sun, Feb 20, 2005 at 09:26:59AM +0000, Russell King wrote:
-> >On Sun, Feb 20, 2005 at 10:22:09AM +0100, David Härdeman wrote:
-> >>I see the same problem with an IBM Thinkpad G40, and only when there is 
-> >>1Gb of memory or more in the machine.
-> >
-> >Check to see if your e820 map has a hole in it, and whether any of
-> >your Cardbus bridge memory / region 0 resources appear in it.
-> >
-> >If your e820 map contains a hole, I'd suspect another buggy bios.
+On Sun, Feb 20, 2005 at 08:22:26AM +0000, Russell King wrote:
+> On Sat, Feb 19, 2005 at 08:36:12PM -0500, Steven Rostedt wrote:
+> > Linux version 2.6.10 (root@bilbo) (gcc version 3.3.5 (Debian 1:3.3.5-8)) #13 SMP Sat Feb 19 20:12:19 EST 2005
+> > BIOS-provided physical RAM map:
+> >  BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
+> >  BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
+> >  BIOS-e820: 00000000000d0000 - 00000000000d4000 (reserved)
+> >  BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
+> >  BIOS-e820: 0000000000100000 - 000000000f6f0000 (usable)
+> >  BIOS-e820: 000000000f6f0000 - 000000000f700000 (reserved)
+> >  BIOS-e820: 000000000f700000 - 000000003fef0000 (usable)
+> >  BIOS-e820: 000000003fef0000 - 000000003fef8000 (ACPI data)
+> >  BIOS-e820: 000000003fef8000 - 000000003fefa000 (ACPI NVS)
+> >  BIOS-e820: 000000003ff00000 - 0000000040000000 (reserved)
 > 
-> e820 map:
-> BIOS-provided physical RAM map:
-> BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
-> BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
-> BIOS-e820: 00000000000ce000 - 00000000000d0000 (reserved)
-> BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
-> BIOS-e820: 0000000000100000 - 000000000f6f0000 (usable)
-> BIOS-e820: 000000000f6f0000 - 000000000f700000 (reserved)
-> BIOS-e820: 000000000f700000 - 000000003f6f0000 (usable)
-> BIOS-e820: 000000003f6f0000 - 000000003f6f8000 (ACPI data)
-> BIOS-e820: 000000003f6f8000 - 000000003f6fa000 (ACPI NVS)
-> BIOS-e820: 000000003f700000 - 0000000040000000 (reserved)
-> BIOS-e820: 00000000ff800000 - 0000000100000000 (reserved)
-> 118MB HIGHMEM available.
-> 896MB LOWMEM available.
-> 
-> Is the hole between 0x36f6fa000 and 0x3f700000?
-> 
-> And what would be the proper way of fixing it (assuming that IBM won't 
-> issue a fixed BIOS)?
+> Your BIOS is broken.  You probably have 1GB of RAM which extends from
+> 0x00000000 to 0x40000000.  However, there's a hole in the ACPI map
+> between 0x3fefa000 and 0x3ff00000.
 
-passing "reserve=0x3f6fa000,0x600" as kernel boot option. Please also post
-/proc/iomem for further debugging, especially if this didn't help.
+BTW, try passing:
 
-	Dominik
+	reserve=0x3fefa000,0x6000
+
+to the kernel - this will mark the "hole" reserved and should reallocate
+the resources which are clashing with the RAM.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

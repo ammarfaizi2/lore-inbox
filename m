@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261360AbTCJQp1>; Mon, 10 Mar 2003 11:45:27 -0500
+	id <S261362AbTCJQtT>; Mon, 10 Mar 2003 11:49:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261361AbTCJQp1>; Mon, 10 Mar 2003 11:45:27 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:39438 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261360AbTCJQp0>; Mon, 10 Mar 2003 11:45:26 -0500
-Date: Mon, 10 Mar 2003 11:55:48 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Device removal callback
-Message-ID: <20030310165548.GA753@phunnypharm.org>
-References: <20030310010232.GB16134@phunnypharm.org> <Pine.LNX.4.33.0303100949490.1002-100000@localhost.localdomain>
+	id <S261363AbTCJQtT>; Mon, 10 Mar 2003 11:49:19 -0500
+Received: from ip68-107-142-198.tc.ph.cox.net ([68.107.142.198]:20641 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S261362AbTCJQtS>; Mon, 10 Mar 2003 11:49:18 -0500
+Date: Mon, 10 Mar 2003 09:59:56 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] move CONFIG_SWAP around
+Message-ID: <20030310165956.GA10044@ip68-0-152-218.tc.ph.cox.net>
+References: <200303090406.h2946Tj06060@hera.kernel.org> <Pine.GSO.4.21.0303101133380.8949-100000@vervain.sonytel.be> <20030310135014.GD31298@ip68-0-152-218.tc.ph.cox.net> <20030310081024.0a2e6afe.rddunlap@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0303100949490.1002-100000@localhost.localdomain>
+In-Reply-To: <20030310081024.0a2e6afe.rddunlap@osdl.org>
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I much prefer this, as I would like to see it eventually, but I'd rather
-> see the implications worked out before it's generalized.
+On Mon, Mar 10, 2003 at 08:10:24AM -0800, Randy.Dunlap wrote:
+> On Mon, 10 Mar 2003 06:50:14 -0700 Tom Rini <trini@kernel.crashing.org> wrote:
+> 
+> | On Mon, Mar 10, 2003 at 11:36:29AM +0100, Geert Uytterhoeven wrote:
+> | > On Sun, 9 Mar 2003, Linux Kernel Mailing List wrote:
+> | > > ChangeSet 1.1148, 2003/03/08 19:25:21-08:00, akpm@digeo.com
+> | > > 
+> | > > 	[PATCH] move CONFIG_SWAP around
+> | > > 	
+> | > > 	Patch from Tom Rini <trini@kernel.crashing.org>
+> | > > 	
+> | > > 	Take CONFIG_SWAP out of the top-level menu into the general setup menu.  Make
+> | > > 	it dependent on CONFIG_MMU and common to all architectures.
+> | > > 
+> | > > 
+> | > > --- a/init/Kconfig	Sat Mar  8 20:06:31 2003
+> | > > +++ b/init/Kconfig	Sat Mar  8 20:06:31 2003
+> | > > @@ -37,6 +37,16 @@
+> | > >  
+> | > >  menu "General setup"
+> | > >  
+> | > > +config SWAP
+> | > > +	bool "Support for paging of anonymous memory"
+> | > > +	depends on MMU
+> | > > +	default y
+> | > > +	help
+> | > > +	  This option allows you to choose whether you want to have support
+> | > > +	  for socalled swap devices or swap files in your kernel that are
+> | > > +	  used to provide more virtual memory than the actual RAM present
+> | > > +	  in your computer.  If unusre say Y.
+> | >                                 ^^^^^^
+> | > unsure
+> | 
+> | D'oh... Not mine 'tho, I think it can from Randy :)
+> 
+> Nope, I just checked and my patch contained a fix for that.  8:)
+> As did Tomas Szepe's patch.
 
-Then I have to be concerned about parts of the driver model removing
-parents of my devices without my knowing it. Didn't PCI already go
-through this problem with bus's being removed?
-
-If my PCI devices gets removed, it simply calls my PCI callbacks, but
-then my PCI drivers have to link into the core and call remove on all
-the host devices, then node devices, then unit directories. All this has
-to happen manually, and it puts the burden all the way down the tree,
-when it should remain only in the bus.
-
-It also does not help the case where something emulates an IEEE-1394
-node on the locally handled bus. If it creates a node, and then behind
-that, creates unit directories, and then attaches some other sort of
-children unknown to the ieee1394 core. There's no possible way that
-device can safely be removed by the ieee1394 core. So then I have to
-export all sorts of extra functionality to provide the same thing this
-2 line callback can do.
-
-I'm not sure what the problem is in allowing the bus driver to know when
-a device is about to be removed for some reason. At the very least it
-makes for a good sanity check mechanism.
+Yeah, I found it was upstream just after I sent that.  I'm supprised the
+spell check people haven't found that one yet.
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Tom Rini
+http://gate.crashing.org/~trini/

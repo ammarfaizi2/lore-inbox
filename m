@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266039AbTLISX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 13:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266043AbTLISX5
+	id S266060AbTLISXv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 13:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266043AbTLISXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 13:23:57 -0500
-Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:18052
-	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S266039AbTLISWS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 13:22:18 -0500
-Message-Id: <200312091821.hB9ILv2n017541@orion.dwf.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
-To: arnaud.quette@mgeups.com
-cc: Greg KH <greg@kroah.com>, Paul Stewart <stewart@wetlogic.net>,
-       Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       linux-usb-users@lists.sourceforge.net, opensource@mgeups.com,
-       "Charles Lepple" <clepple@ghz.cc>, reg@orion.dwf.com
-Subject: Re: USB/HID UPS issue (was Re: USB scanner issue) 
-In-Reply-To: Message from arnaud.quette@mgeups.com 
-   of "Tue, 02 Dec 2003 14:18:25 +0100." <C1256DF0.0048D122.00@gin123.ftgin.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 09 Dec 2003 11:21:56 -0700
-From: reg@dwf.com
+	Tue, 9 Dec 2003 13:23:50 -0500
+Received: from [192.35.37.50] ([192.35.37.50]:42222 "EHLO
+	enterprise.atl.lmco.com") by vger.kernel.org with ESMTP
+	id S266042AbTLISWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 13:22:37 -0500
+Message-ID: <3FD612E2.90607@atl.lmco.com>
+Date: Tue, 09 Dec 2003 13:22:26 -0500
+From: Aron Rubin <arubin@atl.lmco.com>
+Organization: Lockheed Martin ATL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031021
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mickael Marchand <marchand@kde.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Silicon image 3114 SATA link (really basic support)
+References: <20031203204445.GA26987@gtf.org> <200312051842.26599.marchand@kde.org> <3FD0C4B0.8020106@pobox.com> <200312051907.13727.marchand@kde.org>
+In-Reply-To: <200312051907.13727.marchand@kde.org>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mickael Marchand wrote:
+> here it is ;) (for 2.6.0-test11)
+> it includes patches in siimage.c but it did not work IIRC (lost interrupt).
+> (don't compile siimage inside the kernel, it would not boot)
 
-I havent anything to add to your comments, except to make sure you saw
-my comments about USB/HID problems that I have encountered with a UPS.
+Your messages seem to be conflicting. Does this work or not or just 
+enough to see messages? I am dealing with the same exact thing for the 
+3512 chipset.
 
-Since the message was short, I reproduce it here:
+Aron
 
----
 
-(previous post to linux-kernel)
-
-I am posting this here since I dont seem to be able to post to
-either of the USB lists.
-
-In working with the code apcupsd, I have found two problems that appeare
-in the 2.6.0-testX kernels that did not appear in the 2.4.x series of kernels.
-
-    (1) When doing a read to get hiddev_event structures, 2.4 only
-	gave the 'real' events from the device that one expected.
-	Under 2.6.0-testx there are several ZERO event structures/sec
-	where the entire structure is ZERO, both hid and value.
-
-	For the current code there may be a 'real' event every few
-	seconds, and 5-10 of these zero events/sec.  I have no
-	idea where they are coming from.
-
-    (2) In one thread the code does a select, followed by a read if
-	data is available.  If one just 'falls thru' to the read with
-	the few lines of code it takes to do the checking, one gets
-	up to 45000 messages/minute (750/sec) reading:
-
-	    kernel: drivers/usb/input/hid-core.c: control queue full
-
-	If one puts a 1/10sec sleep between these two commands, the
-	error messages go away. 
-
-Anyone know anything about either of these errors?
-Or how to report them to the USB people if you cant post to the USB lists?
- 
 -- 
-                                        Reg.Clemens
-                                        reg@dwf.com
 
+ssh aron@rubinium.org cat /dev/brain | grep ^work:
+
+Aron Rubin                       Member, Engineering Staff
+Lockheed Martin                  E-Mail: arubin@atl.lmco.com
+Advanced Technology Laboratories Phone:  856.792.9865
+3 Executive Campus               Fax:    856.792.9930
+Cherry Hill, NJ USA 08002        Web:    http://www.atl.lmco.com
 

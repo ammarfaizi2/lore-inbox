@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbTD3T65 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 15:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTD3T65
+	id S262412AbTD3Tzk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 15:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbTD3Tzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 15:58:57 -0400
-Received: from muss.CIS.mcmaster.ca ([130.113.64.9]:9399 "EHLO
-	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S262357AbTD3T6x convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 15:58:53 -0400
-From: Gabriel Devenyi <devenyga@mcmaster.ca>
-To: vojtech@suse.cz
-Subject: [PATCH] Linux 2.5.68 - Fix gameport_close(gameport); after return in drivers/input/gameport/gameport.c
-Date: Thu, 1 May 2003 16:10:06 -0400
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
+	Wed, 30 Apr 2003 15:55:39 -0400
+Received: from watch.techsource.com ([209.208.48.130]:17296 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S262412AbTD3Tzi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 15:55:38 -0400
+Message-ID: <3EB02D94.5020105@techsource.com>
+Date: Wed, 30 Apr 2003 16:09:56 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305011610.07281.devenyga@mcmaster.ca>
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: Valdis.Kletnieks@vt.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com> <3EB013A1.9030301@techsource.com> <200304301920.h3UJKE5J007310@turing-police.cc.vt.edu> <3EB026D8.2070508@techsource.com> <20030430195549.GV10374@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Could you explain to me how this is any more off-topic than the whole 
+DRM thread?  I don't want to be a jerk about it, but my original 
+statement was directly in response to McVoy's ostensive assertion (as 
+interpreted by some people) that open source developers don't do 
+anything innovative whereas commercial vendors do.
 
-This patch applies to 2.5.68, it is listed on kbugs.org. The gameport is never closed after calibrating it.
+So, was I off topic?  Within the realm of the whole DRM discussion we've 
+been having, I don't think so.  Was the whole DRM discussion off-topic? 
+  Probably, and I apologize for adding to it.  I will move on to more 
+relevant topics.
 
-Please CC me with any discussion.
-- -- 
-Building the Future,
-Gabriel Devenyi
-devenyga@mcmaster.ca
 
-- ---FILE---
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Wed, Apr 30, 2003 at 03:41:12PM -0400, Timothy Miller wrote:
+>  
+> 
+>>I am vaguely familiar with that.  It uses vi-like editing commands? 
+>>Sounds great.  Why isn't THAT the default shell?  Why are these 
+>>usability perks not a priority to commercial vendors?  Why are they a 
+>>priority for open source developers?
+> 
+> 
+> ... and for $64000 question, could you get yourself vaguely familiar with
+> the notion of on-topic posting?
+> 
+> 
 
-- --- linux-2.5.68/drivers/input/gameport/gameport.c	2003-04-19 22:49:31.000000000 -0400
-+++ linux-2.5.68-changed/drivers/input/gameport/gameport.c	2003-05-01 14:57:51.000000000 -0400
-@@ -84,6 +84,7 @@
- 		if ((t = DELTA(t2,t1) - DELTA(t3,t2)) < tx) tx = t;
- 	}
- 
-+	gameport_close(gameport);
- 	return 59659 / (tx < 1 ? 1 : tx);
- 
- #else
-@@ -93,11 +94,10 @@
- 	j = jiffies; while (j == jiffies);
- 	j = jiffies; while (j == jiffies) { t++; gameport_read(gameport); }
- 
-+	gameport_close(gameport);
- 	return t * HZ / 1000;
- 
- #endif
-- -
-- -	gameport_close(gameport);
- }
- 
- static void gameport_find_dev(struct gameport *gameport)
-
-- ---ENFILE---
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+sX8e7I5UBdiZaF4RAv8DAKCPpHLHADzNWUmRpHrHw7ldAfUdeACgklGx
-9V+o3A+iUO8Jzb7T1Mr/6eU=
-=EABS
------END PGP SIGNATURE-----
 

@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbVCWB0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVCWB3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262593AbVCWB0U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 20:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbVCWB0U
+	id S262690AbVCWB3u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 20:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVCWB3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 20:26:20 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25615 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262593AbVCWB0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 20:26:16 -0500
-Date: Wed, 23 Mar 2005 02:26:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: vojtech@suse.cz
-Cc: linux-input@atrey.karlin.mff.cuni, linux-kernel@vger.kernel.org
-Subject: drivers/input/touchscreen/gunze.c: gunze_process_packet: invalid array access
-Message-ID: <20050323012613.GY1948@stusta.de>
+	Tue, 22 Mar 2005 20:29:50 -0500
+Received: from fire.osdl.org ([65.172.181.4]:5292 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262690AbVCWB3o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 20:29:44 -0500
+Date: Tue, 22 Mar 2005 17:29:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: rlrevell@joe-job.com, diegocg@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+Message-Id: <20050322172909.2fa077e1.akpm@osdl.org>
+In-Reply-To: <20050323011313.GL15879@redhat.com>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz>
+	<20050314083717.GA19337@elf.ucw.cz>
+	<200503140855.18446.jbarnes@engr.sgi.com>
+	<20050314191230.3eb09c37.diegocg@gmail.com>
+	<1110827273.14842.3.camel@mindpipe>
+	<20050323013729.0f5cd319.diegocg@gmail.com>
+	<1111539217.4691.57.camel@mindpipe>
+	<20050323011313.GL15879@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker found the following bug in the function 
-gunze_process_packet in drivers/input/touchscreen/gunze.c:
+Dave Jones <davej@redhat.com> wrote:
+>
+>  This old mail: http://marc.free.net.ph/message/20040304.030616.59761bf3.html
+>  references a 'move block' ioctl, which is probably the hardest part of the problem,
+>  though I didn't find the code referenced in that mail. Andrew ?
 
+That would be http://www.zip.com.au/~akpm/ext3-reloc-page.patch
 
-<--  snip  -->
+Against 2.4.18, untested ;)
 
-...
-#define GUNZE_MAX_LENGTH        10
-...
-struct gunze {
-...
-        unsigned char data[GUNZE_MAX_LENGTH];
-...
-};
-...
-static void gunze_process_packet(struct gunze* gunze, struct pt_regs *regs)
-...
-                gunze->data[10] = 0;
-...
+>  With something like this, and some additional bookkeeping to keep track of
+>  which files we open in the first few minutes of uptime, we could periodically
+>  reorganise the layout back to an optimal state.
 
-<--  snip  -->
-
-
-The bug is obvious, but for a correct solution someone should know this 
-code better than I do.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Fun project.

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278039AbRJIWtP>; Tue, 9 Oct 2001 18:49:15 -0400
+	id <S278046AbRJIWxz>; Tue, 9 Oct 2001 18:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278040AbRJIWtF>; Tue, 9 Oct 2001 18:49:05 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:33551 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S278039AbRJIWsw>; Tue, 9 Oct 2001 18:48:52 -0400
-X-Apparently-From: <trever?adams@yahoo.com>
-Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
-From: "Trever L. Adams" <trever_adams@yahoo.com>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-Cc: "Jeffrey W. Baker" <jwbaker@acm.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Apparently-To: trever_adams@yahoo.com via web20408.mail.yahoo.com; 09 Oct
-	2001 15:46:43 -0700 (PDT)
-X-Track: 1: 40
-In-Reply-To: <Pine.LNX.4.33.0110091129190.209-100000@desktop>
-In-Reply-To: <Pine.LNX.4.33.0110100045490.24292-100000@Expansa.sns.it>
-In-Reply-To: <Pine.LNX.4.33.0110100045490.24292-100000@Expansa.sns.it>
+	id <S278051AbRJIWxp>; Tue, 9 Oct 2001 18:53:45 -0400
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:26682 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S278046AbRJIWxa>; Tue, 9 Oct 2001 18:53:30 -0400
+Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
+From: Robert Love <rml@tech9.net>
+To: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011009161737.A14175@qcc.sk.ca>
+In-Reply-To: <20011009211625Z277979-760+22927@vger.kernel.org>
+	<3BC371B2.6010405@interactivesi.com> <1002665547.1543.123.camel@phantasy> 
+	<20011009161737.A14175@qcc.sk.ca>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15.99+cvs.2001.10.09.08.08 (Preview Release)
-Date: 09 Oct 2001 18:49:43 -0400
-Message-Id: <1002667785.4093.13.camel@aurora>
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 09 Oct 2001 18:54:42 -0400
+Message-Id: <1002668084.1673.137.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-10-09 at 18:46, Luigi Genoni wrote:
-> stupid question...
-> have you got a rule like
-> 
-> iptables -A INPUT -m unclean -j DROP
-> 
-> enabled?
+On Tue, 2001-10-09 at 18:17, Charles Cazabon wrote:
+> They work, but not "fine".  There are performance issues with
+> Thunderbird-core Athlons in SMP configurations that may slow them down
+> somewhat.
 
-I do not know what unclean means, so I don't know.
+Are you sure it is related to SMP and not the fact the Palomino core is
+faster in general?
 
-I have one that only accepts NEW from the inside.
-I have one that accepts all ESTABLISHED,RELATED.
-I have one that drops NEW,INVALID from ppp0 (outside world).
+I'm not saying non-Palomino-core Athlons don't have SMP issues.  I'm
+sure something is different -- a lot of errata is fixed (and added) in
+between core revisions.  I'm just not so sure a measurable difference is
+easily shown...especially when there are other reasons for a performance
+increase in the core itself.
 
-Trever
+Anyhow, I don't want to OT...
 
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+	Robert Love
 

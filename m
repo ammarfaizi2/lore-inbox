@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290957AbSAaFzv>; Thu, 31 Jan 2002 00:55:51 -0500
+	id <S290959AbSAaF5l>; Thu, 31 Jan 2002 00:57:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290953AbSAaFzl>; Thu, 31 Jan 2002 00:55:41 -0500
-Received: from bitmover.com ([192.132.92.2]:53678 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S290957AbSAaFzY>;
-	Thu, 31 Jan 2002 00:55:24 -0500
-Date: Wed, 30 Jan 2002 21:55:23 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Rob Landley <landley@trommello.org>, Larry McVoy <lm@bitmover.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130215523.G18381@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Keith Owens <kaos@ocs.com.au>, Rob Landley <landley@trommello.org>,
-	Larry McVoy <lm@bitmover.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020131051505.MGLL25889.femail29.sdc1.sfba.home.com@there> <9396.1012456003@kao2.melbourne.sgi.com>
+	id <S290953AbSAaF5c>; Thu, 31 Jan 2002 00:57:32 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:59041 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S290958AbSAaF5S>;
+	Thu, 31 Jan 2002 00:57:18 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Rob Landley <landley@trommello.org>
+Cc: "World Domination Now!" <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin 
+In-Reply-To: Your message of "Thu, 31 Jan 2002 00:32:40 CDT."
+             <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <9396.1012456003@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, Jan 31, 2002 at 04:46:43PM +1100
+Date: Thu, 31 Jan 2002 16:57:10 +1100
+Message-ID: <9544.1012456630@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 04:46:43PM +1100, Keith Owens wrote:
-> When I release a patch I pick a start
-> point (base 2.4.17, patch set 17.1) and an end point (kdb v2.1 2.4.17
-> common-2, patchset 17.37) and prcs diff -r 17.1 -r 17.37.  
+On Thu, 31 Jan 2002 00:32:40 -0500, 
+Rob Landley <landley@trommello.org> wrote:
+>On Wednesday 30 January 2002 10:40 pm, Daniel Phillips wrote:
+>> > I expect it will all get worked out eventually.  Now that the secret of
+>> > the difference between maintainers and lieutenants is out.
+>>
+>> By the way, that never was a secret to anybody in active development.
+>
+>I.E. the people who knew it knew it, and hence never noticed the problem...
+>
+>There are, however, some people writing largeish bits of code that did not in 
+>fact seem to know it.  Andre Hedrick's IDE work, Eric Raymond with the help 
+>files and CML2, Kieth Owens' new build process... 
 
-bk export -tpatch -r17.1,17.37
+Both ESR and I definitely know about this process but kbuild is one of
+the awkward systems that affects the entire kernel.  The final kbuild
+system goes straight to Linus, there is nobody else to send it to.
 
-Does exactly the same thing.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+kbuild 2.5 must match the current makefiles and config settings before
+it can go in so it is impractible to target anything expect the
+standard kernel, there is far too much work involved in tracking
+makefile and config changes in -ac, -dj, -whoever.  Even if kbuild was
+done against another tree, it would have to be redone and reverified
+before sending to Linus, there is no way to extract kbuild 2.5 from a
+divergent tree and expect it work on Linus's tree.
+

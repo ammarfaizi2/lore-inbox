@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271094AbTG1V4N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 17:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271108AbTG1V4N
+	id S271118AbTG1V6f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 17:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271120AbTG1V6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 17:56:13 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:39078
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S271094AbTG1V4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 17:56:11 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Bill Davidsen <davidsen@tmr.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
-Date: Tue, 29 Jul 2003 08:00:23 +1000
-User-Agent: KMail/1.5.2
+	Mon, 28 Jul 2003 17:58:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20901 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271118AbTG1V6d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 17:58:33 -0400
+Date: Mon, 28 Jul 2003 14:47:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Shawn <core@enodev.com>
 Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.96.1030728173045.19757A-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1030728173045.19757A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: 2.6.0-test2-mm1: Can't mount root
+Message-Id: <20030728144704.49c433bc.akpm@osdl.org>
+In-Reply-To: <1059428584.6146.9.camel@localhost>
+References: <1059428584.6146.9.camel@localhost>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307290800.24003.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003 07:38, Bill Davidsen wrote:
-> On Mon, 28 Jul 2003, Ingo Molnar wrote:
-> > On Mon, 28 Jul 2003, Con Kolivas wrote:
-> > > On Sun, 27 Jul 2003 23:40, Ingo Molnar wrote:
-> > > >  - further increase timeslice granularity
-> > >
-> > > For a while now I've been running a 1000Hz 2.4 O(1) kernel tree that
-> > > uses timeslice granularity set to MIN_TIMESLICE which has stark
-> > > smoothness improvements in X. I've avoided promoting this idea because
-> > > of the theoretical drop in throughput this might cause. I've not been
-> > > able to see any detriment in my basic testing of this small
-> > > granularity, so I was curious to see what you throught was a reasonable
-> > > lower limit?
-> >
-> > it's a hard question. The 25 msecs in -G6 is probably too low.
+Shawn <core@enodev.com> wrote:
 >
-> It would seem to me that the lower limit for a given CPU is a function of
-> CPU speed and cache size. One reason for longer slices is to preserve the
-> cache, but the real time to get good use from the cache is not a constant,
-> and you just can't pick any one number which won't be too short on a slow
-> cpu or unproductively long on a fast CPU. Hyperthreading shrinks the
-> effective cache size as well, but certainly not by 2:1 or anything nice.
->
-> Perhaps this should be a tunable set by a bit of hardware discovery at
-> boot and diddled at your own risk. Sure one factor in why people can't
-> agree on HZ and all to get best results.
+> I'm using ide=reverse, and my root is on hde5. 2.6.0-test1-mm2 finds my
+> root fs fine using the init/do_mounts.c patch posted recently.
+> 
+> 2.6.0-test2-mm1 (in which said patch seems to have been included),
+> however, fails on all of the following root= options:
+>       * 2105
+>       * /dev/ide/host2/bus0/target0/lun0/part5
+>       * /dev/hde5
+> 
+> I don't know what to try next. Can someone enlighten me as to what has
+> been happening lately?
 
-Agreed, and no doubt the smaller the timeslice the worse it is. I did a little 
-experimenting with my P4 2.53 here and found that basically no matter how 
-much longer the timeslice was there was continued benefit. However the 
-benefit was diminishing the higher you got. If you graphed it out it was a 
-nasty exponential curve up to 7ms and then there was a knee in the curve and 
-it was virtually linear from that point on with only tiny improvements. A p3 
-933 behaved surprisingly similarly. That's why on 2.4.21-ck3 it was running 
-with timeslice_granularity set to 10ms. However the round robin isn't as bad 
-as pure timeslice limiting because if they're still on the active array I am 
-led to believe there is less cache trashing. 
+Beats me.  Tried "/dev/hde/5" and "21:05"?
 
-There was no answer in that but just thought I'd add what I know so far.
+Can you see what this says?
 
-Con
+ 25-akpm/init/do_mounts.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN init/do_mounts.c~a init/do_mounts.c
+--- 25/init/do_mounts.c~a	Mon Jul 28 14:44:37 2003
++++ 25-akpm/init/do_mounts.c	Mon Jul 28 14:44:53 2003
+@@ -74,6 +74,7 @@ static dev_t __init try_name(char *name,
+ 	/*
+ 	 * The format of dev is now %u:%u -- see print_dev_t()
+ 	 */
++	printk("scanning `%s'\n", buf);
+ 	if (sscanf(buf, "%u:%u", &maj, &min) == 2)
+ 		res = MKDEV(maj, min);
+ 	else
+
+_
+
+Also take a close look at the dmesg output, make sure that all the devices
+and partitions are appearing in the expected places.
+
 

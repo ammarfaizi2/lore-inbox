@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280989AbRKGVQP>; Wed, 7 Nov 2001 16:16:15 -0500
+	id <S281007AbRKGVSr>; Wed, 7 Nov 2001 16:18:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280991AbRKGVPr>; Wed, 7 Nov 2001 16:15:47 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:23313 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281005AbRKGVO7>;
-	Wed, 7 Nov 2001 16:14:59 -0500
-Date: Wed, 7 Nov 2001 19:14:37 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Tim Jansen <tim@tjansen.de>,
-        =?iso-8859-1?Q?Jakob_=D8stergaard_?= <jakob@unthought.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <20011107012009.B35@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.33L.0111071913590.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280990AbRKGVRu>; Wed, 7 Nov 2001 16:17:50 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:9724
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281006AbRKGVQ1>; Wed, 7 Nov 2001 16:16:27 -0500
+Date: Wed, 7 Nov 2001 13:16:19 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: alad@hss.hns.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FTP query
+Message-ID: <20011107131619.B20245@mikef-linux.matchmail.com>
+Mail-Followup-To: alad@hss.hns.com, linux-kernel@vger.kernel.org
+In-Reply-To: <65256AFD.004D2573.00@sandesh.hss.hns.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <65256AFD.004D2573.00@sandesh.hss.hns.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Nov 2001, Pavel Machek wrote:
+On Wed, Nov 07, 2001 at 07:33:48PM +0530, alad@hss.hns.com wrote:
+> 
+> 
+> Hi,
+>     Sorry for posting it to the wrong list. But people here can surely help me
+> out.
+> 
+> Let us suppose a operator is FTPing a file "temp.c" to a folder "/home/work".
+> And a process "A" is monitoring "/home/work". How would process "A" would know a
+> file "temp.c" is completely transfered in "/home/work"
+> 
+> Please CC it to me as I am not subscribed to list
+> 
 
-> > > It eats CPU, it's error-prone, and all in all it's just "wrong".
-> >
-> > How much of your CPU time is spent parsing /proc files?
->
-> 30% of 486 if you run top... That's way too much and top is unusable
-> on slower machines.
-> "Not fast enough for showing processes" sounds wery wrong.
+There are several ways, some only available to a root process...
 
-Is this time actually spent parsing ascii, or is it procfs
-walking all the page tables of all processes ? ;)
+Root priv required:
+run lsof -n on the file to see if the ftp server still has it open...
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+normal user:
+monitor modified time and size over a period of time to see if it has
+changed in that time, if not, it's done...
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Mike

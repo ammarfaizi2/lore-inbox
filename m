@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265477AbUJGNZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUJGNgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265477AbUJGNZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 09:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUJGNZY
+	id S265909AbUJGNgs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 09:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269356AbUJGNgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 09:25:24 -0400
-Received: from web60206.mail.yahoo.com ([216.109.118.101]:7613 "HELO
-	web60206.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S269564AbUJGNXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 09:23:44 -0400
-Message-ID: <20041007132343.83278.qmail@web60206.mail.yahoo.com>
-Date: Thu, 7 Oct 2004 06:23:43 -0700 (PDT)
-From: anil dahiya <ak_ait@yahoo.com>
-Subject: Re: about Linux Module Profiling Tool
-To: Neil Horman <nhorman@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41653E3D.4020508@redhat.com>
+	Thu, 7 Oct 2004 09:36:48 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:14487 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265909AbUJGNgq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 09:36:46 -0400
+Date: Thu, 7 Oct 2004 14:36:26 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@hibernia.jakma.org
+To: Martijn Sipkema <msipkema@sipkema-digital.com>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       "David S. Miller" <davem@davemloft.net>, joris@eljakim.nl,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+In-Reply-To: <001c01c4ac76$fb9fd190$161b14ac@boromir>
+Message-ID: <Pine.LNX.4.61.0410071432070.304@hibernia.jakma.org>
+References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
+ <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
+ <20041006082145.7b765385.davem@davemloft.net> <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com>
+ <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org> <4164EBF1.3000802@nortelnetworks.com>
+ <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir>
+ <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org> <001c01c4ac76$fb9fd190$161b14ac@boromir>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-anil kumar : 
- > If anyone have idea about linux module profiling
- > tools>> >  
+On Thu, 7 Oct 2004, Martijn Sipkema wrote:
 
-Neil :
-  > What kind of profiling do you want to do?
-  
+> Any sane application would be written for the POSIX API as 
+> described in the standard, and a sane kernel should IMHO implement 
+> that standard whenever possible.
 
-Anil Kumar :
+NB: I dont disagree with you.
 
-after booting system, I am loading my network device
-driver module in linux kernel .
+Just the impression I get is that there is no way to avoid this 
+situation without a serious performance impact, and that the 
+optimisation shouldnt really any affect any healthy app. (any which 
+are really should be setting O_NONBLOCK).
 
-I wanna to know how much time is taking by functions
-of my module at any time (i.e just after loading
-module or just after sending or receiving data etc).
-So I  can improve performance of my module by
-improving those function which taking maximum time or 
-cpu utilization.
+If you could follow the spec without significantly harming 
+performance, then I'd agree spec should be followed.
 
----- Anil Kumar
-   
+I dont really have anything useful to say other than that, IMHO, a 
+sane app should be using O_NONBLOCK if it really does not want to 
+block, so I shall now quietly back away from this thread.
 
-
-		
-_______________________________
-Do you Yahoo!?
-Declare Yourself - Register online to vote today!
-http://vote.yahoo.com
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+What this country needs is a good five cent microcomputer.

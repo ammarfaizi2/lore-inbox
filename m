@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318888AbSG1C44>; Sat, 27 Jul 2002 22:56:56 -0400
+	id <S318892AbSG1C6c>; Sat, 27 Jul 2002 22:58:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318890AbSG1C44>; Sat, 27 Jul 2002 22:56:56 -0400
-Received: from mail.linux-new-media.de ([62.245.157.204]:8452 "HELO
-	mail.linux-new-media.de") by vger.kernel.org with SMTP
-	id <S318888AbSG1C44>; Sat, 27 Jul 2002 22:56:56 -0400
-Date: Sun, 28 Jul 2002 05:00:06 +0200 (CEST)
-From: =?iso-8859-15?Q?Mirko_D=F6lle?= <mdoelle@linux-user.de>
-X-X-Sender: mdoelle@troy.linux-magazin.de
-To: alan@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.19-rc3, i810_audio: ignoring ready status of ICH for
- i845G chipset / Epox mainboard
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Message-Id: <20020728030014.B250015C97@mail.linux-new-media.de>
+	id <S318894AbSG1C6c>; Sat, 27 Jul 2002 22:58:32 -0400
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:64522
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S318892AbSG1C6a>; Sat, 27 Jul 2002 22:58:30 -0400
+X-All-Your-Base: Are Belong To Us!!!
+X-Envelope-Recipient: rwhite@pobox.com
+X-Envelope-Sender: stevie@qrpff.net
+Message-Id: <5.1.0.14.2.20020727224849.02501e88@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 27 Jul 2002 23:01:45 -0400
+To: rwhite@pobox.com, Andries Brouwer <aebr@win.tue.nl>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: n_tty.c driver patch (semantic and performance correction)
+  (a ll recent versions)
+Cc: Russell King <rmk@arm.linux.org.uk>, Ed Vance <EdV@macrolink.com>,
+       "'Theodore Tso'" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+       linux-serial@vger.kernel.org
+In-Reply-To: <200207271934.27102.rwhite@pobox.com>
+References: <20020727232129.GA26742@win.tue.nl>
+ <11E89240C407D311958800A0C9ACF7D13A789A@EXCHANGE>
+ <200207271507.56873.rwhite@pobox.com>
+ <20020727232129.GA26742@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-this patch for Kernel 2.4.19-rc3 removes the "break" that aborted the module
-init of i810_audio.o in case of "not ready" status before probing (line
-2656-2663).
-On my Epox 4G4A+ mainboard with i845G chipset the ready status was always "0",
-so the module could not be loaded. After removing the "break" in line 2663
-the module works great: loading, playing serveral MP3s, removing and reloading
-were no problem.
-
-Perhaps someone can confirm this so the break could perhaps be removed in the
-final Kernel 2.4.19.
+At 07:34 PM 7/27/2002 -0700, Robert White wrote:
+>So far all I am getting back is one non-public "that's a good idea, but I want 
+>to see what everybody else thinks" and a bunch of "but the standard says"...
+>
+>The standard is OLD and UNREALISTIC (and if you get all lawyer-ish, somewhat 
+>inconsitant and vague.) and the modification is one hundred percent 
+>compatable with what is in the field and what "more than half" of the users 
+>expect.
 
 
+But... but... the standard says...
 
-diff -ru linux-2.4.19-rc3.orig/drivers/sound/i810_audio.c linux-2.4.19-rc3.patched/drivers/sound/i810_audio.c
---- linux-2.4.19-rc3.orig/drivers/sound/i810_audio.c	Sun Jul 28 05:54:54 2002
-+++ linux-2.4.19-rc3.patched/drivers/sound/i810_audio.c	Sun Jul 28 06:06:06 2002
-@@ -2660,7 +2660,10 @@
- 		if (!i810_ac97_exists(card,num_ac97)) {
- 			if(num_ac97 == 0)
- 				printk(KERN_ERR "i810_audio: Primary codec not ready.\n");
--			break; /* I think this works, if not ready stop */
-+			/* Hack by dg2fer: On my Epox 4G4A+ with i845G we should just    */
-+			/* continue probing and *not* break. The status is always "not   */
-+			/* ready" but afterwards it works great. So I removed the break. */
-+			/* break; */ /* I think this works, if not ready stop */
- 		}
+   A pending read shall not be satisfied until MIN bytes are received
+   (that is, the pending read shall block until MIN bytes are received),
+   or a signal is received.
 
- 		if ((codec = kmalloc(sizeof(struct ac97_codec), GFP_KERNEL)) == NULL)
+And because I'm too dead-set on doing it that way solely because that's how it's always been done, I won't ever consider changing it.  I'll blindly ignore how much xmodem transfers suck, and the fact that I can come up with no practical purpose at all for this feature, and just repeat what the standard says.  Why should we obey what Linux man pages say? What do the Linux man pages have to do with Linux?
+
+Remember: Computers and their programs aren't here to make our lives easier, or to make tasks simpler. They are here to follow standards.
 
 
+--
+Stevie-O
 
-With best regards,
-Sincerely,
-  Mirko, dg2fer
+Real programmers use COPY CON PROGRAM.EXE
 

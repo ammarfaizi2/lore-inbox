@@ -1,119 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314394AbSDRQMt>; Thu, 18 Apr 2002 12:12:49 -0400
+	id <S314258AbSDRQRq>; Thu, 18 Apr 2002 12:17:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314395AbSDRQMs>; Thu, 18 Apr 2002 12:12:48 -0400
-Received: from [212.96.2.175] ([212.96.2.175]:43784 "HELO bigfoot.com")
-	by vger.kernel.org with SMTP id <S314394AbSDRQMp>;
-	Thu, 18 Apr 2002 12:12:45 -0400
-From: "Kofi Grey" <kofigrey@bigfoot.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Transaction
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Thu, 18 Apr 2002 06:12:19 +0200
-Reply-To: "Kofi Grey" <kofigrey@yahoo.com>
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020418161245Z314394-22651+8944@vger.kernel.org>
+	id <S314390AbSDRQRp>; Thu, 18 Apr 2002 12:17:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4366 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314258AbSDRQRo>;
+	Thu, 18 Apr 2002 12:17:44 -0400
+Message-ID: <3CBEF18D.F18BAA76@zip.com.au>
+Date: Thu, 18 Apr 2002 09:17:17 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mark Peloquin <peloquin@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Bio pool & scsi scatter gather pool usage
+In-Reply-To: <OFCEC9D152.09A1A6B2-ON85256B9F.0047D732@pok.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FROM: GREY KOFI 
-ADMIN.SECRETARY STANDARD SECURITIES. 
-ACCRA, GHANA. 
-DEAR SIR, 
+Mark Peloquin wrote:
+> 
+> I'm experiencing a problem using the bio pool created in
+> 2.5.7 and I'm not quite able to put my finger on the cause
+> and hoped somone might have the knowledge and insight to
+> understand this problem.
+> 
+> In EVMS, we are adding code to deal with BIO splitting, to
+> enable our feature modules, such as DriveLinking, LVM, & MD
+> Linear, etc to break large BIOs up on chunk size or lower
+> level device boundaries.
 
-I do hope this letter will not come to you as a 
-surprise. It was borne out of my desire to share a 
-mutual business relationship with you . 
-My name is GREY KOFI. A 47 years Ghanaian national, 
-married with a wife and four children. I work as an 
-administrative secretary 
-in Standard Securities and Services Limited 
-in Accra-Ghana. 
-I got the information concerning you from the Ghana 
-Chambers of Commerce and Industries after due 
-consultation with my opinion adviser, I decided to 
-contact you believing that by the grace of God, you 
-will accept to be my partner in this business. 
-I joined the services of this company in 1991 as 
-office assistant and have been working with this company for 
-nine years, within this period, I have worked with 
-states and government functionaries who have been 
-using Standard Securities to move huge sums of money 
-U.S Dollars, Pounds Sterling, Foreign 
-Tiakh(Cash)to their foreign partners. 
-They bring in these consignments of money cash and 
-secretly declare the contents as jewelry, Gold, 
-Diamond, Precious stones, Family Treasure, Documents, 
-etc. General Sanni Abacha of Nigeria(dead), Mobutu 
-Sese Sekou of zaire (dead) Foday Sankoh of Sierra 
-Leone,Babangida of Nigeria etc. All these people have 
-hundreds of consignments deposited with Standard 
-securities. Their foreign partners friends and 
-relatives are claiming most of these consignments, but 
-a lot of them are lying here unclaimed for as much 
-as fifteen years. 
-Nobody has ever come for them because in most cases, 
-the documents! of deposits are never available to any 
-body except the depositors but most of them are dead. 
-Some time last year, Standard Security management 
-changed the procedure of claims of consignments.
-As 
-soon as one is able to supply answers all the test questions 
- as contained in the secret files of any 
-consignment, They consignment will be released to you upon demand 
-from our safe storage. 
-More than one hundred and twenty consignments belonging 
+Could I suggest that this code not be part of EVMS, but that
+you implement it as a library within the core kernel?  Lots of
+stuff is going to need BIO splitting - software RAID, ataraid,
+XFS, etc.  May as well talk with Jens, Martin Petersen, Arjan,
+Neil Brown.  Do it once, do it right...
 
-to Gen.Abacha, and Mobutu have been claimed in the past 
-months. 
-This is why I am soliciting for your co-operation and 
-assistance. Gen. Abacha has 85 consignments deposited 
-with several different names and codes. 35 have been 
-claimed in the past 6 months. Since he died, the 
-first son 
-also died in a plane crash and the second son is facing 
-trial 
-for murderand embezzlement. The family members 
-are under 
-restricted arrest without communication.And can no longer 
-tourch or ask of this consignments as the eyes of their goverment 
-is on them and their consignment with us has overstayed their grace period
-I have finished every arrangement for you to come and 
-claim consignment NO: 1201 containing US$ 9,000,000.00 
-and consignment NO: 1200 containing US$ 12,000,000.00. 
-My duty is to supply you with all the information and 
-documents by fax or email which you will use to deal directly 
-with the management. The procedure is simple; You will 
-apply officially to the Director of Operations of 
-Standard Securities for the release of consignments 
-NO; 1200 and NO.1201. 
-They will demand some documents and Secret Codes. 
-Reach me, I will supply you with every detailed 
-information and you will fax it to them. As soon as 
-they confirm it correct, they will invite you for 
-collection. If you do not want to come to Accra, you 
-can arrange with them to transfer the consignment 
-to anywhere but united States of America on agreement. 
-Nobody should ever know that I am involved in this deal 
-except the Lawyer who will write an Agreement for us. 
-I will suggest upon conclusion, 30% goes to you and 
-70% for me. At the successful completion of the deal, 
-you will arrange for me and family to come over to 
-your country. I am assuring you that this business 
-have been arranged for years now. It is very secure and 
-risk free. 
-Reach me on kofigrey@yahoo.com for further explanation and directives on
-the 
-procedure, 
+> ...
+> 
+> The allocation and initialization of the resulting split
+> BIOs seems to be correct and works in light loads. However,
+> under heavier loads, the assert in scsi_merge.c:82
+> {BUG_ON(!sgpnt)} fires, due to the fact that scatter gather
+> pool for MAX_PHYS_SEGMENTS (128) is empty. This is occurring
+> at interrupt time when __scsi_end_request is attempting to
+> queue the next request.
 
-God bless you. 
+You're not the only one...  That is placeholder code which
+Jens plans to complete at a later time.
+ 
+> Its not perfectly clear to me how switching from a private
+> BIO pool to the 2.5 BIO pool should affect the usage of the
+> scsi driver's scatter gather pools.
+> 
+> Rather than simply increasing the size of scatter gather
+> pools I hope to understand how these changes resulted in
+> this behaviour so the proper solution can be determined.
+> 
+> Another data point: I have observed that the BIO pool does
+> get depleted below the 50% point of its mininum value, and
+> in such cases mempool_alloc (the internal worker for
+> bio_alloc) tries to free up more memory (I assume to grow
+> the pool) by waking bdflush. As a result, even more
+> pressure is put on the BIO pool when the dirty buffers
+> are being flushed.
 
-Yours Sincerely, 
+Makes sense.
 
-GREY KOFI 
-Get back to me via:kofigrey@yahoo.com 
+> ...
+> 
+> Have I caused a problem by unrealistically increasing
+> pressure on the BIO pool by a factor of 8? Or have I
+> discovered a problem that can occur on very heavy loads?
+> What are your thoughts on a recommended solution?
 
+Hopefully, once scsi_merge is able to handle the allocation
+failure correctly, we won't have a problem any more.
 
+As a temp thing I guess you could increase the size of that
+mempool.
 
+-

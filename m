@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280556AbRKJIgk>; Sat, 10 Nov 2001 03:36:40 -0500
+	id <S280508AbRKJJBn>; Sat, 10 Nov 2001 04:01:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280571AbRKJIga>; Sat, 10 Nov 2001 03:36:30 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:25353 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S280556AbRKJIgM>;
-	Sat, 10 Nov 2001 03:36:12 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Announce: XFS split patches for 2.4.7 to 2.4.14
-Date: Sat, 10 Nov 2001 19:35:59 +1100
-Message-ID: <14840.1005381359@ocs3.intra.ocs.com.au>
+	id <S280594AbRKJJBe>; Sat, 10 Nov 2001 04:01:34 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:4109 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S280508AbRKJJB2>;
+	Sat, 10 Nov 2001 04:01:28 -0500
+Date: Sat, 10 Nov 2001 10:01:25 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: "Calin A. Culianu" <calin@ajvar.org>
+cc: Wilson <defiler@null.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
+In-Reply-To: <Pine.LNX.4.30.0111091834030.17281-100000@rtlab.med.cornell.edu>
+Message-ID: <Pine.LNX.4.33.0111100957510.26087-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Content-Type: text/plain; charset=us-ascii
 
-ftp://oss.sgi.com/projects/xfs/download/patches/ 2.4.7 through 2.4.14.
+On Fri, 9 Nov 2001, Calin A. Culianu wrote:
 
-For some time the XFS group have been producing split patches for XFS,
-separating the core XFS changes from additional patches such as kdb,
-lvm, acl, kbuild 2.5.  These patches were initially intended for
-internal use and for feeding to Linus but we got no response at all.
-The split patches are now being released to the world with the hope
-that developers and distributors will find them useful.
+> On Thu, 8 Nov 2001, Alan Cox wrote:
+>
+> > > > Or are we talking about Athlon-optimizations bugs ? Or about Athlon SMP ?
+> > >
+> > > Bugs in the Athlon optimizations present in the Linux kernel.
+> >
+> > The only bugs we've seen recently appear to be in Athlon chipsets and/or
+> > BIOS  setup. 2.4.14 should sort those by poking around and doing what the
+> > BIOS didn't
+>
+> Alan:
+>
+> Specifically what chipsets are affected, and/or what things in the BIOS
+> can trigger problems?  (I have VIA KT266 chipsets on SpaceWalker AK31
+> motherboards... 33 of them to be precise.. and many of the machines seem
+> to be somewhat unstable!)
+VIA KT133 KT133 for sure, with abit bios 1.3R. but We saw report of other
+bios with similar problema.
+A work around for the bioses with the 55.7 register not setted to 0 has
+been merged in the main kernel starting from 2.4.11.
 
-Read the README in each directory very carefully, the split patch
-format has changed over a few kernel releases.  Any questions that are
-covered by the README will be ignored.  There is even a 2.4.15/README
-for the terminally impatient :).
+about symptoms... Hand at boot, filesystem corruption under eavy I/O
+load...
+Do not worry, those are kind of problems that everyone could hardly
+ignore.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
+Luigi
 
-iD8DBQE77Obsi4UHNye0ZOoRAnQ1AKD2cXKpRc0o+On2nxyNKnSipTdtBQCg5WFK
-3qte7lgdeHESWh50njfLC/s=
-=uxZg
------END PGP SIGNATURE-----
 

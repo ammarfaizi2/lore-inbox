@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVBDBzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVBDCAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbVBDBzp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 20:55:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVBDBzn
+	id S261211AbVBDCAr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 21:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVBDCAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 20:55:43 -0500
-Received: from agminet02.oracle.com ([141.146.126.229]:49612 "EHLO
-	agminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S263344AbVBDBwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 20:52:43 -0500
-Message-ID: <4202D55E.5030900@oracle.com>
-Date: Thu, 03 Feb 2005 17:52:30 -0800
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] invalidate range of pages after direct IO write
-References: <20050129011906.29569.18736.24335@volauvent.pdx.zabbo.net> <20050203161927.0090655c.akpm@osdl.org>
-In-Reply-To: <20050203161927.0090655c.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Feb 2005 21:00:45 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:34908 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263327AbVBDCAO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 21:00:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=SrvXKL3Gj9t+DD0tkYveKgVEGz8hHvH/aVAChyetKMQkCoK40LdVMzwxv5JZjgq36a5gMhGedkYIyBlEerHlowesuAtE769jh9T4Is1T9pwsHQuVVsCYT7TvZTsomZPrIgo7AoaZazkXkksID788hj9br2nHr0McTmzWr507XZg=
+Message-ID: <58cb370e0502031800667e1e06@mail.gmail.com>
+Date: Fri, 4 Feb 2005 03:00:09 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 05/29] ide: merge pci driver .h's into .c's
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20050202024712.GF621@htj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050202024017.GA621@htj.dyndns.org>
+	 <20050202024712.GF621@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> Note that the same optimisation should be made in the call to
-> unmap_mapping_range() in generic_file_direct_IO().  Currently we try and
-> unmap the whole file, even if we're only writing a single byte.  Given that
-> you're now calculating iov_length() in there we might as well use that
-> number a few lines further up in that function.
-
-Indeed.  I can throw that together.  I also have a patch that introduces
- filemap_write_and_wait_range() and calls it from the read bit of
-__blockdev_direct_IO().  It didn't change the cheesy fsx load I was
-using and then I got distracted.  I can try harder.
-
-> Reading the code, I'm unable to convince myself that it won't go into an
-> infinite loop if it finds a page at page->index = -1.  But I didn't try
-> very hard ;)
-
-I'm unconvinced as well. I got the pattern from
-truncate_inode_pages_range() and it seems to have a related problem when
-end is something that page_index can never be greater than.  It just
-starts over.
-
-I wonder if we should add some mapping_for_each_range() (less ridiculous
-names welcome :)) macro that handles this crap for the caller who just
-works with page pointers.  We could introduce some iterator struct that
-the caller would put on the stack and pass in to hold state, something
-like the 'n' in list_for_each_safe().  It looks like a few
-pagevec_lookup() callers could use this.
-
-> Minor note on this:
+On Wed, 2 Feb 2005 11:47:12 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> > 05_ide_merge_pci_driver_hc.patch
+> >
+> >       Merges drivers/ide/pci/*.h files into their corresponding *.c
+> >       files.  Rationales are
+> >       1. There's no reason to separate pci drivers into header and
+> >          body.  No header file is shared and they're simple enough.
+> >       2. struct pde_pci_device_t *_chipsets[] are _defined_ in the
+> >          header files.  That isn't the custom and there's no good
+> >          reason to do differently in these drivers.
+> >       3. Tracking changelogs shows that the bugs fixed by 00 and 01
+> >          are introduced during mass-updating ide pci drivers by
+> >          forgetting to update *.h files.
 > 
-> 	return invalidate_inode_pages2_range(mapping, 0, ~0UL);
-> 
-> I just use `-1' there.
+> Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-Roger.  I was just mimicking invalidate_inode_pages().
+Please kill crap in these .h files before mering them with .c files,
+also split this patch on per driver changes.
 
-> I'll make that change and plop the patch into -mm, but we need to think
-> about the infinite-loop problem..
+crap example looks like this: ;)
 
-I can try hacking together that macro and auditing pagevec_lookup()
-callers..
-
-- z
+> +#ifndef SPLIT_BYTE
+> +#define SPLIT_BYTE(B,H,L)      ((H)=(B>>4), (L)=(B-((B>>4)<<4)))
+> +#endif
+> +#ifndef MAKE_WORD
+> +#define MAKE_WORD(W,HB,LB)     ((W)=((HB<<8)+LB))
+> +#endif

@@ -1,86 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131490AbRCNRu6>; Wed, 14 Mar 2001 12:50:58 -0500
+	id <S131481AbRCNRs2>; Wed, 14 Mar 2001 12:48:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131480AbRCNRus>; Wed, 14 Mar 2001 12:50:48 -0500
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:13447 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S131490AbRCNRul>; Wed, 14 Mar 2001 12:50:41 -0500
-From: Ulrich.Weigand@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: alan@lxorguk.ukuu.org.uk
-cc: linux-kernel@vger.kernel.org
-Message-ID: <C1256A0F.0061EC62.00@d12mta11.de.ibm.com>
-Date: Wed, 14 Mar 2001 18:49:33 +0100
-Subject: Bug in 2.2 update_vm_cache_conditional?
+	id <S131488AbRCNRsS>; Wed, 14 Mar 2001 12:48:18 -0500
+Received: from [199.239.160.155] ([199.239.160.155]:9099 "EHLO
+	tenchi.datarithm.net") by vger.kernel.org with ESMTP
+	id <S131481AbRCNRsG>; Wed, 14 Mar 2001 12:48:06 -0500
+Date: Wed, 14 Mar 2001 09:46:34 -0800
+From: Robert Read <rread@datarithm.net>
+To: Greg KH <greg@wirex.com>, Martin Bruchanov <bruchm@pytlik.racom.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20010314094634.A16482@tenchi.datarithm.net>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	Martin Bruchanov <bruchm@hnilux.racom.cz>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200103111706.SAA18394@hnilux.racom.cz> <20010311210309.D19626@wirex.com>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010311210309.D19626@wirex.com>; from greg@wirex.com on Sun, Mar 11, 2001 at 09:03:09PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 11, 2001 at 09:03:09PM -0800, Greg KH wrote:
+> On Sun, Mar 11, 2001 at 06:06:24PM +0100, Martin Bruchanov wrote:
+> > 
+> > Bug report from Martin Bruchanov (bruxy@kgb.cz, bruchm@racom.cz)
+> > 
+> > ############################################################################
+> > [1.] One line summary of the problem:    
+> > USB doesn't work properly with SMP kernel on dual-mainboard or with APIC.
+> 
+> What kind of motherboard is this?
+> 
 
+>From the lspci output, looks like I have the same mainboard or at
+least one with an identical chipset. I've got an MSI 694D Pro
+Mainboard with 694X VIA chipset, with 2 cpus installed, and I had the
+same USB problem with 2.4.0, but haven't had time to test it on a
+recent kernel.
 
-Hi Alan,
+robert
 
-there appears to a bug in update_vm_cache_conditional
-that manifests itself only on S/390:
-
-update_vm_cache_conditional is called with a source_address
-parameter that can either be a kernel or a user space virtual
-address, depending on how get_fs() is set.
-
-update_vm_cache_conditional wants to check whether the
-source_address is in fact equal to the destination address
-in the page cache.  This check should hit only when the
-source_address is actually a *kernel* space address; if the
-source is a user space address the page cache must always
-be updated.
-
-However, update_vm_cache_conditional never checks whether the
-address is a kernel address, it does just a
-  if ((unsigned long)dest != source_address)
-
-On Intel, this is not a problem, as every user space address
-is different from every kernel space address anyway.
-
-On S/390, however, the kernel lives in a separate address space,
-so shares the same range of addresses as the user spaces.  This
-means that in certain rare cases, this check can accidentally
-hit even if the source lives in user space.
-
-This leads to the page cache update being skipped, and the
-page cache is inconsistent with the buffer cache afterwards :-(
-
-Do you agree that this is a bug?  What do you think of this fix:
-
-Index: filemap.c
-===================================================================
-RCS file: /home/cvs/linux/mm/filemap.c,v
-retrieving revision 1.3
-diff -u -r1.3 filemap.c
---- filemap.c  2000/06/09 19:15:25 1.3
-+++ filemap.c  2001/03/14 16:52:29
-@@ -252,7 +252,8 @@
-          if (page) {
-               char *dest = (char*) (offset + page_address(page));
-
--              if ((unsigned long)dest != source_address) {
-+              if (   (unsigned long)dest != source_address
-+                            || !segment_eq(get_fs(), KERNEL_DS)) {
-                    wait_on_page(page);
-                    memcpy(dest, buf, len);
-                    flush_dcache_page(page_address(page));
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
-
-
+> And does USB work in SMP mode with "noapic" given on the kernel command
+> line?
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -- 
+> greg@(kroah|wirex).com
+> http://immunix.org/~greg
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

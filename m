@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282175AbRKWQUd>; Fri, 23 Nov 2001 11:20:33 -0500
+	id <S282174AbRKWQYY>; Fri, 23 Nov 2001 11:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282174AbRKWQUX>; Fri, 23 Nov 2001 11:20:23 -0500
-Received: from alcove.wittsend.com ([130.205.0.10]:43913 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S282173AbRKWQUK>; Fri, 23 Nov 2001 11:20:10 -0500
-Date: Fri, 23 Nov 2001 11:20:03 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Anuradha Ratnaweera <anuradha@gnu.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.15-pre9
-Message-ID: <20011123112003.B27707@alcove.wittsend.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Anuradha Ratnaweera <anuradha@gnu.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011122134700.A4966@bee.lk> <Pine.LNX.4.33.0111221046170.1479-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0111221046170.1479-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S282178AbRKWQYO>; Fri, 23 Nov 2001 11:24:14 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:58910 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S282174AbRKWQX4>; Fri, 23 Nov 2001 11:23:56 -0500
+Date: Fri, 23 Nov 2001 10:23:42 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: war <war@starband.net>, Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Which gcc version?
+In-Reply-To: <5.1.0.14.2.20011123142135.00a98ec0@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.3.96.1011123102257.32257C-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 22, 2001 at 10:52:03AM -0800, Linus Torvalds wrote:
+On Fri, 23 Nov 2001, Anton Altaparmakov wrote:
 
-> On Thu, 22 Nov 2001, Anuradha Ratnaweera wrote:
-> >
-> > On Wed, Nov 21, 2001 at 10:44:30PM -0800, Linus Torvalds wrote:
-> > >
-> > > I think I'm ready to hand this over to Marcelo.
-> >
-> > Aren't you going to include Tim Schmielau's patch to handle uptime larger than
-> > 497 days?  It is a cool feature we always liked to have.
+> At 14:11 23/11/01, war wrote:
+> >#1) The compiler from redhat (gcc-2.96) is not an official GNU release.
+> 
+> And anyone should care because...?
+> 
+> >#2) http://www.atnf.csiro.au/~rgooch/linux/docs/kernel-newsflash.html/
+> >       "the reccomend compiler is now gcc-2.95.3, rather than gcc-2.91.66"
+> 
+> Several main kernel developers use gcc-2.96 for their kernel development 
+> work and according to Alan Cox using gcc-2.96 for the kernel is fine (from 
+> a certain version onwards, can't remember the minimum release number he 
+> said but the one in RH 7.2 is fine in any case).
 
-> Quite frankly, right now I'm in "handle only bugs that can crash the
-> system mode". Anything that takes 497 days to see is fairly low on my
-> priority list. My highest priority, in fact, is to get 2.4.15 out without
-> any embarrassment.
+Yes, 2.96 has a lot of bug fixes and is very well tested and stable at
+this point.  I trust it more than 2.95.3, but not more than egcs-1.1.2 :)
 
-	Embarrasments like having the modules install into directories
-like /lib/modules/2.4.15-greased-turkey or vmlinuz installed to an
-image /boot/vmlinuz-2.4.15-greased-turkey?  Those sorts of embarrasments?
-Or was that just a last shot to see if we were still awake in 2.4?
+	Jeff
 
-	[...]
 
-> 		Linus
 
-	Mike
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  /\/\|=mhw=|\/\/       |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!

@@ -1,91 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310243AbSCLAuK>; Mon, 11 Mar 2002 19:50:10 -0500
+	id <S310252AbSCLA6c>; Mon, 11 Mar 2002 19:58:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310252AbSCLAuB>; Mon, 11 Mar 2002 19:50:01 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:8713 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S310243AbSCLAts>; Mon, 11 Mar 2002 19:49:48 -0500
-Date: Mon, 11 Mar 2002 19:47:11 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19
-In-Reply-To: <3C8CDA0D.7020703@evision-ventures.com>
-Message-ID: <Pine.LNX.3.96.1020311191648.27404H-100000@gatekeeper.tmr.com>
+	id <S310254AbSCLA6W>; Mon, 11 Mar 2002 19:58:22 -0500
+Received: from mms2.broadcom.com ([63.70.210.59]:28942 "HELO mms2.broadcom.com")
+	by vger.kernel.org with SMTP id <S310252AbSCLA6F>;
+	Mon, 11 Mar 2002 19:58:05 -0500
+X-Server-Uuid: 2a12fa22-b688-11d4-a6a1-00508bfc9626
+From: "Timothy Ngo" <tngo@broadcom.com>
+To: linux-kernel@vger.kernel.org
+cc: tngo@broadcom.com, gignatin@broadcom.com, gyoung@broadcom.com
+Subject: Re: [BETA] First test release of Tigon3 driver
+Date: Mon, 11 Mar 2002 16:57:44 -0800
+Message-ID: <030801c1c960$ed24f470$f665030a@lt-ir002050.broadcom.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3612.1700
+X-WSS-ID: 10938DC22525079-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Martin Dalecki wrote:
+This statement is a response to the recent negative comments about the
+Broadcom Gigabit
+ethernet driver by the Linux community.
 
-> Alan Cox wrote:
+Our Gigabit ethernet driver was written as a GPL'ed open source driver to
+support various 2.2.x and 2.4.x Linux kernels. The primary objectives were
+to support Intel
+i386 and ia64 platforms and provide high performance especially in server
+type
+applications. The driver was also written in a way that proprietary
+information about the hardware would not be unnecessarily disclosed. This is
+necessary to protect our intellectual property and to keep a competitive
+edge in the highly competitive Gigabit NIC marketplace.
 
-> > Oh dear me. Wrong again. Microdrives require proper polite wakeups. But you
-> > see camera vendors buy in IDE code from people who can read and follow 
-> > standards documents. 
+We don't claim to be Linux experts but no one knows about our hardware more
+than we do. At this point, we cannot support the Linux open source community
+to write their
+own driver. Doing so would require us to disclose too much proprietary
+information about
+our hardware and put us in a competitive disadvantage in the Gigabit
+marketplace. We stronly
+believe our driver is solid and provides high performance for our customers.
+In one
+benchmark test, we've achieved better than 1.8 Gigabit total throughput
+using jumbo frames. While
+our emphasis has been on Intel i386 and ia64 platforms, our recent versions
+of the driver are also
+known to work on PowerPC, Sparc, and alpha platforms. While we welcome any
+constructive suggestions on improving our driver in anyway, we want to point
+out that there are
+different styles to writing a device driver, not just the style advocated by
+a couple of
+arrogant Linux people.
 
-This seems relevant in light of:
+Here more details comments to the Dave Miller's email on Broadcom Driver.
 
-	[snip]
+> >It is meant to replace Broadcom's driver because frankly their driver
+> > is junk and would never be accepted into the tree.  For an example of
+> > why their driver is junk, note that the resulting object file from our
+> > driver is less than half the size of Broadcom's.  That kind of bloat
+> > is simply unacceptable.
 
-> Fsck let's cite the IBM appilcation notes about the Micro Drive
-> found here http://www.storage.ibm.com/hdd/micro/appguide.htm
+[BRCM] Our driver is 117K, Intel's driver is 82K, the Altima driver is 82K.
+It has
+a lot of features and carries all backward compatible for all chips
+including
+firmware.
 
-	[snip, but relevant]
+> > Next, Broadcom's driver is still way
+> > non-portable, ioremap() pointers are still dereferenced directly among
+> > other things.
 
->   * Consideration for a time-out value when using the write cache
-> 
-> The microdrive can queue several consecutive write commands. Even if the host 
-> system receives a
-> command completion, the microdrive may still be performing disk writing for 
-> queued commands, each of
-> which could take up to 7.5 seconds as previously mentioned if an error has 
-> occurred and an error
-> recovery routine starts.
-> This delay eventually surfaces when processing a first non-queued command during 
-> write cache.
-> 
-> For example, suppose the microdrive queues 2 write commands and each command 
-> takes 7.5 seconds
-> for some extreme reason. Then if the microdrive receives Read Sectors, which is 
-> a non-queue command,
-> it will be processed just after disk writing is completed.  In the worst case, 
-> delay for the Read Sectors
-> would be close to 15 seconds (7.5 x 2).
-> 
-> In light of the stuation above,  IBM recommends 30 seconds as a time-out value 
-> if the host system uses
-> the write cache feature.
-> 
-> 
-> And apparently we see that there is nothing special about them... Just don't
-> enable the write cache and all should be well with a timeout of 30 seconds.
+[BRCM] The driver was changed to use readl/writel macro in version 2.0.31 on
+12/14/01 when we started testing on other non-Intel platforms and added
+big-endian support. Prior to that we only supported Intel platforms and
+direct access is not a problem on Intel platforms.
 
-How can you read that recommendation into what you just quoted? IBM says
-use 30 sec if you enable write buffers, why would eliminate the long delay
-but use the slow timeout anyway? To slow retry to a crawl? It would seem
-obvious to do one thing or the other, but not to take all possible action
-to make things crawl. I suggest that the obvious solution is use a
-sensible timeout without write buffers to be really safe, or to get best
-performance use the write buffers and force a flush at a sensible point,
-somewhat like flushing buffers to disk with bdflush. There are already
-spindown timers and such in the drivers, this isn't a "whole new thing."
+> > Finally, their driver is just plain buggy, they have
+> > code which tries to use page_address() on pages which are potentially
+> > in highmem and that is guarenteed to oops.
 
-Since we have the ability to let the user set this now, I see no reason
-not to let the user make the choice, Linux is about choice.
+[BRCM] It is true that the driver uses page_address() in one subroutine that
+is
+used to workaround a problem on the very early 5700 chip. But this routine
+is not used at all, it was there intially to support early rev of the
+silicon.
+It was removed in later version of the Broadcom driver.
 
-Finally, about copying other drivers: to quote my youngest, "yuckie-poo!"
-Drivers should be written to the standard, with reality dictating that it
-is sometimes required to write to the hardware when you absolutely MUST
-use non-compliant hardware. To copy code from another driver seems like a
-lack or either ability or committment.
+Regards,
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Timothy Ngo
+
+
 

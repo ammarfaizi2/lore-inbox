@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbUBXS1c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 13:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUBXSZx
+	id S262382AbUBXSZl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 13:25:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbUBXSZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 13:25:53 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:6276 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S262395AbUBXSYS (ORCPT
+	Tue, 24 Feb 2004 13:25:39 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:49027 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262369AbUBXSZH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 13:24:18 -0500
-Message-ID: <403B9AD0.2050006@softhome.net>
-Date: Tue, 24 Feb 2004 10:41:20 -0800
-From: Plaz McMan <plazmcman@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 24 Feb 2004 13:25:07 -0500
+Date: Tue, 24 Feb 2004 19:25:05 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
 To: linux-kernel@vger.kernel.org
-Subject: OSS API emulation in 2.6.3
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Linux Kernel Cross Compiling Tests [gcc-3.3.3]
+Message-ID: <20040224182505.GA25038@MAIL.13thfloor.at>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OSS-API emulation does not work properly in 2.6.3 with Loki's 
-UnrealTournament.
 
-When using kernel 2.6.3 with Loki's UT, the sound is too fast. This is 
-_not_ an issue with 2.6.2. Both kernels are compiled with the same 
-options - ALSA with all OSS emulation options enabled. No native OSS 
-support is compiled in.
+Hi Folks!
 
-OSS emulation seems to work with other programs, such as xmms, under 
-both kernels.
+updated my toolchain(s) to gcc-3.3.3 to see if it works and
+thought a comparison between the warning/error messages
+might be interesting ...
 
-A workaround is to compile all sound options as modules, and modprobe 
-ALSA out and OSS in before starting UnrealTournament. This is quite 
-clumsy, though.
+the result: no changes in the compiles/doesn't compile
+category for 2.4.25 and 2.6.3, but naturally some changes
+in the warnings/errors section ...
 
--- 
-x86 processor (AMD K7)
-Slackware 9.1
-SB Live! (emu10k1)
-affected kernel: 2.6.3
--- 
+from the 20 checked archs:
+
+ alpha, arm, cris, hppa/64, i386, ia64, m68k, mips/64, 
+ ppc/64, s390/x, sh/64, sparc/64, v850 and x86_64
+
+only 6 compiled for 2.6.3 and 8 for 2.4.25 with the linux 
+kernel default config, for details see:
+
+ http://vserver.13thfloor.at/Stuff/Cross/compile.info
+
+the differences in the output, if somebody is interested
+can be found at:
+
+ http://vserver.13thfloor.at/Stuff/Cross/DIFF-2.4.25-gcc3.3.2-gcc3.3.3/
+ http://vserver.13thfloor.at/Stuff/Cross/DIFF-2.6.3-gcc3.3.2-gcc3.3.3/
+
+best,
+Herbert
+
+PS: gcc-3.3.3 can be compiled with the same patches as 3.3.2
 

@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272059AbRHVR54>; Wed, 22 Aug 2001 13:57:56 -0400
+	id <S272066AbRHVSBG>; Wed, 22 Aug 2001 14:01:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272063AbRHVR5q>; Wed, 22 Aug 2001 13:57:46 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:58130 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S272059AbRHVR5h>; Wed, 22 Aug 2001 13:57:37 -0400
-Date: Wed, 22 Aug 2001 13:57:31 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: adding accuracy to random timers on PPC - new config option or
-  runtime overhead?
-In-Reply-To: <3B83F107.61FD47A0@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.33.0108221356210.12521-100000@terbidium.openservices.net>
+	id <S272067AbRHVSA4>; Wed, 22 Aug 2001 14:00:56 -0400
+Received: from web10902.mail.yahoo.com ([216.136.131.38]:46865 "HELO
+	web10902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S272066AbRHVSAl>; Wed, 22 Aug 2001 14:00:41 -0400
+Message-ID: <20010822180056.58350.qmail@web10902.mail.yahoo.com>
+Date: Wed, 22 Aug 2001 11:00:56 -0700 (PDT)
+From: Brad Chapman <kakadu_croc@yahoo.com>
+Subject: Re: brlock_is_locked()?
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108221231260.19638-100000@touchme.toronto.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+Content-Type: multipart/mixed; boundary="0-1180809945-998503256=:57745"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Chris Friesen wrote:
+--0-1180809945-998503256=:57745
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Ignacio Vazquez-Abrams wrote:
-> >
-> > On Wed, 22 Aug 2001, Chris Friesen wrote:
-> > > I'm looking at putting in PPC-specific code in add_timer_randomness() that would
-> > > be similar to the x86-specific stuff.
-> > >
-> > > The problem is that the PPC601 uses real time clock registers while the other
-> > > PPC chips use a timebase register, so two different versions will be required.
-> > > Should I try and identify at runtime which it is (which would be extra
-> > > overhead), or should I add another config option to the kernel?
->
-> > How about determining which one to use at boot time? That way there's no
-> > overhead, and there's no need to have yet another config option which probably
-> > doesn't need to be there.
->
-> As far as I can see there will still be some extra overhead.  We'd need an extra
-> conditional that wouldn't be there with the config option.  Granted, one
-> conditional shouldn't be too expensive, especially since we'll always be picking
-> the same branch.
+--- Ben LaHaise <bcrl@redhat.com> wrote:
+> On Wed, 22 Aug 2001, Brad Chapman wrote:
+> 
+> > restart:
+> > 	if (brlock_is_locked(BR_NETPROTO_LOCK)) {
+> > 		CRITICAL_SECTION
+> > 		br_write_unlock_bh(BR_NETPROTO_LOCK);
+> > 	}
+> > 	else {
+> > 		/* Let's get dizzy */
+> > 		br_write_lock_bh(BR_NETPROTO_LOCK);
+> > 		goto restart;
+> > 	}
+> 
+> That code can never work.  None of the linux spinlocks track ownership, so
+> checking if a lock is locked tells you if your process or another has
+> ownership of the lock.  The above pseudo code is going to result in lots
+> of mangled data.
+> 
+> 		-ben
+> 
+Mr. LaHaise,
 
-If the versions of the functions aren't too large then you may be able to get
-away with putting in both functions and then using a function pointer to
-select which one to use.
+	Eeek! Sorry. What do you expect at 10:00 at night? ;-)
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+	I'm not talking about _who_ owns the lock, I'm talking about whether
+the lock itself is locked. I don't care which process is using the lock;
+I just want to know if _somebody_ is using it. Is this possible?
 
+Brad
+
+
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+Current e-mail: kakadu@adelphia.net
+
+Reply to the address I used in the message to you,
+please!
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/
+--0-1180809945-998503256=:57745--

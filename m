@@ -1,78 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbUKRIVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbUKRI15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbUKRIVz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 03:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbUKRIVy
+	id S261781AbUKRI15 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 03:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbUKRI15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 03:21:54 -0500
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:46852 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S261868AbUKRIUX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 03:20:23 -0500
-Message-ID: <419C5B45.2080100@tebibyte.org>
-Date: Thu, 18 Nov 2004 09:20:21 +0100
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: pt-br, pt
+	Thu, 18 Nov 2004 03:27:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8922 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261781AbUKRI1x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 03:27:53 -0500
+Date: Thu, 18 Nov 2004 03:27:42 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
+cc: netdev@oss.sgi.com, Stephen Smalley <sds@epoch.ncsc.mil>,
+       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
+ using SELinux and SOCK_SEQPACKET
+In-Reply-To: <Xine.LNX.4.44.0411180257300.3144-100000@thoron.boston.redhat.com>
+Message-ID: <Xine.LNX.4.44.0411180305060.3192-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrea Arcangeli <andrea@novell.com>,
-       Jesse Barnes <jbarnes@sgi.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
-       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable
- braindamage
-References: <20041105200118.GA20321@logos.cnet> <200411051532.51150.jbarnes@sgi.com> <20041106012018.GT8229@dualathlon.random> <1099706150.2810.147.camel@thomas> <20041117195417.A3289@almesberger.net> <419BDE53.1030003@tebibyte.org> <20041117210410.R28844@almesberger.net> <419BECB0.70801@tebibyte.org> <20041117221419.S28844@almesberger.net>
-In-Reply-To: <20041117221419.S28844@almesberger.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's a fix for the SELinux related problem.
 
+What's happening is that mixing stream and dgram ops for SEQPACKET is
+having some unfortunate side effects.
 
-Werner Almesberger escreveu:
-> The tricky bit is now to identify such part-time interactive tasks,
-> i.e. the ones who won't receive a trigger for a while. To make
-> things worse, there are those who may be happily doing something,
-> like spinning some animated GIF, which would be perfectly fine
-> being put to a long sleep. That in turn may make the X server idle,
-> etc.
+One of these is that there is a race between client sendmsg() and server
+accept().  The server child socket is attached via sock_graft() after the 
+client has entered unix_dgram_sendmsg() and called 
 
-I don't think you need to be that subtle about it, though I agree 
-perfection would be nice :) The present behaviour is just to kill 
-something. All I'm advocating is just swapping something out if possible 
-instead. Yes by definition we probably have picked something you would 
-have preferred to leave running, but the machine simply cope with 
-everything being asked of it at the moment and that something got the 
-short straw. At least swapped out we will get round to running it when 
-we can.
+	security_unix_may_send(sk->sk_socket, other->sk_socket);
 
-> Again, if you have such a clearly defined scenario, perhaps the
-> cron jobs should just loudly announce that housekeeping is now
-> starting and that this changes some of the rules. Or perhaps,
-> there could be a SIGSWAP to swap out a process (maybe SIGSUSP it
-> first so that it doesn't come back on its own).
+other->sk_socket will thus be null, causing the oops in SELinux and any 
+other LSM which tries to dereference the pointer.
 
-Sounds like a job for priorities and sensible use of batch scheduling.
+The fix is a combination of some of Ross's ideas:
 
-I still feel that special casing things is basically wrong. We could 
-work around the specific example that the cron.daily on my test machines 
-tends to cause things to be oom_killed, but it's better to fix the 
-problem. What about when I try to build umlsim again -- my standard test 
-case for triggering the oom killer ;)
+1) SOCK_SEQPACKET is connection oriented, and there no need to call 
+security_unix_may_send() for each packet.  security_unix_stream_connect() 
+is sufficient.
 
-Let's not forget that oom killing (when it works) is a last resort, 
-something we do only if we have to to avoid a panic. Too often at 
-present the machine just doesn't know what to do, runs around confused 
-and makes things worse by shooting its own leg off. Which is pretty much 
-a real-world definition of panicking*. Lets at least try to avoid 
-causing permanent damage, such as killing off sshd.
+2) Ensure that unix_dgram_sendmsg() fails for SOCK_SEQPACKET sockets which
+are not connected, otherwise someone could bypass LSM by sending on an
+unconnected socket.
 
-[ * I just looked it up: "of, relating to, or resembling the mental or 
-emotional state believed induced by the god Pan". Cool ]
+Note that this only solves the problem for the LSM hook.
 
-Regards,
-Chris R.
+Patch below, please review.
+
+The other issue discussed -- server goes into a hard loop (and/or various
+lock/refcount related bugs) when the client sends a message via sendto()
+with an address supplied -- needs to be resolved separately.
+
+---
+
+ net/unix/af_unix.c |   11 ++++++++---
+ 1 files changed, 8 insertions(+), 3 deletions(-)
+
+diff -purN -X dontdiff linux-2.6.10-rc2.o/net/unix/af_unix.c linux-2.6.10-rc2.w/net/unix/af_unix.c
+--- linux-2.6.10-rc2.o/net/unix/af_unix.c	2004-11-15 13:18:56.000000000 -0500
++++ linux-2.6.10-rc2.w/net/unix/af_unix.c	2004-11-18 02:54:03.283777544 -0500
+@@ -1261,6 +1261,9 @@ static int unix_dgram_sendmsg(struct kio
+ 	long timeo;
+ 	struct scm_cookie tmp_scm;
+ 
++	if (sk->sk_type == SOCK_SEQPACKET && sk->sk_state != TCP_ESTABLISHED)
++		return -ENOTCONN;
++
+ 	if (NULL == siocb->scm)
+ 		siocb->scm = &tmp_scm;
+ 	err = scm_send(sock, msg, siocb->scm);
+@@ -1354,9 +1357,11 @@ restart:
+ 	if (other->sk_shutdown & RCV_SHUTDOWN)
+ 		goto out_unlock;
+ 
+-	err = security_unix_may_send(sk->sk_socket, other->sk_socket);
+-	if (err)
+-		goto out_unlock;
++	if (sk->sk_type != SOCK_SEQPACKET) {
++		err = security_unix_may_send(sk->sk_socket, other->sk_socket);
++		if (err)
++			goto out_unlock;
++	}
+ 
+ 	if (unix_peer(other) != sk &&
+ 	    (skb_queue_len(&other->sk_receive_queue) >
+

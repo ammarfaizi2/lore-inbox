@@ -1,206 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318084AbSG2WL4>; Mon, 29 Jul 2002 18:11:56 -0400
+	id <S318147AbSG2WNC>; Mon, 29 Jul 2002 18:13:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318138AbSG2WL4>; Mon, 29 Jul 2002 18:11:56 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:5467 "EHLO
+	id <S318151AbSG2WNB>; Mon, 29 Jul 2002 18:13:01 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:25448 "EHLO
 	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S318084AbSG2WL3>; Mon, 29 Jul 2002 18:11:29 -0400
-Date: Mon, 29 Jul 2002 23:14:55 +0100 (BST)
+	id <S318147AbSG2WMn>; Mon, 29 Jul 2002 18:12:43 -0400
+Date: Mon, 29 Jul 2002 23:16:05 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@tech9.net>,
        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH] vmacct8/9 shmem_file_setup when MAP_NORESERVE
+Subject: [PATCH] vmacct9/9 remove acct arg from do_munmap
 In-Reply-To: <Pine.LNX.4.21.0207292257001.1184-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0207292313330.1184-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0207292315040.1184-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tangential to VM overcommit strict accounting,
-On Fri, 12 Jul 2002, David Mosberger wrote to LKML:
-> Is there a good reason why the MAP_NORESERVE flag is ignored when
-> MAP_SHARED is specified?  (Hint: it's the call to vm_enough_memory()
-> in shmem_file_setup() that's causing MAP_NORESERVE to be ignored.)
+An acct flag was added to do_munmap, true everywhere but in mremap's
+move_vma: instead of updating the arch and driver sources, revert that
+that change and temporarily mask VM_ACCOUNT around that one do_munmap.
 
-He's right, if we support mmap MAP_NORESERVE, we should support
-it on shared anonymous objects: too bad that needs a few changes.
-do_mmap_pgoff pass VM_ACCOUNT (or not) down to shmem_file_setup,
-flag stored into shmem info, for use by shmem_delete_inode later.
-Also removed a harmless but pointless call to shmem_truncate.
+Also, noticed that do_mremap fails needlessly if both shrinking _and_
+moving a mapping: update old_len to pass vm area boundaries test.
 
---- vmacct7/include/linux/mm.h	Mon Jul 29 11:48:04 2002
-+++ vmacct8/include/linux/mm.h	Mon Jul 29 19:23:46 2002
-@@ -331,7 +331,7 @@
- 
- extern int fail_writepage(struct page *);
- struct page * shmem_nopage(struct vm_area_struct * vma, unsigned long address, int unused);
--struct file *shmem_file_setup(char * name, loff_t size);
-+struct file *shmem_file_setup(char * name, loff_t size, unsigned long flags);
- extern void shmem_lock(struct file * file, int lock);
- extern int shmem_zero_setup(struct vm_area_struct *);
- 
---- vmacct7/include/linux/shmem_fs.h	Thu Jul 25 13:04:59 2002
-+++ vmacct8/include/linux/shmem_fs.h	Mon Jul 29 19:23:46 2002
-@@ -16,7 +16,7 @@
- 	swp_entry_t		i_direct[SHMEM_NR_DIRECT]; /* for the first blocks */
- 	void		      **i_indirect; /* indirect blocks */
- 	unsigned long		swapped;
--	int			locked;     /* into memory */
-+	unsigned long		flags;
- 	struct list_head	list;
- 	struct inode		vfs_inode;
- };
---- vmacct7/ipc/shm.c	Mon Jul 29 11:48:04 2002
-+++ vmacct8/ipc/shm.c	Mon Jul 29 19:23:46 2002
-@@ -186,7 +186,7 @@
- 	shp->shm_flags = (shmflg & S_IRWXUGO);
- 
- 	sprintf (name, "SYSV%08x", key);
--	file = shmem_file_setup(name, size);
-+	file = shmem_file_setup(name, size, VM_ACCOUNT);
- 	error = PTR_ERR(file);
- 	if (IS_ERR(file))
- 		goto no_file;
---- vmacct7/mm/mmap.c	Mon Jul 29 19:23:46 2002
-+++ vmacct8/mm/mmap.c	Mon Jul 29 19:23:46 2002
-@@ -528,7 +528,10 @@
- 		return -ENOMEM;
- 
- 	if (!(flags & MAP_NORESERVE) || sysctl_overcommit_memory > 1) {
--		if ((vm_flags & (VM_SHARED|VM_WRITE)) == VM_WRITE) {
-+		if (vm_flags & VM_SHARED) {
-+			/* Check memory availability in shmem_file_setup? */
-+			vm_flags |= VM_ACCOUNT;
-+		} else if (vm_flags & VM_WRITE) {
- 			/* Private writable mapping: check memory availability */
- 			charged = len >> PAGE_SHIFT;
- 			if (!vm_enough_memory(charged))
-@@ -582,6 +585,14 @@
- 		if (error)
- 			goto free_vma;
- 	}
-+
-+	/* We set VM_ACCOUNT in a shared mapping's vm_flags, to inform
-+	 * shmem_zero_setup (perhaps called through /dev/zero's ->mmap)
-+	 * that memory reservation must be checked; but that reservation
-+	 * belongs to shared memory object, not to vma: so now clear it.
-+	 */
-+	if ((vm_flags & (VM_SHARED|VM_ACCOUNT)) == (VM_SHARED|VM_ACCOUNT))
-+		vma->vm_flags &= ~VM_ACCOUNT;
- 
- 	/* Can addr have changed??
- 	 *
---- vmacct7/mm/shmem.c	Mon Jul 29 19:23:46 2002
-+++ vmacct8/mm/shmem.c	Mon Jul 29 19:23:46 2002
-@@ -392,12 +392,14 @@
- static void shmem_delete_inode(struct inode * inode)
- {
- 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
-+	struct shmem_inode_info *info = SHMEM_I(inode);
- 
- 	if (inode->i_op->truncate == shmem_truncate) {
--		spin_lock (&shmem_ilock);
--		list_del (&SHMEM_I(inode)->list);
--		spin_unlock (&shmem_ilock);
--		vm_unacct_memory(VM_ACCT(inode->i_size));
-+		spin_lock(&shmem_ilock);
-+		list_del(&info->list);
-+		spin_unlock(&shmem_ilock);
-+		if (info->flags & VM_ACCOUNT)
-+			vm_unacct_memory(VM_ACCT(inode->i_size));
- 		inode->i_size = 0;
- 		shmem_truncate (inode);
- 	}
-@@ -526,7 +528,7 @@
- 	index = page->index;
- 	inode = mapping->host;
- 	info = SHMEM_I(inode);
--	if (info->locked)
-+	if (info->flags & VM_LOCKED)
- 		return fail_writepage(page);
- 	swap = get_swap_page();
- 	if (!swap.val)
-@@ -743,9 +745,12 @@
- 	struct inode * inode = file->f_dentry->d_inode;
- 	struct shmem_inode_info * info = SHMEM_I(inode);
- 
--	down(&info->sem);
--	info->locked = lock;
--	up(&info->sem);
-+	spin_lock(&info->lock);
-+	if (lock)
-+		info->flags |= VM_LOCKED;
-+	else
-+		info->flags &= ~VM_LOCKED;
-+	spin_unlock(&info->lock);
+--- vmacct8/include/linux/mm.h	Mon Jul 29 19:23:46 2002
++++ vmacct9/include/linux/mm.h	Mon Jul 29 19:23:46 2002
+@@ -430,7 +430,7 @@
+ 	return ret;
  }
  
- static int shmem_mmap(struct file * file, struct vm_area_struct * vma)
-@@ -792,7 +797,7 @@
- 		memset (info->i_direct, 0, sizeof(info->i_direct));
- 		info->i_indirect = NULL;
- 		info->swapped = 0;
--		info->locked = 0;
-+		info->flags = VM_ACCOUNT;
- 		switch (mode & S_IFMT) {
- 		default:
- 			init_special_inode(inode, mode, dev);
-@@ -1652,7 +1657,7 @@
-  * @size: size to be set for the file
-  *
+-extern int do_munmap(struct mm_struct *, unsigned long, size_t, int);
++extern int do_munmap(struct mm_struct *, unsigned long, size_t);
+ 
+ extern unsigned long do_brk(unsigned long, unsigned long);
+ 
+--- vmacct8/ipc/shm.c	Mon Jul 29 19:23:46 2002
++++ vmacct9/ipc/shm.c	Mon Jul 29 19:23:46 2002
+@@ -671,7 +671,7 @@
+ 		shmdnext = shmd->vm_next;
+ 		if (shmd->vm_ops == &shm_vm_ops
+ 		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
+-			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start, 1);
++			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start);
+ 			retval = 0;
+ 		}
+ 	}
+--- vmacct8/mm/mmap.c	Mon Jul 29 19:23:46 2002
++++ vmacct9/mm/mmap.c	Mon Jul 29 19:23:46 2002
+@@ -197,7 +197,7 @@
+ 
+ 	/* Always allow shrinking brk. */
+ 	if (brk <= mm->brk) {
+-		if (!do_munmap(mm, newbrk, oldbrk-newbrk, 1))
++		if (!do_munmap(mm, newbrk, oldbrk-newbrk))
+ 			goto set_brk;
+ 		goto out;
+ 	}
+@@ -517,7 +517,7 @@
+ munmap_back:
+ 	vma = find_vma_prepare(mm, addr, &prev, &rb_link, &rb_parent);
+ 	if (vma && vma->vm_start < addr + len) {
+-		if (do_munmap(mm, addr, len, 1))
++		if (do_munmap(mm, addr, len))
+ 			return -ENOMEM;
+ 		goto munmap_back;
+ 	}
+@@ -945,8 +945,7 @@
+ 	struct vm_area_struct *mpnt,
+ 	struct vm_area_struct *prev,
+ 	unsigned long start,
+-	unsigned long end,
+-	int acct)
++	unsigned long end)
+ {
+ 	mmu_gather_t *tlb;
+ 
+@@ -960,7 +959,7 @@
+ 
+ 		unmap_page_range(tlb, mpnt, from, to);
+ 
+-		if (acct && (mpnt->vm_flags & VM_ACCOUNT)) {
++		if (mpnt->vm_flags & VM_ACCOUNT) {
+ 			len = to - from;
+ 			vm_unacct_memory(len >> PAGE_SHIFT);
+ 		}
+@@ -1041,7 +1040,7 @@
+  * work.  This now handles partial unmappings.
+  * Jeremy Fitzhardine <jeremy@sw.oz.au>
   */
--struct file *shmem_file_setup(char * name, loff_t size)
-+struct file *shmem_file_setup(char * name, loff_t size, unsigned long flags)
+-int do_munmap(struct mm_struct *mm, unsigned long start, size_t len, int acct)
++int do_munmap(struct mm_struct *mm, unsigned long start, size_t len)
  {
- 	int error;
- 	struct file *file;
-@@ -1663,7 +1668,7 @@
- 	if (size > SHMEM_MAX_BYTES)
- 		return ERR_PTR(-EINVAL);
+ 	unsigned long end;
+ 	struct vm_area_struct *mpnt, *prev, *last;
+@@ -1085,7 +1084,7 @@
+ 	 */
+ 	spin_lock(&mm->page_table_lock);
+ 	mpnt = touched_by_munmap(mm, mpnt, prev, end);
+-	unmap_region(mm, mpnt, prev, start, end, acct);
++	unmap_region(mm, mpnt, prev, start, end);
+ 	spin_unlock(&mm->page_table_lock);
  
--	if (!vm_enough_memory(VM_ACCT(size)))
-+	if ((flags & VM_ACCOUNT) && !vm_enough_memory(VM_ACCT(size)))
- 		return ERR_PTR(-ENOMEM);
+ 	/* Fix up all other VM information */
+@@ -1100,7 +1099,7 @@
+ 	struct mm_struct *mm = current->mm;
  
- 	error = -ENOMEM;
-@@ -1685,14 +1690,14 @@
- 	if (!inode) 
- 		goto close_file;
- 
-+	SHMEM_I(inode)->flags &= flags;
- 	d_instantiate(dentry, inode);
--	dentry->d_inode->i_size = size;
--	shmem_truncate(inode);
-+	inode->i_size = size;
-+	inode->i_nlink = 0;	/* It is unlinked */
- 	file->f_vfsmnt = mntget(shm_mnt);
- 	file->f_dentry = dentry;
- 	file->f_op = &shmem_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
--	inode->i_nlink = 0;	/* It is unlinked */
- 	return(file);
- 
- close_file:
-@@ -1700,7 +1705,8 @@
- put_dentry:
- 	dput (dentry);
- put_memory:
--	vm_unacct_memory(VM_ACCT(size));
-+	if (flags & VM_ACCOUNT)
-+		vm_unacct_memory(VM_ACCT(size));
- 	return ERR_PTR(error);	
+ 	down_write(&mm->mmap_sem);
+-	ret = do_munmap(mm, addr, len, 1);
++	ret = do_munmap(mm, addr, len);
+ 	up_write(&mm->mmap_sem);
+ 	return ret;
  }
+@@ -1137,7 +1136,7 @@
+  munmap_back:
+ 	vma = find_vma_prepare(mm, addr, &prev, &rb_link, &rb_parent);
+ 	if (vma && vma->vm_start < addr + len) {
+-		if (do_munmap(mm, addr, len, 1))
++		if (do_munmap(mm, addr, len))
+ 			return -ENOMEM;
+ 		goto munmap_back;
+ 	}
+--- vmacct8/mm/mremap.c	Mon Jul 29 19:23:46 2002
++++ vmacct9/mm/mremap.c	Mon Jul 29 19:23:46 2002
+@@ -150,6 +150,7 @@
+ 	struct mm_struct * mm = vma->vm_mm;
+ 	struct vm_area_struct * new_vma, * next, * prev;
+ 	int allocated_vma;
++	int split = 0;
  
-@@ -1714,7 +1720,7 @@
- 	struct file *file;
- 	loff_t size = vma->vm_end - vma->vm_start;
- 	
--	file = shmem_file_setup("dev/zero", size);
-+	file = shmem_file_setup("dev/zero", size, vma->vm_flags);
- 	if (IS_ERR(file))
- 		return PTR_ERR(file);
+ 	new_vma = NULL;
+ 	next = find_vma_prev(mm, new_addr, &prev);
+@@ -210,11 +211,26 @@
+ 				new_vma->vm_ops->open(new_vma);
+ 			insert_vm_struct(current->mm, new_vma);
+ 		}
+-		/*
+-		 * The old VMA has been accounted for,
+-		 * don't double account
+-		 */
+-		do_munmap(current->mm, addr, old_len, 0);
++
++		/* Conceal VM_ACCOUNT so old reservation is not undone */
++		if (vma->vm_flags & VM_ACCOUNT) {
++			vma->vm_flags &= ~VM_ACCOUNT;
++			if (addr > vma->vm_start) {
++				if (addr + old_len < vma->vm_end)
++					split = 1;
++			} else if (addr + old_len == vma->vm_end)
++				vma = NULL;	/* it will be removed */
++		} else
++			vma = NULL;		/* nothing more to do */
++
++		do_munmap(current->mm, addr, old_len);
++
++		/* Restore VM_ACCOUNT if one or two pieces of vma left */
++		if (vma) {
++			vma->vm_flags |= VM_ACCOUNT;
++			if (split)
++				vma->vm_next->vm_flags |= VM_ACCOUNT;
++		}
+ 		current->mm->total_vm += new_len >> PAGE_SHIFT;
+ 		if (new_vma->vm_flags & VM_LOCKED) {
+ 			current->mm->locked_vm += new_len >> PAGE_SHIFT;
+@@ -272,7 +288,7 @@
+ 		if ((addr <= new_addr) && (addr+old_len) > new_addr)
+ 			goto out;
  
+-		do_munmap(current->mm, new_addr, new_len, 1);
++		do_munmap(current->mm, new_addr, new_len);
+ 	}
+ 
+ 	/*
+@@ -282,9 +298,10 @@
+ 	 */
+ 	ret = addr;
+ 	if (old_len >= new_len) {
+-		do_munmap(current->mm, addr+new_len, old_len - new_len, 1);
++		do_munmap(current->mm, addr+new_len, old_len - new_len);
+ 		if (!(flags & MREMAP_FIXED) || (new_addr == addr))
+ 			goto out;
++		old_len = new_len;
+ 	}
+ 
+ 	/*
 

@@ -1,85 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbTH3Nfv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 09:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbTH3Nfv
+	id S261588AbTH3NgN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 09:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbTH3NgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 09:35:51 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:58044
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S261512AbTH3Nft convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 09:35:49 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.4.22-ck1
-Date: Sat, 30 Aug 2003 23:43:02 +1000
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Sat, 30 Aug 2003 09:36:13 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:39780 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261588AbTH3NgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 09:36:10 -0400
+Date: Sat, 30 Aug 2003 14:35:09 +0100
+From: Dave Jones <davej@redhat.com>
+To: Matt Gibson <gothick@gothick.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4 and hardware reports a non fatal incident
+Message-ID: <20030830133509.GA686@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Matt Gibson <gothick@gothick.org.uk>, linux-kernel@vger.kernel.org
+References: <200308281548.44803.tomasz_czaus@go2.pl> <20030828151708.0b13dd82.rddunlap@osdl.org> <200308301149.19944.gothick@gothick.org.uk> <200308301344.56545.gothick@gothick.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308302343.04238.kernel@kolivas.org>
+In-Reply-To: <200308301344.56545.gothick@gothick.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Aug 30, 2003 at 01:44:56PM +0100, Matt Gibson wrote:
+ > > 	for (i=1; i<nr_mce_banks; i++) {
+ > >
+ > > Check out the "for".  Or am I reading this wrong?
+ > 
+ > Having checked back, this was changed between test-2 and test-3.  The 
+ > checking code in k7_machine_check() still loops from 0 rather than 1.  I 
+ > think this may be leading to false reporting of problems, which may be why I 
+ > and Tomasz are seeing these MCE messages on our Athlons.
 
-Updated patchset
+When it was i=0 people were seeing false positives. Starting from 1
+reduces that.
 
-http://kernel.kolivas.org
+ > Anyone who knows more about this stuff care to comment?  Is someone looking 
+ > after MCE at the moment?  I couldn't find out much info on it.
 
-Includes:
-O(1) scheduler
-Batch scheduling
-Preempt
-Low latency
-Interactivity updates
-CK VM hacks
-Swap prefetching
-Read Latency2
-Variable Hz
-Supermount-NG 1.2.8
-Bootsplash
+in the past, Alan and myself took care of i386, Andi Kleen did AMD64.
 
-Yet to be updated:
-XFS
-GRSEC
-AAVM addons
-RMAP
+		Dave
 
-Dropped (either unstable, unecessary, too hard or too much of a moving 
-target):
-Scheduler tunables 
-Packet Writing
-Software Suspend 
-ACPI
-Nforce2
-CPU Freq scaling
-
-Changes:
-Mainly a resync.
-The conversion of nice 19+ priority tasks to batch scheduling was cleaned up.
-A partial merge of the interactivity changes in 2.6-test* - O19int was done 
-(no nanosecond resolution, no flagging of high credit tasks and 10ms 
-timeslice granularity in this version).
-All low latency points in swapfile.c were removed due to causing hanging in 
-swapoff in combination with ckvm.
-All non i386 arch changes were removed as they were getting increasingly 
-broken and noone was reporting success with them (sorry).
-
-Please feel free to send comments, suggestions, queries, bugreports, patches 
-and requests.
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/UKnmZUg7+tp6mRURApf+AJ9laZmu/AMFb6y37EUEOtHgNOFlQACcDv39
-ldr5nLzeyTnI9lPitNnZ/JU=
-=oyrC
------END PGP SIGNATURE-----
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

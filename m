@@ -1,80 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266210AbSLSU3R>; Thu, 19 Dec 2002 15:29:17 -0500
+	id <S267057AbSLSUc0>; Thu, 19 Dec 2002 15:32:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266218AbSLSU3R>; Thu, 19 Dec 2002 15:29:17 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:21660 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266210AbSLSU3P>;
-	Thu, 19 Dec 2002 15:29:15 -0500
-Date: Thu, 19 Dec 2002 12:32:13 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: John Bradford <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Dedicated kernel bug database
-In-Reply-To: <20021219201811.GA7715@suse.de>
-Message-ID: <Pine.LNX.4.33L2.0212191229380.30841-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267103AbSLSUc0>; Thu, 19 Dec 2002 15:32:26 -0500
+Received: from www.microgate.com ([216.30.46.105]:54277 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S267057AbSLSUcY>; Thu, 19 Dec 2002 15:32:24 -0500
+Subject: [PATCH] 2.2.23 n_hdlc.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.4 
+Date: 19 Dec 2002 14:39:57 -0600
+Message-Id: <1040330400.931.2.camel@diemos.microgate.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[cc list trimmed]
+Make global func/var static to avoid namespace polution
 
-On Thu, 19 Dec 2002, Dave Jones wrote:
+--- linux-2.2.23/drivers/char/n_hdlc.c	Fri Nov  2 10:39:06 2001
++++ linux-2.2.23-mg/drivers/char/n_hdlc.c	Thu Dec 19 12:00:52 2002
+@@ -9,7 +9,7 @@
+  *	Al Longyear <longyear@netcom.com>, Paul Mackerras <Paul.Mackerras@cs.anu.edu.au>
+  *
+  * Original release 01/11/99
+- * $Id: n_hdlc.c,v 2.3 2001/05/09 14:42:37 paul Exp $
++ * $Id: n_hdlc.c,v 2.4 2002/12/19 18:58:54 paulkf Exp $
+  *
+  * This code is released under the GNU General Public License (GPL)
+  *
+@@ -78,7 +78,7 @@
+  */
+ 
+ #define HDLC_MAGIC 0x239e
+-#define HDLC_VERSION "$Revision: 2.3 $"
++#define HDLC_VERSION "$Revision: 2.4 $"
+ 
+ #include <linux/version.h>
+ #include <linux/config.h>
+@@ -184,9 +184,9 @@
+ /*
+  * HDLC buffer list manipulation functions
+  */
+-void n_hdlc_buf_list_init(N_HDLC_BUF_LIST *list);
+-void n_hdlc_buf_put(N_HDLC_BUF_LIST *list,N_HDLC_BUF *buf);
+-N_HDLC_BUF* n_hdlc_buf_get(N_HDLC_BUF_LIST *list);
++static void n_hdlc_buf_list_init(N_HDLC_BUF_LIST *list);
++static void n_hdlc_buf_put(N_HDLC_BUF_LIST *list,N_HDLC_BUF *buf);
++static N_HDLC_BUF* n_hdlc_buf_get(N_HDLC_BUF_LIST *list);
+ 
+ /* Local functions */
+ 
+@@ -197,10 +197,10 @@
+ 
+ /* debug level can be set by insmod for debugging purposes */
+ #define DEBUG_LEVEL_INFO	1
+-int debuglevel=0;
++static int debuglevel=0;
+ 
+ /* max frame size for memory allocations */
+-ssize_t	maxframe=4096;
++static ssize_t	maxframe=4096;
+ 
+ /* TTY callbacks */
+ 
+@@ -921,7 +921,7 @@
+  * Arguments:	 	list	pointer to buffer list
+  * Return Value:	None	
+  */
+-void n_hdlc_buf_list_init(N_HDLC_BUF_LIST *list)
++static void n_hdlc_buf_list_init(N_HDLC_BUF_LIST *list)
+ {
+ 	memset(list,0,sizeof(N_HDLC_BUF_LIST));
+ 	spin_lock_init(&list->spinlock);
+@@ -938,7 +938,7 @@
+  * 
+  * Return Value:	None	
+  */
+-void n_hdlc_buf_put(N_HDLC_BUF_LIST *list,N_HDLC_BUF *buf)
++static void n_hdlc_buf_put(N_HDLC_BUF_LIST *list,N_HDLC_BUF *buf)
+ {
+ 	unsigned long flags;
+ 	spin_lock_irqsave(&list->spinlock,flags);
+@@ -968,7 +968,7 @@
+  * 
+  * 	pointer to HDLC buffer if available, otherwise NULL
+  */
+-N_HDLC_BUF* n_hdlc_buf_get(N_HDLC_BUF_LIST *list)
++static N_HDLC_BUF* n_hdlc_buf_get(N_HDLC_BUF_LIST *list)
+ {
+ 	unsigned long flags;
+ 	N_HDLC_BUF *buf;
 
-| On Thu, Dec 19, 2002 at 07:52:29PM +0000, John Bradford wrote:
-|  > > I also don't trust things like this where if something goes wrong,
-|  > > we could lose the bug report.
-|  > How?  I don't see as that is more likely than with Bugzilla.
-|
-| user submits bug report
-| robot rejects it
-| user reads rejection, gets confused, gives up.
-|
-|  > Anyway, loads of LKML posts get ignored, and nobody seems to worry about it :-).
-|
-| Point to one important posting thats been ignored in recent times.
-| More likely they weren't ignored, it was just deemed irrelevant,
-| unimportant, or lacked information detailing how important the problem
-| was.
 
-It can be difficult to tell the difference.
-
-| Besides, this is one area where bugzilla is helping.
-| If I ignored/missed an agp related bug report on linux kernel,
-| and the same user also filed it in bugzilla, I'll get pestered
-| about it automatically later.
-|
-|  > I don't see any way of making Bugzilla do all the things I described
-|  > originally, specifically the advanced tracking of versions tested.
-|
-| I still think you're solving a non-problem. Of the 180 or so bugs so
-| far, there has been _1_ vendor kernel report. 1 2.4 report. and
-| 1 (maybe 2)  undecoded oopses (which were subsequently decoded less
-| than 24hrs later.
-|
-|  > That could help to find duplicates, which is a big problem when you
-|  > have 1000+ bugs.
-|
-| In an ideal world, we'd never have that many open bugs 8-)
-| Realistically, I check bugzilla a few times a day, I notice
-| when something new has been added. Near the end of each week
-| I[*] go through every remaining open bug looking to see if there's
-| something additional that can be added / pinging old reporters /
-| closing dead bugs. Dupes usually stand out doing this.
-| How exactly do you plan to automate dupe detection ?
-| You can't even do things like comparing oops dumps, as they
-| may have been triggered in different ways,.
-|
-| 		Dave
-|
-| [*] and hopefully, I'm not the only one who does this.
-
-Yes, I go thru them fairly often also, looking for patches or to apply some
-patches to close some if possible.
-I hope we aren't the only ones...
-
--- 
-~Randy
 

@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbUKBVIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbUKBVOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbUKBVIp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 16:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbUKBVIo
+	id S261466AbUKBVOM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 16:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbUKBVJl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:08:44 -0500
-Received: from mail.dif.dk ([193.138.115.101]:1227 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261383AbUKBVII (ORCPT
+	Tue, 2 Nov 2004 16:09:41 -0500
+Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:5610 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S261468AbUKBVJP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 16:08:08 -0500
-Date: Tue, 2 Nov 2004 22:16:45 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
+	Tue, 2 Nov 2004 16:09:15 -0500
+From: Russell Miller <rmiller@duskglow.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
 Subject: Re: question on common error-handling idiom
-In-Reply-To: <4187E920.1070302@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.61.0411022208390.3285@dragon.hygekrogen.localhost>
-References: <4187E920.1070302@nortelnetworks.com>
+Date: Tue, 2 Nov 2004 16:12:28 -0500
+User-Agent: KMail/1.7
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+References: <4187E920.1070302@nortelnetworks.com> <Pine.LNX.4.53.0411022154210.28980@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0411022154210.28980@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200411021512.29155.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Nov 2004, Chris Friesen wrote:
+On Tuesday 02 November 2004 14:58, Jan Engelhardt wrote:
 
-> 
-> There's something I've been wondering about for a while.  There is a lot of
-> code in linux that looks something like this:
-> 
-> 
-> err = -ERRORCODE
-> if (error condition)
-> 	goto out;
-> 
-> 
-> While nice to read, it would seem that it might be more efficient to do the
-> following:
-> 
-> if (error condition) {
-> 	err = -ERRORCODE;
-> 	goto out;
-> }
-> 
-> 
-> Is there any particular reason why the former is preferred?  Is the compiler
-> smart enough to optimize away the additional write in the non-error path?
-> 
-There are some places that do
+> So to summarize, it's done to reduce code whilst keeping the error code
+> around until we actually leave the function.
+>
+I understand what you're saying, the OP did raise a point that I think is 
+worth repeating, that it's an extra instruction in all but error cases.  Is 
+that extra instruction worth the tradeoff?
 
-err = -SOMEERROR;
-if (some_error)
-	goto out;
-if (some_other_error)
-	goto out;
-if (another_error)
-	goto out;
+--Russell
 
-In that case, where there are several different conditions that need 
-testing, but they all need to return the same error, setting the error 
-just once seems the best approach.
+>
+> My € 0.02!
+>
+>
+> Jan Engelhardt
 
-but for the places that do
+-- 
 
-err = -SOMEERROR;
-if (condition)
-	goto out;
-
-err = -OTHERERROR;
-if (condition)
-	goto out;
-
-I would tend to agree with you that moving the setting of the error inside 
-the if() would make sense.
-
-Let's see what other people think :)
-
-
---
-Jesper Juhl
-
+Russell Miller - rmiller@duskglow.com - Le Mars, IA
+Duskglow Consulting - Helping companies just like you to succeed for ~ 10 yrs.
+http://www.duskglow.com - 712-546-5886

@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVA2Szd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVA2TIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVA2Szd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 13:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbVA2Szd
+	id S261530AbVA2TIi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 14:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVA2TIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 13:55:33 -0500
-Received: from gprs213-58.eurotel.cz ([160.218.213.58]:27520 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261528AbVA2Sz2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 13:55:28 -0500
-Date: Sat, 29 Jan 2005 19:55:15 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: critical bugs in md raid5 and ATA disk failure/recovery modes
-Message-ID: <20050129185515.GA2146@elf.ucw.cz>
-References: <20050127035906.GA7025@schmorp.de> <m1vf9j4fsp.fsf@muc.de> <20050127063131.GA29574@schmorp.de> <20050127095102.GA88779@muc.de> <20050127163323.GA7474@schmorp.de> <20050129183511.GA2055@elf.ucw.cz> <20050129183731.GA40659@muc.de>
+	Sat, 29 Jan 2005 14:08:38 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:59086 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261530AbVA2TIF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 14:08:05 -0500
+Subject: [PATCH 1/3] Fix MUX mode disabling.
+In-Reply-To: <20050129164450.GA14053@ucw.cz>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Sat, 29 Jan 2005 17:45:28 +0100
+Message-Id: <1107017128686@twilight.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050129183731.GA40659@muc.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/for-linus
 
-> > Well, you could set stripe size to 512B; that way, RAID-5 would be
-> > *very* slow, but it should have same characteristics as normal disc
-> > w.r.t. crash. Unrelated data would not be lost, and you'd either get
-> > old data or new data...
-> 
-> When you lose a disk during recovery you can still lose
-> unrelated data (any "sibling" in a stripe set because its parity
-> information is incomplete).  RAID-1 doesn't have this problem though.
+===================================================================
 
-You are right, I'd have to do soething very special... Like if I know
-it is 4K filesystem, raid-5 from 5 disks could do the trick. Like
+ChangeSet@1.1977.1.1, 2005-01-28 21:11:52+01:00, vojtech@silver.ucw.cz
+  input: Fix MUX mode disabling.
+  
+  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
 
-Disk1		Disk2		Disk3		Disk4		Disk5
-bytes0-511	512-1023	1024-1535	1536-2048	parity
-....
 
-....no, even that does not work. You could add single bit for each 4K
-saying "this stripe is being written" (with barriers etc) and return
-read errors if bit is set might actually do the trick, but that's no
-longer raid-5... (Can ext3 handle error in journal?)
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+ i8042.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+===================================================================
+
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	2005-01-29 17:37:27 +01:00
++++ b/drivers/input/serio/i8042.c	2005-01-29 17:37:27 +01:00
+@@ -482,7 +482,7 @@
+ 	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0x0f)
+ 		return -1;
+ 	param = mode ? 0x56 : 0xf6;
+-	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0xa9)
++	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != (mode ? 0xa9 : 0x09))
+ 		return -1;
+ 	param = mode ? 0xa4 : 0xa5;
+ 	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param == (mode ? 0x5b : 0x5a))
+@@ -787,7 +787,8 @@
+  * Disable MUX mode if present.
+  */
+ 
+-	i8042_set_mux_mode(0, NULL);
++	if (i8042_mux_present)
++		i8042_set_mux_mode(0, NULL);
+ 
+ /*
+  * Restore the original control register setting.
+

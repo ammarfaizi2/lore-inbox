@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264042AbSIQKzi>; Tue, 17 Sep 2002 06:55:38 -0400
+	id <S264045AbSIQLEq>; Tue, 17 Sep 2002 07:04:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264045AbSIQKzi>; Tue, 17 Sep 2002 06:55:38 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17 "EHLO
+	id <S264055AbSIQLEq>; Tue, 17 Sep 2002 07:04:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4881 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264042AbSIQKzh>; Tue, 17 Sep 2002 06:55:37 -0400
-Date: Tue, 17 Sep 2002 12:00:33 +0100
+	id <S264045AbSIQLEp>; Tue, 17 Sep 2002 07:04:45 -0400
+Date: Tue, 17 Sep 2002 12:09:37 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
-       hpa@transmeta.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       cpufreq@www.linux.org.uk
-Subject: Re: [PATCH][2.5.35] CPUfreq documentation (4/5)
-Message-ID: <20020917120033.A28438@flint.arm.linux.org.uk>
-References: <20020917113547.H25385@brodo.de> <1032257979.3070.29.camel@nomade>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andre Hedrick <andre@linux-ide.org>, jbradford@dial.pipex.com,
+       Nuitari <nuitari@balthasar.nuitari.net>, venom@sns.it,
+       linux-kernel@vger.kernel.org, xavier.bestel@free.fr, mark@veltzer.org
+Subject: Re: Hi is this critical??
+Message-ID: <20020917120937.B28438@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.10.10209170116280.11597-100000@master.linux-ide.org> <1032259304.13990.5.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1032257979.3070.29.camel@nomade>; from xavier.bestel@free.fr on Tue, Sep 17, 2002 at 12:19:37PM +0200
+In-Reply-To: <1032259304.13990.5.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Sep 17, 2002 at 11:41:44AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 17, 2002 at 12:19:37PM +0200, Xavier Bestel wrote:
-> Le mar 17/09/2002 à 11:35, Dominik Brodowski a écrit :
+On Tue, Sep 17, 2002 at 11:41:44AM +0100, Alan Cox wrote:
+> On Tue, 2002-09-17 at 09:20, Andre Hedrick wrote:
+> > MORONS that think the drive vendors are not clued into the issue.
+> > I have to read and vote on NASTY proposals, whose intent is to check for
+> > G-Force damage.  If you think that record is not findable, even if you
 > 
-> > +The third argument, a void *pointer, points to a struct cpufreq_freqs
-> > +consisting of five values: cpu, min, max, policy and max_cpu_freq. Min 
-> > +and max are the lower and upper frequencies (in kHz) of the new
-> > +policy, policy the new policy, cpu the number of the affected CPU or
-> > +CPUFREQ_ALL_CPUS for all CPUs; and max_cpu_freq the maximum supported
-> > +CPU frequency. This value is given for informational purposes only.
-> 
-> - Why choosing a void* ? that doesn't validate type ..
+> Sounds good news for honest users. What it does want though is the
+> ability of users to check that data when the disk arrives, because we
+> have delivery people, and they think that if looks like a box its
+> probably a football.
 
-That's the type specified by the notifier code.  You have two choices:
+No.  Sounds _bad_ news for honest users.  Lets be realistic here.
+Parcel company uses package as a football, then delivers it.
 
-int notifier_foo(struct notifier_block *nb, int foo, void *bar)
-{
-	struct my_bar *my = bar;
-}
+How many parcel companies will wait while you unpack the hard drive,
+dismantle your machine, connect the drive, power it up and check to
+see if the drive has suffered too much shock?
 
-struct notifier_block nb = {
-	.notifier_call = notifier_foo,
-};
+Yep, that's right, none.  If you try to, the parcel delivery person
+will get really ratty.  So you sign for it after checking that the
+outside box is undamaged.
 
-OR:
+Then you find out that its been used in the world cup.  You try to
+return it to the vendor, but the vendor says its your fault for
+dropping the drive.  You protest, but the vendor refuses to listen
+because they've got their technology that says so in their product.
 
-int notifier_foo(struct notifier_block *nb, int foo, struct my_bar *my)
-{
-}
-
-struct notifier_block nb = {
-	.notifier_call = (int (*)(struct notifier_block *, int, void *))notifier_foo,
-};
-
-So, you end up with a cast in one place or the other.  I know which one
-I prefer.
-
-> - The struct cpufreq_freqs actually consists of only three values (cpu,
-> old, new). The five values you cite here are in the struct
-> cpufreq_policy.
-
-Yep, it's a little unclear.
-
-The policy notifiers are called with struct cpufreq_policy, which have
-five values.  The transition notifiers are called with struct
-cpufreq_freqs, which has three values.
+So, its NOT great for honest users.  Its another form of "Digital
+Rights Management."
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272680AbSISUrB>; Thu, 19 Sep 2002 16:47:01 -0400
+	id <S272979AbSISU5m>; Thu, 19 Sep 2002 16:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272948AbSISUrB>; Thu, 19 Sep 2002 16:47:01 -0400
-Received: from dsl-65-188-251-69.telocity.com ([65.188.251.69]:3488 "EHLO
-	orr.homenet") by vger.kernel.org with ESMTP id <S272680AbSISUrA>;
-	Thu, 19 Sep 2002 16:47:00 -0400
-Date: Thu, 19 Sep 2002 16:51:34 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Donald Becker <becker@scyld.com>,
-       Richard Gooch <rgooch@ras.ucalgary.ca>,
-       "Patrick R. McManus" <mcmanus@ducksong.com>, edward_peng@dlink.com.tw
-Subject: PATCH: sundance #4a
-Message-ID: <20020919205134.GA17492@orr.falooley.org>
-References: <Pine.LNX.4.44.0209190903050.29420-100000@beohost.scyld.com> <3D8A25D1.3060300@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="LZvS9be/3tNcYl/X"
+	id <S272983AbSISU5m>; Thu, 19 Sep 2002 16:57:42 -0400
+Received: from mta06ps.bigpond.com ([144.135.25.138]:59110 "EHLO
+	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S272979AbSISU5l>; Thu, 19 Sep 2002 16:57:41 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.5.26 hotplug failure
+Date: Fri, 20 Sep 2002 06:56:23 +1000
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <200207180950.42312.duncan.sands@wanadoo.fr> <E17rwAI-0000vM-00@starship> <20020919164924.GB15956@kroah.com>
+In-Reply-To: <20020919164924.GB15956@kroah.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <3D8A25D1.3060300@mandrakesoft.com>
-User-Agent: Mutt/1.4i
-From: Jason Lunz <lunz@falooley.org>
+Message-Id: <200209200656.23956.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Fri, 20 Sep 2002 02:49, Greg KH wrote:
+> The main reason is this information is no longer available to the USB
+> core.  It isn't keeping a list of registered drivers anymore, only the
+> driver core is.  So there's no way that usbfs can get to that
+> information.  As the info is available in driverfs, duplication of it in
+> usbfs would be bloat.
+This doesn't follow. driverfs != driver core, just as usbfs != USB core.
 
+I wasn't joking about putting back the /proc/bus/usb/drivers file. This is 
+really going to hurt us in 2.6. 
 
-If you're going to bail when reading the ASIC fails, you need to
-unregister the dev before you return or Bad Things happen.
+Brad
 
-Jason
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=sundance-4a
+iD8DBQE9ijn3W6pHgIdAuOMRAmU+AKCFhvEl2SmXYiYpOQk6CDWrpZhpSACgwh3p
+nczKbUd5dYb1V2Ycbk2/eRE=
+=RLuK
+-----END PGP SIGNATURE-----
 
---- sundance-garzik.c	Thu Sep 19 16:45:57 2002
-+++ sundance-unreg.c	Thu Sep 19 16:48:22 2002
-@@ -599,6 +599,7 @@
- 		if (phy_idx == 0) {
- 			printk(KERN_INFO "%s: No MII transceiver found, aborting.  ASIC status %x\n",
- 				   dev->name, readl(ioaddr + ASICCtrl));
-+			unregister_netdev(dev);
- 			goto err_out_unmap_rx;
- 		}
- 
-
---LZvS9be/3tNcYl/X--

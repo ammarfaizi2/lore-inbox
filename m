@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbTI3VaC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 17:30:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbTI3VaB
+	id S261755AbTI3Vfp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 17:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbTI3Vfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 17:30:01 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:6536 "EHLO alpha.stev.org")
-	by vger.kernel.org with ESMTP id S261764AbTI3V3y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 17:29:54 -0400
-Date: Tue, 30 Sep 2003 23:34:49 +0100 (BST)
-From: James Stevenson <james@stev.org>
-To: Kees Bakker <kees.bakker@xs4all.nl>
-cc: linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: Re: [2.6.0-test6] Scratchy sound with via82xx (VT8233)
-In-Reply-To: <200309302046.47039.kees.bakker@xs4all.nl>
-Message-ID: <Pine.LNX.4.44.0309302333100.19433-100000@jlap.stev.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Sep 2003 17:35:45 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59410 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261755AbTI3Vfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 17:35:36 -0400
+Date: Tue, 30 Sep 2003 22:35:31 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arun Sharma <arun.sharma@intel.com>, linux-kernel@vger.kernel.org,
+       kevin.tian@intel.com, Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH] incorrect use of sizeof() in ioctl definitions
+Message-ID: <20030930223531.B10154@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Arun Sharma <arun.sharma@intel.com>, linux-kernel@vger.kernel.org,
+	kevin.tian@intel.com, Matthew Wilcox <willy@debian.org>
+References: <3F79ED60.2030207@intel.com> <20030930140805.0e3158e7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030930140805.0e3158e7.akpm@osdl.org>; from akpm@osdl.org on Tue, Sep 30, 2003 at 02:08:05PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi
-
-i also see this in the 2.4.19 - 2.4.22 kernels
-i have the following
-
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 Audio Controller (rev 30)
-	Subsystem: AOPEN Inc.: Unknown device 006a
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-	<TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin C routed to IRQ 12
-	Region 0: I/O ports at e000 [size=256]
-	Capabilities: <available only to root>
-
-it plays fine then it starts scrathing then plays fine etc.. etc..
-
-	James
-
-On Tue, 30 Sep 2003, Kees Bakker wrote:
-
-> Starting with 2.6.0-test6 the sound is (often) not OK. For example,
-> I let KDE play a sound when email arrives. Often I only hear scratchy
-> noise, but sometimes sound is OK.
+On Tue, Sep 30, 2003 at 02:08:05PM -0700, Andrew Morton wrote:
+> diff -puN drivers/video/aty/aty128fb.c~sizeof-in-ioctl-fix drivers/video/aty/aty128fb.c
+> --- 25/drivers/video/aty/aty128fb.c~sizeof-in-ioctl-fix	Tue Sep 30 14:04:12 2003
+> +++ 25-akpm/drivers/video/aty/aty128fb.c	Tue Sep 30 14:04:12 2003
+> @@ -2041,9 +2041,9 @@ aty128fb_setcolreg(u_int regno, u_int re
+>  #define ATY_MIRROR_CRT_ON	0x00000002
+>  
+>  /* out param: u32*	backlight value: 0 to 15 */
+> -#define FBIO_ATY128_GET_MIRROR	_IOR('@', 1, sizeof(__u32*))
+> +#define FBIO_ATY128_GET_MIRROR	_IOR('@', 1, __u32*)
+>  /* in param: u32*	backlight value: 0 to 15 */
+> -#define FBIO_ATY128_SET_MIRROR	_IOW('@', 2, sizeof(__u32*))
+> +#define FBIO_ATY128_SET_MIRROR	_IOW('@', 2, __u32*)
+>  
+>  static int aty128fb_ioctl(struct inode *inode, struct file *file, u_int cmd,
+>  			  u_long arg, struct fb_info *info)
 > 
-> The lcpci output for this device is:
-> 00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 Audio Controller (rev 10)
->         Subsystem: Micro-Star International Co., Ltd.: Unknown device 3800
->         Flags: medium devsel, IRQ 10
->         I/O ports at d000 [size=256]
->         Capabilities: [c0] Power Management version 2
 > 
-> I saw the note about dxs_support, but I have the driver built-in. How do I set
-> dxs_support from the /proc/cmdline?
-> 
-> 		Kees
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Matthew's conversion mainly converted things to size_t, but from the looks
+> of it, __u32* is the right thing to use in this case, I think?
 
+sizeof(__u32*) may not be sizeof(sizeof(__u32*)), so this would be an API
+change...  Therefore, all these wrong entries need to change to size_t
+(preferably with the real type following inside a comment so we don't
+loose useful information.)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

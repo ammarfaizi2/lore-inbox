@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270822AbTHOUxU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 16:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270828AbTHOUxU
+	id S270859AbTHOUs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 16:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270865AbTHOUs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 16:53:20 -0400
-Received: from 64.221.211.204.ptr.us.xo.net ([64.221.211.204]:23444 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S270822AbTHOUxP
+	Fri, 15 Aug 2003 16:48:26 -0400
+Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:50652
+	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S270859AbTHOUsS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 16:53:15 -0400
-Subject: Re: Centrino support
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Jan Rychter <jan@rychter.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m2oeyq3bi2.fsf@tnuctip.rychter.com>
-References: <m2wude3i2y.fsf@tnuctip.rychter.com>
-	 <1060972810.29086.8.camel@serpentine.internal.keyresearch.com>
-	 <m2oeyq3bi2.fsf@tnuctip.rychter.com>
-Content-Type: text/plain
-Message-Id: <1060980793.29086.21.camel@serpentine.internal.keyresearch.com>
+	Fri, 15 Aug 2003 16:48:18 -0400
+Date: Fri, 15 Aug 2003 22:50:55 +0200
+From: Voluspa <lista1@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O16int for interactivity
+Message-Id: <20030815225055.65c74573.lista1@telia.com>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 15 Aug 2003 13:53:13 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-15 at 13:35, Jan Rychter wrote:
 
-> I keep dreaming about the day when I'll be able to have a modern laptop
-> with a stable Linux kernel. As for now, it has taken me (on one of my
-> laptops) about 1.5 years to get to a point where 2.4 works, most of my
-> hardware works, and software suspend (pretty much a requirement for
-> laptops) works. I'm not about to give that up easily, so I'm not that
-> eager to jump to 2.5/2.6.
+On 2003-08-15 19:00:00 Felipe Alfaro Solana wrote:
 
-Can't say that's been my experience.  I bought a new Thinkpad X31 the
-other day, and it's already running 2.6.0-test3.  Suspend works, all's
-happy.
+[...]
+> Is anyone experiencing those extreme delays? Is this a new kind of
+> starvation? Cause using exactly the same machine, Linux distribution,
+> disk partition, etc... but simply by changing kernels, almost
+> everything on boot takes twice the time to be done.
 
+Ditto, with handcrafted simple scripts in my rc.d. About twice as long.
+But that's not all... Game-test can't be run. I waited 4 minutes for it
+to start the intro sequences (normally 10 seconds), clicked to load a
+saved game, got neverending "sound repeats". Patiently logged in on a
+text console and patiently killed the rouge processes. Took about five
+minutes of starvation to squeeze in keystrokes with the few seconds of
+interactivety now and then.
 
-> 1. Will cpufreq make it into the standard 2.4 kernels?
+Rotating the world in Blender quickly "jerks", but now the pauses are
+extended to more than 10 seconds (previously 1/2 to 2)
 
-Highly unlikely.
-
-> 3. Where does one get 2.4 cpufreq?
-
-There are snapshots available at www.linux.org.uk (hint: Google for
-"cpufreq"), or in -ac.  See the cpufreq mailing list archives for a
-bunch of daemons that control this stuff in various semi-cooked ways.
-
-	<b
-
+Ringing the bell and shouting "Unclean, unclean!"
+Mats Johannesson

@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263221AbTLDISx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 03:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTLDISx
+	id S263292AbTLDI0V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 03:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTLDI0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 03:18:53 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25536 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263221AbTLDISv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 03:18:51 -0500
-Date: Thu, 4 Dec 2003 09:18:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Greg Stark <gsstark@mit.edu>, Erik Steffl <steffl@bigfoot.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: libata in 2.4.24?
-Message-ID: <20031204081840.GB1086@suse.de>
-References: <Pine.LNX.4.44.0312010836130.13692-100000@logos.cnet> <3FCB8312.3050703@rackable.com> <87fzg4ckej.fsf@stark.dyndns.tv> <3FCBB15F.7050505@rackable.com> <3FCBB9F1.2080300@bigfoot.com> <87n0abbx2k.fsf@stark.dyndns.tv> <20031202055336.GO1566@mis-mike-wstn.matchmail.com> <20031202055852.GP1566@mis-mike-wstn.matchmail.com> <87zneb9o5q.fsf@stark.dyndns.tv> <20031202174048.GQ1566@mis-mike-wstn.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031202174048.GQ1566@mis-mike-wstn.matchmail.com>
+	Thu, 4 Dec 2003 03:26:21 -0500
+Received: from k-kdom.nishanet.com ([65.125.12.2]:43013 "EHLO
+	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
+	id S263292AbTLDI0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 03:26:16 -0500
+Message-ID: <3FCEF3FC.8000708@nishanet.com>
+Date: Thu, 04 Dec 2003 03:44:44 -0500
+From: Bob <recbo@nishanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: pcmcia yenta cardbus - no devices found
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02 2003, Mike Fedyk wrote:
-> On Tue, Dec 02, 2003 at 11:31:45AM -0500, Greg Stark wrote:
-> > 
-> > Mike Fedyk <mfedyk@matchmail.com> writes:
-> > 
-> > > > Libata, uses the scsi system instead of the existing ide layer because many
-> > > > new sata controllers are using an interface that is very similair to scsi
-> > > > (much like atapi).
-> > 
-> > Now I have a different question. Does the scsi-like SATA interface include tcq?
-> > 
-> > Because one of the long-standing issues with IDE drives and Postgres is the
-> > fact that even after issuing an fsync the data may be sitting in the drive's
-> > buffer. This doesn't happen with SCSI because the drives aren't forced to lie
-> > about the data being on disk in order to handle subsequent requests. Turning
-> > off write-caching on IDE drives absolutely destroys performance.
-> 
-> There are PATA drives that do TCQ too, but you have to look for that feature
-> specifically.  IDE TCQ is in 2.6, but is still experemental.  I think Jens
-> Axboe was the one working on it IIRC.  He would have more details.
+Elan 1420 chip 32-bit cardbus pcmcia chip related to TI4210
 
-Yes that was me. PATA TCQ is currently disabled in the 2.6 kernel
-configs, and it will most likely just go away sometime soonish. It's not
-a very useful feature, PATA TCQ is pretty broken. I knew this from the
-beginning, but thought that it would be fun to try it in real life. It's
-just not worth it, though.
+cardmgr and utils of pcmcia-cs 3.2.5
 
-SATA host queueing support will be useful.
+yenta in kernel-2.6.0-test11  but no pcmcia ethernet card drivers
+in kernel since I don't know which eth chip is on a Hawking pcmcia
+PN672TX 32-bit cardbus 10/100 ethernet card.
 
--- 
-Jens Axboe
+boot with compact flash Kingston or Sandisk storage card in
+pcmcia adapter and Hawking ethernet pcmcia card in second
+pcmcia cardbus slot, nothing, try remove and insert, still
+nothing, no pcmcia events or devices reported
+
+Dec  4 02:32:43 where kernel: Linux Kernel Card Services
+Dec  4 02:32:43 where kernel:   options:  [pci] [cardbus] [pm]
+Dec  4 02:32:43 where kernel: Yenta: CardBus bridge found at 0000:01:0a.0 [414e:454c]
+Dec  4 02:32:43 where kernel: Yenta: ISA IRQ list 0000, PCI irq16
+Dec  4 02:32:43 where kernel: Socket status: 30000006
+Dec  4 02:32:43 where kernel: Yenta: CardBus bridge found at 0000:01:0a.1 [414e:454c]
+Dec  4 02:32:43 where kernel: Yenta: ISA IRQ list 0000, PCI irq16
+Dec  4 02:32:43 where kernel: Socket status: 30000006
+Dec  4 02:32:43 where kernel: cs: IO port probe 0x0c00-0x0cff: clean.
+Dec  4 02:32:43 where kernel: cs: IO port probe 0x0800-0x08ff: clean.
+Dec  4 02:32:43 where kernel: cs: IO port probe 0x0100-0x04ff: excluding 0x290-0x297 0x3c0-0x3df 0x4d0-0x4d7
+Dec  4 02:32:43 where kernel: cs: IO port probe 0x0a00-0x0aff: clean.
+
+root       374  0.0  0.0 ?    [pccardd]
+root       380  0.0  0.0 ?    [pccardd]
+root       388  0.0  0.0 ?    /sbin/cardmgr
+bob      25484  0.0  0.0 pts/0grep card
+
+bob@where cat /var/lib/pcmcia/stab
+Socket 0: empty
+Socket 1: empty
+
+bob@where $(locate gr/pcic_probe | grep "probe$") -v
+PCI bridge probe: ENE 1420 found, 2 sockets.
+
+bob@where $(locate gr/pcic_probe | grep "probe$") -v -m
+i82365
+
 

@@ -1,39 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbUJaO52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUJaO7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbUJaO52 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 09:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUJaO52
+	id S261648AbUJaO7b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 09:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUJaO7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 09:57:28 -0500
-Received: from chello083144090118.chello.pl ([83.144.90.118]:32775 "EHLO
-	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S261635AbUJaO5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 09:57:09 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: unit-at-a-time...
-Date: Sun, 31 Oct 2004 15:57:00 +0100
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Sun, 31 Oct 2004 09:59:31 -0500
+Received: from imap.gmx.net ([213.165.64.20]:63960 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261653AbUJaO7S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 09:59:18 -0500
+X-Authenticated: #4399952
+Date: Sun, 31 Oct 2004 16:59:13 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041031165913.2d0ad21e@mango.fruits.de>
+In-Reply-To: <20041031162059.1a3dd9eb@mango.fruits.de>
+References: <1099165925.1972.22.camel@krustophenia.net>
+	<20041030221548.5e82fad5@mango.fruits.de>
+	<1099167996.1434.4.camel@krustophenia.net>
+	<20041030231358.6f1eeeac@mango.fruits.de>
+	<1099171567.1424.9.camel@krustophenia.net>
+	<20041030233849.498fbb0f@mango.fruits.de>
+	<20041031120721.GA19450@elte.hu>
+	<20041031124828.GA22008@elte.hu>
+	<1099227269.1459.45.camel@krustophenia.net>
+	<20041031131318.GA23437@elte.hu>
+	<20041031134016.GA24645@elte.hu>
+	<20041031162059.1a3dd9eb@mango.fruits.de>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410311557.00839.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 31 Oct 2004 16:20:59 +0100
+Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-/i386/Makefile:# Disable unit-at-a-time mode, it makes gcc use a lot morestack
-/i386/Makefile:CFLAGS += $(call cc-option,-fno-unit-at-a-time)
+> 
+> V0.6.2 works pretty good. max jitter until now 21% [205us]. still fiddling
+> with the output formatting for rtc_wakeup.
+> 
 
-/x86_64/Makefile:# -funit-at-a-time shrinks the kernel .text considerably
-/x86_64/Makefile:CFLAGS += $(call cc-option,-funit-at-a-time)
+i got a deadlock though. it was a weird one. mouse and keyboard [including
+sysrq] froze. but the find / i started kept on running in an xterm. had to
+press reset due to lack of second machine..
 
-Which solution is correct?
+flo
 
--- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)
+p.s. new rtc_wakeup version uploaded, which shows the percentage converted
+to usecs (always positive, you need the sign?). btw: with V0.6.2 i sometimes
+see jitter > 100% but still no lost irq (/dev/rtc still reports only 1
+delivered irq on next wakeup). I cannot provke lost irqs with -f up to 2048.
+With -f 8192 i do get lost irq's [not amazing though].

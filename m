@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268414AbTCFV47>; Thu, 6 Mar 2003 16:56:59 -0500
+	id <S268435AbTCFV7I>; Thu, 6 Mar 2003 16:59:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268435AbTCFV47>; Thu, 6 Mar 2003 16:56:59 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:42768
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S268414AbTCFV45>; Thu, 6 Mar 2003 16:56:57 -0500
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-From: Robert Love <rml@tech9.net>
-To: Martin Waitz <tali@admingilde.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20030306220307.GA1326@admingilde.org>
-References: <20030228202555.4391bf87.akpm@digeo.com>
-	 <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
-	 <20030306220307.GA1326@admingilde.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1046988457.715.37.camel@phantasy.awol.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 06 Mar 2003 17:07:37 -0500
-Content-Transfer-Encoding: 7bit
+	id <S268438AbTCFV7I>; Thu, 6 Mar 2003 16:59:08 -0500
+Received: from [24.77.48.240] ([24.77.48.240]:14685 "EHLO aiinc.aiinc.ca")
+	by vger.kernel.org with ESMTP id <S268435AbTCFV7H>;
+	Thu, 6 Mar 2003 16:59:07 -0500
+Date: Thu, 6 Mar 2003 14:09:44 -0800
+From: Michael Hayes <mike@aiinc.ca>
+Message-Id: <200303062209.h26M9i320362@aiinc.aiinc.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix breakage caused by spelling 'fix'
+Cc: torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 17:03, Martin Waitz wrote:
+On Thu, 6 Mar 2003, Linus Torvalds wrote:
+> On Thu, 6 Mar 2003, Michael Hayes wrote:
+> >
+> > This fixes a spelling "fix" that resulted in a compile error.
+> > 
+> > With apologies to Russell King.
+>
+> Ugh, please make things like this just write out the full non-contracted
+> thing. Ie "cannot" is a perfectly fine word, we don't need to force
+> spelling errors.
 
-> RE: the patch, i think using sleep_avg is a wrong metric from the
-> beginning.
+Nice to see that _someone_ cares :-)
 
-Eh?  It is as close to a heuristic of interactivity as I can think of.
+Okay, here it is again with "cannot".
 
-> in addition, timeslices should be shortest for high priority processes
-> (depending on dynamic prio, not static)
-
-No, they should be longer.  In some cases they should be nearly
-infinitely long (which is sort of what we do with the reinsertion into
-the active array for highly interactive tasks).  We want interactive
-tasks to always be able to run.
-
-You may think they need shorter timeslice because they are I/O-bound. 
-Keep in mind they need not _use_ all their timeslice in one go, and
-having a large timeslice ensures they have timeslice available when they
-wake up and need to run.
-
-	Robert Love
-
+diff -ur a/include/asm-arm/proc-fns.h b/include/asm-arm/proc-fns.h
+--- a/include/asm-arm/proc-fns.h	Tue Mar  4 19:29:20 2003
++++ b/include/asm-arm/proc-fns.h	Thu Mar  6 14:03:14 2003
+@@ -125,7 +125,7 @@
+ 
+ #if 0
+  * The following is to fool mkdep into generating the correct
+- * dependencies.  Without this, it can't figure out that this
++ * dependencies.  Without this, it cannot figure out that this
+  * file does indeed depend on the cpu-*.h files.
+ #include <asm/cpu-single.h>
+ #include <asm/cpu-multi26.h>

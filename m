@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268338AbUHXVWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268337AbUHXVWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268338AbUHXVWe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 17:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268332AbUHXVWe
+	id S268337AbUHXVWs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 17:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268332AbUHXVWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 24 Aug 2004 17:22:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57772 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268337AbUHXVWe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 24 Aug 2004 17:22:34 -0400
-Received: from waste.org ([209.173.204.2]:39842 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S268339AbUHXVW2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 17:22:28 -0400
-Date: Tue, 24 Aug 2004 16:22:08 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] [3/4] /dev/random: Use separate entropy store for /dev/urandom
-Message-ID: <20040824212208.GH5414@waste.org>
-References: <E1By1Sq-0001TP-BV@thunk.org>
+Date: Tue, 24 Aug 2004 22:22:32 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org, reiser@namesys.com,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040824212232.GF21964@parcelfarce.linux.theplanet.co.uk>
+References: <20040824202521.GA26705@lst.de> <412BA741.4060006@pobox.com> <20040824205343.GE21964@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1By1Sq-0001TP-BV@thunk.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040824205343.GE21964@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 12:57:20AM -0400, Theodore Ts'o wrote:
-> 
-> This patch adds a separate pool for use with /dev/urandom.  This
-> prevents a /dev/urandom read from being able to completely drain the
-> entropy in the /dev/random pool, and also makes it much more difficult
-> for an attacker to carry out a state extension attack.
+On Tue, Aug 24, 2004 at 09:53:44PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+ 
+> Feh.  That's far from the worst parts of the mess introduced by "hybrid"
+> crap - trivial sys_link(2) deadlocks triggerable by any user rate a bit
+> higher on the suckitude scale, IMO.
 
-My version of this went a step further. We want to at all times ensure
-that there's enough data to do a full catastrophic reseed in the
-blocking pool, so we have to assure we're never drawing below that
-point when doing reads for urandom.
+While we are at it - consider these hybrids vetoed until
+	a) sys_link()/sys_link() deadlock is fixed
+	b) sys_link()/sys_rename() deadlock is fixed
+	c) correctness proof of the locking scheme (in
+Documentation/filesystems/directory-locking) is updated to match the
+presense of the file/directory hybrids.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Rationale: (a) and (b) - immediately exploitable by any user, (c) - "convince
+us that there's no more crap of that kind".  IMO a reasonable request, seeing
+that the first look at the patches in -mm4 had turned up two exploits in
+that area, despite the *YEARS* of warnings about potential trouble and need
+to be careful there (actually, I've given Hans too much credit and assumed
+that link/link never happens since nobody would be dumb enough to provide
+->link() method for non-directory inodes; turns out that somebody is dumb
+enough and link/link is as exploitable as link/rename).

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130670AbQLWTTi>; Sat, 23 Dec 2000 14:19:38 -0500
+	id <S130512AbQLWTeK>; Sat, 23 Dec 2000 14:34:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130836AbQLWTT3>; Sat, 23 Dec 2000 14:19:29 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:27011 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S130670AbQLWTTQ>; Sat, 23 Dec 2000 14:19:16 -0500
-Message-ID: <3A44F38E.B1AFB735@haque.net>
-Date: Sat, 23 Dec 2000 13:48:46 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre4 i686)
-X-Accept-Language: en
+	id <S130697AbQLWTeB>; Sat, 23 Dec 2000 14:34:01 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:54290 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130512AbQLWTdv>; Sat, 23 Dec 2000 14:33:51 -0500
+Date: Sat, 23 Dec 2000 11:02:53 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Mason <mason@suse.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andreas Dilger <adilger@turbolinux.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+In-Reply-To: <300720000.977595690@coffee>
+Message-ID: <Pine.LNX.4.10.10012231100190.2174-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: alex.buell@tahallah.clara.co.uk
-CC: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Netgear FA311
-In-Reply-To: <Pine.LNX.4.30.0012231607360.4359-100000@tahallah.clara.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is this where you got the sources?  
-http://www.scyld.com/network/natsemi.html (Thanks Steve)
 
-Alex Buell wrote:
+
+On Sat, 23 Dec 2000, Chris Mason wrote:
 > 
-> I recently bought a Netgear FA311 which does 10/100Mb/ethernet for my
-> first home network. I've looked and found driver sources which apparently
+> I've updated to test13-pre4, and removed the hunk for submit_bh.
+> Looks as though pre4 changed the submit_bh callers to clear the dirty
+> bit, so my code does the same.
 
--- 
+Basically, I wanted to think of "submit_bh()" as a pure IO thing. When we
+call submit_bh(), that is basically the same as "statr IO on this thing".
+Which implies to me that submit_bh() doesn't care, or know, about why the
+higher layers did this.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+Which is why I prefer the higher layers handling the dirty/uptodate/xxx
+bits. 
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,85 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVAKVMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262856AbVAKVO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbVAKVMj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:12:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVAKVLl
+	id S262856AbVAKVO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbVAKVNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:11:41 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:16822 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262827AbVAKVKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:10:40 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
+	Tue, 11 Jan 2005 16:13:24 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:23237 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S262819AbVAKVMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 16:12:43 -0500
+Subject: Re: [PATCH] Trusted Path Execution LSM 0.2 (20050108)
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
 To: Chris Wright <chrisw@osdl.org>
-Cc: Matt Mackall <mpm@selenic.com>, "Jack O'Quin" <joq@io.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       paul@linuxaudiosystems.com, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20050111124707.J10567@build.pdx.osdl.net>
-References: <20050107134941.11cecbfc.akpm@osdl.org>
-	 <20050107221059.GA17392@infradead.org>
-	 <20050107142920.K2357@build.pdx.osdl.net> <87mzvkxxck.fsf@sulphur.joq.us>
-	 <20050110212019.GG2995@waste.org> <87d5wc9gx1.fsf@sulphur.joq.us>
-	 <20050111195010.GU2940@waste.org> <871xcr3fjc.fsf@sulphur.joq.us>
-	 <20050111200549.GW2940@waste.org>
-	 <1105475349.4295.21.camel@krustophenia.net>
-	 <20050111124707.J10567@build.pdx.osdl.net>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 16:10:33 -0500
-Message-Id: <1105477833.4295.51.camel@krustophenia.net>
+Cc: Steve G <linux_4ever@yahoo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050111123320.S469@build.pdx.osdl.net>
+References: <20050111195542.76809.qmail@web50605.mail.yahoo.com>
+	 <20050111123320.S469@build.pdx.osdl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gd+kAf4/0Eo6d8fmroDW"
+Date: Tue, 11 Jan 2005 22:11:36 +0100
+Message-Id: <1105477896.24610.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-11 at 12:47 -0800, Chris Wright wrote:
-> * Lee Revell (rlrevell@joe-job.com) wrote:
-> > On Tue, 2005-01-11 at 12:05 -0800, Matt Mackall wrote:
-> > > Anyway, *plonk*.
-> > 
-> > Plonk?  WTF?  Jack comes up with what many people think is a reasonable
-> > solution to a real problem, that affects thousands of users, and in the
-> > middle of what seems to me a civilized discussion, you killfile him
-> > because he disagrees with you?
-> > 
-> > Plonk to you too, asshole.
-> 
-> Guys, could we please bring this back to a useful discussion.  None of
-> you have commented on whether the rlimits for priority are useful.  As I
-> said before, I've no real problem with the module as it stands since it's
-> tiny, quite contained, and does something people need.  But I agree it'd
-> be better to find something that's workable as long term solution.
 
-Chris, I did comment on it, see
-1105222442.24592.126.camel@krustophenia.net from around 5:15 on
-Saturday.
+--=-gd+kAf4/0Eo6d8fmroDW
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-from the above message:
+Hi,
 
-Eh, PAM is a perfectly fine solution.  Documentation is lacking, but
-it's easy to find examples.  On my system /etc/security/limits.conf has
-this sample config, commented out:
+El mar, 11-01-2005 a las 12:33 -0800, Chris Wright escribi=F3:
+> * Steve G (linux_4ever@yahoo.com) wrote:
+> > This patch leaks memory in the error paths. For example:=20
+> >=20
+> > +static ssize_t trustedlistadd_read_file(struct tpe_list *list, char *b=
+uf)
+> > +{
+> > <snip>
+> > + char *buffer =3D kmalloc(400, GFP_KERNEL);
+> > +
+> > + user =3D (char *)__get_free_page(GFP_KERNEL);
+> > + if (!user)
+> > + return -ENOMEM;
+>=20
+> Helps to inform the author ;-)
 
-#<domain>      <type>  <item>         <value>
-#
+It's fixed now and i will update the patches ASAP.
 
-#*               soft    core            0
-#*               hard    rss             10000
-#@student        hard    nproc           20
-#@faculty        soft    nproc           20
-#@faculty        hard    nproc           50
-#ftp             hard    nproc           0
+Next time it would be better to CC me directly, but anyway, thanks for
+reporting this, as much as you mess it up, it's as much as i will work
+to make it better ;).
 
-So add your audio users (or cdrecord users, or whoever) to group
-realtime and add:
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
+[2048g/9AE91A22] Hardened Debian head developer & project manager
 
-realtime        hard    memlock 100000
-realtime        soft    prio    100
+--=-gd+kAf4/0Eo6d8fmroDW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
 
-Problem solved.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Lee
+iD8DBQBB5EEHDcEopW8rLewRAs9HAJ4lCStPu8mGcd3P3PwHUCb7ANwHAgCgtzbo
+947XNHPlwOLmO1g9IzK7dLE=
+=runt
+-----END PGP SIGNATURE-----
 
+--=-gd+kAf4/0Eo6d8fmroDW--
 

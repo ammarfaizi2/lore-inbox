@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276785AbRJCRwP>; Wed, 3 Oct 2001 13:52:15 -0400
+	id <S276761AbRJCRvo>; Wed, 3 Oct 2001 13:51:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276765AbRJCRwF>; Wed, 3 Oct 2001 13:52:05 -0400
-Received: from quechua.inka.de ([212.227.14.2]:9529 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S276785AbRJCRvs>;
-	Wed, 3 Oct 2001 13:51:48 -0400
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [POT] Which journalised filesystem uses Linus Torvalds ?
-In-Reply-To: <GKMPCZ$IZh2dKhbICnp0WDXKHB6iO7OKoHwqOxmqj9XfriOC7PjHiIDA6bHi6xrImT@laposte.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.10-xfs (i686))
-Message-Id: <E15oqBs-00057E-00@calista.inka.de>
-Date: Wed, 03 Oct 2001 19:52:16 +0200
+	id <S276807AbRJCRve>; Wed, 3 Oct 2001 13:51:34 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:50952 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S276785AbRJCRvU>; Wed, 3 Oct 2001 13:51:20 -0400
+Message-ID: <3BBB5005.65B1FCF5@zip.com.au>
+Date: Wed, 03 Oct 2001 10:51:01 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ragnar =?iso-8859-1?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+CC: Dave Jones <davej@suse.de>, Rik van Riel <riel@conectiva.com.br>,
+        "sebastien.cabaniols" <sebastien.cabaniols@laposte.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [POT] Which journalised filesystem ?
+In-Reply-To: <Pine.LNX.4.33L.0110030938130.4835-100000@imladris.rielhome.conectiva> <Pine.LNX.4.30.0110031448460.16788-100000@Appserv.suse.de>,
+		<Pine.LNX.4.30.0110031448460.16788-100000@Appserv.suse.de>; from davej@suse.de on Wed, Oct 03, 2001 at 02:54:17PM +0200 <20011003150145.D8709@vestdata.no>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <GKMPCZ$IZh2dKhbICnp0WDXKHB6iO7OKoHwqOxmqj9XfriOC7PjHiIDA6bHi6xrImT@laposte.net> you wrote:
-> With the availability of XFS,JFS,ext3 and ReiserFS I am a 
-> little
-> lost and I don't know which one I should use for entreprise 
-> class
-> servers.
+Ragnar Kjørstad wrote:
+> 
+> On Wed, Oct 03, 2001 at 02:54:17PM +0200, Dave Jones wrote:
+> > Alan mentioned this was something to do with the IBM hard disk
+> > having strange write-cache properties that confuse ext3.
+> > I'm not sure if this has been fixed or not yet, but its enough
+> > to make me think twice about trying it on the vaio for a while.
+> 
+> If a disk is doing write-back caching, it's likely to break all
+> journaling filesystem and anything else that relies on write ordering.
 
-In former versions of ReiserFS you had a weak support for fschk. And since a
-lot of bugs and heavy load triggered this problem regularly, it was not
-awise idea to use Reiser. Things are reported to have increased, but I do
-not have any first hand experineces since then.
+In theory, disk write caching can defeat ext3's ordering requirements.
 
-Personally I think xfs is a very mature Journaling File System. A bit
-annoying is, that the CVS tree is hard to track from SGI. I have reports
-from heavyly loaded servers that it performs very well (i.e. newsspool).
+However I have never observed this in practice, nor have I seen
+any report of it happening.
 
-ext3 is the alternative, cause of its compatibility to ext2. But I am not
-sure, if this is good or bad, since it has not increaesed some of the
-performance issues of the ext2 structure, afaik.
+Think about it: ext3 writes a chunk of blocks, waits on them,
+then writes a single commit block and waits on that.  The "chunk"
+of blocks are very probably contiguous on disk.  The commit block
+will most probably be at the very next LBA afer the "chunk".
 
-I have no experience with JFS, IBM seems to missed a opportunity to have
-large community support.
+The only way in which the drive can cause corruption is for it to write the
+commit block before the "chunk", and for you to lose power [*] within
+that time window.  Unless some serious block remapping has occurred
+at the physical level, I really can't see any reason why the disk
+should choose to flush those blocks in the wrong order.  Nor do I see why
+the disk should leave a large time window between flushing the commit
+block and then flushing the "chunk".
 
-GFS as a general purpose filesystem may need some more tweaking, but it's
-cluster properties are great for enterprise systems.
+So....  I wouldn't be too fussed about it, personally.  
 
-Greetings
-Bernd
+
+
+
+[*] I think it has to be a power outage - a kernel crash won't be
+enough - the disk should still flush its write cache.  I'm not sure
+if hitting the front-panel reset button would prevent a disk from
+flushing its cache?
+
+-

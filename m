@@ -1,55 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265218AbTFEWCT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 18:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265219AbTFEWCT
+	id S265227AbTFEWEE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 18:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbTFEWEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 18:02:19 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:26873 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265218AbTFEWCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 18:02:17 -0400
-Date: Fri, 6 Jun 2003 00:15:42 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Oliver Pitzeier <o.pitzeier@uptime.at>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: FW: Linux 2.4.20
-Message-ID: <20030605221541.GG7431@fs.tum.de>
-References: <000301c32ba6$6135ff00$1311a8c0@pitzeier.priv.at>
+	Thu, 5 Jun 2003 18:04:04 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:23523 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265227AbTFEWEB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 18:04:01 -0400
+Subject: [BUGFIX - #764] linux-2.5.70_btime-fix_A1
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, h.lambermont@aramiska.net
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054851249.32090.1037.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000301c32ba6$6135ff00$1311a8c0@pitzeier.priv.at>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 05 Jun 2003 15:14:10 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 05, 2003 at 11:06:48PM +0200, Oliver Pitzeier wrote:
-> Hi folks!
-> 
-> Andreas de Pretis wrote:
-> > das Documentation/DocBook/journal-api.tmpl hat nen Bug (mach 
-> > mal ein 'make htmldocs') ... Patch ist anbei.
-> 
-> As German understading people can read above, Mr. Andreas de Pretis, sent me
-> this patch to forward it to the lkml. The problem seems to be, that he was not
-> able to do a 'make htmldocs', because of some (wrong) SGML tags in
-> journal-api.tmpl.
-> 
-> Please have a look at it, patch is attached (simple, but working. :-) ).
+Andrew, All, 
+	Due to a math error in the calculation of /proc/stat's btime, the value
+could wobble, varying by a single second. The patch fixes this wobble
+described in bugme bug #764. 
 
-This issue is already fixed in 2.4.21-rc7 .
+Reportedly Hans is seeing larger then 1 second wobbles which I have not
+been able to reproduce, but that looks to be a separate issue to this
+math bug. 
 
-> Best regards,
->  Oliver
+Please consider for inclusion.
 
-cu
-Adrian
+thanks
+-john
 
--- 
+diff -Nru a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
+--- a/fs/proc/proc_misc.c	Thu Jun  5 15:07:14 2003
++++ b/fs/proc/proc_misc.c	Thu Jun  5 15:07:14 2003
+@@ -378,8 +378,23 @@
+ {
+ 	int i, len;
+ 	extern unsigned long total_forks;
+-	u64 jif = get_jiffies_64() - INITIAL_JIFFIES;
++	u64 jif;
+ 	unsigned int sum = 0, user = 0, nice = 0, system = 0, idle = 0, iowait = 0;
++	struct timeval now; 
++	unsigned long seq;
++
++	/* Atomically read jiffies and time of day */ 
++	do {
++		seq = read_seqbegin(&xtime_lock);
++
++		jif = get_jiffies_64();
++		do_gettimeofday(&now);
++	} while (read_seqretry(&xtime_lock, seq));
++
++	/* calc # of seconds since boot time */
++	jif -= INITIAL_JIFFIES;
++	jif = ((u64)now.tv_sec * HZ) + (now.tv_usec/(1000000/HZ)) - jif;
++	do_div(jif, HZ);
+ 
+ 	for (i = 0 ; i < NR_CPUS; i++) {
+ 		int j;
+@@ -419,7 +434,6 @@
+ 		len += sprintf(page + len, " %u", kstat_irqs(i));
+ #endif
+ 
+-	do_div(jif, HZ);
+ 	len += sprintf(page + len,
+ 		"\nctxt %lu\n"
+ 		"btime %lu\n"
+@@ -427,7 +441,7 @@
+ 		"procs_running %lu\n"
+ 		"procs_blocked %lu\n",
+ 		nr_context_switches(),
+-		xtime.tv_sec - (unsigned long) jif,
++		(unsigned long)jif,
+ 		total_forks,
+ 		nr_running(),
+ 		nr_iowait());
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+
+ 
 

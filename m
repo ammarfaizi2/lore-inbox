@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310494AbSCCBKq>; Sat, 2 Mar 2002 20:10:46 -0500
+	id <S310495AbSCCBaV>; Sat, 2 Mar 2002 20:30:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310495AbSCCBKh>; Sat, 2 Mar 2002 20:10:37 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:44549
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S310494AbSCCBKY>; Sat, 2 Mar 2002 20:10:24 -0500
-Message-Id: <5.1.0.14.2.20020302200004.01da4790@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 02 Mar 2002 20:05:32 -0500
-To: erich@uruk.org, Russell King <rmk@arm.linux.org.uk>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: Network Security hole (was -> Re: arp bug ) 
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16hKBV-0000wK-00@trillium-hollow.org>
-In-Reply-To: <Your message of "Sat, 02 Mar 2002 16:43:23 PST." <E16hK5z-0000vI-00@trillium-hollow.org>
+	id <S310496AbSCCBaM>; Sat, 2 Mar 2002 20:30:12 -0500
+Received: from cobae1.consultronics.on.ca ([205.210.130.26]:63646 "EHLO
+	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S310495AbSCCB3x> convert rfc822-to-8bit; Sat, 2 Mar 2002 20:29:53 -0500
+Date: Sat, 2 Mar 2002 20:29:43 -0500
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
+Subject: Re: SSSCA: We're in trouble now
+Message-ID: <20020303012943.GA3130@athame.dynamicro.on.ca>
+Reply-To: Greg Louis <glouis@dynamicro.on.ca>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020302183041.P6075@stingr.net> <Pine.LNX.4.44L.0203021857380.2181-100000@imladris.surriel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.44L.0203021857380.2181-100000@imladris.surriel.com>
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:49 PM 3/2/2002 -0800, erich@uruk.org wrote:
+On 20020302 (Sat) at 1858:10 -0300, Rik van Riel wrote:
+> On Sat, 2 Mar 2002, Paul P Komkoff Jr wrote:
 
->Whoops, I am apparently using "ipchains" and not "iptables", and
->didn't note the distinction.
->
->Sorry about the spurious bug report here.  :/
+> > unfortunately 98% don't care about such things. they sit on their
+> > g-spots and drink vodka (or something). they DON'T NEED computers. or
+> > anything else except their drinks.
+> 
+> vodka ?   I think you mean "budweiser" ...
 
-Yeah, I use 2.2.19 on my server (2.4.x is the most unstable 'stable series' i've ever seen..). ipchains is like this:
+Don't underrate that stuff, in the hands of the "blessed."  They sit
+around and drink between 2 and 5 341ml aliquots of 3% beer and imagine
+themselves emperors of the universe -- then they behave accordingly......
 
-Incoming                                                 Outgoing
-interface                                                interface
-  ----+                                             +------->
-      |                                             ^
-      v   +------------> forward -----------+      |
-    input |                                 |----> output
-          +----------> Application ---------+
+-- 
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |
 
-I actually like it that way, it makes it easier to block things from the dsl ether (eth0):
-
-ipchains -a input -i eth0 -d ! 66.92.237.176 -j DENY -l
-
-With iptables i'd need that on both the INPUT *and* FORWARD rules...
-
-
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
-
+Header information for this message:
+Subject: Re: SSSCA: We're in trouble now
+     To: Rik van Riel <riel@conectiva.com.br>
+     CC: Paul P Komkoff Jr <i@stingr.net>
+ linux-kernel@vger.kernel.org
+   From: Greg Louis <glouis@dynamicro.on.ca>

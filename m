@@ -1,91 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270538AbRHHRcS>; Wed, 8 Aug 2001 13:32:18 -0400
+	id <S270541AbRHHRdS>; Wed, 8 Aug 2001 13:33:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270534AbRHHRcJ>; Wed, 8 Aug 2001 13:32:09 -0400
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:20655 "EHLO
-	mailout.plan9.de") by vger.kernel.org with ESMTP id <S270538AbRHHRb7>;
-	Wed, 8 Aug 2001 13:31:59 -0400
-Date: Wed, 8 Aug 2001 19:31:58 +0200
-From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
-To: linux-kernel@vger.kernel.org
-Subject: I/O very slow under 2.4 (device reading)
-Message-ID: <20010808193158.A4055@cerebro.laendle>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S270542AbRHHRdP>; Wed, 8 Aug 2001 13:33:15 -0400
+Received: from ns.caldera.de ([212.34.180.1]:22456 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S270541AbRHHRdE>;
+	Wed, 8 Aug 2001 13:33:04 -0400
+Date: Wed, 8 Aug 2001 19:32:28 +0200
+From: Christoph Hellwig <hch@caldera.de>
+To: torvalds@transmeta.com
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org,
+        linux-privs-discuss@sourceforge.net
+Subject: Re: [Linux-privs-discuss] [PATCH] fix permission checks for executables
+Message-ID: <20010808193228.A22007@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	torvalds@transmeta.com, alan@redhat.com,
+	linux-kernel@vger.kernel.org, linux-privs-discuss@sourceforge.net
+In-Reply-To: <20010808182219.A12652@caldera.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-X-Operating-System: Linux version 2.4.8-pre4 (root@cerebro) (gcc version 3.0.1 20010716 (prerelease)) 
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010808182219.A12652@caldera.de>; from hch@caldera.de on Wed, Aug 08, 2001 at 06:22:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It might be vm related, it might be not, but I get very funny effects when
-running:
+On Wed, Aug 08, 2001 at 06:22:19PM +0200, Christoph Hellwig wrote:
+> Hi Linux,
+> 
+> vfs_permission in the Linux 2.4 series tries to check for
+> CAP_DAC_OVERRIDE if the modes didn't match.  This means even
+> for an file without executable bits set at all, root will
+> be reported that it is.   I've actually found one apllication
+> (scomail under linux-abi) that fails because of this, besides
+> not matching my reading of Posix 1003.1e.
+> 
+> Of the operating systems with capabilty-like features at least
+> OpenUNIX gets it right, of the others at least OpenServer and
+> 4.4BSD, but these semantics seem natural to me anyway..
 
-   buffer -S1m -s128k -m32m </dev/hde >/dev/null
+Andreas Gruenbacher pointed out that it is much leaner to use
+MAY_READ¸MAY_EXEC and MAY_WRITE instead of abusing the stat-macros.
 
-(buffer is just a fast read/write buffer reading stdin to stdout, i use it
-to check wether all sectors of a disk are readable, it's similar to dd,
-which creates the same effects).
+Here is a patch that changes the complete function to use these
+and also cleans up and clarifies the comments.
 
-The problem is that under 2.4.4, 2.4.5 and 2.4.8pre4, the machine first
-reads at about 30mb/s. then, after a few minutes, it stops for small
-amounts of time, and, even worse, the system becomes totally sluggish,
-even unusable for parts of seconds or even a second (mouse doesn't move,
-programs need ages to starte etc...)
+	Christoph
 
-Then, after quite some time this behaviour stops, and the command reads
-only very very slowly:
 
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 1  0  0      0   3168 327504  51964   0   0   256     0  123   704   0  46  54
- 2  0  0      0   3168 327504  51964   0   0   256     0  333  1167   0  51  49
- 1  0  0      0   3168 327504  51964   0   0   256     6  141   740   0  50  50
- 2  0  0      0   3172 327500  51964   0   0   256     0  110   661   0  50  50
- 1  0  0      0   3128 327548  51960   0   0  8512    44  470  1595   0  45  55
- 1  0  0      0   3128 327544  51960   0   0   256     2  394  2071   3  51  46
- 1  0  0      0   3124 327544  51960   0   0   320     0  164   798   0  50  50
- 1  0  0      0   3124 327540  51964   0   0   256     8  121   743   0  50  50
- 1  0  0      0   3124 327540  51964   0   0  1280     0  176   826   0  50  50
- 1  0  1      0   3120 327544  51964   0   0   320    64  201   858   0  50  50
-
-as you can see, it reads about 256k/s only, but requires 100% cpu (it's a
-dual cpu system and idle == 50 means one cpu is tied up):
-
-   CPU1 states:  0.0% user, 100.0% system,  0.0% nice,  0.0% idle
-
-Tied up in the kernel, btw. the rest of the system works and is fast.
-hdparm reports nothing spectacular:
-
-   /dev/hde:
-   multcount    = 16 (on)
-   I/O support  =  1 (32-bit)
-   unmaskirq    =  1 (on)
-   using_dma    =  1 (on)
-   keepsettings =  1 (on)
-   nowerr       =  0 (off)
-   readonly     =  0 (off)
-   readahead    =  8 (on)
-   geometry     = 53614/16/63, sectors = 120103200, start = 0
-
-and indeed the disk is still fast:
-
-   cerebro:~# hdparm -tT /dev/hde
-
-   /dev/hde:
-    Timing buffer-cache reads:   128 MB in  0.76 seconds =168.42 MB/sec
-    Timing buffered disk reads:  64 MB in  1.78 seconds = 35.96 MB/sec
-
-this is, btw, WHILE the above buffer command was still running.
-
-any ideas how to proceed with this problem?
-
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+--- linux.really_plain/fs/namei.c	Wed Aug  8 17:56:58 2001
++++ linux.plain/fs/namei.c	Wed Aug  8 19:27:19 2001
+@@ -140,7 +140,7 @@
+ }
+ 
+ /*
+- *	permission()
++ *	vfs_permission()
+  *
+  * is used to check for read/write/execute permissions on a file.
+  * We use "fsuid" for this, letting us set arbitrary permissions
+@@ -151,24 +151,40 @@
+ {
+ 	int mode = inode->i_mode;
+ 
+-	if ((mask & S_IWOTH) && IS_RDONLY(inode) &&
+-		 (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode)))
+-		return -EROFS; /* Nobody gets write access to a read-only fs */
+-
+-	if ((mask & S_IWOTH) && IS_IMMUTABLE(inode))
+-		return -EACCES; /* Nobody gets write access to an immutable file */
++	if (mask & MAY_WRITE) {
++		/*
++		 * Nobody gets write access to a read-only fs.
++		 */
++		if (IS_RDONLY(inode) &&
++		    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode)))
++			return -EROFS;
++
++		/*
++		 * Nobody gets write access to an immutable file.
++		 */
++		if (IS_IMMUTABLE(inode))
++			return -EACCES;
++	}
+ 
+ 	if (current->fsuid == inode->i_uid)
+ 		mode >>= 6;
+ 	else if (in_group_p(inode->i_gid))
+ 		mode >>= 3;
+ 
+-	if (((mode & mask & S_IRWXO) == mask) || capable(CAP_DAC_OVERRIDE))
++	if (((mode & mask & (MAY_READ|MAY_WRITE|MAY_EXEC)) == mask))
+ 		return 0;
+ 
+-	/* read and search access */
+-	if ((mask == S_IROTH) ||
+-	    (S_ISDIR(inode->i_mode)  && !(mask & ~(S_IROTH | S_IXOTH))))
++	/*
++	 * Only read/write DACs are overridable.
++	 */
++	if ((mask & (MAY_READ|MAY_WRITE)) || S_ISDIR(inode->i_mode))
++		if (capable(CAP_DAC_OVERRIDE))
++			return 0;
++
++	/*
++	 * Searching includes executable on directories, else just read.
++	 */
++	if (mask == MAY_READ || (S_ISDIR(inode->i_mode) && !(mask & MAY_WRITE)))
+ 		if (capable(CAP_DAC_READ_SEARCH))
+ 			return 0;
+ 

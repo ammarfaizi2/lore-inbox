@@ -1,43 +1,241 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261273AbSJPTEt>; Wed, 16 Oct 2002 15:04:49 -0400
+	id <S261320AbSJPS5k>; Wed, 16 Oct 2002 14:57:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261333AbSJPTEt>; Wed, 16 Oct 2002 15:04:49 -0400
-Received: from web12903.mail.yahoo.com ([216.136.174.70]:35751 "HELO
-	web12903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261273AbSJPTEs>; Wed, 16 Oct 2002 15:04:48 -0400
-Message-ID: <20021016191045.47426.qmail@web12903.mail.yahoo.com>
-Date: Wed, 16 Oct 2002 12:10:45 -0700 (PDT)
-From: Daniel Zinder <danielzinder@yahoo.com>
-Subject: How to allow caching of PCI addresses in user space?
+	id <S261321AbSJPS5k>; Wed, 16 Oct 2002 14:57:40 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:18439 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261320AbSJPS5f>; Wed, 16 Oct 2002 14:57:35 -0400
+Date: Wed, 16 Oct 2002 21:03:10 +0200
+From: Jurriaan <thunder7@xs4all.nl>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: 2.5.41ac2 does power-off, 2.5.42/2.5.42ac1/2.5.43 don't.
+Message-ID: <20021016190310.GA16928@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am currently working on a univ. project which
-requires caching of data stored on a remote computer
-and accessed via PCI address mmapping to userspace.
+Newer 2.5 kernels don't poweroff my machine anymore. The last message
+on screen is 'Power down." and then nothing happens.
 
-I have repeatdly failed to enable caching of these
-addresses. 
+2.5.41-ac2 is the last kernel that worked fine. 2.5.42 and 2.5.42-ac1
+both seem to do something strange to the framebuffer, so I couldn't see
+the last line, but 2.5.43 boldly states 'Power down.'.
 
-The mmaping is done using remap_page_range.
-I have tried various protection options without
-success. 
+kernel command-line:
+kernel /boot/vmlinuz-2543 root=/dev/hda7 video=matrox:vesa:0x11E,fv:80,sgram hdc=scsi apm=power-off
 
-Does this have to do with anything concerning the
-MTRR's? 
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 16)
+00:07.3 USB Controller: VIA Technologies, Inc. USB (rev 16)
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+00:09.0 Unknown mass storage controller: Promise Technology, Inc. 20265 (rev 02)
+00:0a.0 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 53c860 (rev 13)
+00:0b.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
+00:0b.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
+00:0c.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C (rev 10)
+00:0e.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366 / HPT370 (rev 03)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 03)
 
-How can I allow caching of PCI addresses accessed in
-user space thorugh mmaping using remap_page_range?
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_MPPARSE=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PDC202XX_OLD=y
+CONFIG_PDC202XX_BURST=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_PDC202XX=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_SYMBIOS_COMPAT=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_ROUTE_LARGE_TABLES=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=y
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_WATCHDOG=y
+CONFIG_SOFT_WATCHDOG=y
+CONFIG_RTC=m
+CONFIG_AGP=m
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_MGA=m
+CONFIG_RAW_DRIVER=y
+CONFIG_REISERFS_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_NTFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_MATROX_I2C=m
+CONFIG_FBCON_ADVANCED=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FBCON_FONTS=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_EMU10K1=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI_HCD_ALT=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_SCANNER=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
 
 Thanks,
-Daniel Zinder
- 
-
-__________________________________________________
-Do you Yahoo!?
-Faith Hill - Exclusive Performances, Videos & More
-http://faith.yahoo.com
+Jurriaan
+-- 
+"Not today, not tomorrow, not last year, not at the second coming
+of Julius Feistersnap. In short, never, and not even then! Does
+that set matters straight?"
+        Jack Vance - Araminta Station
+GNU/Linux 2.5.42 SMP/ReiserFS 2x1380 bogomips load av: 1.66 1.72 2.13

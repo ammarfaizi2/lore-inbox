@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292867AbSCEFep>; Tue, 5 Mar 2002 00:34:45 -0500
+	id <S292894AbSCEFjz>; Tue, 5 Mar 2002 00:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292894AbSCEFef>; Tue, 5 Mar 2002 00:34:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3597 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292867AbSCEFeR>; Tue, 5 Mar 2002 00:34:17 -0500
-Message-ID: <3C8458CA.30203@zytor.com>
-Date: Mon, 04 Mar 2002 21:34:02 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S292927AbSCEFjf>; Tue, 5 Mar 2002 00:39:35 -0500
+Received: from ux10.cso.uiuc.edu ([128.174.5.79]:1514 "EHLO ux10.cso.uiuc.edu")
+	by vger.kernel.org with ESMTP id <S292894AbSCEFj2>;
+	Tue, 5 Mar 2002 00:39:28 -0500
+Date: Mon, 4 Mar 2002 23:39:27 -0600 (CST)
+From: binita gupta <binita@students.uiuc.edu>
+X-X-Sender: <binita@ux10.cso.uiuc.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: IP drops re-injected packets !!!
+Message-ID: <Pine.GSO.4.31.0203042336130.11928-100000@ux10.cso.uiuc.edu>
 MIME-Version: 1.0
-To: Jeff Dike <jdike@karaya.com>
-CC: Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-In-Reply-To: <200203050440.XAA07022@ccure.karaya.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
+I am trying to implement an on demand routing protocol for ad-hoc
+wireless networks. for this I intercept packets at the IP layer
+(using netfilter), queue them in the user space and reinject them
+(after route has been discovered) at the IP layer using tun device.
 
-> bcrl@redhat.com said:
-> 
->>From your explanation of things, you only need to do the memsets once
->>at  startup of UML where the ram is allocated -> a uml booted with
->>64MB of  ram would write into every page of the backing store file
->>before even  running the kernel.  Doesn't that accomplish the same
->>thing?
->>
-> 
-> Sort of, but it's very heavy-handed.  The UML will force memory to be
-> allocated on the host long before it will ever be needed, and it may never
-> be needed.  This patch doesn't waste memory like that.
-> 
+Everyting works fine except that IP drops the re-injected packets.
+Basically "fib_validate_source" drops all the packets with local address
+as the source address and this is the reason why all the reinjected
+packets are being dropped. I could get away with this problem by modifying
+fib_validate_source function in fin_frontend.c file as follows:
 
+--if(res.type != RTN_UNICAST)
+++if((res.type != RTN_UNICAST) && (res.type != RTN_LOCAL))
 
-This is not necessarily a bad thing, however.  If the user hadn't set up 
-enough swap, they're probably better off getting the error message early.
+I am just wondering if this is the right fix for the problem or should
+this be handled in some other way?
 
-	-hpa
+In any case I am not clear how the current kernel handles the reinjected
+packets which are generated locally? Is this a bug in the kernel or am I
+missing something here?
 
+any clarifications will be highly appreciated.
 
+Thanx,
+-Binita
 

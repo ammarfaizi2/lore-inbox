@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261291AbSJ1P1m>; Mon, 28 Oct 2002 10:27:42 -0500
+	id <S261319AbSJ1PTu>; Mon, 28 Oct 2002 10:19:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261298AbSJ1P1m>; Mon, 28 Oct 2002 10:27:42 -0500
-Received: from 212.68.254.82.brutele.be ([212.68.254.82]:1296 "EHLO debian.lan")
-	by vger.kernel.org with ESMTP id <S261291AbSJ1P1l>;
-	Mon, 28 Oct 2002 10:27:41 -0500
-Date: Mon, 28 Oct 2002 16:32:37 +0100
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Compile Error with the 2.5.44-ac5 and the P4
-Message-ID: <20021028153237.GA19602@debian.lan>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S261321AbSJ1PTu>; Mon, 28 Oct 2002 10:19:50 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:44728 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261319AbSJ1PTt>;
+	Mon, 28 Oct 2002 10:19:49 -0500
+Date: Mon, 28 Oct 2002 15:25:42 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: Dominik Brodowski <linux@brodo.de>, linux-kernel@vger.kernel.org,
+       ducrot@poupinou.org
+Subject: Re: cpufreq: Intel(R) SpeedStep(TM) for this processor not (yet) available
+Message-ID: <20021028152542.GA10482@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Marc Giger <gigerstyle@gmx.ch>, Dominik Brodowski <linux@brodo.de>,
+	linux-kernel@vger.kernel.org, ducrot@poupinou.org
+References: <20021026105611.3d6a540c.gigerstyle@gmx.ch> <12722.1035652076@www50.gmx.net> <20021028162932.B888@brodo.de> <20021028160410.1d0f9a78.gigerstyle@gmx.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: GNU/Linux
-X-LUG: Linux Users Group Mons ( Linux-Mons )
-X-URL: http://www.linux-mons.be
+In-Reply-To: <20021028160410.1d0f9a78.gigerstyle@gmx.ch>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-here is an error.
+On Mon, Oct 28, 2002 at 04:04:10PM +0100, Marc Giger wrote:
+ > Hi Dominik, Hi Bruno!
+ > 
+ > Thank you for the information!
+ > 
+ > > Intel continues to withhold information on how to use SpeedStep on
+ > > 440BX/MX chipsets (and even removes documentation which had been > publicly available ontheir servers)
+ > 
+ > I thought Intel is interessted in Linux and want to support it????
 
-make -f arch/i386/kernel/Makefile 
-make -f arch/i386/kernel/cpu/Makefile 
-make -f arch/i386/kernel/cpu/cpufreq/Makefile 
-make -f arch/i386/kernel/cpu/mcheck/Makefile 
-  gcc -Wp,-MD,arch/i386/kernel/cpu/mcheck/.p4.o.d -D__KERNEL__ -Iinclude
-  -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
-  -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -p
-  -Iarch/i386/mach-voyager -nostdinc -iwithprefix include 
-  -DKBUILD_BASENAME=p4   -c -o arch/i386/kernel/cpu/mcheck/p4.o
-  arch/i386/kernel/cpu/mcheck/p4.c
-  arch/i386/kernel/cpu/mcheck/p4.c: In function `intel_thermal_interrupt':
-  arch/i386/kernel/cpu/mcheck/p4.c:51: warning: implicit declaration of function `ack_APIC_irq'
-  arch/i386/kernel/cpu/mcheck/p4.c: In function `intel_init_thermal': 
-  arch/i386/kernel/cpu/mcheck/p4.c:91: warning: implicit declaration of function `apic_read'
-  arch/i386/kernel/cpu/mcheck/p4.c:105: `THERMAL_APIC_VECTOR' undeclared (first use in this function)
-  arch/i386/kernel/cpu/mcheck/p4.c:105: (Each undeclared identifier is reported only once
-  arch/i386/kernel/cpu/mcheck/p4.c:105: for each function it appears in.)
-  arch/i386/kernel/cpu/mcheck/p4.c:107: warning: implicit declaration of function `apic_write_around'
-  make[3]: *** [arch/i386/kernel/cpu/mcheck/p4.o] Error 1
-  make[2]: *** [arch/i386/kernel/cpu/mcheck] Error 2
-  make[1]: *** [arch/i386/kernel/cpu] Error 2
-  make: *** [arch/i386/kernel] Error 2
-  
-  
-Best regards,
-
-
-Stephane Wirtel
-
+Depends which Intel you talk to 8-)
+ 
+		Dave
 -- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-GPG ID : 1024D/C9C16DA7 | 5331 0B5B 21F0 0363 EACD  B73E 3D11 E5BC C9C1 6DA7
-
+| Dave Jones.        http://www.codemonkey.org.uk

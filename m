@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263923AbRFMAit>; Tue, 12 Jun 2001 20:38:49 -0400
+	id <S263928AbRFMArN>; Tue, 12 Jun 2001 20:47:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263928AbRFMAij>; Tue, 12 Jun 2001 20:38:39 -0400
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:9991 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S263923AbRFMAig>; Tue, 12 Jun 2001 20:38:36 -0400
-Date: Tue, 12 Jun 2001 18:38:32 -0600
-From: Michal Jaegermann <michal@harddata.com>
+	id <S263929AbRFMArC>; Tue, 12 Jun 2001 20:47:02 -0400
+Received: from cr545978-a.nmkt1.on.wave.home.com ([24.112.25.43]:18181 "HELO
+	saturn.tlug.org") by vger.kernel.org with SMTP id <S263928AbRFMAqt>;
+	Tue, 12 Jun 2001 20:46:49 -0400
+Date: Tue, 12 Jun 2001 20:46:47 -0400
+From: Mike Frisch <mfrisch@saturn.tlug.org>
 To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: Minor "cleanup" patches for 2.4.5-ac kernels
-Message-ID: <20010612183832.A29923@mail.harddata.com>
+Subject: IRQ problems w/VIA Apollo VP2/97 & NCR 53c875
+Message-ID: <20010612204647.A14088@saturn.tlug.org>
+Mail-Followup-To: Mike Frisch <mfrisch@saturn.tlug.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,61 +20,71 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some small, but in times important, "gotchas" in current
-2.4.5-ac kernels.
+Summary: IRQ conflict on VIA Apollo VP2/97-based motherboard between
+dual controllers on NCR 53c875 (Diamond Fireport 40).  Kernel version is
+2.4.5-ac9.
 
-When compiling SMP 'udelay' in current drivers/pci/quirks.c expands to:
+--- cut here ---
 
-   __udelay((15), cpu_data[(current->processor)]...
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C595/97 [Apollo VP2/97]
+(rev 04)
+        Flags: bus master, 66Mhz, medium devsel, latency 64
 
-and a type for 'current' is not known, at least on alpha, so
-the following seems to be in order:
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA
+[Apollo VP] (rev 25)
+        Flags: bus master, medium devsel, latency 0
 
---- linux-2.4.5ac/drivers/pci/quirks.c~	Tue Jun 12 16:31:12 2001
-+++ linux-2.4.5ac/drivers/pci/quirks.c	Tue Jun 12 17:13:18 2001
-@@ -18,6 +18,7 @@
- #include <linux/pci.h>
- #include <linux/init.h>
- #include <linux/delay.h>
-+#include <linux/sched.h>
- 
- #undef DEBUG
- 
-There is no problem if SMP is not configured.
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+(prog-if 8a [Master SecP PriP])
+        Flags: bus master, medium devsel, latency 64
+        I/O ports at 6000 [size=16]
 
-This one is replacing a symbol in sg.c to one which is exported
-so 'sg.o' can be compiled as a valid module.
+--- cut here ---
 
---- linux-2.4.5ac/drivers/scsi/sg.c~	Tue May 29 17:52:09 2001
-+++ linux-2.4.5ac/drivers/scsi/sg.c	Tue May 29 18:40:17 2001
-@@ -2603,7 +2603,7 @@
-     num = (count < 10) ? count : 10;
-     copy_from_user(buff, buffer, num);
-     buff[num] = '\0';
--    sg_allow_dio = simple_strtol(buff, 0, 10) ? 1 : 0;
-+    sg_allow_dio = simple_strtoul(buff, 0, 10) ? 1 : 0;
-     return count;
- }
- 
- 
-And this one, proposed already some few times by Ivan Kokshaysky,
+When I attempt to mobprobe the ncr53c8xx module, I get the following
+output:
 
---- 2.4.5-ac11/include/linux/binfmts.h	Mon Jun  4 14:19:00 2001
-+++ linux/include/linux/binfmts.h	Mon Jun  4 20:24:50 2001
-@@ -32,6 +32,9 @@ struct linux_binprm{
- 	unsigned long loader, exec;
- };
- 
-+/* Forward declaration */
-+struct mm_struct;
-+
- /*
-  * This structure defines the functions that are used to load the binary formats that
-  * linux accepts.
+SCSI subsystem driver Revision: 1.00
+PCI: Found IRQ 11 for device 00:0b.0
+IRQ routing conflict in pirq table for device 00:0b.0
+IRQ routing conflict in pirq table for device 00:0b.1
 
-kills a flood of warnings (at least on Alpha) about 'mm_struct'
-defined on a parameter list.
+It appears that something is getting confused and doesn't want to allow
+the two controllers of this card to share the same IRQ.
 
-Are there any reasons which would make any of those "bad"?
+Here is the relevent output from 'lspci -v':
 
-  Michal
+--- cut here ---
+
+00:0b.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR)
+53c875 (rev 14)
+        Subsystem: Diamond Multimedia Systems FirePort 40 Dual SCSI
+Controller
+        Flags: bus master, medium devsel, latency 144, IRQ 10
+        I/O ports at 6c00 [size=256]
+        Memory at e2001000 (32-bit, non-prefetchable) [size=256]
+        Memory at e2002000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+
+00:0b.1 SCSI storage controller: Symbios Logic Inc. (formerly NCR)
+53c875 (rev 14)
+        Subsystem: Diamond Multimedia Systems FirePort 40 Dual SCSI
+Controller
+        Flags: bus master, medium devsel, latency 144, IRQ 10
+        I/O ports at 7000 [size=256]
+        Memory at e2003000 (32-bit, non-prefetchable) [size=256]
+        Memory at e2004000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+
+--- cut here --
+
+There are no other devices using IRQ10.  Is this a lost cause?  This
+controller and drives in their current configuration can be moved to an
+Intel based machine and works flawlessly.  I have yet to see this
+controller work on this VIA motherboard.
+
+Any assistance is appreciated.
+
+Thanks,
+
+Mike.

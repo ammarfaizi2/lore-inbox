@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261334AbRETCW1>; Sat, 19 May 2001 22:22:27 -0400
+	id <S261381AbRETCXr>; Sat, 19 May 2001 22:23:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbRETCWR>; Sat, 19 May 2001 22:22:17 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:27309 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S261334AbRETCWH>;
-	Sat, 19 May 2001 22:22:07 -0400
-Message-ID: <3B072A49.B44B0F2A@mandrakesoft.com>
-Date: Sat, 19 May 2001 22:22:01 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.4-ac11 network drivers cleaning
-In-Reply-To: <12098.990324222@ocs3.ocs-net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261380AbRETCXh>; Sat, 19 May 2001 22:23:37 -0400
+Received: from lpce017.lss.emc.com ([168.159.62.17]:19972 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S261375AbRETCXZ>; Sat, 19 May 2001 22:23:25 -0400
+Date: Sat, 19 May 2001 22:22:55 -0400
+Message-Id: <200105200222.f4K2Mto02608@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
+        Andrew Clausen <clausen@gnu.org>, Ben LaHaise <bcrl@redhat.com>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <20010520031807.G23718@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <Pine.GSO.4.21.0105190416190.3724-100000@weyl.math.psu.edu>
+	<E1517Jf-0008PV-00@the-village.bc.nu>
+	<200105191851.f4JIpNK00364@mobilix.ras.ucalgary.ca>
+	<20010520031807.G23718@parcelfarce.linux.theplanet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+Matthew Wilcox writes:
+> On Sat, May 19, 2001 at 12:51:23PM -0600, Richard Gooch wrote:
+> > Al, if you really want to kill ioctl(2), then perhaps you should
+> > implement a transaction(2) syscall. Something like:
+> >     int transaction (int fd, void *rbuf, size_t rlen,
+> > 		     void *wbuf, size_t wlen);
+> > 
+> > Of course, there wouldn't be any practical gain, since we already have
+> > ioctl(2). Any gain would be aesthetic.
 > 
-> On Sat, 19 May 2001 17:58:49 -0400,
-> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> >Finally, I don't know if I mentioned this earlier, but to be complete
-> >and optimal, version strings should be a single variable 'version', such
-> >that it can be passed directly to printk like
-> >
-> >       printk(version);
-> 
-> Nit pick.  That has random side effects if version contains any '%'
-> characters.  Make it
-> 
->         printk("%s\n", version);
-> 
-> Not quite as optimal but safer.
+> I can tell you haven't had to write any 32-bit ioctl emulation code for
+> a 64-bit kernel recently.
 
-I disagree.   Don't work around an escape bug in a version string, fix
-it...
+The transaction(2) syscall can be just as easily abused as ioctl(2) in
+this respect. People can pass pointers to ill-designed structures very
+easily. The main advantage of transaction(2) is that hopefully, people
+will not be so bone-headed as to forget to pass sizeof *structptr
+as the size field. So perhaps some error trapping is possible.
 
--- 
-Jeff Garzik      | "Do you have to make light of everything?!"
-Building 1024    | "I'm extremely serious about nailing your
-MandrakeSoft     |  step-daughter, but other than that, yes."
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

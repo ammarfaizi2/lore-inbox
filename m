@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbTDKW12 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbTDKW12 (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 18:27:28 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:29136 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261851AbTDKW11 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 18:27:27 -0400
-Date: Sat, 12 Apr 2003 00:38:56 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Steven Dake <sdake@mvista.com>, Greg KH <greg@kroah.com>
-Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       message-bus-list@redhat.com
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <20030411223856.GI21726@marowsky-bree.de>
-References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net> <3E9725C5.3090503@mvista.com> <20030411204329.GT1821@kroah.com> <3E9741FD.4080007@mvista.com>
+	id S261872AbTDKW22 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbTDKW21 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 18:28:27 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:29684 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261872AbTDKW20 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 18:28:26 -0400
+Date: Fri, 11 Apr 2003 15:40:06 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: cat@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: ext3 weirdness
+Message-Id: <20030411154006.7b4d511c.akpm@digeo.com>
+In-Reply-To: <20030411113941.O26054@schatzie.adilger.int>
+References: <20030411170655.GA10449@zip.com.au>
+	<20030411113941.O26054@schatzie.adilger.int>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E9741FD.4080007@mvista.com>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Apr 2003 22:40:03.0501 (UTC) FILETIME=[4AF455D0:01C3007B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-04-11T15:30:21,
-   Steven Dake <sdake@mvista.com> said:
+Andreas Dilger <adilger@clusterfs.com> wrote:
+>
+> Because you can't reallocate in-use blocks until the dirty bitmaps have
+> been committed to disk in a transaction.
 
-> There is no "spec" that states this is a requirement, however, telecom 
-> customers require the elapsed time from the time they request the disk 
-> to be used, to the disk being usable by the operating system to be 20 msec.
+Also, in 2.5 pdflush will take a ref on the inode while writing it out.  So
+an unlink while pdflush is writing back the inode's pages will be magically
+instantaneous, and pdflush actually does the truncate.
 
-Heh. Yes, I've read that spec, and some of it involves some good crack smoking
-;-) The current Linux scheduler will make that rather hard for you, you'll
-need hard realtime for such guarantees.
+This is pretty ugly, because it is reasonable to expect that if you know
+there are no other refs to the inode, your disk space should be available
+when the unlink returns.
 
-> Its even more helpful for their applications if the call that hotswap 
-> inserts blocks until the device is actually ready to use and available 
-> in the filesystem.  Another requirement of any system that attempts to 
-> replace devfs would be this capability (vs constantly checking for the 
-> device in the filesystem).
-
-Uh. Can you please clarify?
-
-You want open(/dev/not_there_yet) to block until /dev/not_there_yet is
-inserted? But if it is not inserted, the device file does not exist yet, so
-the open() will simply return a ENOENT.
-
-The application (or a library, providing this capability you want) could
-interact with the hotplug subsystem to be notified when this device is
-inserted.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-SuSE Labs - Research & Development, SuSE Linux AG
-  
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur
+I don't know what to do about it though.  The userspace workaround is to run
+sync before rm.

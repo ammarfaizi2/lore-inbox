@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266197AbUGARho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266199AbUGARmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266197AbUGARho (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 13:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUGARho
+	id S266199AbUGARmo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 13:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUGARmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 13:37:44 -0400
-Received: from bay16-f24.bay16.hotmail.com ([65.54.186.74]:13063 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S266197AbUGARhn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 13:37:43 -0400
-X-Originating-IP: [220.224.1.194]
-X-Originating-Email: [kartik_me@hotmail.com]
-From: "kartikey bhatt" <kartik_me@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: socket association
-Date: Thu, 01 Jul 2004 23:07:42 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY16-F245chn3g2CNq00026201@hotmail.com>
-X-OriginalArrivalTime: 01 Jul 2004 17:37:42.0298 (UTC) FILETIME=[1C9AAFA0:01C45F92]
+	Thu, 1 Jul 2004 13:42:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:8833 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266199AbUGARmn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 13:42:43 -0400
+Date: Thu, 1 Jul 2004 10:42:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+       vojtech@suse.cz, James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>
+Subject: Re: [parisc-linux] Re: [PATCH] Fix the cpumask rewrite
+In-Reply-To: <40E4413B.5050000@pobox.com>
+Message-ID: <Pine.LNX.4.58.0407011041370.11212@ppc970.osdl.org>
+References: <1088266111.1943.15.camel@mulgrave>  <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
+  <1088268405.1942.25.camel@mulgrave>  <Pine.LNX.4.58.0406260948070.14449@ppc970.osdl.org>
+  <20040701131158.GP698@openzaurus.ucw.cz> <1088690821.4621.11.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0407010908260.11212@ppc970.osdl.org> <40E4413B.5050000@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sure there is one who will help
 
-in freebsd when a socket is created,
-the process  structure of the process creating socket
-is passed as an argument to socreate function.
-is there any mechanism in linux kernel where we can
-associate the process creating socket with the socket.
-or we can fetch the process structure of the owning
-process given the socket or sock data structure.
 
---kartikey
+On Thu, 1 Jul 2004, Jeff Garzik wrote:
+> 
+> FWIW one of the major uses of bitops currently is e.g. in 
+> include/linux/netdevice.h, where bitops are used for atomic selection of 
+> code paths, but not spinning:
 
-_________________________________________________________________
-Easiest Money Transfer to India. Send Money To 6000 Indian Towns. 
-http://go.msnserver.com/IN/48198.asp Easiest Way To Send Money Home!
+That's fine. They _are_ defined to be atomic, and as such they are perfect 
+for things like that.
 
+		Linus

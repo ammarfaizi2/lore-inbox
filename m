@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275381AbRJBQQk>; Tue, 2 Oct 2001 12:16:40 -0400
+	id <S275576AbRJBQjt>; Tue, 2 Oct 2001 12:39:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275576AbRJBQQa>; Tue, 2 Oct 2001 12:16:30 -0400
-Received: from gap.cco.caltech.edu ([131.215.139.43]:7618 "EHLO
-	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S275389AbRJBQQV>; Tue, 2 Oct 2001 12:16:21 -0400
-Date: Tue, 2 Oct 2001 11:49:20 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Dinesh Gandhewar <dinesh_gandhewar@rediffmail.com>
-cc: mlist-linux-kernel@NNTP-SERVER.CALTECH.EDU
-Subject: Re: your mail
-In-Reply-To: <20011002152945.15180.qmail@mailweb16.rediffmail.com>
-Message-ID: <Pine.LNX.3.95.1011002113741.8413A-100000@chaos.analogic.com>
+	id <S275583AbRJBQjk>; Tue, 2 Oct 2001 12:39:40 -0400
+Received: from ns.suse.de ([213.95.15.193]:31756 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S275576AbRJBQjc> convert rfc822-to-8bit;
+	Tue, 2 Oct 2001 12:39:32 -0400
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Ian Grant <Ian.Grant@cl.cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10 build failure - atomic_dec_and_lock export
+In-Reply-To: <E15oRJg-00005z-00@wisbech.cl.cam.ac.uk>
+	<shs669yvwty.fsf@charged.uio.no>
+X-Yow: Do you need any MOUTH-TO-MOUTH resuscitation?
+From: Andreas Schwab <schwab@suse.de>
+Date: 02 Oct 2001 18:39:57 +0200
+In-Reply-To: <shs669yvwty.fsf@charged.uio.no> (Trond Myklebust's message of "02 Oct 2001 18:19:21 +0200")
+Message-ID: <jepu86j8rm.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.107
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Oct 2001, Dinesh  Gandhewar wrote:
+Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 
-> 
-> Hello,
-> I have written a linux kernel module. The linux version is 2.2.14. 
-> In this module I have declared an array of size 2048. If I use this
-> array, the execution of this module function causes kernel to reboot.
-> If I kmalloc() this array then execution of this module function
-> doesnot cause any problem.
-> Can you explain this behaviour?
-> Thnaks,
-> Dinesh 
+|> >>>>> " " == Ian Grant <Ian.Grant@cl.cam.ac.uk> writes:
+|> 
+|>      > Trond,
+|>      > 2.4.10 won't link with CONFIG_SMP and i386 CPU selected. I
+|>      >        believe the problem
+|>      > lies in in the #ifndef atomic_dec_and_lock in
+|>      > lib/dec_and_lock.c. As far as I can see this symbol is always
+|>      > defined because it's exported.
+|> 
+|> This patch looks very redundant.
+|> 
+|> If you have CONFIG_SMP defined then atomic_dec_and_lock will never get
+|> defined
 
-I would check that you are not accidentally exceeding the bounds of
-your array. Actual allocation occurs in page-size chunks. You may
-be exceeding your 2048 byte-limit without exceeding the 4096-byte
-page-size (of ix86).
+Unless you use CONFIG_MODVERSIONS, which causes atomic_dec_and_lock to be
+versioned and defined as a macro via <linux/modversions.h>.
 
-However, a global array, or an array on the stack, has very strict
-limits. You can blow things up on the stack by exceeding an array
-boundary by one byte. And you can overwrite important memory objects
-by exceeding the bounds of a global memory object.
+Andreas.
 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-- 
+Andreas Schwab                                  "And now for something
+Andreas.Schwab@suse.de				completely different."
+SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUEWPcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUEWPgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263079AbUEWPcD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 11:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUEWPcD
+	id S263062AbUEWPgH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 11:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUEWPgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 11:32:03 -0400
-Received: from mail-relay-3.tiscali.it ([212.123.84.93]:48064 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S263079AbUEWPbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 11:31:52 -0400
-From: Lorenzo Allegrucci <l_allegrucci@despammed.com>
-Organization: -ENOENT
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
-Date: Sun, 23 May 2004 17:32:15 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200405222107.55505.l_allegrucci@despammed.com> <20040523091137.GB5415@suse.de> <20040523100348.GJ1952@suse.de>
-In-Reply-To: <20040523100348.GJ1952@suse.de>
-MIME-Version: 1.0
+	Sun, 23 May 2004 11:36:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55242 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263062AbUEWPfW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 11:35:22 -0400
+Date: Sun, 23 May 2004 17:35:10 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Explicitly documenting patch submission
+Message-ID: <20040523153510.GA24628@devserv.devel.redhat.com>
+References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> <1085299337.2781.5.camel@laptop.fenrus.com> <20040523152540.GA5518@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405231732.15600.l_allegrucci@despammed.com>
+In-Reply-To: <20040523152540.GA5518@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 May 2004 12:03, Jens Axboe wrote:
 
-> Here's a rolled up updated version that tries to get async notification
-> of missing barrier support working as well. reiser currently doesn't
-> cope with that correctly (fails mount), ext3 seems to but gets stuck.
-> Andrew has that fixed already, I think :-)
->
-> Lorenzo, can you test this on top of 2.6.6-mm5?
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Problem fixed, but there is some performance regression
+On Sun, May 23, 2004 at 08:25:40AM -0700, Greg KH wrote:
+> On Sun, May 23, 2004 at 10:02:17AM +0200, Arjan van de Ven wrote:
+> > On Sun, 2004-05-23 at 08:46, Linus Torvalds wrote:
+> > > Hola!
+> > > 
+> > > This is a request for discussion..
+> > 
+> > Can we make this somewhat less cumbersome even by say, allowing
+> > developers to file a gpg key and sign a certificate saying "all patches
+> > that I sign with that key are hereby under this regime". I know you hate
+> > it but the FSF copyright assignment stuff at least has such "do it once
+> > for forever" mechanism making the pain optionally only once.
+> 
+> I don't think that adding a single line to ever patch description is
+> really "pain".  Especially compared to the FSF proceedure :)
+> 
+> Also, gpg signed patches are a pain to handle on the maintainer's side
+> of things, speaking from personal experience.  However our patch
+> handling scripts could probably just be modified to fix this issue, but
+> no one's stepped up to do it.
 
-ext3 (default)
-untar		read		copy		remove
-0m53.861s	0m24.942s	1m30.164s	0m20.664s
-0m7.132s	0m1.191s	0m0.766s	0m0.076s
-0m5.807s	0m3.345s	0m9.996s	0m1.719s
+I'll buy that
 
-ext3 (-o barrier=1)
-untar		read		copy		remove
-0m52.117s	0m28.502s	1m51.153s	0m25.561s
-0m7.231s	0m1.209s	0m0.738s	0m0.071s
-0m6.117s	0m3.191s	0m9.347s	0m1.635s
+>  And we'd have to start messing with the
+> whole "web of trust" thing, which would keep us from being able to
+> accept a patch from someone in a remote location with no way of being
+> able to add their key to that web, causing _more_ work to be done to get
+> a patch into the tree than Linus's proposal entails.
 
--- 
-Lorenzo
+But I don't buy this. No web of trust is needed if all that is happening is
+filing a form ONCE saying "all patch submissions signed with THIS key are
+automatically certified". That doesn't prevent non-gpg users from using the
+proposed mechanism nor involves web of trust metrics.
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD4DBQFAsMSuxULwo51rQBIRAp0dAJsEXM+6g0Gq4Lg6hapUGrrQiJ5E9QCYs7DQ
+KUPFbI0PsSpDqdSVVKo/OQ==
+=C/Bx
+-----END PGP SIGNATURE-----
+
+--fUYQa+Pmc3FrFX/N--

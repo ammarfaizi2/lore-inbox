@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbRCWKZk>; Fri, 23 Mar 2001 05:25:40 -0500
+	id <S130487AbRCWK0K>; Fri, 23 Mar 2001 05:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130470AbRCWKZW>; Fri, 23 Mar 2001 05:25:22 -0500
-Received: from snark.tuxedo.org ([207.106.50.26]:32261 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S129112AbRCWKZM>;
-	Fri, 23 Mar 2001 05:25:12 -0500
-Date: Fri, 23 Mar 2001 05:28:13 -0500
-Message-Id: <200103231028.f2NASDo09859@snark.thyrsus.com>
-From: "Eric S. Raymond" <esr@snark.thyrsus.com>
-To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: CML2 0.9.6 is available
+	id <S130470AbRCWK0C>; Fri, 23 Mar 2001 05:26:02 -0500
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:55051 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130471AbRCWKZv>; Fri, 23 Mar 2001 05:25:51 -0500
+X-Apparently-From: <quintaq@yahoo.co.uk>
+Date: Fri, 23 Mar 2001 10:27:23 +0000
+From: quintaq@yahoo.co.uk
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: UDMA 100 / PIIX4 question
+In-Reply-To: <3AB8D916.DC7ECC2B@windsormachine.com>
+In-Reply-To: <20010320202020Z130768-406+2207@vger.kernel.org>
+		<Pine.LNX.4.10.10103201628390.8689-100000@coffee.psychology.mcmaster.ca>
+		<20010321095533Z131410-407+1932@vger.kernel.org> <20010321162530Z131550-406+2504@vger.kernel.org>
+	<3AB8D916.DC7ECC2B@windsormachine.com>
+Reply-To: <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 0.4.62 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010323102552Z130471-407+2889@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+On Wed, 21 Mar 2001 11:38:47 -0500
+Mike Dresser <mdresser@windsormachine.com> wrote:
 
-Release 0.9.6: Fri Mar 23 05:16:05 EST 2001
-	* When we return from a submenu in the tk interface, restore
-	  the scrolling location in the parent.
-	* Disable width resizing in tk front end, it only confuses matters.
-	* Hack makefile to use `python2' if it's present.
-	* Use the full height of the screen to avoid having scrolling menus.
+> 
+> Keep in mind that drives have different transfer rates depending on
+> where on the drive you read from.
+> 
+That is something I knew a little about, and am now learning much more.  Even so, I am surprised that there is such an (apparently), tight relationship between the root directory and particular disk zone.
 
-OK, so this isn't 1.0.0 after all...I felt like doing some UI hacking
-on the tkinter stuff.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Regards,
 
-The men and women who founded our country knew, by experience, that there
-are times when the free person's answer to oppressive government has to be
-delivered with a bullet.  Thus, the right to bear arms is not just *a*
-freedom; it's the mother of all freedoms.  Don't let them disarm you!
+Geoff
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

@@ -1,153 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318186AbSHIHEQ>; Fri, 9 Aug 2002 03:04:16 -0400
+	id <S318176AbSHIHA5>; Fri, 9 Aug 2002 03:00:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318188AbSHIHEQ>; Fri, 9 Aug 2002 03:04:16 -0400
-Received: from dsl2.external.hp.com ([192.25.206.7]:16906 "EHLO
-	dsl2.external.hp.com") by vger.kernel.org with ESMTP
-	id <S318186AbSHIHEO>; Fri, 9 Aug 2002 03:04:14 -0400
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: PCI<->PCI bridges, transparent resource fix 
-In-Reply-To: Message from Ivan Kokshaysky <ink@jurassic.park.msu.ru> 
-   of "Thu, 08 Aug 2002 15:30:42 +0400." <20020808153042.B14158@jurassic.park.msu.ru> 
-References: <20020807055456.61265482A@dsl2.external.hp.com> <20020806210220.24665@192.168.4.1> <benh@kernel.crashing.org> <20020807183025.BCB65482A@dsl2.external.hp.com>  <20020808153042.B14158@jurassic.park.msu.ru> 
-Date: Fri, 09 Aug 2002 01:07:56 -0600
-From: Grant Grundler <grundler@dsl2.external.hp.com>
-Message-Id: <20020809070756.CDDBA482A@dsl2.external.hp.com>
+	id <S318177AbSHIHA5>; Fri, 9 Aug 2002 03:00:57 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:4103 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S318176AbSHIHA4>;
+	Fri, 9 Aug 2002 03:00:56 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200208090704.g7974Td55043@saturn.cs.uml.edu>
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+To: cmadams@hiwaay.net (Chris Adams)
+Date: Fri, 9 Aug 2002 03:04:28 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020808222638.B296691@hiwaay.net> from "Chris Adams" at Aug 08, 2002 10:26:38 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
-> > It sounds easy to check at the top and in that case DTRT.
-> > The "else" parts of later resource checks can go away.
+Chris Adams writes:
+> Once upon a time, Albert D. Cahalan <acahalan@cs.uml.edu> said:
+
+>> Mind sharing what "ps -fj", "ps -lf", and "ps j" look like?
+>> The standard tty is 80x24 BTW, and we already have serious
+>> problems due to ever-expanding tty names.
+>>
+>> How about a default limit of 9999, to be adjusted by
+>> sysctl as needed?
+>
+> I hope you meant 99999 (since we already have 5 digit PIDs).  It would
+> also seem to me that if it is adjustable, then "ps" would have to handle
+> it anyway, and making "ps" deal with adjustable size PIDs would be more
+> complex and error-prone.
+
+BTW, let's start with: not only "ps" is affected.
+Off the top of my head: netstat, fuser, top, pstree...
+
+I almost put 99999, but then I realized that that's silly.
+For years Linux had a hard limit of about 4000 processes,
+and not many people complained. It sure would be nice to
+gain back a few of the columns lost to other stuff, so
+that people could once again see command arguments.
+
+The two real-word usage examples close at hand:
+
+a. My full GNOME desktop has 48 processes.
+
+b. The main UNIX shell server for CS students
+   at this university has 79 processes.
+   (Tru64, several hundred CS students, 2:25 am)
+
+For "ps", adjustable width is a trivial addition.
+Notice the UID ("ps -l", "ps -lf) handling, and
+notice what signals ("ps s") do on a wide screen.
+I could also just let the output be ugly, since
+no normal system will have so many processes.
+
+The problem is screen space, pure and simple. If the
+default limit goes to over 1 billion, then "ps" output
+must wrap lines. There is no alternative, unless you
+think "System going down to reset PID numbers!" is OK.
+
+> Tru64 Unix 5.x uses 19 bit pids (up to 524288, so up to six digits - the
+> rest of the 32 bits go for cluster node, node sequence, and an unused
+> sign bit) without significant problems.  Their "ps" args aren't an exact
+> match, but they're close (lots of processes snipped):
 > 
-> Exactly.
+> $ ps -fj | head -2
+> UID         PID   PPID    C STIME    TTY             TIME CMD
+> cmadams  272363 301021  0.0 20:47:46 pts/1        0:00.09 -bash (bash)
 
-I checked PCI 2.2 spec and "class code" is described in Appendix D.
-For Base Class 6 (Bridges), Sub-Class 4 (PCI-PCI Bridges), Programming
-Interface value of 0x01 says
-	"Subtractive Decode PCI-to-PCI bridge. This interface code
-	identifies the PCI-to-PCI bridge as a device that supports
-	subtractive decoding in addition to all the currently defined
-	functions of a PCI-to-PCI bridge."
+Linux (and all SysV if I remember right) has 4 columns
+of PID info that would need to expand:
 
-Programming Interface byte is not specified for all other bridge types.
-And the linux code isn't checking bridge type before calling
-pci_read_bridges_bases().
+UID        PID  PPID  PGID   SID  C STIME TTY          TIME CMD
+albert   12975 12966 12975 12975  0 Aug02 pts/1    00:00:00 bash
 
-Thinking maybe it's a defacto standard, I dumped the values
-from my OB500 (< 1 year old), much older OB800, LPR1000, and
-a prototype x86 machine (that's never going to be product *sigh*).
-And none of these seem to have bit 1 set in Prog Interface byte.
-(I was looking for 06xx01xx in the third u32)
+> $ ps -lf | head -2
+>        F S           UID    PID   PPID %CPU PRI  NI  RSS WCHAN    STARTED         TIME COMMAND
+> 80c08001 I           200 272363 301021  0.0  44   0 520K wait     20:47:46     0:00.09 -bash (bash)
 
-I'm wondering if the LXR8000 I ditched earlier this year had such
-a bridge. But I'll never know.
+Eeew. That's broken; it won't display right on a normal
+80x24 terminal. Linux "ps -lf" will just barely fit.
 
-I'll try the patch anyway on the OB800. But it'll have to
-wait until tomorrow. Past my bedtime here.
+> $ ps j | head -2
+> USER        PID   PPID   PGID   SESS JOBC S    TTY             TIME COMMAND
+> cmadams  272363 301021 272363 272363    0 I    pts/1        0:00.09 -bash (bash)
 
-hth,
-grant
+For historic reasons, Linux has a whopping 5 columns
+of PID info for this format:
 
+ PPID   PID  PGID   SID TTY      TPGID STAT   UID   TIME COMMAND
+    1   770   770   770 tty1     12893 S     1000   0:00 -bash
+  770 12893 12893   770 tty1     12893 S     1000   0:00 /bin/sh /usr/bin/X11/st
 
-OB500:
-grundler <513>for i in */*; do echo -n $i " "; cat $i | od -Ax -t x4 | grep ^00000 | sed 's/^0* //'; done
-00/00.0  71908086 22100106 06000003 00004000
-00/01.0  71918086 0220001f 06040003 00018000
-00/07.0  71108086 0280000f 06010002 00800000
-00/07.1  71118086 02800005 01018001 00004000
-00/07.2  71128086 02800005 0c030001 00004000
-00/07.3  71138086 02800003 06800003 00000000
-00/0a.0  ac50104c 02100007 06070001 0002a808
-00/0b.0  605510b7 02100017 02000010 00805008
-00/0b.1  100710b7 02100010 07800010 00005008
-00/0d.0  1998125d 02900007 04010000 00004000
-00/11.0  06481095 82900000 01018f01 00000000
-01/00.0  4c4d1002 02900087 03000064 00004208
-grundler <515>lspci | fgrep -i bridge
-00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev 03)
-00:07.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
-00:07.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 03)
-00:0a.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 01)
+> I routinely have 1000+ processes running on this server (many of them
+> short-lived things like POP checks, short CGIs, sendmail background
+> delivery, etc.), so having a larger PID space is important (having the
+> same PID reused within 15-30 seconds would be annoying).
 
-OB800:
-00.0  01041004 22800006 06000003 00000000
-01.0  01021004 0280000f 06040003 00010000
-02.0  01011004 02800003 ff000002 00000000
-03.0  000310c8 02800003 03000001 00000000
-04.0  ac15104c 02000007 06070001 00824008
-04.1  ac15104c 02000007 06070001 00824008
-06.0  01051004 02800005 0d000002 00000000
+Increase the limit on this server if you wish. Problem?
+I only suggest 9999 as the default. (which would actually
+be just enough for you)
 
-00:00.0 Host bridge: VLSI Technology Inc 82C535 (rev 03)
-00:01.0 PCI bridge: VLSI Technology Inc 82C534 (rev 03)
-00:02.0 Class ff00: VLSI Technology Inc 82C532 (rev 02)
-00:03.0 VGA compatible controller: Neomagic Corporation NM2093 [MagicGraph 128ZV] (rev 01)
-00:04.0 CardBus bridge: Texas Instruments PCI1131 (rev 01)
-00:04.1 CardBus bridge: Texas Instruments PCI1131 (rev 01)
-00:06.0 IRDA controller: VLSI Technology Inc 82C147 (rev 02)
-00:00.0 Host bridge: VLSI Technology Inc 82C535 (rev 03)
-	Flags: bus master, medium devsel, latency 0
+> I would like to see Linux running on this server (or at least this class
+> of server), and limiting the number of PIDs because of "ps" formatting
+> is not the way to go.
 
-
-LPR1000:
-00/00.0  71928086 02000106 06000002 00004000
-00/04.0  71108086 0280000f 06010002 00800000
-00/04.1  71118086 02800005 01018001 00002000
-00/04.2  71128086 02800005 0c030001 00002000
-00/04.3  71138086 02800003 06800002 00000000
-00/07.0  00241011 02800147 06040002 00013908
-00/08.0  90f0113f 02000002 07008004 00000000
-00/09.0  905510b7 02100157 02000000 00005008
-00/0d.0  00b81013 02000003 03000045 00000000
-01/02.0  12298086 02900157 02000005 00004208
-01/04.0  000c1000 02000157 01000001 0000f708
-grundler <504>lspci | fgrep -i bridge
-00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (AGP disabled) (rev 02)
-00:04.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
-00:04.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 02)
-00:07.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 02)
-
-ProtoFoster:
-grundler@t11:/proc/bus/pci$ for i in */*; do echo -n $i " "; cat $i | od -Ax -t x4 | grep ^00000 | sed 's/^0* //'; done
-00/00.0  00111166 00000000 06000022 00800010
-00/00.1  00111166 00000000 06000000 00800010
-00/00.2  00111166 00000000 06000000 00800010
-00/00.3  00111166 00000000 06000000 00800010
-00/02.0  25a115bc 02900157 ff000000 00804008
-00/02.1  253115bc 02900143 ff000000 80804008
-00/02.2  25a115bc 02900143 0c070000 00804008
-00/03.0  12298086 02900157 0200000d 00004008
-00/05.0  47521002 02900087 03000027 00004208
-00/0f.0  02011166 22000147 06000093 00802000
-00/0f.1  02121166 02000005 01018a93 00800000
-00/0f.2  02201166 02900153 0c031005 00804008
-00/0f.3  02251166 02000004 06010000 00800000
-00/10.0  00101166 22b00002 06000003 00800000
-00/10.2  00101166 22300002 06000003 00804000
-00/11.0  00101166 22300002 06000003 00804000
-00/11.2  00101166 22b00002 06000003 00800000
-01/05.0  1219103c 04900000 08040012 00000000
-19/04.0  03098086 04b00147 06040001 00014008
-1a/02.0  00211000 02300157 01000001 00804808
-1a/02.1  00211000 02300157 01000001 00804808
-
-grundler@t11:/proc/bus/pci$ lspci | fgrep -i bridge
-00:00.0 Host bridge: ServerWorks CMIC-HE (rev 22)
-00:00.1 Host bridge: ServerWorks CMIC-HE
-00:00.2 Host bridge: ServerWorks CMIC-HE
-00:00.3 Host bridge: ServerWorks CMIC-HE
-00:0f.0 Host bridge: ServerWorks CSB5 South Bridge (rev 93)
-00:0f.3 ISA bridge: ServerWorks: Unknown device 0225
-00:10.0 Host bridge: ServerWorks CIOB30 (rev 03)
-00:10.2 Host bridge: ServerWorks CIOB30 (rev 03)
-00:11.0 Host bridge: ServerWorks CIOB30 (rev 03)
-00:11.2 Host bridge: ServerWorks CIOB30 (rev 03)
-19:04.0 PCI bridge: Intel Corp.: Unknown device 0309 (rev 01)
+It's not just "ps", and I'm not saying you couldn't
+adjust your system for a higher limit. I do think that
+the out-of-box default shouldn't screw up formatting.
+If you need to go past 9999, then you'll want to tweak
+a few other settings as well. Low process counts are
+the common case, and shouldn't be hurt by the fact that
+a few people wish to run a billion processes.
 

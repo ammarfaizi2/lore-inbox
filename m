@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbTHTRot (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 13:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbTHTRot
+	id S262120AbTHTRqj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 13:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbTHTRq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 13:44:49 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:39145
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S262105AbTHTRos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 13:44:48 -0400
-Message-ID: <3F43B34D.5020503@redhat.com>
-Date: Wed, 20 Aug 2003 10:43:41 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
-X-Accept-Language: en-us, en
+	Wed, 20 Aug 2003 13:46:29 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:4774 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP id S262122AbTHTRpm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 13:45:42 -0400
+From: root@mauve.demon.co.uk
+Message-Id: <200308201745.SAA23241@mauve.demon.co.uk>
+Subject: Re: Console on USB
+To: tmolina@cablespeed.com (Thomas Molina)
+Date: Wed, 20 Aug 2003 18:44:58 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List), greg@kroah.com,
+       zwane@linuxpower.ca (Zwane Mwaikambo)
+In-Reply-To: <Pine.LNX.4.44.0308192200510.886-100000@localhost.localdomain> from "Thomas Molina" at Aug 19, 2003 10:20:51 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6
-References: <3F4268C1.9040608@redhat.com> <shszni499e9.fsf@charged.uio.no>
-In-Reply-To: <shszni499e9.fsf@charged.uio.no>
-X-Enigmail-Version: 0.81.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> 
+> I have just spent a very frustrating evening trying to get console on USB 
+> working.  My laptop does not have regular DB-9 serial connectors, only 
+> USB.  So I ordered a USB to serial converter, configured a 2.6.0-test3 
+> kernel, added a console=/dev/ttyUSB0 to the kernel command line and 
+> connected this to my desktop with a null modem adapter.  However, I am 
+> unable to get output from this setup on the desktop.  On another setup I 
+> can get a normal serial console output, so I am fairly confident I can set 
+> things up correctly.
 
-Trond Myklebust wrote:
-
-> There are known bugs in the way we handle readdirplus. That's why it
-> only hits NFSv3. Does the following patch fix it?
-
-As Andries suspected, no change.  The test still fails.
-
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/Q7NN2ijCOnn/RHQRAmudAKCzj93j8Ih/4jOXP1IcllvTQyAJUQCgmRy0
-sJ3FOh4gd6tWLZEV1N75jek=
-=p2xm
------END PGP SIGNATURE-----
+For laptops, might console=/dev/irda work?
 

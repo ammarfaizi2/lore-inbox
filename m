@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbTEFD4J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 23:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbTEFD4I
+	id S262312AbTEFDzd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 23:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTEFDzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 23:56:08 -0400
-Received: from mail.ideaone.net ([64.21.232.2]:9401 "EHLO arlene.ideaone.net")
-	by vger.kernel.org with ESMTP id S262316AbTEFD4E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 23:56:04 -0400
-Subject: 2.5 neofb screen corruption leaving X
-From: Reid Hekman <hekman@ideaone.net>
-To: linux-kernel@vger.kernel.org
-Cc: jsimmons@infradead.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052193973.31970.3.camel@artemis>
+	Mon, 5 May 2003 23:55:33 -0400
+Received: from h80ad263c.async.vt.edu ([128.173.38.60]:51584 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262312AbTEFDzc (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 23:55:32 -0400
+Message-Id: <200305060407.h4647vMF002448@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Michael Swift <mikesw@cs.washington.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Buggy drivers/modules needed 
+In-Reply-To: Your message of "Mon, 05 May 2003 20:36:32 PDT."
+             <2B0E86920B2B9C43A043DA80E447FCBC7BB895@exchsrv1.cseresearch.cs.washington.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <2B0E86920B2B9C43A043DA80E447FCBC7BB895@exchsrv1.cseresearch.cs.washington.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 05 May 2003 23:06:13 -0500
+Content-Type: multipart/signed; boundary="==_Exmh_-1185001688P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 06 May 2003 00:07:56 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: The console is "blown up" upon leaving X with neofb
-compiled in on an IBM TP600E. Characters are 2-3 times normal size, dots
-are not in consecutive pixels but spaced several screen elements apart.
-Lines are still spaced normally but the larger text overwrites the
-previous line when they wrap. The system is still usable, but the
-console is unreadable ;-) I can still go back into X just fine.
+--==_Exmh_-1185001688P
+Content-Type: text/plain; charset=us-ascii
 
-Environment: IBM Thinkpad 600E, NeoMagic 256AV, RedHat 8.0.94 (Phoebe)
+On Mon, 05 May 2003 20:36:32 PDT, Michael Swift <mikesw@cs.washington.edu>  said:
 
-lspci -v
-01:00.0 VGA compatible controller: Neomagic Corporation NM2200
-[MagicGraph 256AV] (rev 20) (prog-if 00 [VGA])
-        Subsystem: IBM ThinkPad 570
-        Flags: bus master, medium devsel, latency 128, IRQ 11
-        Memory at e0000000 (32-bit, prefetchable) [size=16M]
-        Memory at 70000000 (32-bit, non-prefetchable) [size=4M]
-        Memory at 70400000 (32-bit, non-prefetchable) [size=1M]
-        Capabilities: [dc] Power Management version 1
+> I'm working on a Linux patch to prevent buggy modules/drivers from causing
+> the kernel to crash. Instead, the kernel detects a crash in the driver, and
+> trans parently restarts the module. Currently this patch supports network
+> interface card drivers, sound drivers, and file systems.
 
-cat /proc/cmdline 
-ro root=/dev/hda2 video=neofb:1024x768-16
+What are you planning to do about protecting a buggy module/driver from causing
+a crash by stomping on somebody *elses* memory and corrupting some unrelated
+data structure?
 
-Kernels: Tested 2.5.67-2.5.69 and are affected, haven't gone back
-further yet but I can test. RedHat 2.4.18 works correctly. 
+--==_Exmh_-1185001688P
+Content-Type: application/pgp-signature
 
-Config is here: http://dslstatic-236-77.ideaone.net/2.5.69-config
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-dmesg output here: http://dslstatic-236-77.ideaone.net/kernmsg.txt
+iD8DBQE+tzUccC3lWbTT17ARAvtMAJ0UCx3eCtm87Bl4SoHeCPaSJsxiIgCg6atW
+nWXAlSjgmr69P85OasHqu8U=
+=pcDd
+-----END PGP SIGNATURE-----
 
-Thanks in advance,
-Reid
-
-
+--==_Exmh_-1185001688P--

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbULOAQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbULOARJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbULOAQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 19:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbULOAQ7
+	id S261766AbULOARJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 19:17:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbULOARJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 19:16:59 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:43422 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261784AbULNX3r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 18:29:47 -0500
-Date: Tue, 14 Dec 2004 14:00:28 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Brent Casavant <bcasavan@sgi.com>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
-Message-ID: <50260000.1103061628@flay>
-In-Reply-To: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com>
-References: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com><9250000.1103050790@flay> <20041214191348.GA27225@wotan.suse.de><19030000.1103054924@flay> <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Dec 2004 19:17:09 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:49073 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261796AbULNXbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 18:31:18 -0500
+Subject: ioctl assignment strategy?
+From: Al Hooton <al@hootons.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 14 Dec 2004 15:31:07 -0800
+Message-Id: <1103067067.2826.92.camel@chatsworth.hootons.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1-1mdk 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > I originally was a bit worried about the TLB usage, but it doesn't
->> > seem to be a too big issue (hopefully the benchmarks weren't too
->> > micro though)
->> 
->> Well, as long as we stripe on large page boundaries, it should be fine,
->> I'd think. On PPC64, it'll screw the SLB, but ... tough ;-) We can either
->> turn it off, or only do it on things larger than the segment size, and
->> just round-robin the rest, or allocate from node with most free.
-> 
-> Is there a reasonably easy-to-use existing infrastructure to do this?
-> I didn't find anything in my examination of vmalloc itself, so I gave
-> up on the idea.
+	It was 6-7 years ago that I last worked on driver level stuff, I expect
+I've got a whack with a cluebat coming....
 
-Not that I know of. But (without looking at it), it wouldn't seem 
-desperately hard to implement (some argument or flag to vmalloc, or vmalloc_largepage) or something.
+	Do we care about "official" ioctl assignments any more?  Or, am I not
+grokking some change that removes the need to submit patched files to
+keep externally developed drivers from potentially colliding with their
+ioctl's?  
 
-> And just to clarify, are you saying you want to see this before inclusion
-> in mainline kernels, or that it would be nice to have but not necessary?
+	If we still need to do something to make our ioctl's "official", what
+is it?  The comments in Documentation/ioctl-number.txt *can't* still be
+accurate, I don't believe.
 
-I'd say it's a nice to have, rather than necessary, as long as it's not
-forced upon people. Maybe a config option that's on by default on ia64
-or something. Causing yourself TLB problems is much more acceptable than
-causing it for others ;-)
+	I've been through ioctl-number.txt, looked through the various
+ioctl(s).h and related kernel source for managing ioctl's, believe I
+understand the _IOxx and _IOxx_xxx macros, searched the list archives,
+googled, and I'm left with this one answered question...
 
-M.
+
+Thanks,
+Al
+
 

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbTHUFVm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 01:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbTHUFVm
+	id S262453AbTHUFgF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 01:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbTHUFgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 01:21:42 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:5275 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262440AbTHUFVl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 01:21:41 -0400
-Date: Thu, 21 Aug 2003 01:21:40 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] noapic should depend on ioapic config not local
-Message-ID: <20030821052140.GA19039@gtf.org>
+	Thu, 21 Aug 2003 01:36:05 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:4105 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262453AbTHUFgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 01:36:04 -0400
+Date: Thu, 21 Aug 2003 02:35:24 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] 4/10 2.4.22-rc2 fix __FUNCTION__ warnings
+ drivers/media/video
+Message-Id: <20030821023524.56cd45f6.vmlinuz386@yahoo.com.ar>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ cpia.h |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-Zwane's comment was correct, it needs to be CONFIG_X86_IO_APIC.
+http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.media.video.patch
+http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.media.video.patch.asc
 
-IMO this stuff really wants to be moved to __setup(),
-to clean up the ifdefs and modularize the code.
+chau,
+ djgera
 
 
-===== arch/i386/kernel/setup.c 1.93 vs edited =====
---- 1.93/arch/i386/kernel/setup.c	Wed Aug 20 14:15:34 2003
-+++ edited/arch/i386/kernel/setup.c	Wed Aug 20 21:27:05 2003
-@@ -543,12 +543,12 @@
- 			if (!acpi_force) acpi_disabled = 1;
- 		}
- 
--#ifdef CONFIG_X86_LOCAL_APIC
-+#ifdef CONFIG_X86_IO_APIC
- 		/* disable IO-APIC */
- 		else if (!memcmp(from, "noapic", 6)) {
- 			skip_ioapic_setup = 1;
- 		}
--#endif /* CONFIG_X86_LOCAL_APIC */
-+#endif /* CONFIG_X86_IO_APIC */
- #endif /* CONFIG_ACPI_BOOT */
- 
- 		/*
+-- 
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

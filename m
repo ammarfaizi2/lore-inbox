@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261929AbSJIR4l>; Wed, 9 Oct 2002 13:56:41 -0400
+	id <S262010AbSJIRuN>; Wed, 9 Oct 2002 13:50:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261866AbSJIRzu>; Wed, 9 Oct 2002 13:55:50 -0400
-Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:64677
-	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S261855AbSJIRzo>; Wed, 9 Oct 2002 13:55:44 -0400
-Message-ID: <3DA46EFF.6000207@rogers.com>
-Date: Wed, 09 Oct 2002 14:01:35 -0400
-From: Jeff Muizlelaar <muizelaar@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
+	id <S262006AbSJIRuN>; Wed, 9 Oct 2002 13:50:13 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:20746 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262010AbSJIRtw>;
+	Wed, 9 Oct 2002 13:49:52 -0400
+Date: Wed, 9 Oct 2002 19:55:31 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [bk/patch] driver model update: device_unregister()
-References: <Pine.LNX.4.44.0210091038540.7355-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep01-mail.bloor.is.net.cable.rogers.com from [24.43.126.4] using ID <muizelaar@rogers.com> at Wed, 9 Oct 2002 14:00:55 -0400
+Cc: Sam Ravnborg <sam@ravnborg.org>, Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.8
+Message-ID: <20021009195531.B1708@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	kbuild-devel <kbuild-devel@lists.sourceforge.net>
+References: <20021009191600.A1708@mars.ravnborg.org> <Pine.LNX.4.44.0210091033200.7355-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210091033200.7355-100000@home.transmeta.com>; from torvalds@transmeta.com on Wed, Oct 09, 2002 at 10:37:47AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Wed, Oct 09, 2002 at 10:37:47AM -0700, Linus Torvalds wrote:
+> However, I disagree with the naming - I'd rather have one common name for
+> the "main" directory entry than have magic rules like "basename of the
+> directory capitalized". I don't want to have to search for it.
 
->
->I do know that "kfs" is too much of a random collection of consonants.  
->Looks like something out of an IBM architecture manual. "kernelfs" is more
->acceptable, I think, but it's not perfect either - it's a bit too generic.  
->Isn't /proc a kernelfs too? But I can't come up with anything better..
->  
->
-Maybe sysfs?
-Though that might be too close to /proc/sys
+OK, see your point here.
 
--Jeff
+> I also think I'd perfer to have them all start with the same thing, so 
+> that (again) it's clear when a directory has multiple configuration files. 
+> 
+> So instead: how about just "Config" for the main per-directory
+> configuration file, with sub-config's being "Config.3c5xx" and
+> "Config.rrunner".
+I look at it the other way around. I want to make it clear that there
+exist a separate Config file for a given subset of files. The normal
+approach is to group files based on their filenames.
+Therefore I prefer a fixed suffix, as opposed to a fixed prefix.
 
+ls rrunner*
+should show me not only the implementation [.c + .h] but also
+the configuration.
+
+The only reason I stick with the .conf prefix for the main per-directory
+configuration file is to have a common suffix on all config files.
+
+So I would suggest:
+
+Config.conf		<= Main entry in any directory
+sensible-name.conf	<= Any group of related files
+
+ls *.conf 	list all configuration files.
+ls rrunner*	list all files spcific for rrunner
+
+It's so easy to have opinions about naming ;-)
+
+	Sam

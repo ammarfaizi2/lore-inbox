@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261595AbRE3QuC>; Wed, 30 May 2001 12:50:02 -0400
+	id <S261616AbRE3QuM>; Wed, 30 May 2001 12:50:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbRE3Qtx>; Wed, 30 May 2001 12:49:53 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:65039 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S261562AbRE3Qtj>; Wed, 30 May 2001 12:49:39 -0400
-Message-ID: <3B1523B2.7ECE468E@evision-ventures.com>
-Date: Wed, 30 May 2001 18:45:38 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Philips <philips@iph.to>
-CC: Nerijus Baliunas <nerijus@users.sourceforge.net>,
-        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] fix more typos in Configure.help and fs/nls/Config.in
-In-Reply-To: <200105281746.TAA1134871@mail.takas.lt> <3B1310B7.15185B3A@evision-ventures.com> <3B13974A.69515271@iph.to>
+	id <S261594AbRE3QuC>; Wed, 30 May 2001 12:50:02 -0400
+Received: from [65.0.121.190] ([65.0.121.190]:63749 "HELO kroah.com")
+	by vger.kernel.org with SMTP id <S261616AbRE3Qtw>;
+	Wed, 30 May 2001 12:49:52 -0400
+Date: Wed, 30 May 2001 08:50:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Philip Blundell <philb@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: empeg-car serial-over-USB driver
+Message-ID: <20010530085002.B7544@kroah.com>
+In-Reply-To: <E154rma-00009D-00@kings-cross.london.uk.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E154rma-00009D-00@kings-cross.london.uk.eu.org>; from philb@gnu.org on Tue, May 29, 2001 at 11:16:08PM +0100
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->         Standard is right.
->         Believe me as someone who are living in Belarus ;-)
+On Tue, May 29, 2001 at 11:16:08PM +0100, Philip Blundell wrote:
+> Has anybody used this successfully in a recent kernel?  With 2.4.5 it seems to 
+> detect the device successfully:
 
-OK. I trust you.
+Are you _sure_ you are using usb-uhci and not uhci? :)
+Any oops message available from a serial console?
 
-> 
->         Official country name: Belarus
->         Language/Nationality: Belarusian
-> 
->         Standard has taken things right as we pronounce them.
-> 
->         Please apply the patch.
-> 
-> P. S. Political history had made us 'white russians' approx. hundred years ago.
+> empeg.c: v1.0.0 Greg Kroah-Hartman <greg@kroah.com>, Gary Brubaker <xavyer@ix.netcom.com>
 
-No white russians was formerly the russian term for polish.
+Try emailing Gary, as he is current maintainer of the driver.
 
-> Real historical name of country is Lithuania - as our neighbour country is
-> called now.
+thanks,
 
-Bull shit. It was poland - most of the time you reffer to.
+greg k-h

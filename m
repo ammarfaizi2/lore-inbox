@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266749AbUGLGbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266739AbUGLGjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266749AbUGLGbv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 02:31:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266740AbUGLGb2
+	id S266739AbUGLGjH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 02:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266740AbUGLGjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 02:31:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50343 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266743AbUGLGbQ (ORCPT
+	Mon, 12 Jul 2004 02:39:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31455 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266739AbUGLGjC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 02:31:16 -0400
-Date: Sun, 11 Jul 2004 23:30:02 -0700
+	Mon, 12 Jul 2004 02:39:02 -0400
+Date: Sun, 11 Jul 2004 23:37:50 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: David Eger <eger@havoc.gtf.org>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] radeonfb: cleanup and little fixes
-Message-Id: <20040711233002.1ec2100f.akpm@osdl.org>
-In-Reply-To: <20040712062236.GA17610@havoc.gtf.org>
-References: <20040712062236.GA17610@havoc.gtf.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Instrumenting high latency
+Message-Id: <20040711233750.2050c4b1.akpm@osdl.org>
+In-Reply-To: <cone.1089613755.742689.28499.502@pc.kolivas.org>
+References: <cone.1089613755.742689.28499.502@pc.kolivas.org>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,17 +24,32 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Eger <eger@havoc.gtf.org> wrote:
+Con Kolivas <kernel@kolivas.org> wrote:
 >
-> Dear Andrew, Please apply.
-> 
+> Because of the recent discussion about latency in the kernel I asked William 
+> Lee Irwin III to help create some instrumentation to determine where in the 
+> kernel there were still sustained periods of non-preemptible code. He hacked 
+> together this simple patch which times periods according to the preempt 
+> count.
 
-Sure..
+Looks sane.
 
->  	if (rinfo->mon1_EDID)
->  	    kfree(rinfo->mon1_EDID);
->  	if (rinfo->mon2_EDID)
->  	    kfree(rinfo->mon2_EDID);
+> The patch appears to require CONFIG_PREEMPT enabled on uniprocessor and is 
+> i386 only at the moment.
 
-kfree(NULL) is legal, and this is a slow-path.  Those tests can be taken
-out next time, unless such a thing offends you.
+Not sure what you mean by "on uniprocessor"?  AFAICT the patch will work
+as-is on uniprocessor and on SMP.  Looks like it'll work with
+CONFIG_PREEMPT=n, too, although that would be a slightly bizarre thing to
+do.
+
++				print_symbol("%s\n",
++					__get_cpu_var(preempt_exit));
+
+I'll change this to
+
+				print_symbol("%s",
+					__get_cpu_var(preempt_exit));
+				printk("\n");
+
+so it doesn't make a mess with CONFIG_KALLSYMS=n.
+

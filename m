@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130132AbQLYSa0>; Mon, 25 Dec 2000 13:30:26 -0500
+	id <S130192AbQLYSdQ>; Mon, 25 Dec 2000 13:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130192AbQLYSaQ>; Mon, 25 Dec 2000 13:30:16 -0500
-Received: from oracle.clara.net ([195.8.69.94]:18707 "EHLO oracle.clara.net")
-	by vger.kernel.org with ESMTP id <S130132AbQLYSaE>;
-	Mon, 25 Dec 2000 13:30:04 -0500
-Date: Mon, 25 Dec 2000 17:56:36 +0000 (GMT)
-From: Dave Gilbert <gilbertd@treblig.org>
-To: Jens Axboe <axboe@suse.de>
+	id <S130682AbQLYSdG>; Mon, 25 Dec 2000 13:33:06 -0500
+Received: from www.wen-online.de ([212.223.88.39]:34571 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130192AbQLYScu>;
+	Mon, 25 Dec 2000 13:32:50 -0500
+Date: Mon, 25 Dec 2000 19:00:07 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Andreas Franck <afranck@gmx.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: css hang; somewhere between test12 and test13pre4ac2
-In-Reply-To: <20001225150107.D303@suse.de>
-Message-ID: <Pine.LNX.4.10.10012251755040.828-100000@tardis.home.dave>
+Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
+In-Reply-To: <00122517123400.00573@dg1kfa.ampr.org>
+Message-ID: <Pine.Linu.4.10.10012251847030.637-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
-  Thanks for the patch; unfortunatly at the moment I can neither confirm
-or deny whether the patch works - since the damn thing won't crash on me
-with or without the patch - I suspect it depends on system mood.
+On Mon, 25 Dec 2000, Andreas Franck wrote:
 
-But I have a PDA logging console so if it happens I should catch it.
+> Hello Mike, hello linux-kernel hackers,
+> 
+> Mike Galbraith wrote:
+> > I wouldn't (not going to here;) spend a lot of time on it.  The compiler
+> > has problems.  It won't build glibc-2.2, and chokes horribly on ipchains.
+> 
+> Maybe, but you were lucky getting an ICE, and not silently failing code :-)
 
-Thanks again,
+You bet.
 
-Dave
+> After having spent several hours debugging now, I think it was 
+> worth it (at least for my understanding of lower-level kernel issues and of 
+> the (rather nice and almost readable) assembly code gcc generates). There 
 
--- 
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert      | Running GNU/Linux on       |  Happy  \ 
-\   gro.gilbert @ treblig.org |  Alpha, x86, ARM and SPARC |  In Hex /
- \ ___________________________|___ http://www.treblig.org  |________/
+Don't get me wrong, chasing things like this is never a waste of time.
+In the case of gcc in particular.  Our next 'stable' kernel compiler
+is going to come from the gcc development tree just as the next 'stable'
+kernel is coming out of the kernel development tree.
+
+	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

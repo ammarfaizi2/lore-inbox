@@ -1,84 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315856AbSGKUf7>; Thu, 11 Jul 2002 16:35:59 -0400
+	id <S317902AbSGKUho>; Thu, 11 Jul 2002 16:37:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317896AbSGKUf6>; Thu, 11 Jul 2002 16:35:58 -0400
-Received: from ua150d35hel.dial.kolumbus.fi ([62.248.233.150]:47794 "EHLO
-	uworld.dyndns.org") by vger.kernel.org with ESMTP
-	id <S315856AbSGKUf5>; Thu, 11 Jul 2002 16:35:57 -0400
-Subject: Re: [CRASH] in tulip driver?
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-In-Reply-To: <3D2CFCE0.3452F960@zip.com.au>
-References: <3D2C92C0.658B954@kolumbus.fi> from "Jussi Laako" at Jul 11, 2
-	00:15:01 am <200207110259.GAA27698@sex.inr.ac.ru> 
-	<3D2CFCE0.3452F960@zip.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-EI0Z++fLqaK3Yv51XLqC"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 11 Jul 2002 23:38:39 +0300
-Message-Id: <1026419920.1859.7.camel@vaarlahti.uworld>
-Mime-Version: 1.0
+	id <S317905AbSGKUhn>; Thu, 11 Jul 2002 16:37:43 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18437 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317902AbSGKUhl>; Thu, 11 Jul 2002 16:37:41 -0400
+Date: Thu, 11 Jul 2002 16:34:25 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@zip.com.au>,
+       Linux <linux-kernel@vger.kernel.org>
+Subject: Re: HZ, preferably as small as possible
+In-Reply-To: <3D2DBB7B.9020600@evision-ventures.com>
+Message-ID: <Pine.LNX.3.96.1020711162333.5732C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 11 Jul 2002, Martin Dalecki wrote:
 
---=-EI0Z++fLqaK3Yv51XLqC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> vmstat.c:
+> 
+> hz = sysconf(_SC_CLK_TCK);	/* get ticks/s from system */
+> 
+> And yes I know the libproc is *evil* in this area.
+> The rest should be an implementation detail of sysconf().
 
-On Thu, 2002-07-11 at 06:34, Andrew Morton wrote:
->
-> whoops.  I think the "-ll" means low-latency.  But the only
-> finger I have in that pie is:
->=20
-> --- 2.4.19-pre6/drivers/char/random.c~low-latency       Fri Apr  5 12:11:=
-17 2002
-> +++ 2.4.19-pre6-akpm/drivers/char/random.c      Fri Apr  5 12:11:17 2002
-> @@ -1369,6 +1369,11 @@ static ssize_t extract_entropy(struct en
->                 buf +=3D i;
->                 ret +=3D i;
->                 add_timer_randomness(&extract_timer_state, nbytes);
-> +#if LOWLATENCY_NEEDED
-> +               /* This can happen in softirq's, but that's what we want =
-*/
-> +               if (conditional_schedule_needed())
-> +                       break;
-> +#endif
->         }
-> =20
->         /* Wipe data just returned from memory */
->=20
-> So it's a bit of a mystery.  It seems to think that it has
-> EXTRACT_ENTROPY_USER.
+Yes, any of the changes need to make the dynamic value available to
+programs. Alas, too many programs grab the HZ value and compile it in, and
+don't work right on a kernel with a modified rate. I don't know if the
+CLK_TCK macro is dynamic or not, I sure hope so.
 
-Whoops, thanks, I found the bug. My fault...
+I'd like to see it set at boot time, and available in /proc/sys for easy
+use by scripts. As noted by others, there are a lot of uses in the kernel
+source which assume that arithmetic will happen at compile time, and even
+if you ignore the overhead it would take a lot of rewriting to make it
+dynamic. Setting it a boot time gets most of the gain and none of the
+pain (boot time = pick a kernel, not a parameter).
 
-That "break;" breaks some (apparently broken) programs that don't expect
-read of /dev/urandom to return early. For security resons (to get
-identical behaviour compared to the original kernel) I made a fix that
-someone proposed. That fix is apparently broken on some rare situations
-which seem to be difficult to trigger (requires high overall irq rates
-with network load). Now I'm going to remove that part completely and see
-what happens next...
-
-
-	- Jussi Laako
-
-
---=-EI0Z++fLqaK3Yv51XLqC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA9LezPS3txJU4L5RQRAm6+AKDLY9H3SlWu0XEipaiV1zO+9eElUACgkdK3
-fLckCdFYM7qMBSOiBjNU6to=
-=v/sf
------END PGP SIGNATURE-----
-
---=-EI0Z++fLqaK3Yv51XLqC--
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

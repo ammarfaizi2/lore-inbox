@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263887AbTKFXk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 18:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263888AbTKFXk6
+	id S263873AbTKFXie (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 18:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbTKFXie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 18:40:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62479 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263887AbTKFXkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 18:40:55 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
- defined (trivial)
-Date: 6 Nov 2003 15:40:48 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <boem60$hve$1@cesium.transmeta.com>
-References: <1068140199.12287.246.camel@nosferatu.lan> <1068150552.12287.349.camel@nosferatu.lan> <boebkn$pmv$1@cesium.transmeta.com> <20031106143110.6231ecde.davem@redhat.com>
+	Thu, 6 Nov 2003 18:38:34 -0500
+Received: from eleanor.physics.ucsb.edu ([128.111.8.116]:33220 "EHLO
+	eleanor.physics.ucsb.edu") by vger.kernel.org with ESMTP
+	id S263873AbTKFXic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 18:38:32 -0500
+Date: Thu, 6 Nov 2003 15:39:44 -0800 (PST)
+From: David Whysong <dwhysong@physics.ucsb.edu>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+cc: <bugs@x86-64.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel bug when mounting SCSI CD-ROM
+In-Reply-To: <200311061402.17255.pbadari@us.ibm.com>
+Message-ID: <Pine.LNX.4.33.0311061537210.23799-100000@eleanor.physics.ucsb.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20031106143110.6231ecde.davem@redhat.com>
-By author:    "David S. Miller" <davem@redhat.com>
-In newsgroup: linux.dev.kernel
->
-> On 6 Nov 2003 12:40:55 -0800
-> "H. Peter Anvin" <hpa@zytor.com> wrote:
-> 
-> > Note that "long long" (the underlying type) is valid
-> > standards-compliant C99.  gcc can handle it when in C89 mode if
-> > defined as __extension__ long long IIRC.
-> 
-> That's correct and I've suggested this.
-> 
-> But keep in mind that people with non-GCC compilers will then
-> start complaining.
->
+On Thu, 6 Nov 2003, Badari Pulavarty wrote:
 
-So...
+>I ran into the same problem earlier on my AMD64 box.
+>Try disabling IOMMU_DEBUG.
 
-#ifdef __GNUC__
-# define __gcc_extension __extension__
-#else
-# define __gcc_extension
-#endif
+>Let me know, if this fixes the problem for you.
 
-typedef __gcc_extension signed long long s32;
-typedef __gcc_extension unsigned long long u32;
+Hi Badari,
 
-	-hpa
+That does prevent the problem. I also received email from Andi Kleen, who
+is looking into the problem.
 
+Thanks!
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+--
+David Whysong                                       dwhysong@physics.ucsb.edu
+Astrophysics graduate student         University of California, Santa Barbara
+My public PGP keys are on my web page - http://www.physics.ucsb.edu/~dwhysong
+DSS PGP Key 0x903F5BD6  :  FE78 91FE 4508 106F 7C88  1706 B792 6995 903F 5BD6
+D-H PGP key 0x5DAB0F91  :  BC33 0F36 FCCD E72C 441F  663A 72ED 7FB7 5DAB 0F91
+

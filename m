@@ -1,85 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129744AbRAIMEu>; Tue, 9 Jan 2001 07:04:50 -0500
+	id <S129811AbRAIMJB>; Tue, 9 Jan 2001 07:09:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129789AbRAIMEl>; Tue, 9 Jan 2001 07:04:41 -0500
-Received: from pi4.informatik.uni-mannheim.de ([134.155.48.96]:35490 "EHLO
-	pi4.informatik.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S129632AbRAIMEX>; Tue, 9 Jan 2001 07:04:23 -0500
-From: Walter Mueller <walt@pi4.informatik.uni-mannheim.de>
-MIME-Version: 1.0
+	id <S129773AbRAIMIv>; Tue, 9 Jan 2001 07:08:51 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:48397 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129632AbRAIMIr>; Tue, 9 Jan 2001 07:08:47 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Tue, 9 Jan 2001 22:08:10 +1100
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Benchmarking 2.2 and 2.4 using hdparm and dbench 1.1
+Message-ID: <20010109220810.K662@linuxcare.com>
+In-Reply-To: <20010105004644.K13759@linuxcare.com> <Pine.LNX.4.21.0101041940490.5827-100000@svea.tellus>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14938.65088.590283.342@anaxagoras.informatik.uni-mannheim.de>
-Date: Tue, 9 Jan 2001 13:04:16 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Problem compiling linux-2.4.0 for Athlon/K7
-X-Mailer: VM 6.89 under Emacs 20.7.1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.21.0101041940490.5827-100000@svea.tellus>; from tori@tellus.mine.nu on Thu, Jan 04, 2001 at 07:55:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+ 
+> Where is the size defined, and is it easy to modify?
 
-if  Athlon/K7 is selected as processor type i get the following error
-messages when compiling
+Look in fs/buffer.c:buffer_init()
 
-make -C  kernel CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.x/linux-2.4.0/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.x/linux-2.4.0/include/linux/modversions.h" MAKING_MODULES=1 modules
-make[1]: Entering directory `/usr/src/linux-2.4.x/linux-2.4.0/kernel'
-make[1]: Nothing to be done for `modules'.
-make[1]: Leaving directory `/usr/src/linux-2.4.x/linux-2.4.0/kernel'
-make -C  drivers CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.x/linux-2.4.0/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.x/linux-2.4.0/include/linux/modversions.h" MAKING_MODULES=1 modules
-make[1]: Entering directory `/usr/src/linux-2.4.x/linux-2.4.0/drivers'
-make -C block modules
-make[2]: Entering directory `/usr/src/linux-2.4.x/linux-2.4.0/drivers/block'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.x/linux-2.4.0/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.x/linux-2.4.0/include/linux/modversions.h   -DEXPORT_SYMTAB -c loop.c
-In file included from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/irq.h:57,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/asm/hardirq.h:6,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h:45,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h:296,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/string.h:21,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/fs.h:23,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/capability.h:17,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/binfmts.h:5,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/sched.h:9,
-                 from loop.c:53:
-/usr/src/linux-2.4.x/linux-2.4.0/include/asm/hw_irq.h: In function `x86_do_profile':
-/usr/src/linux-2.4.x/linux-2.4.0/include/asm/hw_irq.h:198: `current' undeclared (first use in this function)
-/usr/src/linux-2.4.x/linux-2.4.0/include/asm/hw_irq.h:198: (Each undeclared identifier is reported only once
-/usr/src/linux-2.4.x/linux-2.4.0/include/asm/hw_irq.h:198: for each function it appears in.)
-In file included from /usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h:296,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/string.h:21,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/fs.h:23,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/capability.h:17,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/binfmts.h:5,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/sched.h:9,
-                 from loop.c:53:
-/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h: In function `raise_softirq':
-/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h:89: `current' undeclared (first use in this function)
-/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h: In function `tasklet_schedule':
-/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h:160: `current' undeclared (first use in this function)
-/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h: In function `tasklet_hi_schedule':
-/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h:174: `current' undeclared (first use in this function)
-In file included from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/string.h:21,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/fs.h:23,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/capability.h:17,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/binfmts.h:5,
-                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/sched.h:9,
-                 from loop.c:53:
-/usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h: In function `__constant_memcpy3d':
-/usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h:305: `current' undeclared (first use in this function)
-/usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h: In function `__memcpy3d':
-/usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h:312: `current' undeclared (first use in this function)
-{standard input}: Assembler messages:
-{standard input}:8: Warning: Ignoring changed section attributes for .modinfo
-make[2]: *** [loop.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.x/linux-2.4.0/drivers/block'
-make[1]: *** [_modsubdir_block] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.x/linux-2.4.0/drivers'
-make: *** [_mod_drivers] Error 2
+> I noticed that /proc/sys/vm/freepages is not writable any more.  Is there
+> any reason for this?
 
+I am not sure why.
 
+> Hmm...  I'm still using samba 2.0.7.  I'll try 2.2 to see if it
+> helps.  What are tdb spinlocks?
 
+samba 2.2 uses tdb which is an SMP safe gdbm like database. By default it
+uses byte range fcntl locks to provide locking, but has the option of
+using spinlocks (./configure --with-spinlocks). I doubt it would make
+a difference on your setup.
 
+> Have you actually compared the same setup with 2.2 and 2.4 kernels and a
+> single client transferring a large file, preferably from a slow server
+> with little memory?  Most samba servers that people benchmark are fast
+> computers with lots of memory.  So far, every major kernel upgrade has
+> given me a performance boost, even for slow computers, and I would hate to
+> see that trend break for 2.4...
+
+I havent done any testing on slow hardware and the high end stuff is
+definitely performing better in 2.4, but I agree we shouldn't forget
+about the slower stuff.
+
+Narrowing down where the problem is would help. My guess is it is a TCP
+problem, can you check if it is performing worse in your case? (eg ftp
+something against 2.2 and 2.4)
+
+Anton
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,83 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbUJaXi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbUJaXko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbUJaXi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 18:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUJaXi0
+	id S261705AbUJaXko (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 18:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbUJaXk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 18:38:26 -0500
-Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:24194 "EHLO
-	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261697AbUJaXiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 18:38:12 -0500
-Message-ID: <41857745.6020808@kolivas.org>
-Date: Mon, 01 Nov 2004 10:37:41 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Sun, 31 Oct 2004 18:40:26 -0500
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:708 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S261703AbUJaXjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 18:39:54 -0500
+Date: Sun, 31 Oct 2004 18:39:30 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@lazuli.engin.umich.edu
+To: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
+cc: Stefan Hornburg <kernel@linuxia.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/2] prio_tree: fix prio_tree_expand corner c
+In-Reply-To: <Pine.LNX.4.44.0409201343170.16315-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.58.0410311837180.13785@lazuli.engin.umich.edu>
+References: <Pine.LNX.4.44.0409201343170.16315-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Alexander Nyberg <alexn@dsv.su.se>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH][plugsched 0/28] Pluggable cpu scheduler framework
-References: <4183A602.7090403@kolivas.org> <20041031233313.GB6909@elf.ucw.cz>
-In-Reply-To: <20041031233313.GB6909@elf.ucw.cz>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5FBA24471E0AF9965D7B1DB2"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5FBA24471E0AF9965D7B1DB2
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>This code was designed to touch the least number of files, be completely
->>arch-independant, and allow extra schedulers to be coded in by only
->>touching Kconfig, scheduler.c and scheduler.h. It should incur no
->>overhead when run and will allow you to compile in only the scheduler(s)
->>you desire. This allows, for example, embedded hardware to have a tiny
->>new scheduler that takes up minimal code space.
-> 
-> 
-> You are changing 
-> 
-> some_functions()
-> 
-> into
-> 
-> something->function()
-> 
-> no? I do not think that is 0 overhead...
+Currently we use prio_tree_root->index_bits to optimize the height
+of both the initial heap-and-radix indexed levels of a prio_tree
+as well as the heap-and-size indexed overflow-sub-trees. Please see
+the accompanying prio_tree documentation patch for further details.
 
-Indeed, and I am performing microbenchmarks to see what measurable 
-overhead there is and so far any difference is lost in noise.
+When index_bits is increased in prio_tree_expand we shuffle the
+initial heap-and-radix indexed levels to make sure that vmas are
+placed in the tree at appropriate places. Similarly, since the
+overflow-sub-trees' heights also depend on prio_tree_root->index_bits
+we should shuffle all the overflow-sub-trees when index_bits changes.
+However, I missed to take care of this in my implementation.
 
-Cheers,
-Con
+Recently Stefan Hornburg (Racke) reported the problem and patiently
+tested the trace patches. Hugh Dickins produced the trace patches
+that helped to detect the bug. Moreover, Hugh reduced the crash
+test case to few lines of code. Thanks to both of them.
 
---------------enig5FBA24471E0AF9965D7B1DB2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+The easy fix is to disable prio_tree_expand code completely. That
+may lead to skewed trees in some common cases. Hence, this patch
+takes a different approach.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+This patch fixes the problem by not optimizing the height of the
+overflow-sub-trees using prio_tree_root->index_bits. Now all
+overflow-sub-trees use full BITS_PER_LONG bits of size_index to place
+the vmas (that have the same start_vm_pgoff) in an overflow-sub-tree.
 
-iD8DBQFBhXdFZUg7+tp6mRURAoifAJ9AtzmzVR5pjJXM17XjHRrh2mJ9/wCgkFwX
-vicIqMjzsWlbtTHRJkkeO3U=
-=EOeb
------END PGP SIGNATURE-----
+This may result in skewed overflow-sub-trees because all bits in
+vm_pgoff above prio_tree_root->index_bits will be 0 (zero). However,
+processes rarely map many vmas with the same start_vm_pgoff and different
+end_vm_pgoff. Therefore, such skewed sub-trees should be very rare.
 
---------------enig5FBA24471E0AF9965D7B1DB2--
+Signed-off-by: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+
+
+ mm/prio_tree.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -puN mm/prio_tree.c~prio_expand_fix mm/prio_tree.c
+--- linux-2.6.9/mm/prio_tree.c~prio_expand_fix	2004-10-31 18:27:09.000000000 -0500
++++ linux-2.6.9-jaya/mm/prio_tree.c	2004-10-31 18:27:09.000000000 -0500
+@@ -245,7 +245,7 @@ static struct prio_tree_node *prio_tree_
+ 		mask >>= 1;
+
+ 		if (!mask) {
+-			mask = 1UL << (root->index_bits - 1);
++			mask = 1UL << (BITS_PER_LONG - 1);
+ 			size_flag = 1;
+ 		}
+ 	}
+@@ -334,7 +334,7 @@ static struct prio_tree_node *prio_tree_
+ 				iter->mask = ULONG_MAX;
+ 			} else {
+ 				iter->size_level = 1;
+-				iter->mask = 1UL << (iter->root->index_bits - 1);
++				iter->mask = 1UL << (BITS_PER_LONG - 1);
+ 			}
+ 		}
+ 		return iter->cur;
+@@ -376,7 +376,7 @@ static struct prio_tree_node *prio_tree_
+ 				iter->mask = ULONG_MAX;
+ 			} else {
+ 				iter->size_level = 1;
+-				iter->mask = 1UL << (iter->root->index_bits - 1);
++				iter->mask = 1UL << (BITS_PER_LONG - 1);
+ 			}
+ 		}
+ 		return iter->cur;
+
+_
+
+

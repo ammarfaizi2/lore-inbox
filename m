@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbUCTVbG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 16:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263548AbUCTVbG
+	id S263548AbUCTVjd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 16:39:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbUCTVjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 16:31:06 -0500
-Received: from mail.kroah.org ([65.200.24.183]:13240 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263544AbUCTVbD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 16:31:03 -0500
-Date: Sat, 20 Mar 2004 13:30:30 -0800
-From: Greg KH <greg@kroah.com>
-To: Kronos <kronos@kronoz.cjb.net>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Sysfs for framebuffer
-Message-ID: <20040320213030.GA3950@kroah.com>
-References: <20040320174956.GA3177@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Mar 2004 16:39:33 -0500
+Received: from multiserv.relex.ru ([213.24.247.63]:10455 "EHLO
+	mail.techsupp.relex.ru") by vger.kernel.org with ESMTP
+	id S263548AbUCTVjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 16:39:32 -0500
+From: Yaroslav Rastrigin <yarick@relex.ru>
+Organization: RELEX Inc.
+To: linux-kernel@vger.kernel.org
+Subject: Re: .config for an IBM T21 wanted
+Date: Sun, 21 Mar 2004 00:39:30 +0300
+User-Agent: KMail/1.6
+References: <200403201942.i2KJg087010946@nic-naa.net>
+In-Reply-To: <200403201942.i2KJg087010946@nic-naa.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040320174956.GA3177@dreamland.darkstar.lan>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403210039.31625.yarick@relex.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 06:49:56PM +0100, Kronos wrote:
-> Hi,
-> the following patch (against 2.6.5-rc2) teaches fb to use class_simple.
-> With this patch udev will automagically create device nodes for each
-> framebuffer registered. Once all drivers are converted to
-> framebuffer_{alloc,release} we can switch to our own class.
+Hi !
+On Saturday 20 March 2004 22:41, Eric Brunner-Williams in Portland Maine 
+wrote:
+> Thanks in advance. Somewhere between 2.4.20 and 2.6 I lost context and
+> clue, and xconfig got fancier. My presenting problem is no eth0 in the new
+> kernel. -
+3c556 MiniPCI ? Turn off ACPI 
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-yeah, it's about time!  Didn't I post this patch a few months ago... :)
-
-Anyway, it looks good, I only have one comment:
-
-> notebook:~# tree /sys/class/graphics/
-> /sys/class/graphics/
-
-"graphics"?  Why that?  Why not "fb"?
-
-It doesn't really matter to me, just curious.
-
-thanks,
-
-greg k-h
+-- 
+With all the best, yarick at relex dot ru.

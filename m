@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270210AbTHBTDV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 15:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270214AbTHBTDV
+	id S270097AbTHBS7W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 14:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270203AbTHBS7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 15:03:21 -0400
-Received: from law11-oe70.law11.hotmail.com ([64.4.16.205]:54538 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S270210AbTHBTDS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 15:03:18 -0400
-X-Originating-IP: [165.98.111.210]
-X-Originating-Email: [bmeneses_beltran@hotmail.com]
-From: "Viaris" <bmeneses_beltran@hotmail.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Law11-OE70LwHc9ny7B0000e8d4@hotmail.com> <20030801211300.GA15146@mars.ravnborg.org>
-Subject: Re: problems compiling kernel 2.5.75
-Date: Sat, 2 Aug 2003 13:03:15 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sat, 2 Aug 2003 14:59:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18846 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270097AbTHBS7V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 14:59:21 -0400
+Date: Sat, 2 Aug 2003 12:00:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [1/2] random: SMP locking
+Message-Id: <20030802120023.7390f68f.akpm@osdl.org>
+In-Reply-To: <20030802143222.GG22824@waste.org>
+References: <20030802042445.GD22824@waste.org>
+	<20030802040015.0fcafda2.akpm@osdl.org>
+	<20030802143222.GG22824@waste.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <Law11-OE708awYFDIfW0000fc44@hotmail.com>
-X-OriginalArrivalTime: 02 Aug 2003 19:03:17.0247 (UTC) FILETIME=[BB4D38F0:01C35928]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-
-Ok, now my new kernel 2.5.75 is fine, but I have problems with the CDROM,
-this new kernel no found /dev/cdrom, my CDROM is IDE, how can I To resolv
-this problem?
-
-Thanks in Advanced,
-
-Regards,
-
------ Original Message -----
-From: "Sam Ravnborg" <sam@ravnborg.org>
-To: "Viaris" <bmeneses_beltran@hotmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Friday, August 01, 2003 3:13 PM
-Subject: Re: problems compiling kernel 2.5.75
-
-
-> On Fri, Aug 01, 2003 at 02:51:32PM -0600, Viaris wrote:
-> > Hi all, I ma compiling kernel version 2.5.75, but I have the folloienw
-> > error:
-> >
-> > drivers/built-in.o(.text+0x1d41e): In function `pc_close':
-> > : undefined reference to `save_flags'
-> Try to disbale SMP (do you need it)?
+Matt Mackall <mpm@selenic.com> wrote:
 >
-> Sam
->
+> > Are you really sure that all the decisions about where to use spin_lock()
+>  > vs spin_lock_irq() vs spin_lock_irqsave() are correct?  They are
+>  > non-obvious.
+> 
+>  Aside from the put_user stuff below, yes.
+
+Well I see in Linus's current tree:
+
+	ndev->regen_timer.function = ipv6_regen_rndid;
+
+And ipv6_regen_rndid() ends up calling get_random_bytes() which calls
+extract_entropy() which now does a bare spin_lock().
+
+So I think if the timer is run while some process-context code on the same
+CPU is running get_random_bytes() we deadlock don't we?
+
+Probably, we should make get_random_bytes() callable from any context.
+

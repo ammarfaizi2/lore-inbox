@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285554AbRLGVXT>; Fri, 7 Dec 2001 16:23:19 -0500
+	id <S285557AbRLGVW3>; Fri, 7 Dec 2001 16:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285556AbRLGVXK>; Fri, 7 Dec 2001 16:23:10 -0500
-Received: from cj46222-a.reston1.va.home.com ([65.1.136.109]:7577 "HELO
-	sanosuke.troilus.org") by vger.kernel.org with SMTP
-	id <S285554AbRLGVW4>; Fri, 7 Dec 2001 16:22:56 -0500
-To: Padraig Brady <padraig@antefacto.com>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: horrible disk thorughput on itanium
-In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de>
-	<Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>
-	<20011207185847.A20876@wotan.suse.de>
-	<87wuzyq4ms.fsf@sanosuke.troilus.org> <3C110C0B.4030102@antefacto.com>
-From: Michael Poole <poole@troilus.org>
-Date: 07 Dec 2001 16:22:55 -0500
-In-Reply-To: <3C110C0B.4030102@antefacto.com>
-Message-ID: <87snampvww.fsf@sanosuke.troilus.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+	id <S285556AbRLGVWU>; Fri, 7 Dec 2001 16:22:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28170 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285554AbRLGVWN>; Fri, 7 Dec 2001 16:22:13 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: On re-working the major/minor system
+Date: 7 Dec 2001 13:21:58 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9urbtm$69e$1@cesium.transmeta.com>
+In-Reply-To: <3C10A057.BD8E1252@evision-ventures.com> <E16CJnv-0005c0-00@the-village.bc.nu> <20011207135100.A17683@codepoet.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Padraig Brady <padraig@antefacto.com> writes:
+Followup to:  <20011207135100.A17683@codepoet.org>
+By author:    Erik Andersen <andersen@codepoet.org>
+In newsgroup: linux.dev.kernel
+> 
+> Right.  Tons of apps have illicit insider knowledge of kernel
+> major/minor representation and NEED IT to do their job.  Try
+> running 'ls -l' on a device node.  Wow, it prints out major and
+> minor number.  You can pack up a tarball containing all of /dev
+> so tar has to has insider major/minor knowledge too -- as does
+> the structure of every existant tarball!  Check out, for example,
+> Section 10.1.1 (page 210) of the IEEE Std. 1003.1b-1993 (POSIX)
+> and you will see every tarball in existance stores 8 chars for
+> the major, and 8 chars for the minor....
+> 
 
-> This breaks for the case discussed @
-> http://sources.redhat.com/ml/bug-glibc/2001-11/msg00079.html
-> I.E. if you have a multithreaded lib being linked by
-> single threaded apps (Note multithreaded lib, not just a
-> threadsafe lib (I.E. the lib calls pthread_create())).
+Actually, it's not "tons of apps", it's in the C library itself.
 
-That's an interesting, but very contrived, example.  Can you find a
-single multi-threaded lib that uses FILE*'s shared with the
-application using it?
+These things are defined in <sys/sysmacros.h> and anyone who uses
+anything else should be taken out and shot.
 
-Linus's suggestion to add hooks to pthread_create() gets around that
-problem, anyway.  Alternatively, the multi-threaded library could
-require any application linking to it to define _REENTRANT.
-
-After all, it's silly to talk about a 'multi-threaded' library linked
-to a 'single-threaded' application -- the application plus any
-libraries, as a whole, are either multithreaded or not.  They have to
-be on the same page to deal with *any* locking issues.
-
--- Michael
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

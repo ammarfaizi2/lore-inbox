@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSGBVsN>; Tue, 2 Jul 2002 17:48:13 -0400
+	id <S312681AbSGBVtT>; Tue, 2 Jul 2002 17:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312681AbSGBVsM>; Tue, 2 Jul 2002 17:48:12 -0400
-Received: from pcp01179415pcs.strl1201.mi.comcast.net ([68.60.208.36]:46066
-	"EHLO mythical") by vger.kernel.org with ESMTP id <S312590AbSGBVsM>;
-	Tue, 2 Jul 2002 17:48:12 -0400
-Date: Tue, 2 Jul 2002 17:50:19 -0400 (EDT)
-From: Ryan Anderson <ryan@michonline.com>
-To: Oliver Neukum <oliver@neukum.name>
-cc: Tom Rini <trini@kernel.crashing.org>, Jonathan Corbet <corbet@lwn.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal
-In-Reply-To: <200207022010.50572.oliver@neukum.name>
-Message-ID: <Pine.LNX.4.10.10207021746570.579-100000@mythical.michonline.com>
+	id <S312938AbSGBVtS>; Tue, 2 Jul 2002 17:49:18 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4370 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S312681AbSGBVtN>; Tue, 2 Jul 2002 17:49:13 -0400
+Date: Tue, 2 Jul 2002 17:56:54 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>,
+       <rth@twiddle.net>
+Subject: Re: 2.4.19-rc1 broke OSF binaries on alpha
+In-Reply-To: <20020630024510.A725@localhost.park.msu.ru>
+Message-ID: <Pine.LNX.4.44.0207021753100.14729-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jul 2002, Oliver Neukum wrote:
-
-> Am Dienstag, 2. Juli 2002 19:48 schrieb Tom Rini:
-> > On Tue, Jul 02, 2002 at 06:07:06PM +0200, Oliver Neukum wrote:
-> > > > developing drivers and such.  Aunt Tillie would no longer be able to
-> > > > remove modules from her kernel, but that's not likely to bother her
-> > > > too much...
-> > >
-> > > It would very much bother uncle John, who is in high availability.
-> >
-> > Then the HA kernel turns on the ability to still remove modules, along
-> > with all of the other things needed in an HA environment but not
-> > elsewhere.  Provided removing a module doesn't become a horribly racy,
-> > barely usable bit of functionality, which I hope it won't.
-> 
-> Either there is a race or there isn't. Such a thing is unusable on a
-> production system.
-
-In a single processor, no preempt kernel, there is no race.
-Turn on SMP or preempt and there is one.
-
-Anyway, on a HA machine, how the heck are you going to be removing
-modules anyway?  If one of your two identical network cards fails, you
-lose your HA status if you need to shut down both to remove the module
-and thus be able to remove the second card, right?
-
-I would think the HA guys would be pushing for a status of "modules are
-never removed, so design around that" to make their lives easier.  That
-would also mean you would have a way to say, "hey driver, rescan for
-devices - I think you'll find a new one that you should manage".
 
 
---
-Ryan Anderson
-  sometimes Pug Majere
+On Sun, 30 Jun 2002, Ivan Kokshaysky wrote:
+
+> On Sat, Jun 29, 2002 at 03:26:18AM +0100, Alan Cox wrote:
+> > Please fix the Alpha port. The behaviour fixed is _required_ by SuS.
+>
+> No objections, but
+> a) it wasn't a bugfix (just a compliance crap)
+> b) it seriously broke the alpha port right before the new
+>    kernel release.
+>
+> > Make your own alpha syscall that handles this crap.
+>
+> I'd be happy to see that patch included in 2.4.20-pre1.
+
+Actually I asked Richard Henderson at OLS if he could do the alpha syscall
+do the stuff for -rc2.
+
+I really don't like that "#ifdef alpha" stuff in generic code.
+
+Richard? :)
 

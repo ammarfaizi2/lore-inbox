@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282979AbRLIEs7>; Sat, 8 Dec 2001 23:48:59 -0500
+	id <S283002AbRLIFFg>; Sun, 9 Dec 2001 00:05:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282990AbRLIEst>; Sat, 8 Dec 2001 23:48:49 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:19858 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S282979AbRLIEso>; Sat, 8 Dec 2001 23:48:44 -0500
-Date: Sat, 8 Dec 2001 21:48:37 -0700
-Message-Id: <200112090448.fB94mbP05763@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Rene Rebe <rene.rebe@gmx.net>, <linux-kernel@vger.kernel.org>,
-        <alsa-devel@lists.sourceforge.net>
-Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] 
- /ALSA-0.9.0beta[9,10]
-In-Reply-To: <Pine.LNX.4.33.0112090447290.13049-100000@serv>
-In-Reply-To: <200112090308.fB938N504764@vindaloo.ras.ucalgary.ca>
-	<Pine.LNX.4.33.0112090447290.13049-100000@serv>
+	id <S283006AbRLIFFZ>; Sun, 9 Dec 2001 00:05:25 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41745 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S283002AbRLIFFO>; Sun, 9 Dec 2001 00:05:14 -0500
+Date: Sat, 8 Dec 2001 20:59:02 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>, <pat@it.com.au>,
+        <tfries@umr.edu>, <ankry@mif.pg.gda.pl>
+Subject: Re: PATCH: linux-2.5.1-pre7/drivers/block/xd.c compilation fix
+ (version 2)
+In-Reply-To: <20011208204225.A7213@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.33.0112082057540.9037-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel writes:
-> Hi,
-> 
-> On Sat, 8 Dec 2001, Richard Gooch wrote:
-> 
-> > > devfs_mk_dir returns an error now, so the driver won't be able to
-> > > make new dev nodes available. So far it was legal to manually create
-> > > a directory under devfs, now it's suddenly an error.
-> >
-> > It was always an error, you just got away with it.
-> 
-> Sorry, but this is bullshit. You even included an example script
-> with this "error" (Documentation/filesystems/devfs/rc.devfs). You
-> suddenly change the behaviour of devfs during a stable release in a
-> noncompatible way.  Distributions and their users that followed
-> _your_ advice are suddenly fucked up, that's irresponsible. How do
-> you think devfs should be ever taken seriously?
 
-Oh, the "tar kludge". That script has been obsolete for over a year
-and a half. I should have removed it ages ago. I really should get
-around to doing that one day.
+On Sat, 8 Dec 2001, Adam J. Richter wrote:
+>
+> 	Linus, if nobody says otherwise, I recommend that you apply
+> this patch.
 
-				Regards,
+Well, I already applied your previous one, in fact, and it's in the
+just-uploaded pre8 kernel. Mind verifying that and sending the incremental
+update?
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Btw, do you actually _have_ a machine that uses the xd driver, or was this
+patch done just out of some perverse joy in theoretical retrocomputing?
+
+		Linus
+

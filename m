@@ -1,93 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267338AbUBSQVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 11:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267359AbUBSQS4
+	id S267351AbUBSQSh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 11:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267359AbUBSQSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 11:18:56 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267338AbUBSQSb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 11:18:31 -0500
-Date: Thu, 19 Feb 2004 11:18:30 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.24 extra CPU cycles in scsi.c 
-Message-ID: <Pine.LNX.4.53.0402191116550.500@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Feb 2004 11:18:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27367 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267351AbUBSQSI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 11:18:08 -0500
+Date: Thu, 19 Feb 2004 08:10:40 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Jan Marek <linux@hazard.jcu.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.3-mm1][PROBLEM] Apache cannot start
+Message-Id: <20040219081040.6c56b801.rddunlap@osdl.org>
+In-Reply-To: <20040219131221.GA1328@hazard.jcu.cz>
+References: <20040219131221.GA1328@hazard.jcu.cz>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 19 Feb 2004 14:12:21 +0100 Jan Marek <linux@hazard.jcu.cz> wrote:
 
-When looking through various modules that I use, trying to
-find out where some memory seems to be leaking, I found a
-couple of unrelated things in scsi.c.
+| Hallo lkml,
+| 
+| I have problem with kernel 2.6.3-mm1: apache cannot start. Some last
+| lines from strace output:
+| 
+| 3299  shmget(IPC_PRIVATE, 737284, IPC_CREAT|0600) = 393216
+| 3299  shmat(393216, 0, 0)               = -1 EINVAL (Invalid argument)
+| 3299  time(NULL)                        = 1077193406
+| 3299  write(15, "[Thu Feb 19 13:23:26 2004] [emer"..., 69) = 69
+| 3299  shmctl(393216, IPC_64|IPC_RMID, 0) = 0
+| 3299  munmap(0x40018000, 4096)          = 0
+| 3299  exit_group(2)                     = ?
+| 
+| I think, that problem is in the calling shmat function?
+| 
+| My last kernel was 2.6.2-mm1 and here apache went without problems...
 
-The code sets a structure-member to NULL, then releases the
-pointer to that structure. A few CPU cycles being thrown away.
-Since I was reviewing the whole file, I also got rid of the
-spurious casts when calling kfree().
+
+Patch from Andrew is below.
+
+--
+~Randy
 
 
 
---- linux-2.4.24/drivers/scsi/scsi.c.orig	Thu Feb 19 10:45:20 2004
-+++ linux-2.4.24/drivers/scsi/scsi.c	Thu Feb 19 11:01:47 2004
-@@ -314,11 +314,7 @@
- void scsi_release_request(Scsi_Request * req)
+diff -puN ipc/shm.c~add-syscalls_h-shmat-fix ipc/shm.c
+--- 25/ipc/shm.c~add-syscalls_h-shmat-fix	2004-02-18 01:22:41.000000000 -0800
++++ 25-akpm/ipc/shm.c	2004-02-18 01:22:41.000000000 -0800
+@@ -635,7 +635,7 @@ out:
+  * "raddr" thing points to kernel space, and there has to be a wrapper around
+  * this.
+  */
+-long sys_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
++asmlinkage long sys_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
  {
- 	if( req->sr_command != NULL )
--	{
- 		scsi_release_command(req->sr_command);
--		req->sr_command = NULL;
--	}
--
- 	kfree(req);
- }
-
-@@ -1449,7 +1445,7 @@
-  	spin_lock_irqsave(&device_request_lock, flags);
- 	for (SCpnt = SDpnt->device_queue; SCpnt; SCpnt = SCnext) {
- 		SDpnt->device_queue = SCnext = SCpnt->next;
--		kfree((char *) SCpnt);
-+		kfree(SCpnt);
- 	}
- 	SDpnt->has_cmdblocks = 0;
- 	SDpnt->queue_depth = 0;
-@@ -1550,7 +1546,7 @@
- 	    max_scsi_hosts = n+1;
- 	}
- 	else
--	    kfree((char *) shn);
-+	    kfree(shn);
-     }
- }
-
-@@ -1845,7 +1841,7 @@
- 				HBA_ptr->host_queue = scd->next;
- 			}
- 			blk_cleanup_queue(&scd->request_queue);
--			kfree((char *) scd);
-+			kfree(scd);
- 		} else {
- 			goto out;
- 		}
-@@ -2164,7 +2160,7 @@
- 			blk_cleanup_queue(&SDpnt->request_queue);
- 			/* Next free up the Scsi_Device structures for this host */
- 			shpnt->host_queue = SDpnt->next;
--			kfree((char *) SDpnt);
-+			kfree(SDpnt);
-
- 		}
- 	}
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+ 	struct shmid_kernel *shp;
+ 	unsigned long addr;

@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267493AbUG2W24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267491AbUG2WcC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267493AbUG2W24 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 18:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbUG2W24
+	id S267491AbUG2WcC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 18:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267501AbUG2WcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 18:28:56 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:63973 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267490AbUG2W2W
+	Thu, 29 Jul 2004 18:32:02 -0400
+Received: from mail5.tpgi.com.au ([203.12.160.101]:42691 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S267491AbUG2W3W
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 18:28:22 -0400
-Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to
-	pcibus_to_node()
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Christoph Hellwig <hch@infradead.org>,
-       Jesse Barnes <jbarnes@sgi.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       LSE Tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <20040729100235.A11986@unix-os.sc.intel.com>
-References: <1090887007.16676.18.camel@arrakis>
-	 <200407270822.43870.jbarnes@engr.sgi.com>
-	 <1090953179.18747.19.camel@arrakis>
-	 <200407271140.29818.jbarnes@engr.sgi.com>
-	 <1091059607.19459.69.camel@arrakis>
-	 <20040729100235.A11986@unix-os.sc.intel.com>
+	Thu, 29 Jul 2004 18:29:22 -0400
+Subject: Re: fixing usb suspend/resuming
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: David Brownell <david-b@pacbell.net>,
+       Alexander Gran <alex@zodiac.dnsalias.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040729210256.GC18623@elf.ucw.cz>
+References: <200405281406.10447@zodiac.zodiac.dnsalias.org>
+	 <40F962B6.3000501@pacbell.net>
+	 <200407190927.38734@zodiac.zodiac.dnsalias.org>
+	 <200407202205.37763.david-b@pacbell.net>
+	 <20040729083543.GG21889@openzaurus.ucw.cz>
+	 <1091103438.2703.13.camel@desktop.cunninghams>
+	 <20040729210256.GC18623@elf.ucw.cz>
 Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1091140066.4070.9.camel@arrakis>
+Message-Id: <1091140000.2703.27.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 29 Jul 2004 15:27:46 -0700
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 30 Jul 2004 08:26:41 +1000
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-29 at 10:02, Rajesh Shah wrote:
-> On Wed, Jul 28, 2004 at 05:06:48PM -0700, Matthew Dobson wrote:
-> > 
-> > thought.  It's pretty trivial to add a nodemask_t to the struct pci_bus,
-> > and even initialize it to a reasonable value (ie: NODE_MASK_ALL) since
-> > there's the convenient pci_alloc_bus() function in drivers/pci/probe.c. 
-> > The problem is where to put hooks for individual arches to put the
-> > *real* nodemask in this field...  My only thought right now is to create
-> > a per-arch callback function, arch_get_pcibus_nodemask() or something,
-> > and use the value it returns to populate pci_bus->nodemask.  We would
-> > have to call this function anywhere a struct pci_bus is allocated, and
-> > probably pass along the PCI bus number so the arch could determine which
-> > nodes it belongs to.  Would that work for everyone that cares?  We could
-> 
-> With PCI root/p2p bridge hotplug, the code dealing with the
-> hotplug (e.g. ACPI hotplug code) will have this information, not 
-> arch specific code. How about having the PCI subsystem export
-> an interface to set the nodemask, and have the arch or hotplug
-> code call it to change the defaults? That way, pci_alloc_bus()
-> simply sets the default and does not perform any callback.
-> Does that work for everyone?
-> 
-> Rajesh
+Hi.
 
-Does the patch I just posted in this thread work for you?  You could
-have ACPI define the get_pcibus_nodemask(bus) call, and all should work
-fine...
+On Fri, 2004-07-30 at 07:02, Pavel Machek wrote:
+> Well, its more complicated, I believe. You can't just leave those
+> devices running, because they could DMA and damage the image... So you
 
--Matt
+I'm assuming (and believe I have achieved) that the only process doing
+anything significant is suspend, in which case the image isn't going to
+get damaged.
+
+> need something like
+> 
+> suspend_fast_ill_resume_you_soon().
+
+Don't understand what you're saying here, sorry.
+
+Nigel
+
 

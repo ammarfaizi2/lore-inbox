@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263793AbTLTCc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 21:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbTLTCc7
+	id S263786AbTLTC1E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 21:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbTLTC1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 21:32:59 -0500
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:61575 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263793AbTLTCc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 21:32:56 -0500
-From: Roger Chrisman <rogerhc@pacbell.net>
+	Fri, 19 Dec 2003 21:27:04 -0500
+Received: from quechua.inka.de ([193.197.184.2]:57518 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S263786AbTLTC1C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 21:27:02 -0500
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
 To: linux-kernel@vger.kernel.org
-Subject: install_modules (or) modules_install? (main README in 2.6.0 stable source)
-Date: Fri, 19 Dec 2003 18:38:55 -0800
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312191838.55569.rogerhc@pacbell.net>
+Subject: Re: psmouse synchronization loss under load
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <20031220015131.GB9834@vitelus.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.2-20031104 ("Eriskay") (UNIX) (Linux/2.6.0-test11 (i686))
+Message-Id: <E1AXWpR-0000Zm-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sat, 20 Dec 2003 03:26:53 +0100
+X-Scanner: exiscan *1AXWpR-0000Zm-00*4p2XPQ2LFfM*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <20031220015131.GB9834@vitelus.com> you wrote:
+> On a Dell laptop whenever I run a program that takes the full CPU, my
+> mouse pointer goes insane and thrashes my X session every few minutes.
 
-Regarding:
+On my older system with 2.6.0 kernel i have currently this problem, whenever
+APM tries to suspend the system. It will log that it was busy (screen
+shortly gets black) and after that the genius ps2 mouse behaves like you
+expected. Unplugging it helps.
 
-Top level README in kernel 2.6.0 stable source
+The funny thing for me is, that those APM suspends most often only happen if
+I actually _do_ something. I can reproduce it with Mozilla very often,
+especially on loading flash sites. I guess I can solve that problem with
+reconfiguring some of the APM options (I have tried to turn on as much as
+possible on that PII4X 440BX System.
 
-(downloaded from kernel.org on 10-18-2003)
+The sync problem with the mouse I have never seen with 2.4 kernels, not even
+after suspends.
 
-
-In the last of the following five lines, 'install_modules' seem to me to be 
-incorrect:
-
-   To configure and build the kernel use:
-   cd /usr/src/linux-2.6.N
-   make O=/home/name/build/kernel menuconfig
-   make O=/home/name/build/kernel
-   sudo make O=/home/name/build/kernel install_modules install
-____________________________________^
-
-Am I correct that
-                                install_modules
-should be
-                                module_install
-?
-
-I tried both and the latter seems to work but the former not.
-
-Furthermore, I find the latter in two other parts of the README:
-
-   make a backup of your modules directory before you
-   do a "make modules_install".
-____________________^
-
-and:
-
- - If you configured any of the parts of the kernel as `modules', you
-   will have to do "make modules" followed by "make modules_install".
-______________________________________________^
-
-Others like me will stumble on this. Who could update the README to correct 
-this?
-
-No person is mentioned as author or maintainer of the README.
-
-Who should I send this feedback to?
-
-Thanks,
-
-Roger :-)
-
-
-
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

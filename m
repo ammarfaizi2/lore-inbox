@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbULFQqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbULFQsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbULFQqH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 11:46:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbULFQqH
+	id S261554AbULFQsT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 11:48:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbULFQsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 11:46:07 -0500
-Received: from main.gmane.org ([80.91.229.2]:7564 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261561AbULFQp2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 11:45:28 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
-Date: Mon, 06 Dec 2004 11:45:27 -0500
-Message-ID: <87sm6jpe8o.fsf@coraid.com>
-References: <87acsrqval.fsf@coraid.com>
-	<Pine.LNX.4.58.0412061027510.2173@gradall.private.brainfood.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:KAV+JO2vrQ2Bf6BAXthf5vpMYk8=
+	Mon, 6 Dec 2004 11:48:19 -0500
+Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:21222 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261554AbULFQsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 11:48:17 -0500
+Date: Mon, 6 Dec 2004 09:47:04 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Stephen Rothwell <sfr@canb.auug.org.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Li Shaohua <shaohua.li@intel.com>
+Subject: Re: Fw: [RFC] Strange code in cpu_idle()
+In-Reply-To: <20041206160405.GB1271@us.ibm.com>
+Message-ID: <Pine.LNX.4.61.0412060941560.5219@montezuma.fsmlabs.com>
+References: <20041205004557.GA2028@us.ibm.com> <20041206111634.44d6d29c.sfr@canb.auug.org.au>
+ <20041205232007.7edc4a78.akpm@osdl.org> <Pine.LNX.4.61.0412060157460.1036@montezuma.fsmlabs.com>
+ <20041206160405.GB1271@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Heath <doogie@debian.org> writes:
+On Mon, 6 Dec 2004, Paul E. McKenney wrote:
 
-> On Mon, 6 Dec 2004, Ed L Cashin wrote:
->
->> The included patch allows the Linux kernel to use the ATA over
->> Ethernet (AoE) network protocol to communicate with any block device
->> that handles the AoE protocol.  The Coraid EtherDrive (R) Storage
->> Blade is the first hardware using AoE.
->>
->> AoE devices on the LAN are accessable as block devices and can be used
->> with filesystems, Software RAID, LVM, etc.
->>
->> Like IP, AoE is an ethernet-level network protocol, registered with
->> the IEEE.  Unlike IP, AoE is not routable.
->>
->> This patch is released under the terms of the GPL.
->>
->> (We also have an AoE driver for the 2.4 kernel that we plan to release
->> soon.)
->
-> Is there a free server for this?
+> I am not going to claim to thoroughly understand the power-management
+> code, but do have an additional question.
+> 
+> What happens if the processor became aware of a new grace period just
+> before entering pm_idle?  I could imagine this code simply refusing
+> to power down the processor if there was a pending grace period, but
+> I don't see any sign of this.  I could also imagine somehow deferring
+> interrupts until pm_idle exits.  I don't see anything that looks like
+> it does this, but don't claim to be any sort of power-management
+> expert.
 
-Are you asking whether anybody has written software that allows a
-network host to export block storage using AoE?  Not yet, as far as I
-know.
+Are you referring to the synchronize_kernel side? That's basically unload 
+module path so it's ok if it sits there for a bit, but it should only last 
+for as long as the next interrupt, which would be a pretty short perid 
+considering HZ=1000. But the usage still has a race and hence invalid as 
+pointed out by Dipankar
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+Thanks,
+	Zwane
 

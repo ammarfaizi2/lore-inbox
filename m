@@ -1,43 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUEUWxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUEUWxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUEUWxk (ORCPT <rfc822;willy@w.ods.org>);
+	id S264561AbUEUWxk (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 21 May 2004 18:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265022AbUEUWwb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUEUWwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:52:31 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:38309 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264561AbUEUWqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:46:24 -0400
-From: Dimitri Sivanich <sivanich@sgi.com>
-Message-Id: <200405211541.i4LFfpar001544@fsgi142.americas.sgi.com>
-Subject: Slab cache reap and CPU availability
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Date: Fri, 21 May 2004 10:41:50 -0500 (CDT)
-X-Mailer: ELM [version 2.5 PL2]
+	Fri, 21 May 2004 18:52:41 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:7552 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264992AbUEUWqC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 18:46:02 -0400
+Date: Fri, 21 May 2004 15:54:38 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: protecting source code in 2.6 (fwd)
+Message-ID: <Pine.LNX.4.53.0405211553530.942@chaos>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-
-I have a fairly general question about the slab cache reap code.
-
-In running realtime noise tests on the 2.6 kernels (spinning to detect periods
-of CPU unavailability to RT threads) on an IA/64 Altix system, I have found the
-cache_reap code to be the source of a number of larger holdoffs (periods of
-CPU unavailability).  These can last into the 100's of usec on 1300 MHz CPUs.
-Since this code runs periodically every few seconds as a timer softirq on all
-CPUs, holdoffs can occur frequently.
-
-Has anyone looked into less interruptive alternatives to running cache_reap
-this way (for the 2.6 kernel), or maybe looked into potential optimizations
-to the routine itself?
 
 
-Thanks in advance,
+---------- Forwarded message ----------
+To: Jinu M. <jinum@esntechnologies.co.in>
+From: Richard B. Johnson <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
+     Surendra I. <surendrai@esntechnologies.co.in>
+Subject: Re: protecting source code in 2.6
 
-Dimitri Sivanich <sivanich@sgi.com>
+On Thu, 20 May 2004, Jinu M. wrote:
+
+> Hi All,
+>
+> We are developing a block device driver on linux-2.6.x kernel. We want
+> to distribute our driver as sum of source code and librabry/object code.
+>
+[SNIPPED...]
+
+If it executes INSIDE the kernel, i.e., becomes part of a module,
+it executes with no protection whatsoever. It is, therefore,
+capable of destroying anything in the kernel including anything
+the kernel can touch. Therefore, such a secret blob of code
+can destroy all the user's work. It can even propagate to other
+machines over the network and infect them. In short, it can
+be a worm, Trojan Horse, or other dangerous, even "Microsoft-like"
+infection. If it's not, it will be blamed anyway.
+
+There are no secret methods of interfacing to proprietary
+hardware. One can only use the methods provided by the target
+CPU and its associated hardware components. Anybody who thinks
+that their hardware interface code represents protected intellectual
+property doesn't have a clue what intellectual property is.
+
+If you have some magic unpublished algorithms in your driver,
+they shouldn't be there. They should be in a user-mode library
+that interfaces with the driver. In this manner, you keep your
+secret algorithms to yourselves, protecting your intellectual
+property, while publishing your interface code that executes,
+unprotected, in the kernel.
+
+So, either provide the source-code for your driver or go away.
+There are very few persons who will allow you to insert secret
+code into their kernels where it could destroy everything of
+value to them.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

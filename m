@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262730AbRE3LKT>; Wed, 30 May 2001 07:10:19 -0400
+	id <S262731AbRE3LPJ>; Wed, 30 May 2001 07:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262735AbRE3LKJ>; Wed, 30 May 2001 07:10:09 -0400
-Received: from ns.caldera.de ([212.34.180.1]:59367 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S262730AbRE3LJw>;
-	Wed, 30 May 2001 07:09:52 -0400
-Date: Wed, 30 May 2001 13:09:05 +0200
-From: Marcus Meissner <Marcus.Meissner@caldera.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: PATCH: 3c509 PNP80f7 id
-Message-ID: <20010530130905.A29368@caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S262734AbRE3LPA>; Wed, 30 May 2001 07:15:00 -0400
+Received: from cr803443-a.flfrd1.on.wave.home.com ([24.156.64.178]:15797 "EHLO
+	fxian.jukie.net") by vger.kernel.org with ESMTP id <S262731AbRE3LOw>;
+	Wed, 30 May 2001 07:14:52 -0400
+Date: Wed, 30 May 2001 07:14:27 -0400 (EDT)
+From: Feng Xian <fxian@fxian.jukie.net>
+X-X-Sender: <fxian@tiger>
+To: David Howells <dhowells@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.3-ac14 spinlock problem? 
+In-Reply-To: <12317.991208196@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.33.0105300713090.29751-100000@tiger>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David,
 
-This adds the PNP80f7 compat Id to 3c509.c, making it now autodetect my 
-'3C509B EtherLink III'.
+Actually it happened only once. then I upgrade my kernel to 2.4.5. problem
+disappeared. I just hope this maybe a known problem.
 
-BTW, there is a problem there:
+Thanks.
 
-It has a card id of TCM5094 and a function id of PNP80f7, the cardid is
-already there, but only probed as function id...
+Alex
 
-Anyway, I will let the dust settle on the ISAPNP module issue first before
-fixing it ;)
 
-Ciao, Marcus
+On Wed, 30 May 2001, David Howells wrote:
 
-Index: drivers/net/3c509.c
-===================================================================
-RCS file: /build/mm/work/repository/linux-mm/drivers/net/3c509.c,v
-retrieving revision 1.17
-diff -u -r1.17 3c509.c
---- drivers/net/3c509.c	2001/05/03 13:16:01	1.17
-+++ drivers/net/3c509.c	2001/05/30 11:03:21
-@@ -192,6 +191,9 @@
- 		ISAPNP_VENDOR('T', 'C', 'M'), ISAPNP_FUNCTION(0x5098),
- 		(long) "3Com Etherlink III (TPC)" },
- 	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
-+		ISAPNP_VENDOR('P', 'N', 'P'), ISAPNP_FUNCTION(0x80f7),
-+		(long) "3Com Etherlink III compatible" },
-+	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
- 		ISAPNP_VENDOR('P', 'N', 'P'), ISAPNP_FUNCTION(0x80f8),
- 		(long) "3Com Etherlink III compatible" },
- 	{ }	/* terminate list */
+>
+> > I was running something on my Dell dual p3 box (optiplex gx300). my kernel
+> > is linux-2.4.3-ac14. I got the following message:
+>
+> How often did this message occur?
+>
+> > __rwsem_do_wake(): wait_list unexpectedly empty
+> > [4191] c5966f60 = { 00000001 })
+> > kenel BUG at rwsem.c:99!
+> > invalid operand: 0000
+> > CPU:            1
+> > EIP:            0010:[<c0236b99>]
+> > EFLAGS: 00010282
+> > kenel BUG at /usr/src/2.4.3-ac14/include/asm/spinlock.h:104!
+> >
+> >
+> > I upgrade the kernel to 2.4.5, no such problem any more.
+>
+> I suspect something else corrupted the rw-semaphore structure, but that's very
+> hard to prove unless you catch it in the act. If it happens again with any
+> frequency, you might want to try turning on rwsem debugging.
+>
+> David
+>
+
+-- 
+        Feng Xian
+   _o)     .~.      (o_
+   /\\     /V\      //\
+  _\_V    // \\     V_/_
+         /(   )\
+          ^^-^^
+           ALEX
+

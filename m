@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264681AbSKDOi5>; Mon, 4 Nov 2002 09:38:57 -0500
+	id <S264688AbSKDOjX>; Mon, 4 Nov 2002 09:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264688AbSKDOi5>; Mon, 4 Nov 2002 09:38:57 -0500
-Received: from mail.hometree.net ([212.34.181.120]:30928 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264681AbSKDOi4>; Mon, 4 Nov 2002 09:38:56 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [lkcd-general] Re: What's left over.
-Date: Mon, 4 Nov 2002 14:45:30 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <aq616a$9da$1@forge.intermeta.de>
-References: <Pine.LNX.3.96.1021103082813.5197A-100000@gatekeeper.tmr.com> <3DC5DF14.34483A96@compuserve.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1036421130 11374 212.34.181.4 (4 Nov 2002 14:45:30 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 4 Nov 2002 14:45:30 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S264689AbSKDOjX>; Mon, 4 Nov 2002 09:39:23 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:61603 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S264688AbSKDOjW>;
+	Mon, 4 Nov 2002 09:39:22 -0500
+Date: Mon, 4 Nov 2002 14:45:15 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Theodore Ts'o" <tytso@mit.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: an updated post-halloween doc.
+Message-ID: <20021104144515.GA22371@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20021101204832.GA3718@suse.de> <20021104142105.GA9197@think.thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021104142105.GA9197@think.thunk.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jennie Haywood <jehaywood@compuserve.com> writes:
+On Mon, Nov 04, 2002 at 09:21:06AM -0500, Theodore Ts'o wrote:
 
->The Linux kernel  is _extremely_  painful to debug compared to AIX.
+Hi Ted,
 
-Good! This means, people debugging the code have actually to think and
-don't produce "turn on debugger, step here, there, patch a band aid,
-done" solutions you see with various other "commercial products" (can
-anyone really say "Internet Explorer" on this list and live? ;-) )
+ > Could you please change this to read version 1.30 of e2fsprogs?  There
+ > were some rare conditions where e2fsck could get confused with htree
+ > directories in e2fsprogs 1.29 that were fixed in 1.30.  None of the
+ > htree-related e2fsck bugs in 1.29 were catastrophic in the sense of
+ > causing data loss, but they might cause confusion and spurious kernel
+ > bug reports.
 
-	Regards
-		Henning
+ For now, I've moved the htree things off the list on Andreas Dilger's
+ request in light of the corruption reports that were mentioned.
+ Are you any closer in nailing those issues ?
+
+		Dave
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+| Dave Jones.        http://www.codemonkey.org.uk

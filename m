@@ -1,67 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbUBXUgc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 15:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUBXUeh
+	id S262302AbUBXUhu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 15:37:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUBXUgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 15:34:37 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:58777 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262443AbUBXUeT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 15:34:19 -0500
-Date: Tue, 24 Feb 2004 18:25:46 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Ben Schofield <b.w.schofield@durham.ac.uk>
-Cc: linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: Toshiba IDE support: drivers/ide/pci/generic.c
-In-Reply-To: <401D7E16.5060203@durham.ac.uk>
-Message-ID: <Pine.LNX.4.58L.0402241824050.23951@logos.cnet>
-References: <401D7E16.5060203@durham.ac.uk>
+	Tue, 24 Feb 2004 15:36:51 -0500
+Received: from orcas.net ([66.92.223.130]:53725 "EHLO orcas.net")
+	by vger.kernel.org with ESMTP id S262449AbUBXUfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 15:35:30 -0500
+Date: Tue, 24 Feb 2004 12:35:25 -0800 (PST)
+From: Terry Hardie <terryh@orcas.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+cc: "torvalds@osdl.org" <torvalds@osdl.org>
+Subject: Patch for 8 port SIIG serial card support (2.4.25 patch)
+Message-ID: <Pine.LNX.4.58.0402241049150.3318@orcas.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+diff -ur linux-2.4.25/drivers/char/serial.c linux-2.4.25-mod1/drivers/char/serial.c
+--- linux-2.4.25/drivers/char/serial.c	Wed Feb 18 05:36:31 2004
++++ linux-2.4.25-mod1/drivers/char/serial.c	Tue Feb 24 09:55:54 2004
+@@ -62,10 +62,15 @@
+  *        Robert Schwebel <robert@schwebel.de>,
+  *        Juergen Beisert <jbeisert@eurodsn.de>,
+  *        Theodore Ts'o <tytso@mit.edu>
++ *
++ * 02/03: Added support for SIIG's 8 port serial card. SIIG
++ *        were entirely unsupportive of this effort (not that it was
++ *        hard, but still)
++ *        Terry Hardie <terryh@orcas.net>
+  */
 
-On Sun, 1 Feb 2004, Ben Schofield wrote:
+-static char *serial_version = "5.05c";
+-static char *serial_revdate = "2001-07-08";
++static char *serial_version = "5.05d";
++static char *serial_revdate = "2004-02-24";
 
-> Hi all,
->
-> I've been having some problems with the IDE controller on my aged
-> Portege 3440CT's port replicator, which I think I've now fixed, and I'd
-> appreciate someone else's opinion before I submit a patch.
->
-> The problem is that the controller reports itself with a vendor ID of
-> 1179 (Toshiba) and a device ID of 0105 (unknown). In the 2.4.18 kernel,
-> this was fine, since drivers/ide/ide-pci.c recognised it as an unknown
-> IDE device and all was well.
->
-> Somewhere between 2.4.18 and 2.4.22, the PCI IDE code seems to have been
-> re-organised, and ide/generic.c seems not to have all the necessary code
-> for unrecognised IDE devices. However, 1179:0103 is listed there as a
-> Toshiba Piccolo controller, and adding 1179:0105 with the same data
-> makes things work fine.
->
-> Toshiba Piccolo support seems to have been removed entirely from
-> generic.c in 2.6.2-rc3-bk1. This seems to have affected at least Jérôme
-> Augé, who submitted a patch for a similar problem on 08/01 this year,
-> containing
->
-> #define PCI_DEVICE_ID_TOSHIBA_PICCOLO 0x0102
->
-> So, I would guess that it's safe to assume at least 1179:0102, 1179:0103
-> and 1179:0105 are Toshiba Piccolo controllers.
->
-> Should I submit this as a patch?
+ /*
+  * Serial driver configuration section.  Here are the various options:
+@@ -3936,6 +3941,16 @@
+ 		}
 
-Yes please.
+ 	}
++
++	/* SIIG 8 port cards are off for the last 4 ports --- TMH */
++	if (dev->vendor == PCI_VENDOR_ID_SIIG &&
++		dev->device == PCI_DEVICE_ID_SIIG_8S_20x_650) {
++		if (idx > 3) {
++			offset = (idx - 4) * 8;
++			base_idx = 4;
++		}
++	}
++
 
-> If I should, which kernel versions should I submit it against?
+ 	/* HP's Diva chip puts the 4th/5th serial port further out, and
+ 	 * some serial ports are supposed to be hidden on certain models.
+@@ -4379,6 +4394,7 @@
+ 	pbn_siig20x_0,
+ 	pbn_siig20x_2,
+ 	pbn_siig20x_4,
++	pbn_siig20x_8,
 
-Ideally against 2.6 and 2.4.
+ 	pbn_computone_4,
+ 	pbn_computone_6,
+@@ -4478,11 +4494,13 @@
+ 		0, 0, pci_siig10x_fn },
+ 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 4, 921600,   /* pbn_siig10x_4 */
+ 		0, 0, pci_siig10x_fn },
+-	{ SPCI_FL_BASE0, 1, 921600,			   /* pbn_siix20x_0 */
++	{ SPCI_FL_BASE0, 1, 921600,			   /* pbn_siig20x_0 */
+ 		0, 0, pci_siig20x_fn },
+-	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 921600,   /* pbn_siix20x_2 */
++	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 921600,   /* pbn_siig20x_2 */
+ 		0, 0, pci_siig20x_fn },
+-	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 4, 921600,   /* pbn_siix20x_4 */
++	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 4, 921600,   /* pbn_siig20x_4 */
++		0, 0, pci_siig20x_fn },
++	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 8, 921600,   /* pbn_siig20x_8 */
+ 		0, 0, pci_siig20x_fn },
+
+ 	{ SPCI_FL_BASE0, 4, 921600, /* IOMEM */		   /* pbn_computone_4 */
+@@ -4839,6 +4857,9 @@
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_4S_20x_850,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_siig20x_4 },
++	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_8S_20x_650,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_siig20x_8 },
+
+ 	/* Computone devices submitted by Doug McNash dmcnash@computone.com */
+ 	{	PCI_VENDOR_ID_COMPUTONE, PCI_DEVICE_ID_COMPUTONE_PG,
+diff -ur linux-2.4.25/include/linux/pci_ids.h linux-2.4.25-mod1/include/linux/pci_ids.h
+--- linux-2.4.25/include/linux/pci_ids.h	Wed Feb 18 05:36:32 2004
++++ linux-2.4.25-mod1/include/linux/pci_ids.h	Mon Feb 23 09:22:37 2004
+@@ -1525,6 +1525,7 @@
+ #define PCI_DEVICE_ID_SIIG_2S1P_20x_550	0x2060
+ #define PCI_DEVICE_ID_SIIG_2S1P_20x_650	0x2061
+ #define PCI_DEVICE_ID_SIIG_2S1P_20x_850	0x2062
++#define PCI_DEVICE_ID_SIIG_8S_20x_650	0x2081
+
+ #define PCI_VENDOR_ID_DOMEX		0x134a
+ #define PCI_DEVICE_ID_DOMEX_DMX3191D	0x0001
+
+

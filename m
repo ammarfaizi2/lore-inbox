@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132496AbRD1XxJ>; Sat, 28 Apr 2001 19:53:09 -0400
+	id <S132707AbRD2AEj>; Sat, 28 Apr 2001 20:04:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132686AbRD1XxA>; Sat, 28 Apr 2001 19:53:00 -0400
-Received: from www.linux.org.uk ([195.92.249.252]:24082 "EHLO www.linux.org.uk")
-	by vger.kernel.org with ESMTP id <S132496AbRD1Xwo>;
-	Sat, 28 Apr 2001 19:52:44 -0400
-Date: Sun, 29 Apr 2001 00:52:06 +0100
-From: Russell King <rmk@arm.linux.org.uk>
+	id <S135586AbRD2AEb>; Sat, 28 Apr 2001 20:04:31 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13325 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132707AbRD2AEP>; Sat, 28 Apr 2001 20:04:15 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Zerocopy implementation issues
-Message-ID: <20010429005206.J21792@flint.arm.linux.org.uk>
-Mail-Followup-To: Russell King <rmk@flint.arm.linux.org.uk>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Sony Memory stick format funnies...
+Date: 28 Apr 2001 17:03:43 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9cflov$fdv$1@cesium.transmeta.com>
+In-Reply-To: <200104282236.AAA06021@cave.bitwizard.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Followup to:  <200104282236.AAA06021@cave.bitwizard.nl>
+By author:    R.E.Wolff@BitWizard.nl (Rogier Wolff)
+In newsgroup: linux.dev.kernel
+> 
+> # l /mnt/d1
+> total 16
+> drwxr-xr-x 512 root     root        16384 Mar 24 17:26 dcim/
+> -r-xr-xr-x   1 root     root            0 May 23  2000 memstick.ind*
+> # 
+> 
+> Where the *(&#$%& does that "dcim" directory come from????
+> 
 
-Can someone please explain to me the rationale behind the zerocopy
-implementation that has appeared in 2.4.4 please?
+"dcim" probably stands for "digital camera images".  At least Canon
+digital cameras always put their data in a directory named dcim.
 
-The reason I ask is that even on x86, it seems to me to be extremely
-silly to have the expense of doing unaligned checksumming for the gain
-of zerocopy.
-
-Just think - if you did checksumming on aligned word boundaries you
-could be far faster!
-
-(Yes, you guessed it, its broken on ARM, and is going to make the
-networking layer pig slow if we keep the current implementation as
-it stands due to the phenominal amount of exceptions it _will_
-generate - 1 exception per word in a packet).
-
-I'm still investigating the source of the networking corruptions I'm
-seeing, but its looking like the above is the reason (data is being
-corrupted on TCP send).
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

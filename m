@@ -1,82 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132725AbRDUPxH>; Sat, 21 Apr 2001 11:53:07 -0400
+	id <S132727AbRDUPx5>; Sat, 21 Apr 2001 11:53:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132727AbRDUPw6>; Sat, 21 Apr 2001 11:52:58 -0400
-Received: from m2ep.pp.htv.fi ([212.90.64.98]:56842 "EHLO m2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id <S132725AbRDUPwu>;
-	Sat, 21 Apr 2001 11:52:50 -0400
-Message-ID: <000701c0ca7b$051934a0$6786f3d5@pp.htv.fi>
-From: "Ville Holma" <ville.holma@pp.htv.fi>
-To: <linux-kernel@vger.kernel.org>
-Cc: <ville.holma@pp.htv.fi>
-Subject: a way to restore my hd ?
-Date: Sat, 21 Apr 2001 18:52:01 +0300
+	id <S132728AbRDUPxs>; Sat, 21 Apr 2001 11:53:48 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:779 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132727AbRDUPxg>;
+	Sat, 21 Apr 2001 11:53:36 -0400
+Date: Sat, 21 Apr 2001 12:48:48 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Venkatesh Ramamurthy <venkateshr@softhome.net>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: pageable kernel-segments
+In-Reply-To: <20010420195150.A7325@redhat.com>
+Message-ID: <Pine.LNX.4.21.0104211236340.1685-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Fri, 20 Apr 2001, Stephen C. Tweedie wrote:
+> On Fri, Apr 20, 2001 at 03:49:30PM +0100, Alan Cox wrote:
+> 
+> > There is a proposal (several it seems) to make 2.5 replace the conventional
+> > unix swap with a filesystem of backing store for anonymous objects. That will
+> > mean each object has its own vm area and inode and thus we can start blowing
+> > away all user mode page tables when we want.
+> 
+> Not without major VM overhaul.
+> 
+> The problem is MAP_PRIVATE, where a single vma can contain both normal
+> file-backed pages and anonymous pages at the same time.  You don't
+> even know whose anonymous page it is --- a process with anon pages can
+> fork, so that later on some of the child's anon pages actually come
+> from the parent's anon space instead of the child's.
 
-I'm affraid this list is my last chance at saving my harddrive. I hope this
-kind of question is appropriate here and if not, my appologies.
+Whoooops indeed. I forgot about this mess...
 
-Anyway, here's the deal. I upgraded my hardware to 1GHz Athlon with a 133
-kHz FSB,  Via KT133A chipset motherboard and 256 Mb of 133 sdram. I'm
-running a standard 2.4.3 kernel.
+> Right now all of the magic that makes this work is in the page tables.
+> To remove page tables we'd need additional structures all through the
+> VM to track anonymous pages, and that's exactly where the FreeBSD VM
+> starts to get extremely messy compared to ours.
 
-The memory I had was however somehow corrupt and after I got my new system
-booted up and used it a little it became shaky and then locked hard and I
-could do nothing but reset it. I suppose this was caused by the
-malfunctioning memory but I can't be sure, I know there has been problems
-with the via chipset also.
+That's because they still seem to use Mach's object chaining.
 
-Anyway now that I try to boot up the system I get a kernel panic like this:
+There's bound to be a much cleaner solution than whatever it
+is they copied over from Mach ;)
 
+regards,
 
-EXT2-fs: #blocks per group too big: 2147516416
-fatfs: bodus cluster size
-kernel panic: VFS: Unable to mount root fs on 03:47
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-
-So I set up another linux box and tried to run e2fsck on the partition
-resulting in this
-
-
-debian:~# e2fsck /dev/hdb7
-e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-Corruption found in superblock.  (frags_per_group = 2147516416).
-
-The superblock could not be read or does not describe a correct ext2
-filesystem.  If the device is valid and it really contains an ext2
-filesystem (and not swap or ufs or something else), then the superblock
-is corrupt, and you might try running e2fsck with an alternate superblock:
-    e2fsck -b -2147450879 <device>
-
-
-So I tried to use the huge block size like e2fsck suggests and I get this
-
-
-debian:~# e2fsck -b -2147450879 /dev/hdb7
-e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-e2fsck: Attempt to read block from filesystem resulted in short read while
-trying to open /dev/hdb7
-Could this be a zero-length partition?
-
-
-This is where the human panic occured. There is data on that partition that
-I _really_ do not want to loose. I'm clueless and woud appreciate any
-help/suggestions. If some additonal information is needed I'm more than
-happy to deliver.
-
-Thanks in advance
-
-Ville
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

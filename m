@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281251AbRKERfy>; Mon, 5 Nov 2001 12:35:54 -0500
+	id <S280318AbRKERje>; Mon, 5 Nov 2001 12:39:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281256AbRKERfo>; Mon, 5 Nov 2001 12:35:44 -0500
-Received: from rain.CC.Lehigh.EDU ([128.180.39.20]:43672 "EHLO
-	rain.CC.Lehigh.EDU") by vger.kernel.org with ESMTP
-	id <S281251AbRKERfb>; Mon, 5 Nov 2001 12:35:31 -0500
-Message-ID: <3BE6C909.6070308@Lehigh.EDU>
-Date: Mon, 05 Nov 2001 12:14:49 -0500
-From: Jim Eshleman <jce0@Lehigh.EDU>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
+	id <S281263AbRKERjY>; Mon, 5 Nov 2001 12:39:24 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:38159 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S280318AbRKERjS>; Mon, 5 Nov 2001 12:39:18 -0500
+Message-ID: <3BE6DADA.49A82DD8@evision-ventures.com>
+Date: Mon, 05 Nov 2001 19:30:50 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-To: Jason Allen <jallen@fnal.gov>
-CC: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: 2.4.13 Mem Related Hangs
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alexander Viro <viro@math.psu.edu>
+CC: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+In-Reply-To: <Pine.GSO.4.21.0111051058070.24894-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > We have a 8 CPU/8GB Dell 8450 running 2.4.13 (NFS and XFS patches)
- > which hangs regularly.
- >
- > I'd say that the problem is memory related. What seems to occur is
- > that mem cache grows until physical mem is exhausted at which time
- > the system hangs.
+Alexander Viro wrote:
+> 
+> On Mon, 5 Nov 2001, Martin Dalecki wrote:
+> 
+> > "Albert D. Cahalan" wrote:
+> >
+> > Every BASTARD out there telling the world, that parsing ASCII formatted
+> > files
+> 
+> What was your username, again?
 
-   FWIW me too, on an 8-way 8.5GB (64GB HIGHMEM enabled) IBM Netfinity 
-x370 (8500R) which functions as a production mail server.  I currently 
-run 2.4.9 with XFS and it stays up for about a week under heavy load. 
-2.4.13 lasted about 4 hours under light load until all memory was 
-consumed by cache then it became unresponsive.
-
-   2.4.13 on a 2-way 1GB (64GB HIGHMEM enabled) Netfinity x350 test box 
-with the same kernel config and XFS works fine even under stress, so 
-perhaps our problem is similar to the discussion on l-k "Google's mm 
-problems"...
-
-   Anything I can do to help please ask.
-
-Jim
-
+root, with uid != 0 and on a masquaraded host, who cares?

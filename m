@@ -1,59 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267267AbSLKSnt>; Wed, 11 Dec 2002 13:43:49 -0500
+	id <S267188AbSLKSll>; Wed, 11 Dec 2002 13:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267268AbSLKSnt>; Wed, 11 Dec 2002 13:43:49 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27145 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267267AbSLKSns>; Wed, 11 Dec 2002 13:43:48 -0500
-Message-ID: <3DF78911.5090107@zytor.com>
-Date: Wed, 11 Dec 2002 10:50:57 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en, sv
+	id <S267265AbSLKSll>; Wed, 11 Dec 2002 13:41:41 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1043 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267188AbSLKSlk>; Wed, 11 Dec 2002 13:41:40 -0500
+Date: Wed, 11 Dec 2002 13:47:18 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RAID5 chunksize?
+In-Reply-To: <20021210152330.GP32203@rdlg.net>
+Message-ID: <Pine.LNX.3.96.1021211132229.19397A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Terje Eggestad <terje.eggestad@scali.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: Intel P6 vs P7 system call performance
-References: <1039610907.25187.190.camel@pc-16.office.scali.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terje Eggestad wrote:
-> It get even worse with Hammer. When you run hammer in compatibility mode
-> (32 bit app on a 64 bit OS) the sysenter is an illegal instruction.
->
-> Since Intel don't implement syscall, there is no portable sys*
-> instruction for 32 bit apps. You could argue that libc hides it for you
-> and you just need libc to test the host at startup (do I get a sigill if
-> I try to do getpid() with sysenter? syscall? if so we uses int80 for
-> syscalls).  But not all programs are linked dyn.
-
-
-Linus talked about this once, and it was agreed that the only sane way
-to do this properly was via vsyscalls... have a page mapped somewhere in
-high (kernel-area) memory, say at 0xfffff000, but readable by normal
-processes.  A system call can be invoked via call 0xfffff000, and the
-*kernel* enters whatever code is appropriate to enter itself.
-
-> Too bad really, I tried the sysenter patch once, and the gain (on PIII
-> and athlon) was significant.
-> 
-> Fortunately the 64bit libc for hammer uses syscall. 
-> 
-
-Yes.
+On Tue, 10 Dec 2002, Robert L. Harris wrote:
 
 > 
-> PS:  rdtsc on P4 is also painfully slow!!!
 > 
+> Ok, say I'm building a 4 disk raid5 array.  Performance is going to be
+> critical as this system is going to be very IO intensive.  We had to go
+> RAID5 though due to filesystem requirements.
+> 
+> According to the manufacturer the disks have:
+> 
+>   8Meg DataBuffer
+>   10K RPM Rotational speed
+>   SCSI Ultra 160
+> 
+> (Drive is:
+> http://www.fel.fujitsu.com/home/product.asp?L=en&PID=248&INFO=fsp)
+> 
+> What is the ideal Chunksize?  
 
-Now that's just braindead...
+That depends on your definition of ideal, unfortunately.
 
-	-hpa
+> Any other thoughts on how to lay down the disks/filesystem on this
+> bugger?
 
+Yes, I got a chance to spend a LOT of time tuning RAID, and got to see
+what various settings actually did.
+
+You have to decide if you want to have maximum transfer rate or minimum
+seeks on the drive. Some of the changes impact one at the expense of the
+other.
+
+If you want to reduce seeks, make the stripe size larger than most of the
+i/o requests, so you access at most two drives. This will reduce your
+seeks, a too-small stripe can result in activity to most of the drives for
+most i/o operations. Lots of seeks, and bad performance if transfers are
+fairly small, a request can't complete until the slowest seek+transfer is
+complete. 
+
+If the typical write is large, defined as transfer time significantly more
+than seek time, you can improve transfer rate by spreading the transfer
+over multiple drives, as long as you don't overload your bus. This last
+gets important, a few controllers with multiple sets of LVD-160 or faster
+drives can start to stress the PCI bus, and enough DMA (or similar bus
+master i/o) can actually hit the memory hard enough to measure in the CPU
+access time. Clearly these limits are not typical, you idea of high rate
+might be idle on some NUMA or cluster. Since this increases the seek rate
+on individual drives, you can hurt more than you help with certain loads.
+
+Finally, if you have a very high read rate and much lower write rate, you
+can help with RAID-1, so that data on one (busy) drive can be pulled from
+a mirror. You *can* have more than two mirrored copies, if your load
+justifies it.
+
+Hope some of this helps you answer your own question.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

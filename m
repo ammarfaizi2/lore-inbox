@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266408AbTA1OZ4>; Tue, 28 Jan 2003 09:25:56 -0500
+	id <S265523AbTA1OTT>; Tue, 28 Jan 2003 09:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266720AbTA1OZ4>; Tue, 28 Jan 2003 09:25:56 -0500
-Received: from AGrenoble-101-1-6-201.abo.wanadoo.fr ([80.11.197.201]:39374
-	"EHLO awak") by vger.kernel.org with ESMTP id <S266408AbTA1OZy>;
-	Tue, 28 Jan 2003 09:25:54 -0500
+	id <S265567AbTA1OTT>; Tue, 28 Jan 2003 09:19:19 -0500
+Received: from home.wiggy.net ([213.84.101.140]:53695 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S265523AbTA1OTS>;
+	Tue, 28 Jan 2003 09:19:18 -0500
+Date: Tue, 28 Jan 2003 15:28:37 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Bootscreen
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
-Cc: "'John Bradford'" <john@grabjohn.com>, rob@r-morris.co.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <398E93A81CC5D311901600A0C9F2928946937F@cubuss2>
-References: <398E93A81CC5D311901600A0C9F2928946937F@cubuss2>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: 
-Message-Id: <1043764502.24813.16.camel@bip.localdomain.fake>
+Message-ID: <20030128142837.GX4868@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030128133252.GC23296@suse.de> <200301281355.h0SDteN1000666@darkstar.example.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 28 Jan 2003 15:35:03 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301281355.h0SDteN1000666@darkstar.example.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mar 28/01/2003 à 14:13, Raphael Schmid a écrit :
-> > > Most of the machines I maintain are very seldom rebooted, but if someone
+Previously John Bradford wrote:
+> Surely the most sensible lines to think along are:
 > 
-> > > was to do a reboot, I would want them to be able to observe any errors
-> or 
-> > > other abnormal output from the boot-up process.
-> > 
-> > Agreed, for standard desktops and servers.
-> Well, I really don't know about you, but I for one reboot my desktop every
-> morning. Maybe this is a German attitude, but I generally consider it a
-> waste
-> of resources to have my workstation run during the night. For downloads and
-> the like, I got a headless server which does good power management in the
-> closet room. Besides, again: everyone [who is not a hacker] likes eyecandy.
-> I wouldn't normally say that if it wasn't about this discussion.
+> * Make boot times as short as possible
 
-Yeah, I'd really like a stable working swsusp (on a working kernel) to
-shortcut the fscking boot. Go pawel !
+So with a short boot time instead of seeing text messages for a while
+you'll get some flickering on the screen - I don't call that an
+improvement.
 
-	Xav
+> * Support, and encourage the use of more efficient CPU designs, so
+>   that it becomes sensible to leave machines on all the time.
 
+Unfortunately in the real world we are dealing with existing cheap
+hardware.
+
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

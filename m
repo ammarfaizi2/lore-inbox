@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbTILUA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTILUA5
+	id S261827AbTILUDB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 16:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTILUDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:00:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:63999 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261260AbTILUAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:00:31 -0400
-Date: Fri, 12 Sep 2003 22:00:23 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Martin Schlemmer <azarah@gentoo.org>, jgarzik@pobox.com,
-       ebiederm@xmission.com, akpm@osdl.org, richard.brunner@amd.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-ID: <20030912200022.GO27368@fs.tum.de>
-References: <3F60837D.7000209@pobox.com> <20030911162634.64438c7d.ak@suse.de> <3F6087FC.7090508@pobox.com> <m1vfrxlxol.fsf@ebiederm.dsl.xmission.com> <20030912195606.24e73086.ak@suse.de> <3F62098F.9030300@pobox.com> <20030912182216.GK27368@fs.tum.de> <20030912202851.3529e7e7.ak@suse.de> <1063393505.3371.207.camel@workshop.saharacpt.lan> <20030912213016.47a4e5de.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030912213016.47a4e5de.ak@suse.de>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 Sep 2003 16:03:00 -0400
+Received: from ns.suse.de ([195.135.220.2]:12717 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261827AbTILUCR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 16:02:17 -0400
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] new ioctl type checking causes gcc warning
+References: <3F621AC4.4070507@cox.net>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I've got an IDEA!!  Why don't I STARE at you so HARD,
+ you forget your SOCIAL SECURITY NUMBER!!
+Date: Fri, 12 Sep 2003 22:02:15 +0200
+In-Reply-To: <3F621AC4.4070507@cox.net> (Kevin P. Fleming's message of "Fri,
+ 12 Sep 2003 12:13:08 -0700")
+Message-ID: <je65jx3hdk.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 09:30:16PM +0200, Andi Kleen wrote:
->...
-> I think it's useful to keep kernels booting everywhere, it makes it a lot easier
-> to test a single kernel on multiple systems.
+"Kevin P. Fleming" <kpfleming@cox.net> writes:
 
-Different people have different needs:
+> --- linux-2.6.0-test5/include/asm-i386/ioctl.h~	Mon Sep  8 12:49:52 2003
+> +++ linux-2.6.0-test5/include/asm-i386/ioctl.h	Fri Sep 12 11:58:41 2003
+> @@ -53,7 +53,7 @@
+>   	 ((size) << _IOC_SIZESHIFT))
+>
+>   /* provoke compile error for invalid uses of size argument */
+> -extern int __invalid_size_argument_for_IOC;
+> +extern unsigned int __invalid_size_argument_for_IOC;
 
-Sometimes you want kernels booting everywhere, e.g. a distribution might
-want to support all CPUs from an 386 to an Opteron with one kernel for
-their boot floppies.
+Why not make it size_t which is what sizeof actually returns?
 
-For a system administrator with only Pentium 3 and Pentum 4 machines
-support for 386 and Opteron isn't of much worth.
-
-In some embedded systems people are happy about every kB their kernel is 
-smaller.
-
-> -Andi
-
-cu
-Adrian
+Andreas.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268037AbUIFOCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268059AbUIFOLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268037AbUIFOCt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 10:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUIFOCs
+	id S268059AbUIFOLv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 10:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUIFOLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 10:02:48 -0400
-Received: from cantor.suse.de ([195.135.220.2]:26811 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268037AbUIFOCp (ORCPT
+	Mon, 6 Sep 2004 10:11:50 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:62854 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268059AbUIFOLr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 10:02:45 -0400
-Date: Mon, 6 Sep 2004 16:02:44 +0200
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: drivers/cdrom/cdu31a.c broken
-Message-ID: <20040906140244.GA9236@suse.de>
+	Mon, 6 Sep 2004 10:11:47 -0400
+Message-ID: <9e47339104090607111e8a6f5d@mail.gmail.com>
+Date: Mon, 6 Sep 2004 10:11:46 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Intel ICH - sound/pci/intel8x0.c
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1094470037.3816.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040906083139.GA1188@linux.ensimag.fr>
+	 <1094470037.3816.5.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet
-  1.1998 04/09/03 10:36:31 janitor@sternwelten.at[torvalds] +1 -0
-  [PATCH] cdu31a: replace schedule_timeout() with msleep()
+The hotplug event of interest is the insertion of the snd_intel8x0
+chip, not the insertion of the LPC bridge. It's hooking to both
+events, it only needs to hook to the snd_intel8x0 event and then
+search for a bridge if there is one.
+
+Takashi says the code is already gone in the alsa tree so we don't
+know how they fixed it.
 
 
-typo, should be ; instead of :
+On Mon, 06 Sep 2004 12:27:19 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Llu, 2004-09-06 at 09:31, Matthieu Castet wrote:
+> > > None of them help because you need to deal with hotplug.
+> > Heu, I don't understant why you need to deal with hotplug ?
+> > PnP modules works like pci modules. You make a list of know id, and then
+> 
+> ISAPnP has no hotplug functionality. If I have an ICH or 440MX in laptop
+> docking stations the ISAPnP world simply can't report it, while the PCI
+> hotplug layer can.
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-diff -purN linux-2.6.9-rc1-bk13.orig/drivers/cdrom/cdu31a.c linux-2.6.9-rc1-bk13/drivers/cdrom/cdu31a.c
---- linux-2.6.9-rc1-bk13.orig/drivers/cdrom/cdu31a.c	2004-09-06 15:23:34.000000000 +0200
-+++ linux-2.6.9-rc1-bk13/drivers/cdrom/cdu31a.c	2004-09-06 15:59:32.549300720 +0200
-@@ -959,7 +959,7 @@ retry_cd_operation:
- 	if (((result_buffer[0] & 0xf0) == 0x20)
- 	    && (num_retries < MAX_CDU31A_RETRIES)) {
- 		num_retries++;
--		msleep(100):
-+		msleep(100);
- 		goto retry_cd_operation;
- 	}
- 
+
+
 -- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+Jon Smirl
+jonsmirl@gmail.com

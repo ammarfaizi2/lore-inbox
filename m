@@ -1,78 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVCVHCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVCVHCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbVCVHCr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 02:02:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVCVHBR
+	id S262040AbVCVHCt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 02:02:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVCVHAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 02:01:17 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42668 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262065AbVCUWcH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:32:07 -0500
-Date: Mon, 21 Mar 2005 23:31:46 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Mws <mws@twisted-brains.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
+	Tue, 22 Mar 2005 02:00:48 -0500
+Received: from nijmegen.renzel.net ([195.243.213.130]:51874 "EHLO
+	mx1.renzel.net") by vger.kernel.org with ESMTP id S262040AbVCUWcD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 17:32:03 -0500
+X-Spam-Report: SA TESTS
+ -1.7 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                             [score: 0.0000]
+Message-ID: <423F4B88.8020504@twisted-brains.org>
+Date: Mon, 21 Mar 2005 23:32:40 +0100
+From: Mws <mws@twisted-brains.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Phillip Lougher <phillip@lougher.demon.co.uk>,
+       Paulo Marques <pmarques@grupopie.com>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH][2/2] SquashFS
-Message-ID: <20050321223146.GM1390@elf.ucw.cz>
-References: <20050314170653.1ed105eb.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <200503211908.46602.mws@twisted-brains.org> <20050321185418.GC1390@elf.ucw.cz> <423F496C.10004@twisted-brains.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <423F496C.10004@twisted-brains.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+References: <20050314170653.1ed105eb.akpm@osdl.org> <A572579D-94EF-11D9-8833-000A956F5A02@lougher.demon.co.uk> <20050314190140.5496221b.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <423EEEC2.9060102@lougher.demon.co.uk> <20050321190044.GD1390@elf.ucw.cz>
+In-Reply-To: <20050321190044.GD1390@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek wrote:
+-snip-
 
-> >>>>Well, probably Phillip can answer this better than me, but the main 
-> >>>>differences that affect end users (and that is why we are using 
-> >>>>SquashFS right now) are:
-> >>>>                         CRAMFS          SquashFS
-> >>>>
-> >>>>Max File Size               16Mb               4Gb
-> >>>>Max Filesystem Size        256Mb              4Gb?
-> >>>>       
-> >>>>
-> >>>So we are replacing severely-limited cramfs with also-limited
-> >>>squashfs... For live DVDs etc 4Gb filesystem size limit will hurt for
-> >>>sure, and 4Gb file size limit will hurt, too. Can those be fixed?
-> >>>     
-> >>>
-> >
-> >...
-> > 
-> >
-> >>but if there is a contribution from the outside - it is not taken "as is" 
-> >>and maybe fixed up, which
-> >>should be nearly possible in the same time like analysing and commenting 
-> >>the code - it ends up
-> >>in having less supported hardware. 
-> >>
-> >>imho if a hardware company does indeed provide us with opensource 
-> >>drivers, we should take these
-> >>things as a gift, not as a "not coding guide a'like" intrusion which
-> >>has to be defeated.
-> >
-> >Remember that horse in Troja? It was a gift, too.
+>>>So we are replacing severely-limited cramfs with also-limited
+>>>squashfs... 
+>>>      
+>>>
+>>I think that's rather unfair, Squashfs is significantly better than 
+>>cramfs.  The main aim of Squashfs has been to achieve the best 
+>>    
+>>
+>
+>Yes, it *is* rather unfair. Sorry about that. But having 2 different
+>limited compressed filesystems in kernel does not seem good to me.
+>
+>  
+>
+what do you need e.g. reiserfs 4 for? or jfs? or xfs? does not ext2/3 
+the journalling job also?
+is there really a need for cifs and samba and ncpfs and nfs v3 and nfs 
+v4? why?
 
-> of course there had been a horse in troja., but thinking like that 
-> nowadays is a bit incorrect - don't you agree?
-> 
-> code is reviewed normally - thats what i told before and i stated as 
-> good feature - but there is no serious reason
-> to blame every code to have potential "trojan horses" inside and to 
-> reject it.
+-snip-
 
-I should have added a smiley.
+>Well, out-of-tree maintainenance takes lot of time, too, so by keeping
+>limited code out-of-kernel we provide quite good incentive to make
+>those limits go away.
+>
+>Perhaps squashfs is good enough improvement over cramfs... But I'd
+>like those 4Gb limits to go away.
+>								Pavel
+>  
+>
+we all do - but who does really care about stupid 4Gb limits on embedded 
+systems with e.g.
+8 or 32 Mb maybe more of Flash Ram? really noboby
 
-I'm not seriously suggesting that it contains deliberate problem. But
-codestyle uglyness and arbitrary limits may come back and haunt us in
-future. Once code is in kernel, it is very hard to change on-disk
-format, for example.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+if you want to have a squashfs for DVD images e.g. not 4.7Gb but  
+DualLayer ect., why do you complain?
+you are maybe not even - nor you will be - a user of squashfs. but there 
+are many people outside that use
+squashfs on different platforms and want to have it integrated to 
+mainline kernel. so why are you blocking?
+
+did you have a look at the code? did you find a "trojan horse"?
+no and no? so why are you blocking? if the coding style is not that what 
+nowadays kernel coder have as
+coding style? if you care - fix it - otherwise give hints and other 
+people will do.
+
+regards
+marcel
+

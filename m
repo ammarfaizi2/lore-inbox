@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293654AbSB1Sa6>; Thu, 28 Feb 2002 13:30:58 -0500
+	id <S293688AbSB1T2Z>; Thu, 28 Feb 2002 14:28:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293647AbSB1S2F>; Thu, 28 Feb 2002 13:28:05 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:57846 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S293648AbSB1S1B>; Thu, 28 Feb 2002 13:27:01 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.33.0202280854250.15607-100000@home.transmeta.com> 
-In-Reply-To: <Pine.LNX.4.33.0202280854250.15607-100000@home.transmeta.com> 
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: recalc_sigpending() / recalc_sigpending_tsk() ? 
-Mime-Version: 1.0
+	id <S293490AbSB1T0V>; Thu, 28 Feb 2002 14:26:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26372 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293682AbSB1TXR>;
+	Thu, 28 Feb 2002 14:23:17 -0500
+Message-ID: <3C7E83A6.A7A6FB7F@mandrakesoft.com>
+Date: Thu, 28 Feb 2002 14:23:18 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Michael Cohen <me@ohdarn.net>, linux-kernel@vger.kernel.org,
+        ajoshi@shell.unixbox.com
+Subject: Re: Submissions for 2.4.19-pre [RivaFB Blanking Fix (Author Unknown)]
+In-Reply-To: <Pine.LNX.4.21.0202281510540.2182-100000@freak.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Feb 2002 18:26:58 +0000
-Message-ID: <365.1014920818@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo Tosatti wrote:
+> 
+> On Thu, 28 Feb 2002, Jeff Garzik wrote:
+> 
+> > Marcelo Tosatti wrote:
+> > > On Wed, 27 Feb 2002, Jeff Garzik wrote:
+> > > > Marcelo Tosatti wrote:
+> > > > > Please send that to the RivaFB maintainer.
+> >
+> > > > to be honest there really isn't one.....
+> >
+> > > Yes there is: Ani Joshi <ajoshi@shell.unixbox.com>.
+> >
+> > No, there isn't.  Ani volunteered for the position, then has been
+> > ignoring patches sent to him for a year or more.   I used to be rivafb
+> > maintainer (look at who wrote riva/fbdev.c...), then didn't have time.
+> > When I asked around for a new maintainer, he claimed to take up the
+> > position, but no patches have been forthcoming...
+> >
+> > Ferenc Bakonyi did a good bit of work, and IMO would be a good candidate
+> > for maintainership, if he's still around.
+> 
+> I've been receing rivafb patches from him lately. For example, pre2 has a
+> rivafb update.
+> 
+> In practice, from my point of view, he is maintaining the driver.
 
-torvalds@transmeta.com said:
->  Not a chance in hell. The backwards compatibility looks like a
-> trivial one-liner:
+That's great!
 
->    compat-2.4.h:
-> 	#define recalc_sigpending() recalc_sigpending(current)
+I'm glad he's returned.
 
-> so what are you complaining about? 
-
-Fine. I was trying to define a back-compat version of recalc_sigpending_tsk()
-too, before going through all the code and changing recalc_sigpending(current)
-to recalc_sigpending and recalc_sigpending(other) to recalc_sigpending_tsk() 
-- but as you rightly point out there's no justification for using the latter
-in any of the driver or fs code that I'm trying to support - and hence it
-isn't present, and doesn't need the compat support.
+	Jeff
 
 
---
-dwmw2
 
-
+-- 
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263702AbUD0DOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263701AbUD0D0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263702AbUD0DOY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 23:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263708AbUD0DOY
+	id S263701AbUD0D0R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 23:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUD0D0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 23:14:24 -0400
-Received: from canalmusic.webnext.com ([213.161.194.17]:16901 "HELO
-	www.canalmusic.com") by vger.kernel.org with SMTP id S263702AbUD0DOW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 23:14:22 -0400
-Message-ID: <408DCFE9.3040407@canalmusic.com>
-Date: Tue, 27 Apr 2004 05:13:45 +0200
-From: Gilles May <gilles@canalmusic.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
+	Mon, 26 Apr 2004 23:26:17 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:2653 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263701AbUD0D0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 23:26:16 -0400
+Message-ID: <408DD2D5.1040306@yahoo.com.au>
+Date: Tue, 27 Apr 2004 13:26:13 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <408DC0E0.7090500@gmx.net>
-In-Reply-To: <408DC0E0.7090500@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+CC: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
+Subject: Re: ext3 inode cache eats system, news at 11
+References: <20040426171856.22514.qmail@lwn.net> <20040426181235.2b5b62c8.akpm@osdl.org>
+In-Reply-To: <20040426181235.2b5b62c8.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger wrote:
+Andrew Morton wrote:
 
->The attached patch blacklists all modules having "Linuxant" or "Conexant"
->in their author string. This may seem a bit broad, but AFAIK both
->companies never have released anything under the GPL and have a strong
->history of binary-only modules.
->  
->
-Blacklisting modules?!
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc2/2.6.6-rc2-mm2/broken-out/slab-order-0-for-vfs-caches.patch
+> 
+> is not a completely happy solution, but it should fix things up.
 
-Oh come on!
-I agree the '\0' trick is not really nice, but blacklisting modules is 
-not really better. It's not a functionality that adds anything to the 
-kernel.
-If ppl want/have to use that module let them!
+Another thing you could be doing is not zeroing swapper->nr
+if the shrinker function doesn't do anything, in order to try
+to maintain pressure on the dcache. This would be similar to
+your deferred list idea.
 
-Take care, Gilles
-
--- 
-If you don't live for something you'll die for nothing!
-
-
-
+But I guess that using 0 order allocations for these GFP_NOFS
+caches means you would be losing far less dcache pressure in
+this way, so it might not make much difference.

@@ -1,22 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbTKPNLT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 08:11:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTKPNLT
+	id S262859AbTKPNMz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 08:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTKPNMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 08:11:19 -0500
-Received: from gprs145-223.eurotel.cz ([160.218.145.223]:4224 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262805AbTKPNLI (ORCPT
+	Sun, 16 Nov 2003 08:12:55 -0500
+Received: from gprs145-223.eurotel.cz ([160.218.145.223]:4736 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262859AbTKPNMt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 08:11:08 -0500
-Date: Sun, 16 Nov 2003 14:11:34 +0100
+	Sun, 16 Nov 2003 08:12:49 -0500
+Date: Sun, 16 Nov 2003 14:13:14 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, vojtech@ucw.cz
-Subject: Corrected drivermodel for i8042.c
-Message-ID: <20031116131134.GA301@elf.ucw.cz>
+To: Rob Landley <rob@landley.net>
+Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Patrick's Test9 suspend code.
+Message-ID: <20031116131314.GC199@elf.ucw.cz>
+References: <200311090404.40327.rob@landley.net> <20031113130841.GC643@openzaurus.ucw.cz> <200311151830.45731.rob@landley.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200311151830.45731.rob@landley.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,89 +27,51 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-Here's (slightly) better patch. i8042_controller_init() can not be
-__init when it is called from _resume() function.
-								Pavel
+> > > This brings us to 2B) Snapshotting is way too opaque.  It sits there for
+> > > 15 seconds sometimes doing inscrutable things, with no progress indicator
+> > > or anything, and then either suspends, panics, or fails and fires the
+> > > desktop back up with no diagnostic message.
+> > >
+> > > On the whole, this is really really cool, and if you have any suggestions
+> > > how I could help, I'm all ears.  (I'm unlikely to poke into the code too
+> >
+> > Try "my" swsusp code. It should not fail silently; it may
+> > panic the box but at that point you at least have a message.
+> 
+> I've had your swsusp hang, panic, go into a half-suspended state where I have 
+> to hold the power button ten seconds to actually power it off and reboot, and 
+> fail in a few other ways.  What I've never actually had your code do is 
+> successfully suspend something I could resume from.
+> 
+> 90% of the time, patrick's code does that for me.  Yours has yet to do so even 
+> once for me.
+> 
+> I suppose I could give it another shot, though...
 
---- clean/drivers/input/serio/i8042.c	2003-09-28 22:05:48.000000000 +0200
-+++ linux/drivers/input/serio/i8042.c	2003-11-15 23:42:43.000000000 +0100
-@@ -18,6 +18,7 @@
- #include <linux/reboot.h>
- #include <linux/init.h>
- #include <linux/serio.h>
-+#include <linux/sysdev.h>
- 
- #include <asm/io.h>
- 
-@@ -398,18 +399,15 @@
-  * desired.
-  */
- 	
--static int __init i8042_controller_init(void)
-+static int i8042_controller_init(void)
- {
--
- /*
-  * Test the i8042. We need to know if it thinks it's working correctly
-  * before doing anything else.
-  */
- 
- 	i8042_flush();
--
- 	if (i8042_reset) {
--
- 		unsigned char param;
- 
- 		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
-@@ -783,6 +781,33 @@
- 	values->mux = index;
- }
- 
-+static int i8042_resume_port(struct serio *port)
-+{
-+	struct serio_dev *dev = port->dev;
-+	if (dev) {
-+		dev->disconnect(port);
-+		dev->connect(port, dev);
-+	}	
-+}
-+
-+static int i8042_resume(struct sys_device *dev)
-+{
-+	if (i8042_controller_init())
-+		printk(KERN_ERR "i8042: resume failed\n");
-+	i8042_resume_port(&i8042_kbd_port);
-+	return 0;
-+}
-+
-+static struct sysdev_class kbc_sysclass = {
-+	set_kset_name("i8042"),
-+	.resume = i8042_resume,
-+};
-+
-+static struct sys_device device_i8042 = {
-+	.id	= 0,
-+	.cls	= &kbc_sysclass,
-+};
-+
- int __init i8042_init(void)
- {
- 	int i;
-@@ -819,6 +845,14 @@
- 
- 	register_reboot_notifier(&i8042_notifier);
- 
-+	{
-+		int error = sysdev_class_register(&kbc_sysclass);
-+		if (!error)
-+			error = sys_device_register(&device_i8042);
-+		if (error)
-+			printk(KERN_CRIT "Unable to register i8042 to driver model\n");
-+	}
-+
- 	return 0;
- }
- 
+Strange, they should be pretty much the same, functionality-wise.
+
+Here are few tricks... OTOH if it works for you 90% of time, these
+would take a lot of time to test :-(.
+
+If you want to trick swsusp/S3 into working, you might want to try:
+
+* go with minimal config, turn off drivers like USB, AGP you don't
+really need
+
+* use ext2. At least it has working fsck. [If something seemes to go
+  wrong, force fsck when you have a chance]
+
+* turn off modules
+
+* use vga text console, shut down X
+
+* try running as few processes as possible, preferably go from single
+use mode
+
+When you make it work, try to find out what exactly was it that broke
+suspend, and preferably fix that.
+
+								Pavel
 
 -- 
 When do you have a heart between your knees?

@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbTDCRS5 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 12:18:57 -0500
+	id S261390AbTDCRd2 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 12:33:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S261489AbTDCRS5 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 12:18:57 -0500
-Received: from pat.uio.no ([129.240.130.16]:30664 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261359AbTDCRRF 
+	id S261412AbTDCRd1 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 12:33:27 -0500
+Received: from granite.he.net ([216.218.226.66]:3087 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S261390AbTDCRdZ 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 12:17:05 -0500
+	Thu, 3 Apr 2003 12:33:25 -0500
+Date: Thu, 3 Apr 2003 09:43:43 -0800
+From: Greg KH <greg@kroah.com>
 To: Stacy Woods <stacyw@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bugs sitting in the RESOLVED state for more than 2 weeks
-References: <3E8C578E.8000202@us.ibm.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 03 Apr 2003 19:28:27 +0200
-In-Reply-To: <3E8C578E.8000202@us.ibm.com>
-Message-ID: <shs1y0jlcck.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Bugs sitting in the NEW state for more than 2 weeks
+Message-ID: <20030403174343.GA4895@kroah.com>
+References: <3E8C5851.6080200@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E8C5851.6080200@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Stacy Woods <stacyw@us.ibm.com> writes:
+On Thu, Apr 03, 2003 at 10:50:41AM -0500, Stacy Woods wrote:
+> 
+> 387  Other      Other      bugme-janitors@lists.osdl.org
+> poll on usb device does not return immediatly when device is unplugged
+> 
+> 388  Other      Other      bugme-janitors@lists.osdl.org
+> 2.5.60/ioctl on usb device returns wrong length
 
-     >   24 File Sys NFS khoa@us.ibm.com
-     > statfs returns incorrect number fo blocks
+Any reason why these were not assigned to the USB maintainer, like the
+other USB bugs have been?
 
-This patch is *not* NFS specific. It needs to be pushed to
-linux-fsdevel and linux-kernel for more general review.
+thanks,
 
-Cheers,
-  Trond
+greg k-h

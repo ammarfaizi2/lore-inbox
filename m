@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263793AbRFCWob>; Sun, 3 Jun 2001 18:44:31 -0400
+	id <S263213AbRFCO5g>; Sun, 3 Jun 2001 10:57:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263794AbRFCWoV>; Sun, 3 Jun 2001 18:44:21 -0400
-Received: from sheriff.western.net ([216.216.90.1]:25606 "EHLO
-	ponyexpress.western.net") by vger.kernel.org with ESMTP
-	id <S263793AbRFCWoP>; Sun, 3 Jun 2001 18:44:15 -0400
-Message-Id: <v03110701b7406cf25df5@[24.221.20.19]>
+	id <S263210AbRFCO50>; Sun, 3 Jun 2001 10:57:26 -0400
+Received: from [213.128.193.148] ([213.128.193.148]:24337 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S263160AbRFCOwP>;
+	Sun, 3 Jun 2001 10:52:15 -0400
+Date: Sun, 3 Jun 2001 18:51:42 +0400
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Russell King <rmk@arm.linux.org.uk>, Alan Cox <laughing@shared-source.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac7
+Message-ID: <20010603185142.A1474@linuxhacker.ru>
+In-Reply-To: <20010603133333.A25478@flint.arm.linux.org.uk> <E156Z88-0004O1-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sun, 3 Jun 2001 15:47:12 -0700
-To: linux-kernel@vger.kernel.org
-From: Clinton Hogge <clint@western.net>
-Subject: isc_time_now Fatal Error
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E156Z88-0004O1-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Jun 03, 2001 at 03:45:24PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hello!
 
-I've sent the following to the Bind9-Users list. It appears that this is a
-kernel-related bug and they suggested I post it here as well.
+On Sun, Jun 03, 2001 at 03:45:24PM +0100, Alan Cox wrote:
+> > Alan, a StrongARM 11x0 with its companion SA11x1 chip is a USB master.
+> > Last time I looked, it was supported:
+> > + * usb-ohci-sa1111.h
+> So the SA1110 has PCI bus ? Or at least equivalent logic ?
+SA1110 do not have PCI bus. Neither do SA1111.
+I am not sure what kind of equivalent logic you mean.
+All IO addresses are fixed and specified in chip spec.
 
-I'm running Linux 2.4.5 and Bind 9.1.2 on a PowerPC. The same error has
-popped up under 2.4.3 as well.
-
-Please CC me with any responses as I'm not yet subscribed to this list.
-Thanks in advance for any suggestions.
-
-Clinton Hogge
-Industrial Images
-
-Original message:
-----------------
-Named (9.1.2) failed at about 3 this morning (it seems that's always the
-time for problems :) with:
-
-timer.c:646: fatal error:
-RUNTIME_CHECK(isc_time_now(&now) == 0) failed
-exiting (due to fatal error in library)
-
-I saw one other post in the Bind9 archives regarding the same error.
-
-Mark Andrews responded:
-
->The error message indicated isc_time_now() failed.  Now
->isc_time_now() can fail for a number of reasons, the most
->likely one is that gettimeofday() returned a time with
->tv_usec out of range.  i.e. you detected a kernel bug.
->
->This can often be fixed by the following.
->
->sysctl -w kern.timecounter.method=1
-
-The only problem is that the original poster is running FreeBSD
-3.3-RELEASE. My boxes are Power PCs running Linux 2.4.5 - sysctl reports
-the above fix as an "unknown key."
-
-Is there an equivalent fix for Linux?
-
-
-
+Bye,
+    Oleg

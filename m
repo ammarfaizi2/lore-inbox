@@ -1,78 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263441AbUALXUu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 18:20:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUALXUu
+	id S262838AbUALXP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 18:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUALXPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 18:20:50 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:63878 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263441AbUALXUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 18:20:05 -0500
-Subject: Re: Laptops & CPU frequency
-From: john stultz <johnstul@us.ibm.com>
-To: Disconnect <lkml@sigkill.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1073938271.2156.10.camel@slappy>
-References: <20040111025623.GA19890@ncsu.edu>
-	 <1073791061.1663.77.camel@localhost>  <1073816858.6189.186.camel@nomade>
-	 <1073817226.6189.189.camel@nomade>
-	 <1073937159.28098.46.camel@cog.beaverton.ibm.com>
-	 <1073938271.2156.10.camel@slappy>
-Content-Type: text/plain
-Message-Id: <1073949577.28098.68.camel@cog.beaverton.ibm.com>
+	Mon, 12 Jan 2004 18:15:55 -0500
+Received: from gprs214-71.eurotel.cz ([160.218.214.71]:2176 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262838AbUALXPd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 18:15:33 -0500
+Date: Tue, 13 Jan 2004 00:14:26 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: suspend/resume support for PIT (time.c)
+Message-ID: <20040112231426.GB204@elf.ucw.cz>
+References: <20040110200332.GA1327@elf.ucw.cz> <1073932405.28098.43.camel@cog.beaverton.ibm.com> <20040112223915.GA204@elf.ucw.cz> <20040112151254.5a30baaa.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 12 Jan 2004 15:19:38 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040112151254.5a30baaa.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-12 at 12:11, Disconnect wrote:
-> On Mon, 2004-01-12 at 14:52, john stultz wrote:
-> > More info please. What type of hardware is this?  Could you send me your
-> > dmesg for booting both with and without AC power? 
+Hi!
+
+> Pavel Machek <pavel@ucw.cz> wrote:
+> >
+> > > As none of this really has anything to do w/ the PIT, and to avoid
+> > > confusion w/ the PIT timesource code, could we rename this to
+> > > "time_suspend" and "time_resume"?
+> > 
+> > Applied, altrough I'll not try to push it for a while. (I'm not sure
+> > if Andrew applied previous patches and do not want to clash).
 > 
-> I had a similar problem with 2.4 (with and without acpi, speedstep, etc)
-> on an Inspiron 8500.  Unfortunately, Dell only gives "use speedstep"
-> (boot in powersave on battery, performance on ac)  and "always in lowest
-> performance mode" options in the bios.  (Dell, you listening? How about
-> "don't use speedstep, only use [powersave/performance] mode"? Or "Boot
-> in last-used mode"..)
+> I already converted the patch.    Here's what I currently have:
+
+Looks good, thanks a lot.
+
+> From: Pavel Machek <pavel@ucw.cz>
 > 
-> When the machine is suspended (swsusp) while on AC, it must be resumed
-> on AC (and same if suspended on battery) or the kernel gets very
-> confused.  Time doubles (or halves), etc.  No amount of arguing with
-> speedstep (or acpi in general, if speedstep wasn't applied/used) will
-> get it sane.  (FWIW XP gets this right - hibernate XP on battery, resume
-> on ac, hibernate, resume on battery, etc and it does fine.)
+> This adds proper suspend/resume support for PIT.  That means that clock are
+> actually correct after suspend/resume.
 > 
-> Perhaps linux would benefit from some form of "make sure the cpu is
-> doing what we think it is" knob?  Something that could be triggered by
-> scripts (or even swsusp/apm directly) as early in a resume as possible,
-> before the miscalculation cascades into crashes.  (This would be
-> completely independent from speedstep or acpi, since I suspect that the
-> same problems may occur independently of acpi on other machines with
-> similar braindamaged bios.)
 > 
-> Thoughts?  I can do more rigorous testing and report back if needed.  (I
-> spent 2 days playing with it a few months ago, then gave it up as
-> hopeless.)
+> ---
+> 
+>  25-akpm/arch/i386/kernel/time.c |   24 ++++++++++++++++++++++++
+>  1 files changed, 24 insertions(+)
+> 
+> diff -puN arch/i386/kernel/time.c~suspend-resume-for-PIT arch/i386/kernel/time.c
+> --- 25/arch/i386/kernel/time.c~suspend-resume-for-PIT	Mon Jan 12 13:49:55 2004
+> +++ 25-akpm/arch/i386/kernel/time.c	Mon Jan 12 13:49:55 2004
+> @@ -307,7 +307,31 @@ unsigned long get_cmos_time(void)
+>  	return retval;
+>  }
+>  
+> +static long clock_cmos_diff;
+> +
+> +static int time_suspend(struct sys_device *dev, u32 state)
+> +{
+> +	/*
+> +	 * Estimate time zone so that set_time can update the clock
+> +	 */
+> +	clock_cmos_diff = -get_cmos_time();
+> +	clock_cmos_diff += get_seconds();
+> +	return 0;
+> +}
+> +
+> +static int time_resume(struct sys_device *dev)
+> +{
+> +	unsigned long sec = get_cmos_time() + clock_cmos_diff;
+> +	write_seqlock_irq(&xtime_lock);
+> +	xtime.tv_sec = sec;
+> +	xtime.tv_nsec = 0;
+> +	write_sequnlock_irq(&xtime_lock);
+> +	return 0;
+> +}
+> +
+>  static struct sysdev_class pit_sysclass = {
+> +	.resume = time_resume,
+> +	.suspend = time_suspend,
+>  	set_kset_name("pit"),
+>  };
+>  
+> 
+> _
 
-I'm surprised that you've seen this on 2.4, as the TSC time code does
-not try to compensate for lost ticks. Instead we only use the TSC value
-to offset from xtime, reseting our offset each tick. So changes in cpu
-frequency should only cause time inconsistencies, not time doubling.
-Might something be going oddly in setting up the timer interrupt on
-restore? I'd be interested in more details. 
-
-In 2.6 we do try to detect when cpufreq changes without notifying us.
-However its a balancing act as the symptoms are the same as when you
-have a broken PIT or lose too many interrupt. Hopefully HPET and the
-ACPI PM timesource will provide more reliable time sources. 
-
-thanks
--john
-
-
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

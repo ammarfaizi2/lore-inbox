@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289166AbSANWwF>; Mon, 14 Jan 2002 17:52:05 -0500
+	id <S289120AbSANWyo>; Mon, 14 Jan 2002 17:54:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289149AbSANWvz>; Mon, 14 Jan 2002 17:51:55 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61449 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289166AbSANWvo>; Mon, 14 Jan 2002 17:51:44 -0500
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-To: esr@thyrsus.com
-Date: Mon, 14 Jan 2002 23:03:36 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjan@fenrus.demon.nl,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020114170808.A22503@thyrsus.com> from "Eric S. Raymond" at Jan 14, 2002 05:08:08 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S289149AbSANWyf>; Mon, 14 Jan 2002 17:54:35 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:17543
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289120AbSANWyV>; Mon, 14 Jan 2002 17:54:21 -0500
+Date: Mon, 14 Jan 2002 17:38:54 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020114173854.C23081@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020114173542.C30639@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16QG8e-0003Gr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020114173542.C30639@redhat.com>; from bcrl@redhat.com on Mon, Jan 14, 2002 at 05:35:42PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Where did your assumption that Melvin has the canned config files to
-> do that still available come from?  More fundamentally: which should 
-> he *have* to have those configs available?
+Benjamin LaHaise <bcrl@redhat.com>:
+> On Mon, Jan 14, 2002 at 04:59:09PM -0500, Eric S. Raymond wrote:
+> > Scenario #3: Penelope goes where the geeks are surfing.
+> 
+> Dude, please go fix the *design* bugs in fetchmail before hounding 
+> linux-kernel with additional flame wars.
 
-Because the GPL says he's entitled to them ?
+Point out one and I'll fix it.  I'm not satisfied that you have
+understood what fetchmail is doing yet.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+The common argument that crime is caused by poverty is a kind of
+slander on the poor.
+	-- H. L. Mencken

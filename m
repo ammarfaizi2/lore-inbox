@@ -1,76 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275270AbRJ2Njw>; Mon, 29 Oct 2001 08:39:52 -0500
+	id <S275224AbRJ2NlW>; Mon, 29 Oct 2001 08:41:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275178AbRJ2Njp>; Mon, 29 Oct 2001 08:39:45 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:28547 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S275110AbRJ2Njk>; Mon, 29 Oct 2001 08:39:40 -0500
-Message-ID: <002401c1607f$771eb9e0$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Manel Guerrero Zapata" <manel.guerrero-zapata@nokia.com>,
-        "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0110291047040.2963-100000@imladris.surriel.com> <3BDD5391.6BF30E81@nokia.com>
-Subject: Re: 2.4.0 TCP caches ip route
-Date: Mon, 29 Oct 2001 14:41:51 +0100
+	id <S275178AbRJ2NlM>; Mon, 29 Oct 2001 08:41:12 -0500
+Received: from mout02.kundenserver.de ([195.20.224.133]:27405 "EHLO
+	mout02.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S275278AbRJ2NlG>; Mon, 29 Oct 2001 08:41:06 -0500
+Message-ID: <000c01c1607f$6a8cccd0$0242a8c0@alpha.de>
+From: "Frank Peters" <frank@zur-boersch.de>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <019d01c16073$299f5d20$0242a8c0@alpha.de>
+Subject: Re: How to access /proc/*/mem ?
+Date: Mon, 29 Oct 2001 14:41:23 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Manel Guerrero Zapata" <manel.guerrero-zapata@nokia.com>
-To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Monday, October 29, 2001 2:03 PM
-Subject: 2.4.0 TCP caches ip route
+sorry!
+
+i must lseek to a valid position!
 
 
-> Hi,
->
-> I'm using 2.4.0 (but I thing that this is probably a 2.4.X problem).
-> If a execute a telnet command to certain address (like 10.0.0.1).
-> And the routing table says that packets for 10.0.0.1 should be
-> routed to the device dummy0,
-> The telnet keeps trying to connect. (till here everything is cool).
-> And then I change the routing table so now it should
-> send those packets to the ppp0 (where 10.0.0.1 is), but the
-> connexion does not get stablished anyway (till I get timeout).
->
-> The problem seems to be that the kernel
-> caches that the device for the connexion should be dummy0.
-> If then, I cancel the telnet and start it again
-> now (of course) it stablishes a telnet conexion though the ppp0.
->
-> This problem does not occur if I use ping instead of telnet
-> (probably because ping uses no socket).
->
-> Should not be a mechanism that flushes caches when routing
-> table changes?
->
-> If the cached info is attached to the socket structure
-> probably this flushing thing is not quite feasible, am I wrong?
->
-> I know you usually don't expect the device though your tcp
-> connection goes to change on the fly, but that actually can
-> happend, and maybe (IMHO) should be supported.
->
-> Maybe I'm missing something. (probably ;) )
-
-This sounds like a minor problem. I do think that if you already have an
-established connection it would work just as you want it to do, but as you
-describe it you don't have an established TCP connection. What I mean is
-that you won't exactly loose your connection if you don't even have one at
-the first place!
-
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
 
 

@@ -1,96 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131009AbRAMR1U>; Sat, 13 Jan 2001 12:27:20 -0500
+	id <S129406AbRAMRgk>; Sat, 13 Jan 2001 12:36:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131011AbRAMR1L>; Sat, 13 Jan 2001 12:27:11 -0500
-Received: from air.lug-owl.de ([62.52.24.190]:43270 "HELO air.lug-owl.de")
-	by vger.kernel.org with SMTP id <S131009AbRAMR1B>;
-	Sat, 13 Jan 2001 12:27:01 -0500
-Date: Sat, 13 Jan 2001 18:26:09 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sparc10 with 512M of RAM hangs on boot
-Message-ID: <20010113182609.B11253@lug-owl.de>
-Reply-To: jbglaw@lug-owl.de
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010113034809.28919.qmail@web1001.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010113034809.28919.qmail@web1001.mail.yahoo.com>; from ronnnyc@yahoo.com on Fri, Jan 12, 2001 at 07:48:09PM -0800
-X-Operating-System: Linux air 2.4.0-test8-pre1 
+	id <S129413AbRAMRgb>; Sat, 13 Jan 2001 12:36:31 -0500
+Received: from maile.telia.com ([194.22.190.16]:11781 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S129406AbRAMRgR>;
+	Sat, 13 Jan 2001 12:36:17 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roger Larsson <roger.larsson@norran.net>
+To: george anzinger <george@mvista.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Latency: allowing resheduling while holding spin_locks
+Date: Sat, 13 Jan 2001 18:31:43 +0100
+X-Mailer: KMail [version 1.2]
+Cc: Nigel Gamble <nigel@nrg.org>
+MIME-Version: 1.0
+Message-Id: <01011315231600.01469@dox>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---RASg3xLB4tUQ4RcS
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+A rethinking of the rescheduling strategy...
 
-On Fri, Jan 12, 2001 at 07:48:09PM -0800, Ron Calderon wrote:
-> every kernel after 2.4.0-test5 hangs my sparc10
-> at the same spot. Has anyone looked into this?
+I have come to this conclusion.
 
-Well, that's when highmen support was introduced into sparc32, right?
+A spinlock prevents other processes to enter that specific region.
+But interrupts are allowed they might delay 
+execution of a spin locked
+reqion for a undefined (small but anyway) time.
 
-> Uncompressing image...
-> PROMLIB: obio_ranges 5
-> bootmem_init: Scan sp_banks,=20
-> init_bootmem(spfn[121],bpfn[121],mlpfn[c000])
-> free_bootmem: base[0] size[c000000]
-> reserve_bootmem: base[0] size[121000]
-> reserve_bootmem: base[121000] size[1800]
->=20
-> the last kernel I tried was cvs'ed from vger last
-> night. I beleive it was 2.4.1-pre2.
+Code with critical maximum times should use spin_lock_irq !
 
-That's quite the same output I get. However, supplying mem=3D128M
-(I have got 128MB) at least allows me to boot up with about
-25MB of RAM (sparc has holes...):
+=> spin_locks are not about disallowing reschedules.
 
-CVS_Root  DIFF_f  REMOVE  scsi-gui
-jbglaw@sparcling:~$ cat /proc/cmdline=20
-ro root=3D/dev/sda1 mem=3D128M console=3Dttya
-jbglaw@sparcling:~$ free
-             total       used       free     shared    buffers     cached
-Mem:         26564      21720       4844          0        720      12104
--/+ buffers/cache:       8896      17668
-Swap:        49840          0      49840
-jbglaw@sparcling:~$ uname -a
-Linux sparcling 2.4.0-test12 #2 SMP Sat Dec 16 02:25:25 CET 2000 sparc unkn=
-own
 
-It's a SparcStation 10 w/ 2 CPUs.
+Prior to the introduction of spin locks it did not make sense to
+allow reschedules in kernel since the big kernel lock was so big...
+Any code that wanted do any non pure computation task would
+hit it very quickly.
 
-Anton, do you have any clue where changes could have broke SS10 support?
+Now with spin locks the situation is quite different...
 
-MfG, JBG
+[First assume UP kernel for simplicity]
 
---=20
-Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
-!!!
-/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
-99 E1BB
-     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
+Suppose you have two processes one that normal (P) and one high priority 
+(RTP).
 
---RASg3xLB4tUQ4RcS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+P runs user code, makes a system call, enters a spin lock region.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Interrupt!
 
-iEYEARECAAYFAjpgj7EACgkQHb1edYOZ4bup5ACfe1MtjoCCOiTjirU/zieoX35q
-PksAnRgoQpyWqPUVy9YwN+9Tn1GWjBjc
-=P7kw
------END PGP SIGNATURE-----
+The interrupt service routine wakes up RTP, which marks P as need_reschedule, 
+and returns, on return from interrupt it detects that P needs_reschedule -
+do it even if it is executing in kernel and holding a spin_lock.
 
---RASg3xLB4tUQ4RcS--
+RTP starts, and if it does not hit the same spin_lock there is nothing 
+special happening until it goes to sleep again. But suppose it does!
+
+RTP tries to get the spin_lock but fails, since it is the currently highest 
+prio process and P is running it wants to reschedule to P to get its own 
+stuff done.
+
+P runs the final part of its spin_locked region, upon spin_unlock it needs to
+get RTP running.
+
+Something like this:
+
+spin_lock(lock)
+{
+	while (test_and_set(lock->lock)) {
+		schedule_spinlock(); /* kind of yield, giving low goodness, sticky */
+	}
+}
+
+spin_unlock(lock)
+{
+	clear(lock);
+
+	/* note: someone with higher prio than me,
+	   might steal the lock from even higher prio waiters here */
+
+	if (lock->queue)
+		wakeup_spinlock_yielder(lock);
+}
+
+
+schedule_spinlock()
+{
+	/* note: owner can not run here, it has lower prio */
+
+	addqueue(lock->queue, current);
+
+	p->policy |= SCHED_SPINLOCK;
+	schedule();
+}
+
+wakeup_spinlock_yielder(lock)
+{
+	int need_resched = 0;
+
+	int my_goodness = goodness(current);
+
+	forall p in lock->queue
+		p->policy &= ~SCHED_SPINLOCK;
+		if (goodness(p) > my_goodness)
+			need_resched = 1;
+	}
+
+	if (need_resched)
+		schedule();
+}
+
+
+A final note on spin_lock_irq, since they prevent IRQs there will be no 
+requests to wakeup any process during their locked region => no problems.
+
+-- 
+Home page:
+  no currently
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262512AbSIZMzs>; Thu, 26 Sep 2002 08:55:48 -0400
+	id <S261186AbSIZNGM>; Thu, 26 Sep 2002 09:06:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262513AbSIZMzs>; Thu, 26 Sep 2002 08:55:48 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:59535 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262512AbSIZMzs>;
-	Thu, 26 Sep 2002 08:55:48 -0400
-Date: Thu, 26 Sep 2002 18:35:58 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.38-mm3
-Message-ID: <20020926183558.D18906@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <3D92BE07.B6CDFE54@digeo.com> <20020926175445.B18906@in.ibm.com> <20020926122909.GN3530@holomorphy.com> <20020926181052.C18906@in.ibm.com> <20020926124244.GO3530@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020926124244.GO3530@holomorphy.com>; from wli@holomorphy.com on Thu, Sep 26, 2002 at 05:42:44AM -0700
+	id <S261271AbSIZNGM>; Thu, 26 Sep 2002 09:06:12 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:40429 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261186AbSIZNGL>;
+	Thu, 26 Sep 2002 09:06:11 -0400
+Date: Thu, 26 Sep 2002 15:20:08 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
+Subject: [patch] exit-fix-2.5.38-F0
+Message-ID: <Pine.LNX.4.44.0209261518430.17662-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 05:42:44AM -0700, William Lee Irwin III wrote:
-> This is only aggravated by cacheline bouncing on SMP. The reductions
-> of system cpu time will doubtless be beneficial for all.
 
-On SMP, I would have thought that only sharing the fd table
-while cloning tasks (CLONE_FILES) affects performance by bouncing the rwlock
-cache line. Are there a lot of common workloads where this happens ?
+i've attached a patch i got from Andrew - he found a couple of places
+where we would enable interrupts while write-holding the tasklist_lock ...  
+nasty.
 
-Anyway the files_struct_rcu patch for 2.5.38 is up at
-http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=112473
+against BK-curr, works as expected.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+	Ingo
+
+--- linux/kernel/sched.c.orig	Thu Sep 26 12:48:42 2002
++++ linux/kernel/sched.c	Thu Sep 26 13:00:39 2002
+@@ -477,13 +477,15 @@
+  */
+ void sched_exit(task_t * p)
+ {
+-	local_irq_disable();
++	unsigned long flags;
++
++	local_irq_save(flags);
+ 	if (p->first_time_slice) {
+ 		p->parent->time_slice += p->time_slice;
+ 		if (unlikely(p->parent->time_slice > MAX_TIMESLICE))
+ 			p->parent->time_slice = MAX_TIMESLICE;
+ 	}
+-	local_irq_enable();
++	local_irq_restore(flags);
+ 	/*
+ 	 * If the child was a (relative-) CPU hog then decrease
+ 	 * the sleep_avg of the parent as well.
+--- linux/kernel/signal.c.orig	Thu Sep 26 12:48:42 2002
++++ linux/kernel/signal.c	Thu Sep 26 13:00:39 2002
+@@ -1086,6 +1086,7 @@
+  */
+ static inline void wake_up_parent(struct task_struct *p)
+ {
++	unsigned long flags;
+ 	struct task_struct *parent = p->parent, *tsk = parent;
+ 
+ 	/*
+@@ -1095,14 +1096,14 @@
+ 		wake_up_interruptible(&tsk->wait_chldexit);
+ 		return;
+ 	}
+-	spin_lock_irq(&parent->sig->siglock);
++	spin_lock_irqsave(&parent->sig->siglock, flags);
+ 	do {
+ 		wake_up_interruptible(&tsk->wait_chldexit);
+ 		tsk = next_thread(tsk);
+ 		if (tsk->sig != parent->sig)
+ 			BUG();
+ 	} while (tsk != parent);
+-	spin_unlock_irq(&parent->sig->siglock);
++	spin_unlock_irqrestore(&parent->sig->siglock, flags);
+ }
+ 
+ /*
+

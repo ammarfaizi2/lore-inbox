@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUFFQPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263781AbUFFQQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbUFFQPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 12:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUFFQPJ
+	id S263781AbUFFQQR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 12:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbUFFQQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 12:15:09 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:14990 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S263778AbUFFQPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 12:15:02 -0400
-Subject: [PATCH] 2.6.6 memory allocation checks in idmap_lookup()
-From: Yury Umanets <yury@clusterfs.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1086538529.2793.82.camel@firefly>
+	Sun, 6 Jun 2004 12:16:16 -0400
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:28134 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S263781AbUFFQQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 12:16:01 -0400
+Date: Sun, 6 Jun 2004 10:18:27 -0600
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ide errors in 7-rc1-mm1 and later
+Message-ID: <20040606161827.GC28576@bounceswoosh.org>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <1085689455.7831.8.camel@localhost> <200406041438.44706.bzolnier@elka.pw.edu.pl> <20040604124704.GA1946@suse.de> <200406041534.48688.bzolnier@elka.pw.edu.pl> <20040604152347.GD1946@suse.de> <40C0B191.2040201@pobox.com> <20040605092447.GB13641@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 06 Jun 2004 19:15:29 +0300
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20040605092447.GB13641@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds memory allocation checks in idmap_lookup()
+On Sat, Jun  5 at 11:24, Jens Axboe wrote:
+>I did suggest this a few years ago. The comment I received was that
+>they didn't take suggestions from OS people, if I didn't have a drive
+>implementation to go with the proposal they couldn't use it for
+>anything. Which was interesting, since that seemed to suggest that t13
+>had little steering in ata development, they mainly put into the ATA
+>specs what drive manufacturers shoved at them. Of course this isn't 100%
+>true, but it does explain a lot of things :-)
 
- ./linux-2.6.6-modified/fs/nfsd/nfs4idmap.c |    2 ++
- 1 files changed, 2 insertions(+)
+If it helps, I'm listening.
 
-Signed-off-by: Yury Umanets <torque@ukrpost.net>
+Suggestions/proposals for new features etc, if they're a good idea, I
+can help push inside via our SATA/T13 reps.  Note that as per all
+long-lived specs with multiple revisions, changing the behavior of an
+existing feature to something incompatible is virtually never
+feasable.
 
-diff -rupN ./linux-2.6.6/fs/nfsd/nfs4idmap.c
-./linux-2.6.6-modified/fs/nfsd/nfs4idmap.c
---- ./linux-2.6.6/fs/nfsd/nfs4idmap.c	Mon May 10 05:32:54 2004
-+++ ./linux-2.6.6-modified/fs/nfsd/nfs4idmap.c	Wed Jun  2 14:40:17 2004
-@@ -474,6 +474,8 @@ idmap_lookup(struct svc_rqst *rqstp,
- 	if (!*item)
- 		return -ENOMEM;
- 	mdr = kmalloc(sizeof(*mdr), GFP_KERNEL);
-+	if (!mdr)
-+		return -ENOMEM;
- 	memset(mdr, 0, sizeof(*mdr));
- 	init_waitqueue_head(&mdr->waitq);
- 	add_wait_queue(&mdr->waitq, &waitq);
+>Andre even tried getting FUA to do what we needed, no such luck there.
+>Some other bigger OS wanted it differently, the rest is history.
+
+Lo siento, I wasn't around when that occurred.  Of course, that other
+bigger OS has a very large installed base, and selling a drive that
+breaks it is corporate suicide.
 
 
 -- 
-umka
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
 

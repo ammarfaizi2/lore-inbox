@@ -1,41 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312394AbSCYL2S>; Mon, 25 Mar 2002 06:28:18 -0500
+	id <S312401AbSCYLfJ>; Mon, 25 Mar 2002 06:35:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312402AbSCYL2J>; Mon, 25 Mar 2002 06:28:09 -0500
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:61703
-	"HELO marcus.pants.nu") by vger.kernel.org with SMTP
-	id <S312393AbSCYL1y>; Mon, 25 Mar 2002 06:27:54 -0500
-Subject: Re: ANN: New NTFS driver (2.0.0/TNG) now finished.
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Mon, 25 Mar 2002 03:50:26 -0800 (PST)
-Cc: aia21@cam.ac.uk (Anton Altaparmakov), linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <6451.1017045127@redhat.com> from "David Woodhouse" at Mar 25, 2002 08:32:07 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S312404AbSCYLeu>; Mon, 25 Mar 2002 06:34:50 -0500
+Received: from p50846B26.dip.t-dialin.net ([80.132.107.38]:34018 "EHLO
+	sol.fo.et.local") by vger.kernel.org with ESMTP id <S312401AbSCYLei>;
+	Mon, 25 Mar 2002 06:34:38 -0500
+To: Robert Love <rml@tech9.net>
+Cc: Andrew Morton <akpm@zip.com.au>,
+        christophe =?iso-8859-1?q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 3c59x and resume
+In-Reply-To: <20020323161647.GA11471@ufies.org> <3C9CCBEB.D39465A6@zip.com.au>
+	<1016914030.949.20.camel@phantasy>
+From: Joachim Breuer <jmbreuer@gmx.net>
+Date: Mon, 25 Mar 2002 12:34:18 +0100
+Message-ID: <m3r8m851ad.fsf@venus.fo.et.local>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (Cuyahoga Valley,
+ i386-redhat-linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20020325115026.1FCAD24DB5@marcus.pants.nu>
-From: flar@pants.nu (Brad Boyer)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> All architectures should support unaligned accesses.
+Robert Love <rml@tech9.net> writes:
 
-Perhaps all architectures "should", but I can assure
-you that many of them do no such thing. I didn't
-look at every current architecture, but some notable
-ones like the brand new IA64, as well as some older
-chips such as MIPS have some relatively complicated
-code in get_unaligned(), which can be found in the
-appropriate include/asm-<arch> directory in the
-file unaligned.h. I suspect that at least some of
-these allow for an exception handler to fake the
-capability in user space programs, but that isn't
-something you can allow inside the kernel.
+> On Sat, 2002-03-23 at 13:39, Andrew Morton wrote:
+>
+>> in modules.conf, and we really have eight NICS, and they're
+>> being plugged and unplugged, how can we reliably associate
+>> that option with the eight cards?  So the right option is
+>> applied to each card eash time it's inserted?  Should the
+>> option be associated with a card, or with a bus position?
+>
+> Ugh, not pretty.
+>
+> Associate it with the bus position I'd say?
 
-	Brad Boyer
-	flar@allandria.com
+I don't know wherewith the <i> in eth<i> is associated (bus pos or
+maybe linear ordering of the MAC addresses or somesuch), but I would
+expect a selected combination of eth<i> userland configuration (IP
+address, netmask) and driver level configuration (WOL, ...) to remain
+stable.
 
+Being able to redetect a pulled card put in a different slot as a
+"known" one giving it the same eth<i> (and associated WOL etc. config)
+as before would of course be nice, but I can't see how this can be
+cleanly done over reboots.
+
+With bus pos you get a lesser variant of the "SCSI disk association
+problem", i.e. inserting an eth card in an empty slot between other
+eth cards moves at least some of the others (I'm not sure, but I think
+this would be the current behaviour. - Over reboots, not in the
+hot-plug case, of course).
+
+I wouldn't mind if the <i> in eth<i> was somehow derived from the
+phy. bus pos; so I'd maybe have eth3 and eth7 and if I plugged another
+one it could be eth4. That way I'd only have to worry about the cards
+"wandering" around when changing/drastically reconfiguring (BIOS
+update?) the motherboard.
+
+To cut a lengthy dogfight short most of that useful functionality
+could be had by indexing the eth configure scripts over, say, MAC
+address instead of eth<i>; that way I'd have to touch the config when
+exchanging the card against a different one; but no others would
+decide to move around no matter what. OK, so there might be b0rked
+cards with unusable MACs out there, but for the applications I have in
+mind I wouldn't use those, anyway.
+
+(All this comes to mind because in my PFY days I had to fight with a
+firewall which, after card change (might even have been driver load
+order, can't remember whether it was the same driver for all 3 cards)
+shifted eth<i> in a most, ah, undesirable fashion.)
+
+
+So long,
+   Joe
+
+-- 
+"I use emacs, which might be thought of as a thermonuclear
+ word processor."
+-- Neal Stephenson, "In the beginning... was the command line"

@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263431AbREXJJo>; Thu, 24 May 2001 05:09:44 -0400
+	id <S263445AbREXJVY>; Thu, 24 May 2001 05:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263435AbREXJJf>; Thu, 24 May 2001 05:09:35 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:28423 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S263431AbREXJJ0>; Thu, 24 May 2001 05:09:26 -0400
-Message-Id: <200105240909.f4O99ie01182@collie.ncptiddische.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Nils Holland <nils@nightcastleproductions.org>
-Organization: NightCastle Productions
-To: Peter Rasmussen <plr@udgaard.com>
-Subject: Re: Bug in chipset or feature in kernel?
-Date: Thu, 24 May 2001 11:09:44 +0200
-X-Mailer: KMail [version 1.2.2]
-In-Reply-To: <200105240726.JAA00325@udgaard.com>
-In-Reply-To: <200105240726.JAA00325@udgaard.com>
-Cc: linux-kernel@vger.kernel.org
-NCP-Opt: Powered by Linux
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S263438AbREXJVP>; Thu, 24 May 2001 05:21:15 -0400
+Received: from oxmail2.ox.ac.uk ([163.1.2.1]:14526 "EHLO oxmail.ox.ac.uk")
+	by vger.kernel.org with ESMTP id <S263437AbREXJVC>;
+	Thu, 24 May 2001 05:21:02 -0400
+Date: Thu, 24 May 2001 10:20:58 +0100
+From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD  w/info-PATCH]device arguments from lookup)
+Message-ID: <20010524102058.B1249@sable.ox.ac.uk>
+In-Reply-To: <3B0717CE.57613D4A@mandrakesoft.com> <200105221853.f4MIroHt011398@webber.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200105221853.f4MIroHt011398@webber.adilger.int>; from adilger@turbolinux.com on Tue, May 22, 2001 at 12:53:50PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 May 2001 09:26, Peter Rasmussen wrote:
-> Is the below described problem a problem with my chipset, the memory
-> subsystem in the kernel, a combination of those or something entirely
-> different?
->
-> Is there any test I should perform to investigate further eg. to find a
-> workaround for a chipset limitation, if that is the problem? It looks as if
-> there is a tuning for max. performance around 128MB. Coincidence?
+[cc list reduced]
 
-I'm not sure about this as I have never had to deal with something like that 
-myself. However, I think that when adding more RAM, you should also add more 
-Cache to your system - otherwise performance may drop as described by you. 
-Don't ask me, though, how one is supposed to add more cache to a mainboard...
+Andreas Dilger writes:
+> PS - I used to think shrinking a filesystem online was useful, but there
+>      are a huge amount of problems with this and very few real-life
+>      benefits, as long as you can at least do offline shrinking.  With
+>      proper LVM usage, the need to shrink a filesystem never really
+>      happens in practise, unlike the partition case where you always
+>      have to guess in advance how big a filesystem needs to be, and then
+>      add 10% for a safety margin.  With LVM you just create the minimal
+>      sized device you need now, and freely grow it in the future.
 
-If my above assumption is not right, I hope that someone will share the 
-actual facts with you and me ;-)
+In an attempt to nudge you back towards your previous opinion: consider
+a system-wide spool or tmp filesystem. It would be nice to be able to
+add in a few extra volumes for a busy period but then shrink it down
+again when usage returns to normal. In the absence of the ability to
+shrink a live filesystem, storage management becomes a much harder job.
+You can't throw in a spare volume or two where it's needed without
+careful thought because you'll be ratchetting up the space on that one
+filesystem without being able to change your mind and reduce it again
+later. You'll end up with stingy storage admins who refuse to give you
+a bunch of extra filesystem space for a while because they can't get it
+back again afterwards.
 
-Greetings
-Nils
+--Malcolm
 
 -- 
-----------------------------------------------------------
-Nils Holland - nils@nightcastleproductions.org
-NightCastle Productions - Linux in Tiddische, Germany
-http://www.nightcastleproductions.org
-"They asked me where this earthquake would begin,
- I offered to let them feel my pulse."
-----------------------------------------------------------
+Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+Unix Systems Programmer
+Oxford University Computing Services

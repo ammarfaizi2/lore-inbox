@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316886AbSFVT5f>; Sat, 22 Jun 2002 15:57:35 -0400
+	id <S316891AbSFVUHr>; Sat, 22 Jun 2002 16:07:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316889AbSFVT5e>; Sat, 22 Jun 2002 15:57:34 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:943 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S316886AbSFVT5e>;
-	Sat, 22 Jun 2002 15:57:34 -0400
-Date: Sat, 22 Jun 2002 22:57:34 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: Your message to Linux-kernel awaits moderator approval
-Message-ID: <20020622225734.I19520@mea-ext.zmailer.org>
-References: <20020621230700.23341.34513.Mailman@lcs-irva-002> <20020621231754.GC25360@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020621231754.GC25360@holomorphy.com>; from wli@holomorphy.com on Fri, Jun 21, 2002 at 04:17:54PM -0700
+	id <S316892AbSFVUHq>; Sat, 22 Jun 2002 16:07:46 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:41707 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S316891AbSFVUHp>; Sat, 22 Jun 2002 16:07:45 -0400
+Date: Sat, 22 Jun 2002 15:07:46 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: sean darcy <seandarcy@hotmail.com>
+cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: piggy broken in 2.5.24 build
+In-Reply-To: <3D14B6DA.7090609@hotmail.com>
+Message-ID: <Pine.LNX.4.44.0206221501430.7338-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Damn, why all weird questions creep up when I take couple days off..
-  (there is this sort of summer-solstice carneval we finns do...)
+On Sat, 22 Jun 2002, sean darcy wrote:
 
-On Fri, Jun 21, 2002 at 04:17:54PM -0700, William Lee Irwin III wrote:
-> On Fri, Jun 21, 2002 at 04:07:00PM -0700, linux-kernel-admin@anamail.broadcom.com wrote:
-> > Your mail to 'Linux-kernel' with the subject
-> >     [BUG] floppy requests
-> > Is being held until the list moderator can review it for approval.
-> > The reason it is being held:
-> >     Posting to a restricted list by sender requires approval
-> > Either the message will get posted to the list, or you will receive
-> > notification of the moderator's decision.
+> At the end of make bzImage I get:
 > 
-> As linux-kernel@vger.kernel.org neither restricted nor administered from
-> broadcom.com last I checked perhaps someone should look into this.
+> > make[2]: Entering directory `/opt/kernel/linux-2.5.24/arch/i386/boot/compressed'
+> > tmppiggy=_tmp_$$piggy; \
+> > rm -f $tmppiggy $tmppiggy.gz $tmppiggy.lnk; \
+> > objcopy -O binary -R .note -R .comment -S /opt/kernel/linux-2.5.24/vmlinux $tmppiggy; \
+> > gzip -f -9 < $tmppiggy > $tmppiggy.gz; \
+> > echo "SECTIONS { .data : { input_len = .; LONG(input_data_end - input_data) input_data = .; *(.data) input_data_end = .; }}" > $tmppiggy.lnk; \
+> > ld -m elf_i386 -r -o piggy.o -b binary $tmppiggy.gz -b elf32-i386 -T $tmppiggy.lnk; \
+> > rm -f $tmppiggy $tmppiggy.gz $tmppiggy.lnk
+> > /bin/sh: _tmp_18313piggy: No such file or directory
+> > ld: cannot open _tmp_18313piggy.gz: No such file or directory
+> > gcc -D__ASSEMBLY__ -D__KERNEL__ -I/opt/kernel/linux-2.5.24/include -traditional -c head.S
+> > gcc -D__KERNEL__ -I/opt/kernel/linux-2.5.24/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DKBUILD_BASENAME=misc -c misc.c
+> > ld -m elf_i386 -Ttext 0x100000 -e startup_32 -o bvmlinux head.o misc.o piggy.o
+> > ld: cannot open piggy.o: No such file or directory
+> > make[2]: *** [bvmlinux] Error 1
+> > make[2]: Leaving directory `/opt/kernel/linux-2.5.24/arch/i386/boot/compressed'
+> > make[1]: *** [compressed/bvmlinux] Error 2
+> > make[1]: Leaving directory `/opt/kernel/linux-2.5.24/arch/i386/boot'
+> > make: *** [bzImage] Error 2
 
-  I don't see directly any  linux-kernel@**broadcom.com  address
-  at the list.  (We do have 64 of  "^linux-kernel@" matching addresses
-  in the linux-kernel list, though.)
+At least I didn't break it, for a change. For all I can tell, the link of
+piggy.o fails, since the _tmp_xx.gz doesn't exist. That again doesn't 
+exist since the _tmp_xx does not exist when gzipping it.
 
-  There are couple addresses at broadcom.com,  but those addresses have
-  a feeling of being individual people.
+So the question is why does the objcopy ... line not generate the tmp_xx
+file. I don't see it spitting out any error either, but could you check
+the obvious, like remaining free space on that filesystem and /tmp?
 
-> Matti, you've addressed some list-related issues in the past, if you've
-> got some way of knowing how to deal with this, I'd be much obliged.
+BTW: I just rewrote that part so that it would at least properly stop at 
+the place where the error occurs, but that still leaves the question as to
+what the actual error in your case is.
 
-  Well, I might get similar bounce for this reply, and I could try to
-  decode it a bit.  Nevertheless, I don't suggest holding your breath,
-  asphyxiation does set in a bit too fast for my abilities to debug
-  these things in the usual case ;-)
+> Can I boot with just vmlinux?
 
-> Thanks,
-> Bill
+Not unless you have a bootloader which supports that (i.e.: No.)
 
-/Matti Aarnio
+--Kai
+
+
+

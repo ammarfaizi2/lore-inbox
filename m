@@ -1,58 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbULaOYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbULaOhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbULaOYK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 09:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbULaOYK
+	id S262097AbULaOhr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 09:37:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbULaOhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 09:24:10 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:16354 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262061AbULaOYG (ORCPT
+	Fri, 31 Dec 2004 09:37:46 -0500
+Received: from verein.lst.de ([213.95.11.210]:10700 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S262085AbULaOgE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 09:24:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ar/VwqcdnQIucfXnnSgg/wTWOHlSZxmLlAm/dWPSATR08N9imWHB6GAvg73UtMIQSjyOod7tAmt1e/itVa8QetJD5ngBKRJ1qvWyQeXoc+Dzbm5Qoem9QeokHuywn1U4Js229UC94m3uWgjShUP8mKxOBLsIOqG5jVdfcr4EcVA=
-Message-ID: <2cd57c90041231062438c2cab9@mail.gmail.com>
-Date: Fri, 31 Dec 2004 22:24:06 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] /proc/sys/kernel/bootloader_type
-Cc: Andrew Morton <akpm@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org, SYSLINUX@zytor.com
-In-Reply-To: <1104487954.5402.20.camel@laptopd505.fenrus.org>
+	Fri, 31 Dec 2004 09:36:04 -0500
+Date: Fri, 31 Dec 2004 15:36:00 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove dead OSS/AC97 code
+Message-ID: <20041231143600.GA9210@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41D34E3A.3090708@zytor.com>
-	 <20041231013443.313a3320.akpm@osdl.org>
-	 <1104487954.5402.20.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Dec 2004 11:12:34 +0100, Arjan van de Ven
-<arjan@infradead.org> wrote:
-> On Fri, 2004-12-31 at 01:34 -0800, Andrew Morton wrote:
-> > "H. Peter Anvin" <hpa@zytor.com> wrote:
-> > >
-> > > This patch exports to userspace the boot loader ID which has been
-> > >  exported by (b)zImage boot loaders since boot protocol version 2.
-> >
-> > Why does userspace need to know this?
-> 
-> so that update tools that update kernels from vendors know which
-> bootloader file they need to update; eg right now those tools do all
-> kinds of hairy heuristics to find out if it's grub or lilo or .. that
-> installed the kernel. Those heuristics are fragile in the presence of
-> more than one bootloader (which isn't that uncommon in OS upgrade
-> situations).
-> 
-
-This boot loader ID doesn't help much for system upgrade. The running
-kernel may boot from removable drive.
-
-
--- 
-Coywolf Qi Hunt
-Homepage http://sosdg.org/~coywolf/
+--- 1.5/sound/oss/ac97.c	2004-05-29 11:13:01 +02:00
++++ edited/sound/oss/ac97.c	2004-12-31 14:30:35 +01:00
+@@ -133,7 +133,7 @@ ac97_reset (struct ac97_hwint *dev)
+ 
+ /* Return the contents of register REG; use the cache if the value in it
+    is valid.  Returns a negative error code on failure. */
+-int
++static int
+ ac97_get_register (struct ac97_hwint *dev, u8 reg) 
+ {
+     if (reg > 127 || (reg & 1))
+@@ -226,7 +226,7 @@ ac97_scale_from_oss_val (int value, int 
+     }
+ }
+ 
+-int
++static int
+ ac97_set_mixer (struct ac97_hwint *dev, int oss_channel, u16 oss_value)
+ {
+     int scaled_value;
+@@ -262,7 +262,7 @@ ac97_set_mixer (struct ac97_hwint *dev, 
+     return result;
+ }
+ 
+-int
++static int
+ ac97_get_mixer_scaled (struct ac97_hwint *dev, int oss_channel)
+ {
+     struct ac97_chn_desc *channel = ac97_find_chndesc (dev, oss_channel);
+@@ -439,10 +439,7 @@ ac97_mixer_ioctl (struct ac97_hwint *dev
+ 
+ EXPORT_SYMBOL(ac97_init);
+ EXPORT_SYMBOL(ac97_set_values);
+-EXPORT_SYMBOL(ac97_set_mixer);
+-EXPORT_SYMBOL(ac97_get_register);
+ EXPORT_SYMBOL(ac97_put_register);
+-EXPORT_SYMBOL(ac97_get_mixer_scaled);
+ EXPORT_SYMBOL(ac97_mixer_ioctl);
+ EXPORT_SYMBOL(ac97_reset);
+ MODULE_LICENSE("GPL");
+===== sound/oss/ac97.h 1.4 vs edited =====
+--- 1.4/sound/oss/ac97.h	2004-05-29 11:13:01 +02:00
++++ edited/sound/oss/ac97.h	2004-12-31 14:30:35 +01:00
+@@ -184,25 +184,9 @@ extern int ac97_init (struct ac97_hwint 
+ extern int ac97_set_values (struct ac97_hwint *dev,
+ 			    struct ac97_mixer_value_list *value_list);
+ 
+-/* Sets one mixer channel OSS_CHANNEL to the scaled value OSS_VALUE.
+-   Returns the resulting (rescaled) value, or a negative value
+-   representing an error code.
+-
+-   Stereo channels have two values in OSS_VALUE (the left value is in the
+-   lower 8 bits, the right value is in the upper 8 bits). */
+-extern int ac97_set_mixer (struct ac97_hwint *dev, int oss_channel,
+-			   u16 oss_value);
+-
+-/* Return the contents of the specified AC97 register REG; it uses the
+-   last-written value if it is available.  */
+-extern int ac97_get_register (struct ac97_hwint *dev, u8 reg);
+-
+ /* Writes the specified VALUE to the AC97 register REG in the mixer.
+    Takes care of setting the last-written cache as well.  */
+ extern int ac97_put_register (struct ac97_hwint *dev, u8 reg, u16 value);
+-
+-/* Returns the last OSS value written to the OSS_CHANNEL mixer channel.  */
+-extern int ac97_get_mixer_scaled (struct ac97_hwint *dev, int oss_channel);
+ 
+ /* Default ioctl. */
+ extern int ac97_mixer_ioctl (struct ac97_hwint *dev, unsigned int cmd,

@@ -1,48 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280480AbRKENZ4>; Mon, 5 Nov 2001 08:25:56 -0500
+	id <S281146AbRKEN0s>; Mon, 5 Nov 2001 08:26:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281141AbRKENZq>; Mon, 5 Nov 2001 08:25:46 -0500
-Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:902 "HELO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
-	id <S280480AbRKENZf>; Mon, 5 Nov 2001 08:25:35 -0500
-Date: Mon, 5 Nov 2001 15:26:49 +0200 (EET)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
-To: Tux mailing list <tux-list@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Lots of questions about tux and kernel setup
-In-Reply-To: <Pine.LNX.4.30.0111051238320.18502-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.33.0111051519560.3082-100000@ahriman.bucharest.roedu.net>
+	id <S281148AbRKEN0h>; Mon, 5 Nov 2001 08:26:37 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:7370 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S281141AbRKEN0Z>; Mon, 5 Nov 2001 08:26:25 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Performance of Ext2 directory operations
+Date: Mon, 5 Nov 2001 14:27:25 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@zip.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011105132619Z17092-18973+34@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Nov 2001, Roy Sigurd Karlsbakk wrote:
+Here are some test results for there versions of Ext2:
 
-> Hi all.
-Hi
+  Classic Ext2
+  Current Ext2, with a cached position optimization in ext2_find_entry
+  Indexed Ext2
 
->
-> First of all - the plan now, is to use Tux as the web server, as I've got
-> the impression - both by testing it, and of what's been said on the list,
-> that it's one of the fastest solutions I can find - at least on Linux. I
-> plan to serve some <= 250 concurrent connections, each given a maximum
-> bandwidht (in tux) of 7 Mbps. The average bandwidth use will be somewhere
-> between 4 and 5 Mbps, but it may peak at 7. The server I'll set up will
-> only run Tux - no Apache. Tux will be setup not to log, and virutally all
-> system daemons will be stopped. Some management agents (from Compaq or
-> whoever we'll go for) may run, but that's it. I also plan to set it up
-> without any swap partition.
->
+The tests are:
 
-to answer other "not asked" questions of yours ill point you to :
-http://www.specbench.org/osg/web99/results/res2000q4/web99-20001127-00075.html
+  Create 10,000 files
+  Delete 10,000 files (after remounting)
+  Detete 10,000 files in the reverse of the creation order
 
-as that should help you very much :) (that /proc tweaking its pretty cool)
+There's one big surprise here: the find_entry optimization appears to slow 
+down file creation in case by about 40%.  It doubles the speed of deletion,
+but deletion is already fast, so this optimization isn't looking that good.
 
-----------------------------
-Mihai RUSU
-"... and what if this is as good as it gets ?"
+With the index patch, deletion is slightly slower than ext2 with the position 
+optimization, but considerably faster than classic ext2.  In reverse 
+deletion, indexed ext2 is the winner.  It's interesting to see the gap in 
+delete speed increase enormously for between classic ext2 and ext2 with the 
+position optimization, but this is also understandable because the position 
+optimization results in 250 or so successive hits into the same block each 
+time before having to do a full search.  On the other hand, classic ext2 
+loses all its delete speed because it is no longer able to skip rapidly 
+through empty blocks at the beginning of a directory.
 
+I should also test random creation/deletion, but have not done so yet.  I 
+also need more points on the curve, though I already know when the curve 
+looks like: for indexed operations and unindexed delete with position caching 
+it's a line.  For unindexed create and all random operations it's a parabola.
+
+These tests were done with kernel 2.4.13.
+
+Create 10,000 files
+
+Classic Ext2  4.45 system 04.49 elapsed 100%CPU
+Current Ext2  7.58 system 07.61 elapsed 99%CPU
+Indexed Ext2  0.29 system 00.30 elapsed 100%CPU
+
+Delete 10,000 files
+
+Classic Ext2  0.24 system 00.29 elapsed 85%CPU
+Current Ext2  0.05 system 00.14 elapsed 42%CPU
+Indexed Ext2  0.13 system 00.17 elapsed 73%CPU
+
+Reverse delete 10,000 files
+
+Classic Ext2  3.55 system 03.64 elapsed 97%CPU
+Current Ext2  0.58 system 00.71 elapsed 89%CPU
+Indexed Ext2  0.19 system 00.32 elapsed 80%CPU
+
+--
+Daniel

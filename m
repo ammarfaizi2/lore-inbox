@@ -1,92 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131408AbRC3Ncu>; Fri, 30 Mar 2001 08:32:50 -0500
+	id <S131407AbRC3NXT>; Fri, 30 Mar 2001 08:23:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131410AbRC3Ncl>; Fri, 30 Mar 2001 08:32:41 -0500
-Received: from [194.25.18.216] ([194.25.18.216]:22022 "EHLO ntovmsw02.otto.de")
-	by vger.kernel.org with ESMTP id <S131408AbRC3NcZ>;
-	Fri, 30 Mar 2001 08:32:25 -0500
-Message-Id: <4B6025B1ABF9D211B5860008C75D57CC0271B9E6@NTOVMAIL04>
-From: "Butter, Frank" <Frank.Butter@otto.de>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: AW: WG: 2.4 on COMPQ Proliant
-Date: Fri, 30 Mar 2001 15:32:18 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S131408AbRC3NXK>; Fri, 30 Mar 2001 08:23:10 -0500
+Received: from big-relay-1.ftel.co.uk ([192.65.220.123]:14475 "EHLO
+	old-callisto.ftel.co.uk") by vger.kernel.org with ESMTP
+	id <S131407AbRC3NWu>; Fri, 30 Mar 2001 08:22:50 -0500
+Date: Fri, 30 Mar 2001 14:22:01 +0100
+From: Ian G Batten <I.G.Batten@ftel.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: ide_cs post 2.4.1
+Message-ID: <20010330142200.O14482@himalia.ftel.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+Organization: Fujitsu Telecommunications Europe Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On my laptop, a Fujitsu B110, I have started having trouble with the
+ide_cs portion of the in-kernel PCMCIA package.  Up to 2.4.1 I was able
+to successfully use either a Freecom PCMCIA CD R/W unit or to insert a
+compact flash module from my TRGPro or digital camera via an adapter.
+In subsequent releases (2.4.2, 2.4.3-pre3, 2.4.3-pre6, 2.4.2-ac28) I
+have tried, they are not recognised.
 
-I solved the SCSI problem now - thanks for the hint to take 
-sym53c8xx instead of ncr53c8xx.
+>From bootup on 2.4.1, the following facts seem salient when I boot with
+an ethernet card in (the machine only has one, type 2, slot):
 
-For the SMP-Problem it helped to use an option offerd at boot time:
-"Press F9 to select different operating system". Before I used 
-"Minimum Configuration...", because Linux wasn't listed.
-After I've choosen UNIX/SCO, the SMP was detected properly.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 09
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf4d0-0xf4d7, BIOS settings: hda:DMA, hdb:pio
+hda: HITACHI_DK23AA-60, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: 11733120 sectors (6007 MB) w/512KiB Cache, CHS=776/240/63
+Partition check:
+ hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 >
+[...]
+Linux PCMCIA Card Services 3.1.22
+  options:  [pci] [cardbus] [pm]
+PCI: Found IRQ 9 for device 00:13.0
+Intel PCIC probe: not found.
+[...]
+Yenta IRQ list 0c98, PCI irq9
+Socket status: 30000410
+[...]
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0800-0x08ff: excluding 0x800-0x807
+cs: IO port probe 0x0100-0x04ff: excluding 0x378-0x37f 0x388-0x38f 0x4d0-0x4d7
+cs: IO port probe 0x0a00-0x0aff: clean.
+cs: memory probe 0xa0000000-0xa0ffffff: clean.
+3c574_cs.c v1.08 9/24/98 Donald Becker/David Hinds, becker@cesdis.gsfc.nasa.gov.
+eth0: 3Com 3c574 at io 0x300, irq 10, hw_addr 00:00:86:33:D3:29.
+  ASIC rev 1, 64K FIFO split 1:1 Rx:Tx, autoselect MII interface.
 
-Now I have 3 of these machines, dedicated to a cluster.
-On the second machine, The "F9"-option is not offered! 
-(only F10 for Partitioning Utilities - but they were not found).
+If I eject that board and insert some compact flash, I see:
 
-What option do I have now to change the settings? Is there a
-posibility to start something from "SmartStart" to adjust it?
+hdc: SunDisk SDCFB-8, ATA DISK drive
+ide1 at 0x100-0x107,0x10e on irq 10
+hdc: 15680 sectors (8 MB) w/1KiB Cache, CHS=245/2/32
+ hdc: hdc1
+ide_cs: hdc: Vcc = 3.3, Vpp = 0.0
+VFS: Disk change detected on device ide1(22,1)
+ hdc: hdc1
+VFS: Disk change detected on device ide1(22,1)
+ hdc: hdc1
 
-I've installed RedHat7 default for servers - there is no special 
-COMPAQ-Partition on it (I'm not sure if there was before).
+However, if I reboot on 2.4.2-ac28 or some other post-2.4.1 kernel, the
+bootup messages are the same and the ethernet card works correctly.
+However, although the compact flash is recognised when inserted or
+present at boot (cardmgr says ``socket 0: ATA/IDE Fixed Disk'' and
+cardctl ident shows it present and detected with the right type, ide-cs
+module loaded) you cannot mount the filesystem ENODEV.  Likewise,
+inserting the Freecom CD R/W gadget identifies correctly, and loads the
+correct stack (ide-cs, ide-scsi, sg, scsi_mod) but cdrecord -scanbus
+again reports ENODEV.
 
-Thx,
-Frank
+Any thoughts?  Offers?  Suggestions as where to investigate?  I haven't
+been deep in a kernel since Systen V Release 3...
+
+ian
 
 
 
 
->Hello EveryBody,
-> I have a COMPAQ ML570 (2xPIII-700Mhz/1MBytes Cache, 2 x NCR SCSI
-controller=
-> ,=20
-> 1 SMART ARRAY 5304 (128 MBytes Cache). I test with linux 2.4.2-ac20, and
-al=
-> l=20
-> disks, CPU's and memory have been detected by the KERNEL.
-> See your BIOS Version, My COMPAQ has BIOS P20 01/21/2001, I download
-from=20
-> compaq.com
->
-> Andre Margis
 
-Em Quinta 29 Mar=E7o 2001 20:02, Mr. James W. Laferriere escreveu:
-> Hello Frank ,  Highly recommend the sym53c***** .  JimL
->
-> On Thu, 29 Mar 2001, Butter, Frank wrote:
-> > 2.2.16 claimes to find a ncr53c1510D-chipset, supported by
-> > the driver ncr53c8xx. Which kernel-param would be the correct one for
-> > this? Frank
-> >
-> > > -----Urspr=FCngliche Nachricht-----
-> > > Von: Butter, Frank
-> > > Gesendet: Donnerstag, 29. M=E4rz 2001 17:11
-> > > An: 'linux-kernel@vger.kernel.org'
-> > > Betreff: 2.4 on COMPQ Proliant
-> > > Has anyone experiences with 2.4.x on recent Compaq Proliant
-> > > Servers (e.g. ML570)?
-> > >
-> > > I've installed RedHat7 and it worked fine out of the box.
-> > > Except that the SMP-enabled kernel stated there was no
-> > > SMP-board detected ;-/
-> > > For some reasons (Fibrechannel drivers and so on) I've compiled
-> > > 2.4.2 and installed it. Although I've compiled the support
-> > > in, the NCR-SCSI-chip was not found and therefore no
-> > > root-partition. It is a model supported by 53c8xx - detected
-> > > by the original RedHat-kernel.
-> > >
-> > > For testing I compiled a kernel with all (!) scsi-low-level-drivers -
-> > > with the same result. The SMP-board also was NOT detected by 2.4.2.
-> > >
-> > > Any hint?
-> > >
-> > > Frank
+
 

@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVALXLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVALXLb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVALXLa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 18:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVALXJS
+	id S261239AbVALXLb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 18:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVALW6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 18:09:18 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:14560 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261555AbVALXCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 18:02:41 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: 2.6.10-mm2: swsusp regression [update]
-Date: Thu, 13 Jan 2005 00:02:36 +0100
-User-Agent: KMail/1.7.1
-Cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ncunningham@linuxmail.org
-References: <20050106002240.00ac4611.akpm@osdl.org> <200501122344.20589.rjw@sisk.pl> <20050112224641.GP1408@elf.ucw.cz>
-In-Reply-To: <20050112224641.GP1408@elf.ucw.cz>
+	Wed, 12 Jan 2005 17:58:41 -0500
+Received: from t9-123.gprs.mtsnet.ru ([213.87.9.123]:58755 "EHLO
+	www.e1.bmstu.ru") by vger.kernel.org with ESMTP id S261551AbVALW6E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 17:58:04 -0500
+From: JustMan <justman@e1.bmstu.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.8.1] atmel_cs: Add support LG LW2100N WLAN PCMCIA card
+Date: Thu, 13 Jan 2005 01:57:06 +0300
+User-Agent: KMail/1.6.2
+References: <200501121807.25358.justman@e1.bmstu.ru> <200501130018.34181.justman@e1.bmstu.ru> <41E597EE.9020403@pobox.com>
+In-Reply-To: <41E597EE.9020403@pobox.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Simon Kelley <simon@thekelleys.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200501130002.37311.rjw@sisk.pl>
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501130157.06026.justman@e1.bmstu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The attached patch add  support LG LW2100N 11Mbps WLAN PCMCIA card 
 
-On Wednesday, 12 of January 2005 23:46, Pavel Machek wrote:
-> Hi!
-> 
-> > > > (for example - the second number is always negative and huge).  Would 
-it 
-> > mean 
-> > > > that get_cmos_time() needs fixing?
-> > > 
-> > > get_cmos_time() looks okay, but timer){suspend,resume} looks
-> > > hopelessly broken.
-> > 
-> > Well, why don't we convert them to noops, then, at least temporarily?
-> 
-> Actually, it was my analysis that was wrong. Did you try Nigel's trick
-> with updating wall_jiffies?
+Signed-Off-By: Serge A. Suchkov <justman@e1.bmstu.ru>
 
-Do you mean to add
+diff -uNrp linux-2.6.8.1/drivers/net/wireless/atmel_cs.orig.c linux-2.6.8.1/drivers/net/wireless/atmel_cs.c
+--- linux-2.6.8.1/drivers/net/wireless/atmel_cs.orig.c  2005-01-13 01:21:26.000000000 +0300
++++ linux-2.6.8.1/drivers/net/wireless/atmel_cs.c       2005-01-12 04:06:41.000000000 +0300
+@@ -344,7 +344,8 @@ static struct { 
+        { 0, 0, "CNet/CNWLC 11Mbps Wireless PC Card V-5", "atmel_at76c502e%s.bin", "CNet CNWLC-811ARL" },
+        { 0, 0, "Wireless/PC_CARD", "atmel_at76c502d%s.bin", "Planet WL-3552" },
+        { 0, 0, "OEM/11Mbps Wireless LAN PC Card V-3", "atmel_at76c502%s.bin", "OEM 11Mbps WLAN PCMCIA Card" },
+-       { 0, 0, "11WAVE/11WP611AL-E", "atmel_at76c502e%s.bin", "11WAVE WaveBuddy" } 
++       { 0, 0, "11WAVE/11WP611AL-E", "atmel_at76c502e%s.bin", "11WAVE WaveBuddy" },
++       { 0, 0, "LG/LW2100N", "atmel_at76c502e%s.bin", "LG LW2100N 11Mbps WLAN PCMCIA Card" }
+ };
+ 
+ /* This is strictly temporary, until PCMCIA devices get integrated into the device model. */
 
-wall_jiffies +=  (ctime - sleep_start) * HZ;
 
-or an equivalent at the end of timer_resume()?  I did and it helped a little.  
-With it, the box hangs while executing device_resume() in swsusp_write().  
-Without it, the box hangs earlier.
-
-Still, it's sleep_start that has a wrong value, apparently (it shouldn't be 
-negative, at least), and I see that Nigel has a patch that changes 
-__get_cmos_time() on x86_64.  I'm going to try it in a couple of minutes.
-
-Greets,
-RJW
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

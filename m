@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317682AbSGJXoK>; Wed, 10 Jul 2002 19:44:10 -0400
+	id <S317681AbSGJXoH>; Wed, 10 Jul 2002 19:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317683AbSGJXoJ>; Wed, 10 Jul 2002 19:44:09 -0400
-Received: from pD952AE71.dip.t-dialin.net ([217.82.174.113]:63875 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317682AbSGJXoI>; Wed, 10 Jul 2002 19:44:08 -0400
-Date: Wed, 10 Jul 2002 17:45:57 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       Pavel Machek <pavel@ucw.cz>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] /proc/cpuinfo output from some arch
-In-Reply-To: <20020711003743.B25089@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207101744040.5067-100000@hawkeye.luckynet.adm>
+	id <S317682AbSGJXoG>; Wed, 10 Jul 2002 19:44:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10508 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317681AbSGJXoG>;
+	Wed, 10 Jul 2002 19:44:06 -0400
+Message-ID: <3D2CC764.6080002@mandrakesoft.com>
+Date: Wed, 10 Jul 2002 19:46:44 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Compile error (starfire ethernet) on 2.5.25 for crc32_le
+References: <165080000.1026343268@flay>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-RBL-Warning: (relays.osirusoft.com) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Martin J. Bligh wrote:
+> drivers/built-in.o: In function `set_rx_mode':
+> drivers/built-in.o(.text+0x2138c): undefined reference to `crc32_le'
+> make: *** [vmlinux] Error 1
+> 
+> starfire.c calls ether_crc_le which is defined in include/linux/crc32.h as
+> #define ether_crc_le(length, data) crc32_le(~0, data, length)
+> 
+> crc32_le is defined in lib/crc32.c .... which is only compiled if CONFIG_CRC32
+> is set  ... setting this fixes the problem ... shouldn't drivers that need this turn it
+> on automatically somehow?
 
-On Thu, 11 Jul 2002, Russell King wrote:
-> As far as SMP systems and cpufreq is concerned, we're going to have
-> a /proc/sys/cpu/all/ as well - you can't control the clock rate of
-> each cpu independently on such systems (otherwise they wouldn't be
-> very symetric.)
+They do already.  drivers/net/Makefile.lib.  The culprit is a typo. 
+Wanna submit the obvious patch that does 
+s/CONFIG_STARFIRE/CONFIG_ADAPTEC_STARFIRE/ in dr/ne/Makefile.lib?
 
-Yes, asymmetric multiprocessing is a much more diffcult field, but 
-it's not currently an issue to us. (Well, we had this issue long ago, but 
-the SMP approach won, because even though it's uncool, it's still easier 
-to handle. Maybe AMP will return one day...)
+	Jeff
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+
 

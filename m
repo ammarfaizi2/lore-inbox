@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbTILTPz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 15:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTILTPz
+	id S261868AbTILTLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 15:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbTILTLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 15:15:55 -0400
-Received: from mail.kroah.org ([65.200.24.183]:23693 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261835AbTILTPw (ORCPT
+	Fri, 12 Sep 2003 15:11:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57231 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261868AbTILTLU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 15:15:52 -0400
-Date: Fri, 12 Sep 2003 12:16:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Kyle Rose <krose+linux-kernel@krose.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops during USB unloading, 2.6.0-test{4,5}. sysfs?
-Message-ID: <20030912191605.GA19628@kroah.com>
-References: <87he3hg8vb.fsf@nausicaa.krose.org>
+	Fri, 12 Sep 2003 15:11:20 -0400
+Date: Fri, 12 Sep 2003 12:11:19 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Breno <brenosp@brasilsec.com.br>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Stack size
+Message-ID: <20030912121119.C21503@build.pdx.osdl.net>
+References: <004801c390bd$55cca700$f8e4a7c8@bsb.virtua.com.br> <20030912104114.B21503@build.pdx.osdl.net> <000f01c3795b$03b22fe0$980210ac@forumci.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87he3hg8vb.fsf@nausicaa.krose.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <000f01c3795b$03b22fe0$980210ac@forumci.com.br>; from brenosp@brasilsec.com.br on Fri, Sep 12, 2003 at 03:23:47PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 02:27:36PM -0400, Kyle Rose wrote:
-> In both test4 and test5, I get the following panic when I attempt to
-> do a clean shutdown.  It happens every time.  The problem may be in
-> the sysfs code given where the trace begins.  The error message given
-> before reboot was that the kernel couldn't handle a NULL pointer
-> dereference, but for some reason, that didn't make it into
-> /var/log/messages.
-> 
-> BTW, if I'm not giving you guys enough interesting information about
-> these problems, please let me know.  There's no such thing as too much
-> information. :) I can also recompile with frame pointers, if that will
-> help.
+* Breno (brenosp@brasilsec.com.br) wrote:
+> Is there a test in kernel to know how much memory is consumed by stack ?
 
-Do you have the same error if you only unload the ohci-hcd and ehci-hcd
-modules?
-
+Have you looked at the CONFIG_DEBUG_STACKOVERFLOW code?
 thanks,
-
-greg k-h
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbVCISFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVCISJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbVCISFs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVCISFr
+	id S262157AbVCISJd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVCISJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:05:47 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:37002 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262152AbVCISCv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:02:51 -0500
-Subject: Re: [RFC] -stable, how it's going to work.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
-       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1sm35w3am.fsf@muc.de>
-References: <20050309072833.GA18878@kroah.com>  <m1sm35w3am.fsf@muc.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110391244.28860.208.camel@localhost.localdomain>
+	Wed, 9 Mar 2005 13:09:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42187 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262154AbVCISGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 13:06:38 -0500
+Date: Wed, 9 Mar 2005 10:53:09 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Gustav Lidberg <gustavl@home.se>,
+       Michael Elizabeth Chastain <mec@shout.net>
+Cc: linux-kernel@vger.kernel.org, Mikael Pettersson <mikpe@csd.uu.se>
+Subject: Re: make menuconfig creates erronous config for 386
+Message-ID: <20050309135309.GA15110@logos.cnet>
+References: <422F04F7.1020701@home.se>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 09 Mar 2005 18:00:45 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <422F04F7.1020701@home.se>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-03-09 at 09:56, Andi Kleen wrote:
-> - It must be accepted to mainline. 
 
-Strongly disagree. What if the mainline fix is a rewrite of the core API
-involved. Some times you need to put in the short term fix. What must
-never happen is people accepting that fix as long term.
+Hi,
 
-How about
+On Wed, Mar 09, 2005 at 03:15:19PM +0100, Gustav Lidberg wrote:
+> Hi
+> 
+> There is a bug in "make menuconfig". If one chooses 386 or 486 for cpu
+> type, CONFIG_X86_TSC=y is set in .config. This creates a kernel that is
+> unbootable on 386. Testing shows that it worked in 2.4.19, but is broken
+> from 2.4.20 onwards. Someone should definetely look into this.
+> (I'm not subscribed to lkml)
 
- - It must be accepted to mainline, or the accepted mainline patch be
-deemed too complex or risky to backport and thus a simple obvious
-alternative fix applied to stable ONLY.
+Quoting Mikael Pettersson, from
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109986177309630&w=2
 
+"Do a 'make oldconfig' after switching CPU type from a
+TSC-capable one to a TSC-less one in 2.4 kernels. There
+is a known bug in the old configuration system where it
+can leave derived options in an inconsistent state after
+a single round of option changes. CONFIG_X86_TSC is the
+prime example of this. Doing a second configuration round
+allows the derived options to reach a fixpoint."
+
+Note that arch/i386/defconfig contains CONFIG_X86_TSC=y.
+
+Michael, Mikael, what are the possibilities for fixing this
+Configure limitation?
+
+In the meantime, I wonder if arch/i386/defconfig should be 
+changed to contain "CONFIG_X86_TSC=n" instead of "=y" to make 
+life easier for 386/486 users who use "make menuconfig" without 
+pre-existing .config files.
+
+This should have been fixed ages ago. :(

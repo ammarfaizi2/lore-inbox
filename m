@@ -1,95 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289043AbSAFVRd>; Sun, 6 Jan 2002 16:17:33 -0500
+	id <S289042AbSAFVhM>; Sun, 6 Jan 2002 16:37:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289046AbSAFVQa>; Sun, 6 Jan 2002 16:16:30 -0500
-Received: from 24-ZARA-X8.libre.retevision.es ([62.82.228.152]:27909 "EHLO
-	head.redvip.net") by vger.kernel.org with ESMTP id <S289044AbSAFVQA>;
-	Sun, 6 Jan 2002 16:16:00 -0500
-Message-ID: <3C388442.102@zaralinux.com>
-Date: Sun, 06 Jan 2002 18:07:14 +0100
-From: Jorge Nerin <comandante@zaralinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: es-es, en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-smp <linux-smp@vger.kernel.org>
-Subject: xmms child blocked at end (2.4.18pre1)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S289044AbSAFVhD>; Sun, 6 Jan 2002 16:37:03 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:44184 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id <S289042AbSAFVgx>;
+	Sun, 6 Jan 2002 16:36:53 -0500
+Date: Sun, 6 Jan 2002 22:36:51 +0100
+From: Martin Schewe <m@xsms.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: In kernel routing table vs. /sbin/ip vs. /sbin/route
+Message-ID: <20020106223651.B31958@linux01.gwdg.de>
+In-Reply-To: <Pine.LNX.4.33.0201061211050.2619-100000@tidus.zarzycki.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="b5gNqxB1S1yM7hjW"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201061211050.2619-100000@tidus.zarzycki.org>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have a very strange thing here.
 
-I have a 2x200mmx using 2.4.18pre1, xmms 1.2.5, xawtv-3.61 and XFree86 
-Version 4.1.0.
+--b5gNqxB1S1yM7hjW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The situation is that I have a nfs mounted share with mp3, using xmms to 
-play them, (3c503 over coax) everithing goes well until I put xawtv in 
-fullscreen mode. I don't know why, but at this time in short time the 
-child thread of xmms blocks for a long time in end, having xawtv in a 
-window does not cause this.
+Hi,
 
-Here is a vmstat 1 log:
+On Sun, Jan 06, 2002 at 12:23:50PM -0800, Dave Zarzycki wrote:
+> Using /sbin/route, I can add multiple default routes like so:
+>
+> /sbin/route add -net default gw 192.168.0.1
+> /sbin/route add -net default gw 192.168.0.2
+>
+> But I cannot do the same with /sbin/ip:
+>
+> /sbin/ip route add default via 192.168.0.1
+> /sbin/ip route add default via 192.168.0.2
+> RTNETLINK answers: File exists
 
-    procs                      memory    swap          io     system 
-      cpu
-  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us 
-  sy  id
-  4  0  0  58864   2928   3172  41072   0   0     0     0  153  1213  30 
-  13  57
-  1  1  0  58864   2932   3156  41088   0   0     0     0  150  1166  20 
-  14  66
-  2  1  0  58864   2932   3156  41088   0   0     0     0  152  1115  20 
-  20  60
-  0  1  0  58864   2920   3164  41088   0   0     0    12  161  1117  20 
-  20  60
-  1  1  0  58864   2920   3164  41088   0   0     0     0  160  1119  19 
-  20  62
-  2  1  0  58864   2920   3164  41088   0   0     0     0  153  1212   9 
-  28  63
-  0  1  0  58864   3288   3164  41088   0   0     0     0  161  1086  16 
-  17  68
-  0  1  0  58864   3272   3164  41100   0   0     0     0  155  1030  12 
-  16  72
-  0  1  0  58864   3264   3172  41088   0   0     0    56  174   978  14 
-  14  72
-  0  1  0  58864   3272   3172  41088   0   0     0     0  156   992   8 
-  15  77
-  1  1  0  58864   3264   3172  41088   0   0     0     0  159  1012   9 
-  15  76
-  1  1  0  58864   3264   3172  41088   0   0     0     0  151  1044  10 
-   9  81
-  2  1  0  58864   3256   3172  41088   0   0     0     0  276  1265  17 
-  18  66
-  3  1  0  58864   3256   3180  41088   0   0     0    12  398  1832  30 
-  23  47
-  0  1  0  58864   3244   3180  41088   0   0     0     0  278  1412  19 
-  15  66
-  0  1  0  58864   3252   3180  41088   0   0     0     0  151  1068  10 
-   5  85
-  0  1  0  58864   3244   3180  41088   0   0     0     0  155  1150  10 
-  10  80
-  2  0  0  58864   3232   3188  41088   0   0     0    12  193   951  20 
-  24  56
-  2  0  0  58864   3156   3188  41088   0   0     0     0  155   834  72 
-  13  16
+$ /sbin/ip route append default via 192.168.0.2
 
-The only blocked task is xmms child, as I said it's blocked in end, so 
-it empties it's buffer and you can hear it
+> Given that /sbin/ip is the more powerful and modern tool, I'm lead to
+> believe that /sbin/route might be leaving the in kernel routing table
+> in a weird state.
+>
+> My two simple questions are as follows:
+>
+> 1) Which tool is more correct?
 
-Another thing I have noticed is that when I have a big transfer with 
-this card (I have another 3c595) and having xawtv in full screen I can 
-see dropped frames, I assume this is for the speed downgrade of the pci 
-bus to acomodate isa tranfers, the 3c503 is a very old isa nic, and my 
-tv capture is a pci bt848.
+RFC1122 says having several _default_ routes is okay.
 
-Don't know if this rings a bell of somebody.
+> 2) What is the behavior of the kernel when multiple default routes are
+> defined?
 
-P.D. Sorry for my bad english.
+The kernel will make dead gateway detection to select the right one for
+you.
 
--- 
-Jorge Nerin
-<comandante@zaralinux.com>
+Regards,
+		Martin
 
+--b5gNqxB1S1yM7hjW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Weitere Infos: siehe http://www.gnupg.org
+
+iD8DBQE8OMNyvFdT+uCkj6sRAnn9AJwII8SaGc1bRZlHBRG855ySFvKbcQCfXtgz
+hwnQ755ng3mqAeFIpCuW+bg=
+=4/s5
+-----END PGP SIGNATURE-----
+
+--b5gNqxB1S1yM7hjW--

@@ -1,80 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264827AbTFBSJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 14:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264828AbTFBSJ5
+	id S264830AbTFBSNb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 14:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264828AbTFBSNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 14:09:57 -0400
-Received: from gw.netgem.com ([195.68.2.34]:63497 "EHLO gw.dev.netgem.com")
-	by vger.kernel.org with ESMTP id S264827AbTFBSJ4 (ORCPT
+	Mon, 2 Jun 2003 14:13:30 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:33221 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264830AbTFBSN3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 14:09:56 -0400
-Subject: [PATCH] radeonfb doesn't compile in 2.4.21-rc6
-From: Jocelyn Mayer <jma@netgem.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054578295.4951.34.camel@jma1.dev.netgem.com>
+	Mon, 2 Jun 2003 14:13:29 -0400
+Date: Mon, 2 Jun 2003 11:28:45 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] More USB changes for 2.5.70
+Message-ID: <20030602182845.GA5781@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 02 Jun 2003 20:24:56 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems to me that this was already reported for previous
-2.4.21-rc's, but never applied.
-Here's the patch that make radeonfb compile (and work)
-on my Ibook:
+Hi,
 
+Here are some more USB changes and fixes for 2.5.70.  Some usb-storage
+changes, a BKL removal, a compile fix, and some security root_plug
+cleanups (the USB portion of that file.)
 
---- linux-2.4.21-rc6/drivers/video/radeonfb.c     2003-04-11
-19:06:04.0000
-00000 +0200
-+++ linux-2.4.21-rc6-fixed/drivers/video/radeonfb.c    2003-06-01
-20:58:42.0000
-00000 +0200
-@@ -1001,8 +1001,8 @@
-        /* According to XFree86 4.2.0, some production M6's return 0
-           for 8MB. */
-        if (rinfo->video_ram == 0 &&
--           (pdev->device == PCI_DEVICE_ID_RADEON_LY ||
--            pdev->device == PCI_DEVICE_ID_RADEON_LZ)) {
-+           (pdev->device == PCI_DEVICE_ID_ATI_RADEON_LY ||
-+            pdev->device == PCI_DEVICE_ID_ATI_RADEON_LZ)) {
-            rinfo->video_ram = 8192 * 1024;
-          }
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
 
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
 
-Linux version 2.4.21-rc6-fixed (jocelyn@(none)) (gcc version 3.2) #3 Sun
-Jun 1 21:02:23 CEST 2003
+thanks,
 
-cpu             : 750FX
-clock           : 700MHz
-revision        : 1.18 (pvr 7000 0112)
-bogomips        : 1389.36
-machine         : PowerBook4,3
-motherboard     : PowerBook4,3 MacRISC2 MacRISC Power Macintosh
-detected as     : 257 (iBook 2 rev. 2)
-pmac flags      : 0000000b
-L2 cache        : 512K unified
-memory          : 384MB
-pmac-generation : NewWorld
+greg k-h
 
-PCI devices found:
-  Bus  0, device  11, function  0:
-    Host bridge: Apple Computer Inc. UniNorth/Pangea AGP (rev 0).
-      Master Capable.  Latency=16.  
-  Bus  0, device  16, function  0:
-    VGA compatible controller: ATI Technologies Inc Radeon Mobility M6
-LY (rev 0).
-      IRQ 48.
-      Master Capable.  Latency=255.  Min Gnt=8.
-      Prefetchable 32 bit memory at 0x98000000 [0x9fffffff].
-      I/O at 0x802400 [0x8024ff].
-      Non-prefetchable 32 bit memory at 0x90000000 [0x9000ffff].
-...
+ drivers/usb/Makefile               |    3 
+ drivers/usb/core/hub.c             |    4 -
+ drivers/usb/core/usb.c             |   65 ++++++++++++++++++
+ drivers/usb/misc/rio500.c          |   16 ++--
+ drivers/usb/serial/Kconfig         |    1 
+ drivers/usb/serial/kobil_sct.c     |   53 ++++++++++-----
+ drivers/usb/storage/datafab.c      |    2 
+ drivers/usb/storage/freecom.c      |    6 -
+ drivers/usb/storage/initializers.c |    2 
+ drivers/usb/storage/initializers.h |    1 
+ drivers/usb/storage/isd200.c       |   20 ++---
+ drivers/usb/storage/jumpshot.c     |    2 
+ drivers/usb/storage/protocol.c     |    9 +-
+ drivers/usb/storage/scsiglue.c     |   40 +++++++----
+ drivers/usb/storage/transport.c    |  129 ++++++++++++++++++++++---------------
+ drivers/usb/storage/transport.h    |    4 -
+ drivers/usb/storage/usb.c          |   17 +++-
+ drivers/usb/storage/usb.h          |    2 
+ include/linux/usb.h                |    2 
+ security/Kconfig                   |    2 
+ security/root_plug.c               |   69 ++-----------------
+ 21 files changed, 265 insertions(+), 184 deletions(-)
+-----
 
--- 
-Jocelyn Mayer <jma@netgem.com>
+<bellucda:tiscali.it>:
+  o USB: replaced BKL in rio500.c
+
+Adrian Bunk:
+  o SECURITY_ROOTPLUG must depend on USB
+
+Greg Kroah-Hartman:
+  o USB: added .owner to kobil_sct driver
+  o Root plug: remove USB bus walking functions, now use usb_find_device()
+  o USB: add usb_find_device() function to USB core
+  o Cset exclude: greg@kroah.com|ChangeSet|20030529215347|05329
+
+Matthew Dharm:
+  o USB: usb-storage: change result codes
+  o USB: usb-storage: usb_stor_control_msg() and stuff
+  o USB: usb-storage: timeouts and aborts
+  o USB: usb-storage: fix typo
+
+Oliver Neukum:
+  o USB: return errors when disabling a port
+
+Thomas Wahrenbruch:
+  o USB: kobil_sct.c added support for KAAN SIM Reader
 

@@ -1,89 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbULHN6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbULHOEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbULHN6f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 08:58:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbULHN6f
+	id S261216AbULHOEK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 09:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbULHOEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 08:58:35 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:19607 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261219AbULHN5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 08:57:37 -0500
-Date: Wed, 8 Dec 2004 13:57:37 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Patrick van de Lageweg <patrick@bitwizard.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Rogier Wolff <R.E.Wolff@BitWizard.nl>, Eric Wood <eric@interplas.com>,
-       bmckinlay@perle.com, tmckinlay@perle.com
-Subject: Re: [PATCH] RIO
-Message-ID: <20041208135737.GB31975@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Patrick van de Lageweg <patrick@bitwizard.nl>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-	Eric Wood <eric@interplas.com>, bmckinlay@perle.com,
-	tmckinlay@perle.com
-References: <20041208132951.GC19937@bitwizard.nl>
+	Wed, 8 Dec 2004 09:04:10 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:44804 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261216AbULHODT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 09:03:19 -0500
+Date: Wed, 8 Dec 2004 15:03:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Philip.Blundell@pobox.com, tim@cyberelk.net,
+       linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] some parport_pc.c cleanups (fwd)
+Message-ID: <20041208140313.GX5496@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041208132951.GC19937@bitwizard.nl>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08, 2004 at 02:29:51PM +0100, Patrick van de Lageweg wrote:
-> Hi,
-> 
-> This patch converts all save_flags/restore_flags to the new 
-> spin_lick_irqsave/spin_unlock_irqrestore calls, as well as some
-> other 2.6.X cleanups. This allows the "rio" driver to become
-> SMP safe.
-> 
-> 
-> Signed-off-by: Patrick vd Lageweg <patrick@bitwizard.nl>
-> Signed-off-by: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-> 
->         Patrick
+The patch forwarded below still applies and compiles against 
+2.6.10-rc2-mm4.
 
-> diff -u -r linux-2.6.10-rc3-clean/drivers/char/Kconfig linux-2.6.10-rc3-rio/drivers/char/Kconfig
-> --- linux-2.6.10-rc3-clean/drivers/char/Kconfig	Fri Dec  3 15:13:32 2004
-> +++ linux-2.6.10-rc3-rio/drivers/char/Kconfig	Fri Dec  3 15:28:48 2004
-> @@ -299,7 +299,7 @@
->  
->  config RIO
->  	tristate "Specialix RIO system support"
-> -	depends on SERIAL_NONSTANDARD && BROKEN_ON_SMP
-> +	depends on SERIAL_NONSTANDARD
->  	help
->  	  This is a driver for the Specialix RIO, a smart serial card which
->  	  drives an outboard box that can support up to 128 ports.  Product
-> diff -u -r linux-2.6.10-rc3-clean/drivers/char/rio/linux_compat.h linux-2.6.10-rc3-rio/drivers/char/rio/linux_compat.h
-> --- linux-2.6.10-rc3-clean/drivers/char/rio/linux_compat.h	Fri Dec  3 15:11:52 2004
-> +++ linux-2.6.10-rc3-rio/drivers/char/rio/linux_compat.h	Fri Dec  3 15:28:48 2004
-> @@ -19,8 +19,8 @@
->  #include <linux/interrupt.h>
->  
->  
-> -#define disable(oldspl) save_flags (oldspl)
-> -#define restore(oldspl) restore_flags (oldspl)
-> +#define disable(oldspl) local_irq_save(oldspl);
-> +#define restore(oldspl) local_irq_restore(oldspl) ;
-
-This looks broken.  local_irq_* really isn't for driver use except for
-exception case.  Also please kill such silly wrappers..
-
->  
->  #define sysbrk(x) kmalloc ((x),in_interrupt()? GFP_ATOMIC : GFP_KERNEL)
->  #define sysfree(p,size) kfree ((p))
-
-dito here.  Also the in_interrupt() check is wrong.
+Please apply.
 
 
-Looking at the driver with it's deep mess and K&R prototypes you might
-be better off with a start from scratch.
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+
+Date:	Sat, 13 Nov 2004 04:00:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Philip.Blundell@pobox.com, tim@cyberelk.net, campbell@torque.net,
+	andrea@e-mind.com
+Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] some parport_pc.c cleanups
+
+The patch below makes the following changes to 
+drivers/parport/parport_pc.c :
+- make some needlessly global functions static
+- #if 0 two currently unused functions
+
+
+diffstat output:
+ drivers/parport/parport_pc.c |   28 +++++++++++++++-------------
+ include/linux/parport_pc.h   |    6 ------
+ 2 files changed, 15 insertions(+), 19 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm5-full/include/linux/parport_pc.h.old	2004-11-13 01:19:54.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/include/linux/parport_pc.h	2004-11-13 01:20:14.000000000 +0100
+@@ -228,12 +228,6 @@
+ 
+ extern int parport_pc_claim_resources(struct parport *p);
+ 
+-extern void parport_pc_init_state(struct pardevice *, struct parport_state *s);
+-
+-extern void parport_pc_save_state(struct parport *p, struct parport_state *s);
+-
+-extern void parport_pc_restore_state(struct parport *p, struct parport_state *s);
+-
+ /* PCMCIA code will want to get us to look at a port.  Provide a mechanism. */
+ extern struct parport *parport_pc_probe_port (unsigned long base,
+ 					      unsigned long base_hi,
+--- linux-2.6.10-rc1-mm5-full/drivers/parport/parport_pc.c.old	2004-11-13 01:20:23.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/parport/parport_pc.c	2004-11-13 01:34:16.000000000 +0100
+@@ -193,6 +193,7 @@
+ 
+ #ifdef CONFIG_PARPORT_1284
+ /* Find FIFO lossage; FIFO is reset */
++#if 0
+ static int get_fifo_residue (struct parport *p)
+ {
+ 	int residue;
+@@ -233,6 +234,7 @@
+ 	DPRINTK (KERN_DEBUG "*** get_fifo_residue: done residue collecting (ecr = 0x%2.2x)\n", inb (ECONTROL (p)));
+ 	return residue;
+ }
++#endif  /*  0 */
+ #endif /* IEEE 1284 support */
+ #endif /* FIFO support */
+ 
+@@ -273,7 +275,7 @@
+ 	return IRQ_HANDLED;
+ }
+ 
+-void parport_pc_init_state(struct pardevice *dev, struct parport_state *s)
++static void parport_pc_init_state(struct pardevice *dev, struct parport_state *s)
+ {
+ 	s->u.pc.ctr = 0xc;
+ 	if (dev->irq_func &&
+@@ -285,7 +287,7 @@
+ 			     * D.Gruszka VScom */
+ }
+ 
+-void parport_pc_save_state(struct parport *p, struct parport_state *s)
++static void parport_pc_save_state(struct parport *p, struct parport_state *s)
+ {
+ 	const struct parport_pc_private *priv = p->physport->private_data;
+ 	s->u.pc.ctr = priv->ctr;
+@@ -293,7 +295,7 @@
+ 		s->u.pc.ecr = inb (ECONTROL (p));
+ }
+ 
+-void parport_pc_restore_state(struct parport *p, struct parport_state *s)
++static void parport_pc_restore_state(struct parport *p, struct parport_state *s)
+ {
+ 	struct parport_pc_private *priv = p->physport->private_data;
+ 	register unsigned char c = s->u.pc.ctr & priv->ctr_writable;
+@@ -732,9 +734,9 @@
+ }
+ 
+ /* Parallel Port FIFO mode (ECP chipsets) */
+-size_t parport_pc_compat_write_block_pio (struct parport *port,
+-					  const void *buf, size_t length,
+-					  int flags)
++static size_t parport_pc_compat_write_block_pio (struct parport *port,
++						 const void *buf, size_t length,
++						 int flags)
+ {
+ 	size_t written;
+ 	int r;
+@@ -809,9 +811,9 @@
+ 
+ /* ECP */
+ #ifdef CONFIG_PARPORT_1284
+-size_t parport_pc_ecp_write_block_pio (struct parport *port,
+-				       const void *buf, size_t length,
+-				       int flags)
++static size_t parport_pc_ecp_write_block_pio (struct parport *port,
++					      const void *buf, size_t length,
++					      int flags)
+ {
+ 	size_t written;
+ 	int r;
+@@ -924,8 +926,10 @@
+ 	return written;
+ }
+ 
+-size_t parport_pc_ecp_read_block_pio (struct parport *port,
+-				      void *buf, size_t length, int flags)
++#if 0
++static size_t parport_pc_ecp_read_block_pio (struct parport *port,
++					     void *buf, size_t length,
++					     int flags)
+ {
+ 	size_t left = length;
+ 	size_t fifofull;
+@@ -1143,7 +1147,7 @@
+ dump_parport_state ("fwd idle", port);
+ 	return length - left;
+ }
+-
++#endif  /*  0  */
+ #endif /* IEEE 1284 support */
+ #endif /* Allowed to use FIFO/DMA */
+ 
+@@ -1156,7 +1160,7 @@
+ 
+ /* GCC is not inlining extern inline function later overwriten to non-inline,
+    so we use outlined_ variants here.  */
+-struct parport_operations parport_pc_ops = 
++static struct parport_operations parport_pc_ops = 
+ {
+ 	.write_data	= parport_pc_write_data,
+ 	.read_data	= parport_pc_read_data,
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
 

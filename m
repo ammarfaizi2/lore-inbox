@@ -1,107 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311936AbSDIW3Z>; Tue, 9 Apr 2002 18:29:25 -0400
+	id <S312119AbSDIW7B>; Tue, 9 Apr 2002 18:59:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311948AbSDIW3Y>; Tue, 9 Apr 2002 18:29:24 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:54926 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311936AbSDIW3W>; Tue, 9 Apr 2002 18:29:22 -0400
-Subject: Re: Event logging vs enhancing printk
-From: Brian Beattie <alchemy@us.ibm.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Michel Dagenais <michel.dagenais@polymtl.ca>, linux-kernel@vger.kernel.org,
-        Tony.P.Lee@nokia.com, kessler@us.ibm.com, alan@lxorguk.ukuu.org.uk,
-        Dave Jones <davej@suse.de>, karym@opersys.com, lmcmpou@lmc.ericsson.se,
-        lmcleve@lmc.ericsson.se
-In-Reply-To: <108620000.1018387009@flay>
-Content-Type: text/plain
+	id <S312136AbSDIW7A>; Tue, 9 Apr 2002 18:59:00 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:14992 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S312119AbSDIW7A>; Tue, 9 Apr 2002 18:59:00 -0400
+Message-ID: <3CB37230.66DEEA4A@delusion.de>
+Date: Wed, 10 Apr 2002 00:58:56 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.7 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: perex@suse.cz
+Subject: OOPS: Alsa with FM801
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 09 Apr 2002 15:28:59 -0700
-Message-Id: <1018391340.7923.40.camel@w-beattie1>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-09 at 14:16, Martin J. Bligh wrote:
-> >> The current printk simply does not cut it for these applications. There are
-> >> over 80000 printk statements in the kernel, using many different conventions.
-> > 
-> > It would be easier, to fix the printk's, than to put evlogging into any
-                                  ^ required
-> > particular piece of the kernel.
-> 
-> You want to fix 80000 printks? Be my guest ... I await your patch eagerly.
-> If you mean changing printk with a wrapper to help clean up the existing
-> mess in an automated fashion, that's exactly what's being proposed.
 
-how nice of you to say so.  As to automating, I don;t believe it can
-work.  You will be adding volume to the log, making the log processing
-more complicated, a replay of EES.
+Hi,
 
-> 
-> > Evlog side-by-side with printk adds significat bloat.
-> 
-> To what? A kernel with event logging switch on? Sure. 
-> But if you don't want it, don't turn it on. If it's a config option, I don't
-> see why anyone would care.
+The following oops repeatedly crashes a Linux-2.5.7 box here.
 
-The poor sod who has to maintain this stuff.
+Let me know if you need further info.
 
->  
-> > What I hear you asking for, is to make it more of
-> > the kernels responsibilty easing the problem of analysing the out put,
-> > as opposed to making that the responsibilty of user space
-> > postprocessing. 
-> 
-> Indeed. That's because the kernel has more context, and can trivially
-> log the information it has, rather then reverse engineering it from user space.
-> Why munge all the messages to post them through a tiny little formatting
-> hole, and then try to unmunge them all again on the other side with a
-> bunch of hokey scripts?
-
-Information that only the kernel has is not what I'm talking about, it
-is all the stuff to make it easy to parse and collate, it has to be
-possible, not necessarly easy.
-
-> 
-> > One thing to keep in mind, 99% of logged messages will
-> > never be reviewed.
-> 
-> If we had a more structured log format, it'd be a damned sight easier to
-> write automated tools to parse through them, and actually do something
-> useful with that 99%. Been there, done that.
-
-What? generate reports that will be munged for statistics that will be
-quoted in endless management meetings.
->  
-> > But poorly implemented, a new format will in pratice increase the
-> > volume, and with the increased complexity of the logging also slowing
-> > down, logging will be slower, and more messages will be lost.  This has
-> > been seen in pratice.
-> 
-> But correctly implemented, it will help. That's why this is being debated in
-> public to make sure the design is correct.
-
-But you could get 90% of the advantage for much less effort by fixing
-the problems with printk/klogd without implementing yet another
-subsystem.
-
-> 
-> > I would prefer to see effort expended on fixing printk/klogd...off the
-> > top of my head:
-> > 
-> > - make printk a macro that prepends file/function/line to the message.
-> > - fix printk calls: messages with consistent format, calls in the right
-> > places, with the "correct" information.
-> > - postprocessing tools for analysing the logs.
-> 
-> This is actually very close to what is being proposed. The main reason the
-> we came to the conclusion that end result should be dumped into an evlog
-> file instead of dmesg and /var/log/messages is that changing the format
-> of /var/log/messages breaks the existing log parsing tools that people have.
-
-And this could be avoided using the "improved printk" by not compiling
-the new features.
+-Udo.
 
 
+ksymoops 2.4.5 on i686 2.5.7.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.7/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Unable to handle kernel NULL pointer dereference at virtual address 00000050
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c023d246>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010046
+eax: 00000000   ebx: 00000000   ecx: 00000000   edx: 0000a85a
+esi: 07e10000   edi: c7e5d640   ebp: 00002100   esp: c37f5f5c
+ds: 0018   es: 0018   ss: 0018
+Stack: 0000a800 07e10000 c0256d03 00000000 c7e26a40 24000001 0000000a c37f5fc4 
+       c010863a 0000000a c7e5d640 c37f5fc4 c37f4000 0000000a c7e26a40 c037da40 
+       c010882c 0000000a c37f5fc4 c7e26a40 c7e26a40 c37f4000 08079fcc 08079fd4 
+Call Trace: [<c0256d03>] [<c010863a>] [<c010882c>] [<c010acd2>] 
+Code: 8b 73 50 8b 86 a8 01 00 00 85 c0 74 04 53 ff d0 5a b8 00 e0 
+
+
+>>EIP; c023d246 <snd_pcm_period_elapsed+6/c0>   <=====
+
+>>edx; 0000a85a Before first symbol
+>>esi; 07e10000 Before first symbol
+>>edi; c7e5d640 <END_OF_CODE+7aa9e84/????>
+>>ebp; 00002100 Before first symbol
+>>esp; c37f5f5c <END_OF_CODE+34427a0/????>
+
+Trace; c0256d03 <snd_fm801_interrupt+b3/1d0>
+Trace; c010863a <handle_IRQ_event+3a/80>
+Trace; c010882c <do_IRQ+8c/110>
+Trace; c010acd2 <call_do_IRQ+5/b>
+
+Code;  c023d246 <snd_pcm_period_elapsed+6/c0>
+00000000 <_EIP>:
+Code;  c023d246 <snd_pcm_period_elapsed+6/c0>   <=====
+   0:   8b 73 50                  mov    0x50(%ebx),%esi   <=====
+Code;  c023d249 <snd_pcm_period_elapsed+9/c0>
+   3:   8b 86 a8 01 00 00         mov    0x1a8(%esi),%eax
+Code;  c023d24f <snd_pcm_period_elapsed+f/c0>
+   9:   85 c0                     test   %eax,%eax
+Code;  c023d251 <snd_pcm_period_elapsed+11/c0>
+   b:   74 04                     je     11 <_EIP+0x11> c023d257 <snd_pcm_period_elapsed+17/c0>
+Code;  c023d253 <snd_pcm_period_elapsed+13/c0>
+   d:   53                        push   %ebx
+Code;  c023d254 <snd_pcm_period_elapsed+14/c0>
+   e:   ff d0                     call   *%eax
+Code;  c023d256 <snd_pcm_period_elapsed+16/c0>
+  10:   5a                        pop    %edx
+Code;  c023d257 <snd_pcm_period_elapsed+17/c0>
+  11:   b8 00 e0 00 00            mov    $0xe000,%eax
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+
+1 warning and 1 error issued.  Results may not be reliable.

@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267903AbUH2OUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267893AbUH2O1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267903AbUH2OUO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 10:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267893AbUH2OUO
+	id S267893AbUH2O1O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 10:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267916AbUH2O1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 10:20:14 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:57216 "EHLO
+	Sun, 29 Aug 2004 10:27:14 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:58496 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267903AbUH2OUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 10:20:11 -0400
-Subject: Re: hpt366.c: wrong timings used since 2.6.8
+	id S267893AbUH2O1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 10:27:13 -0400
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Folke Ashberg <folke@ashberg.de>
+To: Kenneth Lavrsen <kenneth@lavrsen.dk>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040826223617.GA4557@ashberg.de>
-References: <20040826223617.GA4557@ashberg.de>
+In-Reply-To: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
+References: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1093785484.27935.18.camel@localhost.localdomain>
+Message-Id: <1093785909.27933.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 29 Aug 2004 14:18:04 +0100
+Date: Sun, 29 Aug 2004 14:25:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-26 at 23:36, Folke Ashberg wrote:
-> I saw that hpt366.c got support for HPT372_N_ and its special timings, but
-> that timings have been used for my HPT372_A_ and caused the Oops.
+On Gwe, 2004-08-27 at 17:26, Kenneth Lavrsen wrote:
+> Greg decided that for fanatic and extremist reasons the 10000s - maybe 
+> 100000s - of people that have invested in a Webcamera like a Logitech or 
+> Philips can throw away their camera if they want to keep their Linux 
+> systems up to date in future.
 
-The change you suggest is definitely wrong and will cause disk
-corruption on the 372N
+>From before the driver went in people have been pointing this out and
+pointing out the decompress library belongs in user space. Nor did
+anyone force the Nemosoft people to do this. If the base kernel version
+is GPL then the version with the compressor added probably isnt GPL, but
+Nemosoft wrote the whole driver so they can release a non-free whole
+driver anyway
 
-> I did the following and now it works:
+> And what about Nemosoft. Ideally it is pretty wrong of him to pull off the 
+> driver from his site. That makes things even worse.
 
-Please post the actual oops data and if you can the rid/did.  The 372N
-is identified by two things - PCI ID _or_ RID/DID. Not all 372N cards
-have the unique PCI ID.
+I would talk to Philips about doing it properly - in user space. I doubt
+they are amused by Nemosoft pulling their stuff either. Unfortunately
+its what happens when people rely on binary drivers and promises - they
+get shafted.
+
 

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293050AbSB0Xiy>; Wed, 27 Feb 2002 18:38:54 -0500
+	id <S293055AbSB1AAc>; Wed, 27 Feb 2002 19:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293063AbSB0XiI>; Wed, 27 Feb 2002 18:38:08 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:60053 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S293055AbSB0Xg7>; Wed, 27 Feb 2002 18:36:59 -0500
-To: linux-kernel@vger.kernel.org
-From: Jonathan Hudson <jonathan@daria.co.uk>
+	id <S293083AbSB1AAC>; Wed, 27 Feb 2002 19:00:02 -0500
+Received: from zero.tech9.net ([209.61.188.187]:54534 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S293082AbSB0X7e>;
+	Wed, 27 Feb 2002 18:59:34 -0500
+Subject: Re: [PATCH] 2.5: proc interface for setting task affinity
+From: Robert Love <rml@tech9.net>
+To: peter <peter.zijlstra@chello.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1014853926.21516.20.camel@twins.localnet>
+In-Reply-To: <1014852882.1109.218.camel@phantasy> 
+	<1014853926.21516.20.camel@twins.localnet>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 27 Feb 2002 18:59:37 -0500
+Message-Id: <1014854378.1109.238.camel@phantasy>
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-x-no-productlinks: yes
-X-Comment-To: Alan Cox
-In-Reply-To: <fa.c7mcedv.1a3esq4@ifi.uio.no> <fa.g5iqv0v.11magge@ifi.uio.no>
-Subject: Re: Linux 2.4.19pre1-ac1
-X-Newsgroups: fa.linux.kernel
-Content-Type: text/plain; charset=iso-8859-1
-NNTP-Posting-Host: daria.co.uk
-Message-ID: <6924.3c7d6d97.1d4ab@trespassersw.daria.co.uk>
-Date: Wed, 27 Feb 2002 23:36:55 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <fa.g5iqv0v.11magge@ifi.uio.no>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-AC> 
-AC> What compiler firstly, and what I/O subsystem. Are you using highmem,
-AC> did you build from a clean tree ?
-AC> 
+On Wed, 2002-02-27 at 18:52, peter wrote:
 
-For the pre1-ac1 problems I reported, 2.95.4 (the Debian one),
-reisferfs on IDE, no highmem. The tree has been patched ('official 2.4pre/rc
-+ ac only) for many versions.
+> This is great news,. could you please backport this to 2.4.x + O(1).
+> That would mean that I can finaly use the new scheduler.
+> I need to run X on a single CPU because the MGA-G400 driver has some
+> SMP difficulties.
 
-Now reverted to a clean 2.4.18 (full tarball) +pre1 after the disk
-hard-locked in the middle patching, requiring a power cycle.  
+See if this patch applies on 2.4, it probably does.  If not I'll look
+into the rejects when I get a chance ...
 
-I'm currently repeating the tests on pre1-ac2, __initial__ indications
-are that the problem does NOT happen, so maybe it was the shm.
+Note also that much of the thanks for these interfaces should go to
+Ingo, since he got set_cpus_allowed working with p != current.
+
+btw: I have an MGA-G550 (uses the same mga driver as you) and have no
+problems with X on an SMP machine ...
+
+	Robert Love
+

@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263437AbRFXTem>; Sun, 24 Jun 2001 15:34:42 -0400
+	id <S264423AbRFXTmV>; Sun, 24 Jun 2001 15:42:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263574AbRFXTeb>; Sun, 24 Jun 2001 15:34:31 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:30179 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S263437AbRFXTeW>;
-	Sun, 24 Jun 2001 15:34:22 -0400
-Date: Sun, 24 Jun 2001 16:29:09 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Jason McMullan <jmcmullan@linuxcare.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: What are the VM motivations??
-In-Reply-To: <20010624145200.A14534@jmcmullan.resilience.com>
-Message-ID: <Pine.LNX.4.33L.0106241628100.23112-100000@duckman.distro.conectiva>
+	id <S264432AbRFXTmL>; Sun, 24 Jun 2001 15:42:11 -0400
+Received: from druid.if.uj.edu.pl ([149.156.64.221]:27410 "HELO
+	druid.if.uj.edu.pl") by vger.kernel.org with SMTP
+	id <S264423AbRFXTl7>; Sun, 24 Jun 2001 15:41:59 -0400
+Date: Sun, 24 Jun 2001 21:47:30 +0200 (CEST)
+From: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: Thrashing WITHOUT swap.
+Message-ID: <Pine.LNX.4.33.0106242133550.19801-100000@druid.if.uj.edu.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Jun 2001, Jason McMullan wrote:
-> On Sun, Jun 24, 2001 at 03:26:13PM -0300, Rik van Riel wrote:
-> > On Sun, 24 Jun 2001, Jason McMullan wrote:
-> > > 	Uhh. That's not what I was ranting about. What I was
-> > > ranting about is that we have never 'put to paper' the
-> > > requirements ('motiviations') for a good VM, nor have we
-> > > looked at said nonexistent list and figured out what instrumentation
-> > > would be needed.
-> >
-> > But we have.  The fact that you missed the event doesn't
-> > make it any less true.
->
-> 	Excellent! Where can I find this? I would be most
-> interested in what your considerations for a good VM are.
-> (It'd probably be a good thing to reference people to when
-> they start arguing off-the-cuff about VMs, eh?)
+Hi All,
 
-Over the last year there has been quite a bit of discussion
-with Stephen Tweedie, Matt Dillon and more people. Parts of
-it can be found on http://linux-mm.org/
+I have a queer problem.
 
-The conclusion of most of this discussion is in my FREENIX
-paper, which can be found at http://www.surriel.com/lectures/.
+This is happening on a freshly installed RH7.1 notebook.
+Celeron 400 + 64 mb ram, kernel as shipped (2.4.2-2, have not even
+recompiled it yet).  I have a 140 mb swap partition set up but at the time
+this happened it was OFF.  I was (still am) running X + twm + two xterms
+with ssh + netscape (this is probably the cause of the entire problem).
+I had a single netscape window open with a mid-graphic intensive screen.
+The system started thrashing...  Now my question is how can it be
+thrashing with swap explicitly turned off? [oh just to make stuff even
+funnier netscape is at nice -19 (i.e. lower priority)]
 
+top gives me:
+mem: 62144k av, 61180k used, 956k free, 0k shrd, 76 buff, 2636 cached
+swap: 0k av, 0k used, 0k free [as expected]
 
-regards,
+cpu states: 0% user, 99.9% system, 0.0% nice, 0.0% idle
 
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+process list:
+99 % cpu, CTIME: 29:24 kswap...
 
+all other processes have decent time and cpu usage lists
+even X has a CTIME of only 11 minutes
+[well init has 260:10 but that is normal..., system has been up 3 days]
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+So my basic question is what can I do to fix this?
+
+I expect (only explanation I can find) that the problem is Netscape
+mmaping files.
+
+Oh, and Netscape is not dead it is just very slow [like the entire system,
+I can watch top refresh the screen in line by line mode...]
+
+Any help would be appreciated...
+
+Maciej Zenczykowski
+<maze@druid.if.uj.edu.pl>
+
 

@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263309AbTESXCX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 19:02:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTESW5s
+	id S263353AbTESXCU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 19:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTESXAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:57:48 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:15350 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263309AbTESW5i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:57:38 -0400
-Date: Mon, 19 May 2003 16:11:56 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: [BK PATCH] Yet more i2c driver changes for 2.5.69
-Message-ID: <20030519231156.GA27535@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 19 May 2003 19:00:14 -0400
+Received: from mcomail02.maxtor.com ([134.6.76.16]:58125 "EHLO
+	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
+	id S263310AbTESW7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:59:50 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C102E0D3BB@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@maxtor.com>
+To: "'Jeffrey W. Baker'" <jwbaker@acm.org>,
+       Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
+Subject: RE: HD DMA disabled in 2.4.21-rc2, works fine in 2.4.20
+Date: Mon, 19 May 2003 17:12:39 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The person who posted their DMESG had it unset.
 
-Here are yet more minor i2c fixups for 2.5.69.  They add another i2c bus
-driver, and fix some bugs in the existing drivers (i287 and i2c-dev.)
+Here's an archive of the post:
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.5
+http://www.ussg.iu.edu/hypermail/linux/kernel/0305.2/0440.html
 
-thanks,
+And the line:
 
-greg k-h
+# CONFIG_BLK_DEV_VIA82CXXX is not set 
 
- drivers/i2c/busses/Kconfig      |   25 ++
- drivers/i2c/busses/Makefile     |    1 
- drivers/i2c/busses/i2c-piix4.c  |    4 
- drivers/i2c/busses/i2c-sis96x.c |  376 ++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/chips/it87.c        |    1 
- drivers/i2c/i2c-dev.c           |  228 +++++++++++++++++-------
- drivers/pci/quirks.c            |   80 ++++++++
- include/linux/i2c-id.h          |    2 
- include/linux/pci_ids.h         |    3 
- 9 files changed, 648 insertions(+), 72 deletions(-)
------
+From: Lars (lhofhansl@yahoo.com)
+Date: Sun May 18 2003 - 22:03:16 EST 
 
-<mhoffman:lightlink.com>:
-  o i2c: Add SiS96x I2C/SMBus driver
 
-<warp:mercury.d2dc.net>:
-  o I2C: And yet another it87 patch
 
-Greg Kroah-Hartman:
-  o i2c: fix up i2c-dev driver based on previous core changes
-  o i2c: piix4 driver: turn common error message to a debug level and rename the sysfs driver name
+--eric
 
+
+
+-----Original Message-----
+From: Jeffrey W. Baker [mailto:jwbaker@acm.org]
+Sent: Monday, May 19, 2003 5:01 PM
+To: Tomas Szepe; linux-kernel@vger.kernel.org
+Subject: Re: HD DMA disabled in 2.4.21-rc2, works fine in 2.4.20
+
+
+On Mon, 2003-05-19 at 15:29, Tomas Szepe wrote:
+> > [alan@lxorguk.ukuu.org.uk]
+> > 
+> > On Llu, 2003-05-19 at 21:04, Jeffrey W. Baker wrote:
+> > > I was using Via IDE chipset and, yes, I had configured the kernel for
+> > > VIA support.  That's why it worked in 2.4.20.  But it stopped working
+in
+> > > 2.4.21-rc.
+> > 
+> > VIA IDE should be working reliably, my main test box is an EPIA series
+> > VIA system so the VIA IDE does get a fair beating
+> 
+> This person is running with CONFIG_BLK_DEV_VIA82CXXX unset.
+
+No, this person is not.  
+
+-jwb
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

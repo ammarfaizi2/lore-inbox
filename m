@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273141AbRIUBYR>; Thu, 20 Sep 2001 21:24:17 -0400
+	id <S274734AbRIUB00>; Thu, 20 Sep 2001 21:26:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274734AbRIUBYG>; Thu, 20 Sep 2001 21:24:06 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:9207 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S273141AbRIUBX7>;
-	Thu, 20 Sep 2001 21:23:59 -0400
-Date: Fri, 21 Sep 2001 03:22:30 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Roger Larsson <roger.larsson@norran.net>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Stefan Westerfeld <stefan@space.twc.de>, Robert Love <rml@tech9.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-Message-ID: <20010921032230.Q729@athlon.random>
-In-Reply-To: <200109210047.f8L0lkv26045@maile.telia.com> <E15kEjB-0006n9-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S274735AbRIUB0R>; Thu, 20 Sep 2001 21:26:17 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28688 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274734AbRIUB0H>; Thu, 20 Sep 2001 21:26:07 -0400
+Subject: Re: Problem: PnP BIOS driver reports outdated information
+To: jdthoodREMOVETHIS@yahoo.co.uk (Thomas Hood)
+Date: Fri, 21 Sep 2001 02:31:26 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BAA946F.2D2900AC@yahoo.co.uk> from "Thomas Hood" at Sep 20, 2001 09:14:23 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15kEjB-0006n9-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Sep 21, 2001 at 02:03:37AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kFA6-0006qM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 21, 2001 at 02:03:37AM +0100, Alan Cox wrote:
-> they dont get stuck doing a huge amount of pageout work for someone else.
-> Thats one thing I seem to be seeing with the 10pre11 VM.
+> How about this: pnpbios functions that scan the device list
+> optionally (depending on a flag of some sort, set according to
+> whether or not one has an evil BIOS) cause the list to be rebuilt
 
-actually one feature of the 10pre11 VM is that it will avoid a task to
-give to other people the pages that it is freeing for itself. The
-previous VM didn't has such a feature. So (in theory :) it should be the
-other way around. see the implementation of page_alloc.c::balance_classzone().
+We can use DMI to figure out if the BIOS is likely to be problematic
+A DMI match on Intel or Vaio should cut out most BIOSes that either explode
+on boot or have the weird corrupting case.
 
-Actually Linus found just a few minutes ago a possible source for high
-latencies in the pre12 VM, my silly mistake, he will certainly fix it in
-pre13 somehow just in case that was the problem.
+> I would offer a patch, but I don't know how the aforementioned
+> flag should be implemented.
 
-Andrea
+Use the existing vaio flag that is used by the vaio drivers currently -
+"is_sony_vaio_laptop"

@@ -1,107 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264371AbUEDN70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUEDOBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbUEDN70 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 09:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUEDN70
+	id S264377AbUEDOBY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 10:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbUEDOBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 09:59:26 -0400
-Received: from mail2.soliscom.uu.nl ([131.211.4.74]:48544 "EHLO
-	solis202.soliscom.uu.nl") by vger.kernel.org with ESMTP
-	id S264371AbUEDN7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 09:59:20 -0400
-Subject: [PATCH - 2/2] new i2c video decoder calls
-From: "Ronald S. Bultje" <R.S.Bultje@students.uu.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Michael Hunold <hunold@convergence.de>
-Content-Type: multipart/mixed; boundary="=-EB4PH3HXnlTUNcGo1Ben"
-Message-Id: <1083657623.26828.1.camel@shrek.bitfreak.net>
+	Tue, 4 May 2004 10:01:24 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6123 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264377AbUEDOAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 10:00:31 -0400
+Date: Mon, 3 May 2004 15:51:46 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: linux-kernel@vger.kernel.org, postmaster@vger.kernel.org
+Subject: Re: hda active and hdb sleep?
+Message-ID: <20040503135145.GE1188@openzaurus.ucw.cz>
+References: <Pine.LNX.4.44.0405022150410.4526-100000@poirot.grange>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 04 May 2004 10:00:23 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0405022150410.4526-100000@poirot.grange>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-EB4PH3HXnlTUNcGo1Ben
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> As soon as I issue hdparm -Y /dev/hdb I get errors on hda and it doesn't
+> seem to be possible to have hdb in sleep and hfa active. I think, those
+> power-states are purely per-device, aren't they. It's a VIA ProSavage
+> KM133 chipset. 2.6.3 kernel at the moment.
 
-Hi Andrew,
+Does -y work?
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-attached patch implements the i2c calls from my first email in the
-saa7111 driver.
-
-The driver is still compatible with old behaviour, so the zr36067 driver
-(the original user of the saa7111 module) doesn't need any changes. I'll
-probably gradually make everything use DECODER_INIT instead of 0 (that
-was a nice hack back then) somewhere later.
-
-Can I just remove '0' later on? Or are there official ABI rules for
-stable kernel versions?
-
-Thanks,
-
-Ronald
-
---=-EB4PH3HXnlTUNcGo1Ben
-Content-Disposition: attachment; filename=linux-i2c-saa7111.diff
-Content-Type: text/plain; name=linux-i2c-saa7111.diff; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-LS0tIGxpbnV4LTIuNi41L2RyaXZlcnMvbWVkaWEvdmlkZW8vc2FhNzExMS1vbGQuYwkyMDA0LTA1
-LTAzIDIwOjM4OjQ5LjAwMDAwMDAwMCArMDIwMA0KKysrIGxpbnV4LTIuNi41L2RyaXZlcnMvbWVk
-aWEvdmlkZW8vc2FhNzExMS5jCTIwMDQtMDUtMDMgMjA6NDc6MjcuMDAwMDAwMDAwICswMjAwDQpA
-QCAtOSw2ICs5LDkgQEANCiAgKiBDaGFuZ2VzIGJ5IFJvbmFsZCBCdWx0amUgPHJidWx0amVAcm9u
-YWxkLmJpdGZyZWFrLm5ldD4NCiAgKiAgICAtIG1vdmVkIG92ZXIgdG8gbGludXg+PTIuNC54IGky
-YyBwcm90b2NvbCAoMS8xLzIwMDMpDQogICoNCisgKiBDaGFuZ2VzIGJ5IE1pY2hhZWwgSHVub2xk
-IDxtaWNoYWVsQG1paHUuZGU+DQorICogICAgLSBpbXBsZW1lbnRlZCBERUNPREVSX1NFVF9HUElP
-LCBERUNPREVSX0lOSVQsIERFQ09ERVJfU0VUX1ZCSV9CWVBBU1MNCisgKg0KICAqIFRoaXMgcHJv
-Z3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9k
-aWZ5DQogICogaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGlj
-ZW5zZSBhcyBwdWJsaXNoZWQgYnkNCiAgKiB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uOyBl
-aXRoZXIgdmVyc2lvbiAyIG9mIHRoZSBMaWNlbnNlLCBvcg0KQEAgLTExMiw3ICsxMTUsNyBAQA0K
-IAkJdTggYmxvY2tfZGF0YVszMl07DQogDQogCQltc2cuYWRkciA9IGNsaWVudC0+YWRkcjsNCi0J
-CW1zZy5mbGFncyA9IGNsaWVudC0+ZmxhZ3M7DQorCQltc2cuZmxhZ3MgPSAwOw0KIAkJd2hpbGUg
-KGxlbiA+PSAyKSB7DQogCQkJbXNnLmJ1ZiA9IChjaGFyICopIGJsb2NrX2RhdGE7DQogCQkJbXNn
-LmxlbiA9IDA7DQpAQCAtMTQyLDYgKzE0NSwxMyBAQA0KIAlyZXR1cm4gcmV0Ow0KIH0NCiANCitz
-dGF0aWMgaW50DQorc2FhNzExMV9pbml0X2RlY29kZXIgKHN0cnVjdCBpMmNfY2xpZW50ICpjbGll
-bnQsDQorCSAgICAgIHN0cnVjdCB2aWRlb19kZWNvZGVyX2luaXQgKmluaXQpDQorew0KKwlyZXR1
-cm4gc2FhNzExMV93cml0ZV9ibG9jayhjbGllbnQsIGluaXQtPmRhdGEsIGluaXQtPmxlbik7DQor
-fQ0KKw0KIHN0YXRpYyBpbmxpbmUgaW50DQogc2FhNzExMV9yZWFkIChzdHJ1Y3QgaTJjX2NsaWVu
-dCAqY2xpZW50LA0KIAkgICAgICB1OCAgICAgICAgICAgICAgICAgcmVnKQ0KQEAgLTE1MSw3ICsx
-NjEsNyBAQA0KIA0KIC8qIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tICovDQogDQotc3RhdGljIGNvbnN0IHVuc2ln
-bmVkIGNoYXIgaW5pdFtdID0gew0KK3N0YXRpYyBjb25zdCB1bnNpZ25lZCBjaGFyIHNhYTcxMTFf
-aTJjX2luaXRbXSA9IHsNCiAJMHgwMCwgMHgwMCwJCS8qIDAwIC0gSUQgYnl0ZSAqLw0KIAkweDAx
-LCAweDAwLAkJLyogMDEgLSByZXNlcnZlZCAqLw0KIA0KQEAgLTIwMSw5ICsyMTEsMTkgQEANCiAJ
-c3dpdGNoIChjbWQpIHsNCiANCiAJY2FzZSAwOg0KLQkJLy9zYWE3MTExX3dyaXRlX2Jsb2NrKGNs
-aWVudCwgaW5pdCwgc2l6ZW9mKGluaXQpKTsNCi0JCWJyZWFrOw0KLQ0KKwljYXNlIERFQ09ERVJf
-SU5JVDoNCisJew0KKwkJc3RydWN0IHZpZGVvX2RlY29kZXJfaW5pdCAqaW5pdCA9IGFyZzsNCisJ
-CWlmIChOVUxMICE9IGluaXQpDQorCQkJcmV0dXJuIHNhYTcxMTFfaW5pdF9kZWNvZGVyKGNsaWVu
-dCwgaW5pdCk7DQorCQllbHNlIHsNCisJCQlzdHJ1Y3QgdmlkZW9fZGVjb2Rlcl9pbml0IHZkaTsN
-CisJCQl2ZGkuZGF0YSA9IHNhYTcxMTFfaTJjX2luaXQ7DQorCQkJdmRpLmxlbiA9IHNpemVvZihz
-YWE3MTExX2kyY19pbml0KTsNCisJCQlyZXR1cm4gc2FhNzExMV9pbml0X2RlY29kZXIoY2xpZW50
-LCAmdmRpKTsNCisJCX0JCQ0KKwl9DQorCQ0KIAljYXNlIERFQ09ERVJfRFVNUDoNCiAJew0KIAkJ
-aW50IGk7DQpAQCAtMjc0LDYgKzI5NCwzMiBAQA0KIAl9DQogCQlicmVhazsNCiANCisJY2FzZSBE
-RUNPREVSX1NFVF9HUElPOg0KKwl7DQorCQlpbnQgKmlhcmcgPSBhcmc7DQorCQlpZiAoMCAhPSAq
-aWFyZykgew0KKwkJCXNhYTcxMTFfd3JpdGUoY2xpZW50LCAweDExLA0KKwkJCQkoZGVjb2Rlci0+
-cmVnWzB4MTFdIHwgMHg4MCkpOw0KKwkJfSBlbHNlIHsNCisJCQlzYWE3MTExX3dyaXRlKGNsaWVu
-dCwgMHgxMSwNCisJCQkJKGRlY29kZXItPnJlZ1sweDExXSAmIDB4N2YpKTsNCisJCX0NCisJCWJy
-ZWFrOw0KKwl9DQorDQorCWNhc2UgREVDT0RFUl9TRVRfVkJJX0JZUEFTUzoNCisJew0KKwkJaW50
-ICppYXJnID0gYXJnOw0KKwkJaWYgKDAgIT0gKmlhcmcpIHsNCisJCQlzYWE3MTExX3dyaXRlKGNs
-aWVudCwgMHgxMywNCisJCQkJKGRlY29kZXItPnJlZ1sweDEzXSAmIDB4ZjApIHwgMHgwYSk7DQor
-CQl9IGVsc2Ugew0KKwkJCXNhYTcxMTFfd3JpdGUoY2xpZW50LCAweDEzLA0KKwkJCQkoZGVjb2Rl
-ci0+cmVnWzB4MTNdICYgMHhmMCkpOw0KKwkJfQ0KKwkJYnJlYWs7DQorCX0NCisJDQogCWNhc2Ug
-REVDT0RFUl9TRVRfTk9STToNCiAJew0KIAkJaW50ICppYXJnID0gYXJnOw0KQEAgLTQ2NSw3ICs1
-MTEsOCBAQA0KIAlpbnQgaTsNCiAJc3RydWN0IGkyY19jbGllbnQgKmNsaWVudDsNCiAJc3RydWN0
-IHNhYTcxMTEgKmRlY29kZXI7DQotDQorCXN0cnVjdCB2aWRlb19kZWNvZGVyX2luaXQgdmRpOw0K
-KwkNCiAJZHByaW50aygxLA0KIAkJS0VSTl9JTkZPDQogCQkic2FhNzExMS5jOiBkZXRlY3Rpbmcg
-c2FhNzExMSBjbGllbnQgb24gYWRkcmVzcyAweCV4XG4iLA0KQEAgLTUwOSw3ICs1NTYsOSBAQA0K
-IAkJcmV0dXJuIGk7DQogCX0NCiANCi0JaSA9IHNhYTcxMTFfd3JpdGVfYmxvY2soY2xpZW50LCBp
-bml0LCBzaXplb2YoaW5pdCkpOw0KKwl2ZGkuZGF0YSA9IHNhYTcxMTFfaTJjX2luaXQ7DQorCXZk
-aS5sZW4gPSBzaXplb2Yoc2FhNzExMV9pMmNfaW5pdCk7DQorCWkgPSBzYWE3MTExX2luaXRfZGVj
-b2RlcihjbGllbnQsICZ2ZGkpOw0KIAlpZiAoaSA8IDApIHsNCiAJCWRwcmludGsoMSwgS0VSTl9F
-UlIgIiVzX2F0dGFjaCBlcnJvcjogaW5pdCBzdGF0dXMgJWRcbiIsDQogCQkJSTJDX05BTUUoY2xp
-ZW50KSwgaSk7DQo=
-
---=-EB4PH3HXnlTUNcGo1Ben--

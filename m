@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316210AbSH0Om4>; Tue, 27 Aug 2002 10:42:56 -0400
+	id <S316235AbSH0PJA>; Tue, 27 Aug 2002 11:09:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316213AbSH0Omz>; Tue, 27 Aug 2002 10:42:55 -0400
-Received: from inti.inf.utfsm.cl ([146.83.198.3]:55250 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S316210AbSH0Omz>;
-	Tue, 27 Aug 2002 10:42:55 -0400
-Message-Id: <200208270138.g7R1ckGx001985@eeyore.valparaiso.cl>
-To: Robert Love <rml@tech9.net>
-cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make raid5 checksums preempt-safe 
-In-Reply-To: Message from Robert Love <rml@tech9.net> 
-   of "26 Aug 2002 17:15:07 -0400." <1030396507.15007.452.camel@phantasy> 
-Date: Mon, 26 Aug 2002 21:38:46 -0400
-From: Horst von Brand <vonbrand@eeyore.valparaiso.cl>
+	id <S316258AbSH0PJA>; Tue, 27 Aug 2002 11:09:00 -0400
+Received: from [195.185.133.146] ([195.185.133.146]:27427 "HELO
+	gateway.hottinger.de") by vger.kernel.org with SMTP
+	id <S316235AbSH0PI7>; Tue, 27 Aug 2002 11:08:59 -0400
+Message-ID: <D3524C0FFDC6A54F9D7B6BBEECD341D5D56FDF@HBMNTX0.da.hbm.com>
+From: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>
+To: linux-kernel@vger.kernel.org
+Subject: AW: Alright, I give up.  What does the "i" in "inode" stand for?
+Date: Tue, 27 Aug 2002 17:13:01 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> said:
-> On Mon, 2002-08-26 at 17:09, Thunder from the hill wrote:
-> 
-> > These will suck when on if, I guess... 
-> 
-> hm?
-> 
-> > Anyway, will this compile at all?  There seems no semicolon after the
-> > asm volatile ()
-> 
-> Ah yes, curses.  Thanks.
+Hello,
 
-Also, kindly place "do { ... } while(0)" around XMMS_SAVE, if only for
-symmetry.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> Von: Ryan Cumming [mailto:ryan@completely.kicks-ass.org]
+[...]
+> > (P.S. I'm not quite kidding: http://www.darpa.mil/iao/ ).
+> Now, the symbolism used in the IOA logo is poor at best. The 
+> omniscient eye 
+> was never supposed to represent the United States itself, but 
+> God [1]. Unless 
+> they're calling themselves God lately, they really broke the 
+> metaphor by 
+> having the eye looking over the Earth. 
+                              ^^^^^^^^^^
+
+Be aware that the center of the eye seems to watch over europe and keeps
+track over russia! Deeper sense? ;-)
+
+Maybe: "The DARPA IAO will imagine, develop ... by achieving total
+information awareness useful for preemption, national security warning..."
+
+Siegfried. (Just one bothering german newbie. Sorry for that!)

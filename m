@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274100AbRI0XbD>; Thu, 27 Sep 2001 19:31:03 -0400
+	id <S274145AbRI0Xhf>; Thu, 27 Sep 2001 19:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274105AbRI0Xax>; Thu, 27 Sep 2001 19:30:53 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:8700 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274100AbRI0Xap>;
-	Thu, 27 Sep 2001 19:30:45 -0400
-Date: Fri, 28 Sep 2001 01:31:06 +0200
+	id <S274134AbRI0XhY>; Thu, 27 Sep 2001 19:37:24 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:13052 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274133AbRI0XhO>;
+	Thu, 27 Sep 2001 19:37:14 -0400
+Date: Fri, 28 Sep 2001 01:37:30 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Ben LaHaise <bcrl@redhat.com>
-Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
-Message-ID: <20010928013106.W14277@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0109261729570.5644-200000@localhost.localdomain>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Robert Macaulay <robert_macaulay@dell.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
+        Bob Matthews <bmatthews@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)]
+Message-ID: <20010928013730.Y14277@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0109271605550.25667-100000@penguin.transmeta.com> <Pine.LNX.4.33.0109271618120.25667-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109261729570.5644-200000@localhost.localdomain>; from mingo@elte.hu on Wed, Sep 26, 2001 at 06:44:03PM +0200
+In-Reply-To: <Pine.LNX.4.33.0109271618120.25667-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Sep 27, 2001 at 04:18:58PM -0700
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 26, 2001 at 06:44:03PM +0200, Ingo Molnar wrote:
+On Thu, Sep 27, 2001 at 04:18:58PM -0700, Linus Torvalds wrote:
+> 
+> On Thu, 27 Sep 2001, Linus Torvalds wrote:
+> >
+> > Thinking about it, I think GFP_NOIO also implies "we must not wait for
+> > other buffers", because that could deadlock for _other_ things too, like
+> > loop and NBD (which use NOIO to make sure that they don't recurse - but
+> > that should also imply not waiting for themselves). The GFP_xxx approach
+> > should fix those deadlocks too.
+> 
+> Ie the patch would be something like the attached..
 
-some comment after reading your softirq-2.4.10-A7.
-
->  - softirq handling can now be restarted N times within do_softirq(), if a
->    softirq gets reactivated while it's being handled.
-
-is this really necessary after introducing the unwakeup logic? What do
-you get if you allow at max 1 softirq pass as before?
-
->  - '[ksoftirqd_CPU0]' is confusing on UP systems, changed it to
->    '[ksoftirqd]' instead.
-
-"confusing" for you maybe, not for me, but I don't care about this one
-anyways :).
-
->  - simplified ksoftirqd()'s loop, it's both shorter and faster by a few
->    instructions now.
-
-only detail: ksoftirqd can show up as sleeping from /proc while it's
-runnable but I don't think it's a problem and saving the state
-clobbering is probably more sensible.
-
-no other obvious issue, except I preferred to wait each ksoftirqd to
-startup succesfully to be strictier and I'd also put an assert after
-the schedule() to verify ksoftirqd is running in the right cpu.
+well this approch is much less finegrined... but yes, it would fix the
+deadlock.
 
 Andrea

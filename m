@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131911AbRBWTYR>; Fri, 23 Feb 2001 14:24:17 -0500
+	id <S131822AbRBWT15>; Fri, 23 Feb 2001 14:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131922AbRBWTYH>; Fri, 23 Feb 2001 14:24:07 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7437 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131911AbRBWTX6>; Fri, 23 Feb 2001 14:23:58 -0500
-Subject: Re: EXT2-fs error
-To: ian@wehrman.com
-Date: Fri, 23 Feb 2001 19:26:17 +0000 (GMT)
-Cc: mhaque@haque.net, adilger@turbolinux.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010223131205.A10434@wehrman.com> from "Ian Wehrman" at Feb 23, 2001 01:12:05 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131836AbRBWT1r>; Fri, 23 Feb 2001 14:27:47 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:52997 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S131822AbRBWT1g>; Fri, 23 Feb 2001 14:27:36 -0500
+Date: Fri, 23 Feb 2001 20:24:03 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Marcus Ramos <marcus@ansp.br>
+Cc: Rahul <callrahulonly@yahoo.co.in>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux device driver writing
+Message-ID: <20010223202403.J16276@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010223100140.25508.qmail@web8002.mail.in.yahoo.com> <3A969885.5EEE1E69@ansp.br>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14WNrA-0006vM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A969885.5EEE1E69@ansp.br>; from marcus@ansp.br on Fri, Feb 23, 2001 at 03:06:13PM -0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Possibly the result of the 'silent' bug in 2.4.1?
-> 
-> you are not the only one who found this bug. immediately after booting 2.4.2 i
-> received dozens of these errors, resulting in _major_ filesystem corruption.
-> after a half hour of fsck'ing i managed to bring the machine back into a usable
+On Fri, Feb 23, 2001 at 03:06:13PM -0200, Marcus Ramos wrote:
+> For Linux you can use the good and complete "Linux Device Drivers" by
+> Alessandro Rubini, O'Reilly, 1998. For other flavors of Unix, I am aware only
+> of old text books of little interest for present systems. Good luck.
 
-Had you been running 2.4.1 before that ?
+Problem with that edition is quite old. Yes, it's good and the general
+guidelines still apply, but the details are obsoleted by the newer
+kernels. When I asked the O'Reilly at LWE NY, they told me that the
+second edition (which covers 2.4) will be released in May this year.
+
+Another good place to start is of course http://www.kernelnewbies.org/
+
+
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVCKVJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVCKVKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbVCKVJj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 16:09:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVCKVAa
+	id S261797AbVCKVKx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 16:10:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVCKVKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 16:00:30 -0500
-Received: from 209-204-138-32.dsl.static.sonic.net ([209.204.138.32]:1032 "EHLO
-	graphe.net") by vger.kernel.org with ESMTP id S261367AbVCKU5P (ORCPT
+	Fri, 11 Mar 2005 16:10:51 -0500
+Received: from khc.piap.pl ([195.187.100.11]:3844 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S261468AbVCKVKL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 15:57:15 -0500
-Date: Fri, 11 Mar 2005 12:57:07 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: linux-kernel@vger.kernel.org, Shai Fultheim <Shai@Scalex86.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] del_timer_sync scalability patch
-In-Reply-To: <4231E959.141F7D85@tv-sign.ru>
-Message-ID: <Pine.LNX.4.58.0503111254270.25992@server.graphe.net>
-References: <4231E959.141F7D85@tv-sign.ru>
+	Fri, 11 Mar 2005 16:10:11 -0500
+To: Chris Wright <chrisw@osdl.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: Linux 2.6.11.2
+References: <20050309083923.GA20461@kroah.com>
+	<m3acpa9qta.fsf@defiant.localdomain>
+	<20050311173808.GZ28536@shell0.pdx.osdl.net>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Fri, 11 Mar 2005 22:07:55 +0100
+In-Reply-To: <20050311173808.GZ28536@shell0.pdx.osdl.net> (Chris Wright's
+ message of "Fri, 11 Mar 2005 09:38:08 -0800")
+Message-ID: <m3acp9rivo.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Mar 2005, Oleg Nesterov wrote:
+Chris Wright <chrisw@osdl.org> writes:
 
-> I think it is not enough to exchange these 2 lines in
-> __run_timers, we also need barriers.
+> * Krzysztof Halasa (khc@pm.waw.pl) wrote:
+>> Another patch for 2.6.11.x: already in main tree, fixes kernel panic
+>> on receive with WAN cards based on Hitachi SCA/SCA-II: N2, C101,
+>> PCI200SYN.
+>> Also a documentation change fixing user-panic can-t-find-required-software
+>> failure (just the same patch as in mainline) :-)
+>
+> We are not accepting documentation fixes.  Could you please send just
+> the panic fix to stable@kernel.org (cc lkml)?  And add Signed-off-by...
 
-Maybe its best to drop last_running_timer as Ingo suggested.
+Sure:
 
-Replace the magic with a flag that can be set to stop scheduling a timer
-again.
+Signed-off-by: Krzysztof Halasa <khc@pm.waw.pl>
 
-Then del_timer_sync may
+--- linux/drivers/net/wan/hd6457x.c	28 Oct 2004 06:16:08 -0000	1.15
++++ linux/drivers/net/wan/hd6457x.c	1 Mar 2005 00:58:08 -0000
+@@ -315,7 +315,7 @@
+ #endif
+ 	stats->rx_packets++;
+ 	stats->rx_bytes += skb->len;
+-	skb->dev->last_rx = jiffies;
++	dev->last_rx = jiffies;
+ 	skb->protocol = hdlc_type_trans(skb, dev);
+ 	netif_rx(skb);
+ }
 
-1. Set the flag not to reschedule
-2. delete the timer
-3. wait till the timer function is complete
-4. (eventually verify that the timer is really gone)
-5. reset the no reschedule flag
-
+-- 
+Krzysztof Halasa

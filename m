@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265225AbSJRT3e>; Fri, 18 Oct 2002 15:29:34 -0400
+	id <S265358AbSJRTko>; Fri, 18 Oct 2002 15:40:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265248AbSJRT3e>; Fri, 18 Oct 2002 15:29:34 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:26399 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S265225AbSJRT33>;
-	Fri, 18 Oct 2002 15:29:29 -0400
-Date: Fri, 18 Oct 2002 21:35:23 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb storage sddr09
-Message-ID: <20021018193523.GA25316@win.tue.nl>
-References: <200210172155.49349.tomlins@cam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210172155.49349.tomlins@cam.org>
-User-Agent: Mutt/1.3.25i
+	id <S265359AbSJRTko>; Fri, 18 Oct 2002 15:40:44 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265358AbSJRTkn>; Fri, 18 Oct 2002 15:40:43 -0400
+Date: Fri, 18 Oct 2002 15:45:50 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Dave Olien <dmo@osdl.org>
+cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.43 disk repartitioning problems
+In-Reply-To: <20021017105205.C3841@acpi.pdx.osdl.net>
+Message-ID: <Pine.LNX.3.96.1021018154148.23760D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 09:55:49PM -0400, Ed Tomlinson wrote:
+On Thu, 17 Oct 2002, Dave Olien wrote:
 
-> In the patch fest in the last couple of days usb storage support for sddr09 
-> has broken.  I see the following in the log (2.5.43-mm2):
-
-> Oct 17 21:37:07 oscar kernel: sddr09: Found Flash card, ID = 00 00 00 00: Manuf. unknown, 4096 MB
-> Oct 17 21:37:07 oscar kernel: sda : unsupported sector size 1.
-> Oct 17 21:37:07 oscar kernel: SCSI device sda: 0 1-byte hdwr sectors (0 MB)
-
-Yes. Reverting the 2.5.43 patch on usb/storage fixes this.
-
-> Also attempting to rmmod usb-storage gets:
+> I'm working on the Mylex DAC960 device driver, bring in up to date
+> with the new block and dma interfaces.  I've been posting patches on
+> occasion.  I've also noticed you updating the driver when you make changes
+> to the gendisk kernel interfaces.   Those updates are very helpful.
 > 
-> Oct 17 21:53:12 oscar kernel: kernel BUG at drivers/base/core.c:269!
+> I've noticed in 2.4.3 at least, that some changes to disk partitions
+> aren't noticed until you reboot.  The same problem is seen with aacraid.
+> I don't THINK this is a driver issue.  But, I might have missed something.  
 
-Yes. I have seen the patch several times on this list.
-See http://marc.theaimsgroup.com/?l=linux-kernel&m=103479992624108&w=2
+Linux has always read the partition table at first use AFAIK. So if you
+have never used a drive you can repartition it and then use it, but once
+you use any one partition the table is not reread.
 
-Andries
+I *think* if you unmount all partitions (including swapoff swaps) you can
+see changes, but that's from memory, I haven't tried it in a long time.
+
+Don't believe it's a bug, it's a design decision.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

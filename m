@@ -1,77 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbUCaLun (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 06:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUCaLum
+	id S261918AbUCaL7G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 06:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbUCaL7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 06:50:42 -0500
-Received: from relay.inway.cz ([212.24.128.3]:62188 "EHLO relay.inway.cz")
-	by vger.kernel.org with ESMTP id S261914AbUCaLuk (ORCPT
+	Wed, 31 Mar 2004 06:59:06 -0500
+Received: from attila.bofh.it ([213.92.8.2]:10447 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S261918AbUCaL7D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 06:50:40 -0500
-Message-ID: <406AB08C.1040907@scssoft.com>
-Date: Wed, 31 Mar 2004 13:50:36 +0200
-From: Petr Sebor <petr@scssoft.com>
-Organization: SCS Software
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, jpaana@s2.org
-Subject: Re: [PATCH] Re: [sata] libata update
-References: <4064E691.2070009@pobox.com> <4069FBC3.2080104@scssoft.com> <406A8035.2080108@pobox.com>
-In-Reply-To: <406A8035.2080108@pobox.com>
-X-Enigmail-Version: 0.83.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigAAB711732AE2CFB62AC6B976"
+	Wed, 31 Mar 2004 06:59:03 -0500
+Date: Wed, 31 Mar 2004 13:58:55 +0200
+From: "Marco d'Itri" <md@Linux.IT>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Martin Schaffner <schaffner@gmx.li>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: booting 2.6.4 from OpenFirmware
+Message-ID: <20040331115855.GB5228@wonderland.linux.it>
+References: <321B041D-8298-11D8-AC61-0003931E0B62@gmx.li> <1080687527.1198.48.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1080687527.1198.48.camel@gaston>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigAAB711732AE2CFB62AC6B976
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mar 31, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-Jeff Garzik wrote:
+> > If I try to boot the stock kernel, OpenFirmware tells me "Claim 
+> > failed", and returns to the command prompt.
+> > 
+> > Does anybody have an idea what is the cause of this?
+> 
+> That's strange, I do such netbooting everyday on a wide range of
+> machines without trouble. Are you using some kind of cross compiler ?
+> Maybe there are some issues with cross compiling of the boot wrapper...
+I experienced the same problem (2.4.x kernels would boot from OF, 2.6.x
+would not) on my B50 machines, I may even have discussed it with you on
+IRC.
+I did not try to debug this further and I started using yaboot.
 
-> Here's a potentially better patch, if you guys (or anyone else) would 
-> be willing to give it a quick test...?
->
->     Jeff
-
-Not good at all ...
-
-(eye-copied from the console @ boot time)
-
-2.6.5-rc3 + this patch:
-
-sata_via (0000:00:0f.0): PATA sharing not supported (0x2)
-via_sata: probe of (0000:00:0f.0) failed with error -5
-
-with following panic
-
-unable to mount root...
-
-wrt sata_via, no more messages are written...
-
-Regards,
-Petr
-
-
---------------enigAAB711732AE2CFB62AC6B976
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAarCMir6eWjmOQ6cRAg8UAJwKHRGQB31xajYnUcuHLNxpl9mVdQCfW9DH
-YUlulIEQRv9EFbGsHLVDsKw=
-=x/kb
------END PGP SIGNATURE-----
-
---------------enigAAB711732AE2CFB62AC6B976--
+-- 
+ciao, |
+Marco | [5461 tro7jFYIQ7uH6]

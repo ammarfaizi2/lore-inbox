@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbUKWEqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbUKWEuL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbUKWEqL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 23:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUKVQd0
+	id S262184AbUKWEuL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 23:50:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbUKWEuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:33:26 -0500
-Received: from dvhart.com ([64.146.134.43]:4994 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S262168AbUKVQCe (ORCPT
+	Mon, 22 Nov 2004 23:50:03 -0500
+Received: from [61.49.148.118] ([61.49.148.118]:54771 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S262184AbUKWESn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:02:34 -0500
-Subject: Re: Information about move_tasks return
-From: Darren Hart <darren@dvhart.com>
-To: =?ISO-8859-1?Q?C=EDcero?= <cicero.mota@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <ce70c49041122041623155a@mail.gmail.com>
-References: <ce70c49041122041623155a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 22 Nov 2004 08:02:24 -0800
-Message-Id: <1101139344.21252.65.camel@farah.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 8bit
+	Mon, 22 Nov 2004 23:18:43 -0500
+Date: Mon, 22 Nov 2004 20:08:43 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200411230408.iAN48hj03268@adam.yggdrasil.com>
+To: maneesh@in.ibm.com
+Subject: Re: [Patch] Delete sysfs_dirent.s_count, saving ~100kB on my system
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-22 at 08:16 -0400, Cícero wrote:
-> hi
-> 
-> I am looking for the result of the function  move_task in
-> 
-> kernel/sched.c , I have observed that it returns an int value and as I
-> print it with printk.
-> 
-> I have created a int variable 'results_move_task' which capture the result of
-> 
-> move_task and I print it with printk("%d",results_move_task); I
-> observed that it often returns the value '1' and sometimes it returns
-> '2' or more. Is it really correct?
+On Mon, 22 Nov 2004 16:53:09 -0600, Maneesh Soni wrote:
+>There can be open files (live dentries) but files getting removed.
 
-/*
- * move_tasks tries to move up to max_nr_move tasks from busiest to this_rq,
- * as part of a balancing operation within "domain". Returns the number of
- * tasks moved.
- *
- * Called with both runqueues locked.
- */
-static int move_tasks(runqueue_t *this_rq, int this_cpu, runqueue_t *busiest,
-                      unsigned long max_nr_move, struct sched_domain *sd,
-                      enum idle_type idle)
-{
-...
+	I think you're right.  I did have a problem with the
+test that you suggested.  I think I may be able to accomodate
+the problem though.
 
+	I had not realized that file->f_dentry will keep the dentry
+around even after the file has been removed, at which point
+file->f_dentry->d_fsdata will point to garbage rather than a
+valid sysfs_direntry.  This is a problem in fs/sysfs/file.c
+where sysfs_read_file calls fill_read_buffer, which calls to_attr,
+which tries to read sysfs_direnty->s_element.
 
-So as the "documentation" states, it returns the number of tasks
-actually moved.  For instance, The balancing code may request 4 tasks be
-moved, but for various reasons, only 2 were actually moved to other
-CPUs, move_tasks() would return 2.
+	I believe I can avoid the need for any of the IO routines
+to access sysfs_direntry->s_element by having create_file()
+put a copy in inode->u.generic_ip.  If it works, I will send
+you an updated patch.  However, it may be a day before I can
+do it.
 
--- 
-Darren Hart <darren@dvhart.com>
+>IMO,
+>without having ref count for sysfs_dirent, we could end up loosing the
+>sysfs_dirent and end up in inconsistent sysfs_dirent tree with respect to
+>dentry tree.
 
+	I believe that, with the patch I posted, the sysfs_dirent
+is still removed from the list of the parent directory's children
+at exactly the same times as before.
+
+[...]
+>I will also test the patch tonight.
+
+	No need.  I hope to have an updated patch for you soon though.
+Thanks for the quick and detailed response.
+
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281705AbRKQGPf>; Sat, 17 Nov 2001 01:15:35 -0500
+	id <S281708AbRKQHOJ>; Sat, 17 Nov 2001 02:14:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281706AbRKQGPZ>; Sat, 17 Nov 2001 01:15:25 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:37898 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S281705AbRKQGPP>;
-	Sat, 17 Nov 2001 01:15:15 -0500
-Date: Fri, 16 Nov 2001 23:13:35 -0800
-From: Greg KH <greg@kroah.com>
-To: Kilobug <kilobug@freesurf.fr>
-Cc: linux-kernel@vger.kernel.org, speedtouch@ml.free.fr
-Subject: Re: [bug report] System hang up with Speedtouch USB hotplug
-Message-ID: <20011116231335.A18746@kroah.com>
-In-Reply-To: <3BF5C3AF.8090107@freesurf.fr>
+	id <S281711AbRKQHN6>; Sat, 17 Nov 2001 02:13:58 -0500
+Received: from mail.direcpc.com ([198.77.116.30]:46802 "EHLO
+	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
+	id <S281708AbRKQHNx>; Sat, 17 Nov 2001 02:13:53 -0500
+Subject: [EMU10K1] Bug in EMU10K1
+From: "Jeffrey H. Ingber" <jhingber@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 17 Nov 2001 02:10:50 -0500
+Message-Id: <1005981053.1377.0.camel@Eleusis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BF5C3AF.8090107@freesurf.fr>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sat, 20 Oct 2001 06:01:04 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 17, 2001 at 02:55:59AM +0100, Kilobug wrote:
-> 
-> [4.] Kernel version (from /proc/version):
-> 2.4.12-ac5 with preempt patch (and some patches from Netfilter's 
-> patch-o-matic)
+I'm having difficulty making an E-MU E-Card work with any degree of
+success under Linux.  Accoring to the notes in the driver, this card is
+listed as supported:
 
-Does the problem happen on a kernel without the preemt patch?
+drivers/sound/emu10k1/main.c
+ *      0.3 Fixed mixer routing bug, added APS, joystick support.
+ *	0.7 Support for the Emu-APS. Bug fixes for voice cache setup, mmaped
+sound + poll().
+ 
+The modules load, mixer loads (but only has controls for 'Master'
+and 'DSP'), can use audio applications but don't hear sound.  System
+crashes (hard-lock, no SysReq, etc.) if audio is stoped and restarted.
 
-thanks,
+I had no trouble making a vanilla Live work with any of these drivers.  
 
-greg k-h
+Driver is stock RH kernel from 2.4.9-12 with and without SMP - also
+tried CVS
+driver from Creative (11/02/2001) with same results.  System is IBM
+NetFinity 5600 with 2x
+PIII's @ 666 MHz.  Card is an E-MU E-Card without E-Drive.
+
+/sbin/modprobe emu10k1
+Nov 17 02:00:31 Eleusis kernel: Creative EMU10K1 PCI Audio Driver,
+version 0.7,
+18:28:17 Oct 30 2001
+Nov 17 02:00:31 Eleusis kernel: emu10k1: EMU10K1 rev 5 model 0x4001
+found, IO at
+0x2020-0x203f, IRQ 18
+
+/sbin/lspci -v00:0a.0 Multimedia audio controller: Creative Labs SB
+Live!
+EMU10000 (rev 05)
+	Subsystem: Creative Labs E-mu APS
+	Flags: bus master, medium devsel, latency 48, IRQ 18
+	I/O ports at 2020 [size=32]
+	Capabilities: [dc] Power Management version 1
+
+00:0a.1 Input device controller: Creative Labs SB Live! (rev 05)
+	Subsystem: Creative Labs: Unknown device 4001
+	Flags: bus master, medium devsel, latency 48
+	I/O ports at 2040 [size=8]
+	Capabilities: [dc] Power Management version 1
+
+
+
+
+

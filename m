@@ -1,48 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264066AbRFNVcn>; Thu, 14 Jun 2001 17:32:43 -0400
+	id <S264008AbRFNVcn>; Thu, 14 Jun 2001 17:32:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264053AbRFNVcd>; Thu, 14 Jun 2001 17:32:33 -0400
-Received: from [213.96.124.18] ([213.96.124.18]:42221 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S264008AbRFNVcP>;
-	Thu, 14 Jun 2001 17:32:15 -0400
-Date: Thu, 14 Jun 2001 23:33:02 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jldomingo@crosswinds.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IPsec support
-Message-ID: <20010614233302.A3000@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797101128EAD@xsj02.sjs.agilent.com>
-User-Agent: Mutt/1.3.18i
+	id <S264066AbRFNVcc>; Thu, 14 Jun 2001 17:32:32 -0400
+Received: from ns.snowman.net ([63.80.4.34]:43023 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S264053AbRFNVcX>;
+	Thu, 14 Jun 2001 17:32:23 -0400
+Date: Thu, 14 Jun 2001 17:32:16 -0400 (EDT)
+From: <nick@snowman.net>
+To: Kip Macy <kmacy@netapp.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 3com Driver and the 3XP Processor
+In-Reply-To: <Pine.GSO.4.10.10106141426170.6619-100000@orbit-fe.eng.netapp.com>
+Message-ID: <Pine.LNX.4.21.0106141731030.16013-100000@ns>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 14 June 2001, at 12:30:02 -0600,
-yiding_wang@agilent.com wrote:
+Erm, that is going to be a problem.  Crypto benifits more from open source
+than any other market segment, and binary only drivers for linux are not
+the way to go.  I guess I need to get rid of my 5-10 3cr990s and replace
+them with someone else's product?
+	Nick
 
-> Folks,
+On Thu, 14 Jun 2001, Kip Macy wrote:
+
+> IPsec support will be binary only.
 > 
-> I checked 2.4.x source code but did not find any code for IPsec.  Does
-> anyone know that current or latest Linux support IPsec?  Or does anyone know
-> who is working on this ipv6 issue?
+> 	-Kip
+> On Thu, 14 Jun 2001 nick@snowman.net wrote:
 > 
-Check FreeS/WAN (www.freeswan.org), seems to work fine for many people,
-and seems to interoperate with other vendors' products.
-
-PS: are there any plans for integrating widely known (and maybe stable and
-interesting enough) kernel patches into the mainstream kernel in the 2.6.x
-timeframe ?. I was thinking about things like FreeS/WAN, LIDS and so on
-(and maybe other interesting ones I'm unaware of :).
-
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
+> > So what is the truth to the rumors 3com was throwing around about the
+> > "linux driver with ipsec support"?
+> > 	Nick
+> > 
+> > On Thu, 14 Jun 2001, Martin Moerman wrote:
+> > 
+> > > 
+> > > 
+> > > On Thu, 14 Jun 2001, Brent D. Norris wrote:
+> > > 
+> > > > > Now, if the NIC were to integrate with OpenSSL and offload some of THAT
+> > > > > donkey work... Just offloading DES isn't terribly useful, as Pavel says:
+> > > > > apart from anything else, DES is a bit elderly now - SSH using 3DES or
+> > > > > Blowfish etc... How dedicated is this card? Could it be used to offload
+> > > > > other work?
+> > > > 
+> > > > Sorry my bad it is 3DES that they have on it, but I don't know how
+> > > > in-grained it is in it.  Like I sad it just floated across my desk a few
+> > > > days ago and it sounded like a cool bit of hardware.
+> > > 
+> > > 
+> > > The card is offloading TCP/IP checksums, TCP/IP packet fragmentation, and
+> > > does IPSEC through the ARM9 proc.
+> > > 
+> > > I like the card. but no real real linux drivers yet. only basic network
+> > > card drivers for linux.
+> > > 
+> > > /Martin
+> > > martin_moerman@eur.3com.com
+> > > 
+> > > 
+> > > 
+> > > > 
+> > > > Brent Norris
+> > > > 
+> > > > Executive Advisor -- WKU-Linux
+> > > > 
+> > > > System Administrator -- WKU-Center for Biodiversity
+> > > >                         Best Mechanical
+> > > > 
+> > > > W: 270-745-8864
+> > > > H: 270-563-9226
+> > > > 
+> > > > "The problem with the Linux learning curve is that it is _so_ steep once
+> > > >  at the top you can't see the people at the bottom"  --Doug Hagan
+> > > > 
+> > > > -
+> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > the body of a message to majordomo@vger.kernel.org
+> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > > 
+> > > 
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
 

@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUFBTsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263963AbUFBTxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbUFBTsk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 15:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbUFBTsk
+	id S263963AbUFBTxo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 15:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263995AbUFBTxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 15:48:40 -0400
-Received: from colin2.muc.de ([193.149.48.15]:51974 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S263962AbUFBTsi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 15:48:38 -0400
-Date: 2 Jun 2004 21:48:38 +0200
-Date: Wed, 2 Jun 2004 21:48:38 +0200
-From: Andi Kleen <ak@muc.de>
-To: Arthur Perry <kernel@linuxfarms.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: GART Error 11
-Message-ID: <20040602194838.GB87771@colin2.muc.de>
-References: <22qyw-6e7-29@gated-at.bofh.it> <22ELe-oP-47@gated-at.bofh.it> <m3vfi96drx.fsf@averell.firstfloor.org> <Pine.LNX.4.58.0406021421490.14423@tiamat.perryconsulting.net>
+	Wed, 2 Jun 2004 15:53:44 -0400
+Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:63130
+	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S263963AbUFBTxl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 15:53:41 -0400
+Message-Id: <200406021952.i52JqCVe004899@orion.dwf.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
+To: root@chaos.analogic.com
+From: clemens@dwf.com
+cc: reg@dwf.com, linux-kernel@vger.kernel.org, linux@horizon.com
+Subject: Re: Intel 875 Motherboard cant use 4GB of Memory. 
+In-Reply-To: Message from "Richard B. Johnson" <root@chaos.analogic.com> 
+   of "Wed, 02 Jun 2004 08:17:21 EDT." <Pine.LNX.4.53.0406020812440.2552@chaos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406021421490.14423@tiamat.perryconsulting.net>
-User-Agent: Mutt/1.4.1i
+Date: Wed, 02 Jun 2004 13:52:12 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 02:35:33PM -0400, Arthur Perry wrote:
-> Thanks Andi!
-> I did not realize there were quirks associated with reading this right from pci config space.
+> On Tue, 1 Jun 2004 reg@dwf.com wrote:
 > 
-> Perhaps someone can tell me this:
-> Does anybody know if there is any documented information about the differences between agp driver version 0.99 and 0.100?
-> I know I can just read the source, but there must be list of known bugs and what has been addressed by the newer version, right?
+> >
+> > > That could be PCI devices.  Some (particularly high-end video cards)
+> > > take up a lot of address space, which comes straight out of the available
+> > > 4 GB physical address space.
+> > >
+> > > Check /proc/iomem.
+> > >
+> >
+> > OK, that leaves me more confused, and (to me) it still looks like a
+> > BIOS problem rather than a greedy device.  Here is the /proc/iomem
+> > with some decimal annotations: (as noted, there is 4x1GB of memory installed)
+> >
+> 
+> 
+> Not just Intel motherboards. There is 32 bits of address-space.
+> This needs to be shared between RAM and the I/O addresses of
+> PCI/Bus and AGP boards. Unfortunately, the PCI/AGP specification
+> wastes a lot of address space because something that needs 1 megabyte
+> of address-space must sit on a 1 megabyte boundary.  If this
+> comes after something that used 128 bytes, there is nearly a megabyte
+> wasted to get to the next boundary. A megabyte here a megabyte there..
+> pretty soon you are talking about a lot of wasted address-space.
+> 
+> Solution: A 64 bit machine will have the same problem, you end up
+> wasting RAM address space if it overlays PCI/Bus space. But, you
+> probably would never opt for a gazzzilion bytes of RAM anyway?
+> 
+> 	One gazzzilion = 1844 6744 0737 0955 1615  (2 ^ 64)
+> 
+> Just don't put 4 gigs of RAM in a 4 gig address-space and expect
+> to use it all. Sell the spare 2 gigs or build another PC with it!
+> 
+> 
+I understand what you are saying, I just hadnt expected the system
+to grab quite so much space.  After all there is only a video card
+(Radeon 9600) and a sound card (Sound Blaster Live!) plugged into
+the bus.
 
-You can read the bitkeeper logs at http://linux.bkbits.net
-for the file in question.
+Im sure that the sound card doesnt use all that much space, but I
+find it hard to believe that the video card is grabbing ALL of that space.
+Possibly grabbing space at too low an address, but that should be correctable.
 
-Version numbers for kernel subsystems are often meaningless
-because there are lots of changes without version number changes.
+I had expected to loose some space, just not as much as is missing.
+
+And this board does like paired memory cards, so perhaps the solution
+would be 2x 1GB and 2x 500MB.
 
 
-> The reason why I ask is that both RedHat and SuSE are using 0.99 agp driver still..
-> RedHat Enterprise 3.0 's 2.4.21-9.0.1EL kernel and SuSE's 2.4.19 kernel have this in common, and I am seeing such gart errors only with their kernels.
+-- 
+                                        Reg.Clemens
+                                        reg@dwf.com
 
-Don't use the 2.4.19 kernel, use the SLES8-SP3 kernel. It will likely
-fix this, there was a fix in this area, which also got into 2.4 mainline. 
-I don't know about RH kernels.
 
--Andi

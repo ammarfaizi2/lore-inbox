@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265170AbSJaDYu>; Wed, 30 Oct 2002 22:24:50 -0500
+	id <S265161AbSJaD03>; Wed, 30 Oct 2002 22:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265167AbSJaDYT>; Wed, 30 Oct 2002 22:24:19 -0500
-Received: from nameservices.net ([208.234.25.16]:1201 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S265152AbSJaDT6>;
-	Wed, 30 Oct 2002 22:19:58 -0500
-Message-ID: <3DC0A3DF.10993EEC@opersys.com>
-Date: Wed, 30 Oct 2002 22:30:39 -0500
+	id <S265169AbSJaDZI>; Wed, 30 Oct 2002 22:25:08 -0500
+Received: from nameservices.net ([208.234.25.16]:3505 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S265161AbSJaDUY>;
+	Wed, 30 Oct 2002 22:20:24 -0500
+Message-ID: <3DC0A3F9.49046558@opersys.com>
+Date: Wed, 30 Oct 2002 22:31:05 -0500
 From: Karim Yaghmour <karim@opersys.com>
 Reply-To: karim@opersys.com
 Organization: Opersys inc.
@@ -16,728 +16,583 @@ X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: [PATCH] LTT for 2.5.45 4/10: Core trace statements
+Subject: [PATCH] LTT for 2.5.45 5/10: i386 trace support
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-D: These are the architecture-independent trace points required to
-D: reconstruct the system's dynamic post-mortem using the LTT tools.
-D: This set is a bare-minimum which could be easily found in any
-D: Unix-like OS.
+D: This patch adds the bare-minimum i386-specific low-level trace
+D: statements.
 
 diffstat:
- fs/buffer.c      |    3 +++
- fs/exec.c        |    6 ++++++
- fs/ioctl.c       |    7 +++++++
- fs/open.c        |   10 ++++++++++
- fs/read_write.c  |   35 +++++++++++++++++++++++++++++++++++
- fs/select.c      |   10 ++++++++++
- ipc/msg.c        |    3 +++
- ipc/sem.c        |    2 ++
- ipc/shm.c        |    2 ++
- kernel/exit.c    |    6 ++++++
- kernel/fork.c    |    3 +++
- kernel/itimer.c  |    5 +++++
- kernel/sched.c   |    8 +++++++-
- kernel/signal.c  |    3 +++
- kernel/softirq.c |   11 ++++++++++-
- kernel/time.c    |    1 +
- kernel/timer.c   |    3 +++
- mm/filemap.c     |    3 +++
- mm/memory.c      |    4 ++++
- mm/page_alloc.c  |    4 ++++
- mm/page_io.c     |    2 ++
- net/core/dev.c   |    6 ++++++
- net/socket.c     |   10 ++++++++++
- 23 files changed, 145 insertions(+), 2 deletions(-)
+ arch/i386/kernel/entry.S    |   23 +++++++
+ arch/i386/kernel/irq.c      |    6 ++
+ arch/i386/kernel/process.c  |    5 +
+ arch/i386/kernel/sys_i386.c |    4 +
+ arch/i386/kernel/traps.c    |  104 ++++++++++++++++++++++++++++++++++
+ arch/i386/mm/fault.c        |   11 +++
+ include/asm-i386/trace.h    |  131 ++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/unistd.h   |    2 
+ 8 files changed, 285 insertions(+), 1 deletion(-)
 
-diff -urpN linux-2.5.45/fs/buffer.c linux-2.5.45-ltt/fs/buffer.c
---- linux-2.5.45/fs/buffer.c	Wed Oct 30 19:42:59 2002
-+++ linux-2.5.45-ltt/fs/buffer.c	Wed Oct 30 21:14:55 2002
-@@ -37,6 +37,7 @@
- #include <linux/buffer_head.h>
- #include <linux/bio.h>
- #include <linux/notifier.h>
-+#include <linux/trace.h>
- #include <asm/bitops.h>
+diff -urpN linux-2.5.45/arch/i386/kernel/entry.S linux-2.5.45-ltt/arch/i386/kernel/entry.S
+--- linux-2.5.45/arch/i386/kernel/entry.S	Wed Oct 30 19:42:21 2002
++++ linux-2.5.45-ltt/arch/i386/kernel/entry.S	Wed Oct 30 20:54:50 2002
+@@ -233,9 +233,27 @@ ENTRY(system_call)
+ 	testb $_TIF_SYSCALL_TRACE,TI_FLAGS(%ebx)
+ 	jnz syscall_trace_entry
+ syscall_call:
++#if (CONFIG_TRACE)
++	movl syscall_entry_trace_active, %eax
++	cmpl $1, %eax                   # are we tracing system call entries
++	jne no_syscall_entry_trace
++	movl %esp, %eax                 # copy the stack pointer
++	pushl %eax                      # pass the stack pointer copy
++	call trace_real_syscall_entry
++	addl $4,%esp                    # return stack to state before pass
++no_syscall_entry_trace:
++	movl ORIG_EAX(%esp),%eax	# restore eax to it's original content
++#endif
+ 	call *sys_call_table(,%eax,4)
+ 	movl %eax,EAX(%esp)		# store the return value
+ syscall_exit:
++#if (CONFIG_TRACE)
++	movl syscall_exit_trace_active, %eax
++	cmpl $1, %eax                   # are we tracing system call exits
++	jne no_syscall_exit_trace
++	call trace_real_syscall_exit
++no_syscall_exit_trace:	
++#endif
+ 	cli				# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+ 					# between sampling and the iret
+@@ -740,6 +758,11 @@ ENTRY(sys_call_table)
+ 	.long sys_epoll_create
+ 	.long sys_epoll_ctl	/* 255 */
+ 	.long sys_epoll_wait
++#if CONFIG_TRACE
++	.long sys_trace
++#else
++	.long sys_ni_syscall
++#endif
  
- static void invalidate_bh_lrus(void);
-@@ -134,11 +135,13 @@ void __wait_on_buffer(struct buffer_head
  
- 	get_bh(bh);
- 	do {
-+		TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_BUF_WAIT_START, 0, 0, NULL);
- 		prepare_to_wait(wqh, &wait, TASK_UNINTERRUPTIBLE);
- 		blk_run_queues();
- 		if (buffer_locked(bh))
- 			schedule();
- 	} while (buffer_locked(bh));
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_BUF_WAIT_END, 0, 0, NULL);
- 	put_bh(bh);
- 	finish_wait(wqh, &wait);
- }
-diff -urpN linux-2.5.45/fs/exec.c linux-2.5.45-ltt/fs/exec.c
---- linux-2.5.45/fs/exec.c	Wed Oct 30 19:42:27 2002
-+++ linux-2.5.45-ltt/fs/exec.c	Wed Oct 30 20:51:13 2002
-@@ -43,6 +43,7 @@
- #include <linux/namei.h>
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+diff -urpN linux-2.5.45/arch/i386/kernel/irq.c linux-2.5.45-ltt/arch/i386/kernel/irq.c
+--- linux-2.5.45/arch/i386/kernel/irq.c	Wed Oct 30 19:41:50 2002
++++ linux-2.5.45-ltt/arch/i386/kernel/irq.c	Wed Oct 30 20:51:08 2002
+@@ -33,6 +33,8 @@
  #include <linux/proc_fs.h>
- #include <linux/ptrace.h>
-+#include <linux/trace.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgalloc.h>
-@@ -1007,6 +1008,11 @@ int do_execve(char * filename, char ** a
- 	if (IS_ERR(file))
- 		return retval;
- 
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_EXEC,
-+			  0,
-+			  file->f_dentry->d_name.len,
-+			  file->f_dentry->d_name.name);
-+
- 	bprm.p = PAGE_SIZE*MAX_ARG_PAGES-sizeof(void *);
- 	memset(bprm.page, 0, MAX_ARG_PAGES*sizeof(bprm.page[0])); 
- 
-diff -urpN linux-2.5.45/fs/ioctl.c linux-2.5.45-ltt/fs/ioctl.c
---- linux-2.5.45/fs/ioctl.c	Wed Oct 30 19:42:19 2002
-+++ linux-2.5.45-ltt/fs/ioctl.c	Wed Oct 30 20:51:13 2002
-@@ -10,6 +10,8 @@
- #include <linux/fs.h>
- #include <linux/security.h>
+ #include <linux/seq_file.h>
  
 +#include <linux/trace.h>
 +
- #include <asm/uaccess.h>
- #include <asm/ioctls.h>
+ #include <asm/atomic.h>
+ #include <asm/io.h>
+ #include <asm/smp.h>
+@@ -202,6 +204,8 @@ int handle_IRQ_event(unsigned int irq, s
+ {
+ 	int status = 1;	/* Force the "do bottom halves" bit */
  
-@@ -65,6 +67,11 @@ asmlinkage long sys_ioctl(unsigned int f
-                 goto out;
-         }
- 
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_IOCTL,
-+			  fd,
-+			  cmd,
-+			  NULL);
++ 	TRACE_IRQ_ENTRY(irq, !(user_mode(regs)));
 +
- 	lock_kernel();
- 	switch (cmd) {
- 		case FIOCLEX:
-diff -urpN linux-2.5.45/fs/open.c linux-2.5.45-ltt/fs/open.c
---- linux-2.5.45/fs/open.c	Wed Oct 30 19:41:40 2002
-+++ linux-2.5.45-ltt/fs/open.c	Wed Oct 30 20:51:13 2002
-@@ -18,6 +18,8 @@
- #include <linux/backing-dev.h>
- #include <linux/security.h>
+ 	if (!(action->flags & SA_INTERRUPT))
+ 		local_irq_enable();
  
-+#include <linux/trace.h>
+@@ -214,6 +218,8 @@ int handle_IRQ_event(unsigned int irq, s
+ 		add_interrupt_randomness(irq);
+ 	local_irq_disable();
+ 
++ 	TRACE_IRQ_EXIT();
 +
- #include <asm/uaccess.h>
+ 	return status;
+ }
  
- #define special_file(m) (S_ISCHR(m)||S_ISBLK(m)||S_ISFIFO(m)||S_ISSOCK(m))
-@@ -800,6 +802,10 @@ asmlinkage long sys_open(const char * fi
- 			error = PTR_ERR(f);
- 			if (IS_ERR(f))
- 				goto out_error;
-+			TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_OPEN,
-+					  fd,
-+					  f->f_dentry->d_name.len,
-+					  f->f_dentry->d_name.name); 
- 			fd_install(fd, f);
- 		}
- out:
-@@ -866,6 +872,10 @@ asmlinkage long sys_close(unsigned int f
- 	filp = files->fd[fd];
- 	if (!filp)
- 		goto out_unlock;
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_CLOSE,
-+			  fd,
-+			  0,
-+			  NULL);
- 	files->fd[fd] = NULL;
- 	FD_CLR(fd, files->close_on_exec);
- 	__put_unused_fd(files, fd);
-diff -urpN linux-2.5.45/fs/read_write.c linux-2.5.45-ltt/fs/read_write.c
---- linux-2.5.45/fs/read_write.c	Wed Oct 30 19:43:03 2002
-+++ linux-2.5.45-ltt/fs/read_write.c	Wed Oct 30 20:51:13 2002
-@@ -14,6 +14,8 @@
- #include <linux/security.h>
+diff -urpN linux-2.5.45/arch/i386/kernel/process.c linux-2.5.45-ltt/arch/i386/kernel/process.c
+--- linux-2.5.45/arch/i386/kernel/process.c	Wed Oct 30 19:41:30 2002
++++ linux-2.5.45-ltt/arch/i386/kernel/process.c	Wed Oct 30 20:51:08 2002
+@@ -34,6 +34,7 @@
+ #include <linux/init.h>
+ #include <linux/mc146818rtc.h>
  #include <linux/module.h>
- 
 +#include <linux/trace.h>
-+
+ 
  #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -225,6 +226,10 @@ int kernel_thread(int (*fn)(void *), voi
  
- struct file_operations generic_ro_fops = {
-@@ -128,6 +130,10 @@ asmlinkage off_t sys_lseek(unsigned int 
- 		if (res != (loff_t)retval)
- 			retval = -EOVERFLOW;	/* LFS: should only happen on 32 bit platforms */
- 	}
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_SEEK,
-+			  fd,
-+			  offset,
-+			  NULL);
- 	fput(file);
- bad:
- 	return retval;
-@@ -154,6 +160,11 @@ asmlinkage long sys_llseek(unsigned int 
- 	offset = llseek(file, ((loff_t) offset_high << 32) | offset_low,
- 			origin);
+ 	/* Ok, create the new process.. */
+ 	p = do_fork(flags | CLONE_VM, 0, &regs, 0, NULL);
++#if (CONFIG_TRACE)
++	if(!IS_ERR(p))
++		TRACE_PROCESS(TRACE_EV_PROCESS_KTHREAD, p->pid, (int) fn);
++#endif
+ 	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
+ }
  
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_SEEK,
-+			  fd,
-+			  offset,
-+			  NULL);
-+
- 	retval = (int)offset;
- 	if (offset >= 0) {
- 		retval = -EFAULT;
-@@ -348,6 +359,10 @@ asmlinkage ssize_t sys_read(unsigned int
- 
- 	file = fget(fd);
- 	if (file) {
-+	 	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_READ,
-+				  fd,
-+				  count,
-+				  NULL); 
- 		ret = vfs_read(file, buf, count, &file->f_pos);
- 		fput(file);
- 	}
-@@ -362,6 +377,10 @@ asmlinkage ssize_t sys_write(unsigned in
- 
- 	file = fget(fd);
- 	if (file) {
-+	        TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_WRITE,
-+				  fd, 
-+				  count,
-+				  NULL);
- 		ret = vfs_write(file, buf, count, &file->f_pos);
- 		fput(file);
- 	}
-@@ -380,6 +399,10 @@ asmlinkage ssize_t sys_pread64(unsigned 
- 
- 	file = fget(fd);
- 	if (file) {
-+		TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_READ,
-+				  fd,
-+				  count,
-+				  NULL);
- 		ret = vfs_read(file, buf, count, &pos);
- 		fput(file);
- 	}
-@@ -398,6 +421,10 @@ asmlinkage ssize_t sys_pwrite64(unsigned
- 
- 	file = fget(fd);
- 	if (file) {
-+		TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_WRITE,
-+				  fd,
-+				  count,
-+				  NULL);
- 		ret = vfs_write(file, buf, count, &pos);
- 		fput(file);
- 	}
-@@ -557,6 +584,10 @@ sys_readv(unsigned long fd, const struct
- 	file = fget(fd);
- 	if (!file)
- 		goto bad_file;
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_READ,
-+			  fd,
-+			  nr_segs,
-+			  NULL);
- 	if (file->f_op && (file->f_mode & FMODE_READ) &&
- 	    (file->f_op->readv || file->f_op->read)) {
- 		ret = security_ops->file_permission (file, MAY_READ);
-@@ -580,6 +611,10 @@ sys_writev(unsigned long fd, const struc
- 	file = fget(fd);
- 	if (!file)
- 		goto bad_file;
-+	TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_WRITE,
-+			  fd,
-+			  nr_segs,
-+			  NULL);
- 	if (file->f_op && (file->f_mode & FMODE_WRITE) &&
- 	    (file->f_op->writev || file->f_op->write)) {
- 		ret = security_ops->file_permission (file, MAY_WRITE);
-diff -urpN linux-2.5.45/fs/select.c linux-2.5.45-ltt/fs/select.c
---- linux-2.5.45/fs/select.c	Wed Oct 30 19:41:37 2002
-+++ linux-2.5.45-ltt/fs/select.c	Wed Oct 30 20:51:13 2002
-@@ -21,6 +21,8 @@
+diff -urpN linux-2.5.45/arch/i386/kernel/sys_i386.c linux-2.5.45-ltt/arch/i386/kernel/sys_i386.c
+--- linux-2.5.45/arch/i386/kernel/sys_i386.c	Wed Oct 30 19:42:54 2002
++++ linux-2.5.45-ltt/arch/i386/kernel/sys_i386.c	Wed Oct 30 20:51:08 2002
+@@ -19,6 +19,8 @@
  #include <linux/file.h>
- #include <linux/fs.h>
+ #include <linux/utsname.h>
  
 +#include <linux/trace.h>
 +
  #include <asm/uaccess.h>
+ #include <asm/ipc.h>
  
- #define ROUND_UP(x,y) (((x)+(y)-1)/(y))
-@@ -194,6 +196,10 @@ int do_select(int n, fd_set_bits *fds, l
- 			file = fget(i);
- 			mask = POLLNVAL;
- 			if (file) {
-+				TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_SELECT,
-+						  i /*  The fd*/,
-+						  __timeout,
-+						  NULL);
- 				mask = DEFAULT_POLLMASK;
- 				if (file->f_op && file->f_op->poll)
- 					mask = file->f_op->poll(file, wait);
-@@ -368,6 +374,10 @@ static void do_pollfd(unsigned int num, 
- 			struct file * file = fget(fd);
- 			mask = POLLNVAL;
- 			if (file != NULL) {
-+			        TRACE_FILE_SYSTEM(TRACE_EV_FILE_SYSTEM_POLL,
-+						  fd,
-+						  0,
-+						  NULL);
- 				mask = DEFAULT_POLLMASK;
- 				if (file->f_op && file->f_op->poll)
- 					mask = file->f_op->poll(file, *pwait);
-diff -urpN linux-2.5.45/ipc/msg.c linux-2.5.45-ltt/ipc/msg.c
---- linux-2.5.45/ipc/msg.c	Wed Oct 30 19:41:33 2002
-+++ linux-2.5.45-ltt/ipc/msg.c	Wed Oct 30 20:51:14 2002
-@@ -26,6 +26,8 @@
- #include <asm/uaccess.h>
- #include "util.h"
+@@ -137,6 +139,8 @@ asmlinkage int sys_ipc (uint call, int f
+ 	version = call >> 16; /* hack for backward compatibility */
+ 	call &= 0xffff;
+ 
++	TRACE_IPC(TRACE_EV_IPC_CALL, call, first);
++
+ 	switch (call) {
+ 	case SEMOP:
+ 		return sys_semop (first, (struct sembuf *)ptr, second);
+diff -urpN linux-2.5.45/arch/i386/kernel/traps.c linux-2.5.45-ltt/arch/i386/kernel/traps.c
+--- linux-2.5.45/arch/i386/kernel/traps.c	Wed Oct 30 19:41:59 2002
++++ linux-2.5.45-ltt/arch/i386/kernel/traps.c	Wed Oct 30 20:51:08 2002
+@@ -28,6 +28,8 @@
+ #include <linux/ioport.h>
+ #endif
  
 +#include <linux/trace.h>
 +
- /* sysctl: */
- int msg_ctlmax = MSGMAX;
- int msg_ctlmnb = MSGMNB;
-@@ -311,6 +313,7 @@ asmlinkage long sys_msgget (key_t key, i
- 		msg_unlock(id);
- 	}
- 	up(&msg_ids.sem);
-+	TRACE_IPC(TRACE_EV_IPC_MSG_CREATE, ret, msgflg);
- 	return ret;
+ #ifdef CONFIG_MCA
+ #include <linux/mca.h>
+ #include <asm/processor.h>
+@@ -285,6 +287,76 @@ bug:
+ 	printk("Kernel BUG\n");
  }
  
-diff -urpN linux-2.5.45/ipc/sem.c linux-2.5.45-ltt/ipc/sem.c
---- linux-2.5.45/ipc/sem.c	Wed Oct 30 19:42:26 2002
-+++ linux-2.5.45-ltt/ipc/sem.c	Wed Oct 30 20:51:14 2002
-@@ -67,6 +67,7 @@
- #include <asm/uaccess.h>
- #include "util.h"
- 
-+#include <linux/trace.h>
- 
- #define sem_lock(id)	((struct sem_array*)ipc_lock(&sem_ids,id))
- #define sem_unlock(id)	ipc_unlock(&sem_ids,id)
-@@ -193,6 +194,7 @@ asmlinkage long sys_semget (key_t key, i
- 	}
- 
- 	up(&sem_ids.sem);
-+	TRACE_IPC(TRACE_EV_IPC_SEM_CREATE, err, semflg);
- 	return err;
- }
- 
-diff -urpN linux-2.5.45/ipc/shm.c linux-2.5.45-ltt/ipc/shm.c
---- linux-2.5.45/ipc/shm.c	Wed Oct 30 19:42:56 2002
-+++ linux-2.5.45-ltt/ipc/shm.c	Wed Oct 30 20:51:14 2002
-@@ -25,6 +25,7 @@
- #include <linux/proc_fs.h>
- #include <linux/shmem_fs.h>
- #include <linux/security.h>
-+#include <linux/trace.h>
- #include <asm/uaccess.h>
- 
- #include "util.h"
-@@ -255,6 +256,7 @@ asmlinkage long sys_shmget (key_t key, s
- 		shm_unlock(id);
- 	}
- 	up(&shm_ids.sem);
-+	TRACE_IPC(TRACE_EV_IPC_SHM_CREATE, err, shmflg);
- 	return err;
- }
- 
-diff -urpN linux-2.5.45/kernel/exit.c linux-2.5.45-ltt/kernel/exit.c
---- linux-2.5.45/kernel/exit.c	Wed Oct 30 19:43:39 2002
-+++ linux-2.5.45-ltt/kernel/exit.c	Wed Oct 30 20:51:15 2002
-@@ -21,6 +21,8 @@
- #include <linux/ptrace.h>
- #include <linux/profile.h>
- 
-+#include <linux/trace.h>
++/* Trace related code */
++#if (CONFIG_TRACE)
++asmlinkage void trace_real_syscall_entry(struct pt_regs *regs)
++{
++	int use_depth;
++	int use_bounds;
++	int depth = 0;
++	int seek_depth;
++	unsigned long lower_bound;
++	unsigned long upper_bound;
++	unsigned long addr;
++	unsigned long *stack;
++	trace_syscall_entry trace_syscall_event;
 +
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/mmu_context.h>
-@@ -643,6 +645,8 @@ fake_volatile:
- 	acct_process(code);
- 	__exit_mm(tsk);
- 
-+	TRACE_PROCESS_EXIT(0, 0);
++	/* Set the syscall ID */
++	trace_syscall_event.syscall_id = (uint8_t) regs->orig_eax;
 +
- 	sem_exit();
- 	__exit_files(tsk);
- 	__exit_fs(tsk);
-@@ -790,6 +794,8 @@ asmlinkage long sys_wait4(pid_t pid,unsi
- 	if (options & ~(WNOHANG|WUNTRACED|__WNOTHREAD|__WCLONE|__WALL))
- 		return -EINVAL;
- 
-+	TRACE_PROCESS(TRACE_EV_PROCESS_WAIT, pid, 0);
++	/* Set the address in any case */
++	trace_syscall_event.address = regs->eip;
 +
- 	add_wait_queue(&current->wait_chldexit,&wait);
- repeat:
- 	flag = 0;
-diff -urpN linux-2.5.45/kernel/fork.c linux-2.5.45-ltt/kernel/fork.c
---- linux-2.5.45/kernel/fork.c	Wed Oct 30 19:41:55 2002
-+++ linux-2.5.45-ltt/kernel/fork.c	Wed Oct 30 20:51:15 2002
-@@ -28,6 +28,7 @@
- #include <linux/security.h>
- #include <linux/futex.h>
- #include <linux/ptrace.h>
-+#include <linux/trace.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -969,6 +970,8 @@ struct task_struct *do_fork(unsigned lon
- 		if (p->ptrace & PT_PTRACED)
- 			send_sig(SIGSTOP, p, 1);
- 
-+		TRACE_PROCESS(TRACE_EV_PROCESS_FORK, p->pid, 0);
++	/* Are we in the kernel (This is a kernel thread)? */
++	if (!(regs->xcs & 3))
++		/* Don't go digining anywhere */
++		goto trace_syscall_end;
 +
- 		wake_up_forked_process(p);		/* do this last */
- 		++total_forks;
- 		if (clone_flags & CLONE_VFORK)
-diff -urpN linux-2.5.45/kernel/itimer.c linux-2.5.45-ltt/kernel/itimer.c
---- linux-2.5.45/kernel/itimer.c	Wed Oct 30 19:42:53 2002
-+++ linux-2.5.45-ltt/kernel/itimer.c	Wed Oct 30 20:51:15 2002
-@@ -10,6 +10,8 @@
- #include <linux/smp_lock.h>
- #include <linux/interrupt.h>
- 
-+#include <linux/trace.h>
++	/* Get the trace configuration */
++	if (trace_get_config(&use_depth,
++			     &use_bounds,
++			     &seek_depth,
++			     (void *) &lower_bound,
++			     (void *) &upper_bound) < 0)
++		goto trace_syscall_end;
 +
- #include <asm/uaccess.h>
- 
- int do_getitimer(int which, struct itimerval *value)
-@@ -67,6 +69,8 @@ void it_real_fn(unsigned long __data)
- 	struct task_struct * p = (struct task_struct *) __data;
- 	unsigned long interval;
- 
-+	TRACE_TIMER(TRACE_EV_TIMER_EXPIRED, 0, 0, 0);
++	/* Do we have to search for an eip address range */
++	if ((use_depth == 1) || (use_bounds == 1)) {
++		/* Start at the top of the stack (bottom address since stacks grow downward) */
++		stack = (unsigned long *) regs->esp;
 +
- 	send_sig(SIGALRM, p, 1);
- 	interval = p->it_real_incr;
- 	if (interval) {
-@@ -86,6 +90,7 @@ int do_setitimer(int which, struct itime
- 	j = timeval_to_jiffies(&value->it_value);
- 	if (ovalue && (k = do_getitimer(which, ovalue)) < 0)
- 		return k;
-+	TRACE_TIMER(TRACE_EV_TIMER_SETITIMER, which, i, j);
- 	switch (which) {
- 		case ITIMER_REAL:
- 			del_timer_sync(&current->real_timer);
-diff -urpN linux-2.5.45/kernel/sched.c linux-2.5.45-ltt/kernel/sched.c
---- linux-2.5.45/kernel/sched.c	Wed Oct 30 19:43:37 2002
-+++ linux-2.5.45-ltt/kernel/sched.c	Wed Oct 30 20:51:15 2002
-@@ -32,6 +32,7 @@
- #include <linux/delay.h>
- #include <linux/timer.h>
- #include <linux/rcupdate.h>
-+#include <linux/trace.h>
- 
- /*
-  * Convert user-nice values [ -20 ... 0 ... 19 ]
-@@ -407,6 +408,8 @@ static int try_to_wake_up(task_t * p, in
- 	long old_state;
- 	runqueue_t *rq;
- 
-+	TRACE_PROCESS(TRACE_EV_PROCESS_WAKEUP, p->pid, p->state);
++		/* Keep on going until we reach the end of the process' stack limit (wherever it may be) */
++		while (!get_user(addr, stack)) {
++			/* Does this LOOK LIKE an address in the program */
++			if ((addr > current->mm->start_code)
++			    && (addr < current->mm->end_code)) {
++				/* Does this address fit the description */
++				if (((use_depth == 1) && (depth == seek_depth))
++				    || ((use_bounds == 1) && (addr > lower_bound) && (addr < upper_bound))) {
++					/* Set the address */
++					trace_syscall_event.address = addr;
 +
- repeat_lock_task:
- 	rq = task_rq_lock(p, &flags);
- 	old_state = p->state;
-@@ -1032,8 +1035,11 @@ switch_tasks:
- 	if (likely(prev != next)) {
- 		rq->nr_switches++;
- 		rq->curr = next;
--	
-+
- 		prepare_arch_switch(rq, next);
-+
-+		TRACE_SCHEDCHANGE(prev, next);
-+
- 		prev = context_switch(prev, next);
- 		barrier();
- 		rq = this_rq();
-diff -urpN linux-2.5.45/kernel/signal.c linux-2.5.45-ltt/kernel/signal.c
---- linux-2.5.45/kernel/signal.c	Wed Oct 30 19:42:28 2002
-+++ linux-2.5.45-ltt/kernel/signal.c	Wed Oct 30 20:51:15 2002
-@@ -18,6 +18,7 @@
- #include <linux/fs.h>
- #include <linux/tty.h>
- #include <linux/binfmts.h>
-+#include <linux/trace.h>
- #include <asm/param.h>
- #include <asm/uaccess.h>
- #include <asm/siginfo.h>
-@@ -725,6 +726,8 @@ specific_send_sig_info(int sig, struct s
- 	if (ignored_signal(sig, t))
- 		goto out;
- 
-+	TRACE_PROCESS(TRACE_EV_PROCESS_SIGNAL, sig, t->pid);
-+
- #define LEGACY_QUEUE(sigptr, sig) \
- 	(((sig) < SIGRTMIN) && sigismember(&(sigptr)->signal, (sig)))
- 
-diff -urpN linux-2.5.45/kernel/softirq.c linux-2.5.45-ltt/kernel/softirq.c
---- linux-2.5.45/kernel/softirq.c	Wed Oct 30 19:42:20 2002
-+++ linux-2.5.45-ltt/kernel/softirq.c	Wed Oct 30 21:02:41 2002
-@@ -13,6 +13,7 @@
- #include <linux/init.h>
- #include <linux/mm.h>
- #include <linux/notifier.h>
-+#include <linux/trace.h>
- 
- /*
-    - No shared variables, all the data are CPU local.
-@@ -79,8 +80,10 @@ restart:
- 		h = softirq_vec;
- 
- 		do {
--			if (pending & 1)
-+		        if (pending & 1) {
-+		                TRACE_SOFT_IRQ(TRACE_EV_SOFT_IRQ_SOFT_IRQ, (h - softirq_vec));
- 				h->action(h);
++					/* We're done */
++					goto trace_syscall_end;
++				} else
++					/* We're one depth more */
++					depth++;
 +			}
- 			h++;
- 			pending >>= 1;
- 		} while (pending);
-@@ -188,6 +191,9 @@ static void tasklet_action(struct softir
- 			if (!atomic_read(&t->count)) {
- 				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
- 					BUG();
++			/* Go on to the next address */
++			stack++;
++		}
++	}
++trace_syscall_end:
++	/* Trace the event */
++	trace_event(TRACE_EV_SYSCALL_ENTRY, &trace_syscall_event);
++}
 +
-+				TRACE_SOFT_IRQ(TRACE_EV_SOFT_IRQ_TASKLET_ACTION, (unsigned long) (t->func));
++asmlinkage void trace_real_syscall_exit(void)
++{
++	trace_event(TRACE_EV_SYSCALL_EXIT, NULL);
++}
++#endif				/* (CONFIG_TRACE) */
 +
- 				t->func(t->data);
- 				tasklet_unlock(t);
- 				continue;
-@@ -221,6 +227,9 @@ static void tasklet_hi_action(struct sof
- 			if (!atomic_read(&t->count)) {
- 				if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
- 					BUG();
-+
-+				TRACE_SOFT_IRQ(TRACE_EV_SOFT_IRQ_TASKLET_HI_ACTION, (unsigned long) (t->func));
-+
- 				t->func(t->data);
- 				tasklet_unlock(t);
- 				continue;
-diff -urpN linux-2.5.45/kernel/time.c linux-2.5.45-ltt/kernel/time.c
---- linux-2.5.45/kernel/time.c	Wed Oct 30 19:42:20 2002
-+++ linux-2.5.45-ltt/kernel/time.c	Wed Oct 30 21:03:09 2002
-@@ -27,6 +27,7 @@
- #include <linux/timex.h>
- #include <linux/errno.h>
- #include <linux/smp_lock.h>
-+#include <linux/trace.h>
+ spinlock_t die_lock = SPIN_LOCK_UNLOCKED;
  
- #include <asm/uaccess.h>
- 
-diff -urpN linux-2.5.45/kernel/timer.c linux-2.5.45-ltt/kernel/timer.c
---- linux-2.5.45/kernel/timer.c	Wed Oct 30 19:42:21 2002
-+++ linux-2.5.45-ltt/kernel/timer.c	Wed Oct 30 21:11:27 2002
-@@ -25,6 +25,7 @@
- #include <linux/init.h>
- #include <linux/mm.h>
- #include <linux/notifier.h>
-+#include <linux/trace.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -737,6 +738,7 @@ static void run_timer_tasklet(unsigned l
+ void die(const char * str, struct pt_regs * regs, long err)
+@@ -318,6 +390,8 @@ static inline unsigned long get_cr2(void
+ static void inline do_trap(int trapnr, int signr, char *str, int vm86,
+ 			   struct pt_regs * regs, long error_code, siginfo_t *info)
  {
- 	tvec_base_t *base = &per_cpu(tvec_bases, smp_processor_id());
- 
-+	TRACE_EVENT(TRACE_EV_KERNEL_TIMER, NULL);
- 	if ((long)(jiffies - base->timer_jiffies) >= 0)
- 		__run_timers(base);
- }
-@@ -905,6 +907,7 @@ asmlinkage long sys_getegid(void)
- 
- static void process_timeout(unsigned long __data)
- {
-+	TRACE_TIMER(TRACE_EV_TIMER_EXPIRED, 0, 0, 0);
- 	wake_up_process((task_t *)__data);
- }
- 
-diff -urpN linux-2.5.45/mm/filemap.c linux-2.5.45-ltt/mm/filemap.c
---- linux-2.5.45/mm/filemap.c	Wed Oct 30 19:42:26 2002
-+++ linux-2.5.45-ltt/mm/filemap.c	Wed Oct 30 20:51:15 2002
-@@ -25,6 +25,7 @@
- #include <linux/pagevec.h>
- #include <linux/blkdev.h>
- #include <linux/security.h>
-+#include <linux/trace.h>
- /*
-  * This is needed for the following functions:
-  *  - try_to_release_page
-@@ -301,11 +302,13 @@ void wait_on_page_bit(struct page *page,
- 	DEFINE_WAIT(wait);
- 
- 	do {
-+		TRACE_MEMORY(TRACE_EV_MEMORY_PAGE_WAIT_START, 0);
- 		prepare_to_wait(waitqueue, &wait, TASK_UNINTERRUPTIBLE);
- 		sync_page(page);
- 		if (test_bit(bit_nr, &page->flags))
- 			io_schedule();
- 	} while (test_bit(bit_nr, &page->flags));
-+	TRACE_MEMORY(TRACE_EV_MEMORY_PAGE_WAIT_END, 0);
- 	finish_wait(waitqueue, &wait);
- }
- EXPORT_SYMBOL(wait_on_page_bit);
-diff -urpN linux-2.5.45/mm/memory.c linux-2.5.45-ltt/mm/memory.c
---- linux-2.5.45/mm/memory.c	Wed Oct 30 19:42:54 2002
-+++ linux-2.5.45-ltt/mm/memory.c	Wed Oct 30 20:51:15 2002
-@@ -44,6 +44,9 @@
- #include <linux/pagemap.h>
- #include <linux/vcache.h>
- 
-+#include <linux/module.h>
-+#include <linux/trace.h>
++        TRACE_TRAP_ENTRY(trapnr, regs->eip);
 +
- #include <asm/pgalloc.h>
- #include <asm/rmap.h>
- #include <asm/uaccess.h>
-@@ -980,6 +983,7 @@ static int do_swap_page(struct mm_struct
- 	spin_unlock(&mm->page_table_lock);
- 	page = lookup_swap_cache(entry);
- 	if (!page) {
-+	        TRACE_MEMORY(TRACE_EV_MEMORY_SWAP_IN, address);
- 		swapin_readahead(entry);
- 		page = read_swap_cache_async(entry);
- 		if (!page) {
-diff -urpN linux-2.5.45/mm/page_alloc.c linux-2.5.45-ltt/mm/page_alloc.c
---- linux-2.5.45/mm/page_alloc.c	Wed Oct 30 19:41:51 2002
-+++ linux-2.5.45-ltt/mm/page_alloc.c	Wed Oct 30 21:06:06 2002
-@@ -28,6 +28,7 @@
- #include <linux/blkdev.h>
- #include <linux/slab.h>
- #include <linux/notifier.h>
-+#include <linux/trace.h>
+ 	if (vm86 && regs->eflags & VM_MASK)
+ 		goto vm86_trap;
  
- struct pglist_data *pgdat_list;
- unsigned long totalram_pages;
-@@ -182,6 +183,8 @@ void __free_pages_ok(struct page *page, 
- {
- 	LIST_HEAD(list);
- 
-+	TRACE_MEMORY(TRACE_EV_MEMORY_PAGE_FREE, order);
-+
- 	free_pages_check(__FUNCTION__, page);
- 	list_add(&page->list, &list);
- 	free_pages_bulk(page_zone(page), 1, &list, order);
-@@ -521,6 +524,7 @@ unsigned long __get_free_pages(unsigned 
- 	page = alloc_pages(gfp_mask, order);
- 	if (!page)
- 		return 0;
-+	TRACE_MEMORY(TRACE_EV_MEMORY_PAGE_ALLOC, order);
- 	return (unsigned long) page_address(page);
- }
- 
-diff -urpN linux-2.5.45/mm/page_io.c linux-2.5.45-ltt/mm/page_io.c
---- linux-2.5.45/mm/page_io.c	Wed Oct 30 19:41:56 2002
-+++ linux-2.5.45-ltt/mm/page_io.c	Wed Oct 30 20:51:16 2002
-@@ -18,6 +18,7 @@
- #include <linux/swapops.h>
- #include <linux/buffer_head.h>	/* for block_sync_page() */
- #include <linux/mpage.h>
-+#include <linux/trace.h>
- #include <asm/pgtable.h>
- 
- static struct bio *
-@@ -103,6 +104,7 @@ int swap_writepage(struct page *page)
- 	inc_page_state(pswpout);
- 	SetPageWriteback(page);
- 	unlock_page(page);
-+	TRACE_MEMORY(TRACE_EV_MEMORY_SWAP_OUT, (unsigned long) page);
- 	submit_bio(WRITE, bio);
- out:
- 	return ret;
-diff -urpN linux-2.5.45/net/core/dev.c linux-2.5.45-ltt/net/core/dev.c
---- linux-2.5.45/net/core/dev.c	Wed Oct 30 19:42:56 2002
-+++ linux-2.5.45-ltt/net/core/dev.c	Wed Oct 30 20:51:16 2002
-@@ -105,10 +105,12 @@
- #include <linux/init.h>
- #include <linux/kmod.h>
- #include <linux/module.h>
-+#include <linux/trace.h>
- #if defined(CONFIG_NET_RADIO) || defined(CONFIG_NET_PCMCIA_RADIO)
- #include <linux/wireless.h>		/* Note : will define WIRELESS_EXT */
- #include <net/iw_handler.h>
- #endif	/* CONFIG_NET_RADIO || CONFIG_NET_PCMCIA_RADIO */
-+
- #ifdef CONFIG_PLIP
- extern int plip_init(void);
- #endif
-@@ -1009,6 +1011,8 @@ int dev_queue_xmit(struct sk_buff *skb)
- 			goto out;
+@@ -332,6 +406,7 @@ static void inline do_trap(int trapnr, i
+ 			force_sig_info(signr, info, tsk);
+ 		else
+ 			force_sig(signr, tsk);
++		TRACE_TRAP_EXIT();
+ 		return;
  	}
  
-+	TRACE_NETWORK(TRACE_EV_NETWORK_PACKET_OUT, skb->protocol);
-+
- 	/* Grab device queue */
- 	spin_lock_bh(&dev->queue_lock);
- 	q = dev->qdisc;
-@@ -1419,6 +1423,8 @@ int netif_receive_skb(struct sk_buff *sk
+@@ -357,14 +432,17 @@ static void inline do_trap(int trapnr, i
+ 			regs->eip = fixup;
+ 		else	
+ 			die(str, regs, error_code);
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
  
- 	netdev_rx_stat[smp_processor_id()].total++;
+ 	vm86_trap: {
+ 		int ret = handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, trapnr);
+ 		if (ret) goto trap_signal;
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
++	TRACE_TRAP_EXIT();
+ }
  
-+	TRACE_NETWORK(TRACE_EV_NETWORK_PACKET_IN, skb->protocol);
+ #define DO_ERROR(trapnr, signr, str, name) \
+@@ -424,11 +502,15 @@ asmlinkage void do_general_protection(st
+ 
+ 	current->thread.error_code = error_code;
+ 	current->thread.trap_no = 13;
++        TRACE_TRAP_ENTRY(13, regs->eip);
+ 	force_sig(SIGSEGV, current);
++        TRACE_TRAP_EXIT();
+ 	return;
+ 
+ gp_in_vm86:
++        TRACE_TRAP_ENTRY(13, regs->eip);
+ 	handle_vm86_fault((struct kernel_vm86_regs *) regs, error_code);
++        TRACE_TRAP_EXIT();
+ 	return;
+ 
+ gp_in_kernel:
+@@ -489,6 +571,12 @@ static void default_do_nmi(struct pt_reg
+ {
+ 	unsigned char reason = inb(0x61);
+  
++#ifndef CONFIG_X86_LOCAL_APIC
++/* On an machines with APIC enabled, NMIs are used to implement a watchdog
++and will hang the machine if traced. */
++	TRACE_TRAP_ENTRY(2, regs->eip);
++#endif
 +
- #ifdef CONFIG_NET_FASTROUTE
- 	if (skb->pkt_type == PACKET_FASTROUTE) {
- 		netdev_rx_stat[smp_processor_id()].fastroute_deferred_out++;
-diff -urpN linux-2.5.45/net/socket.c linux-2.5.45-ltt/net/socket.c
---- linux-2.5.45/net/socket.c	Wed Oct 30 19:42:26 2002
-+++ linux-2.5.45-ltt/net/socket.c	Wed Oct 30 20:51:16 2002
-@@ -77,6 +77,8 @@
- #include <linux/wireless.h>
- #include <linux/divert.h>
+ 	if (!(reason & 0xc0)) {
+ #if CONFIG_X86_LOCAL_APIC
+ 		/*
+@@ -501,6 +589,9 @@ static void default_do_nmi(struct pt_reg
+ 		}
+ #endif
+ 		unknown_nmi_error(reason, regs);
++#ifndef CONFIG_X86_LOCAL_APIC
++	        TRACE_TRAP_EXIT();
++#endif
+ 		return;
+ 	}
+ 	if (reason & 0x80)
+@@ -515,6 +606,10 @@ static void default_do_nmi(struct pt_reg
+ 	inb(0x71);		/* dummy */
+ 	outb(0x0f, 0x70);
+ 	inb(0x71);		/* dummy */
++
++#ifndef CONFIG_X86_LOCAL_APIC
++        TRACE_TRAP_EXIT();
++#endif
+ }
+ 
+ static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
+@@ -615,7 +710,9 @@ asmlinkage void do_debug(struct pt_regs 
+ 	 */
+ 	info.si_addr = ((regs->xcs & 3) == 0) ? (void *)tsk->thread.eip : 
+ 	                                        (void *)regs->eip;
++        TRACE_TRAP_ENTRY(1, regs->eip);
+ 	force_sig_info(SIGTRAP, &info, tsk);
++        TRACE_TRAP_EXIT();
+ 
+ 	/* Disable additional traps. They'll be re-enabled when
+ 	 * the signal is delivered.
+@@ -627,7 +724,9 @@ clear_dr7:
+ 	return;
+ 
+ debug_vm86:
++        TRACE_TRAP_ENTRY(1, regs->eip);
+ 	handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, 1);
++        TRACE_TRAP_EXIT();
+ 	return;
+ 
+ clear_TF:
+@@ -776,10 +875,12 @@ asmlinkage void do_simd_coprocessor_erro
+ asmlinkage void do_spurious_interrupt_bug(struct pt_regs * regs,
+ 					  long error_code)
+ {
++        TRACE_TRAP_ENTRY(16, regs->eip);
+ #if 0
+ 	/* No need to warn about this any longer. */
+ 	printk("Ignoring P6 Local APIC Spurious Interrupt Bug...\n");
+ #endif
++        TRACE_TRAP_EXIT();	
+ }
+ 
+ /*
+@@ -808,8 +909,10 @@ asmlinkage void math_emulate(long arg)
+ {
+ 	printk("math-emulation not enabled and no coprocessor found.\n");
+ 	printk("killing %s.\n",current->comm);
++        TRACE_TRAP_ENTRY(7, 0);
+ 	force_sig(SIGFPE,current);
+ 	schedule();
++        TRACE_TRAP_EXIT();
+ }
+ 
+ #endif /* CONFIG_MATH_EMULATION */
+@@ -841,7 +944,6 @@ do { \
+ 	 "3" ((char *) (addr)),"2" (__KERNEL_CS << 16)); \
+ } while (0)
+ 
+-
+ /*
+  * This needs to use 'idt_table' rather than 'idt', and
+  * thus use the _nonmapped_ version of the IDT, as the
+diff -urpN linux-2.5.45/arch/i386/mm/fault.c linux-2.5.45-ltt/arch/i386/mm/fault.c
+--- linux-2.5.45/arch/i386/mm/fault.c	Wed Oct 30 19:41:32 2002
++++ linux-2.5.45-ltt/arch/i386/mm/fault.c	Wed Oct 30 20:51:08 2002
+@@ -20,6 +20,8 @@
+ #include <linux/tty.h>
+ #include <linux/vt_kern.h>		/* For unblank_screen() */
  
 +#include <linux/trace.h>
 +
- #if defined(CONFIG_KMOD) && defined(CONFIG_NET)
- #include <linux/kmod.h>
- #endif
-@@ -538,6 +540,8 @@ int sock_sendmsg(struct socket *sock, st
- 	struct kiocb iocb;
- 	int ret;
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+@@ -188,6 +190,8 @@ asmlinkage void do_page_fault(struct pt_
+ 	mm = tsk->mm;
+ 	info.si_code = SEGV_MAPERR;
  
-+	TRACE_SOCKET(TRACE_EV_SOCKET_SEND, sock->type, size);
++	TRACE_TRAP_ENTRY(14, regs->eip);
 +
- 	init_sync_kiocb(&iocb, NULL);
- 	ret = __sock_sendmsg(&iocb, sock, msg, size);
- 	if (-EIOCBQUEUED == ret)
-@@ -571,6 +575,8 @@ int sock_recvmsg(struct socket *sock, st
- 	struct kiocb iocb;
- 	int ret;
+ 	/*
+ 	 * If we're in an interrupt, have no user context or are running in an
+ 	 * atomic region then we must not take the fault..
+@@ -272,6 +276,7 @@ good_area:
+ 			tsk->thread.screen_bitmap |= 1 << bit;
+ 	}
+ 	up_read(&mm->mmap_sem);
++        TRACE_TRAP_EXIT();
+ 	return;
  
-+	TRACE_SOCKET(TRACE_EV_SOCKET_RECEIVE, sock->type, size);
-+
-         init_sync_kiocb(&iocb, NULL);
- 	ret = __sock_recvmsg(&iocb, sock, msg, size, flags);
- 	if (-EIOCBQUEUED == ret)
-@@ -1047,6 +1053,8 @@ asmlinkage long sys_socket(int family, i
- 	if (retval < 0)
- 		goto out_release;
+ /*
+@@ -291,6 +296,7 @@ bad_area:
+ 		/* info.si_code has been set above */
+ 		info.si_addr = (void *)address;
+ 		force_sig_info(SIGSEGV, &info, tsk);
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
  
-+	TRACE_SOCKET(TRACE_EV_SOCKET_CREATE, retval, type);
+@@ -305,6 +311,7 @@ bad_area:
+ 
+ 		if (nr == 6) {
+ 			do_invalid_op(regs, 0);
++			TRACE_TRAP_EXIT();
+ 			return;
+ 		}
+ 	}
+@@ -314,6 +321,7 @@ no_context:
+ 	/* Are we prepared to handle this kernel fault?  */
+ 	if ((fixup = search_exception_table(regs->eip)) != 0) {
+ 		regs->eip = fixup;
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
+ 
+@@ -387,6 +395,7 @@ do_sigbus:
+ 	/* Kernel mode? Handle exceptions or die */
+ 	if (!(error_code & 4))
+ 		goto no_context;
++        TRACE_TRAP_EXIT();
+ 	return;
+ 
+ vmalloc_fault:
+@@ -420,6 +429,8 @@ vmalloc_fault:
+ 		pte_k = pte_offset_kernel(pmd_k, address);
+ 		if (!pte_present(*pte_k))
+ 			goto no_context;
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
++	TRACE_TRAP_EXIT();
+ }
+diff -urpN linux-2.5.45/include/asm-i386/trace.h linux-2.5.45-ltt/include/asm-i386/trace.h
+--- linux-2.5.45/include/asm-i386/trace.h	Wed Dec 31 19:00:00 1969
++++ linux-2.5.45-ltt/include/asm-i386/trace.h	Wed Oct 30 20:51:14 2002
+@@ -0,0 +1,131 @@
++/*
++ * linux/include/asm-i386/trace.h
++ *
++ * Copyright (C) 2002, Karim Yaghmour
++ *
++ * i386 definitions for tracing system
++ */
 +
- out:
- 	/* It may be already another descriptor 8) Not kernel problem. */
- 	return retval;
-@@ -1666,6 +1674,8 @@ asmlinkage long sys_socketcall(int call,
- 		
- 	a0=a[0];
- 	a1=a[1];
++#include <linux/trace.h>
 +
-+	TRACE_SOCKET(TRACE_EV_SOCKET_CALL, call, a0);
- 	
- 	switch(call) 
- 	{
++/* Current arch type */
++#define TRACE_ARCH_TYPE TRACE_ARCH_TYPE_I386
++
++/* Current variant type */
++#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_NONE
++
++#ifdef CONFIG_X86_TSC /* Is there x86 TSC support? */ 
++#include <asm/msr.h>
++
++/**
++ *	get_time_delta: - Utility function for getting time delta.
++ *	@now: pointer to a timeval struct that may be given current time
++ *	@cpu: the associated CPU id
++ *
++ *	Returns either the TSC if TSCs are being used, or the time and the
++ *	time difference between the current time and the buffer start time 
++ *	if TSCs are not being used.  The time is returned so that callers
++ *	can use the do_gettimeofday() result if they need to.
++ */
++static inline trace_time_delta get_time_delta(struct timeval *now, u8 cpu)
++{
++	trace_time_delta time_delta;
++
++	if((using_tsc == 1) && cpu_has_tsc)
++		rdtscl(time_delta);
++	else {
++		do_gettimeofday(now);
++		time_delta = calc_time_delta(now, &buffer_start_time(cpu));
++	}
++
++	return time_delta;
++}
++
++/**
++ *	get_timestamp: - Utility function for getting a time and TSC pair.
++ *	@now: current time
++ *	@tsc: the TSC associated with now
++ *
++ *	Sets the value pointed to by now to the current time and the value
++ *	pointed to by tsc to the tsc associated with that time, if the 
++ *	platform supports TSC.
++ */
++static inline void get_timestamp(struct timeval *now, 
++				 trace_time_delta *tsc)
++{
++	do_gettimeofday(now);
++
++	if((using_tsc == 1) && cpu_has_tsc)
++		rdtscl(*tsc);
++}
++
++/**
++ *	get_time_or_tsc: - Utility function for getting a time or a TSC.
++ *	@now: current time
++ *	@tsc: current TSC
++ *
++ *	Sets the value pointed to by now to the current time or the value
++ *	pointed to by tsc to the current tsc, depending on whether we're
++ *	using TSCs or not.
++ */
++static inline void get_time_or_tsc(struct timeval *now, 
++				   trace_time_delta *tsc)
++{
++	if((using_tsc == 1) && cpu_has_tsc)
++		rdtscl(*tsc);
++	else
++		do_gettimeofday(now);
++}
++
++/**
++ *	switch_time_delta: - Utility function getting buffer switch time delta.
++ *	@time_delta: previously calculated or retrieved time delta 
++ *
++ *	Returns the time_delta passed in if we're using TSC or 0 otherwise.
++ *	This function is used only for start/end buffer events.
++ */
++static inline trace_time_delta switch_time_delta(trace_time_delta time_delta)
++{
++	if((using_tsc == 1) && cpu_has_tsc)
++		return time_delta;
++	else
++		return 0;
++}
++
++/**
++ *	have_tsc: - Does this platform have a useable TSC?
++ *
++ *	Returns 1 if this platform has a useable TSC counter for
++ *	timestamping purposes, 0 otherwise.
++ */
++static inline int have_tsc(void)
++{
++	if(cpu_has_tsc)
++		return 1;
++	else
++		return 0;
++}
++
++extern void init_ltt_percpu_timer(void * dummy);
++
++/**
++ *	init_percpu_timers: - Initialize per-cpu timers (only if using TSC)
++ *
++ *	Sets up the timers needed on each CPU for checking asynchronous 
++ *	tasks needing attention.  This is only the case when TSC timestamping 
++ *	is being used (TSCs need to be read on the current CPU).
++ */
++static inline void init_percpu_timers(void)
++{
++	if((using_tsc == 1) && cpu_has_tsc) {
++		/* Initialize the timer on this (or the only) CPU */
++		init_ltt_percpu_timer(NULL);
++		/* Initialize the timers on all other CPUs */
++		if(smp_call_function(init_ltt_percpu_timer, NULL, 1, 1) != 0)
++			printk(KERN_ALERT "Tracer: Couldn't initialize all per-CPU timers\n");
++	}
++}
++
++#else /* No TSC support (#ifdef CONFIG_X86_TSC) */
++#include <asm-generic/trace.h>
++#endif /* #ifdef CONFIG_X86_TSC */
+diff -urpN linux-2.5.45/include/asm-i386/unistd.h linux-2.5.45-ltt/include/asm-i386/unistd.h
+--- linux-2.5.45/include/asm-i386/unistd.h	Wed Oct 30 19:43:05 2002
++++ linux-2.5.45-ltt/include/asm-i386/unistd.h	Wed Oct 30 20:56:18 2002
+@@ -261,6 +261,8 @@
+ #define __NR_sys_epoll_create	254
+ #define __NR_sys_epoll_ctl	255
+ #define __NR_sys_epoll_wait	256
++#define __NR_trace		257
++
+   
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */

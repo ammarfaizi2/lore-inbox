@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272037AbTG2TuO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 15:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272038AbTG2TuO
+	id S272045AbTG2T6N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 15:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272054AbTG2T6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 15:50:14 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:955 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S272037AbTG2TuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 15:50:09 -0400
-Message-ID: <3F26CE6B.9060506@nortelnetworks.com>
-Date: Tue, 29 Jul 2003 15:43:39 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>, zwane@arm.linux.org.uk,
-       linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, akpm@digeo.com,
-       vortex@scyld.com, jgarzik@pobox.com
-Subject: Re: another must-fix: major PS/2 mouse problem
-References: <1054431962.22103.744.camel@cube>	<3EDCF47A.1060605@ifrance.com>	<1054681254.22103.3750.camel@cube>	<3EDD8850.9060808@ifrance.com>	<1058921044.943.12.camel@cube>	<20030724103047.31e91a96.akpm@osdl.org>	<1059097601.1220.75.camel@cube>	<20030725201914.644b020c.akpm@osdl.org>	<Pine.LNX.4.53.0307261112590.12159@montezuma.mastecende.com>	<1059447325.3862.86.camel@cube>	<20030728201459.78c8c7c6.akpm@osdl.org>	<1059482410.3862.120.camel@cube> <20030729115825.5347b487.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 29 Jul 2003 15:58:13 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:57220 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S272045AbTG2T6G (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 15:58:06 -0400
+Message-Id: <200307291958.h6TJw43o030219@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: jimis@gmx.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Feature proposal (scheduling related) -- conclusion 
+In-Reply-To: Your message of "Tue, 29 Jul 2003 22:28:50 +0300."
+             <3F26CAF2.8070009@gmx.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <3F26CAF2.8070009@gmx.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_220984052P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 29 Jul 2003 15:58:04 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+--==_Exmh_220984052P
+Content-Type: text/plain; charset=us-ascii
 
-> Last time I checked (which was about 18 months ago) the maximum
-> interrupts-off time on a 500MHz desktop-class machine was 80 microseconds.
+On Tue, 29 Jul 2003 22:28:50 +0300, jimis@gmx.net  said:
 
-You might want to bump that up a little bit.  Querying carrier signal on 
-a tulip chip is 100usecs with interrupts off.
+> great, I had no idea of this potential. But what I propose is scheduling the
+> network traffic (at least the outgoing traffic that we can influence directly)
+> according to the process priority, not according to the traffic type (which is
+> important but different).
 
-Doesn't make any difference here though.
+So you want to use a number that controls the CPU scheduling to force the network
+scheduling to go along?  That's a bad idea waiting to happen.
 
-Chris
+(Hint - some program is getting CPU-starved for some reason, so you 'nice -2' it
+to make it run tolerably.  Suddenly your icecast gets stomped on.  Whoops)
+
+It's even worse if you're trying to use dynamic priorities - then your icecast
+can get pushed to the bottom of the network pile because some other process
+went super-interactive for a while...
+
+Remember - you're trying to optimize the "network experience" for the
+*connection*. Base it on the port numbers, or use the process's UID and run
+your program under a seperate UID, or maybe a PID-based scheme, with an ioctl()
+or /{proc,sys} based control....
 
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+--==_Exmh_220984052P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/JtHMcC3lWbTT17ARAnsjAJ4qOjxJwdXK7297ZcRtrx9zmDzweACgvpx9
+Hg/PgYbUveuQi4Z+/NDpFE8=
+=S0si
+-----END PGP SIGNATURE-----
+
+--==_Exmh_220984052P--

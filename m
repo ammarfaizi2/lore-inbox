@@ -1,127 +1,644 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAIVLM>; Tue, 9 Jan 2001 16:11:12 -0500
+	id <S130107AbRAIVNc>; Tue, 9 Jan 2001 16:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRAIVLC>; Tue, 9 Jan 2001 16:11:02 -0500
-Received: from cliff.mcs.anl.gov ([140.221.9.17]:25730 "EHLO mcs.anl.gov")
-	by vger.kernel.org with ESMTP id <S129406AbRAIVKt>;
-	Tue, 9 Jan 2001 16:10:49 -0500
-Message-ID: <3A5B7DB3.F29D02CE@mcs.anl.gov>
-Date: Tue, 09 Jan 2001 15:08:03 -0600
-From: JP Navarro <navarro@mcs.anl.gov>
-Organization: Argonne National Laboratory
-X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S131841AbRAIVNW>; Tue, 9 Jan 2001 16:13:22 -0500
+Received: from mercury.ukc.ac.uk ([129.12.21.10]:31400 "EHLO mercury.ukc.ac.uk")
+	by vger.kernel.org with ESMTP id <S130107AbRAIVNT>;
+	Tue, 9 Jan 2001 16:13:19 -0500
+Date: Tue, 9 Jan 2001 21:13:14 +0000 (GMT)
+From: Jonathan Batchelor <jmb8@ukc.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Can't compile kernel - make bzImage fails
+Message-ID: <Pine.GSO.4.21.0101092103040.19876-200000@raptor.ukc.ac.uk>
 MIME-Version: 1.0
-To: Ken Brunsen/Iris <kenbo@iris.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.0 scsi problems on NetFinity servers
-In-Reply-To: <OF0CDA4866.9019CFB7-ON852569CF.006D12FC@lotus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-959030623-979074794=:19876"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One possibility:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-When we first tested 2.4.0-test8 on NetFinity 7000s we had random crashes,
-typically within an hour of booting. The problem was identified as a Wiseman
-Systems Management adapter generated hardware interrupt that 2.4 doesn't handle
-(this was not a problem with 2.2.x).
+---559023410-959030623-979074794=:19876
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-If you have these adapters installed, remove them.
+[1.] Can't compile kernel - make bzImage fails
+[2.] On make bzImage the following error occurs (.config file attached)
 
-JP Navarro
--- 
-John-Paul Navarro                                           (630) 252-1233
-Mathematics & Computer Science Division
-Argonne National Laboratory                            navarro@mcs.anl.gov
-Argonne, IL 60439                          http://www.mcs.anl.gov/~navarro
+make[3]: Entering directory `/usr/src/linux-2.4.0/net/ipv4/netfilter'
+ld -m elf_i386 -r -o ip_conntrack.o ip_conntrack_standalone.o
+ip_conntrack_core.o ip_conntrack_proto_generic.o ip_conntrack_proto_tcp.o
+ip_conntrack_proto_udp.o ip_conntrack_proto_icmp.o
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.0/include -Wall -Wstrict-prototypes
+-O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686    -c -o ip_nat_ftp.o
+ip_nat_ftp.c
+ip_nat_ftp.c: In function `help':
+ip_nat_ftp.c:315: structure has no member named `nat'
+make[3]: *** [ip_nat_ftp.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.0/net/ipv4/netfilter'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.0/net/ipv4/netfilter'
+make[1]: *** [_subdir_ipv4/netfilter] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.0/net'
+make: *** [_dir_net] Error 2
+
+[3.] kernel, install, compiling, make
+[4.] Kernel version: 2.4.0 
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
+N/A
+
+[6.]  A small shell script or example program which triggers the
+     problem (if possible)
+N/A
+
+[7.] Environment
+[7.1.] Software (add the output of the ver_linux script here)
+[7.2.] Processor information (from /proc/cpuinfo):
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 850.064
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr 6 mce cx8 sep mtrr pge 14 cmov
+pat 17 p
+sn mmxext mmx fxsr 3dnowext 3dnow
+bogomips        : 1690.83
 
 
-Ken Brunsen/Iris wrote:
-> 
-> Hello all,
-> 
->      I've been sorta pulling the 2.4 kernel and testing with it now for
-> awhile on my IBM NetFinity 5500 and since the test12 I've been having a
-> continuous issue with crashing the OS during a pull of source code across
-> the network (>1Gb files).  I've been trying to figure out what it may be
-> related to, but I'm relatively new with debugging the kernel so thought I'd
-> see if y'all could help.  From looking at the archives, I did not see that
-> anyone else had been seeing these issues either.  Basically, I've got 2
-> different machines which I'm working with - a NetFinity Quad CPU 5500 M20
-> with 2Gb Ram and Raid and a NetFinity Dual CPU 5500 M10 with 1Gb Ram and
-> Raid.  Both machines exhibit the same behavior.  Initially, both machines
-> had RH 6.0, now one is RH 7.0 (and I know about the compiler issue) and the
-> other is SuSE 7.0.  I downloaded the 2.4.0 release and still got the issue,
-> so thought it was time to bring it here.  Here is a stack of one crash:
-> 
->      Started getting Scsi errors on controller during NFS transfer of >1Gb
-> worth of files
-> 
-> SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
-> I/O error: dev 08:05, sector 31731256
-> SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
-> I/O error: dev 08:05, sector 31731264
-> SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
-> I/O error: dev 08:05, sector 31731272
-> SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
-> I/O error: dev 08:05, sector 31731280
-> .
-> .
-> .
-> 
->      (the sector varies from run to run, is never consistent), and then
-> kernel panics with the following
-> 
-> (ips0) Resetting controller.
-> NMI Watchdog detected LOCKUP on CPU1, registers:
-> CPU: 1
-> EIP: 0010:[<c0246544>]
-> EFLAGS: 00000002
-> eax: 003e240   ebx: 000612b0  ecx: 5a21a2f5   edx: 00000063
-> esi: 00000004  edi: 00000000  ebp:f7de2a78    esp: f7ddbf00
-> ds: 0018  es: 0018  ss: 0018
-> Process scsi_eh_0 (pid: 8, stackpage=f7ddb000)
-> Stack:    000003e6 c0246587 000612b0 c02465f5 000612b0 c01df470 00418570
-> ffffffff
->      f7de2a78 00000082 00000001 200012b0 f7ddbf36 000612b0 c01dfa7c
-> f7de2a78
->      f7de2ab8 f7de2a78 f7db1400 f7de2ab8 c01dc4ae f7de2a78 c0296220
-> c0295c67
-> Call Trace: [<c0246587>] [<c02465f5>] [<c01df470>] [<c01dfa7c>]
-> [<c01dc4ae>]
->      [<c01bda9c>] [<c01be1db>] [<c01be4e6>] [<c01074c4>]
-> 
-> Code: 39 d8 72 f8 5b c3 89 f6 8b 44 24 04 eb 0e 8d b4 26 00 00 00
-> console shuts up ...
-> 
-> Thinking it could be memory related - since I see the Cache fill up and the
-> system go to just over 1mb free prior to crash - i disabled highmem
-> support.  I then disabled NFSv3 and automounter v4 support, jic.  In the
-> last test, I disabled swap - since one thing I've noticed is that the 2.4
-> kernel never touches my swap at all.  None of these changes have affected
-> the outcome; the closest I've gotten is by contintually doing "sync" in
-> another window which sometimes keeps it from crashing on a run, although
-> I'll still end up with a few of the SCSI disk error messages (although not
-> nearly as many as I get before a failure).  Since this happens on multiple
-> machines, I do not believe it is.  We're also seeing failures of this same
-> type when we try to do heavy database loading on the machine, ie., intense
-> disk accesses.  Any help would be greatly appreciated, as we are really
-> needing to get this 2.4 kernel working
-> 
-> Since I only get the archive list, please CC me with any responses!
-> 
-> Thanks!
-> 
-> kenbo
-> 
-> ______________________
-> Firebirds rule, `stangs serve!
-> 
-> Kenneth "kenbo" Brunsen
-> Iris Associates
+[7.3.] Module information (from /proc/modules):
+vmnet                  16192   3
+vmppuser                5520   0 (unused)
+parport_pc              7568   0 [vmppuser]
+parport                 7744   0 [vmppuser parport_pc]
+vmmon                  17792   0 (unused)
+autofs                  9456   2 (autoclean)
+ppp                    20976   0 (autoclean) (unused)
+slhc                    4544   0 (autoclean) [ppp]
+ne2k-pci                4240   1 (autoclean)
+8390                    6208   0 (autoclean) [ne2k-pci]
+snd-pcm-oss            16848   1
+snd-pcm-plugin         13040   0 [snd-pcm-oss]
+snd-mixer-oss           4288   1 [snd-pcm-oss]
+snd-card-ens1371        2048   2
+snd-ens1371             9616   0 [snd-card-ens1371]
+snd-pcm                29792   0 [snd-pcm-oss snd-pcm-plugin snd-ens1371]
+snd-timer               8192   0 [snd-pcm]
+snd-rawmidi             9728   0 [snd-ens1371]
+snd-seq-device          3488   0 [snd-rawmidi]
+snd-ac97-codec         24032   0 [snd-ens1371]
+snd-mixer              23536   0 [snd-mixer-oss snd-ens1371
+snd-ac97-codec]
+snd                    37008   1 [snd-pcm-oss snd-pcm-plugin snd-mixer-oss
+snd-card-ens1371 snd-ens1371 snd-pcm snd-timer snd-rawmidi snd-seq-device 
+snd-ac97-codec snd-mixer]
+soundcore               2800   5 [snd]
+ide-scsi                7664   0
+
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+0376-0376 : ide1
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+a000-a007 : ide0
+a008-a00f : ide1
+ac00-ac3f : Ensoniq AudioPCI
+b000-b01f : eth0
+c400-c407 : ide2
+c408-c40f : ide3
+c410-c4ff : HPT370
+
+
+[7.5.] PCI information ('lspci -vvv' as root)
+00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 03)
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Region 0: Memory at d0000000 (32-bit, prefetchable)
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot
+-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305 (prog-if
+00 [Nor
+mal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 00009000-00009fff
+        Memory behind bridge: d4000000-d6ffffff
+        Prefetchable memory behind bridge: fff00000-000fffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev
+22)
+        Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
+10) (pr
+og-if 8a [Master SecP PriP])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Region 4: I/O ports at a000
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot
+-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:07.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev
+10) (prog-if 0
+0 [UHCI])
+        Subsystem: Unknown device 0925:1234
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 11
+        Region 4: I/O ports at a800
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot
+-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+(rev 30
+)
+        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort- >SERR- <PERR-
+        Capabilities: [68] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot
+-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:08.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
+        Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort-
+<TAbort+ 
+<MAbort+ >SERR- <PERR-
+        Latency: 64 (3000ns min, 32000ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at ac00
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA
+PME(D0+,D1-,D2+,D3hot
++,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+        Subsystem: Realtek Semiconductor Co., Ltd. RT8029(AS)
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at b000
+
+00:13.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366
+(rev 
+03)
+        Subsystem: Triones Technologies, Inc.: Unknown device 0001
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 120 (2000ns min, 2000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at b400
+        Region 1: I/O ports at b800
+        Region 2: I/O ports at bc00
+        Region 3: I/O ports at c000
+        Region 4: I/O ports at c400
+        Capabilities: [60] Power Management version 2
+                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot
+-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP
+1X/2X (r
+ev 5c) (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc: Unknown device 0062
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Step
+ping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min), cache line size 08
+        Interrupt: pin A routed to IRQ 9
+        Region 0: Memory at d4000000 (32-bit, non-prefetchable)
+        Region 1: I/O ports at 9000
+        Region 2: Memory at d6000000 (32-bit, non-prefetchable)
+        Capabilities: [50] AGP version 1.0
+                Status: RQ=255 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: ATAPI    Model: CD-ROM DRIVE-40X Rev: 40DP
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+[X.] Other notes, patches, fixes, workarounds:
+
+
+---559023410-959030623-979074794=:19876
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=config
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.21.0101092113140.19876@raptor.ukc.ac.uk>
+Content-Description: .config
+Content-Disposition: attachment; filename=config
+
+Iw0KIyBBdXRvbWF0aWNhbGx5IGdlbmVyYXRlZCBtYWtlIGNvbmZpZzogZG9u
+J3QgZWRpdA0KIw0KQ09ORklHX1g4Nj15DQpDT05GSUdfSVNBPXkNCiMgQ09O
+RklHX1NCVVMgaXMgbm90IHNldA0KQ09ORklHX1VJRDE2PXkNCg0KIw0KIyBD
+b2RlIG1hdHVyaXR5IGxldmVsIG9wdGlvbnMNCiMNCiMgQ09ORklHX0VYUEVS
+SU1FTlRBTCBpcyBub3Qgc2V0DQoNCiMNCiMgTG9hZGFibGUgbW9kdWxlIHN1
+cHBvcnQNCiMNCkNPTkZJR19NT0RVTEVTPXkNCkNPTkZJR19NT0RWRVJTSU9O
+Uz15DQpDT05GSUdfS01PRD15DQoNCiMNCiMgUHJvY2Vzc29yIHR5cGUgYW5k
+IGZlYXR1cmVzDQojDQojIENPTkZJR19NMzg2IGlzIG5vdCBzZXQNCiMgQ09O
+RklHX000ODYgaXMgbm90IHNldA0KIyBDT05GSUdfTTU4NiBpcyBub3Qgc2V0
+DQojIENPTkZJR19NNTg2VFNDIGlzIG5vdCBzZXQNCiMgQ09ORklHX001ODZN
+TVggaXMgbm90IHNldA0KIyBDT05GSUdfTTY4NiBpcyBub3Qgc2V0DQpDT05G
+SUdfTTY4NkZYU1I9eQ0KIyBDT05GSUdfTVBFTlRJVU00IGlzIG5vdCBzZXQN
+CiMgQ09ORklHX01LNiBpcyBub3Qgc2V0DQojIENPTkZJR19NSzcgaXMgbm90
+IHNldA0KIyBDT05GSUdfTUNSVVNPRSBpcyBub3Qgc2V0DQojIENPTkZJR19N
+V0lOQ0hJUEM2IGlzIG5vdCBzZXQNCiMgQ09ORklHX01XSU5DSElQMiBpcyBu
+b3Qgc2V0DQojIENPTkZJR19NV0lOQ0hJUDNEIGlzIG5vdCBzZXQNCkNPTkZJ
+R19YODZfV1BfV09SS1NfT0s9eQ0KQ09ORklHX1g4Nl9JTlZMUEc9eQ0KQ09O
+RklHX1g4Nl9DTVBYQ0hHPXkNCkNPTkZJR19YODZfQlNXQVA9eQ0KQ09ORklH
+X1g4Nl9QT1BBRF9PSz15DQpDT05GSUdfWDg2X0wxX0NBQ0hFX1NISUZUPTUN
+CkNPTkZJR19YODZfVFNDPXkNCkNPTkZJR19YODZfR09PRF9BUElDPXkNCkNP
+TkZJR19YODZfUEdFPXkNCkNPTkZJR19YODZfVVNFX1BQUk9fQ0hFQ0tTVU09
+eQ0KQ09ORklHX1g4Nl9GWFNSPXkNCkNPTkZJR19YODZfWE1NPXkNCiMgQ09O
+RklHX1RPU0hJQkEgaXMgbm90IHNldA0KIyBDT05GSUdfTUlDUk9DT0RFIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX1g4Nl9NU1IgaXMgbm90IHNldA0KIyBDT05G
+SUdfWDg2X0NQVUlEIGlzIG5vdCBzZXQNCkNPTkZJR19OT0hJR0hNRU09eQ0K
+IyBDT05GSUdfSElHSE1FTTRHIGlzIG5vdCBzZXQNCiMgQ09ORklHX0hJR0hN
+RU02NEcgaXMgbm90IHNldA0KIyBDT05GSUdfTVRSUiBpcyBub3Qgc2V0DQoj
+IENPTkZJR19TTVAgaXMgbm90IHNldA0KIyBDT05GSUdfWDg2X1VQX0lPQVBJ
+QyBpcyBub3Qgc2V0DQoNCiMNCiMgR2VuZXJhbCBzZXR1cA0KIw0KQ09ORklH
+X05FVD15DQojIENPTkZJR19WSVNXUyBpcyBub3Qgc2V0DQpDT05GSUdfUENJ
+PXkNCiMgQ09ORklHX1BDSV9HT0JJT1MgaXMgbm90IHNldA0KIyBDT05GSUdf
+UENJX0dPRElSRUNUIGlzIG5vdCBzZXQNCkNPTkZJR19QQ0lfR09BTlk9eQ0K
+Q09ORklHX1BDSV9CSU9TPXkNCkNPTkZJR19QQ0lfRElSRUNUPXkNCkNPTkZJ
+R19QQ0lfTkFNRVM9eQ0KIyBDT05GSUdfRUlTQSBpcyBub3Qgc2V0DQojIENP
+TkZJR19NQ0EgaXMgbm90IHNldA0KIyBDT05GSUdfSE9UUExVRyBpcyBub3Qg
+c2V0DQojIENPTkZJR19QQ01DSUEgaXMgbm90IHNldA0KQ09ORklHX1NZU1ZJ
+UEM9eQ0KIyBDT05GSUdfQlNEX1BST0NFU1NfQUNDVCBpcyBub3Qgc2V0DQpD
+T05GSUdfU1lTQ1RMPXkNCkNPTkZJR19LQ09SRV9FTEY9eQ0KIyBDT05GSUdf
+S0NPUkVfQU9VVCBpcyBub3Qgc2V0DQpDT05GSUdfQklORk1UX0FPVVQ9eQ0K
+Q09ORklHX0JJTkZNVF9FTEY9eQ0KQ09ORklHX0JJTkZNVF9NSVNDPXkNCkNP
+TkZJR19QTT15DQojIENPTkZJR19BUE0gaXMgbm90IHNldA0KDQojDQojIE1l
+bW9yeSBUZWNobm9sb2d5IERldmljZXMgKE1URCkNCiMNCiMgQ09ORklHX01U
+RCBpcyBub3Qgc2V0DQoNCiMNCiMgUGFyYWxsZWwgcG9ydCBzdXBwb3J0DQoj
+DQpDT05GSUdfUEFSUE9SVD15DQpDT05GSUdfUEFSUE9SVF9QQz15DQpDT05G
+SUdfUEFSUE9SVF9QQ19GSUZPPXkNCiMgQ09ORklHX1BBUlBPUlRfQU1JR0Eg
+aXMgbm90IHNldA0KIyBDT05GSUdfUEFSUE9SVF9NRkMzIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX1BBUlBPUlRfQVRBUkkgaXMgbm90IHNldA0KIyBDT05GSUdf
+UEFSUE9SVF9TVU5CUFAgaXMgbm90IHNldA0KIyBDT05GSUdfUEFSUE9SVF9P
+VEhFUiBpcyBub3Qgc2V0DQojIENPTkZJR19QQVJQT1JUXzEyODQgaXMgbm90
+IHNldA0KDQojDQojIFBsdWcgYW5kIFBsYXkgY29uZmlndXJhdGlvbg0KIw0K
+Q09ORklHX1BOUD15DQpDT05GSUdfSVNBUE5QPXkNCg0KIw0KIyBCbG9jayBk
+ZXZpY2VzDQojDQpDT05GSUdfQkxLX0RFVl9GRD15DQojIENPTkZJR19CTEtf
+REVWX1hEIGlzIG5vdCBzZXQNCiMgQ09ORklHX1BBUklERSBpcyBub3Qgc2V0
+DQojIENPTkZJR19CTEtfQ1BRX0RBIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JM
+S19DUFFfQ0lTU19EQSBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX0RB
+Qzk2MCBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX0xPT1AgaXMgbm90
+IHNldA0KIyBDT05GSUdfQkxLX0RFVl9OQkQgaXMgbm90IHNldA0KIyBDT05G
+SUdfQkxLX0RFVl9SQU0gaXMgbm90IHNldA0KDQojDQojIE11bHRpLWRldmlj
+ZSBzdXBwb3J0IChSQUlEIGFuZCBMVk0pDQojDQojIENPTkZJR19NRCBpcyBu
+b3Qgc2V0DQoNCiMNCiMgTmV0d29ya2luZyBvcHRpb25zDQojDQpDT05GSUdf
+UEFDS0VUPXkNCkNPTkZJR19QQUNLRVRfTU1BUD15DQpDT05GSUdfTkVUTElO
+Sz15DQpDT05GSUdfUlRORVRMSU5LPXkNCiMgQ09ORklHX05FVExJTktfREVW
+IGlzIG5vdCBzZXQNCkNPTkZJR19ORVRGSUxURVI9eQ0KQ09ORklHX05FVEZJ
+TFRFUl9ERUJVRz15DQpDT05GSUdfRklMVEVSPXkNCkNPTkZJR19VTklYPXkN
+CkNPTkZJR19JTkVUPXkNCkNPTkZJR19JUF9NVUxUSUNBU1Q9eQ0KQ09ORklH
+X0lQX0FEVkFOQ0VEX1JPVVRFUj15DQpDT05GSUdfUlRORVRMSU5LPXkNCkNP
+TkZJR19ORVRMSU5LPXkNCkNPTkZJR19JUF9NVUxUSVBMRV9UQUJMRVM9eQ0K
+IyBDT05GSUdfSVBfUk9VVEVfRldNQVJLIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X0lQX1JPVVRFX05BVCBpcyBub3Qgc2V0DQojIENPTkZJR19JUF9ST1VURV9N
+VUxUSVBBVEggaXMgbm90IHNldA0KIyBDT05GSUdfSVBfUk9VVEVfVE9TIGlz
+IG5vdCBzZXQNCkNPTkZJR19JUF9ST1VURV9WRVJCT1NFPXkNCiMgQ09ORklH
+X0lQX1JPVVRFX0xBUkdFX1RBQkxFUyBpcyBub3Qgc2V0DQojIENPTkZJR19J
+UF9QTlAgaXMgbm90IHNldA0KIyBDT05GSUdfTkVUX0lQSVAgaXMgbm90IHNl
+dA0KIyBDT05GSUdfTkVUX0lQR1JFIGlzIG5vdCBzZXQNCiMgQ09ORklHX0lQ
+X01ST1VURSBpcyBub3Qgc2V0DQojIENPTkZJR19JTkVUX0VDTiBpcyBub3Qg
+c2V0DQojIENPTkZJR19TWU5fQ09PS0lFUyBpcyBub3Qgc2V0DQoNCiMNCiMg
+ICBJUDogTmV0ZmlsdGVyIENvbmZpZ3VyYXRpb24NCiMNCkNPTkZJR19JUF9O
+Rl9DT05OVFJBQ0s9eQ0KQ09ORklHX0lQX05GX0ZUUD15DQpDT05GSUdfSVBf
+TkZfSVBUQUJMRVM9eQ0KIyBDT05GSUdfSVBfTkZfTUFUQ0hfTElNSVQgaXMg
+bm90IHNldA0KIyBDT05GSUdfSVBfTkZfTUFUQ0hfTUFDIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX0lQX05GX01BVENIX01BUksgaXMgbm90IHNldA0KIyBDT05G
+SUdfSVBfTkZfTUFUQ0hfTVVMVElQT1JUIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X0lQX05GX01BVENIX1RPUyBpcyBub3Qgc2V0DQojIENPTkZJR19JUF9ORl9N
+QVRDSF9TVEFURSBpcyBub3Qgc2V0DQojIENPTkZJR19JUF9ORl9GSUxURVIg
+aXMgbm90IHNldA0KIyBDT05GSUdfSVBfTkZfTkFUIGlzIG5vdCBzZXQNCiMg
+Q09ORklHX0lQX05GX01BTkdMRSBpcyBub3Qgc2V0DQojIENPTkZJR19JUF9O
+Rl9UQVJHRVRfTE9HIGlzIG5vdCBzZXQNCg0KIw0KIyAgDQojDQojIENPTkZJ
+R19JUFggaXMgbm90IHNldA0KIyBDT05GSUdfQVRBTEsgaXMgbm90IHNldA0K
+IyBDT05GSUdfREVDTkVUIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JSSURHRSBp
+cyBub3Qgc2V0DQoNCiMNCiMgVGVsZXBob255IFN1cHBvcnQNCiMNCiMgQ09O
+RklHX1BIT05FIGlzIG5vdCBzZXQNCg0KIw0KIyBBVEEvSURFL01GTS9STEwg
+c3VwcG9ydA0KIw0KQ09ORklHX0lERT15DQoNCiMNCiMgSURFLCBBVEEgYW5k
+IEFUQVBJIEJsb2NrIGRldmljZXMNCiMNCkNPTkZJR19CTEtfREVWX0lERT15
+DQoNCiMNCiMgUGxlYXNlIHNlZSBEb2N1bWVudGF0aW9uL2lkZS50eHQgZm9y
+IGhlbHAvaW5mbyBvbiBJREUgZHJpdmVzDQojDQojIENPTkZJR19CTEtfREVW
+X0hEX0lERSBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX0hEIGlzIG5v
+dCBzZXQNCkNPTkZJR19CTEtfREVWX0lERURJU0s9eQ0KIyBDT05GSUdfSURF
+RElTS19NVUxUSV9NT0RFIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZf
+SURFRElTS19WRU5ET1IgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9D
+T01NRVJJQUwgaXMgbm90IHNldA0KQ09ORklHX0JMS19ERVZfSURFQ0Q9eQ0K
+IyBDT05GSUdfQkxLX0RFVl9JREVUQVBFIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X0JMS19ERVZfSURFRkxPUFBZIGlzIG5vdCBzZXQNCkNPTkZJR19CTEtfREVW
+X0lERVNDU0k9eQ0KDQojDQojIElERSBjaGlwc2V0IHN1cHBvcnQvYnVnZml4
+ZXMNCiMNCkNPTkZJR19CTEtfREVWX0NNRDY0MD15DQojIENPTkZJR19CTEtf
+REVWX0NNRDY0MF9FTkhBTkNFRCBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtf
+REVWX0lTQVBOUCBpcyBub3Qgc2V0DQpDT05GSUdfQkxLX0RFVl9SWjEwMDA9
+eQ0KQ09ORklHX0JMS19ERVZfSURFUENJPXkNCkNPTkZJR19JREVQQ0lfU0hB
+UkVfSVJRPXkNCkNPTkZJR19CTEtfREVWX0lERURNQV9QQ0k9eQ0KIyBDT05G
+SUdfQkxLX0RFVl9PRkZCT0FSRCBpcyBub3Qgc2V0DQojIENPTkZJR19JREVE
+TUFfUENJX0FVVE8gaXMgbm90IHNldA0KQ09ORklHX0JMS19ERVZfSURFRE1B
+PXkNCiMgQ09ORklHX0JMS19ERVZfQUVDNjJYWCBpcyBub3Qgc2V0DQojIENP
+TkZJR19CTEtfREVWX0FMSTE1WDMgaXMgbm90IHNldA0KIyBDT05GSUdfQkxL
+X0RFVl9BTUQ3NDA5IGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfQ01E
+NjRYIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfQ1k4MkM2OTMgaXMg
+bm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9DUzU1MzAgaXMgbm90IHNldA0K
+IyBDT05GSUdfQkxLX0RFVl9IUFQzNFggaXMgbm90IHNldA0KIyBDT05GSUdf
+QkxLX0RFVl9IUFQzNjYgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9Q
+SUlYIGlzIG5vdCBzZXQNCiMgQ09ORklHX0JMS19ERVZfTlM4NzQxNSBpcyBu
+b3Qgc2V0DQojIENPTkZJR19CTEtfREVWX1BEQzIwMlhYIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX0JMS19ERVZfT1NCNCBpcyBub3Qgc2V0DQojIENPTkZJR19C
+TEtfREVWX1NJUzU1MTMgaXMgbm90IHNldA0KIyBDT05GSUdfQkxLX0RFVl9T
+TEM5MEU2NiBpcyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX1RSTTI5MCBp
+cyBub3Qgc2V0DQojIENPTkZJR19CTEtfREVWX1ZJQTgyQ1hYWCBpcyBub3Qg
+c2V0DQojIENPTkZJR19JREVfQ0hJUFNFVFMgaXMgbm90IHNldA0KIyBDT05G
+SUdfSURFRE1BX0FVVE8gaXMgbm90IHNldA0KIyBDT05GSUdfSURFRE1BX0lW
+QiBpcyBub3Qgc2V0DQojIENPTkZJR19ETUFfTk9OUENJIGlzIG5vdCBzZXQN
+CkNPTkZJR19CTEtfREVWX0lERV9NT0RFUz15DQoNCiMNCiMgU0NTSSBzdXBw
+b3J0DQojDQpDT05GSUdfU0NTST15DQoNCiMNCiMgU0NTSSBzdXBwb3J0IHR5
+cGUgKGRpc2ssIHRhcGUsIENELVJPTSkNCiMNCkNPTkZJR19CTEtfREVWX1NE
+PXkNCkNPTkZJR19TRF9FWFRSQV9ERVZTPTQwDQojIENPTkZJR19DSFJfREVW
+X1NUIGlzIG5vdCBzZXQNCiMgQ09ORklHX0NIUl9ERVZfT1NTVCBpcyBub3Qg
+c2V0DQojIENPTkZJR19CTEtfREVWX1NSIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X0NIUl9ERVZfU0cgaXMgbm90IHNldA0KDQojDQojIFNvbWUgU0NTSSBkZXZp
+Y2VzIChlLmcuIENEIGp1a2Vib3gpIHN1cHBvcnQgbXVsdGlwbGUgTFVOcw0K
+Iw0KQ09ORklHX1NDU0lfREVCVUdfUVVFVUVTPXkNCkNPTkZJR19TQ1NJX01V
+TFRJX0xVTj15DQpDT05GSUdfU0NTSV9DT05TVEFOVFM9eQ0KIyBDT05GSUdf
+U0NTSV9MT0dHSU5HIGlzIG5vdCBzZXQNCg0KIw0KIyBTQ1NJIGxvdy1sZXZl
+bCBkcml2ZXJzDQojDQojIENPTkZJR19CTEtfREVWXzNXX1hYWFhfUkFJRCBp
+cyBub3Qgc2V0DQojIENPTkZJR19TQ1NJXzcwMDBGQVNTVCBpcyBub3Qgc2V0
+DQojIENPTkZJR19TQ1NJX0FDQVJEIGlzIG5vdCBzZXQNCiMgQ09ORklHX1ND
+U0lfQUhBMTUyWCBpcyBub3Qgc2V0DQojIENPTkZJR19TQ1NJX0FIQTE1NDIg
+aXMgbm90IHNldA0KIyBDT05GSUdfU0NTSV9BSEExNzQwIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX1NDU0lfQUlDN1hYWCBpcyBub3Qgc2V0DQojIENPTkZJR19T
+Q1NJX0FEVkFOU1lTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NDU0lfSU4yMDAw
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX1NDU0lfQU01M0M5NzQgaXMgbm90IHNl
+dA0KIyBDT05GSUdfU0NTSV9NRUdBUkFJRCBpcyBub3Qgc2V0DQojIENPTkZJ
+R19TQ1NJX0JVU0xPR0lDIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NDU0lfQ1BR
+RkNUUyBpcyBub3Qgc2V0DQojIENPTkZJR19TQ1NJX0RNWDMxOTFEIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX1NDU0lfRFRDMzI4MCBpcyBub3Qgc2V0DQojIENP
+TkZJR19TQ1NJX0VBVEEgaXMgbm90IHNldA0KIyBDT05GSUdfU0NTSV9FQVRB
+X0RNQSBpcyBub3Qgc2V0DQojIENPTkZJR19TQ1NJX0VBVEFfUElPIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX1NDU0lfRlVUVVJFX0RPTUFJTiBpcyBub3Qgc2V0
+DQojIENPTkZJR19TQ1NJX0dEVEggaXMgbm90IHNldA0KIyBDT05GSUdfU0NT
+SV9HRU5FUklDX05DUjUzODAgaXMgbm90IHNldA0KIyBDT05GSUdfU0NTSV9J
+UFMgaXMgbm90IHNldA0KIyBDT05GSUdfU0NTSV9JTklUSU8gaXMgbm90IHNl
+dA0KIyBDT05GSUdfU0NTSV9JTklBMTAwIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X1NDU0lfUFBBIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NDU0lfSU1NIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX1NDU0lfTkNSNTNDNDA2QSBpcyBub3Qgc2V0DQoj
+IENPTkZJR19TQ1NJX05DUjUzQzd4eCBpcyBub3Qgc2V0DQojIENPTkZJR19T
+Q1NJX05DUjUzQzhYWCBpcyBub3Qgc2V0DQpDT05GSUdfU0NTSV9TWU01M0M4
+WFg9eQ0KQ09ORklHX1NDU0lfTkNSNTNDOFhYX0RFRkFVTFRfVEFHUz00DQpD
+T05GSUdfU0NTSV9OQ1I1M0M4WFhfTUFYX1RBR1M9MzINCkNPTkZJR19TQ1NJ
+X05DUjUzQzhYWF9TWU5DPTIwDQojIENPTkZJR19TQ1NJX05DUjUzQzhYWF9Q
+Uk9GSUxFIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NDU0lfTkNSNTNDOFhYX0lP
+TUFQUEVEIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NDU0lfTkNSNTNDOFhYX1BR
+U19QRFMgaXMgbm90IHNldA0KIyBDT05GSUdfU0NTSV9QQVMxNiBpcyBub3Qg
+c2V0DQojIENPTkZJR19TQ1NJX1BDSTIwMDAgaXMgbm90IHNldA0KIyBDT05G
+SUdfU0NTSV9QQ0kyMjIwSSBpcyBub3Qgc2V0DQojIENPTkZJR19TQ1NJX1BT
+STI0MEkgaXMgbm90IHNldA0KIyBDT05GSUdfU0NTSV9RTE9HSUNfRkFTIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX1NDU0lfUUxPR0lDX0lTUCBpcyBub3Qgc2V0
+DQojIENPTkZJR19TQ1NJX1FMT0dJQ19GQyBpcyBub3Qgc2V0DQojIENPTkZJ
+R19TQ1NJX1FMT0dJQ18xMjgwIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NDU0lf
+U0VBR0FURSBpcyBub3Qgc2V0DQojIENPTkZJR19TQ1NJX1NJTTcxMCBpcyBu
+b3Qgc2V0DQojIENPTkZJR19TQ1NJX1NZTTUzQzQxNiBpcyBub3Qgc2V0DQoj
+IENPTkZJR19TQ1NJX0RDMzkwVCBpcyBub3Qgc2V0DQojIENPTkZJR19TQ1NJ
+X1QxMjggaXMgbm90IHNldA0KIyBDT05GSUdfU0NTSV9VMTRfMzRGIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX1NDU0lfVUxUUkFTVE9SIGlzIG5vdCBzZXQNCg0K
+Iw0KIyBJMk8gZGV2aWNlIHN1cHBvcnQNCiMNCiMgQ09ORklHX0kyTyBpcyBu
+b3Qgc2V0DQoNCiMNCiMgTmV0d29yayBkZXZpY2Ugc3VwcG9ydA0KIw0KQ09O
+RklHX05FVERFVklDRVM9eQ0KDQojDQojIEFSQ25ldCBkZXZpY2VzDQojDQoj
+IENPTkZJR19BUkNORVQgaXMgbm90IHNldA0KQ09ORklHX0RVTU1ZPXkNCiMg
+Q09ORklHX0JPTkRJTkcgaXMgbm90IHNldA0KIyBDT05GSUdfRVFVQUxJWkVS
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX1RVTiBpcyBub3Qgc2V0DQojIENPTkZJ
+R19ORVRfU0IxMDAwIGlzIG5vdCBzZXQNCg0KIw0KIyBFdGhlcm5ldCAoMTAg
+b3IgMTAwTWJpdCkNCiMNCkNPTkZJR19ORVRfRVRIRVJORVQ9eQ0KIyBDT05G
+SUdfTkVUX1ZFTkRPUl8zQ09NIGlzIG5vdCBzZXQNCiMgQ09ORklHX0xBTkNF
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX05FVF9WRU5ET1JfU01DIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX05FVF9WRU5ET1JfUkFDQUwgaXMgbm90IHNldA0KIyBD
+T05GSUdfREVQQ0EgaXMgbm90IHNldA0KIyBDT05GSUdfSFAxMDAgaXMgbm90
+IHNldA0KIyBDT05GSUdfTkVUX0lTQSBpcyBub3Qgc2V0DQpDT05GSUdfTkVU
+X1BDST15DQojIENPTkZJR19QQ05FVDMyIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X0FQUklDT1QgaXMgbm90IHNldA0KIyBDT05GSUdfQ1M4OXgwIGlzIG5vdCBz
+ZXQNCiMgQ09ORklHX1RVTElQIGlzIG5vdCBzZXQNCiMgQ09ORklHX0RFNFg1
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX0RHUlMgaXMgbm90IHNldA0KIyBDT05G
+SUdfRUVQUk8xMDAgaXMgbm90IHNldA0KIyBDT05GSUdfTkFUU0VNSSBpcyBu
+b3Qgc2V0DQojIENPTkZJR19ORTJLX1BDSSBpcyBub3Qgc2V0DQojIENPTkZJ
+R184MTM5VE9PIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NJUzkwMCBpcyBub3Qg
+c2V0DQojIENPTkZJR19FUElDMTAwIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NV
+TkRBTkNFIGlzIG5vdCBzZXQNCiMgQ09ORklHX1RMQU4gaXMgbm90IHNldA0K
+IyBDT05GSUdfVklBX1JISU5FIGlzIG5vdCBzZXQNCiMgQ09ORklHX1dJTkJP
+TkRfODQwIGlzIG5vdCBzZXQNCiMgQ09ORklHX0hBUFBZTUVBTCBpcyBub3Qg
+c2V0DQojIENPTkZJR19ORVRfUE9DS0VUIGlzIG5vdCBzZXQNCg0KIw0KIyBF
+dGhlcm5ldCAoMTAwMCBNYml0KQ0KIw0KIyBDT05GSUdfQUNFTklDIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX0hBTUFDSEkgaXMgbm90IHNldA0KIyBDT05GSUdf
+U0s5OExJTiBpcyBub3Qgc2V0DQojIENPTkZJR19GRERJIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX1BMSVAgaXMgbm90IHNldA0KQ09ORklHX1BQUD15DQpDT05G
+SUdfUFBQX0FTWU5DPXkNCiMgQ09ORklHX1BQUF9TWU5DX1RUWSBpcyBub3Qg
+c2V0DQojIENPTkZJR19QUFBfREVGTEFURSBpcyBub3Qgc2V0DQojIENPTkZJ
+R19QUFBfQlNEQ09NUCBpcyBub3Qgc2V0DQojIENPTkZJR19TTElQIGlzIG5v
+dCBzZXQNCg0KIw0KIyBXaXJlbGVzcyBMQU4gKG5vbi1oYW1yYWRpbykNCiMN
+CiMgQ09ORklHX05FVF9SQURJTyBpcyBub3Qgc2V0DQoNCiMNCiMgVG9rZW4g
+UmluZyBkZXZpY2VzDQojDQojIENPTkZJR19UUiBpcyBub3Qgc2V0DQojIENP
+TkZJR19ORVRfRkMgaXMgbm90IHNldA0KDQojDQojIFdhbiBpbnRlcmZhY2Vz
+DQojDQojIENPTkZJR19XQU4gaXMgbm90IHNldA0KDQojDQojIEFtYXRldXIg
+UmFkaW8gc3VwcG9ydA0KIw0KIyBDT05GSUdfSEFNUkFESU8gaXMgbm90IHNl
+dA0KDQojDQojIElyREEgKGluZnJhcmVkKSBzdXBwb3J0DQojDQojIENPTkZJ
+R19JUkRBIGlzIG5vdCBzZXQNCg0KIw0KIyBJU0ROIHN1YnN5c3RlbQ0KIw0K
+IyBDT05GSUdfSVNETiBpcyBub3Qgc2V0DQoNCiMNCiMgT2xkIENELVJPTSBk
+cml2ZXJzIChub3QgU0NTSSwgbm90IElERSkNCiMNCiMgQ09ORklHX0NEX05P
+X0lERVNDU0kgaXMgbm90IHNldA0KDQojDQojIElucHV0IGNvcmUgc3VwcG9y
+dA0KIw0KIyBDT05GSUdfSU5QVVQgaXMgbm90IHNldA0KDQojDQojIENoYXJh
+Y3RlciBkZXZpY2VzDQojDQpDT05GSUdfVlQ9eQ0KQ09ORklHX1ZUX0NPTlNP
+TEU9eQ0KQ09ORklHX1NFUklBTD15DQojIENPTkZJR19TRVJJQUxfQ09OU09M
+RSBpcyBub3Qgc2V0DQojIENPTkZJR19TRVJJQUxfRVhURU5ERUQgaXMgbm90
+IHNldA0KIyBDT05GSUdfU0VSSUFMX05PTlNUQU5EQVJEIGlzIG5vdCBzZXQN
+CkNPTkZJR19VTklYOThfUFRZUz15DQpDT05GSUdfVU5JWDk4X1BUWV9DT1VO
+VD0yNTYNCkNPTkZJR19QUklOVEVSPXkNCiMgQ09ORklHX0xQX0NPTlNPTEUg
+aXMgbm90IHNldA0KQ09ORklHX1BQREVWPXkNCg0KIw0KIyBJMkMgc3VwcG9y
+dA0KIw0KIyBDT05GSUdfSTJDIGlzIG5vdCBzZXQNCg0KIw0KIyBNaWNlDQoj
+DQojIENPTkZJR19CVVNNT1VTRSBpcyBub3Qgc2V0DQpDT05GSUdfTU9VU0U9
+eQ0KQ09ORklHX1BTTU9VU0U9eQ0KIyBDT05GSUdfODJDNzEwX01PVVNFIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX1BDMTEwX1BBRCBpcyBub3Qgc2V0DQoNCiMN
+CiMgSm95c3RpY2tzDQojDQoNCiMNCiMgR2FtZSBwb3J0IHN1cHBvcnQNCiMN
+Cg0KIw0KIyBHYW1lcG9ydCBqb3lzdGlja3MNCiMNCg0KIw0KIyBTZXJpYWwg
+cG9ydCBzdXBwb3J0DQojDQoNCiMNCiMgU2VyaWFsIHBvcnQgam95c3RpY2tz
+DQojDQoNCiMNCiMgUGFyYWxsZWwgcG9ydCBqb3lzdGlja3MNCiMNCiMgQ09O
+RklHX1FJQzAyX1RBUEUgaXMgbm90IHNldA0KDQojDQojIFdhdGNoZG9nIENh
+cmRzDQojDQojIENPTkZJR19XQVRDSERPRyBpcyBub3Qgc2V0DQojIENPTkZJ
+R19JTlRFTF9STkcgaXMgbm90IHNldA0KIyBDT05GSUdfTlZSQU0gaXMgbm90
+IHNldA0KIyBDT05GSUdfUlRDIGlzIG5vdCBzZXQNCiMgQ09ORklHX0RUTEsg
+aXMgbm90IHNldA0KIyBDT05GSUdfUjM5NjQgaXMgbm90IHNldA0KIyBDT05G
+SUdfQVBQTElDT00gaXMgbm90IHNldA0KDQojDQojIEZ0YXBlLCB0aGUgZmxv
+cHB5IHRhcGUgZGV2aWNlIGRyaXZlcg0KIw0KIyBDT05GSUdfRlRBUEUgaXMg
+bm90IHNldA0KIyBDT05GSUdfQUdQIGlzIG5vdCBzZXQNCkNPTkZJR19EUk09
+eQ0KIyBDT05GSUdfRFJNX1RERlggaXMgbm90IHNldA0KIyBDT05GSUdfRFJN
+X0dBTU1BIGlzIG5vdCBzZXQNCiMgQ09ORklHX0RSTV9SMTI4IGlzIG5vdCBz
+ZXQNCg0KIw0KIyBNdWx0aW1lZGlhIGRldmljZXMNCiMNCiMgQ09ORklHX1ZJ
+REVPX0RFViBpcyBub3Qgc2V0DQoNCiMNCiMgRmlsZSBzeXN0ZW1zDQojDQoj
+IENPTkZJR19RVU9UQSBpcyBub3Qgc2V0DQojIENPTkZJR19BVVRPRlNfRlMg
+aXMgbm90IHNldA0KIyBDT05GSUdfQVVUT0ZTNF9GUyBpcyBub3Qgc2V0DQpD
+T05GSUdfRkFUX0ZTPXkNCkNPTkZJR19NU0RPU19GUz15DQpDT05GSUdfVU1T
+RE9TX0ZTPXkNCkNPTkZJR19WRkFUX0ZTPXkNCkNPTkZJR19KRkZTX0ZTX1ZF
+UkJPU0U9MA0KIyBDT05GSUdfQ1JBTUZTIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X1JBTUZTIGlzIG5vdCBzZXQNCkNPTkZJR19JU085NjYwX0ZTPXkNCkNPTkZJ
+R19KT0xJRVQ9eQ0KIyBDT05GSUdfTUlOSVhfRlMgaXMgbm90IHNldA0KQ09O
+RklHX05URlNfRlM9eQ0KIyBDT05GSUdfSFBGU19GUyBpcyBub3Qgc2V0DQpD
+T05GSUdfUFJPQ19GUz15DQpDT05GSUdfREVWUFRTX0ZTPXkNCiMgQ09ORklH
+X1JPTUZTX0ZTIGlzIG5vdCBzZXQNCkNPTkZJR19FWFQyX0ZTPXkNCiMgQ09O
+RklHX1NZU1ZfRlMgaXMgbm90IHNldA0KIyBDT05GSUdfVURGX0ZTIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX1VGU19GUyBpcyBub3Qgc2V0DQoNCiMNCiMgTmV0
+d29yayBGaWxlIFN5c3RlbXMNCiMNCiMgQ09ORklHX0NPREFfRlMgaXMgbm90
+IHNldA0KQ09ORklHX05GU19GUz15DQojIENPTkZJR19ORlNfVjMgaXMgbm90
+IHNldA0KQ09ORklHX05GU0Q9eQ0KIyBDT05GSUdfTkZTRF9WMyBpcyBub3Qg
+c2V0DQpDT05GSUdfU1VOUlBDPXkNCkNPTkZJR19MT0NLRD15DQpDT05GSUdf
+U01CX0ZTPXkNCiMgQ09ORklHX1NNQl9OTFNfREVGQVVMVCBpcyBub3Qgc2V0
+DQojIENPTkZJR19OQ1BfRlMgaXMgbm90IHNldA0KDQojDQojIFBhcnRpdGlv
+biBUeXBlcw0KIw0KIyBDT05GSUdfUEFSVElUSU9OX0FEVkFOQ0VEIGlzIG5v
+dCBzZXQNCkNPTkZJR19NU0RPU19QQVJUSVRJT049eQ0KQ09ORklHX1NNQl9O
+TFM9eQ0KQ09ORklHX05MUz15DQoNCiMNCiMgTmF0aXZlIExhbmd1YWdlIFN1
+cHBvcnQNCiMNCkNPTkZJR19OTFNfREVGQVVMVD0iaXNvODg1OS0xIg0KIyBD
+T05GSUdfTkxTX0NPREVQQUdFXzQzNyBpcyBub3Qgc2V0DQojIENPTkZJR19O
+TFNfQ09ERVBBR0VfNzM3IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RF
+UEFHRV83NzUgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzg1
+MCBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfODUyIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV84NTUgaXMgbm90IHNldA0K
+IyBDT05GSUdfTkxTX0NPREVQQUdFXzg1NyBpcyBub3Qgc2V0DQojIENPTkZJ
+R19OTFNfQ09ERVBBR0VfODYwIGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19D
+T0RFUEFHRV84NjEgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQQUdF
+Xzg2MiBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfODYzIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV84NjQgaXMgbm90IHNl
+dA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2NSBpcyBub3Qgc2V0DQojIENP
+TkZJR19OTFNfQ09ERVBBR0VfODY2IGlzIG5vdCBzZXQNCiMgQ09ORklHX05M
+U19DT0RFUEFHRV84NjkgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0NPREVQ
+QUdFXzg3NCBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfQ09ERVBBR0VfOTMy
+IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19DT0RFUEFHRV85MzYgaXMgbm90
+IHNldA0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzk0OSBpcyBub3Qgc2V0DQoj
+IENPTkZJR19OTFNfQ09ERVBBR0VfOTUwIGlzIG5vdCBzZXQNCiMgQ09ORklH
+X05MU19JU084ODU5XzEgaXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0lTTzg4
+NTlfMiBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNfSVNPODg1OV8zIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX05MU19JU084ODU5XzQgaXMgbm90IHNldA0KIyBD
+T05GSUdfTkxTX0lTTzg4NTlfNSBpcyBub3Qgc2V0DQojIENPTkZJR19OTFNf
+SVNPODg1OV82IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19JU084ODU5Xzcg
+aXMgbm90IHNldA0KIyBDT05GSUdfTkxTX0lTTzg4NTlfOCBpcyBub3Qgc2V0
+DQojIENPTkZJR19OTFNfSVNPODg1OV85IGlzIG5vdCBzZXQNCiMgQ09ORklH
+X05MU19JU084ODU5XzE0IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19JU084
+ODU5XzE1IGlzIG5vdCBzZXQNCiMgQ09ORklHX05MU19LT0k4X1IgaXMgbm90
+IHNldA0KIyBDT05GSUdfTkxTX1VURjggaXMgbm90IHNldA0KDQojDQojIENv
+bnNvbGUgZHJpdmVycw0KIw0KQ09ORklHX1ZHQV9DT05TT0xFPXkNCkNPTkZJ
+R19WSURFT19TRUxFQ1Q9eQ0KDQojDQojIFNvdW5kDQojDQpDT05GSUdfU09V
+TkQ9eQ0KIyBDT05GSUdfU09VTkRfQ01QQ0kgaXMgbm90IHNldA0KIyBDT05G
+SUdfU09VTkRfRU1VMTBLMSBpcyBub3Qgc2V0DQojIENPTkZJR19TT1VORF9G
+VVNJT04gaXMgbm90IHNldA0KIyBDT05GSUdfU09VTkRfQ1M0MjgxIGlzIG5v
+dCBzZXQNCiMgQ09ORklHX1NPVU5EX0VTMTM3MCBpcyBub3Qgc2V0DQpDT05G
+SUdfU09VTkRfRVMxMzcxPXkNCiMgQ09ORklHX1NPVU5EX0VTU1NPTE8xIGlz
+IG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX01BRVNUUk8gaXMgbm90IHNldA0K
+IyBDT05GSUdfU09VTkRfU09OSUNWSUJFUyBpcyBub3Qgc2V0DQojIENPTkZJ
+R19TT1VORF9UUklERU5UIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX01T
+TkRDTEFTIGlzIG5vdCBzZXQNCiMgQ09ORklHX1NPVU5EX01TTkRQSU4gaXMg
+bm90IHNldA0KIyBDT05GSUdfU09VTkRfVklBODJDWFhYIGlzIG5vdCBzZXQN
+CiMgQ09ORklHX1NPVU5EX09TUyBpcyBub3Qgc2V0DQoNCiMNCiMgVVNCIHN1
+cHBvcnQNCiMNCiMgQ09ORklHX1VTQiBpcyBub3Qgc2V0DQoNCiMNCiMgS2Vy
+bmVsIGhhY2tpbmcNCiMNCiMgQ09ORklHX01BR0lDX1NZU1JRIGlzIG5vdCBz
+ZXQNCg==
+---559023410-959030623-979074794=:19876--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,123 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbUCLOPm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 09:15:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCLOPm
+	id S262120AbUCLOOx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 09:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUCLOOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 09:15:42 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:58782 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262130AbUCLOPV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 09:15:21 -0500
-Message-ID: <4051C5F1.2050605@cyberone.com.au>
-Date: Sat, 13 Mar 2004 01:15:13 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
+	Fri, 12 Mar 2004 09:14:53 -0500
+Received: from colin2.muc.de ([193.149.48.15]:64525 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262120AbUCLOOv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 09:14:51 -0500
+Date: 12 Mar 2004 15:14:50 +0100
+Date: Fri, 12 Mar 2004 15:14:50 +0100
+From: Andi Kleen <ak@muc.de>
 To: Nick Piggin <piggin@cyberone.com.au>
-CC: Matthias Urlichs <smurf@smurf.noris.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-References: <404FACF4.3030601@cyberone.com.au> <200403111825.22674@WOLK> <40517E47.3010909@cyberone.com.au> <20040312012703.69f2bb9b.akpm@osdl.org> <pan.2004.03.12.11.08.02.700169@smurf.noris.de> <4051B0C6.2070302@cyberone.com.au>
-In-Reply-To: <4051B0C6.2070302@cyberone.com.au>
-Content-Type: multipart/mixed;
- boundary="------------000509030602080909050000"
+Cc: Andi Kleen <ak@muc.de>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-ID: <20040312141450.GB80958@colin2.muc.de>
+References: <7F740D512C7C1046AB53446D37200173FEB851@scsmsx402.sc.intel.com> <20040312031452.GA41598@colin2.muc.de> <40513B8B.9010301@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40513B8B.9010301@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000509030602080909050000
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Mar 12, 2004 at 03:24:43PM +1100, Nick Piggin wrote:
+> 
+> 
+> Andi Kleen wrote:
+> 
+> >On Thu, Mar 11, 2004 at 07:04:50PM -0800, Nakajima, Jun wrote:
+> >
+> >>As we can have more complex architectures in the future, the scheduler
+> >>is flexible enough to represent various scheduling domains effectively,
+> >>and yet keeps the common scheduler code simple.
+> >>
+> >
+> >I think for SMT alone it's too complex and for NUMA it doesn't do
+> >the right thing for "modern NUMAs" (where NUMA factor is very low
+> >and you have a small number of CPUs for each node). 
+> >
+> >
+> 
+> For SMT it is a less complex than shared runqueues, it is actually
+> less lines of code and smaller object size.
 
+By moving all the complexity into arch/* ?
 
+> 
+> It is also more flexible than shared runqueues in that you can still
+> have control over each sibling's runqueue. Con's SMT nice patch for
+> example would probably be more difficult to do with shared runqueues.
+> Shared runqueues also gives zero affinity to siblings. While current
+> implementations may not (do they?) care, future ones might.
+> 
+> For Opteron type NUMA, it actually balances much more aggressively
+> than the default NUMA scheduler, especially when a CPU is idle. I
+> don't doubt you aren't seeing great performance, but it should be
+> able to be fixed.
+> 
+> The problem is just presumably your lack of time to investigate
+> further, and my lack of problem descriptions or Opterons.
 
-Nick Piggin wrote:
+I didn't investigate further on your scheduler because I have my 
+doubts about it being the right approach and it seems to have
+some obvious design bugs (like the racy SMT setup) 
 
->
-> Well if nothing at all happens we don't swap out, but when something
-> is happening, desktop users don't want any of their programs to be
-> swapped out no matter how long they have been sitting idle. They don't
-> want to wait 10 seconds to page something in even if it means they're
-> waiting an extra 10 minutes throughout the day for their kernel greps
-> and diffs to finish.
->
->
+The problem description is still the same as it was in the past.
 
-Just had a try of doing things like updatedb and dd if=/dev/zero of=./blah
-It is pretty swappy I guess. The following patch I think makes things less
-swappy. It still isn't true dropbehind because new unmapped pages still do
-place some pressure on the more established pagecache, but not as much.
+Basically it is: schedule as on SMP, but avoid local affinity for newly
+created tasks and balance early. Allow to disable all old style NUMA 
+heuristics.
 
-It is unclear whether full dropbehind is actually good or not. If you have
-512MB of memory and a 256MB working set of file data (unmapped), with 400MB
-of mapped memory doing nothing, after enough thrashing through your 256MB,
-you'd expect some of that mapped memory to be swapped out.
+Longer term some homenode scheduling affinity may be still useful,
+but I tried to get that to work on 2.4 and failed, so I'm not sure
+it can be done. The right way may be to keep track how much memory
+each thread allocated on each node and preferably schedule on
+the node with the most memory. But that's future work.
 
-By the way, I would be interested to know the rationale behind
-mark_page_accessed as it is without this patch, also what is it doing in
-rmap.c (I know hardly anything actually uses page_test_and_clear_young, but
-still). It seems to me like it only serves to make VM behaviour harder to
-understand, but I'm probably missing something. Andrew?
+> 
+> One thing you definitely want is a sched_balance_fork, is that right?
+> Have you been able to do any benchmarks on recent -mm kernels?
 
+I sent the last benchmarks I did to you (including the tweaks you
+suggested). All did worse than the standard scheduler. Did you 
+change anything significant that makes rebenchmarking useful?
 
---------------000509030602080909050000
-Content-Type: text/x-patch;
- name="vm-dropbehind.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="vm-dropbehind.patch"
-
- linux-2.6-npiggin/mm/filemap.c |    3 +--
- linux-2.6-npiggin/mm/rmap.c    |    2 +-
- linux-2.6-npiggin/mm/swap.c    |    7 +------
- 3 files changed, 3 insertions(+), 9 deletions(-)
-
-diff -puN mm/filemap.c~vm-dropbehind mm/filemap.c
---- linux-2.6/mm/filemap.c~vm-dropbehind	2004-03-13 00:14:56.000000000 +1100
-+++ linux-2.6-npiggin/mm/filemap.c	2004-03-13 00:55:17.000000000 +1100
-@@ -662,8 +662,7 @@ page_ok:
- 		/*
- 		 * Mark the page accessed if we read the beginning.
- 		 */
--		if (!offset)
--			mark_page_accessed(page);
-+		mark_page_accessed(page);
- 
- 		/*
- 		 * Ok, we have the page, and it's up-to-date, so
-diff -puN mm/swap.c~vm-dropbehind mm/swap.c
---- linux-2.6/mm/swap.c~vm-dropbehind	2004-03-13 00:17:29.000000000 +1100
-+++ linux-2.6-npiggin/mm/swap.c	2004-03-13 00:18:11.000000000 +1100
-@@ -111,13 +111,8 @@ void fastcall activate_page(struct page 
-  */
- void fastcall mark_page_accessed(struct page *page)
- {
--	if (!PageActiveMapped(page) && !PageActiveUnmapped(page)
--			&& PageReferenced(page) && PageLRU(page)) {
--		activate_page(page);
--		ClearPageReferenced(page);
--	} else if (!PageReferenced(page)) {
-+	if (!PageReferenced(page))
- 		SetPageReferenced(page);
--	}
- }
- 
- EXPORT_SYMBOL(mark_page_accessed);
-diff -puN mm/rmap.c~vm-dropbehind mm/rmap.c
---- linux-2.6/mm/rmap.c~vm-dropbehind	2004-03-13 01:08:00.000000000 +1100
-+++ linux-2.6-npiggin/mm/rmap.c	2004-03-13 01:08:28.000000000 +1100
-@@ -118,7 +118,7 @@ int fastcall page_referenced(struct page
- 	int referenced = 0;
- 
- 	if (page_test_and_clear_young(page))
--		mark_page_accessed(page);
-+		referenced++;
- 
- 	if (TestClearPageReferenced(page))
- 		referenced++;
-
-_
-
---------------000509030602080909050000--
+-Andi

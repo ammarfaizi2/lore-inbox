@@ -1,78 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbUAZQhc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 11:37:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbUAZQhc
+	id S264493AbUAZRKj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 12:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264508AbUAZRKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 11:37:32 -0500
-Received: from relaycz.systinet.com ([62.168.12.68]:32896 "HELO
-	relaycz.systinet.com") by vger.kernel.org with SMTP id S263953AbUAZQh3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 11:37:29 -0500
-Subject: Re: DMA timeout error and then kernel halted
-From: Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
-To: linux-kernel@vger.kernel.org
-Cc: andre@linux-ide.org
-In-Reply-To: <1074533362.7913.14.camel@narsil>
-References: <1074533362.7913.14.camel@narsil>
+	Mon, 26 Jan 2004 12:10:39 -0500
+Received: from linux-bt.org ([217.160.111.169]:19089 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S264493AbUAZRKf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 12:10:35 -0500
+Subject: Re: Bluetooth USB oopses on unplug (2.6.1)
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Max Krasnyansky <maxk@qualcomm.com>
+In-Reply-To: <20040126161625.GB227@elf.ucw.cz>
+References: <20040126102041.GA1112@elf.ucw.cz>
+	 <1075124726.25442.2.camel@pegasus>  <20040126161625.GB227@elf.ucw.cz>
 Content-Type: text/plain
-Message-Id: <1075135039.3449.23.camel@narsil>
+Message-Id: <1075136997.25442.99.camel@pegasus>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 26 Jan 2004 17:37:19 +0100
+Date: Mon, 26 Jan 2004 18:09:57 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've resolved my problem, DMA must be turned on by "Use DMA by default
-in kernel config", it siply doesn't like latter attempts by hdparm. I
-tried to have DMA by default previously but only by ide2=dma kernel boot
-parameter.
+Hi Pavel,
 
-Now, I'm on 40MB/s and happy :-)
+> > However show us the oops (through ksymoops) and show us your USB
+> > hardware on your motherboard (lspci).
+> 
+> pavel@amd:~$ lspci
+> 00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 3188 (rev 01)
+> 00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device b188
+> 00:0a.0 CardBus bridge: ENE Technology Inc CB1410 Cardbus Controller
+> 00:0c.0 Network controller: Broadcom Corporation BCM94306 802.11g (rev 02)
+> 00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
+> 00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
+> 00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
+> 00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
+> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+> 00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+> 00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235 AC97 Audio Controller (rev 50)
+> 00:11.6 Communication controller: VIA Technologies, Inc. Intel 537 [AC97 Modem] (rev 80)
+> 00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
+> 00:13.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 80)
+> 00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+> 00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+> 00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+> 00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+> 01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 Lf [Radeon Mobility 9000 M9] (rev 02)
+> pavel@amd:~$
+> 
+> I'll have to hand-copy the oops, as machine dies after unplug. Here it
+> is:
+> 
+> Oops: 2
+> EIP  is at uhci_remov_pending_qhs
+> Call trace:
+> 	uhci_irq
+> 	usb_hcd_irq
+> 	handle_irq_event
+> 	do_IRQ
+> 	common_interrupt_1
 
-Jan "Pogo" Mynarik
+as I expected. It is an UHCI host adapter and it looks like the uhci_hcd
+driver has problems to unlink the ISOC URB's. Look at the LKML and USB
+mailing lists for similiar post. At the moment I don't know of any patch
+for it. Sorry.
 
-On Mon, 2004-01-19 at 18:29, Jan Mynarik wrote:
-> Hi,
-> 
-> I have DMA problems with HPT366 on BP6 (newest BIOS version RU incl.
-> 1.28 BIOS for HPT366) and Seagate's 80 GB disk (please see exact model
-> numbers in attached dmesg).
-> 
-> It's reproducible (with or without SMP, various kernel versions,
-> overclocking or not, ACPI on and off) on 2.4.22 and 2.6.0 (test9, test11
-> and vanilla) and 2.6.1-rc3. On 2.4 kernel it doesn't halt kernel.
-> 
-> Problem description:
-> When I try to set DMA by hdparm, after several seconds the HDD led gets
-> on and remains on for another amount of seconds, then I got
-> 
-> hde: dma_timer_expiry: dma status == 0x21
-> 
-> and after a while
-> 
-> hde: DMA timeout error
-> 
-> then kernel is halted and I need to reset my PC.
-> 
-> 
-> After some investigations I realized that the problem could be in the
-> combination of HPT366 and Seagate disk. In the source code of
-> HighPoint's driver
-> (http://www.highpoint-tech.com/hpt3xx-opensource-v131.tgz - link is in
-> kernel's drivers/ide/pci/hpt366.c) I can see some function
-> (seagate_hdd_fix) used to fix
-> some seagate disk initialization problem which is not present in
-> hpt366.c in kernel. I think that's the problem because I
-> haven't found any reported problem and I think that BP6 is still widely
-> used.
-> 
-> Is it known? Any patches, workarounds, or other suggestions?
-> 
-> Regards,
-> 
-> Jan "Pogo" Mynarik
--- 
-Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
+Regards
+
+Marcel
+
 

@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUDISYX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 14:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUDISYX
+	id S261602AbUDISpW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 14:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUDISpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 14:24:23 -0400
-Received: from adsl-67-65-232-1.dsl.lgvwtx.swbell.net ([67.65.232.1]:13963
-	"HELO rooker.dyndns.org") by vger.kernel.org with SMTP
-	id S261405AbUDISYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 14:24:18 -0400
-Message-ID: <000901c41e5f$b7288930$6600a8c0@pixl>
-From: "Peter Maas" <peter@goquest.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.5-mm3
-Date: Fri, 9 Apr 2004 13:23:10 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 9 Apr 2004 14:45:22 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:15808 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261602AbUDISpQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 14:45:16 -0400
+Subject: Re: NUMA API for Linux
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1496342704.1081488562@[10.10.2.4]>
+References: <1081373058.9061.16.camel@arrakis>
+	 <20040407232712.2595ac16.ak@suse.de> <1081374061.9061.26.camel@arrakis>
+	 <20040407234525.4f775c16.ak@suse.de> <1081472946.12673.310.camel@arrakis>
+	 <1496342704.1081488562@[10.10.2.4]>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1081536299.21205.1.camel@arrakis>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 09 Apr 2004 11:44:59 -0700
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had posted under the topic SMP + EXT3 + AACRAID yesterday about lockups
-occuring when I ran a 'dbench 32' on a dual pentium 4 with HT, on an Adaptec
-2120S (aacraid) with an ext3 filesystem. So far with my testing on mm3 I
-have not had a lockup. 'dbench 32' also is also much faster, from about
-60MB/s on 2.6.5 (the few times it did not lock) to 108MB/s on 2.6.5-mm3.
+Sounds good to me.  I named it page_to_nodenum() to match
+page_to_zonenum() which I named to differentiate it from page_zone().  I
+have no attachment to the names whatsoever, though.
 
-I have SMT scheduler support enabled along with 4K stacks.
+-Matt
 
-2.6.5-mm3+SMP+AACRAID+EXT3= completes
-2.6.5+SMP+AACRAID+EXT3= lockup
-2.6.5+SMP+AACRAID+EXT2= completes
-
-2.4.21-9REL+SMP+AACRAID+EXT3= lockup
-2.4.21-9REL+SMP+AACRAID+EXT2= completes
-2.4.21-9REL+SingleProc+AACRAID+EXT3= lockup
-2.4.21-9REL+SingleProc+AACRAID+EXT2=completes
-
-2.6.5-mm3 is working for me!
+On Thu, 2004-04-08 at 22:29, Martin J. Bligh wrote:
+> > Instead of looking up a page's node number by
+> > page_zone(p)->zone_pgdat->node_id, you can get the same information much
+> > more efficiently by doing some bit-twidling on page->flags.  Use
+> > page_nodenum(struct page *) from include/linux/mm.h.
+> 
+> Never noticed that before - I'd prefer we renamed this to page_to_nid 
+> before anyone starts using it ... fits with the naming convention of 
+> everything else (pfn_to_nid, etc). Nobody uses it right now - I grepped 
+> the whole tree.
+> 
+> M.
+> 
+> diff -aurpN -X /home/fletch/.diff.exclude virgin/include/linux/mm.h name_nids/include/linux/mm.h
+> --- virgin/include/linux/mm.h	Wed Mar 17 07:33:09 2004
+> +++ name_nids/include/linux/mm.h	Thu Apr  8 22:27:24 2004
+> @@ -340,7 +340,7 @@ static inline unsigned long page_zonenum
+>  {
+>  	return (page->flags >> NODEZONE_SHIFT) & (~(~0UL << ZONES_SHIFT));
+>  }
+> -static inline unsigned long page_nodenum(struct page *page)
+> +static inline unsigned long page_to_nid(struct page *page)
+>  {
+>  	return (page->flags >> (NODEZONE_SHIFT + ZONES_SHIFT));
+>  }
+> 
+> 
+> 
+> 
+> 
+> 
 

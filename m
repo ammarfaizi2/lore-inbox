@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbUKQUxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbUKQU6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbUKQUxO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 15:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbUKQUuu
+	id S262514AbUKQU6c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 15:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbUKQU6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 15:50:50 -0500
-Received: from holomorphy.com ([207.189.100.168]:55755 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262531AbUKQUuj (ORCPT
+	Wed, 17 Nov 2004 15:58:23 -0500
+Received: from smtp3.akamai.com ([63.116.109.25]:18591 "EHLO smtp3.akamai.com")
+	by vger.kernel.org with ESMTP id S262531AbUKQUyL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 15:50:39 -0500
-Date: Wed, 17 Nov 2004 12:50:24 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Grzegorz Piotr Jaskiewicz <gj@kde.org.uk>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: pid_max madness
-Message-ID: <20041117205024.GT3217@holomorphy.com>
-References: <419BB097.8030405@kde.org.uk>
-Mime-Version: 1.0
+	Wed, 17 Nov 2004 15:54:11 -0500
+Message-ID: <419BC8CF.424232E6@akamai.com>
+Date: Wed, 17 Nov 2004 13:55:27 -0800
+From: Prasanna Meda <pmeda@akamai.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: One more get_task_comm()
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <419BB097.8030405@kde.org.uk>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 09:12:07PM +0100, Grzegorz Piotr Jaskiewicz wrote:
-> Let's do:
-> #echo "-1" >/proc/sys/kernel/pid_max
-> #cat /proc/sys/kernel/pid_max
-> -1
-> #
-> Madness, isn't ?
-> I guess that isn't what author ment it to behave like.
-> Anyway, does it mean that after max unsigned value is reached pids are 
-> going to be negative in value ??
 
-Kernel version please?
+Looking at  get_task_comm patch:
+http://linus.bkbits.net:8080/linux-2.5/patch@1.1803.144.3
 
+There is one other place where task->comm is accessed
+outside current.  There are two issues.  The code is
+trying to copy to temp space without task_lock. It is not
+using temp space for actual user copy.
 
--- wli
+--- arch/mips/kernel/sysirix.c.saved    Wed Nov 17 13:18:50 2004
++++ arch/mips/kernel/sysirix.c  Wed Nov 17 13:29:11 2004
+@@ -282,7 +282,7 @@
+                int pid = (int) regs->regs[base + 5];
+                char *buf = (char *) regs->regs[base + 6];
+                struct task_struct *p;
+-               char comm[16];
++               char  comm[sizeof(current->comm)];
+
+                retval = verify_area(VERIFY_WRITE, buf, 16);
+                if (retval)
+@@ -294,11 +294,11 @@
+                        retval = -ESRCH;
+                        break;
+                }
+-               memcpy(comm, p->comm, 16);
++               get_task_comm(comm, p);
+                read_unlock(&tasklist_lock);
+
+                /* XXX Need to check sizes. */
+-               copy_to_user(buf, p->comm, 16);
++               copy_to_user(buf, comm, 16);
+                retval = 0;
+                break;
+        }
+
+Related questions:
+

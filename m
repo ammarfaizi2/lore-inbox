@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312277AbSDJA3V>; Tue, 9 Apr 2002 20:29:21 -0400
+	id <S312294AbSDJAcd>; Tue, 9 Apr 2002 20:32:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312294AbSDJA3U>; Tue, 9 Apr 2002 20:29:20 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:58062 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S312277AbSDJA3U>; Tue, 9 Apr 2002 20:29:20 -0400
-Subject: Re: Event logging vs enhancing printk
-From: Brian Beattie <alchemy@us.ibm.com>
-To: Brian Beattie <alchemy@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1018391340.7923.40.camel@w-beattie1>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 09 Apr 2002 17:29:17 -0700
-Message-Id: <1018398557.7923.55.camel@w-beattie1>
+	id <S312302AbSDJAcc>; Tue, 9 Apr 2002 20:32:32 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:38981 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S312294AbSDJAcb>; Tue, 9 Apr 2002 20:32:31 -0400
+Date: Wed, 10 Apr 2002 02:30:06 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Aviv Shavit <avivshavit@yahoo.com>, Ken Brownfield <brownfld@irridia.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: vm-33, strongly recommended [Re: [2.4.17/18pre] VM and swap - it's really unusable]
+Message-ID: <20020410023006.B6875@dualathlon.random>
+In-Reply-To: <20020225224050.D26077@asooo.flowerfire.com> <20020409204545.11251.qmail@web13205.mail.yahoo.com> <20020410013609.A6875@dualathlon.random> <200204100007.g3A07o329371@vindaloo.ras.ucalgary.ca>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-09 at 15:28, Brian Beattie wrote:
+On Tue, Apr 09, 2002 at 06:07:50PM -0600, Richard Gooch wrote:
+> Andrea Arcangeli writes:
+> > I recommend everybody to never use a 2.4 kernel without first applying
+> > this vm patch:
+> [...]
+> 
+> The way you write this makes it sound that the unpatched kernel is
+> very dangerous. Is this actually true? Or do you really just mean "the
+> patched kernel has better handling under extreme loads"?
 
-> > 
-> > > I would prefer to see effort expended on fixing printk/klogd...off the
-> > > top of my head:
-> > > 
-> > > - make printk a macro that prepends file/function/line to the message.
+The unpatched kernel isn't dangerous in the sense it won't destroy data,
+it won't corrupt memory and finally it won't deadlock on smp locks, but
+it can theoretically deadlock with oom and it has various other runtime
+issues starting from highmem balancing, too much swapping, lru list
+balancing, related-bhs in highmem, numa broken with += min etc... so
+IMHO it is better to _always_ use the patched kernel that takes care of
+all problems that I know of at the moment, plus it has further
+optimizations. OTOH for lots of workloads mainline is just fine, the
+deadlocks never trigger and the runtime behaviour is ok, but unless you
+are certain you don't need the vm-33.gz patch, I recommend to apply it.
 
-I take this one back, file/function/line does not add any useful
-information to the vast majority of the printk messages, but adds a
-great deal of bloat to the logs.
-
-I think establishing some guide lines for log message content and
-format, and updating some of the more critical parts of the kernel would
-do a lot more to provide the kind of logging that is being called for. 
-It may well be that this needs to be done in a way that can be
-controlled by a compile time option so the old format can be had by
-those who prefer it, and the new by those who feel the need.
-
-The basic problem, in my experience, is not the logging mechanisims, but
-that the correct messages are not produced under the correct
-conditions.  This is a problem that can only be fixed by adding the
-appropriate calls to whatever logging mechanism is available.
-
-That is to say that, not all conditions that are critical are logged in
-a way that provides the information to determine, after the fact, what
-happened.  A new logging mechanism will not fix that.
-
+Andrea

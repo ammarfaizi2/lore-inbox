@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264027AbTE3W6b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 18:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264028AbTE3W6b
+	id S264028AbTE3W7S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 18:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTE3W7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 18:58:31 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:15548 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264027AbTE3W6a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 18:58:30 -0400
-Date: Fri, 30 May 2003 16:13:48 -0700
-From: Greg KH <greg@kroah.com>
-To: Mark Haverkamp <markh@osdl.org>
-Cc: Pat Mochel <mochel@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pci bridge class code
-Message-ID: <20030530231348.GA22049@kroah.com>
-References: <1054239461.28608.74.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
+	Fri, 30 May 2003 18:59:17 -0400
+Received: from web41501.mail.yahoo.com ([66.218.93.84]:163 "HELO
+	web41501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264028AbTE3W7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 18:59:11 -0400
+Message-ID: <20030530231231.64427.qmail@web41501.mail.yahoo.com>
+Date: Fri, 30 May 2003 16:12:31 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: Cute kernel trick, or communistic ploy?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054239461.28608.74.camel@markh1.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 01:17:42PM -0700, Mark Haverkamp wrote:
-> This adds pci-pci bridge driver model class code.  Entries appear in 
-> /sys/class/pci_bridge.
+  Output of program to simulate a /proc file in a stopped kernel,
+using the same kernel function(s) used to generate the actual file
+when the kernel is up:
 
-Nice, but I don't see the need for the extra class information, as it
-doesn't really give us anything new, right?  So without the class stuff
-might be nice.
+(gdb) source ./proc-uptime
+$3 = (void *) 0xa1aec000
+$4 = (void *) 0xa1da48d4
+$5 = (void *) 0xa1da4384
+$6 = (void *) 0xa1da48ac
+$7 = 0
+"remember to 'call(kfree($page))' when finished
+"4080219633.89 395.85
+(gdb) 
 
-> +MODULE_AUTHOR("Mark Haverkamp");
-> +MODULE_DESCRIPTION("PCI bridge driver");
-> +MODULE_LICENSE("GPL");
+  This program works fine in the um arch but I was wondering what
+the pitfalls are in an approach like this. This is a trivial example,
+but other /proc files do very complicated bookkeeping and formatting;
+and this method should be equally applicable to those.
 
-This isn't needed, as you can't build your code as a module with your
-patch.
 
-thanks,
+GDB program 'proc-uptime' (18 lines):
 
-greg k-h
+set $gfp_atomic=0x20
+call(kmalloc(4096,$gfp_atomic))
+set $page=$
+call(kmalloc(32,$gfp_atomic))
+set $zero=(int *)$
+set *$zero=(int)0
+call(kmalloc(32,$gfp_atomic))
+set $start=(int **)$
+set *$start=$zero
+call(kmalloc(32,$gfp_atomic))
+set $eof=(int *)$
+set *$eof=1
+call(uptime_read_proc((char *)$page,(char **)$start,(off_t)0,\
+  0,$eof,(void *)$zero))
+call(kfree($zero))
+call(kfree($eof))
+call(kfree($start))
+echo "remember to 'call(kfree($page))' before continuing\n"
+printf "%s\n",$page
+
+
+

@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUEGUal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263766AbUEGU1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbUEGUal (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 16:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUEGU3R
+	id S263766AbUEGU1C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 16:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbUEGU1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 16:29:17 -0400
-Received: from web14926.mail.yahoo.com ([216.136.225.84]:61075 "HELO
-	web14926.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263750AbUEGU0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 16:26:53 -0400
-Message-ID: <20040507192650.95994.qmail@web14926.mail.yahoo.com>
-Date: Fri, 7 May 2004 12:26:50 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: Is it possible to implement interrupt time printk's reliably?
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, keithp@keithp.com
-In-Reply-To: <20040507121319.6939b391.akpm@osdl.org>
+	Fri, 7 May 2004 16:27:00 -0400
+Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:36302 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S263775AbUEGUTs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 16:19:48 -0400
+Message-ID: <409BDD92.7030607@zytor.com>
+Date: Fri, 07 May 2004 12:03:46 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Hanna Linder <hannal@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.6-rc3] Lindent on arch/i386/kernel/msr.c
+References: <50390000.1083882659@dyn318071bld.beaverton.ibm.com> <c7elrc$ddm$1@terminus.zytor.com> <72100000.1083954633@dyn318071bld.beaverton.ibm.com>
+In-Reply-To: <72100000.1083954633@dyn318071bld.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Andrew Morton <akpm@osdl.org> wrote:
-> Jon Smirl <jonsmirl@yahoo.com> wrote:
-> >
-> > > If you're in process context you can use acquire_console_sem(), which will
-> > > serialise against printk.
-> > > 
-> > 
-> > Won't I deadlock if I have acquire_console_sem(), take an interrupt, and
-> then a
-> > printk is issued from the interrupt handelr?
-> > 
+Hanna Linder wrote:
+> --On Friday, May 07, 2004 12:39:08 AM +0000 "H. Peter Anvin" <hpa@zytor.com> wrote:
 > 
-> Nope.  If printk finds the semaphore to be held it queues up the characters
-> and returns without printing them.  The console_sem-holding process will
-> print the newly buffered characters before releasing the semaphore.
+> 
+>>Please don't apply this right now.  I'm in the middle of making a change to
+>>the msr and cpuid modules.
+> 
+> 
+> Sorry about that. I usually remember to cc the maintainers. Of course the one time
+> I forget it is actively being worked on.
+> 
+> I can do a Lindent patch after we are both done. Sounds like our changes won't conflict.
+> 
 
-Is this solution sufficient for kernel developers wanting to use printk from
-interrupt handlers? I've gotten negative feedback from Linus when I suggested
-queuing them before.
+I'll just Lindent it as part of the change.  It's a massive modification 
+anyway.
 
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Win a $20,000 Career Makeover at Yahoo! HotJobs  
-http://hotjobs.sweepstakes.yahoo.com/careermakeover 
+	-hpa

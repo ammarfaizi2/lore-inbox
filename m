@@ -1,134 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUJOIUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUJOIVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUJOIUU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 04:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266572AbUJOIUU
+	id S266572AbUJOIVu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 04:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUJOIVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 04:20:20 -0400
-Received: from zone3.gcu-squad.org ([217.19.50.74]:13062 "EHLO
-	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S266517AbUJOIUE convert rfc822-to-8bit
+	Fri, 15 Oct 2004 04:21:50 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:13 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S266572AbUJOIV2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 04:20:04 -0400
-Date: Fri, 15 Oct 2004 10:15:49 +0200 (CEST)
-To: mhoffman@lightlink.com
-Subject: Re: [RFC] SMBus multiplexing for the Tyan S4882
-X-IlohaMail-Blah: khali@gcu.info
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <upShh3B8.1097828149.3602420.khali@gcu.info>
-In-Reply-To: <20041015022019.GC4035@jupiter.solarsys.private>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: Greg KH <greg@kroah.com>, sensors@Stimpy.netroedge.com,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 15 Oct 2004 04:21:28 -0400
+Date: Fri, 15 Oct 2004 01:21:04 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bill Huey <bhuey@lnxw.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U2
+Message-ID: <20041015082104.GA31709@nietzsche.lynx.com>
+References: <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015022341.GA22831@nietzsche.lynx.com> <20041015070839.GA8373@elte.hu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
+Content-Disposition: inline
+In-Reply-To: <20041015070839.GA8373@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> Expected Objections & Answers:
->>
->> O: The PCA9556 support could be moved to a separate driver.
->> A: I don't see no benefit. There is very little code for the PCA9556
->> driver among the code I added, and I believe that calling a PCA9556
->> interface would represent no less code. There is not much code to reuse
->> anyway, since the way the PCA9556 driver is used is specific to each
->> board. It could even be used for something compeletly different than
->> SMBus multiplexing, since it is a simple 8 channel I/O chip.
->>
->> O: The specific S4882 support could be moved to a completely different
->> driver.
->> A: This would duplicate most of the i2c-amd756 driver code. The
->> additional support will not affect non-S4882 users except for the size
->> of the driver. People concerned about the size can recompile the driver
->> without the S4882 support.
->>
->> Before I commit my changes to the lm_sensors CVS and port them to the
->> Linux 2.6 driver, I welcome constructive comments about my work.
->
->Heh, you definitely predicted my objections. :)  But I think you can
->support this board in an independent module without copying any amd756
->code.  It would look very much like your patch already...
->
->E.g. the i2c-s4882 module would act as a i2c-client for the mux chip,
->but also export four virtual adapters for the segments behind the mux.
->One would attach it to an existing adapter (in your case amd756) by
->passing it a module parameter (i2c bus id).  Is there any reason this
->wouldn't work?
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-First of all, there would be no need to provide a bus id as a module
-parameter. since the i2c-s4882 driver would know knows which bus it has
-to attach to. And anyway, i2c bus ids are not unique and may change, so
-it wouldn't be very convenient.
+On Fri, Oct 15, 2004 at 09:08:39AM +0200, Ingo Molnar wrote:
+> as a workaround enable HIGHMEM and PREEMPT_TIMING+LATENCY_TRACE.
 
-I see one major downside to and one major issue with your approach.
+Build problem:
 
-First, depending on the multiplexer selection, mux'd chips will show on
-the main bus or not. Even worse, when the the multiplexer selection
-changes, the same address on the main bus will be a physically different
-chip. There is no way for a client chip to know that it should ignore
-chips at given addresses on the main bus. The only way to prevent that
-is to unselect all mux'd channels after each command sent to a mux'd
-chip. This means that the SMBus traffic will be increased by a rough
-200% in all use cases. Doesn't sound good at all. With my approach, the
-overhead is hardly noticeable in the typical use (5% maybe). In the
-worst case it tops to 100%.
+bill
 
-Second, how do you handle the case where a chip driver is already loaded
-before the bus drivers are? Depending on the original multiplexer
-selection, loading i2c-amd756 may trigger the registration of mux'd
-chips. Then loading i2c-s4882 will hide that chip from the main bus, and
-the registered client will point to a non-existing chip.
 
->The downside is that sensors-detect would need more help to recognize
->this setup.  But detection is, after all, what it does.
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=t
 
-True. Sensors-detect would need to detect that specific board, and make
-sure it loads the additional driver (i2c-s4882) before probing the main
-bus. It admittedly shouldn't be too complex (it doesn't significantly
-differ from other PCI device detection).
+  CC      fs/reiser4/debug.o
+In file included from include/linux/spinlock.h:16,
+                 from include/linux/wait.h:25,
+                 from include/linux/fs.h:12,
+                 from fs/reiser4/kattr.h:12,
+                 from fs/reiser4/debug.c:31:
+include/asm/mutex.h:75:5: warning: "RWSEM_DEBUG" is not defined
+  CC      fs/reiser4/stats.o
+In file included from include/linux/spinlock.h:16,
+                 from include/linux/wait.h:25,
+                 from include/linux/fs.h:12,
+                 from fs/reiser4/kattr.h:12,
+                 from fs/reiser4/stats.c:46:
+include/asm/mutex.h:75:5: warning: "RWSEM_DEBUG" is not defined
+  CC      fs/reiser4/jnode.o
+In file included from include/linux/spinlock.h:16,
+                 from include/linux/wait.h:25,
+                 from include/linux/fs.h:12,
+                 from fs/reiser4/reiser4.h:13,
+                 from fs/reiser4/jnode.c:103:
+include/asm/mutex.h:75:5: warning: "RWSEM_DEBUG" is not defined
+  CC      fs/reiser4/znode.o
+In file included from include/linux/spinlock.h:16,
+                 from include/linux/wait.h:25,
+                 from include/linux/fs.h:12,
+                 from fs/reiser4/reiser4.h:13,
+                 from fs/reiser4/debug.h:9,
+                 from fs/reiser4/znode.c:142:
+include/asm/mutex.h:75:5: warning: "RWSEM_DEBUG" is not defined
+  CC      fs/reiser4/key.o
+In file included from include/linux/spinlock.h:16,
+                 from include/linux/wait.h:25,
+                 from include/linux/fs.h:12,
+                 from fs/reiser4/reiser4.h:13,
+                 from fs/reiser4/debug.h:9,
+     
 
->The upside is that you don't need to modify the amd756 driver at all.
->Maybe that's not a big deal for this one board, but that slope is
->slippery.  How many other boards, slightly different, will need such
->support?
 
-I remember of two 2-CPU boards with LM90 chips which were using bus
-multiplexing as well (one of which I wrote the pca9540 driver for). I
-don't think there are that many boards like this out there (so far at
-least). Other requests for virtual adapters were for home-brew designs
-if I remember correctly.
-
-Anyway, I agree that my approach won't scale well if too many boards use
-SMBus multiplexing.
-
->I think it's better to leave the real bus adapters alone
->and put the support for new combinations in new modules.
-
-I agree in the theory. However, I don't know how this could be done
-efficiently and safely. Looks like your approach is neither, unless the
-problems I saw are either inexistent (I am ill for a couple days now and
-may be missing things) or can somehow be solved.
-
-Maybe we could go with my solution for now and reconsider if the number
-of boards with multiplexing reaches an alert threshold?
-
->Somewhat related: since I wrote i2c-stub, I was thinking of creating
->i2c-trace... which would attach to an existing adapter while exporting
->another virtual adapter.  Anything attached to the i2c-trace adapter
->would generate log messages just like i2c-stub.  That's similar to
->your patch in a way; and that's why I think it can be independent
->from the real bus adapter code.
-
-Similar but different. The core issue in my patch is not the virtual
-adapters but the multiplexing. Having a single virtual adapter on top of
-a real one like you propose with i2c-trace sounds sane (and having the
-user select the bus through a module parameter also, since it would be
-meant for debugging.) But when you have a multiplexer entering the
-arena, things go way more complex.
-
-Thanks,
-Jean Delvare
+--BXVAT5kNtrzKuDFl--

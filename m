@@ -1,168 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287293AbSBCO6P>; Sun, 3 Feb 2002 09:58:15 -0500
+	id <S287303AbSBCPGG>; Sun, 3 Feb 2002 10:06:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287303AbSBCO6G>; Sun, 3 Feb 2002 09:58:06 -0500
-Received: from sushi.toad.net ([162.33.130.105]:7628 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S287293AbSBCO54>;
-	Sun, 3 Feb 2002 09:57:56 -0500
-Subject: Re: [PATCH] Documentation for proc_file_read
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andreas Schwab <schwab@suse.de>
-Content-Type: text/plain
+	id <S287306AbSBCPF5>; Sun, 3 Feb 2002 10:05:57 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:48824 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S287303AbSBCPFn>;
+	Sun, 3 Feb 2002 10:05:43 -0500
+Message-ID: <3C5D51A0.4050509@sgi.com>
+Date: Sun, 03 Feb 2002 09:05:04 -0600
+From: Stephen Lord <lord@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: Jeff Garzik <garzik@havoc.gtf.org>, Chris Mason <mason@suse.com>,
+        Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        Ricardo Galli <gallir@uib.es>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT fails in some kernel and FS
+In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es> <3C5AFE2D.95A3C02E@zip.com.au> <1012597538.26363.443.camel@jen.americas.sgi.com> <20020202093554.GA7207@tapu.f00f.org> <234710000.1012674008@tiny> <20020202205438.D3807@athlon.random> <242700000.1012680610@tiny> <3C5C4929.5080403@sgi.com> <20020202155028.B26147@havoc.gtf.org> <3C5D3DE9.4080503@sgi.com> <20020203140926.GA14532@tapu.f00f.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 03 Feb 2002 09:58:05 -0500
-Message-Id: <1012748288.809.22.camel@thanatos>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After further study I have revised the documentation
-to fix some mistakes.
+Chris Wedgwood wrote:
 
-This patch also fixes some problems in the code. First,
-the patch adds checks for buffer overruns.  (The
-original code allows the user to return any number
-as the number of bytes to copy to the user, even if
-this would exceed procfs's and/or the user's buffer.)
-Second, with *start==NULL, n is trimmed down to "count"
-_prior_ to subtracting the offset.  (The original code
-trims n down to count after subtracting the offset;
-but this means that it could be copying up to count
-many bytes near the very end of the buffer.)
+>On Sun, Feb 03, 2002 at 07:40:57AM -0600, Stephen Lord wrote:
+>
+>    What we had were two flags, one which indicated use direct I/O,
+>    and another which indicated return an error to user space rather
+>    than go through buffers.  So lie to me and make it work, or don't
+>    lie to me options I suppose.
+>
+>This seems way to complex in the case of reiserfs... you're only going
+>to see tails for small files (typically under 16k) and for the tail
+>part when less than a block.
+>
+>Since O_DIRECT much be blocked sized and block aligned, I'm not sure
+>if this is a problem at present...
+>
 
-Still just asking for criticism.
+I agree is is not a big issue in this case - my interpretation of tails 
+was the end
+of any file could be packed, but if it is only small files.....
 
---
-Thomas
+>
+>
+>    I suspect the reason XFS never did small files in the inode was
+>    because of the problems with implementing mmap and O_DIRECT.
+>
+>How does IRIX deal with O_DIRECT read/writes of a mapped area?
+>Invalidate them or just accept things as being incoherent?
+>
 
---- linux-2.4.18-pre7_ORIG/fs/proc/generic.c	Fri Sep  7 13:53:59 2001
-+++ linux-2.4.18-pre7/fs/proc/generic.c	Sun Feb  3 08:51:32 2002
-@@ -65,55 +65,101 @@
- 	{
- 		count = MIN(PROC_BLOCK_SIZE, nbytes);
- 
- 		start = NULL;
- 		if (dp->get_info) {
--			/*
--			 * Handle backwards compatibility with the old net
--			 * routines.
--			 */
-+			/* Handle old net routines */
- 			n = dp->get_info(page, &start, *ppos, count);
- 			if (n < count)
- 				eof = 1;
- 		} else if (dp->read_proc) {
-+			/*
-+			 * How to be a proc read function
-+			 * ------------------------------
-+			 * Prototype:
-+			 *    int f(char *buffer, char **start, off_t offset,
-+			 *          int count, int *peof, void *dat)
-+			 *
-+			 * Assume that the buffer is "count" bytes in size.
-+			 *
-+			 * If you know you have supplied all the data you
-+			 * have, set *peof.
-+			 *
-+			 * You have three ways to return data:
-+			 * 0) Leave *start = NULL.  (This is the default.)
-+			 *    Put the data of the requested offset at that
-+			 *    offset within the buffer.  Return the number (n)
-+			 *    of bytes there are from the beginning of the
-+			 *    buffer up to the last byte of data.  If the
-+			 *    number of supplied bytes (= n - offset) is 
-+			 *    greater than zero (and you didn't signal eof)
-+			 *    you will be called again with the requested
-+			 *    offset advanced by the number of bytes 
-+			 *    absorbed.  This interface is useful for files
-+			 *    no larger than the buffer.
-+			 * 1) Set *start = a small value (less than buffer
-+			 *    but greater than zero).
-+			 *    Put the data of the requested offset at the
-+			 *    beginning of the buffer.  Return the number of
-+			 *    bytes of data placed there.  If this number is
-+			 *    greater than zero (and you didn't signal eof),
-+			 *    you will be called again with the requested
-+			 *    offset advanced by *start.  This interface is
-+			 *    useful when you have a large file consisting
-+			 *    of a series of blocks which you want to count
-+			 *    and return as wholes.
-+			 *    (hack by Paul.Russell@rustcorp.com.au)
-+			 * 2) Set *start = an address within the buffer.
-+			 *    Put the data of the requested offset at *start.
-+			 *    Return the number (n) of bytes of data placed
-+			 *    there.  If this number is greater than zero
-+			 *    (and you didn't signal eof) you will be called
-+			 *    again with the requested offset advanced by
-+			 *    the number of bytes absorbed.
-+			 */
- 			n = dp->read_proc(page, &start, *ppos,
- 					  count, &eof, dp->data);
- 		} else
- 			break;
- 
--		if (!start) {
--			/*
--			 * For proc files that are less than 4k
--			 */
-+		if (n == 0)   /* end of file */
-+			break;
-+		if (n < 0) {  /* error */
-+			if (retval == 0)
-+				retval = n;
-+			break;
-+		}
-+
-+		if (start == NULL) {
- 			start = page + *ppos;
-+			if (n > PAGE_SIZE)
-+				printk(KERN_ERR "proc_file_read: Buffer overflow!\n");
-+			if (n > count)
-+				n = count;
- 			n -= *ppos;
- 			if (n <= 0)
- 				break;
-+		} else if (start < page) {
-+			if (n > PAGE_SIZE)
-+				printk(KERN_ERR "proc_file_read: Buffer overflow!\n");
-+			if (n > count)
-+				printk(KERN_WARNING "proc_file_read: Read count exceeded\n");
-+		} else /* start >= page */ {
-+			if ((start - page + n) > PAGE_SIZE)
-+				printk(KERN_ERR "proc_file_read: Buffer overflow!\n");
- 			if (n > count)
- 				n = count;
- 		}
--		if (n == 0)
--			break;	/* End of file */
--		if (n < 0) {
--			if (retval == 0)
--				retval = n;
--			break;
--		}
- 		
--		/* This is a hack to allow mangling of file pos independent
-- 		 * of actual bytes read.  Simply place the data at page,
-- 		 * return the bytes, and set `start' to the desired offset
-- 		 * as an unsigned int. - Paul.Russell@rustcorp.com.au
--		 */
-  		n -= copy_to_user(buf, start < page ? page : start, n);
- 		if (n == 0) {
- 			if (retval == 0)
- 				retval = -EFAULT;
- 			break;
- 		}
- 
--		*ppos += start < page ? (long)start : n; /* Move down the file */
-+		*ppos += start < page ? (unsigned long)start : n;
- 		nbytes -= n;
- 		buf += n;
- 		retval += n;
- 	}
- 	free_page((unsigned long) page);
+They are invalidated at the start of the I/O, but page faults are not 
+blocked
+out for the duration of the I/O, so the coherency is weak. However, if an
+application is doing a combination of mmapped and direct I/O to a file
+at the same time, then it should generally have some form of user space
+synchronization anyway. For an application doing its own synchronization
+of different I/Os they are coherent.
 
+>
+>
+>
+>    --cw
+>
+
+Steve
 
 

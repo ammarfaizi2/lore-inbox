@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277223AbRJINuZ>; Tue, 9 Oct 2001 09:50:25 -0400
+	id <S277219AbRJINtO>; Tue, 9 Oct 2001 09:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277220AbRJINuI>; Tue, 9 Oct 2001 09:50:08 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:47376 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277217AbRJINts>;
-	Tue, 9 Oct 2001 09:49:48 -0400
-Date: Tue, 9 Oct 2001 10:50:01 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: BALBIR SINGH <balbir.singh@wipro.com>
-Cc: Kirill Ratkin <kratkin@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: No locking is needed ... why?
-In-Reply-To: <3BC2FF97.4090204@wipro.com>
-Message-ID: <Pine.LNX.4.33L.0110091049220.2847-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.33L.0110091049222.2847@imladris.rielhome.conectiva>
+	id <S277217AbRJINtE>; Tue, 9 Oct 2001 09:49:04 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:10505 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S277218AbRJINsx>; Tue, 9 Oct 2001 09:48:53 -0400
+Date: Tue, 9 Oct 2001 09:49:24 -0400
+Message-Id: <200110091349.f99DnOr11299@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Context switch times
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <200110090455.f994tNB22322@vindaloo.ras.ucalgary.ca>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, BALBIR SINGH wrote:
+In article <200110090455.f994tNB22322@vindaloo.ras.ucalgary.ca> rgooch@ras.ucalgary.ca asked:
 
-> >Each CPU has its own data structure here. This means no
-> >other CPU will touch this queue (they have their own)
-> >so there is nobody we could ever race against.
->
-> We would still require locking or interrupt disabling if this data is used
-> from an interrupt context (due to re-enterency issues), wouldn't we Rik?
+| Hm. Perhaps when I did my tests (where I noticed a penalty), we didn't
+| have lazy FPU saving. Now we disable the FPU, and restore state when
+| we trap, right?
+| 
+| I do note this comment in arch/i386/kernel/process.c:
+|  * We fsave/fwait so that an exception goes off at the right time
+|  * (as a call from the fsave or fwait in effect) rather than to
+|  * the wrong process. Lazy FP saving no longer makes any sense
+|  * with modern CPU's, and this simplifies a lot of things (SMP
+|  * and UP become the same).
+| 
+| So what exactly is the difference between our "delayed FPU restore
+| upon trap" (which I think of as lazy FPU saving), and the "lazy FP"
+| saving in the comments?
 
-I think this code is only run from interrupt context anyway.
+We always save the FPU, but only restore it when/if it is going to be
+used. And obviously we don't want to save it if it hasn't been used,
+since it wasn't restored...
 
-regards,
-
-Rik
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+bill davidsen <davidsen@tmr.com>
+ "If I were a diplomat, in the best case I'd go hungry.  In the worst
+  case, people would die."
+		-- Robert Lipe

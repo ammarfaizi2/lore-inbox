@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268168AbTGIKg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 06:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268157AbTGIKg7
+	id S268110AbTGIKaB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 06:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268157AbTGIK3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 06:36:59 -0400
-Received: from ns.suse.de ([213.95.15.193]:47882 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265931AbTGIKej (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 06:34:39 -0400
-Date: Wed, 9 Jul 2003 12:49:15 +0200
-From: Andi Kleen <ak@suse.de>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Readd BUG for SMP TLB IPI
-Message-Id: <20030709124915.3d98054b.ak@suse.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Jul 2003 06:29:36 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:45484 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S268110AbTGIK1E
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 06:27:04 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16139.61796.951198.414088@laputa.namesys.com>
+Date: Wed, 9 Jul 2003 14:41:40 +0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux-Kernel@vger.kernel.org
+Subject: Re: [PATCH] 2/5 VM changes: skip-writepage.patch
+In-Reply-To: <20030709031242.14e89af6.akpm@osdl.org>
+References: <16139.54921.640901.797268@laputa.namesys.com>
+	<20030709031242.14e89af6.akpm@osdl.org>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton writes:
+ > Nikita Danilov <Nikita@Namesys.COM> wrote:
+ > >
+ > > Don't call ->writepage from VM scanner when page is met for the first time
+ > >  during scan.
+ > 
+ > 
+ > I don't think we need all the code reorganisation.  Something like this:
 
-Readd the BUG for an spurious SMP TLB IPI.
+I separated call to ->writepage into special function because of some
+other patch that I didn't send yet.
 
-Rationale: 
+ > 
+ > 
+ >  include/linux/page-flags.h |    7 +++++++
+ >  mm/page_alloc.c            |    1 +
+ >  mm/truncate.c              |    2 ++
 
-The condition is fatal and it's better to have a BUG than a hang.
-The goto out code forgets to ack the IPI in the APIC. When the IPI would really arrive
-at the wrong CPU it would immediately deadlock because the non-Acked IPI is retriggered.
-Adding an ACK for this path is also no good, because then the SMP flusher would
-need to detect this case and "retransmit" the IPI, otherwise it would hang too
-in the loop waiting for other CPUs. But nobody has ever seen such a hang, so it's safe
-to assume that all hardware guarantees it cannot happen.
+[...]
 
--Andi
+ > @@ -328,6 +328,8 @@ shrink_list(struct list_head *page_list,
+ >  		 * See swapfile.c:page_queue_congested().
+ >  		 */
+ >  		if (PageDirty(page)) {
+ > +			if (!TestSetPageSkipped(page))
+ > +				goto keep_locked;
+ >  			if (!is_page_cache_freeable(page))
+ >  				goto keep_locked;
+ >  			if (!mapping)
+ > @@ -351,6 +353,7 @@ shrink_list(struct list_head *page_list,
+ >  				list_move(&page->list, &mapping->locked_pages);
+ >  				spin_unlock(&mapping->page_lock);
+ >  
+ > +				ClearPageSkipped(page);
 
---- linux-2.5-amd64/arch/i386/kernel/smp.c~	2003-07-09 12:42:36.000000000 +0200
-+++ linux-2.5-amd64/arch/i386/kernel/smp.c	2003-07-09 12:42:36.000000000 +0200
-@@ -312,15 +312,7 @@
- 	cpu = get_cpu();
- 
- 	if (!test_bit(cpu, &flush_cpumask))
--		goto out;
--		/* 
--		 * This was a BUG() but until someone can quote me the
--		 * line from the intel manual that guarantees an IPI to
--		 * multiple CPUs is retried _only_ on the erroring CPUs
--		 * its staying as a return
--		 *
--		 * BUG();
--		 */
-+		BUG();
- 		 
- 	if (flush_mm == cpu_tlbstate[cpu].active_mm) {
- 		if (cpu_tlbstate[cpu].state == TLBSTATE_OK) {
+Good idea.
+
+By the way, have you noted that patch changes wbc.nonblocking to be 0,
+if called from kswapd or pdflush, what do you think?
+
+ >  				SetPageReclaim(page);
+ >  				res = mapping->a_ops->writepage(page, &wbc);
+ >  
+
+Nikita.

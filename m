@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSK0HPj>; Wed, 27 Nov 2002 02:15:39 -0500
+	id <S261286AbSK0Haj>; Wed, 27 Nov 2002 02:30:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261640AbSK0HPj>; Wed, 27 Nov 2002 02:15:39 -0500
-Received: from h-64-105-35-74.SNVACAID.covad.net ([64.105.35.74]:55007 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S261318AbSK0HPj>; Wed, 27 Nov 2002 02:15:39 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 26 Nov 2002 23:22:34 -0800
-Message-Id: <200211270722.XAA23313@adam.yggdrasil.com>
-To: rusty@rustcorp.com.au
-Subject: Re: Modules with list
-Cc: linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz, zippel@linux-m68k.org
+	id <S261312AbSK0Haj>; Wed, 27 Nov 2002 02:30:39 -0500
+Received: from ns.tasking.nl ([195.193.207.2]:32269 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id <S261286AbSK0Hai>;
+	Wed, 27 Nov 2002 02:30:38 -0500
+Message-ID: <15844.30218.125658.999394@koli.tasking.nl>
+Date: Wed, 27 Nov 2002 08:36:42 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: modutils for both redhat kernels and 2.5.x
+In-Reply-To: <20021126013330.93A962C365@lists.samba.org>
+References: <20021126013330.93A962C365@lists.samba.org>
+X-Attribution: KB
+Reply-To: kees.bakker@altium.nl (Kees Bakker)
+From: Kees Bakker <rnews@altium.nl>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Xref: koli.tasking.nl archive.outgoing.2002-11:9
+X-Gnus-Article-Number: 9   Tue Nov 26 14:25:04 2002
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
->In message <200211260649.WAA22216@adam.yggdrasil.com> you write:
->> >This would only happen if someone says "rmmod --wait".
+>>>>> "Rusty" == Rusty Russell <rusty@rustcorp.com.au> writes:
 
->As I realized last night after I wrote this, there is a bug in
->module.c.  If O_NONBLOCK is specified, we shouldn't drop the module
->sempaphore at all, for exactly this reason.  A bug I introduced while
->"cleaning up" the "--wait" path.
+>> The command line args for modprobe are laughingly few (and none of
+>> the ones a redhat system needs to boot are implemented.)
 
->Sorry for the confusion.
+Rusty> Really?  I don't recall seeing a bug report from you about it.  My
+Rusty> Debian system boots fine.
 
-	Then if you do "rmmod --wait" on some module that is in use,
-every lsmod, insmod and rmmod will hang while attempting to acquire
-module_mutex until the reference count on the module that you're
-waiting to remove drops to zero, and there is no guarantee that that
-will ever happen.  Some program might have to decide to close a file
-descriptor or unmount a file system.  I think what you want is to
-release the mutex before blocking and then reacquire it when you
-continue.  Of course, you'll again have the scenario that I described.
+My Debian system doesn't load the modules anymore. And I have asked this on
+the mailinglist last week, but nobody seemed to care :-(
 
-	However, if you get rid of this idea of a blocking rmmod or
-change it so that it does not make the module as "dead" if it is going
-to block, then your idea of locking should work in the cases where
-try_get_module() failure is handled by doing a request_module() and
-retrying (because the insmod that request_module causes will acquire
-module_mutex, so it will block until that module unload that was
-causing the problem completes).
+I am curious how your Debian system was able to boot without problems. On
+my system I have configured quite a few modules, and some of them seem to
+be loaded by hotplug and some by init scripts. All I see is a lot of
+commandline errors from modprobe, and a lot of messages like
+  QM_MODULES: Function not implemented
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
+		Kees

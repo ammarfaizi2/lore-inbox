@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264167AbRFLDeH>; Mon, 11 Jun 2001 23:34:07 -0400
+	id <S264168AbRFLESD>; Tue, 12 Jun 2001 00:18:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264168AbRFLDd4>; Mon, 11 Jun 2001 23:33:56 -0400
-Received: from f247.law14.hotmail.com ([64.4.21.247]:23048 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S264167AbRFLDdw>;
-	Mon, 11 Jun 2001 23:33:52 -0400
-X-Originating-IP: [65.81.4.95]
-From: "Omar Grant" <sanchie@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: problems booting new kernel
-Date: Tue, 12 Jun 2001 03:33:24 
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F247sX3Ra5cNtukGYk500004617@hotmail.com>
-X-OriginalArrivalTime: 12 Jun 2001 03:33:24.0649 (UTC) FILETIME=[6FB3A190:01C0F2F0]
+	id <S264173AbRFLERw>; Tue, 12 Jun 2001 00:17:52 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:40710 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S264168AbRFLERf>;
+	Tue, 12 Jun 2001 00:17:35 -0400
+Date: Tue, 12 Jun 2001 01:17:05 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Alok K. Dhir" <alok@dhir.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6-pre2 VM
+In-Reply-To: <000401c0f2e9$25774890$1e01a8c0@dhir.net>
+Message-ID: <Pine.LNX.4.21.0106120116250.14934-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi....
+On Mon, 11 Jun 2001, Alok K. Dhir wrote:
 
-I have Redhat Linux 7.1 running on a pentium 133 system...I recently 
-attempted to upgrade my kernel from v2.4.2 to v2.4.4.  I applied a patch and 
-recompiled the kernel.  When I rebooted I get the following...
+> Just wondering - has anyone who was having issues with the VM
+> subsystem in 2.4.5 and a few versions below tried v2.4.6-pre2? 
+> Is the problem reduced and/or resolved?
 
-Loading linux.......................
-Uncompressing Linux...Ok, booting the kernel
+The answer is both yes and no, depending on which VM problem
+you're talking about. ;)
 
-Then the system just hangs.....I am wondering if anyone could help me 
-resolve this problem....
-I am new to linux, but I am very interested in getting good at it.
+regards,
 
-Please Cc me with any suggestions....Thankx
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

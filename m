@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317217AbSHJS5i>; Sat, 10 Aug 2002 14:57:38 -0400
+	id <S317251AbSHJS6G>; Sat, 10 Aug 2002 14:58:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317251AbSHJS5i>; Sat, 10 Aug 2002 14:57:38 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:2575 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317217AbSHJS5i>; Sat, 10 Aug 2002 14:57:38 -0400
-Date: Sat, 10 Aug 2002 20:01:17 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
-Message-ID: <20020810200116.A15236@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Jamie Lokier <lk@tantalophile.demon.co.uk>,
-	Andrew Morton <akpm@zip.com.au>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0208101134510.2197-100000@home.transmeta.com> <3D556101.8080006@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D556101.8080006@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Aug 10, 2002 at 02:52:49PM -0400
+	id <S317253AbSHJS6G>; Sat, 10 Aug 2002 14:58:06 -0400
+Received: from dsl-213-023-020-194.arcor-ip.net ([213.23.20.194]:17048 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317251AbSHJS6F>;
+	Sat, 10 Aug 2002 14:58:05 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: ebiederm@xmission.com (Eric W. Biederman), Andrew Morton <akpm@zip.com.au>
+Subject: Re: large page patch (fwd) (fwd)
+Date: Sat, 10 Aug 2002 20:59:36 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>, frankeh@watson.ibm.com,
+       davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
+       "David S. Miller" <davem@redhat.com>, gh@us.ibm.com,
+       Martin.Bligh@us.ibm.com, wli@holomorpy.com,
+       linux-kernel@vger.kernel.org
+References: <E17dBZN-0001Ng-00@starship> <3D543645.8EBD2C36@zip.com.au> <m1ofcar2y1.fsf@frodo.biederman.org>
+In-Reply-To: <m1ofcar2y1.fsf@frodo.biederman.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17dbSa-0001aB-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 10, 2002 at 02:52:49PM -0400, Jeff Garzik wrote:
-> While working on a race-free rewrite of cp/mv/rm (suggested by Al), I 
-> did overall-time benchmarks on read+write versus sendfile/stat versus 
-> mmap/stat, and found that pretty much the fastest way under Linux 2.2, 
-> 2.4, and solaris was read+write of PAGE_SIZE, or PAGE_SIZE*2 chunks. 
-> [obviously, 2.2 and solaris didn't do sendfile test]
+On Saturday 10 August 2002 20:20, Eric W. Biederman wrote:
+> Andrew Morton <akpm@zip.com.au> writes:
+> > The other worry is the ZONE_NORMAL space consumption of pte_chains.
+> > We've halved that, but it will still make high sharing levels
+> > unfeasible on the big ia32 machines.  We are dependant upon large
+> > pages to solve that problem.  (Resurrection of pte_highmem is in
+> > progress, but it doesn't work yet).
+> 
+> There is a second method to address this.  Pages can be swapped out
+> of the page tables and still remain in the page cache, the virtual
+> scan does this all of the time.  This should allow for arbitrary
+> amounts of sharing.  There is some overhead, in faulting the pages
+> back in but it is much better than cases that do not work.  A simple
+> implementation would have a maximum pte_chain length.
 
-Solaris 9 (and Solaris 8 with a certain patch) support Linux-style
-sendfile().  Linux 2.5 on the other hand doesn't support sendfile to
-files anymore..
+Oh gosh, nice point.  We could put together a lovely cooked benchmark where 
+copy_page_range just fails to copy all the mmap pages, which are most of them 
+in the bash test.
 
+-- 
+Daniel

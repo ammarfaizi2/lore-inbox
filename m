@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269842AbRHWSfC>; Thu, 23 Aug 2001 14:35:02 -0400
+	id <S269967AbRHWSnP>; Thu, 23 Aug 2001 14:43:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269967AbRHWSex>; Thu, 23 Aug 2001 14:34:53 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:34568 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S269937AbRHWSej>;
-	Thu, 23 Aug 2001 14:34:39 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200108231834.WAA08213@ms2.inr.ac.ru>
-Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6-> PNPBIOS life saver
-To: Gunther.Mayer@t-online.de (Gunther Mayer)
-Date: Thu, 23 Aug 2001 22:34:48 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B854A28.31C7ACB8@t-online.de> from "Gunther Mayer" at Aug 23, 1 08:23:36 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S269963AbRHWSnF>; Thu, 23 Aug 2001 14:43:05 -0400
+Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:31461 "HELO
+	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S269962AbRHWSmv>; Thu, 23 Aug 2001 14:42:51 -0400
+Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880B3F@xsj02.sjs.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: RE: releasing driver to kernel in source+binary format
+Date: Thu, 23 Aug 2001 12:43:05 -0600
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Well, Qlogic also has their firmware released in binary format.
 
-> So we have another way besides several INTs to detect the avail mem :-)
+Any comment on that ?
 
-Well, if this memory is available then I guess port 0x1000 is "available"
-as well and all the rest of ports are not available. :-)
+-hiren
 
-No, something is rotted in this kingdom.
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Thursday, August 23, 2001 11:14 AM
+To: hiren_mehta@agilent.com
+Cc: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
+Subject: Re: releasing driver to kernel in source+binary format
 
 
-> Probably PNP0C02 wants to be reserved, too.
+> HBAs and make it part of the kernel source tree. Because of IP 
+> related issues, we can only release one part of the sources with 
+> GPL. We want to release the other part in the binary format (.o)
+> as a library which needs to be linked with the first part.
+> If somebody can advise me on how to go about this, I would
+> appreciate it. 
 
-What's about these, they are nice port and could be used by our irq handler.
-According to docs they replace functionality missing in standard
-int. controller ports for this chipset.
+Very simple. You can't link GPL and proprietary code together. You may be
+able to make your code a non free module distributed by yourselves if you
+can satisfy your lawyers that it is a seperate work. Take that one up with
+your lawyers. Also remember that the kernel code is GPL, so if you based
+your driver on existing GPL code (eg by copying an existing scsi drivers
+code as a basis) you will also have to sort that issue out too.
 
-What's about passing parameters from bios setup to linux...
-This is amusing, but not more. I am sorry, I still prefer to use usual
-kernel command line instead of some ugly foreign interface.
+> I went through the "SubmittingDrivers" file
+> which does not talk about this kind of special cases.
 
-Alexey
+Thats becase Linux is free software. We don't merge binary only drivers, and
+only maintain source level compatibility between different compiles of the
+kernel.
+
+The whole Linux concept is geared around free software, that means source
+code, source level compatibility, the ability for people to recompile and
+for sane debugging because we have all the sources.
+
+Alan

@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269437AbRH3AQi>; Wed, 29 Aug 2001 20:16:38 -0400
+	id <S269515AbRH3ATs>; Wed, 29 Aug 2001 20:19:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269100AbRH3AQ3>; Wed, 29 Aug 2001 20:16:29 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:41031 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S269515AbRH3AQR>; Wed, 29 Aug 2001 20:16:17 -0400
-Date: Wed, 29 Aug 2001 20:16:34 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blkgetsize64 ioctl
-In-Reply-To: <20010829.170315.28787631.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0108292009440.28439-100000@toomuch.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269543AbRH3ATi>; Wed, 29 Aug 2001 20:19:38 -0400
+Received: from [203.6.240.4] ([203.6.240.4]:63750 "HELO
+	cbus613-server4.colorbus.com.au") by vger.kernel.org with SMTP
+	id <S269515AbRH3AT1>; Wed, 29 Aug 2001 20:19:27 -0400
+Message-ID: <370747DEFD89D2119AFD00C0F017E6614A62CF@cbus613-server4.colorbus.com.au>
+From: Robert Lowery <Robert.Lowery@colorbus.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: [Slightly OT]  Where should SIS 6326 mpeg2 hardware acceleration 
+	code live?
+Date: Thu, 30 Aug 2001 10:18:52 +1000
+X-Mailer: Internet Mail Service (5.5.2650.21)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Aug 2001, David S. Miller wrote:
+Hi,
 
-> Any problems with using "u64" or some other more strictly portable
-> type?  "long long" and other non-fixed sized types cause grief for
-> many dual-API platforms.
+I have recently acquired a PCI graphics card based on the SIS 6326 chipset.
+This chipset supports YUV->RGB conversion, Hardware motion compensation and
+iDCT in hardware.  Using Windows 98 and PowerDVD I am able to playback full
+screen DVD without any skipped frames on a Pentium 233MMX.  All for the
+cheap price of around $US20.
 
-That's entirely doable; I used long long because the existing API used
-long.  In fact, thinking about it a bit more, it would be better to not
-add the ioctl as _IO(0x12,109), but instead use 110 and reserve 108 and
-109 as braindamage ioctl writeoff (except documented, unlike the current
-silent usage of ioctls by ia64).  I hate ioctls and binary
-incompatibilities.  Here's the modified patch (incompatible with
-e2fsprogs 1.23, but not conflicting with ia64: ioctls that write to disk
-are b0rken).
+The full specs on this chipset are available at
+http://www.sis.com/ftp/Databook/6326/6326ds10.exe
 
-		-ben
+The hardware acceleration of this card does not appear to be supported under
+linux, and I am unsure where the code should even go if I was to try and
+write it.
 
-diff -urN /md0/kernels/2.4/v2.4.10-pre2/include/linux/fs.h work-v2.4.10-pre2/include/linux/fs.h
---- /md0/kernels/2.4/v2.4.10-pre2/include/linux/fs.h	Wed Aug 29 18:28:50 2001
-+++ work-v2.4.10-pre2/include/linux/fs.h	Wed Aug 29 20:14:58 2001
-@@ -166,7 +166,7 @@
- #define BLKROSET   _IO(0x12,93)	/* set device read-only (0 = read-write) */
- #define BLKROGET   _IO(0x12,94)	/* get read-only status (0 = read_write) */
- #define BLKRRPART  _IO(0x12,95)	/* re-read partition table */
--#define BLKGETSIZE _IO(0x12,96)	/* return device size */
-+#define BLKGETSIZE _IO(0x12,96)	/* return device size (long *arg) */
- #define BLKFLSBUF  _IO(0x12,97)	/* flush buffer cache */
- #define BLKRASET   _IO(0x12,98)	/* Set read ahead for block device */
- #define BLKRAGET   _IO(0x12,99)	/* get current read ahead setting */
-@@ -182,6 +182,8 @@
- /* This was here just to show that the number is taken -
-    probably all these _IO(0x12,*) ioctls should be moved to blkpg.h. */
- #endif
-+/* _IO(0x12,108) and _IO(0x12,109) are reserved for binary compatibility */
-+#define BLKGETSIZE64 _IO(0x12,110)	/* return device size (u64 *arg) */
+I have tried mailing to the livid-devel@linuxvideo.org, as I first thought
+this is where the code would belong, but have had no responses at all in 4
+days.  Is this Livid/OMS project still alive.
 
+Alternatives (that I am aware of) are
+video4linux
+fbcon
+Xv
 
- #define BMAP_IOCTL 1		/* obsolete - kept for compatibility */
+Where should this hardware support live, I suspect it does not belong in the
+kernel ;) and who should I be talking to.  I am willing to do a lot of the
+work to get this chipset supported, but since my device driver experience is
+somewhat limited, I would probably need a mentor ;)
 
+Please cc any repies to me as I am not subscribed
+
+Cheers
+
+-Robert

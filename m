@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132117AbRCVRZR>; Thu, 22 Mar 2001 12:25:17 -0500
+	id <S132118AbRCVRa5>; Thu, 22 Mar 2001 12:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132116AbRCVRZI>; Thu, 22 Mar 2001 12:25:08 -0500
-Received: from [217.27.32.7] ([217.27.32.7]:1307 "EHLO leonid.francoudi.com")
-	by vger.kernel.org with ESMTP id <S132113AbRCVRYx>;
-	Thu, 22 Mar 2001 12:24:53 -0500
-Date: Thu, 22 Mar 2001 19:23:26 +0200
-From: Leonid Mamtchenkov <leonid@francoudi.com>
-To: Marco Calistri <ik5bcu@tin.it>
-Cc: linux-kernel@vger.kernel.org, linux-newbie@vger.kernel.org
-Subject: Re: 2.2.18-modules belonging?
-Message-ID: <20010322192326.A6437@francoudi.com>
-In-Reply-To: <XFMail.20010322174115.ik5bcu@tin.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <XFMail.20010322174115.ik5bcu@tin.it>; from ik5bcu@tin.it on Thu, Mar 22, 2001 at 05:41:15PM +0100
-X-Operating-System: Linux leonid.francoudi.com 2.4.3-pre6
-X-Uptime: 7:12pm  up  8:13, 11 users,  load average: 0.21, 0.23, 0.52
+	id <S132114AbRCVRar>; Thu, 22 Mar 2001 12:30:47 -0500
+Received: from cpe.atm0-0-0-180310.boanxx4.customer.tele.dk ([62.243.2.100]:34998
+	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
+	id <S132118AbRCVRag>; Thu, 22 Mar 2001 12:30:36 -0500
+Message-ID: <3ABA3690.8040708@fugmann.dhs.org>
+Date: Thu, 22 Mar 2001 18:29:52 +0100
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8.1) Gecko/20010314
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jerome Tollet <Jerome.Tollet@qosmos.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.2 network performances
+In-Reply-To: <3AB08FAC.657784CA@qosmos.net> <3AB9366E.3060905@fugmann.dhs.org> <3AB9C083.C093769F@qosmos.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Marco Calistri,
+Hi again.
 
-Once you wrote about "2.2.18-modules belonging?":
-MC> Hello,I'am going into these problems:
-MC> 
-MC> Mar 22 10:24:15 linux modprobe: modprobe: Can't locate module sound-slot-0
-MC> Mar 22 10:24:15 linux modprobe: modprobe: Can't locate module sound-service-0-0
-MC> 
-MC> Wonder the above modules belong to which SOUND_CONFIGURE.
-MC> 
-MC> I'am using 2.2.18 and playmidi runs ok but RealPlayer reports
-MC> that could not open audio device :resource is busy.
+I've written my own test program, and I get 12M throughput.
 
-In your /etc/modules.conf (or /etc/conf.modules) add following lines:
-alias sound-slot-0 yoursoundmodule
-alias sound-service-0-0 yoursoundmodule
+I used a packet size of 1024 Bytes. Smaller packages seems to result in 
+less throughput.
+
+There was no load on the machine I tested on. Does the throughput get 
+better is there is a lot of stress on the machine? (eg. compiling kernel 
+with -j 10).
+
+It could also be the NIC itself, but this I cannot test (I'm using a 
+3Com 905b) card. Have you tried to replace the NIC?
+
 
 -- 
- Best regards,
- Leonid Mamtchenkov
- System Administrator
+Hi. I'm a .signature virus.
+Please copy me into your .signature file and help me spread.
 

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263358AbTECS1k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 14:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263361AbTECS1k
+	id S263365AbTECSaG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 14:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbTECSaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 14:27:40 -0400
-Received: from AMarseille-201-1-2-221.abo.wanadoo.fr ([193.253.217.221]:13864
-	"EHLO gaston") by vger.kernel.org with ESMTP id S263358AbTECS1j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 14:27:39 -0400
-Subject: Re: Reserving an ATA interface
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.30.0305031912510.10296-100000@mion.elka.pw.edu.pl>
-References: <Pine.SOL.4.30.0305031912510.10296-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051987179.7818.69.camel@gaston>
+	Sat, 3 May 2003 14:30:06 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:56017 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S263365AbTECSaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 14:30:03 -0400
+Date: Sat, 3 May 2003 15:52:12 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Andi Kleen <ak@muc.de>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.68-bk11: .text.exit errors in .altinstructions
+Message-ID: <20030503155212.Q626@nightmaster.csn.tu-chemnitz.de>
+References: <20030502171355.GU21168@fs.tum.de> <20030502185229.GA27169@averell>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 03 May 2003 20:39:39 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20030502185229.GA27169@averell>; from ak@muc.de on Fri, May 02, 2003 at 08:52:29PM +0200
+X-Spam-Score: -32.2 (--------------------------------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19C1xt-0007UH-00*uMf7bDzPrOQ*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-05-03 at 19:21, Bartlomiej Zolnierkiewicz wrote:
+On Fri, May 02, 2003 at 08:52:29PM +0200, Andi Kleen wrote:
+> The only fix I know currently is to remove the .exit.text
+> discard from arch/i386/vmlinux.lds.S. It'll increase the kernel
+> text size slightly because functions that would only be needed
+> for module unload in some drivers will be compiled in too. 
+> But it's probably not too bad, at worst a few KB.
 
+What is that .altinstructions stuff?
 
-> >
-> > So my patch may actually fix some cases there too.
-> 
-> No, look at ide_match_hwif() in setup-pci.c .
-> PCI grabs only ide_unknown interfaces.
+I'm having a hard time to understand, what it should do, and why
+it is desperately needed.
 
-No, you missed my point.
+Regards
 
- 1) setup-pci claims a free hwif slot
- 2) the driver sets some custom IOPs (MMIO PCI interface for example)
-    and/or does other tweaks to hwif
- 3) no device is attached to this interface, the IDE probe code leaves
-    hwif->present to 0, but the hwif fields (IOps etc... are still
-    set by the PCI driver)
- 4) later on, ide-cs gets in, and picks that slot since hwif->present
-    is 0 and ide-cs doesn't care about chipset. However, those IOps
-    fields (and possibly other, DMA stuff etc...) are still those of
-    the PCI interface. If the PCI interface set it to MMIO for example,
-    boom !
-
-Note that I haven't actually tested the above scenario as I don't have
-a box with such PCI IDE interfaces, but it seems the problem I have
-with ide-pmac in this case is identical.
-
-With my patch, since the PCI interface will not set the "hold" flag,
-ide_register_hw() called by ide-cs will call init_hwif_data(), thus
-putting back the hwif to a sane state  
-
-> btw, I think the only real long-term solution for all ordering issues
->      is customizable device mapper... 2.7?
-
-Or not relying on /dev/hdX entries for mounting ? (disk UUID etc..) ;)
-
+Ingo Oeser

@@ -1,48 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131588AbRDCIB7>; Tue, 3 Apr 2001 04:01:59 -0400
+	id <S129346AbRDCH7t>; Tue, 3 Apr 2001 03:59:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131563AbRDCIBt>; Tue, 3 Apr 2001 04:01:49 -0400
-Received: from owns.warpcore.org ([216.81.249.18]:64402 "EHLO
-	owns.warpcore.org") by vger.kernel.org with ESMTP
-	id <S130485AbRDCIBo>; Tue, 3 Apr 2001 04:01:44 -0400
-Date: Tue, 3 Apr 2001 03:01:00 -0500
-From: Stephen Clouse <stephenc@theiqgroup.com>
-To: Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oracle 8I & Kernel 2.4.3 : Sane ?
-Message-ID: <20010403030100.B3489@owns.warpcore.org>
-In-Reply-To: <986213560.24497.2.camel@olive>
-Mime-Version: 1.0
-Content-Type: text/plain
-Content-Disposition: inline; filename="msg.pgp"
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <986213560.24497.2.camel@olive>; from Yann.Dupont@IPv6.univ-nantes.fr on Mon, Apr 02, 2001 at 02:12:40PM +0200
+	id <S130485AbRDCH7j>; Tue, 3 Apr 2001 03:59:39 -0400
+Received: from cp31483-a.dbsch1.nb.nl.home.com ([217.120.33.210]:41989 "EHLO
+	CP31483-A.dbsch1.nb.nl.home.com") by vger.kernel.org with ESMTP
+	id <S130317AbRDCH7b>; Tue, 3 Apr 2001 03:59:31 -0400
+Date: Tue, 3 Apr 2001 09:59:24 +0200 (CEST)
+From: Erik Oomen <erik.oomen@home.nl>
+X-X-Sender: <oomen@CP31483-A.dbsch1.nb.nl.home.com>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: oops in uhci.c running 2.4.2-ac28
+In-Reply-To: <20010402195048.H17651@sventech.com>
+Message-ID: <Pine.LNX.4.33.0104030954440.1728-100000@CP31483-A.dbsch1.nb.nl.home.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2 Apr 2001, Johannes Erdfelt wrote:
 
-On Mon, Apr 02, 2001 at 02:12:40PM +0200, Yann Dupont wrote:
-> Is oracle 8.1.5 + Kernel 2.4.3 a sane combination ?
-> In general is oracle + Kernel 2.4 working ?
+> > Let me show what I got with the 2.4.2 kernel with USB support enabled.
+> >
+> > Mar 19 14:10:00 Eng99 kernel: uhci: host controller halted. very bad
 
-2.4.3 I can't speak for, but we have been running our development server (Oracle
-8.1.6) on 2.4.2 since the day it was released.  No problems whatsoever.
+I am having the same problem with kernel 2.4.3 on a Intel 430TX system:
 
-I'd recommend consulting the Oracle docs as to what is screwed with your 
-rollback segments.  I highly doubt this is Linux's fault.
+** Last lines of DMESG:
 
-- -- 
-Stephen Clouse <stephenc@theiqgroup.com>
-Senior Programmer, IQ Coordinator Project Lead
-The IQ Group, Inc. <http://www.theiqgroup.com/>
+uhci.c: suspend_hc
+uhci: host controller halted. very bad
+uhci.c: wakeup_hc
 
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8
+** lspci
+root@immtng:/home/oomen > lspci
+00:00.0 Host bridge: Intel Corporation 430TX - 82439TX MTXC (rev 01)
+00:01.0 VGA compatible controller: Chips and Technologies F69000 HiQVideo
+(rev 64)
+00:02.0 Ethernet controller: Digital Equipment Corporation DECchip
+21142/43 (rev 41)
+00:04.0 Bridge: Tundra Semiconductor Corp. CA91C042 [Universe] (rev 02)
+00:05.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c860
+(rev 02)
+00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
 
-iQA/AwUBOsmDOwOGqGs0PadnEQI0qQCdFS+PLvff8YxstOUAB33gSoyRsfkAoKeP
-n87LAwm5FrYIjFG8/WXh0IEh
-=LCx9
------END PGP SIGNATURE-----
+** lsmod
+root@immtng:/home/oomen > lsmod
+Module                  Size  Used by
+uhci                   18736   0  (unused)
+universe               83728   0
+sym53c8xx              55904   0  (unused)
+usbcore                51088   0  [uhci]
+tulip                  34880   1
+serial                 43568   0  (autoclean)
+
+** cat /proc/cpuinfo
+root@immtng:/home/oomen > cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 5
+model           : 8
+model name      : Mobile Pentium MMX
+stepping        : 1
+cpu MHz         : 267.278
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : yes
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 mmx
+bogomips        : 532.48
+
+Erik.
+

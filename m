@@ -1,146 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291251AbSBLXNp>; Tue, 12 Feb 2002 18:13:45 -0500
+	id <S291243AbSBLXOZ>; Tue, 12 Feb 2002 18:14:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291245AbSBLXNZ>; Tue, 12 Feb 2002 18:13:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291243AbSBLXNR>;
-	Tue, 12 Feb 2002 18:13:17 -0500
-Message-ID: <3C69A159.2BF483FF@zip.com.au>
-Date: Tue, 12 Feb 2002 15:12:25 -0800
+	id <S291245AbSBLXOS>; Tue, 12 Feb 2002 18:14:18 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3333 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291250AbSBLXOF>;
+	Tue, 12 Feb 2002 18:14:05 -0500
+Message-ID: <3C69A18A.501BAD42@zip.com.au>
+Date: Tue, 12 Feb 2002 15:13:14 -0800
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
-CC: Hugh Dickins <hugh@veritas.com>
-Subject: [patch] make BUG preserve registers
+Subject: [patch] sys_sync livelock fix
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Final version (I hope) of the BUG patch.  It still
-will offend the disassembler (sorry, Hugh).
+The get_request fairness patch exposed a livelock
+in the buffer layer.  write_unlocked_buffers() will
+not terminate while other tasks are generating write traffic.
 
-CONFIG_DEBUG_BUGVERBOSE has disappeared again.
+The patch simply bales out after writing all the buffers which
+were dirty at the time the function was called, rather than
+keeping on trying to write buffers until the list is empty.
 
---- linux-2.4.18-pre9/include/asm-i386/page.h	Thu Feb  7 13:04:22 2002
-+++ linux-akpm/include/asm-i386/page.h	Tue Feb 12 01:05:46 2002
-@@ -91,16 +91,18 @@ typedef struct { unsigned long pgprot; }
- /*
-  * Tell the user there is some problem. Beep too, so we can
-  * see^H^H^Hhear bugs in early bootup as well!
-+ * The offending file and line are encoded after the "officially
-+ * undefined" opcode for parsing in the trap handler.
+Given that /bin/sync calls write_unlocked_buffers() three times,
+that's good enough.  sync still takes aaaaaages, but it terminates.
+
+
+
+
+--- linux-2.4.18-pre9-ac2/fs/buffer.c	Tue Feb 12 12:26:41 2002
++++ ac24/fs/buffer.c	Tue Feb 12 14:39:39 2002
+@@ -189,12 +189,13 @@ static void write_locked_buffers(struct 
+  * return without it!
   */
+ #define NRSYNC (32)
+-static int write_some_buffers(kdev_t dev)
++static int write_some_buffers(kdev_t dev, signed long *nr_to_write)
+ {
+ 	struct buffer_head *next;
+ 	struct buffer_head *array[NRSYNC];
+ 	unsigned int count;
+ 	int nr;
++	int ret;
  
--#ifdef CONFIG_DEBUG_BUGVERBOSE
--extern void do_BUG(const char *file, int line);
--#define BUG() do {					\
--	do_BUG(__FILE__, __LINE__);			\
--	__asm__ __volatile__("ud2");			\
--} while (0)
-+#if 1	/* Set to zero for a slightly smaller kernel */
-+#define BUG()				\
-+ __asm__ __volatile__(	"ud2\n"		\
-+			"\t.word %c0\n"	\
-+			"\t.long %c1\n"	\
-+			 : : "i" (__LINE__), "i" (__FILE__))
- #else
--#define BUG() __asm__ __volatile__(".byte 0x0f,0x0b")
-+#define BUG() __asm__ __volatile__("ud2\n")
- #endif
- 
- #define PAGE_BUG(page) do { \
---- linux-2.4.18-pre9/arch/i386/kernel/traps.c	Sun Sep 30 12:26:08 2001
-+++ linux-akpm/arch/i386/kernel/traps.c	Tue Feb 12 01:08:32 2002
-@@ -237,6 +237,41 @@ bad:
- 	printk("\n");
- }	
- 
-+static void handle_BUG(struct pt_regs *regs)
-+{
-+	unsigned short ud2;
-+	unsigned short line;
-+	char *file;
-+	char c;
-+	unsigned long eip;
-+
-+	if (regs->xcs & 3)
-+		goto no_bug;		/* Not in kernel */
-+
-+	eip = regs->eip;
-+
-+	if (eip < PAGE_OFFSET)
-+		goto no_bug;
-+	if (__get_user(ud2, (unsigned short *)eip))
-+		goto no_bug;
-+	if (ud2 != 0x0b0f)
-+		goto no_bug;
-+	if (__get_user(line, (unsigned short *)(eip + 2)))
-+		goto bug;
-+	if (__get_user(file, (char **)(eip + 4)) ||
-+		(unsigned long)file < PAGE_OFFSET || __get_user(c, file))
-+		file = "<bad filename>";
-+
-+	printk("kernel BUG at %s:%d!\n", file, line);
-+
-+no_bug:
-+	return;
-+
-+	/* Here we know it was a BUG but file-n-line is unavailable */
-+bug:
-+	printk("Kernel BUG\n");
-+}
-+
- spinlock_t die_lock = SPIN_LOCK_UNLOCKED;
- 
- void die(const char * str, struct pt_regs * regs, long err)
-@@ -244,6 +279,7 @@ void die(const char * str, struct pt_reg
- 	console_verbose();
- 	spin_lock_irq(&die_lock);
- 	bust_spinlocks(1);
-+	handle_BUG(regs);
- 	printk("%s: %04lx\n", str, err & 0xffff);
- 	show_registers(regs);
- 	bust_spinlocks(0);
---- linux-2.4.18-pre9/arch/i386/kernel/i386_ksyms.c	Thu Feb  7 13:04:11 2002
-+++ linux-akpm/arch/i386/kernel/i386_ksyms.c	Tue Feb 12 01:05:46 2002
-@@ -168,9 +168,5 @@ EXPORT_SYMBOL_NOVERS(memset);
- EXPORT_SYMBOL(atomic_dec_and_lock);
- #endif
- 
--#ifdef CONFIG_DEBUG_BUGVERBOSE
--EXPORT_SYMBOL(do_BUG);
--#endif
+ 	next = lru_list[BUF_DIRTY];
+ 	nr = nr_buffers_type[BUF_DIRTY];
+@@ -213,29 +214,38 @@ static int write_some_buffers(kdev_t dev
+ 			array[count++] = bh;
+ 			if (count < NRSYNC)
+ 				continue;
 -
- extern int is_sony_vaio_laptop;
- EXPORT_SYMBOL(is_sony_vaio_laptop);
---- linux-2.4.18-pre9/arch/i386/config.in	Thu Feb  7 13:04:11 2002
-+++ linux-akpm/arch/i386/config.in	Tue Feb 12 01:05:46 2002
-@@ -421,7 +421,6 @@ if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; th
-    bool '  Memory mapped I/O debugging' CONFIG_DEBUG_IOVIRT
-    bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
-    bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK
--   bool '  Verbose BUG() reporting (adds 70K)' CONFIG_DEBUG_BUGVERBOSE
- fi
- 
- endmenu
---- linux-2.4.18-pre9/arch/i386/mm/fault.c	Thu Feb  7 13:04:11 2002
-+++ linux-akpm/arch/i386/mm/fault.c	Tue Feb 12 01:05:46 2002
-@@ -125,12 +125,6 @@ void bust_spinlocks(int yes)
+-			spin_unlock(&lru_list_lock);
+-			write_locked_buffers(array, count);
+-			return -EAGAIN;
++			ret = -EAGAIN;
++			goto writeout;
+ 		}
+ 		unlock_buffer(bh);
+ 		__refile_buffer(bh);
  	}
++	ret = 0;
++writeout:
+ 	spin_unlock(&lru_list_lock);
+-
+-	if (count)
++	if (count) {
+ 		write_locked_buffers(array, count);
+-	return 0;
++		if (nr_to_write)
++			*nr_to_write -= count;
++	}
++	return ret;
  }
  
--void do_BUG(const char *file, int line)
--{
--	bust_spinlocks(1);
--	printk("kernel BUG at %s:%d!\n", file, line);
--}
--
- asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
- extern unsigned long idt;
+ /*
+- * Write out all buffers on the dirty list.
++ * Because we drop the locking during I/O it's not possible
++ * to write out all the buffers.  So the only guarantee that
++ * we can make here is that we write out all the buffers which
++ * were dirty at the time write_unlocked_buffers() was called.
++ * fsync_dev() calls in here three times, so we end up writing
++ * many more buffers than ever appear on BUF_DIRTY.
+  */
+ static void write_unlocked_buffers(kdev_t dev)
+ {
++	signed long nr_to_write = nr_buffers_type[BUF_DIRTY] * 2;
++
+ 	do {
+ 		spin_lock(&lru_list_lock);
+-	} while (write_some_buffers(dev));
++	} while (write_some_buffers(dev, &nr_to_write) && (nr_to_write > 0));
+ 	run_task_queue(&tq_disk);
+ }
+ 
+@@ -1085,7 +1095,7 @@ void balance_dirty(void)
+ 	 */
+ 	if (state > 0) {
+ 		spin_lock(&lru_list_lock);
+-		write_some_buffers(NODEV);
++		write_some_buffers(NODEV, NULL);
+ 		wait_for_some_buffers(NODEV);
+ 	}
+ }
+@@ -2846,7 +2856,7 @@ static int sync_old_buffers(void)
+ 		bh = lru_list[BUF_DIRTY];
+ 		if (!bh || time_before(jiffies, bh->b_flushtime))
+ 			break;
+-		if (write_some_buffers(NODEV))
++		if (write_some_buffers(NODEV, NULL))
+ 			continue;
+ 		return 0;
+ 	}
+@@ -2945,7 +2955,7 @@ int bdflush(void *startup)
+ 		CHECK_EMERGENCY_SYNC
+ 
+ 		spin_lock(&lru_list_lock);
+-		if (!write_some_buffers(NODEV) || balance_dirty_state() < 0) {
++		if (!write_some_buffers(NODEV, NULL) || balance_dirty_state() < 0) {
+ 			wait_for_some_buffers(NODEV);
+ 			interruptible_sleep_on(&bdflush_wait);
+ 		}
 
 
 -

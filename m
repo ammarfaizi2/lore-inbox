@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUAZBpa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 20:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUAZBpa
+	id S265285AbUAZBsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 20:48:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbUAZBsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 20:45:30 -0500
-Received: from smtp4.wanadoo.fr ([193.252.22.27]:63087 "EHLO
-	mwinf0402.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261500AbUAZBp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 20:45:29 -0500
-Date: Mon, 26 Jan 2004 03:01:35 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Richard Henderson <rth@twiddle.net>, John Levon <levon@movementarian.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] oprofile, typo in alpha driver
-Message-ID: <20040126030135.GA3202@zaniah>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Richard Henderson <rth@twiddle.net>,
-	John Levon <levon@movementarian.org>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Sun, 25 Jan 2004 20:48:16 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:52194 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S265285AbUAZBsL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 20:48:11 -0500
+Date: Mon, 26 Jan 2004 14:48:21 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: [OOPS] Linux-2.6.1 suspend/resume
+In-reply-to: <20040126022540.315c4f8c@argon.inf.tu-dresden.de>
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1075081701.10885.18.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-QiRmnC5LWYUs5XvE3GK8";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <20040126022540.315c4f8c@argon.inf.tu-dresden.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unless I miss something this look like a typo, one user reported to get error
-from the daemon: 'Unknown event for counter 1' (alpha ev6) and the behavior
-was better but not completly sane after trying this patch: he get spurious
-event for counter 1 when enabling only counter 0 but rarely now. No alpha box
-to test this.
 
-regards,
-Phil
+--=-QiRmnC5LWYUs5XvE3GK8
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Index: arch/alpha/oprofile/common.c
-===================================================================
-RCS file: /usr/local/cvsroot/linux-2.5/arch/alpha/oprofile/common.c,v
-retrieving revision 1.5
-diff -u -p -r1.5 common.c
---- arch/alpha/oprofile/common.c	21 Jun 2003 16:20:31 -0000	1.5
-+++ arch/alpha/oprofile/common.c	26 Jan 2004 02:43:38 -0000
-@@ -57,7 +57,7 @@ op_axp_setup(void)
- 
- 	/* Compute the mask of enabled counters.  */
- 	for (i = e = 0; i < model->num_counters; ++i)
--		if (ctr[0].enabled)
-+		if (ctr[i].enabled)
- 			e |= 1 << i;
- 	reg.enable = e;
- 
+Hi.
+
+Those don't look like oopses. Rather, they're call traces resulting from
+scheduling while atomic. You should have a working system at the
+conclusion of what you're recorded.
+
+Regards,
+
+Nigel
+
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
+
+--=-QiRmnC5LWYUs5XvE3GK8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAFHHkVfpQGcyBBWkRAgFZAJ4pr8JVSw7G9KvyATgeUlML0khi9ACeKHch
+5pe25OUWKjkyMi9ld+4iRZ0=
+=J/M+
+-----END PGP SIGNATURE-----
+
+--=-QiRmnC5LWYUs5XvE3GK8--
+

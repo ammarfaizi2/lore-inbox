@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129757AbRASG4t>; Fri, 19 Jan 2001 01:56:49 -0500
+	id <S129733AbRASG6B>; Fri, 19 Jan 2001 01:58:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129908AbRASG4k>; Fri, 19 Jan 2001 01:56:40 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38149 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129757AbRASG4a>; Fri, 19 Jan 2001 01:56:30 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Date: 18 Jan 2001 22:55:59 -0800
-Organization: Transmeta Corporation
-Message-ID: <948odv$963$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10101171659160.10878-100000@penguin.transmeta.com> <200101182112.f0ILCmZ113705@saturn.cs.uml.edu>
+	id <S129901AbRASG5w>; Fri, 19 Jan 2001 01:57:52 -0500
+Received: from host156.207-175-42.redhat.com ([207.175.42.156]:22285 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129733AbRASG5t>; Fri, 19 Jan 2001 01:57:49 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200101190657.f0J6vWe32701@devserv.devel.redhat.com>
+Subject: Re: Is sendfile all that sexy?
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Fri, 19 Jan 2001 01:57:32 -0500 (EST)
+Cc: zippel@fh-brandenburg.de (Roman Zippel),
+        adilger@turbolinux.com (Andreas Dilger),
+        R.E.Wolff@bitwizard.nl (Rogier Wolff), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10101181700350.8732-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 18, 2001 05:14:01 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200101182112.f0ILCmZ113705@saturn.cs.uml.edu>,
-Albert D. Cahalan <acahalan@cs.uml.edu> wrote:
->
->What about getting rid of both that and the pointer, and just
->hanging that data on the end as a variable length array?
->
->struct kiovec2{
->  int nbufs;
->  /* ... */
->  struct kiobuf[0];
->}
+> Which in turn implies that the non-disk target hardware has to be able to
+> have a PCI-mapped memory buffer for the source or the destination, AND
+> they have to be able to cope with the fact that the data you get off the
+> disk will have to be the raw data at 512-byte granularity.
 
-If the struct ends up having lots of other fields, yes.
+And that the chipset gets it right. Which is a big assumption as tv card
+driver folks can tell you
+The pcipci stuff in quirks is only a beginning alas
 
-On the other hand, if one basic form of kiobuf's ends up being really
-just the array and the number of elements, there are reasons not to do
-this. One is that you can "peel" off parts of the buffer, and split it
-up if (for example) your driver has some limitation to the number of
-scatter-gather requests it can make. For example, you may have code that
-looks roughly like
-
-	.. int nr, struct kibuf *buf ..
-
-	while (nr > MAX_SEGMENTS) {
-		lower_level(MAX_SEGMENTS, buf);
-		nr -= MAX_SEGMENTS;
-		buf += MAX_SEGMENTS;
-	}
-	lower_level(nr, buf);
-
-which is rather awkward to do if you tie "nr" and the array too closely
-together. 
-
-(Of course, the driver could just split them up - take it from the
-structure and pass them down in the separated manner. I don't know which
-level the separation is worth doing at, but I have this feeling that if
-the structure ends up being _only_ the nbufs and bufs, they should not
-be tied together.)
-
-		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

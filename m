@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131411AbRCWUKb>; Fri, 23 Mar 2001 15:10:31 -0500
+	id <S131413AbRCWUMv>; Fri, 23 Mar 2001 15:12:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131412AbRCWUKV>; Fri, 23 Mar 2001 15:10:21 -0500
-Received: from [213.96.124.18] ([213.96.124.18]:34026 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S131411AbRCWUKG>;
-	Fri, 23 Mar 2001 15:10:06 -0500
-Date: Fri, 23 Mar 2001 21:11:10 +0000
-From: José Luis Domingo López 
-	<jldomingo@crosswinds.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-Message-ID: <20010323211110.A1441@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010323015358Z129164-406+3041@vger.kernel.org> <Pine.LNX.4.21.0103230403370.29682-100000@imladris.rielhome.conectiva> <20010323122815.A6428@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010323122815.A6428@win.tue.nl>; from dwguest@win.tue.nl on Fri, Mar 23, 2001 at 12:28:15PM +0100
+	id <S131414AbRCWUMo>; Fri, 23 Mar 2001 15:12:44 -0500
+Received: from [213.97.184.209] ([213.97.184.209]:3456 "HELO piraos.com")
+	by vger.kernel.org with SMTP id <S131413AbRCWULy>;
+	Fri, 23 Mar 2001 15:11:54 -0500
+Date: Fri, 23 Mar 2001 21:10:31 +0100 (CET)
+From: German Gomez Garcia <german@piraos.com>
+To: dri-devel@lists.sourceforge.net
+cc: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Problems with latest changes in kernel and X
+Message-ID: <Pine.LNX.4.21.0103232104590.306-100000@hal9000.piraos.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 23 March 2001, at 12:28:15 +0100,
-Guest section DW wrote:
+	Hello,
 
-> [...]
-> To a murderer: "Why did you kill that old lady?"
-> Reply: "I won't defend that deed, but who else should I have killed?"
-> 
-No comments.
+	After upgrading to latest 2.4.2-ac23 (that includes latest changes
+from 2.4.3-pre6) X doesn't start anymore. It was working perfectly for
+2.4.2-ac20. I'm using DRI CVS, but it seems to have little to do with DRI
+as disabling completely DRI doesn't help. 
+	
+	After starting X the system hangs up, the screen goes black but it
+keep syncro, no way to kill or restore the original console although
+SysRq boot still works. I'm going back to ac20, if you need more info I
+could test other kernels (ac21, ac22).
 
-> Andries - getting more and more unhappy with OOM
-> 
-> Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 2019 (emacs).
-> Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 1407 (emacs).
-> Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 1495 (emacs).
-> Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 2800 (rpm).
-> 
-> [yes, that was rpm growing too large, taking a few emacs sessions]
-> [2.4.2]
->
-OOM clearly didn't work perfectly in this case, but it worked and left
-your machine usable (maybe you lost data on your emacs sessions). From my
-(OS design newbie) point of view, there must be quite difficult to keep
-track of all system processes, and even a resource intensive task.
+	Regards,
 
-If you can do it better, come up with a kernel patch, submit it, and get
-credit and fame for it. I would love to see Linux as the perfect OS for
-everyone, but won't ever complain about each other's work, mainly when I'm
-unable to contribute a thing.
+	- german
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
- 
-jdomingo AT internautas DOT   org  => Spam at your own risk
+PS: I'm running SMP kernel on dual PII450 on a P6DBU Supermicro board (BX
+chipset).
+-------------------------------------------------------------------------
+German Gomez Garcia         | "This isn't right.  This isn't even wrong."
+<german@piraos.com>         |                         -- Wolfgang Pauli
 

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269208AbTCBQYE>; Sun, 2 Mar 2003 11:24:04 -0500
+	id <S269235AbTCBQ3G>; Sun, 2 Mar 2003 11:29:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269235AbTCBQYE>; Sun, 2 Mar 2003 11:24:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27146 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269208AbTCBQYD>;
-	Sun, 2 Mar 2003 11:24:03 -0500
-Date: Sun, 2 Mar 2003 16:34:27 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Amit Shah <shahamit@gmx.net>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] taskqueue to workqueue update for riscom8 driver
-Message-ID: <20030302163427.C7301@parcelfarce.linux.theplanet.co.uk>
-References: <20030302043804.A17185@parcelfarce.linux.theplanet.co.uk> <200303021751.01224.shahamit@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303021751.01224.shahamit@gmx.net>; from shahamit@gmx.net on Sun, Mar 02, 2003 at 05:51:01PM +0530
+	id <S269237AbTCBQ3G>; Sun, 2 Mar 2003 11:29:06 -0500
+Received: from vsmtp1.tin.it ([212.216.176.221]:6908 "EHLO smtp1.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S269235AbTCBQ3F>;
+	Sun, 2 Mar 2003 11:29:05 -0500
+Message-ID: <3E6232F4.70808@tin.it>
+Date: Sun, 02 Mar 2003 17:36:04 +0100
+From: AnonimoVeneziano <voloterreno@tin.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: IO APIC + ACPI Problems.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 02, 2003 at 05:51:01PM +0530, Amit Shah wrote:
-> On Sunday 02 March 2003 10:08, Matthew Wilcox wrote:
-> > No, this driver needs to be converted to the new serial core.  It's still
-> > using cli(), for example.
-> 
-> That's a different issue, isn't it? This patch was just meant to get the 
-> drivers in a compilable state... I'll look into the cli() issue, but I don't 
-> have any hardware to test...
+    Hi all, I report this Bug that I've found.
 
-So it only compiles on UP.  Not terribly interesting.
+In my configuration  (MSI KT4 Ultra, Athlon 2400+, Geforce 3 Ti200 ) IO 
+APIC doesn't give problems (  Only the UNEXPECTED IO APIC message and a 
+problem about "Buggy MP Table" that doesn't provide an IRQ (Seems the 
+irq of the IDE Controller, but all works correctly...) ) , but if I 
+enable ACPI support with the IO APIC the system does not shutdown 
+properly in the most of cases , and it reboots instead . Powering off 
+the system by the Power Button does not work too.
 
-BTW, I wouldn't necessarily expect it to work.  Work queues run in
-process context; the code you replaced ran in bottom half context.
-If you're going to do this kind of lame hack, it should be converted
-to a tasklet, not a work queue.
+I use the Linux Kernel 2.4.20 Version and the Debian "Sid" Distribution 
+. I've tried the Debian kernel and the "vanilla" one, and both generates 
+this error.
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+I'm lost , I don't know how to solve
+
+Thanks
+
+Bye
+
+Marcello
+

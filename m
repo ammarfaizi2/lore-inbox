@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314645AbSDTQUX>; Sat, 20 Apr 2002 12:20:23 -0400
+	id <S314649AbSDTQWK>; Sat, 20 Apr 2002 12:22:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314646AbSDTQUW>; Sat, 20 Apr 2002 12:20:22 -0400
-Received: from pop.gmx.de ([213.165.64.20]:5571 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S314645AbSDTQUV>;
-	Sat, 20 Apr 2002 12:20:21 -0400
-Date: Sat, 20 Apr 2002 18:18:37 +0200
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: David Woodhouse <dwmw2@infradead.org>
+	id <S314650AbSDTQWJ>; Sat, 20 Apr 2002 12:22:09 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:18185 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314649AbSDTQWI>;
+	Sat, 20 Apr 2002 12:22:08 -0400
+Date: Sat, 20 Apr 2002 08:20:41 -0700
+From: Greg KH <greg@kroah.com>
+To: Oliver Feiler <kiza@gmx.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK patches exported.
-Message-Id: <20020420181837.0025c52e.sebastian.droege@gmx.de>
-In-Reply-To: <31608.1019318609@redhat.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Subject: Re: 2.4.18 usb(?) oops
+Message-ID: <20020420152041.GA17327@kroah.com>
+In-Reply-To: <200204201533.50375.kiza@gmx.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.RY5Lk8U98JVo?R"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sat, 23 Mar 2002 12:53:57 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.RY5Lk8U98JVo?R
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-On Sat, 20 Apr 2002 17:03:29 +0100
-David Woodhouse <dwmw2@infradead.org> wrote:
-
-> For the benefit of the BK haters, or more to the point for my benefit to 
-> shut up the occasional whinging I've heard about needing to use BK to get 
-> at the very latest patches from Linus' tree...
+On Sat, Apr 20, 2002 at 03:33:50PM +0200, Oliver Feiler wrote:
+> Hi,
 > 
-> 	http://www.kernel.org/~dwmw2/bk-2.5/
-> 
-> It should be updated every hour on the hour, and has the last week's worth 
-> of changesets exported as patches.
-> 
-> -- 
-> dwmw2
-Yeah nice but is it somehow possible to create one big patch including all changes automatical?
-It's much work to download all the 10000 changesets one by one ;(
+> This oops occurs everytime I use kpilot to hotsync my Handpsring Visor.
 
-Bye
---=.RY5Lk8U98JVo?R
-Content-Type: application/pgp-signature
+As per the archives, use this patch to fix this problem:
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=101735261202744
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+thanks,
 
-iD8DBQE8wZThe9FFpVVDScsRAsJKAJ9/pgVbD2dzOIWeiOSSPiTTvE6eyQCg4Rma
-UU8hFt9ND8j3NW3HyDillLo=
-=+2UM
------END PGP SIGNATURE-----
-
---=.RY5Lk8U98JVo?R--
-
+greg k-h

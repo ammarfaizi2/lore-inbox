@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129480AbQK3Vxg>; Thu, 30 Nov 2000 16:53:36 -0500
+	id <S129740AbQK3V60>; Thu, 30 Nov 2000 16:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130146AbQK3Vx0>; Thu, 30 Nov 2000 16:53:26 -0500
-Received: from sith.mimuw.edu.pl ([193.0.97.1]:18950 "HELO sith.mimuw.edu.pl")
-	by vger.kernel.org with SMTP id <S129480AbQK3VxP>;
-	Thu, 30 Nov 2000 16:53:15 -0500
-Date: Thu, 30 Nov 2000 22:24:22 +0100
-From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-To: Pavel Machek <pavel@suse.cz>
+	id <S129426AbQK3V6Q>; Thu, 30 Nov 2000 16:58:16 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:15682 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129740AbQK3V6D>; Thu, 30 Nov 2000 16:58:03 -0500
+Date: Thu, 30 Nov 2000 22:27:25 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: V Ganesh <ganesh@veritas.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] no RLIMIT_NPROC for root, please
-Message-ID: <20001130222422.E2605@sith.mimuw.edu.pl>
-Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
-	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20001128214309.F2680@sith.mimuw.edu.pl> <Pine.LNX.4.21.0011282049470.1940-100000@penguin.homenet> <20001128221155.G2680@sith.mimuw.edu.pl> <20001130010057.B124@bug.ucw.cz>
+Subject: Re: beware of add_waitqueue/waitqueue_active
+Message-ID: <20001130222725.F18804@athlon.random>
+In-Reply-To: <200011301332.TAA00277@vxindia.veritas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001130010057.B124@bug.ucw.cz>; from pavel@suse.cz on Thu, Nov 30, 2000 at 01:00:57AM +0100
-X-Operating-System: Linux 2.4.0-test11-pre6 i686
+In-Reply-To: <200011301332.TAA00277@vxindia.veritas.com>; from ganesh@veritas.com on Thu, Nov 30, 2000 at 07:02:56PM +0530
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Nov 2000, Pavel Machek wrote:
+On Thu, Nov 30, 2000 at 07:02:56PM +0530, V Ganesh wrote:
+> 3. add_wait_queue adds this process to the waitqueue. but all the writes
+>    are in write-buffers and have not gone down to cache/memory yet.
+> 4. PageLocked() finds that the page is locked.
 
-> Hi!
-> 
-> > > On Tue, 28 Nov 2000, Jan Rekorajski wrote:
-> > > > --- linux/kernel/fork.c~	Tue Sep  5 23:48:59 2000
-> > > > +++ linux/kernel/fork.c	Sun Nov 26 20:22:20 2000
-> > > > @@ -560,7 +560,8 @@
-> > > >  	*p = *current;
-> > > >  
-> > > >  	retval = -EAGAIN;
-> > > > -	if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur)
-> > > > +	if (p->user->uid &&
-> > > > +	   (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur))
-> > > 
-> > > Jan,
-> > > 
-> > > Hardcoding things signifying special treatment of uid=0 is almost always a
-> > > bad idea. If you _really_ think that superuser (whatever entity that might
-> > > be) should be exempt from RLIMIT_NPROC and can prove that (SuSv2 seems to
-> > > be silent so you may be right), then you should use capable() to do proper
-> > > capability test and not that horrible explicit uid test as in your patch
-> > > above.
-> > 
-> > Ok, how about setting limits on login? When this looks like:
-> > 
-> > --- uid = 0 here
-> > setrlimit(RLIMIT_NPROC, n)
-> > fork()		<- this will fail if root has >n processes
-> > setuid(user)
-> > 
-> > and it is hard to change this sequence, all PAM enabled apps depend
-> > on it :(
-> 
-> So PAM dictates kernel changes? Fix pam, do not break kernel.
+Right.
 
-Fixed :)
+> [..] speculative execution
+> of PageLocked() even before add_wait_queue returns [..]
 
-Jan
--- 
-Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
-baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
-BOFH, type MANIAC         |                   -- TROOPS by Kevin Rubio
+Right.
+
+Both could happen because of the new spin_unlock implementation that doesn't
+take anymore the lock on the bus:
+
+	#define spin_unlock_string \
+		"movb $1,%0"
+
+With the previous `lock ; btrl' 4) couldn't happen with pending
+writes on the write buffer because spin_unlock was a full barrier too...
+
+Alpha was safe because it has to imply an mb() in spin_unlock (but
+sparc64 was hurted too for example).
+
+As you say the problematic construct is not used anymore into 2.4.0-test12-pre2
+in filemap.c so such deadlock can't happen anymore but it's been useful that
+you pointing out the problem, thanks.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269688AbTGaVW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 17:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269736AbTGaVW2
+	id S274872AbTGaVS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 17:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274873AbTGaVS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 17:22:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:31705 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S269688AbTGaVW1 (ORCPT
+	Thu, 31 Jul 2003 17:18:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:147 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274872AbTGaVS0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 17:22:27 -0400
-Date: Thu, 31 Jul 2003 14:23:42 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: pid_max ?
-Message-ID: <20030731212342.GE15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
-	"Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-References: <D9B4591FDBACD411B01E00508BB33C1B01BF8C95@mesadm.epl.prov-liege.be>
+	Thu, 31 Jul 2003 17:18:26 -0400
+Date: Thu, 31 Jul 2003 14:18:11 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Charles Lepple <clepple@ghz.cc>, Greg KH <greg@kroah.com>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [PATCH] reorganize USB submenu's
+Message-Id: <20030731141811.2c7e13fd.shemminger@osdl.org>
+In-Reply-To: <3F298517.8060202@pacbell.net>
+References: <20030731101144.32a3f0d7.shemminger@osdl.org>
+	<23979.216.12.38.216.1059672599.squirrel@www.ghz.cc>
+	<20030731125032.785ffba1.shemminger@osdl.org>
+	<3F298517.8060202@pacbell.net>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01BF8C95@mesadm.epl.prov-liege.be>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 09:53:12AM +0200, Frederick, Fabian wrote:
-> 	I was looking at pid.c file and can't understand pid_max usage.
-> It's defined as integer (signed) =PID_MAX_DEFAULT (which is 0x8000 (on old
-> arch, integer max positive value isn't 32767 ? so 0x8000 -> -32768).
-> 	In alloc_pidmap, 'if (pid>=pid_max)' should be in that case always
-> true so pid=RESERVED_PIDS which is 300 (?).Why not use pid>PID_MAX_DEFAULT
-> there and forget the pid_max definition ? and why do we have that '300'
-> value ?
+On Thu, 31 Jul 2003 14:07:35 -0700
+David Brownell <david-b@pacbell.net> wrote:
 
-It's to avoid trying to allocate from the range of pid's typically used
-by kernel threads and system daemons after bootup. There are no hard
-dependencies on it, it's merely "traditional pidspace layout".
+> Stephen Hemminger wrote:
+> > --- linux-2.5/drivers/usb/gadget/Kconfig	2003-06-05 10:04:40.000000000 -0700
+> > +++ usb/drivers/usb/gadget/Kconfig	2003-07-31 12:45:04.000000000 -0700
+> > @@ -35,9 +35,6 @@
+> >  #
+> >  # USB Peripheral Controller Support
+> >  #
+> > -choice
+> > -	prompt "USB Peripheral Controller Support"
+> > -	depends on USB_GADGET
+> >  
+> >  config USB_NET2280
+> >  	tristate "NetChip 2280 USB Peripheral Controller"
+> > @@ -54,21 +51,23 @@
+> >  	   dynamically linked module called "net2280" and force all
+> >  	   gadget drivers to also be dynamically linked.
+> >  
+> > -endchoice
+> 
+> Why do you want to remove that choice menu?  By doing that,
+> you've enabled illegal configurations.
 
+Because the choice appears to be only useful for radio box type
+selections.  Try the following with the linux-2.5 version of xconfig.
 
--- wli
+	USB_GADGET=y
+	USB Peripheral Controller support = y (not module)
+	USB Gadgets = y (not module)
+
+The Netchip becomes a radio button.
+
+And Gadget Zero and Gadget Ethernet become select one radio buttons.
+

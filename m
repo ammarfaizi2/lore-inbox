@@ -1,85 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVC3TYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVC3T2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbVC3TYt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVC3TWW
+	id S262383AbVC3T2M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 14:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVC3T0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:22:22 -0500
-Received: from ctb-mesg2.saix.net ([196.25.240.74]:65254 "EHLO
-	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S262418AbVC3TTL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 14:19:11 -0500
-Subject: Re: How's the nforce4 support in Linux?
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Tomasz Torcz <zdzichu@irc.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050330150023.GB6878@irc.pl>
-References: <2a0fbc59050325145935a05521@mail.gmail.com>
-	 <1111792462.23430.25.camel@mindpipe> <20050329185825.GB20973@irc.pl>
-	 <1112128807.5141.14.camel@mindpipe>  <20050330150023.GB6878@irc.pl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gsBpJB1qdkxPmswohJ8K"
-Date: Wed, 30 Mar 2005 21:19:29 +0200
-Message-Id: <1112210369.25867.7.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8bit
+	Wed, 30 Mar 2005 14:26:41 -0500
+Received: from bartol.udel.edu ([128.175.14.150]:59878 "EHLO bartol.udel.edu")
+	by vger.kernel.org with ESMTP id S262383AbVC3TU6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 14:20:58 -0500
+Message-ID: <424AFC3B.7090007@bartol.udel.edu>
+Date: Wed, 30 Mar 2005 14:21:31 -0500
+From: Rich Townsend <rhdt@bartol.udel.edu>
+Organization: Bartol Research Institute
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050326
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Steinmetz <ast@domdv.de>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
+       dtor_core@ameritech.net, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] 2.6.11 acpi battery state readout as source of keyboard/touchpad
+ troubles
+References: <424AF9C3.4000905@domdv.de>
+In-Reply-To: <424AF9C3.4000905@domdv.de>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andreas Steinmetz wrote:
+> In traceing the source of my sporadic synaptics touchpad troubles
+> 
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
+> 
+> and keyboard troubles (sporadically lost key up/down events) on an Acer
+> Aspire 1520 (x86_64, latest bios v1.09) I did enable the
+> report_lost_ticks option which did spit out stuff like the following at
+> regular intervals:
+> 
+> time.c: Lost 17 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 19 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 18 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> 
+> This looked suspiciously like it happended when the the kde laptop
+> applet polled the battery status. So I did terminate the applet.
+> 
+> The result was no more lost ticks, no lost keyboard events and no more
+> lost touchpad sync.
+> 
+> To verify ACPI battery data as the source of trouble i did a simple
+> 
+> cat /proc/acpi/battery/BAT0/state
+> 
+> which instantly resulted in:
+> 
+> time.c: Lost 19 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> 
+> So it seems ACPI battery readout does cause some long running interrupt
+> disable and that it causes nasty side effects for the 8042 input.
+> 
+> Note that doing
+> 
+> cat /proc/acpi/battery/BAT0/info
+> 
+> doesn't cause any trouble (battery alarm is unsupported).
+> 
+> I can ignore the lost ticks but the keyboard/touchpad problems caused by
+> the state readout are definitely nasty.
+> 
+> Any ideas?
 
---=-gsBpJB1qdkxPmswohJ8K
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yes. I strongly suspect that your problems are caused by the embedded
+controller driver. On many laptop systems, the embedded controller is
+used to access and query the batter subsystem. Unfortunately, the driver
+code that performs embedded controller reads and writes currently uses a
+spinlock to prevent multiple accesses. A typical read/write operation
+can take around 2.5 ms, during which no interrupts can be serviced.
 
-On Wed, 2005-03-30 at 17:00 +0200, Tomasz Torcz wrote:
-> On Tue, Mar 29, 2005 at 03:40:07PM -0500, Lee Revell wrote:
-> > On Tue, 2005-03-29 at 20:58 +0200, Tomasz Torcz wrote:
-> > > On Fri, Mar 25, 2005 at 06:14:22PM -0500, Lee Revell wrote:
-> > > > On Fri, 2005-03-25 at 23:59 +0100, Julien Wajsberg wrote:
-> > > > > - audio works too. The only problem is that two applications can'=
-t
-> > > > > open /dev/dsp in the same time.
-> > > >=20
-> > > > Not a problem.  ALSA does software mixing for chipsets that can't d=
-o it
-> > > > in hardware.  Google for dmix.
-> > > >=20
-> > > > However this doesn't (and can't be made to) work with the in-kernel=
- OSS
-> > > > emulation (it works fine with the alsa-lib/libaoss emulation).  So =
-you
-> > >=20
-> > >  quake3 still segfaults when run through "aoss". And can't be fixed, =
-as
-> > > it's closed source still.
-> > >=20
-> > I guess that's Quake3's problem...
->=20
->  It an glaring example, dmix is unsufficient in one third of my sound
-> uses (other two beeing movie and music playback)
->  But you advertise dmix like it was silver bullet.
->=20
+I've been trying to make noise about this problem on the ACPI mailing
+list, but progress on this issue is still glacial. Luming Yu has posted
+a patch to 2.6.11 that appears to resolve the interrupt blocking, but it
+has the side effect that embedded controller access becomes unacceptably
+slow.
 
-Or goes limbo randomly and no mailing to lists seems to result in a
-reply (from the alsa peeps at least) ...
+cheers,
 
-
---=20
-Martin Schlemmer
-
-
---=-gsBpJB1qdkxPmswohJ8K
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCSvvBqburzKaJYLYRAhoIAJ0S9JPFwrdj4TaBGxgeZ896xSKWLwCcCdmi
-cSExEhGYwR69sTXG0W1lrB8=
-=rxhx
------END PGP SIGNATURE-----
-
---=-gsBpJB1qdkxPmswohJ8K--
+Rich
 

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318813AbSIPFvQ>; Mon, 16 Sep 2002 01:51:16 -0400
+	id <S293680AbSIPGGj>; Mon, 16 Sep 2002 02:06:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318816AbSIPFvQ>; Mon, 16 Sep 2002 01:51:16 -0400
-Received: from dsl-213-023-021-198.arcor-ip.net ([213.23.21.198]:46470 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318813AbSIPFvP>;
-	Mon, 16 Sep 2002 01:51:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Christoph Hellwig <hch@lst.de>, marcelo@conectiva.com.br
-Subject: Re: [PATCH] rework inode allocation to allow filesystems more control
-Date: Mon, 16 Sep 2002 07:55:30 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-References: <20020911145557.A13949@lst.de>
-In-Reply-To: <20020911145557.A13949@lst.de>
+	id <S310190AbSIPGGj>; Mon, 16 Sep 2002 02:06:39 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:22484 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S293680AbSIPGGj>;
+	Mon, 16 Sep 2002 02:06:39 -0400
+Date: Mon, 16 Sep 2002 08:18:25 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] thread-exec-2.5.34-B1, BK-curr
+In-Reply-To: <1032140276.27001.27.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0209160813530.16470-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17qor4-0000HW-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 September 2002 14:55, Christoph Hellwig wrote:
-> This patch adds ->alloc_inode and ->destroy_inode super operations to
-> allow the filesystem control the allocation of struct inode, e.g. to
-> have it's private inode and the VFS one n the same slab cache.
-> 
-> This allows to break worst-offenders like NFS out of the big inode union
-> and make VM balancing better by wasting less ram for inodes.  It also
-> speedups filesystems that don't want to touch that union in struct
-> inode, like JFS, XFS or FreeVxFS (once switched over).  It is a straight
-> backport from Al's code in 2.5 and has proven stable in Red Hat's
-> recent beta releases (limbo, null).  Al has ACKed my patch submission.
 
-How about a credit for the original author/designer?  Yes, that was me.
+On 16 Sep 2002, Alan Cox wrote:
 
--- 
-Daniel
+> There is code that depends on clone()/exec() not killing other threads
+> in the group - some threaded web servers for example.
+
+all the new 'thread group' semantics (group exit, group-broadcast and
+group-balanced signals, group exec(), soon-to-come group coredump) are
+connected to the CLONE_THREAD property which is a relatively new clone
+bit. All the other thread properties (such as CLONE_VM, CLONE_SIGHAND) are
+not affected by all the recent threading related changes. [well, they got
+significantly faster, but no behavioral change.]
+
+	Ingo
+

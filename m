@@ -1,36 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263545AbTC3LGr>; Sun, 30 Mar 2003 06:06:47 -0500
+	id <S263538AbTC3LFN>; Sun, 30 Mar 2003 06:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263546AbTC3LGr>; Sun, 30 Mar 2003 06:06:47 -0500
-Received: from cs180132.pp.htv.fi ([213.243.180.132]:31634 "EHLO
-	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S263545AbTC3LGq>;
-	Sun, 30 Mar 2003 06:06:46 -0500
-Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
-From: Mika Liljeberg <mika.liljeberg@welho.com>
-To: Robert Love <rml@tech9.net>
-Cc: Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1048980204.13757.17.camel@localhost>
-References: <3E8610EA.8080309@telia.com>
-	 <1048980204.13757.17.camel@localhost>
+	id <S263539AbTC3LFN>; Sun, 30 Mar 2003 06:05:13 -0500
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:47756 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S263538AbTC3LFM>; Sun, 30 Mar 2003 06:05:12 -0500
+Subject: Re: 3c59x gives HWaddr FF:FF:...
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Thomas Backlund <tmb@iki.fi>
+Cc: Juan Quintela <quintela@mandrakesoft.com>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <021301c2f6aa$ae726140$9b1810ac@xpgf4>
+References: <20030328145159.GA4265@werewolf.able.es>
+	 <20030328124832.44243f83.akpm@digeo.com>
+	 <20030328230510.GA5124@werewolf.able.es>
+	 <20030328151624.67a3c8c5.akpm@digeo.com>
+	 <20030329004630.GA2480@werewolf.able.es>
+	 <0d0001c2f616$6a678dc0$9b1810ac@xpgf4> <86y92xh9wt.fsf@trasno.mitica>
+	 <1049019577.597.6.camel@teapot>  <021301c2f6aa$ae726140$9b1810ac@xpgf4>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1049023130.4713.6.camel@devil>
+Message-Id: <1049022973.728.8.camel@teapot>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 30 Mar 2003 14:18:51 +0300
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 30 Mar 2003 13:16:14 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-30 at 01:23, Robert Love wrote:
-> I wonder if the reniced X is a factor?
+On Sun, 2003-03-30 at 12:53, Thomas Backlund wrote:
+> | <snip>
+> | Yenta IRQ list 08d8, PCI irq5
+> | Socket status: 30000020
+> | Yenta IRQ list 08d8, PCI irq10
+> | Socket status: 30000006
+> | cs: cb_alloc(bus 6): vendor 0x10b7, device 0x5257
+> | PCI: Failed to allocate resource 0(1000-2c3) for 06:00.0
+> | PCI: Enabling device 06:00.0 (0000 -> 0003)
+> | <snip>
+> | eth0: command 0x5800 did not complete! Status=0xffff
+> | eth0: command 0x2804 did not complete! Status=0xffff
+> | <snip>
+> |
+> | However, Alan Cox patches for 2.4.20 and Red Hat's linux kernel both
+> | seem to work OK... I think it's related to PCI resource assignment.
+> |
+> 
+> Have you tried with pci=noapic?
 
-I had some interactivity problems with X reniced to -10. It seemed to me
-that X was pre-empting the clients and flushing changes to screen too
-quickly. It was probably losing out on some screen update optimizations.
-I took out the renice and now the system behaves much better.
+It yields the same results as above: "failed to allocate resource
+0(1000-2c3)"... I'm not using neither ACPI nor APIC.
 
-	MikaL
+Thanks!
+
+________________________________________________________________________
+        Felipe Alfaro Solana
+   Linux Registered User #287198
+http://counter.li.org
 

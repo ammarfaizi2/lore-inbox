@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263871AbTI2RUV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTI2RUN
+	id S263861AbTI2RVI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbTI2RU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:20:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25742 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263866AbTI2RTc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:19:32 -0400
-Date: Mon, 29 Sep 2003 10:20:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test6-mm1
-Message-Id: <20030929102021.76e96730.akpm@osdl.org>
-In-Reply-To: <1064855347.23108.5.camel@ibm-c.pdx.osdl.net>
-References: <20030928191038.394b98b4.akpm@osdl.org>
-	<1064855347.23108.5.camel@ibm-c.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 29 Sep 2003 13:20:27 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54535 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263861AbTI2RTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:19:05 -0400
+Date: Mon, 29 Sep 2003 18:19:01 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: davej@redhat.com
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove unnecessary checks in pcmcia
+Message-ID: <20030929181901.A7593@flint.arm.linux.org.uk>
+Mail-Followup-To: davej@redhat.com, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <E1A41Rq-0000NP-00@hardwired>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E1A41Rq-0000NP-00@hardwired>; from davej@redhat.com on Mon, Sep 29, 2003 at 06:04:34PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel McNeil <daniel@osdl.org> wrote:
->
-> On Sun, 2003-09-28 at 19:10, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test6/2.6.0-test6-mm1
-> > 
-> > 
-> > Lots of small things mainly.
-> > 
-> > The O_DIRECT-vs-buffers I/O locking changes appear to be complete, so testing
-> > attention on O_DIRECT workloads would be useful.
-> > 
-> 
-> OSDL's STP automatically ran dbt2 tests against 2.6.0-test6-mm1 this
-> morning (PLM patch #2174).
-> 
-> The dbt2 test uses raw devices and all the runs completed successfully.
+On Mon, Sep 29, 2003 at 06:04:34PM +0100, davej@redhat.com wrote:
+> io->stop/start are 16 bits, so will never be >0xffff
 
-Well that's good, thanks.
+Not necessarily.  On x86 yes.  On ARM, no.
 
-Actually, it is O_DIRECT against regular files which needs the extra testing.
-
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

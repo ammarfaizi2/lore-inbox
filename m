@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315447AbSELW4u>; Sun, 12 May 2002 18:56:50 -0400
+	id <S315449AbSELXBP>; Sun, 12 May 2002 19:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315448AbSELW4u>; Sun, 12 May 2002 18:56:50 -0400
-Received: from pool-151-201-36-168.pitt.east.verizon.net ([151.201.36.168]:50816
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id <S315447AbSELW4s>; Sun, 12 May 2002 18:56:48 -0400
-Date: Sun, 12 May 2002 18:57:09 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Jennifer Huang <carrothh@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about cpu time accuracy.
-Message-ID: <20020512185709.C623@marta>
-Mail-Followup-To: Kurt Wall <kwall>, Jennifer Huang <carrothh@yahoo.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020512223710.41173.qmail@web20109.mail.yahoo.com>
+	id <S315452AbSELXBO>; Sun, 12 May 2002 19:01:14 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:32014 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S315449AbSELXBN>;
+	Sun, 12 May 2002 19:01:13 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Andi Kleen <ak@muc.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_ISA 
+In-Reply-To: Your message of "Sun, 12 May 2002 20:36:15 +0200."
+             <20020512203615.A12612@averell> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Mon, 13 May 2002 09:01:00 +1000
+Message-ID: <25899.1021244460@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scribbling feverishly on May 12, Jennifer Huang managed to emit:
-> Hi all,
-> 
-> I have a question about cpu time accuracy.
-> 
-> I am using kernel 2.4.18. But, when I tried "utime"
-> and "nanosleep" to get a process suspended, it only
-> worked in 10ms granularity, and it's no way to sleep
-> for 1 microsecond.
+On Sun, 12 May 2002 20:36:15 +0200, 
+Andi Kleen <ak@muc.de> wrote:
+>This patch make CONFIG_ISA an configuration option for i386. This makes
+>sense considering that most PCs do not ship with ISA slots anymore.
 
-The standard kernel timer has a resolution of 1/HZ, which is 10ms on 
-an x86. You could try a scheduling policy of SCHED_FIFO or SCHED_RR,
-but this only gets you 2ms resolution. 
+make xconfig
+drivers/ide/Config.in: 129: can't handle dep_bool/dep_mbool/dep_tristate condition
 
-> Anyone can help me out of this?
+Your dep_* conditions are wrong.  The conditional fields require
+$CONFIG, not a bare CONFIG.
 
-There are patches available for high resolution timers:
+Always check config changes under both oldconfig and xconfig.  xconfig
+is the only CML1 code that does a full syntax check, the other CML1
+*config rules silently ignore many syntax errors.
 
-http://sourceforge.net/projects/high-res-timers/
-http://www.cs.wisc.edu/paradyn/libhrtime/
-
-Kurt
--- 
-Anarchy may not be the best form of government, but it's better than no
-government at all.

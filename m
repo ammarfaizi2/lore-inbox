@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268383AbRGXRjC>; Tue, 24 Jul 2001 13:39:02 -0400
+	id <S268387AbRGXRjW>; Tue, 24 Jul 2001 13:39:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268387AbRGXRiw>; Tue, 24 Jul 2001 13:38:52 -0400
-Received: from [64.7.140.42] ([64.7.140.42]:1250 "EHLO inet.connecttech.com")
-	by vger.kernel.org with ESMTP id <S268383AbRGXRig>;
-	Tue, 24 Jul 2001 13:38:36 -0400
-Message-ID: <014a01c11468$01151e00$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Rik van Riel" <riel@conectiva.com.br>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L.0107241405230.20326-100000@duckman.distro.conectiva>
-Subject: Re: [RFC] Optimization for use-once pages
-Date: Tue, 24 Jul 2001 13:42:26 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S268388AbRGXRjM>; Tue, 24 Jul 2001 13:39:12 -0400
+Received: from zenith102.desy.de ([131.169.43.185]:45574 "EHLO
+	zenith102.desy.de") by vger.kernel.org with ESMTP
+	id <S268387AbRGXRjD>; Tue, 24 Jul 2001 13:39:03 -0400
+Date: Tue, 24 Jul 2001 19:39:04 +0200 (CEST)
+From: Stefan Stonjek <stefan@zenith102.desy.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: variable dumpable changed place in sched.h 
+Message-ID: <Pine.LNX.4.33.0107241933060.32445-100000@zenith102.desy.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-From: "Rik van Riel" <riel@conectiva.com.br>
-> Because they occur in a very short interval, an interval MUCH
-> shorter than the time scale in which the VM subsystem looks at
-> referenced bits, etc...
+Today I tried to compile arla 0.35.5 for the new 2.4.7 Linux kernel.
+I figured out that linux/include/linux/sched.h changed in a way which
+blocks arla.
 
-So what you're sayng is that any number of accesses, as long
-as they all occur within the interval < VM subsystem scanning
-interval, are all counted as one?
+The variable "dumpable" moved from the "task_struct" to "mm_struct". Since
+"task_struct" includes two pointers to "mm_struct" I do not know which
+variable (mm->dumpable or active_mm->dumpable) takes over the role of the
+single "dumpable" variable from the older kernels?
 
-> This seems to be generally accepted theory and practice in the
-> field of page replacement.
+Maybe someone can tell me, so I can patch arla.
 
-Okay, just seems odd to me, but IANAVMGuru.
-
-..Stu
-
+Tschuess
+	Stefan
 

@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267088AbRG1VGx>; Sat, 28 Jul 2001 17:06:53 -0400
+	id <S267134AbRG1VVQ>; Sat, 28 Jul 2001 17:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267103AbRG1VGn>; Sat, 28 Jul 2001 17:06:43 -0400
-Received: from pc2-camb6-0-cust223.cam.cable.ntl.com ([213.107.107.223]:39297
-	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S267088AbRG1VGk>; Sat, 28 Jul 2001 17:06:40 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: Robert Schiele <rschiele@uni-mannheim.de>
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.4.8-pre1 build error in drivers/parport/parport_pc.c 
-In-Reply-To: Message from Robert Schiele <rschiele@uni-mannheim.de> 
-   of "Sat, 28 Jul 2001 22:29:43 +0200." <20010728222943.A24586@schiele.swm.uni-mannheim.de> 
-In-Reply-To: <01072619531103.06728@localhost.localdomain> <20010727101241.A15014@schiele.swm.uni-mannheim.de> <rschiele@uni-mannheim.de> <E15QX7a-0000gl-00@kings-cross.london.uk.eu.org>  <20010728222943.A24586@schiele.swm.uni-mannheim.de> 
+	id <S267180AbRG1VVH>; Sat, 28 Jul 2001 17:21:07 -0400
+Received: from ohiper1-178.apex.net ([209.250.47.193]:12548 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S267134AbRG1VVA>; Sat, 28 Jul 2001 17:21:00 -0400
+Date: Sat, 28 Jul 2001 16:21:17 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Port tdfxfb to new-style PCI API
+Message-ID: <20010728162117.A9266@hapablap.dyn.dhs.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-625210863P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 28 Jul 2001 22:06:43 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E15QbIJ-0001kG-00@kings-cross.london.uk.eu.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 4:15pm  up 23 min,  1 user,  load average: 1.00, 1.00, 0.80
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
---==_Exmh_-625210863P
-Content-Type: text/plain; charset=us-ascii
+I have created a patch that changes the 3dfx framebuffer driver so that
+it uses the new-style PCI api.  Additionally, it adds the ability to
+pass parameters to the module (previously these were only availible when
+built into the kernel) and makes the indention conformant to
+Coding-Style.
 
->The "extern" was only an escape for the case that the compiler cannot
->inline the function. Due to the fact, that current gcc has "static
->inline" it is better to use this, because with "static inline" we do
->not need to keep a global symbol just for the case the compiler is not
->capable to inline the function in some place.
+I've tested it myself as both module and built-in with no problems, but
+you can never test too much.  I'd like to ask adventuresome users of
+this driver to try out my patch, with the hopeful end result of
+inclusion into the kernel.
 
-The versions in the .c file are there so that the "ops" structure can point to 
-them.  The ones in the .h file are purely an optimisation to allow you to 
-short-circuit the ops struct if you know only one driver is involved.
+The patch is availible from:
+http://www.apex.net/users/trwalter/tdfxfb-patch.gz
+Its 22k compressed (large because of style/indention changes), so I was
+hesitant to post it to the list.
 
-Changing this stuff to "static inline" still offends my sense of aesthetics 
-somewhat, but I guess it's okay if you have checked that it still does the 
-right thing in the CONFIG_PARPORT_OTHER case.
-
-p.
-
-
---==_Exmh_-625210863P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999 (debian)
-
-iD8DBQE7YyljVTLPJe9CT30RAnS9AKCrjl0qukvdt9pbsdfQMfvH77PMrgCeOTMj
-1TSq0ueN00Hh4Pgu6BrmiY8=
-=tYN+
------END PGP SIGNATURE-----
-
---==_Exmh_-625210863P--
+Many thanks in advance to testers, comments are welcome.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

@@ -1,318 +1,173 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319457AbSH3Aw4>; Thu, 29 Aug 2002 20:52:56 -0400
+	id <S319281AbSH3BKV>; Thu, 29 Aug 2002 21:10:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319472AbSH3Awz>; Thu, 29 Aug 2002 20:52:55 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:5369 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S319457AbSH3Aww>;
-	Thu, 29 Aug 2002 20:52:52 -0400
-Date: Thu, 29 Aug 2002 17:55:34 -0700
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       irda-users@lists.sourceforge.net
-Subject: Re: [PATCH 2.5] : ir252_nsc_speed_both.diff (don't apply ir255_nsc_speed-4.diff)
-Message-ID: <20020830005534.GA14430@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20020829224900.GD14118@bougret.hpl.hp.com>
+	id <S319331AbSH3BKU>; Thu, 29 Aug 2002 21:10:20 -0400
+Received: from ppp-217-133-223-7.dialup.tiscali.it ([217.133.223.7]:55695 "EHLO
+	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S319281AbSH3BKT>;
+	Thu, 29 Aug 2002 21:10:19 -0400
+Subject: [PATCH] i386 dynamic fixup SMP deadlock workaround
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-MmbBEQ+WUKaQmloZjARt"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 Aug 2002 03:14:39 +0200
+Message-Id: <1030670079.1491.164.camel@ldb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020829224900.GD14118@bougret.hpl.hp.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Linus,
 
-	The subject of this e-mail probably gave it away, but I mixed
-up my patches and sent you the *WRONG* patch. Not only it contains a
-bug, but it will prevent the subsequent driver patch to apply cleanly.
-	Please ignore the patch called ir255_nsc_speed-4.diff (or
-revert it if you already applied it), and use this one instead.
-	Sorry for the mistake...
+--=-MmbBEQ+WUKaQmloZjARt
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-	Jean
+This patch works around the deadlock that would happen if another CPU is
+waiting with interrupts disabled for the CPU executing the fixup.
 
-On Thu, Aug 29, 2002 at 03:49:01PM -0700, jt wrote:
-> ir255_nsc_speed-4.diff :
-> ----------------------
-> 	o [FEATURE] Cleanly change speed back to 9600bps
-> 	o [CORRECT] Change speed under spinlock/irq disabled
-> 	o [CORRECT] Make sure interrupt handlers don't mess irq mask
-> 	o [CORRECT] Don't change speed if we haven't fully finished to Tx
+This is worked around by waiting up to 1000 iterations and emulating the
+instruction if the other CPU still doesn't respond.
 
-	Correct patch is :
+This patch is sent mostly for completeness since I think that at this
+point it is better to just drop the idea of dynamic fixups and instead
+do them at bootup (or module load) using a list of fixups in a separate
+section: this way SMP becomes irrelevant.
 
-ir252_nsc_speed_both.diff :
--------------------------
-	o [FEATURE] Cleanly change speed back to 9600bps
-	o [CORRECT] Change speed under spinlock/irq disabled
-	o [CORRECT] Make sure interrupt handlers don't mess irq mask
-	o [CORRECT] Don't change speed if we haven't fully finished to Tx
+In other words, dynamic fixups are cooler and slightly better due to
+automatic support of compiler prefetches, modules and reduced size but
+given the Intel erratas, the cost in stability becomes too much.
 
 
-diff -u -p linux/drivers/net/irda/nsc-ircc.d3.c linux/drivers/net/irda/nsc-ircc.c
---- linux/drivers/net/irda/nsc-ircc.d3.c	Fri Aug 23 11:06:10 2002
-+++ linux/drivers/net/irda/nsc-ircc.c	Fri Aug 23 11:07:06 2002
-@@ -130,7 +130,7 @@ static int  nsc_ircc_hard_xmit_sir(struc
- static int  nsc_ircc_hard_xmit_fir(struct sk_buff *skb, struct net_device *dev);
- static int  nsc_ircc_pio_write(int iobase, __u8 *buf, int len, int fifo_size);
- static void nsc_ircc_dma_xmit(struct nsc_ircc_cb *self, int iobase);
--static void nsc_ircc_change_speed(struct nsc_ircc_cb *self, __u32 baud);
-+static __u8 nsc_ircc_change_speed(struct nsc_ircc_cb *self, __u32 baud);
- static void nsc_ircc_interrupt(int irq, void *dev_id, struct pt_regs *regs);
- static int  nsc_ircc_is_receiving(struct nsc_ircc_cb *self);
- static int  nsc_ircc_read_dongle_id (int iobase);
-@@ -953,17 +953,19 @@ static void nsc_ircc_change_dongle_speed
-  *
-  *    Change the speed of the device
-  *
-+ * This function *must* be called with irq off and spin-lock.
-  */
--static void nsc_ircc_change_speed(struct nsc_ircc_cb *self, __u32 speed)
-+static __u8 nsc_ircc_change_speed(struct nsc_ircc_cb *self, __u32 speed)
+diff --exclude-from=/home/ldb/src/linux-exclude -urNdp linux-2.5.32_fixup_smp/arch/i386/kernel/fixup.c linux-2.5.32_fixup_smp_unlock/arch/i386/kernel/fixup.c
+--- linux-2.5.32_fixup_smp/arch/i386/kernel/fixup.c	2002-08-29 00:01:15.000000000 +0200
++++ linux-2.5.32_fixup_smp_unlock/arch/i386/kernel/fixup.c	2002-08-30 02:57:22.000000000 +0200
+@@ -54,7 +54,6 @@
+    done and instructions are emulated if necessary.
+ */
+ u8 lock_fixup = 0;
+-#define perform_fixup lock_fixup
+ 
+ #ifdef CONFIG_SMP
+ static spinlock_t smp_lock = SPIN_LOCK_UNLOCKED;
+@@ -150,20 +149,29 @@ static inline void dynamic_fixup_send_IP
+ 	}
+ }
+ 
+-static void __dynamic_fixup_smp_lock(void)
++#define MAX_WAIT_ITERS 1000
++static unsigned __dynamic_fixup_smp_lock(void)
  {
- 	struct net_device *dev = self->netdev;
- 	__u8 mcr = MCR_SIR;
- 	int iobase; 
- 	__u8 bank;
-+	__u8 ier;                  /* Interrupt enable register */
++	int count;
+ 	local_irq_disable();
+ 	dynamic_fixup_smp_mask_lock();
  
- 	IRDA_DEBUG(2, __FUNCTION__ "(), speed=%d\n", speed);
- 
--	ASSERT(self != NULL, return;);
-+	ASSERT(self != NULL, return 0;);
- 
- 	iobase = self->io.fir_base;
- 
-@@ -1038,18 +1040,21 @@ static void nsc_ircc_change_speed(struct
- 	if (speed > 115200) {
- 		/* Install FIR xmit handler */
- 		dev->hard_start_xmit = nsc_ircc_hard_xmit_fir;
--		outb(IER_SFIF_IE, iobase+IER);
-+		ier = IER_SFIF_IE;
- 		nsc_ircc_dma_receive(self);
- 	} else {
- 		/* Install SIR xmit handler */
- 		dev->hard_start_xmit = nsc_ircc_hard_xmit_sir;
--		outb(IER_RXHDL_IE, iobase+IER);
-+		ier = IER_RXHDL_IE;
- 	}
-+	/* Set our current interrupt mask */
-+	outb(ier, iobase+IER);
-     	
- 	/* Restore BSR */
- 	outb(bank, iobase+BSR);
--	netif_wake_queue(dev);
--	
+ 	dynamic_fixup_send_IPIs(DYNAMIC_FIXUP_SMP_LOCK_VECTOR);
+-	while (smp_lock_spinning_cpus != cpu_online_map) {}
 +
-+	/* Make sure interrupt handlers keep the proper interrupt mask */
-+	return(ier);
++	/* If MAX_WAIT_ITERS iterations elapse without the CPU stopping,
++	   we emulate to instruction; this is done to avoid deadlocks */
++	for(count = 0; (smp_lock_spinning_cpus != cpu_online_map) && (count < MAX_WAIT_ITERS); ++count) {}
++
++	return count < MAX_WAIT_ITERS;
  }
  
- /*
-@@ -1074,20 +1079,36 @@ static int nsc_ircc_hard_xmit_sir(struct
- 
- 	netif_stop_queue(dev);
- 		
-+	/* Make sure tests *& speed change are atomic */
-+	spin_lock_irqsave(&self->lock, flags);
-+	
- 	/* Check if we need to change the speed */
- 	speed = irda_get_next_speed(skb);
- 	if ((speed != self->io.speed) && (speed != -1)) {
--		/* Check for empty frame */
-+		/* Check for empty frame. */
- 		if (!skb->len) {
--			nsc_ircc_change_speed(self, speed); 
-+			/* If we just sent a frame, we get called before
-+			 * the last bytes get out (because of the SIR FIFO).
-+			 * If this is the case, let interrupt handler change
-+			 * the speed itself... Jean II */
-+			if (self->io.direction == IO_RECV) {
-+				nsc_ircc_change_speed(self, speed); 
-+				/* TODO : For SIR->SIR, the next packet
-+				 * may get corrupted - Jean II */
-+				netif_wake_queue(dev);
-+			} else {
-+				self->new_speed = speed;
-+				/* Queue will be restarted after speed change
-+				 * to make sure packets gets through the
-+				 * proper xmit handler - Jean II */
-+			}
-+			spin_unlock_irqrestore(&self->lock, flags);
- 			dev_kfree_skb(skb);
- 			return 0;
- 		} else
- 			self->new_speed = speed;
- 	}
- 
--	spin_lock_irqsave(&self->lock, flags);
--	
- 	/* Save current bank */
- 	bank = inb(iobase+BSR);
- 	
-@@ -1126,20 +1147,38 @@ static int nsc_ircc_hard_xmit_fir(struct
- 
- 	netif_stop_queue(dev);
- 	
-+	/* Make sure tests *& speed change are atomic */
-+	spin_lock_irqsave(&self->lock, flags);
-+
- 	/* Check if we need to change the speed */
- 	speed = irda_get_next_speed(skb);
- 	if ((speed != self->io.speed) && (speed != -1)) {
--		/* Check for empty frame */
-+		/* Check for empty frame. */
- 		if (!skb->len) {
--			nsc_ircc_change_speed(self, speed); 
-+			/* If we are currently transmitting, defer to
-+			 * interrupt handler. - Jean II */
-+			if(self->tx_fifo.len == 0) {
-+				nsc_ircc_change_speed(self, speed); 
-+				netif_wake_queue(dev);
-+			} else {
-+				self->new_speed = speed;
-+				/* Keep queue stopped :
-+				 * the speed change operation may change the
-+				 * xmit handler, and we want to make sure
-+				 * the next packet get through the proper
-+				 * Tx path, so block the Tx queue until
-+				 * the speed change has been done.
-+				 * Jean II */
-+			}
-+			spin_unlock_irqrestore(&self->lock, flags);
- 			dev_kfree_skb(skb);
- 			return 0;
--		} else
-+		} else {
-+			/* Change speed after current frame */
- 			self->new_speed = speed;
-+		}
- 	}
- 
--	spin_lock_irqsave(&self->lock, flags);
--
- 	/* Save current bank */
- 	bank = inb(iobase+BSR);
- 
-@@ -1209,8 +1248,9 @@ static int nsc_ircc_hard_xmit_fir(struct
- 		nsc_ircc_dma_xmit(self, iobase);
- 	}
-  out:
--	/* Not busy transmitting anymore if window is not full */
--	if (self->tx_fifo.free < MAX_TX_WINDOW)
-+	/* Not busy transmitting anymore if window is not full,
-+	 * and if we don't need to change speed */
-+	if ((self->tx_fifo.free < MAX_TX_WINDOW) && (self->new_speed == 0))
- 		netif_wake_queue(self->netdev);
- 
- 	/* Restore bank register */
-@@ -1334,12 +1374,6 @@ static int nsc_ircc_dma_xmit_complete(st
- 		self->stats.tx_packets++;
- 	}
- 
--	/* Check if we need to change the speed */
--	if (self->new_speed) {
--		nsc_ircc_change_speed(self, self->new_speed);
--		self->new_speed = 0;
--	}
--
- 	/* Finished with this frame, so prepare for next */
- 	self->tx_fifo.ptr++;
- 	self->tx_fifo.len--;
-@@ -1356,8 +1390,9 @@ static int nsc_ircc_dma_xmit_complete(st
- 		self->tx_fifo.tail = self->tx_buff.head;
- 	}
- 
--	/* Make sure we have room for more frames */
--	if (self->tx_fifo.free < MAX_TX_WINDOW) {
-+	/* Make sure we have room for more frames and
-+	 * that we don't need to change speed */
-+	if ((self->tx_fifo.free < MAX_TX_WINDOW) && (self->new_speed == 0)) {
- 		/* Not busy transmitting anymore */
- 		/* Tell the network layer, that we can accept more frames */
- 		netif_wake_queue(self->netdev);
-@@ -1634,24 +1669,25 @@ static void nsc_ircc_sir_interrupt(struc
- 	}
- 	/* Check if transmission has completed */
- 	if (eir & EIR_TXEMP_EV) {
--		/* Check if we need to change the speed? */
-+		/* Turn around and get ready to receive some data */
-+		self->io.direction = IO_RECV;
-+		self->ier = IER_RXHDL_IE;
-+		/* Check if we need to change the speed?
-+		 * Need to be after self->io.direction to avoid race with
-+		 * nsc_ircc_hard_xmit_sir() - Jean II */
- 		if (self->new_speed) {
- 			IRDA_DEBUG(2, __FUNCTION__ "(), Changing speed!\n");
--			nsc_ircc_change_speed(self, self->new_speed);
-+			self->ier = nsc_ircc_change_speed(self,
-+							  self->new_speed);
- 			self->new_speed = 0;
-+			netif_wake_queue(self->netdev);
- 
- 			/* Check if we are going to FIR */
- 			if (self->io.speed > 115200) {
--				/* Should wait for status FIFO interrupt */
--				self->ier = IER_SFIF_IE;
--
- 				/* No need to do anymore SIR stuff */
- 				return;
- 			}
- 		}
--		/* Turn around and get ready to receive some data */
--		self->io.direction = IO_RECV;
--		self->ier = IER_RXHDL_IE;
- 	}
- 
- 	/* Rx FIFO threshold or timeout */
-@@ -1710,19 +1746,36 @@ static void nsc_ircc_fir_interrupt(struc
- 		}
- 	} else if (eir & EIR_DMA_EV) {
- 		/* Finished with all transmissions? */
--		if (nsc_ircc_dma_xmit_complete(self)) {		
--			/* Check if there are more frames to be transmitted */
--			if (irda_device_txqueue_empty(self->netdev)) {
--				/* Prepare for receive */
--				nsc_ircc_dma_receive(self);
--			
--				self->ier = IER_SFIF_IE;
-+		if (nsc_ircc_dma_xmit_complete(self)) {
-+			if(self->new_speed != 0) {
-+				/* As we stop the Tx queue, the speed change
-+				 * need to be done when the Tx fifo is
-+				 * empty. Ask for a Tx done interrupt */
-+				self->ier = IER_TXEMP_IE;
-+			} else {
-+				/* Check if there are more frames to be
-+				 * transmitted */
-+				if (irda_device_txqueue_empty(self->netdev)) {
-+					/* Prepare for receive */
-+					nsc_ircc_dma_receive(self);
-+					self->ier = IER_SFIF_IE;
-+				} else
-+					WARNING(__FUNCTION__ "(), potential "
-+						"Tx queue lockup !\n");
- 			}
- 		} else {
- 			/*  Not finished yet, so interrupt on DMA again */
- 			self->ier = IER_DMA_IE;
- 		}
-+	} else if (eir & EIR_TXEMP_EV) {
-+		/* The Tx FIFO has totally drained out, so now we can change
-+		 * the speed... - Jean II */
-+		self->ier = nsc_ircc_change_speed(self, self->new_speed);
-+		self->new_speed = 0;
-+		netif_wake_queue(self->netdev);
-+		/* Note : nsc_ircc_change_speed() restarted Rx fifo */
- 	}
-+
- 	outb(bank, iobase+BSR);
+-static inline void dynamic_fixup_smp_lock(void)
++static inline unsigned dynamic_fixup_smp_lock(void)
+ {
+ 	/* check if we are fixing up and we are smp */	
+ 	if(lock_fixup == 0xf0)
+-		__dynamic_fixup_smp_lock();
++		return __dynamic_fixup_smp_lock();
++	else
++		return lock_fixup;
  }
  
+ static inline void dynamic_fixup_smp_unlock(void)
+@@ -176,7 +184,7 @@ static inline void dynamic_fixup_smp_unl
+ 	}
+ }
+ #else
+-#define dynamic_fixup_smp_lock() do {} while(0)
++#define dynamic_fixup_smp_lock() lock_fixup
+ #define dynamic_fixup_smp_unlock() do {} while(0)
+ #endif
+ 
+@@ -427,9 +435,10 @@ dynamic_fixup_start(void)
+ void
+ dynamic_fixup_x86_int(u32 ecx, u32 edx, u32 eax, u8 * eip)
+ {
++	unsigned perform_fixup;
+ 	u8 *instr = eip - 2;
+ 	u32 value;
+-	dynamic_fixup_smp_lock();
++	perform_fixup = dynamic_fixup_smp_lock();
+ 	value = atomic_read_unaligned32((u32 *) instr);
+ 	if ((value & 0xffff) == (0xcd | (DYNAMIC_FIXUP_VECTOR << 8))) {
+ 		switch ((u8) (value >> 16)) {
+@@ -487,9 +496,10 @@ dynamic_fixup_x86_int(u32 ecx, u32 edx, 
+ void
+ dynamic_fixup_x86_int3(u32 ecx, u32 edx, u32 eax, u8 * eip)
+ {
++	unsigned perform_fixup;
+ 	u8 *instr = eip - 1;
+ 	u32 value;
+-	dynamic_fixup_smp_lock();
++	perform_fixup = dynamic_fixup_smp_lock();
+ 	value = atomic_read_unaligned32((u32 *) instr);
+ 	if ((u8) value == 0xcc) {
+ 		switch ((u8) (value >> 8)) {
+@@ -554,7 +564,7 @@ modrm_length(u32 value)
+ #define mod2 ((value >> 16) & 0xc0)
+ 
+ static inline void
+-handle_prefetch(decl_atomic u8 ** pinstr)
++handle_prefetch(decl_atomic unsigned perform_fixup, u8 ** pinstr)
+ {
+ 	u8 *instr = *pinstr;
+ 	STAT_(prefetch);
+@@ -572,9 +582,10 @@ handle_prefetch(decl_atomic u8 ** pinstr
+ int
+ dynamic_fixup_x86_ud(u8 ** pinstr)
+ {
++	unsigned perform_fixup;
+ 	u8 *instr = *pinstr;
+ 	u32 value;
+-	dynamic_fixup_smp_lock();
++	perform_fixup = dynamic_fixup_smp_lock();
+ 	value = atomic_read_unaligned32((u32 *) instr);
+ 	switch ((u8) value) {
+ 	case 0x0f:
+@@ -594,14 +605,14 @@ dynamic_fixup_x86_ud(u8 ** pinstr)
+ 			switch (regop2) {
+ 			case 0:	/* prefetch */
+ 			case 1:	/* prefetchw */
+-				handle_prefetch(want_atomic pinstr);
++				handle_prefetch(want_atomic perform_fixup, pinstr);
+ 				break;
+ 			}
+ 			break;
+ 		case 0x18:	/* Intel prefetch group 16 */
+ 			if (mod2 != MOD_REG) {
+ 				if (regop2 <= 3) {	/* prefetch{nta,t[012]} */
+-					handle_prefetch(want_atomic pinstr);
++					handle_prefetch(want_atomic perform_fixup, pinstr);
+ 				}
+ 			}
+ 			break;
+
+
+--=-MmbBEQ+WUKaQmloZjARt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9bsb/djkty3ft5+cRAhS0AJ0Zq3U7I/REuR3+txeFEPFGSmpy1gCgnaWW
+7r0Iat5IV2HTaMBTS8mTdqs=
+=lXzT
+-----END PGP SIGNATURE-----
+
+--=-MmbBEQ+WUKaQmloZjARt--

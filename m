@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313937AbSDKDoV>; Wed, 10 Apr 2002 23:44:21 -0400
+	id <S313974AbSDKDtZ>; Wed, 10 Apr 2002 23:49:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313974AbSDKDoU>; Wed, 10 Apr 2002 23:44:20 -0400
-Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:38639 "HELO
-	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S313937AbSDKDoU>; Wed, 10 Apr 2002 23:44:20 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Robert Love <rml@tech9.net>
-Subject: Re: 0(1)-patch, where did it go?
-Date: Thu, 11 Apr 2002 05:44:13 +0200
-X-Mailer: KMail [version 1.4]
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>, George Anzinger <george@mvista.com>,
-        Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <200204110527.35486.Dieter.Nuetzel@hamburg.de> <1018495836.6529.153.camel@phantasy>
+	id <S313975AbSDKDtY>; Wed, 10 Apr 2002 23:49:24 -0400
+Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:29701 "EHLO
+	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
+	id <S313974AbSDKDtY>; Wed, 10 Apr 2002 23:49:24 -0400
+Message-ID: <007b01c1e10b$93b27300$7e0aa8c0@bridge>
+From: "Jeremy Jackson" <jerj@coplanar.net>
+To: "Suparna Bhattacharya" <suparna@in.ibm.com>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        <linux-kernel@vger.kernel.org>, <lkcd-devel@lists.sourceforge.net>
+In-Reply-To: <00c501c1dce3$0ed806d0$7e0aa8c0@bridge> <1674141067.1018028922@[10.10.2.3]> <003301c1dd16$855df1b0$7e0aa8c0@bridge> <3CB144BE.9DC8B034@in.ibm.com>
+Subject: Re: Faster reboots (and a better way of taking crashdumps?)
+Date: Wed, 10 Apr 2002 20:47:17 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200204110544.13799.Dieter.Nuetzel@hamburg.de>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Donnerstag, 11. April 2002 :30, Robert Love wrote:
-> On Wed, 2002-04-10 at 23:27, Dieter Nützel wrote:
-> > But I see some kernel hangs with preemption on UP.
-> > It happens only during "make bzlilo" (the linking stage). Robert?
-> > Apart from that it works well.
->
-> It is probably lock-break, not preempt.  I don't have lock-break patches
-> for 2.4.19-pre yet.  Lock-break/low-latency and the more general lock
-> breaking / explicit schedule work is very reliant on the version of the
-> kernel they were designed against.  This is why this approach is not a
-> proper long-term solution ...
+Should this go off lkml?
 
-OK, thanks Robert will try without it after some sleep.
+----- Original Message ----- 
+From: "Suparna Bhattacharya" <suparna@in.ibm.com>
+Sent: Monday, April 08, 2002 12:20 AM
+ 
+> > I'm currently researching combining the two, to create a LinuxBIOS
+> > firmware debug console, which will allow complete crash dump to
+> > be taken after a hardware reset, with the smallest possible Heisenburg
+> > effect, aside from a hardware debugger.
+> 
+> So how is the actual writeout accomplished ?(via LinuxBIOS ?)
 
-But preemption without lock-break on 2.4 is like running without preemption.
-The general latency problem with O(1) for 2.4 still stands.
-Do you have similar observations with the current -ac tree?
-You should have my numbers.
+well it's just an idea just now. In order to do this from code in rom,
+I immagine it would just dump physical memory to a raw partition,
+using polling ide drivers in LinuxBIOS.  This is probably a step
+backwards, compared to modern crash dumps, but it would
+allow zero alteration of memory.
 
-I only would bring your focus somewhat back to 2.4 'cause 2.6 is so far...
+It may be possible to do with a standard flash size of 128KiB,
+though, which would allow virtually all motherboards to support it.
 
-Thanks,
-	Dieter
+Jeremy

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281459AbRKMD7k>; Mon, 12 Nov 2001 22:59:40 -0500
+	id <S281341AbRKMEGc>; Mon, 12 Nov 2001 23:06:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281461AbRKMD7b>; Mon, 12 Nov 2001 22:59:31 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:34185 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S281459AbRKMD7T>; Mon, 12 Nov 2001 22:59:19 -0500
-Date: Mon, 12 Nov 2001 20:58:42 -0700
-Message-Id: <200111130358.fAD3wgb16617@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S281277AbRKMEGW>; Mon, 12 Nov 2001 23:06:22 -0500
+Received: from mail315.mail.bellsouth.net ([205.152.58.175]:19158 "EHLO
+	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281341AbRKMEGD>; Mon, 12 Nov 2001 23:06:03 -0500
+Message-ID: <3BF09C16.A64FC57E@mandrakesoft.com>
+Date: Mon, 12 Nov 2001 23:05:42 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+        kaos@ocs.com.au
 Subject: Re: GPLONLY kernel symbols???
-In-Reply-To: <Pine.GSO.4.21.0111122249160.22925-100000@weyl.math.psu.edu>
-In-Reply-To: <200111130324.fAD3OE916102@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0111122249160.22925-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.LNX.4.33.0110160927030.24895-100000@devel.office>
+		<30375.1003285059@kao2.melbourne.sgi.com>
+		<20011017151534.B91069@compsoc.man.ac.uk> <200111130257.fAD2vZt15653@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> 
-> On Mon, 12 Nov 2001, Richard Gooch wrote:
-> 
-> > Dave Jones writes:
-> > > How about running mtrr.c & devfs code through scripts/Lindent
-> > > sometime btw?
-> > 
-> > That would be a step backwards: I wouldn't be able to read my own code
-> > then.
-> 
-> You mean that you are unable to read any of the core kernel source?
-> That would explain a lot...
+Richard Gooch wrote:
+> BTW: I had to edit after applying your patch: it didn't conform to the
+> Style[tm].
 
-Were you born rude, or did you have to practice it?
+Dude.  Really.  Have you actually read CodingStyle?  No joke, I hear
+complaints about your code formatting from several [non-viro :):)]
+sources.
 
-				Regards,
+The practice of non-standard indentation and non-standard "if"
+formatting -really- makes the code hard to read.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Is there a good reason why your code is vehemently different from
+CodingStyle?
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

@@ -1,74 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbTLAWsU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 17:48:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264123AbTLAWsU
+	id S264151AbTLAXGX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 18:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbTLAXGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 17:48:20 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:21700 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264113AbTLAWsS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 17:48:18 -0500
-Subject: Re: System clock and speedstepping
-From: john stultz <johnstul@us.ibm.com>
-To: Raffaele Sandrini <rasa@gmx.ch>
-Cc: lkml <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>
-In-Reply-To: <200311261943.38002.rasa@gmx.ch>
-References: <200311261943.38002.rasa@gmx.ch>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1070318452.23568.577.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 01 Dec 2003 14:40:53 -0800
+	Mon, 1 Dec 2003 18:06:23 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:22740 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S264120AbTLAXGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 18:06:20 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jens Axboe <axboe@suse.de>
+Date: Tue, 2 Dec 2003 10:06:00 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16331.51544.325544.106513@notabene.cse.unsw.edu.au>
+Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Linux-raid maillist <linux-raid@vger.kernel.org>,
+       Eric Jensen <ej@xmission.com>
+Subject: Re: Reproducable OOPS with MD RAID-5 on 2.6.0-test11 - with XFS
+In-Reply-To: message from Jens Axboe on Monday December 1
+References: <3FCB4AFB.3090700@backtobasicsmgmt.com>
+	<20031201141144.GD12211@suse.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-11-28 at 08:09, Raffaele Sandrini wrote:
-> I'm running here a dell inspirion 5150 with a P4 with Kernel 2.6.0-t9.
-> My problem is: If the laptop is running on bateries and the system is not idle 
-> the system clock (i dont think the hardware clock too) runns min twice as 
-> fast as it should (if not 4 times as fast as it should).
+On Monday December 1, axboe@suse.de wrote:
+> On Mon, Dec 01 2003, Kevin P. Fleming wrote:
+> > I've got a new system here with six SATA disks set up in a RAID-5 array 
+> > (no partition tables, using the whole disks). I then used LVM2 tools to 
+> > make the RAID array a physical volume, created a logical volume and 
+> > formatted that volume with an XFS filesystem.
+> > 
+> > Mounting the filesystem and copying over the 2.6 kernel source tree 
+> > produces this OOPS (and is pretty reproducable):
+> > 
+> > kernel BUG at fs/bio.c:177!
+> 
+> It's doing a put on an already freed bio, that's really bad.
+> 
 
-Hmmm. Can any of the cpufreq folks comment on this? I'm guessing
-time_cpufreq_notifier() isn't updating fast_gettimeoffset_quotient
-properly. I've never had a laptop that did cpufreq properly, so I've
-never been able to test this. 
+That makes 2 bug reports that seem to suggest that raid5 is calling
+bi_end_io twice on the one bio. 
 
-> I am able to step my CPU via the software interface CPUFREQ of the kernel (via 
-> the P4 clockmod driver). After some playing around i recognized that if i set 
-> the CPU freq to a very low value (e.g 100 MHZ) i get this msg on the console:
-> <msg>
-> Losing too many ticks!
-> TSC cannot be used as a timesource. (Are you running with SpeedStep?)
-> Falling back to a sane timesource.
-> </msg>
-> The funny thing is: After this msg the clock is running correct. I can set my 
-> CPU freq to what i want and load my system as much i want with a corect 
-> clock.
+The other one was from Eric Jensen <ej@xmission.com>
+with Subject: PROBLEM: 2.6.0-test10 BUG/panic in mpage_end_io_read
+on  26 Nov 2003 
 
-If the cpufreq code isn't working right, the system will seem to loose a
-massive amount of timer ticks, which will be noted and we'll fall back
-to using the PIT as a time source.  Although if you're seeing such heavy
-skew, I'm surprised we don't trip that code earlier. 
+Both involve xfs and raid5.
+I, of course, am tempted to blame xfs.....
 
-> I don't know what "sane timesource" and "TSC" is. I also dont know where 
-> exaclty the problem is. I solved for the moment with an init script which 
-> checks if the laptop is running on bats and if so its stepping the system 
-> down for a sec and up again to force the above error to come. I know that 
-> this is a VERY dirty solution but i see know other way around this for the 
-> moment :(.
+In this case, I don't think that raid5 calling bi_end_io twice would
+cause the problem as the bi_end_io that raid5 calls is  clone_end_io,
+and that has an atomic_t to make sure it only calls it's bi_end_io
+(bio_end_io_pagebuf) once, even if it were called multiple times itself.
 
-The "sane timesource" is the PIT (programmable interval timer). The TSC
-is the Time-Stamp-Counter which is basically a cycle counter on the cpu.
-If you want to boot using the PIT instead of the TSC, you can override
-the default time source by using  "clock=pit" as a boot option. However
-hopefully the problem can be fixed by adjusting the cpufreq code. As I
-don't have any such hardware, would you be interested in testing
-possible patches?
+So I'm wondering if xfs might be doing something funny after
+submitting the request to raid5... though I don't find that convincing
+either.
 
-thanks
--john
+In this reports, the IO seems to have been request from the
+pagebuf stuff (fs/xfs/pagebuf/page_buf.c).  In the other one it
+is coming from mpage, presumably from inside xfs/linux/xfs_aops.c
+These are very different code paths and are unlikely to share a bug
+like this.
 
+Which does tend to point the finger back at raid5. :-(
 
+I'd love to see some more reports of similar bugs, in the hope that
+they might shed some more light.
+
+NeilBrown

@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVCIQfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVCIQjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVCIQfv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 11:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVCIQfv
+	id S261440AbVCIQjO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 11:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVCIQjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 11:35:51 -0500
-Received: from mail.kroah.org ([69.55.234.183]:22411 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261327AbVCIQfs (ORCPT
+	Wed, 9 Mar 2005 11:39:13 -0500
+Received: from mail.kroah.org ([69.55.234.183]:17804 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261636AbVCIQh4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 11:35:48 -0500
-Date: Wed, 9 Mar 2005 08:35:18 -0800
+	Wed, 9 Mar 2005 11:37:56 -0500
+Date: Wed, 9 Mar 2005 08:37:48 -0800
 From: Greg KH <greg@kroah.com>
-To: Wen Xiong <wendyx@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ patch 4/7] drivers/serial/jsm: new serial device driver
-Message-ID: <20050309163518.GC25079@kroah.com>
-References: <42225A47.3060206@us.ltcfwd.linux.ibm.com> <20050228063954.GB23595@kroah.com> <4228CE41.2000102@us.ltcfwd.linux.ibm.com> <20050304220116.GA1201@kroah.com> <422CD9DB.10103@us.ltcfwd.linux.ibm.com> <20050308064424.GF17022@kroah.com> <422DF525.8030606@us.ltcfwd.linux.ibm.com> <20050308235807.GA11807@kroah.com> <422F1A8A.4000106@us.ltcfwd.linux.ibm.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       khali@linux-fr.org
+Subject: Re: [PATCH] PCI: One more Asus SMBus quirk
+Message-ID: <20050309163748.GD25079@kroah.com>
+References: <20050308233743.GB11454@kroah.com> <Pine.LNX.3.96.1050309110218.3298A-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <422F1A8A.4000106@us.ltcfwd.linux.ibm.com>
+In-Reply-To: <Pine.LNX.3.96.1050309110218.3298A-100000@gatekeeper.tmr.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 10:47:22AM -0500, Wen Xiong wrote:
-> +static ssize_t jsm_driver_debug_show(struct device_driver *ddp, char *buf)
-> +{
-> +	return snprintf(buf, PAGE_SIZE, "0x%x\n", jsm_debug);
-> +}
-> +static DRIVER_ATTR(debug, S_IRUSR, jsm_driver_debug_show, NULL);
+On Wed, Mar 09, 2005 at 11:06:15AM -0500, Bill Davidsen wrote:
+> On Tue, 8 Mar 2005, Greg KH wrote:
+> 
+> > On Tue, Mar 08, 2005 at 05:18:16PM -0500, Bill Davidsen wrote:
+> > > Greg KH wrote:
+> > > >ChangeSet 1.1998.11.27, 2005/02/25 15:48:28-08:00, khali@linux-fr.org
+> > > >
+> > > >[PATCH] PCI: One more Asus SMBus quirk
+> > > >
+> > > >One more Asus laptop requiring the SMBus quirk (W1N model).
+> > > >
+> > > >Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> > > >Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> > > 
+> > > Hopefully this and the double-free patch will be included in 2.6.11.n+1? 
+> > 
+> > what double-free patch?
+> 
+> ChangeSet 1.1998.11.26, 2005/02/25 15:48:12-08:00
+> 
+> See <11099696383203@kroah.com>.
 
-Should just be a module paramater, right?  So you can drop this too...
+Giving just the Subject: would have been easier to find the patch...
 
-This file is getting quite small now :)
+> Or do you feel the possible results are harmless enough to wait for the
+> next release? Your call, obviously.
 
-thanks,
+I'll add it to the -stable queue, thanks for pointing it out.
 
 greg k-h

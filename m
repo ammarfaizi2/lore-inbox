@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133087AbQL3SUI>; Sat, 30 Dec 2000 13:20:08 -0500
+	id <S135303AbQL3SXy>; Sat, 30 Dec 2000 13:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135248AbQL3ST7>; Sat, 30 Dec 2000 13:19:59 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17162 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133087AbQL3STw>; Sat, 30 Dec 2000 13:19:52 -0500
-Subject: Re: Linux 2.2.18: /proc/apm slows system time (was: Linux 2.2.19pre3)
-To: J.A.K.Mouw@ITS.TUDelft.NL (Erik Mouw)
-Date: Sat, 30 Dec 2000 17:50:51 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        matthias.andree@stud.uni-dortmund.de (Matthias Andree),
-        linux-kernel@vger.kernel.org (Linux kernel mailing list)
-In-Reply-To: <20001230183837.C1536@arthur.ubicom.tudelft.nl> from "Erik Mouw" at Dec 30, 2000 06:38:38 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135301AbQL3SXm>; Sat, 30 Dec 2000 13:23:42 -0500
+Received: from p3EE3C958.dip.t-dialin.net ([62.227.201.88]:11524 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S135300AbQL3SX3>; Sat, 30 Dec 2000 13:23:29 -0500
+Date: Sat, 30 Dec 2000 18:21:54 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SYN_SENT block
+Message-ID: <20001230182154.A1950@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20001227162518.A25171@confucius.usc.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14CQ9d-0006qx-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001227162518.A25171@confucius.usc.edu>; from rapela@sipi.usc.edu on Wed, Dec 27, 2000 at 16:25:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > made the box visibly stall and jerk doing X operations
+On Wed, 27 Dec 2000, Joaquin Rapela wrote:
+
+> I am not a linux kernel guy. I am running a spider that sometimes gets
+> blocked for long periods of time.  I run a "netstat -nto" and I
+> observe a socket in state SYS_SENT that seems to be blocked. Its timer
+> keeps on incrementing. 
 > 
-> Yup, same over here. Is there any way to find out if my laptop also
-> enters SMM mode? Just to check if it has the same problem as your
-> laptop.
+> Is there any way to avoid this blocking? Is this a bug in the kernel
+> or something wrong in my TCP/IP configuration/settings.
 
-Not unless you want to stick wires into it and onto the i2c bus 8) At least
-not that I know of other than disassembling the drivers
+There's something wrong with the network: Your SYN packet that is to
+establish the connection to the other machine is never answered by your
+"victim".
 
+There's nothing you can do about that. Talk to non-firewalled, working
+machines to prevent that. Possibly try to connect() to several sockets
+at once (use fork or threads).
+
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,114 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131407AbRDWQIN>; Mon, 23 Apr 2001 12:08:13 -0400
+	id <S131733AbRDWQKd>; Mon, 23 Apr 2001 12:10:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131484AbRDWQH5>; Mon, 23 Apr 2001 12:07:57 -0400
-Received: from ns.caldera.de ([212.34.180.1]:54535 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S131407AbRDWQHj>;
-	Mon, 23 Apr 2001 12:07:39 -0400
-Date: Mon, 23 Apr 2001 18:06:53 +0200
-From: Marcus Meissner <Marcus.Meissner@caldera.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Marcus Meissner <Marcus.Meissner@caldera.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] es1371 pci fix/cleanup
-Message-ID: <20010423180653.A16759@caldera.de>
-In-Reply-To: <20010423175158.A15604@caldera.de> <3AE45121.926C4B51@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <3AE45121.926C4B51@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Apr 23, 2001 at 11:58:25AM -0400
+	id <S131484AbRDWQKY>; Mon, 23 Apr 2001 12:10:24 -0400
+Received: from dire.bris.ac.uk ([137.222.10.60]:1187 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id <S131562AbRDWQKQ>;
+	Mon, 23 Apr 2001 12:10:16 -0400
+Date: Mon, 23 Apr 2001 17:06:48 +0100 (BST)
+From: Matt <madmatt@bits.bris.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: ioctl arg passing
+Message-ID: <Pine.LNX.4.21.0104231648330.1089-100000@bits.bris.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 11:58:25AM -0400, Jeff Garzik wrote:
-> Marcus Meissner wrote:
-> > 
-> > Hi,
-> > 
-> > This moves pci_enable_device in the es1371 driver before any resource
-> > access and also replaces the RSRCISIOREGION by just pci_resource_flags
-> > as suggested by Jeff.
-> > 
-> > Tested and verified.
+Righto, first post to the list, here goes:
 
-> Looks ok except error returns.
-> 
-> pci_enable_device - obtain its return value, and return that.
-> 
-> no IORESOURCE_IO or pcidev->irq==0 - I guess -ENODEV would be
-> appropriate.  (basically look at errno.h and make a judgement call which
-> error best fits the situation)
+I'm writing a char device driver for a dsp card that drives a motion
+platform. The basic flow is I basically have to reset the card and upload
+an executable file to it, and then poke the card to run it. Once this is
+done, I can issue instructions to the card/code to pass and return data
+from the card about the platform it's controlling.
 
-Hmm, I think I spotted all places in the probe function. I also return
--ENODEV in case we can't request_region() or request_irq().
+To pass the instructions I'm using a generic ioctl which passes the data
+between user & kernel-space using a struct which is basically like:
 
-Some drivers use EBUSY, some ENOMEM, some ENODEV there, is there
-any standard return value?
+struct instruction_t {
+	__s16 code;
+	__s16 rxlen;
+	__s16 *rxbuf;
+	__s16 txlen;
+	__s16 *txbuf;
+};
 
-Ciao, Marcus
+(rx|tx)len is the length of the extra data that is provided/requested
+in/to be in (rx|tx)buf. Got me so far?
 
-Index: drivers/sound/es1371.c
-===================================================================
-RCS file: /build/mm/work/repository/linux-mm/drivers/sound/es1371.c,v
-retrieving revision 1.7
-diff -u -r1.7 es1371.c
---- drivers/sound/es1371.c	2001/04/17 17:26:05	1.7
-+++ drivers/sound/es1371.c	2001/04/23 16:03:34
-@@ -2771,22 +2771,22 @@
- 	{ SOUND_MIXER_WRITE_IGAIN, 0x4040 }
- };
- 
--#define RSRCISIOREGION(dev,num) (pci_resource_start((dev), (num)) != 0 && \
--				 (pci_resource_flags((dev), (num)) & IORESOURCE_IO))
--
- static int __devinit es1371_probe(struct pci_dev *pcidev, const struct pci_device_id *pciid)
- {
- 	struct es1371_state *s;
- 	mm_segment_t fs;
--	int i, val;
-+	int i, val, res = -1;
- 	unsigned long tmo;
- 	signed long tmo2;
- 	unsigned int cssr;
-+
-+	if ((res=pci_enable_device(pcidev)))
-+		return res;
- 
--	if (!RSRCISIOREGION(pcidev, 0))
--		return -1;
-+	if (!(pci_resource_flags(pcidev, 0) & IORESOURCE_IO))
-+		return -ENODEV;
- 	if (pcidev->irq == 0) 
--		return -1;
-+		return -ENODEV;
- 	i = pci_set_dma_mask(pcidev, 0xffffffff);
- 	if (i) {
- 		printk(KERN_WARNING "es1371: architecture does not support 32bit PCI busmaster DMA\n");
-@@ -2794,7 +2794,7 @@
- 	}
- 	if (!(s = kmalloc(sizeof(struct es1371_state), GFP_KERNEL))) {
- 		printk(KERN_WARNING PFX "out of memory\n");
--		return -1;
-+		return -ENOMEM;
- 	}
- 	memset(s, 0, sizeof(struct es1371_state));
- 	init_waitqueue_head(&s->dma_adc.wait);
-@@ -2822,8 +2822,6 @@
- 		printk(KERN_ERR PFX "io ports %#lx-%#lx in use\n", s->io, s->io+ES1371_EXTENT-1);
- 		goto err_region;
- 	}
--	if (pci_enable_device(pcidev))
--		goto err_irq;
- 	if (request_irq(s->irq, es1371_interrupt, SA_SHIRQ, "es1371", s)) {
- 		printk(KERN_ERR PFX "irq %u in use\n", s->irq);
- 		goto err_irq;
-@@ -2964,7 +2962,7 @@
- 	release_region(s->io, ES1371_EXTENT);
-  err_region:
- 	kfree(s);
--	return -1;
-+	return -ENODEV;
- }
- 
- static void __devinit es1371_remove(struct pci_dev *dev)
+Am I allowed to do this across the ioctl interface? In my ioctl
+"handler" I'm attempting to do:
+
+--8<--
+
+struct instruction_t local;
+__s16 *temp;
+
+copy_from_user( &local, ( struct instruction_t * ) arg, sizeof( struct instruction_t ) );
+temp = kmalloc( sizeof( __s16 ) * local.rxlen, GFP_KERNEL );
+copy_from_user( temp, arg, sizeof( __s16 ) * local.rxlen );
+local.rxbuf = temp;
+temp = kmalloc( sizeof( __s16 ) * local.txlen, GFP_KERNEL );
+...
+
+--8<--
+
+Is this going to work as expected? Or am I gonna generate oops-a-plenty?
+
+Cheers
+
+Matt
+

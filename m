@@ -1,143 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315927AbSENRss>; Tue, 14 May 2002 13:48:48 -0400
+	id <S315937AbSENR4Y>; Tue, 14 May 2002 13:56:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315929AbSENRsr>; Tue, 14 May 2002 13:48:47 -0400
-Received: from mail.eskimo.com ([204.122.16.4]:15370 "EHLO mail.eskimo.com")
-	by vger.kernel.org with ESMTP id <S315927AbSENRsO>;
-	Tue, 14 May 2002 13:48:14 -0400
-Date: Tue, 14 May 2002 10:47:53 -0700
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Elladan <elladan@eskimo.com>, Christoph Hellwig <hch@infradead.org>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
-Message-ID: <20020514104753.A3070@eskimo.com>
-In-Reply-To: <elladan@eskimo.com> <200205131709.g4DH9Fjv006328@pincoya.inf.utfsm.cl> <20020513105250.A30395@eskimo.com> <20020513185723.A2657@infradead.org> <20020514092254.A2581@eskimo.com> <20020514125536.B22935@mark.mielke.cc>
+	id <S315938AbSENR4X>; Tue, 14 May 2002 13:56:23 -0400
+Received: from 213-97-251-19.uc.nombres.ttd.es ([213.97.251.19]:65408 "EHLO
+	mortadelo") by vger.kernel.org with ESMTP id <S315937AbSENR4W>;
+	Tue, 14 May 2002 13:56:22 -0400
+Date: Tue, 14 May 2002 18:00:31 +0000
+From: Ragnar <ragnar@ragnar-hojland.com>
+To: Mike <mikeh@notnowlewis.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fam and libfam
+Message-ID: <20020514180031.GA2051@ragnar-hojland.com>
+In-Reply-To: <200205091421.13741.mikeh@notnowlewis.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-From: Elladan <elladan@eskimo.com>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A second method was proposed as well - create a file with a hole in it,
-map it, then dirty the pages in the hole and exit.  This would not
-require suid.
+On Thu, May 09, 2002 at 02:21:13PM +0100, Mike wrote:
+> Hi all,
+> 
+> I was wondering if there were still patches about to add fam to the kernel, 
+> instead of using libfam? Or have I missed a config option ;)
 
-This is basically a documentation issue, unless someone wants to go fix
-it.  I wouldn't bother myself - it's ext[23] only and not really very
-useful.
+There is support in the kernel for getting back info "a la fam", but this is
+done via signals.
 
-The basic problem is this: the documentation states "This is intended to
-allow for the system to continue functioning even if non-priveleged
-users fill up all the space available to them."  This states that it's a
-security feature.  It does not work as intended - all users are
-privileged to do this - so the documentation should be updated.
-
-I'll send a patch to someone later today.
-
--J
-
-On Tue, May 14, 2002 at 12:55:36PM -0400, Mark Mielke wrote:
-> Notice how the space can only be filled up if a setuid program is used
-> to actually fill it up. Even if it is a partial 'security feature', every
-> administrator knows that setuid violates security in a non-natural way.
-> 
-> 1) Provide a patch and see if it is accepted.
-> 
-> 2) Convince somebody else that they should put time into features of
->    questionable value such as this one.
-> 
-> mark
-> 
-> 
-> 
-> On Tue, May 14, 2002 at 09:22:54AM -0700, Elladan wrote:
-> > I went to google and attempted to find information about the root
-> > reserve space for ext2, as a user wondering about the feature would.  I
-> > couldn't find any documentation that states it's purely a fragmentation
-> > and convenience feature.  I did, however, find documents stating
-> > otherwise.  Note how even Documentation/filesystems/ext2.txt states that
-> > it's a security feature?
-> > 
-> > If this is not a security feature, Documentation/filesystems/ext2.txt
-> > needs to be changed.  Eg., 
-> > 
-> > "In ext2, there is a mechanism for reserving a certain number of blocks
-> > for a particular user (normally the super-user).  This is intended to
-> > keep the filesystem from filling up entirely, which helps combat
-> > fragmentation.  The super-user may still use this space.  Note that this
-> > is not a security feature, and is only provided for convenience -
-> > various methods exist where a user may circumvent this reservation and
-> > use the space if they so wish.  Quotas or separate filesystems should be
-> > used if reliable space limits are needed."
-> > 
-> > 
-> > 
-> > 1. http://web.mit.edu/tytso/www/linux/ext2intro.html
-> > 
-> > Design and Implementation of the Second Extended Filesystem
-> > 
-> > [....] Ext2fs reserves some blocks for the super user (root). Normally,
-> > 5% of the blocks are reserved. This allows the administrator to recover
-> > easily from situations where user processes fill up filesystems.
-> > 
-> > 
-> > 2. Documentation/filesystems/ext2.txt
-> > 
-> > Reserved Space
-> > --------------
-> > 
-> > In ext2, there is a mechanism for reserving a certain number of blocks
-> > for a particular user (normally the super-user).  This is intended to
-> > allow for the system to continue functioning even if non-priveleged
-> > users fill up all the space available to them (this is independent of
-> > filesystem quotas).  It also keeps the filesystem from filling up
-> > entirely which helps combat fragmentation.
-> > 
-> > 
-> > 3. Note what mke2fs prints:
-> > 
-> > 3275 blocks (5.00%) reserved for the super user
-> > 
-> > It does not say "reserved to combat fragmentation"
-> > 
-> > 
-> > -J
-> > 
-> > 
-> > On Mon, May 13, 2002 at 06:57:23PM +0100, Christoph Hellwig wrote:
-> > > On Mon, May 13, 2002 at 10:52:50AM -0700, Elladan wrote:
-> > > > > It is _not_ a security feature, it is meant to keep the filesystem from
-> > > > > fragmenting too badly. root can use that space, since root can do whatever
-> > > > > she wants anyway.
-> > > > 
-> > > > But it *appears* to be a security feature.  Thus, someone might
-> > > > incorrectly depend on it, unless it's clearly documented as otherwise.
-> > > 
-> > > So what.  People rely on chroot() as security feature all the time and
-> > > we don't "fix" it either.  If you need security nothing but gaining
-> > > knowledge about all details helps.
-> > > 
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-> .  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-> |\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-> |  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-> 
->   One ring to rule them all, one ring to find them, one ring to bring them all
->                        and in the darkness bind them...
-> 
->                            http://mark.mielke.cc/
+-- 
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  |  www.brainbench.com
+   U     chaos and madness await thee at its end."

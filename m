@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270810AbTGPNZa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 09:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270813AbTGPNZa
+	id S270813AbTGPNaT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 09:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270815AbTGPNaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 09:25:30 -0400
-Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:26116 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S270810AbTGPNZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 09:25:29 -0400
-Date: Wed, 16 Jul 2003 08:40:12 -0500
-From: Art Haas <ahaas@airmail.net>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Trying to get DMA working with IDE alim15x3 controller
-Message-ID: <20030716134012.GA1161@artsapartment.org>
-References: <20030715233202.GB17444@artsapartment.org> <Pine.SOL.4.30.0307160212040.27735-100000@mion.elka.pw.edu.pl>
+	Wed, 16 Jul 2003 09:30:19 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:61076
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S270813AbTGPNaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 09:30:16 -0400
+Date: Wed, 16 Jul 2003 15:44:43 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: RFC on io-stalls patch
+Message-ID: <20030716134443.GJ4978@dualathlon.random>
+References: <20030714201637.GQ16313@dualathlon.random> <20030715052640.GY833@suse.de> <1058268126.3857.25.camel@dhcp22.swansea.linux.org.uk> <20030715112737.GQ833@suse.de> <20030716124355.GE4978@dualathlon.random> <20030716124656.GY833@suse.de> <20030716125933.GF4978@dualathlon.random> <20030716130442.GZ833@suse.de> <20030716131128.GG4978@dualathlon.random> <20030716132139.GC833@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0307160212040.27735-100000@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030716132139.GC833@suse.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 02:20:36AM +0200, Bartlomiej Zolnierkiewicz wrote:
+On Wed, Jul 16, 2003 at 03:21:39PM +0200, Jens Axboe wrote:
+> On Wed, Jul 16 2003, Andrea Arcangeli wrote:
+> > On Wed, Jul 16, 2003 at 03:04:42PM +0200, Jens Axboe wrote:
+> > > On Wed, Jul 16 2003, Andrea Arcangeli wrote:
+> > > > On Wed, Jul 16, 2003 at 02:46:56PM +0200, Jens Axboe wrote:
+> > > > > Well it's a combined problem. Threshold too high on dirty memory,
+> > > > > someone doing a read well get stuck flushing out as well.
+> > > > 
+> > > > a pure read not. the write throttling should be per-process, then there
+> > > > will be little risk.
+> > > 
+> > > A read from user space, dirtying data along the way.
+> > 
+> > it doesn't necessairly block on dirty memory. We even _free_ ram clean
+> > if needed, exactly because of that. You can raise the amount of _free_
+> > ram up to 99% of the whole ram in your box to be almost guaranteed to
+> > never wait on dirty memory freeing. Of course the default tries to
+> > optimize for writeback cache and there's a reasonable margin to avoid
+> > writing dirty stuff. the sysctl is there for special usages where you
+> > want to never block in a read from userspace regardless whatever the
+> > state of the system.
 > 
-> > I've been using the 2.5 series for a long time now, but I have vague
-> > memories of not needing to use 'ide=nodma' before this patch was added:
-> 
-> I don't think so, but you can safely revert this chunk and check.
-> 
-> > ===== setup-pci.c 1.5 vs 1.6 =====
-> > --- 1.5/drivers/ide/setup-pci.c	Sat Sep 21 07:59:59 2002
-> > +++ 1.6/drivers/ide/setup-pci.c	Tue Sep 24 09:24:57 2002
-> > @@ -250,6 +250,7 @@
-> >
-> >  		switch(dev->device) {
-> >  			case PCI_DEVICE_ID_AL_M5219:
-> > +			case PCI_DEVICE_ID_AL_M5229:
-> >  			case PCI_DEVICE_ID_AMD_VIPER_7409:
-> >  			case PCI_DEVICE_ID_CMD_643:
-> >  			case PCI_DEVICE_ID_SERVERWORKS_CSB5IDE:
-> >
+> That may be so, but no user will ever touch that sysctl. He just
+> experiences what Alan outlined, system grinds to a complete halt. Only
+> much later does it get going again.
 
-I built a new kernel with this line commented out and booted up this new
-kernel. Sadly the problem remained. Trying this kernel with the
-'ide0=autotune' was also unsuccessful. For the curious, the kernel gets
-to the point where the drive partitions are examined and then things go
-splat. A sample of the messages ...
+and on the small boxes that will happen much less now since on the small
+boxes the biggest vm overhead could been generated by the uncontrolled
+size of the I/O queue that previously could grow as big as 32M.
 
-hda: dma_timer_expiry: dma_status == 0x20
-hda: (__ide_dma_test_irq) called while not waiting
-hda: drive not ready for command
-hda: lost interrupt
-
-Things limp along as the partitions on the hda drive are gradually
-printed out, but there is one change in the kernel messages
-
-hda: dma_timer_expiry: dma_status == 0x21
-
-I'll try modifing the ali15x3 driver with the patch you sent and see how
-that goes.
-
-Art Haas
--- 
-Man once surrendering his reason, has no remaining guard against absurdities
-the most monstrous, and like a ship without rudder, is the sport of every wind.
-
--Thomas Jefferson to James Smith, 1822
+Andrea

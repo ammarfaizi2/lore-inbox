@@ -1,81 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276872AbRJCSBE>; Wed, 3 Oct 2001 14:01:04 -0400
+	id <S276923AbRJCSMI>; Wed, 3 Oct 2001 14:12:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276874AbRJCSAz>; Wed, 3 Oct 2001 14:00:55 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:33800 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S276872AbRJCSAr>;
-	Wed, 3 Oct 2001 14:00:47 -0400
-Date: Wed, 3 Oct 2001 20:01:11 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: "sebastien.cabaniols" <sebastien.cabaniols@laposte.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [POT] Which journalised filesystem uses Linus Torvalds ? 
-In-Reply-To: <GKMPCZ$IZh2dKhbICnp0WDXKHB6iO7OKoHwqOxmqj9XfriOC7PjHiIDA6bHi6xrImT@laposte.net>
-Message-ID: <Pine.LNX.4.33.0110031924420.8511-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276936AbRJCSL6>; Wed, 3 Oct 2001 14:11:58 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11784 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S276923AbRJCSLm>; Wed, 3 Oct 2001 14:11:42 -0400
+Date: Wed, 3 Oct 2001 20:11:51 +0200
+From: Jan Kara <jack@suse.cz>
+To: Paul Menage <pmenage@ensim.com>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.2.20: Avoid buffer overrun in quota warning
+Message-ID: <20011003201151.B22147@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010914104657.E31478@atrey.karlin.mff.cuni.cz> <E15hugS-0006C4-00@pmenage-dt.ensim.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15hugS-0006C4-00@pmenage-dt.ensim.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would bet that Linus is using ext2 :).
+  Hello,
 
-apart of this, everyone will give you difefrent suggestions.
+> >  Actually that delayed printing of quota messages isn't even in regular
+> >2.4 - it's just in ac-patches. Regular 2.4 has just print_warning()
+> >function which works rather the same way as printing in 2.2.
+> 
+> Regular 2.4 prints bdevname(dquot->dq_sb->s_dev) rather than 
+> dquot->dq_mnt->mnt_dirname, so is rather less likely to have the same
+> sprintf() overrun problems.
+  I've created patch for 2.2.18 kernel (applies well against 2.2.19 too) which
+makes quota code print bdevname() rather that mountpoint and so avoids
+possible overrun. Actually this overrun is possible only if root makes
+mountpoint deep in directory structure so IMO there's no possibility for
+exploit but anyway... Alan please apply the patch.
 
-basically ext3 can journal data, but this way is slower, and is a simple
-ext2 with journal.
+								Honza
+--
+Jan Kara <jack@suse.cz>
+SuSE Labs
 
-reiserFS is really interesting, is the most space effective, thanx to
-B*Tree and the advanced hash techniques, but
-actually journals just meta-data. The real point is that
-reiserFS does a tree traversal every time it writes  4k block, and the it
-puts one pointer at time inside of the tree. So the tree is balanced every
-4k write, That is bad for very large files.
-
-jfs, should be quite stable. is a very interesting technology, and
-i know it very well from AIX (but the linux one comes from OS2).
-it's very solid, quite fast, can journal also data (??).
-The way jfs manages free data block group is very smart, altought it is
-not an extent based FS (but leaf node are piece of bitmap instead of
-extent).
-
-xfs, I dislike the way they are isering a kind of double VFS, but i
-understand that Irix buffer cache was developed with some xfs features in
-mind, and so they need this pagebuf module, but i dislike it. I also
-dislike the concept of per-group quota, but this is just my taste.
-Anyway, I have to admit that on very big file xfs is very efficient.
-On Irix 6.4 i found it to be a little slow with small files.
-
-That is just my opinion, I am wayting for reiserFS 4.
-
-On Wed, 3 Oct 2001, sebastien.cabaniols wrote:
-
-> Hello lkml,
->
-> With the availability of XFS,JFS,ext3 and ReiserFS I am a
-> little
-> lost and I don't know which one I should use for entreprise
-> class
-> servers.
->
-> In terms of intergration into the kernel, functionnalities,
-> stability
-> and performance which one is the best for entreprise class
-> servers
->
-> I guess the begining of the answer is: it depends... on what
-> you are doing
->
-> So, what do you think if
->
-> I want a database server
-reiserFS
-> or
-> a supercomputer (HPC use)
-jfs / ext3
-> or
-> a Linux KDE/GNOME desktop
-ext2 :)
->
-Luigi
-
+<cut>
+----------------------------------------------------------------------
+diff -ru -X /home/jack/.kerndiffexclude linux-2.2.18/fs/dquot.c linux-2.2.18-overflowfix/fs/dquot.c
+--- linux-2.2.18/fs/dquot.c	Fri Dec 15 17:27:15 2000
++++ linux-2.2.18-overflowfix/fs/dquot.c	Mon Oct  1 22:43:08 2001
+@@ -848,7 +848,7 @@
+ 		if ((dquot->dq_flags & DQ_INODES) == 0 &&
+                      need_print_warning(type, initiator, dquot)) {
+ 			sprintf(quotamessage, "%s: write failed, %s file limit reached\n",
+-			        dquot->dq_mnt->mnt_dirname, quotatypes[type]);
++			        bdevname(dquot->dq_dev), quotatypes[type]);
+ 			tty_write_message(tty, quotamessage);
+ 			dquot->dq_flags |= DQ_INODES;
+ 		}
+@@ -861,7 +861,7 @@
+             !ignore_hardlimit(dquot, initiator)) {
+                 if (need_print_warning(type, initiator, dquot)) {
+ 			sprintf(quotamessage, "%s: warning, %s file quota exceeded too long.\n",
+-		        	dquot->dq_mnt->mnt_dirname, quotatypes[type]);
++		        	bdevname(dquot->dq_dev), quotatypes[type]);
+ 			tty_write_message(tty, quotamessage);
+ 		}
+ 		return(NO_QUOTA);
+@@ -872,7 +872,7 @@
+ 	    dquot->dq_itime == 0) {
+                 if (need_print_warning(type, initiator, dquot)) {
+ 			sprintf(quotamessage, "%s: warning, %s file quota exceeded\n",
+-		        	dquot->dq_mnt->mnt_dirname, quotatypes[type]);
++		        	bdevname(dquot->dq_dev), quotatypes[type]);
+ 			tty_write_message(tty, quotamessage);
+ 		}
+ 		dquot->dq_itime = CURRENT_TIME + dquot->dq_mnt->mnt_dquot.inode_expire[type];
+@@ -893,7 +893,7 @@
+ 		if (warn && (dquot->dq_flags & DQ_BLKS) == 0 &&
+                      need_print_warning(type, initiator, dquot)) {
+ 			sprintf(quotamessage, "%s: write failed, %s disk limit reached.\n",
+-			        dquot->dq_mnt->mnt_dirname, quotatypes[type]);
++			        bdevname(dquot->dq_dev), quotatypes[type]);
+ 			tty_write_message(tty, quotamessage);
+ 			dquot->dq_flags |= DQ_BLKS;
+ 		}
+@@ -906,7 +906,7 @@
+             !ignore_hardlimit(dquot, initiator)) {
+                 if (warn && need_print_warning(type, initiator, dquot)) {
+ 			sprintf(quotamessage, "%s: write failed, %s disk quota exceeded too long.\n",
+-		        	dquot->dq_mnt->mnt_dirname, quotatypes[type]);
++		        	bdevname(dquot->dq_dev), quotatypes[type]);
+ 			tty_write_message(tty, quotamessage);
+ 		}
+ 		return(NO_QUOTA);
+@@ -917,7 +917,7 @@
+ 	    dquot->dq_btime == 0) {
+                 if (warn && need_print_warning(type, initiator, dquot)) {
+ 			sprintf(quotamessage, "%s: warning, %s disk quota exceeded\n",
+-		        	dquot->dq_mnt->mnt_dirname, quotatypes[type]);
++		        	bdevname(dquot->dq_dev), quotatypes[type]);
+ 			tty_write_message(tty, quotamessage);
+ 		}
+ 		dquot->dq_btime = CURRENT_TIME + dquot->dq_mnt->mnt_dquot.block_expire[type];

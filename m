@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131803AbQKCUqb>; Fri, 3 Nov 2000 15:46:31 -0500
+	id <S131769AbQKCU6d>; Fri, 3 Nov 2000 15:58:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131829AbQKCUqY>; Fri, 3 Nov 2000 15:46:24 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:33044 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131803AbQKCUqM>; Fri, 3 Nov 2000 15:46:12 -0500
-Date: Fri, 3 Nov 2000 21:46:13 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Kai Harrekilde-Petersen <Kai.Harrekilde-Petersen@exbit.dk>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Value of TASK_UNMAPPED_SIZE on 2.4
-Message-ID: <20001103214613.C17349@athlon.random>
-In-Reply-To: <fa.d4dt9vv.1gm6abv@ifi.uio.no> <fa.ebii26v.1mgevrq@ifi.uio.no> <80snp8reck.fsf@orthanc.exbit-technology.com>
+	id <S131702AbQKCU6N>; Fri, 3 Nov 2000 15:58:13 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:1284 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131651AbQKCU6L>;
+	Fri, 3 Nov 2000 15:58:11 -0500
+Message-ID: <20001103192519.A134@bug.ucw.cz>
+Date: Fri, 3 Nov 2000 19:25:19 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: ne2k pcmcia problem
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <80snp8reck.fsf@orthanc.exbit-technology.com>; from Kai.Harrekilde-Petersen@exbit.dk on Fri, Nov 03, 2000 at 09:27:07PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2000 at 09:27:07PM +0100, Kai Harrekilde-Petersen wrote:
-> Is this available as a patch, or preferably as a compilation option to
+Hi!
 
-They're available here:
+When I unplug pcmcia ne2k (without  stopping card, just uplug), it
+oopses. In earlier kernels, it gave few error messages but more or
+less worked.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.14/bigmem-large-mapping-1.bz2
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.14/bigmem-large-task-1.bz2
+I get 
 
-But they're against 2.2.x + bigmem. The first one is still valid (and it's
-similar to the one discussed here). The second one doesn't apply to 2.4.x
-and both vmlinux.lds and PAGE_OFFSET should be changed that way to
-make it to work there.
+invalid operand 0000
 
-Andrea
+fault is in __wake_up
+
+stack trace contains
+c027... (bogus)
+c0279978 (bogus)
+c01a5e08 ei_receive
+c0115994 process_timeout
+c01ef18a cs_sleep
+c01ef4fa do_shutdown
+...
+
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318253AbSIKBEH>; Tue, 10 Sep 2002 21:04:07 -0400
+	id <S318268AbSIKBN5>; Tue, 10 Sep 2002 21:13:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318268AbSIKBEH>; Tue, 10 Sep 2002 21:04:07 -0400
-Received: from magic.adaptec.com ([208.236.45.80]:5310 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id <S318253AbSIKBEH>;
-	Tue, 10 Sep 2002 21:04:07 -0400
-Date: Tue, 10 Sep 2002 19:07:58 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/pci,hamradio,scsi,aic7xxx,video,zorro clean and
- mrproper files 4/6
-Message-ID: <9500000.1031706478@aslan.btc.adaptec.com>
-In-Reply-To: <20020910230656.D18386@mars.ravnborg.org>
-References: <20020910225530.A17094@mars.ravnborg.org>
- <20020910230656.D18386@mars.ravnborg.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318269AbSIKBN5>; Tue, 10 Sep 2002 21:13:57 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:34963 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S318268AbSIKBN4>; Tue, 10 Sep 2002 21:13:56 -0400
+Subject: the userspace side of driverfs
+From: Nicholas Miell <nmiell@attbi.com>
+To: mochel@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 10 Sep 2002 18:18:37 -0700
+Message-Id: <1031707119.1396.30.camel@entropy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, September 10, 2002 23:06:56 +0200 Sam Ravnborg
-<sam@ravnborg.org> wrote:
- ..
+I see documentation describing the kernel interface for driverfs, but
+not much is available describing the userspace interface to driverfs --
+i.e. the format of all those files that driverfs exports.
 
-> diff -Nru a/drivers/scsi/aic7xxx/Makefile b/drivers/scsi/aic7xxx/Makefile
-> --- a/drivers/scsi/aic7xxx/Makefile	Tue Sep 10 22:37:55 2002
-> +++ b/drivers/scsi/aic7xxx/Makefile	Tue Sep 10 22:37:55 2002
-> @@ -20,6 +20,14 @@
->  
->  #EXTRA_CFLAGS += -g
->  
-> +# Files generated that shall be removed upon make clean
-> +clean := aic7xxx_seq.h aic7xxx_reg.h
+In order to prevent driverfs from becoming the maze of twisted files,
+all different that is /proc, these details need to be specified now,
+before it's too late.
 
-At lease this line need to be contingent on the actual building of
-firmware.  Otherwise you've just blown away the firmware the vendor
-has shipped with the system and the user may not have the utilities
-to rebuild it.
+Some issues I can think of off the top of my head:
 
---
-Justin
+- Can I safely assume that, for all normal files named X in driverfs,
+that they have the exact same format and purpose?
+
+- The "resource" files export resource structs, however the flags member
+of the struct uses bits that aren't exported by the kernel and are
+likely to change in the future. Also, some of the flags bits are
+reserved for use by the bus that the resource lives on, but the bus type
+isn't specified by the resource file, which requires the app to parse
+the path name in order to figure out which bus the resource refers to.
+
+- "name" isn't particularly consistent. Sometimes it requires parsing to
+be useful ("PCI device 1234:1234", "USB device 1234:1234", etc.",
+sometimes it's the actual device name, sometimes it's something strange
+like "Hub/Port Status Changes".
+
+
+- Nicholas
+

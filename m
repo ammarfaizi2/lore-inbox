@@ -1,105 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263361AbTDSGnP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 02:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTDSGnP
+	id S263358AbTDSH0v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 03:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTDSH0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 02:43:15 -0400
-Received: from lisa.JS.Jura.Uni-Goettingen.de ([134.76.166.209]:44164 "EHLO
-	lisa.goe.net") by vger.kernel.org with ESMTP id S263361AbTDSGnN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 02:43:13 -0400
-Date: Sat, 19 Apr 2003 07:57:35 +0200
-From: Bernhard Kaindl <bk@suse.de>
-X-X-Sender: bkaindl@hase.a11.local
-To: rmk@arm.linux.org.uk, Yusuf Wilajati Purna <purna@sm.sony.co.jp>
-Cc: linux-kernel@vger.kernel.org, Bernhard Kaindl <bernhard.kaindl@gmx.de>,
-       arjanv@redhat.com
-Subject: Re: 2.4+ptrace exploit fix breaks root's ability to strace
-In-Reply-To: <3E9E3FA9.6060509@sm.sony.co.jp>
-Message-ID: <Pine.LNX.4.53.0304190532520.1887@hase.a11.local>
-References: <3E9E3FA9.6060509@sm.sony.co.jp>
+	Sat, 19 Apr 2003 03:26:51 -0400
+Received: from [202.109.126.231] ([202.109.126.231]:14454 "HELO
+	www.support-smartpc.com.cn") by vger.kernel.org with SMTP
+	id S263358AbTDSH0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 03:26:50 -0400
+Message-ID: <3EA0FCE9.5FC04124@mic.com.tw>
+Date: Sat, 19 Apr 2003 15:38:17 +0800
+From: "rain.wang" <rain.wang@mic.com.tw>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@redhat.com>
+CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.67-ac2: ide reset issue
+References: <200304181146.h3IBkOx06987@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Apr 2003 07:34:15.0218 (UTC) FILETIME=[14287920:01C30646]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Apr 2003, Yusuf Wilajati Purna wrote:
-> On 2003-03-22 17:28:54, Arjan van de Ven wrote:
-> >On Sat, Mar 22, 2003 at 05:13:12PM +0000, Russell King wrote:
-> >>
-> >> int ptrace_check_attach(struct task_struct *child, int kill)
-> >> {
-> >> 	...
-> >> +       if (!is_dumpable(child))
-> >> +               return -EPERM;
-> >> }
-> >>
-> >> So, we went from being able to ptrace daemons as root, to being able to
-> >> attach daemons and then being unable to do anything with them, even if
-> >> you're root (or have the CAP_SYS_PTRACE capability).  I think this
-> >> behaviour is getting on for being described as "insane" 8) and is
-> >> clearly wrong.
-> >
-> >ok it seems this check is too strong. It *has* to check
-> >child->task_dumpable and return -EPERM, but child->mm->dumpable is not
-> >needed.
+Alan Cox wrote:
+
+> >     I don't know if there's enough reason to change reset semantics
+> > now to wait for completion, so that the next call be free of race.
+> > and  I once had a simpler fix to let it delay another 50ms, that works
+> > on my box but seems not a thorough one. does it help?
 >
-> So, do you mean that the following is enough:
+> BWGROUP(drive)->busy should never reach zero until the reset is
+> done. The 50mS miught be enough that this occurs, as might waiting
+> for HWGROUP(drive)->busy hitting 0. I don't yet understand why it
+> matters, and to fix it properly I have to figure that out.
 >
-> int ptrace_check_attach(struct task_struct *child, int kill)
-> {
->       ...
-> +       if (!child->task_dumpable)
-> +               return -EPERM;
-> }
+> If you need reliable reset for something like a test harness, or
+> IDE drive tester its a usable workaround, but I need to fix it
+> properly (eventually)
+>
 
-It's enough to still be safe against the ptrace/kmod exploits.
+I agree. I found the reason seems some strange there. reset call set
+a 50ms's wait handler and return to user at once, when succeed in
+the first poll and handler return, there's always about another 50ms
+needed to cleanup the path(I once tested values lager and smaller
+than 50ms and found about 48ms needed at least on my box).  so
+the following call would race it if there's no such a delay, although
+there's actually few chances to do continuous reset call, I thought.
 
-I could not find a security problem in it yet because
-compute_cred() ignores the suid bit on exec when the
-process is being traced, so the strace does not get
-access to privileges from somebody else and ptrace_attach
-uses is_dumpable() which also checks task->mm->dumpable
-so a tracer can't attach to a suid program.
+> > +                     /* wait for another 50ms */
+> > +                     mdelay(50);
+>
+> In your test set is HWGROUP(drive)->busy always zero after the
+> mdelay ?
 
-It will also help the case Russell King describes above
-where root failed to trace a daemon which changed uids
-or a suid program, AFAICS.
+I think it is.
 
-It is not the complete fix for it because the ptrace functions
-also use access_process_vm() where the patch had this hunk:
-
-@@ -123,6 +127,8 @@ int access_process_vm(struct task_struct
-        /* Worry about races with exit() */
-        task_lock(tsk);
-        mm = tsk->mm;
-+       if (!is_dumpable(tsk) || (&init_mm == mm))
-+               mm = NULL;
-        if (mm)
-                atomic_inc(&mm->mm_users);
-        task_unlock(tsk);
-
-You need to backout the tsk->mm->dumpable check done within is_dumpable
-here by just checking task_dumpable and then ptracing from root works
-prperly again.
-
-As the kmod ptrace fix relies on task_dumpable for it's protection against
-kernel thread trace, and you just remove the tsk->mm->dumpable check by
-replacing !is_dumpable(tsk) with !tsk->task_dumpable here also, you don't
-affect the kmod ptrace exploit protection in any way while fixing the
-ability of root to trace any task.
-
-This also fixes the problem /proc/<pid>/cmdline being empty (also for root)
-if <pid> is not dumpable, which is the other bug introduced by this hunk
-and broke process managment tools as it was also read on l-k.
-
-Of course now people may say that this opens a security hole because a
-normal user ist now able to read /proc/*/cmdline again (also for not
-dumpable processes) but I'm answering to this that it has been well
-known that it is insecure to put secrets onto the command line space
-and e.g. if programs don't clear it properly, they are buggy and should
-be audited to fix the bugs and not add a workaound to the kernel for
-such programs.
-
-Bernd

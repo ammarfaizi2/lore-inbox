@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131138AbRAURyj>; Sun, 21 Jan 2001 12:54:39 -0500
+	id <S130696AbRAUSAv>; Sun, 21 Jan 2001 13:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131245AbRAURy3>; Sun, 21 Jan 2001 12:54:29 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:12806 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S131138AbRAURyS>; Sun, 21 Jan 2001 12:54:18 -0500
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: leitner@convergence.de, linux-kernel@vger.kernel.org
-Subject: Re: Off-Topic: how do I trace a PID over double-forks?
-In-Reply-To: <200101211747.LAA84311@tomcat.admin.navo.hpc.mil>
-From: Doug McNaught <doug@wireboard.com>
-Date: 21 Jan 2001 12:54:11 -0500
-In-Reply-To: Jesse Pollard's message of "Sun, 21 Jan 2001 11:47:17 -0600 (CST)"
-Message-ID: <m33dec7pvg.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S131245AbRAUSAl>; Sun, 21 Jan 2001 13:00:41 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:31504 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S130696AbRAUSAV>;
+	Sun, 21 Jan 2001 13:00:21 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101211800.VAA27435@ms2.inr.ac.ru>
+Subject: Re: Is sendfile all that sexy?
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sun, 21 Jan 2001 21:00:05 +0300 (MSK)
+Cc: zippel@fh-brandenburg.de, mingo@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10101201612240.10849-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 20, 1 04:25:45 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> writes:
+Hello!
 
-> Ummm ... basicly a "respawn" entry in the inittab is enough for that.
+> "struct page" tricks, some macros etc WILL NOT WORK. In particular, we do
+> not currently have a good "page_to_bus/phys()" function. That means that
+> anybody trying to do DMA to this page is currently screwed, simply because
+> he has no good way of getting the physical address.
 
-Nope, see below.
+We already have similar problem with 64bit dma on Intel.
+Namely, we need page_to_bus() and, moreover, we need 64bit bus addresses
+for devices understanding them.
 
-> If you wanted sendmail then:
-> 
-> sndm:234:respawn:/usr/lib/sendmail -bd -q15m
-> 
-> Will restart sendmail whenever it aborts in runleves 2,3, or 4.
+Now we make this in acenic like:
 
-Sendmail in daemon mode forks right away, and the child is the
-daemon.  All init will know is that the process it started exited
-right away, and you'll get a "respawning too fast" message.
+#if defined(CONFIG_X86) && defined(CONFIG_HIGHMEM)
 
-I don't recall if there's an option to sendmail that says "be a
-daemon, but run in the foreground."  Probably is, for debugging.
+#define BITS_PER_DMAADDR 64
 
--Doug
+typedef unsigned long long dmaaddr_high_t;
+
+static inline dmaaddr_high_t
+pci_map_single_high(struct pci_dev *hwdev, struct page *page,
+		    int offset, size_t size, int dir)
+{
+	dmaaddr_high_t phys;
+
+	phys = (page-mem_map) *
+		(unsigned long long) PAGE_SIZE +
+			offset;
+
+	return phys;
+}
+
+#else
+
+
+Ingo, do you remember, that we agreed not to consider this code
+as "ready for release" until this issue is not cleaned up?
+I forgot this. 8)8)8)
+
+Seems, we can remove at least direct dependencies on mem_map
+using zone_struct.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

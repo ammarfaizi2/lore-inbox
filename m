@@ -1,118 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270539AbRHHRcS>; Wed, 8 Aug 2001 13:32:18 -0400
+	id <S270538AbRHHRcS>; Wed, 8 Aug 2001 13:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270532AbRHHRcI>; Wed, 8 Aug 2001 13:32:08 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:20614 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S270537AbRHHRb5>;
-	Wed, 8 Aug 2001 13:31:57 -0400
-Importance: Normal
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Mike Kravetz <mkravetz@beaverton.ibm.com>, <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFF9CB2CBE.6FCCA7C5-ON85256AA2.005FE800@pok.ibm.com>
-From: "Hubertus Franke" <frankeh@us.ibm.com>
-Date: Wed, 8 Aug 2001 13:32:40 -0400
-X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.8 |June 18, 2001) at
- 08/08/2001 01:32:01 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S270534AbRHHRcJ>; Wed, 8 Aug 2001 13:32:09 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:20655 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S270538AbRHHRb7>;
+	Wed, 8 Aug 2001 13:31:59 -0400
+Date: Wed, 8 Aug 2001 19:31:58 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
+To: linux-kernel@vger.kernel.org
+Subject: I/O very slow under 2.4 (device reading)
+Message-ID: <20010808193158.A4055@cerebro.laendle>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-Operating-System: Linux version 2.4.8-pre4 (root@cerebro) (gcc version 3.0.1 20010716 (prerelease)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It might be vm related, it might be not, but I get very funny effects when
+running:
 
-Linus, great input on the FLAME side, criticism accepted :-)
+   buffer -S1m -s128k -m32m </dev/hde >/dev/null
 
-More importantly, we wanted to get some input (particular from you)
-on whether our approach is actually an acceptable one, not
-withstanding the #ifdef's :-),
-These are easy to fix, but we wanted to follow up
-on this topic after OLS ASAP, before the thoughts on this got lost due to
-time.
+(buffer is just a fast read/write buffer reading stdin to stdout, i use it
+to check wether all sectors of a disk are readable, it's similar to dd,
+which creates the same effects).
 
-We will clean this code up ASAP and resubmit.
+The problem is that under 2.4.4, 2.4.5 and 2.4.8pre4, the machine first
+reads at about 30mb/s. then, after a few minutes, it stops for small
+amounts of time, and, even worse, the system becomes totally sluggish,
+even unusable for parts of seconds or even a second (mouse doesn't move,
+programs need ages to starte etc...)
 
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
+Then, after quite some time this behaviour stops, and the command reads
+only very very slowly:
 
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 1  0  0      0   3168 327504  51964   0   0   256     0  123   704   0  46  54
+ 2  0  0      0   3168 327504  51964   0   0   256     0  333  1167   0  51  49
+ 1  0  0      0   3168 327504  51964   0   0   256     6  141   740   0  50  50
+ 2  0  0      0   3172 327500  51964   0   0   256     0  110   661   0  50  50
+ 1  0  0      0   3128 327548  51960   0   0  8512    44  470  1595   0  45  55
+ 1  0  0      0   3128 327544  51960   0   0   256     2  394  2071   3  51  46
+ 1  0  0      0   3124 327544  51960   0   0   320     0  164   798   0  50  50
+ 1  0  0      0   3124 327540  51964   0   0   256     8  121   743   0  50  50
+ 1  0  0      0   3124 327540  51964   0   0  1280     0  176   826   0  50  50
+ 1  0  1      0   3120 327544  51964   0   0   320    64  201   858   0  50  50
 
+as you can see, it reads about 256k/s only, but requires 100% cpu (it's a
+dual cpu system and idle == 50 means one cpu is tied up):
 
+   CPU1 states:  0.0% user, 100.0% system,  0.0% nice,  0.0% idle
 
-Linus Torvalds <torvalds@transmeta.com> on 08/08/2001 12:40:07 PM
+Tied up in the kernel, btw. the rest of the system works and is fast.
+hdparm reports nothing spectacular:
 
-To:   Mike Kravetz <mkravetz@beaverton.ibm.com>
-cc:   <linux-kernel@vger.kernel.org>
-Subject:  Re: [RFC][PATCH] Scalable Scheduling
+   /dev/hde:
+   multcount    = 16 (on)
+   I/O support  =  1 (32-bit)
+   unmaskirq    =  1 (on)
+   using_dma    =  1 (on)
+   keepsettings =  1 (on)
+   nowerr       =  0 (off)
+   readonly     =  0 (off)
+   readahead    =  8 (on)
+   geometry     = 53614/16/63, sectors = 120103200, start = 0
 
+and indeed the disk is still fast:
 
+   cerebro:~# hdparm -tT /dev/hde
 
+   /dev/hde:
+    Timing buffer-cache reads:   128 MB in  0.76 seconds =168.42 MB/sec
+    Timing buffered disk reads:  64 MB in  1.78 seconds = 35.96 MB/sec
 
-On Wed, 8 Aug 2001, Mike Kravetz wrote:
->
-> I have been working on scheduler scalability.  Specifically,
-> the concern is running Linux on bigger machines (higher CPU
-> count, SMP only for now).
+this is, btw, WHILE the above buffer command was still running.
 
-Note that there is no way I will ever apply this particular patch for a
-very simple reason: #ifdef's in code.
+any ideas how to proceed with this problem?
 
-Why do you have things like
-
-     #ifdef CONFIG_SMP
-          .. use nr_running() ..
-     #else
-          .. use nr_running ..
-     #endif
-
-and
-
-     #ifdef CONFIG_SMP
-            list_add(&p->run_list, &runqueue(task_to_runqueue(p)));
-     #else
-            list_add(&p->run_list, &runqueue_head);
-     #endif
-
-when it just shows that you did NOT properly abstract your thinking to
-realize that the non-SMP case should be the same as the SMP case with 1
-CPU (+ optimization).
-
-I find code like the above physically disgusting.
-
-What's wrong with using
-
-     nr_running()
-
-unconditionally, and make sure that it degrades gracefully to just the
-single-CPU case?
-
-What's wrong whit just using
-
-     runqueue(task_to_runqueue(p))
-
-and having the UP case realize that the "runqueue()" macro is a fixed
-entry?
-
-Same thing applies to that runqueue_lock stuff. That is some of the
-ugliest code I've seen in a long time. Please use inline functions, sane
-defines that work both ways, and take advantage of the fact that gcc will
-optimize constant loops and numbers (it's ok to reference arrays in UP
-with "array[smp_processor_id()]", and it's ok to have loops that look like
-"for (i = 0; i < NR_CPUS; i++)" that will do the right thing on UP _and_
-SMP.
-
-And make your #ifdef's be _outside_ the code.
-
-I hate code that has #ifdef's. It's a magjor design mistake, and shows
-that the person who coded it didn't think of it as _one_ problem, but as
-two.
-
-So please spend some time cleaning it up, I can't look at it like this.
-
-          Linus
-
-
-
-
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbTH0U7a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 16:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTH0U7a
+	id S262153AbTH0Uyl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 16:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbTH0Uyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 16:59:30 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262796AbTH0U71
+	Wed, 27 Aug 2003 16:54:40 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:13836 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262153AbTH0Uyj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 16:59:27 -0400
-Date: Wed, 27 Aug 2003 16:59:10 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Jason Baron <jbaron@redhat.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.22
-In-Reply-To: <Pine.LNX.4.53.0308271139380.697@chaos>
-Message-ID: <Pine.LNX.4.53.0308271650350.143@chaos>
-References: <Pine.LNX.4.44.0308271127150.1491-100000@dhcp64-178.boston.redhat.com>
- <Pine.LNX.4.53.0308271139380.697@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Aug 2003 16:54:39 -0400
+Date: Wed, 27 Aug 2003 22:48:58 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-2.4] make log buffer length selectable
+Message-ID: <20030827204858.GA11660@alpha.home.local>
+References: <200308251148.h7PBmU8B027700@hera.kernel.org> <20030826042550.GJ734@alpha.home.local> <20030827200922.GH32065@ip68-0-152-218.tc.ph.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030827200922.GH32065@ip68-0-152-218.tc.ph.cox.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Aug 2003, Richard B. Johnson wrote:
+On Wed, Aug 27, 2003 at 01:09:22PM -0700, Tom Rini wrote:
+> On Tue, Aug 26, 2003 at 06:25:50AM +0200, Willy Tarreau wrote:
+> > On Mon, Aug 25, 2003 at 04:48:30AM -0700, Marcelo Tosatti wrote:
+> > > final:
+> > > 
+> > > - 2.4.22-rc4 was released as 2.4.22 with no changes.
+> > 
+> > Hi Marcelo,
+> > 
+> > as you requested, here is the log_buf_len patch for inclusion in 23-pre.
+> 
+> Two things.  First, why not ask on every arch like 2.6 does?  Second:
 
-> On Wed, 27 Aug 2003, Jason Baron wrote:
->
-> >
-> > On Tue, 26 Aug 2003, Richard B. Johnson wrote:
-> >
-> > >
-> > > I configured, built and booted Linux-2.4.22. There are
-> > > some problems.
-> > >
-> > > (1) `dmesg` fails to read the first part of the buffered
-> > > kernel log. I have attached two files, dmesg-20 (normal)
-> >
-> > sounds like the log buffer wrapped around from a lot of printks
-> >
->
+I'm sorry, shame on me. It was an old one that I first showed as an example,
+and I blindly resent without checking. I'll do my best to backport code in 2.6
+on the next sleepless night.
 
-I looked into this. The problem I am seeing is not in printk().
-It may, therefore, be in klogd.
+> > +#if !defined(CONFIG_LOG_BUF_SHIFT) || (CONFIG_LOG_BUF_SHIFT - 0 == 0)
+> 
+> Why not just || (CONFIG_LOG_BUF_SHIFT == 0) ?
 
-I replaced the linux-2.4.22 printk() with the one that worked from
-2.4.20. The problem presists!
+It's an old trick I was used to, but at other places. Basically, it was used
+to avoid syntax errors when the macro was not defined, which would lead to
+(-0 == 0) which is valid while ( == 0) is not. But it appears that cpp handles
+the case correctly so it's not needed here. I'll fix it too.
 
-The log-file, when booting the SMP machine is 7,653 bytes when
-using 2.4.20. With linux-2.4.22, the first 33 bytes are missing.
+Marcelo, sorry for this quick patch, I'll better check what I feed you next
+time.
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Willy
 

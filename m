@@ -1,38 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVADSMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVADSOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVADSMI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 13:12:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVADSMI
+	id S261802AbVADSOU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 13:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVADSOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 13:12:08 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:658 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261749AbVADSMF (ORCPT
+	Tue, 4 Jan 2005 13:14:19 -0500
+Received: from rproxy.gmail.com ([64.233.170.204]:41021 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261802AbVADSN7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 13:12:05 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Swsusp hanging the second time
-Date: Tue, 4 Jan 2005 19:05:17 +0100
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200501041154.19030.oliver@neukum.org> <20050104110839.GF18777@elf.ucw.cz>
-In-Reply-To: <20050104110839.GF18777@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Tue, 4 Jan 2005 13:13:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=supm/A3JoicDo+Fv1TT90GqSkZibDgVqyNRkjUm9P2j+5UXvtzYJQm82EEy0Wkh7HXyr1FxGM4Qbn1ICh30BYC5io5unW3/52bG8mmaTrrwKJS7W6v/0vm+NyT0Bxwg5Xs4yVWKoCvpW4jYpvlYsmiGNXjpiOYaTa7z2gOrxzF4=
+Message-ID: <d120d500050104101339d7b5a1@mail.gmail.com>
+Date: Tue, 4 Jan 2005 13:13:54 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [bk patches] Long delayed input update
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.58.0501041002060.2294@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200501041905.17744.oliver@neukum.org>
+References: <20041227142821.GA5309@ucw.cz>
+	 <200412271419.46143.dtor_core@ameritech.net>
+	 <20050103131848.GH26949@ucw.cz>
+	 <Pine.LNX.4.58.0501032148210.2294@ppc970.osdl.org>
+	 <20050104135859.GA9167@ucw.cz>
+	 <Pine.LNX.4.58.0501040756230.2294@ppc970.osdl.org>
+	 <20050104160830.GA13125@ucw.cz>
+	 <Pine.LNX.4.58.0501040812420.2294@ppc970.osdl.org>
+	 <d120d50005010408232e29661@mail.gmail.com>
+	 <Pine.LNX.4.58.0501041002060.2294@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 4. Januar 2005 12:08 schrieb Pavel Machek:
-> Anyway two suspends in the row seem to work here on 2.6.10+my
-> patches. I suspect you have problems with some more obscure driver.
+On Tue, 4 Jan 2005 10:03:19 -0800 (PST), Linus Torvalds
+<torvalds@osdl.org> wrote:
+> 
+> 
+> On Tue, 4 Jan 2005, Dmitry Torokhov wrote:
+> >
+> > i8042-style ports are not limited to PC - maceps2.c, q40kbd.c,
+> > rpckbd.c and sa1111ps2.c also implement them that's why libps2 wasn't
+> > limited to x86 arch.
+> 
+> So?
+>
 
-It seems so. A minimalist config will allow the system to
-survive. I'll try to find the driver responsible.
+I was referring to your statement that on PCs it is selected
+automatically as if only PC can use libps2.
+ 
+> If you select ATKBD then LIBPS2 should be selected _automatically_.
+> 
+> My point is that there is _never_ a reason to ask about it. Ever.
 
-	Regards
-		Oliver
+I'll code some tiny PS/2 driver and will keep it out of the tree just
+to prove you wrong ;)
 
+-- 
+Dmitry

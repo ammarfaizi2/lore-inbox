@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131308AbRDPMC1>; Mon, 16 Apr 2001 08:02:27 -0400
+	id <S131347AbRDPME6>; Mon, 16 Apr 2001 08:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131300AbRDPMCR>; Mon, 16 Apr 2001 08:02:17 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:41221 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S131254AbRDPMCF>;
-	Mon, 16 Apr 2001 08:02:05 -0400
-Date: Fri, 13 Apr 2001 00:26:46 +0000
+	id <S131346AbRDPMEs>; Mon, 16 Apr 2001 08:04:48 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:48389 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S131324AbRDPMDC>;
+	Mon, 16 Apr 2001 08:03:02 -0400
+Date: Thu, 12 Apr 2001 23:51:45 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Miquel van Smoorenburg <miquels@cistron-office.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-Message-ID: <20010413002645.B43@(none)>
-In-Reply-To: <20010405000215.A599@bug.ucw.cz> <9b04food@ncc1701.cistron.net> <9b052eod@ncc1701.cistron.net>
+To: george anzinger <george@mvista.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, SodaPop <soda@xirr.com>,
+        alexey@datafoundation.com, linux-kernel@vger.kernel.org
+Subject: Re: [test-PATCH] Re: [QUESTION] 2.4.x nice level
+Message-ID: <20010412235144.A43@(none)>
+In-Reply-To: <Pine.LNX.4.21.0104110726210.25737-100000@imladris.rielhome.conectiva> <3AD485E4.40BCBC0D@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <9b052eod@ncc1701.cistron.net>; from miquels@cistron-office.nl on Tue, Apr 10, 2001 at 11:30:22PM +0000
+In-Reply-To: <3AD485E4.40BCBC0D@mvista.com>; from george@mvista.com on Wed, Apr 11, 2001 at 09:27:16AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> In article <9b04food@ncc1701.cistron.net>,
-> Miquel van Smoorenburg <miquels@cistron-office.nl> wrote:
-> >SIGTERM is a bad choise. Right now, init ignores SIGTERM. For
-> >good reason; on some (many?) systems, the shutdown scripts
-> >include "kill -15 -1; sleep 2; kill -9 -1". The "-1" means
-> >"all processes except me". That means init will get hit with
-> >SIGTERM occasionally during shutdown, and that might cause
-> >weird things to happen.
-> >
-> >Perhaps SIGUSR1 ?
-> 
-> In the immortal words of Max Headroom, t-t-talking to myself ;)
-> 
-> In fact, the kernel should probably use a real-time signal
-> with si_code set to 1 for ctrl-alt-del, 2 for the powerbutton etc.
-> 
-> It should first check if process 1 (init) installed a handler
-> for that real-time signal. If not, it should use the old
-> signals (SIGINT for ctrl-alt-del, SIGWINCH for kbrequest).
+> One rule of optimization is to move any code you can outside the loop. 
+> Why isn't the nice_to_ticks calculation done when nice is changed
+> instead of EVERY recalc.?  I guess another way to ask this is, who needs
 
-This is ugly as night, but SIGUSR1 looks okay.
+This way change is localized very nicely, and it is "obviously right".
 
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

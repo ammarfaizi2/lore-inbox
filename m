@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131767AbQLQJDR>; Sun, 17 Dec 2000 04:03:17 -0500
+	id <S131061AbQLQJH3>; Sun, 17 Dec 2000 04:07:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131061AbQLQJDH>; Sun, 17 Dec 2000 04:03:07 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:62226 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131767AbQLQJCy> convert rfc822-to-8bit;
-	Sun, 17 Dec 2000 04:02:54 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: nbreun@gmx.de
-cc: f5ibh <f5ibh@db0bm.ampr.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test13-pre2, unresolved symbols 
-In-Reply-To: Your message of "Sun, 17 Dec 2000 09:22:04 BST."
-             <00121709220400.00938@nmb> 
+	id <S132005AbQLQJHT>; Sun, 17 Dec 2000 04:07:19 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:11526 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131061AbQLQJHI>; Sun, 17 Dec 2000 04:07:08 -0500
+Date: Sun, 17 Dec 2000 02:36:24 -0600
+To: John Fort <johnf@whitsunday.net.au>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 17 month late patch for Linux v2.2.x
+Message-ID: <20001217023623.R3199@cadcamlab.org>
+In-Reply-To: <000001c064c4$44c1e7e0$67bc19cb@default>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Date: Sun, 17 Dec 2000 19:32:19 +1100
-Message-ID: <1408.977041939@ocs3.ocs-net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <000001c064c4$44c1e7e0$67bc19cb@default>; from johnf@whitsunday.net.au on Wed, Dec 13, 2000 at 03:18:19PM +1000
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Dec 2000 09:22:04 +0100, 
-Norbert Breun <nbreun@gmx.de> wrote:
->having applied your patch below + modutils2.3.23-1 + kernel2.4.0-test13pre2 
->all seems to run perfect. 
->But when starting kwintv  /dev/video is not found. /dev/video is a symling on 
->/dev/video0 and with kernel kernel2.4.0-test12 there is no problem at all.
->
->>can't open /dev/video: Kein passendes Gerät gefunden
 
-"No suitable device found", -ENODEV.  The video driver has not been
-loaded or has not been initialised correctly.  Compare the dmesg output
-from 2.4.0-test12 and 0-test13-pre2 to see what is different.  It might
-be a side effect of Linus's Makefile reordering.
+[John Fort]
+> It is only needed if you build your v2.2.x kernel for the Initio
+> 1060p LVD SCSI controller using a later compiler than 2.7.2.3 and
+> then are stupid enough to ignore any compiler warnings about
+> 'ambiguous else, suggest using braces'.
 
+You mean gcc 2.7.2.3 actually gives you the *other* meaning for that
+wrong construction?  That is too weird.  The C standard is clear,
+'else' always goes with the immediately preceding 'if' statement.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

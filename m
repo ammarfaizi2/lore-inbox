@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267348AbSLKWkx>; Wed, 11 Dec 2002 17:40:53 -0500
+	id <S267347AbSLKWgV>; Wed, 11 Dec 2002 17:36:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267351AbSLKWkr>; Wed, 11 Dec 2002 17:40:47 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:266 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267348AbSLKWjv>; Wed, 11 Dec 2002 17:39:51 -0500
-Date: Wed, 11 Dec 2002 22:47:34 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-Subject: Re: Kill TRUE/FALSE from hp100.c
-Message-ID: <20021211224734.A7023@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pavel Machek <pavel@ucw.cz>,
-	Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-	kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
-References: <20021210215612.GA514@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021210215612.GA514@elf.ucw.cz>; from pavel@ucw.cz on Tue, Dec 10, 2002 at 10:56:12PM +0100
+	id <S267349AbSLKWfz>; Wed, 11 Dec 2002 17:35:55 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:26375 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267347AbSLKWfd>; Wed, 11 Dec 2002 17:35:33 -0500
+Date: Wed, 11 Dec 2002 17:43:17 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200212112243.gBBMhH007535@devserv.devel.redhat.com>
+To: "Felix Domke" <tmbinc@elitedvb.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Allocating 16MB aligned phsyical memory
+In-Reply-To: <mailman.1039599127.17111.linux-kernel2news@redhat.com>
+References: <mailman.1039599127.17111.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 10:56:12PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> Kernel coding style does not like TRUE/FALSE, AFAICS. Please apply,
+>[...]
+> At the moment, i'm reserving a 16MB space of ram for which i made an own
+> allocater. needless to say that this sucks.
 
-What's even more interesting:  were did the defintions of TRUE/FALSE
-as used by hp100.c come from?
+No, that's normal. Of course, you should have used Pauline's
+bigphysarea patch, but otherwise it's a sane idea, IMHO.
+ http://www.polyware.nl/~middelink/En/hob-v4l.html
+ http://www.polyware.nl/~middelink/patch/bigphysarea-2.4.4.tar.gz
 
+I often wonder why MPEG hardware designers are such dorks.
+It is pretty common place between them to ask for contiguous
+memory. I would say, 95% of requests for contiguous memory
+comes from poor hacks who have to deal with DVRs, PVRs,
+and such. Practically no other hardware is this idiotic.
+Not that it's impossible to do right, or anything. I think,
+stradis is sane.
+
+-- Pete

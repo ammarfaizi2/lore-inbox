@@ -1,166 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbUKWXEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUKWXHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbUKWXEb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 18:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbUKWXD2
+	id S261358AbUKWXHY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 18:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbUKWXFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 18:03:28 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:10161 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S261612AbUKWXAc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 18:00:32 -0500
-Date: Tue, 23 Nov 2004 17:00:01 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       jgarzik@pobox.com, alan@redhat.com, david.balazic@hermes.si,
-       hpa@zytor.com, ak@suse.de
+	Tue, 23 Nov 2004 18:05:35 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:950 "EHLO lirs02.phys.au.dk")
+	by vger.kernel.org with ESMTP id S261517AbUKWXDj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 18:03:39 -0500
+Date: Wed, 24 Nov 2004 00:03:34 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6] EDD: add edd=off and edd=skipmbr options
-Message-ID: <20041123230001.GE30452@lists.us.dell.com>
+Subject: Re: Priority Inheritance Test (Real-Time Preemption)
+In-Reply-To: <20041123133456.GA10453@elte.hu>
+Message-Id: <Pine.OSF.4.05.10411232343010.4816-100000@da410.ifa.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel, David, Jeff, Alan:
-I'd appreciate your testing of the following EDD code in your system
-configurations where your adapter BIOSes would fail.
+Hi,
+ I have updated the test to take into account nested locking where
+traversal of the dependency chain has to be traversed when priorities are
+boosted. Basicly, I made a test which makes pi_walk in /proc/stat be
+non-zero!
 
-Peter, Andi: I've built this for x86 and x86-64, and run this on x86.
-I'd appreciate your review of the assembly code, and suggestions for
-improvement, prior to my submitting it to akpm for 2.6.11.
+I both changed the code in user space and in the blocker device in the
+kernel - the patch to the kernel is below and the full code is at
+ http://www.phys.au.dk/~simlo/Linux/pi_test2.tgz
+along with detailed explanations.
 
-EDD: add edd=off and edd=skipmbr command line options
-    
-New command line options
-edd=off     (or edd=of)
-edd=skipmbr (or edd=sk)
+Results (in short): 
+-30-9 doesn't resolved nested locking well. The expected max locking time
+in my test would be depth * 1ms - it is much higher just at a locking
+depth at two.
+
+I have an idea about what the error(s) is(are): In rt.c policy ==
+SCHED_NORMAL tasks are threaded specially. A task boosted into the
+real-time realm by mutex_setprio() is _still_ SCHED_NORMAL and do not gain
+all the privileges of a real-time task. I suggest that the tests on
+SCHED_NORMAL are replaced by using the rt_task() test which just looks at
+the current priority and thus also would be true on tasks temporarely
+boosted in the real-time realm. Another thing: A SCHED_NORMAL task will
+not be added to the pi_waiters list, but it ought to be when it is later
+boosted into the real-time realm. Also, you ignore all tasks being
+SCHED_NORMAL in the tail of the wait list when you try to find the next
+owner: It could be that one of those is boosted.
+
+Esben
+
+
+--- linux-2.6.10-rc2-mm2-V0.7.30-9/drivers/char/blocker.c.orig  2004-11-23 20:18:28.000000000 +0100
++++ linux-2.6.10-rc2-mm2-V0.7.30-9/drivers/char/blocker.c       2004-11-23 20:41:57.742899751 +0100
+@@ -24,11 +24,41 @@
+                get_cpu_tick();
+ }
  
-runtime options for disabling all EDD int13 calls completely, or for
-skipping the int13 READ SECTOR calls, respectively.
-
-These are provided to allow Linux distributions to include CONFIG_EDD=m, yet
-allow end-users to disable parts of EDD which may not work well with their
-system's BIOS.
-
-Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
-  
- Documentation/kernel-parameters.txt |    5 ++++
- arch/i386/boot/edd.S                |   42 ++++++++++++++++++++++++++++++++++--
- include/linux/edd.h                 |    4 +++
- 3 files changed, 49 insertions, 2 deletions
-
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
---- ../linux-2.6/arch/i386/boot/edd.S	Sat Nov 13 20:22:44 2004
-+++ linux-2.6-edd-options/arch/i386/boot/edd.S	Tue Nov 23 15:26:28 2004
-@@ -1,5 +1,6 @@
- /*
-  * BIOS Enhanced Disk Drive support
-+ * Copyright (C) 2002, 2003, 2004 Dell, Inc.
-  * by Matt Domsch <Matt_Domsch@dell.com> October 2002
-  * conformant to T13 Committee www.t13.org
-  *   projects 1572D, 1484D, 1386D, 1226DT
-@@ -7,14 +8,52 @@
-  *	and Andrew Wilks <Andrew_Wilks@dell.com> September 2003, June 2004
-  * legacy CHS retreival by Patrick J. LoPresti <patl@users.sourceforge.net>
-  *      March 2004
-+ * Command line option parsing, Matt Domsch, November 2004
-  */
+-spinlock_t lock = SPIN_LOCK_UNLOCKED;
+-
+ #define BLOCK_IOCTL 4245
++#define BLOCK_SET_DEPTH  4246
+ #define BLOCKER_MINOR  221
  
- #include <linux/edd.h>
-+#include <asm/setup.h>
- 
- #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
-+	movb	$0, (EDD_MBR_SIG_NR_BUF)	# zero value at EDD_MBR_SIG_NR_BUF
-+	movb	$0, (EDDNR)			# zero value at EDDNR
 +
-+# Check the command line for two options:
-+# edd=of  disables EDD completely  (edd=off)
-+# edd=sk  skips the MBR test    (edd=skipmbr)
-+	pushl	%esi
-+    	cmpl	$0, %cs:cmd_line_ptr
-+	jz	done_cl
-+	movl	%cs:(cmd_line_ptr), %esi
-+# ds:esi has the pointer to the command line now
-+	movl	$(COMMAND_LINE_SIZE-6), %ecx
-+# loop through kernel command line one byte at a time
-+cl_loop:
-+	cmpl	$EDD_CL_EQUALS, (%si)
-+	jz	found_edd_equals
-+	incl	%esi
-+	loop	cl_loop
-+	jmp	done_cl
-+found_edd_equals:
-+# only looking at first two characters after equals
-+    	addl	$4, %esi
-+	cmpw	$EDD_CL_OFF, (%si)	# edd=of
-+	jz	do_edd_off
-+	cmpw	$EDD_CL_SKIP, (%si)	# edd=sk
-+	jz	do_edd_skipmbr
-+	jmp	done_cl
-+do_edd_skipmbr:
-+    	popl	%esi
-+	jmp	edd_start
-+do_edd_off:
-+	popl	%esi
-+	jmp	edd_done
-+done_cl:
-+	popl	%esi
++#define MAX_LOCK_DEPTH 10
 +
-+    
- # Read the first sector of each BIOS disk device and store the 4-byte signature
- edd_mbr_sig_start:
--	movb	$0, (EDD_MBR_SIG_NR_BUF)	# zero value at EDD_MBR_SIG_NR_BUF
- 	movb	$0x80, %dl			# from device 80
- 	movw	$EDD_MBR_SIG_BUF, %bx		# store buffer ptr in bx
- edd_mbr_sig_read:
-@@ -76,7 +115,6 @@ edd_start:
-        						# result buffer for fn48
- 	movw	$EDDBUF+EDDEXTSIZE, %si		# in ds:si, fn41 results
- 						# kept just before that
--	movb	$0, (EDDNR)			# zero value at EDDNR
- 	movb	$0x80, %dl			# BIOS device 0x80
- 
- edd_check_ext:
---- ../linux-2.6/include/linux/edd.h	Sat Nov 13 20:22:46 2004
-+++ linux-2.6-edd-options/include/linux/edd.h	Tue Nov 23 15:03:51 2004
-@@ -49,6 +49,10 @@
- #define EDD_MBR_SIG_MAX 16        /* max number of signatures to store */
- #define EDD_MBR_SIG_NR_BUF 0x1ea  /* addr of number of MBR signtaures at EDD_MBR_SIG_BUF
- 				     in boot_params - treat this as 1 byte  */
-+#define EDD_CL_EQUALS   0x3d646465     /* "edd=" */
-+#define EDD_CL_OFF      0x666f         /* "of" for off  */
-+#define EDD_CL_SKIP     0x6b73         /* "sk" for skipmbr */
++static spinlock_t blocker_lock[MAX_LOCK_DEPTH];
 +
- #ifndef __ASSEMBLY__
- 
- #define EDD_EXT_FIXED_DISK_ACCESS           (1 << 0)
---- ../linux-2.6/Documentation/kernel-parameters.txt	Tue Nov 23 10:56:18 2004
-+++ linux-2.6-edd-options/Documentation/kernel-parameters.txt	Tue Nov 23 16:28:53 2004
-@@ -29,6 +29,7 @@ restrictions referred to are that the re
- 	CD	Appropriate CD support is enabled.
- 	DEVFS	devfs support is enabled. 
- 	DRM	Direct Rendering Management support is enabled. 
-+	EDD	BIOS Enhanced Disk Drive Services (EDD) is enabled
- 	EFI	EFI Partitioning (GPT) is enabled
- 	EIDE	EIDE/ATAPI support is enabled.
- 	FB	The frame buffer device is enabled.
-@@ -407,6 +408,10 @@ running once the system is up.
- 	eda=		[HW,PS2]
- 
- 	edb=		[HW,PS2]
++static unsigned int lock_depth = 1;
 +
-+	edd		[EDD]
-+			Format: {"of[f]" | "sk[ipmbr]"}
-+			See comment in arch/i386/boot/edd.S
++void do_the_lock_and_loop(unsigned int args)
++{
++       int i,max;
++       
++       if(rt_task(current)) {
++               max = lock_depth;
++       } 
++       else if(lock_depth>1) {
++               max = (current->pid % lock_depth)+1;
++       }
++       else {
++               max = 1;
++       }
++       
++       /* Always lock from the top down */
++       for(i=max-1;i>=0; i--) {
++               spin_lock(&blocker_lock[i]);
++       }
++       loop(args);
++       for(i=0;i<max; i++) {
++               spin_unlock(&blocker_lock[i]);
++       }
++}
++
+ static int blocker_open(struct inode *in, struct file *file)
+ {
+        printk(KERN_INFO "blocker_open called\n");
+@@ -40,9 +70,13 @@
+ {
+        switch(cmd) {
+        case BLOCK_IOCTL:
+-               spin_lock(&lock);
+-               loop(args);
+-               spin_unlock(&lock);
++               do_the_lock_and_loop(args);
++               return 0;
++       case BLOCK_SET_DEPTH:
++               if(args>=MAX_LOCK_DEPTH) {
++                       return -EINVAL;
++               }
++               lock_depth = args;
+                return 0;
+        default:
+                return -EINVAL;
+@@ -66,11 +100,17 @@
  
- 	eicon=		[HW,ISDN] 
- 			Format: <id>,<membase>,<irq>
+ static int __init blocker_init(void)
+ {
++       int i;
++
+        printk(KERN_INFO "blocker device installed\n");
+ 
+        if (misc_register(&blocker_dev))
+                return -ENODEV;
+ 
++       for(i=0;i<MAX_LOCK_DEPTH;i++) {
++               blocker_lock[i] = SPIN_LOCK_UNLOCKED;
++       }
++
+        return 0;
+ }
+
+
+On Tue, 23 Nov 2004, Ingo Molnar wrote:
+
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > 
+> > >  From realfeel I wrote a small, simple test to test how well priority
+> > > inheritance mechanism works. 
+> > 
+> > cool - this is a really useful testsuite.
+> 
+> FYI, i've put the 'blocker device' kernel code into the current -RT
+> patch (-30-7). This makes it possible to build it on SMP (which didnt
+> work when it was a module), and generally makes it easier to do testing
+> via pi_test.
+> 
+> The only change needed on the userspace pi_test side was to add -O2 to
+> the CFLAGS in the Makefile to make the loop() timings equivalent, and to
+> remove the module compilations. I've added a .config option for it too
+> and cleaned up the code.
+> 
+> 	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280597AbRKFVoG>; Tue, 6 Nov 2001 16:44:06 -0500
+	id <S280587AbRKFVqP>; Tue, 6 Nov 2001 16:46:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280599AbRKFVn5>; Tue, 6 Nov 2001 16:43:57 -0500
-Received: from dns.m.bonet.se ([194.236.29.2]:16400 "EHLO dns.m.bonet.se")
-	by vger.kernel.org with ESMTP id <S280587AbRKFVng>;
-	Tue, 6 Nov 2001 16:43:36 -0500
-Message-ID: <3BE85980.A0D4D4E0@fy.chalmers.se>
-Date: Tue, 06 Nov 2001 22:43:28 +0100
-From: Andy Polyakov <appro@fy.chalmers.se>
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S280603AbRKFVqB>; Tue, 6 Nov 2001 16:46:01 -0500
+Received: from cc78409-a.hnglo1.ov.nl.home.com ([212.120.97.185]:49286 "EHLO
+	dexter.hensema.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S280601AbRKFVpW>; Tue, 6 Nov 2001 16:45:22 -0500
+From: spamtrap@use.reply-to (Erik Hensema)
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+Date: 6 Nov 2001 21:45:20 GMT
+Message-ID: <slrn9ugmfg.eul.spamtrap@dexter.hensema.xs4all.nl>
+In-Reply-To: <Pine.LNX.4.33L.0111061921240.27028-100000@duckman.distro.conectiva>
+Reply-To: erik@hensema.net
 To: linux-kernel@vger.kernel.org
-CC: axboe@suse.de
-Subject: DVD+RW support
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rik van Riel (riel@conectiva.com.br) wrote:
+>On 6 Nov 2001, Erik Hensema wrote:
+>
+>> >1)  IT SHOULD NOT BE PRETTY.  No tabs to line up columns.  No "progress
+>> >bars."  No labels except as "proc comments" (see later).  No in-line labelling.
+>>
+>> It should not be pretty TO HUMANS. Slight difference. It should
+>> be pretty to shellscripts and other applications though.
+>
+>I really fail to see your point, it's trivial to make
+>files which are easy to read by humans and also very
+>easy to parse by shellscripts.
 
-I have the pleasure to announce (initial) DVD+RW support for Linux 2.4
-kernel. Code and technical ramblings are available at
-http://fy.chalmers.se/~appro/linux/DVD+RW/. Note (and respect) that I'm
-not subscribed to the linux-kernel list and would appreciate if you drop
-me a CC when (or if:-) commenting.
+Right, let me rephrase myself. There's no real need for /proc to be pretty
+to humans, though it would be nice. Readability by applications should be
+the priority though.
 
-Enjoy. Andy.
+>PROCESSOR=0
+>VENDOR_ID=GenuineIntel
+>CPU_FAMILY=6
+>MODEL=6
+>MODEL_NAME="Celeron (Mendocino)"
+
+Nice, it could work. However, the kernel does impose policy in this case
+(variable naming policy, that is). But it's a nice compromise between
+readability by humans and readability by programs.
+
+-- 
+Erik Hensema (erik@hensema.net)
+I'm on the list, no need to Cc: me, though I appreciate one if your
+mailer doesn't support the References header.

@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130070AbQK0LWL>; Mon, 27 Nov 2000 06:22:11 -0500
+        id <S129545AbQK0MgP>; Mon, 27 Nov 2000 07:36:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129963AbQK0LWB>; Mon, 27 Nov 2000 06:22:01 -0500
-Received: from ns.caldera.de ([212.34.180.1]:52240 "EHLO ns.caldera.de")
-        by vger.kernel.org with ESMTP id <S129768AbQK0LVs>;
-        Mon, 27 Nov 2000 06:21:48 -0500
-Date: Mon, 27 Nov 2000 11:49:50 +0100
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Friedrich Lobenstock <fl@fl.priv.at>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kbuild@torque.net, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org
-Subject: Re: [KBUILD] Re: [BUG] 2.4.0-test11-ac3 breaks raid autodetect (was Re: [BUG] raid5 link error? (was [PATCH] raid5 fix after xor.c cleanup))
-Message-ID: <20001127114950.A12206@caldera.de>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-        Friedrich Lobenstock <fl@fl.priv.at>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kbuild@torque.net,
-        linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-In-Reply-To: <20001117234144.A14461@spaans.ds9a.nl> <20001118123536.A5674@spaans.ds9a.nl> <20001118235352.D2226@spaans.ds9a.nl> <14872.29479.901021.472890@notabene.cse.unsw.edu.au> <3A2074CC.8219AB99@fl.priv.at> <14881.50316.705469.752219@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <14881.50316.705469.752219@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Mon, Nov 27, 2000 at 01:18:52PM +1100
+        id <S129588AbQK0MgF>; Mon, 27 Nov 2000 07:36:05 -0500
+Received: from 213-120-138-229.btconnect.com ([213.120.138.229]:10244 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S129545AbQK0Mf4>;
+        Mon, 27 Nov 2000 07:35:56 -0500
+Date: Mon, 27 Nov 2000 12:07:45 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch-2.4.0-test11] free_uid() optimization
+Message-ID: <Pine.LNX.4.21.0011271203520.827-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 01:18:52PM +1100, Neil Brown wrote:
-> Thanks for this....
-> 
-> I have looked more deeply, and discovered the error of my ways.
-> As the Makefiles now stand, all export-objs (OX_OBJS) get linked
-> before non-export-objs (O_OBJS) in the same directory, independantly
-> of any ordering imposed within the Makefile.
+Hi Alan,
 
-Yes.
+Instead of having SMP-specific code and doing a sequence of (on SMP):
 
-> This caused md.o to get linked before raid?.o.
-> Due to carelessness on my part I didn't notice this happening when I
-> was testing.
-> 
-> The following patch fixes it.  I hope the change to Rules.make is
-> acceptable - I have CCed to linux-kbuild incase anyone there has an
-> issue with it.
+test if count is 0
+take a spinlock
+test if count is still 0
 
-I don't think so.  Look at drivers/usb/Makefile for an other (cleaner)
-solution to solve this.  I don't think it is a good idea to solve the
-same problem with two different hacks...
+we could make use of the atomic primitive
 
-	Christoph
+atomic_dec_and_lock()
 
--- 
-Always remember that you are unique.  Just like everyone else.
+and do it in one go, which is cleaner, imho. 
+
+Regards,
+Tigran
+
+--- linux.kernel/user.c	Mon Nov 27 12:01:34 2000
++++ work/kernel/user.c	Mon Nov 27 12:03:20 2000
+@@ -74,27 +74,12 @@
+ 	}
+ }
+ 
+-/*
+- * For SMP, we need to re-test the user struct counter
+- * after having acquired the spinlock. This allows us to do
+- * the common case (not freeing anything) without having
+- * any locking.
+- */
+-#ifdef CONFIG_SMP
+-  #define uid_hash_free(up)	(!atomic_read(&(up)->__count))
+-#else
+-  #define uid_hash_free(up)	(1)
+-#endif
+-
+ void free_uid(struct user_struct *up)
+ {
+ 	if (up) {
+-		if (atomic_dec_and_test(&up->__count)) {
+-			spin_lock(&uidhash_lock);
+-			if (uid_hash_free(up)) {
+-				uid_hash_remove(up);
+-				kmem_cache_free(uid_cachep, up);
+-			}
++		if (atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
++			uid_hash_remove(up);
++			kmem_cache_free(uid_cachep, up);
+ 			spin_unlock(&uidhash_lock);
+ 		}
+ 	}
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

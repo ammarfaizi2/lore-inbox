@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTLBRGq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 12:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbTLBRGq
+	id S261464AbTLBRYq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 12:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTLBRYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 12:06:46 -0500
-Received: from cruftix.physics.uiowa.edu ([128.255.70.79]:57998 "EHLO cruftix")
-	by vger.kernel.org with ESMTP id S262598AbTLBRGp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 12:06:45 -0500
-Date: Tue, 2 Dec 2003 11:06:39 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: linux-kernel@vger.kernel.org
-Cc: perex@suse.cz
-Subject: vanilla 2.6.0-test11 and CS4236 card
-Message-ID: <20031202170637.GD5475@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: linux-kernel@vger.kernel.org, perex@suse.cz
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.4i
+	Tue, 2 Dec 2003 12:24:46 -0500
+Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:50603
+	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S261464AbTLBRYp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 12:24:45 -0500
+Message-ID: <3FCCCB02.5070203@trash.net>
+Date: Tue, 02 Dec 2003 18:25:22 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Wilmer van der Gaast <lintux@lintux.cx>
+CC: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: 2.4.23 masquerading broken?
+References: <20031202165653.GJ615@gaast.net>
+In-Reply-To: <20031202165653.GJ615@gaast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy.
+Wilmer van der Gaast wrote:
 
-I'm having problems getting the CS4236+ driver to recognize my 
-  CS4236B card.  pnp finds it on boot:
-isapnp: Scanning for PnP cards...
-isapnp: Card 'CS4236B'
-isapnp: 1 Plug & Play card detected total
+>For security reasons, I upgraded to 2.4.23 last night. Now, suddenly, IP
+>masquerading seems to be broken. When I use SNAT instead of
+>masquerading, everything works.
+>
+>Unfortunately, I think it's hard to reproduce the problem. Right after
+>booting .23 for the first time, everything seemed to be okay. The
+>problems started just an hour ago, after having the server running for
+>fifteen hours without any problems.
+>
+>Unfortunately there's not much more information I can provide. I can
+>attach my iptables/rule/route file and keep my machine running in case
+>anyone needs/wants more information. For now I'll just stick with SNAT.
+>It works good enough for me.
+>  
+>
 
-but the ALSA driver doesn't pick it up.
-isapnp detection failed and probing for CS4236+ is not supported
-CS4236+ soundcard not found or device busy
+Can you check the ringbuffer for error messages ? What happens
+to the packets when masquerading fails ?
 
-Furthermore, after fudging with manually setting it up via modprobe
-  options, it's still not loading:
-CS4236+ soundcard not found or device busy
+Best regards,
+Patrick
 
-This used to work in the 2.4 series kernel without any modprobe.conf
-  settings; the OSS driver would pick it up.
-
-Any assistance would be greatly appreciated; this is the only thing holding
-  me back from 2.6 goodness.  ;)
-
-[config, pnpdump, and other information available on request]
--Joseph
--- 
-trelane@digitasaru.net--------------------------------------------------
-"We continue to live in a world where all our know-how is locked into
- binary files in an unknown format. If our documents are our corporate
- memory, Microsoft still has us all condemned to Alzheimer's."
-    --Simon Phipps, http://theregister.com/content/4/30410.html

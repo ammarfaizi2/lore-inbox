@@ -1,89 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbSJQBxL>; Wed, 16 Oct 2002 21:53:11 -0400
+	id <S261600AbSJQByJ>; Wed, 16 Oct 2002 21:54:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261625AbSJQBxL>; Wed, 16 Oct 2002 21:53:11 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:29373 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S261624AbSJQBwf>; Wed, 16 Oct 2002 21:52:35 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Thu, 17 Oct 2002 11:58:10 +1000
-MIME-Version: 1.0
+	id <S261625AbSJQByJ>; Wed, 16 Oct 2002 21:54:09 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:51214 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S261600AbSJQByH>; Wed, 16 Oct 2002 21:54:07 -0400
+Date: Wed, 16 Oct 2002 23:00:01 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipv4: make arp seq_file show method only produce one record per call
+Message-ID: <20021017020001.GV7541@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, neilb@cse.unsw.edu.au,
+	linux-kernel@vger.kernel.org
+References: <20021017011108.GT7541@conectiva.com.br> <20021016.181550.88499112.davem@redhat.com> <15790.4803.492885.687276@notabene.cse.unsw.edu.au> <20021016.182814.23034875.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15790.6450.3462.78596@notabene.cse.unsw.edu.au>
-cc: Juan Gomez <juang@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Subject: [PATCH] Fix problem with lcokd grace period checking.
-In-Reply-To: message from Juan Gomez on Wednesday October 16
-References: <OFEF1EC5DE.D14F89EF-ON87256C54.005C30B4@us.ibm.com>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20021016.182814.23034875.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday October 16, juang@us.ibm.com wrote:
+Em Wed, Oct 16, 2002 at 06:28:14PM -0700, David S. Miller escreveu:
+>    From: Neil Brown <neilb@cse.unsw.edu.au>
+>    Date: Thu, 17 Oct 2002 11:30:43 +1000
+>    
+>    I use seq->private for private state for /proc/fs/nfs/exports.
+>    It works nicely.
+>    You need to define an 'open' the sets it up, and a 'release' to
+>    tear it down, rather than doing it in start/stop.
+>    See fs/nfsd/fnsctl.c:exports_open
 > 
-> In an effort to avoid this patch to die before in someone's mailbox I am
-> bringing it back....
-> As requested by Linus I am forwarding this to you Neil for review/inclusion
-> in a soon-to-be released 2.5.* version
+> Hmmm, Arnaldo? :-)
 
-I made a few cosmetic changes, and move the comment into the changelog..
+	I know that it works :-) I just refrained from using it because it is
+not the designed purpose for this field, as per what the author stated to me,
+so I didn't wanted to use in a way that could change under my feet in the
+future when Al decided to do some change in seq_file.
 
-NeilBrown
+	But if Al changes his mind and state that this is valid use, great,
+I'll happily use it.
 
-###Comments for ChangeSet
+	See my other post with Al's comments.
 
-We need to do the clear/grace period here and not before
-svc_recv() because svc_recv() may sleep longer than the
-grace period and the first request may be falsely processed
-as if the server was in the grace period when it was not
-causing unnecessary delays for the first request received.
-     * Juan C. Gomez j_carlos_gome@yahoo.com
-
-Also opencode trivial clear_grace_period function.
-
- ----------- Diffstat output ------------
- ./fs/lockd/svc.c |   12 ++++--------
- 1 files changed, 4 insertions(+), 8 deletions(-)
-
---- ./fs/lockd/svc.c	2002/10/16 04:45:57	1.2
-+++ ./fs/lockd/svc.c	2002/10/17 01:53:15	1.3
-@@ -72,11 +72,6 @@ static unsigned long set_grace_period(vo
- 	return grace_period + jiffies;
- }
- 
--static inline void clear_grace_period(void)
--{
--	nlmsvc_grace_period = 0;
--}
--
- /*
-  * This is the lockd kernel thread
-  */
-@@ -141,10 +136,8 @@ lockd(struct svc_rqst *rqstp)
- 		 * (Theoretically, there shouldn't even be blocked locks
- 		 * during grace period).
- 		 */
--		if (!nlmsvc_grace_period) {
-+		if (!nlmsvc_grace_period)
- 			timeout = nlmsvc_retry_blocked();
--		} else if (time_before(grace_period_expire, jiffies))
--			clear_grace_period();
- 
- 		/*
- 		 * Find a socket with data available and call its
-@@ -163,6 +156,9 @@ lockd(struct svc_rqst *rqstp)
- 		dprintk("lockd: request from %08x\n",
- 			(unsigned)ntohl(rqstp->rq_addr.sin_addr.s_addr));
- 
-+		if (nlmsvc_grace_period &&
-+		    time_before(grace_period_expire, jiffies))
-+			nlmsvc_grace_period = 0;
- 		svc_process(serv, rqstp);
- 
- 	}
+- Arnaldo

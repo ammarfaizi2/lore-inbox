@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262137AbSJQUcS>; Thu, 17 Oct 2002 16:32:18 -0400
+	id <S262180AbSJQUjc>; Thu, 17 Oct 2002 16:39:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262138AbSJQUcS>; Thu, 17 Oct 2002 16:32:18 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27918 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262137AbSJQUcP>; Thu, 17 Oct 2002 16:32:15 -0400
-Date: Thu, 17 Oct 2002 21:38:12 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: PATCH: fix task state reporting
-Message-ID: <20021017213812.D3326@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S262181AbSJQUjc>; Thu, 17 Oct 2002 16:39:32 -0400
+Received: from tsv.sws.net.au ([203.36.46.2]:52233 "EHLO tsv.sws.net.au")
+	by vger.kernel.org with ESMTP id <S262180AbSJQUjb>;
+	Thu, 17 Oct 2002 16:39:31 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+Date: Thu, 17 Oct 2002 22:45:20 +0200
+User-Agent: KMail/1.4.3
+References: <20021017195015.A4747@infradead.org> <20021017210402.A7741@infradead.org> <20021017201030.GA384@kroah.com>
+In-Reply-To: <20021017201030.GA384@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210172245.20238.russell@coker.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 17 Oct 2002 22:10, Greg KH wrote:
+> Hm, in looking at the SELinux documentation, here's a list of the
+> syscalls they need:
+> 	http://www.nsa.gov/selinux/docs2.html
+>
+> That's a lot of syscalls :)
 
-While running a test here, I noticed that some threads kept entering
-"T" state according to ps aux.  However, rather than stop, they'd
-disappear on the next process listing, as though they weren't stopped.
-
-Further investigation revealed the following when suspending processes:
-
-root      1497  3.8  1.7  1472  544 ttyp1    Z    00:05   0:21 find / -name pro
-
-Yes, 'Z' for suspended, 'T' for zombie.  Something smells fishy here.
-
-#define TASK_RUNNING		0
-#define TASK_INTERRUPTIBLE	1
-#define TASK_UNINTERRUPTIBLE	2
-#define TASK_STOPPED		4
-#define TASK_ZOMBIE		8
-#define TASK_DEAD		16
-
-So that's R S D T Z W, but sched.c contains R S D Z T W (Z and T
-reversed).  This patch corrects sched.c.  (Should we correct
-the order of bits in sched.h instead?)
-
---- orig/kernel/sched.c	Wed Oct 16 09:17:13 2002
-+++ linux/kernel/sched.c	Thu Oct 17 21:32:42 2002
-@@ -1798,7 +1798,7 @@
- 	unsigned long free = 0;
- 	task_t *relative;
- 	int state;
--	static const char * stat_nam[] = { "R", "S", "D", "Z", "T", "W" };
-+	static const char * stat_nam[] = { "R", "S", "D", "T", "Z", "W" };
- 
- 	printk("%-13.13s ", p->comm);
- 	state = p->state ? __ffs(p->state) + 1 : 0;
+That documentation only includes references to the system calls that have man 
+pages.  From a quick review ichsid() is missing so there's at least 1 more 
+system call than is listed there.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbTLPMvI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 07:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTLPMvI
+	id S261605AbTLPN2I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 08:28:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbTLPN2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 07:51:08 -0500
-Received: from web13903.mail.yahoo.com ([216.136.175.29]:1124 "HELO
-	web13903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261552AbTLPMvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 07:51:06 -0500
-Message-ID: <20031216125103.6301.qmail@web13903.mail.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Tue, 16 Dec 2003 04:51:03 -0800 (PST)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Re: RAID-0 read perf. decrease after 2.4.20
-To: linux-kernel@vger.kernel.org
+	Tue, 16 Dec 2003 08:28:08 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:20010 "EHLO
+	thoron.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261605AbTLPN2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 08:28:05 -0500
+Date: Tue, 16 Dec 2003 08:27:24 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Felix von Leitner <felix-kernel@fefe.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: request: capabilities that allow users to drop privileges further
+In-Reply-To: <20031215213912.GA29281@codeblau.de>
+Message-ID: <Xine.LNX.4.44.0312160826290.16300-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 December 2003 13:47, Marcelo Tosatti wrote:
+On Mon, 15 Dec 2003, Felix von Leitner wrote:
 
-Hi Marcelo,
+> I would like to be able to drop capabilities that every normal user has,
+> so that network servers can limit the impact of possible future security
+> problems further.  For example, I want my non-cgi web server to be able
+> to drop the capabilities to
+> 
+>   * fork
+>   * execve
+>   * ptrace
+>   * load kernel modules
+>   * mknod
+>   * write to the file system
+> 
+> and I would like to modify my smtpd to not be able to
+> 
+>   * fork
+>   * execve
+>   * ptrace
+>   * load kernel modules
+>   * mknod
 
-> 2.4.20-aa included rmap and some VM modifications most notably
-> "drop_behind()" logic which I believe should be the reason for the
-huge
-> read speedups. Can you please try it? Against 2.4.23.
+You can specify policy under SELinux to acheive this (without modifying 
+any applications).
 
- Just some feedback:
 
-echo 511 > /proc/sys/vm/max-readahead
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
- brings back the read performance of my 30 disks on 4 controller
-LVM/RAID0.
 
-Cheers
-Martin
-
-=====
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de

@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270650AbTHSOwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 10:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270682AbTHSOwQ
+	id S270682AbTHSOxR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 10:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270686AbTHSOxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 10:52:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48256 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270650AbTHSOwP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 10:52:15 -0400
-Date: Tue, 19 Aug 2003 15:52:13 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Brandon Stewart <rbrandonstewart@yahoo.com>
+	Tue, 19 Aug 2003 10:53:17 -0400
+Received: from h80ad2795.async.vt.edu ([128.173.39.149]:57990 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S270682AbTHSOxM (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 10:53:12 -0400
+Message-Id: <200308191452.h7JEqpVq025379@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: vda@port.imtp.ilyichevsk.odessa.ua
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCO's "proof"
-Message-ID: <20030819145213.GC5582@gallifrey>
-References: <3F422809.7080806@yahoo.com>
+Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged 
+In-Reply-To: Your message of "Tue, 19 Aug 2003 09:54:17 +0300."
+             <200308190654.h7J6sIL07040@Port.imtp.ilyichevsk.odessa.ua> 
+From: Valdis.Kletnieks@vt.edu
+References: <MDEHLPKNGKAHNMBLJOLKIEFLFDAA.davids@webmaster.com>
+            <200308190654.h7J6sIL07040@Port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F422809.7080806@yahoo.com>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.0-test3 (i686)
-X-Uptime: 15:51:00 up 3 days,  4:23,  6 users,  load average: 0.29, 0.12, 0.08
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_572622020P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 19 Aug 2003 10:52:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Brandon Stewart (rbrandonstewart@yahoo.com) wrote:
-> compliments of "d1rkinator" from yahoo finance message board:
-> 
-> The code SCO finds offending:
-> 
-> www.heise.de/newsticker/data/jk-19.08.03-000/imh0.jpg
-> www.heise.de/newsticker/data/jk-19.08.03-000/imh1.jpg
+--==_Exmh_572622020P
+Content-Type: text/plain; charset=us-ascii
 
-Ah I was wondering if anyone had a copy of that.
+On Tue, 19 Aug 2003 09:54:17 +0300, Denis Vlasenko said:
 
-> Its location in Linux:
-> 
-> /usr/src/linux-2.4.20/arch/ia64/sn/io/ate_utils.c
-> 
-> And its heritage:
-> 
-> minnie.tuhs.org/UnixTree/V7/usr/sys/sys/malloc.c.html
-> 
-> Ok, SCO: This was easy. Now, show us the other many examples.
+> > char *j=NULL;
+> > signal(SIGSEGV, SIG_DFL);
+> > *j++;
 
-Is it? What the hell was the copyright on that code?
+> I disagree. _exit(2) is the most sensible way to terminate.
 
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+Not if you want it *dead*, *now*, with a core dump, and with minimal disruption
+of program state.  Sometimes (especially when trying to shoot a race condition)
+you just can't run the program under gdb - and if it calls _exit() there's not much
+wreckage left for gdb to look at....
+
+> Logginh kernel-induced SEGVs and ILLs are definitely a help when you hunt
+> daemons mysteriously crashing. This outweighs DoS hazard.
+
+Well, I can *see* the fact it exited with a signal in 'lastcomm' already.  If that's all
+the info you're providing, it's of no help.
+
+Now, if you figure out how to read the module's -g data and give me a line number
+it died at:
+
+	kprint(DEBUG "Process %d (%s) died on  signal %d at line %d of function %s", ....
+
+but that would involve a lot of file I/O from kernelspace, soo.....
+
+--==_Exmh_572622020P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/QjnBcC3lWbTT17ARAuKjAKDEibMr+La3grxnkcfBDMqC2M5ZKwCfXT8V
+UIo+EBSt6o7iFZd58gW3XmA=
+=owc3
+-----END PGP SIGNATURE-----
+
+--==_Exmh_572622020P--

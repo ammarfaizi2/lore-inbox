@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131949AbREBLMZ>; Wed, 2 May 2001 07:12:25 -0400
+	id <S132606AbREBLOF>; Wed, 2 May 2001 07:14:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132606AbREBLMQ>; Wed, 2 May 2001 07:12:16 -0400
-Received: from juicer24.bigpond.com ([139.134.6.34]:56269 "EHLO
-	mailin3.email.bigpond.com") by vger.kernel.org with ESMTP
-	id <S131949AbREBLMH>; Wed, 2 May 2001 07:12:07 -0400
-Message-Id: <m14uubp-001QJTC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: alan@redhat.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] kernel locking guide fix.
-Date: Wed, 02 May 2001 21:15:53 +1000
+	id <S132614AbREBLNz>; Wed, 2 May 2001 07:13:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13583 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132606AbREBLNq>; Wed, 2 May 2001 07:13:46 -0400
+Subject: Re: DISCOVERED! Cause of Athlon/VIA KX133 Instability
+To: bergsoft@home.com (Seth Goldberg)
+Date: Wed, 2 May 2001 12:17:08 +0100 (BST)
+Cc: hahn@coffee.psychology.mcmaster.ca (Mark Hahn),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3AEF6F71.A75D478F@home.com> from "Seth Goldberg" at May 01, 2001 07:22:41 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14uud4-0003Pv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN -I \$.*\$ -X /tmp/kerndiff.hKrYxB --minimal linux-2.4.4-official/Documentation/DocBook/kernel-locking.tmpl working-2.4.4-rcu/Documentation/DocBook/kernel-locking.tmpl
---- linux-2.4.4-official/Documentation/DocBook/kernel-locking.tmpl	Tue May  1 12:26:15 2001
-+++ working-2.4.4-rcu/Documentation/DocBook/kernel-locking.tmpl	Wed May  2 21:14:19 2001
-@@ -760,8 +760,11 @@
-     </para>
- 
-     <para>
--      Any atomic operation is defined to act as a memory barrier
--      (ie. as per the <function>mb()</function> macro).  Also,
-+      Some atomic operations are defined to act as a memory barrier
-+      (ie. as per the <function>mb()</function> macro, but if in
-+      doubt, be explicit.
-+      <!-- Rusty Russell 2 May 2001, 2.4.4 -->
-+      Also,
-       spinlock operations act as partial barriers: operations after
-       gaining a spinlock will never be moved to precede the
-       <function>spin_lock()</function> call, and operations before
+> > why resort to silly windows tools, when lspci under Linux does it for you?
+> 
+>   Because lspci does not display all 256 bytes of pci configuration
+> information.
 
---
-Premature optmztion is rt of all evl. --DK
+RTFM ;)

@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130486AbRADIYC>; Thu, 4 Jan 2001 03:24:02 -0500
+	id <S129962AbRADIja>; Thu, 4 Jan 2001 03:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130607AbRADIXv>; Thu, 4 Jan 2001 03:23:51 -0500
-Received: from c290168-a.stcla1.sfba.home.com ([65.0.213.53]:12528 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S130486AbRADIXg>; Thu, 4 Jan 2001 03:23:36 -0500
-From: brian@worldcontrol.com
-Date: Thu, 4 Jan 2001 00:31:47 -0800
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: soffice, 2.2.18, cpu 97% idle, loadavg 6.05
-Message-ID: <20010104003147.A10345@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	Anuradha Ratnaweera <anuradha@gnu.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010103155540.A6026@top.worldcontrol.com> <Pine.LNX.4.04.10101041354050.26494-100000@hantana.pdn.ac.lk>
-Mime-Version: 1.0
+	id <S130607AbRADIjL>; Thu, 4 Jan 2001 03:39:11 -0500
+Received: from patan.Sun.COM ([192.18.98.43]:9724 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S129962AbRADIjD>;
+	Thu, 4 Jan 2001 03:39:03 -0500
+Message-ID: <3A5437A1.F540D794@sun.com>
+Date: Thu, 04 Jan 2001 00:43:13 -0800
+From: ludovic fernandez <ludovic.fernandez@sun.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14-15 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@innominate.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
+In-Reply-To: <3A53D863.53203DF4@sun.com> <3A5427A6.26F25A8A@innominate.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.5i
-In-Reply-To: <Pine.LNX.4.04.10101041354050.26494-100000@hantana.pdn.ac.lk>; from anuradha@gnu.org on Thu, Jan 04, 2001 at 01:54:17PM +0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2001 at 01:54:17PM +0600, Anuradha Ratnaweera wrote:
-> 
-> What is the compiler?
+Daniel Phillips wrote:
 
-% gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/specs
-gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+>
+> The key idea here is to disable preemption on spin lock and reenable on
+> spin unlock.  That's a practical idea, highly compatible with the
+> current way of doing things.  Its a fairly heavy hit on spinlock
+> performance, but maybe the overall performance hit is small.  Benchmarks
+> are needed.
+>
 
-Linux distribution is Redhat 6.2, with all updates.
+I'm not sure the hit on spinlock is this heavy (one increment for lock
+and one dec + test on unlock), but I completely agree (and volonteer)
+for benchmarking. I'm not convinced a full preemptive kernel is something
+interesting mainly due to the context switch cost (actually mmu contex switch).
+Benchmarking is a good way to get a global overview on this.
+What about only preemptable kernel threads ?
 
--- 
-Brian Litzinger <brian@worldcontrol.com>
+>
+> A more ambitious way to proceed is to change spinlocks so they can sleep
+> (not in interrupts of course).  There would not be any extra overhead
+> for this on spin_lock (because the sleep test is handled off the fast
+> path) but spin_unlock gets a little slower - it has to test and jump on
+> a flag if there are sleepers.
+>
+
+I may be tired but I believe you're focusing on SMP architecture ?
+This code simply defer the preemption at the end of the spinlock/lock
+section. I don't see how you can easily mix sleeping lock and this
+mechanism.
+
+Ludo.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,28 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310436AbSCBUPq>; Sat, 2 Mar 2002 15:15:46 -0500
+	id <S310437AbSCBUUr>; Sat, 2 Mar 2002 15:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310437AbSCBUPg>; Sat, 2 Mar 2002 15:15:36 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22020 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310436AbSCBUPW>; Sat, 2 Mar 2002 15:15:22 -0500
-Subject: Re: kernel thread --> user process
-To: jhollingsworth@elon.edu (Joel Hollingsworth)
-Date: Sat, 2 Mar 2002 20:30:24 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1015099588.24535.175.camel@trumpy.elon.edu> from "Joel Hollingsworth" at Mar 02, 2002 03:06:27 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310439AbSCBUUi>; Sat, 2 Mar 2002 15:20:38 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:10461 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S310437AbSCBUUW>;
+	Sat, 2 Mar 2002 15:20:22 -0500
+Message-ID: <3C813400.8080001@candelatech.com>
+Date: Sat, 02 Mar 2002 13:20:16 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.19-pre2 compile bug
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16hG9A-0008Li-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the use of execve. The kernel thread is started from a loadable 
-> module - so there has been no user-level process dipping into the 
-> kernel that we could just replace. 
+gcc -D__KERNEL__ -I/home/greear/kernel/2.4/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /home/greear/kernel/2.4/linux/include/linux/modversions.h  -DKBUILD_BASENAME=cciss  -c -o cciss.o cciss.c
+cciss.c: In function `cciss_remove_one':
+cciss.c:2129: too few arguments to function `sendcmd'
+make[2]: *** [cciss.o] Error 1
+make[2]: Leaving directory `/home/greear/kernel/2.4/linux/drivers/block'
+make[1]: *** [_modsubdir_block] Error 2
+make[1]: Leaving directory `/home/greear/kernel/2.4/linux/drivers'
+make: *** [_mod_drivers] Error 2
 
-Take a look at how the module loader code works - it does precisely
-what you need
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

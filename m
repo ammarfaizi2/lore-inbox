@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUKDOV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbUKDOZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUKDOV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 09:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbUKDOTp
+	id S262235AbUKDOZs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 09:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbUKDOZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 09:19:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18080 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261179AbUKDOMw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 09:12:52 -0500
-Date: Thu, 4 Nov 2004 09:12:33 -0500
-From: Dave Jones <davej@redhat.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: boot option for CONFIG_EDD_SKIP_MBR?
-Message-ID: <20041104141233.GA32342@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Matt Domsch <Matt_Domsch@dell.com>,
-	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <418A303E.1050709@gmx.net> <20041104134534.GA5360@lists.us.dell.com>
+	Thu, 4 Nov 2004 09:25:47 -0500
+Received: from mail9.messagelabs.com ([194.205.110.133]:50891 "HELO
+	mail9.messagelabs.com") by vger.kernel.org with SMTP
+	id S262235AbUKDOYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 09:24:04 -0500
+X-VirusChecked: Checked
+X-Env-Sender: icampbell@arcom.com
+X-Msg-Ref: server-15.tower-9.messagelabs.com!1099578242!13504300!1
+X-StarScan-Version: 5.4.2; banners=arcom.com,-,-
+X-Originating-IP: [194.200.159.164]
+Subject: Re: is killing zombies possible w/o a reboot?
+From: Ian Campbell <icampbell@arcom.com>
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org, Jan Knutar <jk-lkml@sci.fi>,
+       Tom Felker <tfelker2@uiuc.edu>
+In-Reply-To: <200411040907.22684.gene.heskett@verizon.net>
+References: <200411030751.39578.gene.heskett@verizon.net>
+	 <200411040739.01699.gene.heskett@verizon.net>
+	 <1099573266.2856.40.camel@icampbell-debian>
+	 <200411040907.22684.gene.heskett@verizon.net>
+Content-Type: text/plain
+Organization: Arcom Control Systems
+Date: Thu, 04 Nov 2004 14:24:00 +0000
+Message-Id: <1099578240.2856.51.camel@icampbell-debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041104134534.GA5360@lists.us.dell.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
+X-IMAIL-SPAM-VALHELO: (584253662)
+X-IMAIL-SPAM-VALREVDNS: (584253662)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 07:45:34AM -0600, Matt Domsch wrote:
- > On Thu, Nov 04, 2004 at 02:35:58PM +0100, Carl-Daniel Hailfinger wrote:
- > > [please CC: me on replies]
- > > having had problems (inifinte hang on boot) with some Fujitsu
- > > Siemens Scenic computers when EDD was enabled, I asked myself
- > > if it would be possible to add a boot option edd=nombr and
- > > possibly also another boot option edd=off to the EDD code in
- > > the kernel. These would correspond to CONFIG_EDD_SKIP_MBR
- > > and CONFIG_EDD, respectively.
- > >
- > > Yes, option parsing before entering protected mode is ugly,
- > > but the vga setup code does it, too.
- > > 
- > > What do you think?
- > 
- > I'd love it.  I hadn't done it as I thought it would be ugly, and so
- > far I could blame buggy BIOSes for the delay.  If you want to work up
- > a patch, I'll gladly review and apply something that does such.
+On Thu, 2004-11-04 at 09:07 -0500, Gene Heskett wrote:
+> [root@coyote root]#  cat /proc/sys/kernel/sysrq
+> 0
 
-But would this actually be useful for the cases where EDD has been
-broken so far ? AFAIR, the bootparam parsing happens /after/
-we do the 16-bit EDD asm foo.
+Aha :-)
 
-		Dave
+> And no, I'm not turning it off anyplace in the boot proceedure.
 
+Something must be -- you can see in drivers/char/sysrq.c that
+sysrq_enabled is set to 1 by default and according to bkbits.net it has
+been that way since at least 2.4.0.
+
+does the following not come up with any culprits?
+	# grep -r sysrq /etc
+
+Ian.
+
+-- 
+Ian Campbell, Senior Design Engineer
+                                        Web: http://www.arcom.com
+Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
+Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
+
+
+_____________________________________________________________________
+The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
+
+This message has been virus scanned by MessageLabs.

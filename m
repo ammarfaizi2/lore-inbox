@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263687AbUGHOOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUGHOc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263687AbUGHOOx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 10:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUGHOOx
+	id S261932AbUGHOc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 10:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUGHOc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 10:14:53 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:55181 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S263687AbUGHOOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 10:14:50 -0400
-Message-ID: <40ED56D0.1020102@nortelnetworks.com>
-Date: Thu, 08 Jul 2004 10:14:40 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Thu, 8 Jul 2004 10:32:58 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:9350 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261932AbUGHOc4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 10:32:56 -0400
+Date: Thu, 8 Jul 2004 10:32:32 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "P. Benie" <pjb1008@eng.cam.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+In-Reply-To: <Pine.HPX.4.58L.0407081224460.28859@punch.eng.cam.ac.uk>
+Message-ID: <Pine.LNX.4.53.0407081030320.21855@chaos>
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+ <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <Pine.LNX.4.53.0407080707010.21439@chaos>
+ <Pine.HPX.4.58L.0407081224460.28859@punch.eng.cam.ac.uk>
 MIME-Version: 1.0
-To: David Teigland <teigland@redhat.com>
-CC: linux-kernel@vger.kernel.org, Daniel Phillips <phillips@redhat.com>,
-       Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-References: <20040708105338.GA16115@redhat.com>
-In-Reply-To: <20040708105338.GA16115@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Teigland wrote:
+On Thu, 8 Jul 2004, P. Benie wrote:
 
-> I'm afraid the fencing issue has been rather misrepresented.  Here's 
-> what we're
-> doing (a lot of background is necessary I'm afraid.)  We have a symmetric,
-> kernel-based, stand-alone cluster manager (CMAN) that has no ties to 
-> anything
-> else whatsoever.  It'll simply run and answer the question "who's in the
-> cluster?" by providing a list of names/nodeids.
-> 
-> So, if that's all you want you can just run cman on all your nodes and 
-> it'll
-> tell you who's in the cluster (kernel and userland api's).  CMAN will 
-> also do
-> generic callbacks to tell you when the membership has changed.  Some 
-> people can
-> stop reading here.
+> On Thu, 8 Jul 2004, Richard B. Johnson wrote:
+> > On Thu, 8 Jul 2004, Herbert Xu wrote:
+> > > What's wrong with using 0 as the NULL pointer?
+> >
+> > Because NULL is a valid pointer value. 0 is not. If you were
+> > to make 0 valid, you would use "(void *)0", which is what
+> > NULL just happens to be in all known architectures so far,
+> > although that could change in an alternate universe.
+>
+> False. "An integer constant expressions with the value 0, or such an
+> expression cast to type void *, is called a null pointer constant. If a
+> null pointer constant is assigned to or compared for equality with a
+> pointer, the constant is converted to a pointer of that type", and "Any
+> two null pointers shall compare equal."
+>
+> In other words, when you use 0 as a null pointer, you really do get a null
+> pointer. If you are working on an architecture where the bit pattern of
+> the integer 0 and null pointers are not the same, the compiler will
+> perform the appropriate conversion for you, so it is always correct to
+> define NULL as (void *)0.
 
-I'm curious--this seems to be exactly what the cluster membership portion of the 
-SAF spec provides.  Would it make sense to contribute to that portion of 
-OpenAIS, then export the CMAN API on top of it for backwards compatibility?
+That's NOT what is says. It states that a NULL pointer is converted to
+the appropriate type before any comparison is made. It does NOT say
+that 0 is a valid null-pointer.
 
-It just seems like there are a bunch of different cluster messaging, membership, 
-etc. systems, and there is a lot of work being done in parallel with different 
-implementations of the same functionality.  Now that there is a standard 
-emerging for clustering (good or bad, we've got people asking for it) would it 
-make sense to try and get behind that standard and try and make a reference 
-implementation?
+>
+> Personally, I always use 0 and NULL for integers and null pointers
+> respectively, but that's because of long estalished conventions that make
+> the code readabile, rather than anything to do with validity of the code.
+>
+> Peter
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-You guys are more experienced than I, but it seems a bit of a waste to see all 
-these projects re-inventing the wheel.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Chris
+

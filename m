@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263156AbVCDVXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263022AbVCDUpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263156AbVCDVXs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 16:23:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbVCDVEq
+	id S263022AbVCDUpw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 15:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbVCDUmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 16:04:46 -0500
-Received: from mail.kroah.org ([69.55.234.183]:12706 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263168AbVCDUyf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:54:35 -0500
-Cc: johnpol@2ka.mipt.ru
-Subject: [PATCH] w1: get rid of the potential problems with atomic operations.
-In-Reply-To: <11099687823191@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 4 Mar 2005 12:39:43 -0800
-Message-Id: <1109968783581@kroah.com>
+	Fri, 4 Mar 2005 15:42:33 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:422 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S263000AbVCDUhh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:37:37 -0500
+Date: Fri, 4 Mar 2005 21:38:23 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Hans-Christian Egtvedt <hc@mivu.no>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new driver for ITM Touch touchscreen
+Message-ID: <20050304203823.GB2550@ucw.cz>
+References: <1109932223.5453.16.camel@charlie.itk.ntnu.no> <200503041403.37137.adobriyan@mail.ru> <d120d50005030406525896b6cb@mail.gmail.com> <1109953224.3069.39.camel@charlie.itk.ntnu.no> <d120d50005030408544462c9ea@mail.gmail.com> <20050304185147.GB9407@samfundet.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050304185147.GB9407@samfundet.no>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2085, 2005/03/02 16:59:41-08:00, johnpol@2ka.mipt.ru
+On Fri, Mar 04, 2005 at 07:51:47PM +0100, Hans-Christian Egtvedt wrote:
 
-[PATCH] w1: get rid of the potential problems with atomic operations.
+> OK, I'll try to find some better documentation about input devices, any
+> tips/pointers would be nice. I'm completly new to kernel drivers, I'm used to
+> writing drivers in embedded systems.
+> 
+> The driver is made in the way it is today because there is also a driver for
+> X which read raw events from /dev/input/eventX. It's called lictouch, I have
+> the source for it too, but I'm not (yet) part of any developing there.
 
-Get rid of the potential problems with atomic operations.
+Please take a look at 'evtouch' by Kenan Esau, which may fit your bill
+as an X driver, too. [http://www.conan.de/lifebook]
 
-According to upcoming atomic_ops.txt by David Miller and Anton Blanchard
-some archs may reoder atomic operations with nonatomic, since
-the former are always visible but the latter are not, this can lead
-to unpredicted behaviour.
+> It would be a really nice feature if one could use the touchscreen as a
+> legacy interface, but then I would need to be able to calibrate the screen in
+> the driver and not frontend. At least preferable.
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+It's possible to do that to a certain degree using the EVIOCSABS
+ioctl(). Only trivial linear calibration is supported, though.
 
-
- drivers/w1/w1_family.c |    2 ++
- drivers/w1/w1_therm.c  |    2 ++
- 2 files changed, 4 insertions(+)
-
-
-diff -Nru a/drivers/w1/w1_family.c b/drivers/w1/w1_family.c
---- a/drivers/w1/w1_family.c	2005-03-04 12:37:51 -08:00
-+++ b/drivers/w1/w1_family.c	2005-03-04 12:37:51 -08:00
-@@ -138,7 +138,9 @@
- 
- void __w1_family_get(struct w1_family *f)
- {
-+	smp_mb__before_atomic_inc();
- 	atomic_inc(&f->refcnt);
-+	smp_mb__after_atomic_inc();
- }
- 
- EXPORT_SYMBOL(w1_family_get);
-diff -Nru a/drivers/w1/w1_therm.c b/drivers/w1/w1_therm.c
---- a/drivers/w1/w1_therm.c	2005-03-04 12:37:51 -08:00
-+++ b/drivers/w1/w1_therm.c	2005-03-04 12:37:51 -08:00
-@@ -104,6 +104,7 @@
- 	int i, max_trying = 10;
- 
- 	atomic_inc(&sl->refcnt);
-+	smp_mb__after_atomic_inc();
- 	if (down_interruptible(&sl->master->mutex)) {
- 		count = 0;
- 		goto out_dec;
-@@ -179,6 +180,7 @@
- out:
- 	up(&dev->mutex);
- out_dec:
-+	smp_mb__before_atomic_inc();
- 	atomic_dec(&sl->refcnt);
- 
- 	return count;
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289627AbSAOUAK>; Tue, 15 Jan 2002 15:00:10 -0500
+	id <S289629AbSAOUDu>; Tue, 15 Jan 2002 15:03:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289629AbSAOUAC>; Tue, 15 Jan 2002 15:00:02 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55047 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289627AbSAOT7r>;
-	Tue, 15 Jan 2002 14:59:47 -0500
-Message-ID: <3C448A31.A08EBBF7@mandrakesoft.com>
-Date: Tue, 15 Jan 2002 14:59:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
+	id <S289639AbSAOUDk>; Tue, 15 Jan 2002 15:03:40 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38406 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289629AbSAOUDe>; Tue, 15 Jan 2002 15:03:34 -0500
+Message-ID: <3C448B01.6030003@zytor.com>
+Date: Tue, 15 Jan 2002 12:03:13 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Why not "attach" patches?
-In-Reply-To: <E16QZFv-0005wy-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Alexander Viro <viro@math.psu.edu>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: initramfs buffer spec -- second draft
+In-Reply-To: <Pine.GSO.4.21.0201131536480.27390-100000@weyl.math.psu.edu> <E16QXbx-0000wa-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some implementation-specific details people may find useful:
+Daniel Phillips wrote:
 
-* For 4.xx versions of Netscape Mail, with standard mime types/prefs,
-sending patches by MIME attachment results in a readable text/plain
-message.
-
-* The best way to mail patches is to pipe a header, patch description,
-and contents to "/usr/sbin/sendmail -t" or some other MTA.  When I spam
-Linus or Marcelo with patches, my process looks like this:
-
-1) create outgoing patches
-2) change e-mail header template to reflect current kernel version
-3) put template and blank space at top of each patch
-4) "vi *.patch", manually insert descriptions and CC list from
-MAINTAINERS
-5) review each patch and description once again :)
-6) pipe *.patch individually through "/usr/sbin/sendmail -t"
-
-Here is the mail header template I use.  Sendmail is smart and will
-insert all other headers like message-id and date, since they are not
-present.  When using another MTA, make sure yours does this too.
-
-> [jgarzik@rum g]$ cat ~/info/mail.linus
-> From: Jeff Garzik <jgarzik at mandrakesoft.com>
-> BCC: jgarzik at mandrakesoft.com
-> To: Linus Torvalds <torvalds at transmeta.com>
-> CC: akpm at zip.com.au, davem at redhat.com
-> Subject: PATCH 2.5.2.9: net drvr 
+> 
+> Encoding the numeric fields in ASCII/hex is a goofy wart on an otherwise nice 
+> design.  What is the compelling reason?  Bytesex isn't it: we should just 
+> pick one or the other and stick with it as we do in Ext2.
+> 
+> Why don't we fix cpio to write a consistent bytesex?
 > 
 
-As always, read Documentation/SubmittingPatches.  That's what it's there
-for.
 
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+Because we want to use existing tools.  It's a wart, but not compelling 
+enough of one to rewrite the tools from scratch.  (I would also change 
+the EOA marker from "TRAILER!!!" to "" since a null filename would not 
+interfere with the namespace.)
+
+I don't think think this application alone is enough to add Yet Another 
+Version of CPIO.  However, if there are more compelling reasons to do so 
+  for CPIO backup reasons itself I guess we could write it up and add it 
+to GNU cpio as "linux" format...
+
+	-hpa
+
+

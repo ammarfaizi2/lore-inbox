@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVBXAx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVBXA50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbVBXAx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 19:53:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVBXAx4
+	id S261740AbVBXA50 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 19:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVBXAyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 19:53:56 -0500
-Received: from gw.goop.org ([64.81.55.164]:54210 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S261732AbVBXAuV (ORCPT
+	Wed, 23 Feb 2005 19:54:49 -0500
+Received: from fire.osdl.org ([65.172.181.4]:36746 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261778AbVBXAtI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 19:50:21 -0500
-Message-ID: <421D24BD.1090307@goop.org>
-Date: Wed, 23 Feb 2005 16:50:05 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Always send siginfo for synchronous signals
-References: <421C25BE.1090700@goop.org> <20050223201903.GF21662@shell0.pdx.osdl.net> <421D0D3F.40902@goop.org> <20050223234626.GZ15867@shell0.pdx.osdl.net>
-In-Reply-To: <20050223234626.GZ15867@shell0.pdx.osdl.net>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 23 Feb 2005 19:49:08 -0500
+Date: Wed, 23 Feb 2005 16:54:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ignored return value of __clear_user in fs/binfmt_elf.c?
+Message-Id: <20050223165409.324cc64f.akpm@osdl.org>
+In-Reply-To: <200502231727.j1NHRPGH028335@laptop11.inf.utfsm.cl>
+References: <200502231727.j1NHRPGH028335@laptop11.inf.utfsm.cl>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-
->>/proc/N/status will tell you that a process has
->>a signal pending, but it won't tell you how many are pending).
->>    
->>
+Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
 >
->Suggestion for good place to display that info?
->  
->
-I guess another line in /proc/N/status:
+> Machine is sparc64, bk of today, gcc-3.4.2-6.fc3 (Aurora Corona). First 2.6
+> I try to build here, so it might be something known.
+> 
+> Build fails due to -Werror with:
+> 
+> include/asm/uaccess.h: In function `load_elf_binary':
+> arch/sparc64/kernel/../../../fs/binfmt_elf.c:811: warning: ignoring return value of `__clear_user', declared with attribute warn_unused_result
 
-    SigQue: 0 0 0 0 0 0 0 123 0 0 1238 0 0 0 0 0 ... 0 0 1
+Oh bugger.
 
-or something, but I haven't really thought about it.
+> Around line 811 of fs/binfmt_elf.c I see:
+> 
+>                              /*
+>                               * This bss-zeroing can fail if the ELF file
+>                               * specifies odd protections.  So we don't check                                * the return value
+>                               */
+>                               (void)clear_user((void __user *)elf_bss +
+>                                                       load_bias, nbyte);
+> 
+> so presumably this discarding is OK here...
+> 
+> I wonder why an explicit (void) cast is not considered "use" by the
+> compiler. But then again, explicitly throwing away isn't really "use"...
 
->>In fact, bugs with these symptoms have been reported against Valgrind
->>from time to time for years, and its only recently I worked out what's
->>going on (mostly because I introduced a bug which caused Valgrind to do
->>it to itself).
->>    
->>
->This code is pretty new (since 2.6.8-rc1, last June), so I expect some
->other issue in the years past.
->  
->
-There was always a limit on the number of pending queue siginfo
-signals.  It used to be system-wide rather than per-user though.
+I'd assumed that it would work.  How about this?
 
-    J
+--- 25/fs/binfmt_elf.c~binfmt_elf-build-fix	Wed Feb 23 16:52:48 2005
++++ 25-akpm/fs/binfmt_elf.c	Wed Feb 23 16:53:40 2005
+@@ -821,13 +821,14 @@ static int load_elf_binary(struct linux_
+ 				nbyte = ELF_MIN_ALIGN - nbyte;
+ 				if (nbyte > elf_brk - elf_bss)
+ 					nbyte = elf_brk - elf_bss;
+-				/*
+-				 * This bss-zeroing can fail if the ELF file
+-				 * specifies odd protections.  So we don't check
+-				 * the return value
+-				 */
+-				(void)clear_user((void __user *)elf_bss +
+-							load_bias, nbyte);
++				if (clear_user((void __user *)elf_bss +
++							load_bias, nbyte)) {
++					/*
++					 * This bss-zeroing can fail if the ELF
++					 * file specifies odd protections.  So
++					 * we don't check the return value
++					 */
++				}
+ 			}
+ 		}
+ 
+_
+

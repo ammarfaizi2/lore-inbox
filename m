@@ -1,748 +1,1173 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266064AbTAFFXT>; Mon, 6 Jan 2003 00:23:19 -0500
+	id <S266069AbTAFFlL>; Mon, 6 Jan 2003 00:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbTAFFXS>; Mon, 6 Jan 2003 00:23:18 -0500
-Received: from dp.samba.org ([66.70.73.150]:50842 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266064AbTAFFXI>;
-	Mon, 6 Jan 2003 00:23:08 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au,
-       Thomas Sailer <sailer@ife.ee.ethz.ch>,
-       Marcel Holtmann <marcel@holtmann.org>,
-       Jose Orlando Pereira <jop@di.uminho.pt>,
-       J.E.J.Bottomley@HansenPartnership.com
-Subject: Re: [PATCH] Deprecated exec_usermodehelper, enhance call_usermodehelper 
-In-reply-to: Your message of "Mon, 06 Jan 2003 15:35:45 +1100."
-Date: Mon, 06 Jan 2003 16:31:14 +1100
-Message-Id: <20030106053144.083C72C276@lists.samba.org>
+	id <S266161AbTAFFlL>; Mon, 6 Jan 2003 00:41:11 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30759 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S266069AbTAFFk4>; Mon, 6 Jan 2003 00:40:56 -0500
+To: linux-kernel@vger.kernel.org
+Cc: suparna@in.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
+       Andy Pfiffer <andyp@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
+       wa@almesberger.net
+Subject: [PATCH] kexec for 2.5.54
+References: <m1smwql3av.fsf@frodo.biederman.org>
+	<20021231200519.A2110@in.ibm.com> <m11y3uldt9.fsf@frodo.biederman.org>
+	<20030103181100.A10924@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Jan 2003 22:48:18 -0700
+In-Reply-To: <20030103181100.A10924@in.ibm.com>
+Message-ID: <m1fzs6j0bh.fsf_-_@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In message <Pine.LNX.4.44.0301051952450.3087-100000@home.transmeta.com> you w
-ri
-> te:
-> > 
-> > On Mon, 6 Jan 2003, Rusty Russell wrote:
-> > >
-> > > Linus, please apply.
-> > 
-> > Nope, I really don't want to deprecate any more interfaces while my build 
-> > is still so noisy about the _existing_ deprecated stuff.
-> 
-> OK.  I'll work with the various authors to actually remove all 3 users
-> in the tree, then submit a patch to rip it out.
 
-OK.  This patch does that.  Thomas, Marcel, James?  This touches code
-I don't use, so although the transformation is fairly trivial...
+O.k.  I have switched to using the init_mm and premapping the reboot
+code buffer.  I would have play with a fully private mm, but all of
+the functions to allocate one are private to kernel/fork.c and so to
+much of a pain to mess with, right now.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+The code in machine_kexec now takes no locks and is drop dead simple,
+so it should be safe to call from a panic handler.  
 
-Name: exec_usermodehelper sucks
-Author: Rusty Russell
-Status: Tested on 2.5.54
+It is funny in making identity_map_page generic so it should work on
+all architectures, and using more kernel prebuilt functions the code
+actually got a little longer...
 
-D: Urban Widmark points out that modprobe calls system() in many
-D: configurations, which drops privs since request_module() doesn't
-D: doesn't set ruid and rguid.
-D:
-D: This gets rid of exec_usermodehelper and makes everyone use
-D: call_usermodehelper, which has a new "wait" flag.
+Linus if you would like to apply it, be my guest.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/include/linux/kmod.h working-2.5-bk-kmod-noclean/include/linux/kmod.h
---- linux-2.5-bk/include/linux/kmod.h	2003-01-02 12:35:15.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/include/linux/kmod.h	2003-01-06 16:25:28.000000000 +1100
-@@ -21,6 +21,7 @@
+Suparna this should be a good base to build the kexec on panic code
+upon.  Until I see it a little more in action this is as much as I can
+do to help.
+
+And if this week goes on schedule I can do an Itanium port...
+
+Eric
+
+ MAINTAINERS                        |    8 
+ arch/i386/Kconfig                  |   17 +
+ arch/i386/kernel/Makefile          |    1 
+ arch/i386/kernel/entry.S           |    1 
+ arch/i386/kernel/machine_kexec.c   |  115 ++++++
+ arch/i386/kernel/relocate_kernel.S |  107 ++++++
+ include/asm-i386/kexec.h           |   23 +
+ include/asm-i386/unistd.h          |    1 
+ include/linux/kexec.h              |   54 +++
+ include/linux/reboot.h             |    2 
+ kernel/Makefile                    |    1 
+ kernel/kexec.c                     |  629 +++++++++++++++++++++++++++++++++++++
+ kernel/sys.c                       |   23 +
+ 13 files changed, 982 insertions
+
+diff -uNr linux-2.5.54/MAINTAINERS linux-2.5.54.x86kexec/MAINTAINERS
+--- linux-2.5.54/MAINTAINERS	Sat Jan  4 12:00:56 2003
++++ linux-2.5.54.x86kexec/MAINTAINERS	Sat Jan  4 12:02:05 2003
+@@ -1006,6 +1006,14 @@
+ W:	http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/
+ S:	Maintained
  
- #include <linux/config.h>
- #include <linux/errno.h>
-+#include <linux/compiler.h>
- 
- #ifdef CONFIG_KMOD
- extern int request_module(const char * name);
-@@ -29,8 +30,7 @@ static inline int request_module(const c
- #endif
- 
- #define try_then_request_module(x, mod) ((x) ?: request_module(mod), (x))
--extern int exec_usermodehelper(char *program_path, char *argv[], char *envp[]);
--extern int call_usermodehelper(char *path, char *argv[], char *envp[]);
-+extern int call_usermodehelper(char *path, char *argv[], char *envp[], int wait);
- 
- #ifdef CONFIG_HOTPLUG
- extern char hotplug_path [];
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/kernel/kmod.c working-2.5-bk-kmod-noclean/kernel/kmod.c
---- linux-2.5-bk/kernel/kmod.c	2003-01-02 12:37:03.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/kernel/kmod.c	2003-01-06 16:25:43.000000000 +1100
-@@ -14,8 +14,10 @@
- 
- 	Unblock all signals when we exec a usermode process.
- 	Shuu Yamaguchi <shuu@wondernetworkresources.com> December 2000
--*/
- 
-+	call_usermodehelper wait flag, and remove exec_usermodehelper.
-+	Rusty Russell <rusty@rustcorp.com.au>  Jan 2003
-+*/
- #define __KERNEL_SYSCALLS__
- 
- #include <linux/config.h>
-@@ -31,121 +33,11 @@
- #include <linux/workqueue.h>
- #include <linux/security.h>
- #include <linux/mount.h>
-+#include <linux/kernel.h>
- #include <asm/uaccess.h>
- 
- extern int max_threads, system_running;
- 
--static inline void
--use_init_fs_context(void)
--{
--	struct fs_struct *our_fs, *init_fs;
--	struct dentry *root, *pwd;
--	struct vfsmount *rootmnt, *pwdmnt;
--	struct namespace *our_ns, *init_ns;
--
--	/*
--	 * Make modprobe's fs context be a copy of init's.
--	 *
--	 * We cannot use the user's fs context, because it
--	 * may have a different root than init.
--	 * Since init was created with CLONE_FS, we can grab
--	 * its fs context from "init_task".
--	 *
--	 * The fs context has to be a copy. If it is shared
--	 * with init, then any chdir() call in modprobe will
--	 * also affect init and the other threads sharing
--	 * init_task's fs context.
--	 *
--	 * We created the exec_modprobe thread without CLONE_FS,
--	 * so we can update the fields in our fs context freely.
--	 */
--
--	init_fs = init_task.fs;
--	init_ns = init_task.namespace;
--	get_namespace(init_ns);
--	our_ns = current->namespace;
--	current->namespace = init_ns;
--	put_namespace(our_ns);
--	read_lock(&init_fs->lock);
--	rootmnt = mntget(init_fs->rootmnt);
--	root = dget(init_fs->root);
--	pwdmnt = mntget(init_fs->pwdmnt);
--	pwd = dget(init_fs->pwd);
--	read_unlock(&init_fs->lock);
--
--	/* FIXME - unsafe ->fs access */
--	our_fs = current->fs;
--	our_fs->umask = init_fs->umask;
--	set_fs_root(our_fs, rootmnt, root);
--	set_fs_pwd(our_fs, pwdmnt, pwd);
--	write_lock(&our_fs->lock);
--	if (our_fs->altroot) {
--		struct vfsmount *mnt = our_fs->altrootmnt;
--		struct dentry *dentry = our_fs->altroot;
--		our_fs->altrootmnt = NULL;
--		our_fs->altroot = NULL;
--		write_unlock(&our_fs->lock);
--		dput(dentry);
--		mntput(mnt);
--	} else 
--		write_unlock(&our_fs->lock);
--	dput(root);
--	mntput(rootmnt);
--	dput(pwd);
--	mntput(pwdmnt);
--}
--
--int exec_usermodehelper(char *program_path, char *argv[], char *envp[])
--{
--	int i;
--	struct task_struct *curtask = current;
--
--	curtask->session = 1;
--	curtask->pgrp = 1;
--
--	use_init_fs_context();
--
--	/* Prevent parent user process from sending signals to child.
--	   Otherwise, if the modprobe program does not exist, it might
--	   be possible to get a user defined signal handler to execute
--	   as the super user right after the execve fails if you time
--	   the signal just right.
--	*/
--	spin_lock_irq(&curtask->sig->siglock);
--	sigemptyset(&curtask->blocked);
--	flush_signals(curtask);
--	flush_signal_handlers(curtask);
--	recalc_sigpending();
--	spin_unlock_irq(&curtask->sig->siglock);
--
--	for (i = 0; i < curtask->files->max_fds; i++ ) {
--		if (curtask->files->fd[i]) close(i);
--	}
--
--	/* Drop the "current user" thing */
--	{
--		struct user_struct *user = curtask->user;
--		curtask->user = INIT_USER;
--		atomic_inc(&INIT_USER->__count);
--		atomic_inc(&INIT_USER->processes);
--		atomic_dec(&user->processes);
--		free_uid(user);
--	}
--
--	/* Give kmod all effective privileges.. */
--	curtask->euid = curtask->fsuid = 0;
--	curtask->egid = curtask->fsgid = 0;
--	security_task_kmod_set_label();
--
--	/* Allow execve args to be in kernel space. */
--	set_fs(KERNEL_DS);
--
--	/* Go, go, go... */
--	if (execve(program_path, argv, envp) < 0)
--		return -errno;
--	return 0;
--}
--
- #ifdef CONFIG_KMOD
- 
- /*
-@@ -153,29 +45,6 @@ int exec_usermodehelper(char *program_pa
- */
- char modprobe_path[256] = "/sbin/modprobe";
- 
--static int exec_modprobe(void * module_name)
--{
--	static char * envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
--	char *argv[] = { modprobe_path, "--", (char*)module_name, NULL };
--	int ret;
--
--	if (!system_running)
--		return -EBUSY;
--
--	ret = exec_usermodehelper(modprobe_path, argv, envp);
--	if (ret) {
--		static unsigned long last;
--		unsigned long now = jiffies;
--		if (now - last > HZ) {
--			last = now;
--			printk(KERN_DEBUG
--			       "kmod: failed to exec %s -s -k %s, errno = %d\n",
--			       modprobe_path, (char*) module_name, errno);
--		}
--	}
--	return ret;
--}
--
- /**
-  * request_module - try to load a kernel module
-  * @module_name: Name of module
-@@ -189,24 +58,18 @@ static int exec_modprobe(void * module_n
-  * If module auto-loading support is disabled then this function
-  * becomes a no-operation.
-  */
--int request_module(const char * module_name)
-+int request_module(const char *module_name)
- {
--	pid_t pid;
--	int waitpid_result;
--	sigset_t tmpsig;
--	int i, ret;
-+	unsigned int max_modprobes;
-+	int ret;
-+	char *argv[] = { modprobe_path, "--", (char*)module_name, NULL };
-+	static char *envp[] = { "HOME=/",
-+				"TERM=linux",
-+				"PATH=/sbin:/usr/sbin:/bin:/usr/bin",
-+				NULL };
- 	static atomic_t kmod_concurrent = ATOMIC_INIT(0);
- #define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
- 	static int kmod_loop_msg;
--	unsigned long saved_policy = current->policy;
--
--	current->policy = SCHED_NORMAL;
--	/* Don't allow request_module() when the system isn't set up */
--	if ( ! system_running ) {
--		printk(KERN_ERR "request_module[%s]: not ready\n", module_name);
--		ret = -EPERM;
--		goto out;
--	}
- 
- 	/* If modprobe needs a service that is in a module, we get a recursive
- 	 * loop.  Limit the number of running kmod threads to max_threads/2 or
-@@ -216,61 +79,44 @@ int request_module(const char * module_n
- 	 * process tables to get the command line, proc_pid_cmdline is static
- 	 * and it is not worth changing the proc code just to handle this case. 
- 	 * KAO.
-+	 *
++KEXEC
++P:	Eric Biederman
++M:	ebiederm@xmission.com
++M:	ebiederman@lnxi.com
++W:	http://www.xmission.com/~ebiederm/files/kexec/
++L:	linux-kernel@vger.kernel.org
++S:	Maintained
 +
-+	 * "trace the ppid" is simple, but will fail if someone's
-+	 * parent exits.  I think this is as good as it gets. --RR
- 	 */
--	i = max_threads/2;
--	if (i > MAX_KMOD_CONCURRENT)
--		i = MAX_KMOD_CONCURRENT;
-+	max_modprobes = min(max_threads/2, MAX_KMOD_CONCURRENT);
- 	atomic_inc(&kmod_concurrent);
--	if (atomic_read(&kmod_concurrent) > i) {
-+	if (atomic_read(&kmod_concurrent) > max_modprobes) {
-+		/* We may be blaming an innocent here, but unlikely */
- 		if (kmod_loop_msg++ < 5)
- 			printk(KERN_ERR
--			       "kmod: runaway modprobe loop assumed and stopped\n");
-+			       "request_module: runaway loop modprobe %s\n",
-+			       module_name);
- 		atomic_dec(&kmod_concurrent);
--		ret = -ENOMEM;
--		goto out;
-+		return -ENOMEM;
- 	}
+ LANMEDIA WAN CARD DRIVER
+ P:	Andrew Stanley-Jones
+ M:	asj@lanmedia.com
+diff -uNr linux-2.5.54/arch/i386/Kconfig linux-2.5.54.x86kexec/arch/i386/Kconfig
+--- linux-2.5.54/arch/i386/Kconfig	Sat Jan  4 12:00:56 2003
++++ linux-2.5.54.x86kexec/arch/i386/Kconfig	Sat Jan  4 12:02:05 2003
+@@ -733,6 +733,23 @@
+ 	depends on (SMP || PREEMPT) && X86_CMPXCHG
+ 	default y
  
--	pid = kernel_thread(exec_modprobe, (void*) module_name, 0);
--	if (pid < 0) {
--		printk(KERN_ERR "request_module[%s]: fork failed, errno %d\n", module_name, -pid);
--		atomic_dec(&kmod_concurrent);
--		ret = pid;
--		goto out;
-+	ret = call_usermodehelper(modprobe_path, argv, envp, 1);
-+	if (ret < 0) { /* Exec failed, or fork failed or something bad */
-+		static unsigned long last;
-+		unsigned long now = jiffies;
-+		if (now - last > HZ) {
-+			last = now;
-+			printk(KERN_DEBUG
-+			       "request_module: failed %s -- %s. error = %d\n",
-+			       modprobe_path, module_name, -ret);
-+		}
- 	}
--
--	/* Block everything but SIGKILL/SIGSTOP */
--	spin_lock_irq(&current->sig->siglock);
--	tmpsig = current->blocked;
--	siginitsetinv(&current->blocked, sigmask(SIGKILL) | sigmask(SIGSTOP));
--	recalc_sigpending();
--	spin_unlock_irq(&current->sig->siglock);
--
--	waitpid_result = waitpid(pid, NULL, __WCLONE);
- 	atomic_dec(&kmod_concurrent);
--
--	/* Allow signals again.. */
--	spin_lock_irq(&current->sig->siglock);
--	current->blocked = tmpsig;
--	recalc_sigpending();
--	spin_unlock_irq(&current->sig->siglock);
--
--	if (waitpid_result != pid) {
--		printk(KERN_ERR "request_module[%s]: waitpid(%d,...) failed, errno %d\n",
--		       module_name, pid, -waitpid_result);
--	}
--	ret = 0;
--out:
--	current->policy = saved_policy;
--	return ret;
-+	return ret < 0 ? ret : 0;
- }
- #endif /* CONFIG_KMOD */
++config KEXEC
++	bool "kexec system call (EXPERIMENTAL)"
++	depends on EXPERIMENTAL
++	help
++	  kexec is a system call that implements the ability to  shutdown your
++	  current kernel, and to start another kernel.  It is like a reboot
++	  but it is indepedent of the system firmware.   And like a reboot
++	  you can start any kernel with it not just Linux.  
++	
++	  The name comes from the similiarity to the exec system call. 
++	
++	  It is on an going process to be certain the hardware in a machine
++	  is properly shutdown, so do not be surprised if this code does not
++	  initially work for you.  It may help to enable device hotplugging
++	  support.  As of this writing the exact hardware interface is
++	  strongly in flux, so no good recommendation can be made.
++
+ endmenu
  
--
- #ifdef CONFIG_HOTPLUG
- /*
- 	hotplug path is set via /proc/sys
- 	invoked by hotplug-aware bus drivers,
--	with exec_usermodehelper and some thread-spawner
-+	with call_usermodehelper
  
- 	argv [0] = hotplug_path;
- 	argv [1] = "usb", "scsi", "pci", "network", etc;
-@@ -294,7 +140,8 @@ struct subprocess_info {
- 	char *path;
- 	char **argv;
- 	char **envp;
--	pid_t retval;
-+	int wait;
-+	int retval;
- };
+diff -uNr linux-2.5.54/arch/i386/kernel/Makefile linux-2.5.54.x86kexec/arch/i386/kernel/Makefile
+--- linux-2.5.54/arch/i386/kernel/Makefile	Sat Jan  4 12:00:56 2003
++++ linux-2.5.54.x86kexec/arch/i386/kernel/Makefile	Sat Jan  4 12:02:05 2003
+@@ -25,6 +25,7 @@
+ obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
++obj-$(CONFIG_KEXEC)		+= machine_kexec.o relocate_kernel.o
+ obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o suspend_asm.o
+ obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
+ obj-$(CONFIG_PROFILING)		+= profile.o
+diff -uNr linux-2.5.54/arch/i386/kernel/entry.S linux-2.5.54.x86kexec/arch/i386/kernel/entry.S
+--- linux-2.5.54/arch/i386/kernel/entry.S	Sat Jan  4 12:00:56 2003
++++ linux-2.5.54.x86kexec/arch/i386/kernel/entry.S	Sat Jan  4 12:02:05 2003
+@@ -804,6 +804,7 @@
+ 	.long sys_epoll_wait
+  	.long sys_remap_file_pages
+  	.long sys_set_tid_address
++	.long sys_kexec_load
  
- /*
-@@ -307,13 +154,30 @@ static int ____call_usermodehelper(void 
  
- 	retval = -EPERM;
- 	if (current->fs->root)
--		retval = exec_usermodehelper(sub_info->path, sub_info->argv, sub_info->envp);
-+		retval = execve(program_path, argv, envp);
- 
- 	/* Exec failed? */
--	sub_info->retval = (pid_t)retval;
-+	sub_info->retval = retval;
- 	do_exit(0);
- }
- 
-+/* Keventd can't block, but this (a child) can. */
-+static int wait_for_helper(void *data)
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+diff -uNr linux-2.5.54/arch/i386/kernel/machine_kexec.c linux-2.5.54.x86kexec/arch/i386/kernel/machine_kexec.c
+--- linux-2.5.54/arch/i386/kernel/machine_kexec.c	Wed Dec 31 17:00:00 1969
++++ linux-2.5.54.x86kexec/arch/i386/kernel/machine_kexec.c	Sun Jan  5 16:12:28 2003
+@@ -0,0 +1,115 @@
++#include <linux/config.h>
++#include <linux/mm.h>
++#include <linux/kexec.h>
++#include <linux/delay.h>
++#include <asm/pgtable.h>
++#include <asm/pgalloc.h>
++#include <asm/tlbflush.h>
++#include <asm/mmu_context.h>
++#include <asm/io.h>
++#include <asm/apic.h>
++
++
++/*
++ * machine_kexec
++ * =======================
++ */
++
++
++static void set_idt(void *newidt, __u16 limit)
 +{
-+	struct subprocess_info *sub_info = data;
-+	pid_t pid;
++	unsigned char curidt[6];
 +
-+	pid = kernel_thread(____call_usermodehelper, sub_info,
-+			    CLONE_VFORK | SIGCHLD);
-+	if (pid < 0)
-+		sub_info->retval = pid;
-+	else
-+		sys_wait4(pid, (unsigned int *)&sub_info->retval, 0, NULL);
++	/* ia32 supports unaliged loads & stores */
++	(*(__u16 *)(curidt)) = limit;
++	(*(__u32 *)(curidt +2)) = (unsigned long)(newidt);
 +
-+	complete(sub_info->complete);
++	__asm__ __volatile__ (
++		"lidt %0\n" 
++		: "=m" (curidt)
++		);
++};
++
++
++static void set_gdt(void *newgdt, __u16 limit)
++{
++	unsigned char curgdt[6];
++
++	/* ia32 supports unaliged loads & stores */
++	(*(__u16 *)(curgdt)) = limit;
++	(*(__u32 *)(curgdt +2)) = (unsigned long)(newgdt);
++
++	__asm__ __volatile__ (
++		"lgdt %0\n" 
++		: "=m" (curgdt)
++		);
++};
++
++static void load_segments(void)
++{
++#define __STR(X) #X
++#define STR(X) __STR(X)
++
++	__asm__ __volatile__ (
++		"\tljmp $"STR(__KERNEL_CS)",$1f\n"
++		"\t1:\n"
++		"\tmovl $"STR(__KERNEL_DS)",%eax\n"
++		"\tmovl %eax,%ds\n"
++		"\tmovl %eax,%es\n"
++		"\tmovl %eax,%fs\n"
++		"\tmovl %eax,%gs\n"
++		"\tmovl %eax,%ss\n"
++		);
++#undef STR
++#undef __STR
++}
++
++typedef void (*relocate_new_kernel_t)(
++	unsigned long indirection_page, unsigned long reboot_code_buffer,
++	unsigned long start_address);
++
++const extern unsigned char relocate_new_kernel[];
++extern void relocate_new_kernel_end(void);
++const extern unsigned int relocate_new_kernel_size;
++
++void machine_kexec(struct kimage *image)
++{
++	unsigned long indirection_page;
++	unsigned long reboot_code_buffer;
++	void *ptr;
++	relocate_new_kernel_t rnk;
++
++	/* switch to an mm where the reboot_code_buffer is identity mapped */
++	switch_mm(current->active_mm, &init_mm, current, smp_processor_id());
++
++	/* Interrupts aren't acceptable while we reboot */
++	local_irq_disable();
++	reboot_code_buffer = page_to_pfn(image->reboot_code_pages) << PAGE_SHIFT;
++	indirection_page = image->head & PAGE_MASK;
++
++	/* copy it out */
++	memcpy((void *)reboot_code_buffer, relocate_new_kernel, relocate_new_kernel_size);
++
++	/* The segment registers are funny things, they are
++	 * automatically loaded from a table, in memory wherever you
++	 * set them to a specific selector, but this table is never
++	 * accessed again you set the segment to a different selector.
++	 *
++	 * The more common model is are caches where the behide
++	 * the scenes work is done, but is also dropped at arbitrary
++	 * times.
++	 *
++	 * I take advantage of this here by force loading the
++	 * segments, before I zap the gdt with an invalid value.
++	 */
++	load_segments();
++	/* The gdt & idt are now invalid.
++	 * If you want to load them you must set up your own idt & gdt.
++	 */
++	set_gdt(phys_to_virt(0),0);
++	set_idt(phys_to_virt(0),0);
++
++	/* now call it */
++	rnk = (relocate_new_kernel_t) reboot_code_buffer;
++	(*rnk)(indirection_page, reboot_code_buffer, image->start);
++}
+diff -uNr linux-2.5.54/arch/i386/kernel/relocate_kernel.S linux-2.5.54.x86kexec/arch/i386/kernel/relocate_kernel.S
+--- linux-2.5.54/arch/i386/kernel/relocate_kernel.S	Wed Dec 31 17:00:00 1969
++++ linux-2.5.54.x86kexec/arch/i386/kernel/relocate_kernel.S	Sat Jan  4 12:02:05 2003
+@@ -0,0 +1,107 @@
++#include <linux/config.h>
++#include <linux/linkage.h>
++
++	/* Must be relocatable PIC code callable as a C function, that once
++	 * it starts can not use the previous processes stack.
++	 *
++	 */
++	.globl relocate_new_kernel
++relocate_new_kernel:
++	/* read the arguments and say goodbye to the stack */
++	movl  4(%esp), %ebx /* indirection_page */
++	movl  8(%esp), %ebp /* reboot_code_buffer */
++	movl  12(%esp), %edx /* start address */
++
++	/* zero out flags, and disable interrupts */
++	pushl $0
++	popfl
++
++	/* set a new stack at the bottom of our page... */
++	lea   4096(%ebp), %esp
++
++	/* store the parameters back on the stack */
++	pushl   %edx /* store the start address */
++
++	/* Set cr0 to a known state:
++	 * 31 0 == Paging disabled
++	 * 18 0 == Alignment check disabled
++	 * 16 0 == Write protect disabled
++	 * 3  0 == No task switch
++	 * 2  0 == Don't do FP software emulation.
++	 * 0  1 == Proctected mode enabled
++	 */
++	movl	%cr0, %eax
++	andl	$~((1<<31)|(1<<18)|(1<<16)|(1<<3)|(1<<2)), %eax
++	orl	$(1<<0), %eax
++	movl	%eax, %cr0
++	
++	/* Set cr4 to a known state:
++	 * Setting everything to zero seems safe.
++	 */
++	movl	%cr4, %eax
++	andl	$0, %eax
++	movl	%eax, %cr4
++	
++	jmp 1f
++1:	
++
++	/* Flush the TLB (needed?) */
++	xorl	%eax, %eax
++	movl	%eax, %cr3
++
++	/* Do the copies */
++	cld
++0:	/* top, read another word for the indirection page */
++	movl    %ebx, %ecx
++	movl	(%ebx), %ecx
++	addl	$4, %ebx
++	testl	$0x1,   %ecx  /* is it a destination page */
++	jz	1f
++	movl	%ecx,	%edi
++	andl	$0xfffff000, %edi
++	jmp     0b
++1:
++	testl	$0x2,	%ecx  /* is it an indirection page */
++	jz	1f
++	movl	%ecx,	%ebx
++	andl	$0xfffff000, %ebx
++	jmp     0b
++1:
++	testl   $0x4,   %ecx /* is it the done indicator */
++	jz      1f
++	jmp     2f
++1:
++	testl   $0x8,   %ecx /* is it the source indicator */
++	jz      0b	     /* Ignore it otherwise */
++	movl    %ecx,   %esi /* For every source page do a copy */
++	andl    $0xfffff000, %esi
++
++	movl    $1024, %ecx
++	rep ; movsl
++	jmp     0b
++
++2:
++
++	/* To be certain of avoiding problems with self modifying code
++	 * I need to execute a serializing instruction here.
++	 * So I flush the TLB, it's handy, and not processor dependent.
++	 */
++	xorl	%eax, %eax
++	movl	%eax, %cr3
++	
++	/* set all of the registers to known values */
++	/* leave %esp alone */
++	
++	xorl	%eax, %eax
++	xorl	%ebx, %ebx
++	xorl    %ecx, %ecx
++	xorl    %edx, %edx
++	xorl    %esi, %esi
++	xorl    %edi, %edi
++	xorl    %ebp, %ebp
++	ret
++relocate_new_kernel_end:
++
++	.globl relocate_new_kernel_size
++relocate_new_kernel_size:	
++	.long relocate_new_kernel_end - relocate_new_kernel
+diff -uNr linux-2.5.54/include/asm-i386/kexec.h linux-2.5.54.x86kexec/include/asm-i386/kexec.h
+--- linux-2.5.54/include/asm-i386/kexec.h	Wed Dec 31 17:00:00 1969
++++ linux-2.5.54.x86kexec/include/asm-i386/kexec.h	Sat Jan  4 12:02:05 2003
+@@ -0,0 +1,23 @@
++#ifndef _I386_KEXEC_H
++#define _I386_KEXEC_H
++
++#include <asm/fixmap.h>
++
++/*
++ * KEXEC_SOURCE_MEMORY_LIMIT maximum page get_free_page can return.
++ * I.e. Maximum page that is mapped directly into kernel memory,
++ * and kmap is not required.
++ *
++ * Someone correct me if FIXADDR_START - PAGEOFFSET is not the correct
++ * calculation for the amount of memory directly mappable into the
++ * kernel memory space.
++ */
++
++/* Maximum physical address we can use pages from */
++#define KEXEC_SOURCE_MEMORY_LIMIT (-1UL)
++/* Maximum address we can reach in physical address mode */
++#define KEXEC_DESTINATION_MEMORY_LIMIT (-1UL)
++
++#define KEXEC_REBOOT_CODE_SIZE	4096
++
++#endif /* _I386_KEXEC_H */
+diff -uNr linux-2.5.54/include/asm-i386/unistd.h linux-2.5.54.x86kexec/include/asm-i386/unistd.h
+--- linux-2.5.54/include/asm-i386/unistd.h	Sat Jan  4 12:01:05 2003
++++ linux-2.5.54.x86kexec/include/asm-i386/unistd.h	Sat Jan  4 12:02:05 2003
+@@ -262,6 +262,7 @@
+ #define __NR_epoll_wait		256
+ #define __NR_remap_file_pages	257
+ #define __NR_set_tid_address	258
++#define __NR_sys_kexec_load	259
+ 
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+diff -uNr linux-2.5.54/include/linux/kexec.h linux-2.5.54.x86kexec/include/linux/kexec.h
+--- linux-2.5.54/include/linux/kexec.h	Wed Dec 31 17:00:00 1969
++++ linux-2.5.54.x86kexec/include/linux/kexec.h	Sat Jan  4 16:17:20 2003
+@@ -0,0 +1,54 @@
++#ifndef LINUX_KEXEC_H
++#define LINUX_KEXEC_H
++
++#if CONFIG_KEXEC
++#include <linux/types.h>
++#include <linux/list.h>
++#include <asm/kexec.h>
++
++/* 
++ * This structure is used to hold the arguments that are used when loading
++ * kernel binaries.
++ */
++
++typedef unsigned long kimage_entry_t;
++#define IND_DESTINATION  0x1
++#define IND_INDIRECTION  0x2
++#define IND_DONE         0x4
++#define IND_SOURCE       0x8
++
++#define KEXEC_SEGMENT_MAX 8
++struct kexec_segment {
++	void *buf;
++	size_t bufsz;
++	void *mem;
++	size_t memsz;
++};
++
++struct kimage {
++	kimage_entry_t head;
++	kimage_entry_t *entry;
++	kimage_entry_t *last_entry;
++
++	unsigned long destination;
++	unsigned long offset;
++
++	unsigned long start;
++	struct page *reboot_code_pages;
++
++	unsigned long nr_segments;
++	struct kexec_segment segment[KEXEC_SEGMENT_MAX+1];
++
++	struct list_head dest_pages;
++	struct list_head unuseable_pages;
++};
++
++
++/* kexec interface functions */
++extern void machine_kexec(struct kimage *image);
++extern asmlinkage long sys_kexec(unsigned long entry, long nr_segments, 
++	struct kexec_segment *segments);
++extern struct kimage *kexec_image;
++#endif
++#endif /* LINUX_KEXEC_H */
++
+diff -uNr linux-2.5.54/include/linux/reboot.h linux-2.5.54.x86kexec/include/linux/reboot.h
+--- linux-2.5.54/include/linux/reboot.h	Thu Dec 12 07:41:37 2002
++++ linux-2.5.54.x86kexec/include/linux/reboot.h	Sat Jan  4 12:02:05 2003
+@@ -21,6 +21,7 @@
+  * POWER_OFF   Stop OS and remove all power from system, if possible.
+  * RESTART2    Restart system using given command string.
+  * SW_SUSPEND  Suspend system using Software Suspend if compiled in
++ * KEXEC       Restart the system using a different kernel.
+  */
+ 
+ #define	LINUX_REBOOT_CMD_RESTART	0x01234567
+@@ -30,6 +31,7 @@
+ #define	LINUX_REBOOT_CMD_POWER_OFF	0x4321FEDC
+ #define	LINUX_REBOOT_CMD_RESTART2	0xA1B2C3D4
+ #define	LINUX_REBOOT_CMD_SW_SUSPEND	0xD000FCE2
++#define LINUX_REBOOT_CMD_KEXEC		0x45584543
+ 
+ 
+ #ifdef __KERNEL__
+diff -uNr linux-2.5.54/kernel/Makefile linux-2.5.54.x86kexec/kernel/Makefile
+--- linux-2.5.54/kernel/Makefile	Mon Dec 16 02:19:15 2002
++++ linux-2.5.54.x86kexec/kernel/Makefile	Sat Jan  4 12:02:05 2003
+@@ -21,6 +21,7 @@
+ obj-$(CONFIG_CPU_FREQ) += cpufreq.o
+ obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
+ obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
++obj-$(CONFIG_KEXEC) += kexec.o
+ obj-$(CONFIG_COMPAT) += compat.o
+ 
+ ifneq ($(CONFIG_IA64),y)
+diff -uNr linux-2.5.54/kernel/kexec.c linux-2.5.54.x86kexec/kernel/kexec.c
+--- linux-2.5.54/kernel/kexec.c	Wed Dec 31 17:00:00 1969
++++ linux-2.5.54.x86kexec/kernel/kexec.c	Sun Jan  5 21:54:52 2003
+@@ -0,0 +1,629 @@
++#include <linux/mm.h>
++#include <linux/file.h>
++#include <linux/slab.h>
++#include <linux/fs.h>
++#include <linux/version.h>
++#include <linux/compile.h>
++#include <linux/kexec.h>
++#include <linux/spinlock.h>
++#include <linux/list.h>
++#include <linux/highmem.h>
++#include <net/checksum.h>
++#include <asm/page.h>
++#include <asm/uaccess.h>
++#include <asm/io.h>
++#include <asm/system.h>
++
++/* When kexec transitions to the new kernel there is a one to one
++ * mapping between physical and virtual addresses.  On processors
++ * where you can disable the MMU this is trivial, and easy.  For
++ * others it is still a simple predictable page table to setup.
++ *
++ * In that environment kexec copies the new kernel to it's final
++ * resting place.  This means I can only support memory whose
++ * physical address can fit in an unsigned long.  In particular
++ * addresses where (pfn << PAGE_SHIFT) > ULONG_MAX cannot be handled.
++ * If the assembly stub has more restrictive requirements
++ * KEXEC_SOURCE_MEMORY_LIMIT and KEXEC_DEST_MEMORY_LIMIT can be
++ * defined more restrictively in <asm/kexec.h>.
++ *
++ * The code for the transition from the current kernel to the 
++ * the new kernel is placed in the reboot_code_buffer, whose size
++ * is given by KEXEC_REBOOT_CODE_SIZE.  In the best case only a single
++ * page of memory is necessary, but some architectures require more.
++ * Because this memory must be identity mapped in the transition from
++ * virtual to physical addresses it must live in the range
++ * 0 - TASK_SIZE, as only the user space mappings are arbitrarily
++ * modifyable.
++ *
++ * The assembly stub in the reboot code buffer is passed a linked list
++ * of descriptor pages detailing the source pages of the new kernel,
++ * and the destination addresses of those source pages.  As this data
++ * structure is not used in the context of the current OS, it must
++ * be self contained.
++ *
++ * The code has been made to work with highmem pages and will use a
++ * destination page in it's final resting place (if it happens 
++ * to allocate it).  The end product of this is that most of the
++ * physical address space, and most of ram can be used.
++ *
++ * Future directions include:
++ *  - allocating a page table with the reboot code buffer identity
++ *    mapped, to simplify machine_kexec and make kexec_on_panic, more
++ *    reliable.  
++ *  - allocating the pages for a page table for machines that cannot
++ *    disable their MMUs.  (Hammer, Alpha...)
++ */
++
++/* KIMAGE_NO_DEST is an impossible destination address..., for
++ * allocating pages whose destination address we do not care about.
++ */
++#define KIMAGE_NO_DEST (-1UL)
++
++static int kimage_is_destination_range(
++	struct kimage *image, unsigned long start, unsigned long end);
++static struct page *kimage_alloc_reboot_code_pages(struct kimage *image);
++static struct page *kimage_alloc_page(struct kimage *image, unsigned int gfp_mask, unsigned long dest);
++
++
++static int kimage_alloc(struct kimage **rimage, 
++	unsigned long nr_segments, struct kexec_segment *segments)
++{
++	int result;
++	struct kimage *image;
++	size_t segment_bytes;
++	struct page *reboot_pages;
++	unsigned long i;
++
++	/* Allocate a controlling structure */
++	result = -ENOMEM;
++	image = kmalloc(sizeof(*image), GFP_KERNEL);
++	if (!image) {
++		goto out;
++	}
++	memset(image, 0, sizeof(*image));
++	image->head = 0;
++	image->entry = &image->head;
++	image->last_entry = &image->head;
++
++	/* Initialize the list of destination pages */
++	INIT_LIST_HEAD(&image->dest_pages);
++
++	/* Initialize the list of unuseable pages */
++	INIT_LIST_HEAD(&image->unuseable_pages);
++
++	/* Read in the segments */
++	image->nr_segments = nr_segments;
++	segment_bytes = nr_segments * sizeof*segments;
++	result = copy_from_user(image->segment, segments, segment_bytes);
++	if (result) 
++		goto out;
++
++	/* Verify we have good destination addresses.  The caller is
++	 * responsible for making certain we don't attempt to load
++	 * the new image into invalid or reserved areas of RAM.  This
++	 * just verifies it is an address we can use. 
++	 */
++	result = -EADDRNOTAVAIL;
++	for(i = 0; i < nr_segments; i++) {
++		unsigned long mend;
++		mend = ((unsigned long)(image->segment[i].mem)) + 
++			image->segment[i].memsz;
++		if (mend >= KEXEC_DESTINATION_MEMORY_LIMIT)
++			goto out;
++	}
++
++	/* Find a location for the reboot code buffer, and add it
++	 * the vector of segments so that it's pages will also be
++	 * counted as destination pages.  
++	 */
++	result = -ENOMEM;
++	reboot_pages = kimage_alloc_reboot_code_pages(image);
++	if (!reboot_pages) {
++		printk(KERN_ERR "Could not allocate reboot_code_buffer\n");
++		goto out;
++	}
++	image->reboot_code_pages = reboot_pages;
++	image->segment[nr_segments].buf = 0;
++	image->segment[nr_segments].bufsz = 0;
++	image->segment[nr_segments].mem = (void *)(page_to_pfn(reboot_pages) << PAGE_SHIFT);
++	image->segment[nr_segments].memsz = KEXEC_REBOOT_CODE_SIZE;
++	image->nr_segments++;
++
++	result = 0;
++ out:
++	if (result == 0) {
++		*rimage = image;
++	} else {
++		kfree(image);
++	}
++	return result;
++}
++
++static int kimage_is_destination_range(
++	struct kimage *image, unsigned long start, unsigned long end)
++{
++	unsigned long i;
++	for(i = 0; i < image->nr_segments; i++) {
++		unsigned long mstart, mend;
++		mstart = (unsigned long)image->segment[i].mem;
++		mend   = mstart + image->segment[i].memsz;
++		if ((end > mstart) && (start < mend)) {
++			return 1;
++		}
++	}
 +	return 0;
 +}
 +
- /*
-  * This is run by keventd.
-  */
-@@ -322,14 +186,21 @@ static void __call_usermodehelper(void *
- 	struct subprocess_info *sub_info = data;
- 	pid_t pid;
- 
--	/*
--	 * CLONE_VFORK: wait until the usermode helper has execve'd successfully
--	 * We need the data structures to stay around until that is done.
--	 */
--	pid = kernel_thread(____call_usermodehelper, sub_info, CLONE_VFORK | SIGCHLD);
--	if (pid < 0)
-+	/* CLONE_VFORK: wait until the usermode helper has execve'd
-+	 * successfully We need the data structures to stay around
-+	 * until that is done.  */
-+	if (sub_info->wait)
-+		pid = kernel_thread(wait_for_helper, sub_info,
-+				    CLONE_KERNEL | SIGCHLD);
-+	else
-+		pid = kernel_thread(____call_usermodehelper, sub_info,
-+				    CLONE_VFORK | SIGCHLD);
++#ifdef CONFIG_MMU
++static int identity_map_pages(struct page *pages, int order)
++{
++	struct mm_struct *mm;
++	struct vm_area_struct *vma;
++	int error;
++	mm = &init_mm;
++	vma = 0;
 +
-+	if (pid < 0) {
- 		sub_info->retval = pid;
--	complete(sub_info->complete);
-+		complete(sub_info->complete);
-+	} else if (!sub_info->wait)
-+		complete(sub_info->complete);
- }
- 
- /**
-@@ -337,15 +208,17 @@ static void __call_usermodehelper(void *
-  * @path: pathname for the application
-  * @argv: null-terminated argument list
-  * @envp: null-terminated environment list
-+ * @wait: wait for the application to finish and return status.
-  *
-- * Runs a user-space application.  The application is started asynchronously.  It
-- * runs as a child of keventd.  It runs with full root capabilities.  keventd silently
-- * reaps the child when it exits.
-+ * Runs a user-space application.  The application is started
-+ * asynchronously if wait is not set, and runs as a child of keventd.
-+ * (ie. it runs with full root capabilities).
-  *
-- * Must be called from process context.  Returns zero on success, else a negative
-- * error code.
-+ * Must be called from process context.  Returns a negative error code
-+ * if program was not execed successfully, or (exitcode << 8 + signal)
-+ * of the application (0 if wait is not set).
-  */
--int call_usermodehelper(char *path, char **argv, char **envp)
-+int call_usermodehelper(char *path, char **argv, char **envp, int wait)
- {
- 	DECLARE_COMPLETION(done);
- 	struct subprocess_info sub_info = {
-@@ -353,6 +226,7 @@ int call_usermodehelper(char *path, char
- 		.path		= path,
- 		.argv		= argv,
- 		.envp		= envp,
-+		.wait		= wait,
- 		.retval		= 0,
- 	};
- 	DECLARE_WORK(work, __call_usermodehelper, &sub_info);
-@@ -390,7 +264,6 @@ void dev_probe_unlock(void)
- 	up(&dev_probe_sem);
- }
- 
--EXPORT_SYMBOL(exec_usermodehelper);
- EXPORT_SYMBOL(call_usermodehelper);
- 
- #ifdef CONFIG_KMOD
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/arch/i386/mach-voyager/voyager_thread.c working-2.5-bk-kmod-noclean/arch/i386/mach-voyager/voyager_thread.c
---- linux-2.5-bk/arch/i386/mach-voyager/voyager_thread.c	2003-01-02 12:32:34.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/arch/i386/mach-voyager/voyager_thread.c	2003-01-06 16:24:54.000000000 +1100
-@@ -57,7 +57,7 @@ voyager_thread_start(void)
- }
- 
- static int
--execute_helper(void *string)
-+execute(const char *string)
- {
- 	int ret;
- 
-@@ -74,23 +74,14 @@ execute_helper(void *string)
- 		NULL,
- 	};
- 
--	if((ret = exec_usermodehelper(argv[0], argv, envp)) < 0) {
--		printk(KERN_ERR "Voyager failed to execute \"%s\"\n",
--		       (char *)string);
-+	if ((ret = call_usermodehelper(argv[0], argv, envp, 1)) != 0) {
-+		printk(KERN_ERR "Voyager failed to run \"%s\": %i\n",
-+		       string, ret);
- 	}
- 	return ret;
- }
- 
- static void
--execute(char *string)
--{
--	if(kernel_thread(execute_helper, (void *)string, CLONE_VFORK | SIGCHLD) < 0) {
--		printk(KERN_ERR "Voyager failed to fork before exec of \"%s\"\n",
--		       string);
--	}
--}
--
--static void
- check_from_kernel(void)
- {
- 	if(voyager_status.switch_off) {
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/drivers/acpi/thermal.c working-2.5-bk-kmod-noclean/drivers/acpi/thermal.c
---- linux-2.5-bk/drivers/acpi/thermal.c	2003-01-02 12:47:01.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/drivers/acpi/thermal.c	2003-01-06 15:43:53.000000000 +1100
-@@ -431,7 +431,7 @@ acpi_thermal_call_usermode (
- 	envp[0] = "HOME=/";
- 	envp[1] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
- 	
--	call_usermodehelper(argv[0], argv, envp);
-+	call_usermodehelper(argv[0], argv, envp, 0);
- 
- 	return_VALUE(0);
- }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/drivers/base/hotplug.c working-2.5-bk-kmod-noclean/drivers/base/hotplug.c
---- linux-2.5-bk/drivers/base/hotplug.c	2003-01-02 12:46:16.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/drivers/base/hotplug.c	2003-01-06 15:43:53.000000000 +1100
-@@ -114,7 +114,7 @@ static int do_hotplug (struct device *de
- 
- 	pr_debug ("%s: %s %s %s %s %s %s\n", __FUNCTION__, argv [0], argv[1],
- 		  envp[0], envp[1], envp[2], envp[3]);
--	retval = call_usermodehelper (argv [0], argv, envp);
-+	retval = call_usermodehelper (argv [0], argv, envp, 0);
- 	if (retval)
- 		pr_debug ("%s - call_usermodehelper returned %d\n",
- 			  __FUNCTION__, retval);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/drivers/bluetooth/bt3c_cs.c working-2.5-bk-kmod-noclean/drivers/bluetooth/bt3c_cs.c
---- linux-2.5-bk/drivers/bluetooth/bt3c_cs.c	2003-01-02 12:35:09.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/drivers/bluetooth/bt3c_cs.c	2003-01-06 16:23:09.000000000 +1100
-@@ -489,65 +489,22 @@ static int bt3c_hci_ioctl(struct hci_dev
- 
- 
- #define FW_LOADER  "/sbin/bluefw"
--static int errno;
--
--
--static int bt3c_fw_loader_exec(void *dev)
--{
--	char *argv[] = { FW_LOADER, "pccard", dev, NULL };
--	char *envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
--	int err;
--
--	err = exec_usermodehelper(FW_LOADER, argv, envp);
--	if (err)
--		printk(KERN_WARNING "bt3c_cs: Failed to exec \"%s pccard %s\".\n", FW_LOADER, (char *)dev);
--
--	return err;
--}
--
- 
- static int bt3c_firmware_load(bt3c_info_t *info)
- {
--	sigset_t tmpsig;
- 	char dev[16];
--	pid_t pid;
- 	int result;
--
--	/* Check if root fs is mounted */
--	if (!current->fs->root) {
--		printk(KERN_WARNING "bt3c_cs: Root filesystem is not mounted.\n");
--		return -EPERM;
--	}
-+	char *argv[] = { FW_LOADER, "pccard", dev, NULL };
-+	char *envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
- 
- 	sprintf(dev, "%04x", info->link.io.BasePort1);
- 
--	pid = kernel_thread(bt3c_fw_loader_exec, (void *)dev, 0);
--	if (pid < 0) {
--		printk(KERN_WARNING "bt3c_cs: Forking of kernel thread failed (errno=%d).\n", -pid);
--		return pid;
--	}
--
--	/* Block signals, everything but SIGKILL/SIGSTOP */
--	spin_lock_irq(&current->sig->siglock);
--	tmpsig = current->blocked;
--	siginitsetinv(&current->blocked, sigmask(SIGKILL) | sigmask(SIGSTOP));
--	recalc_sigpending();
--	spin_unlock_irq(&current->sig->siglock);
--
--	result = waitpid(pid, NULL, __WCLONE);
--
--	/* Allow signals again */
--	spin_lock_irq(&current->sig->siglock);
--	current->blocked = tmpsig;
--	recalc_sigpending();
--	spin_unlock_irq(&current->sig->siglock);
--
--	if (result != pid) {
--		printk(KERN_WARNING "bt3c_cs: Waiting for pid %d failed (errno=%d).\n", pid, -result);
--		return -result;
--	}
--
--	return 0;
-+	result = call_usermodehelper(FW_LOADER, argv, envp, 1);
-+	if (result)
-+		printk(KERN_WARNING
-+		       "bt3c_cs: Failed to run \"%s pccard %s\": %i.\n",
-+		       FW_LOADER, dev, result);
++	down_write(&mm->mmap_sem);
++	error = -ENOMEM;
++	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
++	if (!vma) {
++		goto out;
++	}
++
++	memset(vma, 0, sizeof(vma));
++	vma->vm_mm = mm;
++	vma->vm_start = page_to_pfn(pages) << PAGE_SHIFT;
++	vma->vm_end = vma->vm_start + (1 << (order + PAGE_SHIFT));
++	vma->vm_ops = 0;
++	vma->vm_flags = VM_SHARED \
++		| VM_READ | VM_WRITE | VM_EXEC \
++		| VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC \
++		| VM_DONTCOPY | VM_RESERVED;
++	vma->vm_page_prot = protection_map[vma->vm_flags & 0xf];
++	vma->vm_file = NULL;
++	vma->vm_private_data = NULL;
++	INIT_LIST_HEAD(&vma->shared);
++	insert_vm_struct(mm, vma);
++	
++	error = remap_page_range(vma, vma->vm_start, vma->vm_start,
++		vma->vm_end - vma->vm_start, vma->vm_page_prot);
++	if (error) {
++		goto out;
++	}
++
++	error = 0;
++ out:
++	if (error && vma) {
++		kmem_cache_free(vm_area_cachep, vma);
++		vma = 0;
++	}
++	up_write(&mm->mmap_sem);
++
++	return error;
++}
++#else
++#define identity_map_pages(pages, order) 0
++#endif
++
++struct page *kimage_alloc_reboot_code_pages(struct kimage *image)
++{
++	/* The reboot code buffer is special.  It is the only set of
++	 * pages that must be allocated in their final resting place,
++	 * and the only set of pages whose final resting place we can
++	 * pick. 
++	 *
++	 * At worst this runs in O(N) of the image size.
++	 */
++	struct list_head extra_pages, *pos, *next;
++	struct page *pages;
++	unsigned long addr;
++	int order, count;
++	order = get_order(KEXEC_REBOOT_CODE_SIZE);
++	count = 1 << order;
++	INIT_LIST_HEAD(&extra_pages);
++	do {
++		int i;
++		pages = alloc_pages(GFP_HIGHUSER, order);
++		if (!pages)
++			break;
++		for(i = 0; i < count; i++) {
++			SetPageReserved(pages +i);
++		}
++		addr = page_to_pfn(pages) << PAGE_SHIFT;
++		if ((page_to_pfn(pages) >= (TASK_SIZE >> PAGE_SHIFT)) ||
++			kimage_is_destination_range(image, addr, addr + KEXEC_REBOOT_CODE_SIZE)) {
++			list_add(&pages->list, &extra_pages);
++			pages = 0;
++		}
++	} while(!pages);
++	if (pages) {
++		int i, result;
++		result = identity_map_pages(pages, order);
++		if (result < 0) {
++			list_add(&pages->list, &extra_pages);
++			pages = 0;
++		}
++	}
++	/* If I could convert a multi page allocation into a buch of
++	 * single page allocations I could add these pages to
++	 * image->dest_pages.  For now it is simpler to just free the
++	 * pages again.
++	 */
++	list_for_each_safe(pos, next, &extra_pages) {
++		struct page *page;
++		int i;
++		page = list_entry(pos, struct page, list);
++		for(i = 0; i < count; i++) {
++			ClearPageReserved(pages +i);
++		}
++		list_del(&extra_pages);
++		__free_pages(page, order);
++	}
++	return pages;
++}
++
++static int kimage_add_entry(struct kimage *image, kimage_entry_t entry)
++{
++	if (image->offset != 0) {
++		image->entry++;
++	}
++	if (image->entry == image->last_entry) {
++		kimage_entry_t *ind_page;
++		struct page *page;
++		page = kimage_alloc_page(image, GFP_KERNEL, KIMAGE_NO_DEST);
++		if (!page) {
++			return -ENOMEM;
++		}
++		ind_page = page_address(page);
++		*image->entry = virt_to_phys(ind_page) | IND_INDIRECTION;
++		image->entry = ind_page;
++		image->last_entry = 
++			ind_page + ((PAGE_SIZE/sizeof(kimage_entry_t)) - 1);
++	}
++	*image->entry = entry;
++	image->entry++;
++	image->offset = 0;
++	return 0;
++}
++
++static int kimage_set_destination(
++	struct kimage *image, unsigned long destination) 
++{
++	int result;
++	destination &= PAGE_MASK;
++	result = kimage_add_entry(image, destination | IND_DESTINATION);
++	if (result == 0) {
++		image->destination = destination;
++	}
 +	return result;
- }
++}
++
++
++static int kimage_add_page(struct kimage *image, unsigned long page)
++{
++	int result;
++	page &= PAGE_MASK;
++	result = kimage_add_entry(image, page | IND_SOURCE);
++	if (result == 0) {
++		image->destination += PAGE_SIZE;
++	}
++	return result;
++}
++
++
++static void kimage_free_extra_pages(struct kimage *image)
++{
++	/* Walk through and free any extra destination pages I may have */
++	struct list_head *pos, *next;
++	list_for_each_safe(pos, next, &image->dest_pages) {
++		struct page *page;
++		page = list_entry(pos, struct page, list);
++		list_del(&page->list);
++		ClearPageReserved(page);
++		__free_page(page);
++	}
++	/* Walk through and free any unuseable pages I have cached */
++	list_for_each_safe(pos, next, &image->unuseable_pages) {
++		struct page *page;
++		page = list_entry(pos, struct page, list);
++		list_del(&page->list);
++		ClearPageReserved(page);
++		__free_page(page);
++	}
++
++}
++static int kimage_terminate(struct kimage *image)
++{
++	int result;
++	result = kimage_add_entry(image, IND_DONE);
++	if (result == 0) {
++		/* Point at the terminating element */
++		image->entry--;
++		kimage_free_extra_pages(image);
++	}
++	return result;
++}
++
++#define for_each_kimage_entry(image, ptr, entry) \
++	for (ptr = &image->head; (entry = *ptr) && !(entry & IND_DONE); \
++		ptr = (entry & IND_INDIRECTION)? \
++			phys_to_virt((entry & PAGE_MASK)): ptr +1)
++
++static void kimage_free(struct kimage *image)
++{
++	kimage_entry_t *ptr, entry;
++	kimage_entry_t ind = 0;
++	int i, count, order;
++	if (!image)
++		return;
++	kimage_free_extra_pages(image);
++	for_each_kimage_entry(image, ptr, entry) {
++		if (entry & IND_INDIRECTION) {
++			/* Free the previous indirection page */
++			if (ind & IND_INDIRECTION) {
++				free_page((unsigned long)phys_to_virt(ind & PAGE_MASK));
++			}
++			/* Save this indirection page until we are
++			 * done with it.
++			 */
++			ind = entry;
++		}
++		else if (entry & IND_SOURCE) {
++			free_page((unsigned long)phys_to_virt(entry & PAGE_MASK));
++		}
++	}
++	order = get_order(KEXEC_REBOOT_CODE_SIZE);
++	count = 1 << order;
++	do_munmap(&init_mm, 
++		page_to_pfn(image->reboot_code_pages) << PAGE_SHIFT, 
++		count << PAGE_SHIFT);
++	for(i = 0; i < count; i++) {
++		ClearPageReserved(image->reboot_code_pages + i);
++	}
++	__free_pages(image->reboot_code_pages, order);
++	kfree(image);
++}
++
++static kimage_entry_t *kimage_dst_used(struct kimage *image, unsigned long page)
++{
++	kimage_entry_t *ptr, entry;
++	unsigned long destination = 0;
++	for_each_kimage_entry(image, ptr, entry) {
++		if (entry & IND_DESTINATION) {
++			destination = entry & PAGE_MASK;
++		}
++		else if (entry & IND_SOURCE) {
++			if (page == destination) {
++				return ptr;
++			}
++			destination += PAGE_SIZE;
++		}
++	}
++	return 0;
++}
++
++static struct page *kimage_alloc_page(struct kimage *image, unsigned int gfp_mask, unsigned long destination)
++{
++	/* Here we implment safe guards to ensure that a source page
++	 * is not copied to it's destination page before the data on
++	 * the destination page is no longer useful.
++	 *
++	 * To do this we maintain the invariant that a source page is
++	 * either it's own destination page, or it is not a
++	 * destination page at all.  
++	 *
++	 * That is slightly stronger than required, but the proof
++	 * that no problems will not occur is trivial, and the
++	 * implemenation is simply to verify.
++	 *
++	 * When allocating all pages normally this algorithm will run
++	 * in O(N) time, but in the worst case it will run in O(N^2)
++	 * time.   If the runtime is a problem the data structures can
++	 * be fixed.
++	 */
++	struct page *page;
++	unsigned long addr;
++
++	/* Walk through the list of destination pages, and see if I
++	 * have a match.
++	 */
++	list_for_each_entry(page, &image->dest_pages, list) {
++		addr = page_to_pfn(page) << PAGE_SHIFT;
++		if (addr == destination) {
++			list_del(&page->list);
++			return page;
++		}
++	}
++	page = 0;
++	while(1) {
++		kimage_entry_t *old;
++		/* Allocate a page, if we run out of memory give up */
++		page = alloc_page(gfp_mask);
++		if (!page) {
++			return 0;
++		}
++		SetPageReserved(page);
++		/* If the page cannot be used file it away */
++		if (page_to_pfn(page) > (KEXEC_SOURCE_MEMORY_LIMIT >> PAGE_SHIFT)) {
++			list_add(&page->list, &image->unuseable_pages);
++			continue;
++		}
++		addr = page_to_pfn(page) << PAGE_SHIFT;
++
++		/* If it is the destination page we want use it */
++		if (addr == destination)
++			break;
++
++		/* If the page is not a destination page use it */
++		if (!kimage_is_destination_range(image, addr, addr + PAGE_SIZE))
++			break;
++
++		/* I know that the page is someones destination page.
++		 * See if there is already a source page for this
++		 * destination page.  And if so swap the source pages.
++		 */
++		old = kimage_dst_used(image, addr);
++		if (old) {
++			/* If so move it */
++			unsigned long old_addr;
++			struct page *old_page;
++			
++			old_addr = *old & PAGE_MASK;
++			old_page = pfn_to_page(old_addr >> PAGE_SHIFT);
++			copy_highpage(page, old_page);
++			*old = addr | (*old & ~PAGE_MASK);
++
++			/* The old page I have found cannot be a
++			 * destination page, so return it.
++			 */
++			addr = old_addr;
++			page = old_page;
++			break;
++		}
++		else {
++			/* Place the page on the destination list I
++			 * will use it later.
++			 */
++			list_add(&page->list, &image->dest_pages);
++		}
++	}
++	return page;
++}
++
++static int kimage_load_segment(struct kimage *image,
++	struct kexec_segment *segment)
++{	
++	unsigned long mstart;
++	int result;
++	unsigned long offset;
++	unsigned long offset_end;
++	unsigned char *buf;
++
++	result = 0;
++	buf = segment->buf;
++	mstart = (unsigned long)segment->mem;
++
++	offset_end = segment->memsz;
++
++	result = kimage_set_destination(image, mstart);
++	if (result < 0) {
++		goto out;
++	}
++	for(offset = 0;  offset < segment->memsz; offset += PAGE_SIZE) {
++		struct page *page;
++		char *ptr;
++		size_t size, leader;
++		page = kimage_alloc_page(image, GFP_HIGHUSER, mstart + offset);
++		if (page == 0) {
++			result  = -ENOMEM;
++			goto out;
++		}
++		result = kimage_add_page(image, page_to_pfn(page) << PAGE_SHIFT);
++		if (result < 0) {
++			goto out;
++		}
++		ptr = kmap(page);
++		if (segment->bufsz < offset) {
++			/* We are past the end zero the whole page */
++			memset(ptr, 0, PAGE_SIZE);
++			kunmap(page);
++			continue;
++		}
++		size = PAGE_SIZE;
++		leader = 0;
++		if ((offset == 0)) {
++			leader = mstart & ~PAGE_MASK;
++		}
++		if (leader) {
++			/* We are on the first page zero the unused portion */
++			memset(ptr, 0, leader);
++			size -= leader;
++			ptr += leader;
++		}
++		if (size > (segment->bufsz - offset)) {
++			size = segment->bufsz - offset;
++		}
++		if (size < (PAGE_SIZE - leader)) {
++			/* zero the trailing part of the page */
++			memset(ptr + size, 0, (PAGE_SIZE - leader) - size);
++		}
++		result = copy_from_user(ptr, buf + offset, size);
++		kunmap(page);
++		if (result) {
++			result = (result < 0)?result : -EIO;
++			goto out;
++		}
++	}
++ out:
++	return result;
++}
++
++/*
++ * Exec Kernel system call: for obvious reasons only root may call it.
++ * 
++ * This call breaks up into three pieces.  
++ * - A generic part which loads the new kernel from the current
++ *   address space, and very carefully places the data in the
++ *   allocated pages.
++ *
++ * - A generic part that interacts with the kernel and tells all of
++ *   the devices to shut down.  Preventing on-going dmas, and placing
++ *   the devices in a consistent state so a later kernel can
++ *   reinitialize them.
++ *
++ * - A machine specific part that includes the syscall number
++ *   and the copies the image to it's final destination.  And
++ *   jumps into the image at entry.
++ *
++ * kexec does not sync, or unmount filesystems so if you need
++ * that to happen you need to do that yourself.
++ */
++struct kimage *kexec_image = 0;
++
++asmlinkage long sys_kexec_load(unsigned long entry, unsigned long nr_segments, 
++	struct kexec_segment *segments, unsigned long flags)
++{
++	struct kimage *image;
++	int result;
++		
++	/* We only trust the superuser with rebooting the system. */
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
++	/* In case we need just a little bit of special behavior for
++	 * reboot on panic 
++	 */
++	if (flags != 0)
++		return -EINVAL;
++
++	if (nr_segments > KEXEC_SEGMENT_MAX)
++		return -EINVAL;
++	image = 0;
++
++	result = 0;
++	if (nr_segments > 0) {
++		unsigned long i;
++		result = kimage_alloc(&image, nr_segments, segments);
++		if (result) {
++			goto out;
++		}
++		image->start = entry;
++		for(i = 0; i < nr_segments; i++) {
++			result = kimage_load_segment(image, &segments[i]);
++			if (result) {
++				goto out;
++			}
++		}
++		result = kimage_terminate(image);
++		if (result) {
++			goto out;
++		}
++	}
++
++	image = xchg(&kexec_image, image);
++
++ out:
++	kimage_free(image);
++	return result;
++}
+diff -uNr linux-2.5.54/kernel/sys.c linux-2.5.54.x86kexec/kernel/sys.c
+--- linux-2.5.54/kernel/sys.c	Thu Dec 12 07:41:37 2002
++++ linux-2.5.54.x86kexec/kernel/sys.c	Sat Jan  4 12:02:05 2003
+@@ -16,6 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/highuid.h>
+ #include <linux/fs.h>
++#include <linux/kexec.h>
+ #include <linux/workqueue.h>
+ #include <linux/device.h>
+ #include <linux/times.h>
+@@ -207,6 +208,7 @@
+ cond_syscall(sys_lookup_dcookie)
+ cond_syscall(sys_swapon)
+ cond_syscall(sys_swapoff)
++cond_syscall(sys_kexec_load)
+ cond_syscall(sys_init_module)
+ cond_syscall(sys_delete_module)
  
+@@ -419,6 +421,27 @@
+ 		machine_restart(buffer);
+ 		break;
  
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/drivers/ieee1394/nodemgr.c working-2.5-bk-kmod-noclean/drivers/ieee1394/nodemgr.c
---- linux-2.5-bk/drivers/ieee1394/nodemgr.c	2003-01-02 12:46:17.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/drivers/ieee1394/nodemgr.c	2003-01-06 15:43:53.000000000 +1100
-@@ -786,7 +786,7 @@ static void nodemgr_call_policy(char *ve
- #ifdef CONFIG_IEEE1394_VERBOSEDEBUG
- 	HPSB_DEBUG("NodeMgr: %s %s %016Lx", argv[0], verb, (long long unsigned)ud->ne->guid);
- #endif
--	value = call_usermodehelper(argv[0], argv, envp);
-+	value = call_usermodehelper(argv[0], argv, envp, 0);
- 	kfree(buf);
- 	kfree(envp);
- 	if (value != 0)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/drivers/input/input.c working-2.5-bk-kmod-noclean/drivers/input/input.c
---- linux-2.5-bk/drivers/input/input.c	2003-01-02 12:30:27.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/drivers/input/input.c	2003-01-06 15:43:54.000000000 +1100
-@@ -383,7 +383,7 @@ static void input_call_hotplug(char *ver
- 		argv[0], argv[1], envp[0], envp[1], envp[2], envp[3], envp[4]);
- #endif
- 
--	value = call_usermodehelper(argv [0], argv, envp);
-+	value = call_usermodehelper(argv [0], argv, envp, 0);
- 
- 	kfree(buf);
- 	kfree(envp);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/drivers/isdn/hardware/eicon/divasmain.c working-2.5-bk-kmod-noclean/drivers/isdn/hardware/eicon/divasmain.c
---- linux-2.5-bk/drivers/isdn/hardware/eicon/divasmain.c	2003-01-02 12:45:18.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/drivers/isdn/hardware/eicon/divasmain.c	2003-01-06 15:43:54.000000000 +1100
-@@ -263,7 +263,7 @@ static void diva_adapter_trapped(void *c
- 		pdpc->card_failed = 0;
- 		argv[2] = &adapter[0];
- 
--		ret = call_usermodehelper(argv[0], argv, envp);
-+		ret = call_usermodehelper(argv[0], argv, envp, 0);
- 
- 		if (ret) {
- 			printk(KERN_ERR
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/drivers/net/hamradio/baycom_epp.c working-2.5-bk-kmod-noclean/drivers/net/hamradio/baycom_epp.c
---- linux-2.5-bk/drivers/net/hamradio/baycom_epp.c	2003-01-02 14:47:58.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/drivers/net/hamradio/baycom_epp.c	2003-01-06 16:19:12.000000000 +1100
-@@ -369,15 +369,14 @@ static char eppconfig_path[256] = "/usr/
- 
- static char *envp[] = { "HOME=/", "TERM=linux", "PATH=/usr/bin:/bin", NULL };
- 
--static int errno;
--
--static int exec_eppfpga(void *b)
-+/* eppconfig: called during ifconfig up to configure the modem */
-+static int eppconfig(struct baycom_state *bc)
- {
--	struct baycom_state *bc = (struct baycom_state *)b;
- 	char modearg[256];
- 	char portarg[16];
--        char *argv[] = { eppconfig_path, "-s", "-p", portarg, "-m", modearg, NULL};
--        int i;
-+        char *argv[] = { eppconfig_path, "-s", "-p", portarg, "-m", modearg,
-+			 NULL };
-+        int ret;
- 
- 	/* set up arguments */
- 	sprintf(modearg, "%sclk,%smodem,fclk=%d,bps=%d,divider=%d%s,extstat",
-@@ -388,39 +387,7 @@ static int exec_eppfpga(void *b)
- 	sprintf(portarg, "%ld", bc->pdev->port->base);
- 	printk(KERN_DEBUG "%s: %s -s -p %s -m %s\n", bc_drvname, eppconfig_path, portarg, modearg);
- 
--	i = exec_usermodehelper(eppconfig_path, argv, envp);
--	if (i < 0) {
--                printk(KERN_ERR "%s: failed to exec %s -s -p %s -m %s, errno = %d\n",
--                       bc_drvname, eppconfig_path, portarg, modearg, i);
--                return i;
--        }
--        return 0;
--}
--
--
--/* eppconfig: called during ifconfig up to configure the modem */
--
--static int eppconfig(struct baycom_state *bc)
--{
--        int i, pid, r;
--	mm_segment_t fs;
--
--        pid = kernel_thread(exec_eppfpga, bc, CLONE_FS);
--        if (pid < 0) {
--                printk(KERN_ERR "%s: fork failed, errno %d\n", bc_drvname, -pid);
--                return pid;
--        }
--	fs = get_fs();
--        set_fs(KERNEL_DS);      /* Allow i to be in kernel space. */
--	r = waitpid(pid, &i, __WCLONE);
--	set_fs(fs);
--        if (r != pid) {
--                printk(KERN_ERR "%s: waitpid(%d) failed, returning %d\n",
--		       bc_drvname, pid, r);
--		return -1;
--        }
--	printk(KERN_DEBUG "%s: eppfpga returned %d\n", bc_drvname, i);
--	return i;
-+	return call_usermodehelper(eppconfig_path, argv, envp, 1);
- }
- 
- /* ---------------------------------------------------------------------- */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/drivers/pnp/pnpbios/core.c working-2.5-bk-kmod-noclean/drivers/pnp/pnpbios/core.c
---- linux-2.5-bk/drivers/pnp/pnpbios/core.c	2003-01-02 14:47:59.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/drivers/pnp/pnpbios/core.c	2003-01-06 15:43:54.000000000 +1100
-@@ -602,7 +602,7 @@ static int pnp_dock_event(int dock, stru
- 		info->location_id, info->serial, info->capabilities);
- 	envp[i] = 0;
- 	
--	value = call_usermodehelper (argv [0], argv, envp);
-+	value = call_usermodehelper (argv [0], argv, envp, 0);
- 	kfree (buf);
- 	kfree (envp);
- 	return 0;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/net/bluetooth/hci_core.c working-2.5-bk-kmod-noclean/net/bluetooth/hci_core.c
---- linux-2.5-bk/net/bluetooth/hci_core.c	2003-01-02 12:33:56.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/net/bluetooth/hci_core.c	2003-01-06 15:43:54.000000000 +1100
-@@ -114,7 +114,7 @@ static int hci_run_hotplug(char *dev, ch
- 	envp[3] = astr;
- 	envp[4] = NULL;
- 	
--	return call_usermodehelper(argv[0], argv, envp);
-+	return call_usermodehelper(argv[0], argv, envp, 0);
- }
- #else
- #define hci_run_hotplug(A...)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5-bk/net/core/dev.c working-2.5-bk-kmod-noclean/net/core/dev.c
---- linux-2.5-bk/net/core/dev.c	2003-01-02 14:48:01.000000000 +1100
-+++ working-2.5-bk-kmod-noclean/net/core/dev.c	2003-01-06 15:43:54.000000000 +1100
-@@ -2918,6 +2918,6 @@ static int net_run_sbin_hotplug(struct n
- 	envp [i++] = action_str;
- 	envp [i] = 0;
- 
--	return call_usermodehelper(argv [0], argv, envp);
-+	return call_usermodehelper(argv [0], argv, envp, 0);
- }
- #endif
++#ifdef CONFIG_KEXEC
++	case LINUX_REBOOT_CMD_KEXEC:
++	{
++		struct kimage *image;
++		if (arg) {
++			unlock_kernel();
++			return -EINVAL;
++		}
++		image = xchg(&kexec_image, 0);
++		if (!image) {
++			unlock_kernel();
++			return -EINVAL;
++		}
++		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
++		system_running = 0;
++		device_shutdown();
++		printk(KERN_EMERG "Starting new kernel\n");
++		machine_kexec(image);
++		break;
++	}
++#endif
+ #ifdef CONFIG_SOFTWARE_SUSPEND
+ 	case LINUX_REBOOT_CMD_SW_SUSPEND:
+ 		if (!software_suspend_enabled) {
+
+
+
+
+
+

@@ -1,102 +1,256 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265279AbUEZBci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265273AbUEZBgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265279AbUEZBci (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 21:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbUEZBch
+	id S265273AbUEZBgP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 21:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbUEZBgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 21:32:37 -0400
-Received: from CPE-203-45-91-55.nsw.bigpond.net.au ([203.45.91.55]:15853 "EHLO
-	mudlark.pw.nest") by vger.kernel.org with ESMTP id S265279AbUEZBcS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 21:32:18 -0400
-Message-ID: <40B3F356.2050200@aurema.com>
-Date: Wed, 26 May 2004 11:31:02 +1000
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+	Tue, 25 May 2004 21:36:15 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:47794 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S265273AbUEZBf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 21:35:58 -0400
+Date: Wed, 26 May 2004 10:36:04 +0900
+From: AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com>
+Subject: Re: [PATCH] NMI trigger switch support for debugging
+In-reply-to: <20040524023453.7cf5ebc2.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <40B3F484.4030405@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hubertus Franke <frankeh@watson.ibm.com>
-CC: Rik van Riel <riel@redhat.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       kanderso@redhat.com, Chandra Seetharaman <sekharan@us.ibm.com>,
-       limin@sgi.com, jlan@sgi.com, linux-kernel@vger.kernel.org, jh@sgi.com,
-       Paul Jackson <pj@sgi.com>, gh@us.ibm.com,
-       Erik Jacobson <erikj@subway.americas.sgi.com>, ralf@suse.de,
-       lse-tech@lists.sourceforge.net, Vivek Kashyap <kashyapv@us.ibm.com>,
-       mason@suse.com
-Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
-References: <Pine.LNX.4.44.0405241404080.22438-100000@chimarrao.boston.redhat.com> <40B2534E.3040302@watson.ibm.com> <40B288BA.7010905@aurema.com> <40B35F83.8090901@watson.ibm.com>
-In-Reply-To: <40B35F83.8090901@watson.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040516)
+References: <40B1BEAC.30500@jp.fujitsu.com>
+ <20040524023453.7cf5ebc2.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubertus Franke wrote:
-> Peter Williams wrote:
->> From my (possibly incorrect) understanding of the above description, 
->> one thing that PAGG provides to its clients that CKRM doesn't is the 
->> ability to attach some private data to task structs and it passes that 
->> data to the client as part of the callback.  Am I correct in this 
->> interpretation?
+Hi Andrew,
+
+Andrew Morton wrote:
+
+>AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com> wrote:
+>  
+>
+>>Therefore this feature cannot be used at the same time with oprofile
+>> and NMI watchdog. This feature hands NMI interrupt over to oprofile
+>> and NMI watchdog. So, when they have been activated, this feature
+>> doesn't work even if it is activated.
+>>    
 >>
->> Peter
-> 
-> 
-> That is the "stickling" point. Yes, PAGG provides this feature that one 
-> can chain private data to the attach/detach callback. CKRM at this point 
-> does not do that as we do not see the need for multiple class 
-> associations in the core.
+>
+>An API was recently added to solve this.  See reserve_lapic_nmi() and
+>release_lapic_nmi().
+>
+>  
+>
 
-I think that you are looking at this issue too much from a CKRM point of 
-view.  I.e. just because CKRM doesn't need it doesn't mean that it isn't 
-  a good idea.  In fact the issue should be viewed more broadly than 
-just a "resource management" point of view.
+Thank you for your comment.
+I remade my patch referring to your suggestion.
 
-If there are multiple clients then having their per KernelObject data 
-managed using the PAGG mechanism greatly simplifies the task of 
-implementing a client AND reduces the potential overhead on the system 
-as the alternative is for the client to use some type of search 
-mechanism to find its copy of its per KernelObject specific data when 
-servicing its callback functions.
+Regards,
+Nobuyuki Akiyama
 
-> Instead we can drive such things through the 
-> extended RBCE interface. Here you register callbacks to the task 
-> classtype to be notified of the ckrm events.
-> 
-> Since we do networking, PAGG is not sufficient for us as it only deals 
-> with processes.
 
-I think that this is just a detail and that what should happen is that a 
-PAGG like mechanism be applied to sockets.  Similarly, to enable memory 
-management/monitoring one attached to address space structures would be 
-useful.  And so on.
+diff -Nur linux-2.6.6.org/arch/i386/kernel/nmi.c 
+linux-2.6.6/arch/i386/kernel/nmi.c
+--- linux-2.6.6.org/arch/i386/kernel/nmi.c    2004-05-25 
+20:02:45.000000000 +0900
++++ linux-2.6.6/arch/i386/kernel/nmi.c    2004-05-26 09:48:23.000000000 
++0900
+@@ -25,16 +25,20 @@
+ #include <linux/module.h>
+ #include <linux/nmi.h>
+ #include <linux/sysdev.h>
++#include <linux/sysctl.h>
+ 
+ #include <asm/smp.h>
+ #include <asm/mtrr.h>
+ #include <asm/mpspec.h>
+ #include <asm/nmi.h>
+ 
++#include "mach_traps.h"
++
+ unsigned int nmi_watchdog = NMI_NONE;
+ static unsigned int nmi_hz = HZ;
+ unsigned int nmi_perfctr_msr;    /* the MSR to reset in NMI handler */
+ extern void show_registers(struct pt_regs *regs);
++int unknown_nmi_panic = 0;
+ 
+ /*
+  * lapic_nmi_owner tracks the ownership of the lapic NMI hardware:
+@@ -419,8 +423,6 @@
+     nmi_active = 1;
+ }
+ 
+-static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
+-
+ /*
+  * the best way to detect whether a CPU has a 'hard lockup' problem
+  * is to check it's local APIC timer IRQ counts. If they are not
+@@ -452,6 +454,8 @@
+         alert_counter[i] = 0;
+ }
+ 
++extern void die_nmi(struct pt_regs *, const char *msg);
++
+ void nmi_watchdog_tick (struct pt_regs * regs)
+ {
+ 
+@@ -470,21 +474,8 @@
+          * wait a few IRQs (5 seconds) before doing the oops ...
+          */
+         alert_counter[cpu]++;
+-        if (alert_counter[cpu] == 5*nmi_hz) {
+-            spin_lock(&nmi_print_lock);
+-            /*
+-             * We are in trouble anyway, lets at least try
+-             * to get a message out.
+-             */
+-            bust_spinlocks(1);
+-            printk("NMI Watchdog detected LOCKUP on CPU%d, eip %08lx, 
+registers:\n", cpu, regs->eip);
+-            show_registers(regs);
+-            printk("console shuts up ...\n");
+-            console_silent();
+-            spin_unlock(&nmi_print_lock);
+-            bust_spinlocks(0);
+-            do_exit(SIGSEGV);
+-        }
++        if (alert_counter[cpu] == 5*nmi_hz)
++            die_nmi(regs, "NMI Watchdog detected LOCKUP");
+     } else {
+         last_irq_sums[cpu] = sum;
+         alert_counter[cpu] = 0;
+@@ -511,6 +502,45 @@
+     }
+ }
+ 
++static int unknown_nmi_panic_callback(struct pt_regs *regs, int cpu)
++{
++    unsigned char reason = get_nmi_reason();
++    char buf[64];
++
++    if (!(reason & 0xc0)) {
++        sprintf(buf, "NMI received for unknown reason %02x\n", reason);
++        die_nmi(regs, buf);
++    }
++    return 0;
++}
++
++/*
++ * proc handler for /proc/sys/kernel/unknown_nmi_panic
++ */
++int proc_unknown_nmi_panic(ctl_table *table, int write,
++                struct file *file, void __user *buffer, size_t *length)
++{
++    int old_state;
++
++    old_state = unknown_nmi_panic;
++    proc_dointvec(table, write, file, buffer, length);
++    if (!old_state == !unknown_nmi_panic)
++        return 0;
++
++    if (unknown_nmi_panic) {
++        if (reserve_lapic_nmi() < 0) {
++            unknown_nmi_panic = 0;
++            return -EBUSY;
++        } else {
++            set_nmi_callback(unknown_nmi_panic_callback);
++        }
++    } else {
++        release_lapic_nmi();
++        unset_nmi_callback();
++    }
++    return 0;
++}
++
+ EXPORT_SYMBOL(nmi_active);
+ EXPORT_SYMBOL(nmi_watchdog);
+ EXPORT_SYMBOL(reserve_lapic_nmi);
+diff -Nur linux-2.6.6.org/arch/i386/kernel/traps.c 
+linux-2.6.6/arch/i386/kernel/traps.c
+--- linux-2.6.6.org/arch/i386/kernel/traps.c    2004-05-25 
+20:02:45.000000000 +0900
++++ linux-2.6.6/arch/i386/kernel/traps.c    2004-05-25 
+22:54:03.000000000 +0900
+@@ -454,6 +454,27 @@
+     printk("Do you have a strange power saving mode enabled?\n");
+ }
+ 
++static spinlock_t nmi_print_lock = SPIN_LOCK_UNLOCKED;
++
++void die_nmi (struct pt_regs *regs, const char *msg)
++{
++    spin_lock(&nmi_print_lock);
++    /*
++    * We are in trouble anyway, lets at least try
++    * to get a message out.
++    */
++    bust_spinlocks(1);
++    printk(msg);
++    printk(" on CPU%d, eip %08lx, registers:\n",
++        smp_processor_id(), regs->eip);
++    show_registers(regs);
++    printk("console shuts up ...\n");
++    console_silent();
++    spin_unlock(&nmi_print_lock);
++    bust_spinlocks(0);
++    do_exit(SIGSEGV);
++}
++
+ static void default_do_nmi(struct pt_regs * regs)
+ {
+     unsigned char reason = get_nmi_reason();
+diff -Nur linux-2.6.6.org/include/linux/sysctl.h 
+linux-2.6.6/include/linux/sysctl.h
+--- linux-2.6.6.org/include/linux/sysctl.h    2004-05-25 
+20:03:13.000000000 +0900
++++ linux-2.6.6/include/linux/sysctl.h    2004-05-25 22:54:03.000000000 
++0900
+@@ -133,6 +133,7 @@
+     KERN_NGROUPS_MAX=63,    /* int: NGROUPS_MAX */
+     KERN_SPARC_SCONS_PWROFF=64, /* int: serial console power-off halt */
+     KERN_HZ_TIMER=65,    /* int: hz timer on or off */
++    KERN_UNKNOWN_NMI_PANIC=66, /* int: unknown nmi panic flag */
+ };
+ 
+ 
+diff -Nur linux-2.6.6.org/kernel/sysctl.c linux-2.6.6/kernel/sysctl.c
+--- linux-2.6.6.org/kernel/sysctl.c    2004-05-25 20:03:31.000000000 +0900
++++ linux-2.6.6/kernel/sysctl.c    2004-05-25 22:54:03.000000000 +0900
+@@ -65,6 +65,12 @@
+ extern int printk_ratelimit_jiffies;
+ extern int printk_ratelimit_burst;
+ 
++#if defined(__i386__)
++extern int unknown_nmi_panic;
++extern int proc_unknown_nmi_panic(ctl_table *, int, struct file *,
++                  void __user *, size_t *);
++#endif
++
+ /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID 
+and GID */
+ static int maxolduid = 65535;
+ static int minolduid;
+@@ -636,6 +642,16 @@
+         .mode        = 0444,
+         .proc_handler    = &proc_dointvec,
+     },
++#if defined(__i386__)
++    {
++        .ctl_name       = KERN_UNKNOWN_NMI_PANIC,
++        .procname       = "unknown_nmi_panic",
++        .data           = &unknown_nmi_panic,
++        .maxlen         = sizeof (int),
++        .mode           = 0644,
++        .proc_handler   = &proc_unknown_nmi_panic,
++    },
++#endif
+     { .ctl_name = 0 }
+ };
+ 
 
-> Hence we need our generic infrastructure at the core 
-> level. Sure we can try to modularize further to take the CKRM EVENTS 
-> out.
 
-I think that breaking these up into smaller chunks (based on the type of 
-KernelObject to which they apply) would be a good idea.  The fact that 
-CKRM wants to use them all isn't sufficient justification to lump them 
-all together.
-
-> Then potentially one could implement task types on top of PAGG on 
-> top of CKRM Events (which are needed anyway for other the task class 
-> associations), but then again PAGG brings nothing but another indirections.
-> 
-> It worthwhile to consider to bite the bullet and allow PAGG to enter its 
-> task class association chain (1 word) and allow CKRM its own. CKRM is 
-> going after the integrated resource schedulers, PAGG/CSA (afaik) does not.
-
-I think that this is another example of you taking a too CKRM centric 
-point of view.  What I'm trying to say is that I think that these lower 
-level interfaces need to be more independent of CKRM's requirements.
-
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
 

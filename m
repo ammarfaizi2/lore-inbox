@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316210AbSGQTBj>; Wed, 17 Jul 2002 15:01:39 -0400
+	id <S316309AbSGQTE2>; Wed, 17 Jul 2002 15:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316258AbSGQTBj>; Wed, 17 Jul 2002 15:01:39 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:32756 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S316210AbSGQTBj>; Wed, 17 Jul 2002 15:01:39 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 17 Jul 2002 13:02:59 -0600
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-Message-ID: <20020717190259.GA31503@clusterfs.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net> <20020716153926.GR7955@tahoe.alcove-fr> <20020716194542.GD22053@merlin.emma.line.org> <20020716150422.A6254@q.mn.rr.com> <20020716161158.A461@shookay.newview.com> <20020716152231.B6254@q.mn.rr.com> <20020717114501.GB28284@merlin.emma.line.org>
+	id <S316322AbSGQTE2>; Wed, 17 Jul 2002 15:04:28 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:17147 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316309AbSGQTE2>; Wed, 17 Jul 2002 15:04:28 -0400
+Subject: Re: 2.4.19rc2 and Promise RAID controller
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Klaus Dittrich <kladit@t-online.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10207170950050.10225-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10207170950050.10225-100000@master.linux-ide.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 17 Jul 2002 21:17:09 +0100
+Message-Id: <1026937029.1688.160.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020717114501.GB28284@merlin.emma.line.org>
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 17, 2002  13:45 +0200, Matthias Andree wrote:
-> On Tue, 16 Jul 2002, Shawn wrote:
-> > In this case, can you use a RAID mirror or something, then break it?
-> > 
-> > Also, there's the LVM snapshot at the block layer someone already
-> > mentioned, which when used with smaller partions is less overhead.
-> > (less FS delta)
+On Wed, 2002-07-17 at 17:54, Andre Hedrick wrote:
 > 
-> All these "solutions" don't work out, I cannot remount R/O my partition,
-> and LVM low-level snapshots or breaking a RAID mirror simply won't work
-> out. I would have to remount r/o the partition to get a consistent image
-> in the first place, so the first step must fail already...
+> This is just proves that accepting the patch code from Promise will begin
+> to remove basic support for hardware.  I warned everyone of this and
+> people do not listen.  So I suggest that you find another vendors product
+> to use as the PDC20270 shall not be supported anymore.
 
-Have you been reading my emails at all?  LVM snapshots DO ensure that
-the snapshot filesystem is consistent for journaled filesystems.
+Andre, this is not the case. We all agreed to sort out the raid detect. 
+I sent Marcelo a diff and some instructions. He applied the diff but I
+guess my instructions were too confusing. It'll get fixed for -rc3
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+If you want a conspiracy to play with look elsewhere (there are no
+shortage of real ones 8))
 

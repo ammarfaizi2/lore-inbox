@@ -1,54 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269156AbTCDFZg>; Tue, 4 Mar 2003 00:25:36 -0500
+	id <S269148AbTCDFTy>; Tue, 4 Mar 2003 00:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269159AbTCDFZg>; Tue, 4 Mar 2003 00:25:36 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:33206 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S269156AbTCDFZf>;
-	Tue, 4 Mar 2003 00:25:35 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: xmms (audio) skipping in 2.5 (not 2.4)
-Date: Tue, 4 Mar 2003 16:36:00 +1100
-User-Agent: KMail/1.5
-References: <103200000.1046755559@[10.10.2.4]>
-In-Reply-To: <103200000.1046755559@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303041636.00745.kernel@kolivas.org>
+	id <S269149AbTCDFTy>; Tue, 4 Mar 2003 00:19:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40453 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269148AbTCDFTt>; Tue, 4 Mar 2003 00:19:49 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
+Date: Tue, 4 Mar 2003 05:29:33 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b41djt$2s2$1@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0303031554230.29949-100000@dlang.diginsite.com> <592860000.1046744403@flay>
+X-Trace: palladium.transmeta.com 1046755797 6270 127.0.0.1 (4 Mar 2003 05:29:57 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 4 Mar 2003 05:29:57 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003 04:25 pm, Martin J. Bligh wrote:
-> OK, so I finally took the plunge, and put 2.5 on my main desktop as well as
-> just the lab machines ;-)
->
-> Generally seems to work very well, and VM performance is much more stable
-> than 2.4 ... but xmms seems to skip if I just waggle the scrollbar in some
-> windows. This happens most in my email client (which is Mulberry), but
-> other things show it to a more limited extent.
->
-> The audio pauses happen on a simple window scroll down, without intensive
-> CPU background activity ... they're very short in duration, which makes it
-> *feel* more like the audio buffer is too small than a scheduler problem,
-> but I'm just guessing really.
->
-> So ... is there any easy way I can diagnose this? Does anyone else have a
-> similar problem?
+In article <592860000.1046744403@flay>,
+Martin J. Bligh <mbligh@aracnet.com> wrote:
+>>> Just curious, this also means that at least around the 80% of merges
+>>> in Linus's tree is submitted via a bitkeeper pull, right?
+>>> 
+>>> Andrea
+>> 
+>> remember how Linus works, all normal patches get copied into a single
+>> large patch file as he reads his mail then he runs patch to apply them to
+>> the tree. I think this would make the entire batch of messages look like
+>> one cset.
 
-Most of us who have worked with an O(1) scheduler based kernel have found this 
-at various times. See the previous discussion with akpm about the 
-interactivity estimator. Akpm found that decreasing the maximum timeslice 
-duration would blunt the effect of the interactivity estimator giving 
-preference to the "wrong" task. In 2.4.20-ck4 I avoid this problem with the 
-"desktop tuning" of making the max timeslice==min timeslice. Try an -mm 
-kernel with the scheduler tunables patch and try playing with the max 
-timeslice. Most have found that <=25 will usually stop these skips. The 
-default max timeslice of 300ms is just too long for the desktop and 
-interactivity estimator.
- 
-Con
+Nope. All my tools are very careful about making single cset's from
+single patches. Without that, you can't get good history and changelog
+files, and you can't undo or test single patches.
+
+What I _do_ do is to "batch up" patches, which you can see if you take a
+look at the times for various changesets. I will save many emails to one
+single "pending" file (I call it "doit"), and then my tools will apply
+each of them in sequence as one "batch" of files. You can see the effect
+of this by just doing
+
+	bk changes | grep ChangeSet | less
+
+and seeing how the changes are just a few seconds apart. For example,
+here's the last batch I have from Andrew, and you can see that my
+scripts applied 19 patches in sequence:
+
+	ChangeSet@1.1058, 2003-03-02 20:38:36-08:00, akpm@digeo.com
+	ChangeSet@1.1057, 2003-03-02 20:38:23-08:00, akpm@digeo.com
+	ChangeSet@1.1056, 2003-03-02 20:38:15-08:00, akpm@digeo.com
+	ChangeSet@1.1055, 2003-03-02 20:38:09-08:00, akpm@digeo.com
+	ChangeSet@1.1054, 2003-03-02 20:38:02-08:00, akpm@digeo.com
+	ChangeSet@1.1053, 2003-03-02 20:37:54-08:00, akpm@digeo.com
+	ChangeSet@1.1052, 2003-03-02 20:37:48-08:00, akpm@digeo.com
+	ChangeSet@1.1051, 2003-03-02 20:37:41-08:00, akpm@digeo.com
+	ChangeSet@1.1050, 2003-03-02 20:37:34-08:00, akpm@digeo.com
+	ChangeSet@1.1049, 2003-03-02 20:37:26-08:00, akpm@digeo.com
+	ChangeSet@1.1048, 2003-03-02 20:37:19-08:00, akpm@digeo.com
+	ChangeSet@1.1047, 2003-03-02 20:37:13-08:00, akpm@digeo.com
+	ChangeSet@1.1046, 2003-03-02 20:37:07-08:00, akpm@digeo.com
+	ChangeSet@1.1045, 2003-03-02 20:36:59-08:00, akpm@digeo.com
+	ChangeSet@1.1044, 2003-03-02 20:36:51-08:00, akpm@digeo.com
+	ChangeSet@1.1043, 2003-03-02 20:36:44-08:00, akpm@digeo.com
+	ChangeSet@1.1042, 2003-03-02 20:36:38-08:00, akpm@digeo.com
+	ChangeSet@1.1041, 2003-03-02 20:36:31-08:00, akpm@digeo.com
+	ChangeSet@1.1040, 2003-03-02 20:36:23-08:00, akpm@digeo.com
+
+roughly 8 seconds between patch (that's how long it takes the scripts to
+commit between each change.  Imagine doing a commit in 8 seconds using
+CVS..)
+
+But all 19 emails ended up as separate changesets, and the only thing
+the "batching" does is to make _me_ work more efficiently (ie I don't go
+back and forth between reading email and applying one patch: I save the
+batch away, I then look through the patches individually and possibly
+edit and clean up the email commentary on it, and then I apply them all
+in one go). 
+
+>I think he also creates subtrees, applies flat patches to those, then 
+>merges the subtrees back into his main tree as a bk-merge ... won't that 
+>distort the stats? 
+
+Yes, it will. 
+
+I try to generally avoid doing parallell development with myself, partly
+because it ends up _looking_ really confusing in revtool and thus
+sometimes hard to find stuff, but partly just because I'm lazy and I
+consider my main tree to be the "merge tree", so by default everything
+_should_ go into that one tree if I really do want to merge it.
+
+However, sometimes I get a big series of patches that was generated
+against some specific kernel version, and then I'll set up a parallell
+tree with the top at that specific version, so that I re-create exactly
+what the original developer was working on. That way I avoid patch
+rejects, and can take advantage of the automatic BK merge features.
+
+It's not that common, though - I do it mostly if I know or suspect that
+something will clash with existing changes in my tree, or if it's
+something so fundamental that I want a separate branch for it (this was
+the case for a lot of the fundamental VFS stuff Al Viro did earlier in
+2.5.x, for example).
+
+			Linus

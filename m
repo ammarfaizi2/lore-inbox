@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVACNdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVACNeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVACNdK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 08:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVACNdJ
+	id S261443AbVACNeq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 08:34:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVACNep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 08:33:09 -0500
-Received: from users.linvision.com ([62.58.92.114]:1954 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S261446AbVACNdD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 08:33:03 -0500
-Date: Mon, 3 Jan 2005 14:33:02 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: This time? Bug in Reiser4 or usb or hardware flaw?
-Message-ID: <20050103133301.GD23288@harddisk-recovery.com>
-References: <200501030329.16836@zodiac.zodiac.dnsalias.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501030329.16836@zodiac.zodiac.dnsalias.org>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+	Mon, 3 Jan 2005 08:34:45 -0500
+Received: from miranda.se.axis.com ([193.13.178.2]:41885 "EHLO
+	miranda.se.axis.com") by vger.kernel.org with ESMTP id S261443AbVACNe2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 08:34:28 -0500
+From: "Mikael Starvik" <mikael.starvik@axis.com>
+To: "'Christoph Hellwig'" <hch@lst.de>,
+       "Mikael Starvik" <mikael.starvik@axis.com>, <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] remove bogus double softirq processing in cris
+Date: Mon, 3 Jan 2005 14:34:07 +0100
+Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668014C75F3@exmail1.se.axis.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C66802055E59@exmail1.se.axis.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 03:29:16AM +0100, Alexander Gran wrote:
-> while copying larger amounts (15GB) of data from a ext2 to a reiser4 partition 
-> on a usb hdd, everything failed and I had to reboot. Dunno if its reiser4 or 
-> usb thats failing here, though. The kernel was not going to see the external 
-> hdd again.
-> Heres dmesg output:
+Go ahead and submit it. This was removed locally quite a while ago and I'm
+rewriting the IRQ handling to use the new consolidate IRQ stuff in 2.6.10 as
+I write this. So don't bother that your patch breaks CRIS in the current 2.6
+tree. 
 
-[...]
+/Mikael
 
-> I had to use sysrq to reboot, reboot would just hang as would lsusb.
-> USB enviroment is an ICH-4 ehci, one hub and an icy-box. uhci drivers not 
-> compiled.
-
-I expect it to be a USB 2.0 problem, not a reiser4 problem. I've seen
-this kind of behavior when trying to copy data to an ext3 filesystem on
-an USB 2.0 IDE converter. If you use the drive with a USB 1.1 host
-controller, it will probably succeed. I haven't yet figured out if it
-is a usb-storage problem or a hardware problem (in the USB IDE
-converter).
+-----Original Message-----
+From: Christoph Hellwig [mailto:hch@lst.de] 
+Sent: Monday, January 03, 2005 2:28 PM
+To: Mikael Starvik; akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove bogus double softirq processing in cris
 
 
-Erik
+On Sun, Nov 14, 2004 at 11:43:28AM +0100, Christoph Hellwig wrote:
+> I sent this out long ago already, but it's still not in:
+> 
+>   These days irq_exit does all softirq processing, so there's no need to
+>   call do_softirq again in cris.
+> 
+> Also is there any chance you could switch cris to use the new
+> CONFIG_GENERIC_HARDIRQS code in 2.6.10-rc that would replace most of
+> arch/cris/kernel/irq.c with generic code from kernel/irq/* ?
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+ping?  the broken code this patch removes really gets in the way of the
+softirq_pending() removal I plan to submit soon..
+
+--- 1.17/arch/cris/kernel/irq.c	2004-10-20 10:37:14 +02:00
++++ edited/arch/cris/kernel/irq.c	2004-11-14 11:39:14 +01:00
+@@ -158,11 +158,6 @@ asmlinkage void do_IRQ(int irq, struct p
+ 		local_irq_disable();
+         }
+         irq_exit();
+-
+-	if (softirq_pending(cpu))
+-                do_softirq();
+-
+-        /* unmasking and bottom half handling is done magically for us. */
+ }
+ 
+ /* this function links in a handler into the chain of handlers for the
+

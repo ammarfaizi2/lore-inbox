@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVAHTJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVAHTNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVAHTJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 14:09:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVAHTJ5
+	id S261271AbVAHTNS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 14:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVAHTNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 14:09:57 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:15059 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261269AbVAHTJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 14:09:47 -0500
-Date: Sat, 8 Jan 2005 19:09:43 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       sensors@Stimpy.netroedge.com
-Subject: Re: [BK PATCH] I2C patches for 2.6.10
-Message-ID: <20050108190943.GA31973@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, torvalds@osdl.org, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-References: <20050108053849.GA8065@kroah.com>
-Mime-Version: 1.0
+	Sat, 8 Jan 2005 14:13:18 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:21749 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261271AbVAHTNQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 14:13:16 -0500
+To: Christoph Hellwig <hch@lst.de>
+Cc: davej@redhat.com, hannal@us.ibm.com, linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+References: <20050108190815.GA7031@lst.de>
+From: Roland Dreier <roland@topspin.com>
+Date: Sat, 08 Jan 2005 11:13:14 -0800
+In-Reply-To: <20050108190815.GA7031@lst.de> (Christoph Hellwig's message of
+ "Sat, 8 Jan 2005 20:08:15 +0100")
+Message-ID: <52fz1b20qd.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH] fix pci_get_device conversion in intel-agp
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050108053849.GA8065@kroah.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 08 Jan 2005 19:13:15.0251 (UTC) FILETIME=[1A9C2430:01C4F5B6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 09:38:49PM -0800, Greg KH wrote:
-> Hi,
-> 
-> Here are some i2c driver fixes and updates for 2.6.10.  There are a few
-> new i2c drivers in here, and a number of bugfixes.  Almost all of these
-> patches have been in the past few -mm releases.
-> 
-> Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
-> 
-> Individual patches will follow, sent to the sensors and linux-kernel
-> lists.
+    > +	if (intel_i810_private.i810_dev)
+    > +		pci_dev_put(intel_i810_private.i830_dev);
+    > +	if (intel_i810_private.i830_dev)
+    > +		pci_dev_put(intel_i830_private.i830_dev);
 
-Could you please put a slightly more usefull subject line into your mails.
-Three gazillion times the same subject absolutely does not help review.
+Is there a typo in the patch here -- should the first put be for i810_dev?
 
+ - R.

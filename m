@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263805AbTLJRZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 12:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTLJRZ4
+	id S263824AbTLJR1L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 12:27:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263830AbTLJR1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 12:25:56 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:65476 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263805AbTLJRZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 12:25:55 -0500
-Message-ID: <3FD7591A.8020100@pacbell.net>
-Date: Wed, 10 Dec 2003 09:34:18 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Wed, 10 Dec 2003 12:27:10 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:30656 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263824AbTLJR0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 12:26:14 -0500
+Message-ID: <3FD75711.3060103@nortelnetworks.com>
+Date: Wed, 10 Dec 2003 12:25:37 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Duncan Sands <baldrick@free.fr>
-CC: linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-References: <Pine.LNX.4.44L0.0312081754480.2034-100000@ida.rowland.org> <200312101422.40088.baldrick@free.fr> <200312101720.22731.oliver@neukum.org> <200312101749.17173.baldrick@free.fr>
-In-Reply-To: <200312101749.17173.baldrick@free.fr>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+       Kendall Bennett <KendallB@scitechsoft.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org> <Pine.LNX.4.58.0312100714390.29676@home.osdl.org> <20031210153254.GC6896@work.bitmover.com> <Pine.LNX.4.58.0312100809150.29676@home.osdl.org> <20031210163425.GF6896@work.bitmover.com> <Pine.LNX.4.58.0312100852210.29676@home.osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
-> Unfortunately, usb_physical_reset_device calls usb_set_configuration
-> which takes dev->serialize.
+> But also note how it's only the BINARY MODULE that is a derived work. Your
+> source code is _not_ necessarily a derived work, and if you compile it for
+> another operating system, I'd clearly not complain.
+> 
+> This is the "stand-alone short story" vs "extra chapter without meaning
+> outside the book" argument. See? One is a work in its own right, the other
+> isn't.
 
-Not since late August it doesn't ...
+We currently have a situation where an external company supplies us with 
+a device driver containing a binary blob that was explicitly written as 
+OS-agnostic, and a shim that is gpl'd (at least the linux shim is) to 
+get the appropriate os-specific services.  I guess this would fall under 
+the "not made just for linux" category in which you've placed the Nvidia 
+driver?
 
+Carrying on your analogy, this could be a generic love scene, with 
+blanks in which to insert the character's names and location.
+
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

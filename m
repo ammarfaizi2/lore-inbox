@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318250AbSHSK3X>; Mon, 19 Aug 2002 06:29:23 -0400
+	id <S318255AbSHSKnz>; Mon, 19 Aug 2002 06:43:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318254AbSHSK3X>; Mon, 19 Aug 2002 06:29:23 -0400
-Received: from smtp2.libero.it ([193.70.192.52]:30381 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id <S318250AbSHSK3X>;
-	Mon, 19 Aug 2002 06:29:23 -0400
-Message-ID: <001101c2476c$75f0ca70$3b05420a@salabop2>
-From: "Sirius Black" <sirius_ml@shellfreaks.cx>
-To: <linux-kernel@vger.kernel.org>
-Subject: max open file descriptors
-Date: Mon, 19 Aug 2002 12:37:43 +0200
+	id <S318256AbSHSKnz>; Mon, 19 Aug 2002 06:43:55 -0400
+Received: from Morgoth.esiway.net ([193.194.16.157]:15887 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S318255AbSHSKny>; Mon, 19 Aug 2002 06:43:54 -0400
+Date: Mon, 19 Aug 2002 12:47:44 +0200 (CEST)
+From: Marco Colombo <marco@esi.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (0/4) Entropy accounting fixes
+In-Reply-To: <1029666355.15858.5.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0208191220260.26653-100000@Megathlon.ESI>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi to all,
+On 18 Aug 2002, Alan Cox wrote:
 
-I was wondering on how much the FD limit can be increased
-whitout having any problems; i've searched on the net and found 
-some docs which says 2048 and others 4096....
+> On Sun, 2002-08-18 at 05:06, dean gaudet wrote:
+> > On 17 Aug 2002, Robert Love wrote:
+> > 
+> > > [1] this is why I wrote my netdev-random patches.  some machines just
+> > >     have to take the entropy from the network card... there is nothing
+> > >     else.
+> > 
+> > many southbridges come with audio these days ... isn't it possible to get
+> > randomness off the adc even without anything connected to it?
+> 
+> Both the AMD and Intel bridges also come with high speed random number
+> generators (i810-rng, amd768-rng). ADC randomness itself tends to be
+> very suspect.
 
-Which is the maximum number of open FD can i set?
+BTW, I know you wrote the amd768-rng driver, I wonder if you have any
+indication of how good these rng are. What is the typical output bits/
+random bits ratio in normal applications?
 
-Thanks
-
-Barbieri Roberto
+.TM.
+-- 
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
 

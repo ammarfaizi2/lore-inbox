@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280839AbRKBVRF>; Fri, 2 Nov 2001 16:17:05 -0500
+	id <S280845AbRKBVUc>; Fri, 2 Nov 2001 16:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280844AbRKBVQx>; Fri, 2 Nov 2001 16:16:53 -0500
-Received: from inje.iskon.hr ([213.191.128.16]:952 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S280839AbRKBVQf>;
-	Fri, 2 Nov 2001 16:16:35 -0500
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Zlatko's I/O slowdown status
-In-Reply-To: <Pine.LNX.4.33.0111021215260.15759-100000@windmill.gghcwest.com>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: 02 Nov 2001 22:16:28 +0100
-In-Reply-To: <Pine.LNX.4.33.0111021215260.15759-100000@windmill.gghcwest.com> ("Jeffrey W. Baker"'s message of "Fri, 2 Nov 2001 12:16:40 -0800 (PST)")
-Message-ID: <87bsikeuvn.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Artificial Intelligence)
-MIME-Version: 1.0
+	id <S280844AbRKBVUW>; Fri, 2 Nov 2001 16:20:22 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:22510
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S280840AbRKBVUN>; Fri, 2 Nov 2001 16:20:13 -0500
+Date: Fri, 2 Nov 2001 13:20:06 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: Andreas Franck <Andreas.Franck@akustik.rwth-aachen.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Weird /proc/meminfo output on 2.4.13-ac5
+Message-ID: <20011102132006.A5955@mikef-linux.matchmail.com>
+Mail-Followup-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+	Andreas Franck <Andreas.Franck@akustik.rwth-aachen.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <80D19CC2E32@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <80D19CC2E32@vcnet.vc.cvut.cz>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeffrey W. Baker" <jwbaker@acm.org> writes:
-
-> On 2 Nov 2001, Zlatko Calusic wrote:
+On Fri, Nov 02, 2001 at 07:34:49PM +0000, Petr Vandrovec wrote:
+> On  2 Nov 01 at 14:10, Andreas Franck wrote:
+> > $ cat /proc/meminfo
+> >         total:    used:    free:  shared: buffers:  cached:
+> > Mem:  789250048 781295616  7954432   659456 402890752
+> > 18446744073478758400
+> > Swap: 6744576000   282624 6744293376
+> > MemTotal:       770752 kB
+> > MemFree:          7768 kB
+> > MemShared:         644 kB
+> > Buffers:        393448 kB
+> > Cached:       4294741680 kB     <------ This is impossible, i think? :-)
 > 
-> > Andrea Arcangeli <andrea@suse.de> writes:
-> >
-> > > Hello Zlatko,
-> > >
-> > > I'm not sure how the email thread ended but I noticed different
-> > > unplugging of the I/O queues in mainline (mainline was a little more
-> > > overkill than -ac) and also wrong bdflush histeresis (pre-wakekup of
-> > > bdflush to avoid blocking if the write flood could be sustained by the
-> > > bandwith of the HD was missing for example).
-> >
-> > Thank God, today it is finally solved. Just two days ago, I was pretty
-> > sure that disk had started dying on me, and i didn't know of any
-> > solution for that. Today, while I was about to try your patch, I got
-> > another idea and finally pinpointed the problem.
-> >
-> > It was write caching. Somehow disk was running with write cache turned
-> > off and I was getting abysmal write performance. Then I found hdparm
-> > -W0 /proc/ide/hd* in /etc/init.d/umountfs which is ran during shutdown
-> > but I don't understand how it survived through reboots and restarts!
-> > And why only two of four disks, which I'm dealing with, got confused
-> > with the command. And finally I don't understand how I could still got
-> > full speed occassionaly. Weird!
-> >
-> > I would advise users of Debian unstable to comment that part, I'm sure
-> > it's useless on most if not all setups. You might be pleasantly
-> > surprised with performance gains (write speed doubles).
+> Problem appeared in my 2.4.13-ac4 yesterday at home too. It happened to 
+> me when I was checking health of my HDD - either during 'dd if=/dev/hde1 
+> of=/dev/null bs=8M', or during copying all files from VFAT (/dev/hde1) 
+> partition to /dev/null on filesystem level file by file. 
 > 
-> That's great if you don't mind losing all of your data in a power outage!
-
-That has nothing to do with power outage, it is only run during
-halt/poweroff. 
-
-> What do you think happens if the software thinks data is committed to
-> permanent storage when in fact it in only in DRAM on the drive?
+> And if we are talking about it, 2.4.13-ac4 here at work reports that
+> too. But strange thing is that this machine has just 200MB VFAT partition
+> of no use, and I do not remember that I ever did read from /dev/hd* since
+> last reboot. Shift-scrolllock does not report any unusual values. 
 > 
+> I'll upgrade to -ac6 and I'll see.
 
-Bad things of course. But -W0 won't save you from file corruption when
-you have megabytes of data in page cache, still not synced on disk,
-and suddenly you lost power.
+It won't help.  You'll need a patch that rik has posted a few days ago.
 
-Of course, journalling filesystems will change things a bit...
--- 
-Zlatko
+This problem is for 2.4.13, 2.4.13-acX, and 2.4.14pre*.
+
+Latest pre or ac patches don't fix it.
+
+Latest:
+pre6
+-ac6
+
+Mike

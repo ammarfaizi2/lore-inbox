@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263606AbTJ0Vky (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 16:40:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbTJ0Vky
+	id S263593AbTJ0Vil (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 16:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbTJ0Vil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 16:40:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:31900 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263606AbTJ0Vkx (ORCPT
+	Mon, 27 Oct 2003 16:38:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64409 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263593AbTJ0Vij (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 16:40:53 -0500
-Date: Mon, 27 Oct 2003 13:49:58 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Mark Bellon <mbellon@mvista.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: User-space System Device Enumeration (uSDE)
-In-Reply-To: <3F9D8332.3060003@mvista.com>
-Message-ID: <Pine.LNX.4.44.0310271343170.13116-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 27 Oct 2003 16:38:39 -0500
+Date: Mon, 27 Oct 2003 13:38:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mr Amit Patel <patelamitv@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: as_arq scheduler alloc with 2.6.0-test8-mm1
+Message-Id: <20031027133859.2fcfc6de.akpm@osdl.org>
+In-Reply-To: <20031027175935.15690.qmail@web13005.mail.yahoo.com>
+References: <20031026034113.0cfd50d9.akpm@osdl.org>
+	<20031027175935.15690.qmail@web13005.mail.yahoo.com>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Initial availability of User-Space System Device Enumeration (uSDE) 
-> package, version 0.74, can be found at http://sourceforge.net/projects/usde
+Mr Amit Patel <patelamitv@yahoo.com> wrote:
+>
+> Hi Andrew,
 > 
-> The uSDE provides an open framework for the enumeration (specification) 
-> of system devices in a dynamic environment. Device handling is 
-> implemented via plug-in programs known as policy methods. Policy methods 
-> are free to handle their devices in any way, from trivial to complex - 
-> anything from providing LSB device nodes to persistent device name 
-> handling with
-> replacement and relocation strategies.
+> The qlogic driver is for Fibre Channel HBA QLA2342.
+> This is a beta driver which is part of the mjb1 patch
+> against 2.6.0-test8. As a part of driver insmod,
+> driver tries to find fiber channel device and maps it
+> to scsi block device. Actually I don't have any fibre
+> channel target attached, so driver does not find any
+> scsi devices and discovery finishes without adding any
+> block device. 
 > 
-> The uSDE depends on /sbin/hotplug (for dynamic insertions and removals), 
-> sysfs (for device information) and /proc (various pieces of 
-> information). It is not dependent on initrd - it explicitly scans sysfs 
-> upon system startup to determine the initial device ensemble.
+> I am trying to go through driver scsi_scan process and
+> see when does actual allocation from as_arq happens.
+> But for some reason after going to kgdb I get SIGEMT
+> and I cannot debug further. What is causing SIGEMT
+> cause after doing some search looks like its actually
+> SIGUSR but linux treats it as SIGEMT. Is there any way
+> to prevent SIGEMT when I want to use kgdb ? 
+> 
 
-How does uSDE relate to udev? You do not mention it in your email, though 
-it claims to implement similar, if not identical functionality. Is it 
-related? Is it built on top of it? 
+SIGEMT is kgdb's way of telling you the kernel oopsed.  The different
+signal types used to convey useful information (a different type for NMI
+watchdog expiry, for example).  But George then randomised them and I've
+never worked out the new scheme...
 
-If not, are you planning on merging your efforts with udev in the future? 
+kgdb is difficult to use with kernel modules.  There's probably a way of
+doing it in 2.6 but I've never sat down and worked it out.  But as you
+appear to be working on the SCSI core that's not a problem.
 
-Are you using the libsysfs library for accessing sysfs data? If not, I 
-highly recommend it. 
-
-I would also recommend sending email to the linux-hotplug list, as most of 
-the hotplug-related applications are discussed and developed via that 
-list.
-
-
-	Pat
 

@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266502AbUGPJwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUGPKQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266502AbUGPJwb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 05:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUGPJwb
+	id S266513AbUGPKQp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 06:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266514AbUGPKQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 05:52:31 -0400
-Received: from out012pub.verizon.net ([206.46.170.137]:6850 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S266502AbUGPJw3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 05:52:29 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Organization: Organization: undetectable
-To: <linux-kernel@vger.kernel.org>
-Subject: New mobo question
-Date: Fri, 16 Jul 2004 05:52:27 -0400
-User-Agent: KMail/1.6
-MIME-Version: 1.0
+	Fri, 16 Jul 2004 06:16:45 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:20490 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S266513AbUGPKQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 06:16:44 -0400
+Date: Fri, 16 Jul 2004 12:17:21 +0200
+From: DervishD <raul@pleyades.net>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Which is the purpose of the inode field in a TCP socket?
+Message-ID: <20040716101721.GA23823@DervishD>
+Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407160552.27074.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [141.153.127.68] at Fri, 16 Jul 2004 04:52:28 -0500
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+    Hi all :)
 
-I've ordered a new mobo as I'm having what appears to be data bus 
-problems with this one after a rather spectacular failure of a 
-gforce2 video card, memtest86 says I have a lot of errors where 
-00000020 was written, but 00000000 came back, at semi-random 
-locations scattered thoughout half a gig of dimms running at half 
-their rated DDR266 speed.  The last nibble of the address is always 
-zero, and the next nibble is always even.
+    I mean, the field 'i_ino' in the 'struct inode' field contained
+in the 'struct socket' field of the 'struct tcp_opt' structure, shown
+as field number 10 in each entry of /proc/net/tcp. Moreover, this
+inode number doesn't seem to be associated with any block device,
+maybe is a fake inode number?
 
-The new mobo is nforce2 based, a Biostar M7NCD-PRO, and will have a 
-gig of memory.
-
-Is there a way to prebuild a kernel that will run on both boards?, 
-this older board is a VIA82686/VIA8233 based board, a Biostar M7VIB.
-
-I don't run an initrd normally.
+    Raúl Núñez de Arenas Coronado
 
 -- 
-Cheers, Gene
-There are 4 boxes to be used in defense of liberty. 
-Soap, ballot, jury, and ammo.
-Please use in that order, starting now.  -Ed Howdershelt, Author
-Additions to this message made by Gene Heskett are Copyright 2004, 
-Maurice E. Heskett, all rights reserved.
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318101AbSIJUsV>; Tue, 10 Sep 2002 16:48:21 -0400
+	id <S316842AbSIJUyy>; Tue, 10 Sep 2002 16:54:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318113AbSIJUsV>; Tue, 10 Sep 2002 16:48:21 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52213 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318101AbSIJUsV>; Tue, 10 Sep 2002 16:48:21 -0400
-Date: Tue, 10 Sep 2002 22:53:01 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, <johnstul@us.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] add "If unsure, say N" to CONFIG_X86_TSC_DISABLE
-Message-ID: <Pine.NEB.4.44.0209102247150.18902-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318116AbSIJUyx>; Tue, 10 Sep 2002 16:54:53 -0400
+Received: from dsl-213-023-020-046.arcor-ip.net ([213.23.20.46]:39383 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316842AbSIJUyw>;
+	Tue, 10 Sep 2002 16:54:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Chuck Lever <cel@citi.umich.edu>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Tue, 10 Sep 2002 22:52:17 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@digeo.com>, Rik van Riel <riel@conectiva.com.br>,
+       <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.BSO.4.33.0209101412300.5368-100000@citi.umich.edu>
+In-Reply-To: <Pine.BSO.4.33.0209101412300.5368-100000@citi.umich.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17orzf-0007Gn-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Tuesday 10 September 2002 21:04, Chuck Lever wrote:
+> today, dirty mmap'd pages are passed to the NFS client via the writepage
+> address space operation.  what more needs to be done here?  is there a
+> mechanism today to tell the VM layer to "call writepage for all dirty
+> mmap'd pages?"
 
-the patch below does:
-- add a "If unsure, say N" to CONFIG_X86_TSC_DISABLE
-- fix two typos
+Well, Andrew has cooked up something that seems to be headed in that
+direction, mpage_writepages and various associated superstructure, but
+it does not apparently walk all the ptes to check the dirty bits before
+it flushes the dirty pages, which is what you want, I think.  It would
+not be hard to teach it that trick, it's another thing made easy by
+rmap.
 
-cu
-Adrian
+Then, after that's done, what kind of semantics have we got?  Perhaps
+it's worth being able to guarantee that when a program says 'get all
+the dirty memory here out onto disk' it actually happens, even though
+there is no built-in way to be sure that some unsychronized task
+won't come along and dirty the mmap again immediately.  You could look
+at the need for synchronization there as an application issue.  On the
+other hand, if the NFS client is taking the liberty of flushing the
+dirty memory on behalf of the mmap users, what guarantee is provided?
+IMHO, none, so is this really worth it for the NFS client to do this?
 
+It does make sense that fsync should really get all the dirty pages
+onto disk (err, or onto the server) and not come back until its done,
+and that 'dirty pages' should include dirty ptes, not just pages that
+happen to have been scanned and had their dirty bits moved from the
+pte to the struct page.
 
---- Documentation/Configure.help.old	2002-09-10 22:38:42.000000000 +0200
-+++ Documentation/Configure.help	2002-09-10 22:49:21.000000000 +0200
-@@ -240,9 +240,11 @@
-   which processor you have compiled for.
+Andrew, did I miss something, or does the current code really ignore
+the pte dirty bits?
 
-   NOTE: If your system hangs when init should run, you are probably
--  using a i686 compiled glibc which reads the TSC wihout checking for
--  avaliability. Boot without "notsc" and install a i386 compiled glibc
-+  using a i686 compiled glibc which reads the TSC without checking for
-+  availability. Boot without "notsc" and install a i386 compiled glibc
-   to solve the problem.
-+
-+  If unsure, say N.
-
- Multiquad support for NUMA systems
- CONFIG_MULTIQUAD
-
-
+-- 
+Daniel

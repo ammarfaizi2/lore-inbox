@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316621AbSEQRQL>; Fri, 17 May 2002 13:16:11 -0400
+	id <S316625AbSEQRgv>; Fri, 17 May 2002 13:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316622AbSEQRQK>; Fri, 17 May 2002 13:16:10 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:47120
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S316621AbSEQRQJ>; Fri, 17 May 2002 13:16:09 -0400
-Date: Fri, 17 May 2002 10:15:31 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Todd R. Eigenschink" <todd@tekinteractive.com>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-Subject: Re: kswapd OOPS under 2.4.19-pre8 (ext3, Reiserfs + (soft)raid0)
-Message-ID: <20020517171531.GE627@matchmail.com>
-Mail-Followup-To: "Todd R. Eigenschink" <todd@tekinteractive.com>,
-	vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
-In-Reply-To: <15577.5431.625191.582701@rtfm.ofc.tekinteractive.com> <15585.10390.825902.226132@rtfm.ofc.tekinteractive.com> <200205150849.g4F8n6Y12694@Port.imtp.ilyichevsk.odessa.ua> <15586.64093.770227.324620@rtfm.ofc.tekinteractive.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S316626AbSEQRgu>; Fri, 17 May 2002 13:36:50 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:65229 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S316625AbSEQRgt>; Fri, 17 May 2002 13:36:49 -0400
+Date: Fri, 17 May 2002 13:36:49 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200205171736.g4HHant04061@devserv.devel.redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+In-Reply-To: <mailman.1021642692.12772.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 07:16:29PM -0500, Todd R. Eigenschink wrote:
-> I just reset after another oops.  It's similar to, but different from,
-> the previous one; the call stack is the same but they die in different
-> places.
-> 
-> I put the output of "gcc -E" and "gcc -S" (with the rest of the
-> command-line parameters) at the following URLs so you can see what the
-> asm turned into on my machine (gcc 2.95.3); I'm not very x86-asm
-> literate, so most of it's $FOREIGN_LANG to me.
-> 
+>[...]
+> We could do that, or, we could fix the actual problem, which is the
+> HUGE FUCKING BEARTRAP WHICH CATCHES EVERY SINGLE NEW PROGRAMMER ON THE
+> WAY THROUGH.
 
-Have you tried testing the memory and power supply?
+It is but one of many crooked interfaces. For example, Linux
+has outb() arguments swapped relatively to all other environments.
+I think it may be the best to have Corbet to update the O'Reily
+book with a chapter of common traps and add a @-comment near
+the copy_from_user.
+
+In the interest of full disclosure, I must admit that I used
+copy_from_user wrong once, many years ago. The lesson which
+I extracted was different though. I decided that I was arrogant
+and foolish to program without reading interface specifications
+or the code. It did not occur to me to shift the blame onto
+copy_from_user creators.
+
+-- Pete

@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbVAFWu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263054AbVAFWxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbVAFWu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 17:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263080AbVAFWt0
+	id S263054AbVAFWxy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 17:53:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbVAFWvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 17:49:26 -0500
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:58791 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S263054AbVAFWrr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 17:47:47 -0500
-X-Ironport-AV: i="3.88,108,1102312800"; 
-   d="scan'208"; a="177369250:sNHT23576276"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
-Content-Class: urn:content-classes:message
+	Thu, 6 Jan 2005 17:51:02 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36827 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263054AbVAFWtu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 17:49:50 -0500
+Message-ID: <41DDC08A.10603@pobox.com>
+Date: Thu, 06 Jan 2005 17:49:46 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP kernel
-Date: Thu, 6 Jan 2005 16:47:46 -0600
-Message-ID: <4B0A1C17AA88F94289B0704CFABEF1AB0B4D32@ausx2kmps304.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP kernel
-Thread-Index: AcTAIAVAVRscS9MSR36xZTS1/gcpSAADEUdwDPQ/CKAAEI5dwA==
-From: <Tim_T_Murphy@Dell.com>
-To: <rmk+lkml@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Jan 2005 22:47:46.0806 (UTC) FILETIME=[BDD41160:01C4F441]
+To: Kumar Gala <kumar.gala@freescale.com>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Make gcapatch work for all bk transports
+References: <Pine.GSO.4.44.0412181239400.2707-100000@sysperf.somerset.sps.mot.com> <138B63BE-5E6B-11D9-BC22-000393DBC2E8@freescale.com>
+In-Reply-To: <138B63BE-5E6B-11D9-BC22-000393DBC2E8@freescale.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kumar Gala wrote:
+> Jeff,
+> 
+> Did you have any issues with this following change to gcapatch?  If not, 
+> I'll resend the patch to akpm.
 
-> anything i can do to avoid dropping characters without using 
-> low_latency, which still hangs SMP kernels?
+Unfortuately not, all my local repos' parents are set to the 
+gkernel.bkbits.net location where they get pushed.
 
-this patch fixes the problem for me, but its probably an awful hack -- a
-brief interrupt storm occurs until tty processes its buffer, but IMHO
-that's better than dropping characters.
+	Jeff
 
-is there a better alternative?
-thanks,
-tim
 
---- 8250-orig.c	2005-01-06 16:25:24.000000000 -0600
-+++ 8250.c	2005-01-06 16:27:21.000000000 -0600
-@@ -989,8 +989,10 @@
- 		if (unlikely(tty->flip.count >= TTY_FLIPBUF_SIZE)) {
- 			if(tty->low_latency)
- 				tty_flip_buffer_push(tty);
--			/* If this failed then we will throw away the
--			   bytes but must do so to clear interrupts */
-+			else
-+				break;
-+			/* If this failed then we will just leave now 
-+			   rather than dropping bytes (interrupts not
-cleared) */
- 		}
- 		ch = serial_inp(up, UART_RX);
- 		flag = TTY_NORMAL;
+

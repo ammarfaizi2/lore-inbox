@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264629AbSLLNMG>; Thu, 12 Dec 2002 08:12:06 -0500
+	id <S264624AbSLLN0B>; Thu, 12 Dec 2002 08:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264624AbSLLNMG>; Thu, 12 Dec 2002 08:12:06 -0500
-Received: from dc-mx09.cluster1.charter.net ([209.225.8.19]:49337 "EHLO
-	mx09.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id <S263991AbSLLNMF>; Thu, 12 Dec 2002 08:12:05 -0500
-Subject: Re: Is this going to be true ?
-From: Billy Harvey <Billy.Harvey@thrillseeker.net>
-To: hps@intermeta.de
-Cc: lk <linux-kernel@vger.kernel.org>
-In-Reply-To: <at9qvf$ds4$1@forge.intermeta.de>
-References: <001801c2a0a9$02613f40$2e863841@joe>
-	 <yw1xvg1zfspi.fsf@tophat.e.kth.se>  <at9qvf$ds4$1@forge.intermeta.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1039699186.4304.8.camel@rhino>
+	id <S264630AbSLLN0B>; Thu, 12 Dec 2002 08:26:01 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:23172 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S264624AbSLLN0A>;
+	Thu, 12 Dec 2002 08:26:00 -0500
+Date: Thu, 12 Dec 2002 13:33:39 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Joseph <jospehchan@yahoo.com.tw>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
+Message-ID: <20021212133339.GE1145@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Joseph <jospehchan@yahoo.com.tw>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0212111151410.1397-100000@twin.uoregon.edu> <002e01c2a1bf$4bfde0b0$3716a8c0@taipei.via.com.tw>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 12 Dec 2002 08:19:46 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <002e01c2a1bf$4bfde0b0$3716a8c0@taipei.via.com.tw>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you define "OS" at the syscall layer you end up with what we
-> started.  Two threads printing 1 0 1 0 1 0 on your screen.
-> 
-> 	Regards
-> 		henning
+On Thu, Dec 12, 2002 at 05:17:29PM +0800, Joseph wrote:
+ > Thanks for all response. :)
+ > I think I know more why it downgrades.
+ > But one more curious question.
+ > In the file, arch/i386/Makefile, under kernel 2.5.51.
+ > I found the C3 alignments , $(call check_gcc, -march=c3,-march=i486).
+ > Does the C3 CPU type be included in gcc compile option??
+ > I've downloaded the latest gcc 3.2.1 version.
+ > But I don't find the c3 options in the file gcc/config/i396/i386.c, i386.h
+ > or etc.
 
-Way back when I was in college and studying interrupts, etc., I wrote a
-program to interrupt some little routine and reenable interrupts to
-interrupt a routine, etc.  I was enthralled and thought to myself, "I
-bet I could write a space game ..."
+Not in a currently released gcc. CVS HEAD supports it, as will 3.3
 
-Way back when Linus was studying interrupts and got 1 0 1 0 1 0 ..., he
-thought, "I bet I could get a movement started to generate an entirely
-new unix-like OS so popular it will eventually take over the world".
-
-Dream big.
+		Dave
 
 -- 
-Billy
-
-
+| Dave Jones.        http://www.codemonkey.org.uk

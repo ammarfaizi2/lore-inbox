@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261747AbREQNu0>; Thu, 17 May 2001 09:50:26 -0400
+	id <S261840AbREQOWB>; Thu, 17 May 2001 10:22:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261749AbREQNuQ>; Thu, 17 May 2001 09:50:16 -0400
-Received: from web13307.mail.yahoo.com ([216.136.175.43]:61198 "HELO
-	web13307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261747AbREQNuH>; Thu, 17 May 2001 09:50:07 -0400
-Message-ID: <20010517135006.879.qmail@web13307.mail.yahoo.com>
-Date: Thu, 17 May 2001 06:50:05 -0700 (PDT)
-From: Michael Reed <michaelreed@yahoo.com>
-Subject: com20020-pci IRQ problem
-To: linux-kernel@vger.kernel.org
+	id <S261852AbREQOVu>; Thu, 17 May 2001 10:21:50 -0400
+Received: from mail.muc.eurocyber.net ([195.143.108.5]:40185 "EHLO
+	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
+	id <S261840AbREQOVk>; Thu, 17 May 2001 10:21:40 -0400
+Message-ID: <3B03DB2C.1AC5D217@TeraPort.de>
+Date: Thu, 17 May 2001 16:07:40 +0200
+From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac9 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: make menuconfig - cosmetic question
+Content-Type: multipart/mixed;
+ boundary="------------C3260757F265D1690A9F786A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is a multi-part message in MIME format.
+--------------C3260757F265D1690A9F786A
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I have a Contemporary Controls PCI20 card and am trying to use the latest
-arcnet drivers under Mandrake 8.0 with a 2.4.4 kernel.  
+Hi,
 
-I do the following:
-insmod arcnet
-insmod arc-rawmode
-insmod com20020
+ this is most likely just a small issue. If I knew where to look, I
+would try to fix it and submit a patch :-)
 
-which all load just fine.  However, when I do:
+ When I diff config files pocessed by "make [old]config" and "make
+menueconfig", it seems that menuconfig is not writing out some of the
+"comments" that the other versions do write. This is of course nothing
+serious, but it ticks me off. Any idea where to look for this glitch?
 
-insmod com20020-pci
+Thanks
+Martin
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+IT Services              |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759
+--------------C3260757F265D1690A9F786A
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="Martin.Knoblauch.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Martin.Knoblauch
+Content-Disposition: attachment;
+ filename="Martin.Knoblauch.vcf"
 
-I get the following errors:
-init_module: No such device
-Hint: insmod errors can be caused by incorrect module parameters,
-including invalid IO or IRQ parameters
+begin:vcard 
+n:Knoblauch;Martin
+tel;cell:+49-170-4904759
+tel;fax:+49-89-510857-111
+tel;work:+49-89-510857-309
+x-mozilla-html:FALSE
+url:http://www.teraport.de
+org:TeraPort GmbH;IT-Services
+adr:;;Garmischer Straße 4;München;Bayern;D-80339;Germany
+version:2.1
+email;internet:Martin.Knoblauch@TeraPort.de
+title:Senior System Engineer
+x-mozilla-cpt:;32160
+fn:Martin Knoblauch
+end:vcard
 
-In syslog I get:
+--------------C3260757F265D1690A9F786A--
 
-May 17 09:39:08 collector kernel: arcnet: COM20020 PCI support
-May 17 09:39:08 collector kernel: PCI: Found IRQ 10 for device 00:04.0
-
-
-/proc/pci reports the following for the PCI20:
-
-Bus  0, device   5, function  0:
-   Network controller: Contemporary Controls CCSI PCI20-CXB ARCnet (rev
-1).
-     IRQ 10.
-     Non-prefetchable 32 bit memory at 0x41000000 [0x4100007f].
-     I/O at 0x2080 [0x20ff].
-     I/O at 0x2400 [0x240f].
-
-/proc/ioports reports for the PCI20:
-
-2080-20ff : Contemporary Controls CCSI PCI20-CXB ARCnet
-2400-240f : Contemporary Controls CCSI PCI20-CXB ARCnet
-  2400-2408 : arcnet (COM20020)
-
-/proc/interrupts registers nothing for 10 (but I assume this is normal because
-the driver never correctly loads?)
-
-I would appreciate any help in getting this module loaded.   There are no  irq
-conflicts for IRQ 10, and I tried putting the card in different slots and on
-other IRQs to no avail.
-
-Thanks,
-Mike
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/

@@ -1,86 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292087AbSCGPTf>; Thu, 7 Mar 2002 10:19:35 -0500
+	id <S310356AbSCGPXp>; Thu, 7 Mar 2002 10:23:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293552AbSCGPTY>; Thu, 7 Mar 2002 10:19:24 -0500
-Received: from firewall.oeone.com ([216.191.248.101]:10251 "HELO
-	mail.oeone.com") by vger.kernel.org with SMTP id <S292087AbSCGPTF>;
-	Thu, 7 Mar 2002 10:19:05 -0500
-Message-ID: <3C8784E8.78B2D878@oeone.com>
-Date: Thu, 07 Mar 2002 10:19:04 -0500
-From: Masoud Sharbiani <masouds@oeone.com>
-Organization: OEone Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17-oe4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Sean Middleditch <smiddle@twp.ypsilanti.mi.us>
-Cc: linux-kernel@vger.kernel.org
+	id <S310359AbSCGPXg>; Thu, 7 Mar 2002 10:23:36 -0500
+Received: from sip-11a.usol.com ([63.64.148.11]:26372 "EHLO
+	dns1.civic.twp.ypsilanti.mi.us") by vger.kernel.org with ESMTP
+	id <S310356AbSCGPXZ>; Thu, 7 Mar 2002 10:23:25 -0500
 Subject: Re: 8139too on Proliant
-In-Reply-To: <1015510399.25062.1.camel@smiddle>
-Content-Type: text/plain; charset=us-ascii
+From: Sean Middleditch <smiddle@twp.ypsilanti.mi.us>
+To: Masoud Sharbiani <masouds@oeone.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C8784E8.78B2D878@oeone.com>
+In-Reply-To: <1015510399.25062.1.camel@smiddle> 
+	<3C8784E8.78B2D878@oeone.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 07 Mar 2002 10:23:26 -0500
+Message-Id: <1015514607.25062.28.camel@smiddle>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-D-Link 530TX driver is actually via-rhine, not 8139too. Have you tried that
-one?
+Doesn't look like it:
+
+dns1:/home/smiddle# modprobe via-rhine
+/lib/modules/2.4.9-686/kernel/drivers/net/via-rhine.o: init_module: No
+such device
+Hint: insmod errors can be caused by incorrect module parameters,
+including invalid IO or IRQ parameters
+/lib/modules/2.4.9-686/kernel/drivers/net/via-rhine.o: insmod
+/lib/modules/2.4.9-686/kernel/drivers/net/via-rhine.o failed
+/lib/modules/2.4.9-686/kernel/drivers/net/via-rhine.o: insmod via-rhine
+failed
+dns1:/home/smiddle# 
+
+Just to clarify, the exact model is a DFE530TX+.  I use this exact same
+card on most my machines at home, with the 8139too driver as well.  They
+work fine.
+
+Also, from /proc/pci:
+
+Bus  0, device   4, function  0:
+    Ethernet controller: PCI device 1186:1300 (D-Link System Inc) (rev
+16).
+      IRQ 15.
+      Master Capable.  Latency=66.  Min Gnt=32.Max Lat=64.
+      I/O at 0x3000 [0x30ff].
+      Non-prefetchable 32 bit memory at 0xb0800000 [0xb08000ff].
 
 
-Masoud
-Sean Middleditch wrote:
-
-> I've got a Compaq Proliant ML350.  We've added an additional PCI based
-> D-Link 530TX network card to the machine.  However, the driver (8139too)
-> fails to load.  The errors given are below.  We are using Debian Sid
-> (kernel 2.4.9-686).  If a new kernel or recompile is needed to fix this
-> problem, I'm willing, but if there's another way, I'd be *more* willing
-> to do that (putting new kernelson this machine is not fun).
->
-> I have tried changing the IRQ's for the card, that didn't seem to help.
-> PnP is off, I believe (hard to tell with the Compaq BIOS).  Right now,
-> it's sharing IRQ 15 with the onboard eepro100 based card.  The add-on
-> card has been tested while sharing IRQ's with both the SCSI controllers
-> and the serial ports (the only options the BIOS gives us), and got the
-> exact same messages as below.
->
-> And, of course, like many people, I'm not subscribed to list.  CC on
-> replies would be spiffy.  Thanks!
->
-> On the console:
-> /lib/modules/2.4.9-686/kernel/drivers/net/8139too.o: init_module: No
-> such device
-> /lib/modules/2.4.9-686/kernel/drivers/net/8139too.o: insmod
-> /lib/modules/2.4.9-686/kernel/drivers/net/8139too.o failed
-> /lib/modules/2.4.9-686/kernel/drivers/net/8139too.o: insmod 8139too
-> failed
-> Hint: insmod errors can be caused by incorrect module parameters,
-> including invalid IO or IRQ parameters
->
-> /var/log/messages:
-> Mar  7 09:00:25 dns1 kernel: 8139too Fast Ethernet driver 0.9.18a
-> Mar  7 09:00:25 dns1 kernel: PCI: Found IRQ 15 for device 00:04.0
-> Mar  7 09:00:25 dns1 kernel: PCI: Unable to reserve I/O region
-> #1:100@3000 for device 00:04.0
-> Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
-> <00003000-000030ff>
-> Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
-> <b0800000-b08000ff>
-> Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
-> <00003000-000030ff>
-> Mar  7 09:00:25 dns1 kernel: Trying to free nonexistent resource
-> <b0800000-b08000ff>
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---
-Masoud Sharabiani
-Software Developer, OEone Corporation
-#103 - 290 St-Joseph Blvd.  Hull, Quebec J8Y 3Y3
-
+On Thu, 2002-03-07 at 10:19, Masoud Sharbiani wrote:
+> Hi,
+> D-Link 530TX driver is actually via-rhine, not 8139too. Have you tried that
+> one?
+> 
+> 
+> Masoud
+> --
+> Masoud Sharabiani
+> Software Developer, OEone Corporation
+> #103 - 290 St-Joseph Blvd.  Hull, Quebec J8Y 3Y3
+> 
+> 
+> 
 
 

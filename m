@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313083AbSDOSIF>; Mon, 15 Apr 2002 14:08:05 -0400
+	id <S313087AbSDOSMG>; Mon, 15 Apr 2002 14:12:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313084AbSDOSIF>; Mon, 15 Apr 2002 14:08:05 -0400
-Received: from customer201-108.iplannetworks.net ([200.69.201.108]:51186 "EHLO
-	ntmba.mba") by vger.kernel.org with ESMTP id <S313083AbSDOSIE>;
-	Mon, 15 Apr 2002 14:08:04 -0400
-Message-ID: <3CBB16FE.90503@laotraesquina.com.ar>
-Date: Mon, 15 Apr 2002 15:07:58 -0300
-From: Pablo Alcaraz <pabloa@laotraesquina.com.ar>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: es-ar, en-us
-MIME-Version: 1.0
+	id <S313091AbSDOSMF>; Mon, 15 Apr 2002 14:12:05 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:29710 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S313087AbSDOSMB>; Mon, 15 Apr 2002 14:12:01 -0400
+Date: Mon, 15 Apr 2002 20:11:50 +0200 (CEST)
+From: tomas szepe <kala@pinerecords.com>
 To: linux-kernel@vger.kernel.org
-Subject: HP scanjet 2200c support
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.5.7 keyboard problem
+In-Reply-To: <Pine.LNX.4.44.0204151839560.6489-100000@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0204152010380.27582-100000@louise.pinerecords.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+> > I saw that already,
+> > Here is a snippet from my .config
+> Jup, I've got to confirm this: PS/2 keyboards won't work on my
+> VIA KT133A-based board on both 2.5.8 vanilla and -dj2/3.
+> (no, not even IBM Model M. :D)
 
-I'm running linux 2.4.16 in a Red Hat 7.2 installation. I have a HP 
-scanjet 2200c and I can see the usb id into the boot kernel messages, 
-but I can use it to scan.
+just to complement the former post: a "dmesg|grep -i keyb" reveals:
 
-Is this scanner supported?
+keyboard: Timeout - AT keyboard not present?(ed)
+keyboard: Timeout - AT keyboard not present?(f4)
 
-Thanks
+t.
 
-Pablo
+pub 1024d/8e316a84 2002-01-29   tomas szepe <kala@pinerecords.com>
+openpgp f/print 2955 2eea c4b8 b09e 7ae1  4d5d 68e3 d606 8e31 6a84
 

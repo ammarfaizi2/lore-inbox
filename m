@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288263AbSACQyd>; Thu, 3 Jan 2002 11:54:33 -0500
+	id <S288259AbSACQyj>; Thu, 3 Jan 2002 11:54:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288256AbSACQxN>; Thu, 3 Jan 2002 11:53:13 -0500
-Received: from dialin-212-144-150-064.arcor-ip.net ([212.144.150.64]:14575
-	"EHLO merv") by vger.kernel.org with ESMTP id <S288255AbSACQwm>;
-	Thu, 3 Jan 2002 11:52:42 -0500
-Date: Thu, 3 Jan 2002 17:53:22 +0100
-From: Andreas Bombe <bombe@informatik.tu-muenchen.de>
-To: Shaya Potter <spotter@opus.cs.columbia.edu>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Dual athlon XP 1800 problems
-Message-ID: <20020103165321.GA737@bombe.modem.informatik.tu-muenchen.de>
-Mail-Followup-To: Shaya Potter <spotter@opus.cs.columbia.edu>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C311B00.FFB58648@get2chip.com> <20020101032335.A11129@suse.de> <1009868304.27412.2.camel@zaphod>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1009868304.27412.2.camel@zaphod>
-User-Agent: Mutt/1.3.24i
+	id <S288255AbSACQyf>; Thu, 3 Jan 2002 11:54:35 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:42255 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288259AbSACQxJ>;
+	Thu, 3 Jan 2002 11:53:09 -0500
+Date: Thu, 3 Jan 2002 14:52:52 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020103040924.B6936@thyrsus.com>
+Message-ID: <Pine.LNX.4.33L.0201031452170.24031-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 01, 2002 at 01:58:23AM -0500, Shaya Potter wrote:
-> I missed the original message, I'm running a dual athlon 1800+ XP system
-> (actually both CPU for some reason get identified as MPs, but they are
-> retail XP chips).
+On Thu, 3 Jan 2002, Eric S. Raymond wrote:
 
-The identification string is written by the BIOS.  Yours didn't know
-about XPs so it misidentified them as MPs.  Upgrade your BIOS if this
-bugs you.
+> You have my intentions backwards. What I'd like to be able to do is
+> suppress ISA_SLOTS when there are detectably *no* ISA cards.
 
-If ID string contradicts what you think you bought, don't trust the ID
-string.
+So you want to make it impossible to compile kernels for
+old machines on the new fast machine standing next to it ?
 
+regards,
+
+Rik
 -- 
-Andreas Bombe <bombe@informatik.tu-muenchen.de>    DSA key 0x04880A44
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

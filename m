@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267509AbSLSHCx>; Thu, 19 Dec 2002 02:02:53 -0500
+	id <S267560AbSLSH13>; Thu, 19 Dec 2002 02:27:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267543AbSLSHCw>; Thu, 19 Dec 2002 02:02:52 -0500
-Received: from pby.osdl.jp ([202.221.206.21]:50305 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id <S267509AbSLSHCv>;
-	Thu, 19 Dec 2002 02:02:51 -0500
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <747650000.1040281526@titus>
-References: <200212181908.gBIJ82M03155@devserv.devel.redhat.com>
-	 <1040276082.1476.30.camel@localhost.localdomain>
-	 <747650000.1040281526@titus>
-Content-Type: text/plain
+	id <S267562AbSLSH13>; Thu, 19 Dec 2002 02:27:29 -0500
+Received: from smtp.wp.pl ([212.77.101.161]:11920 "EHLO smtp.wp.pl")
+	by vger.kernel.org with ESMTP id <S267560AbSLSH12>;
+	Thu, 19 Dec 2002 02:27:28 -0500
+Message-ID: <001601c2a731$84f0b9c0$110011ac@home.sitech.pl>
+From: "plachninka" <plachninka@wp.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: Saving logs when system is started
+Date: Thu, 19 Dec 2002 08:37:43 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Organization: Open Source Development Lab, Inc.
-Message-Id: <1040278110.1478.37.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 18 Dec 2002 22:08:30 -0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A.
+X-WP-ChangeAV: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Sorry, they changed it last week and my fingers still
-have the old firmware. 
+Hi
+Simple question: is any possibility to save system logs on floppy or
+anywhere when system is started from ramdisk?
+I still have a problem with scsi_hostadapter module and i would like to see
+startup logs
 
-  www.osdl.org/cgi-bin/plm
 
-TIm
+regards
 
-On Wed, 2002-12-18 at 23:05, Martin J. Bligh wrote:
-> > Related thought:
-> >
-> >   One of the things that we are trying to do is to automate
-> > patch testing.
-> >
-> >   The PLM (www.osdl.org/plm) takes every patch that it gets
-> > and does a quick "Does it compile test".  Right now there
-> > are only 4 kernel configuration files that we try but we are
-> > going to be adding more.  We could expand this to 100's
-> > if needed as it would just be a matter of adding additional
-> > hardware to make the compiles go faster in parallel.
-> 
-> URL doesn't seem to work. But would be cool if you had one SMP
-> config, one UP with IO/APIC, and one without IO/APIC. I seem
-> to break the middle one whenever I write a patch ;-(
-> 
-> M.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+Mariusz Bozewicz
 

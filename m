@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292389AbSB0Nhy>; Wed, 27 Feb 2002 08:37:54 -0500
+	id <S292367AbSB0Npg>; Wed, 27 Feb 2002 08:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292403AbSB0Nhp>; Wed, 27 Feb 2002 08:37:45 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:19728 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S292389AbSB0Nhd>; Wed, 27 Feb 2002 08:37:33 -0500
-Date: Wed, 27 Feb 2002 14:35:44 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Suporte RedeBonja <suporte@cbj.g12.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel oops
-Message-ID: <20020227133544.GE3316@arthur.ubicom.tudelft.nl>
-In-Reply-To: <003301c1bef3$156119a0$5600a8c0@c136suporte>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003301c1bef3$156119a0$5600a8c0@c136suporte>
-User-Agent: Mutt/1.3.27i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S292408AbSB0Np1>; Wed, 27 Feb 2002 08:45:27 -0500
+Received: from krynn.axis.se ([193.13.178.10]:59304 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S292239AbSB0NpP>;
+	Wed, 27 Feb 2002 08:45:15 -0500
+Date: Wed, 27 Feb 2002 14:45:08 +0100 (CET)
+From: Bjorn Wesen <bjorn.wesen@axis.com>
+To: linux-kernel@vger.kernel.org
+Subject: What is TCPRenoRecoveryFail ?
+Message-ID: <Pine.LNX.3.96.1020227144128.18713E-100000@fafner.axis.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 26, 2002 at 03:26:15PM -0300, Suporte RedeBonja wrote:
-> we are having problems with the kernel (oops). My box is a mail server only
-> and the problem occurs a thousand times a day . I realize a wierd message on
-> the boot process: /lib/modules/2.2.16/net/bsd_comp.o _> unresolved symbols,
-> the same message for: /lib/modules/2.2.16/misc/zft_compressor.o,
->  /lib/modules/2.2.16/misc/rio.o,
-> /lib/modules/2.2.16/misc/dss1_divert.o.
-> 
-> here is my configuration:
-> 
-> Red Hat 6.1 (Cartman)
-> kernel : 2.2.16
+I have a TCP connection that is sending bulk data from a Linux 2.4.17
+machine to a client. At some point, one of the packets from the Linux
+machine is lost, so the client asks for a retransmit by acking the last
+received correct packet. Then the Linux machine just keeps filling the
+clients open window, ignoring that and subsequent retransmit requests,
+never retransmitting any data.
 
-Upgrade the system to a newer kernel and tools (look at ksymoops
-complaining being obsolete) and try to recreate the problem.
+Around the time of the packet loss happened, the counter
+TCPRenoRecoveryFail increased by one, but I'm not sufficiently into the
+TCP code to figure out why that happens and if that is the reason why
+Linux stop retransmitting anything.. any ideas ?
 
+The client is a Windows machine, but the packets it sends does not seem
+broken in any way. 
 
-Erik
+/BW
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

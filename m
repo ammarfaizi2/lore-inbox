@@ -1,42 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261423AbSJQN1Z>; Thu, 17 Oct 2002 09:27:25 -0400
+	id <S261412AbSJQNQL>; Thu, 17 Oct 2002 09:16:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261464AbSJQN1Z>; Thu, 17 Oct 2002 09:27:25 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:1285 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261423AbSJQN1Y>; Thu, 17 Oct 2002 09:27:24 -0400
-Date: Thu, 17 Oct 2002 14:33:08 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module loader preparation
-Message-ID: <20021017143308.A24271@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <20021017034634.8D6462C0EB@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021017034634.8D6462C0EB@lists.samba.org>; from rusty@rustcorp.com.au on Thu, Oct 17, 2002 at 01:31:54PM +1000
+	id <S261415AbSJQNQL>; Thu, 17 Oct 2002 09:16:11 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:30393 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261412AbSJQNQK>; Thu, 17 Oct 2002 09:16:10 -0400
+Message-ID: <003301c275e1$0bf76810$2a060e09@beavis>
+From: "Andrew Theurer" <habanero@us.ibm.com>
+To: "Hirokazu Takahashi" <taka@valinux.co.jp>
+Cc: <neilb@cse.unsw.edu.au>, <davem@redhat.com>,
+       <linux-kernel@vger.kernel.org>, <nfs@lists.sourceforge.net>
+References: <15788.57476.858253.961941@notabene.cse.unsw.edu.au><20021015.213102.80213000.davem@redhat.com><012d01c27581$677d2180$2a060e09@beavis> <20021017.113126.102592502.taka@valinux.co.jp>
+Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
+Date: Thu, 17 Oct 2002 08:16:43 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 01:31:54PM +1000, Rusty Russell wrote:
-> This patch fixes a couple of places using the old "I can just call my
-> function init_module() and it will be called at module init" and a
-> couple of modules without module_init() declarations.
-> 
-> These uses are obsolete with the in-kernel module loader, because the
-> module_init() is where we put the module name in the ".modulename"
-> section (we could have a "no_init_func()" thing, but it's fairly rare
-> and hardly intuitive).
+Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
 
-I don't think requiring a init func is a good idea.  Please fix
-your module loader to generate a stub if no module_init() is
-present instead.
 
-init_module() sounds like a good idea to me, though.
+> Hello,
+>
+> Thanks for testing my patches.
+>
+> > I am still seeing some sort of problem on an 8 way (hyperthreaded 8
+> > logical/4 physical) on UDP with these patches.  I cannot get more than 2
+> > NFSd threads in a run state at one time.  TCP usually has 8 or more.
+The
+> > test involves 40 100Mbit clients reading a 200 MB file on one server (4
+> > acenic adapters) in cache.  I am fighting some other issues at the
+moment
+> > (acpi wierdness), but so far before the patches, 82 MB/sec for NFSv2,UDP
+and
+> > 138 MB/sec for NFSv2,TCP.  With the patches, 115 MB/sec for NFSv2,UDP
+and
+> > 181 MB/sec for NFSv2,TCP.  One CPU is maxed due to acpi int storm, so I
+> > think the results will get better.  I'm not sure what other lock or
+> > contention point this is hitting on UDP.  If there is anything I can do
+to
+> > help, please let me know, thanks.
+>
+> I guess some UDP packets might be lost. It may happen easily as UDP
+protocol
+> doesn't support flow control.
+> Can you check how many errors has happened?
+> You can see them in /proc/net/snmp of the server and the clients.
+
+server: Udp: InDatagrams NoPorts InErrors OutDatagrams
+        Udp: 1000665 41 0 1000666
+
+clients: Udp: InDatagrams NoPorts InErrors OutDatagrams
+         Udp: 200403 0 0 200406
+         (all clients the same)
+
+> And how many threads did you start on your machine?
+> Buffer size of a UDP socket depends on number of kNFS threads.
+> Large number of threads might help you.
+
+128 threads.  client rsize=8196.  Server and client MTU is 1500.
+
+Andrew Theurer
 

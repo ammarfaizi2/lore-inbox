@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbTK1Wtl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 17:49:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263545AbTK1Wtk
+	id S263561AbTK1Wzw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 17:55:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbTK1Wzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 17:49:40 -0500
-Received: from holomorphy.com ([199.26.172.102]:13508 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263544AbTK1Wtj (ORCPT
+	Fri, 28 Nov 2003 17:55:52 -0500
+Received: from [212.97.163.22] ([212.97.163.22]:20180 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S263561AbTK1Wzv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 17:49:39 -0500
-Date: Fri, 28 Nov 2003 14:49:28 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Misha Nasledov <misha@nasledov.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: APM Suspend Problem
-Message-ID: <20031128224928.GD8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Nigel Cunningham <ncunningham@clear.net.nz>,
-	Misha Nasledov <misha@nasledov.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20031127062057.GA31974@nasledov.com> <20031128212853.GB8039@holomorphy.com> <20031128215008.GA2541@nasledov.com> <20031128215031.GC8039@holomorphy.com> <1070058437.2380.43.camel@laptop-linux>
+	Fri, 28 Nov 2003 17:55:51 -0500
+Date: Fri, 28 Nov 2003 23:55:38 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Marcelo Tosatti <marcelo@hera.kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.23 released
+Message-ID: <20031128225538.GA3630@werewolf.able.es>
+References: <200311281827.hASIRmPe022656@hera.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <1070058437.2380.43.camel@laptop-linux>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <200311281827.hASIRmPe022656@hera.kernel.org> (from marcelo@hera.kernel.org on Fri, Nov 28, 2003 at 19:27:48 +0100)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 29, 2003 at 11:27:17AM +1300, Nigel Cunningham wrote:
-> Dunno if I'm an expert, but I might be able to help. None of the Linux
-> based suspends (2.4 or 2.6) will get started unless something like acpid
-> pushes them. If a laptop suspends without running acpid or similar, it
-> must be doing it from the BIOS.
 
-apmd is running, though I don't know if it's the one doing it.
+On 11.28, Marcelo Tosatti wrote:
+> final:
+> 
+> - 2.4.23-rc5 was released as 2.4.23 with no changes.
+> 
 
-It also seems to be dependent on CONFIG_APM.
+Nice! This is a good kernel!
 
+Now we have a reference point, it is time to resync bug reports and try
+to get some stuff in ;)
 
--- wli
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.4.23-rc5-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))

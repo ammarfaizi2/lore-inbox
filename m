@@ -1,73 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbULDA2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbULDA2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262509AbULDA2t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 19:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbULDA2s
+	id S262512AbULDA2E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 19:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbULDA1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 19:28:48 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:43701 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262509AbULDAXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 19:23:48 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: [PATCH] loopback device can't act as its backing store
-To: Andrew Morton <akpm@osdl.org>, franz_pletz@t-online.de, axboe@suse.de,
-       linux-kernel@vger.kernel.org, ludoschmidt@web.de
-Reply-To: 7eggert@nurfuerspam.de
-Date: Sat, 04 Dec 2004 01:25:20 +0100
-References: <fa.gge7q0c.1pjgej6@ifi.uio.no> <fa.gbb6job.1um2er1@ifi.uio.no>
-User-Agent: KNode/0.7.7
+	Fri, 3 Dec 2004 19:27:46 -0500
+Received: from fire.osdl.org ([65.172.181.4]:62438 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262510AbULDAXy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 19:23:54 -0500
+Message-ID: <41B0FFD5.40401@osdl.org>
+Date: Fri, 03 Dec 2004 16:07:49 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1CaNjk-0001Tu-00@be1.7eggert.dyndns.org>
+To: rf@q-leap.de
+CC: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: Trouble with swiotlb
+References: <16816.30598.368287.762457@gargle.gargle.HOWL>	<41B0DC46.7050906@osdl.org> <16817.739.384632.576205@gargle.gargle.HOWL>
+In-Reply-To: <16817.739.384632.576205@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
-> +        /* Avoid recursion */
-> +        f = file;
-> +        while (is_loop_device(f)) {
-> +                struct loop_device *l;
-> +
-> +                if (f->f_mapping->host == lo_file->f_mapping->host)
-> +                        goto out_putf;
-> +                l = f->f_mapping->host->i_bdev->bd_disk->private_data;
-> +                if (l->lo_state == Lo_unbound)
-> +                        break;
-> +                f = l->lo_backing_file;
-> +        }
+Roland Fehrenbacher wrote:
+>>>>>>"Randy" == Randy Dunlap <Randy.Dunlap> writes:
 > 
+> 
+>     Randy> Roland Fehrenbacher wrote:
+>     >> Hi,
+>     >> 
+>     >> when building 2.4.28 or 2.4.27 on x86_64 with IOMMU and SWIOTLB
+>     >> support enabled I get unresolved symbol for 3 modules:
+>     >> 
+>     >> depmod: *** Unresolved symbols in
+>     >> /lib/modules/2.4.28/kernel/drivers/net/e1000/e1000.o depmod:
+>     >> *** Unresolved symbols in
+>     >> /lib/modules/2.4.28/kernel/drivers/usb/host/uhci.o depmod: ***
+>     >> Unresolved symbols in
+>     >> /lib/modules/2.4.28/kernel/drivers/usb/host/usb-uhci.o
+>     >> 
+>     >> When modprobing any of the modules I get: unresolved symbol
+>     >> swiotlb
+>     >> 
+>     >> The kernel boots fine on Opterons and EM64T Xeons otherwise.
+>     >> 
+>     >> Any ideas.
+> 
+>     Randy> Looks like it just needs 'swiotlb' exported (as in 2.6.x).
+>     Randy> Can you test the attached patch?  I don't have 2.4.x
+>     Randy> booting on x8-64 yet.
+> 
+> Hi Randy,
+> 
+> thanks for the fast reply. Your patch solved the problem. I can boot
+> Opterons and EM64T Xeons now without any problems.
 
-This seems wrong to me. AFAI can see, this does not address
-
-1) a->b->c->b->... (Maybe it' is catched later after some recursions)
-2) the max. recursion problem you mentioned. (Maybe it's catched by
-   not having enough loop devices and catching (1), but this may change)
+Thanks for the results.  Marcelo, can you rip out my garbaged patch
+header/description before applying it?   :)
 
 
-I think the real fix is something like: (guess from this patch, untested)
+> Roland
+>  
+> linux-2428-work
+> <description>
+> 
+> Signed-off-by: Your Name <email@domain.tld>
+> 
+> diffstat:=
+>  arch/x86_64/kernel/setup.c |    1 +
+>  1 files changed, 1 insertion(+)
+> 
+> diff -Naurp ./arch/x86_64/kernel/setup.c~swiotlb ./arch/x86_64/kernel/setup.c
+> --- ./arch/x86_64/kernel/setup.c~swiotlb	2004-08-07 16:26:04.000000000 -0700
+> +++ ./arch/x86_64/kernel/setup.c	2004-12-03 11:54:07.000000000 -0800
+> @@ -52,6 +52,7 @@ int acpi_disabled;
+>  EXPORT_SYMBOL(acpi_disabled);
+>  
+>  int swiotlb;
+> +EXPORT_SYMBOL(swiotlb);
+>  
+>  extern	int phys_proc_id[NR_CPUS];
 
-f = file;
-i = MAX_LOOP_CHAIN;
-while (is_loop_device(f)) {
-        struct loop_device *l;
 
-/* if MAX_LOOP_CHAIN is high, leaving in the old check might be a nice
-   shortcut for the common case. Is it?
- */
-
-        if(!--i) goto out_putf;
-/* off by one? I don't think so, but check it 'cause it's late. */
-
-        l = f->f_mapping->host->i_bdev->bd_disk->private_data;
-        if (l->lo_state == Lo_unbound)
-                break;
-/* shouldn't we generate an error instead?
-   I guess the error will be generated while recursing, but we just
-   followed the chain and know the result.
- */
-        f = l->lo_backing_file;
-}
-
+-- 
+~Randy

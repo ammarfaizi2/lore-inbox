@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbTKQQch (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 11:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263570AbTKQQch
+	id S263587AbTKQQZI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 11:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTKQQZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 11:32:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38119 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263561AbTKQQcg (ORCPT
+	Mon, 17 Nov 2003 11:25:07 -0500
+Received: from users.linvision.com ([62.58.92.114]:56463 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S263587AbTKQQZF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 11:32:36 -0500
-Date: Mon, 17 Nov 2003 08:32:14 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dan Creswell <dan@dcrdev.demon.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Hard lock on 2.6-test9 (More Info)
-In-Reply-To: <3FB8CE08.6070001@dcrdev.demon.co.uk>
-Message-ID: <Pine.LNX.4.44.0311170829000.8840-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Nov 2003 11:25:05 -0500
+Date: Mon, 17 Nov 2003 17:25:03 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Is initramfs freed after kernel is booted?
+Message-ID: <20031117162503.GE32106@bitwizard.nl>
+References: <E1ALlQs-000769-00.arvidjaar-mail-ru@f7.mail.ru> <3FB8EBC2.1080800@nortelnetworks.com> <3FB8ED91.3050305@backtobasicsmgmt.com> <3FB8F218.30601@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FB8F218.30601@nortelnetworks.com>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 17 Nov 2003, Dan Creswell wrote:
+On Mon, Nov 17, 2003 at 11:06:48AM -0500, Chris Friesen wrote:
+> Kevin P. Fleming wrote:
 > 
->  17:       5267       3420   IO-APIC-level  ohci1394, Intel ICH4, nvidia
+> >There is no pivot_root happening here; the kernel creates a ramfs and 
+> >mounts it on / (as rootfs), then unpacks the initramfs cpio archive into 
+> >it. After doing a few more steps, it overmounts the real root onto /, 
+> >making the rootfs filesystem invisible. It is not freed in the current 
+> >kernels.
 > 
-> When I boot X under kernel 2.6, I see the additional nvidia interrupt 
-> path as per the 2.4 output (which was taken whilst I was running X).
-> 
-> But, within seconds of this additional interrupt assignment appearing, 
-> 2.6 dies a horrible death whilst 2.4 just keeps on rolling.
+> Anyone know why it overmounts rather than pivots?
 
-Two potential reasons:
- - the nvidia driver is just broken under 2.6.x
- - or a driver bug in ohci1394 _or_ the Intel ICH4 driver, which could 
-   become unhappy if they see a lot of interrupts that aren't for them 
-   (maybe it uncovers a race).
-
-You can test for the latter by just disabling those drivers, and seeing 
-what happens. If it still breaks, it's nvidia. If the crashes stop, it 
-might _still_ be nvidia, but at that point somebody else might start being 
-interested in it.
-
-		Linus
+IIRC Al Viro did it on purpose, cause in this way he could get rid of
+the special casing for the root filesystem in the VFS.
 
 
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+| Data lost? Stay calm and contact Harddisk-recovery.com

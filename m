@@ -1,121 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265043AbTFUAGV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 20:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbTFUAGU
+	id S265053AbTFUAIl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 20:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbTFUAIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 20:06:20 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:5649 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S265043AbTFUAGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 20:06:18 -0400
-Date: Fri, 20 Jun 2003 20:49:11 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-usb-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] hid-core: fix double kfree of device->rdesc on hid_parse_parse error path
-Message-ID: <20030620234911.GA6246@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	linux-usb-devel@lists.sourceforge.net,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+	Fri, 20 Jun 2003 20:08:41 -0400
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:51083 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S265053AbTFUAIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 20:08:40 -0400
+Date: Fri, 20 Jun 2003 17:22:41 -0700
+From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+Subject: Re: Announce: kdb v4.3 is available for kernels 2.4.20, 2.4.21
+In-reply-to: <29513.1056092867@kao1.melbourne.sgi.com>
+To: Keith Owens <kaos@sgi.com>
+Cc: kdb@oss.sgi.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1056154961.21882.42.camel@biznatch>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2)
+Content-type: multipart/signed; boundary="=-TeFWx2lMNPRiNf9rMzPs";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <29513.1056092867@kao1.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vojtech,
 
-	Please pull from:
+--=-TeFWx2lMNPRiNf9rMzPs
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-bk://kernel.bkbits.net/acme/usb-2.5
+On Fri, 2003-06-20 at 00:07, Keith Owens wrote:
 
-	device->rdesc is freed in hid_free_device.
+>   Other 2.4.21 arch patches will appear later.
 
-Best Regards,
+Here is a pointer to the sparc64 arch patch:
 
-- Arnaldo
+http://www.dslextreme.com/users/tomduffy/kdb-v4.3-2.4.21-sparc64-1.bz2
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
+It includes very minor changes to make it work on 2.4.21.
 
-===================================================================
+-tduffy
 
+--=20
+Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
 
-ChangeSet@1.1363, 2003-06-20 20:30:13-03:00, acme@conectiva.com.br
-  o hid-core: fix double kfree of device->rdesc on hid_parse_parse error path
+--=-TeFWx2lMNPRiNf9rMzPs
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
- hid-core.c |    5 -----
- 1 files changed, 5 deletions(-)
+iD8DBQA+86VRdY502zjzwbwRAsuKAJ9jAHxJyPNE+wryD13XFPWFFLTwkgCeKxGl
+eD2RF/6fUWB9Ygo+SSyDQWc=
+=pJHD
+-----END PGP SIGNATURE-----
 
+--=-TeFWx2lMNPRiNf9rMzPs--
 
-diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
---- a/drivers/usb/input/hid-core.c	Fri Jun 20 20:32:46 2003
-+++ b/drivers/usb/input/hid-core.c	Fri Jun 20 20:32:46 2003
-@@ -674,7 +674,6 @@
- 
- 		if (item.format != HID_ITEM_FORMAT_SHORT) {
- 			dbg("unexpected long global item");
--			kfree(device->rdesc);
- 			kfree(device->collection);
- 			hid_free_device(device);
- 			kfree(parser);
-@@ -684,7 +683,6 @@
- 		if (dispatch_type[item.type](parser, &item)) {
- 			dbg("item %u %u %u %u parsing failed\n",
- 				item.format, (unsigned)item.size, (unsigned)item.type, (unsigned)item.tag);
--			kfree(device->rdesc);
- 			kfree(device->collection);
- 			hid_free_device(device);
- 			kfree(parser);
-@@ -694,7 +692,6 @@
- 		if (start == end) {
- 			if (parser->collection_stack_ptr) {
- 				dbg("unbalanced collection at end of report description");
--				kfree(device->rdesc);
- 				kfree(device->collection);
- 				hid_free_device(device);
- 				kfree(parser);
-@@ -702,7 +699,6 @@
- 			}
- 			if (parser->local.delimiter_depth) {
- 				dbg("unbalanced delimiter at end of report description");
--				kfree(device->rdesc);
- 				kfree(device->collection);
- 				hid_free_device(device);
- 				kfree(parser);
-@@ -714,7 +710,6 @@
- 	}
- 
- 	dbg("item fetching failed at offset %d\n", (int)(end - start));
--	kfree(device->rdesc);
- 	kfree(device->collection);
- 	hid_free_device(device);
- 	kfree(parser);
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.1363
-## Wrapped with gzip_uu ##
-
-
-M'XL( )Z9\SX  \V4VXK;,!"&KZ.G&-C+8GLDV5)BR))VMP?80D/*7A=%GL0F
-M&RO(3MJ"'[ZR0[/='A*Z]*(^#=:,?\_ALZ_@OB&?CXS=$KN"=ZYI\Y%U-=FV
-M.IC8NFV\],&Q<"XXDM)M*5ENDGVSC$2<L>"9F]:6<"#?Y",>R]-*^W5'^6CQ
-M^NW]^Y<+QJ93N"E-O::/U,)TREKG#^:A:&:F+1]<';?>U,V6VN&=W2FT$X@B
-M[!G7$C/5<86I[BPO.#<IIP)%.E;IHUJ?X#DMB4IP'DX47:8FBK-;X#&72@+*
-M!%4B$ 3F$G,N(Y0Y(O2MF?W<$GC!(4+V"OYM'3?,@H.R*B+K/.6PJKY X?;+
-M!X+-RA.!6T%!A\I2=.T+:D)TW8=_VAG?T/$*Y+WSL L)L3>@4&7([B#32@@V
-M?QP"B_YR8PP-LNL+%1>^ZEGH"4E"8K']H?(4N>[2-"QTA>9<KU9ZJ8N),2K[
-M?9>?J%7U;M\FWWMS%.['B4**<2H[(26F VCGGKK,WC,K8&M/Z]G&.U/^(O.'
-MU+GB$ZD#B5)RG@XD*O&$0S'.TPL<(D39?\_A'1RG\P$B_WDX D_SLX-Z!I^W
-H2FL(7[0:'\UD,!JSP?#^[O1[LB793;/?3L=4:*4EL6^9'"&9"P4     
- 

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262891AbTHUTzv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 15:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbTHUTzv
+	id S262903AbTHUT5g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 15:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbTHUT5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 15:55:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62887 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262891AbTHUTzu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 15:55:50 -0400
-Date: Thu, 21 Aug 2003 12:55:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthew Wilcox <willy@debian.org>
-cc: Lou Langholtz <ldl@aros.net>, Jeff Garzik <jgarzik@pobox.com>,
-       <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] bio.c: reduce verbosity at boot
-In-Reply-To: <20030821193728.GB19630@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0308211254360.1606-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Aug 2003 15:57:36 -0400
+Received: from 64.221.211.208.ptr.us.xo.net ([64.221.211.208]:33930 "HELO
+	mail.keyresearch.com") by vger.kernel.org with SMTP id S262903AbTHUT5f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 15:57:35 -0400
+Subject: Re: Initramfs
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Jeff Garzik <jgarzik@pobox.com>, gkajmowi@tbaytel.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030821190358.GF454@parcelfarce.linux.theplanet.co.uk>
+References: <200308210044.17876.gkajmowi@tbaytel.net>
+	 <1061447419.19503.20.camel@camp4.serpentine.com>
+	 <3F44D504.7060909@pobox.com>
+	 <1061490490.23060.9.camel@serpentine.internal.keyresearch.com>
+	 <20030821190358.GF454@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Message-Id: <1061495854.23060.12.camel@serpentine.internal.keyresearch.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 21 Aug 2003 12:57:34 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-08-21 at 12:03, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
 
-On Thu, 21 Aug 2003, Matthew Wilcox wrote:
-> 
-> But why is it interesting to have this information at boot time?  As a
-> user, I certainly don't care.  As a developer, I don't find it interesting
-> information.
+> RTFM.  cpio -o -H newc should be used to create an archive; _not_ the
+> "binary" format that is default.
 
-I do agree. The message may have been useful when the code was young and 
-people wanted to see that it got executed correctly at all, but there 
-doesn't seem to be a lot of point to it any more.
+There is no FM to R in this regard.
 
-But hey, I'll leave it to the maintainer..
-
-		Linus
+	<b
 

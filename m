@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbUKQCMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbUKQCMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbUKQCMI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 21:12:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbUKQCLK
+	id S262156AbUKQCMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 21:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbUKQCLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 21:11:10 -0500
-Received: from twinlark.arctic.org ([168.75.98.6]:34710 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S262158AbUKQBuo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 20:50:44 -0500
-Date: Tue, 16 Nov 2004 17:50:42 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] prefer TSC over PM Timer
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB60035C613D@scsmsx403.amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.61.0411161738370.13681@twinlark.arctic.org>
-References: <88056F38E9E48644A0F562A38C64FB60035C613D@scsmsx403.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Nov 2004 21:11:31 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:54762
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262161AbUKQCIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 21:08:20 -0500
+Date: Tue, 16 Nov 2004 17:53:28 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Subject: loops in get_user_pages() for VM_IO
+Message-Id: <20041116175328.5e425e01.davem@davemloft.net>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004, Pallipadi, Venkatesh wrote:
 
-> I think trying to remove repeated inl()'s in read_pmtmr is a better 
-> fix for this issue. As John mentioned in other thread, we should do 
-> repeated reads only when something looks broken. Not always.
+Some time recently, I don't know when, the logic in get_user_pages()
+appears to have been changed a bit.
 
-that would be a nice improvement... then timer_pm will only be 3x as slow 
-as timer_tsc instead of 10x slower :)  it's still a lot of unnecessary 
-overhead for many systems, and unfortunately this is a real performance 
-problem (albeit exaggerated by code which is overzealous in its use of 
-gettimeofday()).
+The inner-most loop of this routine basically does:
 
-on a tangent... has the local apic timer ever been considered?  it's fixed 
-rate, and my measurements show it in the same performance ballpark as TSC.
+	while (follow_page() returns NULL)
+		try handle_mm_fault();
 
-i know that all p3, p-m, p4, k8 and efficeon have local APIC, but i'm not 
-sure if k7 (other than k7 smp parts of course) have local apics... so i'm 
-not sure how widespread it is compared to pm-timer.
+The problem with this is that for !pfn_valid()
+(for example, VM_IO areas mapping to I/O physical
+address which have no assosciated page struct) follow_page()
+will _always_ return NULL.
 
-wouldn't local apic timer be a lot better for NUMA too?
+So when X tries to mmap() the frame buffer on my
+system it loops forever here now.
 
-hey wait, what exactly is the problem with TSC on NUMA?  don't you just 
-need some per-cpu data (epoch and calibration) to make it work?
+Is pfn_valid() supposed to return true for I/O areas
+too?  If so, where does the struct page backing store
+come from?
 
--dean
+It could be argued that setting VM_LOCKED is invalid.
+And not setting it in drivers/video/sbuslib.c would make
+this hang go away, but the above analysis means that
+make_pages_present() cannot work on VM_IO areas.

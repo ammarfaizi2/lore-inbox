@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289698AbSBERyp>; Tue, 5 Feb 2002 12:54:45 -0500
+	id <S289699AbSBER5f>; Tue, 5 Feb 2002 12:57:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289692AbSBERyg>; Tue, 5 Feb 2002 12:54:36 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:30222 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S289699AbSBERyY>; Tue, 5 Feb 2002 12:54:24 -0500
-Date: Tue, 5 Feb 2002 14:44:06 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-pre8: missing file
-In-Reply-To: <3C5F0689.CAD1A09F@eyal.emu.id.au>
-Message-ID: <Pine.LNX.4.21.0202051443500.14994-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289692AbSBER5R>; Tue, 5 Feb 2002 12:57:17 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:35590 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S289699AbSBER5L>;
+	Tue, 5 Feb 2002 12:57:11 -0500
+Date: Tue, 5 Feb 2002 18:05:43 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VESA Anybody out there
+Message-ID: <20020205170543.GA1071@elf.ucw.cz>
+In-Reply-To: <20020131.222643.85689058.davem@redhat.com> <E16WfDe-0005Jd-00@the-village.bc.nu> <20020201095510.D17412@havoc.gtf.org> <20020201151221.GA8404@vana.vc.cvut.cz> <3C5AB463.7050204@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C5AB463.7050204@evision-ventures.com>
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> Is there actually anybody out there for whoom the vga=ask kernelparamter
+> followed by a mode scan actually works? For me personally I never 
+> encountered
+> *any* single one computer wher ethis wouldn't hang the system entierly, so
+> I wonder whatever the wholesale option ain't borken?
 
-On Tue, 5 Feb 2002, Eyal Lebedinsky wrote:
+Works for me.
 
-> Marcelo Tosatti wrote:
-> > 
-> > Hi,
-> > 
-> > No more big patches for 2.4.18, please... We are getting close to the -rc
-> > stage.
-> > 
-> > pre8:
-> > - VXFS update                                   (Christoph Hellwig)
-> 
-> gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include
-> /data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
-> -DKBUILD_BASENAME=vxfs_bmap  -c -o vxfs_bmap.o vxfs_bmap.c
-> In file included from vxfs_bmap.c:38:
-> vxfs.h:42: vxfs_kcompat.h: No such file or directory
-> make[2]: *** [vxfs_bmap.o] Error 1
-> make[2]: Leaving directory
-> `/data2/usr/local/src/linux-2.4-pre/fs/freevxfs'
-
-Damn, I forgot to "cvs add". Fixed.
-
-Thanks
-
+ask mj@ucw.cz, he coded that.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

@@ -1,79 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbTIENlN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 09:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbTIENlN
+	id S262600AbTIEN23 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 09:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbTIEN23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 09:41:13 -0400
-Received: from [203.185.132.124] ([203.185.132.124]:23180 "EHLO mrchoke.com")
-	by vger.kernel.org with ESMTP id S262732AbTIENlJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 09:41:09 -0400
-Message-ID: <3F589256.3000508@opentle.org>
-Date: Fri, 05 Sep 2003 20:40:38 +0700
-From: Supphachoke Suntiwichaya <mrchoke@opentle.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030413
-X-Accept-Language: th,en-us, en
+	Fri, 5 Sep 2003 09:28:29 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:39920 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262600AbTIEN21
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 09:28:27 -0400
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: insecure <insecure@mail.od.ua>, Michael Frank <mhf@linuxmail.org>,
+       Yann Droneaud <yann.droneaud@mbda.fr>,
+       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>
+Subject: Re: nasm over gas?
+Date: Fri, 5 Sep 2003 08:27:17 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+References: <20030904104245.GA1823@leto2.endorphin.org> <200309042257.12739.mhf@linuxmail.org> <200309050128.47002.insecure@mail.od.ua>
+In-Reply-To: <200309050128.47002.insecure@mail.od.ua>
 MIME-Version: 1.0
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22-bk10 and ALSA 0.9.6
-References: <20030905130007.GE9634@rdlg.net>
-In-Reply-To: <20030905130007.GE9634@rdlg.net>
-Content-Type: text/plain; charset=TIS-620; format=flowed
+Message-Id: <03090508271700.01152@tabby>
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert L. Harris wrote:
-
->I've been using Alsa 0.9.6 for the last few kernels and it has been
->working great.  I just tried to install it on the 2.4.22-bk10 kernel
->with the same Configure command as always:
+On Thursday 04 September 2003 17:28, insecure wrote:
+> On Thursday 04 September 2003 17:57, Michael Frank wrote:
+> > Concur, not worthwhile to start using a fairly unsupported tool in the
+> > kernel.
+> >
+> > As to using assembler, It is better to get rid of it but in special
+> > cases. Todays compilers are the better coders in 98+% of applications,
+> > and if you
 >
->./configure --with-oss=yes --with-kernel=/usr/src/kernels/2.4.22/Desktop/linux-2.4.22/ \
->--with-cards=dummy,virmidi,serial-u16550,mtpav,mpu401,als100,azt2320,cmi8330,dt019x,es18xx,opl3sa2,sgalaxy,sscape,ad1816a,ad1848,cs4231,cs4232,cs4236,es1688,gusclassic,gusmax,gusextreme,interwave,interwave-stb,opti92x-ad1848,opti92x-cs4231,opti93x,sb8,sb16,sbawe,es968,wavefront,als4000,azt3328,cmipci,cs4281,ens1370,ens1371,es1938,es1968,fm801,intel8x0,maestro3,rme32,rme96,sonicvibes,via82xx,ali5451,cs46xx,emu10k1,ice1712,ice1724,korg1212,nm256,rme9652,hdsp,trident,vx222,ymfpci,powermac,sa11xx-uda1341,usb-audio,harmony,vxpocket,vxp440,pdplus,mixart,msnd-pinnacle,pdaudiocf
+> Better coders? Show me the evidence.
 >
->(building a distribution kernel for multiple desktops)
+> > follow some of the discussions here on the list, you will be amazed what
+> > people do with a C compiler - all portable and much more maintainable.
 >
->I get this:
+> Portable yes. Maintainable yes. Better code _no_.
 >
->make[1]: Entering directory
->`/exp/src1/kernels/2.4.22/Desktop/alsa-driver-0.9.6/acore'
->gcc -D__KERNEL__ -DMODULE=1
->-I/exp/src1/kernels/2.4.22/Desktop/alsa-driver-0.9.6/include
->-I/usr/src/kernels/2.4.22/Desktop/linux-2.4.22//include -O2
->-mpreferred-stack-boundary=2 -march=i586 -DLINUX -Wall
->-Wstrict-prototypes -fomit-frame-pointer -Wno-trigraphs -O2
->-fno-strict-aliasing -fno-common -pipe -DALSA_BUILD   -DEXPORT_SYMTAB -c
->hwdep.c
->In file included from
->/exp/src1/kernels/2.4.22/Desktop/alsa-driver-0.9.6/include/sound/driver.h:42,
->                 from hwdep.c:22:
->/exp/src1/kernels/2.4.22/Desktop/alsa-driver-0.9.6/include/adriver.h:200:
->redefinition of `irqreturn_t'
->/usr/src/kernels/2.4.22/Desktop/linux-2.4.22/include/linux/interrupt.h:16:
->`irqreturn_t' previously declared here
->make[1]: *** [hwdep.o] Error 1
->make[1]: Leaving directory
->`/exp/src1/kernels/2.4.22/Desktop/alsa-driver-0.9.6/acore'
->make: *** [compile] Error 1
+> I'd say compiler generated asm code quality can be anywhere in between of
+> "hair raising crawling horror" and "not so bad although I can do better".
 >
->:wq!
->
+> I have never seen really clever compiler yet. Writing a good compiler
+> is a very tough thing to do.
 
-o.k.. use lastest ALSA CVS version...
+Actually, you mean "writing a good optimizer is a very tough thing to do".
 
-MrChoke
+The problem is NOT the compiler, or the coder. A "well defined" algorithm
+such as the twofish mentioned CAN be compiled well by almost any compiler,
+but the code optimizer MUST be at the highest level. There is also the
+problem that what is optimum for one CPU, is NOT optimum for the next
+generation, even if it uses the same identical architecture. This is where
+the human coder can beat the compiler. That person will make many, many passes
+through the code, and try similar/related instructions to optimize the result.
+This amount of optimization also means that the result may not work at all on
+a different processor member of the architecture, it is MUCH more likely to
+run slower. Even minor things like the size of cache in the processor will
+affect the human coder.
 
+This a compiler cannot do since the optimizer is targeted toward a family of
+processors and not a single member of that family. It will provide the most
+compatibility. And since it is in a higher level language, the translation to
+many other architectures is possible, even those that do not have available
+human coders. The advantage the compiler has is that the optimizer can recieve
+input from MANY excellent coders contributing rules for code generation. This
+give the compiler the ability to surpass 90+% of the coders, and exceed the
+productivity of all the assember coders.
 
--- 
+The final question is "Is it fast enough?"
 
-Name : Supphachoke Suntiwichaya
-Email : MrChoke@opentle.org
-URL : http://jedi.links.nectec.or.th/mrchoke/
-Distribution : Linux TLE 5.0 (Andaman)
-OS : Linux 2.4.22-rc2-ac3 #1 ¾Ä. Ê.¤. 21 18:51:09 ICT 2003 i686 GNU/Linux
-Uptime :  20:35:00  up 2 days,  7:05,  2 users,  load average: 1.00, 1.00, 1.00
-
+Only if this question is NO does it make sense to do assember. It doesn't
+matter if it can be faster. And portability means you don't have to speed
+hours rewriting it...
 

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272368AbRIPQTF>; Sun, 16 Sep 2001 12:19:05 -0400
+	id <S272441AbRIPQXo>; Sun, 16 Sep 2001 12:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272404AbRIPQSz>; Sun, 16 Sep 2001 12:18:55 -0400
-Received: from net.spam.ee ([194.204.44.99]:52474 "HELO x153.internalnet")
-	by vger.kernel.org with SMTP id <S272368AbRIPQSi>;
-	Sun, 16 Sep 2001 12:18:38 -0400
-Subject: Re: broken VM in 2.4.10-pre9
-From: Tonu Samuel <tonu@please.do.not.remove.this.spam.ee>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9o1dev$23l$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33L2.0109160031500.7740-100000@flashdance> 
-	<9o1dev$23l$1@penguin.transmeta.com>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 17 Sep 2001 18:25:38 +0800
-Message-Id: <1000722338.14005.0.camel@x153.internalnet>
-Mime-Version: 1.0
+	id <S272418AbRIPQXe>; Sun, 16 Sep 2001 12:23:34 -0400
+Received: from adsl-209-182-168-213.value.net ([209.182.168.213]:16653 "EHLO
+	draco.foogod.com") by vger.kernel.org with ESMTP id <S272527AbRIPQX3>;
+	Sun, 16 Sep 2001 12:23:29 -0400
+Message-ID: <3BA4D554.4030203@foogod.com>
+Date: Sun, 16 Sep 2001 09:37:40 -0700
+From: Alex Stewart <alex@foogod.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lazy umount (1/4)
+In-Reply-To: <Pine.GSO.4.21.0109141427070.11172-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Sep 2001 05:31:11 +0000, Linus Torvalds wrote:
+Alexander Viro wrote:
 
-> Also note that the amount of "swap used" is totally meaningless in
-> 2.4.x. The 2.4.x kernel will _allocate_ the swap backing store much
-> earlier than 2.2.x, but that doesn't actuall ymean that it does any of
-> the IO. Indeed, allocating the swap backing store just means that the
-> swap pages are then kept track of, so that they can be aged along with
-> other stores.
+> It's _very_ useful in a lot of situations - basically, that's what
+> umount -f should have been.
 
-Problem still exists and persists. Not long time ago man from Yahoo
-described well case when change from 2.2.19 to 2.4.x caused performance
-problems. On 2.2.19 everything ran fine. They have MySQL running+did
-backups from disk. After upgrade to 2.4.x MySQL performance felt down on
-backup time. They investigated stuff and found that MySQL daemon gets
-swapped out in the middle of usage to make room for buffers. In summary:
-this made both sql and backup double slow. Even increasing memory from
-1G->2G didn't helped. Finally they disabled swap at all and problem
-lost.
 
-If you do not want to change it back as it was in 2.2.x then would be
-good if this is tunable somehow. 
- 
--- 
-For technical support contracts, goto https://order.mysql.com/
-   __  ___     ___ ____  __
-  /  |/  /_ __/ __/ __ \/ /    Mr. Tonu Samuel <tonu@mysql.com>
- / /|_/ / // /\ \/ /_/ / /__   MySQL AB, Security Administrator
-/_/  /_/\_, /___/\___\_\___/   Hong Kong, China
-       <___/   www.mysql.com
+Actually, I personally would still like a 'umount -f' (or 'umount 
+--yes-I-know-what-Im-doing-and-I-really-mean-it-f' or whatever) that 
+actually works for something other than NFS.  In this age of 
+hot-pluggable (and warm-pluggable) storage it's increasingly annoying to 
+me that I should have to reboot the whole system to fix an otherwise 
+hot-fixable hardware problem just because some processes got stuck in a 
+disk-wait state before the problem was detected.
+
+I want an operation that will:
+
+1. Interrupt/Abort any processes disk-waiting on the filesystem
+2. Unmount the filesystem, immediately and always.
+3. Release any filesystem-related holds on the underlying device.
+4. Allow me to mount it again later (when problems are fixed).
+
+Basically, I want a 'kill -KILL' for filesystems.
+
+Now, admittedly, this is only something one would want to do in a last 
+resort, but currently when one gets to that point of last resort, linux 
+has no tools available for them.  This is one of the areas that I've 
+always considered linux (and most unixes) to have a gaping hole in the 
+"sysadmin should be able to control their system, not vice-versa" 
+philosophy, and really is needed in addition to any nifty tricks with 
+"lazy umounting", etc. IMO (though the lazy umount thing is kinda nifty, 
+and I can see other uses for it).
+
+Just my $.02..
+
+-alex
 

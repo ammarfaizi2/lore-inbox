@@ -1,24 +1,38 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S153954AbPGOOf3>; Thu, 15 Jul 1999 10:35:29 -0400
-Received: by vger.rutgers.edu id <S153877AbPGOOd1>; Thu, 15 Jul 1999 10:33:27 -0400
-Received: from sequoia.din.uem.br ([200.17.101.22]:2840 "EHLO din.uem.br") by vger.rutgers.edu with ESMTP id <S153946AbPGOOca>; Thu, 15 Jul 1999 10:32:30 -0400
-Date: Thu, 15 Jul 1999 11:35:10 -0300 (GRNLNDST)
-From: Fernando Barreto <fbarreto@din.uem.br>
-To: linux-kernel@vger.rutgers.edu
-Subject: About Bottom Half Handlers
-Message-ID: <Pine.A41.3.96.990715112746.20560D-100000@sequoia.din.uem.br>
+Received: by vger.rutgers.edu via listexpand id <S153958AbPGSHcD>; Mon, 19 Jul 1999 03:32:03 -0400
+Received: by vger.rutgers.edu id <S153928AbPGSHbp>; Mon, 19 Jul 1999 03:31:45 -0400
+Received: from neon-best.transmeta.com ([206.184.214.10]:16095 "EHLO neon.transmeta.com") by vger.rutgers.edu with ESMTP id <S153953AbPGSHbZ>; Mon, 19 Jul 1999 03:31:25 -0400
+Date: Mon, 19 Jul 1999 00:31:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.rutgers.edu>
+Subject: Fake emails from "Linus"
+Message-ID: <Pine.LNX.4.10.9907190019470.5221-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-	Hi,
-	I have readed the Kernel directives in LDP and i didn't understand
-the function of the Bottom Half Handlers. I think they are the
-routines "int xxh" like DOS.
-	I didn't understand it on "asmlinkage schedule()" on sched.c
-either...
-	Please, can anybody explain me it?
-	Thanks for all... 
+
+Just a heads-up: somebody is sending out fake emails that claim to be from
+me, and that have me endorsing the Java client for Seti@Home.
+
+The reason I know somebody is faking emails is that I got a bounce from
+one of them.
+
+If somebody on the kernel list gets a message that claims to be from
+"Linus Torvalds <torvalds@transmeta.com>" with a subject line of
+"Seti@Home user interface", it is fake.
+
+I'd like to see the full headers from such a message, to see if it shows
+where it is really originating from: the bounced message does not contain
+the original headers..
+
+I assume it is a mass-posting trying to market Seti@Home or the particular
+client in question, and I'm not all that amused.
+
+		Linus
+
+PS. Although I have to admit that the first line brought a grin: "Being
+the awesome Linux stud that I am.."
 
 
 -

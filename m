@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316991AbSFAHFQ>; Sat, 1 Jun 2002 03:05:16 -0400
+	id <S316992AbSFAHHg>; Sat, 1 Jun 2002 03:07:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316989AbSFAHFP>; Sat, 1 Jun 2002 03:05:15 -0400
-Received: from inet-mail1.oracle.com ([148.87.2.201]:47798 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S316991AbSFAHFH>; Sat, 1 Jun 2002 03:05:07 -0400
-Date: Sat, 1 Jun 2002 00:04:51 -0700
+	id <S316995AbSFAHHf>; Sat, 1 Jun 2002 03:07:35 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:21141 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S316992AbSFAHHG>; Sat, 1 Jun 2002 03:07:06 -0400
+Date: Sat, 1 Jun 2002 00:06:52 -0700
 From: Joel Becker <Joel.Becker@oracle.com>
 To: linux-kernel@vger.kernel.org
-Cc: Rob Radez <rob@osinvestor.com>, Matt Domsch <Matt_Domsch@dell.com>,
+Cc: linux-kernel@vger.kernel.org, Rob Radez <rob@osinvestor.com>,
+        Matt Domsch <Matt_Domsch@dell.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Watchdog Stuff (2/4)
-Message-ID: <20020601070446.GA10159@insight.us.oracle.com>
+Subject: [PATCH] Watchdog Stuff (4/4)
+Message-ID: <20020601070647.GC10159@insight.us.oracle.com>
 In-Reply-To: <20020601064309.GA10222@insight.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,1000 +23,765 @@ X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Patch number two.  This adds Matt Domsch's 'nowayout' module
-option to the drivers that are missing it.
+	Patch number four, adding the "magic close character" to the
+rest of the drivers that can support it.
 
-Joel
-
-
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/acquirewdt.c linux-2.4.19-pre9-nowayout/drivers/char/acquirewdt.c
---- linux-2.4.19-pre9-settimeout/drivers/char/acquirewdt.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/acquirewdt.c	Thu May 30 17:11:42 2002
-@@ -17,6 +17,9 @@
-  *
-  *	(c) Copyright 1995    Alan Cox <alan@redhat.com>
-  *
-+ *      14-Dec-2001 Matt Domsch <Matt_Domsch@dell.com>
-+ *          Added nowayout module option to override CONFIG_WATCHDOG_NOWAYOUT
-+ *          Can't add timeout - driver doesn't allow changing value
-  */
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/acquirewdt.c linux-2.4.19-pre9-magicclose/drivers/char/acquirewdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/acquirewdt.c	Thu May 30 17:11:42 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/acquirewdt.c	Fri May 31 14:57:31 2002
+@@ -45,6 +45,7 @@
  
- #include <linux/config.h>
-@@ -50,8 +53,14 @@
- #define WDT_STOP 0x43
- #define WDT_START 0x443
- 
--#define WD_TIMO (100*60)		/* 1 minute */
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
- 
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
+ static int acq_is_open;
+ static spinlock_t acq_lock;
++static int expect_close = 0;
  
  /*
-  *	Kernel methods.
-@@ -126,10 +135,12 @@
- 				spin_unlock(&acq_lock);
- 				return -EBUSY;
- 			}
-+			if (nowayout) {
-+				MOD_INC_USE_COUNT;
+  *	You must set these - there is no sane way to probe for this board.
+@@ -81,6 +82,21 @@
+ 
+ 	if(count)
+ 	{
++		if (!nowayout)
++		{
++			size_t i;
++
++			expect_close = 0;
++
++			for (i = 0; i != count; i++) {
++				char c;
++				if (get_user(c, buf + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_close = 1;
 +			}
- 			/*
- 			 *	Activate 
- 			 */
--	 
- 			acq_is_open=1;
- 			inb_p(WDT_START);      
- 			spin_unlock(&acq_lock);
-@@ -145,9 +156,9 @@
++		}
++
+ 		acq_ping();
+ 		return 1;
+ 	}
+@@ -99,7 +115,7 @@
+ {
+ 	static struct watchdog_info ident=
+ 	{
+-		WDIOF_KEEPALIVEPING, 1, "Acquire WDT"
++		WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE, 1, "Acquire WDT"
+ 	};
+ 	
+ 	switch(cmd)
+@@ -156,9 +172,14 @@
  	if(MINOR(inode->i_rdev)==WATCHDOG_MINOR)
  	{
  		spin_lock(&acq_lock);
--#ifndef CONFIG_WATCHDOG_NOWAYOUT	
--		inb_p(WDT_STOP);
--#endif		
-+		if (!nowayout) {
-+			inb_p(WDT_STOP);
+-		if (!nowayout) {
++		if (expect_close)
++		{
+ 			inb_p(WDT_STOP);
+ 		}
++		else
++		{
++			printk(KERN_CRIT "WDT closed unexpectedly.  WDT will not stop!\n");
 +		}
  		acq_is_open=0;
  		spin_unlock(&acq_lock);
  	}
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/advantechwdt.c linux-2.4.19-pre9-nowayout/drivers/char/advantechwdt.c
---- linux-2.4.19-pre9-settimeout/drivers/char/advantechwdt.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/advantechwdt.c	Thu May 30 17:15:25 2002
-@@ -20,6 +20,8 @@
-  *
-  *	(c) Copyright 1995    Alan Cox <alan@redhat.com>
-  *
-+ *	14-Dec-2001 Matt Domsch <Matt_Domsch@dell.com>
-+ *	    Added nowayout module option to override CONFIG_WATCHDOG_NOWAYOUT
-  */
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/advantechwdt.c linux-2.4.19-pre9-magicclose/drivers/char/advantechwdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/advantechwdt.c	Fri May 31 13:24:10 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/advantechwdt.c	Fri May 31 15:52:49 2002
+@@ -143,7 +143,7 @@
+ {
+ 	int new_margin;
+ 	static struct watchdog_info ident = {
+-		options:		WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++		options:		WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+ 		firmware_version:	0,
+ 		identity:		"Advantech WDT"
+ 	};
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/alim7101_wdt.c linux-2.4.19-pre9-magicclose/drivers/char/alim7101_wdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/alim7101_wdt.c	Fri May 31 13:23:52 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/alim7101_wdt.c	Fri May 31 15:53:11 2002
+@@ -221,7 +221,7 @@
+ {
+ 	static struct watchdog_info ident=
+ 	{
+-		0,
++		WDIOF_MAGICCLOSE,
+ 		1,
+ 		"ALiM7101"
+ 	};
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/eurotechwdt.c linux-2.4.19-pre9-magicclose/drivers/char/eurotechwdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/eurotechwdt.c	Fri May 31 13:23:38 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/eurotechwdt.c	Fri May 31 15:53:34 2002
+@@ -265,7 +265,7 @@
+         unsigned int cmd, unsigned long arg)
+ {
+    static struct watchdog_info ident = {
+-      options		: WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++      options		: WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+       firmware_version	: 0,
+       identity		: "WDT Eurotech CPU-1220/1410"
+    };
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/i810-tco.c linux-2.4.19-pre9-magicclose/drivers/char/i810-tco.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/i810-tco.c	Tue May 28 18:51:38 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/i810-tco.c	Fri May 31 14:54:31 2002
+@@ -64,6 +64,7 @@
  
- #include <linux/config.h>
-@@ -57,6 +59,15 @@
+ static unsigned int ACPIBASE;
+ static spinlock_t tco_lock;	/* Guards the hardware */
++static int expect_close = 0;
  
- static int wd_margin = 60; /* 60 sec default timeout */
+ static int i810_margin = TIMER_MARGIN;	/* steps of 0.6sec */
  
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
+@@ -204,10 +205,15 @@
+ 	/*
+ 	 *      Shut off the timer.
+ 	 */
+-	if (nowayout) {
+-		tco_timer_stop ();
+-		timer_alive = 0;
++	if (MINOR(inode->i_rdev) == WATCHDOG_MINOR)
++	{
++		if (expect_close) {
++			tco_timer_stop ();
++		} else {
++			printk(KERN_CRIT TCO_MODULE_NAME ": WDT closed unexpectedly.  WDT will not stop!\n");
++		}
+ 	}
++	timer_alive = 0;
+ 	return 0;
+ }
+ 
+@@ -222,6 +228,20 @@
+ 	 *      Refresh the timer.
+ 	 */
+ 	if (len) {
++		if (!nowayout) {
++			size_t i;
 +
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
++			/* In case it was set long ago */
++			expect_close = 0;
 +
++			for (i = 0; i != len; i++) {
++				char c;
++				if (get_user(c, data + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_close = 1;
++			}
++		}
+ 		tco_timer_reload ();
+ 		return 1;
+ 	}
+@@ -234,7 +254,9 @@
+ 	int new_margin, u_margin;
+ 
+ 	static struct watchdog_info ident = {
+-		WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
++		WDIOF_SETTIMEOUT |
++		WDIOF_KEEPALIVEPING |
++		WDIOF_MAGICCLOSE,
+ 		0,
+ 		"i810 TCO timer"
+ 	};
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/ib700wdt.c linux-2.4.19-pre9-magicclose/drivers/char/ib700wdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/ib700wdt.c	Thu May 30 17:25:50 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/ib700wdt.c	Fri May 31 14:54:55 2002
+@@ -50,6 +50,7 @@
+ 
+ static int ibwdt_is_open;
+ static spinlock_t ibwdt_lock;
++static int expect_close = 0;
+ 
  /*
-  *	Kernel methods.
-  */
-@@ -108,16 +119,16 @@
+  *
+@@ -143,6 +144,20 @@
  		return -ESPIPE;
  
  	if (count) {
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--		size_t i;
 +		if (!nowayout) {
 +			size_t i;
- 
--		adv_expect_close = 0;
-+			adv_expect_close = 0;
- 
--		for (i = 0; i != count; i++) {
--			if (buf[i] == 'V')
--				adv_expect_close = 42;
++
++			/* In case it was set long ago */
++			expect_close = 0;
++
 +			for (i = 0; i != count; i++) {
-+				if (buf[i] == 'V')
-+					adv_expect_close = 42;
++				char c;
++				if (get_user(c, buf + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_close = 1;
 +			}
- 		}
--#endif
- 		advwdt_ping();
- 	}
- 	return count;
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/alim7101_wdt.c linux-2.4.19-pre9-nowayout/drivers/char/alim7101_wdt.c
---- linux-2.4.19-pre9-settimeout/drivers/char/alim7101_wdt.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/alim7101_wdt.c	Thu May 30 18:23:19 2002
-@@ -79,6 +79,15 @@
- static int wdt_expect_close;
- static struct pci_dev *alim7101_pmu;
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
- /*
-  *	Whack the dog
-  */
-@@ -157,16 +166,18 @@
- 	/* See if we got the magic character */
- 	if(count) 
- 	{
--		size_t ofs;
-+		if (!nowayout) {
-+			size_t ofs;
- 
--		/* note: just in case someone wrote the magic character
--		 * five months ago... */
--		wdt_expect_close = 0;
--
--		/* now scan */
--		for(ofs = 0; ofs != count; ofs++)
--			if(buf[ofs] == 'V')
--				wdt_expect_close = 1;
-+			/* note: just in case someone wrote the magic
-+			 * character five months ago... */
-+			wdt_expect_close = 0;
-+
-+			/* now scan */
-+			for(ofs = 0; ofs != count; ofs++)
-+				if(buf[ofs] == 'V')
-+					wdt_expect_close = 1;
 +		}
- 
- 		/* someone wrote to us, we should restart timer */
- 		next_heartbeat = jiffies + WDT_HEARTBEAT;
-@@ -193,15 +204,11 @@
- 
- static int fop_close(struct inode * inode, struct file * file)
- {
--#ifdef CONFIG_WDT_NOWAYOUT
- 	if(wdt_expect_close)
- 		wdt_turnoff();
- 	else {
- 		printk(OUR_NAME ": device file closed unexpectedly. Will not stop the WDT!\n");
+ 		ibwdt_ping();
+ 		return 1;
  	}
--#else
--	wdt_turnoff();
--#endif
- 	clear_bit(0, &wdt_is_open);
- 	return 0;
- }
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/eurotechwdt.c linux-2.4.19-pre9-nowayout/drivers/char/eurotechwdt.c
---- linux-2.4.19-pre9-settimeout/drivers/char/eurotechwdt.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/eurotechwdt.c	Thu May 30 17:24:50 2002
-@@ -35,6 +35,9 @@
-  *
-  * 2001 - Rodolfo Giometti
-  *	Initial release
-+ *
-+ * 2002.05.30 - Joel Becker <joel.becker@oracle.com>
-+ * 	Added Matt Domsch's nowayout module option.
-  */
+@@ -162,7 +177,10 @@
+ 	int i, new_margin;
  
- #include <linux/config.h>
-@@ -68,6 +71,14 @@
-  
- #define WDT_TIMEOUT		60                /* 1 minute */
+ 	static struct watchdog_info ident = {
+-		WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT, 1, "IB700 WDT"
++		WDIOF_KEEPALIVEPING |
++		WDIOF_SETTIMEOUT |
++		WDIOF_MAGICCLOSE,
++		1, "IB700 WDT"
+ 	};
  
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- /*
-  * Some symbolic names 
-@@ -220,16 +231,16 @@
-       return -ESPIPE;
-  
-    if (count) {
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--      size_t i;
-+      if (!nowayout) {
-+         size_t i;
- 
--      eur_expect_close = 0;
-+         eur_expect_close = 0;
- 
--      for (i = 0; i != count; i++) {
--         if (buf[i] == 'V')
--            eur_expect_close = 42;
-+         for (i = 0; i != count; i++) {
-+            if (buf[i] == 'V')
-+               eur_expect_close = 42;
-+         }
-       }
--#endif
-       eurwdt_ping();   /* the default timeout */
-    }
- 
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/ib700wdt.c linux-2.4.19-pre9-nowayout/drivers/char/ib700wdt.c
---- linux-2.4.19-pre9-settimeout/drivers/char/ib700wdt.c	Mon Feb 25 11:37:57 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/ib700wdt.c	Thu May 30 17:25:50 2002
-@@ -114,6 +114,15 @@
- 
- static int wd_margin = WD_TIMO;
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
- 
- /*
-  *	Kernel methods.
-@@ -222,9 +231,9 @@
+ 	switch (cmd) {
+@@ -231,8 +249,10 @@
  	lock_kernel();
  	if (MINOR(inode->i_rdev) == WATCHDOG_MINOR) {
  		spin_lock(&ibwdt_lock);
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--		outb_p(wd_times[wd_margin], WDT_STOP);
--#endif
-+		if (!nowayout) {
-+			outb_p(wd_times[wd_margin], WDT_STOP);
-+		}
+-		if (!nowayout) {
++		if (expect_close) {
+ 			outb_p(wd_times[wd_margin], WDT_STOP);
++		} else {
++			printk(KERN_CRIT "WDT device closed unexpectedly.  WDT will not stop!\n");
+ 		}
  		ibwdt_is_open = 0;
  		spin_unlock(&ibwdt_lock);
- 	}
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/indydog.c linux-2.4.19-pre9-nowayout/drivers/char/indydog.c
---- linux-2.4.19-pre9-settimeout/drivers/char/indydog.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/indydog.c	Thu May 30 17:27:27 2002
-@@ -27,6 +27,15 @@
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/indydog.c linux-2.4.19-pre9-magicclose/drivers/char/indydog.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/indydog.c	Thu May 30 17:27:27 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/indydog.c	Fri May 31 14:56:48 2002
+@@ -26,6 +26,7 @@
+ 
  static unsigned long indydog_alive;
  static struct sgimc_misc_ctrl *mcmisc_regs; 
++static int expect_close = 0;
  
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
- static void indydog_ping()
- {
- 	mcmisc_regs->watchdogt = 0;
-@@ -43,9 +52,9 @@
- 	
- 	if( test_and_set_bit(0,&indydog_alive) )
- 		return -EBUSY;
--#ifdef CONFIG_WATCHDOG_NOWAYOUT
--	MOD_INC_USE_COUNT;
--#endif
-+	if (nowayout) {
-+		MOD_INC_USE_COUNT;
-+	}
- 	/*
- 	 *	Activate timer
- 	 */
-@@ -63,16 +72,15 @@
- {
- 	/*
+ #ifdef CONFIG_WATCHDOG_NOWAYOUT
+ static int nowayout = 1;
+@@ -74,13 +75,17 @@
  	 *	Shut off the timer.
--	 * 	Lock it in if it's a module and we defined ...NOWAYOUT
-+	 * 	Lock it in if it's a module and we set nowayout.
+ 	 * 	Lock it in if it's a module and we set nowayout.
  	 */
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
-+	if (!nowayout)
+-	if (!nowayout)
++	if (expect_close)
  	{
--	u32 mc_ctrl0 = mcmisc_regs->cpuctrl0; 
--	mc_ctrl0 &= ~SGIMC_CCTRL0_WDOG;
--	mcmisc_regs->cpuctrl0 = mc_ctrl0;
--	printk("Stopped watchdog timer.\n");
-+		u32 mc_ctrl0 = mcmisc_regs->cpuctrl0; 
-+		mc_ctrl0 &= ~SGIMC_CCTRL0_WDOG;
-+		mcmisc_regs->cpuctrl0 = mc_ctrl0;
-+		printk("Stopped watchdog timer.\n");
+ 		u32 mc_ctrl0 = mcmisc_regs->cpuctrl0; 
+ 		mc_ctrl0 &= ~SGIMC_CCTRL0_WDOG;
+ 		mcmisc_regs->cpuctrl0 = mc_ctrl0;
+ 		printk("Stopped watchdog timer.\n");
  	}
--#endif
++	else
++	{
++		printk(KERN_CRIT "WDT device closed unexpectedly.  WDT will not stop!\n");
++	}
  	clear_bit(0,&indydog_alive);
  	return 0;
  }
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/machzwd.c linux-2.4.19-pre9-nowayout/drivers/char/machzwd.c
---- linux-2.4.19-pre9-settimeout/drivers/char/machzwd.c	Thu Sep 13 15:21:32 2001
-+++ linux-2.4.19-pre9-nowayout/drivers/char/machzwd.c	Thu May 30 17:30:24 2002
-@@ -24,6 +24,8 @@
-  *  a system RESET and it starts wd#2 that unconditionaly will RESET 
-  *  the system when the counter reaches zero.
-  *
-+ *  14-Dec-2001 Matt Domsch <Matt_Domsch@dell.com>
-+ * 	Added nowayout module option to override CONFIG_WATCHDOG_NOWAYOUT
-  */
- 
- #include <linux/config.h>
-@@ -103,6 +105,15 @@
- MODULE_PARM(action, "i");
- MODULE_PARM_DESC(action, "after watchdog resets, generate: 0 = RESET(*)  1 = SMI  2 = NMI  3 = SCI");
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
+@@ -95,6 +100,20 @@
+ 	 *	Refresh the timer.
+ 	 */
+ 	if(len) {
++		if (!nowayout) {
++			size_t i;
 +
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
++			/* In case it was set long ago */
++			expect_close = 0;
 +
++			for (i = 0; i != len; i++) {
++				char c;
++				if (get_user(c, data + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_close = 1;
++			}
++		}
+ 		indydog_ping();
+ 		return 1;
+ 	}
+@@ -105,6 +124,7 @@
+ 	unsigned int cmd, unsigned long arg)
+ {
+ 	static struct watchdog_info ident = {
++		options: WDIOF_MAGICCLOSE,
+ 		identity: "Hardware Watchdog for SGI IP22",
+ 	};
+ 	switch (cmd) {
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/machzwd.c linux-2.4.19-pre9-magicclose/drivers/char/machzwd.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/machzwd.c	Fri May 31 13:24:22 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/machzwd.c	Fri May 31 15:54:11 2002
+@@ -117,7 +117,7 @@
  #define PFX "machzwd"
  
  static struct watchdog_info zf_info = {
-@@ -303,27 +314,27 @@
- 	/* See if we got the magic character */
- 	if(count){
+-	options:		WDIOF_KEEPALIVEPING, 
++	options:		WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE, 
+ 	firmware_version:	1, 
+ 	identity:		"ZF-Logic watchdog"
+ };
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/mixcomwd.c linux-2.4.19-pre9-magicclose/drivers/char/mixcomwd.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/mixcomwd.c	Thu May 30 17:39:02 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/mixcomwd.c	Fri May 31 15:55:07 2002
+@@ -63,6 +63,7 @@
  
--/*
-- * no need to check for close confirmation
-- * no way to disable watchdog ;)
-- */
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--		size_t ofs;
--
--		/* 
--		 * note: just in case someone wrote the magic character
--		 * five months ago...
-+		/*
-+		 * no need to check for close confirmation
-+		 * no way to disable watchdog ;)
- 		 */
--		zf_expect_close = 0;
-+		if (!nowayout) {
-+			size_t ofs;
- 
--		/* now scan */
--		for(ofs = 0; ofs != count; ofs++){
--			if(buf[ofs] == 'V'){
--				zf_expect_close = 1;
--				dprintk("zf_expect_close 1\n");
-+			/* 
-+			 * note: just in case someone wrote the magic
-+			 * character five months ago...
-+			 */
-+			zf_expect_close = 0;
-+	
-+			/* now scan */
-+			for(ofs = 0; ofs != count; ofs++){
-+				if(buf[ofs] == 'V'){
-+					zf_expect_close = 1;
-+					dprintk("zf_expect_close 1\n");
-+				}
- 			}
- 		}
--#endif
- 		/*
- 		 * Well, anyhow someone wrote to us,
- 		 * we should return that favour
-@@ -386,9 +397,9 @@
- 				return -EBUSY;
- 			}
- 
--#ifdef CONFIG_WATCHDOG_NOWAYOUT
--			MOD_INC_USE_COUNT;
--#endif
-+			if (nowayout) {
-+				MOD_INC_USE_COUNT;
-+			}
- 			zf_is_open = 1;
- 
- 			spin_unlock(&zf_lock);
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/mixcomwd.c linux-2.4.19-pre9-nowayout/drivers/char/mixcomwd.c
---- linux-2.4.19-pre9-settimeout/drivers/char/mixcomwd.c	Thu Sep 13 15:21:32 2001
-+++ linux-2.4.19-pre9-nowayout/drivers/char/mixcomwd.c	Thu May 30 17:39:02 2002
-@@ -27,10 +27,13 @@
-  *
-  * Version 0.4 (99/11/15):
-  *		- support for one more type board
-+ *
-+ * Version 0.5 (2001/12/14) Matt Domsch <Matt_Domsch@dell.com>
-+ * 		- added nowayout module option to override CONFIG_WATCHDOG_NOWAYOUT
-  *	
-  */
- 
--#define VERSION "0.4" 
-+#define VERSION "0.5" 
-   
- #include <linux/module.h>
- #include <linux/config.h>
-@@ -58,25 +61,30 @@
- 
- static int watchdog_port;
- 
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
  static int mixcomwd_timer_alive;
  static struct timer_list mixcomwd_timer;
-+
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
- #endif
++static int expect_close = 0;
  
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
- static void mixcomwd_ping(void)
- {
- 	outb_p(55,watchdog_port);
- 	return;
- }
- 
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
- static void mixcomwd_timerfun(unsigned long d)
- {
- 	mixcomwd_ping();
- 	
- 	mod_timer(&mixcomwd_timer,jiffies+ 5*HZ);
- }
--#endif
- 
- /*
-  *	Allow only one person to hold it open
-@@ -89,12 +97,13 @@
- 	}
- 	mixcomwd_ping();
- 	
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
-+	if (nowayout) {
-+		MOD_INC_USE_COUNT;
-+	}
- 	if(mixcomwd_timer_alive) {
- 		del_timer(&mixcomwd_timer);
- 		mixcomwd_timer_alive=0;
- 	} 
--#endif
- 	return 0;
- }
- 
-@@ -102,19 +111,19 @@
+ #ifdef CONFIG_WATCHDOG_NOWAYOUT
+ static int nowayout = 1;
+@@ -111,7 +112,7 @@
  {
  
  	lock_kernel();
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--	if(mixcomwd_timer_alive) {
--		printk(KERN_ERR "mixcomwd: release called while internal timer alive");
--		unlock_kernel();
--		return -EBUSY;
-+	if (!nowayout) {
-+		if(mixcomwd_timer_alive) {
-+			printk(KERN_ERR "mixcomwd: release called while internal timer alive");
-+			unlock_kernel();
-+			return -EBUSY;
-+		}
-+		init_timer(&mixcomwd_timer);
-+		mixcomwd_timer.expires=jiffies + 5 * HZ;
-+		mixcomwd_timer.function=mixcomwd_timerfun;
-+		mixcomwd_timer.data=0;
-+		mixcomwd_timer_alive=1;
-+		add_timer(&mixcomwd_timer);
+-	if (!nowayout) {
++	if (expect_close) {
+ 		if(mixcomwd_timer_alive) {
+ 			printk(KERN_ERR "mixcomwd: release called while internal timer alive");
+ 			unlock_kernel();
+@@ -123,6 +124,8 @@
+ 		mixcomwd_timer.data=0;
+ 		mixcomwd_timer_alive=1;
+ 		add_timer(&mixcomwd_timer);
++	} else {
++		printk(KERN_CRIT "mixcomwd: WDT device closed unexpectedly.  WDT will not stop!\n");
  	}
--	init_timer(&mixcomwd_timer);
--	mixcomwd_timer.expires=jiffies + 5 * HZ;
--	mixcomwd_timer.function=mixcomwd_timerfun;
--	mixcomwd_timer.data=0;
--	mixcomwd_timer_alive=1;
--	add_timer(&mixcomwd_timer);
--#endif
  
  	clear_bit(0,&mixcomwd_opened);
- 	unlock_kernel();
-@@ -148,9 +157,9 @@
+@@ -139,6 +142,20 @@
+ 
+ 	if(len)
  	{
- 		case WDIOC_GETSTATUS:
- 			status=mixcomwd_opened;
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--			status|=mixcomwd_timer_alive;
--#endif
-+			if (!nowayout) {
-+				status|=mixcomwd_timer_alive;
++		if (!nowayout) {
++			size_t i;
++
++			/* In case it was set long ago */
++			expect_close = 0;
++
++			for (i = 0; i != len; i++) {
++				char c;
++				if (get_user(c, data + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_close = 1;
 +			}
- 			if (copy_to_user((int *)arg, &status, sizeof(int))) {
- 				return -EFAULT;
- 			}
-@@ -255,14 +264,14 @@
- 
- static void __exit mixcomwd_exit(void)
- {
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--	if(mixcomwd_timer_alive) {
--		printk(KERN_WARNING "mixcomwd: I quit now, hardware will"
--			" probably reboot!\n");
--		del_timer(&mixcomwd_timer);
--		mixcomwd_timer_alive=0;
-+	if (!nowayout) {
-+		if(mixcomwd_timer_alive) {
-+			printk(KERN_WARNING "mixcomwd: I quit now, hardware will"
-+				" probably reboot!\n");
-+			del_timer(&mixcomwd_timer);
-+			mixcomwd_timer_alive=0;
 +		}
+ 		mixcomwd_ping();
+ 		return 1;
  	}
--#endif
- 	release_region(watchdog_port,1);
- 	misc_deregister(&mixcomwd_miscdev);
- }
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/pcwd.c linux-2.4.19-pre9-nowayout/drivers/char/pcwd.c
---- linux-2.4.19-pre9-settimeout/drivers/char/pcwd.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/pcwd.c	Thu May 30 17:41:55 2002
-@@ -42,6 +42,7 @@
-  * 000403	Removed last traces of proc code. <davej>
-  * 020210	Backported 2.5 open_allowed changes, and got rid of a useless
-  *		variable <rob@osinvestor.com>
-+ * 020530	Added nowayout module option to override CONFIG_WATCHDOG_NOWAYOUT <Matt_Domsch@dell.com>
-  */
- 
- #include <linux/module.h>
-@@ -78,7 +79,7 @@
-  */
- static int pcwd_ioports[] = { 0x270, 0x350, 0x370, 0x000 };
- 
--#define WD_VER                  "1.10 (06/05/99)"
-+#define WD_VER                  "1.12 (05/30/2002)"
+@@ -150,7 +167,8 @@
+ {
+ 	int status;
+         static struct watchdog_info ident = {
+-		WDIOF_KEEPALIVEPING, 1, "MixCOM watchdog"
++		WDIOF_KEEPALIVEPING | WDIOF_MAGICCLOSE,
++		1, "MixCOM watchdog"
+ 	};
+                                         
+ 	switch(cmd)
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/pcwd.c linux-2.4.19-pre9-magicclose/drivers/char/pcwd.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/pcwd.c	Thu May 30 17:41:55 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/pcwd.c	Fri May 31 15:34:35 2002
+@@ -115,6 +115,7 @@
+ static atomic_t open_allowed = ATOMIC_INIT(1);
+ static int initial_status, supports_temp, mode_debug;
+ static spinlock_t io_lock;
++static int expect_close = 0;
  
  /*
-  * It should be noted that PCWD_REVISION_B was removed because A and B
-@@ -92,6 +93,15 @@
+  * PCWD_CHECKCARD
+@@ -253,7 +254,7 @@
+ 	int cdat, rv;
+ 	static struct watchdog_info ident=
+ 	{
+-		WDIOF_OVERHEAT|WDIOF_CARDRESET,
++		WDIOF_OVERHEAT|WDIOF_CARDRESET|WDIOF_MAGICCLOSE,
+ 		1,
+ 		"PCWD"
+ 	};
+@@ -405,6 +406,20 @@
  
- #define	WD_TIMEOUT		3	/* 1 1/2 seconds for a timeout */
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
+ 	if (len)
+ 	{
++		if (!nowayout) {
++			size_t i;
 +
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
++			/* In case it was set long ago */
++			expect_close = 0;
 +
- /*
-  * These are the defines for the PC Watchdog card, revision A.
-  */
-@@ -457,15 +467,15 @@
++			for (i = 0; i != len; i++) {
++				char c;
++				if (get_user(c, buf + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_close = 1;
++			}
++		}
+ 		pcwd_send_heartbeat();
+ 		return 1;
+ 	}
+@@ -467,7 +482,7 @@
  {
  	if (MINOR(ino->i_rdev)==WATCHDOG_MINOR)
  	{
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--		/*  Disable the board  */
--		if (revision == PCWD_REVISION_C) {
--			spin_lock(&io_lock);
--			outb_p(0xA5, current_readport + 3);
--			outb_p(0xA5, current_readport + 3);
--			spin_unlock(&io_lock);
-+		if (!nowayout) {
-+			/*  Disable the board  */
-+			if (revision == PCWD_REVISION_C) {
-+				spin_lock(&io_lock);
-+				outb_p(0xA5, current_readport + 3);
-+				outb_p(0xA5, current_readport + 3);
-+				spin_unlock(&io_lock);
-+			}
+-		if (!nowayout) {
++		if (expect_close) {
+ 			/*  Disable the board  */
+ 			if (revision == PCWD_REVISION_C) {
+ 				spin_lock(&io_lock);
+@@ -475,6 +490,8 @@
+ 				outb_p(0xA5, current_readport + 3);
+ 				spin_unlock(&io_lock);
+ 			}
++		} else {
++			printk(KERN_CRIT "pcwd: WDT device closed unexpectedly.  WDT will not stop!\n");
  		}
--#endif
  		atomic_inc(&open_allowed);
  	}
- 	return 0;
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/sc1200wdt.c linux-2.4.19-pre9-nowayout/drivers/char/sc1200wdt.c
---- linux-2.4.19-pre9-settimeout/drivers/char/sc1200wdt.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/sc1200wdt.c	Thu May 30 17:43:56 2002
-@@ -22,6 +22,8 @@
-  *		 <rob@osinvestor.com>	Return proper status instead of temperature warning
-  *					Add WDIOC_GETBOOTSTATUS and WDIOC_SETOPTIONS ioctls
-  *					Fix CONFIG_WATCHDOG_NOWAYOUT
-+ *	20020530 Joel Becker		Add Matt Domsch's nowayout
-+ *					module option
-  */
- 
- #include <linux/config.h>
-@@ -86,6 +88,14 @@
- MODULE_PARM(timeout, "i");
- MODULE_PARM_DESC(timeout, "range is 0-255 minutes, default is 1");
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
- 
- 
- /* Read from Data Register */
-@@ -246,17 +256,17 @@
- 		return -ESPIPE;
- 	
- 	if (len) {
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--		size_t i;
-+		if (!nowayout) {
-+			size_t i;
- 
--		expect_close = 0;
-+			expect_close = 0;
- 
--		for (i = 0; i != len; i++)
--		{
--			if (data[i] == 'V')
--				expect_close = 42;
-+			for (i = 0; i != len; i++)
-+			{
-+				if (data[i] == 'V')
-+					expect_close = 42;
-+			}
- 		}
--#endif
- 		sc1200wdt_write_data(WDTO, timeout);
- 		return len;
- 	}
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/sc520_wdt.c linux-2.4.19-pre9-nowayout/drivers/char/sc520_wdt.c
---- linux-2.4.19-pre9-settimeout/drivers/char/sc520_wdt.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/sc520_wdt.c	Fri May 31 14:32:54 2002
-@@ -110,6 +110,15 @@
- static unsigned long wdt_is_open;
- static int wdt_expect_close;
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
- static spinlock_t wdt_spinlock;
- /*
-  *	Whack the dog
-@@ -172,12 +181,12 @@
- 
- static void wdt_turnoff(void)
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/sbc60xxwdt.c linux-2.4.19-pre9-magicclose/drivers/char/sbc60xxwdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/sbc60xxwdt.c	Thu Sep 13 15:21:32 2001
++++ linux-2.4.19-pre9-magicclose/drivers/char/sbc60xxwdt.c	Fri May 31 15:55:36 2002
+@@ -234,7 +234,7 @@
  {
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--	/* Stop the timer */
--	del_timer(&timer);
--	wdt_config(0);
--	printk(OUR_NAME ": Watchdog timer is now disabled...\n");
--#endif
-+	if (!nowayout) {
-+		/* Stop the timer */
-+		del_timer(&timer);
-+		wdt_config(0);
-+		printk(OUR_NAME ": Watchdog timer is now disabled...\n");
-+	}
- }
- 
- 
-@@ -222,9 +231,9 @@
- 				return -EBUSY;
- 			/* Good, fire up the show */
- 			wdt_startup();
--#ifdef CONFIG_WATCHDOG_NOWAYOUT
--			MOD_INC_USE_COUNT;
--#endif	
-+			if (nowayout) {
-+				MOD_INC_USE_COUNT;
-+			}
- 			return 0;
- 		default:
- 			return -ENODEV;
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/softdog.c linux-2.4.19-pre9-nowayout/drivers/char/softdog.c
---- linux-2.4.19-pre9-settimeout/drivers/char/softdog.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/softdog.c	Thu May 30 17:57:02 2002
-@@ -31,6 +31,9 @@
-  *	Added soft_noboot; Allows testing the softdog trigger without 
-  *	requiring a recompile.
-  *	Added WDIOC_GETTIMEOUT and WDIOC_SETTIMOUT.
-+ *
-+ *  20020530 Joel Becker <joel.becker@oracle.com>
-+ *  	Added Matt Domsch's nowayout module option.
-  */
-  
- #include <linux/module.h>
-@@ -59,6 +62,15 @@
- MODULE_PARM(soft_noboot,"i");
- MODULE_LICENSE("GPL");
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
- /*
-  *	Our timer
-  */
-@@ -95,9 +107,9 @@
+ 	static struct watchdog_info ident=
+ 	{
+-		0,
++		WDIOF_MAGICCLOSE,
+ 		1,
+ 		"SB60xx"
+ 	};
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/sc1200wdt.c linux-2.4.19-pre9-magicclose/drivers/char/sc1200wdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/sc1200wdt.c	Fri May 31 14:08:20 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/sc1200wdt.c	Fri May 31 15:56:00 2002
+@@ -171,7 +171,7 @@
  {
- 	if(test_and_set_bit(0, &timer_alive))
- 		return -EBUSY;
--#ifdef CONFIG_WATCHDOG_NOWAYOUT	 
--	MOD_INC_USE_COUNT;
--#endif	
-+	if (nowayout) {
-+		MOD_INC_USE_COUNT;
-+	}
- 	/*
- 	 *	Activate timer
- 	 */
-@@ -109,11 +121,11 @@
+ 	int new_timeout;
+ 	static struct watchdog_info ident = {
+-		options:		WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++		options:		WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+ 		firmware_version:	0,
+ 		identity:		"PC87307/PC97307"
+ 	};
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/sc520_wdt.c linux-2.4.19-pre9-magicclose/drivers/char/sc520_wdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/sc520_wdt.c	Fri May 31 14:33:47 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/sc520_wdt.c	Fri May 31 15:56:21 2002
+@@ -269,7 +269,7 @@
  {
- 	/*
+ 	static struct watchdog_info ident=
+ 	{
+-		0,
++		WDIOF_MAGICCLOSE,
+ 		1,
+ 		"SC520"
+ 	};
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/shwdt.c linux-2.4.19-pre9-magicclose/drivers/char/shwdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/shwdt.c	Fri May 31 13:26:05 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/shwdt.c	Fri May 31 15:57:03 2002
+@@ -347,7 +347,7 @@
+ };
+ 
+ static struct watchdog_info sh_wdt_info = {
+-	options:		WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++	options:		WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+ 	firmware_version:	0,
+ 	identity:		"SH WDT",
+ };
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/softdog.c linux-2.4.19-pre9-magicclose/drivers/char/softdog.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/softdog.c	Thu May 30 17:57:02 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/softdog.c	Fri May 31 15:03:00 2002
+@@ -51,6 +51,7 @@
+ 
+ #define TIMER_MARGIN	60		/* (secs) Default is 1 minute */
+ 
++static int expect_close = 0;
+ static int soft_margin = TIMER_MARGIN;	/* in seconds */
+ #ifdef ONLY_TESTING
+ static int soft_noboot = 1;
+@@ -123,8 +124,10 @@
  	 *	Shut off the timer.
--	 * 	Lock it in if it's a module and we defined ...NOWAYOUT
-+	 * 	Lock it in if it's a module and we set nowayout
+ 	 * 	Lock it in if it's a module and we set nowayout
  	 */
--#ifndef CONFIG_WATCHDOG_NOWAYOUT	 
--	del_timer(&watchdog_ticktock);
--#endif	
-+	if (!nowayout) {
-+		del_timer(&watchdog_ticktock);
-+	}
+-	if (!nowayout) {
++	if (expect_close) {
+ 		del_timer(&watchdog_ticktock);
++	} else {
++		printk(KERN_CRIT "SOFTDOG: WDT device closed unexpectedly.  WDT will not stop!\n");
+ 	}
  	clear_bit(0, &timer_alive);
  	return 0;
- }
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/wafer5823wdt.c linux-2.4.19-pre9-nowayout/drivers/char/wafer5823wdt.c
---- linux-2.4.19-pre9-settimeout/drivers/char/wafer5823wdt.c	Thu May 30 15:34:14 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/wafer5823wdt.c	Thu May 30 17:47:41 2002
-@@ -56,6 +56,15 @@
- #define WD_TIMO 60		/* 1 minute */
- static int wd_margin = WD_TIMO;
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
- static void wafwdt_ping(void)
- {
- 	/* pat watchdog */
-@@ -148,9 +157,9 @@
- wafwdt_close(struct inode *inode, struct file *file)
- {
- 	clear_bit(0, &wafwdt_is_open);
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--        wafwdt_stop();
--#endif
-+	if (!nowayout) {
-+        	wafwdt_stop();
-+	}
- 	return 0;
- }
- 
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/wdt.c linux-2.4.19-pre9-nowayout/drivers/char/wdt.c
---- linux-2.4.19-pre9-settimeout/drivers/char/wdt.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/wdt.c	Thu May 30 17:52:12 2002
-@@ -28,6 +28,7 @@
-  *					Parameterized timeout
-  *		Tigran Aivazian	:	Restructured wdt_init() to handle failures
-  *		Joel Becker	:	Added WDIOC_GET/SETTIMEOUT
-+ *		Matt Domsch	:	Added nowayout module option
-  */
- 
- #include <linux/config.h>
-@@ -66,6 +67,15 @@
- 
- static int wd_margin = WD_TIMO;
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
- #ifndef MODULE
- 
- /**
-@@ -394,10 +404,10 @@
- {
- 	if(MINOR(inode->i_rdev)==WATCHDOG_MINOR)
- 	{
--#ifndef CONFIG_WATCHDOG_NOWAYOUT	
--		inb_p(WDT_DC);		/* Disable counters */
--		wdt_ctr_load(2,0);	/* 0 length reset pulses now */
--#endif		
-+		if (!nowayout) {
-+			inb_p(WDT_DC);		/* Disable counters */
-+			wdt_ctr_load(2,0);	/* 0 length reset pulses now */
-+		}
- 		clear_bit(0, &wdt_is_open);
- 	}
- 	return 0;
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/wdt977.c linux-2.4.19-pre9-nowayout/drivers/char/wdt977.c
---- linux-2.4.19-pre9-settimeout/drivers/char/wdt977.c	Fri Sep  7 09:28:38 2001
-+++ linux-2.4.19-pre9-nowayout/drivers/char/wdt977.c	Thu May 30 17:50:23 2002
-@@ -1,5 +1,5 @@
- /*
-- *	Wdt977	0.01:	A Watchdog Device for Netwinder W83977AF chip
-+ *	Wdt977	0.02:	A Watchdog Device for Netwinder W83977AF chip
-  *
-  *	(c) Copyright 1998 Rebel.com (Woody Suwalski <woody@netwinder.org>)
-  *
-@@ -11,6 +11,8 @@
-  *	2 of the License, or (at your option) any later version.
-  *
-  *			-----------------------
-+ *      14-Dec-2001 Matt Domsch <Matt_Domsch@dell.com>
-+ *           Added nowayout module option to override CONFIG_WATCHDOG_NOWAYOUT
-  */
-  
- #include <linux/module.h>
-@@ -32,6 +34,16 @@
- static	int timer_alive;
- static	int testmode;
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
-+
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
-+
-+
- /*
-  *	Allow only one person to hold it open
-  */
-@@ -40,9 +52,9 @@
- {
- 	if(timer_alive)
- 		return -EBUSY;
--#ifdef CONFIG_WATCHDOG_NOWAYOUT
--	MOD_INC_USE_COUNT;
--#endif
-+	if (nowayout) {
-+		MOD_INC_USE_COUNT;
-+	}
- 	timer_alive++;
- 
- 	//max timeout value = 255 minutes (0xFF). Write 0 to disable WatchDog.
-@@ -89,9 +101,9 @@
- {
- 	/*
- 	 *	Shut off the timer.
--	 * 	Lock it in if it's a module and we defined ...NOWAYOUT
-+	 * 	Lock it in if it's a module and we set nowayout
+@@ -140,6 +143,20 @@
+ 	 *	Refresh the timer.
  	 */
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
-+	if (!nowayout) { /* FIXME: not fixing indentation */
- 	lock_kernel();
- 
- 	// unlock the SuperIO chip
-@@ -127,7 +139,7 @@
- 	unlock_kernel();
- 
- 	printk(KERN_INFO "Watchdog: shutdown.\n");
--#endif
-+	}
- 	return 0;
- }
- 
-diff -uNr linux-2.4.19-pre9-settimeout/drivers/char/wdt_pci.c linux-2.4.19-pre9-nowayout/drivers/char/wdt_pci.c
---- linux-2.4.19-pre9-settimeout/drivers/char/wdt_pci.c	Tue May 28 18:51:38 2002
-+++ linux-2.4.19-pre9-nowayout/drivers/char/wdt_pci.c	Fri May 31 14:32:40 2002
-@@ -32,6 +32,7 @@
-  *		Tigran Aivazian	:	Restructured wdtpci_init_one() to handle failures
-  *		Joel Becker	:	Added WDIOC_GET/SETTIMEOUT
-  *		Zwane Mwaikambo :	Magic char closing, locking changes, cleanups
-+ *		Matt Domsch	:	nowayout module option
-  */
- 
- #include <linux/config.h>
-@@ -87,6 +88,15 @@
- 
- static int wd_margin = WD_TIMO;
- 
-+#ifdef CONFIG_WATCHDOG_NOWAYOUT
-+static int nowayout = 1;
-+#else
-+static int nowayout = 0;
-+#endif
+ 	if(len) {
++		if (!nowayout) {
++			size_t i;
 +
-+MODULE_PARM(nowayout,"i");
-+MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
++			/* In case it was set long ago */
++			expect_close = 0;
 +
++			for (i = 0; i != len; i++) {
++				char c;
++				if (get_user(c, data + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_close = 1;
++			}
++		}
+ 		mod_timer(&watchdog_ticktock, jiffies+(soft_margin*HZ));
+ 		return 1;
+ 	}
+@@ -151,7 +168,7 @@
+ {
+ 	int new_margin;
+ 	static struct watchdog_info ident = {
+-		WDIOF_SETTIMEOUT,
++		WDIOF_SETTIMEOUT | WDIOF_MAGICCLOSE,
+ 		0,
+ 		"Software Watchdog"
+ 	};
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/w83877f_wdt.c linux-2.4.19-pre9-magicclose/drivers/char/w83877f_wdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/w83877f_wdt.c	Fri May 31 13:26:53 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/w83877f_wdt.c	Fri May 31 15:57:25 2002
+@@ -251,7 +251,7 @@
+ {
+ 	static struct watchdog_info ident=
+ 	{
+-		0,
++		WDIOF_MAGICCLOSE,
+ 		1,
+ 		"W83877F"
+ 	};
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/wafer5823wdt.c linux-2.4.19-pre9-magicclose/drivers/char/wafer5823wdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/wafer5823wdt.c	Thu May 30 17:47:41 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/wafer5823wdt.c	Fri May 31 15:05:58 2002
+@@ -40,6 +40,7 @@
+ 
+ static unsigned long wafwdt_is_open;
+ static spinlock_t wafwdt_lock;
++static int expect_close = 0;
+ 
  /*
-  *	Programming support
-  */
-@@ -231,16 +241,16 @@
+  *	You must set these - there is no sane way to probe for this board.
+@@ -95,6 +96,20 @@
  		return -ESPIPE;
  
  	if (count) {
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
--		size_t i;
 +		if (!nowayout) {
 +			size_t i;
- 
--		expect_close = 0;
++
++			/* In case it was set long ago */
 +			expect_close = 0;
- 
--		for (i = 0; i != count; i++) {
--			if (buf[i] == 'V')
--				expect_close = 1;
++
 +			for (i = 0; i != count; i++) {
-+				if (buf[i] == 'V')
++				char c;
++				if (get_user(c, buf + i))
++					return -EFAULT;
++				if (c == 'V')
 +					expect_close = 1;
 +			}
- 		}
--#endif
- 		wdtpci_ping();
++		}
+ 		wafwdt_ping();
+ 		return 1;
  	}
- 
-@@ -355,12 +365,12 @@
- 	switch(MINOR(inode->i_rdev))
- 	{
- 		case WATCHDOG_MINOR:
--			 if (down_trylock(&open_sem))
--                        	return -EBUSY;
-+			if (down_trylock(&open_sem))
-+				return -EBUSY;
- 
--#ifdef CONFIG_WATCHDOG_NOWAYOUT	
--			MOD_INC_USE_COUNT;
--#endif
-+			if (nowayout) {
-+				MOD_INC_USE_COUNT;
-+			}
- 			/*
- 			 *	Activate 
- 			 */
-@@ -415,7 +425,6 @@
+@@ -106,7 +121,9 @@
  {
- 
- 	if (MINOR(inode->i_rdev)==WATCHDOG_MINOR) {
--#ifndef CONFIG_WATCHDOG_NOWAYOUT
- 		unsigned long flags;
- 		if (expect_close) {
- 			spin_lock_irqsave(&wdtpci_lock, flags);
-@@ -426,7 +435,6 @@
- 			printk(KERN_CRIT PFX "Unexpected close, not stopping timer!");
- 			wdtpci_ping();
- 		}
--#endif		
- 		up(&open_sem);
+ 	int new_margin;
+ 	static struct watchdog_info ident = {
+-		WDIOF_KEEPALIVEPING | WDIOF_SETTIMEOUT,
++		WDIOF_KEEPALIVEPING |
++		WDIOF_SETTIMEOUT |
++		WDIOF_MAGICCLOSE,
+ 		1, "Wafer 5823 WDT"
+ 	};
+ 	int one=1;
+@@ -157,8 +174,10 @@
+ wafwdt_close(struct inode *inode, struct file *file)
+ {
+ 	clear_bit(0, &wafwdt_is_open);
+-	if (!nowayout) {
++	if (expect_close) {
+         	wafwdt_stop();
++	} else {
++		printk(KERN_CRIT "WDT device closed unexpectedly.  WDT will not stop!\n");
  	}
  	return 0;
+ }
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/wdt.c linux-2.4.19-pre9-magicclose/drivers/char/wdt.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/wdt.c	Thu May 30 17:52:12 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/wdt.c	Fri May 31 15:13:31 2002
+@@ -53,6 +53,7 @@
+ #include <linux/init.h>
+ 
+ static unsigned long wdt_is_open;
++static int expect_close;
+ 
+ /*
+  *	You must set these - there is no sane way to probe for this board.
+@@ -253,6 +254,20 @@
+ 
+ 	if(count)
+ 	{
++		if (!nowayout) {
++			size_t i;
++
++			/* In case it was set long ago */
++			expect_close = 0;
++
++			for (i = 0; i != count; i++) {
++				char c;
++				if (get_user(c, buf + i))
++					return -EFAULT;
++				if (c == 'V')
++					expect_close = 1;
++			}
++		}
+ 		wdt_ping();
+ 		return 1;
+ 	}
+@@ -314,7 +329,7 @@
+ 	{
+ 		WDIOF_OVERHEAT|WDIOF_POWERUNDER|WDIOF_POWEROVER
+ 			|WDIOF_EXTERN1|WDIOF_EXTERN2|WDIOF_FANFAULT
+-			|WDIOF_SETTIMEOUT,
++			|WDIOF_SETTIMEOUT|WDIOF_MAGICCLOSE,
+ 		1,
+ 		"WDT500/501"
+ 	};
+@@ -404,9 +419,11 @@
+ {
+ 	if(MINOR(inode->i_rdev)==WATCHDOG_MINOR)
+ 	{
+-		if (!nowayout) {
++		if (expect_close) {
+ 			inb_p(WDT_DC);		/* Disable counters */
+ 			wdt_ctr_load(2,0);	/* 0 length reset pulses now */
++		} else {
++			printk(KERN_CRIT "wdt: WDT device closed unexpectedly.  WDT will not stop!\n");
+ 		}
+ 		clear_bit(0, &wdt_is_open);
+ 	}
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/wdt977.c linux-2.4.19-pre9-magicclose/drivers/char/wdt977.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/wdt977.c	Thu May 30 17:50:23 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/wdt977.c	Fri May 31 15:10:59 2002
+@@ -33,6 +33,7 @@
+ static	int timeout = 3;
+ static	int timer_alive;
+ static	int testmode;
++static	int expect_close = 0;
+ 
+ #ifdef CONFIG_WATCHDOG_NOWAYOUT
+ static int nowayout = 1;
+@@ -103,48 +104,64 @@
+ 	 *	Shut off the timer.
+ 	 * 	Lock it in if it's a module and we set nowayout
+ 	 */
+-	if (!nowayout) { /* FIXME: not fixing indentation */
+ 	lock_kernel();
++	if (expect_close) {
+ 
+-	// unlock the SuperIO chip
+-	outb(0x87,0x370); 
+-	outb(0x87,0x370); 
+-	
+-	//select device Aux2 (device=8) and set watchdog regs F2,F3 and F4
+-	//F3 is reset to its default state
+-	//F4 can clear the TIMEOUT'ed state (bit 0) - back to default
+-	//We can not use GP17 as a PowerLed, as we use its usage as a RedLed
++		// unlock the SuperIO chip
++		outb(0x87,0x370); 
++		outb(0x87,0x370); 
++	
++		//select device Aux2 (device=8) and set watchdog regs F2,F3 and F4
++		//F3 is reset to its default state
++		//F4 can clear the TIMEOUT'ed state (bit 0) - back to default
++		//We can not use GP17 as a PowerLed, as we use its usage as a RedLed
+ 	
+-	outb(0x07,0x370);
+-	outb(0x08,0x371);
+-	outb(0xF2,0x370);
+-	outb(0xFF,0x371);
+-	outb(0xF3,0x370);
+-	outb(0x00,0x371);
+-	outb(0xF4,0x370);
+-	outb(0x00,0x371);
+-	outb(0xF2,0x370);
+-	outb(0x00,0x371);
++		outb(0x07,0x370);
++		outb(0x08,0x371);
++		outb(0xF2,0x370);
++		outb(0xFF,0x371);
++		outb(0xF3,0x370);
++		outb(0x00,0x371);
++		outb(0xF4,0x370);
++		outb(0x00,0x371);
++		outb(0xF2,0x370);
++		outb(0x00,0x371);
+ 	
+-	//at last select device Aux1 (dev=7) and set GP16 as a watchdog output
+-	outb(0x07,0x370);
+-	outb(0x07,0x371);
+-	outb(0xE6,0x370);
+-	outb(0x08,0x371);
++		//at last select device Aux1 (dev=7) and set GP16 as a watchdog output
++		outb(0x07,0x370);
++		outb(0x07,0x371);
++		outb(0xE6,0x370);
++		outb(0x08,0x371);
+ 	
+-	// lock the SuperIO chip
+-	outb(0xAA,0x370);
++		// lock the SuperIO chip
++		outb(0xAA,0x370);
++		printk(KERN_INFO "Watchdog: shutdown.\n");
++	} else {
++		printk(KERN_CRIT "WDT device closed unexpectedly.  WDT will not stop!\n");
++	}
+ 
+ 	timer_alive=0;
+ 	unlock_kernel();
+ 
+-	printk(KERN_INFO "Watchdog: shutdown.\n");
+-	}
+ 	return 0;
+ }
+ 
+ static ssize_t wdt977_write(struct file *file, const char *data, size_t len, loff_t *ppos)
+ {
++	if (!nowayout) {
++		size_t i;
++
++		/* In case it was set long ago */
++		expect_close = 0;
++
++		for (i = 0; i != len; i++) {
++			char c;
++			if (get_user(c, data + i))
++				return -EFAULT;
++			if (c == 'V')
++				expect_close = 1;
++		}
++	}
+ 
+ 	//max timeout value = 255 minutes (0xFF). Write 0 to disable WatchDog.
+ 	if (timeout>255)
+diff -uNr linux-2.4.19-pre9-magicclose-fix/drivers/char/wdt_pci.c linux-2.4.19-pre9-magicclose/drivers/char/wdt_pci.c
+--- linux-2.4.19-pre9-magicclose-fix/drivers/char/wdt_pci.c	Fri May 31 14:33:39 2002
++++ linux-2.4.19-pre9-magicclose/drivers/char/wdt_pci.c	Fri May 31 15:59:04 2002
+@@ -314,7 +314,7 @@
+ 	{
+ 		WDIOF_OVERHEAT|WDIOF_POWERUNDER|WDIOF_POWEROVER
+ 			|WDIOF_EXTERN1|WDIOF_EXTERN2|WDIOF_FANFAULT
+-			|WDIOF_SETTIMEOUT,
++			|WDIOF_SETTIMEOUT|WDIOF_MAGICCLOSE,
+ 		1,
+ 		"WDT500/501PCI"
+ 	};
+diff -uNr linux-2.4.19-pre9-magicclose-fix/include/linux/watchdog.h linux-2.4.19-pre9-magicclose/include/linux/watchdog.h
+--- linux-2.4.19-pre9-magicclose-fix/include/linux/watchdog.h	Thu May 30 15:19:48 2002
++++ linux-2.4.19-pre9-magicclose/include/linux/watchdog.h	Fri May 31 14:56:22 2002
+@@ -39,6 +39,7 @@
+ #define	WDIOF_CARDRESET		0x0020	/* Card previously reset the CPU */
+ #define WDIOF_POWEROVER		0x0040	/* Power over voltage */
+ #define WDIOF_SETTIMEOUT	0x0080  /* Set timeout (in seconds) */
++#define WDIOF_MAGICCLOSE	0x0100	/* Supports magic close char */
+ #define	WDIOF_KEEPALIVEPING	0x8000	/* Keep alive ping reply */
+ 
+ #define	WDIOS_DISABLECARD	0x0001	/* Turn off the watchdog timer */
 
 -- 
 
-Life's Little Instruction Book #43
-
-	"Never give up on somebody.  Miracles happen every day."
+"Glory is fleeting, but obscurity is forever."  
+         - Napoleon Bonaparte
 
 Joel Becker
 Senior Member of Technical Staff

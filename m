@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136446AbRD3GSU>; Mon, 30 Apr 2001 02:18:20 -0400
+	id <S133116AbRD3G3v>; Mon, 30 Apr 2001 02:29:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136452AbRD3GSD>; Mon, 30 Apr 2001 02:18:03 -0400
-Received: from shell.aros.net ([207.173.16.19]:4 "EHLO shell.aros.net")
-	by vger.kernel.org with ESMTP id <S136451AbRD3GRz>;
-	Mon, 30 Apr 2001 02:17:55 -0400
-Date: Mon, 30 Apr 2001 00:17:54 -0600
-From: Lawrence Gold <gold@shell.aros.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oopses under 2.4.4pre8 with Tbird 1.2GHz/Epox 8kta3
-Message-ID: <20010430001754.A96437@shell.aros.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S136452AbRD3G3m>; Mon, 30 Apr 2001 02:29:42 -0400
+Received: from anduin.net ([62.180.76.74]:16356 "HELO anduin.net")
+	by vger.kernel.org with SMTP id <S133116AbRD3G3W>;
+	Mon, 30 Apr 2001 02:29:22 -0400
+From: "Eirik Overby" <ltning@anduin.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Mon, 30 Apr 2001 08:29:40 +0100 (CET)
+Reply-To: "Eirik Overby" <ltning@anduin.net>
+X-Mailer: PMMail 2.20.2200 for OS/2 Warp 4.05
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: 2.4.x SMP issues on 440LX (?)
+Message-Id: <20010430062932Z133116-409+1416@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe I've narrowed down the cause of my oopses/panics:
+Hello!
 
-If I build with CONFIG_MK7 but comment out
+As another person (Aaron M. Folmsbee, 28.04.01-22:32) in here reported earlier, there seems to be problems 
+with Intel 440LX chipsets with dual CPU's and the Linux 2.4 kernel series.
+Simply stated, this just plain doesn't work right. When sticking in only one CPU, the system boots fine, but I 
+see "random" hangs and kernel panics. Watching boot messages and doing a cat /proc/cpuinfo gives the 
+correct information; I have one Intel Pentium II installed.
+However, when sticking in both CPU's, one of two things happen:
+1 - The system doesn't boot at all. It either reboots straight after unpacking the kernel and doing the first CPU 
+initializations (can't see when, it's too fast), or it continues with the boot and kernel panics somewhere along 
+the way. Example kernel panic output is at the end of this mail. Wether it just reboots or hangs later depends 
+on which CPU is installed as CPU1, the two CPU's are both PII's but one is produced in the Phillipines, the 
+other in Malaysia.
+2 - If I get another CPU produced in the Phillipines, less than 100 serial numbers apart, it boots and lets me log 
+in, and _seems_ stable. That is, until I put some load on it. After a few minutes or so it hangs again, or kernel 
+panics. Sometimes it gives me a panic message, sometimes not. But it seems to be the same message..
 
-	   define_bool CONFIG_X86_USE_3DNOW y
+Now the _really_ interesting thing is - and this happens with 2.2 kernels aswell - when having both CPU's 
+installed, no matter which ones and where they are produced, it seemingly thinks one of them is a Celeron, 
+not a PII. It's always the second CPU, and cat /proc/cpuinfo and the bootmessages are consistent here. The 
+first CPU show up correctly as a PII with 256kb cache, the second shows up as a Celeron with 32kb cache.. 
+Otherwise the CPU information is 100% equal (which it shouldn't be if it was indeed a celeron, right?). 
+Somehow I suspect that the reason for this "misinformation" might also be the reason for the instability.. But 
+IANAKH (i am not a kernel hacker), so I wouldn't know.
 
-in the MK7 part of arch/i386/config.in, the 2.4.4 kernel appears to run
-perfectly.
+Hope someone does, though...
 
-On a side note, if I leave arch/i386/config.h untouched but force the use
-of the generic MMX implementations of fast_clear_page() and
-fast_copy_page() in arch/i386/lib/mmx.c, then I get some odd behavior but
-nothing as bad as I had been getting before.  (For example, running awk
-always produces the message "awk: cmd. line: 1: (FILENAME- FNR=1) fatal:
-attempt to access field -2147483648".)
 
-Could this be a sign of a faulty 3DNOW! core in my CPU?  If so, do you
-know of any utilities I could run that test these instructions?  (For
-Linux or Windows.)
-
-The CPU is a 1.2GHz Athlon Thunderbird with a 266MHz frontside bus.  In
-case it's helpful, I've attached the contents of /proc/cpuinfo.
-
-Thanks in advance to anyone who can help!
-
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 1202.774
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
-pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 2398.61
+Best regards,
+Eirik Overby
 

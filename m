@@ -1,111 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312778AbSCVSEr>; Fri, 22 Mar 2002 13:04:47 -0500
+	id <S312779AbSCVSMj>; Fri, 22 Mar 2002 13:12:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312781AbSCVSEi>; Fri, 22 Mar 2002 13:04:38 -0500
-Received: from fepout3.telus.net ([199.185.220.238]:454 "EHLO
-	priv-edtnes11-hme0.telusplanet.net") by vger.kernel.org with ESMTP
-	id <S312778AbSCVSE0>; Fri, 22 Mar 2002 13:04:26 -0500
-Message-Id: <5.1.0.14.0.20020322094928.009e6ec0@pop.telus.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 22 Mar 2002 10:05:16 -0800
-To: davej@suse.de
-From: Jon Hourd <jonhourd@telus.net>
-Subject: [PATCH] 2.4.18 - 2.5.7  bluesmoke.c corrected MCA setup for
-  different Pentium cores.
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_1121764==_"
+	id <S312783AbSCVSMS>; Fri, 22 Mar 2002 13:12:18 -0500
+Received: from adsl-63-203-200-210.dsl.snfc21.pacbell.net ([63.203.200.210]:44229
+	"EHLO hodog.wesecurethe.net") by vger.kernel.org with ESMTP
+	id <S312779AbSCVSMG>; Fri, 22 Mar 2002 13:12:06 -0500
+From: Change Ling <change@wesecurethe.net>
+To: linux-kernel@vger.kernel.org
+Subject: vesafb not working in later 2.4.x kernels?
+Message-ID: <1016820299.3c9b724bd3515@www.wesecurethe.net>
+Date: Fri, 22 Mar 2002 10:04:59 -0800 (PST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.7
+X-HoozYoDaddy: I AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_1121764==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+I have been trying to build the vesafb under the 2.4.18 kernel for use in my 
+work on the biatchux bootable cdrom distribution, but the frame buffer never 
+seems to initialize at boot with the vga=791 kernel argument.
 
-Hello,
-	Here are some patches to correct the MCA setup for different Pentium cores 
-in bluesmoke.c.  The P6 family must not initialize MSR_IA32_MC0_CTL in 
-software, it must be done by the bios.  The P4/Xeon cores must have this 
-bank initialized in software.  Added check for processor type and 
-associated init loops.  Included patches against 2.5.7 and 2.4.18.
+It is as though the Video select option isn't handling the kernel arg, since 
+vga=ask doesn't present my with a selection menu either.
 
-Cheers,
-Jon Hourd
-jonhourd@telus.net
---=====================_1121764==_
-Content-Type: application/octet-stream; name="bluesmoke.c.patch.2.5.7"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="bluesmoke.c.patch.2.5.7"
+Has vesafb or Video_select support somehow been dropped in the latest stable 
+kernel???
 
-LS0tIGJsdWVzbW9rZS5jCUZyaSBNYXIgMjIgMDE6MDA6NDYgMjAwMgorKysgYmx1ZXNtb2tlLmMu
-bmV3CUZyaSBNYXIgMjIgMDE6MDA6MTYgMjAwMgpAQCAtMyw5ICszLDEyIEBACiAjaW5jbHVkZSA8
-bGludXgvdHlwZXMuaD4KICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4KICNpbmNsdWRlIDxsaW51
-eC9zY2hlZC5oPgorI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPgogI2luY2x1ZGUgPGFzbS9wcm9j
-ZXNzb3IuaD4gCiAjaW5jbHVkZSA8YXNtL21zci5oPgogCisjaWZkZWYgQ09ORklHX1g4Nl9NQ0UK
-Kwogc3RhdGljIGludCBtY2VfZGlzYWJsZWQgX19pbml0ZGF0YSA9IDA7CiAKIC8qCkBAIC00MSwx
-MyArNDQsMTIgQEAKIAkJCWlmKGhpZ2gmKDE8PDI3KSkKIAkJCXsKIAkJCQlyZG1zcihNU1JfSUEz
-Ml9NQzBfTUlTQytpKjQsIGFsb3csIGFoaWdoKTsKLQkJCQlwcmludGsoIlslMDh4JTA4eF0iLCBh
-bG93LCBhaGlnaCk7CisJCQkJcHJpbnRrKCJbJTA4eCUwOHhdIiwgYWhpZ2gsIGFsb3cpOwogCQkJ
-fQogCQkJaWYoaGlnaCYoMTw8MjYpKQogCQkJewogCQkJCXJkbXNyKE1TUl9JQTMyX01DMF9BRERS
-K2kqNCwgYWxvdywgYWhpZ2gpOwotCQkJCXByaW50aygiIGF0ICUwOHglMDh4IiwgCi0JCQkJCWhp
-Z2gsIGxvdyk7CisJCQkJcHJpbnRrKCIgYXQgJTA4eCUwOHgiLCBhaGlnaCwgYWxvdyk7CiAJCQl9
-CiAJCQlwcmludGsoIlxuIik7CiAJCQkvKiBDbGVhciBpdCAqLwpAQCAtMTY3LDkgKzE2OSwyNSBA
-QAogCWlmKGwmKDE8PDgpKQogCQl3cm1zcihNU1JfSUEzMl9NQ0dfQ1RMLCAweGZmZmZmZmZmLCAw
-eGZmZmZmZmZmKTsKIAliYW5rcyA9IGwmMHhmZjsKLQlmb3IoaT0xO2k8YmFua3M7aSsrKQotCXsK
-LQkJd3Jtc3IoTVNSX0lBMzJfTUMwX0NUTCs0KmksIDB4ZmZmZmZmZmYsIDB4ZmZmZmZmZmYpOwor
-CisJLyogQ2hlY2sgQ29yZSB2ZXJzaW9uIGZvciBQNiBvciBQNC9YZW9uICovCisKKwlpZihjLT54
-ODYgPT0gNikJeworCQlwcmludGsoS0VSTl9JTkZPICJEZXRlY3RlZCBQNiBDb3JlLlxuIik7CisJ
-CWZvcihpPTE7aTxiYW5rcztpKyspCQkJLyogTXVzdCBzdGFydCB3aXRoIGJhbmsgMSBmb3IgUDYg
-Q29yZXMgKi8KKwkJeworCQkJd3Jtc3IoTVNSX0lBMzJfTUMwX0NUTCs0KmksIDB4ZmZmZmZmZmYs
-IDB4ZmZmZmZmZmYpOworCQl9CisJfSBlbHNlIGlmKGMtPng4NiA9PSAxNSkgeworCQlwcmludGso
-S0VSTl9JTkZPICJEZXRlY3RlZCBQNC9YZW9uIENvcmUuXG4iKTsKKwkJZm9yKGk9MDtpPGJhbmtz
-O2krKykJCQkvKiBNdXN0IHN0YXJ0IHdpdGggYmFuayAwIGZvciBQZW50aXVtIDQgYW5kIFhlb24g
-UHJvY2Vzc29ycyAqLworCQl7CisJCQl3cm1zcihNU1JfSUEzMl9NQzBfQ1RMKzQqaSwgMHhmZmZm
-ZmZmZiwgMHhmZmZmZmZmZik7CisJCX0KKwl9IGVsc2UgeworCQlwcmludGsoS0VSTl9JTkZPICJV
-bmtub3duIFByb2Nlc3Nvci4gIE1hY2hpbmUgY2hlY2sgYXJjaGl0ZWN0dXJlIG5vdCBlbmFibGVk
-IG9uIENQVSMlZC5cbiIsIHNtcF9wcm9jZXNzb3JfaWQoKSk7CisJCWRvbmUgPSAxOworCQlyZXR1
-cm47CiAJfQogCWZvcihpPTA7aTxiYW5rcztpKyspCiAJewpAQCAtMjQ3LDMgKzI2NSw5IEBACiAK
-IF9fc2V0dXAoIm5vbWNlIiwgbWNoZWNrX2Rpc2FibGUpOwogX19zZXR1cCgibWNlIiwgbWNoZWNr
-X2VuYWJsZSk7CisKKyNlbHNlCithc21saW5rYWdlIHZvaWQgZG9fbWFjaGluZV9jaGVjayhzdHJ1
-Y3QgcHRfcmVncyAqIHJlZ3MsIGxvbmcgZXJyb3JfY29kZSkge30KK3ZvaWQgX19pbml0IG1jaGVj
-a19pbml0KHN0cnVjdCBjcHVpbmZvX3g4NiAqYykge30KKyNlbmRpZgorCg==
---=====================_1121764==_
-Content-Type: application/octet-stream; name="bluesmoke.c.patch.2.4.18"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="bluesmoke.c.patch.2.4.18"
+I have built the kernel on multiple machines with the following .config, and 
+have resorted to downgrading my kernel by systematically decrementing versions, 
+I've gone back as far as 2.4.14 so far, with no luck in initializing the vesafb.
 
-LS0tIGJsdWVzbW9rZS5jCUZyaSBNYXIgMjIgMDE6MDE6MTkgMjAwMgorKysgYmx1ZXNtb2tlLmMu
-bmV3CUZyaSBNYXIgMjIgMDE6MDA6MTYgMjAwMgpAQCAtMyw5ICszLDEyIEBACiAjaW5jbHVkZSA8
-bGludXgvdHlwZXMuaD4KICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4KICNpbmNsdWRlIDxsaW51
-eC9zY2hlZC5oPgorI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPgogI2luY2x1ZGUgPGFzbS9wcm9j
-ZXNzb3IuaD4gCiAjaW5jbHVkZSA8YXNtL21zci5oPgogCisjaWZkZWYgQ09ORklHX1g4Nl9NQ0UK
-Kwogc3RhdGljIGludCBtY2VfZGlzYWJsZWQgX19pbml0ZGF0YSA9IDA7CiAKIC8qCkBAIC00MSwx
-MyArNDQsMTIgQEAKIAkJCWlmKGhpZ2gmKDE8PDI3KSkKIAkJCXsKIAkJCQlyZG1zcihNU1JfSUEz
-Ml9NQzBfTUlTQytpKjQsIGFsb3csIGFoaWdoKTsKLQkJCQlwcmludGsoIlslMDh4JTA4eF0iLCBh
-bG93LCBhaGlnaCk7CisJCQkJcHJpbnRrKCJbJTA4eCUwOHhdIiwgYWhpZ2gsIGFsb3cpOwogCQkJ
-fQogCQkJaWYoaGlnaCYoMTw8MjYpKQogCQkJewogCQkJCXJkbXNyKE1TUl9JQTMyX01DMF9BRERS
-K2kqNCwgYWxvdywgYWhpZ2gpOwotCQkJCXByaW50aygiIGF0ICUwOHglMDh4IiwgCi0JCQkJCWFo
-aWdoLCBhbG93KTsKKwkJCQlwcmludGsoIiBhdCAlMDh4JTA4eCIsIGFoaWdoLCBhbG93KTsKIAkJ
-CX0KIAkJCXByaW50aygiXG4iKTsKIAkJCS8qIENsZWFyIGl0ICovCkBAIC0xNjcsOSArMTY5LDI1
-IEBACiAJaWYobCYoMTw8OCkpCiAJCXdybXNyKE1TUl9JQTMyX01DR19DVEwsIDB4ZmZmZmZmZmYs
-IDB4ZmZmZmZmZmYpOwogCWJhbmtzID0gbCYweGZmOwotCWZvcihpPTE7aTxiYW5rcztpKyspCi0J
-ewotCQl3cm1zcihNU1JfSUEzMl9NQzBfQ1RMKzQqaSwgMHhmZmZmZmZmZiwgMHhmZmZmZmZmZik7
-CisKKwkvKiBDaGVjayBDb3JlIHZlcnNpb24gZm9yIFA2IG9yIFA0L1hlb24gKi8KKworCWlmKGMt
-Png4NiA9PSA2KQl7CisJCXByaW50ayhLRVJOX0lORk8gIkRldGVjdGVkIFA2IENvcmUuXG4iKTsK
-KwkJZm9yKGk9MTtpPGJhbmtzO2krKykJCQkvKiBNdXN0IHN0YXJ0IHdpdGggYmFuayAxIGZvciBQ
-NiBDb3JlcyAqLworCQl7CisJCQl3cm1zcihNU1JfSUEzMl9NQzBfQ1RMKzQqaSwgMHhmZmZmZmZm
-ZiwgMHhmZmZmZmZmZik7CisJCX0KKwl9IGVsc2UgaWYoYy0+eDg2ID09IDE1KSB7CisJCXByaW50
-ayhLRVJOX0lORk8gIkRldGVjdGVkIFA0L1hlb24gQ29yZS5cbiIpOworCQlmb3IoaT0wO2k8YmFu
-a3M7aSsrKQkJCS8qIE11c3Qgc3RhcnQgd2l0aCBiYW5rIDAgZm9yIFBlbnRpdW0gNCBhbmQgWGVv
-biBQcm9jZXNzb3JzICovCisJCXsKKwkJCXdybXNyKE1TUl9JQTMyX01DMF9DVEwrNCppLCAweGZm
-ZmZmZmZmLCAweGZmZmZmZmZmKTsKKwkJfQorCX0gZWxzZSB7CisJCXByaW50ayhLRVJOX0lORk8g
-IlVua25vd24gUHJvY2Vzc29yLiAgTWFjaGluZSBjaGVjayBhcmNoaXRlY3R1cmUgbm90IGVuYWJs
-ZWQgb24gQ1BVIyVkLlxuIiwgc21wX3Byb2Nlc3Nvcl9pZCgpKTsKKwkJZG9uZSA9IDE7CisJCXJl
-dHVybjsKIAl9CiAJZm9yKGk9MDtpPGJhbmtzO2krKykKIAl7CkBAIC0yNDcsMyArMjY1LDkgQEAK
-IAogX19zZXR1cCgibm9tY2UiLCBtY2hlY2tfZGlzYWJsZSk7CiBfX3NldHVwKCJtY2UiLCBtY2hl
-Y2tfZW5hYmxlKTsKKworI2Vsc2UKK2FzbWxpbmthZ2Ugdm9pZCBkb19tYWNoaW5lX2NoZWNrKHN0
-cnVjdCBwdF9yZWdzICogcmVncywgbG9uZyBlcnJvcl9jb2RlKSB7fQordm9pZCBfX2luaXQgbWNo
-ZWNrX2luaXQoc3RydWN0IGNwdWluZm9feDg2ICpjKSB7fQorI2VuZGlmCisK
---=====================_1121764==_--
+I have the vesafb working under 2.4.5, but really would like to avoid going 
+that far back.
+
+Following is the FB specific portion of my .config
+
+# Console drivers
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+# Frame-buffer support
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_ADVANCED=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FBCON_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
 

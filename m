@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281205AbRKLB4y>; Sun, 11 Nov 2001 20:56:54 -0500
+	id <S281216AbRKLCUJ>; Sun, 11 Nov 2001 21:20:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281212AbRKLB4p>; Sun, 11 Nov 2001 20:56:45 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:23517 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S281205AbRKLB4l>;
-	Sun, 11 Nov 2001 20:56:41 -0500
+	id <S281217AbRKLCT7>; Sun, 11 Nov 2001 21:19:59 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:6622 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S281216AbRKLCTr>;
+	Sun, 11 Nov 2001 21:19:47 -0500
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Thomas Hood <jdthood@home.dhs.org>, linux-kernel@vger.kernel.org,
-        jdthood@mail.com
-Subject: Re: [PATCH] parport_pc to use pnpbios_register_driver() 
-In-Reply-To: Your message of "Sun, 11 Nov 2001 21:42:34 BST."
-             <Pine.LNX.4.33.0111112134430.1518-100000@vaio> 
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC-ONT (on topic)] Modprobe enhancement (was Re: "Dance of the Trolls") 
+In-Reply-To: Your message of "Sun, 11 Nov 2001 16:49:46 PDT."
+             <004601c16b0b$8b04bb80$f5976dcf@nwfs> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 12 Nov 2001 12:56:29 +1100
-Message-ID: <32053.1005530189@kao2.melbourne.sgi.com>
+Date: Mon, 12 Nov 2001 13:19:35 +1100
+Message-ID: <32224.1005531575@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Nov 2001 21:42:34 +0100 (CET), 
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
->linux/isapnp.h has the following code:
+On Sun, 11 Nov 2001 16:49:46 -0700, 
+"Jeff V. Merkey" <jmerkey@timpanogas.org> wrote:
+>Anton,
 >
->---
->#if defined(CONFIG_ISAPNP) || (defined(CONFIG_ISAPNP_MODULE) && defined(MODULE))
-> 
->#define __ISAPNP__
->---
->
->I believe the pnpbios driver should do things something similar. Users of 
->the interface should then only check for #ifdef __PNPBIOS__.
->
->The reasoning behind this is the following: When you have a driver 
->built-in, but pnpbios modular, the driver cannot use pnpbios 
->functionality. The above definition reflects exactly this.
+>This is a great suggestion.  You should ping Keith Owens (does he own
+>modutils, I think so) and make it happen.  A much desireable change.
+>----- Original Message -----
+>From: "Anton Altaparmakov" <aia21@cus.cam.ac.uk>
+>> I think we ought to do the same with closed source drivers. It's true
+>> after all... The whole point of tainting the kernel is so we can just yell
+>> at users to go and bug the vendor. So the modprobe executable could warn
+>> the user "hey, you are loading a binary only module, it can break the
+>> system, are you sure?". If the module is autoloaded we don't do jumping
+>> through hoops asking questions so the systen runs smoothly.
 
-Does this combination make sense?  If you are building a pnpbios driver
-into the kernel then the configuration should force pnpbios support to
-be built in as well.  We don't allow this combination for things like
-scsi or ide, they require the common support to be built in if any
-drivers are built in.  IMHO this problem should be fixed in .config,
-not in driver source.
+Modutils 2.4.9 onwards gives a warning when loading tainted modules,
+including a reason why the tainting occurred.  I will not accept
+anything stronger than a warning, that is the Unix way(TM), give the
+user enough rope to hang themselves.
 

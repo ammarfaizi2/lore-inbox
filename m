@@ -1,26 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290084AbSBFFZO>; Wed, 6 Feb 2002 00:25:14 -0500
+	id <S290109AbSBFFwo>; Wed, 6 Feb 2002 00:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290098AbSBFFZE>; Wed, 6 Feb 2002 00:25:04 -0500
-Received: from dsl254-112-136.nyc1.dsl.speakeasy.net ([216.254.112.136]:56721
-	"EHLO www2.mrbrklyn.com") by vger.kernel.org with ESMTP
-	id <S290084AbSBFFY4>; Wed, 6 Feb 2002 00:24:56 -0500
-Date: Wed, 6 Feb 2002 00:24:33 -0500
-From: Ruben Safir <ruben@mrbrklyn.com>
-To: Stevie O <stevie@qrpff.net>
+	id <S290113AbSBFFwe>; Wed, 6 Feb 2002 00:52:34 -0500
+Received: from node035.tokaiasia.com.hk ([202.76.99.35]:39941 "HELO
+	hkexma00.tokaiasia.com.hk") by vger.kernel.org with SMTP
+	id <S290109AbSBFFwa>; Wed, 6 Feb 2002 00:52:30 -0500
+Message-ID: <F799E3404E90D411BA5300508BE311CEB586EB@HKEXMA00>
+From: Anthony Kong <anthony.kong@ufjia.com>
+To: "'ruben@mrbrklyn.com'" <ruben@mrbrklyn.com>, Stevie O <stevie@qrpff.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: windows is more secure than linux!!
-Message-ID: <20020206002433.A21151@www2.mrbrklyn.com>
-Reply-To: ruben@mrbrklyn.com
-In-Reply-To: <B0C77D98347F826499A03C1FE22DE33B@william.fitzgerald2.beer. com> <5.1.0.14.2.20020206001038.00ab7490@whisper.qrpff.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <5.1.0.14.2.20020206001038.00ab7490@whisper.qrpff.net>; from stevie@qrpff.net on Wed, Feb 06, 2002 at 00:12:51 -0500
-X-Mailer: Balsa 1.2.3
+Subject: RE: windows is more secure than linux!!
+Date: Wed, 6 Feb 2002 13:52:12 +0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Probably time to stop this discussion. If you guys still want to discusss,
+it should be in some advocate groups?
+
+Let's this list back to what it is set up for.
+
+Thanks,
+
+
+Anthony
+
+P.S. We are no Big Corporates and are not targeting (enlarging) market
+share, and hence not interested in marketing gimmick, aren't we? (if you
+disagree, please also respond to it in some other newsgroup :-)
+
+
+-----Original Message-----
+From: Ruben Safir [mailto:ruben@mrbrklyn.com]
+Sent: Wednesday, February 06, 2002 1:25 PM
+To: Stevie O
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: windows is more secure than linux!!
+
 
 So crack monkey removes windows with an HTML hit
 
@@ -72,7 +92,8 @@ http://www.mrbrklyn.com - Consulting
 http://www.brooklynonline.com - For the love of Brooklyn
 http://www.nylxs.com - Leadership Development in Free Software
 http://www.nyfairuse.org - The foundation of Democracy
-http://www2.mrbrklyn.com/resources - Unpublished Archive or stories and articles from around the net
+http://www2.mrbrklyn.com/resources - Unpublished Archive or stories and
+articles from around the net
 http://www2.mrbrklyn.com/mp3/hooked.mp3 - Spring is coming....
 http://www2.mrbrklyn.com/downtown.html - See the New Downtown Brooklyn....
 
@@ -80,3 +101,8 @@ http://www2.mrbrklyn.com/downtown.html - See the New Downtown Brooklyn....
 
 
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

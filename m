@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbUKJGVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbUKJGb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261902AbUKJGVg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 01:21:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUKJGVg
+	id S261904AbUKJGb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 01:31:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbUKJGb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 01:21:36 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:5509 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261902AbUKJGVA (ORCPT
+	Wed, 10 Nov 2004 01:31:58 -0500
+Received: from mail.gmx.net ([213.165.64.20]:39646 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261904AbUKJGb4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 01:21:00 -0500
-Date: Wed, 10 Nov 2004 07:20:59 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Patrick Mau <mau@oscar.ping.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Workaround for wrapping loadaverage
-Message-ID: <20041110062059.GA20467@mail.13thfloor.at>
-Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
-	Patrick Mau <mau@oscar.ping.de>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20041108001932.GA16641@oscar.prima.de> <20041108012707.1e141772.akpm@osdl.org> <20041108102553.GA31980@oscar.prima.de> <20041108155051.53c11fff.akpm@osdl.org> <20041109004335.GA1822@oscar.prima.de> <20041109185103.GE29661@mail.13thfloor.at> <41913B75.1050500@kolivas.org>
-Mime-Version: 1.0
+	Wed, 10 Nov 2004 01:31:56 -0500
+X-Authenticated: #21910825
+Message-ID: <4191B5D8.3090700@gmx.net>
+Date: Wed, 10 Nov 2004 07:31:52 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Robert Love <rml@novell.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] kmem_alloc (generic wrapper for kmalloc and	vmalloc)
+References: <4191A4E2.7040502@gmx.net> <1100066597.18601.124.camel@localhost>
+In-Reply-To: <1100066597.18601.124.camel@localhost>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41913B75.1050500@kolivas.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 08:49:41AM +1100, Con Kolivas wrote:
-> Herbert Poetzl wrote:
-> >but I agree that a higher resolution would be a good
-> >idea ... also doing the calculation when the number
-> >of running/uninterruptible processes has changed would
-> >be a good idea ...
+Robert Love schrieb:
+> On Wed, 2004-11-10 at 06:19 +0100, Carl-Daniel Hailfinger wrote:
 > 
-> This could get very expensive. A modern cpu can do about 700,000 context 
-> switches per second of a real task with the current linux kernel so I'd 
-> suggest not doing this.
+>>Hi,
+>>
+>>it seems there is a bunch of drivers which want to allocate memory as
+>>efficiently as possible in a wide range of allocation sizes. XFS and
+>>NTFS seem to be examples. Implement a generic wrapper to reduce code
+>>duplication.
+>>Functions have the my_ prefixes to avoid name clash with XFS.
+> 
+> 
+> No, no, no.  A good patch would be fixing places where you see this.
+> 
+> Code needs to conscientiously decide to use vmalloc over kmalloc.  The
+> behavior is different and the choice needs to be explicit.
 
-hmm, right it can, do you have any stats about the
-'typical' workload behaviour? 
+Yes, but what do you suggest for the following problem:
+alloc(max_loop*sizeof(struct loop_device))
 
-do you know the average time between changes of 
-nr_running and nr_uninterruptible?
+where sizeof(struct loop_device)==304 and 1<=max_loop<=16384
 
-TIA,
-Herbert
-
-> Cheers,
-> Con
+For the smallest allocation (304 bytes) vmalloc is clearly wasteful
+and for the largest allocation (~ 5 MBytes) kmalloc doesn't work.
 
 
+Regards,
+Carl-Daniel

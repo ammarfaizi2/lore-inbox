@@ -1,126 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284117AbRLROdS>; Tue, 18 Dec 2001 09:33:18 -0500
+	id <S284133AbRLROdS>; Tue, 18 Dec 2001 09:33:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284122AbRLROdI>; Tue, 18 Dec 2001 09:33:08 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:10407 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S284133AbRLROdD>; Tue, 18 Dec 2001 09:33:03 -0500
-Message-ID: <3C1F5311.2070407@t-online.de>
-Date: Tue, 18 Dec 2001 15:30:41 +0100
-From: Hans-Otto.Ahl@t-online.de (Hans-Otto Ahl)
-Organization: root
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S284117AbRLROdH>; Tue, 18 Dec 2001 09:33:07 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:36051 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S284122AbRLROdD>;
+	Tue, 18 Dec 2001 09:33:03 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2A05@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: The direction linux is taking
+Date: Tue, 18 Dec 2001 06:32:55 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: bug in 2.5.1
-In-Reply-To: <8A43C34093B3D5119F7D0004AC56F4BCC3441C@difpst1a.dif.dk> <3C1F305C.9030702@t-online.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans-Otto Ahl wrote:
+> 1. Are we satisfied with the source code control system ?
 
-> Jesper Juhl wrote:
-> 
->  >  > Hi chaps, sorry to inform you about a problem in 'ide-floppy' drivers
->  >  > and in the module as well.
->  >
->  > Unless you provide some details on the nature of the problem, your
->  > report will probably just be ignored. If you have really found a problem
->  > you should submit a detailed bugreport - a good start is to fill out the
->  > following bug-report form:
->  >
->  >
->  >          B. APPENDIX B - LINUX KERNEL MAILING LIST BUG REPORT FORM
->  >
->  >
->  >
->  >    Please use the following form to report bugs to the Linux kernel
->  >    mailing list. Having a standardized bug report form makes it easier
->  >    for you not to overlook things, and easier for the developers to find
->  >    just the little tad of information they're really interested in.
->  >
->  >    First run the ver_linux script included at the end of this 
-> Appendix or
->  >    at <URL:ftp://ftp.sai.msu.su//sai2/ftp/pub/Linux/ver_linux> It checks
->  >    out the version of some important subsystems.
->  >
->  >    Use that information to fill in all fields of the bug report form, 
-> and
->  >    post it to the mailing list with a subject of "ISSUE: <one line
->  >    summary from [1.]>" for easy identification by the developers
->  >     [1.] One line summary of the problem:
->  >     [2.] Full description of the problem/report:
->  >     [3.] Keywords (i.e., modules, networking, kernel):
->  >     [4.] Kernel version (from /proc/version):
->  >     [5.] Output of Oops.. message with symbolic information resolved
->  >            (see Kernel Mailing List FAQ, Section 1.5):
->  >     [6.] A small shell script or example program which triggers the
->  >          problem (if possible)
->  >     [7.] Environment
->  >     [7.1.] Software (add the output of the ver_linux script here)
->  >     [7.2.] Processor information (from /proc/cpuinfo):
->  >     [7.3.] Module information (from /proc/modules):
->  >     [7.4.] SCSI information (from /proc/scsi/scsi):
->  >     [7.5.] Other information that might be relevant to the problem
->  >            (please look in /proc and include all information that you
->  >             think to be relevant):
->  >     [X.] Other notes, patches, fixes, workarounds:
->  >
->  >
->  >
->  > Best regards,
->  > Jesper Juhl
->  > jju@dif.dk
->  >
-> 
-> OK friends, this report will describe the problem:
-> I am running kernel 2.5.0 patched with 2.5.1-pre1 which is running alright.
-> I tried to compile the new development kernel 2.5.1 of the 16th Dec.
-> 2001 and found out that the compilation was stopped with errors at the
-> ide-floppy driver. After I changed the configuration of the kernel in
-> that way that I changed ide-floppy to a module and compiled the new
-> configuration. Making the modules was stopped by giving the same error
-> messages as follows:
-> -------------------
-> ide-floppy.c:      in function 'idefloppy_end_request'
-> ide-floppy.c: 699: warning: comparison between pointer and integer
-> 
->                     in function 'idefloppy_queue_pc_head'
->                779: incompatible types in assignment
-> 
->                     in function 'idefloppy_create_rw_cmd'
->               1214: warning: comparison between pointer and integer
-> 
->                     in function 'idefloppy_do_request'
->               1243: switch quantity not an integer
->               1258: warning: unsigned int format, pointer arg (arg2)
->               1246: warning: unreachable code at beginning of switch
-> 
->                              statement
-> 
->                     in function 'idefloppy_queue_pc_tail'
->               1276: incompatible types in assignment
-> -------------------
-> [ide-floppy.o] error1
-> [_modsubdir_ide] error2
-> [mod_drivers] error2
-> 
-> make modules was stopped.
-> 
-> 
-> 
-> These messages I got. My compiler version is gcc 2.95.3
-> I hope You can look after that and fix it.
-> Regards, Hans
-> 
-> 
-> 
-> 
-> 
+Yes.  Alan (2.2) and Marcelo (2.4) and Linus (2.5) are doing
+a good job with source control.
 
+The fact the 'source control' is a person and not a piece
+of software is irrelevant.
 
+> 2. Is there enough planning for documentation ? As another
+> poster mentioned, there are new API and we dont know about
+> them.
 
+Although this seems annoying, it's just one facet of the
+primary difference between Linux and a commercially based
+kernel : if you want to know how something works and how
+it's being developed, then you MUST participate, in this
+and other mailing lists.
+
+I, for example, don't particularly care about the structures
+that define the block interfaces in the kernel : I don't use
+them.  I do, however, care about networking things, so I follow
+linux-kernel and linux-net (and several other lists) to make
+sure I'm up to date.  I am applying an inherent trust in the
+people developing the block code, trusting that they will do
+a good job and have a stable platform for my networking needs :)
+
+> 3. There is no central bug tracking database. At least people
+> should know the status of the bugs they have found with some
+> releases.
+
+There is no central product, so there can be no central bug track.
+(see below)
+
+> 4. Aggressive nature of this mailing list itself may be a
+> turn off to many who would like to contribute.
+
+You're missing something again.
+
+I think this is a FAQ, so maybe we can develop a form response
+here.  Feel free to edit the following :
+
+What is Linux?  (The LKML definition)
+Linux is a free, open source kernel that is used by many people
+as the center for their operating system.  The operating system
+as a whole is NOT Linux.  Linux is just the kernel.
+
+"RedHat Linux" is an example of an entire operating system that
+uses the Linux kernel and adds lots of other software around it
+to make an entire operating system.
+
+Similarly, Lineo makes an embedded product that starts with the
+same kernel code.  It doesn't target ANY of the same users that
+RedHat Linux targets, but that doesn't make it any less significant.
+
+Why is this distinction important?  Because in LKML we are not
+trying to define the way that the kernel is used, we are not
+trying to take over the desktop world, we are not trying to
+take over the supercomputing world, and we are not trying to
+become the next microsoft.  We are trying to make the best
+kernel available, and that means that we support dozens of
+different hardware platforms and thousands of different
+operating environments.
+
+LKML is a place where lots of developers who work on the Linux
+kernel talk about different things (usually) pertaining to the
+kernel source code and ways of improving it, by bug fixing, by
+feature additions, or by code/API re-writing.
+
+If you've worked in a pure development environment then you have
+probably observed that people with ideas can become quite vocal
+when defending their ideas, and because LKML is email based we
+probably seem to be more, ah, vocal than most.  If you can't
+handle this kind of environment, then stick to Kernel Traffic.
+(http://kt.zork.net/)
+
+Does that answer your question?
+
+Dana Lacoste
+Linux Developer
+Ottawa, Canada

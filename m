@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132859AbRDXWTQ>; Tue, 24 Apr 2001 18:19:16 -0400
+	id <S132892AbRDXWUQ>; Tue, 24 Apr 2001 18:20:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132892AbRDXWTH>; Tue, 24 Apr 2001 18:19:07 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:37892 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S132859AbRDXWSt>; Tue, 24 Apr 2001 18:18:49 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Compiled sound causes loss of scrollback console : 2.4.4-p6
-Reply-To: klink@clouddancer.com
-Message-Id: <20010424221843.7F6006808@mail.clouddancer.com>
-Date: Tue, 24 Apr 2001 15:18:43 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+	id <S132922AbRDXWT6>; Tue, 24 Apr 2001 18:19:58 -0400
+Received: from [209.250.58.48] ([209.250.58.48]:11012 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S132892AbRDXWTn>; Tue, 24 Apr 2001 18:19:43 -0400
+Date: Tue, 24 Apr 2001 17:19:04 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: jgarzik@mandrakesoft.com, tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] properly detect ActionTec modem of PCI_CLASS_COMMUNICATION_OTHER
+Message-ID: <20010424171904.A404@hapablap.dyn.dhs.org>
+In-Reply-To: <20010424160310.A338@hapablap.dyn.dhs.org> <3AE5EDAC.AF06F124@didntduck.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AE5EDAC.AF06F124@didntduck.org>; from bgerst@didntduck.org on Tue, Apr 24, 2001 at 05:18:36PM -0400
+X-Uptime: 4:54pm  up 1 min,  1 user,  load average: 1.80, 0.71, 0.26
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While tracking down a sound problem, I decided to compile in the
-soundblaster rather than use modules.  It's been a long time since I
-ran sound under linux, but that used to work fine.
+On Tue, Apr 24, 2001 at 05:18:36PM -0400, Brian Gerst wrote:
+> Steven Walter wrote:
+> > 
+> > This patch allows the serial driver to properly detect and set up the
+> > ActionTec PCI modem.  This modem has a PCI class of COMMUNICATION_OTHER,
+> > which is why this modem is not otherwise detected.
+> > 
+> > Any suggestions on the patch are welcome.  Thanks
+> 
+> A small suggestion:  Vendor/device id are sufficient to identify the
+> device.  You can change PCI_CLASS_COMMUNICATION_OTHER << 8 to 0.
 
-I watched the reboot, noticed the usual isapnp stuff (part of problem)
+Excellent suggestion.  Follows is the amended patch.  Compiled and
+tested to work.  BTW: patch is against 2.4.3.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
 
-...
-PCI: Probing PCI hardware
-Limiting direct PCI/PCI transfers.
-Activating ISA DMA hang workarounds.
-isapnp: Scanning for PnP cards...
-isapnp: Calling quirk for 01:00
-isapnp: SB audio device quirk - increasing port range
-isapnp: Card 'Creative SB16 PnP'
-isapnp: 1 Plug & Play card detected total
-...
-
-and then noticed that there were no soundblaster messages and tried to
-scrollback to verify.  Pressing Shift-PageUp did absolutely nothing.
-
-The only change was to move from modules to compiled for sound, OSS,
-and soundblaster.  Booting the previous kernel(s) showed a working
-scrollback.  2.4.4-pre6 compiled under gcc 2.95.3 20010315 release.
+--- clean-2.4.3/drivers/char/serial.c	Fri Mar 30 23:15:33 2001
++++ linux/drivers/char/serial.c	Tue Apr 24 16:32:02 2001
+@@ -4706,6 +4728,8 @@
+ 
+ 
+ static struct pci_device_id serial_pci_tbl[] __devinitdata = {
++       { PCI_VENDOR_ID_ATT, PCI_DEVICE_ID_ATT_VENUS_MODEM,
++         PCI_ANY_ID, PCI_ANY_ID, },
+        { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+ 	 PCI_CLASS_COMMUNICATION_SERIAL << 8, 0xffff00, },
+        { 0, }

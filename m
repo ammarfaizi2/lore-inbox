@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315214AbSF3PCM>; Sun, 30 Jun 2002 11:02:12 -0400
+	id <S315218AbSF3PFn>; Sun, 30 Jun 2002 11:05:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315218AbSF3PCL>; Sun, 30 Jun 2002 11:02:11 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:29202 "EHLO
+	id <S315222AbSF3PFm>; Sun, 30 Jun 2002 11:05:42 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:32274 "EHLO
 	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S315214AbSF3PCE>; Sun, 30 Jun 2002 11:02:04 -0400
-Subject: [BK-PATCH-2.5] NTFS: 2.0.11 - Initial preparations for fake inode based attribute i/o.
+	id <S315218AbSF3PFd>; Sun, 30 Jun 2002 11:05:33 -0400
+Subject: [BK-PATCH-2.5] NTFS: 2.0.12 - Initial cleanup of address space operations following 2.0.11 changes.
 To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sun, 30 Jun 2002 16:04:27 +0100 (BST)
+Date: Sun, 30 Jun 2002 16:07:20 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org (Linux Kernel)
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17OgFX-0003uv-00@storm.christs.cam.ac.uk>
+Message-Id: <E17OgIK-0003v8-00@storm.christs.cam.ac.uk>
 From: Anton Altaparmakov <aia21@cantab.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -23,11 +23,9 @@ Linus, please do a
 
 	bk pull http://linux-ntfs.bkbits.net/ntfs-tng-2.5
 
-Thanks!
+As noted in previous post, the above url also contains ntfs 2.0.13...
 
-Note the above repository also contains NTFS 2.0.12 and 2.0.13 which I am
-also sending as incremental patches in a minute... Patches are all tested
-and work fine in my testing.
+Thanks!
 
 Best regards,
 
@@ -40,465 +38,102 @@ WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 This will update the following files:
 
  Documentation/filesystems/ntfs.txt |    3 
- fs/ntfs/ChangeLog                  |   34 ++++++++-
+ fs/ntfs/ChangeLog                  |   24 +-
  fs/ntfs/Makefile                   |    2 
- fs/ntfs/dir.c                      |    2 
- fs/ntfs/dir.h                      |    2 
- fs/ntfs/inode.c                    |  133 +++++++++++++++++++++++++------------
- fs/ntfs/inode.h                    |  129 +++++++++++++++++++++++++++++++----
- fs/ntfs/mft.c                      |   12 +--
- fs/ntfs/ntfs.h                     |   35 ---------
- fs/ntfs/super.c                    |    9 +-
- 10 files changed, 252 insertions(+), 109 deletions(-)
+ fs/ntfs/aops.c                     |  412 ++++++++++---------------------------
+ fs/ntfs/mft.c                      |    2 
+ 5 files changed, 139 insertions(+), 304 deletions(-)
 
 through these ChangeSets:
 
-<aia21@cantab.net> (02/06/25 1.603.1.1)
-   NTFS: 2.0.11 - Initial preparations for fake inode based attribute i/o.
-   - Move definition of ntfs_inode_state_bits to fs/ntfs/inode.h and
-     do some macro magic (adapted from include/linux/buffer_head.h) to
-     expand all the helper functions NInoFoo(), NInoSetFoo(), and
-     NInoClearFoo().
-   - Add new flag to ntfs_inode_state_bits: NI_Sparse.
-   - Add new fields to ntfs_inode structure to allow use of fake inodes
-     for attribute i/o: type, name, name_len. Also add new state bits:
-     NI_Attr, which, if set, indicates the inode is a fake inode, and
-     NI_MstProtected, which, if set, indicates the attribute uses multi
-     sector transfer protection, i.e. fixups need to be applied after
-     reads and before/after writes.
-   - Rename fs/ntfs/inode.c::ntfs_{new,clear,destroy}_inode() to
-     ntfs_{new,clear,destroy}_extent_inode() and update callers.
-   - Use ntfs_clear_extent_inode() in fs/ntfs/inode.c::__ntfs_clear_inode()
-     instead of ntfs_destroy_extent_inode().
-   - Cleanup memory deallocations in {__,}ntfs_clear_{,big_}inode().
-   - Make all operations on ntfs inode state bits use the NIno* functions.
-   - Set up the new ntfs inode fields and state bits in
-     fs/ntfs/inode.c::ntfs_read_inode() and add appropriate cleanup of
-     allocated memory to __ntfs_clear_inode().
-   - Cleanup ntfs_inode structure a bit for better ordering of elements
-     w.r.t. their size to allow better packing of the structure in memory.
+<aia21@cantab.net> (02/06/26 1.603.1.2)
+   NTFS: 2.0.12 - Initial cleanup of address space operations following 2.0.11 changes.
+   - Merge fs/ntfs/aops.c::end_buffer_read_mst_async() and
+     fs/ntfs/aops.c::end_buffer_read_file_async() into one function
+     fs/ntfs/aops.c::end_buffer_read_attr_async() using NInoMstProtected()
+     to determine whether to apply mst fixups or not.
+   - Above change allows merging fs/ntfs/aops.c::ntfs_file_read_block()
+     and fs/ntfs/aops.c::ntfs_mst_readpage() into one function
+     fs/ntfs/aops.c::ntfs_attr_read_block(). Also, create a tiny wrapper
+     fs/ntfs/aops.c::ntfs_mst_readpage() to transform the parameters from
+     the VFS readpage function prototype to the ntfs_attr_read_block()
+     function prototype.
 
 
 diff -Nru a/Documentation/filesystems/ntfs.txt b/Documentation/filesystems/ntfs.txt
---- a/Documentation/filesystems/ntfs.txt	Sun Jun 30 13:16:02 2002
-+++ b/Documentation/filesystems/ntfs.txt	Sun Jun 30 13:16:02 2002
+--- a/Documentation/filesystems/ntfs.txt	Sun Jun 30 13:42:23 2002
++++ b/Documentation/filesystems/ntfs.txt	Sun Jun 30 13:42:23 2002
 @@ -247,6 +247,9 @@
  
  Note, a technical ChangeLog aimed at kernel hackers is in fs/ntfs/ChangeLog.
  
-+2.0.11:
-+	- Internal updates and cleanups introducing the first step towards
-+	  fake inode based attribute i/o.
- 2.0.10:
- 	- Microsoft says that the maximum number of inodes is 2^32 - 1. Update
- 	  the driver accordingly to only use 32-bits to store inode numbers on
++2.0.12:
++	- Internal cleanups in address space operations made possible by the
++	  changes introduced in the previous release.
+ 2.0.11:
+ 	- Internal updates and cleanups introducing the first step towards
+ 	  fake inode based attribute i/o.
 diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
---- a/fs/ntfs/ChangeLog	Sun Jun 30 13:16:02 2002
-+++ b/fs/ntfs/ChangeLog	Sun Jun 30 13:16:02 2002
-@@ -21,7 +21,34 @@
- 	  several copies of almost identicall functions and the functions are
- 	  quite big. Modularising them a bit, e.g. a-la get_block(), will make
- 	  them cleaner and make code reuse easier.
--	- Want to use dummy inodes for address space i/o.
-+	- Enable NFS exporting of NTFS.
-+	- Use iget5_locked() and friends instead of conventional iget().
-+	- Use fake inodes for address space i/o.
+--- a/fs/ntfs/ChangeLog	Sun Jun 30 13:42:23 2002
++++ b/fs/ntfs/ChangeLog	Sun Jun 30 13:42:23 2002
+@@ -6,7 +6,7 @@
+ 	  user open()s a file with i_size > s_maxbytes? Should read_inode()
+ 	  truncate the visible i_size? Will the user just get -E2BIG (or
+ 	  whatever) on open()? Or will (s)he be able to open() but lseek() and
+-	  read() will fail when s_maxbytes is reached? -> Investigate this!
++	  read() will fail when s_maxbytes is reached? -> Investigate this.
+ 	- Implement/allow non-resident index bitmaps in dir.c::ntfs_readdir()
+ 	  and then also consider initialized_size w.r.t. the bitmaps, etc.
+ 	- vcn_to_lcn() should somehow return the correct pointer within the
+@@ -17,13 +17,27 @@
+ 	- Consider if ntfs_file_read_compressed_block() shouldn't be coping
+ 	  with initialized_size < data_size. I don't think it can happen but
+ 	  it requires more careful consideration.
+-	- CLEANUP: Modularise and reuse code in aops.c. At the moment we have
+-	  several copies of almost identicall functions and the functions are
+-	  quite big. Modularising them a bit, e.g. a-la get_block(), will make
+-	  them cleaner and make code reuse easier.
++	- CLEANUP: At the moment we have two copies of almost identical
++	  functions in aops.c, can merge them once fake inode address space
++	  based attribute i/o is further developed.
++	- CLEANUP: Modularising code in aops.c a bit, e.g. a-la get_block(),
++	  will be cleaner and make code reuse easier.
+ 	- Enable NFS exporting of NTFS.
+ 	- Use iget5_locked() and friends instead of conventional iget().
+ 	- Use fake inodes for address space i/o.
 +
-+2.0.11 - Initial preparations for fake inode based attribute i/o.
++2.0.12 - Initial cleanup of address space operations following 2.0.11 changes.
 +
-+	- Move definition of ntfs_inode_state_bits to fs/ntfs/inode.h and
-+	  do some macro magic (adapted from include/linux/buffer_head.h) to
-+	  expand all the helper functions NInoFoo(), NInoSetFoo(), and
-+	  NInoClearFoo().
-+	- Add new flag to ntfs_inode_state_bits: NI_Sparse.
-+	- Add new fields to ntfs_inode structure to allow use of fake inodes
-+	  for attribute i/o: type, name, name_len. Also add new state bits:
-+	  NI_Attr, which, if set, indicates the inode is a fake inode, and
-+	  NI_MstProtected, which, if set, indicates the attribute uses multi
-+	  sector transfer protection, i.e. fixups need to be applied after
-+	  reads and before/after writes.
-+	- Rename fs/ntfs/inode.c::ntfs_{new,clear,destroy}_inode() to
-+	  ntfs_{new,clear,destroy}_extent_inode() and update callers.
-+	- Use ntfs_clear_extent_inode() in fs/ntfs/inode.c::__ntfs_clear_inode()
-+	  instead of ntfs_destroy_extent_inode().
-+	- Cleanup memory deallocations in {__,}ntfs_clear_{,big_}inode().
-+	- Make all operations on ntfs inode state bits use the NIno* functions.
-+	- Set up the new ntfs inode fields and state bits in
-+	  fs/ntfs/inode.c::ntfs_read_inode() and add appropriate cleanup of
-+	  allocated memory to __ntfs_clear_inode().
-+	- Cleanup ntfs_inode structure a bit for better ordering of elements
-+	  w.r.t. their size to allow better packing of the structure in memory.
++	- Merge fs/ntfs/aops.c::end_buffer_read_mst_async() and
++	  fs/ntfs/aops.c::end_buffer_read_file_async() into one function
++	  fs/ntfs/aops.c::end_buffer_read_attr_async() using NInoMstProtected()
++	  to determine whether to apply mst fixups or not.
++	- Above change allows merging fs/ntfs/aops.c::ntfs_file_read_block()
++	  and fs/ntfs/aops.c::ntfs_mst_readpage() into one function
++	  fs/ntfs/aops.c::ntfs_attr_read_block(). Also, create a tiny wrapper
++	  fs/ntfs/aops.c::ntfs_mst_readpage() to transform the parameters from
++	  the VFS readpage function prototype to the ntfs_attr_read_block()
++	  function prototype.
  
- 2.0.10 - There can only be 2^32 - 1 inodes on an NTFS volume.
+ 2.0.11 - Initial preparations for fake inode based attribute i/o.
  
-@@ -38,7 +65,10 @@
- 
- 	- Change decompression engine to use a single buffer protected by a
- 	  spin lock instead of per-CPU buffers. (Rusty Russell)
--	- Switch to using the new KM_BIO_SRC_IRQ for atomic kmaps. (Andrew
-+	- Do not update cb_pos when handling a partial final page during
-+	  decompression of a sparse compression block, as the value is later
-+	  reset without being read/used. (Rusty Russell)
-+	- Switch to using the new KM_BIO_SRC_IRQ for atomic kmap()s. (Andrew
- 	  Morton)
- 	- Change buffer size in ntfs_readdir()/ntfs_filldir() to use
- 	  NLS_MAX_CHARSET_SIZE which makes the buffers almost 1kiB each but
 diff -Nru a/fs/ntfs/Makefile b/fs/ntfs/Makefile
---- a/fs/ntfs/Makefile	Sun Jun 30 13:16:02 2002
-+++ b/fs/ntfs/Makefile	Sun Jun 30 13:16:02 2002
+--- a/fs/ntfs/Makefile	Sun Jun 30 13:42:23 2002
++++ b/fs/ntfs/Makefile	Sun Jun 30 13:42:23 2002
 @@ -5,7 +5,7 @@
  ntfs-objs := aops.o attrib.o compress.o debug.o dir.o file.o inode.o mft.o \
  	     mst.o namei.o super.o sysctl.o time.o unistr.o upcase.o
  
--EXTRA_CFLAGS = -DNTFS_VERSION=\"2.0.10\"
-+EXTRA_CFLAGS = -DNTFS_VERSION=\"2.0.11\"
+-EXTRA_CFLAGS = -DNTFS_VERSION=\"2.0.11\"
++EXTRA_CFLAGS = -DNTFS_VERSION=\"2.0.12\"
  
  ifeq ($(CONFIG_NTFS_DEBUG),y)
  EXTRA_CFLAGS += -DDEBUG
-diff -Nru a/fs/ntfs/dir.c b/fs/ntfs/dir.c
---- a/fs/ntfs/dir.c	Sun Jun 30 13:16:02 2002
-+++ b/fs/ntfs/dir.c	Sun Jun 30 13:16:02 2002
-@@ -27,7 +27,7 @@
- /**
-  * The little endian Unicode string $I30 as a global constant.
-  */
--const uchar_t I30[5] = { const_cpu_to_le16('$'), const_cpu_to_le16('I'),
-+uchar_t I30[5] = { const_cpu_to_le16('$'), const_cpu_to_le16('I'),
- 		const_cpu_to_le16('3'),	const_cpu_to_le16('0'),
- 		const_cpu_to_le16(0) };
- 
-diff -Nru a/fs/ntfs/dir.h b/fs/ntfs/dir.h
---- a/fs/ntfs/dir.h	Sun Jun 30 13:16:02 2002
-+++ b/fs/ntfs/dir.h	Sun Jun 30 13:16:02 2002
-@@ -38,7 +38,7 @@
- } __attribute__ ((__packed__)) ntfs_name;
- 
- /* The little endian Unicode string $I30 as a global constant. */
--extern const uchar_t I30[5];
-+extern uchar_t I30[5];
- 
- extern MFT_REF ntfs_lookup_inode_by_name(ntfs_inode *dir_ni,
- 		const uchar_t *uname, const int uname_len, ntfs_name **res);
-diff -Nru a/fs/ntfs/inode.c b/fs/ntfs/inode.c
---- a/fs/ntfs/inode.c	Sun Jun 30 13:16:02 2002
-+++ b/fs/ntfs/inode.c	Sun Jun 30 13:16:02 2002
-@@ -49,7 +49,7 @@
- 	kmem_cache_free(ntfs_big_inode_cache, NTFS_I(inode));
- }
- 
--ntfs_inode *ntfs_alloc_inode(void)
-+ntfs_inode *ntfs_alloc_extent_inode(void)
- {
- 	ntfs_inode *ni = (ntfs_inode *)kmem_cache_alloc(ntfs_inode_cache,
- 			SLAB_NOFS);
-@@ -59,7 +59,7 @@
- 	return ni;
- }
- 
--void ntfs_destroy_inode(ntfs_inode *ni)
-+void ntfs_destroy_extent_inode(ntfs_inode *ni)
- {
- 	ntfs_debug("Entering.");
- 	BUG_ON(atomic_read(&ni->mft_count) || !atomic_dec_and_test(&ni->count));
-@@ -102,9 +102,9 @@
- 	return;
- }
- 
--ntfs_inode *ntfs_new_inode(struct super_block *sb)
-+ntfs_inode *ntfs_new_extent_inode(struct super_block *sb)
- {
--	ntfs_inode *ni = ntfs_alloc_inode();
-+	ntfs_inode *ni = ntfs_alloc_extent_inode();
- 
- 	ntfs_debug("Entering.");
- 	if (ni)
-@@ -239,7 +239,8 @@
- 
- 	/*
- 	 * Initialize the ntfs specific part of @vi special casing
--	 * FILE_MFT which we need to do at mount time.
-+	 * FILE_MFT which we need to do at mount time. This also sets
-+	 * ni->mft_no to vi->i_ino.
- 	 */
- 	if (vi->i_ino != FILE_MFT)
- 		ntfs_init_big_inode(vi);
-@@ -358,13 +359,14 @@
- 		if (vi->i_ino == FILE_MFT)
- 			goto skip_attr_list_load;
- 		ntfs_debug("Attribute list found in inode 0x%lx.", vi->i_ino);
--		ni->state |= 1 << NI_AttrList;
-+		NInoSetAttrList(ni);
- 		if (ctx->attr->flags & ATTR_IS_ENCRYPTED ||
--				ctx->attr->flags & ATTR_COMPRESSION_MASK) {
-+				ctx->attr->flags & ATTR_COMPRESSION_MASK ||
-+				ctx->attr->flags & ATTR_IS_SPARSE) {
- 			ntfs_error(vi->i_sb, "Attribute list attribute is "
--					"compressed/encrypted. Not allowed. "
--					"Corrupt inode. You should run "
--					"chkdsk.");
-+					"compressed/encrypted/sparse. Not "
-+					"allowed. Corrupt inode. You should "
-+					"run chkdsk.");
- 			goto put_unm_err_out;
- 		}
- 		/* Now allocate memory for the attribute list. */
-@@ -377,7 +379,7 @@
- 			goto ec_put_unm_err_out;
- 		}
- 		if (ctx->attr->non_resident) {
--			ni->state |= 1 << NI_AttrListNonResident;
-+			NInoSetAttrListNonResident(ni);
- 			if (ctx->attr->_ANR(lowest_vcn)) {
- 				ntfs_error(vi->i_sb, "Attribute list has non "
- 						"zero lowest_vcn. Inode is "
-@@ -459,7 +461,7 @@
- 		 * encrypted.
- 		 */
- 		if (ctx->attr->flags & ATTR_COMPRESSION_MASK)
--			ni->state |= 1 << NI_Compressed;
-+			NInoSetCompressed(ni);
- 		if (ctx->attr->flags & ATTR_IS_ENCRYPTED) {
- 			if (ctx->attr->flags & ATTR_COMPRESSION_MASK) {
- 				ntfs_error(vi->i_sb, "Found encrypted and "
-@@ -467,8 +469,10 @@
- 						"allowed.");
- 				goto put_unm_err_out;
- 			}
--			ni->state |= 1 << NI_Encrypted;
-+			NInoSetEncrypted(ni);
- 		}
-+		if (ctx->attr->flags & ATTR_IS_SPARSE)
-+			NInoSetSparse(ni);
- 		ir = (INDEX_ROOT*)((char*)ctx->attr +
- 				le16_to_cpu(ctx->attr->_ARA(value_offset)));
- 		ir_end = (char*)ir + le32_to_cpu(ctx->attr->_ARA(value_length));
-@@ -530,12 +534,19 @@
- 			ni->_IDM(index_vcn_size) = vol->sector_size;
- 			ni->_IDM(index_vcn_size_bits) = vol->sector_size_bits;
- 		}
-+
-+		/* Setup the index allocation attribute, even if not present. */
-+		NInoSetMstProtected(ni);
-+		ni->type = AT_INDEX_ALLOCATION;
-+		ni->name = I30;
-+		ni->name_len = 4;
-+
- 		if (!(ir->index.flags & LARGE_INDEX)) {
- 			/* No index allocation. */
- 			vi->i_size = ni->initialized_size = 0;
- 			goto skip_large_dir_stuff;
- 		} /* LARGE_INDEX: Index allocation present. Setup state. */
--		ni->state |= 1 << NI_NonResident;
-+		NInoSetIndexAllocPresent(ni);
- 		/* Find index allocation attribute. */
- 		reinit_attr_search_ctx(ctx);
- 		if (!lookup_attr(AT_INDEX_ALLOCATION, I30, 4, CASE_SENSITIVE,
-@@ -555,6 +566,11 @@
- 					"is encrypted.");
- 			goto put_unm_err_out;
- 		}
-+		if (ctx->attr->flags & ATTR_IS_SPARSE) {
-+			ntfs_error(vi->i_sb, "$INDEX_ALLOCATION attribute "
-+					"is sparse.");
-+			goto put_unm_err_out;
-+		}
- 		if (ctx->attr->flags & ATTR_COMPRESSION_MASK) {
- 			ntfs_error(vi->i_sb, "$INDEX_ALLOCATION attribute "
- 					"is compressed.");
-@@ -581,13 +597,13 @@
- 			goto put_unm_err_out;
- 		}
- 		if (ctx->attr->flags & (ATTR_COMPRESSION_MASK |
--				ATTR_IS_ENCRYPTED)) {
-+				ATTR_IS_ENCRYPTED | ATTR_IS_SPARSE)) {
- 			ntfs_error(vi->i_sb, "$BITMAP attribute is compressed "
--					"and/or encrypted.");
-+					"and/or encrypted and/or sparse.");
- 			goto put_unm_err_out;
- 		}
- 		if (ctx->attr->non_resident) {
--			ni->state |= 1 << NI_BmpNonResident;
-+			NInoSetBmpNonResident(ni);
- 			if (ctx->attr->_ANR(lowest_vcn)) {
- 				ntfs_error(vi->i_sb, "First extent of $BITMAP "
- 						"attribute has non zero "
-@@ -647,6 +663,12 @@
- 	} else {
- 		/* It is a file: find first extent of unnamed data attribute. */
- 		reinit_attr_search_ctx(ctx);
-+
-+		/* Setup the data attribute, even if not present. */
-+		ni->type = AT_DATA;
-+		ni->name = NULL;
-+		ni->name_len = 0;
-+
- 		if (!lookup_attr(AT_DATA, NULL, 0, 0, 0, NULL, 0, ctx)) {
- 			vi->i_size = ni->initialized_size =
- 					ni->allocated_size = 0LL;
-@@ -675,9 +697,9 @@
- 		}
- 		/* Setup the state. */
- 		if (ctx->attr->non_resident) {
--			ni->state |= 1 << NI_NonResident;
-+			NInoSetNonResident(ni);
- 			if (ctx->attr->flags & ATTR_COMPRESSION_MASK) {
--				ni->state |= 1 << NI_Compressed;
-+				NInoSetCompressed(ni);
- 				if (vol->cluster_size > 4096) {
- 					ntfs_error(vi->i_sb, "Found "
- 						"compressed data but "
-@@ -707,8 +729,9 @@
- 					goto ec_put_unm_err_out;
- 				}
- 				ni->_ICF(compression_block_size) = 1U << (
--					       ctx->attr->_ANR(compression_unit)
--						+ vol->cluster_size_bits);
-+						ctx->attr->_ANR(
-+						compression_unit) +
-+						vol->cluster_size_bits);
- 				ni->_ICF(compression_block_size_bits) = ffs(
- 					ni->_ICF(compression_block_size)) - 1;
- 			}
-@@ -718,8 +741,10 @@
- 							"and compressed data.");
- 					goto put_unm_err_out;
- 				}
--				ni->state |= 1 << NI_Encrypted;
-+				NInoSetEncrypted(ni);
- 			}
-+			if (ctx->attr->flags & ATTR_IS_SPARSE)
-+				NInoSetSparse(ni);
- 			if (ctx->attr->_ANR(lowest_vcn)) {
- 				ntfs_error(vi->i_sb, "First extent of $DATA "
- 						"attribute has non zero "
-@@ -861,6 +886,13 @@
- 		goto err_out;
- 	}
- 
-+	/* Setup the data attribute. It is special as it is mst protected. */
-+	NInoSetNonResident(ni);
-+	NInoSetMstProtected(ni);
-+	ni->type = AT_DATA;
-+	ni->name = NULL;
-+	ni->name_len = 0;
-+
- 	/*
- 	 * This sets up our little cheat allowing us to reuse the async io
- 	 * completion handler for directories.
-@@ -930,13 +962,14 @@
- 		u8 *al_end;
- 
- 		ntfs_debug("Attribute list attribute found in $MFT.");
--		ni->state |= 1 << NI_AttrList;
-+		NInoSetAttrList(ni);
- 		if (ctx->attr->flags & ATTR_IS_ENCRYPTED ||
--				ctx->attr->flags & ATTR_COMPRESSION_MASK) {
-+				ctx->attr->flags & ATTR_COMPRESSION_MASK ||
-+				ctx->attr->flags & ATTR_IS_SPARSE) {
- 			ntfs_error(sb, "Attribute list attribute is "
--					"compressed/encrypted. Not allowed. "
--					"$MFT is corrupt. You should run "
--					"chkdsk.");
-+					"compressed/encrypted/sparse. Not "
-+					"allowed. $MFT is corrupt. You should "
-+					"run chkdsk.");
- 			goto put_err_out;
- 		}
- 		/* Now allocate memory for the attribute list. */
-@@ -948,7 +981,7 @@
- 			goto put_err_out;
- 		}
- 		if (ctx->attr->non_resident) {
--			ni->state |= 1 << NI_AttrListNonResident;
-+			NInoSetAttrListNonResident(ni);
- 			if (ctx->attr->_ANR(lowest_vcn)) {
- 				ntfs_error(sb, "Attribute list has non zero "
- 						"lowest_vcn. $MFT is corrupt. "
-@@ -1071,11 +1104,13 @@
- 		}
- 		/* $MFT must be uncompressed and unencrypted. */
- 		if (attr->flags & ATTR_COMPRESSION_MASK ||
--				attr->flags & ATTR_IS_ENCRYPTED) {
--			ntfs_error(sb, "$MFT must be uncompressed and "
--					"unencrypted but a compressed/"
--					"encrypted extent was found. "
--					"$MFT is corrupt. Run chkdsk.");
-+				attr->flags & ATTR_IS_ENCRYPTED ||
-+				attr->flags & ATTR_IS_SPARSE) {
-+			ntfs_error(sb, "$MFT must be uncompressed, "
-+					"non-sparse, and unencrypted but a "
-+					"compressed/sparse/encrypted extent "
-+					"was found. $MFT is corrupt. Run "
-+					"chkdsk.");
- 			goto put_err_out;
- 		}
- 		/*
-@@ -1296,29 +1331,42 @@
- 
- 		// FIXME: Handle dirty case for each extent inode!
- 		for (i = 0; i < ni->nr_extents; i++)
--			ntfs_destroy_inode(ni->_INE(extent_ntfs_inos)[i]);
-+			ntfs_clear_extent_inode(ni->_INE(extent_ntfs_inos)[i]);
- 		kfree(ni->_INE(extent_ntfs_inos));
- 	}
- 	/* Free all alocated memory. */
- 	down_write(&ni->run_list.lock);
--	ntfs_free(ni->run_list.rl);
--	ni->run_list.rl = NULL;
-+	if (ni->run_list.rl) {
-+		ntfs_free(ni->run_list.rl);
-+		ni->run_list.rl = NULL;
-+	}
- 	up_write(&ni->run_list.lock);
- 
--	ntfs_free(ni->attr_list);
-+	if (ni->attr_list) {
-+		ntfs_free(ni->attr_list);
-+		ni->attr_list = NULL;
-+	}
- 
- 	down_write(&ni->attr_list_rl.lock);
--	ntfs_free(ni->attr_list_rl.rl);
--	ni->attr_list_rl.rl = NULL;
-+	if (ni->attr_list_rl.rl) {
-+		ntfs_free(ni->attr_list_rl.rl);
-+		ni->attr_list_rl.rl = NULL;
-+	}
- 	up_write(&ni->attr_list_rl.lock);
-+
-+	if (ni->name_len && ni->name != I30) {
-+		/* Catch bugs... */
-+		BUG_ON(!ni->name);
-+		kfree(ni->name);
-+	}
- }
- 
--void ntfs_clear_inode(ntfs_inode *ni)
-+void ntfs_clear_extent_inode(ntfs_inode *ni)
- {
- 	__ntfs_clear_inode(ni);
- 
- 	/* Bye, bye... */
--	ntfs_destroy_inode(ni);
-+	ntfs_destroy_extent_inode(ni);
- }
- 
- /**
-@@ -1339,7 +1387,8 @@
- 
- 	if (S_ISDIR(vi->i_mode)) {
- 		down_write(&ni->_IDM(bmp_rl).lock);
--		ntfs_free(ni->_IDM(bmp_rl).rl);
-+		if (ni->_IDM(bmp_rl).rl)
-+			ntfs_free(ni->_IDM(bmp_rl).rl);
- 		up_write(&ni->_IDM(bmp_rl).lock);
- 	}
- 	return;
-diff -Nru a/fs/ntfs/inode.h b/fs/ntfs/inode.h
---- a/fs/ntfs/inode.h	Sun Jun 30 13:16:02 2002
-+++ b/fs/ntfs/inode.h	Sun Jun 30 13:16:02 2002
+diff -Nru a/fs/ntfs/aops.c b/fs/ntfs/aops.c
+--- a/fs/ntfs/aops.c	Sun Jun 30 13:42:23 2002
++++ b/fs/ntfs/aops.c	Sun Jun 30 13:42:23 2002
 @@ -3,7 +3,7 @@
-  *	     the Linux-NTFS project.
+  * 	    Part of the Linux-NTFS project.
   *
   * Copyright (c) 2001,2002 Anton Altaparmakov.
 - * Copyright (C) 2002 Richard Russon.
@@ -506,439 +141,682 @@ diff -Nru a/fs/ntfs/inode.h b/fs/ntfs/inode.h
   *
   * This program/include file is free software; you can redistribute it and/or
   * modify it under the terms of the GNU General Public License as published
-@@ -26,6 +26,7 @@
+@@ -30,31 +30,43 @@
+ #include "ntfs.h"
  
- #include <linux/seq_file.h>
+ /**
+- * end_buffer_read_file_async -
++ * end_buffer_read_attr_async - async io completion for reading attributes
++ * @bh:		buffer head on which io is completed
++ * @uptodate:	whether @bh is now uptodate or not
+  *
+- * Async io completion handler for accessing files. Adapted from
+- * end_buffer_read_mst_async().
++ * Asynchronous I/O completion handler for reading pages belonging to the
++ * attribute address space of an inode. The inodes can either be files or
++ * directories or they can be fake inodes describing some attribute.
++ *
++ * If NInoMstProtected(), perform the post read mst fixups when all IO on the
++ * page has been completed and mark the page uptodate or set the error bit on
++ * the page. To determine the size of the records that need fixing up, we cheat
++ * a little bit by setting the index_block_size in ntfs_inode to the ntfs
++ * record size, and index_block_size_bits, to the log(base 2) of the ntfs
++ * record size.
+  */
+-static void end_buffer_read_file_async(struct buffer_head *bh, int uptodate)
++static void end_buffer_read_attr_async(struct buffer_head *bh, int uptodate)
+ {
+ 	static spinlock_t page_uptodate_lock = SPIN_LOCK_UNLOCKED;
+ 	unsigned long flags;
+ 	struct buffer_head *tmp;
+ 	struct page *page;
++	ntfs_inode *ni;
  
-+#include "layout.h"
- #include "volume.h"
+-	if (uptodate)
++	if (likely(uptodate))
+ 		set_buffer_uptodate(bh);
+ 	else
+ 		clear_buffer_uptodate(bh);
  
- typedef struct _ntfs_inode ntfs_inode;
-@@ -38,21 +39,39 @@
- 	s64 initialized_size;	/* Copy from $DATA/$INDEX_ALLOCATION. */
- 	s64 allocated_size;	/* Copy from $DATA/$INDEX_ALLOCATION. */
- 	unsigned long state;	/* NTFS specific flags describing this inode.
--				   See fs/ntfs/ntfs.h:ntfs_inode_state_bits. */
-+				   See ntfs_inode_state_bits below. */
- 	unsigned long mft_no;	/* Number of the mft record / inode. */
- 	u16 seq_no;		/* Sequence number of the mft record. */
- 	atomic_t count;		/* Inode reference count for book keeping. */
- 	ntfs_volume *vol;	/* Pointer to the ntfs volume of this inode. */
+ 	page = bh->b_page;
+ 
++	ni = NTFS_I(page->mapping->host);
++
+ 	if (likely(uptodate)) {
+ 		s64 file_ofs;
+ 
+-		ntfs_inode *ni = NTFS_I(page->mapping->host);
+-
+ 		file_ofs = (page->index << PAGE_CACHE_SHIFT) + bh_offset(bh);
++		/* Check for the current buffer head overflowing. */
+ 		if (file_ofs + bh->b_size > ni->initialized_size) {
+ 			char *addr;
+ 			int ofs = 0;
+@@ -82,10 +94,47 @@
+ 			SetPageError(page);
+ 		tmp = tmp->b_this_page;
+ 	}
+-
+ 	spin_unlock_irqrestore(&page_uptodate_lock, flags);
+-	if (!PageError(page))
+-		SetPageUptodate(page);
 +	/*
-+	 * If NInoAttr() is true, the below fields describe the attribute which
-+	 * this fake inode belongs to. The actual inode of this attribute is
-+	 * pointed to by base_ntfs_ino and nr_extents is always set to -1 (see
-+	 * below). For real inodes, we also set the type (AT_DATA for files and
-+	 * AT_INDEX_ALLOCATION for directories), with the name = NULL and
-+	 * name_len = 0 for files and name = I30 (global constant) and
-+	 * name_len = 4 for directories.
++	 * If none of the buffers had errors then we can set the page uptodate,
++	 * but we first have to perform the post read mst fixups, if the
++	 * attribute is mst protected, i.e. if NInoMstProteced(ni) is true.
 +	 */
-+	ATTR_TYPES type;	/* Attribute type of this fake inode. */
-+	uchar_t *name;		/* Attribute name of this fake inode. */
-+	u32 name_len;		/* Attribute name length of this fake inode. */
- 	run_list run_list;	/* If state has the NI_NonResident bit set,
- 				   the run list of the unnamed data attribute
- 				   (if a file) or of the index allocation
--				   attribute (directory). If run_list.rl is
--				   NULL, the run list has not been read in or
--				   has been unmapped. If NI_NonResident is
--				   clear, the unnamed data attribute is
--				   resident (file) or there is no $I30 index
--				   allocation attribute (directory). In that
--				   case run_list.rl is always NULL.*/
-+				   attribute (directory) or of the attribute
-+				   described by the fake inode (if NInoAttr()).
-+				   If run_list.rl is NULL, the run list has not
-+				   been read in yet or has been unmapped. If
-+				   NI_NonResident is clear, the attribute is
-+				   resident (file and fake inode) or there is
-+				   no $I30 index allocation attribute
-+				   (small directory). In the latter case
-+				   run_list.rl is always NULL.*/
-+	/*
-+	 * The following fields are only valid for real inodes and extent
-+	 * inodes.
-+	 */
- 	struct rw_semaphore mrec_lock;	/* Lock for serializing access to the
- 				   mft record belonging to this inode. */
- 	atomic_t mft_count;	/* Mapping reference count for book keeping. */
-@@ -74,17 +93,18 @@
- 	union {
- 		struct { /* It is a directory or $MFT. */
- 			u32 index_block_size;	/* Size of an index block. */
--			u8 index_block_size_bits; /* Log2 of the above. */
- 			u32 index_vcn_size;	/* Size of a vcn in this
- 						   directory index. */
--			u8 index_vcn_size_bits;	/* Log2 of the above. */
- 			s64 bmp_size;		/* Size of the $I30 bitmap. */
- 			s64 bmp_initialized_size; /* Copy from $I30 bitmap. */
- 			s64 bmp_allocated_size;	/* Copy from $I30 bitmap. */
- 			run_list bmp_rl;	/* Run list for the $I30 bitmap
- 						   if it is non-resident. */
-+			u8 index_block_size_bits; /* Log2 of the above. */
-+			u8 index_vcn_size_bits;	/* Log2 of the above. */
- 		} SN(idm);
--		struct { /* It is a compressed file. */
-+		struct { /* It is a compressed file or fake inode. */
-+			s64 compressed_size;		/* Copy from $DATA. */
- 			u32 compression_block_size;     /* Size of a compression
- 						           block (cb). */
- 			u8 compression_block_size_bits; /* Log2 of the size of
-@@ -92,13 +112,13 @@
- 			u8 compression_block_clusters;  /* Number of clusters
- 							   per compression
- 							   block. */
--			s64 compressed_size;		/* Copy from $DATA. */
- 		} SN(icf);
- 	} SN(idc);
- 	struct semaphore extent_lock;	/* Lock for accessing/modifying the
- 					   below . */
- 	s32 nr_extents;	/* For a base mft record, the number of attached extent
--			   inodes (0 if none), for extent records this is -1. */
-+			   inodes (0 if none), for extent records and for fake
-+			   inodes describing an attribute this is -1. */
- 	union {		/* This union is only used if nr_extents != 0. */
- 		ntfs_inode **extent_ntfs_inos;	/* For nr_extents > 0, array of
- 						   the ntfs inodes of the extent
-@@ -107,7 +127,9 @@
- 						   been loaded. */
- 		ntfs_inode *base_ntfs_ino;	/* For nr_extents == -1, the
- 						   ntfs inode of the base mft
--						   record. */
-+						   record. For fake inodes, the
-+						   real (base) inode to which
-+						   the attribute belongs. */
- 	} SN(ine);
- };
++	if (!NInoMstProtected(ni)) {
++		if (likely(!PageError(page)))
++			SetPageUptodate(page);
++		unlock_page(page);
++		return;
++	} else {
++		char *addr;
++		unsigned int i, recs, nr_err;
++		u32 rec_size;
++
++		rec_size = ni->_IDM(index_block_size);
++		recs = PAGE_CACHE_SIZE / rec_size;
++		addr = kmap_atomic(page, KM_BIO_SRC_IRQ);
++		for (i = nr_err = 0; i < recs; i++) {
++			if (likely(!post_read_mst_fixup((NTFS_RECORD*)(addr +
++					i * rec_size), rec_size)))
++				continue;
++			nr_err++;
++			ntfs_error(ni->vol->sb, "post_read_mst_fixup() failed, "
++					"corrupt %s record 0x%Lx. Run chkdsk.",
++					ni->mft_no ? "index" : "mft",
++					(long long)(((s64)page->index <<
++					PAGE_CACHE_SHIFT >>
++					ni->_IDM(index_block_size_bits)) + i));
++		}
++		flush_dcache_page(page);
++		kunmap_atomic(addr, KM_BIO_SRC_IRQ);
++		if (likely(!nr_err && recs))
++			SetPageUptodate(page);
++		else {
++			ntfs_error(ni->vol->sb, "Setting page error, index "
++					"0x%lx.", page->index);
++			SetPageError(page);
++		}
++	}
+ 	unlock_page(page);
+ 	return;
+ still_busy:
+@@ -94,11 +143,20 @@
+ }
  
-@@ -115,6 +137,79 @@
- #define _ICF(X)  SC(idc.icf,X)
- #define _INE(X)  SC(ine,X)
+ /**
+- * ntfs_file_read_block -
++ * ntfs_attr_read_block - fill a @page of an address space with data
++ * @page:	page cache page to fill with data
+  *
+- * NTFS version of block_read_full_page(). Adapted from ntfs_mst_readpage().
++ * Fill the page @page of the address space belonging to the @page->host inode.
++ * We read each buffer asynchronously and when all buffers are read in, our io
++ * completion handler end_buffer_read_attr_async(), if required, automatically
++ * applies the mst fixups to the page before finally marking it uptodate and
++ * unlocking it.
++ *
++ * Return 0 on success and -errno on error.
++ *
++ * Contains an adapted version of fs/buffer.c::block_read_full_page().
+  */
+-static int ntfs_file_read_block(struct page *page)
++static int ntfs_attr_read_block(struct page *page)
+ {
+ 	VCN vcn;
+ 	LCN lcn;
+@@ -119,7 +177,7 @@
+ 	if (!page_has_buffers(page))
+ 		create_empty_buffers(page, blocksize, 0);
+ 	bh = head = page_buffers(page);
+-	if (!bh)
++	if (unlikely(!bh))
+ 		return -ENOMEM;
  
-+/*
-+ * Defined bits for the state field in the ntfs_inode structure.
-+ * (f) = files only, (d) = directories only, (a) = attributes/fake inodes only
+ 	blocks = PAGE_CACHE_SIZE >> blocksize_bits;
+@@ -128,11 +186,9 @@
+ 	zblock = (ni->initialized_size + blocksize - 1) >> blocksize_bits;
+ 
+ #ifdef DEBUG
+-	if (unlikely(!ni->mft_no)) {
+-		ntfs_error(vol->sb, "NTFS: Attempt to access $MFT! This is a "
+-				"very serious bug! Denying access...");
+-		return -EACCES;
+-	}
++	if (unlikely(!ni->run_list.rl && !ni->mft_no))
++		panic("NTFS: $MFT/$DATA run list has been unmapped! This is a "
++				"very serious bug! Cannot continue...");
+ #endif
+ 
+ 	/* Loop through all the buffers in the page. */
+@@ -211,7 +267,7 @@
+ 		for (i = 0; i < nr; i++) {
+ 			struct buffer_head *tbh = arr[i];
+ 			lock_buffer(tbh);
+-			tbh->b_end_io = end_buffer_read_file_async;
++			tbh->b_end_io = end_buffer_read_attr_async;
+ 			set_buffer_async_read(tbh);
+ 		}
+ 		/* Finally, start i/o on the buffers. */
+@@ -220,7 +276,7 @@
+ 		return 0;
+ 	}
+ 	/* No i/o was scheduled on any of the buffers. */
+-	if (!PageError(page))
++	if (likely(!PageError(page)))
+ 		SetPageUptodate(page);
+ 	else /* Signal synchronous i/o error. */
+ 		nr = -EIO;
+@@ -234,17 +290,17 @@
+  * @page:	page cache page to fill with data
+  *
+  * For non-resident attributes, ntfs_file_readpage() fills the @page of the open
+- * file @file by calling the generic block_read_full_page() function provided by
+- * the kernel which in turn invokes our ntfs_file_get_block() callback in order
+- * to create and read in the buffers associated with the page asynchronously.
++ * file @file by calling the ntfs version of the generic block_read_full_page()
++ * function provided by the kernel, ntfs_attr_read_block(), which in turn
++ * creates and reads in the buffers associated with the page asynchronously.
+  *
+  * For resident attributes, OTOH, ntfs_file_readpage() fills @page by copying
+  * the data from the mft record (which at this stage is most likely in memory)
+- * and fills the remainder with zeroes. Thus, in this case I/O is synchronous,
++ * and fills the remainder with zeroes. Thus, in this case, I/O is synchronous,
+  * as even if the mft record is not cached at this point in time, we need to
+  * wait for it to be read in before we can do the copy.
+  *
+- * Return zero on success or -errno on error.
++ * Return 0 on success or -errno on error.
+  */
+ static int ntfs_file_readpage(struct file *file, struct page *page)
+ {
+@@ -256,43 +312,43 @@
+ 	u32 attr_len;
+ 	int err = 0;
+ 
+-	if (!PageLocked(page))
++	if (unlikely(!PageLocked(page)))
+ 		PAGE_BUG(page);
+ 
+ 	ni = NTFS_I(page->mapping->host);
+ 
+ 	/* Is the unnamed $DATA attribute resident? */
+-	if (test_bit(NI_NonResident, &ni->state)) {
++	if (NInoNonResident(ni)) {
+ 		/* Attribute is not resident. */
+ 
+ 		/* If the file is encrypted, we deny access, just like NT4. */
+-		if (test_bit(NI_Encrypted, &ni->state)) {
++		if (NInoEncrypted(ni)) {
+ 			err = -EACCES;
+ 			goto unl_err_out;
+ 		}
+ 		/* Compressed data stream. Handled in compress.c. */
+-		if (test_bit(NI_Compressed, &ni->state))
++		if (NInoCompressed(ni))
+ 			return ntfs_file_read_compressed_block(page);
+ 		/* Normal data stream. */
+-		return ntfs_file_read_block(page);
++		return ntfs_attr_read_block(page);
+ 	}
+ 	/* Attribute is resident, implying it is not compressed or encrypted. */
+ 
+ 	/* Map, pin and lock the mft record for reading. */
+ 	mrec = map_mft_record(READ, ni);
+-	if (IS_ERR(mrec)) {
++	if (unlikely(IS_ERR(mrec))) {
+ 		err = PTR_ERR(mrec);
+ 		goto unl_err_out;
+ 	}
+ 
+ 	ctx = get_attr_search_ctx(ni, mrec);
+-	if (!ctx) {
++	if (unlikely(!ctx)) {
+ 		err = -ENOMEM;
+ 		goto unm_unl_err_out;
+ 	}
+ 
+ 	/* Find the data attribute in the mft record. */
+-	if (!lookup_attr(AT_DATA, NULL, 0, 0, 0, NULL, 0, ctx)) {
++	if (unlikely(!lookup_attr(AT_DATA, NULL, 0, 0, 0, NULL, 0, ctx))) {
+ 		err = -ENOENT;
+ 		goto put_unm_unl_err_out;
+ 	}
+@@ -331,6 +387,25 @@
+ }
+ 
+ /**
++ * ntfs_mst_readpage - fill a @page of the mft or a directory with data
++ * @file:	open file/directory to which the @page belongs or NULL
++ * @page:	page cache page to fill with data
++ *
++ * Readpage method for the VFS address space operations of directory inodes
++ * and the $MFT/$DATA attribute.
++ *
++ * We just call ntfs_attr_read_block() here, in fact we only need this wrapper
++ * because of the difference in function parameters.
 + */
-+typedef enum {
-+	NI_Dirty,		/* 1: Mft record needs to be written to disk. */
-+	NI_AttrList,		/* 1: Mft record contains an attribute list. */
-+	NI_AttrListNonResident,	/* 1: Attribute list is non-resident. Implies
-+				      NI_AttrList is set. */
++int ntfs_mst_readpage(struct file *file, struct page *page)
++{
++	if (unlikely(!PageLocked(page)))
++		PAGE_BUG(page);
 +
-+	NI_Attr,		/* 1: Fake inode for attribute i/o.
-+				   0: Real inode or extent inode. */
-+
-+	NI_MstProtected,	/* 1: Attribute is protected by MST fixups.
-+				   0: Attribute is not protected by fixups. */
-+	NI_NonResident,		/* 1: Unnamed data attr is non-resident (f).
-+				   1: Attribute is non-resident (a). */
-+	NI_IndexAllocPresent = NI_NonResident,	/* 1: $I30 index alloc attr is
-+						   present (d). */
-+	NI_Compressed,		/* 1: Unnamed data attr is compressed (f).
-+				   1: Create compressed files by default (d).
-+				   1: Attribute is compressed (a). */
-+	NI_Encrypted,		/* 1: Unnamed data attr is encrypted (f).
-+				   1: Create encrypted files by default (d).
-+				   1: Attribute is encrypted (a). */
-+	NI_Sparse,		/* 1: Unnamed data attr is sparse (f).
-+				   1: Create sparse files by default (d).
-+				   1: Attribute is sparse (a). */
-+	NI_BmpNonResident,	/* 1: $I30 bitmap attr is non resident (d). */
-+} ntfs_inode_state_bits;
-+
-+/*
-+ * NOTE: We should be adding dirty mft records to a list somewhere and they
-+ * should be independent of the (ntfs/vfs) inode structure so that an inode can
-+ * be removed but the record can be left dirty for syncing later.
-+ */
-+
-+/*
-+ * Macro tricks to expand the NInoFoo(), NInoSetFoo(), and NInoClearFoo()
-+ * functions.
-+ */
-+#define NINO_FNS(flag)					\
-+static inline int NIno##flag(ntfs_inode *ni)		\
-+{							\
-+	return test_bit(NI_##flag, &(ni)->state);	\
-+}							\
-+static inline void NInoSet##flag(ntfs_inode *ni)	\
-+{							\
-+	set_bit(NI_##flag, &(ni)->state);		\
-+}							\
-+static inline void NInoClear##flag(ntfs_inode *ni)	\
-+{							\
-+	clear_bit(NI_##flag, &(ni)->state);		\
++	return ntfs_attr_read_block(page);
 +}
 +
-+/* Emit the ntfs inode bitops functions. */
-+NINO_FNS(Dirty)
-+NINO_FNS(AttrList)
-+NINO_FNS(AttrListNonResident)
-+NINO_FNS(Attr)
-+NINO_FNS(MstProtected)
-+NINO_FNS(NonResident)
-+NINO_FNS(IndexAllocPresent)
-+NINO_FNS(Compressed)
-+NINO_FNS(Encrypted)
-+NINO_FNS(Sparse)
-+NINO_FNS(BmpNonResident)
-+
-+/*
-+ * The full structure containing a ntfs_inode and a vfs struct inode. Used for
-+ * all real and fake inodes but not for extent inodes which lack the vfs struct
-+ * inode.
-+ */
- typedef struct {
- 	ntfs_inode ntfs_inode;
- 	struct inode vfs_inode;		/* The vfs inode structure. */
-@@ -140,8 +235,8 @@
- extern void ntfs_destroy_big_inode(struct inode *inode);
- extern void ntfs_clear_big_inode(struct inode *vi);
++/**
+  * end_buffer_read_mftbmp_async -
+  *
+  * Async io completion handler for accessing mft bitmap. Adapted from
+@@ -343,7 +418,7 @@
+ 	struct buffer_head *tmp;
+ 	struct page *page;
  
--extern ntfs_inode *ntfs_new_inode(struct super_block *sb);
--extern void ntfs_clear_inode(ntfs_inode *ni);
-+extern ntfs_inode *ntfs_new_extent_inode(struct super_block *sb);
-+extern void ntfs_clear_extent_inode(ntfs_inode *ni);
+-	if (uptodate)
++	if (likely(uptodate))
+ 		set_buffer_uptodate(bh);
+ 	else
+ 		clear_buffer_uptodate(bh);
+@@ -386,7 +461,7 @@
+ 	}
  
- extern void ntfs_read_inode(struct inode *vi);
- extern void ntfs_read_inode_mount(struct inode *vi);
-diff -Nru a/fs/ntfs/mft.c b/fs/ntfs/mft.c
---- a/fs/ntfs/mft.c	Sun Jun 30 13:16:02 2002
-+++ b/fs/ntfs/mft.c	Sun Jun 30 13:16:02 2002
-@@ -334,9 +334,9 @@
- 
- 	/*
- 	 * If pure ntfs_inode, i.e. no vfs inode attached, we leave it to
--	 * ntfs_clear_inode() in the extent inode case, and to the caller in
--	 * the non-extent, yet pure ntfs inode case, to do the actual tear
--	 * down of all structures and freeing of all allocated memory.
-+	 * ntfs_clear_extent_inode() in the extent inode case, and to the
-+	 * caller in the non-extent, yet pure ntfs inode case, to do the actual
-+	 * tear down of all structures and freeing of all allocated memory.
- 	 */
+ 	spin_unlock_irqrestore(&page_uptodate_lock, flags);
+-	if (!PageError(page))
++	if (likely(!PageError(page)))
+ 		SetPageUptodate(page);
+ 	unlock_page(page);
  	return;
- }
-@@ -417,7 +417,7 @@
- 		return m;
- 	}
- 	/* Record wasn't there. Get a new ntfs inode and initialize it. */
--	ni = ntfs_new_inode(base_ni->vol->sb);
-+	ni = ntfs_new_extent_inode(base_ni->vol->sb);
- 	if (!ni) {
- 		up(&base_ni->extent_lock);
- 		atomic_dec(&base_ni->count);
-@@ -433,7 +433,7 @@
- 	if (IS_ERR(m)) {
- 		up(&base_ni->extent_lock);
- 		atomic_dec(&base_ni->count);
--		ntfs_clear_inode(ni);
-+		ntfs_clear_extent_inode(ni);
- 		goto map_err_out;
- 	}
- 	/* Verify the sequence number. */
-@@ -479,7 +479,7 @@
- 	 * release it or we will leak memory.
- 	 */
- 	if (destroy_ni)
--		ntfs_clear_inode(ni);
-+		ntfs_clear_extent_inode(ni);
- 	return m;
- }
+@@ -410,7 +485,7 @@
+ 	int nr, i;
+ 	unsigned char blocksize_bits;
  
-diff -Nru a/fs/ntfs/ntfs.h b/fs/ntfs/ntfs.h
---- a/fs/ntfs/ntfs.h	Sun Jun 30 13:16:02 2002
-+++ b/fs/ntfs/ntfs.h	Sun Jun 30 13:16:02 2002
-@@ -53,41 +53,6 @@
- 	NTFS_MAX_NAME_LEN	= 255,
- } NTFS_CONSTANTS;
+-	if (!PageLocked(page))
++	if (unlikely(!PageLocked(page)))
+ 		PAGE_BUG(page);
  
--/*
-- * Defined bits for the state field in the ntfs_inode structure.
-- * (f) = files only, (d) = directories only
+ 	blocksize = vol->sb->s_blocksize;
+@@ -419,7 +494,7 @@
+ 	if (!page_has_buffers(page))
+ 		create_empty_buffers(page, blocksize, 0);
+ 	bh = head = page_buffers(page);
+-	if (!bh)
++	if (unlikely(!bh))
+ 		return -ENOMEM;
+ 
+ 	blocks = PAGE_CACHE_SIZE >> blocksize_bits;
+@@ -503,264 +578,7 @@
+ 		return 0;
+ 	}
+ 	/* No i/o was scheduled on any of the buffers. */
+-	if (!PageError(page))
+-		SetPageUptodate(page);
+-	else /* Signal synchronous i/o error. */
+-		nr = -EIO;
+-	unlock_page(page);
+-	return nr;
+-}
+-
+-/**
+- * end_buffer_read_mst_async - async io completion for reading index records
+- * @bh:		buffer head on which io is completed
+- * @uptodate:	whether @bh is now uptodate or not
+- *
+- * Asynchronous I/O completion handler for reading pages belonging to the
+- * index allocation attribute address space of directory inodes.
+- *
+- * Perform the post read mst fixups when all IO on the page has been completed
+- * and marks the page uptodate or sets the error bit on the page.
+- *
+- * Adapted from fs/buffer.c.
+- *
+- * NOTE: We use this function as async io completion handler for reading pages
+- * belonging to the mft data attribute address space, too as this saves
+- * duplicating an almost identical function. We do this by cheating a little
+- * bit in setting the index_block_size in the mft ntfs_inode to the mft record
+- * size of the volume (vol->mft_record_size), and index_block_size_bits to
+- * mft_record_size_bits, respectively.
 - */
--typedef enum {
--	NI_Dirty,		/* 1: Mft record needs to be written to disk. */
--	NI_AttrList,		/* 1: Mft record contains an attribute list. */
--	NI_AttrListNonResident,	/* 1: Attribute list is non-resident. Implies
--				      NI_AttrList is set. */
--	NI_NonResident,		/* 1: Unnamed data attr is non-resident (f).
--				   1: $I30 index alloc attr is present (d). */
--	NI_Compressed,		/* 1: Unnamed data attr is compressed (f).
--				   1: Create compressed files by default (d). */
--	NI_Encrypted,		/* 1: Unnamed data attr is encrypted (f).
--				   1: Create encrypted files by default (d). */
--	NI_BmpNonResident,	/* 1: $I30 bitmap attr is non resident (d). */
--} ntfs_inode_state_bits;
+-static void end_buffer_read_mst_async(struct buffer_head *bh, int uptodate)
+-{
+-	static spinlock_t page_uptodate_lock = SPIN_LOCK_UNLOCKED;
+-	unsigned long flags;
+-	struct buffer_head *tmp;
+-	struct page *page;
+-	ntfs_inode *ni;
 -
--/*
-- * NOTE: We should be adding dirty mft records to a list somewhere and they
-- * should be independent of the (ntfs/vfs) inode structure so that an inode can
-- * be removed but the record can be left dirty for syncing later.
+-	if (uptodate)
+-		set_buffer_uptodate(bh);
+-	else
+-		clear_buffer_uptodate(bh);
+-
+-	page = bh->b_page;
+-
+-	ni = NTFS_I(page->mapping->host);
+-
+-	if (likely(uptodate)) {
+-		s64 file_ofs;
+-
+-		file_ofs = (page->index << PAGE_CACHE_SHIFT) + bh_offset(bh);
+-		/* Check for the current buffer head overflowing. */
+-		if (file_ofs + bh->b_size > ni->initialized_size) {
+-			char *addr;
+-			int ofs = 0;
+-
+-			if (file_ofs < ni->initialized_size)
+-				ofs = ni->initialized_size - file_ofs;
+-			addr = kmap_atomic(page, KM_BIO_SRC_IRQ);
+-			memset(addr + bh_offset(bh) + ofs, 0, bh->b_size - ofs);
+-			flush_dcache_page(page);
+-			kunmap_atomic(addr, KM_BIO_SRC_IRQ);
+-		}
+-	} else
+-		SetPageError(page);
+-
+-	spin_lock_irqsave(&page_uptodate_lock, flags);
+-	clear_buffer_async_read(bh);
+-	unlock_buffer(bh);
+-
+-	tmp = bh->b_this_page;
+-	while (tmp != bh) {
+-		if (buffer_locked(tmp)) {
+-			if (buffer_async_read(tmp))
+-				goto still_busy;
+-		} else if (!buffer_uptodate(tmp))
+-			SetPageError(page);
+-		tmp = tmp->b_this_page;
+-	}
+-
+-	spin_unlock_irqrestore(&page_uptodate_lock, flags);
+-	/*
+-	 * If none of the buffers had errors then we can set the page uptodate,
+-	 * but we first have to perform the post read mst fixups.
+-	 */
+-	if (!PageError(page)) {
+-		char *addr;
+-		unsigned int i, recs, nr_err = 0;
+-		u32 rec_size;
+-
+-		rec_size = ni->_IDM(index_block_size);
+-		recs = PAGE_CACHE_SIZE / rec_size;
+-		addr = kmap_atomic(page, KM_BIO_SRC_IRQ);
+-		for (i = 0; i < recs; i++) {
+-			if (!post_read_mst_fixup((NTFS_RECORD*)(addr +
+-					i * rec_size), rec_size))
+-				continue;
+-			nr_err++;
+-			ntfs_error(ni->vol->sb, "post_read_mst_fixup() failed, "
+-					"corrupt %s record 0x%Lx. Run chkdsk.",
+-					ni->mft_no ? "index" : "mft",
+-					(long long)((page->index <<
+-					PAGE_CACHE_SHIFT >>
+-					ni->_IDM(index_block_size_bits)) + i));
+-		}
+-		flush_dcache_page(page);
+-		kunmap_atomic(addr, KM_BIO_SRC_IRQ);
+-		if (likely(!nr_err && recs))
+-			SetPageUptodate(page);
+-		else {
+-			ntfs_error(ni->vol->sb, "Setting page error, index "
+-					"0x%lx.", page->index);
+-			SetPageError(page);
+-		}
+-	}
+-	unlock_page(page);
+-	return;
+-still_busy:
+-	spin_unlock_irqrestore(&page_uptodate_lock, flags);
+-	return;
+-}
+-
+-/**
+- * ntfs_mst_readpage - fill a @page of the mft or a directory with data
+- * @file:	open file/directory to which the page @page belongs or NULL
+- * @page:	page cache page to fill with data
+- *
+- * Readpage method for the VFS address space operations.
+- *
+- * Fill the page @page of the $MFT or the open directory @dir. We read each
+- * buffer asynchronously and when all buffers are read in our io completion
+- * handler end_buffer_read_mst_async() automatically applies the mst fixups to
+- * the page before finally marking it uptodate and unlocking it.
+- *
+- * Contains an adapted version of fs/buffer.c::block_read_full_page().
 - */
+-int ntfs_mst_readpage(struct file *dir, struct page *page)
+-{
+-	VCN vcn;
+-	LCN lcn;
+-	ntfs_inode *ni;
+-	ntfs_volume *vol;
+-	struct buffer_head *bh, *head, *arr[MAX_BUF_PER_PAGE];
+-	sector_t iblock, lblock, zblock;
+-	unsigned int blocksize, blocks, vcn_ofs;
+-	int i, nr;
+-	unsigned char blocksize_bits;
 -
--#define NInoDirty(n_ino)	  test_bit(NI_Dirty, &(n_ino)->state)
--#define NInoSetDirty(n_ino)	  set_bit(NI_Dirty, &(n_ino)->state)
--#define NInoClearDirty(n_ino)	  clear_bit(NI_Dirty, &(n_ino)->state)
+-	if (!PageLocked(page))
+-		PAGE_BUG(page);
 -
--#define NInoAttrList(n_ino)	  test_bit(NI_AttrList, &(n_ino)->state)
--#define NInoNonResident(n_ino)	  test_bit(NI_NonResident, &(n_ino)->state)
--#define NInoIndexAllocPresent(n_ino) test_bit(NI_NonResident, &(n_ino)->state)
--#define NInoCompressed(n_ino)	  test_bit(NI_Compressed, &(n_ino)->state)
--#define NInoEncrypted(n_ino)	  test_bit(NI_Encrypted, &(n_ino)->state)
--#define NInoBmpNonResident(n_ino) test_bit(NI_BmpNonResident, &(n_ino)->state)
+-	ni = NTFS_I(page->mapping->host);
+-	vol = ni->vol;
 -
- /* Global variables. */
- 
- /* Slab caches (from super.c). */
-diff -Nru a/fs/ntfs/super.c b/fs/ntfs/super.c
---- a/fs/ntfs/super.c	Sun Jun 30 13:16:02 2002
-+++ b/fs/ntfs/super.c	Sun Jun 30 13:16:02 2002
-@@ -1709,10 +1709,11 @@
- 	}
- #undef OGIN
- 	/*
--	 * This is needed to get ntfs_clear_inode() called for each inode we
--	 * have ever called iget()/iput() on, otherwise we A) leak resources
--	 * and B) a subsequent mount fails automatically due to iget() never
--	 * calling down into our ntfs_read_inode{_mount}() methods again...
-+	 * This is needed to get ntfs_clear_extent_inode() called for each
-+	 * inode we have ever called iget()/iput() on, otherwise we A) leak
-+	 * resources and B) a subsequent mount fails automatically due to
-+	 * iget() never calling down into our ntfs_read_inode{_mount}() methods
-+	 * again...
- 	 */
- 	if (invalidate_inodes(sb)) {
- 		ntfs_error(sb, "Busy inodes left. This is most likely a NTFS "
+-	blocksize_bits = VFS_I(ni)->i_blkbits;
+-	blocksize = 1 << blocksize_bits;
+-
+-	if (!page_has_buffers(page))
+-		create_empty_buffers(page, blocksize, 0);
+-	bh = head = page_buffers(page);
+-	if (!bh)
+-		return -ENOMEM;
+-
+-	blocks = PAGE_CACHE_SIZE >> blocksize_bits;
+-	iblock = page->index << (PAGE_CACHE_SHIFT - blocksize_bits);
+-	lblock = (ni->allocated_size + blocksize - 1) >> blocksize_bits;
+-	zblock = (ni->initialized_size + blocksize - 1) >> blocksize_bits;
+-
+-#ifdef DEBUG
+-	if (unlikely(!ni->run_list.rl && !ni->mft_no))
+-		panic("NTFS: $MFT/$DATA run list has been unmapped! This is a "
+-				"very serious bug! Cannot continue...");
+-#endif
+-
+-	/* Loop through all the buffers in the page. */
+-	nr = i = 0;
+-	do {
+-		if (unlikely(buffer_uptodate(bh)))
+-			continue;
+-		if (unlikely(buffer_mapped(bh))) {
+-			arr[nr++] = bh;
+-			continue;
+-		}
+-		bh->b_bdev = vol->sb->s_bdev;
+-		/* Is the block within the allowed limits? */
+-		if (iblock < lblock) {
+-			BOOL is_retry = FALSE;
+-
+-			/* Convert iblock into corresponding vcn and offset. */
+-			vcn = (VCN)iblock << blocksize_bits >>
+-					vol->cluster_size_bits;
+-			vcn_ofs = ((VCN)iblock << blocksize_bits) &
+-					vol->cluster_size_mask;
+-retry_remap:
+-			/* Convert the vcn to the corresponding lcn. */
+-			down_read(&ni->run_list.lock);
+-			lcn = vcn_to_lcn(ni->run_list.rl, vcn);
+-			up_read(&ni->run_list.lock);
+-			/* Successful remap. */
+-			if (lcn >= 0) {
+-				/* Setup buffer head to correct block. */
+-				bh->b_blocknr = ((lcn << vol->cluster_size_bits)
+-						+ vcn_ofs) >> blocksize_bits;
+-				set_buffer_mapped(bh);
+-				/* Only read initialized data blocks. */
+-				if (iblock < zblock) {
+-					arr[nr++] = bh;
+-					continue;
+-				}
+-				/* Fully non-initialized data block, zero it. */
+-				goto handle_zblock;
+-			}
+-			/* It is a hole, need to zero it. */
+-			if (lcn == LCN_HOLE)
+-				goto handle_hole;
+-			/* If first try and run list unmapped, map and retry. */
+-			if (!is_retry && lcn == LCN_RL_NOT_MAPPED) {
+-				is_retry = TRUE;
+-				if (!map_run_list(ni, vcn))
+-					goto retry_remap;
+-			}
+-			/* Hard error, zero out region. */
+-			SetPageError(page);
+-			ntfs_error(vol->sb, "vcn_to_lcn(vcn = 0x%Lx) failed "
+-					"with error code 0x%Lx%s.",
+-					(long long)vcn, (long long)-lcn,
+-					is_retry ? " even after retrying" : "");
+-			// FIXME: Depending on vol->on_errors, do something.
+-		}
+-		/*
+-		 * Either iblock was outside lblock limits or vcn_to_lcn()
+-		 * returned error. Just zero that portion of the page and set
+-		 * the buffer uptodate.
+-		 */
+-handle_hole:
+-		bh->b_blocknr = -1UL;
+-		clear_buffer_mapped(bh);
+-handle_zblock:
+-		memset(kmap(page) + i * blocksize, 0, blocksize);
+-		flush_dcache_page(page);
+-		kunmap(page);
+-		set_buffer_uptodate(bh);
+-	} while (i++, iblock++, (bh = bh->b_this_page) != head);
+-
+-	/* Check we have at least one buffer ready for i/o. */
+-	if (nr) {
+-		/* Lock the buffers. */
+-		for (i = 0; i < nr; i++) {
+-			struct buffer_head *tbh = arr[i];
+-			lock_buffer(tbh);
+-			tbh->b_end_io = end_buffer_read_mst_async;
+-			set_buffer_async_read(tbh);
+-		}
+-		/* Finally, start i/o on the buffers. */
+-		for (i = 0; i < nr; i++)
+-			submit_bh(READ, arr[i]);
+-		return 0;
+-	}
+-	/* No i/o was scheduled on any of the buffers. */
+-	if (!PageError(page))
++	if (likely(!PageError(page)))
+ 		SetPageUptodate(page);
+ 	else /* Signal synchronous i/o error. */
+ 		nr = -EIO;
+diff -Nru a/fs/ntfs/mft.c b/fs/ntfs/mft.c
+--- a/fs/ntfs/mft.c	Sun Jun 30 13:42:23 2002
++++ b/fs/ntfs/mft.c	Sun Jun 30 13:42:23 2002
+@@ -102,7 +102,7 @@
+  * ntfs_mft_aops - address space operations for access to $MFT
+  *
+  * Address space operations for access to $MFT. This allows us to simply use
+- * read_cache_page() in map_mft_record().
++ * ntfs_map_page() in map_mft_record_page().
+  */
+ struct address_space_operations ntfs_mft_aops = {
+ 	writepage:	NULL,			/* Write dirty page to disk. */
 
 ===================================================================
 
 This BitKeeper patch contains the following changesets:
-aia21@cantab.net|ChangeSet|20020630121516|51714
-aia21@cantab.net|ChangeSet|20020625181324|50149
+aia21@cantab.net|ChangeSet|20020630123723|51720
+aia21@cantab.net|ChangeSet|20020630122953|51720
+aia21@cantab.net|ChangeSet|20020626113015|50155
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch12641
-M'XL(`(+V'CT``^T\:V_;2)*?J5_1FPQFI8PE\ZU'D&`=VYDS8CLYV[G;P68A
-M4&33(BR1.I*RXXWRW[>JNOF4Z*>\BSM<'(@6V5U57>^J;OHU.SH8*6D47SLS
-M+_F+DTYG4=A+8R=,YCQU>FXT7^U/G?"2G_-TI:NJ#C^6UC=4RUYIMFKV5Z[F
-M:9IC:MQ3=7-@FZW7[&O"XY'B!(ZNP;?_B))TI+A.F#J37LA3N'4617!K=YG$
-MNTGL[J;A95?OJ3U-:\'#+T[J3MDUCY.1HO6,_$YZN^`CY>SP]Z_'>V>MUKMW
-M+*>,O7O7VNXB<FC3:,[OAF4#.,VR3'5EJ9IAM`Z8UK-5HZ?U-*;JNZJ]JUM,
-M&XXT8Z2;OZG:2%49\>8O!4_8;YK*NFKK`]ON,O9;+CN]^'@^8H*_K,N.PB`-
-MG!E;Q'SAQ$X:1&'"_"AFOG/%61!&'F<3)^$><](T#B;+%.[N1CV`U&4GT35G
-M'O<#!!*%+/)9F/K)F*:-D]1)^7@2I`DL@_G)+C[;I6>]*7-"#V`PYD4L`::R
-MN>/&$7Q>!BYK.YZS2`&G'T=S(,*=+3V^.PO"Y??=R=+W>3R><L?K33L`F:#P
-M[PL`R)S9C*53SJ9\MN"PAF7HBA6='H71QRAJ=W;H5V"9_):1@7?W9]R)Z;Y8
-MWI[GL9#?,'_F7.(2-JYM!%/'Y\"[A-=F!1P$5YW'DC1>NNDRYG@?J(UNV#+A
-MR+B"WPD1A#*HL'Q$*K_#0F<N/\<S'O;8WBP!4!(IT<6(+KFL\1X`V6$WT\"=
-M[K#`9PE/X1IZ@0M#$V*7H"U(F%,BH\R;\4F2?HFCE+L@E7N`%43#RA(V7\[2
-M@,`D,!L612H,(@25(X`@'P#1XSW@V/?E(H%U@.2!/1.`M5C,`M0]/^4Q`8E!
-M[@E2!H^!17R7'K&;.`#\0@!G')E34SAW-"(Q_``N[;@HZ!W@=!I'MS^%:-JY
-M+C6.X]]3'J;Y<"1BN?"0X2Z($CR4P`_^3L"@Z?590;A.V7A<&B\'$BE!F*2P
-MX-RP)"DUF`(M:F^X7+`YGT?Q+9@EJI<K+1JP_AB/=WZ6\/S8F027XY\5&"<H
-M?32B",Q'3@6[QEDL4^!,P4AQ4>!H.F\*6Q.0T`T#,?@<];($0=H%<J\$+`B%
-MUF\4&@J]PG94=]"-.%K$`?%?KCWR"8I<.2B.9`9HTR8>5QFWT4P=)(^,<<)3
-MU+0H]G@<A)<H$S[C<Y"#,-B;7MQ+>[CB(&9)\(^2B<NI"\>]DC.1+P42D(X@
-MM-?ZQ"!LF,/6ER*<M;J/_-=JJ8[:>K\65E89=[T@[DU%S+!T6^O#=;`R--,R
-M5]P9>K9J<5-7G:'N.P\"8NN6-E!M55WAKP:@_O!I51/E2AOV556#'T,=6L.5
-M"E_,U<3U#']@N_;`4]UA7V]&EX&I(32MOEU#B!]`V3H^W5@-?&]@&BZW?56S
-M?&O2C$]"R6*ZUM=48))J07BMHD.;\8,9W[3`_LKGKC:Q-$LS/=68K(?Z=3`5
-MC/V5;@^&_2I&Y/Q&?FHK7QWZ`]?WA\X$<H")<;?X*MRT`(BA#\S:\N9^NAD9
-MC.:^ZFJ^Y@-7^\#.9F0"2([,,G5ML+(-0[<VZ<HFV6G6:FC9#K!1<[D_F?1]
-M]SY=65-.LS^$%+2",%F"H]NX/MU<.=SFJCI1#>ZH^F`P;$:8@:FM$*@V5('P
-M('*7Z"O(J>ZBH)-;\.USJ6CI]W0##:JVZENJS?NJKW-[XDV,#0K[`,@%'S0=
-M;%SM&]:PR@?A;(ZCRTU4V"O/MT&E-""&^T;?-YLY40"JJ1;PPM);C\NDAX`1
-M.+BR-'LXD)FT+;-H0V600FO62+,;L^@72Z)/>'R)43]#-<J+E\D5I:E0P%@P
-M+@@A!FP:5JIQ@G5FKC$")6>`1HK8`#$"G(/9.GGTS.=%%2RR[M<VK+ZVJ/"M
-MIRN\-H2KJ0_!T^B:2OJC#:I%F#ZRFHLPXZ74YZO(&C&KD(58#*F$@Q7$)T;&
-M^9EUXQOZ#XS_\@"N/T&<1[HY9$9+4#!J*5@,0IH20C4HTEJ1I,G<"E,TR#V]
-MI8LI#.8O?A`G*60Q'-*\Z,:)O:2EL'OK1E2B-6<A=>:)WFA=19J\4:X1YD`?
-MVD(CU&I=KEHC:]BL$CKKZO]ZG2#?6=.)M34^004.=)-IJ`A,'Z`"'(;.9`89
-M_<=SK*BC.)7I*C8->C@`:YO@DJ?6&#+L*^[)?-R/`QYZ2;E><:/P&C06]!7T
-M":=@NBTAE&I=4>=Z7LR3A"60(4LU^=9Z?HOB&^)[;H]"V4:+0GEFAT)9;U`H
-M3^E/*%MI3RC;Z$XH6VA.*%OI32A;:$TH]W8FE.<U)I3G]264K;4EE(=W)93G
-M-R64;?4DE">U))1M="24QS0DE*WT(Y1MM2,.3`T#!'R:2-H!>(LHS;5K,EY$
-M"5@<#QD$(6^&T!R`&Y._!I>+7MN!3-E;(HGD2SD$R`5Z>^F,'?3ZX)Q8^?X$
-MHPO8N+!:B+1+\@`S)[<U,&YV$Z33:)G">A`QB@3R:^[U6/MLF:2W##X3/IMU
-M2/@P&'<-(E"1+(%!+?AT,OYP]'E\?K8_/CK[3^G7HCEX^*NYLVAW$H"V%T)X
-MNJED+EFU7DM<'M4+:$Y;:KV`/&O!7H#(6BPC2UJ@#!J,-'6D]ILW$UA7>\F<
-M!3=G4&K`7!&T,641?8N&G"5;X%-2E@$J)'X<_O7B;&^\__%X[_=S]HYU#S!+
-M&?_7X=GYT>?3=]]>"5J^O:H(CMH>-:D]HI_2++-R/T4(#`I7PP"Q"8$-'Y%E
-MOIC`SL"LK]'4P(.+S.7(4%%:HO'3("U:VE-$A35ZZX@^E^X4W%R*^/YF_1W$
-M]4-0,787RW$:0;*@V>T___)G2'@VW#^"^Q4Q2F]<$^2C6HW-HJRV&G-A:D.C
-M+X0Y,$O"M$>F/M*:K6_`NOVM"]-]YB['<W()L&VS;S;:MJ3D*?IBZ:@O]%D*
-M?F_H=PJA5?*NH\#KM`YLFD6?>.>.G*0"-("IFFKA7'%90PGLJ<X7(9)1MV],
-M,8J]228$IR_@X$6IH@%=;UI`YRU,U8=#FHM7O:4H2C/]^!2>!]WWXZ/3P[9\
-MEJ%+.G\+_DX@#<TFD.):,&5#YK?.$D/7Q&2ZWD$-#'_;>J@5R9YH?R5TAZS(
-MJKI$&^RGV8HLUC6V;T?[_[]C][]LQ^X3$UL^V_<^NJF+9HB.=LC>L(]'QX?C
-MDX\7HJ9D-SRO_SQ(I5,VCY9ARM)@#@7BQ10K5"QV(3--:#K:Z=P'^XQPRC5\
-M"W`9D%0;-IF8N"B*K/>Q%CX.DE08%@PRQ"!#N`7%3;]WWV,%VWV/%7_"?F5[
-M%Q=GX_W/)U_.#L\QZQF?[)U_8JO5G>./SL?G7_;.S@\[[`>BL9B!:/IP(?_R
-M*LO$N;?+0S>^Q3['KLC2>^P4\O]7<B"5$YAP[T=QO%RD0E]Z[(]HR1)(S6=>
-M/C1>ALR=7GG)5>\5K6X@<@.Z*&L\.(W",YX$'MB,9(<IW+RX%!/V<UJS<7T"
-M+"[%N,-L(6(8/->(K8'/VO<SJ@1(M%(D%,O061_[3,KN&S0@:3]!Z/'OK+#F
-MHN^PP_@U5$N`%>LHI!Q6V&-O=@LU*+<S!!KA\K&_`K%D[P)\_\'A7\=[Q\>?
-M]_<N0.K9"$H(WF&*5;Z#?1BX:[X%.@\L@])G<<E1'B&]>TCN%T%1MCRKSZP'
-M,PFT*8M>/(ZCN"U4/IGLL%>_U&DNM6(R%0D260J2AL"=RPCL9K%,Q\MPCB#'
-M4.SA@Y^PC@$U+L4%9V>T')[NG_WQY>+P@*WJ])&Z6P-;3+3E1-#BT-N%LB]7
-M=29OE(@YL(:D5>)2*,.'^6)-4X]L<\CL=:6`),IYF")4I7VP=[%7D_#IU^/C
-M#2)62<1VGT0L+@6IZQ9E"Q.T,Q-L-*F^IH*M'/4U+7,19=\RWCL]:V>WBQH>
-MA!:D'?:;?'(=S;KOW1G4Y9`Z83N"FI,$7>0;XJ(T6VQ?UX4C?+C);K39`3C4
-M?NLNV?384<I(&[F+C0P'@AW=F"=IUAI$KX?":N+N'=:\4;SKTMTHW*%!04%<
-MFB+'T+#$(.M%(P>40Q@YAL;P&9'C%XROP%I71)`'Q8ZA11HC+@^)'9"7F^#(
-M,#\?H.SAW^;5E;S'ZHYA30Y/N#I<T1P4';O$D&+E+-G)%Q1&85=P94=46&'A
-M?$`!F9./+#%43"CXRD1*F0^]<7!79!EN8NH9<#`'6>*D+#H@V5>E$VBL$^XO
-M.E1+@K*Q68A6BI-`>.,92*47SP3#:*8?<[[V.'-II7N%.?PD%*)4PFL)!0J)
-M)FQ"4#S,P.=W:L`U7="O&1N!C^-9PQKJ0]80B?ME=(C&%%$B0Y3;^J^_LMP;
-M_(G"N4`*'FN?CCY/EI=)KR>#Q8>OOX\_G[;_E$TA[%<Y;=DM6J%I"/:91I[[
-M"+D>G+0G\P60V4'Z<SW(H=1'O-W0C)EN;,8\\"S/?67D=*VSIO;[.I61NKK6
-M"AW<<:ZZS[K:]G=P\]/0F_<6T<A%T05?H\6FS<9''1Y&>#A,;EP6QU;KF'NL
-M?<XY*S;:L<'MP2J#6=+K%!5D415*`L%WB1U+S(>6:32'1!8[0+>R?^ZP69"F
-M,[DI2@0\=F.4:CG;5.^IY:9/J>4HR<,/J,/VH\5M'%Q.4T@;.@SER<X";$=Z
-MM$,`LH>B#Y.EUY):]FKFW$*NV9N^*FV`B.0$UHD,W2SF"8>H1G9Y9$((UC'+
-MH%+PR"?N8H3"A@+(+%Z"[T>NTYQ,WAY/7,A!>&VSDNI/`I1BF5G>]X;9X27J
-M`):@,`?T`_?;Z2%M[&!96FS4BLIT$05A*G<R;VGO//?G0K4RYY_0ONOLQKE-
-ML*[%"5V-M1/."0[1WNFQCZ!44/%+O,D.ELI9+4Q+H72G+;,=L7>/9UCD)NZ;
-M346-T-0@IIW9@">='=KO$?V)(E'*0913I2H&5M1%K'TYBR9`*/68P2]T-LTW
-MZ[A[.`*<+<7_BS^^')[3BMZB2][+F4N+S'A>R$CXZ:S__0;QO%6J,XG`QIE0
-M8V;$;9P(]R^!,0WS#Z`:Z6,IQS0CT^!"(=K9*F\[#-8LMP+SY]F$3"\]U!<Z
-M^U.H8#LH*S=N88HYH//E0`Z4H;R$TF-&1Q%X"DD+%$#9G`D'`6#O"-M?MZ`\
-M0!,.H?M0!3J+!2:-1WXVX?1H7$KW*.>A?G;-@%#OQ80X&]JF[3LZO)*OA7@`
-M,^/R#+")7U!UFHOZ;&0[F6,GKF`I4!H2)3.'=EQ=L+2<D"IOI)$ABWHH=>DX
-MT*;]")-E=+I9(P[HBT)PQ1#``H^4M61]M"9AO@1"W)4J?#"@1C5]*HKL9_]@
-MH%2BY'%8D7&2!;'*.1NA47ADBKK=HH6B4-N34+=54=&&',P5Z9(Y*C`DBF4+
-M,3NY4YTI-8Q"2XFU0J7A?U>3N#4J6O&2U:(D580O'%'II`JI07D4,*F-[JXC
-M=1?\F?2MV9BJWDCW*ERZIO59WVB!9("K!WBB".T!_;XOU$9V1TE*J,#DJC:$
-M[QX":/L=<#7"2:$P=\`6\4[)[63W';R?$Y7LEH]/X9`6DH?>Q^,^X^%RCNDB
-M6,9!$*>W.^0RM!$[\3,Y4!LSD>=8\'P*R(BZF@'4!;*J'6?5U*;YX#TA@PB3
-MJJA(F^O32]:Y(P'M56:@<+$>R@P3;&:.)VMR^RO>8CJ6PR&J$)YO.::<R(^%
-M7UH[HI1[)G7$SG@1)7,M+51<0*X<+%HC'@C)>P'H%D_.+^0QH3*BRGC1ZBG-
-MD>,SIE68)1%^#=')>T6+HLXPU*0<8YW"ZD"GDZ-::_EA/*U1(`BH.[^,B,)F
-M9/<*%3B'7S21[EY)R=W4UK$/YIKRNC]*D&V@Y\YR)A`VK;P,N+3NO*MT-UE%
-ME;V9JN+YHX@J@2W1)-I3=Q,D#\ELID8^?!0I&<`2'=5N9D7^X.8@^);UKQ1)
-MI=A_;LZ*L6\E?.;IYXO#$?MOGO5W\!2=YZ'+]]!3L;E?1`H\K"3\`QZ]O*&8
-MC-$#?"KZNQ((5,T%#XD4F;_0KN;NM9]T6+UR@J0TG3HI>B[Q"*K#%J6R@!H/
-M1X@.#"4ITMG!T`EF64"=H!,]2W(;TD%H.I+4:PFG(99Y0L=$@=7N%:U#GOS,
-M2JRF0YZU$YX(J;1#APA>TS%6A'+Z>?SQ]+R-?:D.6>&W%C(\P#<.9C@$\GN"
-M]_HUCJGO\N+X'\)\X3<EYL`:B``\25%B;5`%,6^'_8H=M.Y[DF;G+0S^F4^K
-M(J1-9KFF!J05G.##[\'U$&3$KH>@$QVM^Q&2$-GA/$CSZ)U56J(N+D2"$LDE
-M0:&V4WS/PM6&6R43JSTM?2V'GM+MS7/7?'GI6>&'2S=S)UBZ)YQ0Z4;5&W1R
-M]::4=`EY;F%4,A\0?8&2'&CCEX$=RK%9A/U*WCR*$1QFS)2855/QA,P0`Z9?
-M"]")W(Z=.>Z5.!Z8PV]EZ:ZPEX<VE?*W^T0W@II*VMH)G^:FTHN\$_#O/>$C
-M7I7;?E]&-P;89-4-;#LC)7'(*H;[F',W;S,(CSGA<O^1E6G]-3[!#%(+_1%'
-M5@S6-5[DP,I67EC>UNO*+Z4I0^S>'<BS4:HI*LWE0&2B0@F*?<2W6,$>1Y=Z
-MWL&80"B7'?)BUK4;EN8HC7,`H=P>3FRSE$G29-&#P::B:''^@CVMK#C%[>AR
-M:YQ>?*TUQA_Q1FVSJI;?J,V;XK:J#\0)1?LQ_LMF7?N%CIO^^SR8>+NX02^)
-M>T\ZT2KV/`VQYXEMP[N.C:%6E4,7-8!$LI=&HC<!(`31><,`*C8Q9X<Z8`NT
-MN%(>(D"(,TAIWO$5S6&@`F[?B'/UY0@M.R\QY]*@\6G]S!6>]M?%X1FZ*,79
-MQ36/+'K&0?<][>N3+SXP#>JZB\M=.XDT>"".\PST^P>7#8K>=ZQO-8F;#WOC
-MO]FD))3:GT70#$,3.8'YF(TF%9R_]3+O'C]SFPG_PH35>-9;,.%)AW=M!BLN
-MRTJ^%5\3UJ->N6^65O65^]P%JJK='\@7._N/\($6ZYK_YWP@_?F!!D%+_CU%
-MTI`MZ\R$*`DA"L^'45$@VK38610;2Y?`U6;G2$2*7C!WY-Z6\&\WG$T=T'!^
-M30US&B9>']T-%DNX,'PI+\(N_4V0T/B]#E3GSA4!`5\7+6-7>KP/'7R_:#E)
-M^/\LT0N+$YL^[G[6=C6])1>OV;V1V&`I&074H4"W2J_S`WA6.^/Z8TR`?\(L
-MT)5IY(EM-N<2BJ)>K[?V`@KYKVW\=98'`2D9ASTPQ/M#QB/RV'_]VRCT1V3N
-K>!GE2?ZIM)$KRX;J.REOB[\VYTZY>Y4LY^_<OC]0)WV]]4^70?$M&D\`````
+begin 664 bkpatch13430
+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
+6,S:130^M=LLP=8<K_P$K'!H<:2X`````
 `
 end

@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129211AbRBMVGp>; Tue, 13 Feb 2001 16:06:45 -0500
+	id <S129327AbRBMVH0>; Tue, 13 Feb 2001 16:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130228AbRBMVGg>; Tue, 13 Feb 2001 16:06:36 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46347 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129211AbRBMVGc>; Tue, 13 Feb 2001 16:06:32 -0500
-Subject: Re: Is this the ultimate stack-smash fix?
-To: jeremy.jackson@sympatico.ca (Jeremy Jackson)
-Date: Tue, 13 Feb 2001 21:06:02 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca> from "Jeremy Jackson" at Feb 13, 2001 03:58:19 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130228AbRBMVHR>; Tue, 13 Feb 2001 16:07:17 -0500
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:44706 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S129327AbRBMVHA>; Tue, 13 Feb 2001 16:07:00 -0500
+Message-ID: <3A89A1ED.603F0DF8@talk21.com>
+Date: Tue, 13 Feb 2001 21:06:53 +0000
+From: Scott Ashcroft <scott.ashcroft@talk21.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Gordon Sadler <gbsadler1@lcisp.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19ac-pre9 lo interface Broke
+In-Reply-To: <20010212101318.A6980@home-desktop> <20010213143234.A18024@home-desktop>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14SmeD-0002sR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> which are marked
-> supervisor-only (is this right?), and definitely don't contain user
-> code.
+Gordon Sadler wrote:
+> 
+> I have some further info here.
+> I performed strace on ifup -a and ifdown -a.
+> 
+> They aren't more than 4Kb each, but I'll cut and paste what appear to be
+> most relevant:
+> 
+> ifup.strace:
+> fork()                                  = 17974
+> wait4(17974, [WIFEXITED(s) && WEXITSTATUS(s) == 0], 0, NULL) = 17974
+> --- SIGCHLD (Child exited) ---
+> fork()                                  = 17976
+> wait4(17976, SIOCSIFADDR: Bad file descriptor
+> lo: unknown interface: Bad file descriptor
+> lo: unknown interface: Bad file descriptor
+> [WIFEXITED(s) && WEXITSTATUS(s) == 255], 0, NULL) = 17976
+> --- SIGCHLD (Child exited) ---
+[snip]
+> 
+> Can anyone point a finger?
 
-x86 its a fair description. However someone has taken the same theory, 
-including handling the exceptions and the x86 segment tricks needed to make
-it kind of fly. Its not a perfect cure but it works. Search for Solar Designer
-and non executable stack.
+Debian bug #85774
+http://cgi.debian.org/cgi-bin/bugreport.cgi?archive=no&bug=85774
 
+ifconfig broke, nothing to do with the kernel.
 
-
-
+Cheers,
+Scott

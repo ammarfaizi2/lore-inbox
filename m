@@ -1,92 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262347AbSI1Xyg>; Sat, 28 Sep 2002 19:54:36 -0400
+	id <S262351AbSI1X4t>; Sat, 28 Sep 2002 19:56:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262349AbSI1Xyg>; Sat, 28 Sep 2002 19:54:36 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:17867 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S262347AbSI1Xye>;
-	Sat, 28 Sep 2002 19:54:34 -0400
-Message-ID: <1033257590.3d964276e10e6@kolivas.net>
-Date: Sun, 29 Sep 2002 09:59:50 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] 2.5.39 with contest 0.41
-References: <20020928151726.18496.qmail@linuxmail.org>
-In-Reply-To: <20020928151726.18496.qmail@linuxmail.org>
+	id <S262352AbSI1X4t>; Sat, 28 Sep 2002 19:56:49 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:58120 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262351AbSI1X4o>; Sat, 28 Sep 2002 19:56:44 -0400
+Date: Sun, 29 Sep 2002 02:00:50 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: linux-kernel@vger.kernel.org,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.7
+In-Reply-To: <20020929004821.A11497@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0209290133380.338-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Paolo Ciarrocchi <ciarrocchi@linuxmail.org>:
+Hi,
 
-> noload:
-> Kernel                  Time            CPU             Ratio
-> 2.4.19                  133.07          98%             1.00
-> 2.4.19                  133.16          98%             1.00
-> 2.4.19                  135.43          97%             1.02
-> 2.5.38-mm2              138.19          97%             1.04
-> 2.5.38-mm2              138.47          96%             1.04
-> 2.5.38-mm2              139.54          96%             1.05
-> 2.5.39                  138.30          96%             1.04
-> 2.5.39                  138.63          96%             1.04
-> 2.5.39                  139.99          96%             1.05
-> 
-> process_load:
-> Kernel                  Time            CPU             Ratio
-> 2.4.19                  200.43          60%             1.51
-> 2.4.19                  203.11          60%             1.53
-> 2.4.19                  203.97          59%             1.53
-> 2.5.38-mm2              194.42          69%             1.46
-> 2.5.38-mm2              195.19          69%             1.47
-> 2.5.38-mm2              207.36          64%             1.56
-> 2.5.39                  190.44          70%             1.43
-> 2.5.39                  191.37          70%             1.44
-> 2.5.39                  193.60          69%             1.45
-> 
-> io_load:
-> Kernel                  Time            CPU             Ratio
-> 2.4.19                  486.58          27%             3.66
-> 2.4.19                  593.72          22%             4.46
-> 2.4.19                  637.61          21%             4.79
-> 2.5.38-mm2              232.35          61%             1.75
-> 2.5.38-mm2              237.83          57%             1.79
-> 2.5.38-mm2              274.39          50%             2.06
-> 2.5.39                  242.98          57%             1.83
-> 2.5.39                  294.52          50%             2.21
-> 2.5.39                  328.01          42%             2.46
-> 
-> mem_load:
-> Kernel                  Time            CPU             Ratio
-> 2.4.19                  172.24          78%             1.29
-> 2.4.19                  174.74          77%             1.31
-> 2.4.19                  174.87          77%             1.31
-> 2.5.38-mm2              165.53          82%             1.24
-> 2.5.38-mm2              170.00          80%             1.28
-> 2.5.38-mm2              171.96          79%             1.29
-> 2.5.39                  167.92          81%             1.26
-> 2.5.39                  170.80          80%             1.28
-> 2.5.39                  172.68          79%             1.30
+On Sun, 29 Sep 2002, Sam Ravnborg wrote:
 
-Quick statistical analysis:
-Noload, 2.5.39 is slower than 2.4.19 and same as 2.5.38-mm2
+> 1) Old tools zapped <file:> tags around filenames.
 
-ProcessLoad, 2.5.39 is slower than 2.4.19 and same as 2.5.38-mm2
+Ok.
 
-IO Load, 2.5.39 is faster than 2.4.19 and _appears_ slower than 2.5.38-mm2 but
-has no statistically significant difference; This is probably a type 2 error
-(meaning more samples are required). Paolo if you could perform three more runs
-on these two kernels it would help discriminate for those in the crowd who need
-firm proof.
+> > An issue (which was also mentioned by Jeff Garzik) is the help text
+> > format. Jeff likes to have an endhelp, where I think it's redundant.
+> 2) The current way forces the layout of the help text. I would prefer a way
+> that allowed the tools to use the space available instead.
+> Then a "." followed by newline could be interpreted as "forced-new-line"
+> or similar.
+> If endhelp is needed for that I vote for this as well.
 
-Mem Load, 2.5.39 is faster than 2.4.19 and same as 2.5.38-mm2
+The problem is that the Config.help format has almost no restrictions, so
+somehow I have to avoid messing up the content (at least for the
+majority of options), so far I tried to avoid to reformat all the help
+text.
+Another possibility might to use html tags.
 
+> 3) The syntax seems to be:
+> config SYMBOL
+> 	type-of-symbol optional-text
+> I would like "optional-text" to become mandatory. Then you could bail out
+> with an error when it does not exist.
 
-Note that for the results to be useful, they need to be run back to back on the
-same system as you seem to have done. If you use your machine between runs for
-something else, it can and probably will affect any further results.
+Why should it be an error? Symbols without a text are used for derived
+symbols.
 
-Con
+> 4) Did not find the documentation you mentioned, but on the other hand I
+> applied only the 2.3.39 diff.
+
+It's on the web. :)
+
+> 5) Show All intuitively is a shortcut for selecting all the three
+> possibilities {NAME, RANGE, DATA}, but is about showing all symbols.
+> 6) The ARCH specific options does not fit well into the tree.
+> GENERIC_ISA_DMA in top of tree, X86_SMP in bottom of tree.
+> Visible only with SHOW ALL enabled.
+
+"Show All" is mostly only a debug option, so what you see here isn't
+important to the normal user.
+
+> 7) I can step down in the tree but I need to select each sibling in the tree
+> induvidially. I expected to be able to select Cirrus logic under ALSA, and
+> let the selection boil up to the top.
+
+This is a planned feature, first I want to have a replacement for the old
+tools, new features come later.
+I suppose you use QT2 and "Show All" was active? Then it can be a bit
+confusing since the usually not visible items are not specially marked.
+
+> 8) File|Save followed by File|Quit. Still it ask if I want to save, even
+> no changes made inbetween.
+
+Simple to do.
+
+> 9) Renames a file in a source statement:
+> [sam@mars lkc-2.5.39]$ make xconfig
+> make[1]: `qconf' is up to date.
+> ./scripts/lkc/qconf arch/i386/Build.conf
+> can't find file ssound/arm/Build.conf
+> make: *** [xconfig] Error 1
+>
+> Error shall tell where the file is sourced. [.../Build.conf:27]
+>
+> 10) Deleted endmenu tag in sound/Build.conf:
+> [sam@mars lkc-2.5.39]$ make xconfig
+> make[1]: `qconf' is up to date.
+> ./scripts/lkc/qconf arch/i386/Build.conf
+> <none>:0:parse error, unexpected $
+> make: *** [xconfig] Error 1
+>
+> Some errorhandling needs to be improved a little.
+
+I know and it slowly moves to the top of the TODO list. :)
+
+bye, Roman
+

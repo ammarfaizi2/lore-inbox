@@ -1,65 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264806AbSKRU4z>; Mon, 18 Nov 2002 15:56:55 -0500
+	id <S264836AbSKRVI6>; Mon, 18 Nov 2002 16:08:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264808AbSKRU4z>; Mon, 18 Nov 2002 15:56:55 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62733 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264806AbSKRU4x>; Mon, 18 Nov 2002 15:56:53 -0500
-Date: Mon, 18 Nov 2002 16:02:24 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Dan Kegel <dank@kegel.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>, john slee <indigoid@higherplane.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't Johnny compile?
-In-Reply-To: <3DD6DE32.60503@kegel.com>
-Message-ID: <Pine.LNX.3.96.1021118155234.27535C-100000@gatekeeper.tmr.com>
+	id <S264839AbSKRVI6>; Mon, 18 Nov 2002 16:08:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5899 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264836AbSKRVI4>;
+	Mon, 18 Nov 2002 16:08:56 -0500
+Message-ID: <3DD9588C.8090701@pobox.com>
+Date: Mon, 18 Nov 2002 16:15:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vergoz Michael <mvergoz@sysdoor.com>
+CC: Ducrot Bruno <poup@poupinou.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 8139too.c patch for kernel 2.4.19
+References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com> <003b01c28edf$9e2b1530$76405b51@romain> <20021118170447.GB27595@poup.poupinou.org> <3DD9227E.5030204@pobox.com> <001901c28f2b$2f3540a0$76405b51@romain> <3DD92DE8.7030501@pobox.com> <00c701c28f3d$b044a160$76405b51@romain>
+In-Reply-To: <028901c28ead$10dfbd20$76405b51@romain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Nov 2002, Dan Kegel wrote:
+Vergoz Michael wrote:
 
-> Alan Cox wrote:
-> >>>Em Sat, Nov 16, 2002 at 04:04:05PM -0500, Jeff Garzik escreveu:
-> >>>
-> >>>>About the only thing WRT menuconfig I would be ok with is commenting out 
-> >>>>majorly broken drivers until they are fixed...
-> > 
-> > Thats basically what "OBSOLETE" is
-> 
-> So how 'bout this:
-> 
-> * mark all drivers that don't compile OBSOLETE.  That keeps us from
->    trying to fix drivers without having hardware to test them.
->    Anyone with proper hardware is invited to fix the drivers and then
->    mark them non-OBSOLETE.
+> >Vergoz Michael wrote:
 
-I would suggest that we not cause kconfig to attach a new, possibly
-misleading, meaning to the terms OBSOLETE and BROKEN. Therefore I would
-offer this nomenclature instead.
+> >If you are seeing a problem, please describe in detail the problem so
+> >that kernel developers may fix it in the current kernel's 8139too.c.
+>
+>
+> * The problem is in packet recv, i'v to work this night to find what 
+> exactly
+> is the problem
 
-OBSOLETE - the code in question provides either support for a no longer
-easily available hardware, or better software to support the hardware (or
-feature) is available. It does not mean that the feature is known not to
-work, just that there are alternatives.
 
-BROKEN - the code in question is known not to work, may not compile. It
-can be read as FIXME invitation.
+thanks!
 
-Lots of people would immediately reject the idea of writing a driver from
-scratch (including me, unless paid to do so), but at least some of those
-who need working code might be willing to take the time to fix an existing
-driver (or feature).
 
-Two different concepts, and probably a good way to provide a quick "things
-to do" list every time someone configures a kernel.
+>
+>
+> >>The driver 8139cp.c can be removed to the source entry.
+> >
+> >
+> >This is the preferred driver for the 8139C+ chip, as it included many
+> >bug fixes and is much faster than the version from RealTek.
+>
+>
+> * I will make a prupose to all linux kernel developers about that. I 
+> prefere
+> to fix that problem before to prupose anything else :P
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+
+Certainly.  Comments from all are welcome.  Here is the general argument:
+
+8139/A/B/C/D, 8100, 8139 rev K. are all supported by 8139too.
+
+8139C+ is a totally different chip, and thus gets a totally different 
+driver.  The realtek 8139C+ changes (which you posted) basically add a 
+totally different driver into the same source code.  The only reason for 
+this is that PCI ID for 8139C+ is similar [differs on PCI Revision Id].
+
+finally, I emailed my RealTek contact directly, and he said RealTek has 
+found no problems with 8139cp.c driver, and they support 8139cp's use.
+
+Regards,
+
+	Jeff
+
+
+
+
 

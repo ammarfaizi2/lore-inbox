@@ -1,78 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbTE1Fvn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 01:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbTE1Fvn
+	id S264538AbTE1FzP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 01:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTE1FzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 01:51:43 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:30089 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264540AbTE1Fvi (ORCPT
+	Wed, 28 May 2003 01:55:15 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:27530 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264538AbTE1FzO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 01:51:38 -0400
-Date: Wed, 28 May 2003 08:04:32 +0200
+	Wed, 28 May 2003 01:55:14 -0400
+Date: Wed, 28 May 2003 08:08:29 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       manish <manish@storadinc.com>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030528060432.GF845@suse.de>
-References: <3ED2DE86.2070406@storadinc.com> <3ED3A55E.8080807@storadinc.com> <200305271954.11635.m.c.p@wolk-project.de> <200305281533.08524.kernel@kolivas.org>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: kernel BUG at include/linux/blkdev (2.5.70)
+Message-ID: <20030528060829.GG845@suse.de>
+References: <200305272323.29063.ivg2@cornell.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305281533.08524.kernel@kolivas.org>
+In-Reply-To: <200305272323.29063.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28 2003, Con Kolivas wrote:
-> On Wed, 28 May 2003 04:04, Marc-Christian Petersen wrote:
-> > On Tuesday 27 May 2003 19:50, manish wrote:
-> >
-> > Hi Manish,
-> >
-> > > It is not a system hang but the processes hang showing the same stack
-> > > trace. This is certainly not a pause since the bonnie processes that
-> > > were hung (or deadlocked) never completed after several hrs. The stack
-> > > trace  was the same.
-> >
-> > then you are hitting a different bug or a bug related to the issues
-> > Christian Klose and me and $tons of others were complaining.
-> >
-> > The bug you are hitting might be the problem with "process stuck in D
-> > state" Andrea Arcangeli fixed, let me guess, over half a year ago or so.
-> >
-> > In case you have a good mind to try to address your issue, you might want
-> > to try out the patch you can find here:
-> >
-> > http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc2
-> >aa1/9980_fix-pausing-2
-> >
-> > ALL: Anyone who has this kind of pauses/stops/mouse is dead/keyboard is
-> > dead/: speak _NOW_ please, doesn't matter who you are!
+On Tue, May 27 2003, Ivan Gyurdiev wrote:
+> Out of nowhere on mozilla open (after it worked fine all afternoon):
 > 
-> Yo!
-> 
-> I'll throw my babushka into the ring too. I think it's obvious from MCP's 
-> comments that I've been involved in testing this problem. I've spent hours, 
-> possibly days trying to find a way to fix the pauses introduced since 
-> 2.4.19pre1. I agree with what MCP describes that the machine can come to a 
-> standstill under any sort of disk i/o and is unusable for a variable length 
-> of time. I've been playing with all sorts of numbers in my patchset to try 
-> and limit it with only mild success. The best results I've had without a 
-> major decrease in throughput was using akpm's read latency 2 patch but by 
-> significantly reducing the nr_requests. It was changing the number of 
-> requests that I discovered dropping them to 4 fixed the problem but destroyed 
-> write throughput. I was pleased to see AA give the problem recognition after 
-> my contest results on his kernel but disappointed that the problem only was 
-> reduced, not fixed.
+> ------------[ cut here ]------------
+> kernel BUG at include/linux/blkdev.h:408!
+> invalid operand: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[<c02322be>]    Tainted: P  
+> EFLAGS: 00010046
+> EIP is at blk_queue_start_tag+0x8e/0x100
+> eax: dfdfaf40   ebx: 00000000   ecx: c040176c   edx: dfdfc1a8
+> esi: dfdfc1a8   edi: dff52240   ebp: dff52260   esp: cf275aa8
+> ds: 007b   es: 007b   ss: 0068
+> Process mozilla-bin (pid: 3073, threadinfo=cf274000 task=d7296cc0)
+> Stack: da5a3880 000003e8 c04016c0 c040176c 00000286 00000001 dfdf0080 c040176c 
+>        c0245baa c040177c dfdfc1a8 00e916ff c04016c0 c0246832 c040176c dfdfc1a8 
+>        c01142d4 00000060 00000283 00000000 c01e92f2 000003e8 0023e546 000001f7 
+> Call Trace:
+>  [<c0245baa>] idedisk_start_tag+0x7a/0x90
+>  [<c0246832>] __ide_do_rw_disk+0x722/0x770
+>  [<c01142d4>] delay_tsc+0x14/0x40
+>  [<c01e92f2>] __delay+0x12/0x20
+>  [<c023afb4>] start_request+0x104/0x160
+>  [<c023b28b>] ide_do_request+0x24b/0x430
+>  [<c023b48d>] do_ide_request+0x1d/0x30
 
-Does the problem change at all if you force batch_requests to 0?
+This bug doesn't look possible. Basically it's a trigger to sanity check
+whether the request is already gone from the list or not, and there's no
+way it can be gone from this path (IDE would never call
+idedisk_start_tag() on a removed request).
+
+So I suspect something else is wrong, and this was just the first to
+trigger.
 
 -- 
 Jens Axboe

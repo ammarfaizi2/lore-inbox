@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265256AbTLaUUY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 15:20:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbTLaUUP
+	id S265238AbTLaUtP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 15:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265242AbTLaUtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 15:20:15 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:7577 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S265256AbTLaUUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 15:20:09 -0500
-Subject: Re: [PATCH 1/2] kthread_create
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: rusty@rustcorp.com.au, jgarzik@pobox.com, benh@kernel.crashing.org,
-       akpm@osdl.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1072893730.828.7255.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 31 Dec 2003 13:02:11 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Dec 2003 15:49:15 -0500
+Received: from rs9.luxsci.com ([66.216.98.59]:53480 "EHLO rs9.luxsci.com")
+	by vger.kernel.org with ESMTP id S265238AbTLaUtN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 15:49:13 -0500
+Message-ID: <3FF33643.5080808@acm.org>
+Date: Wed, 31 Dec 2003 12:49:07 -0800
+From: Javier Fernandez-Ivern <ivern@acm.org>
+Reply-To: ivern@acm.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: rudi@lambda-computing.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: File change notification
+References: <3FF2FC85.5070906@lambda-computing.de>
+In-Reply-To: <3FF2FC85.5070906@lambda-computing.de>
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +struct task_struct *kthread_create(int (*initfn)(void *data),
-> +       int (*corefn)(void *data),
-> +       void *data,
-> +       const char namefmt[],
-> +       ...)
+Rüdiger Klaehn wrote:
+
+Rudiger, I've been reading your code to try and understand it, and I 
+found one think I'm not so sure about:
+
+> +++ develop/fs/dnotify.c	2003-12-31 16:59:36.000000000 +0100
+> @@ -153,8 +153,9 @@
+>  void dnotify_parent(struct dentry *dentry, unsigned long event)
+>  {
+>  	struct dentry *parent;
+> -
+>  	spin_lock(&dentry->d_lock);
+> +	/* call inotify for this dentry */
+> +	inotify_dentrychange(dentry,event);
+
+...
+
+> +/*
+> + * This function should be called when something changes about a dentry, such
+> + * as attributes, creating, deleting, renaming etc.
+> + */
+> +void inotify_dentrychange(struct dentry *dentry,unsigned long event)
 > +{
-> + va_list args;
-> + struct kthread_create kc;
-> + DECLARE_WORK(work, spawn_kthread, &kc);
-> + /* Or, as we like to say, 16. */
-> + char name[sizeof(((struct task_struct *)0)->comm)];
-> +
-> + va_start(args, namefmt);
-> + vsnprintf(name, sizeof(name), namefmt, args);
-> + va_end(args);
-> +
-> + init_completion(&kc.done);
-> + kc.k.initfn = initfn;
-> + kc.k.corefn = corefn;
-> + kc.k.data = data;
-> + kc.k.name = name;
+> +	in_info info;
+> +	struct dentry *parent;
+> +	memset(&info,0,sizeof(in_info));
+> +	info.event=event;
+> +	spin_lock(&dentry->d_lock);
 
-Since processor ID info is available, there's no
-need for per-CPU naming. (I do realize it may be
-per-disk or per-filesystem though)
+inotify_dentrychange() is called from dnotify_parent() with the 
+dentry->d_lock spinlock held.  However, it also tries to attain the 
+spinlock.  Wouldn't this deadlock?  I thought spinlocks were not recursive.
 
-With the huge NUMA boxes, a simple "ps -ef" is
-going to look insane. How about task groups for
-them? Then the various threads wind up being
-seen as just that, threads.
+Please let me know if I'm not understanding this...I'm a locking newbie.
 
-BTW, some (p->pid==0) tests may need to become
-(p->tgid==0) tests instead.
-
-
+-- 
+Javier Fernandez-Ivern

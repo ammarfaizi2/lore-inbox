@@ -1,70 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264824AbUEYJWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264826AbUEYJaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264824AbUEYJWc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 05:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264825AbUEYJWc
+	id S264826AbUEYJaU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 05:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264827AbUEYJaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 05:22:32 -0400
-Received: from [213.196.40.106] ([213.196.40.106]:59275 "EHLO
-	eljakim.netsystem.nl") by vger.kernel.org with ESMTP
-	id S264824AbUEYJW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 05:22:28 -0400
-Date: Tue, 25 May 2004 11:22:25 +0200 (CEST)
-From: Joris van Rantwijk <joris@eljakim.nl>
-X-X-Sender: joris@eljakim.netsystem.nl
-To: linux-kernel@vger.kernel.org
-cc: Dominik Brodowski <linux@brodo.de>
-Subject: Re: System clock speed too high - 2.6.3 kernel
-In-Reply-To: <1E4zj-77w-69@gated-at.bofh.it>
-Message-ID: <Pine.LNX.4.58.0405251112040.30050@eljakim.netsystem.nl>
-References: <1E4zj-77w-69@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 May 2004 05:30:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:948 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264826AbUEYJaR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 05:30:17 -0400
+Date: Tue, 25 May 2004 02:29:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Help understanding slow down
+Message-Id: <20040525022941.62ab4cc4.akpm@osdl.org>
+In-Reply-To: <20040525103238.GA4212@elte.hu>
+References: <20040524062754.GO1833@holomorphy.com>
+	<20040524063959.5107.qmail@web90007.mail.scd.yahoo.com>
+	<20040524005331.71465614.akpm@osdl.org>
+	<20040525103238.GA4212@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+>  with the patch below we will print a big fat warning. (I did not want to
+>  deny idle=poll altogether - future HT implementations might work fine
+>  with polling idle.)
 
-On Fri, 26 Mar 2004, Praedor Atrebates wrote:
-> I have Mandrake 10.0, kernel-2.6.3-7mdk installed, on an IBM Thinkpad 1412
-> laptop, celeron 366, 512MB RAM.  I am finding that my system clock is ticking
-> away at a rate of about 3:1 vs reality, ie, I count ~3 seconds on the system
-> clock for every 1 real second.  I am running ntpd but this is unable to keep
-> up with the rate of system clock passage.
-
-I have the same problem with kernel 2.6.6, only in my case the speed is
-exactly doubled (not 3:1). Saying "clock=tsc" at boot time solves this
-perfectly.
-
-My mainboard is Asus P5A (4 years old) with ALi M1541 chipset.
-Linux detects a PM-Timer at port 0xec08. I measured the counting rate
-of this port (while safely running with clock=tsc) and it comes out at
-about 7159155 ticks per second. The rate expected by
-arch/i386/kernel/timer/timer_pm.c is 3579545 ticks per second, so this
-explains the double speed very nicely.
-
-Perhaps this should be documented in the kernel config info.
-If there are many systems with this problem, then calibrating the PM timer
-against the PIT timer at boot time (possibly rejecting invalid rates)
-might be an option.
-
-Bye,
-  Joris.
-
-Some information from dmesg:
-ACPI: RSDP (v000 ASUS                                      ) @ 0x000f81d0
-ACPI: RSDT (v001 ASUS   P5A      0x58582e32 MSFT 0x31313031) @ 0x07ffc000
-ACPI: FADT (v001 ASUS   P5A      0x58582e32 MSFT 0x31313031) @ 0x07ffc080
-ACPI: BOOT (v001 ASUS   P5A      0x58582e32 MSFT 0x31313031) @ 0x07ffc040
-ACPI: DSDT (v001   ASUS P5A      0x00001000 MSFT 0x01000001) @ 0x00000000
-ACPI: PM-Timer IO Port: 0xec08
-
-Some information from lspci:
-00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1541 (rev 04)
-00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5243 (rev 04)
-00:02.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03)
-00:03.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
-00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV] (rev c3)
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
-00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c1)
-01:00.0 VGA compatible controller: nVidia Corporation Riva TnT [NV04] (rev 04)
+idle=poll is handy when profiling the kernel with oprofile clock-unhalted
+events.  Because if you use the normal halt-based idle loop no profile
+"ticks" are accounted to idle time at all and the results are really hard
+to understand.

@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317006AbSFFQlF>; Thu, 6 Jun 2002 12:41:05 -0400
+	id <S316996AbSFFQqm>; Thu, 6 Jun 2002 12:46:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317007AbSFFQlE>; Thu, 6 Jun 2002 12:41:04 -0400
-Received: from host133-176-65-207.ezsweeps.com ([207.65.176.133]:10381 "EHLO
-	destiney.com") by vger.kernel.org with ESMTP id <S317006AbSFFQlE>;
-	Thu, 6 Jun 2002 12:41:04 -0400
-Date: Thu, 6 Jun 2002 11:42:08 -0500 (CDT)
-From: Greg Donald <greg@destiney.com>
+	id <S317010AbSFFQql>; Thu, 6 Jun 2002 12:46:41 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2314 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316996AbSFFQql>; Thu, 6 Jun 2002 12:46:41 -0400
 To: linux-kernel@vger.kernel.org
-Subject: list serv help
-Message-ID: <Pine.LNX.4.44.0206061121020.23180-100000@destiney.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: device model update 2/2
+Date: Thu, 6 Jun 2002 16:45:25 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <ado3j5$304$1@penguin.transmeta.com>
+In-Reply-To: <A183DF60AC72D5119B990002A5749CB301E9C106@ROMADG-MAIL01> <Pine.LNX.4.33.0206060808050.654-100000@geena.pdx.osdl.net>
+X-Trace: palladium.transmeta.com 1023381990 22356 127.0.0.1 (6 Jun 2002 16:46:30 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 6 Jun 2002 16:46:30 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.33.0206060808050.654-100000@geena.pdx.osdl.net>,
+Patrick Mochel  <mochel@osdl.org> wrote:
+>-
+> 		/* detach from driver */
+> 		if (dev->driver->remove)
+> 			dev->driver->remove(dev);
+> 		put_driver(dev->driver);
+>+
+>+		lock_device(dev);
+>+		dev->driver = NULL;
+>+		unlock_device(dev);
 
-My server lost dns for several hours a couple of weeks back.  Since then 
-I have made several unsuccessful attempts at getting back on the 
-linux-kernel list serv.  As far as I can tell I was unsubscribed durign 
-my dns outage.
+Code like the above just basically can _never_ be correct.
 
-I started reading the available FAQs and came across the MX record 
-verfication form at http://vger.kernel.org/mxverify.html:
+The locking just doesn't make any sense like that. 
 
-The results seem incorrect: 
-http://vger.kernel.org/cgi-bin/mxverify-cgi?DOMAIN=greg@destiney.com&SUBMIT=Submit+to+VGER.KERNEL.ORG
+Real locking looks something like this:
 
-Testing MX server: mail.destiney.com
+	lock_device(dev);
+	driver = dev->driver;
+	dev->driver = NULL;
+	unlock_device(dev);
 
---- sorry, address lookup for ``mail.destiney.com'' failed;
-code = Temporary failure in name resolution
+	if (driver->remove)
+		driver->remove(dev);
+	put_driver(driver);
 
+together with some promise that "dev" cannot go away from under us (ie a
+refcount on "dev" itself).
 
-But when I try my domain from any other server I have no issues:
-
-firewall:~$ nslookup mail.destiney.com
-Server:  sun00bna.bna.bellsouth.net
-Address:  205.152.150.254
-
-Non-authoritative answer:
-Name:    destiney.com
-Address:  207.65.176.133
-Aliases:  mail.destiney.com
-
-
-+-(destiney@gateway)
-+-(~)> nslookup mail.destiney.com
-Server:         68.52.0.5
-Address:        68.52.0.5#53
-
-Non-authoritative answer:
-mail.destiney.com       canonical name = destiney.com.
-Name:   destiney.com
-Address: 207.65.176.133
-
-
-Can anyone help me to get back subscribed to linux-kernel?
-
-Thanks in advance.
-
--- 
------------------------------------------------------------------------
-Greg Donald
-http://destiney.com/public.key
------------------------------------------------------------------------
-
+		Linus

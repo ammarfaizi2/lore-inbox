@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266630AbUHIOX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUHIO06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266630AbUHIOX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 10:23:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUHIOWE
+	id S266648AbUHIO06 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 10:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266626AbUHIOZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 10:22:04 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:25227 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S266626AbUHIOVU
+	Mon, 9 Aug 2004 10:25:36 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:21135 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266627AbUHIOVy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 10:21:20 -0400
-Subject: Re: 2.6.8-rc2-mm1: bluetooth broken?
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Stephane Jourdois <stephane@rubis.org>
-Cc: Filip Van Raemdonck <filipvr@xs4all.be>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040809133452.GA24530@diamant.rubis.org>
-References: <20040808191912.GA620@elf.ucw.cz>
-	 <1092003277.2773.45.camel@pegasus> <20040809095425.GA12667@debian>
-	 <1092046959.21815.15.camel@pegasus>
-	 <20040809120705.GA23073@diamant.rubis.org>
-	 <1092057843.21815.21.camel@pegasus>
-	 <20040809133452.GA24530@diamant.rubis.org>
-Content-Type: text/plain
-Message-Id: <1092061267.4639.4.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 09 Aug 2004 16:21:08 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 10:21:54 -0400
+Date: Mon, 9 Aug 2004 15:21:24 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org,
+       mj@ucw.cz
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+In-Reply-To: <200408091413.i79EDt9L010562@burner.fokus.fraunhofer.de>
+Message-ID: <Pine.LNX.4.60.0408091519440.2622@fogarty.jakma.org>
+References: <200408091413.i79EDt9L010562@burner.fokus.fraunhofer.de>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811072-387445850-1092061284=:2622"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephane,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> > I never used a -mm patch, so you must be a little bit more specific what
-> > is not working. What Bluetooth hardware are you using? Do the logfiles
-> > or dmesg include anything helpful?
-> 
-> I use a usb dongle, unfortunately included in my laptop, so I can't see
-> any serial number or anything.
+---1463811072-387445850-1092061284=:2622
+Content-Type: TEXT/PLAIN; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-I installed a 2.6.8-rc3-mm2 on my development machine and everything
-works like it should. I tried a RFCOMM connection to my mobile, a HCRP
-connection to my printer and I used a Bluetooth mouse. All stuff worked
-perfect.
+On Mon, 9 Aug 2004, Joerg Schilling wrote:
 
-Do "hciconfig -a" show your Bluetooth device? Do "/proc/bus/usb/devices"
-has an entry for it? Check "dmesg" for any USB related error messages.
+> Then I would love to see a demo that uses /dev/sg* with a ATAPI drive
+> using DMA for all related sector sizes.
 
-Regards
+Hmm, you'd have to wait for Jeff Garzik to finish ATAPI support in 
+libata and address any issues with him.
 
-Marcel
+Anyway, I was just commenting on the device naming issue.
 
+> Jörg
 
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Death is only a state of mind.
+
+Only it doesn't leave you much time to think about anything else.
+---1463811072-387445850-1092061284=:2622--

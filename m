@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262947AbTHVAJg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 20:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTHVAJf
+	id S262957AbTHVAci (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 20:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTHVAci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 20:09:35 -0400
-Received: from webmail6.rediffmail.com ([202.54.124.151]:22676 "HELO
-	rediffmail.com") by vger.kernel.org with SMTP id S262947AbTHVAJd
+	Thu, 21 Aug 2003 20:32:38 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:6273 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S262957AbTHVAch
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 20:09:33 -0400
-Date: 22 Aug 2003 00:09:26 -0000
-Message-ID: <20030822000926.17486.qmail@webmail6.rediffmail.com>
+	Thu, 21 Aug 2003 20:32:37 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Jeff Garzik <jgarzik@pobox.com>, Jamie Lokier <jamie@shareable.org>
+Subject: Re: [PATCH] Re: [PATCH] scsi.h uses "u8" which isn't defined.
+Date: Thu, 21 Aug 2003 20:32:25 -0400
+User-Agent: KMail/1.5
+Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <lRjc.6o4.3@gated-at.bofh.it> <20030820234810.GA24970@mail.jlokier.co.uk> <3F440C15.1050301@pobox.com>
+In-Reply-To: <3F440C15.1050301@pobox.com>
 MIME-Version: 1.0
-From: "vijayan prabhakaran" <pvijayan@rediffmail.com>
-Reply-To: "vijayan prabhakaran" <pvijayan@rediffmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Read in ext3
-Content-type: text/plain;
-	format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200308212032.25334.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 20 August 2003 20:02, Jeff Garzik wrote:
 
-Hi,
+> > If userspace applications are ultimately compiled using Linux header
+> > files, indirectly included via Glibc or some other libc, and the
+> > kernel header files are GPL (version 2 only; not LGPL or any later
+> > GPL), isn't distributing those binary applications a gross violation
+> > of the GPL in some cases?
+...
+> One way or another (direct inclusion, or via glibc-kernheaders pkg) the
+> headers today are GPL'd not LGPL'd... so I suppose it remains the realm
+> of lawyers...
+>
+> IANAL,
+>
+> 	Jeff
 
-I have a doubt on how ext3 handles read in this specific case.
+So I take it one of the goals of cleaned and pressed kernel-ABI headers for 
+2.7 would be to have them distributable under LGPL?  (Just trying to be 
+explicit, here...)
 
-Assume that a page is written to the journal but not yet updated
-to its actual location and before updating the actual copy the 
-page
-gets invalidated. Now if a read comes to the same
-data, which block will be read: the journal copy or the actual
-copy ?
-
-First of all, will this situation ever occur ? The page will be
-marked dirty until it is written to its actual location so it 
-may
-never get invalidated until it is written to the actual
-location!
-
-I appreciate your help.
-
-Since I'm not subscribed to this list, could you please CC your 
-answers to my personal mailid.
-
-Thanks.
-Vijayan
-
-
-
-___________________________________________________
-Meet your old school or college friends from
-1 Million + database...
-Click here to reunite www.batchmates.com/rediff.asp
-
+Rob
 

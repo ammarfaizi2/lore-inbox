@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315178AbSFXTWA>; Mon, 24 Jun 2002 15:22:00 -0400
+	id <S315179AbSFXTXb>; Mon, 24 Jun 2002 15:23:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315179AbSFXTV7>; Mon, 24 Jun 2002 15:21:59 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:32923
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S315178AbSFXTV6>; Mon, 24 Jun 2002 15:21:58 -0400
-Date: Mon, 24 Jun 2002 12:20:21 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4.19-rc1] Fix building with 'make -r -R'
-Message-ID: <20020624192021.GH3489@opus.bloom.county>
-References: <Pine.LNX.4.44.0206241253120.9274-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0206241253120.9274-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
+	id <S315182AbSFXTXa>; Mon, 24 Jun 2002 15:23:30 -0400
+Received: from waste.org ([209.173.204.2]:2523 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S315179AbSFXTX1>;
+	Mon, 24 Jun 2002 15:23:27 -0400
+Date: Mon, 24 Jun 2002 14:23:21 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: James Bottomley <James.Bottomley@steeleye.com>
+cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "'David Brownell'" <david-b@pacbell.net>,
+       "'Nick Bellinger'" <nickb@attheoffice.org>,
+       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: driverfs is not for everything! (was: [PATCH] /proc/scsi/map )
+In-Reply-To: <200206241809.g5OI9Ds02886@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0206241404020.9420-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch fixes 'make -r -R' in current kernels.  From the
-make (3.79.1) info page:
+On Mon, 24 Jun 2002, James Bottomley wrote:
 
-     In an explicit rule, there is no stem; so `$*' cannot be determined
-     in that way.  Instead, if the target name ends with a recognized
-     suffix (*note Old-Fashioned Suffix Rules: Suffix Rules.), `$*' is
-     set to the target name minus the suffix.  For example, if the
-     target name is `foo.c', then `$*' is set to `foo', since `.c' is a
-     suffix.  GNU `make' does this bizarre thing only for compatibility
-     with other implementations of `make'.  You should generally avoid
-     using `$*' except in implicit rules or static pattern rules.
+> andrew.grover@intel.com said:
+> > If a device can be accessed by multiple machines concurrently, it
+> > should not be in driverfs.
+>
+> On that argument, we'll eliminate almost all Fibre Channel devices!
+>
+> I think the qualification for appearing in driverfs is actually possessing a
+> driver.  Therefore, we accept FC and iSCSI.  Things which appear as
+> FileSystems are debatable, but not anything which has a real device driver.
 
-Which explains why when '-r -R' (aka --no-builtin-rules
---no-builtin-variables) the build fails to make 'init/main.o' or
-'init/do_mounts.o'.
+Between iSCSI and filesystems there's still MD, loopback, ramdisk, NBD,
+LVM, and general partitioning. They all expose block devices and try their
+damnedest to look like physical devices. If we're serious about using
+driverfs as a system for unifying device detection ("show me all my disks,
+please"), then these should all be in too.
+
+And they raise some interesting problems. As pointed out earlier, iSCSI is
+potentially multipath, as is LVM, NBD, and software RAID. Hardware RAID is
+already multipath in some cases so our tree really ought to be a DAG.
+
+And let's think about loopback a moment. It's potentially layered on top
+of a filesystem, layered on top of a logical volume layered on top of SCSI
+and ATA. Just from the power management perspective, to quiesce our
+system, we'll have to know that we need to flush loop->fs->lvm->scsi/ata
+before we can shut down whichever drive.
+
+So to be done right, we need to pull filesystems into the tree too (rather
+than just implicitly correlating against /proc/mounts).
+
+> > We need a device tree to do PM. If driverfs's PM capabilities are hurt
+> > because it doesn't stay true to that, then the featureitis has gone
+> > too far.
+>
+> Perhaps it's more a question of whether power management belongs as an every
+> unit item in driverfs.  As you say, we get problems where the device is shared
+> between multiple computers.
+
+And we already have a problem there for local SCSI - see OpenGFS which
+lets you share a filesystem on a single SCSI bus. Admittedly, that's
+rather sick, but not as appalling for FC, iSCSI, or NBD (or GFS's
+internal equivalent).
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
-
-===== Makefile 1.158 vs edited =====
---- 1.158/Makefile	Wed Jun  5 15:45:31 2002
-+++ edited/Makefile	Fri Jun  7 10:20:25 2002
-@@ -355,10 +355,10 @@
- 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) -DUTS_MACHINE='"$(ARCH)"' -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o init/version.o init/version.c
- 
- init/main.o: init/main.c include/config/MARKER
--	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
-+	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $@ $<
- 
- init/do_mounts.o: init/do_mounts.c include/config/MARKER
--	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
-+	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $@ $<
- 
- fs lib mm ipc kernel drivers net: dummy
- 	$(MAKE) CFLAGS="$(CFLAGS) $(CFLAGS_KERNEL)" $(subst $@, _dir_$@, $@)
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

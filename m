@@ -1,43 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268042AbRHFMKf>; Mon, 6 Aug 2001 08:10:35 -0400
+	id <S268067AbRHFMOP>; Mon, 6 Aug 2001 08:14:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268033AbRHFMKZ>; Mon, 6 Aug 2001 08:10:25 -0400
-Received: from d122251.upc-d.chello.nl ([213.46.122.251]:24840 "EHLO
-	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
-	id <S268042AbRHFMKJ>; Mon, 6 Aug 2001 08:10:09 -0400
-From: bvermeul@devel.blackstar.nl
-Date: Mon, 6 Aug 2001 14:13:06 +0200 (CEST)
-To: Emmanuel Varagnat <Emmanuel_Varagnat-AEV010@email.mot.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS file corruption
-In-Reply-To: <3B6E84A1.1A13969@crm.mot.com>
-Message-ID: <Pine.LNX.4.33.0108061411420.8002-100000@devel.blackstar.nl>
+	id <S268094AbRHFMOF>; Mon, 6 Aug 2001 08:14:05 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61712 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268067AbRHFMNt>; Mon, 6 Aug 2001 08:13:49 -0400
+Subject: Re: 2.2.1x kernel memory "leaks"
+To: jlewis@lewis.org
+Date: Mon, 6 Aug 2001 13:15:47 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0108052337300.1854-100000@redhat1.mmaero.com> from "jlewis@lewis.org" at Aug 05, 2001 11:40:18 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15TjIR-0000qs-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Aug 2001, Emmanuel Varagnat wrote:
+> memory, but the majority is still tied up by the kernel.  I haven't found
+> much documentation on it, but I suspect the dentry_cache may be to blame.
+> What's a reasonable size for the dentry_cache?
 
->
-> Today, I crashed the kernel and after reboot the source file
-> I was working on, was completly unreadable. The size indicated
-> by 'ls' seems to be good but with bad data.
->
-> Is this behavior normal (because the FS seems correct) ?
-> The worst I hoped is loosing the last save, but not everything.
+Probably < 100,000 entries on  256Mb box, certainly not 1.2 million.
 
-Yes, this is normal. You're being hit by metadata only journalling.
-Configure your editor to make backup files, this will make sure you can
-recover the last version.
-
-Bas Vermeulen
-
--- 
-"God, root, what is difference?"
-	-- Pitr, User Friendly
-
-"God is more forgiving."
-	-- Dave Aronson
-
+What file systems are mailer ?

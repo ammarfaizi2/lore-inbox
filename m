@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVAGCTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVAGAOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVAGCTq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 21:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVAGCTg
+	id S261624AbVAGAOH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 19:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVAGAFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 21:19:36 -0500
-Received: from mail.gadugi.org ([69.155.252.3]:9346 "EHLO mail.gadugi.org")
-	by vger.kernel.org with ESMTP id S261182AbVAGCS2 (ORCPT
+	Thu, 6 Jan 2005 19:05:09 -0500
+Received: from holomorphy.com ([207.189.100.168]:41921 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263124AbVAFX7E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 21:18:28 -0500
-Date: Thu, 6 Jan 2005 20:16:29 -0600
-From: root <root@mail.gadugi.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: Stephen Pollei <stephen_pollei@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: OT Re: Cherokee Nation Posts Open Source Legisation
-Message-ID: <20050107021629.GA14118@mail.gadugi.org>
-References: <20050106180414.GA11597@mail.gadugi.org> <200501061836.j06IakHo030551@turing-police.cc.vt.edu> <20050106183725.GA12028@mail.gadugi.org> <200501061935.j06JZMq4013855@turing-police.cc.vt.edu> <1105043496.970.49.camel@fury> <20050106213221.GA12866@mail.gadugi.org> <200501062227.j06MR9wQ004690@turing-police.cc.vt.edu>
+	Thu, 6 Jan 2005 18:59:04 -0500
+Date: Thu, 6 Jan 2005 15:58:30 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Steve Longerbeam <stevel@mvista.com>
+Cc: Andi Kleen <ak@muc.de>, Hugh Dickins <hugh@veritas.com>,
+       Ray Bryant <raybry@sgi.com>, Hirokazu Takahashi <taka@valinux.co.jp>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Marcello Tosatti <marcelo.tosatti@cyclades.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, andrew morton <akpm@osdl.org>
+Subject: Re: page migration patchset
+Message-ID: <20050106235830.GE9636@holomorphy.com>
+References: <Pine.LNX.4.44.0501052008160.8705-100000@localhost.localdomain> <41DC7EAD.8010407@mvista.com> <20050106144307.GB59451@muc.de> <41DDCD2B.4060709@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501062227.j06MR9wQ004690@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <41DDCD2B.4060709@mvista.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 05:27:09PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 06 Jan 2005 15:32:21 CST, root said:
-> 
-> > If the license says the receipient of a piece of code must acknowledge 
-> > and protect the trade secrets it contains, then it's enforceable.
-> 
-> To protect a secret means making at least some attempt to keep it from
-> becoming general knowledge.  If you can come up with a *practical* way
-> to give me a piece of *open source* software that contains a trade secret
-> and still keep it a secret, we'd all (especially the guys at NVidia ;) would
-> love to know it.
+Andi Kleen wrote:
+>> You need lazy hugetlbfs to use it (= allocate at page fault time,
+>> not mmap time). Otherwise the policy can never be applied. I implemented 
+>> my own version of lazy allocation for SLES9, but when I wanted to 
+>> merge it into mainline some other people told they had a much better 
+>> singing&dancing lazy hugetlb patch. So I waited for them, but they 
+>> never went forward with their stuff and their code seems to be dead
+>> now. So this is still a dangling end :/
+>> If nothing happens soon regarding the "other" hugetlb code I will
+>> forward port my SLES9 code. It already has NUMA policy support.
+>> For now you can remove the hugetlb policy code from mainline if you
+>> want, it would be easy to readd it when lazy hugetlbfs is merged.
 
-Stay tuned ....
+On Thu, Jan 06, 2005 at 03:43:39PM -0800, Steve Longerbeam wrote:
+> if you don't mind I'd like to. Sounds as if lazy hugetlbfs would be
+> able to make use of the generic file mapping->policy instead of a
+> hugetlb-specific policy anyway. Same goes for shmem.
 
-> 
-> Hint:  I doubt the guys at opensource.org will approve a license that involves
-> an NDA... 
+If Andi's comments refer to my work, it already got permavetoed.
+
+Anyway, using the vma's is a minor change. Please include this as a
+patch separate from other changes (fault handling, consolidations, etc.)
 
 
-
+-- wli

@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVACSwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVACS4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVACSwV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:52:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVACSwU
+	id S261838AbVACS4w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:56:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVACRtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 13:52:20 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:781 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261782AbVACSvx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 13:51:53 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <tonyosborne_a@hotmail.com>
-Subject: RE: Main CPU- I/O CPU interaction
-Date: Mon, 3 Jan 2005 10:51:43 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEDBANAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <BAY14-F83B94FD7D13C5D19883F795900@phx.gbl>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 03 Jan 2005 10:27:45 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 03 Jan 2005 10:27:46 -0800
+	Mon, 3 Jan 2005 12:49:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29201 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261764AbVACRoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 12:44:08 -0500
+Date: Mon, 3 Jan 2005 18:44:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix inlining related build failures in mxser.c
+Message-ID: <20050103174403.GI2980@stusta.de>
+References: <Pine.LNX.4.61.0412240155070.3504@dragon.hygekrogen.localhost> <Pine.LNX.4.61.0412241306340.19395@yvahk01.tjqt.qr> <Pine.LNX.4.61.0412241431580.3707@dragon.hygekrogen.localhost> <87zn03u7h8.fsf@deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87zn03u7h8.fsf@deneb.enyo.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 24, 2004 at 02:54:43PM +0100, Florian Weimer wrote:
+> * Jesper Juhl:
+> 
+> >> Add -funit-at-a-time to the CFLAGS, and the compiler is happy.
+> >> 
+> > But, does unit-at-a-time work reliably for all compilers on all archs back 
+> > to and including gcc 2.95.3 ? 
+> 
+> Unit-at-a-time is only available in GCC 3.4 and above.
+> Function-at-a-time will still be supported in GCC 4.0, but this
+> version will use unit-at-a-time by default (if optimization is
+> enable).
 
-> from doing the low level I/O operations. However, if i am editing and 
-> updating a big size file and i want to save
-> it afterwards, i  notice my PC getting blocked while saving the 
-> file which 
-> theoritically should NOT happen as it is up to the I/O device 
-> processor and 
+unit-at-a-time is already enabled at -O2 in 3.4 .
 
-	What does "PC getting blocked" mean?
+The kernel Makefile explicitely disables it on i386.
 
-	DS
+cu
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

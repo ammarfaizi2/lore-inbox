@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129116AbRCZVGp>; Mon, 26 Mar 2001 16:06:45 -0500
+	id <S129245AbRCZV31>; Mon, 26 Mar 2001 16:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129164AbRCZVGg>; Mon, 26 Mar 2001 16:06:36 -0500
-Received: from snark.tuxedo.org ([207.106.50.26]:53768 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S129116AbRCZVGQ>;
-	Mon, 26 Mar 2001 16:06:16 -0500
-Date: Mon, 26 Mar 2001 16:09:00 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: John Cowan <jcowan@reutershealth.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: CML1 cleanup patch, take 3
-Message-ID: <20010326160900.A20685@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	John Cowan <jcowan@reutershealth.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <200103261924.f2QJOwL19694@snark.thyrsus.com> <3ABF9EA7.FD7EEAED@mandrakesoft.com> <20010326151223.A20023@thyrsus.com> <3ABFAD05.4090204@reutershealth.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ABFAD05.4090204@reutershealth.com>; from jcowan@reutershealth.com on Mon, Mar 26, 2001 at 03:56:37PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S129259AbRCZV3S>; Mon, 26 Mar 2001 16:29:18 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:12605 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S129245AbRCZV3A>; Mon, 26 Mar 2001 16:29:00 -0500
+Date: Mon, 26 Mar 2001 15:27:44 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103262127.PAA24549@tomcat.admin.navo.hpc.mil>
+To: dalecki@evision-ventures.com, "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 64-bit block sizes on 32-bit systems
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Cowan <jcowan@reutershealth.com>:
-> > If CML2 is adopted and I become the config system maimtainer,
->                                                        ^
-> Typo-ROTFL!
+Martin Dalecki <dalecki@evision-ventures.com>:
+> "Eric W. Biederman" wrote:
+> > 
+> > Matthew Wilcox <matthew@wil.cx> writes:
+> > 
+> > > On Mon, Mar 26, 2001 at 10:47:13AM -0700, Andreas Dilger wrote:
+> > > > What do you mean by problems 5 years down the road?  The real issue is that
+> > > > this 32-bit block count limit affects composite devices like MD RAID and
+> > > > LVM today, not just individual disks.  There have been several postings
+> > > > I have seen with people having a problem _today_ with a 2TB limit on
+> > > > devices.
+> > >
+> > > people who can afford 2TB of disc can afford to buy a 64-bit processor.
+> > 
+> > Currently that doesn't solve the problem as block_nr is held in an int.
+> > And as gcc compiles an int to a 32bit number on a 64bit processor, the
+> > problem still isn't solved.
+> > 
+> > That at least we need to address.
+> 
+> And then you must face the fact that there may be the need for
+> some of the shelf software, which isn't well supported on 
+> correspondig 64 bit architectures... as well. So the
+> arguemnt doesn't hold up to the reality in any way.
 
-Of such errors are linguistic innovations made.  I wonder if this one
-will propagate enough that I have to put it in the Jargon File? :-)
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+You are missing the point - I may need to use a 32 bit system to monitor
+a large file system. I don't need the compute power of most 64 bit systems
+to monitor user file activity.
 
-Our society won't be truly free until "None of the Above" is always an option.
+> BTW. For many reasons 32 bit architecutres are in
+> respoect of some application shemes *faster* the 64.
+
+Which is why I want to use them with a 64 bit file system. Some of the
+weather models run here have been known to exceed 100 GB data file. Yes
+one  file. Most only need 20GB, but there are a couple of hundred of them...  
+
+> Ultra III in 64 mode just crawls in comparision to 32.
+
+Depends on what you are doing. If you need to handle large arrays of
+floating point it is reasonable (not great, just reasonable).
+
+> Alpha - unfortulatly an orphaned and dyring archtecutre... which
+> is not well supported by sw verndors...
+
+These are NOT the only 64 bit systems - Intel, PPC, IBM (in various guises).
+If you need raw compute power, the Alpha is pretty good (we have over a
+1000 in a Cray T3..).
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbSJWFhx>; Wed, 23 Oct 2002 01:37:53 -0400
+	id <S262875AbSJWFhv>; Wed, 23 Oct 2002 01:37:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262872AbSJWFhw>; Wed, 23 Oct 2002 01:37:52 -0400
-Received: from mail.eskimo.com ([204.122.16.4]:11532 "EHLO mail.eskimo.com")
-	by vger.kernel.org with ESMTP id <S262871AbSJWFhv>;
-	Wed, 23 Oct 2002 01:37:51 -0400
-Date: Tue, 22 Oct 2002 22:43:44 -0700
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Elladan <elladan@eskimo.com>, Jeff Dike <jdike@karaya.com>,
-       Andi Kleen <ak@muc.de>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       george anzinger <george@mvista.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Bill Davidsen <davidsen@tmr.com>
-Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
-Message-ID: <20021023054344.GA2002@eskimo.com>
-References: <20021020023321.GS23930@dualathlon.random> <200210220507.AAA06089@ccure.karaya.com> <20021022052717.GO19337@dualathlon.random> <20021022072438.GA4853@eskimo.com> <20021022074006.GS19337@dualathlon.random> <20021023051208.GA1350@eskimo.com>
+	id <S262872AbSJWFht>; Wed, 23 Oct 2002 01:37:49 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:13993 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262871AbSJWFhs>;
+	Wed, 23 Oct 2002 01:37:48 -0400
+Date: Wed, 23 Oct 2002 16:40:51 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: John Gardiner Myers <jgmyers@netscape.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Latest aio code (was Re: [PATCH] async poll for 2.5)
+Message-ID: <20021023164051.A2830@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1035310415.31873.120.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0210221113390.1563-100000@blue1.dev.mcafeelabs.com> <20021022143708.F20957@redhat.com> <1035310415.31873.120.camel@irongate.swansea.linux.org.uk> <3DB5A593.9090506@netscape.com> <20021022152843.I20957@redhat.com> <1035310415.31873.120.camel@irongate.swansea.linux.org.uk> <3DB5AC14.7000600@netscape.com> <20021022160022.B24843@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021023051208.GA1350@eskimo.com>
-User-Agent: Mutt/1.4i
-From: Elladan <elladan@eskimo.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021022160022.B24843@redhat.com>; from bcrl@redhat.com on Tue, Oct 22, 2002 at 04:00:22PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 10:12:08PM -0700, Elladan wrote:
+On Tue, Oct 22, 2002 at 04:00:22PM -0400, Benjamin LaHaise wrote:
+> On Tue, Oct 22, 2002 at 12:50:44PM -0700, John Gardiner Myers wrote:
+> > 
+> > 
+> > Benjamin LaHaise wrote:
+> > 
+> > >*Which* proposals?  There was enough of a discussion that I don't know 
+> > >what people had decided on.
+> > >
+> > Primarily the ones in my message of Tue, 15 Oct 2002 16:26:59 -0700. In 
+> > that I repeat a question I posed in my message of Tue, 01 Oct 2002 
+> > 14:16:23 -0700.
 > 
-> Try 2:
+> How does it perform?
 > 
-> Create a second mapping of the vsyscall page in some special location
-> above the normal page.  Make a new sysctl, which globally invalidates
-> the page that the standard mapping is on.  Basically, this disables
-> vsyscalls for everyone when turned on.
+> > There's also the IOCB_CMD_NOOP strawman of Fri, 18 Oct 2002 17:16:41 -0700.
 > 
-> Now, obviously this won't work without some trick.  What we do now is,
-> we make the page fault handler path for vsyscalls (to be added anyway)
-> work like so:
-> 
-> If the pc is within the allocated vsyscall page(s), then:
-> 
-> If the pc is on the entrypoint to a vsyscall function, check whether the
-> process is being traced.  If so, turn this into a somewhat normal
-> looking syscall so it can be virtualized (or do something else, if you
-> want - have userspace jump somewhere, etc).
-> 
-> If not traced, or if the pc is not at the entrypoint, reset the pc to be
-> on the second vsyscall copy, with the same offset, and return to
-> userspace.
-> 
-> This lets us do a global vsyscall disable, but (I hope) fixes up the
-> problem of userspace going to sleep inside a vsyscall.  The process
-> wakes up, faults, and gets shunted off to identical code in another
-> location, which should have the same behavior.
-> 
-> Downside: vgettimeofday takes a performance penalty for everyone in the
-> special case where UML is running with full time virtualization, because
-> of the page fault.  This is the very unusual case, so who cares?
-> 
-> Downside 2: Would this actually work?  It's a bit scary sounding...
+> That's going in unless there are any other objections to it from folks.  
+> Part of it was that I had problems with 2.4.43-bk not working on my 
+> test machines last week that delayed a few things.
 
-One caveat to this, I suppose, is that the vsyscall itself would need to
-be position-independant code (which might not be overhead, if done very
-carefully), or else the code would have to be modified inside the
-sysctl() at invalidation time.  Both of which make the implementation
-ugly.
+Ben,
 
--J
+Is there a patch against 2.5.44 with all the latest fixes that
+we can sync up with ?
+
+Regards
+Suparna
+
+> 
+> 		-ben
+> -- 
+> "Do you seek knowledge in time travel?"
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/

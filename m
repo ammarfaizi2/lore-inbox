@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbTE0Cb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 22:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTE0Cb0
+	id S262493AbTE0Caq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 22:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbTE0Caq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 22:31:26 -0400
-Received: from holomorphy.com ([66.224.33.161]:13257 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262494AbTE0CbX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 22:31:23 -0400
-Date: Mon, 26 May 2003 19:44:19 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andrew Morton <akpm@digeo.com>, davem@redhat.com, andrea@suse.de,
-       davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: userspace irq balancer
-Message-ID: <20030527024419.GF8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Andrew Morton <akpm@digeo.com>, davem@redhat.com, andrea@suse.de,
-	davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
-	mbligh@aracnet.com, linux-kernel@vger.kernel.org
-References: <20030527000639.GA3767@dualathlon.random> <20030526.171527.35691510.davem@redhat.com> <20030527004115.GD3767@dualathlon.random> <20030526.174841.116378513.davem@redhat.com> <20030527015307.GC8978@holomorphy.com> <20030526185920.64e9751f.akpm@digeo.com> <20030527021002.GD8978@holomorphy.com> <Pine.LNX.4.50.0305262212070.2265-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0305262212070.2265-100000@montezuma.mastecende.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 26 May 2003 22:30:46 -0400
+Received: from h-64-105-35-116.SNVACAID.covad.net ([64.105.35.116]:1160 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S262493AbTE0Cap
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 22:30:45 -0400
+Date: Mon, 26 May 2003 19:44:06 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200305270244.h4R2i6E21333@freya.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-bk19 "make" messages much less informative
+Cc: c-d.hailfinger.kernel.2003@gmx.net, levon@movementarian.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 May 2003, William Lee Irwin III wrote:
->> The number of interrupt sources on a system ends up scaling this up to
->> numerous IO-APIC RTE reprograms and ioapic_lock acquisitions per-second
->> (granted, with a 5s timeout between reprogramming storms) where it
->> competes against IO-APIC interrupt acknowledgements.
->> Making the lock per- IO-APIC would at least put a bound on the number
->> of competitors mutually interfering with each other, but a tighter
->> bound on the amount of work than NR_IRQS would be more useful than that.
+Carl-Daniel Hailfinger wrote:
+>If something stands out clearly, people tend to notice it. Assuming only
+>one person gets annoyed enough to submit fixes for the warnings, this is
+>a net win.
+>V=0 still works, only the default was changed.
 
-On Mon, May 26, 2003 at 10:15:23PM -0400, Zwane Mwaikambo wrote:
-> Ok there are 16 IOAPICs on an 8quad, but really if we start banging on 
-> that lock someone is doing way too much hardware access...
+	I think the productivity that I would lose from such a build
+environment would exceed the fixing of one compiler warning within
+a couple of days, perhaps even sooner, and I am only one developer.
 
-It's done to acknowledge every interrupt. Also, there is additional
-cost associated with bouncing the lock's cacheline.
+	Many thanks to John Levon for pointing out that V=1 still
+works.  Here is a proposed patch, which I have already committed
+to my tree.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Miplitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
 
--- wli
+--- linux-2.5.69-bk19/Makefile	2003-05-26 12:26:26.000000000 -0700
++++ linux/Makefile	2003-05-26 18:00:31.000000000 -0700
+@@ -107,15 +107,13 @@
+ # If it is set to "silent_", nothing wil be printed at all, since
+ # the variable $(silent_cmd_cc_o_c) doesn't exist.
+ 
+-# To put more focus on warnings, less verbose as default
+-
+ ifdef V
+   ifeq ("$(origin V)", "command line")
+     KBUILD_VERBOSE = $(V)
+   endif
+ endif
+ ifndef KBUILD_VERBOSE
+-  KBUILD_VERBOSE = 0 
++  KBUILD_VERBOSE = 1
+ endif
+ 
+ ifdef C

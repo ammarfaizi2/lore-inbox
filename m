@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265163AbSIRCV4>; Tue, 17 Sep 2002 22:21:56 -0400
+	id <S265343AbSIRCcI>; Tue, 17 Sep 2002 22:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbSIRCV4>; Tue, 17 Sep 2002 22:21:56 -0400
-Received: from holomorphy.com ([66.224.33.161]:46823 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265163AbSIRCVz>;
-	Tue, 17 Sep 2002 22:21:55 -0400
-Date: Tue, 17 Sep 2002 19:22:42 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S265346AbSIRCcI>; Tue, 17 Sep 2002 22:32:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45068 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265343AbSIRCcH>;
+	Tue, 17 Sep 2002 22:32:07 -0400
+Message-ID: <3D87E6B4.80304@mandrakesoft.com>
+Date: Tue, 17 Sep 2002 22:36:36 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: "David S. Miller" <davem@redhat.com>
-Cc: mingo@elte.hu, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
-Message-ID: <20020918022242.GB23546@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>, mingo@elte.hu,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0209180024090.30913-100000@localhost.localdomain> <20020918002240.GB2179@holomorphy.com> <20020917.182722.122084128.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020917.182722.122084128.davem@redhat.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+CC: akpm@digeo.com, manfred@colorfullife.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Info: NAPI performance at "low" loads
+References: <3D87A4A2.6050403@mandrakesoft.com>	<20020917.144911.43656989.davem@redhat.com>	<3D87E0C2.6040004@mandrakesoft.com> <20020917.190641.84134530.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: William Lee Irwin III <wli@holomorphy.com>
->    The issues addressed here are extremely important for the workloads I
->    must support.
-
-On Tue, Sep 17, 2002 at 06:27:22PM -0700, David S. Miller wrote:
-> Have you published test tools that emulate your workload?
-> These would be very useful, probably to find problems even
-> outside the scope of pid lookups.
-
-By and large I've been using existing tools, for instance, multiple
-tiobench instances to obtain a large task count. The test cases I've
-had to construct by hand are generally meant to trigger pagetable OOM,
-which I've been assigned to do something about. In general, I attempt
-to simulate the VM and I/O characteristics of databases. Sometimes I
-have to get a bit inventive, e.g. recent 2*dbench 512 on tmpfs test.
+David S. Miller wrote:
+>    From: Jeff Garzik <jgarzik@mandrakesoft.com>
+>    Date: Tue, 17 Sep 2002 22:11:14 -0400
+>    
+>    You're looking at at least one extra get-irq-status too, at least in the 
+>    classical 10/100 drivers I'm used to seeing...
+>    
+> How so?  The number of ones done in the e1000 NAPI code are the same
+> (read register until no interesting status bits remain set, same as
+> pre-NAPI e1000 driver).
+> 
+> For tg3 it's a cheap memory read from the status block not a PIO.
 
 
-Thanks,
-Bill
+Non-NAPI:
+
+	get-irq-stat
+	ack-irq
+	get-irq-stat (omit, if no work loop)
+
+NAPI:
+
+	get-irq-stat
+	ack-all-but-rx-irq
+	mask-rx-irqs
+	get-irq-stat (omit, if work loop)
+	...
+	ack-rx-irqs
+	get-irq-stat
+	unmask-rx-irqs
+
+This is the low load / low latency case only.  The number of IOs 
+decreases at higher loads [obviously :)]
+

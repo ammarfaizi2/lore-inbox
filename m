@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132821AbRDKSoY>; Wed, 11 Apr 2001 14:44:24 -0400
+	id <S132875AbRDKSrO>; Wed, 11 Apr 2001 14:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132875AbRDKSoO>; Wed, 11 Apr 2001 14:44:14 -0400
-Received: from waste.org ([209.173.204.2]:24376 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S132821AbRDKSoE>;
-	Wed, 11 Apr 2001 14:44:04 -0400
-Date: Wed, 11 Apr 2001 13:43:31 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
-        <schwidefsky@de.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <E14mkGA-000341-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0104111337170.32245-100000@waste.org>
+	id <S132868AbRDKSrG>; Wed, 11 Apr 2001 14:47:06 -0400
+Received: from anarchy.io.com ([199.170.88.101]:46409 "EHLO anarchy.io.com")
+	by vger.kernel.org with ESMTP id <S132875AbRDKSqs>;
+	Wed, 11 Apr 2001 14:46:48 -0400
+Date: Wed, 11 Apr 2001 12:56:43 -0500 (CDT)
+From: Bret Indrelee <bret@io.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.rutgers.edu>
+Subject: Re: No 100 HZ timer!
+Message-ID: <Pine.LNX.4.21.0104111242150.16730-100000@fnord.io.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Apr 2001, Alan Cox wrote:
-
-> > > Its worth doing even on the ancient x86 boards with the PIT.
-> >
-> > Note that programming the PIT is sloooooooow and doing it on every timer
-> > add_timer/del_timer would be a pain.
+Mikulas Patocka (mikulas@artax.karlin.mff.cuni.cz) wrote:
+> Adding and removing timers happens much more frequently than PIT tick,
+> so 
+> comparing these times is pointless. 
 >
-> You only have to do it occasionally.
+> If you have some device and timer protecting it from lockup on buggy 
+> hardware, you actually 
 >
-> When you add a timer newer than the current one
-> 	(arguably newer by at least 1/2*HZ sec)
+> send request to device 
+> add timer 
+>
+> receive interrupt and read reply 
+> remove timer 
+>
+> With the curent timer semantics, the cost of add timer and del timer is 
+> nearly zero. If you had to reprogram the PIT on each request and reply,
+> it 
+> would slow things down. 
+>
+> Note that you call mod_timer also on each packet received - and in worst 
+> case (which may happen), you end up reprogramming the PIT on each
+> packet. 
 
-That's only if we want to do no better than the current system. We'd want
-a new variable called timer_margin or something, which would be dependent
-on interrupt source and processor, and could be tuned up or down via
-sysctl.
+You can still have nearly zero cost for the normal case. Avoiding worst
+case behaviour is also pretty easy.
 
-> When you finish running the timers at an interval and the new interval is
-> significantly larger than the current one.
+You only reprogram the PIT if you have to change the interval.
 
-Make that larger or smaller. If we come out of a quiescent state (1 hz
-interrupts, say) and start getting 10ms timers, we want to respond to them
-right away.
+Keep all timers in a sorted double-linked list. Do the insert
+intelligently, adding it from the back or front of the list depending on
+where it is in relation to existing entries.
 
-> Remember each tick we poke the PIT anyway
+You only need to reprogram the interval timer when:
+1. You've got a new entry at the head of the list
+AND
+2. You've reprogrammed the interval to something larger than the time to 
+the new head of list.
 
-We could also have a HZ_max tunable above which we would not try to
-reprogram the interval. On older systems, this could be set at
-100-200HZ...
+In the case of a device timeout, it is usually not going to be inserted at
+the head of the list. It is very seldom going to actually timeout.
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+Choose your interval wisely, only increasing it when you know it will pay
+off. The best way of doing this would probably be to track some sort
+of LCD for timeouts.
+
+The real trick is to do a lot less processing on every tick than is
+currently done. Current generation PCs can easily handle 1000s of
+interrupts a second if you keep the overhead small.
+
+-Bret
+
+------------------------------------------------------------------------------
+Bret Indrelee |  Sometimes, to be deep, we must act shallow!
+bret@io.com   |  -Riff in The Quatrix
+
 

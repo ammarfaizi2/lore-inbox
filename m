@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbVBFG7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268098AbVBFHE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267518AbVBFG7M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 01:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267785AbVBFG7L
+	id S268098AbVBFHE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 02:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265055AbVBFHE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 01:59:11 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7608 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S267518AbVBFGzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 01:55:38 -0500
-Message-ID: <4205BF5B.7050006@pobox.com>
-Date: Sun, 06 Feb 2005 01:55:23 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peer.Chen@uli.com.tw
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       andrebalsa@mailingaddress.org, Clear.Zhang@uli.com.tw,
-       Emily.Jiang@uli.com.tw, Eric.Lo@uli.com.tw
-Subject: Re: [patch] scsi/ahci: Add support for ULi M5287
-References: <OF3919B280.9034BA70-ON48256FA0.002238C1@uli.com.tw>
-In-Reply-To: <OF3919B280.9034BA70-ON48256FA0.002238C1@uli.com.tw>
+	Sun, 6 Feb 2005 02:04:58 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:32787 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S268370AbVBFHBY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 02:01:24 -0500
+Date: Sun, 6 Feb 2005 18:00:50 +1100
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: davem@davemloft.net, mirko.parthey@informatik.tu-chemnitz.de,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shemminger@osdl.org
+Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
+Message-ID: <20050206070050.GF16057@gondor.apana.org.au>
+References: <20050206.133723.124822665.yoshfuji@linux-ipv6.org> <20050205210411.7e18b8e6.davem@davemloft.net> <20050206.143107.39728239.yoshfuji@linux-ipv6.org> <20050206.145007.34543324.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050206.145007.34543324.yoshfuji@linux-ipv6.org>
+User-Agent: Mutt/1.5.6+20040722i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peer.Chen@uli.com.tw wrote:
-> Hi,Jeff:
-> I think you are not necessary add the m5287 support to ahci.c now, the code
-> I add is to
-> correct the two bugs of our controller, now we have designed a new AHCI
-> controller name M5288(device id is 0x5288),
-> it work perfectly with the linux ahci driver only add the PCI ID to ahci.c.
+On Sun, Feb 06, 2005 at 02:50:07PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
+> 
+> Which means in addrconf_notiry(), if the dev == &loopback_dev,
+> call addrconf_ifdown for every device like this:
 
-Thanks, I will add this PCI ID to ahci.c.
+This should fix the reported issue.  However, I'm not sure if it's
+a good idea to stop all IP traffic when lo goes down.  We don't do
+that for IPv4.
 
+Besides, we'll still need to fix the rt6i_idev GC issue since the
+same bug can occur when eth0 goes down and some appliation is holding
+a dst to a local address route.  It can become a dead-lock if the
+said application then invokes a syscall that takes the RTNL.
 
-> Another question,if the SATA SCSI driver and AHCI driver both support the
-> same controller, which driver
-> has the priority in linux.
-
-Two answers:
-
-a) For the upstream kernel -- when the drivers are built into the kernel
--- the order in which the drivers are listed in drivers/scsi/Makefile
-affects the probe order (priority).  When the drivers are built as
-kernel modules, the contents of /etc/modprobe.conf (or /etc/modules.conf
-for kernel 2.4.x) determines which driver to load.
-
-b) For distributors (Red Hat, SuSE, Mandrake, etc.), the installer
-engineers at each company choose which driver to load.
-
-To simplify matters, it is recommended to avoid situations where
-multiple drivers have the same PCI ID listed.  The "more advanced"
-driver (AHCI) is preferred of course ;-)
-
-Regards,
-
-	Jeff
-
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

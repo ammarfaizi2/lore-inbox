@@ -1,133 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130882AbRAPG4V>; Tue, 16 Jan 2001 01:56:21 -0500
+	id <S131165AbRAPHHd>; Tue, 16 Jan 2001 02:07:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131476AbRAPG4L>; Tue, 16 Jan 2001 01:56:11 -0500
-Received: from 209.102.21.2 ([209.102.21.2]:62480 "EHLO dragnet.seagull.net")
-	by vger.kernel.org with ESMTP id <S130882AbRAPG4A>;
-	Tue, 16 Jan 2001 01:56:00 -0500
-Message-ID: <3A63C013.38EF1542@goingware.com>
-Date: Tue, 16 Jan 2001 03:29:23 +0000
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-ac4 i686)
-X-Accept-Language: en
+	id <S131247AbRAPHHY>; Tue, 16 Jan 2001 02:07:24 -0500
+Received: from www.wen-online.de ([212.223.88.39]:54541 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131165AbRAPHHG>;
+	Tue, 16 Jan 2001 02:07:06 -0500
+Date: Tue, 16 Jan 2001 08:06:58 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Vlad Bolkhovitine <vladb@sw.com.sg>
+cc: Zlatko Calusic <zlatko@iskon.hr>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: mmap()/VM problems in 2.4.0
+In-Reply-To: <3A63ED75.53094939@sw.com.sg>
+Message-ID: <Pine.Linu.4.10.10101160803390.1021-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: ncorbic@sangoma.com
-Subject: Doc bug?  Is Sangoma S514 PCI WAN card supported?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under 2.4.0-ac4 I find lots of mentions of the Sangoma S514 PCI Multiprotocol
-Wide Area Networking card in
+On Tue, 16 Jan 2001, Vlad Bolkhovitine wrote:
 
-drivers/net/wan/sdla*
+> > My box thinks quite highly of that patch fwiw, but insists that he needs
+> > to apply Jens Axboes' blk patch first ;-)  (Not because of tiobench)
+> 
+> New data:
+> 
+> 2.4.1pre3 + Marcelo's patch
+> 
+>        File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
+> Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+> ------- ------ ------- --- ----------- ----------- ----------- -----------
+>    .     1024   4096    2  12.68 9.23% 0.497 0.92% 10.57 15.3% 0.594 1.44%
+> 
+> The same performance level as for 2.4.0. No improvement.
 
-But in Documentation/Configure.help under CONFIG_VENDOR_SANGOMA I only see
-mention of the S502E(A), S503 and S508.  These same cards are listed in
-documentation/networking/framerelay.txt but not S514.
+I was refering to the stalls.. not throughput.
 
-I can't find the 502 or 503 cards on http://www.sangoma.com so maybe they're
-obsolete and while the 508 looks like a pretty good card, it's an ISA card and
-I'd much rather use the 514 which is PCI.  The PCI card is $579 and the ISA card
-is $529 so you don't have to pay much extra to get a card that's going to be
-better for your box's well-being.
+	-Mike
 
-I'm moving to the first house I've ever owned in my life (so I'll get to drill
-holes in the walls) and the only affordable high-speed internet option there
-which allows the subscriber to run their own servers and have multiple static IP
-addresses is frame relay.
-
-(You can also do synchronous PPP, HDLC and X.25 with these cards).
-
-An advantage of using a WAN card over a dedicated router is:
-
-- it's cheaper
-
-- you get the source code
-
-- you can combine the function of the router with other things like webservers
-and firewalls (I was going to run a separate FRAD and firewall - $$$)  You can
-probably get dedicated routers with firewalls built in but you don't then have
-the option of source code or, likely, timely notification from your vendors
-about security holes.
-
-- the WAN router is running on a box with lots of memory, hard disk, XWindows,
-etc.  Routers often run some kind of Unix as their OS but have very limited
-resources for loading them up with fun diagnostic tools.
-
-- you get to learn lots of interesting acronyms and enthrall your friends and
-relatives with your knowledge of wide area networking protocols
-
-- cool diagnostics by indicating link status, send and receive by lighting up
-your keyboard LED's.
-
-These folks at Sangoma seem like they're some pretty cool froods to be providing
-specs and drivers for their cards which they appear to have kept supported over
-an extended period of time so we should support their efforts by letting Linux
-users know all the options for the hardware that helpful vendors such as these
-sell.
-
-My first thought, quite unfairly, was that Sangoma was only releasing the specs
-for the older ISA cards and keeping the PCI specs a secret.  
-
-The following two passages from the WANPIPE user manual 
-(ftp://ftp.sangoma.com/documents/wanpipe.pdf) have me pretty convinced this is a
-vendor worth looking into:
-
-> Make sure your "other end" is set up correctly.  Many third party routers
-> default to proprietary, non standard protocols, while WANPIPE adheres strictly
-> to Internet or IETF standards of encapsulation.
-
-well that's pretty reasonable and what I'd expect but check this out:
-
-> You will find these utilities will turn you into a WAN guru.  
-> You will always know more about the WAN connection than either the
-> network provider or the third party at the other end.
-
-Reminds me of the days when I used to call up Sun support and talk their
-technicians through the process of giving me tech support.  Not to mention
-dealing with a typical ISP's tech support ("ifconfig? which version of Windows
-are you running, anyway?")
-
-Lotsa good linux WAN stuff at ftp://ftp.sangoma.com/linux
-
-Clueless about frame relay?  I was before this evening spent a-googling.  These
-two pages are helpful places to start:
-
-The Frame Relay Forum
-http://www.frforum.com
-
-They have an intro book you can read online as HTML or download as PDF.
-
-IBM Frame Relay Guide
-http://www.raleigh.ibm.com/cgi-bin/bookmgr/BOOKS/EZ305800/CCONTENTS
-
-Pretty dry but quite informative.
-
-the abovementioned wanpipe.pdf file has some pretty helpful introductory info it
-too.  There's also a document called WanpipeForLinux.pdf which is helpful.  It's
-available actually in both PDF and text format at
-
-ftp://ftp.sangoma.com/linux/current_wanpipe/doc/
-
-Now I just hope there's enough physical wires running into my house to _get_
-frame relay.  May have to send the telephone man on top of a pole to drop me a
-line.  How many wires into your building are required for frame relay to work? 
-Can't seem to find _that_ anywhere, and this house isn't exactly in a place
-where the telco would have thought to plan for lots of extra capacity.
-
-Mike
--- 
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-   Tilting at Windmills for a Better Tomorrow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

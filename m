@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266136AbUBJUji (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 15:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUBJUji
+	id S266114AbUBJUde (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 15:33:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUBJUdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 15:39:38 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:42130 "EHLO
-	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S266136AbUBJUjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 15:39:37 -0500
-Date: Tue, 10 Feb 2004 15:39:00 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040210203900.GA18263@ti19.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	"Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-	linux-kernel@vger.kernel.org
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <40291A73.7050503@nortelnetworks.com> <20040210192456.GB4814@tinyvaio.nome.ca> <40293508.1040803@nortelnetworks.com> <40293AF8.1080603@backtobasicsmgmt.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Feb 2004 15:33:33 -0500
+Received: from [65.248.107.127] ([65.248.107.127]:1152 "EHLO
+	ns1.brianandsara.net") by vger.kernel.org with ESMTP
+	id S266114AbUBJUdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 15:33:32 -0500
+From: Brian Jackson <iggy@gentoo.org>
+Organization: Gentoo Linux
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.3-rc1-mm1
+Date: Tue, 10 Feb 2004 13:45:19 -0600
+User-Agent: KMail/1.6.50
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20040209014035.251b26d1.akpm@osdl.org>
+In-Reply-To: <20040209014035.251b26d1.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <40293AF8.1080603@backtobasicsmgmt.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402101345.19015.iggy@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 01:11:36PM -0700, Kevin P. Fleming wrote:
-> devfs is "single-instance": it can be mounted during initrd/initramfs 
-> processing, then remounted after pivot_root without losing its contents
-> 
-> Granted, I'm sure someone can come up with a single-instance ramfs 
-> filesystem that can be used for udev, but today it does not exist.
- 
-mount --move olddir newdir
+kernel bug at mm/slab.c:1107!
+invalid operand:0000 [#1]
+SMP
 
-Regards,
+(this happened just after the Console: and Memory: lines)
+This didn't happen with 2.6.1-mm4 (that's the last -mm I tried). I can try to 
+track down where it started later, but this is my firewall, so I have to wait 
+till everyone goes to sleep first.
 
-	Bill Rugolsky
+--Iggy
+
+On Monday 09 February 2004 03:40, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3-rc1/2.6
+>.3-rc1-mm1/
+>
+>
+
+
+-- 
+Home -- http://www.brianandsara.net
+Gentoo -- http://gentoo.brianandsara.net

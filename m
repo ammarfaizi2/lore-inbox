@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267603AbSLSKhb>; Thu, 19 Dec 2002 05:37:31 -0500
+	id <S267616AbSLSKf7>; Thu, 19 Dec 2002 05:35:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267622AbSLSKh0>; Thu, 19 Dec 2002 05:37:26 -0500
-Received: from comtv.ru ([217.10.32.4]:58568 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S267603AbSLSKgr>;
-	Thu, 19 Dec 2002 05:36:47 -0500
-X-Comment-To: William Lee Irwin III
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       David Lang <david.lang@digitalinsight.com>, Robert Love <rml@tech9.net>,
-       Till Immanuel Patzschke <tip@inw.de>,
-       lse-tech <lse-tech@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: 15000+ processes -- poor performance ?!
-References: <1040262178.855.106.camel@phantasy>
-	<Pine.LNX.4.44.0212181743350.7848-100000@dlang.diginsite.com>
-	<20021219020552.GO31800@holomorphy.com>
-	<200212191015.gBJAFss28329@Port.imtp.ilyichevsk.odessa.ua>
-	<20021219102720.GT31800@holomorphy.com>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 19 Dec 2002 13:37:30 +0300
-In-Reply-To: <20021219102720.GT31800@holomorphy.com>
-Message-ID: <m3u1hapa51.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S267615AbSLSKf6>; Thu, 19 Dec 2002 05:35:58 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:27550 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267616AbSLSKf4>;
+	Thu, 19 Dec 2002 05:35:56 -0500
+Date: Thu, 19 Dec 2002 10:43:21 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Courtney Grimland <cgrimland@yahoo.com>
+Cc: Tupshin Harper <tupshin@tupshin.com>, linux-kernel@vger.kernel.org
+Subject: Re: Via KT400
+Message-ID: <20021219104321.GC29122@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Courtney Grimland <cgrimland@yahoo.com>,
+	Tupshin Harper <tupshin@tupshin.com>, linux-kernel@vger.kernel.org
+References: <001301c2a6ed$d9e7c3e0$0100a8c0@pcs686> <3E010F07.3000708@tupshin.com> <20021218232653.45c6eac7.cgrimland@yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021218232653.45c6eac7.cgrimland@yahoo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> William Lee Irwin (WLI) writes:
+On Wed, Dec 18, 2002 at 11:26:53PM -0600, Courtney Grimland wrote:
+ > I have the 7VAXP.  I only had problems with AGP and sound, and using
+ > 2.4.20-ac2 absolutely everything on this board works (finally -
+ > sound!).  AGP worked in 2.4.20-ac1 as well as 2.4.21-pre1.  I think
+ > the the IDE issue was resolved in 2.4.20.
 
- WLI> On 19 December 2002 00:05, William Lee Irwin III wrote:
- >>> Well, a better solution would be a userspace free of /proc/
- >>> dependency.  Or actually fixing the kernel. proc_pid_readdir()
- >>> wants an efficiently indexable linear list, e.g. TAOCP's 6.2.3
- >>> "Linear List Representation". At that point its expense is
- >>> proportional to the buffer size and "seeking" about the list as
- >>> it is wont to do is O(lg(processes)).
+The AGP only works if the chipset is in 2.0 compatability mode.
+Luckily some BIOSen out there seem to do that if a 2.0 card is present.
+If you have an AGP 3.0 card in there you're shit out of luck right now.
+I'm working on it..
 
- WLI> On Thu, Dec 19, 2002 at 01:05:03PM -0200, Denis Vlasenko wrote:
- >> A short-time solution: run top d 30 to make it refresh only every
- >> 30 seconds.  This will greatly reduce top's own load skew.
+		Dave
 
- WLI> As userspace solutions go your suggestions is just as good. The
- WLI> kernel still needs to get its act together and with some
- WLI> urgency.
-
-what about retreiving info from /proc/kmem or something like? just to 
-avoid binary -> text(proc) -> binary
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVASX1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVASX1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbVASX1B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 18:27:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVASX0Q
+	id S261971AbVASX1D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 18:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVASXZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 18:26:16 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:62146 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261977AbVASXZP (ORCPT
+	Wed, 19 Jan 2005 18:25:58 -0500
+Received: from gate.crashing.org ([63.228.1.57]:20205 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261971AbVASXXw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 18:25:15 -0500
-Date: Wed, 19 Jan 2005 15:22:53 -0800
-From: Greg KH <greg@kroah.com>
-To: Aur?lien Jarno <aurelien@aurel32.net>, sensors@Stimpy.netroedge.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] I2C: Fix DS1621 detection
-Message-ID: <20050119232253.GA5909@kroah.com>
-References: <20050119202749.GA19261@bode.aurel32.net>
+	Wed, 19 Jan 2005 18:23:52 -0500
+Subject: Re: [PATCH] raid6: altivec support
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Olaf Hering <olh@suse.de>, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <1106120622.10851.42.camel@baythorne.infradead.org>
+References: <200501082324.j08NOIva030415@hera.kernel.org>
+	 <20050109151353.GA9508@suse.de>
+	 <1105956993.26551.327.camel@hades.cambridge.redhat.com>
+	 <1106107876.4534.163.camel@gaston>
+	 <1106120622.10851.42.camel@baythorne.infradead.org>
+Content-Type: text/plain
+Date: Thu, 20 Jan 2005 10:22:18 +1100
+Message-Id: <1106176939.5294.39.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050119202749.GA19261@bode.aurel32.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 19, 2005 at 09:27:49PM +0100, Aur?lien Jarno wrote:
-> Hi Greg,
+On Wed, 2005-01-19 at 07:43 +0000, David Woodhouse wrote:
+> On Wed, 2005-01-19 at 15:11 +1100, Benjamin Herrenschmidt wrote:
+> > We should probably "backport" that simplification to ppc32...
 > 
-> Dallas Semiconductors as recently changed the design of their DS1621
-> chips, including the bits that were checked in the kernel driver to 
-> detect it.
-> 
-> The patch below fixes the detection by checking an other bit of the
-> configuration register instead.
-> 
-> Please apply.
+> Yeah.... I'm increasingly tempted to merge ppc32/ppc64 into one arch
+> like mips/parisc/s390. Or would that get vetoed on the basis that we
+> don't have all that horrid non-OF platform support in ppc64 yet, and
+> we're still kidding ourselves that all those embedded vendors will
+> either not notice ppc64 or will use OF?
 
-Applied, thanks.
+Oh well... i've though about it too, and decided that I was not ready to
+try it. For one, the problem you mention, with the pile of embedded
+junk. I made the design decision to define an OF client interface as the
+standard & mandatory entry mecanism to the ppc64 kernel (except legacy
+iSeries of course, but I don't want that to multiply). That or the
+kexec-like entrypoint passing a flattened device-tree in.
 
-greg k-h
+Also, there are other significant differences in other areas. At this
+point, I think the differences are  bigger than the common code.
+
+What would be interesting would be to proceed incrementally, having a
+directory somewhere to put the "common" ppc/ppc64 code, and slowly
+moving things there.
+
+Ben.
+
+

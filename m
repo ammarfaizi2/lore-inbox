@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272411AbTHKIgi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 04:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272343AbTHKIgi
+	id S272458AbTHKItQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 04:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272464AbTHKItQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 04:36:38 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.25]:7920 "EHLO
-	mwinf0601.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S272411AbTHKIgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 04:36:37 -0400
+	Mon, 11 Aug 2003 04:49:16 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:39183 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S272458AbTHKItP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 04:49:15 -0400
+Date: Mon, 11 Aug 2003 04:37:26 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]O14int
+In-Reply-To: <1060590900.13254.42.camel@workshop.saharacpt.lan>
+Message-ID: <Pine.LNX.4.53.0308110436400.23221@montezuma.mastecende.com>
+References: <200308090149.25688.kernel@kolivas.org>  <200308091904.19222.kernel@kolivas.org>
+  <1060580691.13254.7.camel@workshop.saharacpt.lan>  <200308111608.18241.kernel@kolivas.org>
+ <1060590900.13254.42.camel@workshop.saharacpt.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Mon, 11 Aug 2003 10:38:15 +0200
-From: Pascal Brisset <pascal.brisset-ml@wanadoo.fr>
-To: James Morris <jmorris@intercode.com.au>
-Cc: Fruhwirth Clemens <clemens-dated-1061346967.29a4@endorphin.org>,
-       <linux-kernel@vger.kernel.org>, <mbligh@aracnet.com>,
-       <kernel@gozer.org>, <axboe@suse.de>
-Subject: Re: [PATCH] loop: fixing cryptoloop troubles.
-In-Reply-To: <Mutt.LNX.4.44.0308110226530.8288-100000@excalibur.intercode.com.au>
-References: <20030810160706.5D083400211@mwinf0501.wanadoo.fr>
-	<Mutt.LNX.4.44.0308110226530.8288-100000@excalibur.intercode.com.au>
-Message-Id: <20030811083634.B5817340013E@mwinf0601.wanadoo.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris writes:
- > Ok, please take into account the case where src == dst.
+On Mon, 11 Aug 2003, Martin Schlemmer wrote:
 
-OK, looks like there is a tricky interplay between algorithms and
-transforms.  Cipher implementors will need documentation here, e.g.
-"cia_encrypt and cia_decrypt are always called with src==dst UNLESS
-we are running in CBC mode AND cia_ivsize!=0" (Please confirm...)
+> NB: any chance to get you patches against vanilla/bk as well,
+>     as I in general like rolling my own kernels more than using
+>     mm, jc, etc (no offence guys).
 
-Anybody who tries to bypass the scatterlist-based api by exporting
-and calling crypto_alg_lookup() (as I did) will get bitten badly.
-
--- Pascal
-
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm1/broken-out/

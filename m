@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131642AbRCSXJT>; Mon, 19 Mar 2001 18:09:19 -0500
+	id <S131660AbRCSXM3>; Mon, 19 Mar 2001 18:12:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131652AbRCSXJL>; Mon, 19 Mar 2001 18:09:11 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:49418 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S131642AbRCSXI4>;
-	Mon, 19 Mar 2001 18:08:56 -0500
-Date: Tue, 20 Mar 2001 00:07:38 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	id <S131661AbRCSXMU>; Mon, 19 Mar 2001 18:12:20 -0500
+Received: from odin.sinectis.com.ar ([216.244.192.158]:54546 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S131660AbRCSXML> convert rfc822-to-8bit; Mon, 19 Mar 2001 18:12:11 -0500
+Date: Mon, 19 Mar 2001 20:12:32 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: Linux should better cope with power failure
-Message-ID: <20010320000738.E19635@almesberger.net>
-In-Reply-To: <3AB66233.B85881C7@bluewin.ch> <Pine.LNX.3.95.1010319150027.9639A-100000@chaos.analogic.com>
+Message-ID: <20010319201232.A9458@grulic.org.ar>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3AB689CC.FE5A8AAB@bluewin.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1010319150027.9639A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Mar 19, 2001 at 03:15:16PM -0500
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <3AB689CC.FE5A8AAB@bluewin.ch>; from otto.wyss@bluewin.ch on Mon, Mar 19, 2001 at 11:35:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> Unix and other such variants have what's called a Virtual File System
-> (VFS).
+On Mon, Mar 19, 2001 at 11:35:55PM +0100, Otto Wyss wrote:
+> > you can avoid all of these problems.  Or use a journaling filesystem ext3/xfs, etc.
+> 
+> So in real live you would propose to put fences and nets everywhere to
+> prevent children from possibly falling in abyses?
 
-Correct, but hardly relevant here, except possibly that this enables you
-to use a different, perhaps more resilient file system.
-
-> The idea behind this is to keep as much recently-used file stuff
-> in memory so that the system can be as fast as if you used a RAM disk
-> instead of real physical (slow) hard disks.
-
-Correct, but does not require VFS.
-
-Nice try, though.
-
-- Werner
+I think you've got it backwards: from my point of view, _you_ are
+proposing the nets, _he_ is proposing the knowledgable and
+trustworthy parent looking after the children.
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+John Lenton (john@grulic.org.ar) -- Random fortune:
+Si le dan dos órdenes contradictorias, obedezca las dos.
+		-- Segunda Ley de Brintnall. 

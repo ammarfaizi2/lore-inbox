@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbULJW1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbULJWeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbULJW1y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 17:27:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbULJW0C
+	id S261861AbULJWeN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 17:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbULJWcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 17:26:02 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46292 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261858AbULJWZS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 17:25:18 -0500
-Date: Fri, 10 Dec 2004 17:24:55 -0500
-From: Dave Jones <davej@redhat.com>
-To: Miguel Angel Flores <maf@sombragris.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] aic7xxx driver warning
-Message-ID: <20041210222455.GE6648@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Miguel Angel Flores <maf@sombragris.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41BA201C.9090103@sombragris.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Dec 2004 17:32:20 -0500
+Received: from chello083144090118.chello.pl ([83.144.90.118]:3076 "EHLO
+	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S261861AbULJWaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 17:30:08 -0500
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.10rc3+cset == oops (fs).
+Date: Fri, 10 Dec 2004 23:30:01 +0100
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41BA201C.9090103@sombragris.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200412102330.02459.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2004 at 11:15:56PM +0100, Miguel Angel Flores wrote:
- > Hi all,
- > 
- > These are two possible patches for the 2.6.10rc3. The patches correct a 
- > compiler warning when CONFIG_HIGHMEM64G is not defined.
- > 
- > Both patches works well. "Opt1" is the Alan Cox way and "Opt2" is the 
- > MaF way :-)
+Hi,
 
--       mask_39bit = 0x7FFFFFFFFFULL;
-        if (sizeof(dma_addr_t) > 4
-         && ahc_linux_get_memsize() > 0x80000000
-         && pci_set_dma_mask(pdev, mask_39bit) == 0) {
-+               mask_39bit = (dma_addr_t)0x7FFFFFFFFFULL;
-                ahc->flags |= AHC_39BIT_ADDRESSING;
-                ahc->platform_data->hw_dma_mask = mask_39bit;
-        } else {
+I've just tried to boot the 2.6.10rc3+cset20041210_0507.
 
-How can this work ? You're using mask_39bit before you set it
-(See the pci_set_dma_mask call)
+[handcopy of the ooops]
 
-		Dave
+dereferencing null pointer
+eip at: radix_tree_tag_clear
 
+trace:
+(...)
+test_clear_page_dirty
+truncate_complete_page
+truncate_inode_pages_range
+truncate_inode_pages
+generic_delete_inode
+sys_unlink
+initrd_load
+prepare_namespace
+(...)
+
+
+/dev/hda1 on / type ext3 (rw)
+/dev/hda2 on /usr type ext3 (rw)
+/dev/hda5 on /tmp type ext3 (rw)
+/dev/hda6 on /var type ext3 (rw)
+/dev/hda7 on /home type ext3 (rw)
+/dev/hda8 on /home/users/pluto/multimedia type ext3 (rw)
+/dev/hdd1 on /home/users/pluto/rpm type ext3 (rw)
+none on /proc type proc (rw,gid=17)
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+none on /dev/shm type tmpfs (rw)
+sysfs on /sys type sysfs (rw)
+selinuxfs on /selinux type selinuxfs (rw)
+
+-- 
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+
+                           #define say(x) lie(x)

@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbUKVMqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbUKVMq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbUKVMqC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 07:46:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbUKVMqB
+	id S262049AbUKVMq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 07:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUKVMq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 07:46:01 -0500
-Received: from smtpout.mac.com ([17.250.248.45]:32456 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262061AbUKVMp4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 07:45:56 -0500
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C668014C751B@exmail1.se.axis.com>
-References: <BFECAF9E178F144FAEF2BF4CE739C668014C751B@exmail1.se.axis.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <68BC257E-3C84-11D9-9BFE-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Application to test memory protection
-Date: Mon, 22 Nov 2004 07:45:37 -0500
-To: Mikael Starvik <mikael.starvik@axis.com>
-X-Mailer: Apple Mail (2.619)
+	Mon, 22 Nov 2004 07:46:58 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4359 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262049AbUKVMqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 07:46:20 -0500
+Date: Mon, 22 Nov 2004 13:46:18 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] Use -ffreestanding? (fwd)
+Message-ID: <20041122124618.GJ3007@stusta.de>
+References: <20041122054959.GI3007@stusta.de> <Pine.LNX.4.58.0411212208200.20993@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411212208200.20993@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 22, 2004, at 07:16, Mikael Starvik wrote:
-> A long time ago someone announced an application that looped through 
-> every
-> combination of RWX on memory protection 10 times to test architectures
-> against each other. Even after extensive googling I can't find this
-> application. Anyone who remembers where it may be located? It wouldn't 
-> be
-> too hard to make a new one if I can't find it.
+On Sun, Nov 21, 2004 at 10:10:28PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 22 Nov 2004, Adrian Bunk wrote:
+> > 
+> > for the kernel, it would be logical to use -ffreestanding. The kernel is 
+> > not a hosted environment with a standard C library.
+> > 
+> > Linus agreed that it would make sense.
+> 
+> Note that while I agree that it sounds sensible, it would be good to have 
+> somebody specify exactly what changes from the use of "-ffreestanding".
+> 
+> I _assume_ that all the things that gcc takes for granted are things that 
+> Linux already has its own definitions for, and that -ffreestanding doesn't 
+> actually change anything for at least the regular architectures. But if 
+> there is any object code changes, can you check those out and explain 
+> them?
 
-The original email is here:
-http://lkml.org/lkml/2004/6/30/280
+Andi Kleen reported:
+  Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str) transparently.
 
-Cheers,
-Kyle Moffett
+This is only true with unit-at-a-time (disabled on i386 but enabled
+on x86_64). The Linux kernel doesn't offer a standard C library, and 
+such transparent replacements of kernel functions with builtins are 
+quite fragile.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Even with -ffreestanding, it's still possilble to explicitely use a gcc 
+builtin if desired.
 
+> 		Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131124AbRA2Jye>; Mon, 29 Jan 2001 04:54:34 -0500
+	id <S132542AbRA2KCy>; Mon, 29 Jan 2001 05:02:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132542AbRA2JyY>; Mon, 29 Jan 2001 04:54:24 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:62848 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S131124AbRA2JyN>; Mon, 29 Jan 2001 04:54:13 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3A744820.2C4C94F6@colorfullife.com> 
-In-Reply-To: <3A744820.2C4C94F6@colorfullife.com> 
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: andrewm@uow.edu.au, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: flush_scheduled_tasks() question 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 29 Jan 2001 09:53:56 +0000
-Message-ID: <30086.980762036@redhat.com>
+	id <S132974AbRA2KCo>; Mon, 29 Jan 2001 05:02:44 -0500
+Received: from tartu.cyber.ee ([193.40.16.128]:22803 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id <S132542AbRA2KCf>;
+	Mon, 29 Jan 2001 05:02:35 -0500
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.1-pre11
+In-Reply-To: <Pine.LNX.4.10.10101281020540.3850-100000@penguin.transmeta.com>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.4.0-ac4 (i586))
+Message-Id: <E14NB8r-000063-00@roos.tartu-labor>
+Date: Mon, 29 Jan 2001 12:02:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+LT> I just uploaded it to kernel.org, and I expect that I'll do the final
+LT> 2.4.1 tomorrow, before leaving for NY and LinuxWorld. Please test that the
+LT> pre-kernel works for you..
+[...]
+LT> pre10:
+[...]
+LT>  - Andy Grover: APCI update
 
-manfred@colorfullife.com said:
-> Is is intentional that tummy_task is not initialized? 
+I tried test11 yesterday. Works fine except when I enable ACPI instead of
+APM. Never tried this before but now I decided to give it a try.
+After initialising ACPI, the machine became slow as a 386 or a 286.
 
-It _is_ initialised. To zero :)
+AMD Duron 600, Soltek 75KV mobo w/VIA KT133 chipset, UP-APIC kernel, IDE-only
+system.
 
-> Ok, it won't crash because the current __run_task_queue()
-> implementation doesn't call tq->routine if it's NULL, but IMHO it's
-> ugly.
-
--static struct tq_struct dummy_task;
-+static struct tq_struct dummy_task /* = all zero */;
-
-
-manfred@colorfullife.com said:
->  Additionally I don't like the loop in flush_scheduled_tasks(), what
-> about replacing it with a locked semaphore (same idea as vfork)?
-
-The reason for doing it that way was because there was no guarantee that 
-scheduled tasks will be called in order. So you can't just stick a new task 
-in the queue and assume that when it's completed the queue is flushed. 
-
-Linus then changed that and made the eventd thread call tasks in order, but 
-I believe the intention is still that we don't make that guarantee, so it 
-may change at any point in the future. 
-
---
-dwmw2
-
-
+-- 
+Meelis Roos (mroos@linux.ee)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264981AbTHVRNi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 13:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbTHVRNi
+	id S265390AbTHVRP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 13:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbTHVRPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 13:13:38 -0400
-Received: from mail.kroah.org ([65.200.24.183]:13031 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264981AbTHVRNc (ORCPT
+	Fri, 22 Aug 2003 13:15:54 -0400
+Received: from holomorphy.com ([66.224.33.161]:3223 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S265390AbTHVRPu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 13:13:32 -0400
-Date: Fri, 22 Aug 2003 10:13:05 -0700
-From: Greg KH <greg@kroah.com>
-To: kraxel@bytesex.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix bug in v4l core for 2.6.0-test3-bk
-Message-ID: <20030822171305.GA9631@kroah.com>
+	Fri, 22 Aug 2003 13:15:50 -0400
+Date: Fri, 22 Aug 2003 10:16:25 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Theurer <habanero@us.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: CPU boot problem on 2.6.0-test3-bk8
+Message-ID: <20030822171625.GM4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Theurer <habanero@us.ibm.com>,
+	Dave Hansen <haveblue@us.ibm.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>,
+	"Martin J. Bligh" <mbligh@aracnet.com>
+References: <200308201658.05433.habanero@us.ibm.com> <200308211056.29876.habanero@us.ibm.com> <1061482159.19036.1716.camel@nighthawk> <200308211202.02871.habanero@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200308211202.02871.habanero@us.ibm.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Aug 21, 2003 at 12:02:02PM -0500, Andrew Theurer wrote:
+> Boot log with extra kicked++ removed...
 
-When working on converting the usb v4l drivers to the new v4l class
-changes, I ran into this nasty bug.  Seems that the core was using a
-structure after it had been freed.  The patch below fixes it.
-
-If you don't mind, I'll include it with some USB patches in a send to
-Linus, as my USB fixes will not work without it.
-
-thanks,
-
-greg k-h
+Say, could you try last night's bk snapshot and let me know how it's
+doing? I threw in a necessary fix on top of Dave's last night, but I
+don't know whether it's sufficient for your purposes yet.
 
 
-# V4L: fix use after free bug in v4l core.
-
-diff -Nru a/drivers/media/video/videodev.c b/drivers/media/video/videodev.c
---- a/drivers/media/video/videodev.c	Fri Aug 22 10:09:38 2003
-+++ b/drivers/media/video/videodev.c	Fri Aug 22 10:09:38 2003
-@@ -349,9 +349,9 @@
- 	if(video_device[vfd->minor]!=vfd)
- 		panic("videodev: bad unregister");
- 
--	class_device_unregister(&vfd->class_dev);
- 	devfs_remove(vfd->devfs_name);
- 	video_device[vfd->minor]=NULL;
-+	class_device_unregister(&vfd->class_dev);
- 	up(&videodev_lock);
- }
- 
+-- wli

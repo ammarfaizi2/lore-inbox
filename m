@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264495AbTFVXqa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 19:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbTFVXqa
+	id S264218AbTFVXw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 19:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbTFVXw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 19:46:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12306 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264495AbTFVXq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 19:46:29 -0400
-Date: Mon, 23 Jun 2003 01:00:31 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       David Woodhouse <dwmw2@cambridge.redhat.com>
-Subject: [PATCH] Fix mtdblock / mtdpart / mtdconcat
-Message-ID: <20030623010031.E16537@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	David Woodhouse <dwmw2@cambridge.redhat.com>
+	Sun, 22 Jun 2003 19:52:58 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:11981 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264218AbTFVXw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 19:52:57 -0400
+Date: Mon, 23 Jun 2003 02:07:00 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Will Dyson <will_dyson@pobox.com>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] postfix a BeFS u64 constant with ULL
+Message-ID: <20030623000700.GC3710@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dirtily disable ECC support; it doesn't work when mtdpart is layered
-on top of mtdconcat on top of CFI flash.
+The patch below postfix a BeFS u64 constant with ULL.
 
-There is probably a better fix, but that's for someone else to find.
+Please apply
+Adrian
 
---- orig/drivers/mtd/mtdpart.c	Sat Jun 14 22:33:58 2003
-+++ linux/drivers/mtd/mtdpart.c	Mon Jun 23 00:55:04 2003
-@@ -55,12 +55,12 @@
- 		len = 0;
- 	else if (from + len > mtd->size)
- 		len = mtd->size - from;
--	if (part->master->read_ecc == NULL)	
-+//	if (part->master->read_ecc == NULL)	
- 		return part->master->read (part->master, from + part->offset, 
- 					len, retlen, buf);
--	else
--		return part->master->read_ecc (part->master, from + part->offset, 
--					len, retlen, buf, NULL, &mtd->oobinfo);
-+//	else
-+//		return part->master->read_ecc (part->master, from + part->offset, 
-+//					len, retlen, buf, NULL, &mtd->oobinfo);
- }
+--- linux-2.5.73-not-full/fs/befs/btree.c.old	2003-06-23 01:55:34.000000000 +0200
++++ linux-2.5.73-not-full/fs/befs/btree.c	2003-06-23 02:01:24.000000000 +0200
+@@ -86,7 +86,7 @@
+ } befs_btree_node;
  
- static int part_point (struct mtd_info *mtd, loff_t from, size_t len, 
-@@ -134,12 +134,12 @@
- 		len = 0;
- 	else if (to + len > mtd->size)
- 		len = mtd->size - to;
--	if (part->master->write_ecc == NULL)	
-+//	if (part->master->write_ecc == NULL)	
- 		return part->master->write (part->master, to + part->offset, 
- 					len, retlen, buf);
--	else
--		return part->master->write_ecc (part->master, to + part->offset, 
--					len, retlen, buf, NULL, &mtd->oobinfo);
-+//	else
-+//		return part->master->write_ecc (part->master, to + part->offset, 
-+//					len, retlen, buf, NULL, &mtd->oobinfo);
- 							
- }
+ /* local constants */
+-static const befs_off_t befs_bt_inval = 0xffffffffffffffff;
++static const befs_off_t befs_bt_inval = 0xffffffffffffffffULL;
  
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+ /* local functions */
+ static int befs_btree_seekleaf(struct super_block *sb, befs_data_stream * ds,

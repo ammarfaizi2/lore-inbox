@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310517AbSCPSVd>; Sat, 16 Mar 2002 13:21:33 -0500
+	id <S287631AbSCPSce>; Sat, 16 Mar 2002 13:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310529AbSCPSVY>; Sat, 16 Mar 2002 13:21:24 -0500
-Received: from B5176.pppool.de ([213.7.81.118]:14607 "HELO Nicole.fhm.edu")
-	by vger.kernel.org with SMTP id <S310517AbSCPSVE>;
-	Sat, 16 Mar 2002 13:21:04 -0500
-Subject: Re: libc/1427: gprof does not profile threads <synopsis of the
-	problem  (one li\ne)>
-From: Daniel Egger <degger@fhm.edu>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1016237961.5612.51.camel@myware.mynet>
-In-Reply-To: <1016062486.16743.1091.camel@myware.mynet>
-	<3C8FEC76.F1411739@ixiacom.com>
-	<20020314020834.Z2434@devserv.devel.redhat.com> 
-	<3C926E0B.1A0EE311@ixiacom.com>  <1016237961.5612.51.camel@myware.mynet>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 16 Mar 2002 17:57:59 +0100
-Message-Id: <1016297880.18342.32.camel@sonja>
-Mime-Version: 1.0
+	id <S291625AbSCPScO>; Sat, 16 Mar 2002 13:32:14 -0500
+Received: from acolyte.thorsen.se ([193.14.93.247]:20741 "HELO
+	acolyte.hack.org") by vger.kernel.org with SMTP id <S287631AbSCPSby>;
+	Sat, 16 Mar 2002 13:31:54 -0500
+From: Christer Weinigel <wingel@acolyte.hack.org>
+To: jgarzik@mandrakesoft.com
+Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3C938611.3090008@mandrakesoft.com> (message from Jeff Garzik on
+	Sat, 16 Mar 2002 12:51:13 -0500)
+Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
+In-Reply-To: <200203161608.g2GG8WC05423@localhost.localdomain> <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com> <20020316093832.F10086@work.bitmover.com> <3C938611.3090008@mandrakesoft.com>
+Message-Id: <20020316183150.13FDEF5B@acolyte.hack.org>
+Date: Sat, 16 Mar 2002 19:31:50 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sam, 2002-03-16 um 01.19 schrieb Ulrich Drepper:
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+> Hence my suggestion for a short term solution that's immediately useful 
+> -- allowing some way to answer "local changes take precedence 100% of 
+> the time" or "remote changes ..." with a single command.  That was my 
+> hack solution that I thought would people might find useful when stuck 
+> with the duplicate-patch situation.
+> 
+> In the command line merge tool, when merging a file-create, "rla" would 
+> cause the current file conflict, and all future file-create conflicts, 
+> to be "won" by the remote side -- essentially creating the effect of 
+> typing "rl" 300 times.
+> Apply similar logic to the file-rename merge case.  I think the merge 
+> command I used in 100% of the cases, during that merge, was 'r'.
 
-> > Ulrich, do you at least agree that it would be desirable for
-> > gprof to work properly on multithreaded programs?
- 
-> No.  gprof is uselss in today world.
+One variant of this would be to automatically use the remote file as
+long as the file contents are the same.  That way, if I apply a patch
+locally and Marcello/Linus later apply the same patch and put it into
+the official tree, I can use the official version.  This would
+probably handle most of the conflicts I have seen so far.  If there
+are any "real" conflicts, I can handle them manually.  
 
-Interesting. Care to share your reason for this assumption?
+  /Christer
 
 -- 
-Servus,
-       Daniel
-
+"Just how much can I get away with and still go to heaven?"

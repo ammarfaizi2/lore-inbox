@@ -1,45 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317546AbSGJQ5j>; Wed, 10 Jul 2002 12:57:39 -0400
+	id <S317551AbSGJRDR>; Wed, 10 Jul 2002 13:03:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317551AbSGJQ5i>; Wed, 10 Jul 2002 12:57:38 -0400
-Received: from pD952A32F.dip.t-dialin.net ([217.82.163.47]:7041 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317546AbSGJQ5h>; Wed, 10 Jul 2002 12:57:37 -0400
-Date: Wed, 10 Jul 2002 11:00:12 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Thunder from the hill <thunder@ngforever.de>, Adrian Bunk <bunk@fs.tum.de>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [STATUS 2.5]  July 10, 2002
-In-Reply-To: <Pine.LNX.4.44.0207101841550.8911-100000@serv>
-Message-ID: <Pine.LNX.4.44.0207101059300.5067-100000@hawkeye.luckynet.adm>
+	id <S317552AbSGJRDQ>; Wed, 10 Jul 2002 13:03:16 -0400
+Received: from albatross-ext.wise.edt.ericsson.se ([193.180.251.49]:19135 "EHLO
+	albatross.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S317551AbSGJRDP>; Wed, 10 Jul 2002 13:03:15 -0400
+Message-ID: <FBB5E93ACF0CD51188D20002A55CBC98024FC0@edeacnt101.eed.ericsson.se>
+X-Sybari-Trust: 088f5913 7216406a e4ad19be 00000138
+From: "Ronny Lampert (EED)" <Ronny.Lampert@eed.ericsson.se>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18 + autofs on SMP problems
+Date: Wed, 10 Jul 2002 19:05:46 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C22834.08B0F360"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
+
+------_=_NextPart_000_01C22834.08B0F360
+Content-Type: text/plain;
+	charset="iso-8859-1"
+
 Hi,
 
-On Wed, 10 Jul 2002, Roman Zippel wrote:
-> Have you actually tried it? I can only encourage everyone to try it and
-> play a bit with it. It's a great debug tool and it can't be replaced by
-> any of the mentioned tools. It's very useful in situations where printk
-> doesn't work anymore.
+when using autofs, /proc/mounts gets screwed up (please look at attachement - I hope outlook won't ruin it),
+so entries are listed multiple times; to get rid of this, you have to unmount them in the correct order, multiple times.
 
-It might not have been noticed publicly, since no one showed interest in 
-it...
+I think, this is an SMP-Problem, as on ~100 UP machines it's running fine.
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Stats:
+-gcc 2.95.3
+-kernel 2.4.18 + O(1) sched (with or without, the same)
+-autofs v3 in kernel (had the same problem with v4 way back at ~2.4.14-16, so i backed to v3)
+-/usr/sbin/automount-version 3.1.7
+-Dual Xeon 500 with 3G ram (4G option set in kernel)
+-mount 2.10r
+-glibc 2.1.3
+-Base RedHat 6.2 install
 
+Rebooting to test kernel-autofsv4 at the moment not possible.
+If you need further information, please say so.
+
+Kind regards,
+
+Ronny
+
+
+------_=_NextPart_000_01C22834.08B0F360
+Content-Type: application/octet-stream;
+	name="mounts"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="mounts"
+
+/dev/root / ext2 rw 0 0=0A=
+/proc /proc proc rw 0 0=0A=
+/dev/ida/c0d0p2 /boot ext2 rw 0 0=0A=
+/dev/ida/c0d0p6 /usr ext2 rw 0 0=0A=
+/dev/ida/c0d0p7 /var ext2 rw 0 0=0A=
+pts /dev/pts devpts rw 0 0=0A=
+automount(pid549) /pkg autofs rw 0 0=0A=
+automount(pid565) /proj autofs rw 0 0=0A=
+eedn7ls-gw1,eedn7ls-gw2:/export/apps9/matlab/i386 /pkg/matlab nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn7ls-gw1 0 0=0A=
+eedn18ls:/vol/vol4/proj_cat /proj/cat nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+automount(pid3321) /home autofs rw 0 0=0A=
+automount(pid3360) /proj autofs rw 0 0=0A=
+eedn18ls:/vol/vol1/home-rm/eedkre /home/eedkre nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+eedn18ls:/vol/vol3/proj_dspdata /proj/dspdata nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+automount(pid4541) /home autofs rw 0 0=0A=
+automount(pid4576) /proj autofs rw 0 0=0A=
+eedn18ls:/vol/vol1/home-rm/eedkre /home/eedkre nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+eedn18ls:/vol/vol3/proj_dspdata /proj/dspdata nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+automount(pid4765) /home autofs rw 0 0=0A=
+automount(pid4805) /proj autofs rw 0 0=0A=
+eedn18ls:/vol/vol1/home-rm/eedkre /home/eedkre nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+eedn18ls:/vol/vol3/proj_dspdata /proj/dspdata nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+automount(pid6112) /home autofs rw 0 0=0A=
+automount(pid6130) /pkg autofs rw 0 0=0A=
+automount(pid6148) /proj autofs rw 0 0=0A=
+eedn18ls:/vol/vol1/home-rm/eedkre /home/eedkre nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+eedn18ls:/vol/vol3/proj_dspdata /proj/dspdata nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+eedn274w:/opt/data /proj/dspdata_eedn274w nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn274w 0 0=0A=
+eedn18ls:/vol/vol1/home-ra/eedmpa /home/eedmpa nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+eedn7ls-gw1,eedn7ls-gw2:/export/apps9/matlab/i386 /pkg/matlab nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn7ls-gw1 0 0=0A=
+eedn18ls:/vol/vol4/proj_watm /proj/watm nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+automount(pid15708) /home autofs rw 0 0=0A=
+automount(pid15726) /pkg autofs rw 0 0=0A=
+automount(pid15745) /proj autofs rw 0 0=0A=
+automount(pid15764) /grp autofs rw 0 0=0A=
+eedn18ls:/vol/vol1/home-rm/eedkre /home/eedkre nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+eedn18ls:/vol/vol3/proj_dspdata /proj/dspdata nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn18ls 0 0=0A=
+eedn13ls:/vol/vol2/home-i/eedrla /home/eedrla nfs =
+rw,v3,rsize=3D4096,wsize=3D4096,soft,udp,lock,addr=3Deedn13ls 0 0=0A=
+
+------_=_NextPart_000_01C22834.08B0F360--

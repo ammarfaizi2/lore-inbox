@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUDKPma (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 11:42:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUDKPma
+	id S262370AbUDKPrP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 11:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUDKPrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 11:42:30 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:27571 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S262356AbUDKPm3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 11:42:29 -0400
-Date: Sun, 11 Apr 2004 08:42:24 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: scheduler problems on shutdown
-Message-ID: <3400000.1081698143@[10.10.2.4]>
-In-Reply-To: <40796318.4010508@yahoo.com.au>
-References: <1516092704.1081534916@[10.10.2.4]> <71390000.1081611090@[10.10.2.4]> <40791475.7040300@cyberone.com.au> <1860000.1081696302@[10.10.2.4]> <40796318.4010508@yahoo.com.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 11 Apr 2004 11:47:15 -0400
+Received: from netrider.rowland.org ([192.131.102.5]:5127 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S262370AbUDKPrO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 11:47:14 -0400
+Date: Sun, 11 Apr 2004 11:47:13 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
+       <usb-storage@lists.one-eyed-alien.net>
+Subject: Re: Patch for usb-storage in 2.4   [linux-usb-devel]
+In-Reply-To: <20040410183638.5b177147.zaitcev@redhat.com>
+Message-ID: <Pine.LNX.4.44L0.0404111144500.12891-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> OK, I'll figure it out. I don't like the latest code, so don't really want
->> to "upgrade" though.
+On Sat, 10 Apr 2004, Pete Zaitcev wrote:
+
+> On Sat, 10 Apr 2004 17:09:57 -0700
+> Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
 > 
-> Oh? Anything specific?
+> > Was there a reason to add more do-nothing code to host_reset?
+> 
+> Woopsie. I wanted to write it, but understood that if I return right
+> code from "bus" reset, it should never be called. Sorry about that...
+> I'll remove that part.
 
-balance_on_clone, mostly.
+I haven't had time to look at your patch in any detail yet.  But I did 
+notice the extra stuff in the host-reset path.  It looks like you're 
+worrying about nothing -- the easiest thing to do would be to remove the 
+host-reset pointer from the host template.  Then the SCSI error handler 
+would know that host resets aren't implemented and would never try to 
+carry them out.
 
-M.
+Alan Stern
 

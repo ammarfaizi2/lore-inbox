@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317552AbSGJRHO>; Wed, 10 Jul 2002 13:07:14 -0400
+	id <S317559AbSGJRMZ>; Wed, 10 Jul 2002 13:12:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317559AbSGJRHN>; Wed, 10 Jul 2002 13:07:13 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:17161 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S317552AbSGJRHN>; Wed, 10 Jul 2002 13:07:13 -0400
-Date: Wed, 10 Jul 2002 19:09:53 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IBM Desktar disk problem?
-Message-ID: <20020710170953.GB7146@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0207052306170.4516-100000@moje.ich.vabo.cz> <005201c2282c$fbe42460$0404a8c0@lan.shirleyfamily.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <005201c2282c$fbe42460$0404a8c0@lan.shirleyfamily.net>
-User-Agent: Mutt/1.4i
+	id <S317560AbSGJRMY>; Wed, 10 Jul 2002 13:12:24 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:59266 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S317559AbSGJRMY>;
+	Wed, 10 Jul 2002 13:12:24 -0400
+Date: Wed, 10 Jul 2002 10:12:27 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: Guillaume Boissiere <boissiere@adiglobal.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [STATUS 2.5]  July 10, 2002
+In-Reply-To: <3D2B89AC.25661.91896FEB@localhost>
+Message-ID: <Pine.LNX.4.33.0207101005310.961-100000@geena.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jul 2002, Bill Shirley wrote:
 
-> Perhaps you should try:
-> http://www.storage.ibm.com/hdd/support/download.htm
-> it has a linux version.
+> Also on the planned deletion list:
 
-I may be blind, but please: where do we find a firmware update at that
-site?
+>    - Generic parameter/command line interface  
+
+This isn't dead at all. Rusty and I talked about this at the kernel 
+summit, and there was no loud verbal dissention (that I remember). 
+
+Unfortunately, progress has been temporarily hampered by a few things,
+like the factd that the people that this type of stuff actually turns on
+are few in number, and distracted by several other projects...
+
+
+	-pat
+
+

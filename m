@@ -1,138 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVAZE5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVAZFLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbVAZE5W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 23:57:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVAZE5W
+	id S262265AbVAZFLV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 00:11:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbVAZFLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 23:57:22 -0500
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:38535 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262254AbVAZE5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 23:57:11 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: johnpol@2ka.mipt.ru
-Subject: Re: 2.6.11-rc2-mm1
-Date: Tue, 25 Jan 2005 23:57:08 -0500
-User-Agent: KMail/1.7.2
-Cc: dmitry.torokhov@gmail.com, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-References: <20050124021516.5d1ee686.akpm@osdl.org> <d120d5000501250811295c298e@mail.gmail.com> <20050126001443.7f91bbbb@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050126001443.7f91bbbb@zanzibar.2ka.mipt.ru>
+	Wed, 26 Jan 2005 00:11:20 -0500
+Received: from mail.joq.us ([67.65.12.105]:2736 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262265AbVAZFLL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 00:11:11 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch, 2.6.11-rc2] sched: /proc/sys/kernel/rt_cpu_limit
+ tunable
+References: <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
+	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
+	<20050124125814.GA31471@elte.hu> <87k6q2umla.fsf@sulphur.joq.us>
+	<20050125083724.GA4812@elte.hu> <87oefdfaxp.fsf@sulphur.joq.us>
+	<20050125214900.GA9421@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Tue, 25 Jan 2005 23:12:06 -0600
+Message-ID: <87sm4osrix.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501252357.08946.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 January 2005 16:14, Evgeniy Polyakov wrote:
-> On Tue, 25 Jan 2005 11:11:42 -0500
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > On Tue, 25 Jan 2005 18:24:50 +0300, Evgeniy Polyakov
-> > <johnpol@2ka.mipt.ru> wrote:
-> > > On Tue, 2005-01-25 at 14:23 +0000, Christoph Hellwig wrote:
-> > > > > > +static void pc8736x_fini(void)
-> > > > > > +{
-> > > > > > + sc_del_sc_dev(&pc8736x_dev);
-> > > > > > +
-> > > > > > + while (atomic_read(&pc8736x_dev.refcnt)) {
-> > > > > > +         printk(KERN_INFO "Waiting for %s to became free: refcnt=%d.\n",
-> > > > > > +                         pc8736x_dev.name, atomic_read(&pc8736x_dev.refcnt));
-> > > > > > +
-> > > > > > +         set_current_state(TASK_INTERRUPTIBLE);
-> > > > > > +         schedule_timeout(HZ);
-> > > > > > +
-> > > > > > +         if (current->flags & PF_FREEZE)
-> > > > > > +                 refrigerator(PF_FREEZE);
-> > > > > > +
-> > > > > > +         if (signal_pending(current))
-> > > > > > +                 flush_signals(current);
-> > > > > > + }
-> > > > > > +}
-> > > > > >
-> > > > > > And who gurantess this won't deadlock?  Please use a dynamically allocated
-> > > > > > driver model device and it's refcounting, thanks.
-> > > > >
-> > > > > Sigh.
-> > > > >
-> > > > > Christoph, please read the code before doing such comments.
-> > > > > I very respect your review and opinion, but only until you respect
-> > > > > others.
-> > > >
-> > > > The code above pretty much means you can keep rmmod stalled forever.
-> > > 
-> > > Yes, and it is better than removing module whose structures are in use.
-> > > SuperIO core is asynchronous in it's nature, one can use logical device
-> > > through superio core and remove it's module on other CPU, above loop
-> > > will wait untill all reference counters are dropped.
-> > 
-> > I have a slightly different concern - the superio is a completely new
-> > subsystem and it should be integtrated with the driver model
-> > ("superio" bus?). Right now it looks like it is reimplementing most of
-> > the abstractions (device lists, driver lists, matching, probing).
-> > Moving to driver model significatntly affects lifetime rules for the
-> > objects, etc. etc. and will definitely not allow code such as above.
-> > 
-> > It would be nice it we get things right from the start.
-> 
-> bus model is not good here - we need bus in each logical device and
-> bus in each superio chip(or at least second case).
-> Each bus bus have some crosslinking to devices in other buses, 
-> and each new device
-> must be checked in each bus and probably added to each device...
-> 
-> It is not like I see it.
-> 
-> Consider folowing example: 
-> each device from set A belongs to each device from set B.
-> n <-> n, it is not the case when one bus can handle all features.
-> 
-> That is why I did not use driver model there.
-> It is specific design feature, which is proven to work.
+Ingo Molnar <mingo@elte.hu> writes:
+
+> * Jack O'Quin <joq@io.com> wrote:
 >
+>> At around 55 seconds into the run, JACK got in trouble and throttled
+>> itself back to approximately the 30% limit (actually a little above).
+>> Then, around second 240 it got in trouble again, this time collapsing
+>> completely.  I'm a bit confused by all the messages in that log, but
+>> it appears that approximately 9 of the 20 clients were evertually shut
+>> down by the JACK server.  It looks like the second collapse around 240
+>> also caused the scheduler to revoke RT privileges for the rest of the
+>> run (just a guess).
+>
+> no, the scheduler doesnt revoke RT privileges, it just 'delays' RT tasks
+> that violate the threshold. In other words, SCHED_OTHER tasks will have
+> a higher effective priority than RT tasks, up until the CPU use average
+> drops below the limit again.
 
-Ok, I briefly looked over the patches and that is what I understand
-(please correct me where I am wrong):
+When does it start working again?  Does it continue getting 80% of
+each CPU in the long run?  What is the period over which this "delay"
+occurs and recurs?
 
-- you have superio chips which are containers providing set of interfaces;
-- you have superio chip driver that detects superio chip and manages
-  (enables/disables) individual interfaces.
-- you have set of interface drivers (gpio, acb) that bind to individual
-  superio interfaces and provide unified userspace interface that allows
-  reading, writing and analog of ioctl.
+I know how to deal with running out of CPU cycles.  This seems to
+present a new and different failure mode.  I'd like to know that I can
+have 80% of the cycles for each realtime period.  (For JACK this is
+determined by the audio buffer size.)  If I can't finish my work in
+that allotment, then I've failed and need to scale back.
 
-So the question is why you can't have superio bus where superio chips
-register their individual interfaces as individual devices. gpio, acb, etc
-are drivers that bind to superio devices and create class devices gpio.
+But, the scheduler doesn't know about realtime cycles.  It just knows
+that I used more than 80% over some unspecified period.  So, maybe I
+handled the first 8 audio buffers, but have no cycles left for buffers
+9 and 10.  Is that right?  That's not a situation I currently expect
+to deal with.  I need to figure out how to handle it.
 
-You could have:
+> the effect is pretty similar to starting too many Jack clients - things
+> degrade quickly and _all_ clients start skipping, and the whole audio
+> experience escallates into a big xrun mess. Not much to be done about it
+> i suspect. Maybe if the current 'RT load' was available via /proc then
+> jackd could introduce some sort of threshold above which it would reject
+> new clients?
 
-sys
-|-bus
-| |-superio
-| | |-devices
-| | | |-sio0 -> ../../../devices/pci0000:00/0000:00:1e.0/0000:02:03.0/sio0
-| | | |-sio1 -> ../../../devices/pci0000:00/0000:00:1e.0/0000:02:03.0/sio1
-| | | |-sio2 -> ../../../devices/pci0000:00/0000:00:1e.0/0000:02:04.0/sio2
-| | |-drivers
-| | | |-gpio
-| | | | |-sio1 -> ../../../../devices/pci0000:00/0000:00:1e.0/0000:02:03.0/sio1
-| | | | |-sio2 -> ../../../../devices/pci0000:00/0000:00:1e.0/0000:02:04.0/sio2
-| | | |-acb
-| | | | |-sio0 -> ../../../../devices/pci0000:00/0000:00:1e.0/0000:02:03.0/sio0
-|
-|-class
-| |-gpio
-| | |-gpio0
-| | |-gpio1
+It could.  
 
-gpioX have control and data attributes that allow reading and writing...
+It also kicks clients out of the realtime graph if they take too long.
 
-Am I missing something?
+>> JACK can probably do a better job of shutting down hyperactive
+>> realtime clients than the kernel, because it knows more about what the
+>> user is trying to do.  Multiplying incomprehesible rlimits values does
+>> not help much that I can see.
+>
+> please debug this some more - the kernel certainly doesnt do anything
+> intrusive - the clients only get delayed for some time.
 
+One simple definition of a realtime operation: there exists some
+deadline beyond which, if you didn't get the job done, you might as
+well not do it at all.
+
+For many applications, it might actually be less intrusive to kill
+them than to delay them.  My first thought is to revoke SCHED_FIFO and
+send a signal.  The default action could be process termination, but
+the process might optionally catch the signal, throttle back and try
+to restart the operation.
+
+Maybe there are other usage scenarios for which delaying the realtime
+thread is a good idea.  What kind did you have in mind?
+
+>> Sometimes musicians want to "push the envelope" using CPU-hungry
+>> realtime effects like reverbs or Fourier Transforms.  It is often hard
+>> to predict how much of this sort of load a given system can handle.
+>> JACK reports its subsystem-wide "DSP load" as a moving average,
+>> allowing users to monitor it.  It might be helpful if the kernel's
+>> estimate of this number were also available somewhere (but maybe that
+>> value has no meaning to users).  Often, the easiest method is to push
+>> things to the breaking point, and then back off a bit.
+>
+> yeah, i'll add this to /proc, so that utilities can access it. Jackd
+> could monitor it and refuse to start new clients if the RT load is
+> dangerously close to the limit (say within 10% of it)?
+
+That could be useful.  But, isn't it per-CPU?  
+
+Would this be a composite value?  Average?  Does that mean anything?
+
+>> The equivalent rlimits experiment probably requires:
+>> 
+>>   (1) editing /etc/security/limits.conf
+>>   (2) shutting everything down
+>>   (3) logout
+>>   (4) login
+>>   (5) restarting the test
+>
+> well, there's setrlimit, so you could add a jackd client callback that
+> instructs all clients to change their RT_CPU_RATIO rlimit. In theory we
+> could try to add a new rlimit syscall that changes another task's rlimit
+> (right now the syscalls only allow the changing of the rlimit of the
+> current task) - that would enable utilities to change the rlimit of all
+> tasks in the system, achieving the equivalent of a global sysctl.
+
+Sure, we could.  That does seem like an enormously complicated
+mechanism to accomplish something so simple.  We are taking a global
+per-CPU limit, treating it as if it were per-process, then invoking a
+complex callback scheme to propagate new values, all just to shoe-horn
+it into the rlimits structure.
+
+There are many problems for which rlimits is a good solution.  This
+does not seem to be one them.
 -- 
-Dmitry
+  joq
+  "To a man with a hammer, every problem looks like a nail."  ;-)
+

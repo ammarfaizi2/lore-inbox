@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131151AbRCUDge>; Tue, 20 Mar 2001 22:36:34 -0500
+	id <S131152AbRCUDho>; Tue, 20 Mar 2001 22:37:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131152AbRCUDgZ>; Tue, 20 Mar 2001 22:36:25 -0500
-Received: from nrg.org ([216.101.165.106]:11632 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S131151AbRCUDgJ>;
-	Tue, 20 Mar 2001 22:36:09 -0500
-Date: Tue, 20 Mar 2001 19:35:17 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Keith Owens <kaos@ocs.com.au>
-cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel 
-In-Reply-To: <16074.985137800@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org>
+	id <S131175AbRCUDhg>; Tue, 20 Mar 2001 22:37:36 -0500
+Received: from james.kalifornia.com ([208.179.59.2]:13621 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S131152AbRCUDhS>; Tue, 20 Mar 2001 22:37:18 -0500
+Message-ID: <3AB821AD.6F545468@blue-labs.org>
+Date: Tue, 20 Mar 2001 19:36:13 -0800
+From: David Ford <david@blue-labs.org>
+Organization: Blue Labs Software
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Doug Ledford <dledford@redhat.com>
+CC: Peter Lund <firefly@netgroup.dk>, Pozsar Balazs <pozsy@sch.bme.hu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: esound (esd), 2.4.[12] chopped up sound -- solved
+In-Reply-To: <Pine.GSO.4.30.0103201832260.15849-100000@balu> <3AB7A2CB.64ED61F3@netgroup.dk> <3AB7B477.2A740CE0@blue-labs.org> <3AB7BB59.9513514C@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Mar 2001, Keith Owens wrote:
-> I misread the code, but the idea is still correct.  Add a preemption
-> depth counter to each cpu, when you schedule and the depth is zero then
-> you know that the cpu is no longer holding any references to quiesced
-> structures.
+a) not all drivers are created equal
+b) esd should check the return value anyway
 
-A task that has been preempted is on the run queue and can be
-rescheduled on a different CPU, so I can't see how a per-CPU counter
-would work.  It seems to me that you would need a per run queue
-counter, like the example I gave in a previous posting.
+-d
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Doug Ledford wrote:
 
-MontaVista Software                             nigel@mvista.com
+> David Ford wrote:
+> >
+> > Actually you probably upgraded to a non-broken version of esd.  Stock esd -still-
+> > writes to the socket without regard to return value.  If the write only accepted
+> > 2098 of 4096 bytes, the residual bytes are lost, esd will write the next packet at
+> > 4097, not 2099.  esd is incredibly bad about err checking as is old e stuff.
+> >
+> > I posted my last patch for esd here and to other places in June of 2000.  All it
+> > does is check for return value and adjust the writes accordingly.  For reference,
+> > the patch is at http://stuph.org/esound-audio.c.patch.
+>
+> Why would esd get a short write() unless it is opening the file in non
+> blocking mode (which I didn't see when I was working on the i810 sound
+> driver)?  If esd is writing to a file in blocking mode and that write is
+> returning short, then that sounds like a driver bug to me.
+
+--
+  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+
+
 

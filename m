@@ -1,77 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbTEIXl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 19:41:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTEIXkh
+	id S263607AbTEIXts (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 19:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbTEIXtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 19:40:37 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:51405 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263584AbTEIXk1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 19:40:27 -0400
-Date: Fri, 9 May 2003 16:53:59 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver core changes for 2.5.69
-Message-ID: <20030509235359.GB3517@kroah.com>
-References: <20030509235142.GA3506@kroah.com> <20030509235346.GA3517@kroah.com>
-Mime-Version: 1.0
+	Fri, 9 May 2003 19:49:24 -0400
+Received: from pop.gmx.de ([213.165.65.60]:48755 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263607AbTEIXsb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 19:48:31 -0400
+Message-ID: <3EBC4119.B5C8F11A@gmx.de>
+Date: Sat, 10 May 2003 02:00:25 +0200
+From: Edgar Toernig <froese@gmx.de>
+MIME-Version: 1.0
+To: Ulrich Drepper <drepper@redhat.com>
+CC: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: hammer: MAP_32BIT
+References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com> <3EBC0084.4090809@redhat.com> <3EBC15B5.4070604@zytor.com> <3EBC2164.6050605@redhat.com> <3EBC29A5.1050005@techsource.com> <3EBC2A3C.8040409@redhat.com> <3EBC3167.2030302@techsource.com> <3EBC38C1.6020305@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030509235346.GA3517@kroah.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1097, 2003/05/09 16:26:28-07:00, greg@kroah.com
+Ulrich Drepper wrote:
+> > Why does there ever need to be an explicit HINT that you would prefer a
+> > <32 bit address, when it's known a priori that <32 is better?  Why
+> > doesn't the mapping code ALWAYS try to use 32-bit addresses before
+> > resorting to 64-bit?
+> 
+> Because not all memory is addressed via GDT entries.  In fact, almost
+> none is, only thread stacks and similar gimicks.  If all mmap memory
+> would by default be served from the low memory pool you soon run out of
+> it and without any good reason.
 
-[PATCH] driver core: Add driver symlink to class devices in sysfs.
+As if there are so many apps that would suffer from that...
 
-Thanks to Mike Anderson for the idea for this.
+Anyway, what's so bad about the idea someone (Linus?) suggested?
+Without MAP_FIXED the address given to mmap is already taken as a
+hint where to start looking for free memory.  So use mmap(4GB,...)
+for regular memory and mmap(4kB, ...) for stacks.  What's wrong
+with that?  And if you are really frightend to run out of "low"
+memory make the above-4GB allocation the default for addr==0.
 
-
- drivers/base/class.c |   17 +++++++++++++++++
- 1 files changed, 17 insertions(+)
-
-
-diff -Nru a/drivers/base/class.c b/drivers/base/class.c
---- a/drivers/base/class.c	Fri May  9 16:40:29 2003
-+++ b/drivers/base/class.c	Fri May  9 16:40:29 2003
-@@ -133,6 +133,21 @@
- 		sysfs_remove_link(&class_dev->kobj, "device");
- }
- 
-+static int class_device_driver_link(struct class_device * class_dev)
-+{
-+	if ((class_dev->dev) && (class_dev->dev->driver))
-+		return sysfs_create_link(&class_dev->kobj,
-+					 &class_dev->dev->driver->kobj, "driver");
-+	return 0;
-+}
-+
-+static void class_device_driver_unlink(struct class_device * class_dev)
-+{
-+	if ((class_dev->dev) && (class_dev->dev->driver))
-+		sysfs_remove_link(&class_dev->kobj, "driver");
-+}
-+
-+
- #define to_class_dev(obj) container_of(obj,struct class_device,kobj)
- #define to_class_dev_attr(_attr) container_of(_attr,struct class_device_attribute,attr)
- 
-@@ -265,6 +280,7 @@
- 	}
- 
- 	class_device_dev_link(class_dev);
-+	class_device_driver_link(class_dev);
- 
-  register_done:
- 	if (error && parent)
-@@ -298,6 +314,7 @@
- 
- 	if (class_dev->dev) {
- 		class_device_dev_unlink(class_dev);
-+		class_device_driver_unlink(class_dev);
- 		put_device(class_dev->dev);
- 	}
- 	
+Ciao, ET.

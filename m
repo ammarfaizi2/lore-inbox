@@ -1,63 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbTHSTTl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbTHSTSi
+	id S261455AbTHSUAi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 16:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbTHSTVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:18:38 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:11491
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S261265AbTHSTQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:16:40 -0400
-Message-ID: <3F427766.5020105@redhat.com>
-Date: Tue, 19 Aug 2003 12:15:50 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
-X-Accept-Language: en-us, en
+	Tue, 19 Aug 2003 15:21:33 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:37386 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S261185AbTHSTTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:19:42 -0400
+To: Greg KH <greg@kroah.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] EISA bus update
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+References: <wrp3cfxn78n.fsf@hina.wild-wind.fr.eu.org>
+	<20030819174208.GA4992@kroah.com>
+	<wrpptj1fr83.fsf@hina.wild-wind.fr.eu.org>
+	<20030819183537.GA5297@kroah.com>
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: Tue, 19 Aug 2003 21:19:13 +0200
+Message-ID: <wrpk799fob2.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20030819183537.GA5297@kroah.com> (Greg KH's message of "Tue,
+ 19 Aug 2003 11:35:37 -0700")
 MIME-Version: 1.0
-To: Andries Brouwer <aebr@win.tue.nl>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6
-References: <3F4268C1.9040608@redhat.com> <20030819210623.A2195@pclin040.win.tue.nl>
-In-Reply-To: <20030819210623.A2195@pclin040.win.tue.nl>
-X-Enigmail-Version: 0.81.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>>>>> "Greg" == Greg KH <greg@kroah.com> writes:
 
-Andries Brouwer wrote:
+>> Well, there is nothing to do in this function, because that's what the
+>> whole driver does: nothing. It just presents a range of IO ports to be
+>> probed to the main EISA code, and nothing else.
 
-> I just tried NFS client 2.6.0-test3, NFS server 2.0.34, try test on client.
-> No problems. ftruncate did not fail.
-> 
-> (Do you require some NFS version?)
+Greg> But it exports something in sysfs, right?  Any reason you just
+Greg> don't dynamically create it?  It's real hard to get static
+Greg> allocation of struct device correct.
 
-I have no special settings.  It's an out-of-the-box RHL9 server setting,
-using NFSv3.  Mounted with "rw,intr".  It's mounted by autofs but this
-shouldn't be of any concern here.
+Indeed, it registers a platform device. On the dynamic vs static
+subject, it shouldn't matter here. Could switch to dynamic allocation
+if needed.
 
-I can reproduce it at will and if somebody needs more info, no problem.
- The server should be fine.  I can do the same from another RHL9 machine
-or any of our more recent kernels and it works just fine.  It's only the
-2.6 kernel client which fails.
+Greg> Will this code ever be able to be built as a module?  If so,
+Greg> this will not be correct.
 
-Does the 2.0 kernel have NFSv3?  That might be why you don't see it.
+No, it won't ever be a module. It woudn't make sense. Most of the time,
+it is needed to boot the system...
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+>> Once it has registered as an EISA bus root, it doesn't get called
+>> anymore, the core code does it all by itself.
 
-iD8DBQE/Qndn2ijCOnn/RHQRAsseAJ4zYB4GQTswat4jc0yaC2rbP/hlwQCeOfae
-Bx2OFb/XFNVH7epLaKaRZIY=
-=SDRK
------END PGP SIGNATURE-----
+Greg> So the release function never gets called at all then?  Why
+Greg> would this be needed at all?
 
+The only case in which it is called is when registration to the EISA
+framework fails (because there is no EISA mainboard, or some PCI/EISA
+bridge has registered before, with the same IO range). Thus we call
+plateform_device_unregister, which calls the release function. And
+this only happens at init time. Never after.
+
+Thanks,
+
+        M.
+-- 
+Places change, faces change. Life is so very strange.

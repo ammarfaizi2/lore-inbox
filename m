@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264127AbTLOWeW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 17:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTLOWeW
+	id S264144AbTLOWgp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 17:36:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTLOWgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 17:34:22 -0500
-Received: from moutng.kundenserver.de ([212.227.126.184]:4046 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264127AbTLOWeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 17:34:21 -0500
-From: Christian Borntraeger <kernel@borntraeger.net>
-To: Felix von Leitner <felix-kernel@fefe.de>, linux-kernel@vger.kernel.org
-Subject: Re: request: capabilities that allow users to drop privileges further
-Date: Mon, 15 Dec 2003 23:34:12 +0100
-User-Agent: KMail/1.5.4
-References: <20031215213912.GA29281@codeblau.de>
-In-Reply-To: <20031215213912.GA29281@codeblau.de>
+	Mon, 15 Dec 2003 17:36:45 -0500
+Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:49027
+	"EHLO bastard") by vger.kernel.org with ESMTP id S264144AbTLOWgn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 17:36:43 -0500
+Message-ID: <3FDE376D.4060309@tupshin.com>
+Date: Mon, 15 Dec 2003 14:36:29 -0800
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Larry McVoy <lm@bitmover.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: RFC - tarball/patch server in BitKeeper
+References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215151126.3fe6e97a.vsu@altlinux.ru> <20031215132720.GX7308@phunnypharm.org> <20031215192402.528ce066.vsu@altlinux.ru> <20031215183138.GJ6730@dualathlon.random> <20031215185839.GA8130@work.bitmover.com> <20031215194057.GL6730@dualathlon.random> <20031215214452.GB8130@work.bitmover.com>
+In-Reply-To: <20031215214452.GB8130@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312152334.12312.kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix von Leitner wrote:
-> I would like to be able to drop capabilities that every normal user has,
-> so that network servers can limit the impact of possible future security
-> problems further.  For example, I want my non-cgi web server to be able
-> to drop the capabilities to
+Larry McVoy wrote:
+
+>The second you start
+>extracting BK metadata for the benefit of some SCM development effort,
+>that's a violation of the BKL.
+>  
 >
->   * fork
->   * execve
->   * ptrace
->   * load kernel modules
->   * mknod
->   * write to the file system
+Right here, you conflate action and intent. I asked about whether 
+somebody could legally make the changesets of a bitkeeper archive 
+publicly available. Will you be issuing a cease and desist order to Rik 
+van Riel for making changesets available at 
+ftp://nl.linux.org/pub/linux/bk2patch/patches-v2.5/ ??? I have found 
+this information to be very interesting. I haven't gone off and 
+developed an nth generation SCM product, but I have gathered a lot of 
+interesting quantifiable information about kernel development patterns, 
+statistics, etc. Who's violating what license, exactly?
 
-You can have a look at 
-http://lsm.immunix.org/ and
-http://lsm.immunix.org/lsm_modules.html
-if there is something that fits your need. 
-If not,  feel free to  write a security module, that is able to do just what 
-you want. ;-)
+>It's your data and that data includes your checkin comments but that is
+>all.  It's our tool and the use of our tool to export information how the
+>data is managed is a violation of our license.
+>
+Can you point out the relevant portion of the BKL? According to the BKL, 
+changesets fall into the category of "Metadata". The only restrictions 
+placed on metadata is that they be transmitted to an open logging 
+server. The only conceivable restriction I can find is the global 
+non-compete clause contained in 3-d: "Notwithstanding any other terms in 
+this License, this License is not available to You if You and/or your 
+employer develop, produce, sell, and/or resell a product which contains 
+substantially similar capabil- ities of the BitKeeper Software, or, in 
+the reason- able opinion of BitMover, competes with the BitKeeper 
+Software."
+Does somebody like Rik magically fall under this clause because he makes 
+changesets publicly available?
 
-cheers 
-
-Christian
-
+-Tupshin

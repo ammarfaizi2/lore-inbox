@@ -1,68 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262579AbSJHBVA>; Mon, 7 Oct 2002 21:21:00 -0400
+	id <S262642AbSJHBXx>; Mon, 7 Oct 2002 21:23:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262616AbSJHBVA>; Mon, 7 Oct 2002 21:21:00 -0400
-Received: from dsl-206-47-80-119.kingston.net ([206.47.80.119]:31505 "EHLO
-	linux.interlinx.bc.ca") by vger.kernel.org with ESMTP
-	id <S262579AbSJHBU7>; Mon, 7 Oct 2002 21:20:59 -0400
-Date: Mon, 7 Oct 2002 21:26:27 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@redhat.com>
-Subject: [PATCH] drivers/net/appletalk/Config.in, kernel 2.4.19
-Message-ID: <20021008012627.GB2997@pc.ilinx>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bCsyhTFzCvuiizWE"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: "Brian J. Murrell" <8821dc6cca218ed182e7363b244e013d@interlinx.bc.ca>
+	id <S262644AbSJHBXx>; Mon, 7 Oct 2002 21:23:53 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:52612 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S262642AbSJHBXw>;
+	Mon, 7 Oct 2002 21:23:52 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200210080126.FAA14944@sex.inr.ac.ru>
+Subject: Re: [PATCH] Fix IPv6
+To: yoshfuji@linux-ipv6.org (YOSHIFUJI Hideaki /
+	=?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=)
+Date: Tue, 8 Oct 2002 05:26:58 +0400 (MSD)
+Cc: jasper@spaans.ds9a.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <20021008.100853.123683687.yoshfuji@linux-ipv6.org> from "YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=" at Oct 8, 2 10:08:53 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---bCsyhTFzCvuiizWE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Agreed.
 
-Please find below a small patch that makes the two AppleTalk PC NICs
-(LTPC and COPS) in the kernel configurable only if there is an [E]ISA
-bus configured.
+Me too.
 
---- linux-2.4.19-16mdk/drivers/net/appletalk/Config.in	2002-08-02 20:39:44.=
-000000000 -0400
-+++ linux-2.4.19-16mdk-uml/drivers/net/appletalk/Config.in.new	2002-10-07 1=
-3:19:14.000000000 -0400
-@@ -6,8 +6,10 @@
- comment 'Appletalk devices'
- dep_mbool 'Appletalk interfaces support' CONFIG_DEV_APPLETALK $CONFIG_ATALK
- if [ "$CONFIG_DEV_APPLETALK" =3D "y" ]; then
--   tristate '  Apple/Farallon LocalTalk PC support' CONFIG_LTPC
--   tristate '  COPS LocalTalk PC support' CONFIG_COPS
-+   if [ "$CONFIG_ISA" =3D "y" -o "$CONFIG_EISA" =3D "y" ]; then
-+      tristate '  Apple/Farallon LocalTalk PC support' CONFIG_LTPC
-+      tristate '  COPS LocalTalk PC support' CONFIG_COPS
-+   fi
-    if [ "$CONFIG_COPS" !=3D "n" ]; then
-       bool '    Dayna firmware support' CONFIG_COPS_DAYNA
-       bool '    Tangent firmware support' CONFIG_COPS_TANGENT
+Sigh... that's why code is full of __constant_* in the most unexpected places.
+For my straight brains it is much easier to use __constant_* each time when
+I know forward that it is a constant instead of keeping in mind all
+the gcc bugs. Well, the beast which does not eliminate empty loops,
+is unlikely to eliminate if (is_constant_p()) too, right? :-) 
 
-b.
-
---=20
-Brian J. Murrell
-
---bCsyhTFzCvuiizWE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9ojRDl3EQlGLyuXARAkVcAKCSEKqrR27Y/rFtN1U0cmE3QFH3IACfWbd+
-8keFLBPg7Nrj9uBX69JKLhI=
-=P8Vo
------END PGP SIGNATURE-----
-
---bCsyhTFzCvuiizWE--
+Alexey

@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318018AbSIESTC>; Thu, 5 Sep 2002 14:19:02 -0400
+	id <S317994AbSIESRo>; Thu, 5 Sep 2002 14:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318020AbSIESTB>; Thu, 5 Sep 2002 14:19:01 -0400
-Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:17363 "EHLO
-	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
-	id <S318018AbSIESTA>; Thu, 5 Sep 2002 14:19:00 -0400
-Subject: Re: ip_conntrack_hash() problem
-From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-To: Patrick Schaaf <bof@bof.de>
-Cc: Andi Kleen <ak@suse.de>, Rusty Russell <rusty@rustcorp.com.au>,
-       Harald Welte <laforge@gnumonks.org>,
-       Netfilter Mailing List <netfilter-devel@lists.netfilter.org>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020905195547.A21899@oknodo.bof.de>
-References: <1031210342.9785.159.camel@biker.pdb.fsc.net>
-	<20020905115208.4D0A02C064@lists.samba.org>
-	<20020905135440.A10805@wotan.suse.de>  <20020905195547.A21899@oknodo.bof.de>
-Content-Type: text/plain
+	id <S318009AbSIESRo>; Thu, 5 Sep 2002 14:17:44 -0400
+Received: from relay1.pair.com ([209.68.1.20]:8196 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S317994AbSIESRn>;
+	Thu, 5 Sep 2002 14:17:43 -0400
+X-pair-Authenticated: 192.249.49.31
+Message-ID: <3D77A0FF.8060000@cybsft.com>
+Date: Thu, 05 Sep 2002 13:22:55 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kyi <kyi@kyi.sytes.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: nic driver
+References: <1031248870.973.6.camel@Jayson>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 05 Sep 2002 20:24:35 +0200
-Message-Id: <1031250277.9785.175.camel@biker.pdb.fsc.net>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Don, 2002-09-05 um 19.55 schrieb Patrick Schaaf:
-> As a short time fix, seeing that it's mostly even hash bucket counts
-> that give a problem, I would still propose just making the bucket count
-> the nearest odd number, i.e. basically htable_size |= 1 in the startup code.
-> 
-> I don't expect any user to notice such a miniscule change.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Well then, as most people seem to think this is the way to go, let's do
-it, and hope that Rusty's patch will be ready for prime-time soon.
+kyi wrote:
+| I relize that this isn't the correct list for this, but I can't seem to
+| find and anwser anywhere. Could someone please tell me what driver the
+|
+|
+| Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+|
+| uses. The Realtek kernel drivers don't mention this card. Thanks in
+| advance for any help.
+|
+| - Jayson Garrell
+|
 
-Martin
+Mine uses ne2k-pci.
 
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+kr
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-
-
-
+iD8DBQE9d6D/OSid126whWsRAnTGAJwM2k98N1qrzTthpLPDMcxr6PaugwCeIvyd
+xHyKmNhbZxDQGyN0eKN4Ul8=
+=RMFM
+-----END PGP SIGNATURE-----
 

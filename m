@@ -1,46 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264352AbUFGJNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264360AbUFGJSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264352AbUFGJNr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 05:13:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUFGJNq
+	id S264360AbUFGJSm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 05:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUFGJSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 05:13:46 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:53388 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264365AbUFGJNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 05:13:08 -0400
-Message-ID: <40C4319D.6090201@yahoo.com.au>
-Date: Mon, 07 Jun 2004 19:13:01 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Mon, 7 Jun 2004 05:18:41 -0400
+Received: from mail020.syd.optusnet.com.au ([211.29.132.131]:38107 "EHLO
+	mail020.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264360AbUFGJSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 05:18:38 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest errors?
+Date: Mon, 7 Jun 2004 19:18:16 +1000
+User-Agent: KMail/1.6.1
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <200406060007.10150.kernel@kolivas.org> <200406070906.46392.kernel@kolivas.org> <20040607072414.GC13836@suse.de>
+In-Reply-To: <20040607072414.GC13836@suse.de>
 MIME-Version: 1.0
-To: bert hubert <ahu@ds9a.nl>
-CC: kernel@kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: BUG in ht-aware scheduler/nice in 2.6.7-rc2 on dual xeon
-References: <20040607085625.GA11276@outpost.ds9a.nl>
-In-Reply-To: <20040607085625.GA11276@outpost.ds9a.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406071918.16166.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
+On Mon, 7 Jun 2004 17:24, Jens Axboe wrote:
+> On Mon, Jun 07 2004, Con Kolivas wrote:
+> > hdd: status error: status=0x59 { DriveReady SeekComplete DataRequest
+> > Error } hdd: status error: error=0x20LastFailedSense 0x02
+> > hdd: drive not ready for command
+> > hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> > hdd: status error: error=0x00
+> > ..etc
+> Con, please try with this debug patch.
 
-> Fails sometimes, with all processes getting 50%. The above 'screenshot' is
-> from the working and expected situation, which happens most of the time.
-> 
-> When it goes wrong, top shows me that Cpu0 and Cpu1 are 100% user, while
-> Cpu2 and Cpu3 are both 100% nice.  The niced processes show up in top as
-> PRiority 39, the unniced ones (NI = 0) as PR 25.
-> 
-> I've also seen it that Cpu2 and Cpu3 are 100% busy, and 0 and 1 are 100%
-> nice.
-> 
+Here is the output:
+hdd: RICOH CD-R/RW MP7163A, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: max request size: 1024KiB
+hda: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
+ hda: hda1 hda2 < hda5 hda6 hda7 >
+hdb: max request size: 1024KiB
+hdb: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
+ hdb: hdb2 < hdb5 hdb6 hdb7 >
+ide-cd: queueing cdb: 5a 00 2a 00 00 00 00 00 18 00 00 00
+ide-cd: queueing cdb: 46 00 00 28 00 00 00 00 10 00 00 00
+ide-cd: queueing cdb: 5a 00 03 00 00 00 00 00 10 00 00 00
+ide-cd: queueing cdb: 5a 00 2c 00 00 00 00 00 10 00 00 00
+ide-cd: queueing cdb: 46 00 00 20 00 00 00 00 18 00 00 00
+hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+ide-cd: queueing cdb: 00 00 00 00 00 00 00 00 00 00 00 00
+ide-cd: queueing cdb: 25 00 00 00 00 00 00 00 00 00 00 00
+ide-cd: queueing cdb: 43 02 00 00 00 00 00 00 04 00 00 00
+ide-cd: queueing cdb: 5a 00 2a 00 00 00 00 00 18 00 00 00
+ide-cd: queueing cdb: 46 00 00 28 00 00 00 00 10 00 00 00
+hdd: status error: status=0x59 { DriveReady SeekComplete DataRequest Error }
+hdd: status error: error=0x20LastFailedSense 0x02
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: DMA disabled
+hdd: drive not ready for command
+hdd: ATAPI reset complete
 
-Ahh, that is because we don't do nice-aware SMP balancing. It
-is orthogonal to the HT-nice work.
 
-Fixing it properly requires someone to sit down and do some careful
-design of nice-aware balancing that should be general enough to handle
-the HT problems as a matter of course.
+followed by
+
+ide-cd: queueing cdb: 46 00 00 28 00 00 00 00 10 00 00 00
+
+... repeat every so often until it comes to:
+
+hdd: ATAPI 32X CD-ROM CD-R/RW drive, 2048kB Cache
+ide-cd: queueing cdb: 00 00 00 00 00 00 00 00 00 00 00 00
+ide-cd: queueing cdb: 25 00 00 00 00 00 00 00 00 00 00 00
+ide-cd: queueing cdb: 43 02 00 00 00 00 00 00 04 00 00 00
+
+and the errors stop at that point
+
+Con

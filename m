@@ -1,119 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVA0RXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262671AbVA0RSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbVA0RXK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 12:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbVA0RVN
+	id S262671AbVA0RSm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 12:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbVA0RRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 12:21:13 -0500
-Received: from zlynx.org ([199.45.143.209]:52488 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S262673AbVA0RTl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 12:19:41 -0500
-Subject: Re: thoughts on kernel security issues
-From: Zan Lynx <zlynx@acm.org>
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-os <linux-os@analogic.com>,
-       John Richard Moser <nigelenki@comcast.net>, dtor_core@ameritech.net,
-       Linus Torvalds <torvalds@osdl.org>, Valdis.Kletnieks@vt.edu,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <05012710374600.20895@tabby>
-References: <Pine.LNX.3.96.1050126143205.24013A-100000@gatekeeper.tmr.com>
-	 <05012710374600.20895@tabby>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NOc6nkdXpvjonoz+seiq"
-Date: Thu, 27 Jan 2005 10:18:34 -0700
-Message-Id: <1106846314.15927.6.camel@localhost>
+	Thu, 27 Jan 2005 12:17:34 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:64479 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262673AbVA0ROW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 12:14:22 -0500
+Subject: [PATCH 1/6] Add support for H-Wheel on Microsoft Explorer and Logitech MX mice
+In-Reply-To: <20050127165958.GA15690@ucw.cz>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Thu, 27 Jan 2005 18:13:58 +0100
+Message-Id: <1106846038373@twilight.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/for-linus
 
---=-NOc6nkdXpvjonoz+seiq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+===================================================================
 
-On Thu, 2005-01-27 at 10:37 -0600, Jesse Pollard wrote:
-> On Wednesday 26 January 2005 13:56, Bill Davidsen wrote:
-> > On Wed, 26 Jan 2005, Jesse Pollard wrote:
-> > > On Tuesday 25 January 2005 15:05, linux-os wrote:
-> > > > This isn't relevant at all. The Navy doesn't have any secure
-> > > > systems connected to a network to which any hackers could connect.
-> > > > The TDRS communications satellites provide secure channels
-> > > > that are disassembled on-board. Some ATM-slot, after decryption
-> > > > is fed to a LAN so the sailors can have an Internet connection
-> > > > for their lap-tops. The data took the same paths, but it's
-> > > > completely independent and can't get mixed up no matter how
-> > > > hard a hacker tries.
-> > >
-> > > Obviously you didn't hear about the secure network being hit by the "=
-I
-> > > love you" virus.
-> > >
-> > > The Navy doesn't INTEND to have any secure systems connected to a net=
-work
-> > > to which any hackers could connect.
-> >
-> > What's hard about that? Matter of physical network topology, absolutely=
- no
-> > physical connection, no machines with a 2nd NIC, no access to/from I'ne=
-t.
-> > Yes, it's a PITA, add logging to a physical printer which can't be eras=
-ed
-> > if you want to make your CSO happy (corporate security officer).
->=20
-> And you are ASSUMING the connection was authorized. I can assure you that=
-=20
-> there are about 200 (more or less) connections from the secure net to the
-> internet expressly for the purpose of transferring data from the internet
-> to the secure net for analysis. And not ALL of these connections are=20
-> authorized. Some are done via sneakernet, others by running a cable ("I n=
-eed
-> the data NOW... I'll just disconnect afterward..."), and are not visible
-> for very long. Other connections are by picking up a system and carrying =
-it
-> from one connection to another (a version of sneakernet, though here it
-> sometimes needs a hand cart).
->=20
-> > > Unfortunately, there will ALWAYS be a path, either direct, or indirec=
-t
-> > > between the secure net and the internet.
-> >
-> > Other than letting people use secure computers after they have seen the
-> > Internet, a good setup has no indirect paths.
->=20
-> Ha. Hahaha...
->=20
-> Reality bites.
+ChangeSet@1.1970, 2005-01-11 17:45:14+01:00, vojtech@silver.ucw.cz
+  input: Add support for H-Wheel on Microsoft Explorer and Logitech MX
+         USB HID mice.
+  
+  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
 
-In the reality I'm familiar with, the defense contractor's secure
-projects building had one entrance, guarded by security guards who were
-not cheap $10/hr guys, with strict instructions.  No computers or
-computer media were allowed to leave the building except with written
-authorization of a corporate officer.  The building was shielded against
-Tempest attacks and verified by the NSA.  Any computer hardware or media
-brought into the building for the project was physically destroyed at
-the end.
 
-Secure nets _are_ possible.
---=20
-Zan Lynx <zlynx@acm.org>
+ hid-debug.h |   24 ++++++++++++++----------
+ hid-input.c |   12 +++++++++---
+ hid.h       |    1 +
+ 3 files changed, 24 insertions(+), 13 deletions(-)
 
---=-NOc6nkdXpvjonoz+seiq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+===================================================================
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBB+SJqG8fHaOLTWwgRAlJFAJ0X4gnFk05Oj0oQwkf9J20PsbHsIwCgoZQz
-tYX5r3RoNw/gLWsJAelDw5c=
-=bON8
------END PGP SIGNATURE-----
-
---=-NOc6nkdXpvjonoz+seiq--
+diff -Nru a/drivers/usb/input/hid-debug.h b/drivers/usb/input/hid-debug.h
+--- a/drivers/usb/input/hid-debug.h	2005-01-27 17:48:14 +01:00
++++ b/drivers/usb/input/hid-debug.h	2005-01-27 17:48:14 +01:00
+@@ -81,15 +81,21 @@
+       {0, 0x8b, "SystemMenuLeft"},
+       {0, 0x8c, "SystemMenuUp"},
+       {0, 0x8d, "SystemMenuDown"},
+-    {0, 0x90, "D-padUp"},
+-    {0, 0x91, "D-padDown"},
+-    {0, 0x92, "D-padRight"},
+-    {0, 0x93, "D-padLeft"},
++      {0, 0x90, "D-PadUp"},
++      {0, 0x91, "D-PadDown"},
++      {0, 0x92, "D-PadRight"},
++      {0, 0x93, "D-PadLeft"},
+   {  7, 0, "Keyboard" },
++      {0, 0x01, "NumLock"},
++      {0, 0x02, "CapsLock"},
++      {0, 0x03, "ScrollLock"},
++      {0, 0x04, "Compose"},
++      {0, 0x05, "Kana"},
+   {  8, 0, "LED" },
+   {  9, 0, "Button" },
+   { 10, 0, "Ordinal" },
+-  { 12, 0, "Hotkey" },
++  { 12, 0, "Consumer" },
++      {0, 0x238, "HorizontalWheel"},
+   { 13, 0, "Digitizers" },
+     {0, 0x01, "Digitizer"},
+     {0, 0x02, "Pen"},
+@@ -653,12 +659,10 @@
+ 	[KEY_SLOW] = "Slow",			[KEY_SHUFFLE] = "Shuffle",
+ 	[KEY_BREAK] = "Break",			[KEY_PREVIOUS] = "Previous",
+ 	[KEY_DIGITS] = "Digits",		[KEY_TEEN] = "TEEN",
+-	[KEY_TWEN] = "TWEN",			[KEY_DEL_EOL] = "Delete EOL",
+-	[KEY_DEL_EOS] = "Delete EOS",		[KEY_INS_LINE] = "Insert line",
+-	[KEY_DEL_LINE] = "Delete line",
++	[KEY_TWEN] = "TWEN",			[KEY_DEL_EOL] = "DeleteEOL",
++	[KEY_DEL_EOS] = "DeleteEOS",		[KEY_INS_LINE] = "InsertLine",
++	[KEY_DEL_LINE] = "DeleteLine",
+ };
+-
+-static char *absval[5] = { "Value", "Min  ", "Max  ", "Fuzz ", "Flat " };
+ 
+ static char *relatives[REL_MAX + 1] = {
+ 	[0 ... REL_MAX] = NULL,
+diff -Nru a/drivers/usb/input/hid-input.c b/drivers/usb/input/hid-input.c
+--- a/drivers/usb/input/hid-input.c	2005-01-27 17:48:14 +01:00
++++ b/drivers/usb/input/hid-input.c	2005-01-27 17:48:14 +01:00
+@@ -185,7 +185,9 @@
+ 			break;
+ 
+ 		case HID_UP_LED:
+-			map_led((usage->hid - 1) & 0xf);
++			if (usage->hid - 1 >= LED_MAX)
++				goto ignore;
++			map_led(usage->hid - 1);
+ 			break;
+ 
+ 		case HID_UP_DIGITIZER:
+@@ -231,7 +233,6 @@
+ 
+ 		case HID_UP_CONSUMER:	/* USB HUT v1.1, pages 56-62 */
+ 
+-			set_bit(EV_REP, input->evbit);
+ 			switch (usage->hid & HID_USAGE) {
+ 				case 0x000: goto ignore;
+ 				case 0x034: map_key_clear(KEY_SLEEP);		break;
+@@ -268,6 +269,7 @@
+ 				case 0x226: map_key_clear(KEY_STOP);		break;
+ 				case 0x227: map_key_clear(KEY_REFRESH);		break;
+ 				case 0x22a: map_key_clear(KEY_BOOKMARKS);	break;
++				case 0x238: map_rel(REL_HWHEEL);		break;
+ 				default:    goto unknown;
+ 			}
+ 			break;
+@@ -288,9 +290,13 @@
+ 				case 0x084: map_key_clear(KEY_FINANCE);		break;
+ 				case 0x085: map_key_clear(KEY_SPORT);		break;
+ 				case 0x086: map_key_clear(KEY_SHOP);	        break;
+-				default:    goto unknown;
++				default:    goto ignore;
+ 			}
+ 			break;
++
++		case HID_UP_MSVENDOR:
++
++			goto ignore;
+ 			
+ 		case HID_UP_PID:
+ 
+diff -Nru a/drivers/usb/input/hid.h b/drivers/usb/input/hid.h
+--- a/drivers/usb/input/hid.h	2005-01-27 17:48:14 +01:00
++++ b/drivers/usb/input/hid.h	2005-01-27 17:48:14 +01:00
+@@ -181,6 +181,7 @@
+ #define HID_UP_DIGITIZER 	0x000d0000
+ #define HID_UP_PID 		0x000f0000
+ #define HID_UP_HPVENDOR         0xff7f0000
++#define HID_UP_MSVENDOR		0xff000000
+ 
+ #define HID_USAGE		0x0000ffff
+ 
 

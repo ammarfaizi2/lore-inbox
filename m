@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUEXTMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264680AbUEXTNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264677AbUEXTMj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 15:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264680AbUEXTMj
+	id S264680AbUEXTNt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 15:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264683AbUEXTNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 15:12:39 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:43916 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264677AbUEXTMi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 15:12:38 -0400
-Date: Mon, 24 May 2004 23:13:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MAP_POPULATE prot 0
-Message-ID: <20040524211355.GA16165@elte.hu>
-References: <Pine.LNX.4.44.0405242003270.27145-100000@localhost.localdomain>
+	Mon, 24 May 2004 15:13:49 -0400
+Received: from wblv-36-95.telkomadsl.co.za ([165.165.36.95]:3224 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S264680AbUEXTNh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 15:13:37 -0400
+Subject: Re: Distributions vs kernel development
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Rene Rebe <rene@rocklinux-consulting.de>
+Cc: kangur@polcom.net,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       rock-user@rocklinux.org
+In-Reply-To: <20040509.111350.67880957.rene@rocklinux-consulting.de>
+References: <200405090707.i49776Iv000342@81-2-122-30.bradfords.org.uk>
+	 <20040509.105253.26927810.rene@rocklinux-consulting.de>
+	 <Pine.LNX.4.58.0405091057060.14709@alpha.polcom.net>
+	 <20040509.111350.67880957.rene@rocklinux-consulting.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JwLz7KfUgM7DSr/buRRp"
+Message-Id: <1085426241.9516.7.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0405242003270.27145-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 24 May 2004 21:17:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Hugh Dickins <hugh@veritas.com> wrote:
+--=-JwLz7KfUgM7DSr/buRRp
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> It seems eccentric to implement MAP_POPULATE only on PROT_NONE
-> mappings: do_mmap_pgoff is passing down prot, then
-> sys_remap_file_pages verifies it's not set.  I guess that's an
-> oversight from when we realized that the prot arg to
-> sys_remap_file_pages was misdesigned.
+On Sun, 2004-05-09 at 11:13, Rene Rebe wrote:
 
-yeah.
+> But the last time I took a look not even an installer or such. +
+> Gentoo has no support for custom modifications not even thinking about
+> a way to group such custom modifications / build configuration into a
+> well defined way to form a distribution. + ROCK Linux has a real
+> sandbox build environment, not this optimization via CFLAGS, and so on
+> Gentoo wannabe.
+>=20
 
-> There's another oddity whose heritage is harder for me to understand,
-> so please let me leave it to you: sys_remap_file_pages is declared as
-> asmlinkage in mm/fremap.c, but is the one syscall declared without
-> asmlinkage in include/linux/syscalls.h.
+Weird .. last time I checked, Gentoo sandbox was originally derived from
+ROCK Linux's sandbox wrapper ....
 
-i think that's just an oversight.
 
-	Ingo
+Cheers,
+
+--=20
+Martin Schlemmer
+
+--=-JwLz7KfUgM7DSr/buRRp
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAskpBqburzKaJYLYRAtbsAJ9mrI5+KReGjWSllQFPLwpHxV2LpACeJXBa
+d3uaUabnOjR2EH7wYX1RFc8=
+=xPX4
+-----END PGP SIGNATURE-----
+
+--=-JwLz7KfUgM7DSr/buRRp--
+

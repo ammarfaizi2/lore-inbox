@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272449AbRH3Uxp>; Thu, 30 Aug 2001 16:53:45 -0400
+	id <S272448AbRH3UxZ>; Thu, 30 Aug 2001 16:53:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272450AbRH3Uxf>; Thu, 30 Aug 2001 16:53:35 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:26890 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S272449AbRH3Ux2>;
-	Thu, 30 Aug 2001 16:53:28 -0400
-Date: Thu, 30 Aug 2001 13:51:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Stefan Fleiter <stefan.fleiter@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Diet /sbin/hotplug package released
-Message-ID: <20010830135143.B18294@kroah.com>
-In-Reply-To: <20010830124700.A3694@shuttle.mothership.home.dhs.org> <3117682009.999188508@[10.132.112.53]>
+	id <S272449AbRH3UxP>; Thu, 30 Aug 2001 16:53:15 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12815 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S272448AbRH3UxE>; Thu, 30 Aug 2001 16:53:04 -0400
+Date: Thu, 30 Aug 2001 22:53:23 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+        research@suse.de
+Subject: Re: Reiserfs: how to mount without journal replay?
+Message-ID: <20010830225323.A18630@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010826130858.A39@toy.ucw.cz> <15246.11218.125243.775849@gargle.gargle.HOWL>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3117682009.999188508@[10.132.112.53]>; from linux-kernel@alex.org.uk on Thu, Aug 30, 2001 at 04:21:48PM +0100
-X-Operating-System: Linux 2.2.19 (i586)
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <15246.11218.125243.775849@gargle.gargle.HOWL>; from Nikita@Namesys.COM on Thu, Aug 30, 2001 at 04:04:34PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 30, 2001 at 04:21:48PM +0100, Alex Bligh - linux-kernel wrote:
+Hi!
+
+>  > For recovering broken machine, I'd like to mount without replaying journal.
 > 
+> You cannot mount without replaying even in read-only mode, because
+> file-system meta-data are possibly inconsistent.
+
+Then suse's  use of reiserfs is pretty b0rken. Putting reiserfsck on /
+partition is pretty useless -- if it crashes during mount you can't
+repair it.
+
+If reiserfsck detects errors on /, you can't repair them because
+reiserfsck is on that partition. Ouch.
+
+>  > [reiserfs panics while replaying journal; seems there are still some bugs
+>  > hidden in there]. Unfortunately, "nolog" option does not seem imlemented.
 > 
-> --On Thursday, August 30, 2001 12:47 PM +0200 Stefan Fleiter 
-> <stefan.fleiter@gmx.de> wrote:
-> 
-> > Does it really make any sense to optimize for size and at the same time
-> > force the user to install a bash compatible shell?
-> 
-> No, that's why diet /sbin/hotplug didn't require any shell (as I understood
-> it), whereas the normal hotplug suite does.
+> There is a patch allowing to mount reiserfs if there was io error during
+> journal replay on mount. It is included into 2.4.9-ac* tree (it was sent
+> to Linus several times, but this did not avail).
 
-Exactly.  diethotplug does not require any shell or awk to be present to
-work.  It compiles to a binary which is smaller than the existing
-modules.usbmap file is (and can get smaller, I haven't started to
-optimize for space yet.)
+I already repaired my system -- had to install another copy of suse to
+another partition :-(.
 
-To help clear up a few questions I've been getting, diethotplug is for
-systems that care about space, like embedded or boot rescue discs.  It
-will also be handy for loading PCI and USB kernel modules at boot time
-based on what devices are present in the system, with the upcoming 2.5
-initrd method.
+> Can you send to Reiserfs mail-list <Reiserfs-List@Namesys.COM> more
+> detailed information about your case, like ksymoopsed stack trace,
+> etc.
 
-It is not a replacement for the current linux-hotplug scrips, but
-another alternative for situations that they didn't make sense.
-
-thanks,
-
-greg k-h
+No stack trace, sorry. It refused to mount saying that attempting to
+write into log block.. That's panic. Reiserfsck is not usable in such
+case, because ... how do you run reiserfsck from partition you can't
+mount?
+								Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbUBTNTz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 08:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbUBTNMx
+	id S261197AbUBTNMn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 08:12:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbUBTMw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 08:12:53 -0500
-Received: from mail.shareable.org ([81.29.64.88]:48000 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261221AbUBTMyY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 07:54:24 -0500
-Date: Fri, 20 Feb 2004 12:54:10 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Junio C Hamano <junkio@cox.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Tridge <tridge@samba.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-Message-ID: <20040220125410.GA8994@mail.shareable.org>
-References: <20040220000054.GA5590@mail.shareable.org> <Pine.LNX.4.58.0402191326490.1439@ppc970.osdl.org> <7vznbeleam.fsf@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7vznbeleam.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Mutt/1.4.1i
+	Fri, 20 Feb 2004 07:52:28 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:1101 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261197AbUBTMsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 07:48:36 -0500
+Date: Fri, 20 Feb 2004 13:48:21 +0100
+Message-Id: <200402201248.i1KCmLI4004293@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 409] M68k call trace output
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junio C Hamano wrote:
-> JL> The other thing I like is that DN_IGNORE_SELF would be useful for
-> JL> other applications too.
-> 
-> While I agree in principle that DN_IGNORE_SELF would be quite an
-> effective and clean way to solve the Samba problem and also
-> applicable to other situations,
+M68k: Improve formatting of call trace output (from Matthias Urlichs)
 
-> I also imagine that the value of DN_IGNORE_SELF would be greatly
-> affected by how the "self" is defined.  A server implementation may
-> be multithreaded, and you may or may not want to count all your
-> threads in that server process as self; another may be implemented
-> as one master process spawning multiple worker bee processes, in
-> which case it would be more convenient if all the processes in one
-> process group is counted as self.
+--- linux-2.6.3/arch/m68k/kernel/traps.c	2004-01-21 22:03:12.000000000 +0100
++++ linux-m68k-2.6.3/arch/m68k/kernel/traps.c	2003-11-23 20:59:33.000000000 +0100
+@@ -30,6 +30,7 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+ #include <linux/ptrace.h>
++#include <linux/kallsyms.h>
+ 
+ #include <asm/setup.h>
+ #include <asm/fpu.h>
+@@ -825,9 +826,12 @@
+ 		 * out the call path that was taken.
+ 		 */
+ 		if (kernel_text_address(addr)) {
+-			if (i % 4 == 0)
++#ifndef CONFIG_KALLSYMS
++			if (i % 5 == 0)
+ 				printk("\n       ");
++#endif
+ 			printk(" [<%08lx>]", addr);
++			print_symbol(" %s\n", addr);
+ 			i++;
+ 		}
+ 	}
+@@ -1098,8 +1102,10 @@
+ 
+ 	console_verbose();
+ 	printk("%s: %08x\n",str,nr);
+-	printk("PC: [<%08lx>]\nSR: %04x  SP: %p  a2: %08lx\n",
+-	       fp->pc, fp->sr, fp, fp->a2);
++	printk("PC: [<%08lx>]",fp->pc);
++	print_symbol(" %s\n", fp->pc);
++	printk("\nSR: %04x  SP: %p  a2: %08lx\n",
++	       fp->sr, fp, fp->a2);
+ 	printk("d0: %08lx    d1: %08lx    d2: %08lx    d3: %08lx\n",
+ 	       fp->d0, fp->d1, fp->d2, fp->d3);
+ 	printk("d4: %08lx    d5: %08lx    a0: %08lx    a1: %08lx\n",
 
-Yes, indeed this is an issue.  A multi-threaded program I'm working on
-would want each thread to count separately - because the threads don't
-know much about each other.  Samba is more likely to want all threads
-treated as a single unit.
+Gr{oetje,eeting}s,
 
-Even in a program like Samba, you can imagine a plugin architecture or
-something where 3rd party add-ons spawn threads, and those 3rd party
-threads want to monitor a directory they are using, independent of the
-main Samba threads.
+						Geert
 
--- Jamie
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

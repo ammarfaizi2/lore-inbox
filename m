@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbTKJIt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 03:49:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTKJIt7
+	id S263057AbTKJJJk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 04:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTKJJJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 03:49:59 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2944 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263062AbTKJIt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 03:49:57 -0500
-Date: Mon, 10 Nov 2003 08:53:10 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200311100853.hAA8rAcl000288@81-2-122-30.bradfords.org.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200311092349.hA9Nn5iA010130@turing-police.cc.vt.edu>
-References: <m3u15de669.fsf@defiant.pm.waw.pl>
- <200311091950.hA9Jo01d002041@81-2-122-30.bradfords.org.uk>
- <200311092349.hA9Nn5iA010130@turing-police.cc.vt.edu>
-Subject: Re: Some thoughts about stable kernel development 
+	Mon, 10 Nov 2003 04:09:40 -0500
+Received: from nagatino-gw.corbina.net ([195.14.53.90]:41979 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S263057AbTKJJJi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 04:09:38 -0500
+Date: Mon, 10 Nov 2003 12:12:25 +0300
+From: Alex Tomas <bzzz@bzzz.linuxhacker.ru>
+To: Alex Lyashkov <shadow@itt.net.ru>
+Cc: Jan Kara <jack@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: [BUG] journal handler reference count breaked and fs deadlocked
+Message-Id: <20031110121225.19daf448.bzzz@bzzz.linuxhacker.ru>
+In-Reply-To: <200311092334.01957.shadow@itt.net.ru>
+References: <200311092334.01957.shadow@itt.net.ru>
+Organization: HOME
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Valdis.Kletnieks@vt.edu:
-> --==_Exmh_-1945224656P
-> Content-Type: text/plain; charset=us-ascii
-> 
-> On Sun, 09 Nov 2003 19:50:00 GMT, John Bradford said:
-> > This does highlight a real issue - I am concerned by the number of
-> > posts on sites like lwn.net saying things like, "Oh, I'm using 2.6 as
-> > my standard kernel now", when it is clear that a lot of those users
-> > simply do not understand the issues.
-> 
-> On the other hand, Linux is about freedom, even if it's the freedom
-> to shoot yourself in the foot.
-> 
-> I really don't see that we need to do much of anything to change our
-> development scheme.  I think that James Bourne's -uv patch series
-> is all that's needed, and that the only thing we need to do is make
-> sure there's resources available to keep it going (find it a home
-> on the www.kernel.org server, provide a link for it so people can
-> actually *find* it, and somehow provide for continuity in case James
-> gets hit by a bus or something equally unfortunate.
+what system did that time? mount options?
 
-See my other post in this thread - I never intended to post that
-comment.  I am not in favour of any change in development, just a big
-notice that says, "Be careful".  That doesn't take away any freedom,
-and I think that there are obviously users who would benefit from it.
+On Sun, 9 Nov 2003 23:34:00 +0200
+Alex Lyashkov <shadow@itt.net.ru> wrote:
 
-John.
+> Hello All
+> 
+> I try locate what are point where fs deadlocked.
+> after recompile kernel with debug jbd and set debug level to 100 i log kernel 
+> via serial console
+> after deadlock - i see in log
+> ==============
+> journal.c, 581): log_start_commit: JBD: requesting commit 501252/501251
+> (journal.c, 608): log_wait_commit: JBD: want 501252, j_commit_sequence=501251
+> (journal.c, 263): kjournald: kjournald wakes
+> (journal.c, 238): kjournald: commit_sequence=501251, commit_request=501252
+> (journal.c, 242): kjournald: OK, requests differ
+> (commit.c, 81): journal_commit_transaction: JBD: starting commit of 
+> transaction 501252
+> (commit.c, 87): journal_commit_transaction: wait updates.......
+> (transaction.c, 567): do_get_write_access: buffer_head c79f2e70, force_copy 0
+> (revoke.c, 375): journal_cancel_revoke: journal_head c79f2e70, cancelling 
+> revoke
+> (transaction.c, 567): do_get_write_access: buffer_head c79f2e70, force_copy 0
+> (revoke.c, 375): journal_cancel_revoke: journal_head c79f2e70, cancelling 
+> revoke
+> (transaction.c, 1104): journal_dirty_metadata: journal_head c79f2e70
+> (transaction.c, 1392): journal_stop: h_ref 2 -> 1
+> ==============
+> i think it`s reason fs deadlocked, because wait query not be waked :-\
+> if i right - it very big problem on ext3..
+> other logs\infos can be created after request....
+> 
+> 
+> -- 
+> With best regards,
+> Alex
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

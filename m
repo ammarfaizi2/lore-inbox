@@ -1,40 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135912AbRDTN0m>; Fri, 20 Apr 2001 09:26:42 -0400
+	id <S135916AbRDTNgD>; Fri, 20 Apr 2001 09:36:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135914AbRDTN0d>; Fri, 20 Apr 2001 09:26:33 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:13061 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135912AbRDTN0X>; Fri, 20 Apr 2001 09:26:23 -0400
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-To: acahalan@cs.uml.edu (Albert D. Cahalan)
-Date: Fri, 20 Apr 2001 14:13:35 +0100 (BST)
-Cc: willy@ldl.fc.hp.com (Matthew Wilcox),
-        james.rich@m.cc.utah.edu (james rich),
-        esr@thyrsus.com (Eric S. Raymond), linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-In-Reply-To: <200104200452.f3K4q3X07411@saturn.cs.uml.edu> from "Albert D. Cahalan" at Apr 20, 2001 12:52:03 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135917AbRDTNfy>; Fri, 20 Apr 2001 09:35:54 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:43488 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S135916AbRDTNfg>;
+	Fri, 20 Apr 2001 09:35:36 -0400
+From: tom_gall@vnet.ibm.com
+Message-ID: <3AE03ADE.9330EB68@vnet.ibm.com>
+Date: Fri, 20 Apr 2001 13:34:22 +0000
+Reply-To: tom_gall@vnet.ibm.com
+Organization: IBM
+X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qajB-0001Dt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Galloway <jeff.galloway@rundog.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3 Compile Errors - Power Mac
+In-Reply-To: <B7054E4B.424E%jeff.galloway@rundog.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > we sent him every single one of those patches individually.  and we'd
-> > go insane trying to keep up with what he'd taken and what he'd dropped.
-> > 
-> > until you've actually tried doing this, please don't attempt to criticise.
+Jeff Galloway wrote:
 > 
-> Have _you_ tried? If I recall correctly, Linus spoke out against the
+> Sorry, Tom about the word doc faux pas.  I've set out my problem in plain
+> text below.  I got my source from ftp.kernel.org.
 
-I have for one. Its definitely the wrong approach to bomb Linus with patches
-when doing the merge of an architecture. All the architecture folk with in
-their own trees for good reason.
+Hi Jeff,
 
-Once the code is in a fit state to merge (ie actually works well with the new
-2.4.x stuff and 2.4.x core stops shifting around) then the merge can get done
-piece by piece.
+  Well that's problem #1. Source from kernel.org for 2.4 tends to not work on
+PPC as it has been lagging on important patches and such. We're hoping to get
+kernel.org caught up ASAP.
 
+  Visit here to get the up to date and sometime bleeding edge source for PPC.
+
+  http://www.fsmlabs.com/linuxppcbk.html
+
+> Here's my problem:
+> 
+> Problem in compiling linux 2.4.3
+> 
+> Compile error message:
+> 
+> After the compiler message:
+> 
+>     gcc ­D__KERNEL__ -I/home/jeff/kernel/linux/include ­Wall
+> ­Wstrict-prototypes ­O2 ­fomit-frame-pointer ­fno-strict-aliasing
+> ­D__powerpc__ -fsigned-char ­msoft-float ­pipe ­ffixed-r2 ­Wno-uninitialized
+> ­mmultiple ­mstring    -c ­o fork.o fork.c
+> 
+> Compiler error message:
+> 
+> fork.c: In function ?copy_mm¹:
+> fork.c:353: fixed or forbidden register 68 (0) was spilled for class
+> CR0_REGS.
+> This may be due to a compiler bug or to impossible asm statements or
+> clauses.
+
+Which version of gcc do you have? You want either 2.95.2 or 2.95.3
+
+
+
+> cpp: output pipe has been closed
+> make[2]: *** [fork.o] Error 1
+> make[2]: Leaving directory ?/home/jeff/kernel/linux/kernel¹
+> make[1]: *** [first_rule] Error 2
+> make[1]: Leaving directory ?/home/jeff/kernel/linux/kernel¹
+> make: *** [_dir_kernel] Error 2
+> 
+> Compiling on Power Mac 7600, with dual processor (604e/180) installed,
+> running kernel 2.2.18 compiled by Jeff Galloway, but otherwise a Yellow Dog
+> distribution.
+
+Ah YDL ... good stuff. Hope you are on 1.2 at least. 8-)
+
+Regards,
+
+Tom
+
+-- 
+Tom Gall - PowerPC Linux Team    "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://oss.software.ibm.com/developerworks/opensource/linux

@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265816AbSKAXKj>; Fri, 1 Nov 2002 18:10:39 -0500
+	id <S265840AbSKAXJw>; Fri, 1 Nov 2002 18:09:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265826AbSKAXKi>; Fri, 1 Nov 2002 18:10:38 -0500
-Received: from mta06ps.bigpond.com ([144.135.25.138]:19136 "EHLO
-	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S265816AbSKAXKb>; Fri, 1 Nov 2002 18:10:31 -0500
-From: Brad Hards <bhards@bigpond.net.au>
-To: Wes Felter <wesley@felter.org>, Miles Lane <miles.lane@attbi.com>
-Subject: Re: Will we have UPnP support for Linux?
-Date: Sat, 2 Nov 2002 10:07:55 +1100
-User-Agent: KMail/1.4.5
-Cc: linux-kernel@vger.kernel.org
-References: <3DC1DD1E.6000701@attbi.com> <1036177217.26996.9.camel@arlx002.austin.ibm.com>
-In-Reply-To: <1036177217.26996.9.camel@arlx002.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200211021007.56086.bhards@bigpond.net.au>
+	id <S265841AbSKAXJw>; Fri, 1 Nov 2002 18:09:52 -0500
+Received: from mtao-m01.ehs.aol.com ([64.12.52.73]:48778 "EHLO
+	mtao-m01.ehs.aol.com") by vger.kernel.org with ESMTP
+	id <S265840AbSKAXJv>; Fri, 1 Nov 2002 18:09:51 -0500
+Date: Fri, 01 Nov 2002 15:16:18 -0800
+From: John Gardiner Myers <jgmyers@netscape.com>
+Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
+In-reply-to: <20021031154112.GB27801@bjl1.asuk.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+Message-id: <3DC30B42.5020904@netscape.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b)
+ Gecko/20021016
+References: <20021031154112.GB27801@bjl1.asuk.net>
+ <Pine.LNX.4.44.0210311211160.1562-100000@blue1.dev.mcafeelabs.com>
+ <20021031230215.GA29671@bjl1.asuk.net> <3DC1DEFB.6070206@free-market.net>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Matthew D. Hall wrote:
 
-On Sat, 2 Nov 2002 06:00, Wes Felter wrote:
-> On Thu, 2002-10-31 at 19:47, Miles Lane wrote:
->
-> [UPnP URLs snipped]
->
-> Is this a kernel feature? AFAIK UPnP is just another application
-> protocol on top of UDP, so it can be done in userspace. And didn't Intel
-> release a UPnP stack on SourceForge? Whoa, I see 7 UPnP projects on SF;
-> at least one of them is probably real.
-Probably you want to go with the IETF approach - Service Location Protocol 
-(RFC2608, RFC2609, RFC2610, RFC2614 and some others). There is a reasonable 
-open source implementation (OpenSLP), and no dodgy vendor association.
+> *  There is a seemingly significant overhead in performing exactly one 
+> callback per event.
 
-Brad
+The "exactly one callback per event" semantics of aio are important for 
+cancellation in thread pool environments.  When you're shutting down a 
+connection, you need to be able to get to a point where you know no 
+other thread is processing or will process an event for the connection, 
+so it is safe to free the connection state.
 
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> *  Only one queue per process or kernel thread.
 
-iD8DBQE9wwlMW6pHgIdAuOMRAvLKAJ9iUw3q7ISYSok2ULwnH+UJeHNCJgCfV37h
-0X20BM031CdfL696wzioMfA=
-=coAW
------END PGP SIGNATURE-----
+Having a single thread process multiple queues is not particularly 
+interesting (unless you have user-space threads or coroutines).  Being 
+able to have different threads in the same process process different 
+queues is interesting--it permits a library to set up its own queue, 
+using its own threads to process it.
+
+> *  No re-arming events.  They must be manually killed.
+
+Rearming events is a useful way to get the correct cancellation 
+semantics in thread pool environments.
+
+> -  Should the kernel attempt to prune the queue of "cancelled" events 
+> (hints later deemed irrelevant, untrue, or obsolete by newer events)? 
+
+This makes the cancellation semantics much easier to deal with in single 
+threaded event loops.  Single threaded cancellation is difficult in the 
+current aio interface because in the case where the canceled operation 
+already has an undelivered event in the queue, the canceling code has to 
+defer freeing the context until it receives that event.
+
+An additional point: In a thread pool environment, you want event wakeup 
+to be in LIFO order and use wake-one semantics.  You also want 
+concurrency control: don't deliver an event to a waiting thread if that 
+pool does not have fewer threads in runnable state than CPUs.
+
 

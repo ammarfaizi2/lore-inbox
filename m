@@ -1,42 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSHWW7u>; Fri, 23 Aug 2002 18:59:50 -0400
+	id <S313571AbSHWXDA>; Fri, 23 Aug 2002 19:03:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313571AbSHWW7u>; Fri, 23 Aug 2002 18:59:50 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:22533 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S313190AbSHWW7u>; Fri, 23 Aug 2002 18:59:50 -0400
-Date: Sat, 24 Aug 2002 01:03:10 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-cc: Greg Banks <gnb@alphalink.com.au>, Peter Samuelson <peter@cadcamlab.org>,
-       <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
-In-Reply-To: <Pine.LNX.4.44.0208231015540.22497-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0208240059560.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313628AbSHWXDA>; Fri, 23 Aug 2002 19:03:00 -0400
+Received: from 24-148-63-229.na.21stcentury.net ([24.148.63.229]:50795 "HELO
+	wotke.danapple.com") by vger.kernel.org with SMTP
+	id <S313571AbSHWXC7>; Fri, 23 Aug 2002 19:02:59 -0400
+To: linux-kernel@vger.kernel.org
+Cc: kernel@danapple.com
+Subject: 2.5.31 build failure
+From: "Daniel I. Applebaum" <kernel@danapple.com>
+Date: Fri, 23 Aug 2002 18:07:01 -0500
+Message-Id: <20020823230706.61F8F10B54@wotke.danapple.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 23 Aug 2002, Kai Germaschewski wrote:
+I get the following error when trying to build 2.5.31:
+gcc -Wp,-MD,./.entry.o.d -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux-2.5.31/include -nostdinc -iwithprefix include  -traditional  -c -o entry.o entry.S
+/usr/lib/gcc-lib/i386-redhat-linux/2.96/tradcpp0: Usage: /usr/lib/gcc-lib/i386-redhat-linux/2.96/tradcpp0 [switches] input output
+make[2]: *** [entry.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5.31/arch/i386/kernel'
+make[1]: *** [arch/i386/kernel] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.31'
+make: *** [bzImage] Error 2
 
-> > I believe fixing the existing rules within the existing syntax is an exercise
-> > worth doing, and that the results will carry across to whatever extended syntax/
-> > new language/new parsers/whatever will be the long-term solution.
->
-> Let me just second this. This doesn't mean to try random changes hoping
-> that in the end the result is something sensible. But there are many cases
-> which are obviously bugs or deficiences, and fixes / cleanups there are
-> definitely a good idea as a first step.
-
-Let me mention (again), that we are talking about two different problems
-here. On the hand bugs in the rulebase can be fixed with either syntax. On
-the other hand major cleanups/extensions are better done with only a
-single parser.
-
-bye, Roman
-
+Dan.

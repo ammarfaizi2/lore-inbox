@@ -1,50 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKIJf5>; Thu, 9 Nov 2000 04:35:57 -0500
+	id <S129425AbQKIKJk>; Thu, 9 Nov 2000 05:09:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129661AbQKIJff>; Thu, 9 Nov 2000 04:35:35 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:56079 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129033AbQKIJf0>;
-	Thu, 9 Nov 2000 04:35:26 -0500
-Date: Thu, 9 Nov 2000 10:35:11 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: rd - deadlock removal
-Message-ID: <20001109103511.G467@suse.de>
-In-Reply-To: <14857.60161.343937.977948@notabene.cse.unsw.edu.au>
+	id <S129486AbQKIKJa>; Thu, 9 Nov 2000 05:09:30 -0500
+Received: from jalon.able.es ([212.97.163.2]:60113 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129425AbQKIKJ1>;
+	Thu, 9 Nov 2000 05:09:27 -0500
+Date: Thu, 9 Nov 2000 11:09:20 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Athanasius <Athanasius@miggy.org>
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Nvidia GeForce2 kernel driver - kernel 2.4.0 test-10
+Message-ID: <20001109110920.A1423@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <3A08F5E9.61F424A0@ihug.co.nz> <3A092269.9020501@edge.net> <20001109010848.A709@werewolf.able.es> <20001109075436.U17457@miggy.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14857.60161.343937.977948@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Thu, Nov 09, 2000 at 11:08:33AM +1100
-X-OS: Linux 2.4.0-test11 i686
+Content-Type: multipart/mixed; boundary="AWniW0JNca5xppdA"
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20001109075436.U17457@miggy.org>; from Athanasius@miggy.org on Thu, Nov 09, 2000 at 08:54:36 +0100
+X-Mailer: Balsa 1.0.pre2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09 2000, Neil Brown wrote:
-[snip]
->                                     DEADLOCK
 
->  I have two patches which address this problem.
->  The first is simple and simply drops ui_request_lock before calling
->  getblk.  This may be the appropriate one to use given the code
->  freeze.
+--AWniW0JNca5xppdA
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-rd still needs to hold the lock when calling end_request, since
-that may end up fiddling with the queue list.
 
->  The second is more elegant in that it side steps the problem by
->  giving rd.c a make_request function instead of using the default
->  _make_request.   This means that io_request_lock is simply never
->  claimed my rd.
+On Thu, 09 Nov 2000 08:54:36 Athanasius wrote:
+> 
+>    Oh no it wasn't, doh *;-).
 
-And this solution is much better, even given the freeze I think that
-is the way to go.
+One other try...
 
 -- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+--AWniW0JNca5xppdA
+Content-Type: application/octet-stream; charset=us-ascii
+Content-Disposition: attachment; filename="patch-nvdriver-2.4.0-test11"
+
+diff -ru NVIDIA_kernel-0.9-5/nv.c nvdriver_/nv.c
+--- NVIDIA_kernel-0.9-5/nv.c	Sat Aug 26 02:48:38 2000
++++ nvdriver_/nv.c	Thu Nov  9 00:23:42 2000
+@@ -49,6 +49,13 @@
+ #include <linux/modversions.h>
+ #endif
+ 
++#ifndef mem_map_dec_count
++  #define mem_map_dec_count(p) atomic_inc(&((p)->count));
++#endif
++#ifndef mem_map_inc_count
++  #define mem_map_inc_count(p) atomic_dec(&((p)->count));
++#endif
++
+ #include <nv.h>			        // needs to precede other headers (SMP)
+ 
+ #include <linux/stddef.h>
+diff -ru NVIDIA_kernel-0.9-5/os-interface.c nvdriver_/os-interface.c
+--- NVIDIA_kernel-0.9-5/os-interface.c	Fri Sep  1 04:19:17 2000
++++ nvdriver_/os-interface.c	Thu Nov  9 00:22:45 2000
+@@ -1331,6 +1331,11 @@
+     char *parmp;
+     char ch;
+ 
++    spinlock_t unload_lock = SPIN_LOCK_UNLOCKED;
++    struct module *mp = THIS_MODULE;
++    struct module_symbol *sym;
++    int i;
++
+     if ((strlen(regParmStr) + NV_SYM_PREFIX_LENGTH) > NV_MAX_SYM_NAME)
+         goto done;
+ 
+@@ -1351,11 +1356,17 @@
+ 
+     *symp = '\0';
+ 
+-    symbol_value = get_module_symbol(NV_MODULE_NAME, symbol_name);
+-    
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0)
+-    put_module_symbol(symbol_value);
+-#endif
++    spin_lock(&unload_lock);
++    if (MOD_CAN_QUERY(mp) && (mp->nsyms > 0)) {
++        for (i = mp->nsyms, sym = mp->syms;
++             i > 0; --i, ++sym) {
++
++            if (strcmp(sym->name, symbol_name) == 0) {
++                symbol_value = sym->value;
++                break;
++            }
++        }
++    }
++    spin_unlock(&unload_lock);
+ 
+  done:
+     return (void *) symbol_value;
+
+--AWniW0JNca5xppdA--
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289836AbSBKQME>; Mon, 11 Feb 2002 11:12:04 -0500
+	id <S287770AbSBKQbi>; Mon, 11 Feb 2002 11:31:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289834AbSBKQLy>; Mon, 11 Feb 2002 11:11:54 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:17160 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S289837AbSBKQLo>;
-	Mon, 11 Feb 2002 11:11:44 -0500
-Date: Mon, 11 Feb 2002 08:07:38 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ? 
-In-Reply-To: <200202082053.g18Krxja001427@tigger.cs.uni-dortmund.de>
-Message-ID: <Pine.LNX.4.33L2.0202110805330.10878-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287828AbSBKQb3>; Mon, 11 Feb 2002 11:31:29 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:47493 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S287770AbSBKQbM>; Mon, 11 Feb 2002 11:31:12 -0500
+Date: Mon, 11 Feb 2002 17:27:49 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: linux-kernel@vger.kernel.org
+Subject: APIC error on CPU0
+Message-Id: <20020211172749.2bdadec7.kristian.peters@korseby.net>
+X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Feb 2002, Horst von Brand wrote:
+Hello.
 
-| Daniel Phillips <phillips@bonn-fries.net> said:
-| > On February 7, 2002 10:41 pm, Mike Touloumtzis wrote:
-| > > Adding configuration information to the kernel is a change to the status
-| > > quo, and has a cost.  The cost is small, but I'm unsympathetic to that
-| > > argument because many small convenience features, each with a small cost,
-| > > add up to a large cost.
-| >
-| > The cost is *zero* if you don't enable the option, is this concept difficult
-| > for you?
-|
-| It isn't zero: Somebody has to add the support, check/fix interactions with
-| other features, write documentation, keep the support and its documentation
-| up to date when stuff in the kernel changes, userland (and user) has to be
-| prepared (and checked that it works if the feature is present, and find
-| workarounds if it isn't), ...
+Since I converted one box to Debian 3.0 I'm getting strange errors related to APM.
+When I push the power button (or do "apm -s") the box suspends normally. But it comes back almost immediately with this error:
 
-There are customers who actually require a decent, reasonable
-solution to this problem.  If there is a decent, reasonable
-solution, great.  If not, then one will be generated.
+APIC error on CPU0: 00(40)
 
-| It might be a small cost, but N * small gets big _very_ fast, and the value
-| is marginal at best in this case. There are many other such "small cost
-| features" with equally small value results that haven't been included. One
-| of the big reasons why I like Linux, BTW.
+I grepped the kernel source and found that "40" means reserved APIC error. What does that mean exactly ? BTW: I enabled "local APIC on uniprocessors" but this behaviour also appears without enabling that option.
 
--- 
-~Randy
+Strangely this error won't appear with Redhat 7.2 and earlier versions. (I've never had any problems.)
 
+$ dmesg:
+
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Kernel command line: auto BOOT_IMAGE=linux ro root=305 console=ttyS0,57600n8,vt1
+02 console=tty0
+Initializing CPU#0
+Detected 349.187 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 696.32 BogoMIPS
+Memory: 61808k/65536k available (1354k kernel code, 3340k reserved, 480k data, 2
+32k init, 0k highmem)
+[...]
+
+$ lspci:
+
+00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (rev 02)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev 02)
+00:0e.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
+00:0f.0 Token ring network controller: IBM 16/4 Token ring UTP/STP controller (rev 05)
+00:14.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
+00:14.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
+00:14.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
+00:14.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 02)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 AGP (rev 01)
+
+BTW: I already tried the specified list for apmd but it seems to be down since years..
+
+*Kristian
+
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :.........................:: ~/$ kristian@korseby.net :

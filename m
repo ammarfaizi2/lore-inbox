@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129329AbRBXNn3>; Sat, 24 Feb 2001 08:43:29 -0500
+	id <S129351AbRBXOIB>; Sat, 24 Feb 2001 09:08:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129341AbRBXNnT>; Sat, 24 Feb 2001 08:43:19 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:5899 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129329AbRBXNnH>; Sat, 24 Feb 2001 08:43:07 -0500
-Date: Sat, 24 Feb 2001 08:44:26 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Burton Windle <burton@fint.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Detecting SMP
-In-Reply-To: <Pine.LNX.4.21.0102201912150.16545-100000@fint.staticky.com>
-Message-ID: <Pine.LNX.4.33.0102240804040.2548-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129361AbRBXOHv>; Sat, 24 Feb 2001 09:07:51 -0500
+Received: from u-53-20.karlsruhe.ipdial.viaginterkom.de ([62.180.20.53]:755
+	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
+	id <S129351AbRBXOHp>; Sat, 24 Feb 2001 09:07:45 -0500
+Date: Sat, 24 Feb 2001 14:59:35 +0100
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: rob@sysgo.de
+Cc: linux-kernel@vger.kernel.org, eccesys@topmail.de
+Subject: Re: Disk is cheap?
+Message-ID: <20010224145935.D5160@bacchus.dhis.org>
+In-Reply-To: <01013114393200.01502@rob>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01013114393200.01502@rob>; from rob@sysgo.d.redhat.com on Wed, Jan 31, 2001 at 02:29:54PM +0100
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Feb 2001, Burton Windle wrote:
+On Wed, Jan 31, 2001 at 02:29:54PM +0100, Robert Kaiser wrote:
 
->Hello. Is there a way, when running a non-SMP kernel, to detect or
->otherwise tell (software only; the machine is 2400 miles away) if the
->system has SMP capibilties? Would /proc/cpuinfo show two CPUs if the
->kernel is non-SMP?  Thanks!
->
->(btw, the kernel in question is a stock RH6.2 kernel 2.2.14-5, and yes, I
->know I should update it anyways and that a SMP kernel will run on a UP
->system)
+> Perhaps a more convincing argument may be that in embedded devices,
+> disk as well as memory and CPU power are _not_ cheap.
+> 
+> The more resources Linux requires, the less are it's chances of being
+> accepted as a viable alternative in embedded systems.
+> 
+> > I'm still stuck with a P-133, 56 MB RAM (60-70 ns, some EDO,
+> > some FPM) and not only Linux but also W2K on a 2.1 and a 0.8 GB
+> > HDD.
+> 
+> That would be _a_ _lot_ for an embedded system!
 
-Yes, there are several ways.  How do you want to know how to do
-it, in C, or a bash script?  sysconf is one way, parsing
-/proc/cpuinfo and /proc/stat is another.  Beware though, if you
-parse /proc/cpuinfo or stat, it is very different on different
-architectures, particularly sparc.
+Oh this common missconception that embedded system equals small systems.
+There are embedded systems that outrun supercomputers without sweating,
+have gigs of RAM and sometimes if you look at them closly even have the
+names of well known big iron companies on their boards.  The whole
+embedded term is just so weakly defined and everybody seem to have his
+personal definition.
 
-Here is some code which should do it more or less correctly on
-any arch:
-
-ncpus=$(egrep -c ^cpu[0-9]+ /proc/stat || :)
-[ "$ncpus" = "0" ] && ncpus=1
-
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-if (argc > 1 && strcmp(argv[1], "-advice") == 0) {
-    printf("Don't Panic!\n");
-    exit(42);
-}
-
+  Ralf

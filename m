@@ -1,72 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267467AbSLFAwr>; Thu, 5 Dec 2002 19:52:47 -0500
+	id <S267476AbSLFBDt>; Thu, 5 Dec 2002 20:03:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267471AbSLFAwr>; Thu, 5 Dec 2002 19:52:47 -0500
-Received: from packet.digeo.com ([12.110.80.53]:36517 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267467AbSLFAwq>;
-	Thu, 5 Dec 2002 19:52:46 -0500
-Message-ID: <3DEFF69F.481AB823@digeo.com>
-Date: Thu, 05 Dec 2002 17:00:15 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.50 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Norman Gaywood <norm@turing.une.edu.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
-References: <20021206111326.B7232@turing.une.edu.au>
+	id <S267482AbSLFBDt>; Thu, 5 Dec 2002 20:03:49 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35280 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267476AbSLFBDr>; Thu, 5 Dec 2002 20:03:47 -0500
+Date: Fri, 6 Dec 2002 02:11:21 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jochen Friedrich <jochen@scram.de>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.or
+Subject: [patch] fix compile warning and initialization of static tmsisa
+Message-ID: <20021206011121.GY2544@fs.tum.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Dec 2002 01:00:15.0484 (UTC) FILETIME=[D66CD3C0:01C29CC2]
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norman Gaywood wrote:
-> 
-> I think I have a trigger for a VM bug in the RH kernel-bigmem-2.4.18-18
-> 
-> 16GB
-> ...
->    tar cf /dev/tape .
-> 
+Hi Jochen,
 
-This machine will die due to buffer_heads which are attached
-to highmem pagecache, and due to inodes which are pinned by
-highmem pagecache.
+as already discussed some months ago the patch below contains the 
+follosing fixes for the static compile of tmsisa:
+- fixes a "`portlist' defined but not used" compile time warning by
+  moving portlist below an #ifdef MODULE
+- call tms_isa_probe in Space.c for intialization
 
-> ...
-> while [ `expr $COUNT - 1` != 0 ]
-> do
->    date
->    # 2000 by 1_000_000 seems to be a 1.8G process
->    perl -e '$i=2000;while ($i--){ $a[$i]="x"x1_000_000; }' &
-> ...
+The patch compiles against 2.5.50 and applies against 2.4.20.
 
-This will evict the highmem pagecache.  That frees the buffer_heads
-and unpins the inodes.
+Please comment on whether it's correct or not and if it's correct 
+please apply.
 
-> So what do I do now?
+TIA
+Adrian
 
-I guess talk to Red Hat.  These are well-known problems and there
-should be fixes for them in a "bigmem" kernel.
 
-Otherwise, the -aa kernels have patches to address these problems.
-One option would be to roll your own kernel, based on a kernel.org
-kernel and a matching patch from
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/
+--- l/drivers/net/Space.c.old	Mon Dec 17 00:44:29 2001
++++ l/drivers/net/Space.c	Mon Dec 17 00:49:00 2001
+@@ -540,6 +540,7 @@
+ #ifdef CONFIG_TR
+ /* Token-ring device probe */
+ extern int ibmtr_probe(struct net_device *);
++extern int tms_isa_probe(struct net_device *dev);
+ extern int smctr_probe(struct net_device *);
 
-> ...
-> Anyone have some patches for me to
-> try that won't take me too far from the RH 8.0 base system.
+ static int
+@@ -548,6 +549,9 @@
+     if (1
+ #ifdef CONFIG_IBMTR
+ 	&& ibmtr_probe(dev)
++#endif
++#ifdef CONFIG_TMSISA
++	&& tms_isa_probe(dev)
+ #endif
+ #ifdef CONFIG_SMCTR
+ 	&& smctr_probe(dev)
 
-Hard.  The relevant patches are:
 
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20aa1/05_vm_16_active_free_zone_bhs-1
-and
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20aa1/10_inode-highmem-2
-
-The first one will not come vaguely close to applying to an
-RH 2.4.18 kernel.
-
-The second one may well apply, and will probably fix the problem.
+--- l/drivers/net/tokenring/tmsisa.c.old	2002-12-06 01:51:02.000000000 +0100
++++ l/drivers/net/tokenring/tmsisa.c	2002-12-06 01:54:58.000000000 +0100
+@@ -39,12 +39,6 @@
+ 
+ #define TMS_ISA_IO_EXTENT 32
+ 
+-/* A zero-terminated list of I/O addresses to be probed. */
+-static unsigned int portlist[] __initdata = {
+-	0x0A20, 0x1A20, 0x0B20, 0x1B20, 0x0980, 0x1980, 0x0900, 0x1900,// SK
+-	0
+-};
+-
+ /* A zero-terminated list of IRQs to be probed. 
+  * Used again after initial probe for sktr_chipset_init, called from sktr_open.
+  */
+@@ -367,6 +361,12 @@
+ 
+ #define ISATR_MAX_ADAPTERS 3
+ 
++/* A zero-terminated list of I/O addresses to be probed. */
++static unsigned int portlist[] __initdata = {
++  0x0A20, 0x1A20, 0x0B20, 0x1B20, 0x0980, 0x1980, 0x0900, 0x1900,// SK
++        0
++};
++
+ static int io[ISATR_MAX_ADAPTERS];
+ static int irq[ISATR_MAX_ADAPTERS];
+ static int dma[ISATR_MAX_ADAPTERS];

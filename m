@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbUKDKIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbUKDKVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbUKDKIA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 05:08:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbUKDKIA
+	id S262154AbUKDKVU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 05:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbUKDKVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 05:08:00 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:33989 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262153AbUKDKHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 05:07:53 -0500
-Date: Thu, 4 Nov 2004 11:07:49 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 4 Nov 2004 05:21:20 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:9345 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262154AbUKDKVS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 05:21:18 -0500
+Date: Thu, 4 Nov 2004 11:23:45 +0100
+From: DervishD <lkml@dervishd.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: is killing zombies possible w/o a reboot?
-Message-ID: <20041104100749.GA23996@merlin.emma.line.org>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+Message-ID: <20041104102345.GA23673@DervishD>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
 	linux-kernel@vger.kernel.org
-References: <200411030751.39578.gene.heskett@verizon.net> <200411031124.19179.gene.heskett@verizon.net> <20041103201322.GA10816@hh.idb.hist.no> <200411031540.03598.gene.heskett@verizon.net>
+References: <20041103152531.GA22610@DervishD> <418962B0.3080806@tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200411031540.03598.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <418962B0.3080806@tmr.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 03 Nov 2004, Gene Heskett wrote:
+    Hi Bill :)
 
-> >Yes it does - the problem is that not all resources are managed
-> >by processes.  Some allocations are managed by drivers, so a driver
-> >bug can get the device into a unuseable state _and_ tie up the
-> >process(es) that were using the driver at the moment.
-> 
-> This from my viewpoint, is wrong.  The kernel, and only the kernel 
-> should be ultimately responsible for handing out resources, and 
-> reclaiming at its convienience.
+ * Bill Davidsen <davidsen@tmr.com> dixit:
+> >    Or write a little program that just 'wait()'s for the specified
+> >PID's. That is perfectly portable IMHO. But I must admit that the
+> >preferred way should be killing the parent. 'init' will reap the
+> >children after that.
+> You can't wait() for the process, you have to use waitfor(), and the 
+> last time I tried that it didn't work, although I don't remember the 
+> symptom beyond that.
 
-Linux's driver model is the way it is. If you want the kernel to clean
-up after a driver has puked, you need something like a microkernel I
-believe, where only a minimal core kernel is a real kernel and where all
-the drivers are actually in user-space, but that's no longer Linux then.
+    You can't wait for other's children. OTOH, if we talk about your
+children, you can do wait() or waitpid() (I assume that you referred
+to waitpid(), since there isn't waitfor() AFAIK). The only difference
+is that wait suspends the process until information from a child is
+available.
 
-I'm not reflecting the down- and upsides to of this as I have no
-experience with microkernels (and have never used OS9 or GNU Hurd
-either). I know there have been attempts to port Linux to a Microkernel
-but I don't know what's come out of it.
+    If you are talking about others' children, then your call to
+waitpid() (or wait()) failed with ECHILD: not your child.
+
+    Raúl Núñez de Arenas Coronado
 
 -- 
-Matthias Andree
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/

@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264473AbUADIkK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 03:40:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbUADIkJ
+	id S264954AbUADIy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 03:54:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264600AbUADIy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 03:40:09 -0500
-Received: from waste.org ([209.173.204.2]:20700 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264473AbUADIkG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 03:40:06 -0500
-Date: Sun, 4 Jan 2004 02:40:05 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-rc1-tiny1 tree for small systems
-Message-ID: <20040104084005.GU18208@waste.org>
-References: <20040103030814.GG18208@waste.org> <m13cawi2h8.fsf@ebiederm.dsl.xmission.com>
+	Sun, 4 Jan 2004 03:54:26 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:31010 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S264954AbUADIyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 03:54:25 -0500
+Message-Id: <5.1.0.14.2.20040104195316.02151e98@171.71.163.14>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 04 Jan 2004 19:54:14 +1100
+To: Soeren Sonnenburg <kernel@nn7.de>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+Cc: Con Kolivas <kernel@kolivas.org>, Willy Tarreau <willy@w.ods.org>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
+In-Reply-To: <1073203762.9851.394.camel@localhost>
+References: <200401041242.47410.kernel@kolivas.org>
+ <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>
+ <200401040815.54655.kernel@kolivas.org>
+ <20040103233518.GE3728@alpha.home.local>
+ <200401041242.47410.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m13cawi2h8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 12:42:43AM -0700, Eric W. Biederman wrote:
-> Matt Mackall <mpm@selenic.com> writes:
-> 
-> > Contributions and suggestions are encouraged. In particular, it would
-> > be helpful if people with non-x86 hardware could take a stab at
-> > extending some of the stuff that's currently only been done for X86 to
-> > other architectures.
-> 
-> I just tried a kernel build with as much as possible turned off.  This
-> uncovered a couple of bugs, which I fixed with the attached diff.  But
-> it looks like there finally is a light at the end of the rainbow.
+At 07:09 PM 4/01/2004, Soeren Sonnenburg wrote:
+[..]
+>Looking at that how can it not be a scheduling problem ....
 
-Thanks. I actually cleaned up all this stuff earlier today, will
-probably do another release shortly.
- 
-> 220K compressed and 371K uncompressed.  This is a serious reduction from
-> previous versions.  There is still a huge amount of code I can't compile
-> out but this is certainly progress.  Thank you.
+out of interest, have you tried to see how 2.4.xx compares when compiled 
+with HZ set to 1000?
+(or conversely, 2.6 compiled with HZ set to 100)
 
-Suggestions? I'm rapidly exhausting a lot of the obvious candidates.
-My target build at the moment is ide + ext2 + proc + ipv4 + console, and
-that's currently at around 800K uncompressed, booting in a little less
-than 2.5MB. Hoping to get that under 2.
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+cheers,
+
+lincoln.
+

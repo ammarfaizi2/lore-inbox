@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265876AbUA1JJO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 04:09:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbUA1JJO
+	id S265842AbUA1JTn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 04:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUA1JTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 04:09:14 -0500
-Received: from f9.mail.ru ([194.67.57.39]:43271 "EHLO f9.mail.ru")
-	by vger.kernel.org with ESMTP id S265876AbUA1JJK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 04:09:10 -0500
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Andrew Morton=?koi8-r?Q?=22=20?= <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't boot 2.6.1-mm4 or -mm5
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Wed, 28 Jan 2004 12:09:09 +0300
-In-Reply-To: <20040120111554.723145eb.akpm@osdl.org>
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1Allh7-000DSK-00.arvidjaar-mail-ru@f9.mail.ru>
+	Wed, 28 Jan 2004 04:19:43 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:16654 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265842AbUA1JTm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 04:19:42 -0500
+Message-ID: <40178197.6060204@aitel.hist.no>
+Date: Wed, 28 Jan 2004 10:32:07 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Alexander Nyberg <alexn@telia.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1 dual xeon
+References: <20040124203646.A8709@animx.eu.org>	 <1074995006.5246.1.camel@localhost> <20040125083712.A9318@animx.eu.org>	 <20040127073801.GB9708@favonius> <1075223587.1173.5.camel@llhosts>
+In-Reply-To: <1075223587.1173.5.camel@llhosts>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Nyberg wrote:
+
+> But I can't see a reason for not dividing the different interrupt on
+> different cpu's and letting them stay put. 
+
+You want to spread the load, but that is hard to do without knowing
+which interrupt sources are heavy and which are light.
+Dividing them once might end up with keyboard & mouse interrupts
+on one cpu and network+disk on another.  This is clearly imbalanced.
+
+An irq balancing utility will fix this, by balancing based
+on interrupt count.
 
 
------Original Message-----
-
+> Maybe if you keep all
+> interrupts on the same cpu the cache on the other ones will not have to
+> be flushed often, which would be a good thing.
 > 
-> Andrey Borzenkov <arvidjaar@mail.ru> wrote:
-> >
-> > I can't boot either of them. 2.6.1-mm3 was OK; compiling and booting -mm4 or 
-> > -mm5 with the same config as before (since 2.5.69 actually). Compiling and 
-> > booting with VESA framebuffer and vga=788 gives empty screen; booting with 
-> > vga=normal or compiling without framebuffer support goes as far as
-> > 
-> > Uncompressing kernel ... booting
-> > 
-> > and that is all. No disk activity either so it seems to have just stopped.
-> 
-> Don't know, sorry.  Does anyone have a slightly-sane early printk patch
-> handy?
-> 
+> How would it be to maybe remove all interrupts from a cpu (except
+> between cpu's) and have a few cpu's merely working with data and one "in
+> control". Bad idea I guess as I haven't seen any such work.
 
-this was -funit-at-a-time. Removing it (with all other conditions
-equal) fixes boot problem. I informed Mandrake.
+Makes sense only if the amounts of interrupt work and other work matches
+the division you make.  
 
-See also
+Helge Hafting
 
-<http://marc.theaimsgroup.com/?t=107492024800001&r=1&w=2>
-
-and
-
-<http://marc.theaimsgroup.com/?t=107505102400001&r=1&w=2&n=50>
-
-regards
-
--andrey
-
-> > 
-> > {pts/0}% gcc --version
-> > gcc-3.3.1 (GCC) 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk)
-> > Copyright (C) 2003 Free Software Foundation, Inc.
-> > This is free software; see the source for copying conditions.  There is NO
-> > warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-> > 
-> > system is ASUS CUSL2, i815 chipset, GeForce2 MX videocard. lspci on 2.6.0 
-> > follows; config for -mm5 is attached. It was produced by using config from 
-> > -mm3, running make oldconfig and answering N to most new questions. It is 
-> > possible that there is problem with new CPU selection but I alaways compiled 
-> > with PentiumIII only before.
-> 
-> I'd try enabling more CPU types, see what that does.  You have SMP enabled,
-> but that should be OK.
-> 
-> 

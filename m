@@ -1,44 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280255AbRKEGka>; Mon, 5 Nov 2001 01:40:30 -0500
+	id <S280262AbRKEGqk>; Mon, 5 Nov 2001 01:46:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280262AbRKEGkW>; Mon, 5 Nov 2001 01:40:22 -0500
-Received: from gap.cco.caltech.edu ([131.215.139.43]:42489 "EHLO
-	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S280255AbRKEGkL>; Mon, 5 Nov 2001 01:40:11 -0500
-To: mlist-linux-kernel@nntp-server.caltech.edu
-Path: news
-From: Wei Xiaoliang <weixl@caltech.edu>
-Newsgroups: mlist.linux.kernel
-Subject: How can I know the number of current users in the system?
-Date: Sun, 04 Nov 2001 22:15:23 +0000
-Organization: CS.Caltech.EDU
-Message-ID: <3BE5BDFB.B49A8147@caltech.edu>
-Reply-To: weixl@caltech.edu
-NNTP-Posting-Host: 137-pppold-its.caltech.edu
-Mime-Version: 1.0
+	id <S280263AbRKEGqW>; Mon, 5 Nov 2001 01:46:22 -0500
+Received: from mail.uni-kl.de ([131.246.137.52]:63228 "EHLO mail.uni-kl.de")
+	by vger.kernel.org with ESMTP id <S280262AbRKEGqR>;
+	Mon, 5 Nov 2001 01:46:17 -0500
+Message-ID: <XFMail.20011105074614.backes@rhrk.uni-kl.de>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-26mdk i686)
-X-Accept-Language: en, zh, zh-CN, af, zh-TW
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <Pine.LNX.4.10.10111010601190.22300-100000@ares.sot.com>
+Date: Mon, 05 Nov 2001 07:46:14 +0100 (CET)
+X-Face: B^`ajbarE`qo`-u#R^.)e]6sO?X)FpoEm\>*T:H~b&S;U/h$2>my}Otw5$+BDxh}t0TGU?>
+ O8Bg0/jQW@P"eyp}2UMkA!lMX2QmrZYW\F,OpP{/s{lA5aG'0LRc*>n"HM@#M~r8Ub9yV"0$^i~hKq
+ P-d7Vz;y7FPh{XfvuQA]k&X+CDlg"*Y~{x`}U7Q:;l?U8C,K\-GR~>||pI/R+HBWyaCz1Tx]5
+Reply-To: Joachim Backes <backes@rhrk.uni-kl.de>
+Organization: University of Kaiserslautern,
+ Computer Center [Supercomputing division]
+From: Joachim Backes <backes@rhrk.uni-kl.de>
+To: Yaroslav Popovitch <yp@sot.com>
+Subject: Re: kernel 2.4.12: Missing tty when logging in on the console
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi every one,
-    I have a problem not clear: Is there any counter for the user number
-in linux?
-I want to do anexperiment which will get the number of current user in
-the system and try fair-share scheduling based on it. I read the sys.c
-and user.c but cannot find a counter for it. Is there any counter for
-this things?
 
-    If no, where can I put the inc instruct and dec instruct  or the
-counter? in the uid_hash_insert and uid_hash_remove?
-    Thank you!
------------------------------------------------------------------------
-Xiaoliang (David) Wei                    Graduate Student in CS, Caltech
-E-mail: weixl@caltech.edu                Office: 158 Jorgensen
-Phone: 1-(626)-395-3555 (O)        1-(626)-577-5238 (H)
-Mail:     Xiaoliang Wei, 256-80 Caltech, Pasadena, CA 91125, U.S.A.
-WWW: http://www.cs.caltech.edu/~weixl    http://166.111.69.241/~wxl
------------------------------------------------------------------------
+On 01-Nov-2001 Yaroslav Popovitch wrote: 
+>  
+>  Was it fixed?
+>  And where find this fix..
+>  
+>  
+>  Cheers,YP
+
+Hi, Yaroslav,
+
+I'm sorry, but did not find or get any fix for this problem, which is a
+problem in 2.4.13 too.
+
+Regards
+
+Joachim Backes
+
+--
+
+Joachim Backes <backes@rhrk.uni-kl.de>       | Univ. of Kaiserslautern
+Computer Center, High Performance Computing  | Phone: +49-631-205-2438 
+D-67653 Kaiserslautern, PO Box 3049, Germany | Fax:   +49-631-205-3056 
+---------------------------------------------+------------------------
+WWW: http://hlrwm.rhrk.uni-kl.de/home/staff/backes.html  
+
+
+
+>  
+> ###########################################################
+>  after installation of kernel 2.4.12 (migrated from 2.4.10
+>  by "make oldconfig"), having problems when logging in on
+>  a virtual console:
+>  
+>  It sems that there is no correct tty attached to the console:
+>  
+>  1. the ps command lists _all_ processes actually running under
+>     the correspondent userid and only those running under
+>     the login shell.
+>  
+>  2. Starting a ssh command for some other box is rejected
+>     by
+>  
+>                  You have no controlling tty and no DISPLAY.
+>                  Cannot read passphrase.
+>  
+>  I never had such problems when running 2.4.10 kernel.
+>  
+>  
+
+Joachim Backes
+
+--
+
+Joachim Backes <backes@rhrk.uni-kl.de>       | Univ. of Kaiserslautern
+Computer Center, High Performance Computing  | Phone: +49-631-205-2438 
+D-67653 Kaiserslautern, PO Box 3049, Germany | Fax:   +49-631-205-3056 
+---------------------------------------------+------------------------
+WWW: http://hlrwm.rhrk.uni-kl.de/home/staff/backes.html  
+

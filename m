@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261844AbTCGXNf>; Fri, 7 Mar 2003 18:13:35 -0500
+	id <S261853AbTCGXJJ>; Fri, 7 Mar 2003 18:09:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261860AbTCGXNf>; Fri, 7 Mar 2003 18:13:35 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:4363 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S261844AbTCGXNe>; Fri, 7 Mar 2003 18:13:34 -0500
-Date: Sat, 8 Mar 2003 00:23:55 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: IDE DMA/VIA woes on SuSE 2.4.19-167
-Message-ID: <20030307232355.GA9267@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20030305024446.GA13870@merlin.emma.line.org>
+	id <S261863AbTCGXJJ>; Fri, 7 Mar 2003 18:09:09 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:48771 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261853AbTCGXJF>;
+	Fri, 7 Mar 2003 18:09:05 -0500
+Date: Fri, 7 Mar 2003 15:17:44 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Joel.Becker@oracle.com, greg@kroah.com, akpm@digeo.com,
+       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] register_blkdev
+Message-Id: <20030307151744.73738fdd.rddunlap@osdl.org>
+In-Reply-To: <20030307225710.A18005@infradead.org>
+References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl>
+	<20030307193644.A14196@infradead.org>
+	<20030307123029.2bc91426.akpm@digeo.com>
+	<20030307221217.GB21315@kroah.com>
+	<20030307225517.GF2835@ca-server1.us.oracle.com>
+	<20030307225710.A18005@infradead.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030305024446.GA13870@merlin.emma.line.org>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Mar 2003, Matthias Andree wrote:
+On Fri, 7 Mar 2003 22:57:10 +0000 Christoph Hellwig <hch@infradead.org> wrote:
 
-> Plextor PX-W4824TA 1.03 as hdc (no hdd)
-> VIA KT133
-> 
-> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 10) (prog-if 8a [Master SecP PriP])
->         Flags: bus master, medium devsel, latency 32
->         I/O ports at ffa0 [size=16]
->         Capabilities: [c0] Power Management version 2
-> 
-> When I try to enable DMA (hdparm -d1 or hdparm -d1 -X66), hdparm -tT
-> chokes, SuSE k_athlon-2.4.19-167. FreeBSD-5 (with atapicam) is fine and
-> uses UDMA33.
+| On Fri, Mar 07, 2003 at 02:55:18PM -0800, Joel Becker wrote:
+| > On Fri, Mar 07, 2003 at 02:12:17PM -0800, Greg KH wrote:
+| > > On Fri, Mar 07, 2003 at 12:30:29PM -0800, Andrew Morton wrote:
+| > > > 32-bit dev_t is an important (and very late!) thing to get into the 2.5
+| > > > stream.  Can we put this ahead of cleanup stuff?
+| > > 
+| > > Can we get people to agree that this will even go into 2.5, due to the
+| > > lateness of it?  I didn't think it was going to happen.
 
-Now, seems that PIO manages the default hdparm -tT block size, but DMA
-doesn't; but the error messages in the kernel ring buffer aren't
-specific.
+Yes from this side of the street.
 
-I let go of hdparm -tT, installed Jörg Schilling's sdd and ran sdd
-if=/dev/sr1 -onull -t bs=2048 and lo and behold, it passed and read a
-data CD with up to 45x. So the remaining problem is that the ATAPI
-drives stick to PIO for data reads.
+| > 	This is essential.  There are installations using >1000 disks
+| 
+| and?  we still have tons of free block majors..
 
-I tried applying Andrew's ide-akpm on top of SuSE's kernel, to find it
-crashes on boot on SuSE's hardware scan.
+What has to be done to uses those?  Just grab unassigned majors from devices.txt
+and run with them, or something else?  (as well as mknod's of course)
+Or use devfs?
 
-If that's interesting enough, I can try to dig up the crash messages
-(I'll have to use a serial console for that though).
+--
+~Randy

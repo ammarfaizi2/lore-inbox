@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315528AbSEHFbM>; Wed, 8 May 2002 01:31:12 -0400
+	id <S315529AbSEHFdS>; Wed, 8 May 2002 01:33:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315529AbSEHFbL>; Wed, 8 May 2002 01:31:11 -0400
-Received: from [203.199.93.15] ([203.199.93.15]:45572 "EHLO
-	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
-	id <S315528AbSEHFbK>; Wed, 8 May 2002 01:31:10 -0400
-From: "pavankvk" <pavankvk@indiatimes.com>
-Message-Id: <200205080509.KAA29799@WS0005.indiatimes.com>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: "pavankvk" <pavankvk@indiatimes.com>
-Subject: Unable to handle kernel paging request problem at shutdown on 2.2.12
-Date: Wed, 08 May 2002 10:56:49 +0530
-X-URL: http://indiatimes.com
+	id <S315530AbSEHFdR>; Wed, 8 May 2002 01:33:17 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:457 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S315529AbSEHFdQ>;
+	Wed, 8 May 2002 01:33:16 -0400
+Date: Tue, 07 May 2002 22:33:24 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Robert Love <rml@tech9.net>, Clifford White <ctwhite@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: x86 question: Can a process have > 3GB memory?
+Message-ID: <157212850.1020810803@[10.10.2.3]>
+In-Reply-To: <1020812936.2079.31.camel@bigsur>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello folks
+> You can go to 3.5GB, anything more and stuff starts getting real tight
+> and not very nice.  You can only do 3.5/0.5 on non-PAE, though - PAE
+> requires segments to be aligned on 1GB-boundaries.
+> 
+> The attached patch (for which credit goes elsewhere - Ingo or Randy, I
+> think?) implements the full range of 1 to 3.5GB user space partitioning,
+> selectable at compile-time.
 
-i recently installed a redhat ditribution 6.2(Linux kernel2.2.12)
-my hardware is cyrix 233 with 32megs of RAM.
+The trouble with this is that on a machine with enough memory to
+make it worthwhile, it normally just runs you out of zone_normal
+instead ;-(
 
-everything went fine during installation.the system is running fine to my knowledge.
-The problem is with complete shutdown.when i give init 0 command,everything succeeded and the system is halted.But instead of getting a powerdown message finally, i got a error as below :
-
-Unable to handle kernel paging request at virtual address ffffa00a 
-00007598 
-*pde = 00001063 
-Oops: 0000 
-CPU: 0 
-EIP: 0068:[<00007598>] Tainted: P 
-Using defaults from ksymoops -t elf32-i386 -a i386 
-EFLAGS: 00210086 
-eax: 000022ff ebx: 00806b06 ecx: 00000070 edx: 00000000 
-esi: 0000000a edi: 00200000 ebp: c6f87737 esp: c6f83eb0 
-ds: 0080 es: 0078 ss: 0018 
-Process cat (pid: 8454, stackpage=c6f83000) 
-Stack: 000a0002 00800000 00060078 7741757a 00000000 687a0070 6b1f3ee4 00180000 
-       02460018 69740042 00960078 cb4c6000 0060000b 00000042 00800078 00000070 
-       00000000 c01d3956 00000010 00200046 00000000 00200000 d0aa0018 c0110018 
-Call Trace: [<c01d3956>] [<c0110018>] [<c01d39ac>] [<c01d402f>] [<c014ed1a>] 
-   [<c0130ec6>] [<c0106b1b>] 
-
-
-i had previously a windows 95 with harddisk partioned.i just formatted the hard drives before installing linux thru a bootable cdrom.my BIOS is Award BIOS.
-Please help me out
-
-Thanks
-pavan
-
-
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
-
- Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
+M.
 

@@ -1,77 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbUKCAom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbUKCAo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbUKCAom (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 19:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUKCAol
+	id S261209AbUKCAo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 19:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbUKBWOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 19:44:41 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:13336 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S261164AbUKCAmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 19:42:22 -0500
-Message-ID: <32796.192.168.1.5.1099442372.squirrel@192.168.1.5>
-Date: Wed, 3 Nov 2004 00:39:32 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.9
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Rui Nuno Capela" <rncbc@rncbc.org>
-Cc: "Ingo Molnar" <mingo@elte.hu>, mark_h_johnson@raytheon.com,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Lee Revell" <rlrevell@joe-job.com>,
-       "Paul Davis" <paul@linuxaudiosystems.com>,
-       "LKML" <linux-kernel@vger.kernel.org>, "Bill Huey" <bhuey@lnxw.com>,
-       "Adam Heath" <doogie@debian.org>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "K.R. Foley" <kr@cybsft.com>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Tue, 2 Nov 2004 17:14:03 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.61]:3758 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S262137AbUKBWKa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 17:10:30 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net,
+       joshk@triplehelix.org (Joshua Kwan)
+Subject: Re: [Linux-fbdev-devel] Re: Problem with current fb_get_color_depth function
+Date: Wed, 3 Nov 2004 06:10:12 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+References: <20041010225903.GA2418@darjeeling.triplehelix.org> <200410110832.19978.adaplas@hotpop.com> <20041102055555.GJ6361@triplehelix.org>
+In-Reply-To: <20041102055555.GJ6361@triplehelix.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-References: <OFB38B3DE8.983DDEAD-ON86256F40.0062F170-86256F40.0062F1A5@raytheon.com>
-             <20041102191858.GB1216@elte.hu>
-    <20041102192709.GA1674@elte.hu>   
-    <32932.192.168.1.8.1099437703.squirrel@192.168.1.8>
-In-Reply-To: <32932.192.168.1.8.1099437703.squirrel@192.168.1.8>
-X-OriginalArrivalTime: 03 Nov 2004 00:42:15.0410 (UTC) FILETIME=[F6FC1D20:01C4C13D]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411030610.12231.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rui Nuno Capela wrote:
+On Tuesday 02 November 2004 13:55, Joshua Kwan wrote:
+> [ long overdue follow-up ]
 >
-> I am also rehearsing these same tests on my P4/SMT desktop.
-> I'll post those a bit later today.
+> On Mon, Oct 11, 2004 at 08:33:10AM +0800, Antonino A. Daplas wrote:
+> > So, linux_logo_224 cannot be drawn when visual is directcolor at RGB555
+> > or RGB565 because the logo clut requirements exceeds the hardware clut
+> > capability. You need to use a logo image with a lower depth such as the
+> > 16-color logo, linux_logo_16.
+>
+> This is weird, because removing that conditional from fb_get_color_depth
+> allows a 224-color logo to show correctly on my Radeon framebuffer, in
+> full color.
+>
+> Otherwise, it is dithered to kingdom come and mostly appears all orange
+> and black.
+>
+> You may be right conceptually, but the fact of the matter is that this
+> is a regression because 224-color logos work perfectly with the old
+> fb_get_color_depth. So what is the real problem?
 >
 
-So here they are. This machine is a P4 2.80C@3.366GHz, HT enabled on a
-Asus P4P800 mobo, Intel 82801EB onboard sound device (snd-intel8x0).
+After giving it a lot of thought, perhaps you are not booting at 16 bpp, but
+at 8bpp pseudocolor.  However, radeonfb's default var use only a red, green,
+and blue length of 6.  Try this patch and let me know if it helps.
 
-                                   2.6.9smp   RT-V0.6.9smp
-                                 ------------ ------------
- XRUN Rate   . . . . . . . . . :       0            0      /hour
- Delay Rate (>spare time)  . . :       0            0      /hour
- Delay Rate (>1000 usecs)  . . :       0            0      /hour
- Delay Maximum . . . . . . . . :     346          166      usecs
- Cycle Maximum . . . . . . . . :     986         1028      usecs
- Average DSP Load. . . . . . . :      25.0         25.7    %
- Average Interrupt Rate  . . . :    1717         1718      /sec
- Average Context-Switch Rate . :   10082        15793      /sec
+Tony
 
-As you can see, the results here aren't so disparate as on my UP laptop.
-
-I guess that I can stress this out and lower the period size on jackd -R,
-to -p64. And even increase the workload with more client instances (from 9
-to 18 ?) to let the RT show it's potential, if that makes sense at all.
-
-Bye now.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
-
+diff -Nru a/drivers/video/aty/radeon_monitor.c b/drivers/video/aty/radeon_monitor.c
+--- a/drivers/video/aty/radeon_monitor.c	2004-10-27 14:58:07 +08:00
++++ b/drivers/video/aty/radeon_monitor.c	2004-10-28 06:04:32 +08:00
+@@ -12,9 +12,9 @@
+ 	.xres_virtual	= 640,
+ 	.yres_virtual	= 480,
+ 	.bits_per_pixel = 8,
+-	.red		= { 0, 6, 0 },
+-	.green		= { 0, 6, 0 },
+-	.blue		= { 0, 6, 0 },
++	.red		= { 0, 8, 0 },
++	.green		= { 0, 8, 0 },
++	.blue		= { 0, 8, 0 },
+ 	.activate	= FB_ACTIVATE_NOW,
+ 	.height		= -1,
+ 	.width		= -1,
 
 

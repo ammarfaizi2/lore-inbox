@@ -1,39 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266013AbUFOXco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266011AbUFOXhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266013AbUFOXco (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 19:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUFOXco
+	id S266011AbUFOXhP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 19:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266014AbUFOXhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 19:32:44 -0400
-Received: from 206-176-252-18.vbbn.com ([206.176.252.18]:54283 "Helo ygikgs.ca")
-	by vger.kernel.org with SMTP id S266013AbUFOXcn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 19:32:43 -0400
-From: rodney@clr.utoronto.ca
-To: spoof@vger.kernel.org
-Date: Tue, 15 Jun 2004 21:51:38 GMT
+	Tue, 15 Jun 2004 19:37:15 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:33965 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S266011AbUFOXhM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 19:37:12 -0400
+Message-ID: <40CF8846.7020309@blue-labs.org>
+Date: Tue, 15 Jun 2004 19:37:42 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040611
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: EU Beitritt der Tuerkei ? #3453#
-Importance: Normal
-X-Priority: 3 (Normal)
-Message-ID: <99ddaf26b4d3c1.499cf.qmail@clr.utoronto.ca>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: ov511 [2.6.7-rc3] does something odd
+Content-Type: multipart/mixed;
+ boundary="------------060608050503090304080203"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aufnahme der Beitrittsverhandlungen mit der Tuerkei oder nicht - eine Entscheidung, die 'das Ende Europas' bedeuten koennte. Dieses Wort stammt vom frueheren franzoesischen Praesidenten Giscard d'Estaing.
-Schon 2002 hatte er davor gewarnt, dass ein Beitritt der Tuerkei zur EU dem 'Ende Europas' gleichkaeme. Die bundesdeutschen Beitrittsbefuerworter verdraengen und verschweigen die unabsehbaren Folgen dieser Entscheidung:
+This is a multi-part message in MIME format.
+--------------060608050503090304080203
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-(1) Die Tuerkei hat schon jetzt 70 Millionen Einwohner. Sie wird bis zu ihrem EU-Beitritt die BRD in der Bevoelkerungszahl ueberholt haben und in den EU-Institutionen das entsprechende Stimmengewicht erhalten.
-(2) Die Tuerkei passt wirtschaftlich nicht in die EU. Das Land ist hoffnungslos ueberschuldet und waere ohne staendige internationalen Kredite laengst bankrott. Das Pro-Kopf-Einkommen betraegt nur 23% des EU-Durchschnitts. Die EU-Subventionen, auf die die Tuerkei Anspruch haette, wuerden nicht nur den Bruesseler Haushalt sprengen, sondern auch die heute schon ueberschuldeten 'Geberlaender' wie die BRD gaenzlich ruinieren.
-(3) Mit der Aufnahme eines asiatischen Landes und dem Verzicht auf vernuenftige Aussengrenzen verliert die EU ihre Identitaet.
+usb 2-1.3: new full speed USB device using address 7
+DEV: registering device: ID = '2-1.3'
+PM: Adding info for usb:2-1.3
+bus usb: add device 2-1.3
+bound device '2-1.3' to driver 'usb'
+DEV: registering device: ID = '2-1.3:1.0'
+PM: Adding info for usb:2-1.3:1.0
+bus usb: add device 2-1.3:1.0
+drivers/usb/media/ov511.c: USB OV511 video device found
+drivers/usb/media/ov511.c: model: AverMedia InterCam Elite
+drivers/usb/media/ov511.c: Sensor is an OV7610
+CLASS: registering class device: ID = 'video0'
+class_hotplug - name = video0
+drivers/usb/media/ov511.c: Device at usb-0000:00:10.0-1.3 registered to 
+minor 0
+bound device '2-1.3:1.0' to driver 'ov511'
+stack segment: 0000 [1] PREEMPT
+CPU 0
+Modules linked in:
+Pid: 6806, comm: camsource Not tainted 2.6.7-rc3
+RIP: 0010:[<ffffffff803a9906>] <ffffffff803a9906>{ov51x_v4l1_ioctl+38}
+RSP: 0018:000001003c4edf18  EFLAGS: 00010216
+RAX: 000001003fefe920 RBX: 6b6b6b6b6b6b6c13 RCX: 00000000407ff760
+RDX: 0000000040107613 RSI: 000001003a1d5a88 RDI: 6b6b6b6b6b6b6c13
+RBP: 6b6b6b6b6b6b6b6b R08: 0000000000524f80 R09: 000001003d714c08
+R10: 00000000407ff738 R11: 0000000000000246 R12: 00000000407ff760
+R13: 0000000000000000 R14: 0000000000000007 R15: 00000000ffffffe7
+FS:  00000000407ff960(005b) GS:ffffffff80737b00(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 0000002a9e5c8000 CR3: 0000000000101000 CR4: 00000000000006e0
+Process camsource (pid: 6806, threadinfo 000001003c4ec000, task 
+000001003e1b2430)
+Stack: 0000000040107613 0000000040107613 000001003a1d5a88 ffffffff801ad8bd
+       0000000000000000 000000003b8658f4 0000000000000000 00000000005250c0
+       00000000407ff760 0000000000525040
+Call Trace:<ffffffff801ad8bd>{sys_ioctl+685} 
+<ffffffff8011221a>{system_call+126}
 
-Trotz dieser unbestreitbaren Sprengsaetze rollt die Kampagne fuer den tuerkischen Beitritt immer schneller und unaufhaltsamer voran: Der tuerkische Regierungschef Erdogan nimmt bereits an den Konferenzen der EU-Regierungschefs teil, freilich noch ohne Stimmrecht und die Tuerkei erhaelt jetzt schon EU-Gelder zur 'Beitrittsvorbereitung'.
-Es ist alles wie bei der Euro-Einfuehrung: Erst erscheint der ganze Plan unrealistisch und wird von vielen fuer undurchfuehrbar gehalten; dann wird eine offene Diskussion ueber Pro und Contra als 'europa- oder fremdenfeindlich' kriminalisiert, und schliesslich wird die Entscheidung hinter verschlossenen Tueren, ohne Beteiligung des demokratischen Souveraens und ohne Volksabstimmung gefaellt und fuer unumkehrbar erklaert.
-Dasselbe Spiel mit den Vorbedingungen: Beim Euro waren es die Maastrichter Kriterien, die schon vor 1999 nicht erfuellt wurden und inzwischen offen missachtet werden. Die Tuerkei-Kriterien heissen: Wiedervereinigung Zyperns (als ob das so wichtig waere), Menschenrechte, Demokratisierung. Nichts hindert Ankara daran, diese Bedingungen pro forma zu erfuellen. Selbst wenn sie erfuellt wuerden, waeren damit die oben angefuehrten grundlegenden Argumente gegen den Tuerkei-Beitritt nicht im geringsten widerlegt.
-Ein uebles Spiel, das den Verdacht naehrt, hier werde eine Verschwoerung gegen Deutschland und Europa angezettelt. Berlin hat sich ohne jedes Waehlermandat bereits festgelegt. Sollte der Beitritt scheitern, sagte Aussenminister Fischer laut 'WamS' vom 8. 2. 2004, wuerde man dafuer 'einen sehr hohen Preis zahlen'.
 
-Ein Satz, den man zweimal lesen muss. Fischer droht dem deutschen Volk. Worin der hohe Preis bestehen wuerde, verschweigt er. Vielleicht meint er, dass die in Deutschland lebenden Tuerken auf die Strasse gehen koennten. Oder er fuerchtet den Zorn der USA, die den Beitritt seit Jahren verlangen. Washington weiss genau, dass die Aufnahme Kleinasiens zu einem 'bankrotten Halt' der gesamten EU (so die 'Financial Times' vom 15.1.2004) fuehren koennte. Ganz nuechtern urteilt die 'International Herald Tribune' am 24.11.2003:
+Code: ff 8d a8 00 00 00 0f 88 8a 2c 00 00 31 c0 85 c0 41 b8 fc ff
+RIP <ffffffff803a9906>{ov51x_v4l1_ioctl+38} RSP <000001003c4edf18>
 
-'Dass die Bevoelkerung in ganz Europa schrumpft, bedeutet, dass noch mehr Einwanderung bevorsteht. Die Aufnahme der Tuerkei als EU-Mitglied wuerde diesen Trend beschleunigen und die Definition Europas unwiderruflich aendern … Viele Europaeer muessen erst noch akzeptieren, dass die traditionell weisse, christliche Kultur ihrer Vorfahren abgeloest wird von einem multikulturellen Mix mit einem starken islamischen Gewicht.'
+
+--------------060608050503090304080203
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
+
+
+--------------060608050503090304080203--

@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278735AbRJZQN0>; Fri, 26 Oct 2001 12:13:26 -0400
+	id <S278736AbRJZQQg>; Fri, 26 Oct 2001 12:16:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278723AbRJZQNR>; Fri, 26 Oct 2001 12:13:17 -0400
-Received: from [207.8.4.6] ([207.8.4.6]:12647 "EHLO one.interactivesi.com")
-	by vger.kernel.org with ESMTP id <S278735AbRJZQNK>;
-	Fri, 26 Oct 2001 12:13:10 -0400
-Message-ID: <3BD98BAC.9060503@interactivesi.com>
-Date: Fri, 26 Oct 2001 11:13:32 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S278746AbRJZQQ0>; Fri, 26 Oct 2001 12:16:26 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:47116 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S278736AbRJZQQI>;
+	Fri, 26 Oct 2001 12:16:08 -0400
+Message-ID: <3BD98991.C5D3B7A1@nyc.rr.com>
+Date: Fri, 26 Oct 2001 12:04:33 -0400
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+To: Alan Cox <laughing@shared-source.org>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Allocating more than 890MB in the kernel?
-In-Reply-To: <200110250404.f9P44KM162546@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: Linux 2.4.13-ac1
+In-Reply-To: <fa.kgfmokv.12jgvrv@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan wrote:
+Where is ac7 ?
 
-> 1. reserve a 3 GB chunk of memory at boot
-> 2. create a regular user process
-> 3. have that process make a system call which will never return
-> 4. in that system call, wipe out all memory mappings in the process
-> 5. hand-craft a 3 GB memory mapping (0 GB virt --> 1 GB phys)
-> 6. call your desired code, remembering to schedule by hand
-
-
-Thanks, that's the most useful idea I've gotten.  It's crazy, but it just 
-might work!
-
-Too bad no one else on this list can think outside of the box like you just did.
-
+Alan Cox wrote:
+> 
+> 2.4.13-ac1
+> o       Merge with Linus 2.4.13
+> 
+> 2.4.12-ac7
+> o       Fix i2o_proc locking thinko                     (me)
+> o       Aiptek tablet driver                            (Chris Atenasio)
+> o       Update ARM920T support                          (Russell King)
+> o       Add some additional PCI idents                  (Tim Hockin)
+> o       Further SA1100/CERF ARM updates                 (Russell King)
+> o       Reduce printk noise in amd flash driver         (David Woodhouse)
+> o       Add missing schedule() to jffs2 gc thread       (David Woodhouse)
+> o       Add license tag to NTFS                         (Richard Russon)
+> o       PCMCIA suspend fix for SA1100 ARM               (Russell King)
+> o       Increase close wait tracking for ip_conntrack   (Darrell Escola)
+> o       PCI hot plug support                            (Greg Kroah-Hartmann)
+> o       Compaq FC driver update                         (Steve Cameron)
+> o       Fix UP APIC without IOAPIC build fail           (Mikael Pettersson)
+> o       Intel 82092 PCI/PCMCIA bridge support           (Arjan van de Ven)
+>         | Based heavily on the pcmcia package
+> o       Include buffer size extension in dhcp frames    (Andreas Steinmetz)
+> o       Fix u14f/u34f build problem                     (Andreas Steinmetz)
+> o       Fix trident.c build on Alpha                    (me)
+> o       Various other Alpha build fixes                 (Jeff Garzik)
+> o       Simplify serverworks mtrr check                 (Dave Jones)
+> o       ARM configuration updates                       (Russell King)
+> o       Update natsemi driver                           (Jeff Garzik)
+> o       Computone ip2 update                            (Michael Warfield)
+> o       Fix CONFIG_SIMNOW                               (Andi Kleen)
+> o       Update 8139too docs                             (Jeff Garzik)
+> o       Make autofs4 return symlink lengths

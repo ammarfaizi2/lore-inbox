@@ -1,62 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267668AbUIFJEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267554AbUIFJVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267668AbUIFJEv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 05:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267689AbUIFJEv
+	id S267554AbUIFJVI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 05:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUIFJVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 05:04:51 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:39849 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S267668AbUIFJEl
+	Mon, 6 Sep 2004 05:21:08 -0400
+Received: from smtp.virgilio.it ([212.216.176.142]:3247 "EHLO
+	vsmtp2alice.tin.it") by vger.kernel.org with ESMTP id S267685AbUIFJUx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 05:04:41 -0400
-Date: Mon, 6 Sep 2004 11:03:34 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Kalin KOZHUHAROV <kalin@thinrope.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removes unnessary print of space
-Message-ID: <20040906090334.GF28697@thundrix.ch>
-References: <413C0CC5.4000807@sw.ru> <chh5a5$tle$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tmoQ0UElFV5VgXgH"
-Content-Disposition: inline
-In-Reply-To: <chh5a5$tle$1@sea.gmane.org>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Mon, 6 Sep 2004 05:20:53 -0400
+Message-ID: <413C2ACF.9060908@futuretg.com>
+Date: Mon, 06 Sep 2004 11:15:59 +0200
+From: "Dr. Giovanni A. Orlando" <gorlando@futuretg.com>
+Organization: Future Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; es-ES; rv:1.6) Gecko/20040612
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tonnerre <tonnerre@thundrix.ch>
+CC: Spam <spam@tnonline.net>, Linus Torvalds <torvalds@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org> <1591214030.20040902215031@tnonline.net> <20040906074518.GA28697@thundrix.ch> <1873133500.20040906100534@tnonline.net> <20040906085614.GD28697@thundrix.ch>
+In-Reply-To: <20040906085614.GD28697@thundrix.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tonnerre wrote:
 
---tmoQ0UElFV5VgXgH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>Salut,
+>
+>On Mon, Sep 06, 2004 at 10:05:34AM +0200, Spam wrote:
+>  
+>
+>>Then it is good. Just I see no programs other than Gnome or KDE apps
+>>that are using them.
+>>    
+>>
+>
+>Because KDE people  hate Gnome people and vice  versa, and because the
+>rest of the world just neglects the two races for political reasons.
+>  
+>
+Hi,
 
-Salut,
+    This is completely wrong. Neither KDE people hate GNOME people
+    nor viceversa.
 
-On Mon, Sep 06, 2004 at 04:57:55PM +0900, Kalin KOZHUHAROV wrote:
-> I may be just a newbie, but why call prink with no arguments?
-> Does it do something?
+    Time ago, I repeat in a conference the GNOME people need to jump
+    on the KDE wagon, so the train will move to a single direction, and
+    people does not approve this comment.
 
-Actually, there is an argument: a NULL terminated string of size 0.
+    More than on the license, QPL, there are a developer problem.
 
-It  pokes   the  klogd.   This   can  be  done  much   better  through
-wake_up_klogd() though.
+    Develop in C (Gtk, GNOME) is a lot more easy than develop in C++ 
+(Qt, KDE)
+   
+    But, for the GUI, the C++ approach is a lot superior ... a lot.
 
-			    Tonnerre
+    The problem is this. They start to develop on Gtk to create GNOME, in C
+    for a license problem.
 
---tmoQ0UElFV5VgXgH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+    Now, they said why I need to change?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
+    But they need to change, because it is supeiror. Everyone may of 
+course wants to do what prefer.
 
-iD8DBQFBPCfm/4bL7ovhw40RAq+PAJ0bB+6HQpS3H4HdPDS8mxel8UgqnwCfZbzA
-EP9SvhxEHOtfDaTmvk+2DBQ=
-=GMR3
------END PGP SIGNATURE-----
+>Maybe   the  Freedesktop  project   should  provide   some  convenient
+>specification/code to  do it.  Like they  do for HAL  and DBUS (Please
+>note that this is something  interesting because it does clever things
+>on hardware without requiring to patch the kernel.)
+>
+>  
+>
+I don't agree FreeDesktop.org, because it is handled by a RedHat employee
+and the code is made on Gtk2, generally.
 
---tmoQ0UElFV5VgXgH--
+... They are not neutral.
+
+Thanks,
+Giovanni
+
+>>>In  case of  marketing it's  up  to the  distributions to  provide
+>>>something  concise so everyone  can use  their programs  through a
+>>>coherent namespace. (I.e. port all the apps they ship to gnome-vfs
+>>>or kio).
+>>>      
+>>>
+>>Do you really believe this will happen?
+>>    
+>>
+>
+>If the distributors  really want to be able to gain  money, and if the
+>Free Unix community wants to  gain a significant market share, this is
+>supposed to  happen. It's  the question of  whether we can  ignore our
+>childish concept  wars, or if we're  always going to stay  at that low
+>level we're at now.
+>
+>Actually, this can't be fixed by putting everything into the kernel.
+>
+>			    Tonnerre
+>  
+>
+
+
+-- 
+
+-- 
+
+--
+Check FT Websites ... 
+http://www.futuretg.com  - ftp://ftp.futuretg.com
+http://www.FTLinuxCourse.com
+	http://www.FTLinuxCourse.com/Certification
+http://www.rpmparadaise.org
+http://GNULinuxUtilities.com
+http://www.YourPersonalOperatingSystem.com
+
+--
+

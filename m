@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136506AbRD3Rqq>; Mon, 30 Apr 2001 13:46:46 -0400
+	id <S136507AbRD3Rrg>; Mon, 30 Apr 2001 13:47:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136507AbRD3Rqh>; Mon, 30 Apr 2001 13:46:37 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:45539 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S136506AbRD3Rq0>;
-	Mon, 30 Apr 2001 13:46:26 -0400
-Message-ID: <3AEDA4E9.EF6E15D6@mandrakesoft.com>
-Date: Mon, 30 Apr 2001 13:46:17 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Leif Sawyer <lsawyer@gci.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA3150446DC1B@berkeley.gci.com>
+	id <S136509AbRD3Rr2>; Mon, 30 Apr 2001 13:47:28 -0400
+Received: from shell.aros.net ([207.173.16.19]:5392 "EHLO shell.aros.net")
+	by vger.kernel.org with ESMTP id <S136507AbRD3RrU>;
+	Mon, 30 Apr 2001 13:47:20 -0400
+Date: Mon, 30 Apr 2001 11:47:18 -0600
+From: Lawrence Gold <gold@shell.aros.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oopses under 2.4.4pre8 with Tbird 1.2GHz/Epox 8kta3
+Message-ID: <20010430114718.A28728@shell.aros.net>
+In-Reply-To: <20010430001754.A96437@shell.aros.net> <E14uH99-0008IA-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14uH99-0008IA-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Apr 30, 2001 at 06:07:36PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Leif Sawyer wrote:
-> Oh for fsck's sake.  You've now wasted 1000x more bandwidth bitching
-> about sig length than the the actual sig used up.
+On Mon, Apr 30, 2001 at 06:07:36PM +0100, Alan Cox wrote:
+> > Could this be a sign of a faulty 3DNOW! core in my CPU?  If so, do you
+> > know of any utilities I could run that test these instructions?  (For
+> > Linux or Windows.)
+> 
+> This problem is only seen on VIA chipsets so far. Never on AMD ones.
+> This leads me to the current tentative diagnosis of 'VIA chipset bug'
 
-Nope, between esr's sigs and your geek code block+sig+stuff, we are
-still playing catch-up...  More posting to do!
+Thanks, at least that clears up some of the mystery.  Do you foresee any
+problems with running on this setup using a kernel compiled for Athlon but
+with the 3DNOW line commented out in arch/i386/config.in?  Should I go one
+step further and force the use of generic mmx code in mmx.c?  (I suppose I
+could just build for P2 or P3 to get the same effect.)
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+Thanks!
+

@@ -1,78 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbUBTSf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 13:35:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbUBTSfT
+	id S261245AbUBTSq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 13:46:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUBTSq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 13:35:19 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45450 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261266AbUBTSeO (ORCPT
+	Fri, 20 Feb 2004 13:46:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2196 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261245AbUBTSqZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 13:34:14 -0500
-Date: Fri, 20 Feb 2004 10:39:19 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-cc: "David S. Miller" <davem@redhat.com>, akpm@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [BK PATCH] USB update for 2.6.3
-In-Reply-To: <CBEF20EA-63D0-11D8-AE86-000A95A0560C@us.ibm.com>
-Message-ID: <Pine.LNX.4.58.0402201030060.2533@ppc970.osdl.org>
-References: <20040220012802.GA16523@kroah.com> <Pine.LNX.4.58.0402192156240.2244@ppc970.osdl.org>
- <1077256996.20789.1091.camel@gaston> <Pine.LNX.4.58.0402192221560.2244@ppc970.osdl.org>
- <1077258504.20781.1121.camel@gaston> <Pine.LNX.4.58.0402192243170.14296@ppc970.osdl.org>
- <1077259375.20787.1141.camel@gaston> <Pine.LNX.4.58.0402192257190.1107@ppc970.osdl.org>
- <20040219230407.063ef209.davem@redhat.com> <1077261041.20787.1181.camel@gaston>
- <20040219233214.56f5b0ce.davem@redhat.com> <Pine.LNX.4.58.0402200714270.1107@ppc970.osdl.org>
- <CBEF20EA-63D0-11D8-AE86-000A95A0560C@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Feb 2004 13:46:25 -0500
+Date: Fri, 20 Feb 2004 10:38:51 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Jonathan Brown <jbrown@emergence.uk.net>
+Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
+Subject: Re: Double fb_console_init call during do_initcalls
+Message-Id: <20040220103851.3d27f5ab.rddunlap@osdl.org>
+In-Reply-To: <4035F9AE.6060001@emergence.uk.net>
+References: <4035F9AE.6060001@emergence.uk.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 20 Feb 2004 12:12:30 +0000 Jonathan Brown <jbrown@emergence.uk.net> wrote:
 
+| fb_console_init gets called twice during do_initcalls. Should it be 
+| called from vty_init or as its own initcall? If it should be its own 
+| initcall then can it be moved up the list to occur sooner? I think it 
+| looks better if the fb kicks in as early as possible.
+| 
+| 
+|   [<c01d09cc>] take_over_console+0x14a/0x1c9
+|   [<c031e4c5>] fb_console_init+0x2b/0x59
+|   [<c031cde4>] vty_init+0xc9/0xd3
+|   [<c031c5b1>] tty_init+0x234/0x23c
+|   [<c0310610>] do_initcalls+0x32/0x80
+|   [<c01050a6>] init+0x2f/0x109
+|   [<c0105077>] init+0x0/0x109
+|   [<c0106a81>] kernel_thread_helper+0x5/0xb
+| Console: switching to colour frame buffer device 128x48
+| 
+| 
+|   [<c01d09cc>] take_over_console+0x14a/0x1c9
+|   [<c031e4c5>] fb_console_init+0x2b/0x59
+|   [<c0310610>] do_initcalls+0x32/0x80
+|   [<c01050a6>] init+0x2f/0x109
+|   [<c0105077>] init+0x0/0x109
+|   [<c0106a81>] kernel_thread_helper+0x5/0xb
+| Console: switching to colour frame buffer device 128x48
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-On Fri, 20 Feb 2004, Hollis Blanchard wrote:
-> 
-> And USB, when it creates its bus_type, does this:
-> 	int usb_dma_supported(struct device *dev, u64 mask) {
-> 		usb_dev *usbdev = to_usb_device(dev);
-> 		return usbdev->root_hub->controller->bus->dma_supported(controller, u64 mask)
-> 	}
+Ugh.  fb_console_init() can be called by
+drivers/char/vt.c (one initcall) or drivers/video/fbmem.c or
+drivers/video/console/fbcon.c (<-- module_init/initcall).
 
-So? The above has absolutely nothing to do with "dma_alloc_coherent()". 
-Also, it is wrong. It is not necessarily guaranteed that the device that 
-is the host controller ha sanythign to do with the "bus->dma_supported" 
-thing.
+It definitely wants to be cleaned up, but changing initcall
+order can be "fragile".  Have you tried/tested it?
 
-The point is, that DMA is always _always_ done on the host controller. 
-Trying to make things look any different is silly and wrong.
+Or maybe James Simmons has some updates for this.
 
-THE ABOVE CODE IS CRAP!
-
-The correct thing to do is
-
-	int usb_dma_supported(struct usb_dev *dev, u64 mask)
-	{
-		struct device *host = dev->root_hub->controller;
-		return dma_supported(host);
-	}
-
-and anything else is FUNDAMENTALLY WRONG!
-
-Imagine, for example, that the bus is a PCI bus, but the USB host 
-controller has a bug in that it only supports 24-bit DMA. Asking for what 
-the bus of the host controller supports is non-sensical, and has 
-absolutely zero to do with that the actual host device supports.
-
-See?
-
-(That actual bug is totally irrelevant, though. The _fundamnetal_ bug is
-in your way of thinking. For one thing, if you have a function called
-"usb_dma_xxx()", then it takes a _USB_ device, not a generic device.  
-Because the function clearly doesn't even WORK with a generic device, it
-only works with a "struct usb_dev". So don't "lie" about things like that
-in your interfaces and confuse the issue).
-
-			Linus
+--
+~Randy

@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267580AbSKSXNe>; Tue, 19 Nov 2002 18:13:34 -0500
+	id <S267581AbSKSXNH>; Tue, 19 Nov 2002 18:13:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267588AbSKSXNb>; Tue, 19 Nov 2002 18:13:31 -0500
-Received: from [144.135.24.137] ([144.135.24.137]:7619 "EHLO
-	mta08bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S267580AbSKSXN0>; Tue, 19 Nov 2002 18:13:26 -0500
-From: Brad Hards <bhards@bigpond.net.au>
-To: Oliver Neukum <oliver@neukum.name>,
-       "Folkert van Heusden" <folkert@vanheusden.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: local link configuration daemon?
-Date: Wed, 20 Nov 2002 10:10:09 +1100
-User-Agent: KMail/1.4.5
-References: <003b01c28fed$724a2c80$3640a8c0@boemboem> <200211200815.56896.bhards@bigpond.net.au> <200211192351.50618.oliver@neukum.name>
-In-Reply-To: <200211192351.50618.oliver@neukum.name>
+	id <S267580AbSKSXNH>; Tue, 19 Nov 2002 18:13:07 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:52361 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S267581AbSKSXNG>;
+	Tue, 19 Nov 2002 18:13:06 -0500
+Message-ID: <3DDAC71A.9040507@colorfullife.com>
+Date: Wed, 20 Nov 2002 00:19:54 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200211201010.16500.bhards@bigpond.net.au>
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Dave Richards <drichard@largo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Off List Message - Kernel Problem - Respond To Me
+References: <1037742240.31569.9.camel@oa3> <20021119220751.GX11776@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+William Lee Irwin III wrote:
 
-On Wed, 20 Nov 2002 09:51, Oliver Neukum wrote:
-> > It was originally done by Sebastian Kuzminsky. It basically uses the
-> > kernel's packet filter (BPF) and socket code, via Libnet and libpcap. You
-> > can get it from your friendly kernel.org mirror
-> > (http://www.XX.kernel.org/pub/software/network/zcip/, where XX is your
-> > country code).
-> >
-> > In the longer term, it might be appropriate to move some of it (the
-> > defend part of the claim-and-defend sequence) into kernel space. I don't
-> > think it makes sense to have it all in kernel space.
+>On Tue, Nov 19, 2002 at 04:44:00PM -0500, Dave Richards wrote:
+>  
 >
-> Definitely, however you've never convinced me how you do the arp related
-> part in user space at all. It seems to me that you cannot do that unless
-> you take all arp handling into user space.
-The approach is that there are really two different things happening:
-1. Detecting when someone is trying to use our IP
-2. Generating an ARP packet (which might be set to our IP, depending on 
-whether we are claiming or defending)
+>>Nov 19 14:09:41 desktop_a kernel: ldt allocation failed
+>>We get this error over and over again and no additional users can log
+>>into the server.
+>>I'm not on the linux-kernel list, but if anyone has insight into this
+>>issue, please drop me a line.  If you know a way to fix this in the 2.4
+>>kernel too, or can verify that we have to wait for 2.5/2.6 we need to
+>>know that too.
+>>    
+>>
+>
+>IIRC this has been hit in threaded benchmarks before; ISTR a fix for LDT
+>OOM going around, probably manfred's stuff which is in 2.5 and 2.4-ac.
+>  
+>
+Correct, the patch is in 2.4-ac, and I'll send it to Marcelo for 2.4.21.
 
-The first part is easy, as long as you have BPF support. Consider that it is 
-just a peer to tcpdump, only we don't want all the packets.
+How many concurrent processes are running? Each thread that is linked 
+against libpthread consumes 64 kB vmalloc space, and on SMP you have 
+around 96 MB vmalloc space. I'd expect OOM at 1500 threads.
 
-The second part is OK, you just need to generate raw packets. The real 
-functionality is in net/packet/af_packet.c, although I use Libnet
-http://www.packetfactory.net/projects/libnet/
-in an attempt at portability.
-
-It might help to think of it as generating a single ARP packet (or a packet 
-that has the ARP format, on the wire), rather than performing the ARP 
-functionality.
-
-Brad
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE92sTYW6pHgIdAuOMRApPFAJ92t006oLBNNw8munGv6K0/aFAtSACeJr+e
-A7QQlOwzkRhhhGK+EuyX+D8=
-=vGOO
------END PGP SIGNATURE-----
+With the fix applied, no vmalloc space is needed for libpthread.
+--
+    Manfred
 

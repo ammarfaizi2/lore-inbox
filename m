@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315612AbSEIEuk>; Thu, 9 May 2002 00:50:40 -0400
+	id <S315613AbSEIEwT>; Thu, 9 May 2002 00:52:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315613AbSEIEuj>; Thu, 9 May 2002 00:50:39 -0400
-Received: from [203.199.93.15] ([203.199.93.15]:64271 "EHLO
-	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
-	id <S315612AbSEIEuj>; Thu, 9 May 2002 00:50:39 -0400
-From: "P a v a n" <pavankvk@indiatimes.com>
-Message-Id: <200205090428.JAA05676@WS0005.indiatimes.com>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: "P a v a n" <pavankvk@indiatimes.com>
-Subject: cdp Strange behavior?
-Date: Thu, 09 May 2002 09:55:28 +0530
-X-URL: http://indiatimes.com
+	id <S315616AbSEIEwS>; Thu, 9 May 2002 00:52:18 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:10889 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S315613AbSEIEwR>;
+	Thu, 9 May 2002 00:52:17 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15577.65459.100216.857895@argo.ozlabs.ibm.com>
+Date: Thu, 9 May 2002 14:48:51 +1000 (EST)
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix drivers/pci/Makefile for PPC
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+Linus,
 
-yesterday i got my redhat 7.2 up and running.it had a package for palying audiocd's.its called cdp and had a text interface for a dumb terminal.inoticed a strange behavior.i was listening to the song and i gave the shutdown command..even when the system i completely halted(power down too) the cdp is still running.(i think it should as iam listening  the songs still).i have a creative cdrom.i have a doubt.are there any cdroms which are programmed to behave this way.i mean which depend on BIOS may be..i didnt make anything how its running.
+On 32-bit PPC we don't need setup-bus.o but we do need setup-irq.o.
+This patch changes drivers/pci/Makefile to reflect that.
 
-i dont know whether its related to kernel or not but please try to clarify me.
+The patch is against 2.5.15.  Please apply it to your tree.
 
-thanks
-pavan
+Thanks,
 
+Paul.
 
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
-
- Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
-
+diff -urN linux-2.5/drivers/pci/Makefile pmac-2.5/drivers/pci/Makefile
+--- linux-2.5/drivers/pci/Makefile	Thu May  9 12:07:43 2002
++++ pmac-2.5/drivers/pci/Makefile	Thu May  9 12:40:15 2002
+@@ -29,7 +29,7 @@
+ obj-$(CONFIG_ARM) += setup-bus.o setup-irq.o
+ obj-$(CONFIG_PARISC) += setup-bus.o
+ obj-$(CONFIG_SUPERH) += setup-bus.o setup-irq.o
+-obj-$(CONFIG_ALL_PPC) += setup-bus.o
++obj-$(CONFIG_PPC32) += setup-irq.o
+ obj-$(CONFIG_DDB5476) += setup-bus.o
+ obj-$(CONFIG_SGI_IP27) += setup-irq.o
+ 

@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbULVOyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbULVO4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbULVOyk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 09:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbULVOyh
+	id S261775AbULVO4p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 09:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbULVO4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 09:54:37 -0500
-Received: from mproxy.gmail.com ([216.239.56.240]:6699 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261775AbULVOyZ (ORCPT
+	Wed, 22 Dec 2004 09:56:44 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:50879 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261775AbULVO4a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 09:54:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ufVDwfErfSEo6TZwIqEj2VF5WNbet7N+FLz7jRUEZTNdVKAx+aSMOzYz+zPPubVQxGPKZwaVUDej6Q1TwhlylZLBR7N6VZbXntDoiJpg7eHAMwuTlK6wnD4CnavZMrOr40xzxY/m1v7kh1QuOCAFn0B7P8AUerb2bmt4M9eikC4=
-Message-ID: <892457750412220654918c785@mail.gmail.com>
-Date: Wed, 22 Dec 2004 08:54:24 -0600
-From: Jon Mason <jdmason@gmail.com>
-Reply-To: Jon Mason <jdmason@gmail.com>
-To: Richard Ems <richard.ems@mtg-marinetechnik.de>
-Subject: Re: PROBLEM: Network hang: "eth0: Tx timed out (f0080), is buffer full?"
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-In-Reply-To: <41C93E93.5070704@mtg-marinetechnik.de>
+	Wed, 22 Dec 2004 09:56:30 -0500
+Date: Wed, 22 Dec 2004 15:56:28 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-cifs-client@lists.samba.org, linux-kernel@vger.kernel.org
+Subject: Re: cifs large write performance improvements to Samba
+Message-ID: <20041222145628.GA5727@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Steve French <smfrench@austin.rr.com>,
+	linux-cifs-client@lists.samba.org, linux-kernel@vger.kernel.org
+References: <1102916738.5937.48.camel@smfhome.smfdom> <20041213143831.GA3743@outpost.ds9a.nl> <41BDC911.9010600@austin.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200412171100.16601.richard.ems@mtg-marinetechnik.de>
-	 <8924577504121710054331bb54@mail.gmail.com>
-	 <8924577504121712527144a5cf@mail.gmail.com>
-	 <41C6E2E1.8030801@mtg-marinetechnik.de>
-	 <8924577504122009126c40c1fe@mail.gmail.com>
-	 <41C713EF.8050003@mtg-marinetechnik.de>
-	 <892457750412201231461415a1@mail.gmail.com>
-	 <41C7F204.3030503@mtg-marinetechnik.de>
-	 <89245775041221080238187402@mail.gmail.com>
-	 <41C93E93.5070704@mtg-marinetechnik.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41BDC911.9010600@austin.rr.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard,
-Yes, I need the tx timeout lines.  Those tell me if the patch was
-successfull in solving the interrupt enablement issue.  From your
-statement below, it appears that it was either unsucessful (and you
-didn't wait long enough for it to timeout) or the root problem lies
-somewhere else.
-
-Please give it a good 20 minutes (if you can get away with it being
-down for that long) to timeout, as it has been taking 5-10 minutes in
-your previous errors.  There is no set timeframe for it to timeout. 
-It will only timeout after netif_stop_queue has true for a minute.  if
-this never happens, then it leads me to believe that the adapter is
-still functioning.  I know you can't log in to the system because of
-the nfs mounts, but can you see if the system is pingable before you
-reboot it?
-
-Thanks,
-Jon
-
-On Wed, 22 Dec 2004 10:29:55 +0100, Richard Ems
-<richard.ems@mtg-marinetechnik.de> wrote:
-> Jon, thanks for the last patch, it applied without errors or warnings.
-> But the NIC is still hanging.
-> Here the last hang data. Do you need the "Tx timed out" lines? I
-> apparently didn't wait long enough for this timeout to trigger ...
-> Is it a 5 min timeout?
+On Mon, Dec 13, 2004 at 10:53:37AM -0600, Steve French wrote:
 > 
-> Dec 22 10:00:37 urutu kernel: eth0: HostError! IntStatus 0082. 216 59
-> 248001a0 7c2
-> Dec 22 10:02:24 urutu kernel: nfs: server jupiter not responding, still
-> trying
-> Dec 22 10:02:55 urutu last message repeated 7 times
-> Dec 22 10:03:52 urutu last message repeated 3 times
-> Dec 22 10:04:14 urutu kernel: nfs: server jupiter not responding, still
-> trying
-> Dec 22 10:06:07 urutu syslogd 1.4.1: restart.
+> The current mainline (very recent 2.6.10-rc Linux tree) should be fine 
+> from memory leak perspective.  No such leaks have been reported AFAIK on 
+> current cifs code and certainly none that I have detected in heavy 
+> stress testing. 
+
+Indeed, thank you Steve! I had not noticed this progression from the
+changelog messages. I've since verified on a multimillion file share that
+cifs indeed shrinks the cifs_inode_cache under memory pressure. I've turned
+on updatedb again, hope that the box survives it now.
+
+> On the issue of regressing back to smbfs :)  There are a few things 
+> which can be done that would help.
+
+I've since moved some stuff back to cifs to see what happens. I'll try to
+convince some other people so they can share/report their problems properly.
+
+> 2) Public view of the status of testing - the raw data needs to be 
+> posted regularly as kernel updated (and against five or six different 
+> server types) so users see what is broken in smbfs (and so users can see 
+> what posix issues are still being worked on cifs and any known 
+> problems).   smbfs fails about half of the filesystem tests that I have 
+> tried, due to stress issues, or because the tests requires better posix 
+> compliance or because of various smbfs stability fixes.
+
+That may be so but the definite perception is that cifs is unstable compared
+to smbfs. Then again, this may have been related to out of memory conditions
+which generaly tend to make things suck.
+
+Thanks for your thoughtful reply, I'll see if I can provide useful feedback.
+
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

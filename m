@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266674AbUJFBvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUJFBx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266674AbUJFBvf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 21:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUJFBvf
+	id S266679AbUJFBx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 21:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbUJFBx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 21:51:35 -0400
-Received: from gate.crashing.org ([63.228.1.57]:9362 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266674AbUJFBve (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 21:51:34 -0400
-Subject: Re: [PATCH] I/O space write barrier
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <52r7ocra4q.fsf@topspin.com>
-References: <1096922369.2666.177.camel@cube>
-	 <200410041926.57205.jbarnes@sgi.com> <1096945479.24537.15.camel@gaston>
-	 <200410050833.49654.jbarnes@engr.sgi.com>
-	 <1097016099.27222.14.camel@gaston>  <52r7ocra4q.fsf@topspin.com>
-Content-Type: text/plain
-Message-Id: <1097027142.16744.1.camel@gaston>
+	Tue, 5 Oct 2004 21:53:26 -0400
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:42661 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S266679AbUJFBxQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 21:53:16 -0400
+Date: Tue, 5 Oct 2004 21:53:10 -0400
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: crash77a@allvantage.com, linux-kernel@vger.kernel.org
+Subject: Re: Converting kernel modules from 2.4 to 2.6/Suggested new driver
+Message-ID: <20041006015310.GD9683@fieldses.org>
+References: <416345C0.4050500@allvantage.com> <20041005182716.2f3f52c0.rddunlap@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 06 Oct 2004 11:45:43 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041005182716.2f3f52c0.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-06 at 09:57, Roland Dreier wrote:
+On Tue, Oct 05, 2004 at 06:27:16PM -0700, Randy.Dunlap wrote:
+> You can recommend them for inclusion, but the developer or maintainer
+> of them needs to either submit them or at least approve their
+> submission for inclusion.
 
-> I could be wrong but I think that the eieio in the ppc IO write
-> functions should be strong enough that mmiowb() can be a no-op.
-> 
-> By the way, are the ordering rules different for ppc32 and ppc64?  I
-> notice that the ppc32 out_xxx() functions do eieio while the ppc64
-> versions do a full sync.
+Also, the first thing to check is probably this:
 
-ppc32 and ppc64 are identical by spec, but the current chips smaller
-store queues are such that we didn't epxerience on ppc32 the amount
-of issues we had on ppc64.
+> On Tue, 05 Oct 2004 21:09:20 -0400 Kenny Bentley wrote:
+> | Or since I've never done any kernel programming, I have a better idea.  
+> | I want to recommend the drivers for inclusion into the official kernel 
+> | tree.  The drivers were released open-source by Linuxant or the 
+> | manufacturer, I don't remember which one for sure.
 
-eieio will not order a cacheable store vs. a non-cacheable store by
-spec, which is the root of our problem on ppc and why we had to change
-some of these into sync's. Extended the semantics of mmiowb() to a more
-generic ordering of MMIO vs. "the rest of the world" would help us as
-I don't beleive in defining yet-another barrier and have it properly
-used by device driver writers.
+You'll need to double-check that.  I think Linuxant released some
+free-as-in-beer drivers that were a mixture of free and proprietary
+code, so it was easy to get confused on this point.
 
-Ben.
-
-
+--Bruce Fields

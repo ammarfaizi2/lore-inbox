@@ -1,48 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271691AbRIKSAf>; Tue, 11 Sep 2001 14:00:35 -0400
+	id <S269356AbRIKR5e>; Tue, 11 Sep 2001 13:57:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270464AbRIKSAZ>; Tue, 11 Sep 2001 14:00:25 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:11270 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S270774AbRIKSAR>; Tue, 11 Sep 2001 14:00:17 -0400
-Date: 11 Sep 2001 13:29:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <88fBVpFmw-B@khms.westfalen.de>
-In-Reply-To: <20010911002956.D582@cadcamlab.org>
-Subject: Re: linux-2.4.10-pre5
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
-MIME-Version: 1.0
+	id <S270464AbRIKR5Y>; Tue, 11 Sep 2001 13:57:24 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:20219 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269356AbRIKR5F>; Tue, 11 Sep 2001 13:57:05 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Tue, 11 Sep 2001 11:57:13 -0600
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: David Balazic <david.balazic@uni-mb.si>, linux-kernel@vger.kernel.org
+Subject: Re: IBMs LVM ?
+Message-ID: <20010911115713.D29347@turbolinux.com>
+Mail-Followup-To: Christoph Hellwig <hch@ns.caldera.de>,
+	David Balazic <david.balazic@uni-mb.si>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3B9E255C.8943D6BB@uni-mb.si> <200109111526.f8BFQLr25266@ns.caldera.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20010911002956.D582@cadcamlab.org>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Disposition: inline
+In-Reply-To: <200109111526.f8BFQLr25266@ns.caldera.de>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-peter@cadcamlab.org (Peter Samuelson)  wrote on 11.09.01 in <20010911002956.D582@cadcamlab.org>:
+On Sep 11, 2001  17:26 +0200, Christoph Hellwig wrote:
+> > I heard rumors about IBM porting their LVM code from AIX to Linux.
+> 
+> IBM has an OpenSource volume manager called evms, and although
+> it does support AIX Volumes is has it's root in IBM's OS/2
+> volume management system.  (I believe someone at IBM thinks of PCs
+> when hearing Linux so all their ports start from OS/2...)
 
-> > I see two possible atime uses:
-> >
-> > 1. Cleaning up /tmp (mtime is *not* a good indicator that a file is no
-> > longer used)
-> > 2. Swapping out files to slower storage
-> >
-> > Essentially, both use the "do we still need this thing" aspect.
->
-> The Debian 'popularity-contest' package has an interesting use for
-> atime.
+Actually, this isn't quite correct.  Yes, the EVMS folks started with
+the LVM design from OS/2 (which was based on AIX LVM, but not compatible).
+However, IBM DID GPL the AIX 4.3 LVM code, and there IS support for AIX
+VGs under EVMS.
 
-Oh yes, forgot about that one. It's still the same idea, though.
+> > Will it be replaced with the one from IBM ?
+> 
+> ALthough the current LVM has its's issues I hope not so - the current
+> EVMS is the best example on hhow to not write kernel subsystems.
 
->  These go on the first volume of the Debian CD set, to
-> make a one-volume Debian CD as useful as possible.
+Do you have a specific complaint?  The current LVM kernel code isn't all
+that robust either (and the user-space code is not very pretty).
 
-And the others are pushed to the second CD ... "swapping out files to  
-slower storage".
+I DO think that EVMS will replace the current LVM code in the kernel.  Why?
+- It already has 100% compatibility with the current LVM on-disk layout.
+- It already has 100% compatibility with AIX LVM code.
+- It is already possible to do LVM autoconfig of volumes within the kernel
+  without needing an initrd to activate the volumes.
+- It removes knowlege of partitions out of the disk drivers and makes them
+  a simple form of LV.
+- It is already possible to use partial Linux-LVM volumes (i.e. use LVs
+  that are 100% available in a VG, even if a disk is bad/missing).  You
+  can't do that with the current LVM (sometimes you can't even do it if
+  ALL of the disks are there).
+- The AIX LVM on-disk metadata layout is FAR more robust than the current
+  LVM metadata layout.  While this is supposed to be fixed for Linux-LVM
+  at some point, the previous Linux-LVM changes have been TERRIBLE with
+  respect to compatibility, while EVMS is DESIGNED to support multiple
+  on-disk metadata layouts.
+- It is possible (not done yet) to add things like NT Logical Disk Manager
+  (NT LVM-stuff) into EVMS.
+- It is possible (not done yet) to add HPUX LVM/veritas/OSF volume stuff.
+- It is possible to merge MD RAID support into EVMS also, to support all
+  of the different RAID layouts with common code*.
 
+All in all, instead of having things like striping/RAID-1/concatenation/
+RAID-5 reimplemented in each subsystem (e.g. LDM/MD/veritas/etc) we can
+take the current MD code and make it a layer in EVMS which can handle all
+of these cases.
 
-MfG Kai
+(*) While the exact on-disk layout of each RAID implementation may vary
+slightly (block sizes, stripe widths, etc), I'm guessing that the majority
+of it is common enough that we can re-use the existing MD code (parity
+calculation, resync, etc) to handle most kinds of RAID-0/1/5 setups.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

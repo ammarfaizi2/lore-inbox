@@ -1,112 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317293AbSGIChD>; Mon, 8 Jul 2002 22:37:03 -0400
+	id <S317298AbSGICmz>; Mon, 8 Jul 2002 22:42:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317298AbSGIChC>; Mon, 8 Jul 2002 22:37:02 -0400
-Received: from antigonus.hosting.pacbell.net ([216.100.98.13]:6653 "EHLO
-	antigonus.hosting.pacbell.net") by vger.kernel.org with ESMTP
-	id <S317293AbSGIChB>; Mon, 8 Jul 2002 22:37:01 -0400
-Reply-To: <imran.badr@cavium.com>
-From: "Imran Badr" <imran.badr@cavium.com>
-To: "'Larry Sendlosky'" <Larry.Sendlosky@storigen.com>,
-       "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: RE: DMA from high memory regions, GFP_KERNEL and virt_to_bus
-Date: Mon, 8 Jul 2002 19:37:57 -0700
-Message-ID: <01ab01c226f1$a34a3b00$9e10a8c0@IMRANPC>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S317299AbSGICmy>; Mon, 8 Jul 2002 22:42:54 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:39643 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317298AbSGICmw>;
+	Mon, 8 Jul 2002 22:42:52 -0400
+Subject: [RFC] bt_ioremap question / cyclone-timer_A1 patch
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <004301c21d30$969c5a20$9e10a8c0@IMRANPC>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 08 Jul 2002 19:36:23 -0700
+Message-Id: <1026182183.28341.68.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I really appreciate your useful suggestions. I have another question about
-kmalloc. Whenever kmalloc() is called with GFP_KERNEL flag, does it always
-returns mapped memory pointer?  Is it guaranteed that virt_to_bus() is going
-to return correct bus address for that memory pointer ?
+Hey all, 
+	I've been working on improving performance of do_gettimeofday on
+certain NUMA hardware (see my earlier tsc-disable posts for why the TSCs
+cannot be used), and I wanted to run this by the list to make sure I'm
+not doing anything too daft. 
 
-Thanks,
-Imran.
+Mainly I'm concerned about my usage of bt_ioremap. Early in the boot
+processes, I need to map in a couple of chipset registers and poke
+values into them. However one of the registers needs to be kept mapped
+for the life of the system (look for "cyclone_timer" below). I couldn't
+find any documentation on whether memory mapped with bt_ioremap can be
+held across mem_init(). It seems to "just work" but I wanted to find out
+if I really should be re-mapping the register w/ ioremap once it becomes
+available. 
 
+If you see any other issues with the patch, please let me know (I do
+realize its a bit #ifdef happy, so go easy on that point). 
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Imran Badr
-Sent: Wednesday, June 26, 2002 9:43 AM
-To: 'Larry Sendlosky'; 'lkml'
-Subject: RE: DMA from high memory regions
+Comments, suggestions and flames welcome
 
+thanks
+-john
 
-
-Many thanks for the reply. It sure works and I noticed that code in
-pci_map_page() api. Previously I was using kernel 2.4.2 fron RedHat7.1 which
-has no such kernel function.
-Now, if I need to access that page in my device driver, how can I get kernel
-virtual address without using kmap?
-
-Thanks,
-Imran.
-
------Original Message-----
-From: Larry Sendlosky [mailto:Larry.Sendlosky@storigen.com]
-Sent: Wednesday, June 26, 2002 6:33 AM
-To: imran.badr@cavium.com
-Subject: RE: DMA from high memory regions
+PS: If you are so inclined/loony to actually try this patch, please note
+that it depends on my tsc-disable_B2 patch to apply cleanly. 
 
 
-There is no need to kmap.
+diff -Nru a/Documentation/Configure.help b/Documentation/Configure.help
+--- a/Documentation/Configure.help	Mon Jul  8 10:53:02 2002
++++ b/Documentation/Configure.help	Mon Jul  8 10:53:02 2002
+@@ -257,6 +257,11 @@
+   You will need a new lynxer.elf file to flash your firmware with - send
+   email to Martin.Bligh@us.ibm.com
+ 
++IBM Enterprise X-Architecture support
++CONFIG_X86_IBMEXA
++  This option makes use of a performance counter on the Cyclone chipset 
++  for calculating do_gettimeofday, greatly improving its performance. 
++
+ IO-APIC support on uniprocessors
+ CONFIG_X86_UP_IOAPIC
+   An IO-APIC (I/O Advanced Programmable Interrupt Controller) is an
+diff -Nru a/arch/i386/config.in b/arch/i386/config.in
+--- a/arch/i386/config.in	Mon Jul  8 10:53:02 2002
++++ b/arch/i386/config.in	Mon Jul  8 10:53:02 2002
+@@ -201,6 +201,7 @@
+ 	bool 'Multi-node NUMA system support (Caution: Read help first)' CONFIG_X86_NUMA
+ 	if [ "$CONFIG_X86_NUMA" = "y" ]; then
+ 		bool 'Multiquad (IBM/Sequent) NUMAQ support' CONFIG_MULTIQUAD
++		bool 'IBM Enterprise X-Architecture support' CONFIG_X86_IBMEXA
+ 	fi
+ fi
+ 
+diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+--- a/arch/i386/kernel/time.c	Mon Jul  8 10:53:02 2002
++++ b/arch/i386/kernel/time.c	Mon Jul  8 10:53:02 2002
+@@ -253,6 +253,87 @@
+ 
+ static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;
+ 
++
++
++#ifdef CONFIG_X86_IBMEXA
++#define CYCLONE_CBAR_ADDR 0xFEB00CD0
++#define CYCLONE_PMCC_OFFSET 0x51A0
++#define CYCLONE_MPMC_OFFSET 0x51D0
++#define CYCLONE_MPCS_OFFSET 0x51A8
++#define CYCLONE_TIMER_FREQ 100000000
++static u32* cyclone_timer;	/*Cyclone MPMC0 register*/
++static void init_cyclone_clock(void)
++{
++	u32* cyclone_cbar;	/*Cyclone BaseAddr register*/
++	u32* cyclone_pmcc;	/*Cyclone PMCC register*/
++	u32* cyclone_mpcs;	/*Cyclone MPCS register*/
++	u32 base;
++
++	/*find base address*/
++	cyclone_cbar = bt_ioremap(CYCLONE_CBAR_ADDR, 4);
++	if(!cyclone_cbar) return;
++	base = *cyclone_cbar;	
++	bt_iounmap(cyclone_cbar, 4);
++
++	/*setup PMCC*/
++	cyclone_pmcc = bt_ioremap(base + CYCLONE_PMCC_OFFSET, 8);
++	if(!cyclone_pmcc) return;
++	cyclone_pmcc[0] = 0x00000001;
++	bt_iounmap(cyclone_pmcc, 8);
++
++	/*setup MPCS*/
++	cyclone_mpcs = bt_ioremap(base + CYCLONE_MPCS_OFFSET, 8);
++	if(!cyclone_mpcs) return;
++	cyclone_mpcs[0] = 0x00000001;
++	bt_iounmap(cyclone_mpcs, 8);
++
++	/*map in cyclone_timer*/	
++	cyclone_timer = bt_ioremap(base + CYCLONE_MPMC_OFFSET, 8);
++}
++
++static u32 last_cyclone_timer;
++
++static inline void mark_timeoffset_cyclone(void)
++{
++	int count;
++	
++	/*quickly read the cyclone timer*/
++	if(cyclone_timer)
++		last_cyclone_timer = cyclone_timer[0];
++	
++	/*calculate delay_at_last_interrupt*/
++	spin_lock(&i8253_lock);
++	outb_p(0x00, 0x43);     /* latch the count ASAP */
++
++	count = inb_p(0x40);    /* read the latched count */
++	count |= inb(0x40) << 8;
++	spin_unlock(&i8253_lock);
++
++	count = ((LATCH-1) - count) * TICK_SIZE;
++	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
++}
++
++static unsigned long do_gettimeoffset_cyclone(void)
++{
++	u32 offset;
++
++	if(!cyclone_timer)
++		return delay_at_last_interrupt;
++
++	/* Read the cyclone timer */
++	offset = cyclone_timer[0];
++		
++	/* .. relative to previous jiffy*/
++	offset = offset - last_cyclone_timer;
++
++	/*convert cyclone ticks to microseconds*/	
++	offset = offset*(1000000/CYCLONE_TIMER_FREQ); 
++
++	/* our adjusted time offset in microseconds */
++	return delay_at_last_interrupt + offset;
++}
++#endif /*CONFIG_X86_IBMEXA*/
++
+ #else
+ 
+ #define do_gettimeoffset()	do_fast_gettimeoffset()
+@@ -459,6 +540,7 @@
+ }
+ 
+ static int use_tsc;
++static int use_cyclone =1; /*XXX should be autodetected*/
+ 
+ /*
+  * This is the same as the above, except we _also_ save the current
+@@ -506,6 +588,10 @@
+ 		count = ((LATCH-1) - count) * TICK_SIZE;
+ 		delay_at_last_interrupt = (count + LATCH/2) / LATCH;
+ 	}
++#ifdef CONFIG_X86_IBMEXA
++ 	if(use_cyclone)
++		mark_timeoffset_cyclone();
++#endif /*CONFIG_X86_IBMEXA*/
+  
+ 	do_timer_interrupt(irq, NULL, regs);
+ 
+@@ -695,6 +781,14 @@
+ 			}
+ 		}
+ 	}
++
++#ifdef CONFIG_X86_IBMEXA
++ 	if((!use_tsc) && use_cyclone){
++		printk("IBM EXA: Starting Cyclone Clock.\n");
++		do_gettimeoffset = do_gettimeoffset_cyclone;
++		init_cyclone_clock();
++	}
++#endif /*CONFIG_X86_IBMEXA*/
+ 
+ #ifdef CONFIG_VISWS
+ 	printk("Starting Cobalt Timer system clock\n");
 
-1) call map_user_kiobuf to make sure buffer is mapped and pages
-   are not swapped.
-
-2) call lock_kiovec to lock the pages for I/O
-
-3) use the struct page pointers in the kiobuf maplist
-   to compute physical page address of each page.
-   eg  ((struct_page_pointer - mem_map) << PAGE_SHIFT)   is physical
-   address of the page described by 'struct page *struct_page_pointer'.
-
-   You now have the physical addresses needed to give to the device
-   for DMA.
-
-
------Original Message-----
-From: Imran Badr [mailto:imran.badr@cavium.com]
-Sent: Tuesday, June 25, 2002 7:30 PM
-To: 'lkml'
-Subject: DMA from high memory regions
-
-
-Hi,
-
-I am trying to setup DMA to/from user space. I get a user pointer in my
-device driver, from which I build up kiobuf and call map_user_kiobuf. After
-this, I call kmap to map pages to kernel virtual space and then virt_to_bus
-to get bus address. Now if I define CONFIG_HIGHMEM and that page happens to
-be in the memory region near 1GB then DMA never happens and I donot see any
-data in result pointer. If CONFIG_HIGHMEM is not defined, then everything
-works perfectly. Please suggest any solution.
-
-Thanks,
-Imran.
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282046AbRLGHY3>; Fri, 7 Dec 2001 02:24:29 -0500
+	id <S282792AbRLGHiC>; Fri, 7 Dec 2001 02:38:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282792AbRLGHYU>; Fri, 7 Dec 2001 02:24:20 -0500
-Received: from mail11.speakeasy.net ([216.254.0.211]:45498 "EHLO
-	mail11.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S282046AbRLGHYE>; Fri, 7 Dec 2001 02:24:04 -0500
-Subject: Re: 2.4.17-pre5 "make bzImage" fails
-From: safemode <safemode@speakeasy.net>
-To: skidley <skidley@crrstv.net>
-Cc: devnull@geisel.info, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0112070206360.2900-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33L2.0112070206360.2900-100000@localhost.localdomain>
-Content-Type: text/plain
+	id <S282799AbRLGHhl>; Fri, 7 Dec 2001 02:37:41 -0500
+Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:33242 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S282793AbRLGHhd>; Fri, 7 Dec 2001 02:37:33 -0500
+Message-ID: <098201c17ef0$44758d90$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Kiril Vidimce" <vkire@pixar.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.kit1f7v.j024op@ifi.uio.no>
+Subject: Re: kernel: ldt allocation failed
+Date: Fri, 7 Dec 2001 02:24:54 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 07 Dec 2001 02:24:02 -0500
-Message-Id: <1007709843.366.0.camel@psuedomode>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-07 at 01:07, skidley wrote:
-> On Thu, 6 Dec 2001 devnull@geisel.info wrote:
-> 
-> > On Thu, Dec 06, 2001 at 02:53:16PM -0500, Jeff Garzik wrote:
-> > > did you upgrade your binutils recently?
-> >
-> > Yes, I upgraded to binutils-2.11.92.0.7-3mdk from Mandrake cooker today.
-> >
-> That's the problem I had same version. I did rpm -Uvh --oldpackage of the
-> old versions of binutils, libbinutils and it compiled fine
-> -- 
-> Chad Young
-> Registered Linux User #195191 @ http://counter.li.org
+> We suddenly started seeing freezing problems on a number of machines
+> in the past couple of days. There is no pattern as far as I can tell.
+> It has happened while running OpenGL apps, netscape, or even when not
+> doing anything.
 
-The problem isn't binutils, it's the kernel.  binutils let the kernel
-get away with it before, that's why it compiles fine on older versions. 
+> Software:
+>     - NVIDIA drivers 1.0-1541
+
+Sorry, we do not have the source to NVIDIA's driver, so we cannot help you
+debug this problem. Please contact NVIDIA support.
+
+Regards,
+Dan
 

@@ -1,117 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269424AbUJLAZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269415AbUJLA2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269424AbUJLAZg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 20:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269415AbUJLAX5
+	id S269415AbUJLA2M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 20:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269404AbUJLA0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 20:23:57 -0400
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:26243
-	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S269402AbUJLATJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 20:19:09 -0400
-Subject: [patch 09/10] uml: fix ubd deadlock on SMP
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it,
-       chrisw@osdl.org
-From: blaisorblade_spam@yahoo.it
-Date: Tue, 12 Oct 2004 02:18:03 +0200
-Message-Id: <20041012001803.E2A9B8699@zion.localdomain>
+	Mon, 11 Oct 2004 20:26:07 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:19311 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269400AbUJLAYi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 20:24:38 -0400
+Message-ID: <35fb2e59041011172478b0c09@mail.gmail.com>
+Date: Tue, 12 Oct 2004 01:24:37 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: =?UTF-8?Q?Olaf_Fr=C4=85czyk?= <olaf@cbk.poznan.pl>
+Subject: Re: How to umount a busy filesystem?
+Cc: Matthias Schniedermeyer <ms@citd.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <1097445655.2235.18.camel@venus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+References: <1097441558.2235.9.camel@venus> <20041010211208.GA6986@citd.de>
+	 <1097445655.2235.18.camel@venus>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 11 Oct 2004 00:00:55 +0200, Olaf Frączyk <olaf@cbk.poznan.pl> wrote:
+> On Sun, 2004-10-10 at 23:12, Matthias Schniedermeyer wrote:
+> > On 10.10.2004 22:52, Olaf Fr?czyk wrote:
+> > > Hi,
+> > >
+> > > Why I cannot umount filesystem if it is being accessed?
+> > > I tried MNT_FORCE option but it doesn't work.
+> > >
+> > > Killing all processes that access a filesystem is not an option. They
+> > > should just get an error when accessing filesystem that is umounted.
+> > >
+> > > Any idea how to do it?
+> >
+> > umount -l
+> >
+> > removes the mount in "lazy"-mode, this way the mount-point "vanishes"
 
-From: BlaisorBlade <blaisorblade_spam@yahoo.it>, Chris Wright <chrisw@osdl.org>
+> Thank you.
+> But this:
+> 1. Does not let the user to remove the media (eg. cdrom).
+> 2. Does not flush buffers etc. so the media cannot be safely removed
 
-Avoid deadlocking onto the request lock in the UBD driver, i.e. don't lock the
-queue spinlock when called from the request function.
+What you want is the kind of proxy Luke Leighton was talking about in
+a recent post to lkml concerning his effort to port FUSE example code
+in to kernelspace. In his model you can replace the underlying
+filesystem because the user processes are only seeing what you present
+through the proxy - so although proxy inodes/superblock/etc. remain
+constant, the underlying filesystem might get swapped around or moved
+someplace else and the proxy has to work out whether to return errors
+or simply block until the backing filesystem is available for use
+again once more.
 
-In detail:
-Rename ubd_finish() to __ubd_finish() and remove ubd_io_lock from it.
-Add wrapper, ubd_finish(), which grabs lock before calling __ubd_finish().
-Update do_ubd_request to use the lock free __ubd_finish() to avoid
-deadlock.  Also, apparently prepare_request is called with ubd_io_lock
-held, so remove locks there.
-
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
-
- linux-2.6.9-current-paolo/arch/um/drivers/ubd_kern.c |   19 ++++++++++++-------
- 1 files changed, 12 insertions(+), 7 deletions(-)
-
-diff -puN arch/um/drivers/ubd_kern.c~uml-ubd-deadlock-revised arch/um/drivers/ubd_kern.c
---- linux-2.6.9-current/arch/um/drivers/ubd_kern.c~uml-ubd-deadlock-revised	2004-10-12 01:22:16.360058936 +0200
-+++ linux-2.6.9-current-paolo/arch/um/drivers/ubd_kern.c	2004-10-12 01:52:22.521480664 +0200
-@@ -396,14 +396,13 @@ int thread_fd = -1;
-  */
- int intr_count = 0;
- 
--static void ubd_finish(struct request *req, int error)
-+/* call ubd_finish if you need to serialize */
-+static void __ubd_finish(struct request *req, int error)
- {
- 	int nsect;
- 
- 	if(error){
-- 		spin_lock(&ubd_io_lock);
- 		end_request(req, 0);
-- 		spin_unlock(&ubd_io_lock);
- 		return;
- 	}
- 	nsect = req->current_nr_sectors;
-@@ -412,11 +411,17 @@ static void ubd_finish(struct request *r
- 	req->errors = 0;
- 	req->nr_sectors -= nsect;
- 	req->current_nr_sectors = 0;
--	spin_lock(&ubd_io_lock);
- 	end_request(req, 1);
-+}
-+
-+static inline void ubd_finish(struct request *req, int error)
-+{
-+ 	spin_lock(&ubd_io_lock);
-+	__ubd_finish(req, error);
- 	spin_unlock(&ubd_io_lock);
- }
- 
-+/* Called without ubd_io_lock held */
- static void ubd_handler(void)
- {
- 	struct io_thread_req req;
-@@ -965,6 +970,7 @@ static int prepare_mmap_request(struct u
- 	return(0);
- }
- 
-+/* Called with ubd_io_lock held */
- static int prepare_request(struct request *req, struct io_thread_req *io_req)
- {
- 	struct gendisk *disk = req->rq_disk;
-@@ -977,9 +983,7 @@ static int prepare_request(struct reques
- 	if((rq_data_dir(req) == WRITE) && !dev->openflags.w){
- 		printk("Write attempted on readonly ubd device %s\n", 
- 		       disk->disk_name);
-- 		spin_lock(&ubd_io_lock);
- 		end_request(req, 0);
-- 		spin_unlock(&ubd_io_lock);
- 		return(1);
- 	}
- 
-@@ -1029,6 +1033,7 @@ static int prepare_request(struct reques
- 	return(0);
- }
- 
-+/* Called with ubd_io_lock held */
- static void do_ubd_request(request_queue_t *q)
- {
- 	struct io_thread_req io_req;
-@@ -1040,7 +1045,7 @@ static void do_ubd_request(request_queue
- 			err = prepare_request(req, &io_req);
- 			if(!err){
- 				do_io(&io_req);
--				ubd_finish(req, io_req.error);
-+				__ubd_finish(req, io_req.error);
- 			}
- 		}
- 	}
-_
+Jon.

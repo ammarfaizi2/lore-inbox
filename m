@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265119AbUHJNRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUHJM6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265119AbUHJNRq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 09:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUHJNQu
+	id S265098AbUHJM6s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 08:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUHJM6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 09:16:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22791 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265091AbUHJNMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 09:12:30 -0400
-Date: Tue, 10 Aug 2004 14:12:20 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: William Lee Irwin III <wli@holomorphy.com>, V13 <v13@priest.com>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040810141220.B20890@flint.arm.linux.org.uk>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	William Lee Irwin III <wli@holomorphy.com>, V13 <v13@priest.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-References: <200408091217.50786.jbarnes@engr.sgi.com> <20040810100234.GN11200@holomorphy.com> <20040810115307.GR11200@holomorphy.com> <200408101552.22501.v13@priest.com> <20040810125140.GU11200@holomorphy.com> <20040810125529.GA22650@elte.hu> <20040810125651.GV11200@holomorphy.com> <20040810130122.GA26326@elte.hu>
+	Tue, 10 Aug 2004 08:58:00 -0400
+Received: from jabberwock.ucw.cz ([81.31.5.130]:23262 "EHLO jabberwock.ucw.cz")
+	by vger.kernel.org with ESMTP id S265098AbUHJM5P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 08:57:15 -0400
+Date: Tue, 10 Aug 2004 14:57:00 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
+       dwmw2@infradead.org, eric@lammerts.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040810125700.GA11596@kam.mff.cuni.cz>
+References: <200408101245.i7ACj6EM014024@burner.fokus.fraunhofer.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040810130122.GA26326@elte.hu>; from mingo@elte.hu on Tue, Aug 10, 2004 at 03:01:22PM +0200
+In-Reply-To: <200408101245.i7ACj6EM014024@burner.fokus.fraunhofer.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 03:01:22PM +0200, Ingo Molnar wrote:
-> 
-> * William Lee Irwin III <wli@holomorphy.com> wrote:
-> 
-> > On Tue, Aug 10, 2004 at 02:55:29PM +0200, Ingo Molnar wrote:
-> > > i'd guess it's the con->write() in __call_console_drivers() that makes
-> > > the difference. (i.e. touching the framebuffer)
-> > 
-> > This is serial port IO; would that make the same kind of difference?
-> 
-> serial port IO is even more heavy, it also generates IRQ traffic.
+Hello!
 
-Except serial console IO does not generate _any_ IRQ traffic - it
-purposely disables IRQs on the device before starting any IO to
-prevent any user-level IO interfering with the console output.
+> >BTW is it true that Burn-Proof reduces the quality exactly in the cases
+> >where burning without Burn-Proof would ruin the disk?
+> 
+> This is why it is silly to tell people that they do not need locked memory and
+> raised scheduling priority for CD/DVD writing.
 
-It does, however, create a fair amount of IO reads and writes to
-the serial port.
+Yes, but if it is true, you can safely turn on Burn-Proof by default,
+since the only cases where it would hurt are the cases when it would
+fail without Burn-Proof anyway.
 
+Also, as many people regularly use non-suid-root cdrecord without
+Burn-Proof being ever used (even though I don't assert that it is
+always the case), I would very much appreciate if cdrecord could
+be configured (in cdrecord.conf) that I really wish to run it
+without mlocking and RT priority if I know what I'm doing.
+
+				Have a nice fortnight
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+return(ENOTOBACCO); /* Read on an empty pipe */

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132292AbRA3TB3>; Tue, 30 Jan 2001 14:01:29 -0500
+	id <S132239AbRA3TBU>; Tue, 30 Jan 2001 14:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132293AbRA3TBU>; Tue, 30 Jan 2001 14:01:20 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:33267
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S132292AbRA3TBF>; Tue, 30 Jan 2001 14:01:05 -0500
-Date: Tue, 30 Jan 2001 11:59:39 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [UPDATE] Fresh zerocopy patch on kernel.org
-Message-ID: <20010130115939.H17512@opus.bloom.county>
-In-Reply-To: <14966.35438.429963.405587@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S132293AbRA3TBL>; Tue, 30 Jan 2001 14:01:11 -0500
+Received: from ns-inetext.inet.com ([199.171.211.140]:37362 "EHLO
+	ns-inetext.inet.com") by vger.kernel.org with ESMTP
+	id <S132239AbRA3TBA>; Tue, 30 Jan 2001 14:01:00 -0500
+Message-ID: <3A770F68.7D54CEB9@inet.com>
+Date: Tue, 30 Jan 2001 13:00:56 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, kernelnewbies@humbolt.nl.linux.org
+Subject: peek/poke question
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <14966.35438.429963.405587@pizda.ninka.net>; from davem@redhat.com on Tue, Jan 30, 2001 at 01:33:34AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 30, 2001 at 01:33:34AM -0800, David S. Miller wrote:
+I'm being asked to read values from arbitrary locations on the PCI
+bus... but I need to do that without altering the kernel... is there a
+way to do that as root?
 
-> Have fun testing...
+>From what I understand, /proc/kcore has only the physical RAM.
 
-I've got a question.  I think one of the threads mentioned that this could
-help NFS performance, in general.  I assume having the NFS traffic go out
-the a card w/ the right HW could help as well, right?  Should the 3com
-3c905b work, and how can i check it's "working" ?  Thanks!
+TIA,
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Eli
+--------------------. "To the systems programmer, users and applications
+Eli Carter          | serve only to provide a test load."
+eli.carter@inet.com `---------------------------------- (random fortune)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

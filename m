@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTLWQ6D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 11:58:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTLWQ6C
+	id S262041AbTLWRH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 12:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTLWRH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 11:58:02 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38791 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262050AbTLWQ5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 11:57:44 -0500
-Date: Tue, 23 Dec 2003 11:57:39 -0500
-From: Bill Nottingham <notting@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: various issues with ACPI sleep and 2.6
-Message-ID: <20031223165739.GA28356@devserv.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 23 Dec 2003 12:07:59 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:57007 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S262041AbTLWRH4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 12:07:56 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: <xan2@ono.com>, linux-kernel@vger.kernel.org
+Subject: Re: [License of kernel components] linux-2.x.y/Documentation/logo.GIF should be logo.PNG?
+Date: Tue, 23 Dec 2003 12:07:53 -0500
+User-Agent: KMail/1.5.1
+References: <178ed117d672.17d672178ed1@ono.com>
+In-Reply-To: <178ed117d672.17d672178ed1@ono.com>
+Organization: Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+Message-Id: <200312231207.53580.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.56.244] at Tue, 23 Dec 2003 11:07:53 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Testing ACPI sleep under 2.6, I noticed the following issues
-(Thinkpad T40, i855PM chipset):
+On Tuesday 23 December 2003 10:20, xan2@ono.com wrote:
+>Hi,
+>
+>I believe that the tux logo located at
+>linux-2.6.0/Documentation/logo.gif is the image that appears on the
+>boot of the system if framebuffer is enabled, isn't it?
+>
+>In this cas, and also if it's only for documentation purpose, I
+> think that we could change the propietary (and I think patented)
+> format of this logo (gif) to anyone that were free (for example
+> like PNG format [that has GPL licensed]).
 
-- USB fails on resume (sent to linux-usb-devel)
-- DRI being loaded at all causes X to fail on resume
-- MCE on resume:
+I don't think GIF was ever "proprietary", but the l-z-w compression 
+used was patented.  The patent expired earlier this year.  So gif is 
+back.
 
- MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
- Bank 1: f200000000000175
- 
-Are these known issues, or 'features' of suspend on this ACPI
-bios?
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
-Bill

@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276350AbRJCPPD>; Wed, 3 Oct 2001 11:15:03 -0400
+	id <S276361AbRJCPRX>; Wed, 3 Oct 2001 11:17:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276351AbRJCPOx>; Wed, 3 Oct 2001 11:14:53 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:28658 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S276350AbRJCPOj>; Wed, 3 Oct 2001 11:14:39 -0400
-Date: Wed, 3 Oct 2001 11:15:04 -0400 (EDT)
-From: Alex Larsson <alexl@redhat.com>
-X-X-Sender: <alexl@devserv.devel.redhat.com>
-To: Ulrich Drepper <drepper@cygnus.com>
-cc: Andi Kleen <ak@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Finegrained a/c/mtime was Re: Directory notification problem
-In-Reply-To: <m3r8slywp0.fsf@myware.mynet>
-Message-ID: <Pine.LNX.4.33.0110031111470.29619-100000@devserv.devel.redhat.com>
+	id <S276359AbRJCPRN>; Wed, 3 Oct 2001 11:17:13 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:59063 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S276354AbRJCPQ7>;
+	Wed, 3 Oct 2001 11:16:59 -0400
+Date: Wed, 3 Oct 2001 11:14:41 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.LNX.4.33.0110031528370.6272-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.30.0110031109430.4833-100000@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Oct 2001, Ulrich Drepper wrote:
 
-> Andi Kleen <ak@suse.de> writes:
-> 
-> > structure reserved an additional 4 bytes for every timestamp, but these
-> > either need to be used to give more seconds for the year 2038 problem
-> > or be used for the ms fractions. y2038 is somewhat important too.
-> 
-> The fields are meant for nanoseconds.  The y2038 will definitely be
-> solved by time-shifting or making time_t unsigned.  In any way nothing
-> of importance here and now.  Especially since there won't be many
-> systems which are running today and which have a 32-bit time_t be used
-> then.  For the rest I'm sure that in 37 years there will be the one or
-> the other ABI change.
 
-Is a nanoseconds field the right choice though? In reality you might not 
-have a nanosecond resolution timer, so you would miss changes that appear
-on shorter timescale than the timer resolution. Wouldn't a generation 
-counter, increased when ctime was updated, be a better solution?
+On Wed, 3 Oct 2001, Ingo Molnar wrote:
 
-/ Alex
+Robert has a driver extension (part of Alexey's iputils) that cna
+generate in the 140Kpps (for 100Mbps) and about 900Kpps for the e1000, but
+i'll take a look at Simons stuff if it is available. Marc Boucher has
+something that is an in-kernel client/server  as well.
 
+> 10.0.3.4 is running vanilla 2.4.11-pre2 UP, a 466 MHz PII box with enough
+> RAM, using eepro100. The system effectively locks up - even in the full
+> knowledge of what is happening, i can hardly switch consoles, let alone do
+> anything like ifconfig eth0 down to fix the lockup. Until this kind of
+> load is present the only option is to power-cycle the box. SysRq does not
+> work.
+
+use the netif_rx() return code and hardware flowcontrol to fix it.
+
+> and frankly, this has been well-known for a long time - it's just since
+> Simon sent me this testcode that i realized how trivial it is. Alexey told
+> me about Linux routers effectively locking up if put under 100 mbit IRQ
+> load more than a year ago, when i first tried to fix softirq latencies. I
+> think if you are doing networking patches then you should be aware of it
+> as well.
+>
+
+I am fully aware of it. We have progessed extensively since then. Look at
+NAPI.
+
+> your refusal to accept this problem as an existing and real problem is
+> really puzzling me.
+>
+
+I must have miscommunicated. I am not saying there is no problem otherwise
+i wouldnt be working on this to begin with. I am just against your shotgun
+approach.
+
+cheers,
+jamal
 

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262108AbREWGBn>; Wed, 23 May 2001 02:01:43 -0400
+	id <S261857AbREWGBN>; Wed, 23 May 2001 02:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262137AbREWGBe>; Wed, 23 May 2001 02:01:34 -0400
-Received: from smtp.bmlv.gv.at ([193.171.152.34]:21206 "EHLO mail.bmlv.gv.at")
-	by vger.kernel.org with ESMTP id <S262108AbREWGBT>;
-	Wed, 23 May 2001 02:01:19 -0400
-Message-Id: <3.0.6.32.20010523080316.00918900@pop3.bmlv.gv.at>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Wed, 23 May 2001 08:03:16 +0200
-To: linux-kernel@vger.kernel.org
-From: "Ph. Marek" <marek@bmlv.gv.at>
-Subject: Re: ioctl/setsockopt etc. vs read/write - idea
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S262108AbREWGAx>; Wed, 23 May 2001 02:00:53 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:45028 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S261857AbREWGAo>; Wed, 23 May 2001 02:00:44 -0400
+Message-ID: <3B0B533B.B902EE85@wipro.tcpn.com>
+Date: Wed, 23 May 2001 11:35:47 +0530
+From: "Shashi Kiran T.R." <Shashi.Kiran@wipro.com>
+Organization: Wipro Ltd
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Shashi.Kiran@wipro.com
+Subject: Kernel memory mapped into user process
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+Hi ,
 
-I'd like to offer my $0.02 to the ongoing discussion.
+    I have a proposition at hand to optimize getting system time by
+avoiding
+the system call(gettimeofday()) overhead. This can be implemented by
+keeping a read-only page of kernel memory mapped into user processes
+for reading quickly. A kernel process can keep that page up-to-date.
 
+   I did some browsing of this mailing list archives to get the
+following related
+topics:
+*  mapping user space buffer to kernel address space
+* Direct I/O
+* Zero Copy IO
+  None of these seem to specifically address my problem.
 
-IIRC we already have some OOB-data channels - ioctl, setsockopt, fcntl ...
-to name only a few.
+So can the experienced please throw some light on the issues involved
+in having a read-only page of kernel memory mapped into user process.
+Any help/suggestions will be much appreciated. Please CC your comments
+to "trsk@wipro.tcpn.com"
 
-But: we already have a side-band: send with MSG_OOB!
-And, as I just saw in the sources, there are some flags free.
+Thanks and Regards,
+  Shashi
 
-So how about defining more than 1 OOB-channel and using them instead of
-ioctl and so on?
-
-There could be some bits reserved for the channel - 0 for normal, 1 for
-alternate date (MSG_OOB), and eg. -1 for SOL_RAW, -2 for SOL_TCP, -3 for
-SOL_IP, ... and so on.
-For files there would be 1 layer giving locking functionality.
-
-So, a syscall is already there - we could use this.
-
-For compatibility this change could be undone in libc.
-
-
-Please don't flame if I didn't see something obvious - everything else is
-welcome.
-
-
-
-Regards,
-
-Phil

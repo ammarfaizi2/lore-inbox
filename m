@@ -1,41 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSHGVPR>; Wed, 7 Aug 2002 17:15:17 -0400
+	id <S313305AbSHGVRo>; Wed, 7 Aug 2002 17:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312558AbSHGVPR>; Wed, 7 Aug 2002 17:15:17 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:21936 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S293203AbSHGVPR>;
-	Wed, 7 Aug 2002 17:15:17 -0400
-Date: Wed, 7 Aug 2002 23:18:56 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Kurt Garloff <kurt@garloff.de>, Christoph Hellwig <hch@lst.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] conditionally re-enable per-disk stats, convert to seq_file
-Message-ID: <20020807211856.GB322@win.tue.nl>
-References: <20020806160848.A2413@lst.de> <20020807210225.GD31622@nbkurt.etpnet.phys.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020807210225.GD31622@nbkurt.etpnet.phys.tue.nl>
-User-Agent: Mutt/1.3.25i
+	id <S313628AbSHGVRo>; Wed, 7 Aug 2002 17:17:44 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:25871 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S313305AbSHGVRn>; Wed, 7 Aug 2002 17:17:43 -0400
+Date: Wed, 7 Aug 2002 18:21:07 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Jesse Barnes <jbarnes@sgi.com>
+cc: linux-kernel@vger.kernel.org, <jmacd@namesys.com>, <phillips@arcor.de>,
+       <rml@tech9.net>
+Subject: Re: [PATCH] lock assertion macros for 2.5.30
+In-Reply-To: <20020807210855.GA27182@sgi.com>
+Message-ID: <Pine.LNX.4.44L.0208071814250.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 Aug 2002, Jesse Barnes wrote:
 
-> On Tue, Aug 06, 2002 at 04:08:48PM +0200, Christoph Hellwig wrote:
-> > This patch against 2.4.20-pre1 converts /proc/partitions to the seq_file
-> > interface as in 2.5, makes it report the sard-style extended disk
-> > statistics condititional on CONFIG_BLK_STATS and disables the gathering
-> > of those totally otherwise to not waste memory and processing power.
+> > > +#define MUST_HOLD(lock)			BUG_ON(!spin_is_locked(lock))
+> > > +#define MUST_NOT_HOLD(lock)		BUG_ON(spin_is_locked(lock))
+> >
+> > Please tell me the MUST_NOT_HOLD thing is a joke.
+>
+> Nothing at all, but isn't that how the scsi ASSERT_LOCK(&lock, 0)
+> macro worked before?  I could just remove all those checks in the scsi
+> code I guess.
 
-But why in /proc/partitions ?
-Maybe /proc/partitions can go away eventually with all info available
-under driverfs or so. But for the time being, /proc/partitions is used,
-and some changes are planned to make identification of the devices
-involved easier.
-It is really ugly to stuff a lot of garbage into a file just because
-it happens to exist already. If you want disk statistics, why not
-put it in /proc/diskstatistics?
+That would be a better option.
 
-Andries
+> --- linux-2.5.30/drivers/scsi/scsi_lib.c        Thu Aug  1 14:16:26 2002
+> +++ linux-2.5.30-lockassert/drivers/scsi/scsi_lib.c     Wed Aug  7 11:34:39 2002
+> @@ -202,7 +202,7 @@
+>        Scsi_Device *SDpnt;
+>        struct Scsi_Host *SHpnt;
+>
+> -      ASSERT_LOCK(q->queue_lock, 0);
+> +      MUST_NOT_HOLD(q->queue_lock);
+>
+>        spin_lock_irqsave(q->queue_lock, flags);
+>        if (SCpnt != NULL) {
+
+> After I posted the last patch, a few people asked for MUST_NOT_HOLD so
+> I added it back in.  Do you think it's a bad idea?
+
+Just look at the above code (also from your patch).
+
+The fact that we take the spin_lock_irqsave() at that point
+means we want to protect ourselves from another CPU here.
+
+The MUST_NOT_HOLD basically means the kernel will OOPS the
+moment the lock is contended.
+
+In effect, this debugging code makes lock contention fatal!
+
+
+If you want to detect lock recursion on the same CPU, I'd
+suggest the following:
+
+1) add a 'cpu' member to spinlock_t
+
+2) whenever we take a spinlock, assign the current CPU
+   id to the spinlock->cpu
+
+3) in the spinlock slow path (ie. when the spinlock is
+   contended and we have to spin) check if the CPU holding
+   the spinlock is the current CPU ... if it is, BUG()
+
+4) on spin_unlock, check that the CPU unlocking the spinlock
+   is the same one that's holding the spinlock
+
+This will have the advantages that it'll actually work and
+it will also debug spinlock recursion for ANY spinlock in
+the system, without the need to insert special debugging
+macros into the code...
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTKBUhN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 15:37:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTKBUhN
+	id S261799AbTKBUeO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 15:34:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTKBUeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 15:37:13 -0500
-Received: from madrid10.amenworld.com ([62.193.203.32]:39692 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S261825AbTKBUhK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 15:37:10 -0500
-Date: Sun, 2 Nov 2003 21:37:01 +0100
-From: DervishD <raul@pleyades.net>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/input/mice doesn't work in test9?
-Message-ID: <20031102203700.GA54@DervishD>
-References: <E1AFUFz-0008jt-00.arvidjaar-mail-ru@f20.mail.ru> <200311021312.15902.arvidjaar@mail.ru> <20031102120820.GC206@DervishD> <200311022045.41928.arvidjaar@mail.ru>
+	Sun, 2 Nov 2003 15:34:14 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:37125 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S261799AbTKBUeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 15:34:04 -0500
+Date: Mon, 3 Nov 2003 07:33:50 +1100
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0test9 Reiserfs boot time "buffer layer error at fs/buffer.c:431"
+Message-ID: <20031102203350.GA9402@gondor.apana.org.au>
+References: <20031029141931.6c4ebdb5.akpm@osdl.org> <E1AGCUJ-00016g-00@gondolin.me.apana.org.au> <20031101233354.1f566c80.akpm@osdl.org> <20031102092723.GA4964@gondor.apana.org.au> <3FA4EF79.5060708@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200311022045.41928.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+In-Reply-To: <3FA4EF79.5060708@namesys.com>
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Andrey :)
+On Sun, Nov 02, 2003 at 02:50:17PM +0300, Hans Reiser wrote:
+>
+> Why are you guys modifying the official kernel?  Are you seeking 
+> advantage over the other distros or?  This was one of the nice things 
+> about debian, that it didn't have unofficial destabilizing stuff in the 
+> kernel like the other distros.
 
- * Andrey Borzenkov <arvidjaar@mail.ru> dixit:
-> >     But not char-major-13-32, for example.
-> for kernel device == major. It is assumed that complete major is
-> handled by single driver.
+I don't know where you got the idea that Debian used to distribute the
+kernel as it is.  Just like every other distribution, we have always
+needed (mostly small) changes to the vanilla kernel.
 
-    OK, now all makes sense :)
-
-> But again, mousedev is using range of minors and 
-> there is currently no established way to construct aliases for that. Short of 
-> defining
-> 
-> alias char-major-13-32 mousedev
-> alias char-major-13-33 mousedev
-> ...
-> alias char-major-13-63 mousedev
-> 
-> looks rather weird.
-
-    But, is it possible? Just guessing...
- 
-> >     Yes, I'm going to build in hid, but, should I do the same with
-> > mousedev (or event, joystick, etc...) or will it work with hid loaded
-> > when doing 'cat /dev/mouse'?
-> yes you should build it in. Or ensure it is loaded together with hid. 
-
-    It's easier if I just build it in. No need to mess with
-modules.conf for this one. The memory gain for having hid and
-mousedev as modules is minimal.
-
-    Thanks for all the explanations :)
-
-    Raúl Núñez de Arenas Coronado
-
+We do send those changes suitable for general consumption to the
+upstream maintainers.  Whether they are accepted is an entirely
+different question.
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

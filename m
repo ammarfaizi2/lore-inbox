@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266906AbRGYKlT>; Wed, 25 Jul 2001 06:41:19 -0400
+	id <S266888AbRGYK4y>; Wed, 25 Jul 2001 06:56:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266888AbRGYKk7>; Wed, 25 Jul 2001 06:40:59 -0400
-Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:23278 "HELO
-	duron.intern.kubla.de") by vger.kernel.org with SMTP
-	id <S266884AbRGYKkr>; Wed, 25 Jul 2001 06:40:47 -0400
-Date: Wed, 25 Jul 2001 12:40:48 +0200
-From: Dominik Kubla <kubla@sciobyte.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul Jakma <paul@clubi.ie>, Dominik Kubla <kubla@sciobyte.de>,
+	id <S266900AbRGYK4e>; Wed, 25 Jul 2001 06:56:34 -0400
+Received: from m7.limsi.fr ([192.44.78.7]:11527 "EHLO m7.limsi.fr")
+	by vger.kernel.org with ESMTP id <S266888AbRGYK4Y>;
+	Wed, 25 Jul 2001 06:56:24 -0400
+Message-ID: <3B5EA77F.5060200@limsi.fr>
+Date: Wed, 25 Jul 2001 13:03:27 +0200
+From: Damien TOURAINE <damien.touraine@limsi.fr>
+Organization: LIMSI-CNRS
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: landley@webofficenow.com
+CC: "Richard B. Johnson" <root@chaos.analogic.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: Arp problem
-Message-ID: <20010725124048.A9264@intern.kubla.de>
-In-Reply-To: <E15PBLE-00012l-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15PBLE-00012l-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: yes
-Restrict: no-external-archive
+Subject: Re: Call to the scheduler...
+In-Reply-To: <Pine.LNX.3.95.1010724134717.32263A-100000@chaos.analogic.com> <01072415121901.00631@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, Jul 25, 2001 at 12:11:52AM +0100, Alan Cox wrote:
-> > however, in the interests of flexibility and kindness to admins who
-> > have to deal with legacy setups, is or would it be possible to make
-> > linux be able to fully route packets between interfaces bound to the
-> > same device?
-> 
-> Turn on ip forwarding, turn off ip redirect sending. It can all be done
-> via /proc.
+Rob Landley wrote:
 
-But that turns off all ip redirect sending, which may pose different
-problems.  Kind of sledgehammer approach wouldn't you agree?  If somebody
-were to produce a patch that allowed full routing between aliased interfaces
-without turning off ip redirect sending, would you accept this?
+>On Tuesday 24 July 2001 13:54, Richard B. Johnson wrote:
+>
+>>Try sched_yield(). Accounting may still be messed up so the process
+>>may be 'charged' for CPU time that it gave up. Also, usleep(n) works
+>>very well with accounting working.
+>>
+>>This works, does not seem to load the system, but `top` shows
+>>99+ CPU time usage:
+>>
+>>main()
+>>{
+>>    for(;;) sched_yield();
+>>
+>>}
+>>
+>This may not be an accounting problem.  If the system has nothing else to do, 
+>it'll just re-schedule your yielding thread.
+>
+>How much of that 99% cpu usage is user and how much of it is system?  
+>Basically what the above does is beat the scheduler to death...
+>
+In my case, as the process/thread that call the "sched_yield();" 
+function "actively" waits for another process/thread finish its job, the 
+process won't be the only one in the queue of activ job ...
+Then, it won't use 99% of the time ...
 
-Dominik
--- 
-ScioByte GmbH, Zum Schiersteiner Grund 2, 55127 Mainz (Germany)
-Phone: +49 6131 550 117  Fax: +49 6131 610 99 16
+>>This works and `top` shows nothing being used:
+>>
+>>main()
+>>{
+>>
+>>    for(;;) usleep(1);
+>>
+>>}
+>>
+>And here you DO block for a bit without getting called back immediately.
+>
+However, I would like to know the scheduler frequency to switch between 
+tasks.
+If it's above 1 us, the usleep don't match my requirements ...
 
-GnuPG: 717F16BB / A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB
+However, thanks for your quick and pertinent answer !
+
+Friendly
+    Damien TOURAINE
+
+

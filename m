@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266509AbUHIMXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUHIMWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266509AbUHIMXn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 08:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266522AbUHIMXU
+	id S266519AbUHIMWb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 08:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUHIMHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 08:23:20 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:42126 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266509AbUHIMWe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 08:22:34 -0400
-Date: Mon, 9 Aug 2004 08:22:28 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: ix86 Atomic ops during DMA...
-Message-ID: <Pine.LNX.4.53.0408090809520.7612@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Aug 2004 08:07:52 -0400
+Received: from mx2.magma.ca ([206.191.0.250]:19683 "EHLO mx2.magma.ca")
+	by vger.kernel.org with ESMTP id S266514AbUHIMHi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 08:07:38 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Jesse Stockall <stockall@magma.ca>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: axboe@suse.de, James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de>
+References: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de>
+Content-Type: text/plain
+Message-Id: <1092053162.8168.9.camel@homer.blizzard.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 09 Aug 2004 08:06:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-08-09 at 06:13, Joerg Schilling wrote:
+> 
+> You should learn what "make sense" means, Linux-2.6 is a clear move away from 
+> the demands of a Linux user who likes to write CDs/DVDs.
 
-Hello,
+Hmmm, as a Linux user who had been fighting with scsi emulation and
+cdecord --scanbus for years, being able to use dev=/dev/hda is so much
+easier and so much more in tune with the way the rest of Linux works. 
 
-A piece of hardware needs its interrupt status written back
-to its status register to "clear" interrupts and thus enable
-more.. This is in an uninterruptible ISR. This, of course
-can be readily accomplished by using the standard readl() and
-writel() macros.........but! If a DMA is in progress, a hardware
-debugger shows many milliseconds between the read and the write.
+If you don't believe me, spend some time on irc channels like #gentoo or
+#debian where people like me (and many others) give support to Linux and
+cdrecord users from all over the world.
 
-This allows a race condition to exist. So, how do I lock the bus
-during the read and write?  A lock on ix86 locks only the
-next instruction, not the next plus time for another lock
-which appears to be needed.
+Jesse 
 
-	I need...
-
-	movl (%ebx), %eax	# Read status from register in ebx
-	movl %eax, (%ebx)	# Write it back
-
-..to occur together without the bus being taken away by a DMA
- operation until these two instructions are complete.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+-- 
+Jesse Stockall <stockall@magma.ca>
 

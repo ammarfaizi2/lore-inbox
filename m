@@ -1,59 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272593AbTHEIVG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 04:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272596AbTHEIVG
+	id S272591AbTHEI2O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 04:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272592AbTHEI2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 04:21:06 -0400
-Received: from f25.mail.ru ([194.67.57.151]:55313 "EHLO f25.mail.ru")
-	by vger.kernel.org with ESMTP id S272593AbTHEIVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 04:21:03 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: linux-hotplug-devel@lists.sourceforge.net
+	Tue, 5 Aug 2003 04:28:14 -0400
+Received: from angband.namesys.com ([212.16.7.85]:41119 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S272591AbTHEI2I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 04:28:08 -0400
+Date: Tue, 5 Aug 2003 12:28:07 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
 Cc: linux-kernel@vger.kernel.org
-Subject: Fw: [Cooker] usb audio detection problem
+Subject: Re: 2.6.0-test2: resiserfs BUG on Alt-SysRq-U
+Message-ID: <20030805082807.GB14521@namesys.com>
+References: <200308042056.15413.arvidjaar@mail.ru>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Tue, 05 Aug 2003 12:21:02 +0400
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19jx42-000Eex-00.arvidjaar-mail-ru@f25.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308042056.15413.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
+On Mon, Aug 04, 2003 at 08:56:15PM +0400, Andrey Borzenkov wrote:
 
-> 
-> 
-> > After a week of fighting with my new M-Audio USB Quattro device I have solved 
-> > a problem with our hardwared detection.
-> > I used the standard alsa configuration lines in /etc/modules.conf, i.e.
-> > alias sound-slot-0 snd-usb-audio
-> > above snd-usb-audio snd-pcm-oss
-> > but when restarting alsa, the OSS driver was loading first (module name 
-> > 'audio'), and then the alsa driver was unable to access the PCM stream.  By 
-> > adding 'audio' to /etc/hotplug/blacklist, everything worked fine.
-> > Is there some way to fix this permanently?
-> > Is everyone else with usb-based audio currently forced to use OSS when 
-> > Mandrake's default should be alsa?
-> 
-> both audio and snd-usb-audio modules have exactly the same matching
-> criteria (in your case) and "audio" appears first in /lib/modules/`uname -r`/modules.usbmap so it wins.
-> 
-> I guess so far the ony "official" way is to blacklist it.
+> this has been around since 2.5.75 at least and may be before it as well.
+> kernel BUG at fs/reiserfs/journal.c:409!
 
-If having two modules with the same matching ids is expected,
-what is normal way to prefer one of them? The problem currently
-is system-wide usbmap is consulted first so there is actually
-no way to override it.
+Hm, indeed.
+So they are calling ->remount() without lock_kernel these days.
+The patch below should help, please verify.
 
-This is under 2.4.21.
+Thank you.
 
-TIA
-
--andrey
+Bye,
+    Oleg
+===== fs/reiserfs/super.c 1.66 vs edited =====
+--- 1.66/fs/reiserfs/super.c	Sat Jun 21 00:16:06 2003
++++ edited/fs/reiserfs/super.c	Tue Aug  5 12:22:10 2003
+@@ -761,6 +761,7 @@
+   if (!reiserfs_parse_options(s, arg, &mount_options, &blocks, NULL))
+     return -EINVAL;
+   
++  reiserfs_write_lock(s);
+   handle_attrs(s);
+ 
+   /* Add options that are safe here */
+@@ -778,17 +779,22 @@
+ 
+   if(blocks) {
+     int rc = reiserfs_resize(s, blocks);
+-    if (rc != 0)
++    if (rc != 0) {
++      reiserfs_write_unlock(s);
+       return rc;
++    }
+   }
+ 
+   if (*mount_flags & MS_RDONLY) {
+     /* remount read-only */
+-    if (s->s_flags & MS_RDONLY)
++    if (s->s_flags & MS_RDONLY) {
+       /* it is read-only already */
++      reiserfs_write_unlock(s);
+       return 0;
++    }
+     /* try to remount file system with read-only permissions */
+     if (sb_umount_state(rs) == REISERFS_VALID_FS || REISERFS_SB(s)->s_mount_state != REISERFS_VALID_FS) {
++      reiserfs_write_unlock(s);
+       return 0;
+     }
+ 
+@@ -800,8 +806,10 @@
+     s->s_dirt = 0;
+   } else {
+     /* remount read-write */
+-    if (!(s->s_flags & MS_RDONLY))
++    if (!(s->s_flags & MS_RDONLY)) {
++        reiserfs_write_unlock(s);
+ 	return 0; /* We are read-write already */
++    }
+ 
+     REISERFS_SB(s)->s_mount_state = sb_umount_state(rs) ;
+     s->s_flags &= ~MS_RDONLY ; /* now it is safe to call journal_begin */
+@@ -824,6 +832,7 @@
+   if (!( *mount_flags & MS_RDONLY ) )
+     finish_unfinished( s );
+ 
++  reiserfs_write_unlock(s);
+   return 0;
+ }
+ 

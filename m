@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135607AbRDXNes>; Tue, 24 Apr 2001 09:34:48 -0400
+	id <S135609AbRDXNgT>; Tue, 24 Apr 2001 09:36:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135609AbRDXNei>; Tue, 24 Apr 2001 09:34:38 -0400
-Received: from viper.haque.net ([66.88.179.82]:64690 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S135607AbRDXNea>;
-	Tue, 24 Apr 2001 09:34:30 -0400
-Date: Tue, 24 Apr 2001 09:34:17 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: <ttel5535@artax.karlin.mff.cuni.cz>
-cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
-In-Reply-To: <Pine.LNX.4.21.0104241508370.11387-100000@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.32.0104240932560.29616-100000@viper.haque.net>
+	id <S135614AbRDXNgD>; Tue, 24 Apr 2001 09:36:03 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:9463 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S135609AbRDXNfq>; Tue, 24 Apr 2001 09:35:46 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: David Woodhouse <dwmw2@infradead.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        "David L. Parsley" <parsley@linuxjedi.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <Pine.GSO.4.21.0104240639580.6992-100000@weyl.math.psu.edu>
+Organisation: SAP LinuxLab
+Date: 24 Apr 2001 15:34:08 +0200
+In-Reply-To: <Pine.GSO.4.21.0104240639580.6992-100000@weyl.math.psu.edu>
+Message-ID: <m3n196v2un.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Apr 2001, Tomas Telensky wrote:
+Hi Al,
 
-> :-) Great.
-> You and Alex are right - I agree that this is a complete moronism.
->
-> But, what I should say to the network security, is that AFAIK in the most
-> of linux distributions the standard daemons (httpd, sendmail) are run as
-> root! Having multi-user system or not! Why? For only listening to a port
-> <1024? Is there any elegant solution?
+On Tue, 24 Apr 2001, Alexander Viro wrote:
+> So yes, IMO having such patches available _is_ a good thing. And in
+> 2.5 we definitely want them in the tree. If encapsulation part gets
+> there during 2.4 and separate allocation is available for all of
+> them it will be easier to do without PITA in process.
 
-If your distro is runnign httpd as root you may want to give them a nice
-swift kick in the behind. By default apache is configured to run as
-nobody.
+OK I will do that for tmpfs soon. And I will do the symlink inlining
+with that patch.
 
-Dunno about sendmail.
+Greetings
+		Christoph
 
-Correct. <1024 requires root to bind to the port.
-
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 

@@ -1,54 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270467AbUJTTjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270390AbUJTTZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270467AbUJTTjo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 15:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270451AbUJTTco
+	id S270390AbUJTTZW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 15:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269250AbUJTTT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:32:44 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:52642
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S269186AbUJTT3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:29:33 -0400
-Subject: [PATCH] sunrpc: replace sleep_on_timeout()
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1098300093.20821.58.camel@thomas>
+	Wed, 20 Oct 2004 15:19:59 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:996 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S270123AbUJTTS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:18:29 -0400
+Date: Wed, 20 Oct 2004 12:18:18 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Martin Zwickel <martin.zwickel@technotrend.de>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH (updated)] Avoid annoying build warning on 32-bit platforms
+Message-ID: <20041020191818.GB11755@taniwha.stupidest.org>
+References: <200410200956.i9K9ujOu026178@harpo.it.uu.se> <20041020102343.GA6901@taniwha.stupidest.org> <20041020125353.6af0aad6@phoebee>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 20 Oct 2004 21:21:33 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041020125353.6af0aad6@phoebee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 20, 2004 at 12:53:53PM +0200, Martin Zwickel wrote:
 
-Use wait_event_timeout() instead of the obsolete sleep_on_timeout()
+> > +	if (time)
+> > +		num ^= (u32)((time >> 32) >> 1);
+>                                       ^^ errr ... should be 31 ?!?!
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Ingo Molnar <mingo@elte.hu>
----
-
- 2.6.9-bk-041020-thomas/net/sunrpc/clnt.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN net/sunrpc/clnt.c~sunrpc net/sunrpc/clnt.c
---- 2.6.9-bk-041020/net/sunrpc/clnt.c~sunrpc	2004-10-20
-15:56:37.000000000 +0200
-+++ 2.6.9-bk-041020-thomas/net/sunrpc/clnt.c	2004-10-20
-15:56:37.000000000 +0200
-@@ -231,7 +231,8 @@ rpc_shutdown_client(struct rpc_clnt *cln
- 		clnt->cl_oneshot = 0;
- 		clnt->cl_dead = 0;
- 		rpc_killall_tasks(clnt);
--		sleep_on_timeout(&destroy_wait, 1*HZ);
-+		wait_event_timeout(destroy_wait,
-+			atomic_read(&clnt->cl_users) > 0, 1*HZ);
- 	}
- 
- 	if (atomic_read(&clnt->cl_users) < 0) {
-_
-
-
+yeah, i'm retarded, sorry about that :)

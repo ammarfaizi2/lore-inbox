@@ -1,112 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbUCDVSb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 16:18:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUCDVSb
+	id S261926AbUCDV2J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 16:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUCDV2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 16:18:31 -0500
-Received: from mail.inter-page.com ([12.5.23.93]:23057 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S261816AbUCDVS2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 16:18:28 -0500
-From: "Robert White" <rwhite@casabyte.com>
-To: "'Peter Williams'" <peterw@aurema.com>,
-       "'Timothy Miller'" <miller@techsource.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [RFC][PATCH] O(1) Entitlement Based Scheduler
-Date: Thu, 4 Mar 2004 13:18:09 -0800
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAA0luffW31DkqMtZfFQTaQsgEAAAAA@casabyte.com>
+	Thu, 4 Mar 2004 16:28:09 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:30934 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261926AbUCDV2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 16:28:05 -0500
+Message-ID: <40479F3C.1010703@nortelnetworks.com>
+Date: Thu, 04 Mar 2004 16:27:24 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <403D576A.6030900@aurema.com>
+To: Mariusz Mazur <mmazur@kernel.pl>
+Cc: linux-kernel@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
+References: <200402291942.45392.mmazur@kernel.pl> <200403031829.41394.mmazur@kernel.pl> <m3brnc8zun.fsf@defiant.pm.waw.pl> <200403042149.36604.mmazur@kernel.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At a previous employer (so code not available) I used a simple expedient to
-solve this very problem.  I had a custom program "shim.c" that tweaked
-priorities and environment variables.  Basically a fistful of lines that
-would take argv[0], look for the file named ".shim_"+basename(argv[0]) {in a
-well-defined location} to load some simple environment and path and priority
-overrides, apply these changes and then setuid itself back to the real user
-and exec() the real program with the received args.
+Mariusz Mazur wrote:
+> Parts of abi that are standardized 
+> (http://www.opengroup.org/onlinepubs/007904975/ - this thing; check the 
+> headers section), should be imho provided by C libs. These things do not 
+> change (they can't or everything would blow up) and I see no reason why glibc 
+> should rely on having additional headers available, just to do what it's 
+> supposed to.
 
-It had some few degenerate cases (shmming out from under a setuid program
-was the primary one) but it worked out rather well and had little-to-no
-meaningful overhead.
+And how do you propose to handle a kernel developer that wants to add a 
+new feature (a scheduling class, for instance) and make it available to 
+userspace apps?
 
-You set up a /usr/local/bin (or equivalent) directory, link shim into that
-directory named as the various programs that need to be boosted (e.g. xmms
-etc) and put that directory earlier on the path than the real executable.
-{If this directory only contains shims, it is useful to code shim.c to
-remove that directory from the PATH.)
+For the sched class example, the standard says, "Four scheduling 
+policies are defined; others may be defined by the implementation."  I 
+would like to make it easy for kernel developers to extend the 
+implementation and expose that to userspace.
 
-This technique lets the administrator have fine-grained control of a
-reasonable list of priority promotions and permissions overrides without
-having to move anything into kernel space or running status daemons.
+It would be nice to have apps be able to include <linux/sched.h> and get 
+the *real* kernel sched.h userspace export.  Then when I add 
+SCHED_NEW_CLASS to the kernel, userspace can pick up the changes without 
+me having to modify glibc headers as well.
 
-====
+> As to linux-common linux-kernelonly and linux-userland headers (linux-common 
+> used by both) - I just find it weird for userland to require kernel sources. 
+> Linux is supposed to have stable abi.
 
-I would think that while fork() should keep the heuristics of its parent,
-exec() would probably need to do some normalizing.
+I would prefer to have the standard userspace kernel headers be owned by 
+the kernel.  If we do it right, we could go back to the days of the 
+symlink to the headers of the real running kernel.  As far as I can 
+tell, that's the only way to avoid having to make changes in multiple 
+places.
 
-====
-
-Has this scheduler been tried for applications like CD burning?
-
-Rob.
+Chris
 
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Peter Williams
-Sent: Wednesday, February 25, 2004 6:18 PM
-To: Timothy Miller
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
 
-Timothy Miller wrote:
- > <snip>
-> In fact, that may be the only "flaw" in your design.  It sounds like 
-> your scheduler does an excellent job at fairness with very low overhead. 
->  The only problem with it is that it doesn't determine priority 
-> dynamically.
 
-This (i.e. automatic renicing of specified programs) is a good idea but 
-is not really a function that should be undertaken by the scheduler 
-itself.  Two possible solutions spring to mind:
 
-1. modify the do_execve() in fs/exec.c to renice tasks when they execute 
-specified binaries
-2. have a user space daemon poll running tasks periodically and renice 
-them if they are running specified binaries
 
-Both of these solutions have their advantages and disadvantages, are 
-(obviously) complicated than I've made them sound and would require a 
-great deal of care to be taken during their implementation.  However, I 
-think that they are both doable.  My personal preference would be for 
-the in kernel solution on the grounds of efficiency.
-
-Peter
 -- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264439AbTDOLYW (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 07:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264440AbTDOLYW 
+	id S261206AbTDOLhO (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 07:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbTDOLhO 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 07:24:22 -0400
-Received: from cuculus.hub.gts.cz ([195.39.57.22]:30218 "EHLO
-	cuculus.switch.gts.cz") by vger.kernel.org with ESMTP
-	id S264439AbTDOLYV (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 07:24:21 -0400
-Date: Tue, 15 Apr 2003 13:36:09 +0200
-From: Petr Cisar <pc@cuculus.switch.gts.cz>
+	Tue, 15 Apr 2003 07:37:14 -0400
+Received: from dnvrdslgw14poolC198.dnvr.uswest.net ([63.228.86.198]:14425 "EHLO
+	q.dyndns.org") by vger.kernel.org with ESMTP id S261206AbTDOLhN 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 07:37:13 -0400
+Date: Tue, 15 Apr 2003 05:49:19 -0600 (MDT)
+From: Benson Chow <blc+lkml@q.dyndns.org>
 To: linux-kernel@vger.kernel.org
-Subject: Kernels since 2.5.60 upto 2.5.67 freeze when X server terminates
-Message-ID: <20030415133608.A1447@cuculus.switch.gts.cz>
-Reply-To: Petr Cisar <petr.cisar@gtsgroup.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: ac97, alc101+kt8235 sound
+Message-ID: <Pine.LNX.4.44.0304150537330.28926-100000@q.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+I guess this ac97 stuff is pretty confusing.
 
-Since 2.5.60, I have been experiencing problems with a complete system freeze or random oopses when the X-server terminates. It is happening on both machines I am using whose hardware configuration differs slightly, however both of them are equipped with ATI video cards (ATI Rage 128 and ATI Radeon 8500), and both of them run the same version of X-server. That's about all they have in common.
+Anyway, my motherboard has a kt8235 southbridge and an ALC101 AC97
+decoder.  I read in some posting to hack the ALC101 into the
+drivers/sound/ac97_codec.c with something like this:
 
-The version of X-server I am using is:
-XFree86 Version 4.3.0
-Release Date: 27 February 2003
+        {0x414C4730, "ALC101",             &null_ops},
 
-Since the crash either results in an oops obviously not having to do with the core problem, or the system freezes dead (no ping, no reaction to SysRq key), I don't know how to get some debug information to describe the fault more precisely.
+and then use the via82cxxx_audio driver.  It didn't do anything.  So, I
+tried hacking the PCI device number in via82cxxx_audio.c by changing
 
-Has anyone notyiced similar problems and is there some documentation how to trace such deadly bugs ?
+static struct pci_device_id via_pci_tbl[] __initdata = {
+        { PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5,
+          PCI_ANY_ID, PCI_ANY_ID, },
+        { 0, }
+};
 
-Petr
+to
+
+static struct pci_device_id via_pci_tbl[] __initdata = {
+        { PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8233_5,
+          PCI_ANY_ID, PCI_ANY_ID, },
+        { 0, }
+};
+
+hoping that these via chips were pretty close.  Unfortunately no, it
+still doesn't work.  It did, however, find the AC97 codec fine (I added
+some printk's), but no sound is produced.  Any ideas on how to get this
+vt8235-based motherboard sound working?  (and ALSA-0.9.2 seems to do
+nothing but segfault it seems.)
+
+Running the 2.4.20 kernel on an ecs p4vxasd2+ board (yeah, I know...)
+
+Thanks,
+
+-bc
+
+WARNING: All HTML emails get deleted.  DO NOT SEND HTML MAIL.
+

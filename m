@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268774AbTBZVnG>; Wed, 26 Feb 2003 16:43:06 -0500
+	id <S269133AbTBZVlR>; Wed, 26 Feb 2003 16:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268944AbTBZVnF>; Wed, 26 Feb 2003 16:43:05 -0500
-Received: from adsl-63-195-13-67.dsl.chic01.pacbell.net ([63.195.13.67]:40199
-	"EHLO mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id <S268774AbTBZVnD>; Wed, 26 Feb 2003 16:43:03 -0500
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: linux-kernel@vger.kernel.org
-Date: Wed, 26 Feb 2003 13:53:09 -0800
+	id <S269182AbTBZVlR>; Wed, 26 Feb 2003 16:41:17 -0500
+Received: from gaea.projecticarus.com ([195.10.228.71]:63371 "EHLO
+	gaea.projecticarus.com") by vger.kernel.org with ESMTP
+	id <S269133AbTBZVlP>; Wed, 26 Feb 2003 16:41:15 -0500
+Message-ID: <3E5D36D4.7030306@walrond.org>
+Date: Wed, 26 Feb 2003 21:51:16 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Is the GIO_FONT ioctl() busted in Linux kernel 2.4?
-Message-ID: <3E5CC6C5.9038.6B899658@localhost>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+To: Andrew Theurer <habanero@us.ibm.com>
+CC: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/cpuinfo shows only 2 processors on dual P4-Xeon system
+References: <F760B14C9561B941B89469F59BA3A8471380CF@orsmsx401.jf.intel.com> <3E5D096F.9020308@walrond.org> <200302261244.46635.habanero@us.ibm.com>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have some old code that used to work great on older Linux 2.2 kernels 
-that is now giving me a perror() error message of 'no space left on 
-device' (ie: ENOSPC) when I call ioctl(GIO_FONT) to save the current 
-console font.
+Andrew Theurer wrote:
+> Does your system BIOS have an option to enable/disable HT support?  If it 
+> does, make sure it is enabled.
+> 
+> I would have expected to see 4 ioapics, but hmm, I don't really know.
+> 
 
->From looking at the 2.4 kernel source code that comes with Red Hat 8.0, 
-it is clear that these functions are implemented on top of a new console 
-font interface that supports 512 characters and up to 32x32 pixel fonts 
-(obviously for fb consoles). From my quick look at the code, the ENOSPC 
-error must be coming because when the new code attempts to save the 
-console font it must have more than 256 characters or bigger than 8x32 
-pixels for the font glyphs (which is what the old font interface 
-supported).
+All the obvious stuff like bios is correct :)
+The 2.4 kernel works fine; 4 cpus detected and displayed in /proc/cpuinfo.
+2.5 has never worked properly yet with this m/b; A shame since it's asus 
+  top of the range dual xeon server board, the PR-DLS.
 
-I know I can switch to the new console interfaces (which I will do once I 
-determine how to do a runtime check for a 2.4 kernel so I can still use 
-the old code for 2.2 and earlier kernels), but it seems to me that this 
-bug should be fixed. Is anyone more familiar with the console code able 
-to provide some feedback on this?
+The 3 io-apics are indeed strange. I'm hoping Andrew Grover might have 
+some ideas...?
 
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
+Andrew Walrond
 

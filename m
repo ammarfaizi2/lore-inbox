@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317341AbSIEItR>; Thu, 5 Sep 2002 04:49:17 -0400
+	id <S317347AbSIEJBW>; Thu, 5 Sep 2002 05:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317347AbSIEItQ>; Thu, 5 Sep 2002 04:49:16 -0400
-Received: from holomorphy.com ([66.224.33.161]:1194 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317341AbSIEItQ>;
-	Thu, 5 Sep 2002 04:49:16 -0400
-Date: Thu, 5 Sep 2002 01:45:02 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] __write_lock_failed() oops
-Message-ID: <20020905084502.GD888@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-References: <20020905080310.GF18800@holomorphy.com> <3D77190C.F4562547@zip.com.au> <20020905083240.GC888@holomorphy.com>
-Mime-Version: 1.0
+	id <S317349AbSIEJBW>; Thu, 5 Sep 2002 05:01:22 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45062
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317347AbSIEJBV>; Thu, 5 Sep 2002 05:01:21 -0400
+Date: Thu, 5 Sep 2002 02:05:17 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "T. Ryan Halwachs" <halwachs@cats.ucsc.edu>,
+       kernel mailing list <linux-kernel@vger.kernel.org>,
+       ataraid mailing list <ataraid-list@redhat.com>,
+       Jeff Nguyen <jeff@aslab.com>
+Subject: Re: 3 ultra100 controllers
+In-Reply-To: <1031182589.2796.141.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10209050201310.8071-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020905083240.GC888@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 05, 2002 at 01:42:52AM -0700, Andrew Morton wrote:
->> That's all the assembly hacks in the rwlock code not having proper
->> stack frames.  You may have to ksymoops it.
->> At a guess: use-after-free bug against an address_space.  You may
->> be able to catch it with slab poisoning.
 
-On Thu, Sep 05, 2002 at 01:32:40AM -0700, William Lee Irwin III wrote:
-> (gdb) p/x $eax
-> $25 = 0xc0331ca0
-> (gdb) p &tasklist_lock
-> $27 = (rwlock_t *) 0xc0331ca0
+Well Jeff will need to verify, but iirc many of those boxes he build and
+sold power "amazon.com".  I got a charge knowing that factoid, when
+everyone was slamming the reliablity and strenghts of ATA servers.
 
-The NMI oopser is going here as well (nmi_watchdog=2 for extra safety)
-so I suspect the tasklist_lock semantics are behaving badly. But it's
-not easily reproducible enough to test a quick attempt at a fix if it
-can't be recognized a priori.
+Also there were select systems that may have been VIA but they were hand
+picked boards.
 
-This is literally so difficult to reproduce it hasn't been seen in 2
-releases. kgdb is still going and dhowells is helping me fish stuff
-off the stack.
-
+Anyways, Jeff will need to comment on this part.  However I know he has
+shipped with 4 and maybe even 5 cards in a box that ran fine and stable.
 
 Cheers,
-Bill
+
+On 5 Sep 2002, Alan Cox wrote:
+
+> On Wed, 2002-09-04 at 20:48, Andre Hedrick wrote:
+> > 5 have been done!
+> > 
+> > Ask "Jeff Nguyen", all it means is that only two cards will be setup by
+> > their BIOS.  The remaining cards will be setup by the driver.
+> > IIRC, there was a special RIO version with 8 card or 32 drives.
+> 
+> I wouldnt like to see the performance of the resulting box or try it on
+> a VIA chipset or anything else I didn't trust 100% to handle contention
+> on the PCI bus
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

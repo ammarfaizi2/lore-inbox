@@ -1,105 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135625AbRDXN4j>; Tue, 24 Apr 2001 09:56:39 -0400
+	id <S135630AbRDXOBu>; Tue, 24 Apr 2001 10:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135616AbRDXNz2>; Tue, 24 Apr 2001 09:55:28 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:11526 "EHLO
-	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
-	id <S135628AbRDXNyt>; Tue, 24 Apr 2001 09:54:49 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A018D3127@dcmtechdom.dcmtech.co.in>
-From: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
-To: Hubertus Franke <frankeh@us.ibm.com>, alad@hss.hns.com
-Cc: ofer@shunra.co.il, linux-kernel@vger.kernel.org
-Subject: RE: Delay Function
-Date: Tue, 24 Apr 2001 19:28:35 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S135628AbRDXOBj>; Tue, 24 Apr 2001 10:01:39 -0400
+Received: from ford.balliol.ox.ac.uk ([163.1.209.24]:5248 "EHLO
+	ford.balliol.ox.ac.uk") by vger.kernel.org with ESMTP
+	id <S135626AbRDXOBU>; Tue, 24 Apr 2001 10:01:20 -0400
+Date: Tue, 24 Apr 2001 15:00:21 +0100
+From: Thomas Ford <thomas.ford@balliol.ox.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: PIO disk writes using 100% system time and performing poorly with VIA vt82c686b on kernels 2.2 & 2.4
+Message-ID: <20010424150020.A712@ford.balliol.ox.ac.uk>
+Reply-To: thomas.ford@balliol.ox.ac.uk
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is udelay(usecs) function which has told by Ofer Fryman one of the
-member of mailing list, not delay(usecs) and its working properly.
+Heavy disc writes (eg. unzipping linux kernel source) cause the system
+processor usage (as reported by top/xosview) to jump to 100%, making
+the X mouse/audio freeze etc.
 
-Thanx to u all for ur cooperation.
+Such problems occur with the drives connected to VIA vt82c686b south
+bridge: the same drives on a mvp3 show no such problems.
+
+The behaviour is the same on kernels 2.2.17 & 2.4.3 (both hand
+compiled & RedHat's 2.4.2-2 & 2.2.17-14 in case I was doing something
+wrong).
+
+The problem is easily demonstrated by hdparm -t. The CPU use jumps to
+system 100% as above and all my drives report ~1.9 MB/sec in PIO mode
+which is far lower than PIO on the mvp3 (~10MB/s).
+
+DMA mode appears to work fine but I am not using it due to publicised
+potential problems.
 
 Regards,
-Rajeev
 
------Original Message-----
-From: Hubertus Franke [mailto:frankeh@us.ibm.com]
-Sent: Tuesday, April 24, 2001 7:04 PM
-To: alad@hss.hns.com
-Cc: Rajeev Nigam
-Subject: Re: Delay Function
-
-
-
-you might want to use delay(usecs)..
-
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
-
-
-
-alad@hss.hns.com@vger.kernel.org on 04/24/2001 04:58:19 AM
-
-Sent by:  linux-kernel-owner@vger.kernel.org
-
-
-To:   Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
-cc:   linux-kernel@vger.kernel.org
-Subject:  Re: Delay Function
-
-
-
-
-
-It may be possible that this is not the good choice...
-but u can try ... schedule_timeout(timeout) function.... see kernel/sched.c
-for
-more details about this function
-
-Amol
-
-
-
-
-
-Rajeev Nigam <rajeev.nigam@dcmtech.co.in> on 04/24/2001 03:29:04 PM
-
-To:   linux-kernel@vger.kernel.org
-cc:    (bcc: Amol Lad/HSS)
-
-Subject:  Delay Function
-
-
-
-
-What function i have to use to put a delay in a driver at kernel mode
-between reading from and writing to com port.
-
-Looking forward for ur help.
-
-Thanx & Regards
-Rajeev Nigam
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Tom Ford

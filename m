@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130820AbRDWFGH>; Mon, 23 Apr 2001 01:06:07 -0400
+	id <S130532AbRDWE7h>; Mon, 23 Apr 2001 00:59:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130900AbRDWFF6>; Mon, 23 Apr 2001 01:05:58 -0400
-Received: from leng.mclure.org ([64.81.48.142]:18440 "EHLO
-	leng.internal.mclure.org") by vger.kernel.org with ESMTP
-	id <S130820AbRDWFFs>; Mon, 23 Apr 2001 01:05:48 -0400
-Date: Sun, 22 Apr 2001 22:05:45 -0700
-From: Manuel McLure <manuel@mclure.org>
-To: whitney@math.berkeley.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
-Message-ID: <20010422220545.A982@ulthar.internal.mclure.org>
-In-Reply-To: <20010422102234.A1093@ulthar.internal.mclure.org> <200104222138.XAA00666@kufel.dom> <200104222138.XAA00666@kufel.dom> <20010422192520.A3618@ulthar.internal.mclure.org> <200104230242.f3N2gns08877@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <20010422202158.E970@ulthar.internal.mclure.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010422202158.E970@ulthar.internal.mclure.org>; from manuel@mclure.org on Sun, Apr 22, 2001 at 20:21:58 -0700
-X-Mailer: Balsa 1.1.4
+	id <S130768AbRDWE70>; Mon, 23 Apr 2001 00:59:26 -0400
+Received: from snowbird.megapath.net ([216.200.176.7]:3850 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S130532AbRDWE7M>;
+	Mon, 23 Apr 2001 00:59:12 -0400
+Date: Sun, 22 Apr 2001 21:54:55 -0700 (PDT)
+From: Miles Lane <miles@megapathdsl.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: All architecture maintainers: pgd_alloc()
+In-Reply-To: <15075.45847.624767.960502@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.30.0104222144290.6639-100000@aerie.megapathdsl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 22 Apr 2001, David S. Miller wrote:
 
-On 2001.04.22 20:21 Manuel McLure wrote:
-> 
-> On 2001.04.22 19:42 Wayne Whitney wrote:
-> > In mailing-lists.linux-kernel, Manuel A. McLure wrote:
-> > 
-> > > Did you try nesting more than one "su -"? The first one after a boot
-> > > works for me - every other one fails.
-> > 
-> > Same here: the first "su -" works OK, but a second nested one hangs:
-> > 
-> >  8825 pts/2    S      0:00 /bin/su -
-> >  8826 pts/2    S      0:00 -bash
-> >  8854 pts/2    T      0:00 stty erase ?
-> >  8855 pts/0    R      0:00 ps ax
-> > 
-> > "kill -CONT 8854" has no effect.  
-> > 
-> > > I'm on RH71 - this may be specific to this release. It's also
-> > > kernel-dependent, I can reboot with ac5 and the problem does not
-> > > happen.  The kernel is compiled with the same compiler as yours.
-> > 
-> > I'm RH-7.1 and kernel 2.4.4-pre6 (with the via 3.23 driver from -ac)
-> 
-> It looks like this may very well be a RH 7.1 interaction with the kernel,
-> since others are not seeing this.
+>
+> Russell King writes:
+>  > There are various options here:
+>  >
+>  > 1. Either I can fix up all architectures, and send a patch to this list, or
+>
+> Fixup all the architectures and send this and the ARM bits to Linus.
+>
+> I really would wish folks would not choose Alan as the first place
+> to send the patch.  I'm not directly accusing anyone of it, but it
+> does appear that often AC is used as a "back door" to get a change
+> in.  While this scheme most of the time, often it unnecessarily
+> overworks Alan which I think is unfair.
 
-Your email made me look closer at my ps output. I also have stty waiting in
-"T" state.
+Hi David,
 
--- 
-Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-<manuel@mclure.org>     | and significant law, no man may kill a cat.
-<http://www.mclure.org> |             -- H.P. Lovecraft
+While I agree that this state of affairs must be taxing Alan,
+it was my understanding that this situation was _intended_.
+It's been explicitly stated, IIRC, that only really important
+bug fixes for very well-defined problems should be going
+to Linus.  This was announced around the time of the 2.4 launch.
+The reasoning being that Linus wanted to be assured that we
+would not have a backslide in kernel stability after the 2.4
+launch, like happened after the 2.2 launch.  My understanding
+is that Alan is acting as gatekeeper for the experimental
+and lower priority patches until after the 2.5 kernel opens
+up.  Of course, then the 2.4 maintainer (who will likely
+be Alan?) will be receiving 2.4 patches, while Linus begins
+receiving all things 2.5 (experimental or not).  My guess
+(perhaps grossly incorrect) is that the flow rate of patches
+after the 2.5 tree opens will be pretty evenly split between
+2.5 and 2.4.
+
+Again, IIRC, Linus wanted to stay really focused on the 2.4
+kernel stability.  Having Alan shielding him from the huge
+quantity of patches has probably helped him be effective in
+making sure patches in the 2.4.x-pre series are good stuff.
+
+Have I got this right?
+
+Cheers,
+	Miles
 

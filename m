@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbTBSROj>; Wed, 19 Feb 2003 12:14:39 -0500
+	id <S261530AbTBSRk0>; Wed, 19 Feb 2003 12:40:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261640AbTBSROj>; Wed, 19 Feb 2003 12:14:39 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:59329 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261398AbTBSROh>;
-	Wed, 19 Feb 2003 12:14:37 -0500
-Date: Wed, 19 Feb 2003 09:20:46 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Ion Badulescu <ionut@badula.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
-Message-Id: <20030219092046.458c2876.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0302191050290.29393-100000@guppy.limebrokerage.com>
-References: <Pine.LNX.4.44.0302191050290.29393-100000@guppy.limebrokerage.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261660AbTBSRkZ>; Wed, 19 Feb 2003 12:40:25 -0500
+Received: from cda1.e-mind.com ([195.223.140.107]:43137 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S261530AbTBSRkX>;
+	Wed, 19 Feb 2003 12:40:23 -0500
+Date: Wed, 19 Feb 2003 18:49:40 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: Andrew Morton <akpm@digeo.com>, t.baetzler@bringe.com,
+       linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: filesystem access slowing system to a crawl
+Message-ID: <20030219174940.GJ14633@x30.suse.de>
+References: <A1FE021ABD24D411BE2D0050DA450B925EEA6C@MERKUR> <20030205013909.6a8c04a3.akpm@digeo.com> <200302191742.02275.m.c.p@wolk-project.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302191742.02275.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003 11:26:27 -0500 (EST)
-Ion Badulescu <ionut@badula.org> wrote:
+On Wed, Feb 19, 2003 at 05:42:34PM +0100, Marc-Christian Petersen wrote:
+> On Wednesday 05 February 2003 10:39, Andrew Morton wrote:
+> 
+> Hi Andrew,
+> 
+> > > Running just "find /" (or ls -R or tar on a large directory) locally
+> > > slows the box down to absolute unresponsiveness - it takes minutes
+> > > to just run ps and kill the find process. During that time, kupdated
+> > > and kswapd gobble up all available CPU time.
+> > Could be that your "low memory" is filled up with inodes.  This would
+> > only happen in these tests if you're using ext2, and there are a *lot*
+> > of directories.
+> > I've prepared a lineup of Andrea's VM patches at
+> > It would be useful if you could apply 10_inode-highmem-2.patch and
+> > report back.  It applies to 2.4.19 as well, and should work OK there.
+> is there any reason why this (inode-highmem-2) has never been submitted for 
+> inclusion into mainline yet?
 
-| This patch adds a new preprocessor define called DMA_ADDR_T_SIZE for all 
-| architectures, for the benefit of those drivers who care about its size 
-| (and yes, starfire is one of them).
-| 
-| Alternatives are:
-| 
-| 1. a really ugly #ifdef in every single driver, which is error-prone and 
-| likely to break (see drivers/net/starfire.c around line 274 and have a 
-| barf bag ready).
-| 
-| 2. always cast it to u64, which adds unnecessary overhead to 32-bit 
-| platforms.
-| 
-| 3. use run-time checks all over the place, of the 
-| "sizeof(dma_addr_t)==sizeof(u64)" kind, which adds unnecessary overhead to 
-| all platforms.
-| 
-| 4. use the results from pci_set_dma_mask(), which still amounts to 
-| unnecessary run-time overhead on platforms which have a 32-bit dma_addr_t 
-| to begin with.
-| 
-| So I think a define in each architecture's types.h file is the cleanest 
-| way to approach this, and that's what my patch does.
-| 
-| Comments and/or suggestions are appreciated.
-| -- 
+Marcelo please include this:
 
-Does this help with being able to printk() a <dma_addr_t>?  How?
-Always use a cast to (u64) or something else?
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21pre4aa3/10_inode-highmem-2
 
---
-~Randy
+other fixes should be included too but they don't apply cleanly yet
+unfortunately, I (or somebody else) should rediff them against mainline.
+
+Andrea

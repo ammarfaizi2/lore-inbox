@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132279AbQKZQFF>; Sun, 26 Nov 2000 11:05:05 -0500
+        id <S129663AbQKZQIg>; Sun, 26 Nov 2000 11:08:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132276AbQKZQEz>; Sun, 26 Nov 2000 11:04:55 -0500
-Received: from [213.182.136.121] ([213.182.136.121]:46863 "EHLO
-        tigram.bogus.local") by vger.kernel.org with ESMTP
-        id <S132161AbQKZQEq>; Sun, 26 Nov 2000 11:04:46 -0500
-To: Rik van Riel <riel@conectiva.com.br>
+        id <S132068AbQKZQI1>; Sun, 26 Nov 2000 11:08:27 -0500
+Received: from maild.telia.com ([194.22.190.3]:38663 "EHLO maild.telia.com")
+        by vger.kernel.org with ESMTP id <S131434AbQKZQIR>;
+        Sun, 26 Nov 2000 11:08:17 -0500
+From: Anders Torger <torger@ludd.luth.se>
+Reply-To: torger@ludd.luth.se
+Organization: -
+To: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: How to transfer memory from PCI memory directly to user space safely and portable?
+Date: Sun, 26 Nov 2000 16:36:38 +0100
+X-Mailer: KMail [version 1.1.61]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <00112614213105.05228@paganini> <20001126151120.V2272@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20001126151120.V2272@parcelfarce.linux.theplanet.co.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc-2.95.2-51 is buggy
-In-Reply-To: <Pine.LNX.4.21.0011251805340.8818-100000@duckman.distro.conectiva>
-From: Olaf Dietsche <olaf.dietsche@gmx.net>
-Date: 26 Nov 2000 16:33:25 +0100
-Message-ID: <87ofz2lpdm.fsf@tigram.bogus.local>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <0011261636380A.05228@paganini>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
+On Sun, 26 Nov 2000, you wrote:
+> On Sun, Nov 26, 2000 at 02:21:31PM +0100, Anders Torger wrote:
+> > 	memcpy_toio(iobase, user_space_src, count);
+>
+> I hope count isn't provided by userspace here ?
 
-> On Sat, 25 Nov 2000, Andries Brouwer wrote:
-> > On Sat, Nov 25, 2000 at 03:26:15PM -0200, Rik van Riel wrote:
-> > 
-> > > The gcc-2.95.2-6cl from Conectiva 6.0 is buggy too.
-> > 
-> > Yes. Probably you have seen it by now, but the difference between
-> > good and bad versions of gcc-2.95.2 did not lie in the applied patches,
-> > but was the difference between compilation for 686 or 386.
-> > It is not your (SuSE's, Debian's) fault. A fix already exists.
-> 
-> Indeed, this should be fixed soon.
-> 
-> I'm sure a simple 'apt-get upgrade' will install a new
-> gcc RPM on my workstation soon ;)
+Fortunately, 'count' is controlled by the driver architecture (ALSA), and not 
+the user.
 
-A simple `gcc -march=i686' or `gcc -mpentiumpro' does fix it as
-well. So, if you configure your kernel with `CONFIG_M686=y' the problem
-should be gone.
+> > 1. What happens if the user space memory is swapped to disk? Will
+> > verify_area() make sure that the memory is in physical RAM when it
+> > returns, or will it return -EFAULT, or will something even worse happen?
+>
+> On i386, you'll sleep implicitly waiting for the page fault to be handled; 
+> in the generic case, anything could happen.
 
-Regards, Olaf.
+Do you know of an architecture that will not do like i386 in this case?
+
+> > 2. Is this code really portable? I currently have an I386 architecture,
+> > and I could use copy_to/from_user on that instead, but that is not
+> > portable. Now, by using memcpy_to/fromio instead, is this code fully
+> > portable?
+>
+> No.  It would be portable if you were using memcpy_fromuser_toio and it
+> existed.
+
+Oh, I see. Again, I wonder, do you know of any architecture, currently 
+supported by Linux, where my code would fail? It would be helpful to know.
+
+/Anders Torger
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTEBPot (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 11:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbTEBPot
+	id S262985AbTEBQgr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 12:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbTEBQgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 11:44:49 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42436 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262955AbTEBPos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 11:44:48 -0400
-Date: Fri, 2 May 2003 17:57:06 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [2.5 patch] small documentation apdate regarding supported gcc versions
-Message-ID: <20030502155706.GT21168@fs.tum.de>
-Mime-Version: 1.0
+	Fri, 2 May 2003 12:36:47 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:63928 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262985AbTEBQgq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 12:36:46 -0400
+Message-ID: <3EB2A125.4000407@us.ibm.com>
+Date: Fri, 02 May 2003 09:47:33 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.68-mm4
+References: <20030502020149.1ec3e54f.akpm@digeo.com> <20030502131857.GH8978@holomorphy.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below against 2.5.68-bk11 contains a small documentation 
-apdate regarding supported gcc versions.
+William Lee Irwin III wrote:
+>> On Fri, May 02, 2003 at 02:01:49AM -0700, Andrew Morton wrote:
+>>+dont-set-kernel-pgd-on-PAE.patch
+>> little ia32 optimisation/cleanup
+> 
+> It looks like no one listened to my commentary on the set_pgd() patch.
+> 
+> Remove pointless #ifdef, pointless set_pgd(), and a mysterious line
+> full of nothing but whitespace after the #endif, and update commentary.
+> -#ifndef CONFIG_X86_PAE
+> -		set_pgd(pgd, *pgd_k);
+> -#endif
 
-cu
-Adrian
+I wask thinking that the PMD set in 4G mode was a noop.  But, it isn't,
+so it makes up for the completely removed pgd set.
 
---- linux-2.5.68-bk11/README.old	2003-05-02 17:47:22.000000000 +0200
-+++ linux-2.5.68-bk11/README	2003-05-02 17:48:12.000000000 +0200
-@@ -152,9 +152,8 @@
- 
- COMPILING the kernel:
- 
-- - Make sure you have gcc 2.95.3 available.
--   gcc 2.91.66 (egcs-1.1.2), and gcc 2.7.2.3 are known to miscompile
--   some parts of the kernel, and are *no longer supported*.
-+ - Make sure you have gcc >= 2.95.3 available. *gcc 2.7.2.3 and gcc 2.91.66
-+   (egcs-1.1.2) are no longer supported*.
-    Also remember to upgrade your binutils package (for as/ld/nm and company)
-    if necessary. For more information, refer to ./Documentation/Changes.
- 
---- linux-2.5.68-bk11/Documentation/Changes.old	2003-05-02 17:48:51.000000000 +0200
-+++ linux-2.5.68-bk11/Documentation/Changes	2003-05-02 17:50:16.000000000 +0200
-@@ -76,15 +76,13 @@
- information about their gcc version requirements from another source.
- 
- The recommended compiler for the kernel is gcc 2.95.x (x >= 3), and it
--should be used when you need absolute stability. You may use gcc 3.0.x
-+should be used when you need absolute stability. You may use gcc 3.x
- instead if you wish, although it may cause problems. Later versions of gcc 
- have not received much testing for Linux kernel compilation, and there are 
- almost certainly bugs (mainly, but not exclusively, in the kernel) that
- will need to be fixed in order to use these compilers. In any case, using
- pgcc instead of plain gcc is just asking for trouble.
- 
--gcc 2.91.66 (egcs-1.1.2) continues to be supported for SPARC64 requirements.
--
- The Red Hat gcc 2.96 compiler subtree can also be used to build this tree.
- You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not build
- the kernel correctly.
+This comment needs to get updated in include/asm-i386/pgtable-2level.h:
+/*
+ * (pmds are folded into pgds so this doesn't get actually called,
+ * but the define is needed for a generic inline function.)
+ */
+#define set_pmd(pmdptr, pmdval) (*(pmdptr) = pmdval)
+#define set_pgd(pgdptr, pgdval) (*(pgdptr) = pgdval)
+
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279732AbRJ3BjV>; Mon, 29 Oct 2001 20:39:21 -0500
+	id <S279735AbRJ3Bnu>; Mon, 29 Oct 2001 20:43:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279731AbRJ3BjJ>; Mon, 29 Oct 2001 20:39:09 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:32412 "EHLO
-	mailout.plan9.de") by vger.kernel.org with ESMTP id <S279730AbRJ3Biy>;
-	Mon, 29 Oct 2001 20:38:54 -0500
-Date: Tue, 30 Oct 2001 02:39:33 +0100
-From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-ac5 && vtun not working
-Message-ID: <20011030023933.A11774@schmorp.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011030021740.A8708@schmorp.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20011030021740.A8708@schmorp.de>
-X-Operating-System: Linux version 2.4.8-ac9 (root@cerebro) (gcc version 3.0.1) 
+	id <S279734AbRJ3Bnk>; Mon, 29 Oct 2001 20:43:40 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45578 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279730AbRJ3Bni>; Mon, 29 Oct 2001 20:43:38 -0500
+Date: Mon, 29 Oct 2001 17:42:07 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <riel@conectiva.com.br>, <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: please revert bogus patch to vmscan.c
+In-Reply-To: <20011029.173400.35036258.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0110291736010.7778-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 02:17:40AM +0100, " Marc A. Lehmann " <pcg@goof.com> wrote:
-> a _lot_ of searching revealed this code fragment:
 
-In my usual attempt to generate more traffic, I forgot to mention that I
-found it in net/core/dev.c ;)
+On Mon, 29 Oct 2001, David S. Miller wrote:
+>
+> I'm asking him to show the case that "breaks for something
+> else".
 
-(oh, and after reading the comments int hat file, I think that maybe tun.c
-simply shouldn't call dev_alloc_name...)
+Guys, guys, calm down.
 
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+I removed the tlb invalidate that ended up being called millions of times,
+but I don't really have anything fundamental against either invalidating
+each mm as it comes up in swap_out_mm(), or maybe just doing a full TLB
+invalidate for each swap_out(). As Ben points out, the invalidate doesn't
+even have to be synchronous - the only thing we really care about is that
+there is some upper bound for how long we can cache TLB entries witht eh
+wrong accessed bit.
+
+One reasonable (?), yet rare, upper bound might be something like
+"swap_out() wrapped around the MM list".
+
+This is particularly true since we won't actually _care_ about the
+accessed bit until the second time around when it is clear, so the
+"wrapped around the VM list" thing is (a) often enough to matter and (b)
+obviously seldom enough that it shouldn't be a performance issue even if
+it implies a cross-call to everybody.
+
+The difference in call frequency would, on large machines, probably be on
+the order of several magnitudes, which will certainly cut the overhead
+down to the noise while satisfying people who have architectures that can
+cache things for a long time.
+
+Agreed?
+
+(Yeah, maybe you think that's _too_ long. Civil arguments, please).
+
+		Linus
+

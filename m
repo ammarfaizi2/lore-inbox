@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUCWIMs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 03:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUCWIMs
+	id S262382AbUCWIXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 03:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbUCWIXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 03:12:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32912 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262378AbUCWIMn (ORCPT
+	Tue, 23 Mar 2004 03:23:40 -0500
+Received: from vega.lgb.hu ([213.163.0.181]:8596 "EHLO lgb.hu")
+	by vger.kernel.org with ESMTP id S262382AbUCWIXj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 03:12:43 -0500
-Subject: Re: [PATCH][RELEASE] megaraid 2.10.2 Driver
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Bagalkote, Sreenivas" <sreenib@lsil.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-In-Reply-To: <405F71CB.7000902@pobox.com>
-References: <0E3FA95632D6D047BA649F95DAB60E570230C77A@exa-atlanta.se.lsil.com>
-	 <405F71CB.7000902@pobox.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QZuH8Ey5KHL0ZnSoGFsi"
-Organization: Red Hat, Inc.
-Message-Id: <1080029556.5296.2.camel@laptop.fenrus.com>
+	Tue, 23 Mar 2004 03:23:39 -0500
+Date: Tue, 23 Mar 2004 09:23:38 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OSS: cleanup or throw away
+Message-ID: <20040323082338.GD23546@lgb.hu>
+Reply-To: lgb@lgb.hu
+References: <200403221955.52767.jos@hulzink.net> <20040322202220.GA13042@mulix.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 23 Mar 2004 09:12:36 +0100
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040322202220.GA13042@mulix.org>
+X-Operating-System: vega Linux 2.6.4 i686
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 22, 2004 at 10:22:21PM +0200, Muli Ben-Yehuda wrote:
+> In my not so humble opinion, throwing OSS away will be a big mistake,
+> as long as there are people willing to maintain it. Keep it there and
+> let the users (or distributions) choose what to use. I've seen
 
---=-QZuH8Ey5KHL0ZnSoGFsi
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Or better: since both of OSS and ALSA are sound systems, let OSS maintainers
+start hacking ALSA, so missing parts in ALSA which presents in OSS can be
+implemented. Having one sound system would be better, especially in the
+official kernel tree. It's another story, if you have multiple one outside
+the "official" kernel source. imho.
 
-On Tue, 2004-03-23 at 00:07, Jeff Garzik wrote:
-> Bagalkote, Sreenivas wrote:
-> > Hello,
-> > @@ -45,6 +46,10 @@
-> > =20
-> >  #include "megaraid2.h"
-> > =20
-> > +#ifdef LSI_CONFIG_COMPAT
-> > +#include <asm/ioctl32.h>
-> > +#endif
-> > +
->=20
-> For upstream, this should just be CONFIG_COMPAT I presume.
+> multiple bug reports of cards that work with OSS and don't work with
+> ALSA (and vice versa), so keeping both seems the proper thing to
+> do. Personally, I maintain one OSS driver, and fix bugs in others
+> occasionally. 
 
-well we should fix all arch's to provide a dummy header I guess so that
-we don't need fugly ifdefs.
-> > =20
-> > +#ifdef LSI_CONFIG_COMPAT
-> > +		/*
-> > +		 * Register the 32-bit ioctl conversion
-> > +		 */
-> > +		register_ioctl32_conversion(MEGAIOCCMD,
-> > megadev_compat_ioctl);
-> > +#endif
-> > +
->=20
-> ditto
-
-ditto about providing a stub register_ioctl32_conversion().
-
-
-
-
---=-QZuH8Ey5KHL0ZnSoGFsi
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAX/F0xULwo51rQBIRAtsKAKCVMezlJEz8SKL2kkK+Yx7bTNtP/wCfd++j
-rnLTi2xp20KsKgG5vj/Vdi4=
-=4Sh7
------END PGP SIGNATURE-----
-
---=-QZuH8Ey5KHL0ZnSoGFsi--
-
+- Gábor (larta'H)

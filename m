@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133035AbRBRPhf>; Sun, 18 Feb 2001 10:37:35 -0500
+	id <S133013AbRBRQnC>; Sun, 18 Feb 2001 11:43:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133036AbRBRPhZ>; Sun, 18 Feb 2001 10:37:25 -0500
-Received: from 443-MADR-XL3.libre.retevision.es ([62.175.105.187]:28167 "EHLO
-	vivaldi.ddts.net") by vger.kernel.org with ESMTP id <S133035AbRBRPhU>;
-	Sun, 18 Feb 2001 10:37:20 -0500
-Date: Sun, 18 Feb 2001 16:34:07 +0100 (MET)
-From: Roberto Diaz <rdiazmartin@vivaldi.ddts.net>
-To: debian-user@lists.debian.org
-cc: Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Free libre internet search engine.
-Message-ID: <Pine.LNX.4.21.0102181608040.25489-100000@vivaldi.ddts.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S133024AbRBRQmv>; Sun, 18 Feb 2001 11:42:51 -0500
+Received: from alcove.wittsend.com ([130.205.0.20]:51468 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S133013AbRBRQmn>; Sun, 18 Feb 2001 11:42:43 -0500
+Date: Sun, 18 Feb 2001 11:42:30 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Ben Ford <ben@kalifornia.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux stifles innovation...
+Message-ID: <20010218114230.B11903@alcove.wittsend.com>
+Mail-Followup-To: Ben Ford <ben@kalifornia.com>,
+	linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4461B4112BDB2A4FB5635DE199587432022423@mail0.myrio.com> <3A8F5A5C.9060105@kalifornia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <3A8F5A5C.9060105@kalifornia.com>; from ben@kalifornia.com on Sat, Feb 17, 2001 at 09:15:08PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.. well this is off-topic sorry.. somebody is going to kill me
-but.. somebody has to make sure about this,
+On Sat, Feb 17, 2001 at 09:15:08PM -0800, Ben Ford wrote:
+> > 
+> > On the other hand, they make excellent mice.  The mouse wheel and
+> > the new optical mice are truly innovative and Microsoft should be
+> > commended for them. 
+> > 
+> The wheel was a nifty idea, but I've seen workstations 15 years old with 
+> optical mice.  It wasn't MS's idea.
 
-Being aware about the new Microsoft "world domination" attempt with its
-.NET platform and after years watching how the Internet is getting more
-and more commercial (well this maybe is not that bad while freedom be
-respected).. I would like to propose the following: (and maybe it exist
-already if so tell me please and sorry!).
+	I think their "innovation" was not requiring the optical cross
+grid mouse pad common on Sun workstations over the years.  The Microsoft
+optical mouse uses variations in the surface characteristics of whatever
+it's on to perform it's function.  The old optical mice just used two
+different colors of LED's (red and IR) and a special pad.  This would
+actually have to scan and track the surface below it.  Don't know that
+I've seen anyone do that before.
 
-We need a free, libre, Internet Search Engine.. we should coordinate this
-from all the international LUG's.. this Internet search engine should be
-not for profit but to ensure in the future that all of us will have a
-site of reference to query for all pages/information/documentation in the
-Internet without economical or other kind of interests interfering.
+> -b
 
-We also should made sure that in the future every document in the Internet
-could have a chance to be indexed in order to be founded from every place
-around the world.
-
-Maybe this is not for tomorrow.. but a libre search engine is something
-needed..
-
-Sorry very much, for my english that I am trying to improve and for my
-off-topic.. but I think is necessary to mention the possibility of a
-project like this. 
- 
-Sorry and thank you very much indeed. If you believe in this idea please
-write the FSF so they could coordinate all the effort.
-
-God bless you all!!
-
-
-Regards
-
-Roberto
-
-------------------------------------------------------------------------
-Roberto Diaz <rdiazmartin@vivaldi.dtts.net>
-http://vivaldi.dtts.net 
-Powered by ddt dynamic DNS
-Powered by GNU running on a Linux kernel.
-Powered by Debian (The real wonder)
-
-Concerto Grosso Op. 3/8 A minor
-Antonio Vivaldi (so... do you need beautiful words?)
-------------------------------------------------------------------------
-
-
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 

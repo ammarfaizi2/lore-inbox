@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286386AbSAAXqD>; Tue, 1 Jan 2002 18:46:03 -0500
+	id <S286399AbSAAXuV>; Tue, 1 Jan 2002 18:50:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286385AbSAAXpz>; Tue, 1 Jan 2002 18:45:55 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:33739
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S286382AbSAAXpj>; Tue, 1 Jan 2002 18:45:39 -0500
-Date: Tue, 1 Jan 2002 16:45:46 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] mesh: target 0 aborted
-Message-ID: <20020101234546.GO28513@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <87lmfhy9kh.fsf@fadata.bg>
-Mime-Version: 1.0
+	id <S286395AbSAAXuL>; Tue, 1 Jan 2002 18:50:11 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26385 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286387AbSAAXt4>;
+	Tue, 1 Jan 2002 18:49:56 -0500
+Message-ID: <3C324B21.B5620DE6@mandrakesoft.com>
+Date: Tue, 01 Jan 2002 18:49:53 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] Re: NFS "dev_t" issues..
+In-Reply-To: <Pine.LNX.4.33.0201011524440.957-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87lmfhy9kh.fsf@fadata.bg>
-User-Agent: Mutt/1.3.24i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 12:45:34AM +0200, Momchil Velikov wrote:
-
-> This patch makes mesh.c compile, by adapting it to the new
-> pmac_feature API (ported from the ppc tree).
+Linus Torvalds wrote:
 > 
-> In addition it contains the fix from Thomas Capricelli for the
-> infamous "mesh: target 0 aborted" error, which I've been personally
-> observing since 2.1.13x.
+> On Tue, 1 Jan 2002, Jeff Garzik wrote:
+> >
+> > What do you think about the attached simple patch, making the cookie
+> > size more explicit?
+> 
+> Well, I suspect that we actually should also make the format explicit, and
+> basically use the same translation that I did for the NFS filehandle. That
+> way it's still just a cookie, but it's a cookie with (a) explicit size and
+> (b) meaning that won't change over different kernel revisions.
 
-Er, what exactly is this against?  If this is just what's in the
-linuxppc_2_4 tree against current 2.4.18pre, this is either (or will be
-now :)) on BenH's list of things to resend to Marcelo, or there's a
-problem with it still.  If you added in another patch, please re-send
-this vs the linuxppc_2_4 tree.
+true, each filesystem needs to figure out how to make sure their on-disk
+format doesn't change across kernel revisions...  Storing the raw i_rdev
+onto disk definitely silly but it appears to be an issue some
+filesystems will have to deal with.  I'm leaving reiserfs alone so they
+can make a policy decision...
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno

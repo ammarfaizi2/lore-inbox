@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267131AbTGGQC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 12:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267134AbTGGQC4
+	id S265045AbTGGQKF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 12:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbTGGQKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 12:02:56 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:33809 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S267131AbTGGQCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 12:02:55 -0400
-Date: Mon, 7 Jul 2003 07:04:52 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: Midian <midian@ihme.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Missing files in 2.5.74<
-Message-ID: <20030707050452.GB1792@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <1057528492.15569.8.camel@midux>
+	Mon, 7 Jul 2003 12:10:04 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:6413 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265045AbTGGQKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 12:10:02 -0400
+Date: Mon, 7 Jul 2003 17:24:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Sancho Dauskardt <sda@bdit.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: FAT statfs loop abort on read-error
+Message-ID: <20030707172431.A26138@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, Sancho Dauskardt <sda@bdit.de>,
+	linux-kernel@vger.kernel.org
+References: <5.0.2.1.2.20030704123653.03140b70@pop.puretec.de> <20030706102410.2becd137.rddunlap@osdl.org> <87u19ypc1j.fsf@devron.myhome.or.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1057528492.15569.8.camel@midux>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <87u19ypc1j.fsf@devron.myhome.or.jp>; from hirofumi@mail.parknet.co.jp on Tue, Jul 08, 2003 at 12:54:48AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Midian <midian@ihme.org>
-Date: Mon, Jul 07, 2003 at 12:54:52AM +0300
-> Hello,
+On Tue, Jul 08, 2003 at 12:54:48AM +0900, OGAWA Hirofumi wrote:
+> > (I asked him to add a patch to MAINTAINTERS...)
 > 
-> I've tryed to compile the 2.5.74 kernel with pm2fb support, and never
-> got it working I get this error message:
->   
->     CC [M]  drivers/video/pm2fb.o
-> drivers/video/pm2fb.c:44:25: video/fbcon.h: No such file or directory
+> Thank you. But honestly, I may not have skill enough.
 
-This means this framebuffer driver hasn't been ported to the new API and
-won't compile, as you noticed.
+Given that you have done a nice job ob fatfs in 2.5 and there's no one
+coming near that many useful contributions in that timeframe I think
+it would be a good idea to declare you maintainer.  According to
+MAINTAINERS it currently doesn't have any formal maintainer anyway.
 
-Kind regards,
-Jurriaan
--- 
-Cole's Law:
-  Thinly sliced cabbage.
-Debian (Unstable) GNU/Linux 2.5.74 4112 bogomips load av: 0.89 0.57 0.27

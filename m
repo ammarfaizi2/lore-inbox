@@ -1,65 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTFJUFu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 16:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbTFJUEn
+	id S262348AbTFJUMY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 16:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTFJULQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 16:04:43 -0400
-Received: from amalthea.dnx.de ([193.108.181.146]:63908 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S262262AbTFJUCp (ORCPT
+	Tue, 10 Jun 2003 16:11:16 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:38091 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262312AbTFJUKa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 16:02:45 -0400
-Date: Tue, 10 Jun 2003 22:16:24 +0200
-From: Robert Schwebel <robert@schwebel.de>
-To: linux-kernel@vger.kernel.org
-Subject: init does not run on 405GP system
-Message-ID: <20030610201624.GB16103@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Spam-Score: -2.5 (--)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19PpXX-00017h-00*QwHCy2G3hCg*
+	Tue, 10 Jun 2003 16:10:30 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16102.15974.597441.186748@napali.hpl.hp.com>
+Date: Tue, 10 Jun 2003 13:24:06 -0700
+To: hch@infradead.org, James.Bottomley@SteelEye.com
+Cc: davem@redhat.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: problem with blk_queue_bounce_limit()
+In-Reply-To: <16097.37454.827982.278024@napali.hpl.hp.com>
+References: <16096.16492.286361.509747@napali.hpl.hp.com>
+	<20030606.003230.15263591.davem@redhat.com>
+	<200306062013.h56KDcLe026713@napali.hpl.hp.com>
+	<20030606.234401.104035537.davem@redhat.com>
+	<16097.37454.827982.278024@napali.hpl.hp.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Christoph,
 
-I'm currently porting u-boot and Linux to an IBM 405GP based board. The
-problem is now that init seems not to be running and does not give any
-output. Up to that point where init should make some noise the kernel
-boots smoothly (serial console), I see all output and NFS-Root is
-mounted via an Intel 82559 network chip. The kernel threads are also
-running, I see kupdated & friends being put into the run queue from time
-to time.
+You wrote:
 
-I have replaced /sbin/init by a statically linked "hello world" (which
-also does not give any output). My impression is that the binary code of
-the init ELF binary is never run. When I switch on the SHOW_SYSCALLs
-macro in arch/ppc/kernel/entry.S I see the system calls for open(),
-dup(), dup() and execve() which come from init/main.c. Opening the
-console works, execve() to /sbin/init as well. When I follow the path of
-execution up to load_elf_binary() in fs/binfmt_elf.c I can even see the
-correct code being load and pointed to by elf_entry in that file. But
-there is never any output from init, nor does something happen when I
-replace init by a piece of code which should immediately make a zero
-pointer exception.
+ > imo PCI_DMA_BUS_IS_PHYS should be a propert of each struct device
+ > because a machine might have a iommu for one bus type but not
+ > another, e.g.
 
-Nevertheless, the kernel runs smoothly. I can ping the machine, I can
-even floodping it with 0% packet loss. Only that there is no userspace
-running.
+ >	dma_is_phys(dev);
 
-Has anybody seen something like this before?
+As pointed out by DaveM, this isn't sufficient for the block layer,
+which needs to know the page size of the I/O MMU so it can make
+merging decisions about physically discontiguous buffers.
 
-- Kernel is 2.4.21-rc2 with bitkeeper from 20030515 plus board port
-- userland was tested with Debian bootdisks, Denx 4xx boot image and
-  others
-- toolchain is the Debian powerpc-linux cross toolchain.
+I think we also need:
 
-Robert
---
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Braunschweiger Str. 79,  31134 Hildesheim, Germany
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+	/*
+	 * Returns a mask of bits which need to be 0 in order for
+	 * the DMA-mapping interface to be able to remap a buffer.
+	 * DMA-mapping implementations for real (hardware) I/O MMUs
+	 * will want to return (iommu_page_size - 1) here, if they
+	 * support such remapping.  DMA-mapping implementations which
+	 * do not support remapping must return a mask of all 1s.
+	 */
+	unsigned long dma_merge_mask(dev)
+
+Then you can replace:
+
+	BIO_VMERGE_BOUNDARY => (dma_merge_mask(dev) + 1)
+
+Of course, this doesn't work literally, because we don't have a device
+pointer handy in the bio code.  Instead, it would probably make the
+most sense to add a "iommu_merge_mask" member to "struct
+request_queue" and then do something along the lines of:
+
+ #define BIO_VMERGE_BOUNDARY(q)	((q)->iommu_merge_mask + 1)
+
+Note 1: the "+ 1" will get optimized away because the only way
+BIO_VMERGE_BOUNDARY() is used is in BIOVEC_VIRT_MERGEABLE, which
+really needs a mask anyhow; this could be cleaned up of course, but
+that's a separate issue.
+
+Note 2: dma_merge_mask() cannot be used to replace dma_is_phys() (as
+much as I'd like that), because they issue of (virtual) remapping is
+really quite distinct from whether a (hardware) I/O MMU is present
+(not to mention the _other_ reason that a bus may not be "physical").
+
+Note 3: I'm not comfortable hacking the bio code, so if someone would
+like to prototype this, by all means go ahead... ;-)
+
+Thanks,
+
+	--david

@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVAMR7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVAMSAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVAMR7R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 12:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVAMR5J
+	id S261256AbVAMSAb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 13:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVAMR7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:57:09 -0500
-Received: from mail.enyo.de ([212.9.189.167]:11409 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S261247AbVAMRxB (ORCPT
+	Thu, 13 Jan 2005 12:59:47 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:26846 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261256AbVAMR6b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:53:01 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-References: <20050112094807.K24171@build.pdx.osdl.net>
-	<Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
-	<20050112185133.GA10687@kroah.com>
-	<Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-	<20050112161227.GF32024@logos.cnet>
-	<Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-	<20050112174203.GA691@logos.cnet>
-	<1105627541.4624.24.camel@localhost.localdomain>
-Date: Thu, 13 Jan 2005 18:52:56 +0100
-In-Reply-To: <1105627541.4624.24.camel@localhost.localdomain> (Alan Cox's
-	message of "Thu, 13 Jan 2005 15:36:27 +0000")
-Message-ID: <87vfa1gqrr.fsf@deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Jan 2005 12:58:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=X8KqZ+cz0QlcvyVlbUnvXgAAHoV/luFCrOEm3C6Rk4EfZmS1fi6NNGQJNK4GlfsfucqneW36qYVX+3TMeKUUn3x4D247NSIC+HbcFFGIXSw8feOCW/mvyIYIv3+TnEpJQCVQ1PhYpXnNqdbmKpKicBzKb/U6fmwUZx0y+/EDv14=
+Message-ID: <29495f1d050113095856d998ea@mail.gmail.com>
+Date: Thu, 13 Jan 2005 09:58:27 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: johnpol@2ka.mipt.ru
+Subject: Re: Kernel conector. Reincarnation #1.
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050113001611.0a5d8bf8@zanzibar.2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1101286481.18807.66.camel@uganda>
+	 <1101287606.18807.75.camel@uganda> <20041124222857.GG3584@kroah.com>
+	 <1102504677.3363.55.camel@uganda> <20041221204101.GA9831@kroah.com>
+	 <1103707272.3432.6.camel@uganda> <20050112190319.GA10885@kroah.com>
+	 <20050112233345.6de409d0@zanzibar.2ka.mipt.ru>
+	 <20050113001611.0a5d8bf8@zanzibar.2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox:
+On Thu, 13 Jan 2005 00:16:11 +0300, Evgeniy Polyakov
+<johnpol@2ka.mipt.ru> wrote:
+> Sorry, forget about nasty typo.
+> Current one is right.
 
-> We cannot do this without the reporters permission. Often we get
-> material that even the list isn't allowed to directly see only by
-> contacting the relevant bodies directly as well. The list then just
-> serves as a "foo should have told you about issue X" notification.
->
-> If you are setting up the list also make sure its entirely encrypted
-> after the previous sniffing incident.
+<snip>
 
-Others have had made good use of symmetric encryption with OpenPGP
-(the CAST5 cipher seems most interoperable).  New symmetric keys are
-distributed twice per year, using the participants OpenPGP public
-keys.
+> diff -Nru /tmp/empty/cn_queue.c linux-2.6.9/drivers/connector/cn_queue.c
+> --- /tmp/empty/cn_queue.c       1970-01-01 03:00:00.000000000 +0300
+> +++ linux-2.6.9/drivers/connector/cn_queue.c    2005-01-12 23:23:45.000000000 +0300
 
-(There are also various implementations of reencrypting mailing lists,
-but they cannot ensure end-to-end encryption.)
+<snip>
+
+> +       while (atomic_read(&cbq->cb->refcnt)) {
+> +               printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
+> +                      cbq->pdev->name, atomic_read(&cbq->cb->refcnt));
+> +               set_current_state(TASK_INTERRUPTIBLE);
+> +               schedule_timeout(HZ);
+> +
+> +               if (current->flags & PF_FREEZE)
+> +                       refrigerator(PF_FREEZE);
+> +
+> +               if (signal_pending(current))
+> +                       flush_signals(current);
+> +       }
+
+<snip>
+
+> +       while (atomic_read(&dev->refcnt)) {
+> +               printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
+> +                      dev->name, atomic_read(&dev->refcnt));
+> +               set_current_state(TASK_INTERRUPTIBLE);
+> +               schedule_timeout(HZ);
+> +
+> +               if (current->flags & PF_FREEZE)
+> +                       refrigerator(PF_FREEZE);
+> +
+> +               if (signal_pending(current))
+> +                       flush_signals(current);
+> +       }
+
+Would it be possible to use msleep_interruptible(1000) in both of
+these locations? You only seem to be concerned with signals (not
+wait-queue events) and the time is rather long (1000 msec).
+signals_pending(current) will still be true upon return from
+msleep_interruptible(), so it's a minimal change, I think.
+
+Thanks,
+Nish

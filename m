@@ -1,95 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUDEPlc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 11:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUDEPlc
+	id S262882AbUDEPu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 11:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbUDEPu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 11:41:32 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:38139 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262931AbUDEPlV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 11:41:21 -0400
-Subject: Re: Migrate pages from a ccNUMA node to another - patch
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Zoltan.Menyhart@bull.net
-Cc: Hirokazu Takahashi <taka@valinux.co.jp>, linux-ia64@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       iwamoto@valinux.co.jp
-In-Reply-To: <4071763E.7293CFCC@nospam.org>
-References: <40695802.1F13AB0D@nospam.org>
-	 <20040330.210804.71938972.taka@valinux.co.jp>
-	 <40698501.BD3E12BF@nospam.org>
-	 <20040403.115833.74749140.taka@valinux.co.jp>
-	 <4071763E.7293CFCC@nospam.org>
-Content-Type: text/plain
-Message-Id: <1081179633.8956.2992.camel@nighthawk>
+	Mon, 5 Apr 2004 11:50:28 -0400
+Received: from ip68-230-241-33.sd.sd.cox.net ([68.230.241.33]:57266 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S262882AbUDEPuY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 11:50:24 -0400
+Date: Mon, 5 Apr 2004 08:50:22 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Christian Kujau <evil@g-house.de>
+Cc: Sven Hartge <hartge@ds9.gnuu.de>, linux-kernel@vger.kernel.org,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: 2.6.5-pre* does not boot on my PReP PPC
+Message-ID: <20040405155022.GL31152@smtp.west.cox.net>
+References: <20040329151515.GD2895@smtp.west.cox.net> <Pine.GSO.4.44.0403301430180.12030-100000@math.ut.ee> <E1B8OEW-0006Jb-BX@ds9.argh.org> <40704743.3000909@g-house.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 05 Apr 2004 08:40:33 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40704743.3000909@g-house.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-04-05 at 08:07, Zoltan Menyhart wrote:
-> Hirokazu Takahashi wrote:
+On Sun, Apr 04, 2004 at 07:34:59PM +0200, Christian Kujau wrote:
+
+> [ cc'ing linuxppc-dev ]
 > 
-> > I guess aruguments src_node, mm and pte would be redundant since
-> > they can be looked up from old_p with the reverse mapping scheme.
+> Sven Hartge wrote:
+> | Meelis Roos <mroos@linux.ee> wrote:
+> |
+> |
+> |>>Ok.  Can both of you try the following patch on top of the version
+> |>>which fails?
+> |
+> |
+> |>Tried it on top of fresh 2.6.5-rc3, no changes, it still hangs.
+> |
+> |
+> | Same here, still totally dead after tftp.
 > 
-> In my version 0.2, I can do with only the following arguments:
->  *		node:	Destination NUMA node
->  *		mm:	-> victim "mm_struct"
->  *		pte:	-> PTE of the page to be moved
-> (If I have "mm" at hand, why not to use it ? Why not to avoid fetching the r-map
-> page struct ?)
+> not so dead here. 2.6.4 is ok, 2.6.5-rc1|2|3 are loaded within the OF
+> menu, but no bootprompt appears. but: i can hear the scsi disk
+> initalizing, short after this, the atkbd is recognized and the LEDs on
+> my keyboard are flashing. then again my nfs-root is supposed to be
+> mounted, but my PReP still locks up completely upon network-init. (last
+> working is still 2.5.30).
 
-That's a good point.  There is at least some cost (at least 1 lock)
-associated with walking the rmap chains.  If it can be avoided, it might
-as well be.  
+OK, hmm.  I've got some better ideas then.  It sounds like the code to
+have puts show up on VGA isn't selected/compiled in.  Or, there's still
+some other problem wrt the OF transition code.  Just having a serial
+console selected still doesn't give output however, right?
 
-But, if someone needs the "no walk" interface, just wrap the function:
+> another issue here: i was finally able to cross-compile 2.5.x / 2.6.x
+> kernels (on x86). i tried to compile kernels from 2.5.21 on with
+> "allnoconfig" (was introduced in 2.5.21). only 2.5.30 can be built, all
+> other attempts to build "zImage" fail...(still compiling 2.5.6x)...
+> (full logs of builds available...)
 
-foo(page)
-{
-	rmap_results = get_rmap_stuff(page);
-	__foo(page, rmap_results);
-}
+The simple answer is, don't use allnoconfig :).  Do a 'make
+common_defconfig' and then from there turn off stuff you don't need.
 
-__foo(page, rmap_results)
-{
-...
-}
-
-> > >Notes: "pte" can be NULL if I do not know it apriori
-> > >       I cannot release "mm->page_table_lock" otherwise I have to re-scan the "mm->pgd".
-> > 
-> > Re-schan plicy would be much better since migrating pages is heavy work.
-> > I don't think that holding mm->page_table_lock for long time would be
-> > good idea.
-> 
-> Re-scanning is "cache killer", at least on IA64 with huge user memory size.
-> I have more than 512 Mbytes user memory and its PTEs do not fit into the L2 cache.
-> 
-> In my current design, I have the outer loops: PGD, PMD and PTE walking; and once
-> I find a valid PTE, I check it against the list of max. 2048 physical addresses as
-> the inner loop.
-> I reversed them: walking through the list of max. 2048 physical addresses as outer
-> loop and the PGD - PMD - PTE scans as inner loops resulted in 4 to 5 times slower
-> migration.
-
-Could you explain where you're getting these "magic numbers?"  I don't
-quite understand the significance of 2048 physical addresses or 512 MB
-of memory.
-
-Zoltan, it appears that we have a bit of an inherent conflict with how
-much CPU each of you is expecting to use in the removal and migration
-cases.  You're coming from a HPC environment where each CPU cycle is
-valuable, while the people trying to remove memory are probably going to
-be taking CPUs offline soon anyway, and care a bit less about how
-efficient they're being with CPU and cache resources.  
-
-Could you be a bit more explicit about how expensive (cpu-wise) these
-migrate operations can be?
-
--- Dave
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

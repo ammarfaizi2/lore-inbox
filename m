@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129417AbRBMMSj>; Tue, 13 Feb 2001 07:18:39 -0500
+	id <S129210AbRBMMaq>; Tue, 13 Feb 2001 07:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131229AbRBMMS3>; Tue, 13 Feb 2001 07:18:29 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:63365 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129417AbRBMMSK>; Tue, 13 Feb 2001 07:18:10 -0500
-From: Christoph Rohland <cr@sap.com>
+	id <S129418AbRBMMag>; Tue, 13 Feb 2001 07:30:36 -0500
+Received: from host217-32-132-155.hg.mdip.bt.net ([217.32.132.155]:2564 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129210AbRBMMaX>;
+	Tue, 13 Feb 2001 07:30:23 -0500
+Date: Tue, 13 Feb 2001 12:33:01 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: cowboy@vnet.ibm.com (Richard A Nelson), linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.19pre10
-In-Reply-To: <E14SNMh-0007fo-00@the-village.bc.nu>
-Organisation: SAP LinuxLab
-In-Reply-To: <E14SNMh-0007fo-00@the-village.bc.nu>
-Message-ID: <m3ofw7m240.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: lost charaters -- this is becoming annoying!
+In-Reply-To: <E14SdoB-0001XQ-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0102131230120.726-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: 13 Feb 2001 13:23:00 +0100
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Alan,
 
-On Mon, 12 Feb 2001, Alan Cox wrote:
->> First, I'm glad I wasn't hallucinating, and that the mail did
->> indeed get seen by someone.
->> 
->> Second, instead of reverting, can't we simply move those two lines
->> up a bit:
->
-> Possibly but its a minor item that doesnt really matter anyway so leaving it
-> is fine
+I am now running 2.2.19-pre9 and it is working fine. Also, just in case, I
+retyped this same message in pine in xterm and on the console. No
+character loss whatsoever. Also, licq stopped losing characters as well.
 
-No, I do not think that it's minor. We had to bring down running
-application servers to be able to start another one, because the new
-one couldn't create or attach the systemwide os-monitoring
-segment and thus refused to start. That's very bad behaviour.
+I will continue using 2.2.19-pre9 until the evening and report anything
+suspicious.
 
-Greetings
-		Christoph
+Regards,
+Tigran
+
+
+On Tue, 13 Feb 2001, Alan Cox wrote:
+
+> > > When you say 2.2.x works does that include 2.2.18.
+> > 
+> > no, I meant the plain 2.2.x as of Red Hat 7.0 which is labelled as
+> > "2.2.16-22".
+> 
+> Can you try 2.2.18/2.2.19pre. Those if my first guess is right will behave
+> like 2.4 does to you.
+> 
+> 
+> 
 
 

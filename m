@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313687AbSDURzd>; Sun, 21 Apr 2002 13:55:33 -0400
+	id <S313677AbSDURyl>; Sun, 21 Apr 2002 13:54:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313688AbSDURzc>; Sun, 21 Apr 2002 13:55:32 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:22436 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S313687AbSDURza>;
-	Sun, 21 Apr 2002 13:55:30 -0400
-Date: Sun, 21 Apr 2002 13:55:29 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421135529.A8142@havoc.gtf.org>
-In-Reply-To: <20020421101731.D10525@work.bitmover.com> <20020421132203.E4479@havoc.gtf.org> <E16yyya-0000l7-00@starship>
+	id <S313678AbSDURyk>; Sun, 21 Apr 2002 13:54:40 -0400
+Received: from bitmover.com ([192.132.92.2]:26267 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S313677AbSDURyi>;
+	Sun, 21 Apr 2002 13:54:38 -0400
+Date: Sun, 21 Apr 2002 10:54:37 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jeff Garzik <garzik@havoc.gtf.org>
+Cc: CaT <cat@zip.com.au>, Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
+Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Message-ID: <20020421105437.L10525@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jeff Garzik <garzik@havoc.gtf.org>, CaT <cat@zip.com.au>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yfW9-0000aZ-00@starship> <20020421171629.GK4640@zip.com.au> <20020421104046.J10525@work.bitmover.com> <20020421134851.B7828@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 07:48:44PM +0200, Daniel Phillips wrote:
-> On Sunday 21 April 2002 19:22, Jeff Garzik wrote:
-> > Daniel Phillips wrote:
-> > > How much less convenient is it to click on a link?  So much harder that it's
-> > > worth pissing off some key developers?
+On Sun, Apr 21, 2002 at 01:48:51PM -0400, Jeff Garzik wrote:
+> Can you get the bkbits.net interface to spit out text/plain GNU-style
+> patches?
 
-> > Linus has already explained why he put it into the kernel sources.
+Not on bkbits.net.  It eats up too much bandwidth.  If someone else wants
+to host a bkbits.net mirror and they want to allow that, then I'll add
+the code.
 
-> So far the only argument I've seen is: it's convenient.  Did I miss something?
-
-> The convenience argument is bogus.  A url is just as convenient,
-
-If you say this, then you either missed, or are willfully ignoring,
-what Linus said.  Search for the string "helsinki.fi".
-
-
-> > And, who are these key developers you are speaking for?
-> 
-> They can introduce themselves if they wish.  Or you can ask around.
-
-I am asking.  My previous post was asking.  Who are you speaking for?
-
-	Jeff
-
-
-
+It actually doesn't do you that much good unless we add an interface to
+get the pre-patch style diffs.  Otherwise you are getting a cset at a 
+time and that's a bit too fine grained, at least I think it is.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVCVQRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVCVQTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVCVQRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 11:17:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVCVQRJ
+	id S261398AbVCVQTD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 11:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVCVQTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 11:17:09 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:21511
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S261399AbVCVQQ7
+	Tue, 22 Mar 2005 11:19:02 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:161 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261398AbVCVQSq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 11:16:59 -0500
-Date: Tue, 22 Mar 2005 08:16:57 -0800
-From: Phil Oester <kernel@linuxace.com>
-To: buakaw@buakaw.homelinux.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dst cache overflow
-Message-ID: <20050322161657.GA18925@linuxace.com>
-References: <1144.192.168.0.37.1111351868.squirrel@buakaw.homelinux.net> <20050321194022.491060c7.akpm@osdl.org> <1297.192.168.0.37.1111480783.squirrel@buakaw.homelinux.net>
+	Tue, 22 Mar 2005 11:18:46 -0500
+Date: Tue, 22 Mar 2005 17:22:03 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Andrew Morton <akpm@osdl.org>, felix-linuxkernel@fefe.de,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Message-ID: <20050322162203.GB19668@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Andrew Morton <akpm@osdl.org>, felix-linuxkernel@fefe.de,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <20050311202122.GA13205@fefe.de> <20050311173308.7a076e8f.akpm@osdl.org> <20050321163358.1b4968a0.akpm@osdl.org> <20050322021857.GA17972@linuxtv.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1297.192.168.0.37.1111480783.squirrel@buakaw.homelinux.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050322021857.GA17972@linuxtv.org>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: 217.231.45.50
+Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
+X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 22, 2005 at 10:39:43AM +0200, buakaw@buakaw.homelinux.net wrote:
+Johannes Stezenbach wrote:
+> Grab the ncp package from http://www.fefe.de/ncp/, or more specifically
+> ftp://ftp.fu-berlin.de/unix/network/ncp/ncp-1.2.3.tar.bz2.
 > 
-> computer's main job is to be router on small LAN with 10 users and  some
-> services like qmail, apache, proftpd, shoutcast, squid, and ices on slack
-> 10.1. Iptables and tc are used to limit  bandwiwdth and the two bandwidthd
->  daemons are running on eth0 interface and all the time the cpu is used at
-> about 0.4% and additional 12% by ices  when encoding mp3 on demand, and
-> the proccess ksoftirqd/0 randomally starts to use 100% of 0 cpu in normal
-> situation and one time when the ksoftirqd/0 became crazy i noticed dst
-> cache overflow messages in syslog but there are more of thies lines in
-> logs  about 5 times in 10 days period
+> It's a very useful and handy tool for pushing around data within
+> a LAN of a small workgroup, one guy does "npush foo" and yells
+> at the intended recepient "do npoll". The first one to do
+> it wins and gets foo ;-)
 
-There was a problem fixed in the handling of fragments which caused dst
-cache overflow in the 2.6.11-rc series.  Are you still seeing dst cache
-overflow on 2.6.11?
+In case that description sounded too silly: The essential feature
+of ncp is that it requires no configuration or installation of a
+server daemon, and you don't even need to worry about host names or the
+IP address of the source or destination machine. Just hook two computers
+to the same network and you're ready to npush/npoll. Similar to
+netcat + tar, but way more convenient.
 
-Phil
+Johannes

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261846AbSJEAGP>; Fri, 4 Oct 2002 20:06:15 -0400
+	id <S261785AbSJEAH3>; Fri, 4 Oct 2002 20:07:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261847AbSJEAGP>; Fri, 4 Oct 2002 20:06:15 -0400
-Received: from zero.aec.at ([193.170.194.10]:1798 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S261846AbSJEAGO>;
-	Fri, 4 Oct 2002 20:06:14 -0400
-To: "Matt D. Robinson" <yakker@aparity.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.40: lkcd (4/9): additional kernel symbols
-References: <200210042303.g94N3eS10028@nakedeye.aparity.com>
-From: Andi Kleen <ak@muc.de>
-Date: 05 Oct 2002 02:11:40 +0200
-In-Reply-To: <200210042303.g94N3eS10028@nakedeye.aparity.com>
-Message-ID: <m3znttg2wz.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S261847AbSJEAH3>; Fri, 4 Oct 2002 20:07:29 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:5829 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261785AbSJEAH1>; Fri, 4 Oct 2002 20:07:27 -0400
+Date: Fri, 4 Oct 2002 21:12:46 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "David S. Miller" <davem@redhat.com>
+cc: rickh@Capaccess.org, <linux-kernel@vger.kernel.org>
+Subject: Re: an open letter to George Soros
+In-Reply-To: <20021004.160411.38314828.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44L.0210042111290.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Matt D. Robinson" <yakker@aparity.com> writes:
+On Fri, 4 Oct 2002, David S. Miller wrote:
 
-> diff -urN -X /home/bharata/dontdiff linux-2.5.40/arch/i386/kernel/i386_ksyms.c linux-2.5.40+lkcd/arch/i386/kernel/i386_ksyms.c
-> --- linux-2.5.40/arch/i386/kernel/i386_ksyms.c	Tue Oct  1 12:36:59 2002
-> +#if defined(CONFIG_X86) || defined(CONFIG_ALPHA)
-> +EXPORT_SYMBOL(page_is_ram);
-> +#endif
+>            I have devised a preliminary compensation scheme for authors of
+>            open source software based on the songwriter royalties model.
+>
+> Yes, let's use the music industry to model how we compensate people
+> for their works, they schemes have an excellent track record
 
-This ifdef in i386_ksyms.c doesn't make much sense...
+Heh, you'd end up OWING money to the users, because of the
+value of bugreports, paying for the download infrastructure
+and rental of users' screen space ;)
 
-> +#ifdef CONFIG_SMP
-> +extern irq_desc_t irq_desc[];
-> +extern unsigned long irq_affinity[];
-> +EXPORT_SYMBOL(irq_affinity);
-> +EXPORT_SYMBOL(irq_desc);
-> +extern void dump_send_ipi(void);
-> +EXPORT_SYMBOL(dump_send_ipi);
-> +extern int (*dump_ipi_function_ptr)(struct pt_regs *);
-> +EXPORT_SYMBOL(dump_ipi_function_ptr);
-> +extern void (*dump_trace_ptr)(struct pt_regs *);
-> +EXPORT_SYMBOL(dump_trace_ptr);
-> +extern void show_this_cpu_state(int, struct pt_regs *, struct task_struct *);
-> +EXPORT_SYMBOL(show_this_cpu_state);
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Before adding all these ugly declarations I would just declare the file where
-whey are exported from as 'x-obj' and put them directly to where the 
-functions live.
+http://www.surriel.com/		http://distro.conectiva.com/
 
+Spamtraps of the month:  september@surriel.com trac@trac.org
 
--Andi

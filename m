@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289104AbSAGDcn>; Sun, 6 Jan 2002 22:32:43 -0500
+	id <S289103AbSAGDfo>; Sun, 6 Jan 2002 22:35:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289103AbSAGDcd>; Sun, 6 Jan 2002 22:32:33 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:9564 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289104AbSAGDcS>; Sun, 6 Jan 2002 22:32:18 -0500
-Date: Mon, 7 Jan 2002 04:32:36 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] truncate fixes
-Message-ID: <20020107043236.J1561@athlon.random>
-In-Reply-To: <3C36DEA9.AEA2A402@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3C36DEA9.AEA2A402@zip.com.au>; from akpm@zip.com.au on Sat, Jan 05, 2002 at 03:08:25AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S289105AbSAGDfe>; Sun, 6 Jan 2002 22:35:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45829 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289103AbSAGDfb>; Sun, 6 Jan 2002 22:35:31 -0500
+Date: Sun, 6 Jan 2002 19:34:36 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Richard Henderson <rth@twiddle.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
+In-Reply-To: <Pine.LNX.4.40.0201061927490.1000-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.33.0201061930250.5900-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 05, 2002 at 03:08:25AM -0800, Andrew Morton wrote:
->  	}
->  	return 0;
->  out:
-> +	bh = head;
-> +	block_start = 0;
-> +	do {
-> +		if (buffer_new(bh) && !buffer_uptodate(bh)) {
-> +			memset(kaddr+block_start, 0, bh->b_size);
-> +			set_bit(BH_Uptodate, &bh->b_state);
-> +			mark_buffer_dirty(bh);
-> +		}
-> +		block_start += bh->b_size;
-> +		bh = bh->b_this_page;
-> +	} while (bh != head);
->  	return err;
->  }
 
-the above code will end marking uptodate (zeroed) buffers relative to
-blocks that cannot be read from disk. So a read-retry won't hit the disk
-and that's wrong.
+On Sun, 6 Jan 2002, Davide Libenzi wrote:
+>
+> 32 bit words lookup can be easily done in few clock cycles in most cpus
+> by using tuned assembly code.
 
-I think that will be fixed by additionally also return -EIO in the
-wait_on_buffer loop (instead of goto out), so we won't generate zeroed
-uptodate cache in case of read failure.
+I tried to time "bsfl", it showed up as one cycle more than "nothing" on
+my PII.
 
-Andrea
+It used to be something like 7+n cycles on a i386, if I remember
+correctly. It's just not an issue any more - trying to use clever code to
+avoid it is just silly.
+
+		Linus
+

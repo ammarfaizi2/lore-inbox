@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVDDL2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVDDLbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVDDL2s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 07:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVDDL2s
+	id S261221AbVDDLbh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 07:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVDDLbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 07:28:48 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:58049 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261207AbVDDL2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 07:28:46 -0400
-Message-ID: <425125EC.6080201@anagramm.de>
-Date: Mon, 04 Apr 2005 13:33:00 +0200
-From: Clemens Koller <clemens.koller@anagramm.de>
-Organization: Anagramm GmbH
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: de-de, en-us, en, ko
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] I2C rtc8564.c remove duplicate include (fixed)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:224ad0fd4f2efe95e6ec4f0a3ca8a73c
+	Mon, 4 Apr 2005 07:31:37 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37590 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261221AbVDDLba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 07:31:30 -0400
+Date: Mon, 4 Apr 2005 13:31:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: shaohua.li@intel.com, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net, zwane@linuxpower.ca,
+       len.brown@intel.com
+Subject: Re: [ACPI] Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
+Message-ID: <20050404113129.GA7120@atrey.karlin.mff.cuni.cz>
+References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com> <20050403193750.40cdabb2.akpm@osdl.org> <1112608444.3757.17.camel@desktop.cunningham.myip.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112608444.3757.17.camel@desktop.cunningham.myip.net.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] I2C rtc8564.c remove duplicate include
+Hi!
 
-Trivial fix: removes duplicate include line.
+> > > The patches are against 2.6.11-rc1 with Zwane's CPU hotplug patch in -mm
+> > >  tree.
+> > 
+> > Should I merge that thing into mainline?  It seems that a few people are
+> > needing it.
+> 
+> Perhaps we should address the MTRR issue first.
+> 
+> I've had code in Suspend2 for quite a while (6 months+) that removes the
+> sysdev support for MTRRs and saves and restores them with CPU context,
+> thereby avoiding the smp_call-while-interrupts-disabled issue. Perhaps
+> it would be helpful here?
 
-Patch applies to: 2.6.11.x
+This seems like separate issue... I'd prefer not to block this patch.
 
-(This is my very first patch to the linux-kernel, so let me
-start with small things first...)
+MTRRs should be probably handled by some kind of "cpu is going down"
+and "cpu is going up" callbacks... Zwane, do you have any ideas?
+Linklist of handlers should be enough...
 
-Signed-off-by: Clemens Koller <clemens.koller@anagramm.de>
-
-
-diff -Nur --exclude-from=dontdiff-osdl linux-2.6.11.6-clean/drivers/i2c/chips/rtc8564.c linux-2.6.11.6/drivers/i2c/chips/rtc8564.c
---- linux-2.6.11.6-clean/drivers/i2c/chips/rtc8564.c	2005-03-26 04:28:14.000000000 +0100
-+++ linux-2.6.11.6/drivers/i2c/chips/rtc8564.c	2005-04-04 12:37:05.000000000 +0200
-@@ -19,7 +19,6 @@
-  #include <linux/string.h>
-  #include <linux/rtc.h>		/* get the user-level API */
-  #include <linux/init.h>
--#include <linux/init.h>
-
-  #include "rtc8564.h"
-
-
-
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

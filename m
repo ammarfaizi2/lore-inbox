@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265701AbSJXXrM>; Thu, 24 Oct 2002 19:47:12 -0400
+	id <S265708AbSJXXqy>; Thu, 24 Oct 2002 19:46:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265710AbSJXXrM>; Thu, 24 Oct 2002 19:47:12 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:18827 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S265701AbSJXXrK>; Thu, 24 Oct 2002 19:47:10 -0400
-From: SL Baur <steve@kbuxd.necst.nec.co.jp>
+	id <S265701AbSJXXqy>; Thu, 24 Oct 2002 19:46:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64273 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265694AbSJXXqw>;
+	Thu, 24 Oct 2002 19:46:52 -0400
+Message-ID: <3DB887D5.5080500@pobox.com>
+Date: Thu, 24 Oct 2002 19:52:53 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Steven Dake <sdake@mvista.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] Advanced TCA SCSI Disk Hotswap
+References: <200210242342.g9ONgGT04819@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15800.34980.899069.115419@sofia.bsd2.kbnes.nec.co.jp>
-Date: Fri, 25 Oct 2002 08:56:20 +0900
-To: Philippe Troin <phil@fifi.org>
-Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, tmolina@cox.net, haveblue@us.ibm.com
-Subject: Re: more aic7xxx boot failure
-In-Reply-To: <87hefbxw3d.fsf@ceramic.fifi.org>
-References: <8800000.1035498319@w-hlinder>
-	<87lm4nxxnj.fsf@ceramic.fifi.org>
-	<16660000.1035501142@w-hlinder>
-	<87hefbxw3d.fsf@ceramic.fifi.org>
-X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Troin writes:
+James Bottomley wrote:
 
-> Now, if the driver could be fixed, that would be nicer...
+>>n Advanced TCA (what spawned this work) a button is pressed to
+>>indicate  hotswap removal which makes for easy detection of hotswap
+>>events.  This is why there are  kernel interfaces for removal and
+>>insertion (so a kernel driver can be written to detect  the button
+>>press and remove the devices from the os data structures and then
+>>light a blue  led indicating safe for removal). 
+>>    
+>>
+>
+>OK, I understand what's going on now.  It's no different from those hotplug 
+>PCI busses where you press the button and a second or so later the LED goes 
+>out and you can remove the card.  10ms sounds rather a short maximum time for 
+>a technician to wait for a light to go out....I suppose Telco technicians are 
+>rather impatient.
+>
+>I really think you need to lengthen this interval.  The kernel is moving 
+>towards this type of hotplug infrastructure which you can easily leverage (or 
+>even help build), but it's definitely going to be mainly in user space.
+>  
+>
 
-I've forward ported the aic7xxx driver in 2.4.20-pre11 (which works
-excellently for me) to 2.5.44.  I'll post the patches later this morning.
+
+Caveat coder -- you also have to handle the case where the device is 
+already gone, by the time you are notified of the hot-unplug event. 
+ Some ejections are less friendly than others...  though from a SCSI 
+standpoint, hopefully that case is easier -- error out all I/Os in 
+flight, and unregister the host and device structures associated with 
+the recently-removed host.  The devil, of course, is in the details ;-)
+
+    Jeff
+
+
+
 

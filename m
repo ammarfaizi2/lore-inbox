@@ -1,52 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285438AbRLNRlT>; Fri, 14 Dec 2001 12:41:19 -0500
+	id <S285433AbRLNR6H>; Fri, 14 Dec 2001 12:58:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285440AbRLNRlK>; Fri, 14 Dec 2001 12:41:10 -0500
-Received: from outbound.ea.com ([12.35.91.3]:35745 "EHLO outbound.ea.com")
-	by vger.kernel.org with ESMTP id <S285438AbRLNRlA>;
-	Fri, 14 Dec 2001 12:41:00 -0500
-Date: Fri, 14 Dec 2001 17:40:38 UTC
-From: Thomas Schenk <tschenk@origin.ea.com>
-Reply-To: tschenk@origin.ea.com
-Subject: Question regarding limit on the number of sockets?
-To: linux-kernel@vger.kernel.org
-Message-ID: <INSIGHT.2.6.Linux-2.4.16.01121411403821.24988@bagend.origin.ea.com>
-Organization: EA.com Austin
-X-Mailer: INSIGHT 2.6 [en_US] Linux 2.4.16
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-Importance: Normal
-X-Accept-Language: en_US
-Sensitivity: Public-Document
+	id <S285435AbRLNR55>; Fri, 14 Dec 2001 12:57:57 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:12698
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S285433AbRLNR5j>; Fri, 14 Dec 2001 12:57:39 -0500
+Date: Fri, 14 Dec 2001 12:53:00 -0500
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Johan Ekenberg <johan@ekenberg.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        jack@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: Lockups with 2.4.14 and 2.4.16
+Message-ID: <3845670000.1008352380@tiny>
+In-Reply-To: <3C1A3652.52B989E4@zip.com.au>
+In-Reply-To: <000a01c1829f$75daf7a0$050010ac@FUTURE>
+ ,	<000a01c1829f$75daf7a0$050010ac@FUTURE> <3825380000.1008348567@tiny>
+ <3C1A3652.52B989E4@zip.com.au>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I apologize if this is a FAQ, but I have not been able to find the
-answer to a question that was asked of me.  According to the person who
-asked, there is a limit on the number of sockets that can be open at a
-given time.  The person stated that this limit was 1024.  My questions
-are:
 
-1.  Is this a per process limit, a per user limit, or a system wide
-limit?
-2.  Does this limit apply to both the 2.2.x and 2.4.x kernels?
-3.  Is this limit tunable (either by patching the kernel or otherwise)?
 
-I wouldn't bother asking here, but I need an answer quickly for my boss
-and thus far, my searching has not turned up the answer.
+On Friday, December 14, 2001 09:26:42 AM -0800 Andrew Morton
+<akpm@zip.com.au> wrote:
 
-Thanks in advance for any help that you can provide me.
+> Chris Mason wrote:
+>> 
+>> Ok, Johan sent along stack traces, and the deadlock works a little like
+>> this:
+>> 
+>> linux-2.4.16 + reiserfs + quota v2
+>> 
+>> kswapd ->
+>> prune_icache->dispose_list->dquot_drop->commit_dquot->generic_file_write->
+>> mark_inode_dirty->journal_begin-> wait for trans to end
+> 
+> uh-huh.
+> 
+>> Some process in the transaction is waiting on kswapd to free ram.
+> 
+> This is unfamiliar.  Where does a process block on kswapd in this
+> manner?  Not __alloc_pages I think.
 
-Tom Schenk
-Online Operations
-EA.COM
+It kinda blocks on kswapd by default when the process in the transaction
+needs to read a block, or allocate one for the commit.  Since kswapd is stuck
+waiting on the log, eventually a process holding the transaction will try to
+allocate something when there are no pages freeable with GFP_NOFS.
 
-   +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-   | Tom Schenk            | A positive attitude may not solve all your    |
-   | Online Ops, EA.COM    | problems, but it will annoy enough people to  |
-   | tschenk@origin.ea.com | make it worth the effort. -- Herm Albright    |
-   +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+It was much worse when we just had GFP_BUFFER before, but the deadlock is
+still there.
+
+>  
+>> So, this will hit any journaled FS that uses quotas and logs inodes under
+>> during a write.  ext3 doesn't seem to do special things for quota anymore,
+>> so it should be affected too.
+> 
+> mm.. most of the ext3 damage-avoidance hacks are around writepage().
+
+sct talked about how the ext3 data logging code allowed quotas to be
+consistent after a crash.  Perhaps this was just in 2.2.x...
+
+> 
+>> The only fix I see is to make sure kswapd doesn't run shrink_icache, and to
+>> have it done via a dedicated daemon instead.  Does anyone have a better
+>> idea?
+> 
+> Well, we already need to do something like that to prevent the
+> abuse of keventd in there.  It appears that somebody had a
+> problem with deadlocks doing the inode writeout in kswapd but
+> missed the quota problem.
+> 
+> Is it possible for the quota code to just bale out if PF_MEMALLOC
+> is set?  To leave the dquot dirty?
+
+We could change prune_icache to skip inodes with dirty quota fields.  It
+already skips dirty inodes, so this isn't a huge change.
+
+I'll try this, and also add kinoded so we can avoid using keventd.  I'm wary
+of the affects on the VM if kinoded can't keep up though, so I'd like to keep
+the shrink_icache call in kswapd if possible.
+
+Johan, expect this to take at least a week before I suggest installing on
+production machines.  Things are very intertwined here, and these changes
+will probably have side effects that need dealing with.
+
+Turning quotas off will solve the problem in the short term.
+
+-chris
 

@@ -1,75 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVAEJ6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbVAEJ7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbVAEJ6B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 04:58:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVAEJ6B
+	id S262311AbVAEJ7p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 04:59:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVAEJ7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 04:58:01 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:32406 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262309AbVAEJ56 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 04:57:58 -0500
-Subject: [PATCH] oprofile: fix ia64 callgraph bug with old gcc
-From: Greg Banks <gnb@melbourne.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keith Owens <kaos@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       OProfile List <oprofile-list@lists.sourceforge.net>
-Content-Type: multipart/mixed; boundary="=-jDhMDMrJtHty4RnqOOE8"
-Organization: Silicon Graphics Inc, Australian Software Group.
-Message-Id: <1104919059.10291.246.camel@hole.melbourne.sgi.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 05 Jan 2005 20:57:40 +1100
+	Wed, 5 Jan 2005 04:59:44 -0500
+Received: from dsl-217-155-115-179.zen.co.uk ([217.155.115.179]:4480 "HELO
+	felix.billp.org") by vger.kernel.org with SMTP id S262311AbVAEJ7S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 04:59:18 -0500
+From: bil@beeb.net
+Reply-To: bil@beeb.net
+To: linux-kernel@vger.kernel.org
+Subject: problems with 2.6.10
+Date: Wed, 5 Jan 2005 09:59:13 +0000
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501050959.14091.bil@beeb.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I've downloaded, configured and compiled 2.6.10 for my IBM Thinkpad A21m.
+I've installed quite a few kernels over the years, and while not a
+kernel expert, thought I understood enough to get by. Sadly when I
+tried to boot up the new kernel I get a few error messages which I
+can't figure out. Also, once the system is up my keyboard is DEAD.
+My only option is the power-off button! My 'base' system is Mandrake 10.0.
+I have been running 2.6.7 with only minor problems (hence the desire
+to upgrade to 2.6.10).
 
---=-jDhMDMrJtHty4RnqOOE8
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The error messages that I've been able to find in the log are:
+(I'm including an 'expected' message to indicate roughly the context)
 
-G'day,
+Jan  5 08:22:33 felix kernel: Loaded 23850 symbols 
+from /boot/System.map-2.6.10.
+Jan  5 08:22:33 felix kernel: Symbols match kernel version 2.6.10.
+Jan  5 08:22:33 felix kernel: No module symbols loaded - kernel modules not 
+enabled.
 
-This patch from Keith Owens fixes a bug in the ia64 port
-of oprofile when built without the kdb patch and with a
-pre-3.4 gcc.
+This is right at the start of the log. Not sure if this means that the symbols
+for the modules are not enabled, as various module-provided functions do
+seem to be working. I can't run lsmod to check as the keyboard is dead.
 
-Greg.
+Jan  5 08:22:33 felix kernel: Mounted devfs on /dev
+Jan  5 08:22:33 felix kernel: jbd: version magic '2.6.3-7mdk 586 ' should be 
+'2.6.10 PENTIUMIII gcc-3.3'
+Jan  5 08:22:33 felix kernel: ext3: version magic '2.6.3-7mdk 586 ' should be 
+'2.6.10 PENTIUMIII gcc-3.3'
+
+Not sure if these are significant. 2.6.3-7mdk is the original Mandrake 10.0
+kernel.
+
+Jan  5 08:22:18 felix usb: Initializing USB controller (usb-uhci):  succeeded 
+Jan  5 08:22:18 felix mount: mount: fs type usbdevfs not supported by kernel 
+Jan  5 08:22:18 felix usb: Mount USB filesystem failed 
+
+This worries me - I definitely have usbdevfs marked in the config:
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_BANDWIDTH=y
+# CONFIG_USB_DYNAMIC_MINORS is not set
+# CONFIG_USB_SUSPEND is not set
+# CONFIG_USB_OTG is not set
+
+Despite this, USB seems to be working OK, my mouse is USB and that was
+responding when X11 had come up.
+
+Jan  5 08:22:31 felix ifplugd(eth0)[1716]: Using interface eth0 
+Jan  5 08:22:31 felix ifplugd(eth0)[1716]: Failed to detect plug status of 
+eth0 
+Jan  5 08:22:31 felix ifplugd(eth0)[1716]: Executing 
+'/etc/ifplugd/ifplugd.action eth0 up'. 
+Jan  5 08:22:31 felix ifplugd(eth0)[1716]: client: xircom_tulip_cb device eth0 
+does not seem to be present, delaying initialization. 
+Jan  5 08:22:31 felix ifplugd(eth0)[1716]: Program execution failed, return 
+value is 1. 
+Jan  5 08:22:31 felix ifplugd(eth0)[1716]: Exiting. 
+
+This is serious! If the ethernet had come up, there was a chance that I
+could have logged in via ssh to debug further. The ethernet comes up fine
+under 2.6.7
+
+That's all the error  messages that I could find. Everything else seemed
+to be much as normal. I can live with a few error messages at boot-up
+provided things continue to work, but a dead keyboard is a major setback.
+
+After I rebooted back to 2.6.7 I checked the .config file, and checked
+to see what modules were around and thought I'd found something - the
+'input.ko' module was missing. Checking through using 'make xconfig'
+I discovered that there was no option for this - it's just displayed
+as a heading. However, checking the .config file shows 
+
+CONFIG_INPUT=y
+
+so I presume that the 'module' has been compiled into the kernel.
+
+I'm not a subscriber to the lkml (too much traffic) so I'd appreciate
+a direct reply if anyone can help. 
+
+Many thanks
+
+Bill
 -- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
-
-
---=-jDhMDMrJtHty4RnqOOE8
-Content-Disposition: attachment; filename=oprofile-ia64-gcc-pre-34-fix
-Content-Type: text/plain; name=oprofile-ia64-gcc-pre-34-fix; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-If you build a standard kernel with gcc < 3.4 then
-ia64_spinlock_contention_pre3_4 is defined.  But a standard kernel
-does not have ia64_spinlock_contention_pre3_4_end, that label is
-only added by the kdb patch.  To get the backtrace profiling with
-gcc < 3.4, the _end label needs to be added as part of the kernprof
-patch, then I will remove it from kdb.  Send this to akpm.
-
-From: Keith Owens <kaos@sgi.com>
-Signed-off-by: Keith Owens <kaos@sgi.com>
-Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
-
-Index: linux/arch/ia64/kernel/head.S
-===================================================================
---- linux.orig/arch/ia64/kernel/head.S	2004-10-19 07:54:38.000000000 +1000
-+++ linux/arch/ia64/kernel/head.S	2005-01-05 20:37:23.000000000 +1100
-@@ -949,6 +949,8 @@ GLOBAL_ENTRY(ia64_spinlock_contention_pr
- (p14)	br.cond.sptk.few .wait
- (p15)	rsm psr.i		// disable interrupts if we reenabled them
- 	br.cond.sptk.few b6	// lock is now free, try to acquire
-+	.global ia64_spinlock_contention_pre3_4_end	// for kernprof
-+ia64_spinlock_contention_pre3_4_end:
- END(ia64_spinlock_contention_pre3_4)
- 
- #else
-
---=-jDhMDMrJtHty4RnqOOE8--
-
++-----------------------------------------------+
+| Bill Purvis, thrice-retired software engineer |
+| e-mail:  bil@beeb.net                         |
+| web:     bil.members.beeb.net                 |
++-----------------------------------------------+

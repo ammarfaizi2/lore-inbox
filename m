@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287467AbSALUsW>; Sat, 12 Jan 2002 15:48:22 -0500
+	id <S287475AbSALUyN>; Sat, 12 Jan 2002 15:54:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287450AbSALUsN>; Sat, 12 Jan 2002 15:48:13 -0500
-Received: from delta.Colorado.EDU ([128.138.139.9]:53767 "EHLO
-	ibg.colorado.edu") by vger.kernel.org with ESMTP id <S287449AbSALUr7>;
-	Sat, 12 Jan 2002 15:47:59 -0500
-Message-Id: <200201122047.NAA50782@ibg.colorado.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Writeout in recent kernels/VMs poor compared to last -ac 
-In-Reply-To: "Adam Kropelin"'s message of Sat, 12 Jan 2002 10:17:39 EST.
-In-Reply-To: <009e01c19b7c$463457d0$02c8a8c0@kroptech.com> 
-Organization: Institute for Behavioral Genetics
-              University of Colorado
-              Boulder, CO  80309-0447
-X-Phone: +1 303 492 2843
-X-FAX: +1 303 492 8063
-X-URL: http://ibgwww.Colorado.EDU/~lessem/
-X-Copyright: All original content is copyright 2002 Jeff Lessem.
-X-Copyright: Quoted and non-original content may be copyright the
-X-Copyright: original author or others.
-Date: Sat, 12 Jan 2002 13:47:45 -0700
-From: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
-X-ECS-MailScanner: Found to be clean
+	id <S287471AbSALUyC>; Sat, 12 Jan 2002 15:54:02 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:41490 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S287450AbSALUxu>; Sat, 12 Jan 2002 15:53:50 -0500
+Message-ID: <3C40A255.EBE646@linux-m68k.org>
+Date: Sat, 12 Jan 2002 21:53:41 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: arjan@fenrus.demon.nl, Rob Landley <landley@trommello.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16PTIR-0002sL-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In your message of: Sat, 12 Jan 2002 10:17:39 EST, you write:
->I recently began regularly transferring large (600 MB+) files to my
->Linux-based fileserver and have noticed what I would characterize as poor
->writeout behavior under this load. I've done a bit of comparison testing
->which may help reveal the problem better.
+Hi,
 
-I see the same behavior when writing to a USB attached harddisk/MP3
-player, which also is formated VFAT.  Doing a cp *.mp3 /usbdrive/ will
-read the mp3s into memory, until all free memory is filled, and then
-start writing them to the usb drive.  Because it can only write at
-800KB/s this behavior is very noticable.  Once the few hundred MB of
-files in memory have been written out, the next batch of files will be
-read into memory, and then written out.
+Alan Cox wrote:
 
-This behavior occurs under 2.4.17, and has occured under all recent
-2.4 kernels.  I haven't done any rigorous testing to see which, if
-any, -ac or early 2.4 kernels do not show this behavior.
+> So with pre-empt this happens
+> 
+>         driver magic
+>         disable_irq(dev->irq)
+> PRE-EMPT:
+>         [large periods of time running other code]
+> PRE-EMPT:
+>         We get back and we've missed 300 packets, the serial port sharing
+>         the IRQ has dropped our internet connection completely.
 
-If VFAT is considered an issue, I can reformat the disk ext2 for
-testing.
+But it shouldn't deadlock as Victor is suggesting.
 
-Not really any new information to add, just a "me too", though I would
-be happy to try out any proposed fixes.
+> There are numerous other examples in the kernel tree where the current code
+> knows that there is a small bounded time between two actions in kernel space
+> that do not have a sleep. They are not spin locked, and putting spin locks
+> everywhere will just trash performance. They are pure hardware interactions
+> so you can't automatically detect them.
 
---
-Jeff Lessem.
+Why should spin locks trash perfomance, while an expensive disable_irq()
+doesn't?
+
+bye, Roman

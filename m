@@ -1,184 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVCGEFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVCGEKO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVCGEFb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 23:05:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVCGEFb
+	id S261153AbVCGEKO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 23:10:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVCGEKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 23:05:31 -0500
-Received: from fire.osdl.org ([65.172.181.4]:20872 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261540AbVCGEEt (ORCPT
+	Sun, 6 Mar 2005 23:10:14 -0500
+Received: from fire.osdl.org ([65.172.181.4]:2697 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261153AbVCGEKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 23:04:49 -0500
-Message-ID: <422BD013.7090806@osdl.org>
-Date: Sun, 06 Mar 2005 19:52:51 -0800
+	Sun, 6 Mar 2005 23:10:07 -0500
+Message-ID: <422BD157.6040304@osdl.org>
+Date: Sun, 06 Mar 2005 19:58:15 -0800
 From: "Randy.Dunlap" <rddunlap@osdl.org>
 User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: andrei@arhont.com
-CC: linux-kernel@vger.kernel.org, dst@bostream.nu
-Subject: Re: amd64 2.6.11 oops on modprobe
-References: <1110024688.5494.2.camel@whale.core.arhont.com>	 <422A5473.7030306@osdl.org> <1110115990.5611.2.camel@whale.core.arhont.com>
-In-Reply-To: <1110115990.5611.2.camel@whale.core.arhont.com>
+To: Shawn Starr <shawn.starr@rogers.com>
+CC: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11.1
+References: <200503050116.10577.shawn.starr@rogers.com> <20050306050649.GC11889@kroah.com> <200503062302.00040.shawn.starr@rogers.com>
+In-Reply-To: <200503062302.00040.shawn.starr@rogers.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrei Mikhailovsky wrote:
-> Hi Randy,
+Shawn Starr wrote:
+> Sure, I can do this.  Wrt to trivial patches, will these patches that go into 
+> rusty's patch bot go into Linus's tree or into the -mm tree? 
 > 
-> Done the kstack=32, here is the output:
-> 
-> cat /proc/cmdline 
-> root=/dev/hda2 ro kstack=32 console=tty0
-> 
-> P.S. Yeah, this oops is repeatable; hapens everytime
+> The reason I ask that is because a trivial patch may fix an oops if there's an 
+> off-by-one problem and typically I'd submit that to the trivial patch bot.
 
-Well thanks, I've looked thru this but I'm not getting anywhere
-on it.  Also, there aren't many changes in this driver or in
-the relevant I2C drivers between 2.6.10 and 2.6.11 AFAICT.
+No offense intended, but Rusty's trivial bot is often too slow
+for critical patches, so trivial-but-critical would be better off
+going to thru the x.y tree IMO.
 
-If the maintainer(s) of this don't see/know the problem here,
-we'll have to ask you to do a binary search on the 2.6.11-rcN
-patches to see when this began.  Would you do that, please?
+> That's why I was wondering about why this tree doesn't except trivial changes.
 
-Andrei, you don't have CONFIG_PREEMPT enabled, right?
-Just checking.
+It will if they fix real problems that people are experiencing.
 
-> Output-----
+The trivil bot and/or kernel-janitors paths for patches are better
+used for slow/non-critical patches, not patches that need quick
+attention and merging.
+
+> Thanks,
+> Shawn.
 > 
-> Unable to handle kernel paging request at ffffffff880db000 RIP: 
-> <ffffffff880d909f>{:saa7110:saa7110_write_block+127}
-> PGD 103027 PUD 105027 PMD 3de65067 PTE 0
-> Oops: 0000 [1] 
-> CPU 0 
-> Modules linked in: adv7175 saa7110 zr36067 videocodec videodev sata_nv
-> libata snd_intel8x0 snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm
-> snd_timer snd snd_page_alloc i2c_nforce2 it87 eeprom i2c_sensor i2c_isa
-> sk98lin
-> Pid: 3213, comm: modprobe Not tainted 2.6.11-amd64
-> RIP: 0010:[<ffffffff880d909f>]
-> <ffffffff880d909f>{:saa7110:saa7110_write_block+127}
-> RSP: 0018:ffff81003e9a3b78  EFLAGS: 00010287
-> RAX: 000000000000139f RBX: 00000000ffffec36 RCX: 000000000000002a
-> RDX: 000000000000009f RSI: 0000000000000001 RDI: ffffffff880bf838
-> RBP: 000000000000139f R08: 0000000000000000 R09: ffff8100067713a8
-> R10: 0000000000000001 R11: ffffffff802f75d0 R12: ffffffff880db000
-> R13: ffff810037277400 R14: ffff81003e4efe00 R15: 0000000000000001
-> FS:  00002aaaaaac5520(0000) GS:ffffffff80500180(0000)
-> knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: ffffffff880db000 CR3: 000000003fa2b000 CR4: 00000000000006e0
-> Process modprobe (pid: 3213, threadinfo ffff81003e9a2000, task
-> ffff81003e8096c0)
-> Stack: 0000000000000076 0000000000000000 0000000000000000
-> 0000000000000000 
->        0000000000000000 ffffffffffff0000 ffffffffffffffff
-> ffff81003e4efe28 
->        ffff002a0001004e ffff81003e9a3b78 ffff81003e4efe28
-> ffff810037277400 
->        ffff81003e4efe00 0000000000000000 ffff81003e4eff70
-> ffffffff880bf808 
->        ffffffff880d9930 ffffffff880d9ab4 0000000000000000
-> 0000000000000000 
->        000000000000004e 0000000000000000 000000000000004e
-> 0000000000000003 
->        ffffffff880dab60 ffffffff802f6812 0000000000000000
-> ffffffff880dab50 
->        ffffffff880bf808 ffffffff880bf9a8 ffffffff880bf908
-> ffffffff80474f90 
-> Call Trace:<ffffffff880d9930>{:saa7110:saa7110_detect_client+0} 
->        <ffffffff880d9ab4>{:saa7110:saa7110_detect_client+388} 
->        <ffffffff802f6812>{i2c_probe+642}
-> <ffffffff802f4c24>{i2c_add_adapter+468} 
->        <ffffffff802f7928>{i2c_bit_add_bus+840}
-> <ffffffff880d7600>{:zr36067:init_dc10_cards+1536} 
->        <ffffffff801468e1>{sys_init_module+5857}
-> <ffffffff80174de7>{do_lookup+55} 
->        <ffffffff8021f440>{prio_tree_insert+48}
-> <ffffffff880d7000>{:zr36067:init_dc10_cards+0} 
->        <ffffffff80113fff>{sys_mmap+191} <ffffffff8010e1fa>{system_call
-> +126} 
->        
 > 
-> Code: 41 0f b6 04 24 ff c5 49 ff c4 41 88 44 15 00 88 04 0c 8b 44 
-> RIP <ffffffff880d909f>{:saa7110:saa7110_write_block+127} RSP
-> <ffff81003e9a3b78>
-> CR2: ffffffff880db000
+> On March 6, 2005 00:06, you wrote:
 > 
-> ---Output end---
-> 
-> If you need any further info, please let me know
-> 
-> --
-> Andrei
-> 
-> On Sat, 2005-03-05 at 16:53 -0800, Randy.Dunlap wrote:
-> 
->>Andrei Mikhailovsky wrote:
+>>On Sat, Mar 05, 2005 at 01:16:10AM -0500, Shawn Starr wrote:
 >>
->>>I get the oops during the boot up process. This did not happen in
->>>2.6.10/2.6.9.
+>>>Sounds great, I can be a QA resource for what machines I have.
 >>>
->>>Here is the output from dmesg:
->>>
->>>Unable to handle kernel paging request at ffffffff880db000 RIP: 
->>><ffffffff880d909f>{:saa7110:saa7110_write_block+127}
->>>PGD 103027 PUD 105027 PMD 3ee64067 PTE 0
->>>Oops: 0000 [1] 
->>>CPU 0 
->>>Modules linked in: adv7175 saa7110 zr36067 videocodec videodev sata_nv
->>>libata snd_intel8x0 snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm
->>>snd_timer snd snd_page_alloc i2c_nforce2 it87 eeprom i2c_sensor i2c_isa
->>>sk98lin
->>>Pid: 2604, comm: modprobe Not tainted 2.6.11-amd64
->>>RIP: 0010:[<ffffffff880d909f>]
->>><ffffffff880d909f>{:saa7110:saa7110_write_block+127}
->>>RSP: 0018:ffff81003f6c5b78  EFLAGS: 00010287
->>>RAX: 000000000000139f RBX: 00000000ffffec36 RCX: 000000000000002a
->>>RDX: 000000000000009f RSI: 0000000000000001 RDI: ffffffff880bf838
->>>RBP: 000000000000139f R08: 0000000000000000 R09: ffff81003efd63a8
->>>R10: 0000000000000001 R11: ffffffff802f75d0 R12: ffffffff880db000
->>>R13: ffff81003f3e0200 R14: ffff81003e0df200 R15: 0000000000000001
->>>FS:  00002aaaaaac5520(0000) GS:ffffffff80500180(0000)
->>>knlGS:0000000000000000
->>>CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
->>>CR2: ffffffff880db000 CR3: 000000003e125000 CR4: 00000000000006e0
->>>Process modprobe (pid: 2604, threadinfo ffff81003f6c4000, task
->>>ffff81003ed59700)
->>>Stack: 0000000000000076 0000000000000000 0000000000000000
->>>0000000000000000 
->>>       0000000000000000 ffffffffffff0000 ffffffffffffffff
->>>ffff81003e0df228 
->>>       ffff002a0001004e ffff81003f6c5b78 
->>>Call Trace:<ffffffff880d9930>{:saa7110:saa7110_detect_client+0} 
->>>       <ffffffff880d9ab4>{:saa7110:saa7110_detect_client+388} 
->>>       <ffffffff802f6812>{i2c_probe+642}
->>><ffffffff802f4c24>{i2c_add_adapter+468} 
->>>       <ffffffff802f7928>{i2c_bit_add_bus+840}
->>><ffffffff880d7600>{:zr36067:init_dc10_cards+1536} 
->>>       <ffffffff801468e1>{sys_init_module+5857}
->>><ffffffff80174de7>{do_lookup+55} 
->>>       <ffffffff8021f440>{prio_tree_insert+48}
->>><ffffffff880d7000>{:zr36067:init_dc10_cards+0} 
->>>       <ffffffff80113fff>{sys_mmap+191} <ffffffff8010e1fa>{system_call
->>>+126} 
->>>       
->>>
->>>Code: 41 0f b6 04 24 ff c5 49 ff c4 41 88 44 15 00 88 04 0c 8b 44 
->>>RIP <ffffffff880d909f>{:saa7110:saa7110_write_block+127} RSP
->>><ffff81003f6c5b78>
->>>CR2: ffffffff880db000
->>>
->>>If anyone need more debugging info, I am ready to help
+>>>How do people get involved in QAing these releases?
 >>
->>Hm, not much change in that driver from 2.6.10.
->>
->>Is this easily reproducible?
->>If so, please boot with "kstack=32" for more stack dump.
->>And send me your saa7110.o (object) file since mine isn't
->>like yours.
+>>Get the last release and test it out.  If you have problems, and have
+>>simple/obvious patches, send them on.
 
 -- 
 ~Randy

@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271162AbTGQQSe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 12:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271163AbTGQQSe
+	id S271285AbTGQQXR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 12:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271295AbTGQQXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 12:18:34 -0400
-Received: from isi-dsl-126-75.isis.de ([213.128.126.75]:51183 "EHLO
-	Dragon.192.168.1.1") by vger.kernel.org with ESMTP id S271162AbTGQQSd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 12:18:33 -0400
-Date: Thu, 17 Jul 2003 18:33:26 +0200
-From: Patrick Plattes <patrick@erdbeere.net>
-To: linux-kernel@vger.kernel.org
-Subject: rivafb problem (2.6.0-test1)
-Message-ID: <20030717163326.GA333@erdbeere.net>
+	Thu, 17 Jul 2003 12:23:17 -0400
+Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:16276 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S271285AbTGQQXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 12:23:14 -0400
+Date: Thu, 17 Jul 2003 18:36:56 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 2.6.0-test1: description.
+Message-ID: <20030717163656.GA2045@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
+some more bug fixes for s390. 6 patches against linux-bk as of 2003/07/17.
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Short descriptions:
+1) Some minor stuff in arch/s390 and include/asm-s390.
+2) Enable irq statistics for s390*. While we can't keep stats for all
+   i/o interrupts (65536) and external interrupts (4), we can count
+   all i/o interrupts and all external interrupts as two classes of
+   interrupts.
+3) Remove surplus put_disk in the dasd driver.
+4) Common i/o layer fixes.
+5) Qeth network driver fixes.
+6) Correct size of siginfo_t for s390x.
 
-hello,
+blue skies,
+  Martin.
 
-i have some problems with the rivafb. it compiles fine, but it displays
-not correct. it is hard to describe - especially in english ;).=20
-
-actually i have cursor - it looks like an underlined 'P'. if i try to
-switch to an other hsync changed to 120hz. if i try to use x it works
-fine (ok, i can't switch back to the console).
-
-i don't have any interesting outputs in the messages log. you can find
-my actual .config at www.erdbeere.net/.config . if you need any
-screenshots i will try to find my digi-cam.
-
-thanks,
-patrick
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/Fs/WQ7Xfys5M9aQRAoXlAJ9Kwz/JpprFPfe13G1qVUq912rcBQCglsrE
-1m2k7EZmluLisMYWKy69UTM=
-=7XzR
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--

@@ -1,72 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265791AbUBBS7u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 13:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUBBS7u
+	id S265763AbUBBTC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 14:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265766AbUBBTC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 13:59:50 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:38058 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S265791AbUBBS7r
+	Mon, 2 Feb 2004 14:02:27 -0500
+Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:9863 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265763AbUBBTCY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 13:59:47 -0500
-Subject: Re: oops with 2.6.1-rc1 and rc-3
-From: Len Brown <len.brown@intel.com>
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: Micha Feigin <michf@post.tau.ac.il>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <401E0E2C.8020708@gmx.de>
-References: <BF1FE1855350A0479097B3A0D2A80EE0020AEB18@hdsmsx402.hd.intel.com>
-	 <1075664953.2389.12.camel@dhcppc4>  <401E0E2C.8020708@gmx.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1075748372.2398.117.camel@dhcppc4>
+	Mon, 2 Feb 2004 14:02:24 -0500
+Subject: Re: module-init-tools/udev and module auto-loading
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040202003922.3180E2C078@lists.samba.org>
+References: <20040202003922.3180E2C078@lists.samba.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-87JFjVIm0sdwxOqfwguw"
+Message-Id: <1075748550.6931.10.camel@nosferatu.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 02 Feb 2004 13:59:32 -0500
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 02 Feb 2004 21:02:30 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> handlers:
->> [<c02a6b50>] (ide_intr+0x0/0x190)
->> [<c03248c0>] (snd_intel8x0_interrupt+0x0/0x210)
->> Disabling IRQ #11
->> irq 11: nobody cared!
 
-> If you find that it goes away when you boot with pci=noacpi, or
-> > acpi=off, then it is likely an ACPI issue -- otherwise it is likely
-> > something else -- so give those a try and let me know.
-> 
-> Ok, I tried rc3 without acpi compiled in, and yes, it booted. So I guess 
-> acpi is really breaking up stuff. If you want me to test patches, let me 
-> know.
+--=-87JFjVIm0sdwxOqfwguw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, 2004-02-02 at 02:10, Rusty Russell wrote:
+> In message <1075674718.27454.17.camel@nosferatu.lan> you write:
+> > A quick question on module-init-tools/udev and module auto-loading ...
+> > lets say I have a module called 'foo', that I want the kernel to
+> > auto-load.
+>=20
+> The *idea* of udev et al is that the kernel finds the devices,
+> /sbin/hotplug loads the driver etc.
+>=20
+
+Right.
+
+> This does not cover the class of things which are entirely created by
+> the driver (eg. dummy devices, socket families), so cannot be
+> "detected".  Many of these (eg. socket families) can be handled by
+> explicit request_module() in the core and MODULE_ALIAS in the driver.
+> Some of them cannot at the moment: the first the kernel knows of them
+> is an attempt to open the device.  Some variant of devfs would solve
+> this.
+>=20
+
+I guess there will be cries of murder if 'somebody' suggested that if
+a node in /dev is opened, but not there, the kernel can call
+'modprobe -q /dev/foo' to load whatever alias there might have been?
+
+Understand me correctly, I do not want devfs back.  I am just checking
+if we could do something for similar behaviour.  I know it has not
+_really_ hit the lists, but I have already had complaints about this
+not being supported anymore.  I think the complaints will start even
+more if raminitfs eventually hits functionality (as /dev will then be
+then consisting only of loaded drivers (if I am not mistaken).
+
+Once again I do not say we should give in to it, but it _does_ make
+things easier.  So if there is a lightweight way to do this, then
+great - and this is what I was trying to get discussion directed to.
+
+> > Then a distant related issue - anybody thought about dynamic major
+> > numbers of 2.7/2.8 (?) and the 'alias char-major-<whatever>-* whatever'
+> > type modprobe rules (as the whole fact of them being dynamic, will make
+> > that alias type worthless ...)?
+>=20
+> Yes.  This could be changed to probe by device name, not number
+> though.  And most names can't be dynamic: /dev/null has certain, fixed
+> semantics.
+>=20
+> The "I found this hardware, who will drive it?" mechanism of udev, and
+> the "User asked for this, who will supply it?" mechanism of kmod have
+> some overlap, but I think both will end up being required.
+>=20
+
+Ok, was just wondering.
 
 
-Need more info before sending you test patches, please open up a new bug
-report and put the info there:
+Thanks,
 
-http://bugzilla.kernel.org/ Category: Power Management, Component: ACPI
+--=20
+Martin Schlemmer
 
-For the same (ACPI enabled) kernel, both with and without "acpi=off",
-please attach 
+--=-87JFjVIm0sdwxOqfwguw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-dmesg -s40000 output (or serial console log if dmesg unavailable)
-/proc/interrupts
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-If you can run the latest release, and clarify which release this last
-worked properly in, that would be helpful.
+iD8DBQBAHp7FqburzKaJYLYRAtQ0AJ9iJpLMNii+KWral0oN7oxyklAoOwCeMfHx
+G1JT5LY4VLBm32ukyzKneVc=
+=CFY8
+-----END PGP SIGNATURE-----
 
-Also, please attach the output from acpidmp, available in /usr/sbin/, or
-in pmtools:
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
-
-Please attach the output from dmidecode, available in /usr/sbin/, or
-here:
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
-
-and attach a copy of your .config
-
-thanks,
--Len
-
+--=-87JFjVIm0sdwxOqfwguw--
 

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288040AbSA0MRl>; Sun, 27 Jan 2002 07:17:41 -0500
+	id <S284732AbSA0MZ0>; Sun, 27 Jan 2002 07:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288058AbSA0MRc>; Sun, 27 Jan 2002 07:17:32 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:37856 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S288040AbSA0MRQ>;
-	Sun, 27 Jan 2002 07:17:16 -0500
-Date: Sun, 27 Jan 2002 13:17:14 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200201271217.NAA27890@harpo.it.uu.se>
-To: sczjd@yahoo.com
-Subject: Re: issues with 2.4.18 kernel and Dell Inspiron 8000
-Cc: linux-kernel@vger.kernel.org
+	id <S285593AbSA0MZO>; Sun, 27 Jan 2002 07:25:14 -0500
+Received: from pc3-redb4-0-cust131.bre.cable.ntl.com ([213.106.223.131]:7673
+	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
+	id <S284732AbSA0MZE>; Sun, 27 Jan 2002 07:25:04 -0500
+Date: Sun, 27 Jan 2002 12:25:01 +0000
+From: Mark Zealey <mark@zealos.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: fonts corruption with 3dfx drm module
+Message-ID: <20020127122501.GA23825@itsolve.co.uk>
+In-Reply-To: <20020127113553Z287979-13997+10785@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020127113553Z287979-13997+10785@vger.kernel.org>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux sunbeam 2.4.17-wli2 
+X-Homepage: http://zealos.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jan 2002 03:35:37 -0600, SI Reasoning wrote:
->On 2002-01-27 at 11:43, SI Reasoning wrote:
->> When halting my Dell Inspiron 8000, I get the power
->> off message but the laptop does not power off while
->> using the 2.4.17-10mdk kernel. Other APM related stuff is
->> a mess with this laptop also. If it suspends or does
->> any power saving features, it can not be brought back
->> up and has to be rebooted. Even worse, if I try to go
->> to bios or check the battery feature, it completely
->> locks up the computer and it has to be forcibly turned
->> off.
->> > Kernel 2.4.16-11mdk was way better. It still had the
->> suspend issue, but I could go to the bios or battery
->> display and other bios related shortcuts without
->> issue. It also powered down without issue.
+On Sun, Jan 27, 2002 at 12:15:01PM +0000, Diego Calleja wrote:
 
-If the kernel has CONFIG_SMP or CONFIG_X86_UP_APIC enabled,
-then it's known Dell Inspiron bug.
+> I can see fonts corruption when switching from X to console. I use last
+> stable kernel, but it's been hapenning from earlier versions. I use
+> iso-8959-15 fonts in console, with tdfx drm module for X, my video card is voodoo 3 3000 PCI.
+> I hope this can help.
 
-A patch to fix the problem has been posted here numerous
-times, but it's not yet in any standard kernel (and likely
-never will be since the powers that be just toss it in
-/dev/null w/o comment).
+Yes, I've been seeing this too, it's happened in 2.2.19, 2.2.20 and 2.4.17 (for
+me). Voodoo banshee PCI card.. it can be annoying, but another switch usially
+fixes it...
 
-To fix it, you can either ensure that both config options
-mentioned above are OFF, or you can get the following patches
+-- 
 
-patch-boot-time-ioremap-2.4.18-pre7
-patch-early-dmi-scan-2.4.18-pre7
-patch-dmi-apic-fixups-2.4.18-pre7
+Mark Zealey
+mark@zealos.org
+mark@itsolve.co.uk
 
-from http://www.csd.uu.se/~mikpe/linux/kernel-patches/2.4/
-and apply them in the order listed.
+UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
+!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
+!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
 
-/Mikael
+(www.geekcode.com)

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291591AbSBAHlB>; Fri, 1 Feb 2002 02:41:01 -0500
+	id <S291592AbSBAHlB>; Fri, 1 Feb 2002 02:41:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291590AbSBAHkw>; Fri, 1 Feb 2002 02:40:52 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:14731 "EHLO
+	id <S291591AbSBAHkv>; Fri, 1 Feb 2002 02:40:51 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:14475 "EHLO
 	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S291592AbSBAHkj>; Fri, 1 Feb 2002 02:40:39 -0500
-Message-Id: <200201312044.g0VKi8tL001465@tigger.cs.uni-dortmund.de>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] KERN_INFO for devfs 
-In-Reply-To: Message from Richard Gooch <rgooch@ras.ucalgary.ca> 
-   of "Wed, 30 Jan 2002 11:04:49 MST." <200201301804.g0UI4nQ13064@vindaloo.ras.ucalgary.ca> 
-Date: Thu, 31 Jan 2002 21:44:08 +0100
+	id <S291590AbSBAHkh>; Fri, 1 Feb 2002 02:40:37 -0500
+Message-Id: <200201312226.g0VMQIKV001568@tigger.cs.uni-dortmund.de>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Radix tree page cache 
+In-Reply-To: Message from Andrea Arcangeli <andrea@suse.de> 
+   of "Thu, 31 Jan 2002 03:25:40 +0100." <20020131032540.W1309@athlon.random> 
+Date: Thu, 31 Jan 2002 23:26:18 +0100
 From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch <rgooch@ras.ucalgary.ca> said:
+Andrea Arcangeli <andrea@suse.de> said:
+> On Wed, Jan 30, 2002 at 10:25:44PM +0200, Momchil Velikov wrote:
+> > Linus,
+> > 
+> > Please, consider for inclusion in 2.5.3 series the following radix
+> > tree page cache patch.
+> 
+> Please benchmark on files 10giga large, only do cached I/O (reads are
+> fine) between 9G and 10G offset for example.
 
-[...]
-
-> I'd prefer if tree maintainers (that means you, Alan:-) don't apply
-> devfs patches that didn't come from me. I've already posted a patch
-> which cleans up *all* the remaining printk()'s. In fact, it's a pair
-> of patches, one for 2.4.x and one for 2.5.x. That was yesterday. Today
-> I'm still seeing this thread being beaten to death.
-
-There goes the "just small-stuff maintainer"...
+All published data I've seen on file size distribution on Unix show that
+the overwhelming mayority of files is a few KiB long, so this is a corner
+case. Why benchmark it expressly?
 -- 
 Horst von Brand			     http://counter.li.org # 22616

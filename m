@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268845AbUIQQHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269000AbUIQQCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268845AbUIQQHI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 12:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268995AbUIQQFc
+	id S269000AbUIQQCW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 12:02:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268968AbUIQP5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 12:05:32 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:51636 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S268968AbUIQQC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 12:02:27 -0400
-Date: Fri, 17 Sep 2004 18:01:00 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Stelian Pop <stelian@popies.net>, James R Bruce <bruce@andrew.cmu.edu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-ID: <20040917160100.GZ15426@dualathlon.random>
-References: <20040913135253.GA3118@crusoe.alcove-fr> <20040915153013.32e797c8.akpm@osdl.org> <20040916064320.GA9886@deep-space-9.dsnet> <20040916000438.46d91e94.akpm@osdl.org> <Pine.LNX.4.60-041.0409170823140.1298@unix48.andrew.cmu.edu> <20040917154834.GA3180@crusoe.alcove-fr>
+	Fri, 17 Sep 2004 11:57:38 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:16339 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268998AbUIQP4o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 11:56:44 -0400
+Subject: Re: [RFC][PATCH] inotify 0.9
+From: Robert Love <rml@novell.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bill Davidsen <davidsen@tmr.com>, Jan Kara <jack@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1095432696.26146.15.camel@localhost.localdomain>
+References: <Pine.LNX.3.96.1040916182127.20906B-100000@gatekeeper.tmr.com>
+	 <1095376979.23385.176.camel@betsy.boston.ximian.com>
+	 <1095377752.23913.3.camel@localhost.localdomain>
+	 <1095388176.20763.29.camel@localhost>
+	 <1095431960.26147.13.camel@localhost.localdomain>
+	 <1095436123.23385.182.camel@betsy.boston.ximian.com>
+	 <1095432696.26146.15.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 17 Sep 2004 11:55:41 -0400
+Message-Id: <1095436541.23385.183.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040917154834.GA3180@crusoe.alcove-fr>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 1.5.94.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 05:48:35PM +0200, Stelian Pop wrote:
-> +	/* verify that size is a power of 2 */
-> +	newsize = 1;
-> +	while (newsize < size)
-> +		newsize <<= 1;
-> +	if (newsize != size)
-> +		return NULL;
+On Fri, 2004-09-17 at 15:51 +0100, Alan Cox wrote:
 
-I think you mean:
+> For the file change case I'm unconvinced, although it looks like it
+> could be done with the security module hooks and without kernel mods
+> beyond that.
 
-	BUG_ON(size & (size-1));
+Everyone keeps telling me this.  I am unconvinced, too. ;-)
 
-;)
+It should get more attention, though..
 
-> +	fifo = kmalloc(sizeof(struct kfifo), gfp_mask);
-> +	if (!fifo)
-> +		return NULL;
+	Robert Love
 
-this could be ERR_PTR(-ENOMEM).
 
-> +	buffer = kmalloc(newsize, gfp_mask);
-> +	if (!buffer)
-> +		return NULL;
-
-same here.

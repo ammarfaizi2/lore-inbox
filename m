@@ -1,112 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261622AbSJQBvn>; Wed, 16 Oct 2002 21:51:43 -0400
+	id <S261618AbSJQBvh>; Wed, 16 Oct 2002 21:51:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbSJQBvm>; Wed, 16 Oct 2002 21:51:42 -0400
-Received: from dp.samba.org ([66.70.73.150]:29591 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261622AbSJQBvh>;
-	Wed, 16 Oct 2002 21:51:37 -0400
-Date: Thu, 17 Oct 2002 11:41:27 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: davem@redhat.com, becker@scyld.com, jmorris@intercode.com.au,
-       kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,
-       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] change format of LSM hooks
-Message-Id: <20021017114127.759e0e81.rusty@rustcorp.com.au>
-In-Reply-To: <20021016000706.GI16966@kroah.com>
-References: <20021015194545.GC15864@kroah.com>
-	<20021015.124502.130514745.davem@redhat.com>
-	<20021015201209.GE15864@kroah.com>
-	<20021015.131037.96602290.davem@redhat.com>
-	<20021015202828.GG15864@kroah.com>
-	<20021016000706.GI16966@kroah.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261622AbSJQBvh>; Wed, 16 Oct 2002 21:51:37 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:37008 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261618AbSJQBvf>; Wed, 16 Oct 2002 21:51:35 -0400
+Message-ID: <012d01c27581$677d2180$2a060e09@beavis>
+From: "Andrew Theurer" <habanero@us.ibm.com>
+To: <neilb@cse.unsw.edu.au>, "David S. Miller" <davem@redhat.com>
+Cc: <taka@valinux.co.jp>, <linux-kernel@vger.kernel.org>,
+       <nfs@lists.sourceforge.net>
+References: <15786.23306.84580.323313@notabene.cse.unsw.edu.au><20021014.210144.74732842.taka@valinux.co.jp><15788.57476.858253.961941@notabene.cse.unsw.edu.au> <20021015.213102.80213000.davem@redhat.com>
+Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
+Date: Wed, 16 Oct 2002 21:03:33 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Oct 2002 17:07:06 -0700
-Greg KH <greg@kroah.com> wrote:
+>    From: Neil Brown <neilb@cse.unsw.edu.au>
+>    Date: Wed, 16 Oct 2002 13:44:04 +1000
+>
+>    Presumably on a sufficiently large SMP machine that this became an
+>    issue, there would be multiple NICs.  Maybe it would make sense to
+>    have one udp socket for each NIC.  Would that make sense? or work?
+>    It feels to me to be cleaner than one for each CPU.
+>
+> Doesn't make much sense.
+>
+> Usually we are talking via one IP address, and thus over
+> one device.  It could be using multiple NICs via BONDING,
+> but that would be transparent to anything at the socket
+> level.
+>
+> Really, I think there is real value to making the socket
+> per-cpu even on a 2 or 4 way system.
 
-> On Tue, Oct 15, 2002 at 01:28:28PM -0700, Greg KH wrote:
-> > On Tue, Oct 15, 2002 at 01:10:37PM -0700, David S. Miller wrote:
-> > > 
-> > > I will not even look at the networking LSM bits until
-> > > CONFIG_SECURITY=n is available.
-> > 
-> > Good enough reason for me, I'll start working on this.  Help from the
-> > other LSM developers is appreciated :)
-> 
-> Ok, this wasn't that tough...
-> 
-> Here's a first cut at what will need to be changed.  It's a patch
-> against Linus's latest BK tree.  I only converted one hook (the ptrace
-> one), and this will not link, but will build and gives people an idea of
-> where I'm heading.
-> 
-> David, does something like this look acceptable?
-> 
-> With it, and CONFIG_SECURITY=n the size of the security/*.o files are
-> now:
->    text    data     bss     dec     hex filename
->     138       0       0     138      8a security/built-in.o
-> 
-> which I hope are a bit more to your liking :)
-> I still need an empty sys_security stub in order to link properly,
-> that's the only function needed.  The extra #includes are needed as
-> some files were getting security.h picked up from shed.h in the past.
-> 
-> I'll work on fixing up the rest of the hooks, and removing the external
-> reference to security_ops, and actually test this thing, later this
-> evening.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> diff -Naur -X ../dontdiff bleeding_edge-2.5/arch/i386/kernel/ptrace.c lsm-2.5/arch/i386/kernel/ptrace.c
-> --- bleeding_edge-2.5/arch/i386/kernel/ptrace.c	Tue Oct 15 16:47:14 2002
-> +++ lsm-2.5/arch/i386/kernel/ptrace.c	Tue Oct 15 16:41:44 2002
-> @@ -160,8 +160,7 @@
->  		/* are we already being traced? */
->  		if (current->ptrace & PT_PTRACED)
->  			goto out;
-> -		ret = security_ops->ptrace(current->parent, current);
-> -		if (ret)
-> +		if ((ret = security_ptrace(current->parent, current)))
 
-Um, rather than one macro per security_ops function, how about:
+I am still seeing some sort of problem on an 8 way (hyperthreaded 8
+logical/4 physical) on UDP with these patches.  I cannot get more than 2
+NFSd threads in a run state at one time.  TCP usually has 8 or more.  The
+test involves 40 100Mbit clients reading a 200 MB file on one server (4
+acenic adapters) in cache.  I am fighting some other issues at the moment
+(acpi wierdness), but so far before the patches, 82 MB/sec for NFSv2,UDP and
+138 MB/sec for NFSv2,TCP.  With the patches, 115 MB/sec for NFSv2,UDP and
+181 MB/sec for NFSv2,TCP.  One CPU is maxed due to acpi int storm, so I
+think the results will get better.  I'm not sure what other lock or
+contention point this is hitting on UDP.  If there is anything I can do to
+help, please let me know, thanks.
 
-#ifdef CONFIG_SECURITY
-	#define security_call(func, default_ret, ...) \
-		(security_ops->func(__VA_ARGS__))
-#else
-	#define security_call(func, default_ret, ...) \
-		(default_ret)
-#endif
+Andrew Theurer
 
-This also allows someone in the future to do:
-
-	#define security_call(func, default_ret, ...) \
-		({ if (try_inc_mod_count(security_ops->owner))
-			(security_ops->func(__VA_ARGS__));
-		   else
-			(default_ret);
-		})
-
-Of course, you could skip the default_ret arg, and use
-#ifndef CONFIG_SECURITY
-	#define security_call(func, ...) \
-		(security_default_##func)
-#endif
-
-Then all the defaults can be in a header somewhere.
-
-Cheers,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSE1D72>; Mon, 27 May 2002 23:59:28 -0400
+	id <S312381AbSE1EzY>; Tue, 28 May 2002 00:55:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312486AbSE1D71>; Mon, 27 May 2002 23:59:27 -0400
-Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:29453 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S293203AbSE1D70>;
-	Mon, 27 May 2002 23:59:26 -0400
-Date: Mon, 27 May 2002 23:50:11 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: <fdavis@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-cc: <fdavis@si.rr.com>, <torvalds@transmeta.com>
-Subject: [PATCH] 2.5.18 : drivers/pci/pool.c (revised)
-Message-ID: <Pine.LNX.4.33.0205272347350.1518-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312486AbSE1EzX>; Tue, 28 May 2002 00:55:23 -0400
+Received: from mail.turbolinux.co.jp ([210.171.55.67]:29702 "EHLO
+	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
+	id <S312381AbSE1EzX>; Tue, 28 May 2002 00:55:23 -0400
+Date: Tue, 28 May 2002 13:50:26 +0900
+From: Go Taniguchi <go@turbolinux.co.jp>
+To: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Cc: akpm@zip.com.au
+Subject: [PATCH] fixup pcnet32 workaround xSeries250
+Message-Id: <20020528135026.4e669b53.go@turbolinux.co.jp>
+Organization: Turbolinux
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  Here's a revised patch for drivers/pci/pool.c that addresses the 
-warning. This one fixes the cause. Please review for inclusion.
+Hi,
 
-Regards,
-Frank
+I have sent the update patch for pcnet32 which included the workaround for xSeries250 
+on the other day.
 
---- drivers/pci/pool.c.old	Mon May 27 23:45:08 2002
-+++ drivers/pci/pool.c	Mon May 27 23:45:13 2002
-@@ -309,9 +309,9 @@
- 		return;
+However, the workaround has the problem with 79C970A 10M full duplex cards 
+which causes the netowrk slowing-down.
+To solve this problem, the workaound is set to be turned on for "79C975" only.
+Please apply.
+
+-- GO!
+
+--- linux/drivers/net/pcnet32.c.orig	Mon May 27 17:15:12 2002
++++ linux/drivers/net/pcnet32.c	Tue May 28 12:35:29 2002
+@@ -847,8 +847,9 @@
+ 	    if (lp->options == (PCNET32_PORT_FD | PCNET32_PORT_AUI))
+ 		val |= 2;
+ 	} else if (lp->options & PCNET32_PORT_ASEL) {
+-	/* workaround for xSeries250 */
+-	    val |= 3;
++	/* workaround of xSeries250, turn on for 79C975 only */
++	    i = ((lp->a.read_csr(ioaddr, 88) | (lp->a.read_csr(ioaddr,89) << 16)) >> 12) & 0xffff;
++	    if (i == 0x2627) val |= 3;
  	}
- 	if (page->bitmap [map] & (1UL << block)) {
--		printk (KERN_ERR "pci_pool_free %s/%s, dma %x already free\n",
-+		printk (KERN_ERR "pci_pool_free %s/%s, dma %lx already free\n",
- 			pool->dev ? pool->dev->slot_name : NULL,
--			pool->name, dma);
-+	A		pool->name, (unsigned long) dma);
- 		return;
- 	}
- 	memset (vaddr, POOL_POISON_BYTE, pool->size);
-
+ 	lp->a.write_bcr (ioaddr, 9, val);
+     }

@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbTJII0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 04:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTJII0Y
+	id S261931AbTJII0A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 04:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTJII0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 04:26:24 -0400
-Received: from gate.perex.cz ([194.212.165.105]:53714 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S261932AbTJII0V (ORCPT
+	Thu, 9 Oct 2003 04:26:00 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:2564 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261931AbTJIIZ7 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 04:26:21 -0400
-Date: Thu, 9 Oct 2003 10:25:53 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Michael Dreher <dreher@math.tu-freiberg.de>,
-       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.0-test7 no sound and OOPS
-In-Reply-To: <20031009082020.GA3611@actcom.co.il>
-Message-ID: <Pine.LNX.4.53.0310091022430.1357@pnote.perex-int.cz>
-References: <200310082321.02406.dreher@math.tu-freiberg.de>
- <20031009082020.GA3611@actcom.co.il>
+	Thu, 9 Oct 2003 04:25:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: vda@port.imtp.ilyichevsk.odessa.ua
+To: herft <herft@sedal.usyd.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: C API for CPU Usage for particular User Login
+Date: Thu, 9 Oct 2003 11:25:23 +0300
+X-Mailer: KMail [version 1.4]
+References: <5.1.1.5.2.20031009131835.028b0f78@brain.sedal.usyd.edu.au>
+In-Reply-To: <5.1.1.5.2.20031009131835.028b0f78@brain.sedal.usyd.edu.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200310091125.23606.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Oct 2003, Muli Ben-Yehuda wrote:
+On Thursday 09 October 2003 06:26, herft wrote:
+> Or if I can get the source code of top command.
 
-> On Wed, Oct 08, 2003 at 11:21:02PM +0200, Michael Dreher wrote:
->
-> >  [<c03371df>] snd_pcm_oss_sync+0x6f/0x170
-> >  [<c03387b3>] snd_pcm_oss_release+0x23/0xe0
-> >  [<c0338790>] snd_pcm_oss_release+0x0/0xe
->
-> Fix exists in ALSA CVS, needs to be pushed to Linus... (hint hint)
-
-It was already pushed to Linus on 30 Sep 2003. It's in our BK tree:
-
-  bk pull http://linux-sound.bkbits.net/linux-sound
-
-The GNU patch is available at:
-
-  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2003-09-30.patch.gz
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+Google for "procps .tar.gz"
+There are actually two competing packages with that name,
+both under GPL AFAIK.
+--
+vda

@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVBXWpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVBXWtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbVBXWpq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 17:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVBXWpp
+	id S262537AbVBXWtj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVBXWtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 17:45:45 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:54862
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S262537AbVBXWlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 17:41:42 -0500
-Date: Thu, 24 Feb 2005 23:41:34 +0100
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] seccomp: don't say it was more or less mandatory
-Message-ID: <20050224224134.GE20715@opteron.random>
-References: <20050223014233.6710fd73.akpm@osdl.org> <20050224215136.GK8651@stusta.de>
+	Thu, 24 Feb 2005 17:49:39 -0500
+Received: from mail.tmr.com ([216.238.38.203]:34568 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262537AbVBXWtb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 17:49:31 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: Slightly OT: We should move linux related channels off of FreeNode
+Date: Thu, 24 Feb 2005 17:54:20 -0500
+Organization: TMR Associates, Inc
+Message-ID: <cvll0j$g80$1@gatekeeper.tmr.com>
+References: <200502230651.16151.pmcfarland@downeast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050224215136.GK8651@stusta.de>
-X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
-X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
-X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1109284692 16640 192.168.12.100 (24 Feb 2005 22:38:12 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+In-Reply-To: <200502230651.16151.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Adrian,
+Patrick McFarland wrote:
+> Today lilo (the FreeNode network owner) has decided to make one step away in a 
+> direction opposite of freedom, and banned all Tor users from the FreeNode 
+> network.
+> 
+> Tor ( http://tor.eff.org ) is an open source anonymous gateway system. Many 
+> users who are not in the position to be able to use IRC otherwise (such as 
+> those who live in countries who do not believe in free speech) now cannot use 
+> Freenode any longer.
 
-On Thu, Feb 24, 2005 at 10:51:36PM +0100, Adrian Bunk wrote:
-> seccomp might be a nice feature under some circumstances.
-> But the suggestion in the help text is IMHO too strong and therefore 
-> removed by this patch.
+How does tor.eff.org identify the oppressed users who have no other 
+means of free speech from the flaming assholes who disrupt irc under the 
+cloak of anonimity? Are you saying that there is no problem on freenode 
+caused by these users, and this action is just a block for no reason 
+other than a hatred of anonymous users?
+> 
+> Do we want to use an IRC network that no longer supports freedom? Our only 
+> option is to move to another network, such as irc.noderebellion.net or 
+> irc.oftc.net. Channels such as #kernelnewbies have already moved to oftc due 
+> to lilo's past actions.
 
-Why too strong? The reason there is a config option is for the embedded
-space, where clearly they want to compile into the kernel only the
-strict features they use.
+In what sense "moved?" There is a channel, there are lots of people 
+there, they are discussing Linux, they are making sense... If you mean 
+YOU have moved to a channel of the same name elsewhere, or that people 
+you think are important, helpful, or whatever have moved, fine. But 
+unlike some of the other channels which come up with a note saying they 
+have moved, #kernelnewbies continues to exist and be used. By people 
+willing to answer a question, even.
 
-There are no risks in enabling seccomp and the size of the kernel image
-won't change in any significant way either.
+Freedom of speech is an odd thing, people think that they have lost it 
+if a publisher will not publish their material, however you define 
+publisher and media. I don't personally believe it includes the right to 
+force me to listen, or disrupt ongoing conversations.
 
-So I'd prefer to keep the "If unsure, say Y." and it seems appropriate
-to me.
+Both USEnet and E-Mail have been flooded by people claiming freedom of 
+speech. In the battle to keep the Internet useful, there is collateral 
+damage, and it sounds as if this is what's happening. You would be far 
+more accurate to say that freenode has made a different balance between 
+freedom for people willing to identify themselves and freedom for 
+everyone without regard for their content. Terms like "no longer 
+supports freedom" are not helpful.
 
-You have to say Y, if later on you want to sell your CPU resources with
-Cpushare.  BTW, you can already test it if you download version 0.8 of
-the LGPL'd Cpushare software, it'll connect to the server and it'll
-execute a remote seccomp computation and then it'll hang around until
-you stop it with ./stop_cpushare.sh (and you will see your client
-connected in the homepage stats). I didn't finish writing all the code
-yet but it's already a decent demo for the seccomp part at least.
-
-Anyway the help text is a minor detail after all. Thanks to everyone who
-helped and provided feedback about the seccomp patch, especially to
-Andrew. I'm very glad to see it in -mm right now!
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

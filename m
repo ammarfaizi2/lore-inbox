@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265635AbTFNHrn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 03:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbTFNHrn
+	id S265638AbTFNHtn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 03:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265639AbTFNHtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 03:47:43 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:54730 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265635AbTFNHrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 03:47:42 -0400
-Date: Sat, 14 Jun 2003 01:01:39 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm9
-Message-Id: <20030614010139.2f0f1348.akpm@digeo.com>
-In-Reply-To: <3EEAD41B.2090709@us.ibm.com>
-References: <20030613013337.1a6789d9.akpm@digeo.com>
-	<3EEAD41B.2090709@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 14 Jun 2003 03:49:42 -0400
+Received: from netmail02.services.quay.plus.net ([212.159.14.221]:40874 "HELO
+	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S265638AbTFNHti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 03:49:38 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Bernhard Kaindl" <bk@suse.de>, <bojan@gajba.net>
+Cc: <linux-kernel@vger.kernel.org>, "Bernhard Kaindl" <bernhard.kaindl@gmx.de>
+Subject: RE: ptrace/kmod local root exploit STILL unresolved in 2.4.21! - MY MISTAKE
+Date: Sat, 14 Jun 2003 09:03:30 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAMEDNEFAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Jun 2003 08:01:31.0287 (UTC) FILETIME=[2A76CA70:01C3324B]
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.56.0306140027190.20048@wotan.suse.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mingming Cao <cmm@us.ibm.com> wrote:
->
-> Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm9/
-> > 
-> > 
-> > Lots of fixes, lots of new things.
-> >
-> 
-> Good news, Andrew. I run 50 fsx tests on ext3 filesystems on 2.5.70-mm9. 
->    The hang problem I used seen on 2.5.70-mm6 kernel is gone. The tests 
-> runs fine for more than 9 hours. (Normally the problem will occur after 
-> 7 hours run on 2.5.70-mm6 kernel).
+Hi all.
 
-OK.  I'm no statistician, but I'd be more comfortable with 24 hours..
+ >>> I've upgraded my Linux box to 2.4.21 because of the security
+ >>> reasons. Now I found out that old local exploit for ptrace
+ >>> is still working under 2.4.21. Wasn't it fixed in RC1?
 
-> I am running the tests on 8 way PIII 700MHz, 4G memory, with 
-> elevator=deadline.
-> 
+ >> I've tested this exploit in wrong way. I've first logged in as 
+ >> root, then I made "su nobody" and then exploit worked.
 
-Was elevator=deadline observed to fail in earlier kernels?  If not then it
-may be an anticipatory scheduler bug.  It certainly had all the appearances
-of that.
+ > Maybe "nobody" isn't a "real" user in your case. If there is some
+ > problem with it, you may end up with uid 0 after "su nobody".
+ >
+ > check the output of the command "id" after the executing the su
+ > command, just to be safe in any case!
+ >
+ > If su really worked correctly, the exploit may not even work if
+ > you su (successfully) su'ed from root.
 
-So once you're really sure that elevator=deadline isn't going to fail,
-could you please test elevator=as?
+Probably more to the point, the command `su nobody` does NOT log you
+in as user nobody. You need the command `su -l nobody` to do that.
+Check the manpage for su to verify that without the -l option, you
+are still logged in as user root although you are running with the
+effective user nobody.
 
+My understanding is that the permissions checks can succeed when
+EITHER your login or effective user would succeed in most cases,
+but in some cases, it's when your login user succeeds irrespective
+of whether your effective user would succeed or not.
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.488 / Virus Database: 287 - Release Date: 5-Jun-2003
 

@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130015AbRBGUge>; Wed, 7 Feb 2001 15:36:34 -0500
+	id <S130125AbRBGUhE>; Wed, 7 Feb 2001 15:37:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130337AbRBGUgO>; Wed, 7 Feb 2001 15:36:14 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:53277 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S130015AbRBGUgH>;
-	Wed, 7 Feb 2001 15:36:07 -0500
-Message-ID: <20010207213604.A21989@win.tue.nl>
-Date: Wed, 7 Feb 2001 21:36:04 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Lourenco <andyrock50@yahoo.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: IDE PROBLEM 2.4.0 and 2.4.1 ...
-In-Reply-To: <20010207191207.50272.qmail@web12008.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010207191207.50272.qmail@web12008.mail.yahoo.com>; from Lourenco on Wed, Feb 07, 2001 at 11:12:07AM -0800
+	id <S129945AbRBGUg4>; Wed, 7 Feb 2001 15:36:56 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:41994 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S130337AbRBGUgl>;
+	Wed, 7 Feb 2001 15:36:41 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200102072036.XAA05599@ms2.inr.ac.ru>
+Subject: Re: 2.4.1 tcp ack bug ?
+To: pochini@denise.shiny.IT (Giuliano Pochini)
+Date: Wed, 7 Feb 2001 23:36:27 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A806260.BB77D017@denise.shiny.it> from "Giuliano Pochini" at Feb 7, 1 11:15:02 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 07, 2001 at 11:12:07AM -0800, Lourenco wrote:
+Hello!
 
-> i am getting an error every time i try to copy a big
-> file from my cdrom to one of my harddrives...
-> 
-> PS : It works FINE with 2.2.* and other OS's...
-> 
-> ...
-> VFS: Disk change detected on device ide1(22,0)
-> ISO 9660 Extensions: Microsoft Joliet Level 3
-> ISOFS: changing to secondary root
-> isofs_read_level3_size: More than 100 file sections
-> ?!?, aborting...
-> isofs_read_level3_size: inode=45152 ino=53408
-> isofs_read_level3_size: More than 100 file sections
-> ?!?, aborting...
-> isofs_read_level3_size: inode=45232 ino=53488
-> hdc: command error: status=0x51 { DriveReady
-> SeekComplete Error }
-> hdc: command error: error=0x51
-> end_request: I/O error, dev 16:00 (hdc), sector 18356
-> hdc: command error: status=0x51 { DriveReady
-> SeekComplete Error }
+> 20:56:26.172532 ppp0 < mc105-v-2.royaume.com.6699 > ppp12.shiny.it.33148: .
+> 88073:89533(1460) ack 77 win 8684 (DF)
+....
+> Ok, it has just received the missing part, so why it does not ack 98313 ?
 
-You describe two entirely different things:
-(i) the kernel complains that the data on the CD is bad
-(ii) the kernel complains that it has problems reading the CD.
+Apparently, because this segment has not been received.
 
-The code that generates the message "More than 100 ..."
-is almost identical in 2.2 and 2.4 - if you didnt get that
-message in 2.2 then perhaps (i) was caused by (ii): there
-are problems reading the thing.
+Look at checksum errros statistics, for example.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317260AbSFGPcB>; Fri, 7 Jun 2002 11:32:01 -0400
+	id <S317302AbSFGPfC>; Fri, 7 Jun 2002 11:35:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317302AbSFGPcA>; Fri, 7 Jun 2002 11:32:00 -0400
-Received: from p50886B5E.dip.t-dialin.net ([80.136.107.94]:41955 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317260AbSFGPcA>; Fri, 7 Jun 2002 11:32:00 -0400
-Date: Fri, 7 Jun 2002 09:31:47 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: Kai Henningsen <kaih@khms.westfalen.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: If you want kbuild 2.5, tell Linus
-In-Reply-To: <200206062101.QAA15457@tomcat.admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.4.44.0206070929520.15675-100000@hawkeye.luckynet.adm>
+	id <S317303AbSFGPfB>; Fri, 7 Jun 2002 11:35:01 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:24196 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S317302AbSFGPfA>; Fri, 7 Jun 2002 11:35:00 -0400
+Message-ID: <3D00D28B.BAC57EC@nortelnetworks.com>
+Date: Fri, 07 Jun 2002 11:34:35 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: RFC: per-socket statistics on received/dropped packets
+In-Reply-To: <3CFFB9F8.54455B6E@nortelnetworks.com> <20020606.202108.52904668.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"David S. Miller" wrote:
+> 
+> Your idea is totally useless for non-datagram sockets.
+> Only datagram sockets use the interfaces where you bump
+> the counters.
+> 
+> I don't like the patch, nor the idea behind it, at all.
 
-On Thu, 6 Jun 2002, Jesse Pollard wrote:
-> How about the following approach, which MAY not be practical:
+Thanks for the feedback.
 
-Yepp, it's so incredibly practical that it's already in (the name is 
-Makefile-2.5, and I got a little script called kbuild which does
-make -f Makefile-2.5 $@ for me.)
+I buy the point about it only making sense for datagram sockets in its current
+form.  Thus it would maybe make more sense to use udp_ioctl() rather than in the
+generic socket ioctl.
 
-Get used to it, and try the patch!
+However, what do you have against the basic idea of a program knowing how many
+packets have 
+been dropped on its sockets?  I added the feature to try and figure out where
+packets were being dropped in an app I am developing, and so far its been very
+useful.
 
-Regards,
-Thunder
+More generally, is there a generic place that I could tie into for the counter
+increment that would work for all sockets?  While tcp would automatically handle
+the dropped packets, it might be useful to know how many there were.
+
+Thanks,
+
+Chris
+
 -- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
-
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

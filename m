@@ -1,71 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVBDLIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVBDLQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVBDLIb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 06:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbVBDLIb
+	id S261757AbVBDLQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 06:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVBDLQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 06:08:31 -0500
-Received: from stud4.tuwien.ac.at ([193.170.75.14]:50397 "EHLO
-	stud4.tuwien.ac.at") by vger.kernel.org with ESMTP id S263166AbVBDLIP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 06:08:15 -0500
-Date: Fri, 4 Feb 2005 12:07:25 +0100
-From: Martin =?iso-8859-15?Q?K=F6gler?= <e9925248@student.tuwien.ac.at>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Deadlock in serial driver 2.6.x
-Message-ID: <20050204110725.GA16534@stud4.tuwien.ac.at>
-References: <20050126132047.GA2713@stud4.tuwien.ac.at> <20050126231329.440fbcd8.akpm@osdl.org> <1106844084.14782.45.camel@localhost.localdomain> <20050130164840.D25000@flint.arm.linux.org.uk> <1107157019.14847.64.camel@localhost.localdomain> <20050131004857.07f5e2c4.akpm@osdl.org> <1107332396.14847.112.camel@localhost.localdomain> <20050203102112.06c06fe7.akpm@osdl.org>
+	Fri, 4 Feb 2005 06:16:58 -0500
+Received: from cantor.suse.de ([195.135.220.2]:25288 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261757AbVBDLQ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 06:16:56 -0500
+Date: Fri, 4 Feb 2005 12:16:49 +0100
+From: Olaf Kirch <okir@suse.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>, anton@samba.org,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
+Message-ID: <20050204111649.GB32678@suse.de>
+References: <20050131102920.GC4170@suse.de> <E1CvZo6-0001Bz-00@gondolin.me.apana.org.au> <20050203142705.GA11318@krispykreme.ozlabs.ibm.com> <20050203203010.GA7081@gondor.apana.org.au> <20050203141901.5ce04c92.davem@davemloft.net> <20050203235044.GA8422@gondor.apana.org.au> <20050203164922.2627a112.davem@davemloft.net> <20050204012053.GA8949@gondor.apana.org.au> <20050203172357.670c3402.davem@davemloft.net> <20050204015539.GA9727@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050203102112.06c06fe7.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20050204015539.GA9727@gondor.apana.org.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 03, 2005 at 10:21:12AM -0800, Andrew Morton wrote:
-> The "echo method" method sounds good.  Do we think that's feasible for
-> 2.6.11, or would it be safer to disable low-latency mode for that driver?
+On Fri, Feb 04, 2005 at 12:55:39PM +1100, Herbert Xu wrote:
+> OK, here is the patch to do that.  Let's get rid of kfree_skb_fast
+> while we're at it since it's no longer used.
 
-As a temporary workaround, dropping the lock should also work:
+Thanks, I'll give that to the PPC folks and ask the to run with it.
 
---- linux-2.6.10/drivers/serial/8250.old.c      2005-02-03 14:07:48.557609200 +0100
-+++ linux-2.6.10/drivers/serial/8250.c  2005-02-03 14:09:00.687887525 +0100
-@@ -987,7 +987,11 @@
-		   unsafe. It should be fixed ASAP */
-	        if (unlikely(tty->flip.count >= TTY_FLIPBUF_SIZE)) {
-		        if(tty->low_latency)
--                               tty_flip_buffer_push(tty);
-+                         {
-+                           spin_unlock(&up->port.lock);
-+                           tty_flip_buffer_push(tty);
-+                           spin_lock(&up->port.lock);
-+                         }
-    		        /* If this failed then we will throw away the
-		           bytes but must do so to clear interrupts */
-								      }
-@@ -1058,7 +1062,9 @@
-	ignore_char:
-    	        lsr = serial_inp(up, UART_LSR);
-        } while ((lsr & UART_LSR_DR) && (max_count-- > 0));
-+       spin_unlock(&up->port.lock);
-        tty_flip_buffer_push(tty);
-+       spin_lock(&up->port.lock);
-        *status = lsr;
- }
-
-An other serial interrupt can not disturbed, because it will be blocked by the interrupt lock.
-All other direct access to the UART seems to be protected by the port lock, so they may be only
-execectued, while tty_flip_buffer_push is running and is not accessing the port.
-
-I have this patch running on a 2.6.10 Kernel (Fedora Core 2 Version) and low latency mode
-works without any problems (with and without SMP).
-
-If that patch works under all conditons, I can't say. It may cause degrade the performance,
-but for my work, I can't see any effect.
-
-mfg Martin Kögler
-e9925248@stud4.tuwien.ac.at
-PS: Please CC me on replies.
+Regards,
+Olaf
+-- 
+Olaf Kirch   |  --- o --- Nous sommes du soleil we love when we play
+okir@suse.de |    / | \   sol.dhoop.naytheet.ah kin.ir.samse.qurax

@@ -1,29 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTFIUyA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 16:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTFIUyA
+	id S261998AbTFIUzk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 16:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbTFIUzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 16:54:00 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:62169 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262001AbTFIUx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 16:53:59 -0400
-Message-Id: <5.1.0.14.2.20030609230241.00afa820@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 09 Jun 2003 23:07:19 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
+	Mon, 9 Jun 2003 16:55:40 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:61960 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261998AbTFIUza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 16:55:30 -0400
+Subject: Re: 2.5.70-mm6
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>, Andrew Morton <akpm@digeo.com>,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <64000000.1055189666@flay>
+References: <20030607151440.6982d8c6.akpm@digeo.com>
+	 <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
+	 <46580000.1055180345@flay>
+	 <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv>
+	 <51250000.1055184690@flay>
+	 <1055189322.600.1.camel@teapot.felipe-alfaro.com>
+	 <64000000.1055189666@flay>
+Content-Type: text/plain
+Message-Id: <1055192945.600.3.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: Tzf6siZBQet-4o2l4QXpQrh9Bpwnj2ca8G4kbPrNdz8a0UgAObSW41@t-dialin.net
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 09 Jun 2003 23:09:05 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-         No, I need ACPI to soft boot.
-         This  MUST be in the next release.
+On Mon, 2003-06-09 at 22:14, Martin J. Bligh wrote:
+> --On Monday, June 09, 2003 22:08:42 +0200 Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+> 
+> > On Mon, 2003-06-09 at 20:51, Martin J. Bligh wrote:
+> >> >> If you don't nice the hell out of X, does it work OK?
+> >> > No.
+> >> > 
+> >> > The way I reproduce the sound skips:
+> >> > run xmms, run evolution, compose a mail with gpg.
+> >> > on mm6 the gpg part stops the sound for a few seconds. (with X -10 and 0)
+> >> > on mm5 xmms plays without stops. (with X -10)
+> >> 
+> >> Does this (from Ingo?) do anything useful to it?
+> > 
+> > I can confirm that 2.5.70-mm6 with Ingo's patch and HZ set back to 1000
+> > is nearly perfect (it still takes some seconds for the scheduler to
+> > adjust dynamic priorities).
+> 
+> OK ... sorry to be pedantic, but I want to nail this down.
+> It's still broken with HZ=1000, but without Ingo's patch, right?
 
-         Margit
+I have to try that combination... Please, allow for a few hours and I'll
+post the results.
 

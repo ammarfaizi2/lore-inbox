@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbTFQQLz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 12:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264837AbTFQQLz
+	id S261196AbTFQQP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 12:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264713AbTFQQP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 12:11:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9098 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264833AbTFQQLx
+	Tue, 17 Jun 2003 12:15:57 -0400
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:27778 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S261196AbTFQQP4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 12:11:53 -0400
-Date: Tue, 17 Jun 2003 17:25:46 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: Matthew Wilcox <willy@debian.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: pci_domain_nr vs. /sys/devices
-Message-ID: <20030617162546.GS30843@parcelfarce.linux.theplanet.co.uk>
-References: <1055341842.754.3.camel@gaston> <20030611144801.GZ28581@parcelfarce.linux.theplanet.co.uk> <20030617044948.GA1172@krispykreme>
+	Tue, 17 Jun 2003 12:15:56 -0400
+Message-Id: <200306171629.h5HGTiH9008541@verdi.et.tudelft.nl>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+X-Exmh-Isig-CompType: repl
+X-Exmh-Isig-Folder: berrymount.save/customers/marvel/compulead
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Alan Cox <alan@redhat.com>
+Subject: Re: gcc-3.2.2 miscompiles kernel 2.4.* O_DIRECT code ? 
+In-Reply-To: Message from Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> 
+   of "17 Jun 2003 16:01:32 +0200." <1055858491.588.3.camel@teapot.felipe-alfaro.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030617044948.GA1172@krispykreme>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain
+Date: Tue, 17 Jun 2003 18:29:43 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 02:49:48PM +1000, Anton Blanchard wrote:
-> I chose to add the domain into dev->slot_name since its needed for matching
-> kernel messages to drivers. Im wondering if we should make this conditional
-> on pci domain support since it does add some noise for those who couldnt
-> care less about domains.
 
-It's also exposed to userspace in some ways I don't think I like.
-Here's some of the fun ones:
+Felipe Alfaro Solana wrote:
+> On Tue, 2003-06-17 at 14:37, Rob van Nieuwkerk wrote:
+> > Hi,
+> > 
+> > I found out that O_DIRECT does not work correctly on 2.4 kernels
+> > compiled with the RH gcc-3.2.2-5 on RH9.  It is working fine with
+> > kernels compiled with the RH gcc-2.96-113 on RH 7.3.
+> 
+> Could you please try with gcc 3.3? I had similar problems when compiling
+> 2.5 kernels with gcc 3.2. Compiling them with gcc 3.3 or 2.96 fixed the
+> problems.
 
-./sound/oss/emu10k1/main.c:             sprintf(s, "driver/emu10k1/%s", card->pci_dev->slot_name);
-./drivers/scsi/scsi_ioctl.c: * pci_dev::slot_name (8 characters) for the PCI device (if any).
-(oops, that one already changed to use the device->bus_id, so that broke ...)
+I compiled a 2.4.21-ac1 kernel with the gcc-3.3-7 packages from RH
+Rawhide.  This solves the problem: O_DIRECT working correctly again.
 
-And some potential buffer overruns:
-./drivers/input/gameport/cs461x.c:      sprintf(phys, "pci%s/gameport0", pdev->slot_name);
-./drivers/net/3c59x.c:                  strcpy(info.bus_info, VORTEX_PCI(vp)->slot_name);
-
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+	greetings,
+	Rob van Nieuwkerk

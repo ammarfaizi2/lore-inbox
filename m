@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270047AbUIDEaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270050AbUIDEwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270047AbUIDEaT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 00:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270049AbUIDEaT
+	id S270050AbUIDEwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 00:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270051AbUIDEwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 00:30:19 -0400
-Received: from lakermmtao08.cox.net ([68.230.240.31]:12683 "EHLO
-	lakermmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S270047AbUIDEaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 00:30:12 -0400
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Transfer-Encoding: 7bit
-Message-Id: <1B6CEB06-FE2B-11D8-B9BD-000393ACC76E@mac.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: [2.4.25] "pc_keyb: controller jammed (0xFF)" on Super Micro P5MMA98
-Date: Sat, 4 Sep 2004 00:30:10 -0400
-X-Mailer: Apple Mail (2.619)
+	Sat, 4 Sep 2004 00:52:40 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:58337 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S270050AbUIDEwi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 00:52:38 -0400
+Date: Sat, 4 Sep 2004 05:52:37 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Alex Deucher <alexdeucher@gmail.com>, dri-devel@lists.sf.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+In-Reply-To: <9e4733910409032051717b28c0@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0409040548490.25475@skynet>
+References: <Pine.LNX.4.58.0409040107190.18417@skynet> 
+ <a728f9f904090317547ca21c15@mail.gmail.com>  <Pine.LNX.4.58.0409040158400.25475@skynet>
+ <9e4733910409032051717b28c0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Super Micro P5MMA98 motherboard that does not recognize the 
-PS/2
-keyboard controller under Debian.  It repeatedly gives errors like the 
-following
-for about the first 500 lines of output, and the keyboard controller 
-doesn't work.
 
-pc_keyb: controller jammed (0xFF).
-pc_keyb: controller jammed (0xFF).
-pc_keyb: controller jammed (0xFF).
-pc_keyb: controller jammed (0xFF).
+I think we have to remember licensing at all stages of this, the DRM is
+X licensed, so I don't think we can just merge the fb code, I'm not sure
+what peoples views on this, the main reason I see for using X licensing
+is that we can share this stuff with FreeBSD and have an open source
+graphics interface standard that the chipset designers can use, against it
+is the fact that it allows for properitary drivers, - I personally don't
+think we'll ever win that war.. will the prop drivers be derived works of
+the DRM rather than the kernel anyone got a spare lawyer?
 
-I saw a couple earlier posts that indicated this may arise when the 
-keyboard
-controller registers can't be read and give all ones, but I'm unclear 
-as to how
-to fix this.  The computer appears to boot Windows fine with full 
-keyboard
-support, so I think this is just a Linux issue.
+Dave.
 
-A full dmesg is here:
-http://www.tjhsst.edu/~kmoffett/dmesg.txt
+On Fri, 3 Sep 2004, Jon Smirl wrote:
 
-And the kernel config is here:
-http://www.tjhsst.edu/~kmoffett/config-2.4.25-1-386.txt
+> As we work towards the merged DRM/fbdev goal the fbdev libraries are
+> going to become part of DRM. The libraries will be used pretty much
+> unchanged as it is the driver code that needs to be adjusted. How does
+> this play with the new DRM model?
+>
+>
+> -------------------------------------------------------
+> This SF.Net email is sponsored by BEA Weblogic Workshop
+> FREE Java Enterprise J2EE developer tools!
+> Get your free copy of BEA WebLogic Workshop 8.1 today.
+> http://ads.osdn.com/?ad_id=5047&alloc_id=10808&op=click
+> --
+> _______________________________________________
+> Dri-devel mailing list
+> Dri-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/dri-devel
+>
 
-The kernel has stock Debian patches for 2.4.25 from unstable (sid).
-
-Thanks for your help!
-
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267442AbUHJGu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267450AbUHJG4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267442AbUHJGu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 02:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267447AbUHJGu5
+	id S267450AbUHJG4W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 02:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267451AbUHJG4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 02:50:57 -0400
-Received: from pop.gmx.net ([213.165.64.20]:40868 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267442AbUHJGu4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 02:50:56 -0400
-X-Authenticated: #494916
-Message-ID: <4118A8D1.9040504@gmx.de>
-Date: Tue, 10 Aug 2004 12:52:01 +0200
-From: Peter Schaefer <peter.schaefer@gmx.de>
-Reply-To: peter.schaefer@gmx.de
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roger Luethi <rl@hellgate.ch>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [VIA-RHINE] Timeouts on EP-HDA3+ Motherboard
-References: <41181BF7.6060002@gmx.de> <20040809215424.GA12237@k3.hellgate.ch>
-In-Reply-To: <20040809215424.GA12237@k3.hellgate.ch>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 02:56:22 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:59917 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267450AbUHJG4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 02:56:18 -0400
+Date: Tue, 10 Aug 2004 07:55:59 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+Cc: Tomas Szepe <szepe@pinerecords.com>, Pavel Machek <pavel@suse.cz>,
+       netdev@oss.sgi.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+Message-ID: <20040810075558.A14154@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Chua <jeffchua@silk.corp.fedex.com>,
+	Tomas Szepe <szepe@pinerecords.com>, Pavel Machek <pavel@suse.cz>,
+	netdev@oss.sgi.com, kernel list <linux-kernel@vger.kernel.org>
+References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com>; from jeffchua@silk.corp.fedex.com on Tue, Aug 10, 2004 at 01:02:07PM +0800
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Peter Schaefer wrote:
+On Tue, Aug 10, 2004 at 01:02:07PM +0800, Jeff Chua wrote:
+> 
+> On Mon, 9 Aug 2004, Tomas Szepe wrote:
+> 
+> > ipw2100 0.51 from ipw2100.sf.net builds using gcc-2.95.3 "out of the box."
+> 
+> Well, this is really good news!
+> 
+> I just downloaded 0.51 compiled with gcc-2.95.3 and got it working on my 
+> IBM X31 with WEP. Even better, 0.51 doesn't need hostap-driver.
 
- > > On 09.08.2004 23:54, Roger Luethi wrote:
-> > What kernel? (my crystal ball is in repair)
-
- > Oops. I'm sorry, i thought the version number of the driver
- > might be enough...
-
-Argh! I didn't copy that part into my first mail:
-
-via-rhine.c:v1.10-LK1.1.20-2.6 May-23-2004 Written by Donald Becker
-eth0: VIA VT6102 Rhine-II at 0xe8187000, 00:04:61:fe:fe:fe, IRQ 12.
-eth0: MII PHY found at address 1, status 0x786d advertising 05e1 Link 40a1.
-
-Sorry, again.
-
-Best regards,
-
-   Peter
+Btw, any vounteer for merging the hostap-based generic ieee80211_* files
+from the ipw2100 driver with the hostap driver in the wireless-2.6 tree?
 

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbTE3Hu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 03:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbTE3Hu6
+	id S263340AbTE3Hwi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 03:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTE3Hwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 03:50:58 -0400
-Received: from [193.89.230.30] ([193.89.230.30]:36049 "EHLO
-	roadrunner.hulpsystems.net") by vger.kernel.org with ESMTP
-	id S263338AbTE3Hu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 03:50:57 -0400
-Message-ID: <1054281854.3ed7107e8d264@roadrunner.hulpsystems.net>
-Date: Fri, 30 May 2003 10:04:14 +0200
-From: Martin List-Petersen <martin@list-petersen.dk>
-To: linux-kernel@vger.kernel.org
-Subject: SCO's claims seem empty
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2-cvs
+	Fri, 30 May 2003 03:52:37 -0400
+Received: from dp.samba.org ([66.70.73.150]:49548 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263340AbTE3Hwg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 03:52:36 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paul Mackerras <paulus@samba.org>
+Cc: davem@redhat.com, rth@twiddle.net, rmk@arm.linux.org.uk,
+       jes@trained-monkey.org, ralf@gnu.org, matthew@wil.cx, jdike@karaya.com,
+       uclinux-v850@lsi.nec.co.jp, davidm@hpl.hp.com, anton@samba.org,
+       ak@suse.de, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: Proposed patch to kernel.h 
+In-reply-to: Your message of "Thu, 29 May 2003 22:32:35 +1000."
+             <16085.64995.7031.949757@argo.ozlabs.ibm.com> 
+Date: Fri, 30 May 2003 18:03:37 +1000
+Message-Id: <20030530080555.BAF3A2C0D2@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that the claims of SCO are empty. The register is running a story on,
-that when Novell sold UnixWare it didn't include the copyrights and patents on
-UNIX System V, so these are still owned by Novell.
+In message <16085.64995.7031.949757@argo.ozlabs.ibm.com> you write:
+> That meant that I needed to use find_sec(), which was static in
+> kernel/module.c (to find the __bug_table section), so I renamed it to
+> elf_find_sec() and made it externally accessible (once again at
+> Rusty's suggestion).
+> 
+> Tested OK on ppc, and compile-tested on x86 successfully.
+> 
+> How does this look?
 
-The article can be found here:
-http://www.theregister.co.uk/content/4/30910.html
-Novell press release is also quite interesting:
-http://www.novell.com/news/press/archive/2003/05/pr03033.html
+Looks fine to me.  If every arch goes this way in 2.7 (say) we can
+fold it back into kernel/module.c like we do for exception tables.
 
-Regards,
-Martin List-Petersen
+Cheers,
+Rusty.
 --
-BOFH excuse #57:
-
-Groundskeepers stole the root password
-
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

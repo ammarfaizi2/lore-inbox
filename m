@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265550AbTGBXD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 19:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265569AbTGBXCN
+	id S265574AbTGBXGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 19:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265537AbTGBXAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 19:02:13 -0400
-Received: from holomorphy.com ([66.224.33.161]:25786 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265552AbTGBXAq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 19:00:46 -0400
-Date: Wed, 2 Jul 2003 16:15:02 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, haveblue@us.ibm.com
-Subject: Re: Overhead of highpte
-Message-ID: <20030702231502.GJ26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@digeo.com>, haveblue@us.ibm.com
-References: <574790000.1057186404@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <574790000.1057186404@flay>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 2 Jul 2003 19:00:00 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:52642 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265135AbTGBW7d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 18:59:33 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 2 Jul 2003 16:06:09 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: jjs <jjs@tmsusa.com>
+cc: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DHCP vs Cable Modem
+In-Reply-To: <3F036467.1010504@tmsusa.com>
+Message-ID: <Pine.LNX.4.55.0307021604410.4840@bigblue.dev.mcafeelabs.com>
+References: <Pine.LNX.4.53.0307021627070.26905@chaos> <3F036467.1010504@tmsusa.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 03:53:24PM -0700, Martin J. Bligh wrote:
-> Some people were saying they couldn't see an overhead with highpte.
-> Seems pretty obvious to me still. It should help *more* on the NUMA
-> box, as PTEs become node-local.
-> The kmap_atomic is, of course, perfectly understandable. The increase
-> in the rmap functions is a bit of a mystery to me.
+On Wed, 2 Jul 2003, jjs wrote:
 
-The rmap functions perform kmap_atomic() internally while traversing
-pte_chains and so will take various additional TLB misses and incur
-various bits of computational expense with i386's kmap_atomic() semantics.
+> Richard B. Johnson wrote:
+>
+> >Sorry about BW. Anybody know how to configure a cable modem?
+> >I have one. I connect it to the cable. I set Linux up for
+> >DHCP. I end up with a dynamic IP address, a network mask,
+> >a broadcast address, a default route, and even a name-server.
+> >
+> >I can ping the name-server. However, I can't telnet or use
+> >a Web Crawler. The thing works fine with WIN/2000/Prof. The
+> >ISP says they only support Windows. Since I have all the
+> >"hooks" working, how do I find a default route that will
+> >route my packets to bypass their stuff?
+> >
+> Your symptoms suggest that your are basically up and running but perhaps
+> have name resolution issues.
+>
+> Lack of information about your setup prevents me from offering any
+> further advice.
 
-The observations I made were in combination with both highpmd and an as
-of yet unmerged full 3-level pagetable cacheing patch.
+This shouldn't be in lkml though. You need to set /etc/resolv.conf. I had
+the same problem with comcast. Just dig for comcast.net NSs and add them
+in your /etc/resolv.conf
 
 
--- wli
+
+- Davide
+

@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270420AbTGaWJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 18:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270530AbTGaWJZ
+	id S270413AbTGaW2E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 18:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270487AbTGaW2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 18:09:25 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:55533 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S270420AbTGaWI3 (ORCPT
+	Thu, 31 Jul 2003 18:28:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11719 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270413AbTGaW2B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 18:08:29 -0400
-Date: Fri, 1 Aug 2003 00:08:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Dominik Brugger <ml.dominik83@gmx.net>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
-Message-ID: <20030731220807.GC487@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org> <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net> <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net> <20030731094904.GC464@elf.ucw.cz> <1059686717.2418.156.camel@gaston>
+	Thu, 31 Jul 2003 18:28:01 -0400
+Date: Thu, 31 Jul 2003 15:16:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Any reason why install_page and zap_page_range are not
+ exported?
+Message-Id: <20030731151611.0dc69bf9.akpm@osdl.org>
+In-Reply-To: <8D43EFF35A6@vcnet.vc.cvut.cz>
+References: <8D43EFF35A6@vcnet.vc.cvut.cz>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059686717.2418.156.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > >  - APM uses the pm_*() calls for a vetoable check,
-> > >    never issues SAVE_STATE, then goes POWER_DOWN.
-> > 
-> > I remember the reason... SAVE_STATE expects user processes to be
-> > stopped, which is not the case in APM. Perhaps that is easy to fix
-> > these days...
+"Petr Vandrovec" <VANDROVE@vc.cvut.cz> wrote:
+>
+> Hi,
+>   in one of my projects I found that what we were doing in 2.2.x/2.4.x
+> with strange hacks to mmap & nopage methods to get non-linear
+> mappings from some device can be done in 2.[56].x with remap_file_pages. 
 > 
-> No ! You may feel better stopping user processes (and actuallty you
-> may require that for swsusp, I don't know) but the whole PM scheme is
-> designed to make that unnecessary. I do NOT stop user processes on
-> suspend-to-RAM on PowerMacs, I don't think neither APM nor ACPI need
-> that (I may be wrong here, but if that is the case, then some drivers
-> need fixing).
+>   Only two things are missing: install_page is not exported for modules,
+> so it is not possible to create own vma's populate function, as
+> there is no way how to put some page into pagetables. Or at least
+> I did not found such - even if I'll copy install_page's code to the
+> module, I'll just run to the other non-exported symbols :-(
 
-When all drivers are safe, stopping user processes on ACPI S3 will no
-longer be needed.
+Agree, install_page() should be exported.  I'll submit a patch.
 
-But they are not safe for now, and I believe that stopping processes
-makes some hw drivers safe where they were not safe before. At least
-if process is sleeping within some driver, stopping user processes
-will wait till it exits the driver. That should help for simple
-devices.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+>   And second missing thing is zap_page_range - we need way to tell
+> that specified page is not mapped anywhere (mostly for debugging
+> purposes). At worst install_page with PROT_NONE protection can be 
+> used for that, but it seems natural that if there should be no page 
+> there, we should just put nothing to the pagetables instead of some 
+> fake page. And for large ranges doing one 200MB zap_page_range is
+> much faster than doing 50000 install_pages.
+
+zap_page_range() sounds like an odd thing to be exporting.  If we had an
+in-kernel module which needed it then OK.  Do you have plans in that
+direction?

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbTFXVDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 17:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTFXVDQ
+	id S263275AbTFXVHS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 17:07:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTFXVHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 17:03:16 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:10397 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262499AbTFXVDP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 17:03:15 -0400
-Message-Id: <200306242116.h5OLGQV0002891@eeyore.valparaiso.cl>
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21 doesn't boot: /bin/insmod.old: file not found 
-In-Reply-To: Message from Ronald Bultje <rbultje@ronald.bitfreak.net> 
-   of "24 Jun 2003 08:35:52 +0200." <1056436551.2674.2.camel@localhost.localdomain> 
-X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Tue, 24 Jun 2003 17:16:26 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 24 Jun 2003 17:07:18 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:28217 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263275AbTFXVHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 17:07:16 -0400
+Date: Tue, 24 Jun 2003 14:22:14 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Konstantin Kletschke <konsti@ludenkalle.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: medium Oops on 2.5.73-mm1
+Message-Id: <20030624142214.67e5c5f4.akpm@digeo.com>
+In-Reply-To: <20030624210414.GA1533@sexmachine.doom>
+References: <20030624164026.GA2934@sexmachine.doom>
+	<20030624210414.GA1533@sexmachine.doom>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jun 2003 21:21:25.0016 (UTC) FILETIME=[91162980:01C33A96]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronald Bultje <rbultje@ronald.bitfreak.net> said:
+Konstantin Kletschke <konsti@ludenkalle.de> wrote:
+>
+>  This evening 2.5.73-mm1 "crashed" two times. The " because of that: this
+>  time it did not freeze completely, it disabled keyboard and mouse
+>  buttons, mouse movements where working still! I was running X...
 
-[...]
-
-> Adding insmod.static.old to the ramdisk image (add the line 'inst
-> /sbin/insmod.static.old "$MNTIMAGE/bin/insmod.old"' in /sbin/mkinitrd)
-> fixed the issue for me. Thanks for the pointer!
-
-I'd make that:
-
-[ -x /sbin/insmod.old ] && inst /sbin/insmod.static.old "$MNTIMAGE/bin/insmod.old"
-
-Just paranoia...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Please see if it is repeatable without the nVidia driver loaded.

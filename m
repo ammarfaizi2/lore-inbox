@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264967AbRFZPE4>; Tue, 26 Jun 2001 11:04:56 -0400
+	id <S264973AbRFZPH4>; Tue, 26 Jun 2001 11:07:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264970AbRFZPEq>; Tue, 26 Jun 2001 11:04:46 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27399 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264967AbRFZPEh>; Tue, 26 Jun 2001 11:04:37 -0400
-Subject: Re: Problems with 2.4.5ac1[78]
-To: mccramer@s.netic.de (Meino Christian Cramer)
-Date: Tue, 26 Jun 2001 16:04:22 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010626161854G.mccramer@s.netic.de> from "Meino Christian Cramer" at Jun 26, 2001 04:18:54 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15EuO6-0003dz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264975AbRFZPHq>; Tue, 26 Jun 2001 11:07:46 -0400
+Received: from [207.213.212.4] ([207.213.212.4]:731 "EHLO geos.coastside.net")
+	by vger.kernel.org with ESMTP id <S264973AbRFZPHh>;
+	Tue, 26 Jun 2001 11:07:37 -0400
+Mime-Version: 1.0
+Message-Id: <p05100303b75e54e41b2d@[207.213.214.37]>
+In-Reply-To: <01062608593502.10305@cosmic>
+In-Reply-To: <E15Es2e-0003T1-00@the-village.bc.nu>
+ <01062608593502.10305@cosmic>
+Date: Tue, 26 Jun 2001 08:06:30 -0700
+To: jordanc@Censoft.com, linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: [OT] Re: When the FUD is all around (sniff).
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  I tried to compile linux-2.4.5ac17 with processor type "Athlon"
->  settings.
-> 
->  Compilation/Install was successful. But boot produces dozens of
->  "unresolved symbols" if trying to insmod any of the modules.
-> 
->  Not one module was insmodded successfully.
+At 8:59 AM -0600 2001-06-26, Jordan Crouse wrote:
+>  > There is a saying in he UK 'You can fool all of the people some of the
+>>  time, you can fool some of the people all the time, but you cannot fool all
+>>  of the people all of the time'.
+>
+>Didn't Abraham Lincoln say that?  :)
 
-Sounds like your build wasnt clean. Save your .config file and make distclean
-is sometimes needed when changing SMP or CPU types - yes its a bug in the
-config setup really
-
+That's the common, but doubtful, attribution.
+-- 
+/Jonathan Lundell.

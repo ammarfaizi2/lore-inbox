@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130671AbQLGRRF>; Thu, 7 Dec 2000 12:17:05 -0500
+	id <S129831AbQLGRTP>; Thu, 7 Dec 2000 12:19:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129597AbQLGRQz>; Thu, 7 Dec 2000 12:16:55 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56587 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129257AbQLGRQu>; Thu, 7 Dec 2000 12:16:50 -0500
-Subject: Re: YMF PCI - thanks, glitches, patches (fwd)
-To: proski@gnu.org (Pavel Roskin)
-Date: Thu, 7 Dec 2000 16:48:50 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        zaitcev@metabyte.com (Pete Zaitcev)
-In-Reply-To: <Pine.LNX.4.30.0012071108220.23591-100000@fonzie.nine.com> from "Pavel Roskin" at Dec 07, 2000 11:44:55 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1444E0-0002fW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S131459AbQLGRTF>; Thu, 7 Dec 2000 12:19:05 -0500
+Received: from mail.mtroyal.ab.ca ([142.109.10.22]:24843 "EHLO
+	mailgate.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S129831AbQLGRS6>; Thu, 7 Dec 2000 12:18:58 -0500
+Date: Thu, 07 Dec 2000 09:47:22 -0700 (MST)
+From: James Bourne <jbourne@MtRoyal.AB.CA>
+Subject: Re: D-LINK DFE-530-TX
+In-Reply-To: <E14444b-0002eT-00@the-village.bc.nu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: marco@esi.it (Marco Colombo), jbourne@MtRoyal.AB.CA (James Bourne),
+        mharris@opensourceadvocate.org (Mike A. Harris),
+        linux-kernel@vger.kernel.org (Linux Kernel mailing list)
+Message-id: <Pine.LNX.4.30.0012070945260.13953-100000@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, it's not just a matter of changing the constants under "case
-> SNDCTL_DSP_SPEED" in ymf_ioctl()? Actually, I hacked them to be
-> 4000<rate<50000 and it worked fine, but I'll drop this part of my patch if
-> you believe it's unsafe.
+On Thu, 7 Dec 2000, Alan Cox wrote:
 
-I'd keep it in the absence of other evidence. 8KHz is normally the low limit
-for AC97 codec based systems, but if the rate adaption is done in front of
-the codec then it may well be fine
+> > > Should be the rtl8139 driver.
+> >
+> > AFAIK, it uses the via-rhine driver. The DFE-538TX is rtl8139 based.
+> > Mike, if you have problems, search list archives: a few people (including
+> > me) reported problems under load. I've never solved them.
+>
+> 2.2.18pre24 has the 8139too driver that Jeff Garzik built from a mix of his
+> own work and Don Becker's rather unreliable rtl8129.c driver. It seems to be
+> way better (but not perfect)
+
+Yes, still running 2.2.17 though.
+
+The DFE-530TX is the viacom chipset, but the DFE530TX+ (Which I guess
+replaces the 538 as that is no longer listed on the Dlink site) is an
+rtl8139 chip.
+
+Jim
+
+
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
+
+-- 
+James Bourne, Web Systems Administrator
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

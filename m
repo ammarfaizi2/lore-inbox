@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292555AbSCRTxy>; Mon, 18 Mar 2002 14:53:54 -0500
+	id <S292700AbSCRT4O>; Mon, 18 Mar 2002 14:56:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292594AbSCRTxo>; Mon, 18 Mar 2002 14:53:44 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:48120 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S292555AbSCRTx2>;
-	Mon, 18 Mar 2002 14:53:28 -0500
-Date: Mon, 18 Mar 2002 11:53:13 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Killing tasklet from interrupt
-Message-ID: <20020318115313.A26490@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S292688AbSCRT4E>; Mon, 18 Mar 2002 14:56:04 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:34178 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S292594AbSCRTz7>;
+	Mon, 18 Mar 2002 14:55:59 -0500
+Date: Mon, 18 Mar 2002 20:20:05 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Olivier Galibert <galibert@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+Message-ID: <20020318192004.GB194@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0203111829550.1153-100000@home.transmeta.com> <3C8D69E3.3080908@mandrakesoft.com> <20020311223439.A2434@zalem.nrockv01.md.comcast.net> <3C8D8061.4030503@mandrakesoft.com> <20020314141342.B37@toy.ucw.cz> <3C91D571.5070806@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+Hi!
 
-	I'm trying to use tasklets and I've come across one problem. I
-need to kill a tasklet from a timer, and I wonder if it's legal.
+> >>Under more restricted domains, root cannot bit-bang the interface. 
+> >>s/CAP_SYS_RAWIO/CAP_DEVICE_CMD/ for the raw cmd ioctl interface.  Have 
+> >>
+> >
+> >Nobody uses capabilities these days, right?
+> 
+> Actually, the NSA and HP secure linux products do, at the very least. 
+> And there is some ELF capabilities project out there IIRC, but I dunno 
+> if anybody's using it.
 
-	Code :
-	-> User close IrDA TSAP and goes away
-		-> LSAP not clean, more work to do
-			-> Schedule timer in one second
-	-> Timer
-		-> If LSAP clean and nothing to do
-			-> Kill tasklet
-			-> Destroy LSAP
-		-> Else re-shedule timer
+I did ELF capabilities ;-). And no, I do not think I had many users.
 
-	The tasklet is used in the Rx path, so may be scheduled after
-the user close the TSAP. The TSAP may interface to the socket code, to
-the TTY code, to the Ethernet code or the PPP code, so we are not even
-guaranteed that the TSAP closure is done from a user context (fun,
-fun, fun).
-	To be fair, the timer API is much more versatile in that
-respect. What I think I need is a tasklet_try_kill()...
+> commands.  With the proper sequencing, you can even do power management 
+> of the drives in userspace.  You don't want to do system suspend/resume 
+> that way, but you can certainly have a userspace policy daemon running, 
+> that powers-down and powers-up the drives, etc.
 
-	Regards,
-
-	Jean
+See noflushd, Hdparm is able to powersave disks well, already, and it
+was in 2.2.X, too.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

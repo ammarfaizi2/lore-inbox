@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289086AbSANWIE>; Mon, 14 Jan 2002 17:08:04 -0500
+	id <S289089AbSANWMY>; Mon, 14 Jan 2002 17:12:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289088AbSANWHy>; Mon, 14 Jan 2002 17:07:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50447 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289086AbSANWHn>;
-	Mon, 14 Jan 2002 17:07:43 -0500
-Message-ID: <3C4356A9.367BC989@mandrakesoft.com>
-Date: Mon, 14 Jan 2002 17:07:37 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
+	id <S289091AbSANWMG>; Mon, 14 Jan 2002 17:12:06 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:36546 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S289089AbSANWL6>; Mon, 14 Jan 2002 17:11:58 -0500
+Date: Mon, 14 Jan 2002 14:11:48 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: Ian Molton <spyro@armlinux.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <20020114205124.2f05fc56.spyro@armlinux.org>
+Message-ID: <Pine.LNX.4.40.0201141409580.22904-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the 
- elegant solution)
-In-Reply-To: <20020114132618.G14747@thyrsus.com> <m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com> <20020114213732.M15139@suse.de> <20020114153844.A20537@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" wrote:
-> Right now, neither lsmod nor the boot time messages  necessarily give you that
-> information.  lsmod only works if the driver is in fact a module.  My
-> /var/log/dmesg contains no message from the NIC on my motherboard.  And
-> going from the driver to the config symbol isn't trivial even if you *have*
-> the lsmod or dmesg information.
+the impact is in all calls to the module, if they are far calls instead of
+near calls each and every call is (a hair) slower.
 
-For network cards one needs only to issue the ETHTOOL_GDRVINFO ioctl to
-find out what hardware is associated with an ethernet interface.
+so the code can be the same and still be slower to get to.
 
-	Jeff
+you can argue that it's not enough slower to matter, but even Alan admits
+there is some impact.
 
+David Lang
 
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+On Mon, 14 Jan 2002, Ian Molton wrote:
+
+> Date: Mon, 14 Jan 2002 20:51:24 +0000
+> From: Ian Molton <spyro@armlinux.org>
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: Hardwired drivers are going away?
+>
+> On a sunny Mon, 14 Jan 2002 11:44:59 -0800 (PST) David Lang gathered a
+> sheaf of electrons and etched in their motions the following immortal
+> words:
+>
+> > doesn't matter, they are likly to be found on dedicated servers where
+> > the flexibility of modules is not needed and the slight performance
+> > advantage is desired.
+>
+> Exactly WHAT performance advantage? once the module is loaded, its loaded.
+> most modules use the same code to handle modular and non-modular builds
+> anyhow (look at the ide drivers, for example)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

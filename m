@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbQLBSUs>; Sat, 2 Dec 2000 13:20:48 -0500
+	id <S130013AbQLBSWI>; Sat, 2 Dec 2000 13:22:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129538AbQLBSUi>; Sat, 2 Dec 2000 13:20:38 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:4070 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129511AbQLBSUb>;
-	Sat, 2 Dec 2000 13:20:31 -0500
-Date: Sat, 2 Dec 2000 12:50:02 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        Jonathan Hudson <jonathan@daria.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: corruption
-In-Reply-To: <20001202173959.A10166@vana.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.21.0012021242570.28923-100000@weyl.math.psu.edu>
+	id <S130070AbQLBSV6>; Sat, 2 Dec 2000 13:21:58 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:25433 "EHLO
+	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S130013AbQLBSVr>; Sat, 2 Dec 2000 13:21:47 -0500
+Date: Sat, 2 Dec 2000 19:58:49 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Matthew Kirkwood <matthew@hairy.beasts.org>
+cc: folkert@vanheusden.com, "Theodore Y Ts'o" <tytso@mit.edu>,
+        Kernel devel list <linux-kernel@vger.kernel.org>, vpnd@sunsite.auc.dk
+Subject: Re: /dev/random probs in 2.4test(12-pre3)
+In-Reply-To: <Pine.LNX.4.10.10012021108350.31306-100000@sphinx.mythic-beasts.com>
+Message-ID: <Pine.LNX.4.21.0012021955570.11787-100000@server.serve.me.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Indeed, you are correct.  Is vpnd broken then, for assuming
+> that it can gather the required randomness in one read?
 
-On Sat, 2 Dec 2000, Petr Vandrovec wrote:
+Yep. It assumes that if the required randommness numbers aren't met a read
+to /dev/random will block.
 
-> Nothing new (was it meant to run remove_inode_queue() conditionaly inside 
-> buffer_mapped() branch? ed did it that way). First is list of buffers at 
-> time of destroy_inode, then process. If you want full oops trace, it is 
+And it's not the only program that assumes this : I also did. 
 
-what list of buffers? ->i_dirty_buffers one?
+/dev/random is called a blocking random device, which more or less implies
+that it will totally block. I suggest we put this somewhere in the kernel
+docs, since lots of people out there assume that it totally blocks.
 
-> available at http://platan.vc.cvut.cz/oops3.txt, but last part is always 
-> iput. For now I'm back on test9, as I lost inetd.conf again :-( Someone 
-> should shoot sendmail Debian maintainer... Running update-inetd at startup 
-> is really bad idea, as fsck then usually removes both old and new inetd.conf, 
-> so I'm back on inetd.conf from 25 Aug 1999 :-(((
-> 
-> Fields printed from buffer_head are b_next, b_blocknr, b_size, b_list,
-> b_count, b_state and b_inode. (oops now I see that I left
-> remove_inode_queue(bh) in printing loop (I copied it from
-> invalidate_inode_buffers()), but it should not hurt, I believe. Dirty buffers
-> should find its way to disk anyway, or not?)
+Means I've got to updates some sources of mine :)
 
-When you delete the inode? Why would they? Petr, could you send me the
-diff between the variant you've run and pristine 12-pre3? I'ld really
-like to see what exactly was doing the printks...
+> Matthew.
+
+
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

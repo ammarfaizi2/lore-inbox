@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUIUHn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266903AbUIUHtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267509AbUIUHn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 03:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUIUHn2
+	id S266903AbUIUHtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 03:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267515AbUIUHtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 03:43:28 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:3984 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267509AbUIUHn1 (ORCPT
+	Tue, 21 Sep 2004 03:49:05 -0400
+Received: from imap.gmx.net ([213.165.64.20]:899 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267511AbUIUHtA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 03:43:27 -0400
-Date: Tue, 21 Sep 2004 09:44:26 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@Raytheon.com
-Subject: [patch] voluntary-preempt-2.6.9-rc2-mm1-S2
-Message-ID: <20040921074426.GA10477@elte.hu>
-References: <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu>
+	Tue, 21 Sep 2004 03:49:00 -0400
+X-Authenticated: #911537
+Date: Tue, 21 Sep 2004 09:52:24 +0200
+From: torbenh@gmx.de
+To: "Jack O'Quin" <joq@io.com>
+Cc: Jody McIntyre <lkml@modernduck.com>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Realtime LSM
+Message-ID: <20040921075224.GA4602@mobilat.informatik.uni-bremen.de>
+References: <1094967978.1306.401.camel@krustophenia.net> <20040920202349.GI4273@conscoop.ottawa.on.ca> <87u0tslbuw.fsf@sulphur.joq.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040921071854.GA7604@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <87u0tslbuw.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 20, 2004 at 07:11:35PM -0500, Jack O'Quin wrote:
+> Jody McIntyre <lkml@modernduck.com> writes:
+> 
+> > On Sun, Sep 12, 2004 at 01:46:18AM -0400, Lee Revell wrote:
+> > 
+> > > +	  Answer M to build realtime support as a Linux Security
+> > > +	  Module.  Answering Y to build realtime capabilities into the
+> > > +	  kernel makes no sense.
+> > 
+> > Why does this make no sense?
+> 
+> Before your /proc enhancement, it made no sense because there was no
+> way to set parameters.  By default, the LSM does nothing.  We should
+> change that comment now (as soon as it's working).
 
-i've released the -S2 VP patch:
+one can pass paremeters to the kernel on boot.
+i think that the parameters get to the module somehow.
+(the parameter stuff is handled by magic macros, which should now what
+to do when not built as a module.
+> 
+> > I tried answering Y and it oopsed on boot.  I'll try and track down/fix
+> > what is happening later.
+> 
+> Long ago, I built and ran it linked into the kernel (with different
+> parameter defaults), which worked at the time.  It may matter how some
+> of the other security modules are configured.  Perhaps some additional
+> Kconfig dependency checking would help.  I'm not an expert at that.
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S2
+i think jody will fix it.
 
-Changes since -S1:
+> -- 
+>   joq
+> 
 
- - added the swapspace-layout patch to fix the get_swap_page()
-   latencies. (sw-suspend wont compile but everything else should work
-   fine.)
-
- - fixed the random.c BKL non-preemptability assumption
-
- - export smp_processor_id() to fix modules
-
- - module init smp_processor_id()-debug false positive fix
-
-To get a 2.6.9-rc2-mm1-VP-S2 kernel, the patching order is:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
- + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc2.bz2
- + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm1/2.6.9-rc2-mm1.bz2
- + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S2
-
-	Ingo
+-- 
+torben Hohn
+http://galan.sourceforge.net -- The graphical Audio language

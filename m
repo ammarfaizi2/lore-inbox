@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVAGWSC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVAGViU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVAGWSC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:18:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbVAGWPQ
+	id S261626AbVAGViU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 16:38:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVAGVgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:15:16 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:26261 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261653AbVAGWLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:11:07 -0500
-Subject: Re: 2.6.10-mm2: swsusp regression
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200501071345.39847.rjw@sisk.pl>
-References: <20050106002240.00ac4611.akpm@osdl.org>
-	 <200501070041.43023.rjw@sisk.pl> <20050106234829.GF28777@elf.ucw.cz>
-	 <200501071345.39847.rjw@sisk.pl>
+	Fri, 7 Jan 2005 16:36:38 -0500
+Received: from mail.tyan.com ([66.122.195.4]:33037 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S261625AbVAGVcv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 16:32:51 -0500
+Message-ID: <3174569B9743D511922F00A0C943142307291332@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, jamesclv@us.ibm.com, suresh.b.siddha@intel.com
+Subject: RE: 256 apic id for amd64
+Date: Fri, 7 Jan 2005 13:44:19 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain
-Message-Id: <1105135940.2488.39.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 08 Jan 2005 09:12:21 +1100
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Can you consider to use c->x86_apicid to get phy_proc_id, that is initial
+apicid.?
 
-On Fri, 2005-01-07 at 23:45, Rafael J. Wysocki wrote:
-> > ..so... could you go through sysdev_register()s, one by one,
-> > commenting them to see which one causes the regression? That driver
-> > then needs to be fixed.
-> > 
-> > Go after mtrr and time in first places.
-> 
-> OK, but it'll take some time.
-
-There's an MTRR fix in the -overloaded ck patches. Perhaps it is what
-you're after. (Or perhaps it's already included :>)
-
-http://kem.p.lodz.pl/~peter/cko/fixes/2.6.10-cko1-swsusp_fix.patch
-
-Regards,
-
-Nigel
+YH
 
 
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
+4407.29 BogoMIPS (lpj=2203648)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 7 -> Node 3
+phy_proc_id[0] = 0
+phy_proc_id[1] = 0
+phy_proc_id[2] = 9
+phy_proc_id[3] = 9
+phy_proc_id[4] = 10
+phy_proc_id[5] = 10
+phy_proc_id[6] = 11
+phy_proc_id[7] = 11
+CPU: Physical Processor ID: 11
+ stepping 00
+Total of 8 processors activated (35209.21 BogoMIPS).
 
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+-----Original Message-----
+From: Andi Kleen [mailto:ak@muc.de] 
+Sent: Friday, January 07, 2005 1:12 PM
+To: YhLu
+Cc: Matt Domsch; linux-kernel@vger.kernel.org; discuss@x86-64.org;
+jamesclv@us.ibm.com; suresh.b.siddha@intel.com
+Subject: Re: 256 apic id for amd64
 
+On Fri, Jan 07, 2005 at 01:14:24PM -0800, YhLu wrote:
+> After keep the bsp using 0, the jiffies works well. Werid?
+
+Probably a bug somewhere.  But since BSP should be always 
+0 I'm not sure it is worth tracking down.
+
+-Andi

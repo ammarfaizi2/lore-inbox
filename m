@@ -1,162 +1,265 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268102AbTGIJcV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 05:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268103AbTGIJcV
+	id S265856AbTGIJdr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 05:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbTGIJdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 05:32:21 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:14978 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S268102AbTGIJcL (ORCPT
+	Wed, 9 Jul 2003 05:33:46 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:31956 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S265856AbTGIJdh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 05:32:11 -0400
-From: Guillaume Chazarain <gfc@altern.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Wed, 09 Jul 2003 11:49:26 +0200
-X-Priority: 3 (Normal)
-Message-Id: <TQSN931YHFWVTRY59375OJOMNJECA8.3f0be526@monpc>
-Subject: Re: [PATCH] Interactivity bits
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-X-Mailer: Opera 6.06 build 1145
+	Wed, 9 Jul 2003 05:33:37 -0400
+Subject: Re: [PATCH] timer clean up for i2c-keywest.c
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Greg KH <greg@kroah.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1057659989.11708.113.camel@gaston>
+References: <16137.6948.764603.59450@cargo.ozlabs.ibm.com>
+	 <1057659989.11708.113.camel@gaston>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1057744088.506.8.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 09 Jul 2003 11:48:08 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-08/07/03 23:13:22, Davide Libenzi <davidel@xmailserver.org> wrote:
+On Tue, 2003-07-08 at 12:26, Benjamin Herrenschmidt wrote:
+> On Mon, 2003-07-07 at 09:03, Paul Mackerras wrote:
+> > This patch changes i2c-keywest.c to use mod_timer instead of a
+> > two-line sequence to compute .expires and call add_timer in 3 places.
+> > Without this patch I get a BUG from time to time in add_timer.
+> 
+> Ok, here it is. It also remove the never used "polled" mode. The
+> driver is now in sync with the more up-to-date 2.4 version ;)
+> 
+> Sorry for not sending that earlier, I forgot about it and didn't
+> notice it was out of sync.
 
->On Tue, 8 Jul 2003, Guillaume Chazarain wrote:
->
->> Hello,
->>
->> Currently the interactive points a process can have are in a [-5, 5] range,
->> that is, 25% of the [0, 39] range. Two reasons are mentionned:
->>
->> 1) nice +19 interactive tasks do not preempt nice 0 CPU hogs.
->> 2) nice -20 CPU hogs do not get preempted by nice 0 tasks.
->>
->> But, using 50% of the range, instead of 25% the interactivity points are better
->> spread and both rules are still respected.  Having a larger range for
->> interactivity points it's easier to choose between two interactive tasks.
->>
->> So, why not changing PRIO_BONUS_RATIO to 50 instead of 25?
->> Actually it should be in the [45, 49] range to maximize the bonus points
->> range and satisfy both rules due to integer arithmetic.
->
->I believe these are the bits that broke the scheduler, that was working
->fine during the very first shots in 2.5. IIRC Ingo was hit by ppl
->complains about those 'nice' rules and he had to fix it. It'd be
->interesting bring back a more generous interactive bonus and see how the
->scheduler behave.
+And just in case you didn't merge it yet... Here's a version changing
+the timer->expire ; add_timer() pairs into calls to mod_timer, makes
+the code slighly cleaner.
 
-Thanks for the info.
-Before being 25% the interactivity range was 70%, thus breaking the rules. So
-I am now more convinced that a 50% range could be a good thing.
+Ben.
 
-Here is the patch I currently use and am very happy with it.
-
---- linux-2.5.74-bk6/kernel/sched.c.old	2003-07-09 10:08:01.000000000 +0200
-+++ linux-2.5.74-bk6/kernel/sched.c	2003-07-09 11:27:23.000000000 +0200
-@@ -68,10 +68,10 @@
-  */
- #define MIN_TIMESLICE		( 10 * HZ / 1000)
- #define MAX_TIMESLICE		(200 * HZ / 1000)
--#define CHILD_PENALTY		50
--#define PARENT_PENALTY		100
-+#define CHILD_PENALTY		80
-+#define PARENT_PENALTY		90
- #define EXIT_WEIGHT		3
--#define PRIO_BONUS_RATIO	25
-+#define PRIO_BONUS_RATIO	45
- #define INTERACTIVE_DELTA	2
- #define MAX_SLEEP_AVG		(10*HZ)
- #define STARVATION_LIMIT	(10*HZ)
-@@ -88,13 +88,13 @@
-  * We scale it linearly, offset by the INTERACTIVE_DELTA delta.
-  * Here are a few examples of different nice levels:
-  *
-- *  TASK_INTERACTIVE(-20): [1,1,1,1,1,1,1,1,1,0,0]
-- *  TASK_INTERACTIVE(-10): [1,1,1,1,1,1,1,0,0,0,0]
-- *  TASK_INTERACTIVE(  0): [1,1,1,1,0,0,0,0,0,0,0]
-- *  TASK_INTERACTIVE( 10): [1,1,0,0,0,0,0,0,0,0,0]
-- *  TASK_INTERACTIVE( 19): [0,0,0,0,0,0,0,0,0,0,0]
-+ *  TASK_INTERACTIVE(-20): [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0]
-+ *  TASK_INTERACTIVE(-10): [1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0]
-+ *  TASK_INTERACTIVE(  0): [1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0]
-+ *  TASK_INTERACTIVE( 10): [1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-+ *  TASK_INTERACTIVE( 19): [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-  *
-- * (the X axis represents the possible -5 ... 0 ... +5 dynamic
-+ * (the X axis represents the possible -9 ... 0 ... +9 dynamic
-  *  priority range a task can explore, a value of '1' means the
-  *  task is rated interactive.)
-  *
-@@ -303,9 +303,9 @@
-  * priority but is modified by bonuses/penalties.
-  *
-  * We scale the actual sleep average [0 .... MAX_SLEEP_AVG]
-- * into the -5 ... 0 ... +5 bonus/penalty range.
-+ * into the -9 ... 0 ... +9 bonus/penalty range.
-  *
-- * We use 25% of the full 0...39 priority range so that:
-+ * We use 50% of the full 0...39 priority range so that:
-  *
-  * 1) nice +19 interactive tasks do not preempt nice 0 CPU hogs.
-  * 2) nice -20 CPU hogs do not get preempted by nice 0 tasks.
-@@ -347,9 +347,9 @@
-  */
- static inline void activate_task(task_t *p, runqueue_t *rq)
+===== drivers/i2c/i2c-keywest.c 1.2 vs edited =====
+--- 1.2/drivers/i2c/i2c-keywest.c	Wed Apr 23 13:32:32 2003
++++ edited/drivers/i2c/i2c-keywest.c	Wed Jul  9 11:45:34 2003
+@@ -66,8 +66,6 @@
+ 
+ #include "i2c-keywest.h"
+ 
+-#undef POLLED_MODE
+-
+ #define DBG(x...) do {\
+ 	if (debug > 0) \
+ 		printk(KERN_DEBUG "KW:" x); \
+@@ -85,27 +83,6 @@
+ 
+ static struct keywest_iface *ifaces = NULL;
+ 
+-#ifdef POLLED_MODE
+-/* This isn't fast, but will go once I implement interrupt with
+- * proper timeout
+- */
+-static u8
+-wait_interrupt(struct keywest_iface* iface)
+-{
+-	int i;
+-	u8 isr;
+-	
+-	for (i = 0; i < POLL_TIMEOUT; i++) {
+-		isr = read_reg(reg_isr) & KW_I2C_IRQ_MASK;
+-		if (isr != 0)
+-			return isr;
+-		current->state = TASK_UNINTERRUPTIBLE;
+-		schedule_timeout(1);
+-	}
+-	return isr;
+-}
+-#endif /* POLLED_MODE */
+-
+ 
+ static void
+ do_stop(struct keywest_iface* iface, int result)
+@@ -116,16 +93,17 @@
+ }
+ 
+ /* Main state machine for standard & standard sub mode */
+-static void
++static int
+ handle_interrupt(struct keywest_iface *iface, u8 isr)
  {
--	long sleep_time = jiffies - p->last_run - 1;
-+	long sleep_time = jiffies - p->last_run;
+ 	int ack;
++	int rearm_timer = 1;
+ 	
+ 	DBG("handle_interrupt(), got: %x, status: %x, state: %d\n",
+ 		isr, read_reg(reg_status), iface->state);
+ 	if (isr == 0 && iface->state != state_stop) {
+ 		do_stop(iface, -1);
+-		return;
++		return rearm_timer;
+ 	}
+ 	if (isr & KW_I2C_IRQ_STOP && iface->state != state_stop) {
+ 		iface->result = -1;
+@@ -196,20 +174,19 @@
+ 		if (!(isr & KW_I2C_IRQ_STOP) && (++iface->stopretry) < 10)
+ 			do_stop(iface, -1);
+ 		else {
++			rearm_timer = 0;
+ 			iface->state = state_idle;
+ 			write_reg(reg_control, 0x00);
+ 			write_reg(reg_ier, 0x00);
+-#ifndef POLLED_MODE
+ 			complete(&iface->complete);
+-#endif /* POLLED_MODE */			
+ 		}
+ 		break;
+ 	}
+ 	
+ 	write_reg(reg_isr, isr);
+-}
  
--	if (sleep_time > 0) {
-+	if (p->state == TASK_INTERRUPTIBLE && sleep_time) {
- 		int sleep_avg;
+-#ifndef POLLED_MODE
++	return rearm_timer;
++}
  
- 		/*
-
-
-The following change:
--	long sleep_time = jiffies - p->last_run - 1;
-+	long sleep_time = jiffies - p->last_run;
-helps mplayer become interactive. Otherwise, it uses just a little fraction of the CPU,
-and is considered a CPU hog.
-
-
-My workload may not be representative of ordinary desktop use, so I'd like to have some
-feedback on these simple changes.  Of course these changes can be put on top of Con's work
-in -mm3 with this patch.
-
---- linux-2.5.74-mm3/kernel/sched.c.old	2003-07-09 09:14:50.000000000 +0200
-+++ linux-2.5.74-mm3/kernel/sched.c	2003-07-09 11:39:56.000000000 +0200
-@@ -71,7 +71,7 @@
- #define CHILD_PENALTY		80
- #define PARENT_PENALTY		100
- #define EXIT_WEIGHT		3
--#define PRIO_BONUS_RATIO	25
-+#define PRIO_BONUS_RATIO	45
- #define INTERACTIVE_DELTA	2
- #define MIN_SLEEP_AVG		(HZ)
- #define MAX_SLEEP_AVG		(10*HZ)
-@@ -386,9 +386,9 @@
+ /* Interrupt handler */
+ static irqreturn_t
+@@ -219,11 +196,8 @@
+ 
+ 	spin_lock(&iface->lock);
+ 	del_timer(&iface->timeout_timer);
+-	handle_interrupt(iface, read_reg(reg_isr));
+-	if (iface->state != state_idle) {
+-		iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+-		add_timer(&iface->timeout_timer);
+-	}
++	if (handle_interrupt(iface, read_reg(reg_isr)))
++		mod_timer(&iface->timeout_timer, jiffies + POLL_TIMEOUT);
+ 	spin_unlock(&iface->lock);
+ 	return IRQ_HANDLED;
+ }
+@@ -235,16 +209,11 @@
+ 
+ 	DBG("timeout !\n");
+ 	spin_lock_irq(&iface->lock);
+-	handle_interrupt(iface, read_reg(reg_isr));
+-	if (iface->state != state_idle) {
+-		iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+-		add_timer(&iface->timeout_timer);
+-	}
++	if (handle_interrupt(iface, read_reg(reg_isr)))
++		mod_timer(&iface->timeout_timer, jiffies + POLL_TIMEOUT);
+ 	spin_unlock(&iface->lock);
+ }
+ 
+-#endif /* POLLED_MODE */
+-
+ /*
+  * SMBUS-type transfer entrypoint
   */
- static inline void activate_task(task_t *p, runqueue_t *rq)
- {
--	long sleep_time = jiffies - p->last_run - 1;
-+	long sleep_time = jiffies - p->last_run;
+@@ -331,24 +300,13 @@
+ 		write_reg(reg_subaddr, command);
  
--	if (sleep_time > 0) {
-+	if (p->state == TASK_INTERRUPTIBLE && sleep_time) {
- 		unsigned long runtime = jiffies - p->avg_start;
+ 	/* Arm timeout */
+-	iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+-	add_timer(&iface->timeout_timer);
++	mod_timer(&iface->timeout_timer, jiffies + POLL_TIMEOUT);
  
- 		/*
-
-
-
-
-Thanks.
-Guillaume
-
-
-
-
+ 	/* Start sending address & enable interrupt*/
+ 	write_reg(reg_control, read_reg(reg_control) | KW_I2C_CTL_XADDR);
+ 	write_reg(reg_ier, KW_I2C_IRQ_MASK);
+ 
+-#ifdef POLLED_MODE
+-	DBG("using polled mode...\n");
+-	/* State machine, to turn into an interrupt handler */
+-	while(iface->state != state_idle) {
+-		u8 isr = wait_interrupt(iface);
+-		handle_interrupt(iface, isr);
+-	}
+-#else /* POLLED_MODE */
+-	DBG("using interrupt mode...\n");
+ 	wait_for_completion(&iface->complete);	
+-#endif /* POLLED_MODE */	
+ 
+ 	rc = iface->result;	
+ 	DBG("transfer done, result: %d\n", rc);
+@@ -421,24 +379,13 @@
+ 			((iface->read_write == I2C_SMBUS_READ) ? 0x01 : 0x00));
+ 
+ 		/* Arm timeout */
+-		iface->timeout_timer.expires = jiffies + POLL_TIMEOUT;
+-		add_timer(&iface->timeout_timer);
++		mod_timer(&iface->timeout_timer, jiffies + POLL_TIMEOUT);
+ 
+ 		/* Start sending address & enable interrupt*/
+ 		write_reg(reg_control, read_reg(reg_control) | KW_I2C_CTL_XADDR);
+ 		write_reg(reg_ier, KW_I2C_IRQ_MASK);
+ 
+-#ifdef POLLED_MODE
+-		DBG("using polled mode...\n");
+-		/* State machine, to turn into an interrupt handler */
+-		while(iface->state != state_idle) {
+-			u8 isr = wait_interrupt(iface);
+-			handle_interrupt(iface, isr);
+-		}
+-#else /* POLLED_MODE */
+-		DBG("using interrupt mode...\n");
+ 		wait_for_completion(&iface->complete);	
+-#endif /* POLLED_MODE */	
+ 
+ 		rc = iface->result;
+ 		if (rc == 0)
+@@ -540,8 +487,8 @@
+ 			*prate);
+ 	}
+ 	
+-	/* Select standard sub mode */
+-	iface->cur_mode |= KW_I2C_MODE_STANDARDSUB;
++	/* Select standard mode by default */
++	iface->cur_mode |= KW_I2C_MODE_STANDARD;
+ 	
+ 	/* Write mode */
+ 	write_reg(reg_mode, iface->cur_mode);
+@@ -550,7 +497,6 @@
+ 	write_reg(reg_ier, 0x00);
+ 	write_reg(reg_isr, KW_I2C_IRQ_MASK);
+ 
+-#ifndef POLLED_MODE
+ 	/* Request chip interrupt */	
+ 	rc = request_irq(iface->irq, keywest_irq, 0, "keywest i2c", iface);
+ 	if (rc) {
+@@ -559,7 +505,6 @@
+ 		kfree(iface);
+ 		return -ENODEV;
+ 	}
+-#endif /* POLLED_MODE */
+ 
+ 	for (i=0; i<nchan; i++) {
+ 		struct keywest_chan* chan = &iface->channels[i];
+@@ -609,19 +554,16 @@
+ 
+ 	/* Make sure we stop all activity */
+ 	down(&iface->sem);
+-#ifndef POLLED_MODE
+ 	spin_lock_irq(&iface->lock);
+ 	while (iface->state != state_idle) {
+ 		spin_unlock_irq(&iface->lock);
+-		schedule();
++		set_task_state(current,TASK_UNINTERRUPTIBLE);
++		schedule_timeout(HZ/10);
+ 		spin_lock_irq(&iface->lock);
+ 	}
+-#endif /* POLLED_MODE */
+ 	iface->state = state_dead;
+-#ifndef POLLED_MODE
+ 	spin_unlock_irq(&iface->lock);
+ 	free_irq(iface->irq, iface);
+-#endif /* POLLED_MODE */
+ 	up(&iface->sem);
+ 
+ 	/* Release all channels */
 

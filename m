@@ -1,124 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263886AbTKSHew (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 02:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbTKSHew
+	id S263784AbTKSIsU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 03:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263819AbTKSIsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 02:34:52 -0500
-Received: from smtp01.web.de ([217.72.192.180]:5127 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263886AbTKSHet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 02:34:49 -0500
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: linux-2.6.0-test9-mm3_acpi-pm-monotonic-fix_A0
-Date: Wed, 19 Nov 2003 08:34:23 +0100
-User-Agent: KMail/1.5.9
-Cc: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
-       "Ronny V. Vindenes" <s864@ii.uib.no>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, cat@zip.com.au,
-       gawain@freda.homelinux.org, gene.heskett@verizon.net,
-       papadako@csd.uoc.gr, Dominik Brodowski <linux@brodo.de>
-References: <1069071092.3238.5.camel@localhost.localdomain> <200311180046.14787.thomas.schlichter@web.de> <1069196353.11424.2179.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1069196353.11424.2179.camel@cog.beaverton.ibm.com>
+	Wed, 19 Nov 2003 03:48:20 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:1411
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263784AbTKSIsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 03:48:18 -0500
+Date: Wed, 19 Nov 2003 03:47:29 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Sumit Pandya <sumit@elitecore.com>
+cc: linux-kernel@vger.kernel.org, joern@wohnheim.fh-wedel.de
+Subject: Re: Infinite do_IRQ
+In-Reply-To: <00b001c3ae6e$c5e80a60$3901a8c0@elite.co.in>
+Message-ID: <Pine.LNX.4.53.0311190332320.11537@montezuma.fsmlabs.com>
+References: <00b001c3ae6e$c5e80a60$3901a8c0@elite.co.in>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_/zxu/RY6OPGAphD";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200311190834.23873.thomas.schlichter@web.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 19 Nov 2003, Sumit Pandya wrote:
 
---Boundary-03=_/zxu/RY6OPGAphD
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_/zxu/g+R2ljaT6o"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> Hi All,
+>     I'm running 2.4.22 kernel on Pentium-III processor with following few
+> patches
+>     1. ebtables-brnf-3_vs_2.4.22.diff
+>     2. routes-2.4.22-9.diff (Julean's DGD)
+>     3. nfnetlink-ctnetlink-0.12-2.patch
+>     4. htb_3.12_3.13.diff
 
---Boundary-01=_/zxu/g+R2ljaT6o
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+That's quite the patch cocktail, perhaps they need some auditing on stack 
+usage.
 
-On Tuesday 18 November 2003 23:59, john stultz wrote:
-> On Mon, 2003-11-17 at 15:46, Thomas Schlichter wrote:
-> > But when booting with the PMTMR clock selected, my Interactivity test
-> > fails again. :-( Maybe there is a problem in the PMTMR's monotonic clock
-> > part...?!
->
-> Good call! I was mis-adding in conversion to nanoseconds. The patch
-> below should fix it (Andrew, feel free to ignore this, I'll sync up all
-> the acpi-pm changes with you later).
+>     After running it for few time suddenly it hangs and I get continuous
+> "do_IRQ: stack overflow:" messages on my serial console. I'm using ttywatch
+> for reading console output on other Linux System.
+> 
+>     Also I'd like some opinion about the patch posted on
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0301.2/0232.html
+>     Here, why "struct task_struct" is replaced with "struct thread_info"? Is
+> that only for 2.5.X/2.6.X series only?
 
-Well, your patch was the correct direction, but it did not completely reach=
-=20
-the target... :-( The 'monotonic_base' variable in the PMTMR stores its val=
-ue=20
-in microseconds. So the 'base' value has to be convertet to nanoseconds,=20
-too...
+Yes that patch was 2.5/6 specific.
 
-A patch that corrects that is attached...
+>     I'd also like to draw your attention on one more patch by Joern Engel
+> (He is in CC list)
+> http://wh.fh-wedel.de/~joern/software/kernel/je/24/.patches/stack_overflow.p
+> atch
+>     Are these patches safe to apply? What could be pros and cons if these
+> patches are applied into 2.4.22 kernel.
 
-(Btw. another solution would be to store all the values in nanoseconds by=20
-replacing the cyc2us function with a cyc2ns function...)
++#if 0
++	if (unlikely(esp < (sizeof(struct task_struct) + 1024))) {
++#else
++	/* We check for 5k for now. The kernel stack still is 8k,
++	 * but should shrink to 4k, so this test makes sense.
++	 * Once the stack is 4k, we go back to the old test.
++	 */
++	if (unlikely(esp < (sizeof(struct thread_info) + 5120))) {
++#endif
 
-> Although I'm finding that the sched_clock->monotonic_clock patch doesn't
-> look like a win. With that patch sched_clock takes ~400-700 cycles using
-> clock=3Dpmtmr. With your "fix-sched_clock.diff" patch its less then 40
-> cycles.
->
-> While better accuracy is nice, I can't imagine the 10-20x cost of
-> sched_clock is worth it. So I think your fix is the best solution.
-
-I think you are right, but the sched_clock->monotonic_clock patch helped us=
-=20
-finding the problems in the monotonic_clock_pmtmr() function... ;-)
-
-> thanks
-> -john
-
-np ;-)
-   Thomas
-
---Boundary-01=_/zxu/g+R2ljaT6o
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="fix-monotonic_pmtmr-2.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
-	filename="fix-monotonic_pmtmr-2.diff"
-
-=2D-- linux-2.6.0-test9-mm3_patched/arch/i386/kernel/timers/timer_pm.c.orig=
-	Wed Nov 19 08:05:19 2003
-+++ linux-2.6.0-test9-mm3_patched/arch/i386/kernel/timers/timer_pm.c	Wed No=
-v 19 08:07:41 2003
-@@ -150,7 +150,7 @@ static unsigned long long monotonic_cloc
-=20
- 	/* convert to nanoseconds */
- 	ret =3D ((this_offset - last_offset) & ACPI_PM_MASK);
-=2D	ret =3D base + (cyc2us(ret)*1000);
-+	ret =3D (base + cyc2us(ret)) * NSEC_PER_USEC;
- 	return ret;
- }
-=20
-
---Boundary-01=_/zxu/g+R2ljaT6o--
-
---Boundary-03=_/zxu/RY6OPGAphD
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/uxz/YAiN+WRIZzQRAr/ZAKCTkdRJpKbMnMSoD7EsLlc0H+SpfACg1Aaw
-6Td7D9BpQhOLA7CZgG5xvgY=
-=uNzI
------END PGP SIGNATURE-----
-
---Boundary-03=_/zxu/RY6OPGAphD--
+The i386 stack grows downwards, so if anything it'll report even earlier 
+than what you're hitting now. I'd recommend backing out those patches one by 
+one until you find out the offending patch and then perhaps do the stack 
+usage audit from there.

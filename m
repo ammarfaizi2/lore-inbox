@@ -1,51 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129538AbRADVtM>; Thu, 4 Jan 2001 16:49:12 -0500
+	id <S129183AbRADVwc>; Thu, 4 Jan 2001 16:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129830AbRADVtC>; Thu, 4 Jan 2001 16:49:02 -0500
-Received: from jalon.able.es ([212.97.163.2]:2557 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129538AbRADVst>;
-	Thu, 4 Jan 2001 16:48:49 -0500
-Date: Thu, 4 Jan 2001 22:48:37 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Mike <mike@khi.sdnpk.org>
-Cc: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>,
-        "linux-irda @ pasta . cs . UiT . No" <linux-irda@pasta.cs.UiT.No>
-Subject: Re: INIT: No inittab file found
-Message-ID: <20010104224837.C1148@werewolf.able.es>
-In-Reply-To: <3A548636.27C231BA@khi.sdnpk.org>
+	id <S129834AbRADVwX>; Thu, 4 Jan 2001 16:52:23 -0500
+Received: from firebox-ext.surrey.redhat.com ([194.201.25.236]:12532 "EHLO
+	meme.surrey.redhat.com") by vger.kernel.org with ESMTP
+	id <S129183AbRADVwR>; Thu, 4 Jan 2001 16:52:17 -0500
+Date: Thu, 4 Jan 2001 21:52:10 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Printing to off-line printer in 2.4.0-prerelease
+Message-ID: <20010104215210.D1148@redhat.com>
+In-Reply-To: <m2k88czda4.fsf@ppro.localdomain> <20010104112027.G23469@redhat.com> <20010104145229.E17640@athlon.random> <20010104142043.N23469@redhat.com> <m21yujuoew.fsf@ppro.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3A548636.27C231BA@khi.sdnpk.org>; from mike@khi.sdnpk.org on Thu, Jan 04, 2001 at 15:18:30 +0100
-X-Mailer: Balsa 1.0.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m21yujuoew.fsf@ppro.localdomain>; from peter.osterlund@mailbox.swipnet.se on Thu, Jan 04, 2001 at 08:07:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 04, 2001 at 08:07:19PM +0100, Peter Osterlund wrote:
 
-On 2001.01.04 Mike wrote:
-> Hi,
-> 
-> I am unable to boot my linux. I got the following message during boot.
-> 
-> ====================================================
-> INIT: No inittab file found
-> INIT: Can't open(/etc/ioctl.save, O_WRONLY): No such file or directory
-> 
-> Enter Runlevel:
-> =====================================================
-> 
+> If you do this, you should probably also return -EAGAIN if the printer
+> is out of paper, otherwise I would still lose data when the printer
+> goes out of paper. Currently it returns -ENOSPC in this situation. I
+> suppose the different return codes were meant as a way for user space
+> to be able to know why printing failed, so that it could take
+> appropriate actions, but maybe this is not used by any programs.
 
-Try answering 'single'. That boots into 'single user mode': no
-daemons, no try to load inittab. Just a shell to let you check if
-there exists an /etc/inittab file.
+They were intended for that, yes, but it's probably better to stick
+with the 2.2 return codes.  Here's a patch to do that.  Look okay?
 
--- 
-J.A. Magallon                                         $> cd pub
-mailto:jamagallon@able.es                             $> more beer
+Tim.
+*/
 
-Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
+2001-01-04  Tim Waugh  <twaugh@redhat.com>
 
+	* drivers/char/lp.c: Follow 2.2 behaviour more closely.
+
+--- linux-2.4.0-prerelease/drivers/char/lp.c.offline	Thu Jan  4 21:13:02 2001
++++ linux-2.4.0-prerelease/drivers/char/lp.c	Thu Jan  4 21:42:19 2001
+@@ -207,7 +207,7 @@
+ 			last = LP_POUTPA;
+ 			printk(KERN_INFO "lp%d out of paper\n", minor);
+ 		}
+-		error = -ENOSPC;
++		error = -EIO;
+ 	} else if (!(status & LP_PSELECD)) {
+ 		if (last != LP_PSELECD) {
+ 			last = LP_PSELECD;
+@@ -230,7 +230,10 @@
+ 	if (last != 0)
+ 		lp_error(minor);
+ 
+-	return error;
++	if (LP_F (minor) & LP_ABORT)
++		return error;
++
++	return 0;
+ }
+ 
+ static ssize_t lp_write(struct file * file, const char * buf,
+@@ -292,7 +295,7 @@
+ 			/* incomplete write -> check error ! */
+ 			int error = lp_check_status (minor);
+ 
+-			if (LP_F(minor) & LP_ABORT) {
++			if (error) {
+ 				if (retv == 0)
+ 					retv = error;
+ 				break;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314075AbSEFCeN>; Sun, 5 May 2002 22:34:13 -0400
+	id <S314078AbSEFCgw>; Sun, 5 May 2002 22:36:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314077AbSEFCeM>; Sun, 5 May 2002 22:34:12 -0400
-Received: from mercury.lss.emc.com ([168.159.40.77]:63238 "EHLO
-	mercury.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S314075AbSEFCeL>; Sun, 5 May 2002 22:34:11 -0400
-Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D1A37@srgraham.eng.emc.com>
-From: "chen, xiangping" <chen_xiangping@emc.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Kernel deadlock using nbd over acenic driver.
-Date: Sun, 5 May 2002 22:26:57 -0400 
+	id <S314079AbSEFCgv>; Sun, 5 May 2002 22:36:51 -0400
+Received: from relay1.pair.com ([209.68.1.20]:18186 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S314078AbSEFCgt>;
+	Sun, 5 May 2002 22:36:49 -0400
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3CD5ECEE.E6C0B894@kegel.com>
+Date: Sun, 05 May 2002 19:39:42 -0700
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "David S. Miller" <davem@redhat.com>
+CC: khttpd-users@alt.org, linux-kernel@vger.kernel.org
+Subject: Re: khttpd rotten?
+In-Reply-To: <3CD5CE35.3EF2B62E@kegel.com> <20020505.191422.11638807.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"David S. Miller" wrote:
+> 
+>    From: Dan Kegel <dank@kegel.com>
+>    Date: Sun, 05 May 2002 17:28:37 -0700
+> 
+>    If I didn't need it for a demo this week (don't ask), I
+>    wouldn't be messing with khttpd; I'd be switching to Tux.
+> 
+>    Seems like it's time to either fix khttpd or pull it from the kernel.
+> 
+> We are going to pull it from the kernel.
+> 
+> The only argument is whether to replace it with TUX or not.
+> There is a lot of compelling evidence that suggests that
+> reasonably close performance can be obtained in userspace.
+> 
+> I guess the decision on TUX is not a prerequisite for pulling
+> khttpd though.
 
-I encounter a deadlock situation when using nbd device over gigabit
-ethernet. The network card is 3c 985 giga card using acenic driver. When the
-network has some significant back ground traffic, even making a ext2 file
-system can not succeed. When the deadlock happens, the nbd client daemon
-just stuck in tcp_recvmsg() without receiving any data, and the sender
-threads continue to send out requests until the whole system hangs. Even I
-set the nbd client daemon SNDTIMEO, the nbd client daemon could not exit
-from tcp_recvmsg(). 
-
-Is there any known problem with the acenic driver? How can I identify it is
-a problem of the NIC driver, or somewhere else?
-
-Thanks for help!
-
-
-Xiangping Chen 
+Right.  If khttpd had been pulled from 2.4.17, I would have
+had weeks of warning that khttpd is unstable; instead, I learned
+only when someone started doing his own stress testing, and I
+have little time to fix it.  I say pull it from
+2.4.19-pre9.  Marcello, put it out of its misery asap, please...
+it'd time for khttpd to become a standalone patch again.
+- Dan

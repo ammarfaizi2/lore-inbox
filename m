@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262614AbSJBVie>; Wed, 2 Oct 2002 17:38:34 -0400
+	id <S262616AbSJBVjQ>; Wed, 2 Oct 2002 17:39:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262616AbSJBVie>; Wed, 2 Oct 2002 17:38:34 -0400
-Received: from services.erkkila.org ([24.97.94.217]:13449 "EHLO erkkila.org")
-	by vger.kernel.org with ESMTP id <S262614AbSJBVic>;
-	Wed, 2 Oct 2002 17:38:32 -0400
-Message-ID: <3D9B689B.2040807@erkkila.org>
-Date: Wed, 02 Oct 2002 21:43:55 +0000
-From: "Paul E. Erkkila" <pee@erkkila.org>
-Reply-To: pee@erkkila.org
-Organization: ErkkilaDotOrg
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021002
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, hermes@gibson.dropbear.id.au
-Subject: compile failure in orinoco_cs.c (from bk pull)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262617AbSJBVjQ>; Wed, 2 Oct 2002 17:39:16 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:9415 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262616AbSJBVjN>; Wed, 2 Oct 2002 17:39:13 -0400
+Date: Wed, 2 Oct 2002 23:44:33 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Trivial 2.5 patch] make orinoco_cs.c compile
+Message-ID: <20021002214433.GA1484@admingilde.org>
+References: <1033569586.28106.3.camel@plars>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Disposition: inline
+In-Reply-To: <1033569586.28106.3.camel@plars>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The orinoco_cs.c wireless driver no longer compiles after yesterdays
-tree changes.
 
-make[3]: Entering directory `/usr/src/linux-2.5/drivers/net/wireless'
-  gcc -Wp,-MD,./.orinoco_cs.o.d -D__KERNEL__ 
--I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs 
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 
--I/usr/src/linux-2.5/arch/i386/mach-generic -nostdinc -iwithprefix 
-include    -DKBUILD_BASENAME=orinoco_cs   -c -o orinoco_cs.o orinoco_cs.c
-orinoco_cs.c:35:26: linux/tqueue.h: No such file or directory
-make[3]: *** [orinoco_cs.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5/drivers/net/wireless'
-make[2]: *** [wireless] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5/drivers/net'
-make[1]: *** [net] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5/drivers'
-make: *** [drivers] Error 2
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+hi :)
 
--pee
+same problem with orinoco_cs.c:
+
+--- linux-2.5.orig/drivers/net/wireless/orinoco_cs.c	2002-10-02 23:42:43.00=
+0000000 +0200
++++ linux-2.5/drivers/net/wireless/orinoco_cs.c	2002-10-02 23:14:01.0000000=
+00 +0200
+@@ -32,7 +32,6 @@
+ #include <linux/if_arp.h>
+ #include <linux/etherdevice.h>
+ #include <linux/wireless.h>
+-#include <linux/tqueue.h>
+=20
+ #include <pcmcia/version.h>
+ #include <pcmcia/cs_types.h>
 
 
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.
+			Benjamin Franklin  (1706 - 1790)
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9m2jAj/Eaxd/oD7IRAv0aAJ43s7McXLIhMOFAsnaFsk9yEy0vewCeLYV2
+0wt4OPiNLYuktkL/82OUgHU=
+=CgoR
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--

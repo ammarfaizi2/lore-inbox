@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272364AbRHYAJq>; Fri, 24 Aug 2001 20:09:46 -0400
+	id <S272351AbRHYANq>; Fri, 24 Aug 2001 20:13:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272356AbRHYAJg>; Fri, 24 Aug 2001 20:09:36 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29191 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272351AbRHYAJU>; Fri, 24 Aug 2001 20:09:20 -0400
-Subject: Re: oops in 3c59x driver
-To: wichert@wiggy.net (Wichert Akkerman)
-Date: Sat, 25 Aug 2001 01:12:36 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010825020022.B21339@wiggy.net> from "Wichert Akkerman" at Aug 25, 2001 02:00:22 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272352AbRHYANg>; Fri, 24 Aug 2001 20:13:36 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:47262 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S272351AbRHYAN3>;
+	Fri, 24 Aug 2001 20:13:29 -0400
+Date: Fri, 24 Aug 2001 20:13:44 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Brad Chapman <kakadu_croc@yahoo.com>
+cc: Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <20010824235858.59972.qmail@web10908.mail.yahoo.com>
+Message-ID: <Pine.GSO.4.21.0108242002130.19796-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15aR40-0006qp-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Decoded oops is below. The machine died in the middle of transferring
-> a large chunk of data (500Mb or so) via ssh. It did that twice in a row
-> now so it seems to be reprocuable.
 
-Beautiful trace. You took an IRQ during PnPBIOS call and your machine
-exploded. Do me a favour -
 
-Change the semaphore in drivers/pnp/pnp_bios.c to a spinlock_irqsave
-and __cli/ spin_unlock_irqrestore.  See if the crashes then go away.
+On Fri, 24 Aug 2001, Brad Chapman wrote:
 
-Alan
+> 	- make everyone use the new macros (some people are thinking :P)
+> 
+> 	- make everyone use #ifdef blocks with a config option (you think it's :P)
+> 
+> 	- make min()/max() typeof() wrappers for a switch-style stack of comparison 
+> 	  functions which work on the various types, i.e:
+> 	
+> 	  __u8 minimum = min(one, two) -> __u8 minimum = __u8_min(one, two)
+> 
+> 	  (this may be too complex and is probably :P)
+
+> 
+> 	- make min()/max() inline functions, cast things to void, and use memcmp()
+> 	  (this might almost be reasonable, but is probably also :P)
+> 
+> 	- stay with the old-style macros (:P, :P, :P)
+> 
+> 	What do you think, sir?
+
+	Use different inline functions for signed and unsigned.
+Explicitly.
+
+	Any scheme trying to imitate polymorphism with use of cpp/
+GNU extensions/whatever is missing the point.  There is _no_ common
+operation to extend on several types.  Choice between signed and
+unsigned max should be explicit - they are different operations.
+
+	Trying to hide that is C++itis of the worst kind - false
+polymorphism that hides only one thing: subtle bugs.
+

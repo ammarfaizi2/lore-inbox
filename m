@@ -1,69 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318272AbSGRQbv>; Thu, 18 Jul 2002 12:31:51 -0400
+	id <S318266AbSGRQ2X>; Thu, 18 Jul 2002 12:28:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318274AbSGRQbv>; Thu, 18 Jul 2002 12:31:51 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25864 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S318272AbSGRQbt>; Thu, 18 Jul 2002 12:31:49 -0400
-Date: Thu, 18 Jul 2002 12:29:25 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: stoffel@lucent.com
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Backups done right (was [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
-In-Reply-To: <15670.58295.8003.858959@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.3.96.1020718121613.8220A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318268AbSGRQ2X>; Thu, 18 Jul 2002 12:28:23 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:15356 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S318266AbSGRQ2W>; Thu, 18 Jul 2002 12:28:22 -0400
+Subject: Re: [PATCH] strict VM overcommit for stock 2.4
+From: Robert Love <rml@tech9.net>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0207181714420.30902-100000@divine.city.tvnet.hu>
+References: <Pine.LNX.4.30.0207181714420.30902-100000@divine.city.tvnet.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Jul 2002 09:31:05 -0700
+Message-Id: <1027009865.1555.105.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jul 2002 stoffel@lucent.com wrote:
+On Thu, 2002-07-18 at 08:22, Szakacsits Szabolcs wrote:
 
-> I really prefer 3b, since it's more efficient, faster, and more
-> robust.  To snapshot a filesystem, all you need to do is:
-> 
->  - create backing store for the snapshot, usually around 10-15% of the
->    size of the original volume.  Depends on volatility of data.
->  - lock the app(s).
->  - lock the filesystem and flush pending transactions.
->  - copy the metadata describing the filesystem
->  - insert a COW handler into the FS block write path
->  - mount the snapshot elsewhere
->  - unlock the FS
->  - unlock the app
-> 
-> Whenever the app writes a block into the FS, copy the original block
-> to the backing store, then write the new block to storage.  
+> Quickly looking through the patch I can't see what prevents total loss of
+> control at constant memory pressure. For more please see:
 
-Okay, other than the overhead and having enough filespace for Tbkup sec
-(min, hr, day) of operation this is practical. In general most times you
-would be doing an incremental, and the time would not be much.
+I do not see anything in this email related to the issue at hand.
 
-> Bill> In general mauch of this can be addressed by only backing up
-> Bill> small f/s and using an application backup utility to backup the
-> Bill> big stuff. Fortunately the most common problem apps are
-> Bill> databases and and they include this capability.
-> 
-> Define what a small file system is these days, since it could be 100gb
-> for some people.  *grin*.  It's a matter of making the tools scale
-> well so that the data can be secured properly.  
+First, if the VM is broke that is an orthogonal issue that needs to be
+fixed separately.
 
-Obviously a small f/s is one you can backup without operator intervantion
-to change media and in a reasonable time, which might be 10min..few hours
-depending on your taste. That's kind of my rule of thumb, you're welcome
-to suggest others, but if someone has to change media I can't call it
-small any more.
+Specifically, what livelock situation are you insinuating?  If we only
+allow allocation that are met by the backing store, we cannot get
+anywhere near OOM.
 
-> To do a proper backup requires that all layers talk to each other, and
-> have some means of doing a RW lock and flush of pending transactions.
-> If you have that, you can do it.  If you don't, you need to either
-> goto single user mode, re-mount RO, or pray.
-
-With some people, pray or ignore the problem are popular.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+	Robert Love
 

@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbQLARbe>; Fri, 1 Dec 2000 12:31:34 -0500
+	id <S129348AbQLARgY>; Fri, 1 Dec 2000 12:36:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129348AbQLARbZ>; Fri, 1 Dec 2000 12:31:25 -0500
-Received: from mailhost3.lanl.gov ([128.165.3.9]:61294 "EHLO
-	mailhost3.lanl.gov") by vger.kernel.org with ESMTP
-	id <S129289AbQLARbN>; Fri, 1 Dec 2000 12:31:13 -0500
-Message-ID: <3A27D871.6CE7638B@lanl.gov>
-Date: Fri, 01 Dec 2000 09:57:21 -0700
-From: Roger Crandell <rwc@lanl.gov>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S129289AbQLARgQ>; Fri, 1 Dec 2000 12:36:16 -0500
+Received: from 216-99-201-166.hurrah.com ([216.99.201.166]:37382 "EHLO
+	magic.skylab.org") by vger.kernel.org with ESMTP id <S129348AbQLARgB>;
+	Fri, 1 Dec 2000 12:36:01 -0500
+Date: Fri, 1 Dec 2000 09:05:23 -0800 (PST)
+From: "T. Camp" <campt@openmars.com>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mutliple root devs (take II)
+In-Reply-To: <Pine.LNX.4.21.0012011655300.1488-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.21.0012010904260.4856-100000@magic.skylab.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: multiprocessor kernel problem
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> indeed, much cleaner. But still not perfect.
+> 
+> > +	int root_device_index = 0;
+> 
+> this initialisation is not needed. Just make it 'int root_device_index;'
+> The kernel will do the right thing for you on boot, trust me.
+> 
+> > +int number_root_devs = 0;
+> 
+> this is not needed either.
+Hmm didn't know that, from the user-land portable C perspective I'm in the
+habit of zero'ing everything. - thanks.
 
-I should have mentioned this is a 4 processor machine with a 64 bit
-buss.
+t.
 
-Roger Crandell
-
-
+Fear the future?  Change the past. 
+ This message has resulted in an increase in the entropy of the universe
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

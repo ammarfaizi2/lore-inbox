@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129816AbRB0Ugh>; Tue, 27 Feb 2001 15:36:37 -0500
+	id <S129190AbRB0UgO>; Tue, 27 Feb 2001 15:36:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129848AbRB0UgO>; Tue, 27 Feb 2001 15:36:14 -0500
-Received: from ns1.uklinux.net ([212.1.130.11]:24079 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S129816AbRB0UgE>;
-	Tue, 27 Feb 2001 15:36:04 -0500
-Envelope-To: linux-kernel@vger.kernel.org
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200102271946.TAA00805@raistlin.arm.linux.org.uk>
-Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
-To: davem@redhat.com (David S. Miller)
-Date: Tue, 27 Feb 2001 19:46:14 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15003.34336.1820.574668@pizda.ninka.net> from "David S. Miller" at Feb 27, 2001 02:49:03 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129848AbRB0UgE>; Tue, 27 Feb 2001 15:36:04 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:25605 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S129190AbRB0Ufv>; Tue, 27 Feb 2001 15:35:51 -0500
+Message-ID: <3A9C0F86.BA7D5723@didntduck.org>
+Date: Tue, 27 Feb 2001 15:35:18 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Rob <rob@hereintown.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Compilation problems
+In-Reply-To: <Pine.LNX.4.30.0102271529380.967-100000@robsdigs.hereintown.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes:
-> How do you know this?  There are so many deadly TCP bugs fixed
-> since 2.2.15pre13 I don't know how you can assert this.
+Rob wrote:
+> 
+> gcc --version gives me pgcc-2.91.66
+> 
+> I have a bootable 2.2.4 kernel I just can no longer recompile it for some
+> reason.
 
-Through the evidence I gave.  
-
-Firstly, if the receiving side is saying that it has a window of 0, then
-it is not going to accept any more data.
-
-Secondly, the receiving side has data waiting in the receive queue.
-
-Thirdly, the receiving process is selecting on the socket, and dispite
-there being data waiting, select is saying that there is no data waiting.
-
-All the data is pointing at the 2.4 kernel as being the culprit.
-
-I'm surprised at your response given the amount of hard evidence I gave that
-supports my assertion.
+IIRC, pgcc is known to be broken.  Use standard gcc 2.91.66 or later.
 
 --
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 
+				Brian Gerst

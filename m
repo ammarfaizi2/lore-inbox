@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbTDLW2b (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 18:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbTDLW2b (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 18:28:31 -0400
-Received: from ms-smtp-01.tampabay.rr.com ([65.32.1.43]:10461 "EHLO
-	ms-smtp-01.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S261282AbTDLW2a (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 18:28:30 -0400
-Message-ID: <001301c30145$5ff85fb0$6801a8c0@epimetheus>
-From: "Timothy Miller" <tmiller10@cfl.rr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Benefits from computing physical IDE disk geometry?
-Date: Sat, 12 Apr 2003 18:46:36 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id S261413AbTDLWil (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 18:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbTDLWik (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 18:38:40 -0400
+Received: from ip68-4-102-197.oc.oc.cox.net ([68.4.102.197]:62088 "EHLO
+	ip68-101-124-193.oc.oc.cox.net") by vger.kernel.org with ESMTP
+	id S261413AbTDLWik (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 18:38:40 -0400
+Date: Sat, 12 Apr 2003 15:50:25 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Timothy Miller <tmiller10@cfl.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Page compression in lieu of swap?
+Message-ID: <20030412225025.GA4721@ip68-101-124-193.oc.oc.cox.net>
+References: <000d01c30143$ccf54ad0$6801a8c0@epimetheus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000d01c30143$ccf54ad0$6801a8c0@epimetheus>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm excited about the new I/O scheduler (proposed?) in the 2.5.x kernel, but
-I have to admit to a considerable amount of ignorance of its actual
-behavior.  Thus, if it already does what I'm talking about, please feel free
-to ignore this post.  :)
+On Sat, Apr 12, 2003 at 06:35:19PM -0400, Timothy Miller wrote:
+> Given the hideous amount of time required to access a disk, especially when
+> something else wants to access it, could there be a benefit to "swapping"
+> pages by compressing them to somewhere else in memory?  If we could achieve,
+[snip]
+> 
+> Comments?
 
+This has been done before, on (Classic) Mac OS (the program's name was
+RAM Doubler). It was *far* faster than Apple's swapping implementation,
+although I don't know how much of that was due to the compression and
+how much was due to Apple's horrid virtual memory implementation back in
+the day. It also had some stability problems, but that could have been
+due to the implementation quality rather than to the overall approach.
 
-Any good SCSI drive knows the physical geometry of the disk and can
-therefore optimally schedule reads and writes.  Although necessary features,
-like read queueing, are also available in the current SATA spec, I'm not
-sure most drives will implement it, at least not very well.
-
-So, what if one were to write a program which would perform a bunch of
-seek-time tests to estimate an IDE disk's physical geometry?  It could then
-make that information available to the kernel to use to reorder accesses
-more optimally.  Additionally, discrepancies from expected seek times could
-be logged in the kernel and used to further improve efficiency over time.
-If it were good enough, many of the advantages of using SCSI disks would
-become less significant.
-
-Ideas?
-
-
-
+-Barry K. Nathan <barryn@pobox.com>

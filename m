@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbTEIMrs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 08:47:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263160AbTEIMrs
+	id S263169AbTEIMvu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 08:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTEIMvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 08:47:48 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32529 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263152AbTEIMrs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 08:47:48 -0400
-Date: Fri, 9 May 2003 08:54:56 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69: ipv6, irq, pcmcia trouble (oops)
-In-Reply-To: <20030505144808.GA18518@butterfly.hjsoft.com>
-Message-ID: <Pine.LNX.3.96.1030509085359.26434Q-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/SIGNED; BOUNDARY=GvXjxJ+pjyke8COw; PROTOCOL="application/pgp-signature"; MICALG=pgp-sha1
-Content-ID: <Pine.LNX.3.96.1030509085359.26434R@gatekeeper.tmr.com>
+	Fri, 9 May 2003 08:51:50 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:26251
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263169AbTEIMvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 08:51:45 -0400
+Subject: Re: 2.4.21-rc boot stalls
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bob Gill <gillb4@telusplanet.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052471062.2087.57.camel@localhost.localdomain>
+References: <1052371307.2703.43.camel@localhost.localdomain>
+	 <1052392048.10038.9.camel@dhcp22.swansea.linux.org.uk>
+	 <1052471062.2087.57.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052481955.14538.8.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 May 2003 13:05:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Gwe, 2003-05-09 at 10:04, Bob Gill wrote:
+> CONFIG_X86_GOOD_APIC=y
+> CONFIG_X86_UP_APIC=y
+> CONFIG_X86_UP_IOAPIC=y
+> CONFIG_X86_LOCAL_APIC=y
+> CONFIG_X86_IO_APIC=y
+> 
+> # CONFIG_HOTPLUG_PCI_ACPI is not set
+> # CONFIG_ACPI is not set
+> 
+> My motherboard has the SiS645 chipset.  
+> The SiS961 is the I/O APIC (ACPI 1.0b and APM 1.2 Compliant).
 
---GvXjxJ+pjyke8COw
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-ID: <Pine.LNX.3.96.1030509085359.26434S@gatekeeper.tmr.com>
+SiS APIC's are only supported in 2.5.x
 
-On Mon, 5 May 2003, John M Flinchbaugh wrote:
-
-> modprobe pf-net-17 (af_packet) gets stuck during boot and just sits
-> there looping and sucking up cpu.
-
-Did you ever get any help on this?
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
---GvXjxJ+pjyke8COw--

@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129126AbRC2WPz>; Thu, 29 Mar 2001 17:15:55 -0500
+	id <S129242AbRC2WfG>; Thu, 29 Mar 2001 17:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129242AbRC2WPp>; Thu, 29 Mar 2001 17:15:45 -0500
-Received: from web4303.mail.yahoo.com ([216.115.104.195]:15877 "HELO
-	web4303.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129126AbRC2WPc>; Thu, 29 Mar 2001 17:15:32 -0500
-Message-ID: <20010329221451.27582.qmail@web4303.mail.yahoo.com>
-Date: Thu, 29 Mar 2001 14:14:51 -0800 (PST)
-From: Jerry Hong <jhong001@yahoo.com>
-Subject: how mmap() works?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129321AbRC2We5>; Thu, 29 Mar 2001 17:34:57 -0500
+Received: from jalon.able.es ([212.97.163.2]:16071 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129242AbRC2Weo>;
+	Thu, 29 Mar 2001 17:34:44 -0500
+Date: Fri, 30 Mar 2001 00:33:56 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Fabio Riccardi <fabio@chromium.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux scheduler limitations?
+Message-ID: <20010330003356.C1052@werewolf.able.es>
+In-Reply-To: <3AC3A6C9.991472C0@chromium.com> <20010329233521.C6053@werewolf.able.es> <3AC3B35D.FC010700@chromium.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3AC3B35D.FC010700@chromium.com>; from fabio@chromium.com on Fri, Mar 30, 2001 at 00:12:45 +0200
+X-Mailer: Balsa 1.1.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-  mmap() creates a mmaped memory associated with a
-physical file. If a process updates the mmaped memory,
-Linux will updates the file "automatically". If this
-is the case, why do we need msync()? If this is not
-the case, what is the interval between 2 "WRITE" (IO
-request operation) request to the physical file
-because it really updates the physical file somehow
-even without msync().
-  Any comments about how mmap() works will be
-appreciated.
-  Thanks.
-  
-  Jerry
-  
 
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/?.refer=text
+On 03.30 Fabio Riccardi wrote:
+> 
+> Despite of all apparences this method performs beautifully on Linux, pthreads
+> are
+> actually slower in many cases, since you will incur some additional overhead
+> due
+> to thread synchronization and scheduling.
+>
+
+It all depends on your app, as every parallel algorithm. In a web-ftp-whatever
+server, you do not need any synchro. You can start threads in free run and
+let them die alone.
+
+> The problem is that beyond a certain number of processes the scheduler just
+> goes
+> bananas, or so it seems to me.
+> 
+> Since Linux threads are mapped on processes, I don't think that (p)threads
+> woud
+> help in any way, unless it is the VM context switch overhead that is playing a
+> role here, which I wouldn't think is the case.
+> 
+
+You said, 'mapped'.
+AFAIK, that is the advantage, you can avoid the VM switch by sharing memory.
+
+-- 
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
+
+Linux werewolf 2.4.2-ac28 #1 SMP Thu Mar 29 16:41:17 CEST 2001 i686
+

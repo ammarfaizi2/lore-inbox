@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVCOWwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbVCOWwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVCOWwm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:52:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVCOWuP
+	id S262054AbVCOWwn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVCOWjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:50:15 -0500
-Received: from CPE-144-136-221-26.sa.bigpond.net.au ([144.136.221.26]:39728
-	"EHLO modra.org") by vger.kernel.org with ESMTP id S262053AbVCOWsl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:48:41 -0500
-Date: Wed, 16 Mar 2005 09:18:36 +1030
-From: Alan Modra <amodra@bigpond.net.au>
-To: Jake Moilanen <moilanen@austin.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       anton@samba.org, olof@austin.ibm.com, benh@kernel.crashing.org
-Subject: Re: [PATCH 1/2] No-exec support for ppc64
-Message-ID: <20050315224836.GD21148@bubble.modra.org>
-Mail-Followup-To: Jake Moilanen <moilanen@austin.ibm.com>,
-	Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
-	linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-	anton@samba.org, olof@austin.ibm.com, benh@kernel.crashing.org
-References: <20050308165904.0ce07112.moilanen@austin.ibm.com> <20050308170826.13a2299e.moilanen@austin.ibm.com> <20050310032213.GB20789@austin.ibm.com> <20050310162513.74191caa.moilanen@austin.ibm.com> <16949.25552.640180.677985@cargo.ozlabs.ibm.com> <20050314155125.68dcff70.moilanen@austin.ibm.com> <16950.3484.416343.832453@cargo.ozlabs.ibm.com> <20050315155135.11b942ef.moilanen@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050315155135.11b942ef.moilanen@austin.ibm.com>
-User-Agent: Mutt/1.4i
+	Tue, 15 Mar 2005 17:39:55 -0500
+Received: from mail.dif.dk ([193.138.115.101]:51940 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262047AbVCOWhy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:37:54 -0500
+Date: Tue, 15 Mar 2005 23:39:22 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Mikhail Ramendik <mr@ramendik.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Proposal: "Latest Base Kernel" on kernel.org
+In-Reply-To: <200503121937.32854.mr@ramendik.ru>
+Message-ID: <Pine.LNX.4.62.0503152337500.2631@dragon.hyggekrogen.localhost>
+References: <200503121937.32854.mr@ramendik.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 03:51:35PM -0600, Jake Moilanen wrote:
-> I believe the problem is that the last PT_LOAD entry does not have the
-> correct size, and we only mmap up to the sbss.  The .sbss, .plt, and
-> .bss do not get mmapped with the section.
+On Sat, 12 Mar 2005, Mikhail Ramendik wrote:
 
-Huh?  .sbss, .plt and .bss have no file contents, so of course p_filesz
-doesn't cover them.
+> Hello,
+> 
+> The "Latest Stable Kernel" on the main page of www.kernel.org is 2.6.11.2 and 
+> this is of course right.
+> 
+> But people who want to apply an -rc patch, or some other patchsets (e.g. -ck) 
+> want 2.6.11. They can currently get it only by browsing directories.
+> 
+> Perhaps, to enable easier usage of such patchsets, a "latest Base kernel link" 
+> should be added to the kernel.org main page? This would be the latest three 
+> point release. Of course it should be below "stable", as "stable" is the 
+> default choice.
+> 
+I agree with you. Having the base kernel up there would be nice. Also it 
+seems that the -bk snapshots against the base are no longer easily 
+retrievable from the kernel.org frontpage any more - personally I miss 
+those.
 
 -- 
-Alan Modra
-IBM OzLabs - Linux Technology Centre
+Jesper Juhl
+

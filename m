@@ -1,80 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271629AbRHUKGt>; Tue, 21 Aug 2001 06:06:49 -0400
+	id <S271628AbRHUKE7>; Tue, 21 Aug 2001 06:04:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271630AbRHUKGc>; Tue, 21 Aug 2001 06:06:32 -0400
-Received: from miranda.axis.se ([193.13.178.2]:9155 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S271629AbRHUKGP>;
-	Tue, 21 Aug 2001 06:06:15 -0400
-Message-ID: <256901c12a29$03e30580$0a070d0a@axis.se>
-From: "Johan Adolfsson" <johan.adolfsson@axis.com>
-To: "Alex Bligh - linux-kernel" <linux-kernel@alex.org.uk>,
-        "David Lang" <david.lang@digitalinsight.com>
-Cc: "David Schwartz" <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108210042520.32719-100000@dlang.diginsite.com> <608038730.998389316@[169.254.45.213]>
-Subject: Re: Entropy from net devices - keyboard & IDE just as 'bad' (better timing in random.c)
-Date: Tue, 21 Aug 2001 12:06:58 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+	id <S271629AbRHUKEt>; Tue, 21 Aug 2001 06:04:49 -0400
+Received: from NET.WAU.NL ([137.224.10.12]:64783 "EHLO net.wau.nl")
+	by vger.kernel.org with ESMTP id <S271628AbRHUKEb>;
+	Tue, 21 Aug 2001 06:04:31 -0400
+Date: Tue, 21 Aug 2001 12:04:46 +0200
+From: Olivier Sessink <olivier@lx.student.wau.nl>
+Subject: NFS client doesn't reconnect to server - processes all hang
+To: linux-kernel@vger.kernel.org
+Message-id: <20010821120446.C5108@fender.fakenet>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-disposition: inline
+X-MSMail-priority: High
+User-Agent: Mutt/1.2.5i
+X-System-Uptime: 11:17am  up 8 days, 13:37,  2 users,  load average: 7.00,
+ 7.00, 6.97
+X-Reverse-Engineered: High priority for sending SMS messages
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-Alex Bligh - linux-kernel <linux-kernel@alex.org.uk> wrote:
+accidently a NFS server (linux 2.4.8, Debian Woody, NFS-kernel server) was
+shut down for a night, and one client (linux 2.2.19, Debian Potato) had
+processes using a mounted export from that server.
 
-> Well, I was arguing that network traffic was sufficiently unobservable
-> that it constitutes valid entropy under some circumstances, until I went
-> and read the code. It is so (it seems to me) on some i386 versions, where
-> the cycle clock is used. It is definitely not (and neither are any of
-> the other interrupt timings) where jiffies are used, for a start
-> because /proc/interrupts gives you the jiffie count (timer interrupts)
-> and the other interrupt counters simultaneously. So my argument is
-> that in some situations (where you know are happy with the extent
-> to which there is no observation of your wire locally), net IRQs
-> are no worse than the other sources of entropy, and sometimes they
-> are better (consider keyboards connected by radio). Obviously, in
-> cases like 802.11, they are substantially worse (and, no doubt, we
-> could omit Robert's patch from things like 802.11 drivers which
-> are obvious 'don't do that' cases).
+Those processes are in State:  D (disk sleep) (according to
+/proc/7434/status) and should be running again after the server is up
+again. It was mounted without initr or soft, so the processes can't be
+killed.
 
-How about improving that with something like this (not test compiled)
+The server is up already for two days, and I can mount new exports from the
+server, but that specific mount is still not alive, and 9 processes are
+still waiting for it. How do I force the NFS client to bring that mount up?
+How do I debug the current state to find out why the client thinks the
+server is not up yet?
 
-static void add_timer_randomness(struct timer_rand_state *state, unsigned
-num)
-{
- __u32  time;
- __s32  delta, delta2, delta3;
- int  entropy = 0;
+dmesg shows: nfs: task 21156 can't get a request slot 
+so the client thinks the server is not responding.., but I can mount other
+exports from that same server...........
 
-#if defined (__i386__)
- if ( test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capability) ) {
-  __u32 high;
-  __asm__(".byte 0x0f,0x31"
-   :"=a" (time), "=d" (high));
-  num ^= high;
- } else {
-  time = jiffies;
- }
-#else
-+ struct timeval tv;
-+ do_gettimeofday(&tv);
-+ num ^= tv.tv_usec;
- time = jiffies;
-#endif
+any help/info/links is very much appreciated
 
-Of course do_gettimeofday() is probably a little to heavyweigt for doing
-this,
-so how about adding an arch specific macro:
-GET_JIFFIES_USEC()
-that returns the number of microseconds in the current jiffie and simply
-use that to modify the num?
-
-/Johan
-
+regards,
+	Olivier
 

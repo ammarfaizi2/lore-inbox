@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265589AbTA2Jnc>; Wed, 29 Jan 2003 04:43:32 -0500
+	id <S265661AbTA2Jsg>; Wed, 29 Jan 2003 04:48:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265633AbTA2Jnc>; Wed, 29 Jan 2003 04:43:32 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:18326 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP
-	id <S265589AbTA2Jnc>; Wed, 29 Jan 2003 04:43:32 -0500
-Message-ID: <3E37A46B.4080907@zytor.com>
-Date: Wed, 29 Jan 2003 01:52:43 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel.org frontpage
-References: <200301290947.h0T9lKa9000750@darkstar.example.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265667AbTA2Jsg>; Wed, 29 Jan 2003 04:48:36 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:58303 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S265661AbTA2Jsf>; Wed, 29 Jan 2003 04:48:35 -0500
+Message-Id: <200301290957.h0T9vqUL011886@eeyore.valparaiso.cl>
+To: Jos Hulzink <josh@stack.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Module security [Was: Re: Bootscreen]
+In-Reply-To: Your message of "Tue, 28 Jan 2003 15:45:45 +0100."
+             <20030128153533.X28781-100000@snail.stack.nl> 
+Date: Wed, 29 Jan 2003 10:57:52 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
->>Just in case anyone cares :) I have changed the kernel.org frontpage
->>from linking to .gz to linking to .bz2 files.  It should now also
->>display snapshot releases if they exist.
-> 
-> 
-> Cool, would it be worth putting in a link to the relevant .sign files
-> as well?
+Jos Hulzink <josh@stack.nl> said:
 
-No, it would add absolutely nothing (other than clutter.)  All the .sign 
-files are good for is to check for rogue mirrors.
+[...]
 
-	-hpa
+> Oh, and using modules is a (minor) security issue. I have all my drivers
+> compiled in the kernel. I like it and it is secure.
 
-
+There are ways of installing rogue "modules" even without module support.
+Google and ye shall find... [One of the online cracker mags had an
+extensive article on module/kernel based rootkits some 6-10 months
+ago]. And if "someone" gets root, they can leave behind a doctored kernel
+any time they want. You'll never notice...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,94 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268699AbUIQLas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268702AbUIQLbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268699AbUIQLas (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 07:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbUIQL3L
+	id S268702AbUIQLbk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 07:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268698AbUIQL2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 07:29:11 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:62434 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268697AbUIQL1C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 07:27:02 -0400
-Date: Fri, 17 Sep 2004 04:25:27 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Simon Derr <Simon.Derr@bull.net>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Message-Id: <20040917112527.32393.49322.23478@sam.engr.sgi.com>
-Subject: cpusets: fix race in cpuset_add_file()
+	Fri, 17 Sep 2004 07:28:38 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:12450 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S268699AbUIQL1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 07:27:21 -0400
+Message-ID: <414ACA14.1000608@grupopie.com>
+Date: Fri, 17 Sep 2004 12:27:16 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: top hogs CPU in 2.6: kallsyms_lookup is very slow
+References: <200409161428.27425.vda@port.imtp.ilyichevsk.odessa.ua> <200409161457.08544.vda@port.imtp.ilyichevsk.odessa.ua> <20040916121747.GQ9106@holomorphy.com> <200409171201.15158.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200409171201.15158.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.10; VDF: 6.27.0.65; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a missing down()/up() pair in cpuset_add_file().
+Denis Vlasenko wrote:
+> On Thursday 16 September 2004 15:17, William Lee Irwin III wrote:
+>>Did the kallsyms patches reduce the cpu overhead from get_wchan()?
+> 
+> 
+> Yes. top does not hog CPU anymore. It takes even a liitle bit *less*
+> CPU than in 2.4 now.
 
-Without this patch, sometimes it is possible to have two duplicate
-dentries for a single file of a cpuset, with one of them being invalid,
-and thus the file is present but cannot be opened...
+Great!
 
-By holding the cpuset directory inode (after the directory is created,
-while each file in it is being populated), we prevent a stat(2) or
-open(2) from creating a second, invalid directory entry for one of the
-files in a cpuset directory, while cpuset_populate_dir is trying to
-create the same file.
+I was the one who wrote those patches, so I'm glad to know that they 
+actually made a difference in real world workloads (like using "top").
 
-Signed-off-by: Simon Derr <simon.derr@bull.net>
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
-Index: 2.6.9-rc2-mm1/kernel/cpuset.c
-===================================================================
---- 2.6.9-rc2-mm1.orig/kernel/cpuset.c	2004-09-17 02:12:26.000000000 -0700
-+++ 2.6.9-rc2-mm1/kernel/cpuset.c	2004-09-17 04:19:18.000000000 -0700
-@@ -991,13 +991,12 @@ static int cpuset_create_dir(struct cpus
- 	return error;
- }
- 
--/* MUST be called with dir->d_inode->i_sem held */
--
- static int cpuset_add_file(struct dentry *dir, const struct cftype *cft)
- {
- 	struct dentry *dentry;
- 	int error;
- 
-+	down(&dir->d_inode->i_sem);
- 	dentry = cpuset_get_dentry(dir, cft->name);
- 	if (!IS_ERR(dentry)) {
- 		error = cpuset_create_file(dentry, 0644 | S_IFREG);
-@@ -1006,6 +1005,7 @@ static int cpuset_add_file(struct dentry
- 		dput(dentry);
- 	} else
- 		error = PTR_ERR(dentry);
-+	up(&dir->d_inode->i_sem);
- 	return error;
- }
- 
-@@ -1197,7 +1197,6 @@ static struct cftype cft_notify_on_relea
- 	.private = FILE_NOTIFY_ON_RELEASE,
- };
- 
--/* MUST be called with ->d_inode->i_sem held */
- static int cpuset_populate_dir(struct dentry *cs_dentry)
- {
- 	int err;
-@@ -1254,9 +1253,16 @@ static long cpuset_create(struct cpuset 
- 	err = cpuset_create_dir(cs, name, mode);
- 	if (err < 0)
- 		goto err;
-+
-+	/*
-+	 * Release cpuset_sem before cpuset_populate_dir() because it
-+	 * will down() this new directory's i_sem and if we race with
-+	 * another mkdir, we might deadlock.
-+	 */
-+	up(&cpuset_sem);
-+
- 	err = cpuset_populate_dir(cs->dentry);
- 	/* If err < 0, we have a half-filled directory - oh well ;) */
--	up(&cpuset_sem);
- 	return 0;
- err:
- 	list_del(&cs->sibling);
+Reading /proc/kallsyms should be a lot faster too, although there is no 
+comparison with 2.4 kernel, because there where no kallsyms there. It 
+can be compared with previous 2.6 kernels, though.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Paulo Marques - www.grupopie.com
+
+To err is human, but to really foul things up requires a computer.
+Farmers' Almanac, 1978

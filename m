@@ -1,115 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271933AbTHDQyd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 12:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271936AbTHDQyd
+	id S271972AbTHDRHP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 13:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271970AbTHDRHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 12:54:33 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:25737 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S271933AbTHDQy2 (ORCPT
+	Mon, 4 Aug 2003 13:07:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3487 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271969AbTHDRHE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 12:54:28 -0400
-Date: Mon, 4 Aug 2003 18:54:35 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: beepy@netapp.com, aebr@win.tue.nl, linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-ID: <20030804165435.GB9409@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
-	beepy@netapp.com, aebr@win.tue.nl, linux-kernel@vger.kernel.org
-References: <20030804134415.GA4454@win.tue.nl> <200308041542.h74Fg9k26251@orbit-fe.eng.netapp.com> <20030804175609.7301d075.skraw@ithnet.com> <20030804161657.GA6292@www.13thfloor.at> <20030804183545.01b7a126.skraw@ithnet.com>
+	Mon, 4 Aug 2003 13:07:04 -0400
+Date: Mon, 4 Aug 2003 10:03:22 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Eugene Teo <eugene.teo@eugeneteo.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Memory-related problem leads to laptop freeze
+Message-Id: <20030804100322.1c7a9795.rddunlap@osdl.org>
+In-Reply-To: <20030803091115.GA781@eugeneteo.net>
+References: <20030803091115.GA781@eugeneteo.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030804183545.01b7a126.skraw@ithnet.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 06:35:45PM +0200, Stephan von Krawczynski wrote:
-> On Mon, 4 Aug 2003 18:16:57 +0200
-> Herbert Pötzl <herbert@13thfloor.at> wrote:
-> 
-> > on the other hand, if you want somebody to implement
-> > this stuff for you, you'll have to provide convincing
-> > arguments for it, I for example, would be glad if
-> > hardlinks where removed from unix altogether ...
-> 
-> Huh, hard stuff!
-> 
-> Explain your solution for a very common problem:
-> 
-> You have a _big_ fileserver, say some SAN or the like with Gigs.
-> Your data on it is organized according to your basic user 
-> structure, because it is very handy to have all data from one 
-> user altogether in one directory.
+On Sun, 3 Aug 2003 17:11:15 +0800 Eugene Teo <eugene.teo@eugeneteo.net> wrote:
 
-I already do something like this, although not for thousands
-of users, but I guess this would scale well ...
+| Hi everyone,
+| 
+| I was using kernel 2.6.0-test2-mm3. As usual, I anticipated that
+| I will have a random freeze, and true enough, I have one after a
+| few hours.
+| 
+| I have attached the log. Please take a look, and advise.
 
-consider a storage device (maybe a partition) for each 
-category of data you want to store/provide/serve
+Hi,
 
-/mnt/webspace, /mnt/database, /mnt/email, /mnt/wossname ...
+What were you doing?  It seems that you have had several (repeated?)
+problems.  Were you doing the same kind of activity each time,
+or are they "random," as you say?
 
-now each data space gets subdirectories for logical
-groupings (optional) and a second level for the actual
-users ... there could be other layers like domains for 
-example too ...
-
-/mnt/webspace/customer/charlie
-/mnt/webspace/customer/jack
-/mnt/webspace/customer/wossname
-
-and, if required, the same structure for database, email, ...
-
-so you end up with totally separate storage trees, which
-can be easily mounted/exported/shared with the apropriate
-servers, now for the conceptional grouping, where the 
-customer wants to have all the data in one place ...
-
-on the access server (where the customer maintains the data)
-you'll end up mounting all the storage categories, required
-for access and you do an additional restructuring for each
-customer (which of course is automated)
-
-/home/customer/charlie is populated with symlinks to
-/mnt/*/customer/charlie named by category
-
-/home/customer/charlie/webspace -> /mnt/webspace/customer/charlie
-/home/customer/charlie/email -> /mnt/email/customer/charlie
-...
-
-this also has the advantage that any kind of service change
-(for example changing the webspace) can be simply done by 
-modifying the symlinks ...
-
-
-> if you managed to link all web-data together in one directory and
-> exported that to your webservers and they are hacked, you just 
-> blew up all your web-data but nothing more. 
-> This is a remarkable risk reduction.
-> And now? Name your idea to export only the data needed to 
-> the servers that need it. And keep in mind, we are talking of 
-> Gigs and tenthousands of users. 
-
-this is covered by the suggested approach.
-
-> You definitely don't want one mount per user per service.
-
-no, I don't ...
-
-> Can you think of a more elegant way to solve such a problem 
-> than hardlinking all web in one single webtree, all sql in one 
-> single sql tree ... and then export this single tree (with its 
-> artificial structure) to the corresponding server?
-> I am curiously listening...
-
-best,
-Herbert
-
-> Regards,
-> Stephan
-> 
+--
+~Randy

@@ -1,99 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbUL3R7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUL3SAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbUL3R7m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 12:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUL3R7m
+	id S261685AbUL3SAf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 13:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUL3SAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 12:59:42 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:48098 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261687AbUL3R7e
+	Thu, 30 Dec 2004 13:00:34 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:43699 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261685AbUL3SA2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 12:59:34 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 30 Dec 2004 09:59:27 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jesse Allen <the3dfxdude@gmail.com>, Mike Hearn <mh@codeweavers.com>,
-       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
- <20041120214915.GA6100@tesore.ph.cox.net>  <41A251A6.2030205@wanadoo.fr> 
- <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>  <1101161953.13273.7.camel@littlegreen>
-  <1104286459.7640.54.camel@gamecube.scs.ch>  <1104332559.3393.16.camel@littlegreen>
-  <Pine.LNX.4.58.0412291047120.2353@ppc970.osdl.org> 
- <53046857041229114077eb4d1d@mail.gmail.com>  <Pine.LNX.4.58.0412291151080.2353@ppc970.osdl.org>
- <530468570412291343d1478cf@mail.gmail.com> <Pine.LNX.4.58.0412291622560.2353@ppc970.osdl.org>
- <Pine.LNX.4.58.0412291703400.30636@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0412291745470.2353@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Thu, 30 Dec 2004 13:00:28 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: kmalloc packet slab
+References: <1104156983.20944.25.camel@localhost.localdomain>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 30 Dec 2004 19:00:25 +0100
+In-Reply-To: <1104156983.20944.25.camel@localhost.localdomain> (Alan Cox's
+ message of "Mon, 27 Dec 2004 14:16:23 +0000")
+Message-ID: <m1hdm3ll8m.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Dec 2004, Linus Torvalds wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> On Wed, 29 Dec 2004, Davide Libenzi wrote:
-> > 
-> > I think same. My test simply let the function processing to let thru and 
-> > reach the fake signal sending point.
-> 
-> No, your test-case doesn't even send a signal at all, because your
-> test-program just uses a PTRACE_SINGLESTEP without any "send signal" - so
-> "exit_code" will be zero after the debuggee gets released from the
-> "ptrace_notify()", and the suspect code will never be executed..
+> The networking world runs in 1514 byte packets pretty much all the time.
+> This adds a 1620 byte slab for such objects and is one of the internally
+> generated Red Hat patches we use on things like Fedora Core 3. Original:
+> Arjan van de Ven.
 
-No no, my test case has nothing to do with the extra signal sent in 
-do_syscall_trace(). But the test I put at the time:
+Doesnt this clash a bit with yours and Arjans no-prisoners-taken 
+quest to get rid of order>0 allocations? (4K stacks). 
 
--       if (!test_thread_flag(TIF_SYSCALL_TRACE))
-+       if (!test_thread_flag(TIF_SYSCALL_TRACE) &&
-+           !test_thread_flag(TIF_SINGLESTEP))
-                return;
+I implemented this long ago (in 2.1 - bonus points if you still find
+the leftover hook), but then gave up on it. I realized that to
+use it you would need order>0 allocations. In a single 4K page only 2
+1.5K slabs fit, but 2 2K slabs fit as well. And there is already a handy
+2K slab that works perfect well.
 
-will make the code to not execute the "return" (in the single step case) 
-and to fall through the point where the signal is sent.
+IMHO it is useless except for architectures with PAGE_SIZE>4K or if 
+you fix the VM to handle order>0 allocations really well. If you want
+to add it for sparc64/ia64/alpha etc. I would do it with an ifdef
+at least. 
 
-
-
-> The problem I think I see (and which the comment alludes to) is that if
-> the controlling process continues the debuggee with a signal, we'll be
-> doing the wrong thing: the code in do_syscall_trace() will take that
-> signal (in "current->exit_code") and send it as a real signal to the
-> debuggee, but since it is debugged, it will be caught (again) by the
-> controlling process, which apparently in the case of Wine gets very
-> confused.
-> 
-> So I _think_ the problem happens for the following schenario:
->  - wine for some reason does a PTRACE_SINGLESTEP over a system call
->  - after the single-step, wine ends up trying to get the sub-process to 
->    enter a signal handler with ptrace( PTRACE_CONT, ... sig)
->  - the normal ptrace path (where we trap a signal - see kernel/signal.c 
->    and the "ptrace_stop()" logic) handles this correctly, but 
->    do_syscall_trace() will do a "send_sig()"
->  - we'll try to handle the signal when returning to the traced process
->  - now "get_signal_to_deliver()" will invoce the ptrace logic AGAIN, and 
->    call ptrace_stop() for this fake signal, and we'll report a new event 
->    to the controlling process.
-> 
-> Does this make sense?
-
-This might explain what they were seeing, but OTOH it seems that the real 
-cause of their problems is related to something else (according to other 
-emails on this thread).
-
-
-
-- Davide
-
+-Andi
+ 

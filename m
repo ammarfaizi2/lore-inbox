@@ -1,118 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264632AbTFQIAX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 04:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264634AbTFQIAX
+	id S264638AbTFQIOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 04:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbTFQIOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 04:00:23 -0400
-Received: from speedy.tutby.com ([195.209.41.194]:43960 "EHLO tut.by")
-	by vger.kernel.org with ESMTP id S264632AbTFQIAV (ORCPT
+	Tue, 17 Jun 2003 04:14:09 -0400
+Received: from alpham.uni-mb.si ([164.8.1.101]:25810 "EHLO alpham.uni-mb.si")
+	by vger.kernel.org with ESMTP id S264638AbTFQIOH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 04:00:21 -0400
-Date: Tue, 17 Jun 2003 11:15:02 +0300
-From: Igor Krasnoselski <iek@tut.by>
-X-Mailer: The Bat! (v1.36) S/N F29DEE5D / Educational
-Reply-To: Igor Krasnoselski <iek@tut.by>
-X-Priority: 3 (Normal)
-Message-ID: <10468.030617@tut.by>
+	Tue, 17 Jun 2003 04:14:07 -0400
+Date: Tue, 17 Jun 2003 10:27:44 +0200
+From: CAMTP guest <camtp.guest@uni-mb.si>
+Subject: CMD680 missing from 2.4.21?
 To: linux-kernel@vger.kernel.org
-Subject: Can't mount an ext3 partition - why?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-id: <16110.53504.547180.164358@proizd.camtp.uni-mb.si>
+MIME-version: 1.0
+X-Mailer: VM 7.14 under Emacs 20.7.2
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Was CMD680 support forgotten in 2.4.21 or am I missing
+something? In 2.4.19 and .20 I get:
 
-maybe it's so easy... but I stuck on it:
+CMD680: IDE controller on PCI bus 00 dev 58
+CMD680: chipset revision 1
+CMD680: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x1000-0x1007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x1008-0x100f, BIOS settings: hdc:pio, hdd:pio
 
-I have a 2.4.18-3 pre-compiled kernel coming with an RH7.3
-distribution. Running a system under it I create an ext-3 partition on
-a secondary HDD (/dev/hdc1). All was fine, but now I have to recompile
-my kernel with some new modules, and new kernel can't mount this! It
-mounts my /dev/hda partitions (/, /boot and swap) without any
-question, but /dev/hdc1 makes it stuck! fsck says, it has something
-wrong on it... But old kernel mounts hdc1 silently, and I have no reason
-to run fsck (I think).
+in 2.4.21 it is not detected (same config). I have found
+two related entries in ChangeLog:
 
-Please tell me what I miss in the kernel config? Here's related part
-of it:
+ChangeLog-2.4.20:
+Adrian Bunk <bunk@fs.tum.de>:
+  o document that cmd64x.c supports the CMD649 and CMD680
 
-#
-# File systems
-#
-# CONFIG_QUOTA is not set
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_AUTOFS4_FS is not set
-# CONFIG_REISERFS_FS is not set
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BFS_FS is not set
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_UMSDOS_FS=y
-CONFIG_VFAT_FS=y
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-# CONFIG_JFS_FS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_NTFS_FS is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-# CONFIG_DEVFS_DEBUG is not set
-CONFIG_DEVPTS_FS=y
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_EXT2_FS=y
-# CONFIG_SYSV_FS is not set
-CONFIG_UDF_FS=y
-# CONFIG_UDF_RW is not set
-CONFIG_UFS_FS=y
-# CONFIG_UFS_FS_WRITE is not set
+ChangeLog-2.4.21:
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+  o fix wrong clocking selection on CMD680/SII3112
 
-#
-# Partition Types
-#
-CONFIG_PARTITION_ADVANCED=y
-# CONFIG_ACORN_PARTITION is not set
-# CONFIG_OSF_PARTITION is not set
-# CONFIG_AMIGA_PARTITION is not set
-# CONFIG_ATARI_PARTITION is not set
-# CONFIG_MAC_PARTITION is not set
-CONFIG_MSDOS_PARTITION=y
-CONFIG_BSD_DISKLABEL=y
-CONFIG_MINIX_SUBPARTITION=y                   *
-CONFIG_SOLARIS_X86_PARTITION=y                *
-# CONFIG_UNIXWARE_DISKLABEL is not set
-# CONFIG_LDM_PARTITION is not set
-# CONFIG_SGI_PARTITION is not set
-# CONFIG_ULTRIX_PARTITION is not set
-CONFIG_SUN_PARTITION=y                        *
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-* is a result of my 'experiments' with different partition types...
-
-PC is Intel Pentium II 233, hda is 4GB Fujitsy, hdc is 80GB Maxtor
-(BIOS can't detect it, so in BIOS table I choose "none").
-
-Any comments?
-
--- 
-Best regards,
- Igor                            mailto:iek@tut.by
-
-
+-Igor Mozetic

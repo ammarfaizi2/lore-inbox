@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269683AbRHQExm>; Fri, 17 Aug 2001 00:53:42 -0400
+	id <S269718AbRHQFDP>; Fri, 17 Aug 2001 01:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269676AbRHQExc>; Fri, 17 Aug 2001 00:53:32 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:7216 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S269683AbRHQExY>; Fri, 17 Aug 2001 00:53:24 -0400
-Date: Fri, 17 Aug 2001 06:53:48 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.20pre9aa1
-Message-ID: <20010817065348.C830@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S269712AbRHQFDF>; Fri, 17 Aug 2001 01:03:05 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:5259 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S269698AbRHQFCy>; Fri, 17 Aug 2001 01:02:54 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 16 Aug 2001 22:03:07 -0700
+Message-Id: <200108170503.WAA07234@baldur.yggdrasil.com>
+To: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 does not compile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only in 2.2.20pre8aa1: 00_poll-max_fds-1
-Only in 2.2.20pre9aa1: 00_poll-nfds-1
+	The macro "min(n1,n2)", is a very standard practice in C
+programming.  Having a different version of "min" adds unnecessary
+porting work and ifdef clutter when code is port between the kernel
+and other uses (typically small mathematical calculations, data
+structure manipulations, and data stream tranformations like
+compression and encryption, such as in freeswan, which I had to
+modify).
 
-	Don't truncate nfds to max_fds, limit it instead in function of the
-	rlimit fds setting.
+	If a programmer wants to explicitly specify which type the
+comparison converts to, then he or she can cast the arguments explicitly.
+Programmers already have the opportunity "to think about it." Impeding
+programming just to make programmers "think about it" rather than
+treating their time as precious and letting them determine how to
+invest it is rarely a winning trade-off, especially when you also
+weigh the quality effects of increased code clutter and less programmer
+time available for other improvements.  To call this change Pascal-like
+would be an insult to Pascal.
 
-Only in 2.2.20pre8aa1: 93_raid-2.2.18-A2_2.2.20pre2aa1-7.bz2
-Only in 2.2.20pre9aa1: 93_raid-2.2.18-A2_2.2.20pre2aa1-8.bz2
+	If you really want this facility, you could just declare
+a distinct "typed_min" macro.
 
-	Exported some missing symbol.
-
-Andrea
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

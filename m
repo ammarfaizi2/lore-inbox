@@ -1,91 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265641AbRGJUer>; Tue, 10 Jul 2001 16:34:47 -0400
+	id <S267027AbRGJUkA>; Tue, 10 Jul 2001 16:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267027AbRGJUeh>; Tue, 10 Jul 2001 16:34:37 -0400
-Received: from L0173P30.dipool.highway.telekom.at ([62.46.85.158]:36779 "EHLO
-	mannix") by vger.kernel.org with ESMTP id <S265641AbRGJUed>;
-	Tue, 10 Jul 2001 16:34:33 -0400
-Date: Tue, 10 Jul 2001 22:38:51 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: es1370/1371 compilation clash
-Message-ID: <20010710223851.A11984@aon.at>
-In-Reply-To: <994759043.3b4ad183f0364@extranet.jtrix.com> <20010710222319.A8588@aon.at>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="k+w/mQv8wyuph6w0"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010710222319.A8588@aon.at>
-User-Agent: Mutt/1.3.18i
-From: Alexander Griesser <tuxx@aon.at>
+	id <S267140AbRGJUjs>; Tue, 10 Jul 2001 16:39:48 -0400
+Received: from woodyjr.wcnet.org ([63.174.200.2]:17832 "EHLO woodyjr.wcnet.org")
+	by vger.kernel.org with ESMTP id <S267027AbRGJUjc>;
+	Tue, 10 Jul 2001 16:39:32 -0400
+Message-ID: <001501c10980$f42035a0$fe00000a@cslater>
+From: "C. Slater" <cslater@wcnet.org>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMOEKECGAA.davids@webmaster.com>
+Subject: Re: Switching Kernels without Rebooting?
+Date: Tue, 10 Jul 2001 16:43:18 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Tue, Jul 10, 2001 at 10:23:19PM +0200, you wrote:
-I'm sorry, there were 2 illegal characters in this patch (whereever they
-have come from *stunning*).
+>
+> >     - Replace all saved structures
+>
+> > what if the layout of these changes as it often does?
+>
+> You would want to convert all structures into a neutral encoding scheme
+> that would support transferring structures across versions. BER comes to
+> mind, as it provides for an easy way to ignore stuff you don't understand
+> and support multiple versions of the same object in a single encoding.
+>
+> However, this would be a truly massive task. And the big challenge would
+be
+> what to do when an older kernel doesn't understand something essential. It
+> could be simplified significantly by supporting live replacement only of
+> kernels of the same version, but this seems to defeat much of the purpose.
+>
+> DS
 
-This is the "fixed" one ;)
-It is also available from:
+I don't think that it would be possible to switch kernels when one was not
+properly set up to do it, if thats what you mean. You could only switch
+between kernels that have been compiled to support live switching.
 
-http://www.tuxx-home.at/kernel-patches/
+I do see you'r point with the datastructures changeing. We would need to use
+some format that all properly setup kernels could understand, then we would
+only need to write enough to convert the structs to the middle format and
+back when they change. I am not familer with BER, but if it is suitable, it
+may help.
 
-regards, alexx
--- 
-|    .-.    |   CCNAIA Alexander Griesser <tuxx@aon.at>  |   .''`.  |
-|    /v\    |  http://www.tuxx-home.at -=- ICQ:63180135  |  : :' :  |
-|  /(   )\  |    echo "K..?f{1,2}e[nr]böck" >>~/.score   |  `. `'   |
-|   ^^ ^^   |    Linux Version 2.4.6 - Debian Unstable   |    `-    |
+Are you saying that swaping the kernels out altogether would be a massive
+task, or that saveing/restoring the datastructures would be a massive task.
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="es137x-2.4.6-ac2.diff"
+  Colin
 
---- linux/drivers/sound/es1371.c.orig	Tue Jul 10 22:16:15 2001
-+++ linux/drivers/sound/es1371.c	Tue Jul 10 22:18:33 2001
-@@ -135,7 +135,18 @@
- #include <asm/dma.h>
- #include <asm/uaccess.h>
- #include <asm/hardirq.h>
-+
-+/* ESS1370 and ESS1371 conflict, when both are to be comopiled */
-+/* This is a small workaround for this problem                 */
-+/*   by Alexander Griesser <tuxx@aon.at>                       */
-+#ifdef CONFIG_SOUND_ES1370
-+  #define ESS137X_CONFLICT 1
-+#endif
-+
- #include <linux/gameport.h>
-+
-+extern void gameport_register_port(struct gameport *gameport);
-+extern void gameport_unregister_port(struct gameport *gameport);
- 
- /* --------------------------------------------------------------------- */
- 
---- linux/include/linux/gameport.h.orig	Tue Jul 10 22:16:19 2001
-+++ linux/include/linux/gameport.h	Tue Jul 10 22:21:25 2001
-@@ -66,6 +66,8 @@
- 	struct gameport_dev *next;
- };
- 
-+#ifndef ESS137X_CONFLICT
-+
- int gameport_open(struct gameport *gameport, struct gameport_dev *dev, int mode);
- void gameport_close(struct gameport *gameport);
- void gameport_rescan(struct gameport *gameport);
-@@ -137,5 +139,7 @@
- 	current->state = TASK_UNINTERRUPTIBLE;
- 	schedule_timeout(1 + ms * HZ / 1000);
- }
-+
-+#endif
- 
- #endif
-
---k+w/mQv8wyuph6w0--

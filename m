@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbUK3Uz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbUK3U4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbUK3Uz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 15:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUK3Uv4
+	id S262314AbUK3U4u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 15:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUK3U4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 15:51:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55707 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262413AbUK3Uuu (ORCPT
+	Tue, 30 Nov 2004 15:56:49 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:2468 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262314AbUK3U42 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 15:50:50 -0500
-Date: Tue, 30 Nov 2004 12:50:45 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Michael Kerrisk <michael.kerrisk@gmx.net>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Rik van Riel <riel@redhat.com>, Chris Wright <chrisw@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shmtcl SHM_LOCK perms
-Message-ID: <20041130125045.E2357@build.pdx.osdl.net>
-References: <Pine.LNX.4.44.0411291855560.23341-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0411291855560.23341-100000@localhost.localdomain>; from hugh@veritas.com on Mon, Nov 29, 2004 at 07:09:18PM +0000
+	Tue, 30 Nov 2004 15:56:28 -0500
+Date: Tue, 30 Nov 2004 21:56:25 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Misleading error message
+In-Reply-To: <001101c4d715$25a59470$af00a8c0@BEBEL>
+Message-ID: <Pine.LNX.4.53.0411302151160.31175@yvahk01.tjqt.qr>
+References: <001101c4d715$25a59470$af00a8c0@BEBEL>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Hugh Dickins (hugh@veritas.com) wrote:
-> Michael Kerrisk has observed that at present any process can SHM_LOCK
-> any shm segment of size within process RLIMIT_MEMLOCK, despite having no
-> permissions on the segment: surprising, though not obviously evil.  And
-> any process can SHM_UNLOCK any shm segment, despite no permissions on it:
-> that is surely wrong.
+>I compiled built-in support for iptables in my new 2.6.9 kernel, but when my
+>legacy firewall does a "modprobe ip_tables" , I get the startling message:
+>"FATAL: module ip_tables not found" .
+k
 
-You may be neither the owner, nor the creator of a segment but have read
-access to it.  In which case you could simply copy the contents of the
-segment anywhere you like, which has similar effect to SHM_UNLOCK from
-the point of view of paging out sensitive data.
+Linux Developers,
 
-thanks,
--chris
+what would you think of say, a line added to modules' code that identifies
+compiled-in components?
+modprobe could then be adjusted to
+1. try loading something.ko
+2. looking for a component "something" within the compiled-in stuff
+
+I'd imagine a module's init could look like:
+
+int __init init_module(void) {
+	...
+	register_static_module("ip_tables");
+	...
+}
+
+Or using some linker magic to generate a table/array full with strings to
+indicate their presence. (I though of kstrtab, which is, to my knowledge, also
+composed of multiple single symbols into one.)
+
+Awaiting list feedback.
+
+
+
+
+>A message like "Module ip_tables not needed; support already built in the
+>kernel" would be much more helpfull, as I see it.
+
+modprobe should just return 0 as is with the case for already-loaded modules.
+
+
+
+Jan Engelhardt
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+ENOSPC

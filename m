@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263597AbTEWDBs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 23:01:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbTEWDBs
+	id S263610AbTEWEIS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 00:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbTEWEIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 23:01:48 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:53682 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S263597AbTEWDBs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 23:01:48 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <viro@parcelfarce.linux.theplanet.co.uk>,
-       "Linus Torvalds" <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [patch?] truncate and timestamps
-Date: Thu, 22 May 2003 20:14:50 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIELPDCAA.davids@webmaster.com>
+	Fri, 23 May 2003 00:08:18 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:46084 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S263610AbTEWEIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 00:08:17 -0400
+Message-ID: <3ECDA1D1.6030507@snapgear.com>
+Date: Fri, 23 May 2003 14:21:37 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] driver for DiskOnChip Millennium Plus and INFTL
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030523011751.GC14406@parcelfarce.linux.theplanet.co.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> "POSIX says" has value only if there is at least some consensus among
-> implementations.  Otherwise it's worthless, simply because any program
-> that cares about portability can't rely on specified behaviour and
-> any program that doesn't couldn't care less anyway - it will rely on
-> actual behaviour on system it's supposed to run on.
+Hi All,
 
-	This type of attitude ensures there never will be a consensus among
-implementations. A lack of consensus today is not grounds for failing to
-comply with a standard specifically designed to eliminate that lack.
+Here is a patch that adds support to the kernel MTD drivers
+for the M-System's Disk-On-Chip Millennium Plus family of
+devices. It also contains an INFTL (Inverse NAND Flash Translation
+Layer) driver as well.
 
-	On the other hand, that has to be balanced by how objectively reasonable or
-unreasonable the standard is. However, there should be an extremely strong
-preference for concurring with the standard, even against the weight of
-other implementations.
+You can get it at either of:
 
-	DS
+  ftp://ftp.snapgear.org/pub/patches/mplus-20030414.patch.gz
+  http://www.uclinux.org/pub/uClinux/misc/mplus-20030414.patch.gz
 
+This patch is against Linux-2.4.20 source.
+
+The Millennium Plus register map is quite different to their
+other devices, and so needs a new sub-driver. The INFTL layer
+is also quite different to their older NFTL code, so a new
+sub-driver for that too.
+
+This code is all GPL (with the blessing of M-System), and based
+on the existing Disk-On-Chip support in MTD.
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

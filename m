@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262755AbUK0Ch5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263149AbUK0Cpk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262755AbUK0Ch5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 21:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262833AbUK0CF0
+	id S263149AbUK0Cpk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 21:45:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262922AbUK0CmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 21:05:26 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262651AbUKZThH (ORCPT
+	Fri, 26 Nov 2004 21:42:24 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:61927 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S262824AbUK0Cis (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:37:07 -0500
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD64: GPF in sys32_lstat64 call path
-References: <34n1d-6LW-7@gated-at.bofh.it> <34n1d-6LW-5@gated-at.bofh.it>
-From: Andi Kleen <ak@suse.de>
-Date: 25 Nov 2004 12:17:19 +0100
-In-Reply-To: <34n1d-6LW-5@gated-at.bofh.it>
-Message-ID: <p73mzx6uqio.fsf@brahms.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Fri, 26 Nov 2004 21:38:48 -0500
+Message-ID: <41A7E8AD.9050405@g-house.de>
+Date: Sat, 27 Nov 2004 03:38:37 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Aleksandar Milivojevic <amilivojevic@pbl.ca>
+Subject: Re: network console
+References: <41A78D0A.5060308@pbl.ca>
+In-Reply-To: <41A78D0A.5060308@pbl.ca>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kasprzak <kas@fi.muni.cz> writes:
+Aleksandar Milivojevic schrieb:
+> Has anybody attempted to implement console on network interface (with or
 
-> 	I've got the following GPF on my quad-opteron HP DL585.
-> The process in question was "save" from the Legato Networker
-> suite (i.e. 32-bit binary) doing nightly backup. The system
-> is pretty stock RHEL3, except that kernel has been upgraded
-> to 2.6.8.1. The server was almost idle at that time except for the
-> "save" Networker process. The server currently acts as NFS server.
-> Root FS is ext3, and there are three XFS volumes over LVM on an array
-> behind a Qlogic FC HBA. More information is available on request.
+please read Documentation/networking/netconsole.txt.
 
-   0:   48 89 50 08             mov    %rdx,0x8(%rax)
+> If such a beast exists, what would be required on the client side?
+> Linux-only client, or is there Windows client too?
 
-and rax is 0x5e03d1f6c831e2ad, which raised an uncanonical address 
-general protection fault.
+client? well, the machine with netconsole-enabled kernel would be the
+"client", the machine with the syslog daemon would be the "server".
 
-Someone corrupted memory and the linked list of slab objects is broken.
-Most probably some driver. You can enable slab debugging (will slow down
-the machine) and see if that turns up something.
+-- 
+BOFH excuse #202:
 
--Andi
- 
+kernel panic: write-only-memory (/dev/wom0) capacity exceeded.

@@ -1,88 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUJWKDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUJWKEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266193AbUJWKDE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 06:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266505AbUJWKDD
+	id S266344AbUJWKEn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 06:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUJWKDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 06:03:03 -0400
-Received: from wrzx28.rz.uni-wuerzburg.de ([132.187.3.28]:26827 "EHLO
-	wrzx28.rz.uni-wuerzburg.de") by vger.kernel.org with ESMTP
-	id S266463AbUJWKC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 06:02:28 -0400
-Date: Sat, 23 Oct 2004 12:02:10 +0200 (CEST)
-From: Andreas Klein <Andreas.C.Klein@physik.uni-wuerzburg.de>
-X-X-Sender: asklein@pluto.physik.uni-wuerzburg.de
-To: Andi Kleen <ak@muc.de>
-Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org,
-       Sergei Haller <Sergei.Haller@math.uni-giessen.de>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: lost memory on a 4GB amd64
-In-Reply-To: <20041022182446.GA77384@muc.de>
-Message-ID: <Pine.LNX.4.58.0410231137450.3885@pluto.physik.uni-wuerzburg.de>
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
- <200409241315.42740.andrew@walrond.org> <Pine.LNX.4.58.0410221053390.17491@fb07-2go.math.uni-giessen.de>
- <200410221026.22531.andrew@walrond.org> <20041022182446.GA77384@muc.de>
+	Sat, 23 Oct 2004 06:03:32 -0400
+Received: from lucidpixels.com ([66.45.37.187]:62083 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S266366AbUJWKCJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 06:02:09 -0400
+Date: Sat, 23 Oct 2004 06:02:08 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Page Allocation Failures Return With 2.6.9+TSO patch.
+In-Reply-To: <417A251A.2040209@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0410230558060.639@p500>
+References: <Pine.LNX.4.61.0410230435150.4620@p500> <417A2106.7010804@yahoo.com.au>
+ <Pine.LNX.4.61.0410230522040.639@p500> <417A251A.2040209@yahoo.com.au>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on domino1/uni-wuerzburg(Release 6.51HF561 | September
- 17, 2004) at 10/23/2004 12:02:20,
-	Serialize by Router on domino1/uni-wuerzburg(Release 6.51HF561 | September
- 17, 2004) at 10/23/2004 12:02:23,
-	Serialize complete at 10/23/2004 12:02:23
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It does not seem like they do, but they cannot be good...
 
-Hello,
+I have applied the following patches
 
-I have the same problem with 45 Tyan S2885 boards, but I have one running 
-sample. The one running machine has the following configuration:
+1] TSO patch
+2] rollup.patch
 
-- Tyan S2885 pre-production model with a 1.01 pre-release bios
-6 mb ram (4x512mb, 4x1gb)
-The machine is running SuSE Linux Enterprise Server 8 (32bit).
-We use this machine as our primary mail-server without problems for over a 
-year.
+Rebooting now and will alert the list if/when I receive more page 
+allocation failures.
 
-- Now we ordered 45 Tyan S2885 and 4 S2875S board.
-Both board do not run stable with more than 2GB ram usable.
-4GB will only be recognized if the MTRR setting is set to Continuous and 
-the Adjust Memory setting is set to Auto.
-If the bios is configured this way and two 1gb ram modules are installed 
-for each CPU on the 2885, the machine will not even load and unpack a 
-SLES 9 kernel. Memtest sees 0-2GB mem usable and 4-6GB unusable (complains 
-about each memory address).
-If all four modules are installed for CPU0, then memtest seems to work 
-without problems (0-2GB, 4-6GB), but SLES9 will crash during boot-up.
-If all four modules are installed for CPU1, then memtest seems to work 
-without problems too. SLES 9 will run a few minutes before a crash.
-I will try to install SLES 8 (32bit) on the new boxes to see if it runs 
-stable. If yes, there is something broken in the 2.6 kernels for amd64, if 
-not, the pre-production bios is better that the final ones.
+FYI - I started getting these with 2.6.9.
 
-Bye,
+(However, it was always possible on the Dell Optiplex GX1 to create page 
+allocation failure with: ifconfig eth0 mtu 9000), however, on a higher-end 
+machine (2.6GHZ, 2GB ram, etc) ifconfig eth0 mtu 9000 worked fine.
 
-On Fri, 22 Oct 2004, Andi Kleen wrote:
+Is it something with the architecture of the box bus/box?
 
-> > I've cc'ed Andi Kleen (x86_64 supremo) who might have some insights, but I'm 
-> > guessing he'll say "Bios problem - tough luck". I might be wrong ;)
-> 
-> Is there a full boot log of the system? 
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Why does it tend to affect one machine and not the other?
 
 
--- Andreas Klein
-   asklein@cip.physik.uni-wuerzburg.de
-   root / webmaster @cip.physik.uni-wuerzburg.de
-   root / webmaster @www.physik.uni-wuerzburg.de
-_____________________________________
-|                                   | 
-|   Long live our gracious AMIGA!   |
-|___________________________________|
+On Sat, 23 Oct 2004, Nick Piggin wrote:
 
+> Justin Piszcz wrote:
+>> Applying this patch now and I will let everyone know what happens, thanks.
+>> 
+>> On Sat, 23 Oct 2004, Nick Piggin wrote:
+>> 
+>>> Justin Piszcz wrote:
+>>> 
+>>>> Kernel 2.6.9 w/TSO patch.
+>>>> 
+>>>> (most likely do to the e1000/nic/issue)
+>>>> 
+>>>> $ dmesg
+>>>> gaim: page allocation failure. order:4, mode:0x21
+>>>>  [<c01391a7>] __alloc_pages+0x247/0x3b0
+>>>>  [<c0139328>] __get_free_pages+0x18/0x40
+>>>>  [<c035c33a>] sound_alloc_dmap+0xaa/0x1b0
+>>>>  [<c03648c0>] ad_mute+0x20/0x40
+>>>>  [<c035c70f>] open_dmap+0x1f/0x100
+>>>>  [<c035cb58>] DMAbuf_open+0x178/0x1d0
+>>>>  [<c035a4fa>] audio_open+0xba/0x280
+>>>>  [<c015d863>] cdev_get+0x53/0xc0
+>>>>  [<c035968c>] sound_open+0xac/0x110
+>>>>  [<c035898e>] soundcore_open+0x1ce/0x300
+>>>>  [<c03587c0>] soundcore_open+0x0/0x300
+>>>>  [<c015d524>] chrdev_open+0x104/0x250
+>>>>  [<c015d420>] chrdev_open+0x0/0x250
+>>>>  [<c0152d82>] dentry_open+0x1d2/0x270
+>>>>  [<c0152b9c>] filp_open+0x5c/0x70
+>>>>  [<c01049c8>] common_interrupt+0x18/0x20
+>>>>  [<c0152e75>] get_unused_fd+0x55/0xf0
+>>>>  [<c0152fd9>] sys_open+0x49/0x90
+>>>>  [<c010405b>] syscall_call+0x7/0xb
+>>> 
+>>> 
+>>> Ouch, 64K atomic DMA allocation.
+>>> 
+>>> The DMA zone barely even keeps that much total memory free.
+>>> 
+>>> The caller probably wants fixing, but you could try this patch...
+>>> 
+>> 
+>
+> Oh... these allocation failure don't actually hurt anything, do they?
+> sound_alloc_dmap would have just reverted to using a 32K buffer instead
+> of a 64K one.
+>
+> Probably the easiest thing to do is stick a __GFP_NOWARN on that
+> allocation.
+>

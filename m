@@ -1,38 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269286AbUIYIv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269289AbUIYJO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269286AbUIYIv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 04:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269287AbUIYIv5
+	id S269289AbUIYJO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 05:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269290AbUIYJO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 04:51:57 -0400
-Received: from colin2.muc.de ([193.149.48.15]:61702 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S269286AbUIYIv4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 04:51:56 -0400
-Date: 25 Sep 2004 10:51:55 +0200
-Date: Sat, 25 Sep 2004 10:51:55 +0200
-From: Andi Kleen <ak@muc.de>
-To: Suresh Siddha <suresh.b.siddha@intel.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [Patch] no exec: i386 and x86_64 fixes
-Message-ID: <20040925085155.GA97641@muc.de>
-References: <20040924154644.B25742@unix-os.sc.intel.com>
+	Sat, 25 Sep 2004 05:14:27 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8969 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S269289AbUIYJOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 05:14:03 -0400
+Date: Sat, 25 Sep 2004 10:13:59 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Add wait_event_timeout()
+Message-ID: <20040925091359.GA4431@dyn-67.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040924154644.B25742@unix-os.sc.intel.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 03:46:44PM -0700, Suresh Siddha wrote:
-> Appended patch fixes
-> 
-> a) a bug in i386 which has to do with a typo
-> (change elf_read_implies_exec_binary to elf_read_implies_exec)
-> 
-> b) sync x86_64 noexec behaviour with i386. And remove all the confusing
-> noexec related boot parameters.
+There appears to be one case missing from the wait_event() family -
+the uninterruptible timeout wait.  The following patch adds this.
 
-Thanks, x86-64 part looks good.
--Andi
+This wait is particularly useful when (eg) you wish to pass work off
+to an interrupt handler to perform, but also want to know if the
+hardware has decided to go gaga under you.  You don't want to sit
+around waiting for something that'll never happen - you want to go
+and wack the gremlin which caused the failure and retry.
+
+--- linux/include/linux/wait.h.orig	2004-09-21 13:07:07.000000000 +0100
++++ linux/include/linux/wait.h	2004-09-25 09:33:19.000000000 +0100
+@@ -156,6 +156,29 @@
+ 	__wait_event(wq, condition);					\
+ } while (0)
+ 
++#define __wait_event_timeout(wq, condition, ret)			\
++do {									\
++	DEFINE_WAIT(__wait);						\
++									\
++	for (;;) {							\
++		prepare_to_wait(&wq, &__wait, TASK_UNINTERRUPTIBLE);	\
++		if (condition)						\
++			break;						\
++		ret = schedule_timeout(ret);				\
++		if (!ret)						\
++			break;						\
++	}								\
++	finish_wait(&wq, &__wait);					\
++} while (0)
++
++#define wait_event_timeout(wq, condition, timeout)			\
++({									\
++	long __ret = timeout;						\
++	if (!(condition)) 						\
++		__wait_event_timeout(wq, condition, __ret);		\
++	__ret;								\
++})
++
+ #define __wait_event_interruptible(wq, condition, ret)			\
+ do {									\
+ 	DEFINE_WAIT(__wait);						\
+

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRAKUVI>; Thu, 11 Jan 2001 15:21:08 -0500
+	id <S130807AbRAKUYi>; Thu, 11 Jan 2001 15:24:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129806AbRAKUU7>; Thu, 11 Jan 2001 15:20:59 -0500
-Received: from front2.grolier.fr ([194.158.96.52]:24228 "EHLO
-	front2.grolier.fr") by vger.kernel.org with ESMTP
-	id <S129631AbRAKUUo> convert rfc822-to-8bit; Thu, 11 Jan 2001 15:20:44 -0500
-Date: Thu, 11 Jan 2001 20:20:03 +0100 (CET)
-From: Gérard Roudier <groudier@club-internet.fr>
-To: Boszormenyi Zoltan <zboszor@externet.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sym-2.1.0-20001230 vs. sg (cdrecord)
-In-Reply-To: <Pine.LNX.4.02.10101111504570.9158-100000@prins.externet.hu>
-Message-ID: <Pine.LNX.4.10.10101112009300.1697-100000@linux.local>
+	id <S129806AbRAKUY3>; Thu, 11 Jan 2001 15:24:29 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:60635 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130807AbRAKUYT>;
+	Thu, 11 Jan 2001 15:24:19 -0500
+Date: Thu, 11 Jan 2001 20:31:58 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: <bunk@neptun.fachschaften.tu-muenchen.de>
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+cc: <andre@linux-ide.org>, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE DMA problem in 2.4.0
+In-Reply-To: <Pine.LNX.4.30.0101111640120.5788-100000@svea.tellus>
+Message-ID: <Pine.NEB.4.31.0101112024250.9238-100000@neptun.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 11 Jan 2001, Tobias Ringstrom wrote:
+
+> When copying huge files from one disk to another (hda->hdc), I get the
+> following error (after some hundred megabytes):
+>
+> hdc: timeout waiting for DMA
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> hdc: irq timeout: status=0xd1 { Busy }
+> hdc: DMA disabled
+> ide1: reset: success
+>...
+> VP_IDE: VIA vt82c596b IDE UDMA66 controller on pci0:7.1
+>...
+> Did I miss anything?
+
+Could you try if the (experimental) version 3.11 of the VIA IDE driver
+(announced by Vojtech Pavlik in [1]) fixes your problem? Simply copy the
+two files you find there to drivers/ide after you unpacked the kernel
+source.
+
+> /Tobias
+
+cu,
+Adrian
+
+[1] http://www.lib.uaa.alaska.edu/linux-kernel/archive/2001-Week-02/0737.html
 
 
-On Thu, 11 Jan 2001, Boszormenyi Zoltan wrote:
-
-> Hi!
-> 
-> I just wanted to let you know that I successfully ruined
-> a CD with 2.4.0 + sym-2.1.0-20001230. The system is a RH 7.0
-> with glibc-2.2-9, cdrecord-1.9.
-
-Thanks for the report.
-But with so tiny information, it gives about no usefulness to me.
-
-> When will it be really usable?
-
-A single ruined CD is probably too weak a symptom for stating any serious
-sickness in the driver. FYI, I cannot even personnaly try to ruin a single
-CDR, for the reason I don't have CDR.
-
-If you can retrieve information related to the failure, you may send me
-them (syslog messages, cdrecord output messages, etc...). Thanks in
-advance. You may also give a try with stable kernel and related stuff and 
-let me know the result.
-
-Regards,
-  Gérard.
+-- 
+A "No" uttered from deepest conviction is better and greater than a
+"Yes" merely uttered to please, or what is worse, to avoid trouble.
+                -- Mahatma Ghandi
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

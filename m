@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262814AbUKXTFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262817AbUKXTKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262814AbUKXTFH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 14:05:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbUKXTCy
+	id S262817AbUKXTKT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 14:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbUKXTID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 14:02:54 -0500
-Received: from fire.osdl.org ([65.172.181.4]:59094 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262814AbUKXTAk (ORCPT
+	Wed, 24 Nov 2004 14:08:03 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:33709 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262775AbUKXTFz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 14:00:40 -0500
-Date: Wed, 24 Nov 2004 09:55:17 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Hans Kristian Rosbach <hk@isphuset.no>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Network slowdown from 2.6.7 to 2.6.9
-Message-Id: <20041124095517.2be3a105@zqx3.pdx.osdl.net>
-In-Reply-To: <1101289960.2337.8.camel@linux.local>
-References: <419A9151.2000508@atmos.washington.edu>
-	<20041116163257.0e63031d@zqx3.pdx.osdl.net>
-	<cone.1100651833.776334.15267.502@pc.kolivas.org>
-	<419BA5C4.4020503@atmos.washington.edu>
-	<1100722571.20185.9.camel@tux.rsn.bth.se>
-	<419BBF57.3040808@atmos.washington.edu>
-	<1101289960.2337.8.camel@linux.local>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-suse-linux)
+	Wed, 24 Nov 2004 14:05:55 -0500
+Date: Wed, 24 Nov 2004 10:54:51 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: How to perform a Wireless Scan?
+Message-ID: <20041124185451.GA29598@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Nov 2004 10:52:41 +0100
-Hans Kristian Rosbach <hk@isphuset.no> wrote:
-
-> On Tue, 2004-11-23 at 19:04, Stephen Hemminger wrote:
-> > Also, 2.6.9 has TCP bugs with TSO that can cause panic's.
-> > These have been fixed in 2.6.10-rc2.
+Matthias-Christian Ott wrote :
 > 
-> Shouldn't this patch be backported and make 2.6.9.1 ?
+> I'm currently developing the the wireless functions for the rtl8180
+> chipset.
+> There's only one problem:
+> I don't know how to perform a wireless scan.
+> How does it work?
+> Is there an algorithm or a GPL based driver which does this well?
 
-It is not one patch, but many (as IBM found out). And all the details weren't
-worked out until recently. Go ahead and make your own, the problem
-is working out what would be in a 2.6.9.1, by the time you did all that
-2.6.10 would be out and you would end up doing the work that all the vendors
-have to now.
+	Most modern wireless drivers support the scan function (airo,
+hostap, orinoco v15, prism54, atmel_cs, wl3501, madwifi, ipw2x00,
+acx100, poldhu, at76c503, adm8211... - check my Howto).
+	Unfortunately, the implementation is highly dependant on the
+hardware itself, and each hardware has it's own way. Chipset which are
+"softer" require more work. A good example of harder MAC is
+airo/orinoco, for softer MAC check madwifi.
+	Good luck...
+
+	Jean
+

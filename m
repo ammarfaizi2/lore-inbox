@@ -1,74 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUEKJxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbUEKJ7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUEKJxU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 05:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUEKJxU
+	id S262634AbUEKJ7H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 05:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbUEKJ7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 05:53:20 -0400
-Received: from se1.ruf.uni-freiburg.de ([132.230.2.221]:23771 "EHLO
-	se1.ruf.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S262730AbUEKJxD convert rfc822-to-8bit (ORCPT
+	Tue, 11 May 2004 05:59:07 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:33931 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262634AbUEKJ7C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 05:53:03 -0400
-X-Scanned: Tue, 11 May 2004 11:51:58 +0200 Nokia Message Protector V1.3.30 2004040916 - RELEASE
-To: Bart Samwel <bart@samwel.tk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch: doc. bug: Linux 2.6.6 laptop-mode 
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 11 May 2004 11:51:56 +0200
-Message-ID: <xb7pt9bqojn.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
+	Tue, 11 May 2004 05:59:02 -0400
+Date: Wed, 6 Oct 2004 15:26:02 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Richard A Nelson <cowboy@debian.org>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.6-mm1 Oops with dummy network device (sysfs related?)
+Message-ID: <20041006095602.GB2004@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <Pine.LNX.4.58.0405101654130.5731@erartnqr.onqynaqf.bet> <20040510141829.467a2bb6@dell_ss3.pdx.osdl.net> <Pine.LNX.4.58.0405101909450.31018@onpx40.onqynaqf.bet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0405101909450.31018@onpx40.onqynaqf.bet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 10, 2004 at 11:35:00PM +0000, Richard A Nelson wrote:
+> On Mon, 10 May 2004, Stephen Hemminger wrote:
+> 
+> > It would be easier to know what is wrong, if you said what you
+> > did that started the problem.  Looks like ifrename or something
+> > like that.
+> 
+> hrm, been trying to track that down (several oopses later...)
+> 
+> the modprobe dummy worked ok (and is seen in the log)
+> the next command is 'ip link set name ipsec0 dev dummy0'
+> and I've yet to get passed that
 
-The script  /etc/acpi/actions/battery.sh in the  document doesn't run,
-because of a wrong name.
+ok it is sysfs related and because of the backing store patches from me.
+
+And here is the fix. Hope this solves your problem. 
 
 
---- linux-2.6.6/Documentation/laptop-mode.txt	2004/05/11 09:46:04	1.1
-+++ linux-2.6.6-laptopmode-docfix/Documentation/laptop-mode.txt	2004/05/11 09:48:17	1.2
-@@ -466,29 +466,29 @@
- ACAD_HD=244
- BATT_HD=4
- 
- # ac/battery event handler
- 
- status=`awk '/^state: / { print $2 }' /proc/acpi/ac_adapter/AC/state`
- 
- case $status in
-         "on-line")
-                 echo "Setting HD spindown to 2 hours"
--                /sbin/laptop-mode stop
-+                /sbin/laptop_mode stop
-                 /sbin/hdparm -S $ACAD_HD /dev/hda > /dev/null 2>&1
-                 /sbin/hdparm -B 255 /dev/hda > /dev/null 2>&1
-                 #echo -n $ACAD_CPU:$ACAD_THR > /proc/acpi/processor/CPU0/limit
-                 exit 0
-         ;;
-         "off-line")
-                 echo "Setting HD spindown to 20 seconds"
--                /sbin/laptop-mode start
-+                /sbin/laptop_mode start
-                 /sbin/hdparm -S $BATT_HD /dev/hda > /dev/null 2>&1
-                 /sbin/hdparm -B 1 /dev/hda > /dev/null 2>&1
-                 #echo -n $BATT_CPU:$BATT_THR > /proc/acpi/processor/CPU0/limit
-                 exit 0
-         ;;
- esac
- ---------------------------/etc/acpi/actions/battery.sh END-------------------------------------------
- 
- Monitoring tool
- ---------------
+Thanks
+Maneesh
 
+o Fix sysfs_rename_dir(). The sysfs_lookup() does not hash
+  negative dentries so just hash it before calling d_move
+
+ fs/sysfs/dir.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN fs/sysfs/dir.c~sysfs-backing-store-sysfs_rename_dir-fix fs/sysfs/dir.c
+--- linux-2.6.6-mm1/fs/sysfs/dir.c~sysfs-backing-store-sysfs_rename_dir-fix	2004-10-06 15:21:37.000000000 +0530
++++ linux-2.6.6-mm1-maneesh/fs/sysfs/dir.c	2004-10-06 15:22:03.000000000 +0530
+@@ -314,6 +314,7 @@ void sysfs_rename_dir(struct kobject * k
+ 	new_dentry = sysfs_get_dentry(parent, new_name);
+ 	if (!IS_ERR(new_dentry)) {
+ 		if (!new_dentry->d_inode) {
++			d_add(new_dentry, NULL);
+ 			d_move(kobj->dentry, new_dentry);
+ 			kobject_set_name(kobj,new_name);
+ 		}
+
+_
 
 
 -- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
-
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

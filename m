@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267382AbRGLAYx>; Wed, 11 Jul 2001 20:24:53 -0400
+	id <S267383AbRGLA0x>; Wed, 11 Jul 2001 20:26:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267383AbRGLAYn>; Wed, 11 Jul 2001 20:24:43 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:33284
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S267382AbRGLAY1>; Wed, 11 Jul 2001 20:24:27 -0400
-Date: Wed, 11 Jul 2001 20:23:50 -0400
-From: Chris Mason <mason@suse.com>
-To: Lance Larsh <llarsh@oracle.com>,
-        Brian Strand <bstrand@switchmanagement.com>
-cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-Message-ID: <293480000.994897430@tiny>
-In-Reply-To: <Pine.LNX.4.21.0107111530170.2342-100000@llarsh-pc3.us.oracle.com>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S267384AbRGLA0n>; Wed, 11 Jul 2001 20:26:43 -0400
+Received: from intranet.resilience.com ([209.245.157.33]:30900 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S267383AbRGLA0a>; Wed, 11 Jul 2001 20:26:30 -0400
+Message-ID: <3B4CF00C.5B62DDBA@resilience.com>
+Date: Wed, 11 Jul 2001 17:32:12 -0700
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Laurent Itti <itti@java.usc.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: receive stats null for bond0 in 2.4.6
+In-Reply-To: <Pine.SV4.3.96.1010711163709.5481B-100000@java.usc.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wednesday, July 11, 2001 04:03:09 PM -0700 Lance Larsh
-<llarsh@oracle.com> wrote:
-
-> I ran lots of iozone tests which illustrated a huge difference in write
-> throughput between reiser and ext2.  Chris Mason sent me a patch which
-> improved the reiser case (removing an unnecessary commit), but it was
-> still noticeably slower than ext2.  Therefore I would recommend that
-> at this time reiser should not be used for Oracle database files.
+Laurent Itti wrote:
+> 
+> Hi all:
+> 
+> just installed 2.4.6 and all is well except that all stats in
+> /proc/net/dev are at zero on the receive side for our 3x100Mbps
+> channel-bonded network interface (bond0, using kernel module "bonding").
+> The interface works great (we do receive packets).  Transmit side stats
+> appear ok. All stats also ok on the 3 ethernet boards that are enslaved
+> into the bond.
+> 
+> any idea? thanks!
 > 
 
-Hi Lance,
+It's always zero because the bonding driver included with the Linux
+kernel is pretty broken.  The comments say that its stats are collected
+from the slaves, but this is untrue.  See the source code at
+http://sourceforge.net/projects/bonding for how the stats should be
+collected.
 
-Could I get a copy of the results from last benchmark you ran (with the
-patch + noatime on reiserfs).  I'd like to close that gap...
+-Jeff
 
--chris
-
+-- 
+Jeff Golds
+Sr. Software Engineer
+jgolds@resilience.com

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285314AbRLNBmx>; Thu, 13 Dec 2001 20:42:53 -0500
+	id <S285311AbRLNBlp>; Thu, 13 Dec 2001 20:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285312AbRLNBme>; Thu, 13 Dec 2001 20:42:34 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:50417 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S285309AbRLNBmG>;
-	Thu, 13 Dec 2001 20:42:06 -0500
-Date: Thu, 13 Dec 2001 17:42:03 -0800
+	id <S285312AbRLNBla>; Thu, 13 Dec 2001 20:41:30 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:45297 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S285311AbRLNBlD>;
+	Thu, 13 Dec 2001 20:41:03 -0500
+Date: Thu, 13 Dec 2001 17:41:00 -0800
 To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Sample implementation in wavelan.c
-Message-ID: <20011213174203.F520@bougret.hpl.hp.com>
+Subject: Core of the new API
+Message-ID: <20011213174100.E520@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZmUaFz6apKcXQszQ"
+Content-Type: multipart/mixed; boundary="hHWLQfXTYDoKhP50"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
 Organisation: HP Labs Palo Alto
@@ -23,1257 +23,1422 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ZmUaFz6apKcXQszQ
+--hHWLQfXTYDoKhP50
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 	Hi,
 
-	This is how you would implement the new API in
-wavelan.c. Patch is not very readable.
+	This is the core of the new API. This patch is pretty legible ;-)
 
 	Jean
 
---ZmUaFz6apKcXQszQ
+--hHWLQfXTYDoKhP50
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="wav.24.we13.diff"
+Content-Disposition: attachment; filename="iw_handlers.w13.diff"
 
-diff -u -p -r linux/drivers/net/wireless-w12/wavelan.c linux/drivers/net/wireless/wavelan.c
---- linux/drivers/net/wireless-w12/wavelan.c	Fri Oct 12 14:21:18 2001
-+++ linux/drivers/net/wireless/wavelan.c	Thu Dec 13 13:22:16 2001
-@@ -1786,170 +1786,287 @@ static inline void wl_his_gather(device 
+diff -u -p linux/drivers/net/wireless-w12/todo.txt linux/drivers/net/wireless/todo.txt
+--- linux/drivers/net/wireless-w12/todo.txt	Thu Dec  6 15:32:35 2001
++++ linux/drivers/net/wireless/todo.txt	Thu Dec 13 14:36:02 2001
+@@ -9,7 +9,7 @@
+ 	 o wavelan_cs.c		-> old Wavelan Pcmcia driver
+ 	 o netwave_cs.c		-> Netwave Pcmcia driver
+ 	Drivers likely to go :
+-	 o ray_cs.c		-> Raytheon/Aviator driver (maintainer MIA)
++	 o ray_cs.c		-> Raytheon/Aviator driver (need to ask Thomas)
+ 	Drivers I have absolutely no control over :
+ 	 o arlan.c		-> old Aironet Arlan 655 (need to ask Elmer)
+ 	 o aironet4500_xxx.c	-> Elmer's Aironet driver (need to ask Elmer)
+@@ -22,8 +22,8 @@
  
- /*------------------------------------------------------------------*/
+ 3) Misc
+ 	o Mark wavelan, wavelan_cs, netwave_cs drivers as obsolete
+-	o Maybe arlan.c, ray_cs.c and strip.c also deserve to be obsolete
++	o Maybe arlan.c and strip.c also deserve to be obsolete
+ 	o Use new Probe/module stuff in wavelan.c
+-	o New Wireless Extension API (pending)
++	o Convert more drivers to the new Wireless Extension driver API
+ 
+ 	Jean II
+diff -u -p -r --new-file linux/include/linux-w12/netdevice.h linux/include/linux/netdevice.h
+--- linux/include/linux-w12/netdevice.h	Thu Dec 13 13:58:12 2001
++++ linux/include/linux/netdevice.h	Mon Dec 10 14:31:47 2001
+@@ -278,6 +278,10 @@ struct net_device
+ 	struct net_device_stats* (*get_stats)(struct net_device *dev);
+ 	struct iw_statistics*	(*get_wireless_stats)(struct net_device *dev);
+ 
++	/* List of functions to handle Wireless Extensions (instead of ioctl).
++	 * See <net/iw_handler.h> for details. Jean II */
++	struct iw_handler_def *	wireless_handlers;
++
+ 	/*
+ 	 * This marks the end of the "visible" part of the structure. All
+ 	 * fields hereafter are internal to the system, and may change at
+diff -u -p -r --new-file linux/include/linux-w12/wireless.h linux/include/linux/wireless.h
+--- linux/include/linux-w12/wireless.h	Thu Dec 13 13:57:42 2001
++++ linux/include/linux/wireless.h	Wed Dec 12 16:43:11 2001
+@@ -1,9 +1,10 @@
  /*
-- * Perform ioctl for configuration and information.
-- * It is here that the wireless extensions are treated (iwconfig).
-+ * Wireless Handler : get protocol name
+  * This file define a set of standard wireless extensions
+  *
+- * Version :	12	5.10.01
++ * Version :	13	6.12.01
+  *
+  * Authors :	Jean Tourrilhes - HPL - <jt@hpl.hp.com>
++ * Copyright (c) 1997-2001 Jean Tourrilhes, All Rights Reserved.
   */
--static int wavelan_ioctl(struct net_device *dev,	/* device on which the ioctl is applied */
--			 struct ifreq *rq,	/* data passed */
--			 int cmd)
--{				/* ioctl number */
-+static int wavelan_get_name(struct net_device *dev,
-+			    struct iw_request_info *info,
-+			    union iwreq_data *wrqu,
-+			    char *extra)
-+{
-+	strcpy(wrqu->name, "WaveLAN");
-+	return 0;
-+}
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Handler : set NWID
-+ */
-+static int wavelan_set_nwid(struct net_device *dev,
-+			    struct iw_request_info *info,
-+			    union iwreq_data *wrqu,
-+			    char *extra)
-+{
- 	unsigned long ioaddr = dev->base_addr;
- 	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
--	struct iwreq *wrq = (struct iwreq *) rq;
- 	psa_t psa;
- 	mm_t m;
- 	unsigned long flags;
- 	int ret = 0;
--	int err = 0;
  
--#ifdef DEBUG_IOCTL_TRACE
--	printk(KERN_DEBUG "%s: ->wavelan_ioctl(cmd=0x%X)\n", dev->name,
--	       cmd);
--#endif
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+	
-+	/* Set NWID in WaveLAN. */
-+	if (!wrqu->nwid.disabled) {
-+		/* Set NWID in psa */
-+		psa.psa_nwid[0] = (wrqu->nwid.value & 0xFF00) >> 8;
-+		psa.psa_nwid[1] = wrqu->nwid.value & 0xFF;
-+		psa.psa_nwid_select = 0x01;
-+		psa_write(ioaddr, lp->hacr,
-+			  (char *) psa.psa_nwid - (char *) &psa,
-+			  (unsigned char *) psa.psa_nwid, 3);
-+
-+		/* Set NWID in mmc. */
-+		m.w.mmw_netw_id_l = psa.psa_nwid[1];
-+		m.w.mmw_netw_id_h = psa.psa_nwid[0];
-+		mmc_write(ioaddr,
-+			  (char *) &m.w.mmw_netw_id_l -
-+			  (char *) &m,
-+			  (unsigned char *) &m.w.mmw_netw_id_l, 2);
-+		mmc_out(ioaddr, mmwoff(0, mmw_loopt_sel), 0x00);
-+	} else {
-+		/* Disable NWID in the psa. */
-+		psa.psa_nwid_select = 0x00;
-+		psa_write(ioaddr, lp->hacr,
-+			  (char *) &psa.psa_nwid_select -
-+			  (char *) &psa,
-+			  (unsigned char *) &psa.psa_nwid_select,
-+			  1);
-+
-+		/* Disable NWID in the mmc (no filtering). */
-+		mmc_out(ioaddr, mmwoff(0, mmw_loopt_sel),
-+			MMW_LOOPT_SEL_DIS_NWID);
-+	}
-+	/* update the Wavelan checksum */
-+	update_psa_checksum(dev, ioaddr, lp->hacr);
-+
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
-+
-+	return ret;
-+}
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Handler : get NWID 
-+ */
-+static int wavelan_get_nwid(struct net_device *dev,
-+			    struct iw_request_info *info,
-+			    union iwreq_data *wrqu,
-+			    char *extra)
-+{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	psa_t psa;
-+	unsigned long flags;
-+	int ret = 0;
+ #ifndef _LINUX_WIRELESS_H
+@@ -11,6 +12,8 @@
  
- 	/* Disable interrupts and save flags. */
- 	wv_splhi(lp, &flags);
- 	
--	/* Look what is the request */
--	switch (cmd) {
--		/* --------------- WIRELESS EXTENSIONS --------------- */
+ /************************** DOCUMENTATION **************************/
+ /*
++ * Initial APIs (1996 -> onward) :
++ * -----------------------------
+  * Basically, the wireless extensions are for now a set of standard ioctl
+  * call + /proc/net/wireless
+  *
+@@ -27,16 +30,27 @@
+  * We have the list of command plus a structure descibing the
+  * data exchanged...
+  * Note that to add these ioctl, I was obliged to modify :
+- *	net/core/dev.c (two place + add include)
+- *	net/ipv4/af_inet.c (one place + add include)
++ *	# net/core/dev.c (two place + add include)
++ *	# net/ipv4/af_inet.c (one place + add include)
+  *
+  * /proc/net/wireless is a copy of /proc/net/dev.
+  * We have a structure for data passed from the driver to /proc/net/wireless
+  * Too add this, I've modified :
+- *	net/core/dev.c (two other places)
+- *	include/linux/netdevice.h (one place)
+- *	include/linux/proc_fs.h (one place)
++ *	# net/core/dev.c (two other places)
++ *	# include/linux/netdevice.h (one place)
++ *	# include/linux/proc_fs.h (one place)
++ *
++ * New driver API (2001 -> onward) :
++ * -------------------------------
++ * This file is only concerned with the user space API and common definitions.
++ * The new driver API is defined and documented in :
++ *	# include/net/iw_handler.h
+  *
++ * Note as well that /proc/net/wireless implementation has now moved in :
++ *	# include/linux/wireless.c
++ *
++ * Other comments :
++ * --------------
+  * Do not add here things that are redundant with other mechanisms
+  * (drivers init, ifconfig, /proc/net/dev, ...) and with are not
+  * wireless specific.
+@@ -54,16 +68,14 @@
+ #include <linux/socket.h>		/* for "struct sockaddr" et al	*/
+ #include <linux/if.h>			/* for IFNAMSIZ and co... */
+ 
+-/**************************** CONSTANTS ****************************/
 -
--	case SIOCGIWNAME:
--		strcpy(wrq->u.name, "WaveLAN");
--		break;
+-/* --------------------------- VERSION --------------------------- */
++/***************************** VERSION *****************************/
+ /*
+  * This constant is used to know the availability of the wireless
+  * extensions and to know which version of wireless extensions it is
+  * (there is some stuff that will be added in the future...)
+  * I just plan to increment with each new version.
+  */
+-#define WIRELESS_EXT	12
++#define WIRELESS_EXT	13
+ 
+ /*
+  * Changes :
+@@ -123,12 +135,20 @@
+  *	- Add DEV PRIVATE IOCTL to avoid collisions in SIOCDEVPRIVATE space
+  *	- Add new statistics (frag, retry, beacon)
+  *	- Add average quality (for user space calibration)
++ *
++ * V12 to V13
++ * ----------
++ *	- Document creation of new driver API.
++ *	- Extract union iwreq_data from struct iwreq (for new driver API).
++ *	- Rename SIOCSIWNAME as SIOCSIWCOMMIT
+  */
+ 
++/**************************** CONSTANTS ****************************/
++
+ /* -------------------------- IOCTL LIST -------------------------- */
+ 
+ /* Basic operations */
+-#define SIOCSIWNAME	0x8B00		/* Unused */
++#define SIOCSIWCOMMIT	0x8B00		/* (internal) commit to driver */
+ #define SIOCGIWNAME	0x8B01		/* get name == wireless protocol */
+ #define SIOCSIWNWID	0x8B02		/* set network id (the cell) */
+ #define SIOCGIWNWID	0x8B03		/* get network id */
+@@ -414,13 +434,49 @@ struct	iw_statistics
+ 
+ /* ------------------------ IOCTL REQUEST ------------------------ */
+ /*
++ * This structure defines the payload of an ioctl, and is used 
++ * below.
++ *
++ * Note that this structure should fit on the memory footprint
++ * of iwreq (which is the same as ifreq), which mean a max size of
++ * 16 octets = 128 bits. Warning, pointers might be 64 bits wide...
++ * You should check this when increasing the structures defined
++ * above in this file...
++ */
++union	iwreq_data
++{
++	/* Config - generic */
++	char		name[IFNAMSIZ];
++	/* Name : used to verify the presence of  wireless extensions.
++	 * Name of the protocol/provider... */
++
++	struct iw_point	essid;		/* Extended network name */
++	struct iw_param	nwid;		/* network id (or domain - the cell) */
++	struct iw_freq	freq;		/* frequency or channel :
++					 * 0-1000 = channel
++					 * > 1000 = frequency in Hz */
++
++	struct iw_param	sens;		/* signal level threshold */
++	struct iw_param	bitrate;	/* default bit rate */
++	struct iw_param	txpower;	/* default transmit power */
++	struct iw_param	rts;		/* RTS threshold threshold */
++	struct iw_param	frag;		/* Fragmentation threshold */
++	__u32		mode;		/* Operation mode */
++	struct iw_param	retry;		/* Retry limits & lifetime */
++
++	struct iw_point	encoding;	/* Encoding stuff : tokens */
++	struct iw_param	power;		/* PM duration/timeout */
++
++	struct sockaddr	ap_addr;	/* Access point address */
++
++	struct iw_point	data;		/* Other large parameters */
++};
++
++/*
+  * The structure to exchange data for ioctl.
+  * This structure is the same as 'struct ifreq', but (re)defined for
+  * convenience...
+- *
+- * Note that it should fit on the same memory footprint !
+- * You should check this when increasing the above structures (16 octets)
+- * 16 octets = 128 bits. Warning, pointers might be 64 bits wide...
++ * Do I need to remind you about structure size (32 octets) ?
+  */
+ struct	iwreq 
+ {
+@@ -429,35 +485,8 @@ struct	iwreq 
+ 		char	ifrn_name[IFNAMSIZ];	/* if name, e.g. "eth0" */
+ 	} ifr_ifrn;
+ 
+-	/* Data part */
+-	union
+-	{
+-		/* Config - generic */
+-		char		name[IFNAMSIZ];
+-		/* Name : used to verify the presence of  wireless extensions.
+-		 * Name of the protocol/provider... */
 -
--	case SIOCSIWNWID:
--		/* Set NWID in WaveLAN. */
--		if (!wrq->u.nwid.disabled) {
--			/* Set NWID in psa */
--			psa.psa_nwid[0] =
--			    (wrq->u.nwid.value & 0xFF00) >> 8;
--			psa.psa_nwid[1] = wrq->u.nwid.value & 0xFF;
--			psa.psa_nwid_select = 0x01;
--			psa_write(ioaddr, lp->hacr,
--				  (char *) psa.psa_nwid - (char *) &psa,
--				  (unsigned char *) psa.psa_nwid, 3);
-+	/* Read the NWID. */
-+	psa_read(ioaddr, lp->hacr,
-+		 (char *) psa.psa_nwid - (char *) &psa,
-+		 (unsigned char *) psa.psa_nwid, 3);
-+	wrqu->nwid.value = (psa.psa_nwid[0] << 8) + psa.psa_nwid[1];
-+	wrqu->nwid.disabled = !(psa.psa_nwid_select);
-+	wrqu->nwid.fixed = 1;	/* Superfluous */
+-		struct iw_point	essid;	/* Extended network name */
+-		struct iw_param	nwid;	/* network id (or domain - the cell) */
+-		struct iw_freq	freq;	/* frequency or channel :
+-					 * 0-1000 = channel
+-					 * > 1000 = frequency in Hz */
+-
+-		struct iw_param	sens;		/* signal level threshold */
+-		struct iw_param	bitrate;	/* default bit rate */
+-		struct iw_param	txpower;	/* default transmit power */
+-		struct iw_param	rts;		/* RTS threshold threshold */
+-		struct iw_param	frag;		/* Fragmentation threshold */
+-		__u32		mode;		/* Operation mode */
+-		struct iw_param	retry;		/* Retry limits & lifetime */
+-
+-		struct iw_point	encoding;	/* Encoding stuff : tokens */
+-		struct iw_param	power;		/* PM duration/timeout */
+-
+-		struct sockaddr	ap_addr;	/* Access point address */
+-
+-		struct iw_point	data;		/* Other large parameters */
+-	}	u;
++	/* Data part (defined just above) */
++	union	iwreq_data	u;
+ };
  
--			/* Set NWID in mmc. */
--			m.w.mmw_netw_id_l = psa.psa_nwid[1];
--			m.w.mmw_netw_id_h = psa.psa_nwid[0];
--			mmc_write(ioaddr,
--				  (char *) &m.w.mmw_netw_id_l -
--				  (char *) &m,
--				  (unsigned char *) &m.w.mmw_netw_id_l, 2);
--			mmc_out(ioaddr, mmwoff(0, mmw_loopt_sel), 0x00);
--		} else {
--			/* Disable NWID in the psa. */
--			psa.psa_nwid_select = 0x00;
--			psa_write(ioaddr, lp->hacr,
--				  (char *) &psa.psa_nwid_select -
--				  (char *) &psa,
--				  (unsigned char *) &psa.psa_nwid_select,
--				  1);
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
+ /* -------------------------- IOCTL DATA -------------------------- */
+diff -u -p -r --new-file linux/include/net-w12/iw_handler.h linux/include/net/iw_handler.h
+--- linux/include/net-w12/iw_handler.h	Wed Dec 31 16:00:00 1969
++++ linux/include/net/iw_handler.h	Thu Dec 13 10:53:56 2001
+@@ -0,0 +1,241 @@
++/*
++ * This file define the new driver API for Wireless Extensions
++ *
++ * Version :	2	6.12.01
++ *
++ * Authors :	Jean Tourrilhes - HPL - <jt@hpl.hp.com>
++ * Copyright (c) 2001 Jean Tourrilhes, All Rights Reserved.
++ */
++
++#ifndef _IW_HANDLER_H
++#define _IW_HANDLER_H
++
++/************************** DOCUMENTATION **************************/
++/*
++ * Initial driver API (1996 -> onward) :
++ * -----------------------------------
++ * The initial API just sends the IOCTL request received from user space
++ * to the driver (via the driver ioctl handler). The driver has to
++ * handle all the rest...
++ *
++ * The initial API also defines a specific handler in struct net_device
++ * to handle wireless statistics.
++ *
++ * The initial APIs served us well and has proven a reasonably good design.
++ * However, there is a few shortcommings :
++ *	o No events, everything is a request to the driver.
++ *	o Large ioctl function in driver with gigantic switch statement
++ *	  (i.e. spaghetti code).
++ *	o Driver has to mess up with copy_to/from_user.
++ *	o The user space interface is tied to ioctl because of the use
++ *	  copy_to/from_user.
++ *
++ * New driver API (2001 -> onward) :
++ * -------------------------------
++ * The new driver API is just a bunch of standard functions (handlers),
++ * each handling a specific Wireless Extension. The driver just export
++ * the list of handler it supports, and those will be called apropriately.
++ *
++ * I tried to keep the main advantage of the previous API (simplicity,
++ * efficiency and light weight), and also I provide a good dose of backward
++ * compatibility (most structures are the same, driver can use both API
++ * simultaneously, ...).
++ * Hopefully, I've also addressed the shortcomming of the initial API.
++ *
++ * The advantage of the new API are :
++ *	o Handling of Extensions in driver broken in small contained functions
++ *	o Tighter checks of ioctl before calling the driver
++ *	o Flexible commit strategy (at least, the start of it)
++ *	o Backward compatibility (can be mixed with old API)
++ *	o Driver doesn't have to worry about memory and user-space issues
++ * The last point is important. You are now able to call the new API from
++ * any API you want (including from within other parts of the kernel).
++ *
++ * The new driver API is defined below in this file. User space should
++ * not be aware of what's happening down there...
++ *
++ * A new kernel wrapper is in charge of validating the IOCTLs and calling
++ * the appropriate driver handler. This is implemented in :
++ *	# net/core/wireless.c
++ *
++ * The driver export the list of handlers in :
++ *	# include/linux/netdevice.h (one place)
++ *
++ * The new driver API is available for WIRELESS_EXT >= 13.
++ * Good luck with migration to the new API ;-)
++ */
++
++/***************************** INCLUDES *****************************/
++
++#include <linux/wireless.h>		/* IOCTL user space API */
++
++/***************************** VERSION *****************************/
++/*
++ * This constant is used to know which version of the driver API is
++ * available. Hopefully, this will be pretty stable and no changes
++ * will be needed...
++ * I just plan to increment with each new version.
++ */
++#define IW_HANDLER_VERSION	2
++
++/**************************** CONSTANTS ****************************/
++
++/* Special error message for the driver to indicate that we
++ * should do a commit */
++#define EIWCOMMIT	EINPROGRESS
++
++/* Flags available in struct iw_request_info */
++#define IW_REQUEST_FLAG_NONE	0x0000	/* No flag so far */
++
++/* Type of headers we know about (basically union iwreq_data) */
++#define IW_HEADER_TYPE_NULL	0	/* Not available */
++#define IW_HEADER_TYPE_CHAR	2	/* char [IFNAMSIZ] */
++#define IW_HEADER_TYPE_UINT	4	/* __u32 */
++#define IW_HEADER_TYPE_FREQ	5	/* struct iw_freq */
++#define IW_HEADER_TYPE_POINT	6	/* struct iw_point */
++#define IW_HEADER_TYPE_PARAM	7	/* struct iw_param */
++#define IW_HEADER_TYPE_ADDR	8	/* struct sockaddr */
++
++/* Handling flags */
++/* Most are not implemented. I just use them as a reminder of some
++ * cool features we might need one day ;-) */
++#define IW_DESCR_FLAG_NONE	0x0000	/* Obvious */
++/* Wrapper level flags */
++#define IW_DESCR_FLAG_DUMP	0x0001	/* Not part of the dump command */
++#define IW_DESCR_FLAG_EVENT	0x0002	/* Generate an event on SET */
++#define IW_DESCR_FLAG_RESTRICT	0x0004	/* GET request is ROOT only */
++/* Driver level flags */
++#define IW_DESCR_FLAG_WAIT	0x0100	/* Wait for driver event */
++
++/****************************** TYPES ******************************/
++
++/* ----------------------- WIRELESS HANDLER ----------------------- */
++/*
++ * A wireless handler is just a standard function, that looks like the
++ * ioctl handler.
++ * We also define there how a handler list look like... As the Wireless
++ * Extension space is quite dense, we use a simple array, which is faster
++ * (that's the perfect hash table ;-).
++ */
++
++/*
++ * Meta data about the request passed to the iw_handler.
++ * Most handlers can safely ignore what's in there.
++ * The 'cmd' field might come handy if you want to use the same handler
++ * for multiple command...
++ * This struct is also my long term insurance. I can add new fields here
++ * without breaking the prototype of iw_handler...
++ */
++struct iw_request_info
++{
++	__u16		cmd;		/* Wireless Extension command */
++	__u16		flags;		/* More to come ;-) */
++};
++
++/*
++ * This is how a function handling a Wireless Extension should look
++ * like (both get and set, standard and private).
++ */
++typedef int (*iw_handler)(struct net_device *dev, struct iw_request_info *info,
++			  union iwreq_data *wrqu, char *extra);
++
++/*
++ * This define all the handler that the driver export.
++ * As you need only one per driver type, please use a static const
++ * shared by all driver instances... Same for the members...
++ * This will be linked from net_device in <linux/netdevice.h>
++ */
++struct iw_handler_def
++{
++	/* Number of handlers defined (more precisely, index of the
++	 * last defined handler + 1) */
++	__u16			num_standard;
++	__u16			num_private;
++	/* Number of private arg description */
++	__u16			num_private_args;
++
++	/* Array of handlers for standard ioctls
++	 * We will call dev->wireless_handlers->standard[ioctl - SIOCSIWNAME]
++	 */
++	iw_handler *		standard;
++
++	/* Array of handlers for private ioctls
++	 * Will call dev->wireless_handlers->private[ioctl - SIOCIWFIRSTPRIV]
++	 */
++	iw_handler *		private;
++
++	/* Arguments of private handler. This one is just a list, so you
++	 * can put it in any order you want and should not leave holes...
++	 * We will automatically export that to user space... */
++	struct iw_priv_args *	private_args;
++};
++
++/* ----------------------- WIRELESS EVENTS ----------------------- */
++/*
++ * Currently we don't support events, so let's just plan for the
++ * future...
++ */
++
++/*
++ * A Wireless Event.
++ */
++// How do we define short header ? We don't want a flag on length.
++// Probably a flag on event ? Highest bit to zero...
++struct iw_event
++{
++	__u16		length;			/* Lenght of this stuff */
++	__u16		event;			/* Wireless IOCTL */
++	union	iwreq_data	header;		/* IOCTL fixed payload */
++	char		extra[0];		/* Optional IOCTL data */
++};
++
++/* ---------------------- IOCTL DESCRIPTION ---------------------- */
++/*
++ * One of the main goal of the new interface is to deal entirely with
++ * user space/kernel space memory move.
++ * For that, we need to know :
++ *	o if iwreq is a pointer or contain the full data
++ *	o what is the size of the data to copy
++ *
++ * For private IOCTLs, we use the same rules as used by iwpriv and
++ * defined in struct iw_priv_args.
++ *
++ * For standard IOCTLs, things are quite different and we need to
++ * use the stuctures below. Actually, this struct is also more
++ * efficient, but that's another story...
++ */
++
++/*
++ * Describe how a standard IOCTL looks like.
++ */
++struct iw_ioctl_description
++{
++	__u8	header_type;		/* NULL, iw_point or other */
++	__u8	token_type;		/* Future */
++	__u16	token_size;		/* Granularity of payload */
++	__u16	min_tokens;		/* Min acceptable token number */
++	__u16	max_tokens;		/* Max acceptable token number */
++	__u32	flags;			/* Special handling of the request */
++};
++
++/* Need to think of short header translation table. Later. */
++
++/**************************** PROTOTYPES ****************************/
++/*
++ * Functions part of the Wireless Extensions (defined in net/core/wireless.c).
++ * Those may be called only within the kernel.
++ */
++
++/* First : function strictly used inside the kernel */
++
++/* Handle /proc/net/wireless, called in net/code/dev.c */
++extern int dev_get_wireless_info(char * buffer, char **start, off_t offset,
++				 int length);
++
++/* Handle IOCTLs, called in net/code/dev.c */
++extern int wireless_process_ioctl(struct ifreq *ifr, unsigned int cmd);
++
++/* Second : functions that may be called by driver modules */
++/* None yet */
++
++#endif	/* _LINUX_WIRELESS_H */
+diff -u -p -r --new-file linux/net/core-w12/Makefile linux/net/core/Makefile
+--- linux/net/core-w12/Makefile	Fri Dec  7 10:44:38 2001
++++ linux/net/core/Makefile	Thu Dec 13 14:11:48 2001
+@@ -26,5 +26,8 @@ obj-$(CONFIG_NET) += dev.o dev_mcast.o d
+ obj-$(CONFIG_NETFILTER) += netfilter.o
+ obj-$(CONFIG_NET_DIVERT) += dv.o
+ obj-$(CONFIG_NET_PROFILE) += profile.o
++obj-$(CONFIG_NET_RADIO) += wireless.o
++# Ugly. I wish all wireless drivers were moved in drivers/net/wireless
++obj-$(CONFIG_NET_PCMCIA_RADIO) += wireless.o
  
--			/* Disable NWID in the mmc (no filtering). */
--			mmc_out(ioaddr, mmwoff(0, mmw_loopt_sel),
--				MMW_LOOPT_SEL_DIS_NWID);
+ include $(TOPDIR)/Rules.make
+diff -u -p -r --new-file linux/net/core-w12/dev.c linux/net/core/dev.c
+--- linux/net/core-w12/dev.c	Thu Dec  6 19:02:21 2001
++++ linux/net/core/dev.c	Thu Dec 13 14:05:19 2001
+@@ -102,6 +102,7 @@
+ #include <linux/module.h>
+ #if defined(CONFIG_NET_RADIO) || defined(CONFIG_NET_PCMCIA_RADIO)
+ #include <linux/wireless.h>		/* Note : will define WIRELESS_EXT */
++#include <net/iw_handler.h>
+ #endif	/* CONFIG_NET_RADIO || CONFIG_NET_PCMCIA_RADIO */
+ #ifdef CONFIG_PLIP
+ extern int plip_init(void);
+@@ -1796,122 +1797,6 @@ static int dev_proc_stats(char *buffer, 
+ #endif	/* CONFIG_PROC_FS */
+ 
+ 
+-#ifdef WIRELESS_EXT
+-#ifdef CONFIG_PROC_FS
+-
+-/*
+- * Print one entry of /proc/net/wireless
+- * This is a clone of /proc/net/dev (just above)
+- */
+-static int sprintf_wireless_stats(char *buffer, struct net_device *dev)
+-{
+-	/* Get stats from the driver */
+-	struct iw_statistics *stats = (dev->get_wireless_stats ?
+-				       dev->get_wireless_stats(dev) :
+-				       (struct iw_statistics *) NULL);
+-	int size;
+-
+-	if (stats != (struct iw_statistics *) NULL) {
+-		size = sprintf(buffer,
+-			       "%6s: %04x  %3d%c  %3d%c  %3d%c  %6d %6d %6d %6d %6d   %6d\n",
+-			       dev->name,
+-			       stats->status,
+-			       stats->qual.qual,
+-			       stats->qual.updated & 1 ? '.' : ' ',
+-			       stats->qual.level,
+-			       stats->qual.updated & 2 ? '.' : ' ',
+-			       stats->qual.noise,
+-			       stats->qual.updated & 4 ? '.' : ' ',
+-			       stats->discard.nwid,
+-			       stats->discard.code,
+-			       stats->discard.fragment,
+-			       stats->discard.retries,
+-			       stats->discard.misc,
+-			       stats->miss.beacon);
+-		stats->qual.updated = 0;
+-	}
+-	else
+-		size = 0;
+-
+-	return size;
+-}
+-
+-/*
+- * Print info for /proc/net/wireless (print all entries)
+- * This is a clone of /proc/net/dev (just above)
+- */
+-static int dev_get_wireless_info(char * buffer, char **start, off_t offset,
+-			  int length)
+-{
+-	int		len = 0;
+-	off_t		begin = 0;
+-	off_t		pos = 0;
+-	int		size;
+-	
+-	struct net_device *	dev;
+-
+-	size = sprintf(buffer,
+-		       "Inter-| sta-|   Quality        |   Discarded packets               | Missed\n"
+-		       " face | tus | link level noise |  nwid  crypt   frag  retry   misc | beacon\n"
+-			);
+-	
+-	pos += size;
+-	len += size;
+-
+-	read_lock(&dev_base_lock);
+-	for (dev = dev_base; dev != NULL; dev = dev->next) {
+-		size = sprintf_wireless_stats(buffer + len, dev);
+-		len += size;
+-		pos = begin + len;
+-
+-		if (pos < offset) {
+-			len = 0;
+-			begin = pos;
 -		}
--		/* update the Wavelan checksum */
--		update_psa_checksum(dev, ioaddr, lp->hacr);
--		break;
-+	return ret;
-+}
- 
--	case SIOCGIWNWID:
--		/* Read the NWID. */
--		psa_read(ioaddr, lp->hacr,
--			 (char *) psa.psa_nwid - (char *) &psa,
--			 (unsigned char *) psa.psa_nwid, 3);
--		wrq->u.nwid.value =
--		    (psa.psa_nwid[0] << 8) + psa.psa_nwid[1];
--		wrq->u.nwid.disabled = !(psa.psa_nwid_select);
--		wrq->u.nwid.fixed = 1;	/* Superfluous */
--		break;
--
--	case SIOCSIWFREQ:
--		/* Attempt to recognise 2.00 cards (2.4 GHz frequency selectable). */
--		if (!(mmc_in(ioaddr, mmroff(0, mmr_fee_status)) &
--		      (MMR_FEE_STATUS_DWLD | MMR_FEE_STATUS_BUSY)))
--			ret = wv_set_frequency(ioaddr, &(wrq->u.freq));
--		else
--			ret = -EOPNOTSUPP;
--		break;
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Handler : set frequency
-+ */
-+static int wavelan_set_freq(struct net_device *dev,
-+			    struct iw_request_info *info,
-+			    union iwreq_data *wrqu,
-+			    char *extra)
-+{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	unsigned long flags;
-+	int ret;
- 
--	case SIOCGIWFREQ:
--		/* Attempt to recognise 2.00 cards (2.4 GHz frequency selectable).
--		 * Does it work for everybody, especially old cards? */
--		if (!(mmc_in(ioaddr, mmroff(0, mmr_fee_status)) &
--		      (MMR_FEE_STATUS_DWLD | MMR_FEE_STATUS_BUSY))) {
--			unsigned short freq;
--
--			/* Ask the EEPROM to read the frequency from the first area. */
--			fee_read(ioaddr, 0x00, &freq, 1);
--			wrq->u.freq.m = ((freq >> 5) * 5 + 24000L) * 10000;
--			wrq->u.freq.e = 1;
--		} else {
--			psa_read(ioaddr, lp->hacr,
--				 (char *) &psa.psa_subband - (char *) &psa,
--				 (unsigned char *) &psa.psa_subband, 1);
--
--			if (psa.psa_subband <= 4) {
--				wrq->u.freq.m =
--				    fixed_bands[psa.psa_subband];
--				wrq->u.freq.e = (psa.psa_subband != 0);
--			} else
--				ret = -EOPNOTSUPP;
--		}
--		break;
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+	
-+	/* Attempt to recognise 2.00 cards (2.4 GHz frequency selectable). */
-+	if (!(mmc_in(ioaddr, mmroff(0, mmr_fee_status)) &
-+	      (MMR_FEE_STATUS_DWLD | MMR_FEE_STATUS_BUSY)))
-+		ret = wv_set_frequency(ioaddr, &(wrqu->freq));
-+	else
-+		ret = -EOPNOTSUPP;
- 
--	case SIOCSIWSENS:
--		/* Set the level threshold. */
--		/* We should complain loudly if wrq->u.sens.fixed = 0, because we
--		 * can't set auto mode... */
--		psa.psa_thr_pre_set = wrq->u.sens.value & 0x3F;
--		psa_write(ioaddr, lp->hacr,
--			  (char *) &psa.psa_thr_pre_set - (char *) &psa,
--			  (unsigned char *) &psa.psa_thr_pre_set, 1);
--		/* update the Wavelan checksum */
--		update_psa_checksum(dev, ioaddr, lp->hacr);
--		mmc_out(ioaddr, mmwoff(0, mmw_thr_pre_set),
--			psa.psa_thr_pre_set);
--		break;
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
- 
--	case SIOCGIWSENS:
--		/* Read the level threshold. */
-+	return ret;
-+}
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Handler : get frequency
-+ */
-+static int wavelan_get_freq(struct net_device *dev,
-+			    struct iw_request_info *info,
-+			    union iwreq_data *wrqu,
-+			    char *extra)
-+{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	psa_t psa;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+	
-+	/* Attempt to recognise 2.00 cards (2.4 GHz frequency selectable).
-+	 * Does it work for everybody, especially old cards? */
-+	if (!(mmc_in(ioaddr, mmroff(0, mmr_fee_status)) &
-+	      (MMR_FEE_STATUS_DWLD | MMR_FEE_STATUS_BUSY))) {
-+		unsigned short freq;
-+
-+		/* Ask the EEPROM to read the frequency from the first area. */
-+		fee_read(ioaddr, 0x00, &freq, 1);
-+		wrqu->freq.m = ((freq >> 5) * 5 + 24000L) * 10000;
-+		wrqu->freq.e = 1;
-+	} else {
- 		psa_read(ioaddr, lp->hacr,
--			 (char *) &psa.psa_thr_pre_set - (char *) &psa,
--			 (unsigned char *) &psa.psa_thr_pre_set, 1);
--		wrq->u.sens.value = psa.psa_thr_pre_set & 0x3F;
--		wrq->u.sens.fixed = 1;
--		break;
--
--	case SIOCSIWENCODE:
--		/* Set encryption key */
--		if (!mmc_encr(ioaddr)) {
-+			 (char *) &psa.psa_subband - (char *) &psa,
-+			 (unsigned char *) &psa.psa_subband, 1);
-+
-+		if (psa.psa_subband <= 4) {
-+			wrqu->freq.m = fixed_bands[psa.psa_subband];
-+			wrqu->freq.e = (psa.psa_subband != 0);
-+		} else
- 			ret = -EOPNOTSUPP;
+-		if (pos > offset + length)
 -			break;
--		}
-+	}
+-	}
+-	read_unlock(&dev_base_lock);
+-
+-	*start = buffer + (offset - begin);	/* Start of wanted data */
+-	len -= (offset - begin);		/* Start slop */
+-	if (len > length)
+-		len = length;			/* Ending slop */
+-	if (len < 0)
+-		len = 0;
+-
+-	return len;
+-}
+-#endif	/* CONFIG_PROC_FS */
+-
+-/*
+- *	Allow programatic access to /proc/net/wireless even if /proc
+- *	doesn't exist... Also more efficient...
+- */
+-static inline int dev_iwstats(struct net_device *dev, struct ifreq *ifr)
+-{
+-	/* Get stats from the driver */
+-	struct iw_statistics *stats = (dev->get_wireless_stats ?
+-				       dev->get_wireless_stats(dev) :
+-				       (struct iw_statistics *) NULL);
+-
+-	if (stats != (struct iw_statistics *) NULL) {
+-		struct iwreq *	wrq = (struct iwreq *)ifr;
+-
+-		/* Copy statistics to the user buffer */
+-		if(copy_to_user(wrq->u.data.pointer, stats,
+-				sizeof(struct iw_statistics)))
+-			return -EFAULT;
+-
+-		/* Check if we need to clear the update flag */
+-		if(wrq->u.data.flags != 0)
+-			stats->qual.updated = 0;
+-		return(0);
+-	} else
+-		return -EOPNOTSUPP;
+-}
+-#endif	/* WIRELESS_EXT */
+-
+ /**
+  *	netdev_set_master	-	set up master/slave pair
+  *	@slave: slave device
+@@ -2209,11 +2094,6 @@ static int dev_ifsioc(struct ifreq *ifr,
+ 			notifier_call_chain(&netdev_chain, NETDEV_CHANGENAME, dev);
+ 			return 0;
  
--		/* Basic checking... */
--		if (wrq->u.encoding.pointer != (caddr_t) 0) {
--			/* Check the size of the key */
--			if (wrq->u.encoding.length != 8) {
--				ret = -EINVAL;
--				break;
--			}
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
+-#ifdef WIRELESS_EXT
+-		case SIOCGIWSTATS:
+-			return dev_iwstats(dev, ifr);
+-#endif	/* WIRELESS_EXT */
+-
+ 		/*
+ 		 *	Unknown or private ioctl
+ 		 */
+@@ -2239,17 +2119,6 @@ static int dev_ifsioc(struct ifreq *ifr,
+ 				return -EOPNOTSUPP;
+ 			}
  
--			/* Copy the key in the driver */
--			wv_splx(lp, &flags);
--			err = copy_from_user(psa.psa_encryption_key,
--					     wrq->u.encoding.pointer,
--					     wrq->u.encoding.length);
--			wv_splhi(lp, &flags);
--			if (err) {
--				ret = -EFAULT;
--				break;
+-#ifdef WIRELESS_EXT
+-			if (cmd >= SIOCIWFIRST && cmd <= SIOCIWLAST) {
+-				if (dev->do_ioctl) {
+-					if (!netif_device_present(dev))
+-						return -ENODEV;
+-					return dev->do_ioctl(dev, ifr, cmd);
+-				}
+-				return -EOPNOTSUPP;
 -			}
-+	return ret;
+-#endif	/* WIRELESS_EXT */
+-
+ 	}
+ 	return -EINVAL;
+ }
+@@ -2431,7 +2300,8 @@ int dev_ioctl(unsigned int cmd, void *ar
+ 				}
+ 				dev_load(ifr.ifr_name);
+ 				rtnl_lock();
+-				ret = dev_ifsioc(&ifr, cmd);
++				/* Follow me in net/core/wireless.c */
++				ret = wireless_process_ioctl(&ifr, cmd);
+ 				rtnl_unlock();
+ 				if (!ret && IW_IS_GET(cmd) &&
+ 				    copy_to_user(arg, &ifr, sizeof(struct ifreq)))
+@@ -2856,6 +2726,7 @@ int __init net_dev_init(void)
+ 	proc_net_create("dev", 0, dev_get_info);
+ 	create_proc_read_entry("net/softnet_stat", 0, 0, dev_proc_stats, NULL);
+ #ifdef WIRELESS_EXT
++	/* Available in net/core/wireless.c */
+ 	proc_net_create("wireless", 0, dev_get_wireless_info);
+ #endif	/* WIRELESS_EXT */
+ #endif	/* CONFIG_PROC_FS */
+diff -u -p -r --new-file linux/net/core-w12/wireless.c linux/net/core/wireless.c
+--- linux/net/core-w12/wireless.c	Wed Dec 31 16:00:00 1969
++++ linux/net/core/wireless.c	Thu Dec 13 14:25:23 2001
+@@ -0,0 +1,733 @@
++/*
++ * This file implement the Wireless Extensions APIs.
++ *
++ * Authors :	Jean Tourrilhes - HPL - <jt@hpl.hp.com>
++ * Copyright (c) 1997-2001 Jean Tourrilhes, All Rights Reserved.
++ *
++ * (As all part of the Linux kernel, this file is GPL)
++ */
++
++/************************** DOCUMENTATION **************************/
++/*
++ * API definition :
++ * --------------
++ * See <linux/wireless.h> for details of the APIs and the rest.
++ *
++ * History :
++ * -------
++ *
++ * v1 - 5.12.01 - Jean II
++ *	o Created this file.
++ *
++ * v2 - 13.12.01 - Jean II
++ *	o Move /proc/net/wireless stuff from net/core/dev.c to here
++ *	o Make Wireless Extension IOCTLs go through here
++ *	o Added iw_handler handling ;-)
++ *	o Added standard ioctl description
++ *	o Initial dumb commit strategy based on orinoco.c
++ */
++
++/***************************** INCLUDES *****************************/
++
++#include <asm/uaccess.h>		/* copy_to_user() */
++#include <linux/config.h>		/* Not needed ??? */
++#include <linux/types.h>		/* off_t */
++#include <linux/netdevice.h>		/* struct ifreq, dev_get_by_name() */
++
++#include <linux/wireless.h>		/* Pretty obvious */
++#include <net/iw_handler.h>		/* New driver API */
++
++/**************************** CONSTANTS ****************************/
++
++/* This will be turned on later on... */
++#define WE_STRICT_WRITE		/* Check write buffer size */
++
++/* Debuging stuff */
++#undef WE_IOCTL_DEBUG		/* Debug IOCTL API */
++
++/************************* GLOBAL VARIABLES *************************/
++/*
++ * You should not use global variables, because or re-entrancy.
++ * On our case, it's only const, so it's OK...
++ */
++static const struct iw_ioctl_description	standard_ioctl[] = {
++	/* SIOCSIWCOMMIT (internal) */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* SIOCGIWNAME */
++	{ IW_HEADER_TYPE_CHAR, 0, 0, 0, 0, IW_DESCR_FLAG_DUMP},
++	/* SIOCSIWNWID */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, IW_DESCR_FLAG_EVENT},
++	/* SIOCGIWNWID */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, IW_DESCR_FLAG_DUMP},
++	/* SIOCSIWFREQ */
++	{ IW_HEADER_TYPE_FREQ, 0, 0, 0, 0, IW_DESCR_FLAG_EVENT},
++	/* SIOCGIWFREQ */
++	{ IW_HEADER_TYPE_FREQ, 0, 0, 0, 0, IW_DESCR_FLAG_DUMP},
++	/* SIOCSIWMODE */
++	{ IW_HEADER_TYPE_UINT, 0, 0, 0, 0, IW_DESCR_FLAG_EVENT},
++	/* SIOCGIWMODE */
++	{ IW_HEADER_TYPE_UINT, 0, 0, 0, 0, IW_DESCR_FLAG_DUMP},
++	/* SIOCSIWSENS */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCGIWSENS */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCSIWRANGE */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* SIOCGIWRANGE */
++	{ IW_HEADER_TYPE_POINT, 0, 1, 0, sizeof(struct iw_range), IW_DESCR_FLAG_DUMP},
++	/* SIOCSIWPRIV */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* SIOCGIWPRIV (handled directly by us) */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* SIOCSIWSTATS */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* SIOCGIWSTATS (handled directly by us) */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, IW_DESCR_FLAG_DUMP},
++	/* SIOCSIWSPY */
++	{ IW_HEADER_TYPE_POINT, 0, sizeof(struct sockaddr), 0, IW_MAX_SPY, 0},
++	/* SIOCGIWSPY */
++	{ IW_HEADER_TYPE_POINT, 0, (sizeof(struct sockaddr) + sizeof(struct iw_quality)), 0, IW_MAX_SPY, 0},
++	/* -- hole -- */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* -- hole -- */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* SIOCSIWAP */
++	{ IW_HEADER_TYPE_ADDR, 0, 0, 0, 0, 0},
++	/* SIOCGIWAP */
++	{ IW_HEADER_TYPE_ADDR, 0, 0, 0, 0, IW_DESCR_FLAG_DUMP},
++	/* -- hole -- */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* SIOCGIWAPLIST */
++	{ IW_HEADER_TYPE_POINT, 0, (sizeof(struct sockaddr) + sizeof(struct iw_quality)), 0, IW_MAX_AP, 0},
++	/* -- hole -- */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* -- hole -- */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* SIOCSIWESSID */
++	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE, IW_DESCR_FLAG_EVENT},
++	/* SIOCGIWESSID */
++	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE, IW_DESCR_FLAG_DUMP},
++	/* SIOCSIWNICKN */
++	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE, 0},
++	/* SIOCGIWNICKN */
++	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ESSID_MAX_SIZE, 0},
++	/* -- hole -- */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* -- hole -- */
++	{ IW_HEADER_TYPE_NULL, 0, 0, 0, 0, 0},
++	/* SIOCSIWRATE */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCGIWRATE */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCSIWRTS */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCGIWRTS */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCSIWFRAG */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCGIWFRAG */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCSIWTXPOW */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCGIWTXPOW */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCSIWRETRY */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCGIWRETRY */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCSIWENCODE */
++	{ IW_HEADER_TYPE_POINT, 4, 1, 0, IW_ENCODING_TOKEN_MAX, IW_DESCR_FLAG_EVENT | IW_DESCR_FLAG_RESTRICT},
++	/* SIOCGIWENCODE */
++	{ IW_HEADER_TYPE_POINT, 0, 1, 0, IW_ENCODING_TOKEN_MAX, IW_DESCR_FLAG_DUMP | IW_DESCR_FLAG_RESTRICT},
++	/* SIOCSIWPOWER */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++	/* SIOCGIWPOWER */
++	{ IW_HEADER_TYPE_PARAM, 0, 0, 0, 0, 0},
++};
++
++/* Size (in bytes) of the various private data types */
++char priv_type_size[] = { 0, 1, 1, 0, 4, 4, 0, 0 };
++
++/************************ COMMON SUBROUTINES ************************/
++/*
++ * Stuff that may be used in various place or doesn't fit in one
++ * of the section below.
++ */
++
++/* ---------------------------------------------------------------- */
++/*
++ * Return the driver handler associated with a specific Wireless Extension.
++ * Called from various place, so make sure it remains efficient.
++ */
++static inline iw_handler get_handler(struct net_device *dev,
++				     unsigned int cmd)
++{
++	unsigned int	index;		/* MUST be unsigned */
++
++	/* Check if we have some wireless handlers defined */
++	if(dev->wireless_handlers == NULL)
++		return(NULL);
++
++	/* Try as a standard command */
++	index = cmd - SIOCIWFIRST;
++	if(index < dev->wireless_handlers->num_standard)
++		return(dev->wireless_handlers->standard[index]);
++
++	/* Try as a private command */
++	index = cmd - SIOCIWFIRSTPRIV;
++	if(index < dev->wireless_handlers->num_private)
++		return(dev->wireless_handlers->private[index]);
++
++	/* Not found */
++	return(NULL);
 +}
 +
-+/*------------------------------------------------------------------*/
++/* ---------------------------------------------------------------- */
 +/*
-+ * Wireless Handler : set level threshold
++ * Get statistics out of the driver
 + */
-+static int wavelan_set_sens(struct net_device *dev,
-+			    struct iw_request_info *info,
-+			    union iwreq_data *wrqu,
-+			    char *extra)
++static inline struct iw_statistics *get_wireless_stats(struct net_device *dev)
 +{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	psa_t psa;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+	
-+	/* Set the level threshold. */
-+	/* We should complain loudly if wrqu->sens.fixed = 0, because we
-+	 * can't set auto mode... */
-+	psa.psa_thr_pre_set = wrqu->sens.value & 0x3F;
-+	psa_write(ioaddr, lp->hacr,
-+		  (char *) &psa.psa_thr_pre_set - (char *) &psa,
-+		  (unsigned char *) &psa.psa_thr_pre_set, 1);
-+	/* update the Wavelan checksum */
-+	update_psa_checksum(dev, ioaddr, lp->hacr);
-+	mmc_out(ioaddr, mmwoff(0, mmw_thr_pre_set),
-+		psa.psa_thr_pre_set);
-+
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
-+
-+	return ret;
++	return ((dev->get_wireless_stats ?
++		 dev->get_wireless_stats(dev) :
++		 (struct iw_statistics *) NULL));
++	/* In the future, we may want to use the generic handler
++	 * to de-bloat struct net_device.
++	 * Definitely worse a thought... */
 +}
 +
-+/*------------------------------------------------------------------*/
++/* ---------------------------------------------------------------- */
 +/*
-+ * Wireless Handler : get level threshold
++ * Call the commit handler in the driver
++ * (if exist and if conditions are right)
++ *
++ * Note : our current commit strategy is currently pretty dumb,
++ * but we will be able to improve on that...
++ * The goal is to try to agreagate as many changes as possible
++ * before doing the commit. Drivers that will define a commit handler
++ * are usually those that need a reset after changing parameters, so
++ * we want to minimise the number of reset.
++ * A cool idea is to use a timer : at each "set" command, we re-set the
++ * timer, when the timer eventually fires, we call the driver.
++ * Hopefully, more on that later.
++ *
++ * Also, I'm waiting to see how many people will complain about the
++ * netif_running(dev) test. I'm open on that one...
++ * Hopefully, the driver will remember to do a commit in "open()" ;-)
 + */
-+static int wavelan_get_sens(struct net_device *dev,
-+			    struct iw_request_info *info,
-+			    union iwreq_data *wrqu,
-+			    char *extra)
++static inline int call_commit_handler(struct net_device *	dev)
 +{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	psa_t psa;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+	
-+	/* Read the level threshold. */
-+	psa_read(ioaddr, lp->hacr,
-+		 (char *) &psa.psa_thr_pre_set - (char *) &psa,
-+		 (unsigned char *) &psa.psa_thr_pre_set, 1);
-+	wrqu->sens.value = psa.psa_thr_pre_set & 0x3F;
-+	wrqu->sens.fixed = 1;
-+
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
-+
-+	return ret;
-+}
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Handler : set encryption key
-+ */
-+static int wavelan_set_encode(struct net_device *dev,
-+			      struct iw_request_info *info,
-+			      union iwreq_data *wrqu,
-+			      char *extra)
-+{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	unsigned long flags;
-+	psa_t psa;
-+	int ret = 0;
- 
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+
-+	/* Check if capable of encryption */
-+	if (!mmc_encr(ioaddr)) {
-+		ret = -EOPNOTSUPP;
-+	}
-+
-+	/* Check the size of the key */
-+	if((wrqu->encoding.length != 8) && (wrqu->encoding.length != 0)) {
-+		ret = -EINVAL;
-+	}
-+
-+	if(!ret) {
-+		/* Basic checking... */
-+		if (wrqu->encoding.length == 8) {
-+			/* Copy the key in the driver */
-+			memcpy(psa.psa_encryption_key, extra,
-+			       wrqu->encoding.length);
- 			psa.psa_encryption_select = 1;
-+
- 			psa_write(ioaddr, lp->hacr,
- 				  (char *) &psa.psa_encryption_select -
- 				  (char *) &psa,
-@@ -1963,7 +2080,8 @@ static int wavelan_ioctl(struct net_devi
- 				  psa_encryption_key, 8);
- 		}
- 
--		if (wrq->u.encoding.flags & IW_ENCODE_DISABLED) {	/* disable encryption */
-+		/* disable encryption */
-+		if (wrqu->encoding.flags & IW_ENCODE_DISABLED) {
- 			psa.psa_encryption_select = 0;
- 			psa_write(ioaddr, lp->hacr,
- 				  (char *) &psa.psa_encryption_select -
-@@ -1975,350 +2093,430 @@ static int wavelan_ioctl(struct net_devi
- 		}
- 		/* update the Wavelan checksum */
- 		update_psa_checksum(dev, ioaddr, lp->hacr);
--		break;
-+	}
-+
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
- 
--	case SIOCGIWENCODE:
-+	return ret;
-+}
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Handler : get encryption key
-+ */
-+static int wavelan_get_encode(struct net_device *dev,
-+			      struct iw_request_info *info,
-+			      union iwreq_data *wrqu,
-+			      char *extra)
-+{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	psa_t psa;
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+	
-+	/* Check if encryption is available */
-+	if (!mmc_encr(ioaddr)) {
-+		ret = -EOPNOTSUPP;
-+	} else {
- 		/* Read the encryption key */
--		if (!mmc_encr(ioaddr)) {
--			ret = -EOPNOTSUPP;
--			break;
--		}
-+		psa_read(ioaddr, lp->hacr,
-+			 (char *) &psa.psa_encryption_select -
-+			 (char *) &psa,
-+			 (unsigned char *) &psa.
-+			 psa_encryption_select, 1 + 8);
-+
-+		/* encryption is enabled ? */
-+		if (psa.psa_encryption_select)
-+			wrqu->encoding.flags = IW_ENCODE_ENABLED;
-+		else
-+			wrqu->encoding.flags = IW_ENCODE_DISABLED;
-+		wrqu->encoding.flags |= mmc_encr(ioaddr);
- 
--		/* only super-user can see encryption key */
--		if (!capable(CAP_NET_ADMIN)) {
--			ret = -EPERM;
--			break;
--		}
-+		/* Copy the key to the user buffer */
-+		wrqu->encoding.length = 8;
-+		memcpy(extra, psa.psa_encryption_key, wrqu->encoding.length);
-+	}
- 
--		/* Basic checking... */
--		if (wrq->u.encoding.pointer != (caddr_t) 0) {
--			/* Verify the user buffer */
--			ret =
--			    verify_area(VERIFY_WRITE,
--					wrq->u.encoding.pointer, 8);
--			if (ret)
--				break;
--
--			psa_read(ioaddr, lp->hacr,
--				 (char *) &psa.psa_encryption_select -
--				 (char *) &psa,
--				 (unsigned char *) &psa.
--				 psa_encryption_select, 1 + 8);
--
--			/* encryption is enabled ? */
--			if (psa.psa_encryption_select)
--				wrq->u.encoding.flags = IW_ENCODE_ENABLED;
--			else
--				wrq->u.encoding.flags = IW_ENCODE_DISABLED;
--			wrq->u.encoding.flags |= mmc_encr(ioaddr);
--
--			/* Copy the key to the user buffer */
--			wrq->u.encoding.length = 8;
--			wv_splx(lp, &flags);
--			if (copy_to_user(wrq->u.encoding.pointer,
--					 psa.psa_encryption_key, 8))
--				ret = -EFAULT;
--			wv_splhi(lp, &flags);
--		}
--		break;
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
- 
--	case SIOCGIWRANGE:
--		/* basic checking */
--		if (wrq->u.data.pointer != (caddr_t) 0) {
--			struct iw_range range;
--
--			/* Set the length (very important for backward
--			 * compatibility) */
--			wrq->u.data.length = sizeof(struct iw_range);
--
--			/* Set all the info we don't care or don't know
--			 * about to zero */
--			memset(&range, 0, sizeof(range));
--
--			/* Set the Wireless Extension versions */
--			range.we_version_compiled = WIRELESS_EXT;
--			range.we_version_source = 9;
--
--			/* Set information in the range struct.  */
--			range.throughput = 1.6 * 1000 * 1000;	/* don't argue on this ! */
--			range.min_nwid = 0x0000;
--			range.max_nwid = 0xFFFF;
--
--			/* Attempt to recognise 2.00 cards (2.4 GHz frequency selectable). */
--			if (!(mmc_in(ioaddr, mmroff(0, mmr_fee_status)) &
--			      (MMR_FEE_STATUS_DWLD | MMR_FEE_STATUS_BUSY))) {
--				range.num_channels = 10;
--				range.num_frequency =
--				    wv_frequency_list(ioaddr, range.freq,
--						      IW_MAX_FREQUENCIES);
--			} else
--				range.num_channels = range.num_frequency =
--				    0;
--
--			range.sensitivity = 0x3F;
--			range.max_qual.qual = MMR_SGNL_QUAL;
--			range.max_qual.level = MMR_SIGNAL_LVL;
--			range.max_qual.noise = MMR_SILENCE_LVL;
--			range.avg_qual.qual = MMR_SGNL_QUAL; /* Always max */
--			/* Need to get better values for those two */
--			range.avg_qual.level = 30;
--			range.avg_qual.noise = 8;
--
--			range.num_bitrates = 1;
--			range.bitrate[0] = 2000000;	/* 2 Mb/s */
--
--			/* Encryption supported ? */
--			if (mmc_encr(ioaddr)) {
--				range.encoding_size[0] = 8;	/* DES = 64 bits key */
--				range.num_encoding_sizes = 1;
--				range.max_encoding_tokens = 1;	/* Only one key possible */
--			} else {
--				range.num_encoding_sizes = 0;
--				range.max_encoding_tokens = 0;
--			}
-+	return ret;
-+}
- 
--			/* Copy structure to the user buffer. */
--			wv_splx(lp, &flags);
--			if (copy_to_user(wrq->u.data.pointer,
--					 &range,
--					 sizeof(struct iw_range)))
--				ret = -EFAULT;
--			wv_splhi(lp, &flags);
--		}
--		break;
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Handler : get range info
-+ */
-+static int wavelan_get_range(struct net_device *dev,
-+			     struct iw_request_info *info,
-+			     union iwreq_data *wrqu,
-+			     char *extra)
-+{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	struct iw_range *range = (struct iw_range *) extra;
-+	unsigned long flags;
-+	int ret = 0;
- 
--	case SIOCGIWPRIV:
--		/* Basic checking */
--		if (wrq->u.data.pointer != (caddr_t) 0) {
--			struct iw_priv_args priv[] = {
--				/* { cmd,
--				     set_args,
--				     get_args,
--				     name } */
--				{ SIOCSIPQTHR,
--				  IW_PRIV_TYPE_BYTE | IW_PRIV_SIZE_FIXED | 1,
--				  0,
--				  "setqualthr" },
--				{ SIOCGIPQTHR,
--				  0,
--				  IW_PRIV_TYPE_BYTE | IW_PRIV_SIZE_FIXED | 1,
--				  "getqualthr" },
--				{ SIOCSIPHISTO,
--				  IW_PRIV_TYPE_BYTE | 16,
--				  0,
--				  "sethisto" },
--				{ SIOCGIPHISTO,
--				  0,
--				  IW_PRIV_TYPE_INT | 16,
--				 "gethisto" },
--			};
--
--			/* Set the number of available ioctls. */
--			wrq->u.data.length = 4;
--
--			/* Copy structure to the user buffer. */
--			wv_splx(lp, &flags);
--			if (copy_to_user(wrq->u.data.pointer,
--					      (u8 *) priv,
--					      sizeof(priv)))
--				ret = -EFAULT;
--			wv_splhi(lp, &flags);
--		}
--		break;
-+	/* Set the length (very important for backward compatibility) */
-+	wrqu->data.length = sizeof(struct iw_range);
- 
--#ifdef WIRELESS_SPY
--	case SIOCSIWSPY:
--		/* Set the spy list */
-+	/* Set all the info we don't care or don't know about to zero */
-+	memset(range, 0, sizeof(struct iw_range));
- 
--		/* Check the number of addresses. */
--		if (wrq->u.data.length > IW_MAX_SPY) {
--			ret = -E2BIG;
--			break;
--		}
--		lp->spy_number = wrq->u.data.length;
-+	/* Set the Wireless Extension versions */
-+	range->we_version_compiled = WIRELESS_EXT;
-+	range->we_version_source = 9;
-+
-+	/* Set information in the range struct.  */
-+	range->throughput = 1.6 * 1000 * 1000;	/* don't argue on this ! */
-+	range->min_nwid = 0x0000;
-+	range->max_nwid = 0xFFFF;
-+
-+	range->sensitivity = 0x3F;
-+	range->max_qual.qual = MMR_SGNL_QUAL;
-+	range->max_qual.level = MMR_SIGNAL_LVL;
-+	range->max_qual.noise = MMR_SILENCE_LVL;
-+	range->avg_qual.qual = MMR_SGNL_QUAL; /* Always max */
-+	/* Need to get better values for those two */
-+	range->avg_qual.level = 30;
-+	range->avg_qual.noise = 8;
- 
--		/* Are there are addresses to copy? */
--		if (lp->spy_number > 0) {
--			struct sockaddr address[IW_MAX_SPY];
--			int i;
--
--			/* Copy addresses to the driver. */
--			wv_splx(lp, &flags);
--			err = copy_from_user(address,
--					     wrq->u.data.pointer,
--					     sizeof(struct sockaddr)
--					     * lp->spy_number);
--			wv_splhi(lp, &flags);
--			if (err) {
--				ret = -EFAULT;
--				break;
--			}
-+	range->num_bitrates = 1;
-+	range->bitrate[0] = 2000000;	/* 2 Mb/s */
- 
--			/* Copy addresses to the lp structure. */
--			for (i = 0; i < lp->spy_number; i++) {
--				memcpy(lp->spy_address[i],
--				       address[i].sa_data,
--				       WAVELAN_ADDR_SIZE);
--			}
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+	
-+	/* Attempt to recognise 2.00 cards (2.4 GHz frequency selectable). */
-+	if (!(mmc_in(ioaddr, mmroff(0, mmr_fee_status)) &
-+	      (MMR_FEE_STATUS_DWLD | MMR_FEE_STATUS_BUSY))) {
-+		range->num_channels = 10;
-+		range->num_frequency = wv_frequency_list(ioaddr, range->freq,
-+							IW_MAX_FREQUENCIES);
++	if((netif_running(dev)) &&
++	   (dev->wireless_handlers->standard[0] != NULL)) {
++		/* Call the commit handler on the driver */
++		return(dev->wireless_handlers->standard[0](dev, NULL,
++							   NULL, NULL));
 +	} else
-+		range->num_channels = range->num_frequency = 0;
-+
-+	/* Encryption supported ? */
-+	if (mmc_encr(ioaddr)) {
-+		range->encoding_size[0] = 8;	/* DES = 64 bits key */
-+		range->num_encoding_sizes = 1;
-+		range->max_encoding_tokens = 1;	/* Only one key possible */
-+	} else {
-+		range->num_encoding_sizes = 0;
-+		range->max_encoding_tokens = 0;
-+	}
-+
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
-+
-+	return ret;
++		return(0);		/* Command completed successfully */
 +}
 +
-+#ifdef WIRELESS_SPY
-+/*------------------------------------------------------------------*/
++/* ---------------------------------------------------------------- */
 +/*
-+ * Wireless Handler : set spy list
++ * Number of private arguments
 + */
-+static int wavelan_set_spy(struct net_device *dev,
-+			   struct iw_request_info *info,
-+			   union iwreq_data *wrqu,
-+			   char *extra)
++static inline int get_priv_size(__u16	args)
 +{
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	struct sockaddr *address = (struct sockaddr *) extra;
-+	int i;
-+	int ret = 0;
- 
--			/* Reset structure. */
--			memset(lp->spy_stat, 0x00,
--			       sizeof(iw_qual) * IW_MAX_SPY);
-+	/* Disable spy while we copy the addresses.
-+	 * As we don't disable interrupts, we need to do this */
-+	lp->spy_number = 0;
++	int	num = args & IW_PRIV_SIZE_MASK;
++	int	type = (args & IW_PRIV_TYPE_MASK) >> 12;
 +
-+	/* Are there are addresses to copy? */
-+	if (wrqu->data.length > 0) {
-+		/* Copy addresses to the lp structure. */
-+		for (i = 0; i < wrqu->data.length; i++) {
-+			memcpy(lp->spy_address[i], address[i].sa_data,
-+			       WAVELAN_ADDR_SIZE);
++	return(num * priv_type_size[type]);
++}
++
++
++/******************** /proc/net/wireless SUPPORT ********************/
++/*
++ * The /proc/net/wireless file is a human readable user-space interface
++ * exporting various wireless specific statistics from the wireless devices.
++ * This is the most popular part of the Wireless Extensions ;-)
++ *
++ * This interface is a pure clone of /proc/net/dev (in net/core/dev.c).
++ * The content of the file is basically the content of "struct iw_statistics".
++ */
++
++#ifdef CONFIG_PROC_FS
++
++/* ---------------------------------------------------------------- */
++/*
++ * Print one entry (line) of /proc/net/wireless
++ */
++static inline int sprintf_wireless_stats(char *buffer, struct net_device *dev)
++{
++	/* Get stats from the driver */
++	struct iw_statistics *stats;
++	int size;
++
++	stats = get_wireless_stats(dev);
++	if (stats != (struct iw_statistics *) NULL) {
++		size = sprintf(buffer,
++			       "%6s: %04x  %3d%c  %3d%c  %3d%c  %6d %6d %6d %6d %6d   %6d\n",
++			       dev->name,
++			       stats->status,
++			       stats->qual.qual,
++			       stats->qual.updated & 1 ? '.' : ' ',
++			       stats->qual.level,
++			       stats->qual.updated & 2 ? '.' : ' ',
++			       stats->qual.noise,
++			       stats->qual.updated & 4 ? '.' : ' ',
++			       stats->discard.nwid,
++			       stats->discard.code,
++			       stats->discard.fragment,
++			       stats->discard.retries,
++			       stats->discard.misc,
++			       stats->miss.beacon);
++		stats->qual.updated = 0;
++	}
++	else
++		size = 0;
++
++	return size;
++}
++
++/* ---------------------------------------------------------------- */
++/*
++ * Print info for /proc/net/wireless (print all entries)
++ */
++int dev_get_wireless_info(char * buffer, char **start, off_t offset,
++			  int length)
++{
++	int		len = 0;
++	off_t		begin = 0;
++	off_t		pos = 0;
++	int		size;
++	
++	struct net_device *	dev;
++
++	size = sprintf(buffer,
++		       "Inter-| sta-|   Quality        |   Discarded packets               | Missed\n"
++		       " face | tus | link level noise |  nwid  crypt   frag  retry   misc | beacon\n"
++			);
++	
++	pos += size;
++	len += size;
++
++	read_lock(&dev_base_lock);
++	for (dev = dev_base; dev != NULL; dev = dev->next) {
++		size = sprintf_wireless_stats(buffer + len, dev);
++		len += size;
++		pos = begin + len;
++
++		if (pos < offset) {
++			len = 0;
++			begin = pos;
++		}
++		if (pos > offset + length)
++			break;
++	}
++	read_unlock(&dev_base_lock);
++
++	*start = buffer + (offset - begin);	/* Start of wanted data */
++	len -= (offset - begin);		/* Start slop */
++	if (len > length)
++		len = length;			/* Ending slop */
++	if (len < 0)
++		len = 0;
++
++	return len;
++}
++#endif	/* CONFIG_PROC_FS */
++
++/************************** IOCTL SUPPORT **************************/
++/*
++ * The original user space API to configure all those Wireless Extensions
++ * is through IOCTLs.
++ * In there, we check if we need to call the new driver API (iw_handler)
++ * or just call the driver ioctl handler.
++ */
++
++/* ---------------------------------------------------------------- */
++/*
++ *	Allow programatic access to /proc/net/wireless even if /proc
++ *	doesn't exist... Also more efficient...
++ */
++static inline int dev_iwstats(struct net_device *dev, struct ifreq *ifr)
++{
++	/* Get stats from the driver */
++	struct iw_statistics *stats;
++
++	stats = get_wireless_stats(dev);
++	if (stats != (struct iw_statistics *) NULL) {
++		struct iwreq *	wrq = (struct iwreq *)ifr;
++
++		/* Copy statistics to the user buffer */
++		if(copy_to_user(wrq->u.data.pointer, stats,
++				sizeof(struct iw_statistics)))
++			return -EFAULT;
++
++		/* Check if we need to clear the update flag */
++		if(wrq->u.data.flags != 0)
++			stats->qual.updated = 0;
++		return(0);
++	} else
++		return -EOPNOTSUPP;
++}
++
++/* ---------------------------------------------------------------- */
++/*
++ * Export the driver private handler definition
++ * They will be picked up by tools like iwpriv...
++ */
++static inline int ioctl_export_private(struct net_device *	dev,
++				       struct ifreq *		ifr)
++{
++	struct iwreq *				iwr = (struct iwreq *) ifr;
++
++	/* Check if the driver has something to export */
++	if((dev->wireless_handlers->num_private_args == 0) ||
++	   (dev->wireless_handlers->private_args == NULL))
++		return(-EOPNOTSUPP);
++
++	/* Check NULL pointer */
++	if(iwr->u.data.pointer == NULL)
++		return(-EFAULT);
++#ifdef WE_STRICT_WRITE
++	/* Check if there is enough buffer up there */
++	if(iwr->u.data.length < (SIOCIWLASTPRIV - SIOCIWFIRSTPRIV + 1))
++		return(-E2BIG);
++#endif	/* WE_STRICT_WRITE */
++
++	/* Set the number of available ioctls. */
++	iwr->u.data.length = dev->wireless_handlers->num_private_args;
++
++	/* Copy structure to the user buffer. */
++	if (copy_to_user(iwr->u.data.pointer,
++			 dev->wireless_handlers->private_args,
++			 sizeof(struct iw_priv_args) * iwr->u.data.length))
++		return(-EFAULT);
++
++	return(0);
++}
++
++/* ---------------------------------------------------------------- */
++/*
++ * Wrapper to call a standard Wireless Extension handler.
++ * We do various checks and also take care of moving data between
++ * user space and kernel space.
++ */
++static inline int ioctl_standard_call(struct net_device *	dev,
++				      struct ifreq *		ifr,
++				      unsigned int		cmd,
++				      iw_handler		handler)
++{
++	struct iwreq *				iwr = (struct iwreq *) ifr;
++	const struct iw_ioctl_description *	descr;
++	struct iw_request_info			info;
++	int					ret = -EINVAL;
++
++	/* Get the description of the IOCTL */
++	descr = &(standard_ioctl[cmd - SIOCIWFIRST]);
++
++#ifdef WE_IOCTL_DEBUG
++	printk(KERN_DEBUG "%s : Found standard handler for 0x%04X\n",
++	       ifr->ifr_name, cmd);
++	printk(KERN_DEBUG "Header type : %d, token type : %d, token_size : %d, max_token : %d\n", descr->header_type, descr->token_type, descr->token_size, descr->max_tokens);
++#endif	/* WE_IOCTL_DEBUG */
++
++	/* Prepare the call */
++	info.cmd = cmd;
++	info.flags = 0;
++
++	/* Check if we have a pointer to user space data or not */
++	if(descr->header_type != IW_HEADER_TYPE_POINT) {
++		/* No extra arguments. Trivial to handle */
++		ret = handler(dev, &info, &(iwr->u), NULL);
++	} else {
++		char *	extra;
++		int	err;
++
++		/* Check what user space is giving us */
++		if(IW_IS_SET(cmd)) {
++			/* Check NULL pointer */
++			if((iwr->u.data.pointer == NULL) &&
++			   (iwr->u.data.length != 0))
++				return(-EFAULT);
++			/* Check if number of token fits within bounds */
++			if(iwr->u.data.length > descr->max_tokens)
++				return(-E2BIG);
++			if(iwr->u.data.length < descr->min_tokens)
++				return(-EINVAL);
++		} else {
++			/* Check NULL pointer */
++			if(iwr->u.data.pointer == NULL)
++				return(-EFAULT);
++#ifdef WE_STRICT_WRITE
++			/* Check if there is enough buffer up there */
++			if(iwr->u.data.length < descr->max_tokens)
++				return(-E2BIG);
++#endif	/* WE_STRICT_WRITE */
 +		}
 +
-+		/* Reset structure. */
-+		memset(lp->spy_stat, 0x00, sizeof(iw_qual) * IW_MAX_SPY);
- 
- #ifdef DEBUG_IOCTL_INFO
-+		printk(KERN_DEBUG
-+		       "SetSpy:  set of new addresses is: \n");
-+		for (i = 0; i < wrqu->data.length; i++)
- 			printk(KERN_DEBUG
--			       "SetSpy:  set of new addresses is: \n");
--			for (i = 0; i < wrq->u.data.length; i++)
--				printk(KERN_DEBUG
--				       "%02X:%02X:%02X:%02X:%02X:%02X \n",
--				       lp->spy_address[i][0],
--				       lp->spy_address[i][1],
--				       lp->spy_address[i][2],
--				       lp->spy_address[i][3],
--				       lp->spy_address[i][4],
--				       lp->spy_address[i][5]);
--#endif				/* DEBUG_IOCTL_INFO */
--		}
-+			       "%02X:%02X:%02X:%02X:%02X:%02X \n",
-+			       lp->spy_address[i][0],
-+			       lp->spy_address[i][1],
-+			       lp->spy_address[i][2],
-+			       lp->spy_address[i][3],
-+			       lp->spy_address[i][4],
-+			       lp->spy_address[i][5]);
-+#endif			/* DEBUG_IOCTL_INFO */
-+	}
- 
--		break;
-+	/* Now we can set the number of addresses */
-+	lp->spy_number = wrqu->data.length;
- 
--	case SIOCGIWSPY:
--		/* Get the spy list and spy stats. */
-+	return ret;
-+}
- 
--		/* Set the number of addresses */
--		wrq->u.data.length = lp->spy_number;
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Handler : get spy list
-+ */
-+static int wavelan_get_spy(struct net_device *dev,
-+			   struct iw_request_info *info,
-+			   union iwreq_data *wrqu,
-+			   char *extra)
-+{
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	struct sockaddr *address = (struct sockaddr *) extra;
-+	int i;
- 
--		/* Does the user want to have the addresses back? */
--		if ((lp->spy_number > 0)
--		    && (wrq->u.data.pointer != (caddr_t) 0)) {
--			struct sockaddr address[IW_MAX_SPY];
--			int i;
--
--			/* Copy addresses from the lp structure. */
--			for (i = 0; i < lp->spy_number; i++) {
--				memcpy(address[i].sa_data,
--				       lp->spy_address[i],
--				       WAVELAN_ADDR_SIZE);
--				address[i].sa_family = AF_UNIX;
--			}
-+	/* Set the number of addresses */
-+	wrqu->data.length = lp->spy_number;
- 
--			/* Copy addresses to the user buffer. */
--			wv_splx(lp, &flags);
--			err = copy_to_user(wrq->u.data.pointer,
--					   address,
--					   sizeof(struct sockaddr)
--					   * lp->spy_number);
--
--			/* Copy stats to the user buffer (just after). */
--			err |= copy_to_user(wrq->u.data.pointer
--					    + (sizeof(struct sockaddr)
--					       * lp->spy_number),
--					    lp->spy_stat,
--					    sizeof(iw_qual) * lp->spy_number);
--			wv_splhi(lp, &flags);
--			if (err) {
--				ret = -EFAULT;
--				break;
--			}
-+	/* Copy addresses from the lp structure. */
-+	for (i = 0; i < lp->spy_number; i++) {
-+		memcpy(address[i].sa_data,
-+		       lp->spy_address[i],
-+		       WAVELAN_ADDR_SIZE);
-+		address[i].sa_family = AF_UNIX;
-+	}
-+	/* Copy stats to the user buffer (just after). */
-+	if(lp->spy_number > 0)
-+		memcpy(extra  + (sizeof(struct sockaddr) * lp->spy_number),
-+		       lp->spy_stat, sizeof(iw_qual) * lp->spy_number);
++#ifdef WE_IOCTL_DEBUG
++		printk(KERN_DEBUG "Malloc %d bytes\n",
++		       descr->max_tokens * descr->token_size);
++#endif	/* WE_IOCTL_DEBUG */
 +
-+	/* Reset updated flags. */
-+	for (i = 0; i < lp->spy_number; i++)
-+		lp->spy_stat[i].updated = 0x0;
- 
--			/* Reset updated flags. */
--			for (i = 0; i < lp->spy_number; i++)
--				lp->spy_stat[i].updated = 0x0;
--		}
--		/* if(pointer != NULL) */
--		break;
--#endif				/* WIRELESS_SPY */
-+	return(0);
-+}
-+#endif			/* WIRELESS_SPY */
- 
--		/* ------------------ PRIVATE IOCTL ------------------ */
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Private Handler : set quality threshold
-+ */
-+static int wavelan_set_qthr(struct net_device *dev,
-+			    struct iw_request_info *info,
-+			    union iwreq_data *wrqu,
-+			    char *extra)
-+{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	psa_t psa;
-+	unsigned long flags;
- 
--	case SIOCSIPQTHR:
--		if (!capable(CAP_NET_ADMIN)) {
--			ret = -EPERM;
--			break;
--		}
--		psa.psa_quality_thr = *(wrq->u.name) & 0x0F;
--		psa_write(ioaddr, lp->hacr,
--			  (char *) &psa.psa_quality_thr - (char *) &psa,
--			  (unsigned char *) &psa.psa_quality_thr, 1);
--		/* update the Wavelan checksum */
--		update_psa_checksum(dev, ioaddr, lp->hacr);
--		mmc_out(ioaddr, mmwoff(0, mmw_quality_thr),
--			psa.psa_quality_thr);
--		break;
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+	
-+	psa.psa_quality_thr = *(extra) & 0x0F;
-+	psa_write(ioaddr, lp->hacr,
-+		  (char *) &psa.psa_quality_thr - (char *) &psa,
-+		  (unsigned char *) &psa.psa_quality_thr, 1);
-+	/* update the Wavelan checksum */
-+	update_psa_checksum(dev, ioaddr, lp->hacr);
-+	mmc_out(ioaddr, mmwoff(0, mmw_quality_thr),
-+		psa.psa_quality_thr);
- 
--	case SIOCGIPQTHR:
--		psa_read(ioaddr, lp->hacr,
--			 (char *) &psa.psa_quality_thr - (char *) &psa,
--			 (unsigned char *) &psa.psa_quality_thr, 1);
--		*(wrq->u.name) = psa.psa_quality_thr & 0x0F;
--		break;
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
- 
--#ifdef HISTOGRAM
--	case SIOCSIPHISTO:
--		/* Verify that the user is root. */
--		if (!capable(CAP_NET_ADMIN)) {
--			ret = -EPERM;
--			break;
--		}
-+	return 0;
-+}
- 
--		/* Check the number of intervals. */
--		if (wrq->u.data.length > 16) {
--			ret = -E2BIG;
--			break;
--		}
--		lp->his_number = wrq->u.data.length;
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Private Handler : get quality threshold
-+ */
-+static int wavelan_get_qthr(struct net_device *dev,
-+			    struct iw_request_info *info,
-+			    union iwreq_data *wrqu,
-+			    char *extra)
-+{
-+	unsigned long ioaddr = dev->base_addr;
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
-+	psa_t psa;
-+	unsigned long flags;
- 
--		/* Are there addresses to copy? */
--		if (lp->his_number > 0) {
--			/* Copy interval ranges to the driver */
--			wv_splx(lp, &flags);
--			err = copy_from_user(lp->his_range,
--					     wrq->u.data.pointer,
--					     sizeof(char) * lp->his_number);
--			wv_splhi(lp, &flags);
--			if (err) {
--				ret = -EFAULT;
--				break;
--			}
-+	/* Disable interrupts and save flags. */
-+	wv_splhi(lp, &flags);
-+	
-+	psa_read(ioaddr, lp->hacr,
-+		 (char *) &psa.psa_quality_thr - (char *) &psa,
-+		 (unsigned char *) &psa.psa_quality_thr, 1);
-+	*(extra) = psa.psa_quality_thr & 0x0F;
++		/* Always allocate for max space. Easier, and won't last
++		 * long... */
++		extra = kmalloc(descr->max_tokens * descr->token_size,
++				GFP_KERNEL);
++		if (extra == NULL) {
++			return(-ENOMEM);
++		}
 +
-+	/* Enable interrupts and restore flags. */
-+	wv_splx(lp, &flags);
- 
--			/* Reset structure. */
--			memset(lp->his_sum, 0x00, sizeof(long) * 16);
-+	return 0;
-+}
++		/* If it is a SET, get all the extra data in here */
++		if(IW_IS_SET(cmd) && (iwr->u.data.length != 0)) {
++			err = copy_from_user(extra, iwr->u.data.pointer,
++					     iwr->u.data.length *
++					     descr->token_size);
++			if (err) {
++				kfree(extra);
++				return(-EFAULT);
++			}
++#ifdef WE_IOCTL_DEBUG
++			printk(KERN_DEBUG "Got %d bytes\n",
++			       iwr->u.data.length * descr->token_size);
++#endif	/* WE_IOCTL_DEBUG */
++		}
 +
-+#ifdef HISTOGRAM
-+/*------------------------------------------------------------------*/
-+/*
-+ * Wireless Private Handler : set histogram
-+ */
-+static int wavelan_set_histo(struct net_device *dev,
-+			     struct iw_request_info *info,
-+			     union iwreq_data *wrqu,
-+			     char *extra)
-+{
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
++		/* Call the handler */
++		ret = handler(dev, &info, &(iwr->u), extra);
 +
-+	/* Check the number of intervals. */
-+	if (wrqu->data.length > 16) {
-+		return(-E2BIG);
++		/* If we have something to return to the user */
++		if (!ret && IW_IS_GET(cmd)) {
++			err = copy_to_user(iwr->u.data.pointer, extra,
++					   iwr->u.data.length *
++					   descr->token_size);
++			if (err)
++				ret =  -EFAULT;				   
++#ifdef WE_IOCTL_DEBUG
++			printk(KERN_DEBUG "Wrote %d bytes\n",
++			       iwr->u.data.length * descr->token_size);
++#endif	/* WE_IOCTL_DEBUG */
++		}
++
++		/* Cleanup - I told you it wasn't that long ;-) */
++		kfree(extra);
 +	}
 +
-+	/* Disable histo while we copy the addresses.
-+	 * As we don't disable interrupts, we need to do this */
-+	lp->his_number = 0;
++	/* Call commit handler if needed and defined */
++	if(ret == -EIWCOMMIT)
++		ret = call_commit_handler(dev);
 +
-+	/* Are there ranges to copy? */
-+	if (wrqu->data.length > 0) {
-+		/* Copy interval ranges to the driver */
-+		memcpy(lp->his_range, extra, wrqu->data.length);
++	/* Here, we will generate the appropriate event if needed */
 +
-+		{
-+		  int i;
-+		  printk(KERN_DEBUG "Histo :");
-+		  for(i = 0; i < wrqu->data.length; i++)
-+		    printk(" %d", lp->his_range[i]);
-+		  printk("\n");
- 		}
--		break;
- 
--	case SIOCGIPHISTO:
--		/* Set the number of intervals. */
--		wrq->u.data.length = lp->his_number;
--
--		/* Give back the distribution statistics */
--		if ((lp->his_number > 0)
--		    && (wrq->u.data.pointer != (caddr_t) 0)) {
--			/* Copy data to the user buffer. */
--			wv_splx(lp, &flags);
--			if (copy_to_user(wrq->u.data.pointer,
--					 lp->his_sum,
--					 sizeof(long) * lp->his_number);
--				ret = -EFAULT;
--			wv_splhi(lp, &flags);
-+		/* Reset result structure. */
-+		memset(lp->his_sum, 0x00, sizeof(long) * 16);
-+	}
- 
--		}		/* if(pointer != NULL) */
--		break;
--#endif				/* HISTOGRAM */
-+	/* Now we can set the number of ranges */
-+	lp->his_number = wrqu->data.length;
- 
--		/* ------------------- OTHER IOCTL ------------------- */
-+	return(0);
++	return(ret);
 +}
- 
--	default:
--		ret = -EOPNOTSUPP;
--	}	/* switch (cmd) */
-+/*------------------------------------------------------------------*/
++
++/* ---------------------------------------------------------------- */
 +/*
-+ * Wireless Private Handler : get histogram
-+ */
-+static int wavelan_get_histo(struct net_device *dev,
-+			     struct iw_request_info *info,
-+			     union iwreq_data *wrqu,
-+			     char *extra)
-+{
-+	net_local *lp = (net_local *) dev->priv;	/* lp is not unused */
- 
--	/* Enable interrupts and restore flags. */
--	wv_splx(lp, &flags);
-+	/* Set the number of intervals. */
-+	wrqu->data.length = lp->his_number;
- 
--#ifdef DEBUG_IOCTL_TRACE
--	printk(KERN_DEBUG "%s: <-wavelan_ioctl()\n", dev->name);
--#endif
--	return ret;
-+	/* Give back the distribution statistics */
-+	if(lp->his_number > 0)
-+		memcpy(extra, lp->his_sum, sizeof(long) * lp->his_number);
-+
-+	return(0);
- }
-+#endif			/* HISTOGRAM */
-+
-+/*------------------------------------------------------------------*/
-+/*
-+ * Structures to export the Wireless Handlers
-+ */
-+
-+static const iw_handler		wavelan_handler[] =
-+{
-+	NULL,				/* SIOCSIWNAME */
-+	wavelan_get_name,		/* SIOCGIWNAME */
-+	wavelan_set_nwid,		/* SIOCSIWNWID */
-+	wavelan_get_nwid,		/* SIOCGIWNWID */
-+	wavelan_set_freq,		/* SIOCSIWFREQ */
-+	wavelan_get_freq,		/* SIOCGIWFREQ */
-+	NULL,				/* SIOCSIWMODE */
-+	NULL,				/* SIOCGIWMODE */
-+	wavelan_set_sens,		/* SIOCSIWSENS */
-+	wavelan_get_sens,		/* SIOCGIWSENS */
-+	NULL,				/* SIOCSIWRANGE */
-+	wavelan_get_range,		/* SIOCGIWRANGE */
-+	NULL,				/* SIOCSIWPRIV */
-+	NULL,				/* SIOCGIWPRIV */
-+	NULL,				/* SIOCSIWSTATS */
-+	NULL,				/* SIOCGIWSTATS */
-+#ifdef WIRELESS_SPY
-+	wavelan_set_spy,		/* SIOCSIWSPY */
-+	wavelan_get_spy,		/* SIOCGIWSPY */
-+#else	/* WIRELESS_SPY */
-+	NULL,				/* SIOCSIWSPY */
-+	NULL,				/* SIOCGIWSPY */
-+#endif	/* WIRELESS_SPY */
-+	NULL,				/* -- hole -- */
-+	NULL,				/* -- hole -- */
-+	NULL,				/* SIOCSIWAP */
-+	NULL,				/* SIOCGIWAP */
-+	NULL,				/* -- hole -- */
-+	NULL,				/* SIOCGIWAPLIST */
-+	NULL,				/* -- hole -- */
-+	NULL,				/* -- hole -- */
-+	NULL,				/* SIOCSIWESSID */
-+	NULL,				/* SIOCGIWESSID */
-+	NULL,				/* SIOCSIWNICKN */
-+	NULL,				/* SIOCGIWNICKN */
-+	NULL,				/* -- hole -- */
-+	NULL,				/* -- hole -- */
-+	NULL,				/* SIOCSIWRATE */
-+	NULL,				/* SIOCGIWRATE */
-+	NULL,				/* SIOCSIWRTS */
-+	NULL,				/* SIOCGIWRTS */
-+	NULL,				/* SIOCSIWFRAG */
-+	NULL,				/* SIOCGIWFRAG */
-+	NULL,				/* SIOCSIWTXPOW */
-+	NULL,				/* SIOCGIWTXPOW */
-+	NULL,				/* SIOCSIWRETRY */
-+	NULL,				/* SIOCGIWRETRY */
-+	/* Bummer ! Why those are only at the end ??? */
-+	wavelan_set_encode,		/* SIOCSIWENCODE */
-+	wavelan_get_encode,		/* SIOCGIWENCODE */
-+};
-+
-+static const iw_handler		wavelan_private_handler[] =
-+{
-+	wavelan_set_qthr,		/* SIOCIWFIRSTPRIV */
-+	wavelan_get_qthr,		/* SIOCIWFIRSTPRIV + 1 */
-+#ifdef HISTOGRAM
-+	wavelan_set_histo,		/* SIOCIWFIRSTPRIV + 2 */
-+	wavelan_get_histo,		/* SIOCIWFIRSTPRIV + 3 */
-+#endif	/* HISTOGRAM */
-+};
-+
-+static const struct iw_priv_args wavelan_private_args[] = {
-+/*{ cmd,         set_args,                            get_args, name } */
-+  { SIOCSIPQTHR, IW_PRIV_TYPE_BYTE | IW_PRIV_SIZE_FIXED | 1, 0, "setqualthr" },
-+  { SIOCGIPQTHR, 0, IW_PRIV_TYPE_BYTE | IW_PRIV_SIZE_FIXED | 1, "getqualthr" },
-+  { SIOCSIPHISTO, IW_PRIV_TYPE_BYTE | 16,                    0, "sethisto" },
-+  { SIOCGIPHISTO, 0,                     IW_PRIV_TYPE_INT | 16, "gethisto" },
-+};
-+
-+static const struct iw_handler_def	wavelan_handler_def =
-+{
-+	num_standard:	sizeof(wavelan_handler)/sizeof(iw_handler),
-+	num_private:	sizeof(wavelan_private_handler)/sizeof(iw_handler),
-+	num_private_args: sizeof(wavelan_private_args)/sizeof(struct iw_priv_args),
-+	standard:	(iw_handler *) wavelan_handler,
-+	private:	(iw_handler *) wavelan_private_handler,
-+	private_args:	(struct iw_priv_args *) wavelan_private_args,
-+};
- 
- /*------------------------------------------------------------------*/
- /*
-@@ -4068,8 +4266,8 @@ static int __init wavelan_config(device 
- #endif				/* SET_MAC_ADDRESS */
- 
- #ifdef WIRELESS_EXT		/* if wireless extension exists in the kernel */
--	dev->do_ioctl = wavelan_ioctl;
- 	dev->get_wireless_stats = wavelan_get_wireless_stats;
-+	dev->wireless_handlers = (struct iw_handler_def *)&wavelan_handler_def;
- #endif
- 
- 	dev->mtu = WAVELAN_MTU;
-diff -u -p -r linux/drivers/net/wireless-w12/wavelan.p.h linux/drivers/net/wireless/wavelan.p.h
---- linux/drivers/net/wireless-w12/wavelan.p.h	Tue Dec 11 15:11:28 2001
-+++ linux/drivers/net/wireless/wavelan.p.h	Thu Dec 13 13:12:52 2001
-@@ -345,6 +345,12 @@
-  *	- Fix spinlock stupid bugs that I left in. The driver is now SMP
-  *		compliant and doesn't lockup at startup.
-  *
-+ * Changes made for release in 2.5.2 :
-+ * ---------------------------------
-+ *	- Use new driver API for Wireless Extensions :
-+ *		o got rid of wavelan_ioctl()
-+ *		o use a bunch of iw_handler instead
++ * Wrapper to call a private Wireless Extension handler.
++ * We do various checks and also take care of moving data between
++ * user space and kernel space.
++ * It's not as nice and slimline as the standard wrapper. The cause
++ * is struct iw_priv_args, which was not really designed for the
++ * job we are going here.
 + *
-  * Wishes & dreams:
-  * ----------------
-  *	- roaming (see Pcmcia driver)
-@@ -379,6 +385,7 @@
- #include	<linux/init.h>
- 
- #include <linux/wireless.h>		/* Wireless extensions */
-+#include <net/iw_handler.h>		/* Wireless handlers */
- 
- /* WaveLAN declarations */
- #include	"i82586.h"
-@@ -436,7 +443,7 @@
- /************************ CONSTANTS & MACROS ************************/
- 
- #ifdef DEBUG_VERSION_SHOW
--static const char	*version	= "wavelan.c : v23 (SMP + wireless extensions) 05/10/00\n";
-+static const char	*version	= "wavelan.c : v24 (SMP + wireless extensions) 11/12/01\n";
- #endif
- 
- /* Watchdog temporisation */
-@@ -449,11 +456,9 @@ static const char	*version	= "wavelan.c 
- 
- #define SIOCSIPQTHR	SIOCIWFIRSTPRIV		/* Set quality threshold */
- #define SIOCGIPQTHR	SIOCIWFIRSTPRIV + 1	/* Get quality threshold */
--#define SIOCSIPLTHR	SIOCIWFIRSTPRIV + 2	/* Set level threshold */
--#define SIOCGIPLTHR	SIOCIWFIRSTPRIV + 3	/* Get level threshold */
- 
--#define SIOCSIPHISTO	SIOCIWFIRSTPRIV + 6	/* Set histogram ranges */
--#define SIOCGIPHISTO	SIOCIWFIRSTPRIV + 7	/* Get histogram values */
-+#define SIOCSIPHISTO	SIOCIWFIRSTPRIV + 2	/* Set histogram ranges */
-+#define SIOCGIPHISTO	SIOCIWFIRSTPRIV + 3	/* Get histogram values */
- 
- /****************************** TYPES ******************************/
- 
++ * IMPORTANT : This function prevent to set and get data on the same
++ * IOCTL and enforce the SET/GET convention. Not doing it would be
++ * far too hairy...
++ * If you need to set and get data at the same time, please don't use
++ * a iw_handler but process it in your ioctl handler (i.e. use the
++ * old driver API).
++ */
++static inline int ioctl_private_call(struct net_device *	dev,
++				     struct ifreq *		ifr,
++				     unsigned int		cmd,
++				     iw_handler		handler)
++{
++	struct iwreq *			iwr = (struct iwreq *) ifr;
++	struct iw_priv_args *		descr = NULL;
++	struct iw_request_info		info;
++	int				extra_size = 0;
++	int				i;
++	int				ret = -EINVAL;
++
++	/* Get the description of the IOCTL */
++	for(i = 0; i < dev->wireless_handlers->num_private_args; i++)
++		if(cmd == dev->wireless_handlers->private_args[i].cmd) {
++			descr = &(dev->wireless_handlers->private_args[i]);
++			break;
++		}
++
++#ifdef WE_IOCTL_DEBUG
++	printk(KERN_DEBUG "%s : Found private handler for 0x%04X\n",
++	       ifr->ifr_name, cmd);
++	if(descr) {
++		printk(KERN_DEBUG "Name %s, set %X, get %X\n",
++		       descr->name, descr->set_args, descr->get_args);
++	}
++#endif	/* WE_IOCTL_DEBUG */
++
++	/* Compute the size of the set/get arguments */
++	if(descr != NULL) {
++		if(IW_IS_SET(cmd)) {
++			/* Size of set arguments */
++			extra_size = get_priv_size(descr->set_args);
++
++			/* Does it fits in iwr ? */
++			if((descr->set_args & IW_PRIV_SIZE_FIXED) &&
++			   (extra_size < IFNAMSIZ))
++				extra_size = 0;
++		} else {
++			/* Size of set arguments */
++			extra_size = get_priv_size(descr->get_args);
++
++			/* Does it fits in iwr ? */
++			if((descr->get_args & IW_PRIV_SIZE_FIXED) &&
++			   (extra_size < IFNAMSIZ))
++				extra_size = 0;
++		}
++	}
++
++	/* Prepare the call */
++	info.cmd = cmd;
++	info.flags = 0;
++
++	/* Check if we have a pointer to user space data or not. */
++	if(extra_size == 0) {
++		/* No extra arguments. Trivial to handle */
++		ret = handler(dev, &info, &(iwr->u), (char *) &(iwr->u));
++	} else {
++		char *	extra;
++		int	err;
++
++		/* Check what user space is giving us */
++		if(IW_IS_SET(cmd)) {
++			/* Check NULL pointer */
++			if((iwr->u.data.pointer == NULL) &&
++			   (iwr->u.data.length != 0))
++				return(-EFAULT);
++
++			/* Does it fits within bounds ? */
++			if(iwr->u.data.length > (descr->set_args &
++						 IW_PRIV_SIZE_MASK))
++				return(-E2BIG);
++		} else {
++			/* Check NULL pointer */
++			if(iwr->u.data.pointer == NULL)
++				return(-EFAULT);
++		}
++
++#ifdef WE_IOCTL_DEBUG
++		printk(KERN_DEBUG "Malloc %d bytes\n", extra_size);
++#endif	/* WE_IOCTL_DEBUG */
++
++		/* Always allocate for max space. Easier, and won't last
++		 * long... */
++		extra = kmalloc(extra_size, GFP_KERNEL);
++		if (extra == NULL) {
++			return(-ENOMEM);
++		}
++
++		/* If it is a SET, get all the extra data in here */
++		if(IW_IS_SET(cmd) && (iwr->u.data.length != 0)) {
++			err = copy_from_user(extra, iwr->u.data.pointer,
++					     extra_size);
++			if (err) {
++				kfree(extra);
++				return(-EFAULT);
++			}
++#ifdef WE_IOCTL_DEBUG
++			printk(KERN_DEBUG "Got %d elem\n", iwr->u.data.length);
++#endif	/* WE_IOCTL_DEBUG */
++		}
++
++		/* Call the handler */
++		ret = handler(dev, &info, &(iwr->u), extra);
++
++		/* If we have something to return to the user */
++		if (!ret && IW_IS_GET(cmd)) {
++			err = copy_to_user(iwr->u.data.pointer, extra,
++					   extra_size);
++			if (err)
++				ret =  -EFAULT;				   
++#ifdef WE_IOCTL_DEBUG
++			printk(KERN_DEBUG "Wrote %d elem\n",
++			       iwr->u.data.length);
++#endif	/* WE_IOCTL_DEBUG */
++		}
++
++		/* Cleanup - I told you it wasn't that long ;-) */
++		kfree(extra);
++	}
++
++
++	/* Call commit handler if needed and defined */
++	if(ret == -EIWCOMMIT)
++		ret = call_commit_handler(dev);
++
++	return(ret);
++}
++
++/* ---------------------------------------------------------------- */
++/*
++ * Main IOCTl dispatcher. Called from the main networking code
++ * (dev_ioctl() in net/core/dev.c).
++ * Check the type of IOCTL and call the appropriate wrapper...
++ */
++int wireless_process_ioctl(struct ifreq *ifr, unsigned int cmd)
++{
++	struct net_device *dev;
++	iw_handler	handler;
++
++	/* Permissions are already checked in dev_ioctl() before calling us.
++	 * The copy_to/from_user() of ifr is also dealt with in there */
++
++	/* Make sure the device exist */
++	if ((dev = __dev_get_by_name(ifr->ifr_name)) == NULL)
++		return -ENODEV;
++
++	/* A bunch of special cases, then the generic case...
++	 * Note that 'cmd' is already filtered in dev_ioctl() with
++	 * (cmd >= SIOCIWFIRST && cmd <= SIOCIWLAST) */
++	switch(cmd) 
++	{
++		case SIOCGIWSTATS:
++			/* Get Wireless Stats */
++			return dev_iwstats(dev, ifr);
++
++		case SIOCGIWPRIV:
++			/* Check if we have some wireless handlers defined */
++			if(dev->wireless_handlers != NULL) {
++				/* We export to user space the definition of
++				 * the private handler ourselves */
++				return ioctl_export_private(dev, ifr);
++			}
++			// Fall-through for old API
++		default:
++			/* Generic IOCTL */
++			/* Basic check */
++			if (!netif_device_present(dev))
++				return -ENODEV;
++			/* New driver API : try to find the handler */
++			handler = get_handler(dev, cmd);
++			if(handler != NULL) {
++				/* Standard and private are not the same */
++				if(cmd < SIOCIWFIRSTPRIV)
++					return(ioctl_standard_call(dev,
++								   ifr,
++								   cmd,
++								   handler));
++				else
++					return(ioctl_private_call(dev,
++								  ifr,
++								  cmd,
++								  handler));
++			}
++			/* Old driver API : call driver ioctl handler */
++			if (dev->do_ioctl) {
++				return dev->do_ioctl(dev, ifr, cmd);
++			}
++			return -EOPNOTSUPP;
++	}
++	/* Not reached */
++	return -EINVAL;
++}
 
---ZmUaFz6apKcXQszQ--
+--hHWLQfXTYDoKhP50--

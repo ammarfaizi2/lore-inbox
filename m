@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbUCNEXC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 23:23:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbUCNEXC
+	id S263273AbUCNE16 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 23:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbUCNE16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 23:23:02 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:1470 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S263274AbUCNEXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 23:23:00 -0500
-Message-Id: <200403140421.i2E4KsqA022567@eeyore.valparaiso.cl>
-To: Ian Kent <raven@themaw.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: unionfs 
-In-Reply-To: Your message of "Sun, 14 Mar 2004 10:33:00 +0800."
-             <Pine.LNX.4.58.0403141032230.4585@raven.themaw.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Sun, 14 Mar 2004 00:20:53 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sat, 13 Mar 2004 23:27:58 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:52959 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263273AbUCNE14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 23:27:56 -0500
+Subject: Re: 2.6.3-mm4 scsi_delete_timer() oops
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040314041047.GK655@holomorphy.com>
+References: <20040314041047.GK655@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 13 Mar 2004 23:27:50 -0500
+Message-Id: <1079238471.1759.74.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent <raven@themaw.net> dijo:
-> On Thu, 11 Mar 2004, Miklos Szeredi wrote:
-> 
-> > 
-> > I'll have to, as this is needed for AVFS.  Not unionfs, but something
-> > similar, that allows file/directory lookups for special filenames to
-> > be redirected to another filesystem.
-> 
-> I have a need for this in autofs4 also.
+On Sat, 2004-03-13 at 23:10, William Lee Irwin III wrote:
+> Mar 13 19:41:59 holomorphy kernel: EIP:    0060:[<00000000>]    Not tainted VLI
+[...]
+> Mar 13 19:41:59 holomorphy kernel:  [<c0358076>] scsi_delete_timer+0x16/0x30
+> Mar 13 19:41:59 holomorphy kernel:  [<c0373de9>] ahc_linux_run_complete_queue+0x69/0xd0
 
-At least some Unices have context-dependent symlinks, and AFAIR there was
-something like this in Linux a _long_ while back (perhaps just in Red Hat,
-must have been the second half of the '90s). It was discarded as too much
-mess (in kernel, in userspace, and in wetware) for little gain, IIRC.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+This trace doesn't make sense to me.  A null EIP usually indicates
+jumping through a NULL function pointer.  There are no fptr derefs in
+scsi_delete_timer.  Also ahc_linux_run_complete_queue doesn't call
+scsi_delete_timer.
+
+Could you try to reproduce and get a more meaningful backtrace?
+
+Thanks,
+
+James
+
+

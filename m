@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261719AbREXM3z>; Thu, 24 May 2001 08:29:55 -0400
+	id <S261741AbREXMnl>; Thu, 24 May 2001 08:43:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261722AbREXM3p>; Thu, 24 May 2001 08:29:45 -0400
-Received: from pop.gmx.net ([194.221.183.20]:13540 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261719AbREXM33>;
-	Thu, 24 May 2001 08:29:29 -0400
-Message-ID: <003901c0e44d$2de3ea60$093fe33e@host1>
-From: "peter k." <spam-goes-to-dev-null@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: patch to put IDE drives in sleep-mode after an halt
-Date: Thu, 24 May 2001 14:29:29 +0200
+	id <S261758AbREXMna>; Thu, 24 May 2001 08:43:30 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:39436 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S261741AbREXMnK>; Thu, 24 May 2001 08:43:10 -0400
+Message-ID: <3B0D028F.4B7FBAB0@ntsp.nec.co.jp>
+Date: Thu, 24 May 2001 20:46:07 +0800
+From: "Adrian V. Bono" <adrianb@ntsp.nec.co.jp>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+CC: linux-kernel@vger.kernel.org
+Subject: Re: patch to put IDE drives in sleep-mode after an halt
+In-Reply-To: <003901c0e44d$2de3ea60$093fe33e@host1>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"peter k." wrote:
 
-> On Thu, May 24, 2001 at 12:03:49PM +0100, Rodrigo Ventura wrote:
-> >         I am submitting a patch to kernel/sys.c that walks through all
-> > IDE drives (#ifdef CONFIG_BLK_DEV_IDE, of course), and issues a
-> > "sleep" command (as code in hdparam) to each one of them right before
-> > the kernel halts. Here goes the diff:
->
-> I'm not going to comment on the idea, just the implementation.  Eww.
+> > I'm not going to comment on the idea, just the implementation.  Eww.
+> 
+> imho the idea is very good
+> i was already wondering why the kernel doesnt spin down the hds when i
+> shutdown...
+> and its necessary because if you want to move your box the hd heads should
+> be parked!
+> 
+>  - peter k.
 
-imho the idea is very good
-i was already wondering why the kernel doesnt spin down the hds when i
-shutdown...
-and its necessary because if you want to move your box the hd heads should
-be parked!
- 
- - peter k.
- 
-
+Aren't all IDE drives built today auto-parking? Auto-parking became an
+inherent feature in voice coil drives (stepper-motor drives weren't
+auto-parking), and since all drives are voice coil drives, then they
+should auto-park. But i've had problems with some hard drives that were
+spinned down (when Win____ was shutdown)..  if i reset the PC (instead
+of turning it off), the hard drives wouldn't come back on so i'd have to
+do a full shutdown of the machine.

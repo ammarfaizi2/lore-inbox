@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbULZBbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbULZCVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbULZBbF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 20:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbULZBbE
+	id S261183AbULZCVl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 21:21:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbULZCVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 20:31:04 -0500
-Received: from main.gmane.org ([80.91.229.2]:18588 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261600AbULZBaz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 20:30:55 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Paul Ionescu <i_p_a_u_l@yahoo.com>
-Subject: Re: bug: cd-rom autoclose no longer works in 2.6.9/2.6.10
-Date: Sun, 26 Dec 2004 03:30:03 +0200
-Message-ID: <pan.2004.12.26.01.30.02.77370@yahoo.com>
-References: <41CE0723.8030008@aknet.ru>
+	Sat, 25 Dec 2004 21:21:41 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:8410 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261183AbULZCVk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 21:21:40 -0500
+Date: Sat, 25 Dec 2004 18:21:35 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: lease.openlogging.org is unreachable
+Message-ID: <20041226022135.GA3250@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Larry McVoy <lm@bitmover.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: home-33027.b.astral.ro
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412250121_MC3-1-91AF-7FBB@compuserve.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stas,
-
-Does 
-cat /proc/sys/dev/cdrom/autoclose
-return 1 or 0 ?
-
-On Sun, 26 Dec 2004 03:34:43 +0300, Stas Sergeev wrote:
-
-> Hello.
+On Sat, Dec 25, 2004 at 01:20:34AM -0500, Chuck Ebbert wrote:
+> lease.openlogging.org is unreachable today.
 > 
-> CD-ROM autoclose stopped working for
-> me quite some time ago. I used to type only "mount /mnt/cdrom" and that
-> took care about closing, but now I am getting this:
-> ---
-> $ mount /mnt/cdrom
-> mount: No medium found
-> ---
-> so I have to do "eject -t" first.
-> I can reproduce this problem on 2
-> completely different machines, so I
-> don't think this have something to
-> do with the particular hardware.
-> The configuration haven't changed
-> either:
-> 
-> $ cat /proc/sys/dev/cdrom/autoclose
-> 1
-> 
-> $ cat /proc/sys/dev/cdrom/info
-> CD-ROM information, Id: cdrom.c 3.20 2003/12/17
->  
-> drive name:             hdd
-> drive speed:            50
-> drive # of slots:       1
-> Can close tray:         1
-> Can open tray:          1
-> Can lock tray:          1
-> Can change speed:       1
-> Can select disk:        0
-> Can read multisession:  1
-> Can read MCN:           1
-> Reports media changed:  1
-> Can play audio:         1
-> Can write CD-R:         0
-> Can write CD-RW:        0
-> Can read DVD:           0
-> Can write DVD-R:        0
-> Can write DVD-RAM:      0
-> Can read MRW:           1
-> Can write MRW:          1
-> Can write RAM:          1
+> So I guess I need to set up a cron job to renew my lease every
+> minute/hour/day/whatever so I can actually download new kernel
+> releases when they come out?  I can't even examine the code I
+> downloaded yesterday without that lease...  Now that's what I call
+> having my source code held hostage!
 
-
+It's back up.  Go to a repo and say "bk lease renew" and you should be
+all set.  
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbTAIK4O>; Thu, 9 Jan 2003 05:56:14 -0500
+	id <S266186AbTAILS1>; Thu, 9 Jan 2003 06:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264931AbTAIK4O>; Thu, 9 Jan 2003 05:56:14 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:4510 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S262780AbTAIK4O>;
-	Thu, 9 Jan 2003 05:56:14 -0500
-Date: Thu, 9 Jan 2003 12:04:46 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andrew Morton <akpm@digeo.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.55
-In-Reply-To: <Pine.LNX.4.44.0301082033410.1438-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0301091202511.25052-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266210AbTAILS1>; Thu, 9 Jan 2003 06:18:27 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5136 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266186AbTAILS0>; Thu, 9 Jan 2003 06:18:26 -0500
+Date: Thu, 9 Jan 2003 11:26:59 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Subject: __gpl_ksymtab
+Message-ID: <20030109112659.B15310@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Rusty Russell <rusty@rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, Linus Torvalds wrote:
-> Andrew Morton <akpm@digeo.com>:
->   o move LOG_BUF_SIZE to header/config
+In 2.5.55, we have a new section called "__gpl_ksymtab".
 
-I find the config a bit confusing:
+This, unfortunately, isn't mentioned in the linker script, and on ARM
+gets placed at 0x1c58, where the rest of the kernel is at 0xcXXXXXXX.
 
-| Kernel log buffer size (128 KB, 64 KB, 32 KB, 16 KB, 8 KB, 4 KB) [16 KB] (NEW) ?
-| Select kernel log buffer size from this list (power of 2).
-| Defaults:  17 (=> 128 KB for S/390)
-|            16 (=> 64 KB for x86 NUMAQ or IA-64)
-|            15 (=> 32 KB for SMP)
-|            14 (=> 16 KB for uniprocessor)
-| 
-| Kernel log buffer size (128 KB, 64 KB, 32 KB, 16 KB, 8 KB, 4 KB) [16 KB] (NEW) 
+This section isn't even mentioned in the x86 linker script, so there
+isn't an example of the placement expectations of this section.
 
-E.g. should I enter `14' or `16 KB' (or `16') for `16 KB'?
+Rusty, can you provide the missing bits please?
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

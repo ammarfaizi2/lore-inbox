@@ -1,67 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263371AbVCEAHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263186AbVCEANH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263371AbVCEAHY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263423AbVCEAEN
+	id S263186AbVCEANH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbVCEAJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:04:13 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26053 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263371AbVCDW4U (ORCPT
+	Fri, 4 Mar 2005 19:09:16 -0500
+Received: from bender.bawue.de ([193.7.176.20]:57987 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S263290AbVCDWG2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 17:56:20 -0500
-Date: Fri, 4 Mar 2005 23:55:56 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, mjg59@scrf.ucam.org, hare@suse.de,
-       "Barry K. Nathan" <barryn@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: allow resume from initramfs
-Message-ID: <20050304225556.GA2647@elf.ucw.cz>
-References: <20050304101631.GA1824@elf.ucw.cz> <20050304030410.3bc5d4dc.akpm@osdl.org> <20050304175038.GE9796@ip68-4-98-123.oc.oc.cox.net> <1109971327.3772.280.camel@desktop.cunningham.myip.net.au> <20050304214329.GD2385@elf.ucw.cz> <1109973035.3772.291.camel@desktop.cunningham.myip.net.au> <20050304220709.GE2385@elf.ucw.cz> <1109975474.3772.305.camel@desktop.cunningham.myip.net.au>
+	Fri, 4 Mar 2005 17:06:28 -0500
+Date: Fri, 4 Mar 2005 23:06:23 +0100
+From: Joerg Sommrey <jo@sommrey.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>
+Subject: Re: [SATA] libata-dev queue updated
+Message-ID: <20050304220623.GA11867@sommrey.de>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>
+References: <200503022034.j22KYppm010967@bear.sommrey.de> <422641AF.8070309@pobox.com> <20050303193229.GA10265@sommrey.de> <4227DF76.3030401@pobox.com> <20050304063717.GA12203@sommrey.de> <422809D6.5090909@pobox.com> <20050304174956.GA10971@sommrey.de> <4228A3D4.8050906@pobox.com> <20050304203330.GA14557@sommrey.de> <4228C87A.8080205@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1109975474.3772.305.camel@desktop.cunningham.myip.net.au>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <4228C87A.8080205@pobox.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Hmm, bitmaps? Okay, then low-level code needs to stay separate. (And
-> > thats bad, I wanted that one to be shared most).
+On Fri, Mar 04, 2005 at 03:43:38PM -0500, Jeff Garzik wrote:
+> Joerg Sommrey wrote:
+> >On Fri, Mar 04, 2005 at 01:07:16PM -0500, Jeff Garzik wrote:
+> >
+> >>Joerg Sommrey wrote:
+> >>
+> >>>On Fri, Mar 04, 2005 at 02:10:14AM -0500, Jeff Garzik wrote:
+> >>>
+> >>>
+> >>>>Joerg Sommrey wrote:
+> >>>>
+> >>>>
+> >>>>>On Thu, Mar 03, 2005 at 11:09:26PM -0500, Jeff Garzik wrote:
+> >>>>>
+> >>>>>
+> >>>>>
+> >>>>>>Joerg Sommrey wrote:
+> >>>>>>
+> >>>>>>
+> >>>>>>
+> >>>>>>>On Wed, Mar 02, 2005 at 05:43:59PM -0500, Jeff Garzik wrote:
+> >>>>>>>
+> >>>>>>>
+> >>>>>>>
+> >>>>>>>
+> >>>>>>>>Joerg Sommrey wrote:
+> >>>>>>>>
+> >>>>>>>>
+> >>>>>>>>
+> >>>>>>>>
+> >>>>>>>>>Jeff Garzik wrote:
+> >>>>>>>>>
+> >>>>>>>>>
+> >>>>>>>>>
+> >>>>>>>>>
+> >>>>>>>>>>Patch:
+> >>>>>>>>>>http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.11-rc5-bk4-libata-dev1.patch.bz2
+> >>>>>>>>>
+> >>>>>>>>>
+> >>>>>>>>>Still not usable here.  The same errors as before when backing up:
+> >>>>>>>>
+> >>>>>>>>Please try 2.6.11 without any patches.
+> >>>>>>>
+> >>>>>>>Plain 2.6.11 doesn't work either.  All of 2.6.10-ac11, 2.6.11-rc5,
+> >>>>>>>2.6.11-rc5 + 2.6.11-rc5-bk4-libata-dev1.patch and 2.6.11 fail with 
+> >>>>>>>the
+> >>>>>>>same symptoms. 
+> >>>>>>>
+> >>>>>>>Reverting to stable 2.6.10-ac8 :-)
+> >>>>>>
+> >>>>>>Does reverting the attached patch in 2.6.11 (apply with patch -R) fix 
+> >>>>>>things?
+> >>>>>>
+> >>>>>
+> >>>>>
+> >>>>>Still the same with this patch reverted.
+> >>>>
+> >>>>Does reverting the attached patch in 2.6.11 fix things?  (apply with 
+> >>>>patch -R)
+> >>>>
+> >>>>This patch reverts the entire libata back to 2.6.10.
+> >>>>
+> >>>
+> >>>I'm confused.  Still the same with everything reverted.  What shall I do
+> >>>now?
+> >>
+> >>Well, first, thanks for your patience in narrowing this down.
+> >>
+> >>This means we have eliminated libata as a problem source, but we still 
+> >>have the rest of the kernel go to through :)
+> >>
+> >>Try disabling ACPI with 'acpi=off' or 'pci=biosirq' to see if that fixes 
+> >>things.
+> >>
+> >
+> >I tried both settings with plain 2.6.11. Almost the same results, in my
+> >impression apci=off causes the failure to appear even faster.
 > 
-> Mmm. As you might remember, I used extents from 1.0 to save space. The
-> feedback from the last submission to LKML about getting rid of the
-> page_alloc.c hooks made me re-examine the use of the memory pool, which
-> made me re-examine the format in which the data was stored. Switching to
-> bitmaps meant that after saving the LRU pages, I can recalculate what
-> remains to be saved without ever changing the result in the process.
-> (Using extents, there was a small chance that the recalculated metadata
-> would require an extra extent on an extra page, which means you have to
-> recalculate everything again :<. With discontiguous bitmaps, I get
-> efficient storage, no need for > order zero allocations and no feedback
-> whatsoever when recalculating image metadata. Besides removing the
-> memory pool code, I've already removed some more, and am about to
-> simplify the code for the remaining extents (for storage metadata). I
-> hope to also be able to further simplify the image preparation code too.
+> Just to make sure I have things right, please tell me if this is correct:
 > 
-> All that to say "Bitmaps were a definite win!". Perhaps I can sell you
-> on the advantages of using them :>
+> * 2.6.10 vanilla works
+> 
+> * 2.6.11 vanilla does not work
+> 
+> * 2.6.11 vanilla + 2.6.10 libata does not work
+>   [2.6.10 libata == reverting all libata changes]
+> 
+> Is that all correct?
 
-Not sure, if one bit goes wrong you put everything in the wrong places
-:-). Linklist seems just okay to me, no > 4K allocations. I'm not sure
-why recalculation is that big problem.
+Thanks for asking these precise questions.  After double-checking
+everything I found a typo in my configuration that changes things a bit.
+I repeated some tests and the correct answers are now:
+* 2.6.10 vanilla		works
+* 2.6.10-ac8			works
+* 2.6.10-ac11			does not work
+* 2.6.11 vanilla		does not work
+* 2.6.11 w/o promise.patch	does not work
+* 2.6.11 + 2.6.10 libata	works!
 
-> By the way, did you see the effect of the memory eating patch? I didn't
-> think about it until someone emailed me, but the improvement was 50x
-> speed in the best case!
+This looks much more consistent to me but brings the case back to
+libata.
 
-Well, more interesting was that you actually freed much more memory
-with your patch. *You actually made memory freeing to work*. So yes, I
-like that one.
-								Pavel
+-jo
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+-rw-r--r--  1 jo users 63 2005-03-04 22:48 /home/jo/.signature

@@ -1,114 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbUBZADO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 19:03:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbUBZADO
+	id S261774AbUBZAIr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 19:08:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbUBZAIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 19:03:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32163 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261522AbUBZADG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 19:03:06 -0500
-Date: Wed, 25 Feb 2004 16:03:09 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Elliot Mackenzie" <macka@adixein.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
-Message-Id: <20040225160309.10d15433.rddunlap@osdl.org>
-In-Reply-To: <001201c3f93b$bbd94170$4301a8c0@waverunner>
-References: <20040220213157.7da96979.rddunlap@osdl.org>
-	<001201c3f93b$bbd94170$4301a8c0@waverunner>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 25 Feb 2004 19:08:47 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:62916 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261774AbUBZAIo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 19:08:44 -0500
+Date: Thu, 26 Feb 2004 01:06:01 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: [patch] 2.4.26-pre1 - drivers/net/r8169.c
+Message-ID: <20040226010601.A11789@electric-eye.fr.zoreil.com>
+References: <Pine.LNX.4.58L.0402251605360.5003@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="nFreZHaLTZJo0R7j"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58L.0402251605360.5003@logos.cnet>; from marcelo.tosatti@cyclades.com on Wed, Feb 25, 2004 at 04:09:20PM -0300
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Feb 2004 22:02:22 +1000 Elliot Mackenzie wrote:
 
-| Randy:
-| 
-| This issue just got a lot weirder but I have some more information.  
-| 
-| This is the weird part:
-| I applied the patch you suggested, and the system stopped panicking at
-| that point.  Instead, it just hung for about 10 minutes, eventually
-| kicking off again and finishing bootup.  To be sure, I then removed the
-| code and recompiled (clean), and now the original code started doing
-| that too (without your patch).  To my knowledge I changed nothing (not
-| even in BIOS), but I rebuilt the kernel again from the raw 2.6.3 source
-| to be sure - same result.
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-During the 10 minutes or so, does the keyboard work?
-Can you do Alt-SysRq-T, or just Alt-SysRq-P multiple times to see
-what code is executing?
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> :
+[...]
+> Here goes -pre1.
 
-| The interesting part (more information):
-| If we bypass the bootflag.c code (simply by putting "return 0;" as the
-| first line), the system will boot normally.  On shutdown we seem to be
-| getting a system jumping to maintenance mode, but I am not sure if its
-| related.  It appears you are right in assuming that the problem is
-| related to the bios sbf rather than the usb.  Doug pointed out to me
-| that looking through the stack trace, sbf_init is giving an rsdt_length
-| of something in the order of 1GB, and somehow the checks are not picking
-| it up.
+Please apply attached patch.
 
-There wasn't any checking for an invalid RSDT length at all.
-There should be IMO.
+Without patch, bogus descriptors are parsed as soon as
+tp->cur_tx%NUM_TX_DESC + (tp->cur_tx - tp->dirty_tx) > NUM_TX_DESC
+(assume for instance tp->dirty_tx = NUM_TX_DESC/2,
+tp->cur_tx = NUM_TX_DESC - 1 and watch entry go beyond NUM_TX_DESC).
 
-| Since it is now relevant, the BIOS is flashed to the most recent stable
-| BIOS for the ASUS P4SGX-MX motherboard (1005).
-| 
-| This is the tricky part:
-| When we bypass the bootflag code, and boot the "working" kernel, I am
-| able to capture a serial transcript.  However, I have been unsuccessful
-| in establishing a serial console for the broken 2.6.3 kernel to date.
-| It's possible I have done something strange while building one of the
-| kernels, but I am just trying to verify that now.  Are there
-| alternatives?
-
-The "magic sysrq" keys...
-
-| Currently the text on screen comes up way to quickly for me to capture,
-| and since I don't have a working serial console for the broken kernel
-| yet, I am not able to capture a transcript.  Previously I could just
-| type to you what I saw, but the kernel is now booting to the same point,
-| hanging 10 minutes then continuing.
-
-Maybe just add more printk()s to bootflag.c to see what code it is
-executing...?
+Missing stats update is fixed by the patch btw.
 
 --
-~Randy
+Ueimor
 
-Oh, your other email didn't help me any.
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="r8169-tx-desc-overflow.patch"
 
+--- drivers/net/r8169.c.orig	2004-02-25 23:34:15.000000000 +0100
++++ drivers/net/r8169.c	2004-02-25 23:47:26.000000000 +0100
+@@ -874,7 +874,6 @@ rtl8169_tx_interrupt(struct net_device *
+ 		     void *ioaddr)
+ {
+ 	unsigned long dirty_tx, tx_left = 0;
+-	int entry = tp->cur_tx % NUM_TX_DESC;
+ 
+ 	assert(dev != NULL);
+ 	assert(tp != NULL);
+@@ -884,14 +883,18 @@ rtl8169_tx_interrupt(struct net_device *
+ 	tx_left = tp->cur_tx - dirty_tx;
+ 
+ 	while (tx_left > 0) {
++		int entry = dirty_tx % NUM_TX_DESC;
++
+ 		if ((tp->TxDescArray[entry].status & OWNbit) == 0) {
+-			dev_kfree_skb_irq(tp->
+-					  Tx_skbuff[dirty_tx % NUM_TX_DESC]);
+-			tp->Tx_skbuff[dirty_tx % NUM_TX_DESC] = NULL;
++			struct sk_buff *skb = tp->Tx_skbuff[entry];
++
++			tp->stats.tx_bytes += skb->len >= ETH_ZLEN ?
++					      skb->len : ETH_ZLEN;
+ 			tp->stats.tx_packets++;
++			dev_kfree_skb_irq(skb);
++			tp->Tx_skbuff[entry] = NULL;
+ 			dirty_tx++;
+ 			tx_left--;
+-			entry++;
+ 		}
+ 	}
+ 
 
-| Kind regards,
-| Elliot.
-| 
-| -----Original Message-----
-| From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
-| Sent: Saturday, 21 February 2004 3:32 PM
-| To: macka@adixein.com
-| Cc: lkml
-| Subject: RE: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
-| 
-| 
-| As enumerated below:
-| | Calling initcall 0xc03f7e19 pcibios_init
-| | Calling initcall 0xc03f819c netdev_init
-| | Calling initcall 0xc03f1e7c chr_dev_init
-| | Calling initcall 0xc03e7084 i8259_init_sysfs
-| | Calling initcall 0xc03e7101 init_timer_sysfs
-| | Calling initcall 0xc03e90e2 sbf_init
-| 
-| 
-| I still don't see how USB enters into it, but please try the patch
-| below to see if I'm on the right track or not.
-| It looks like sbf_init() is finding an invalid ACPI RSDT length field.
-| This patch will telll us if that's the case or not.
+--nFreZHaLTZJo0R7j--

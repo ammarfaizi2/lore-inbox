@@ -1,57 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268451AbTCFWWQ>; Thu, 6 Mar 2003 17:22:16 -0500
+	id <S268449AbTCFWUY>; Thu, 6 Mar 2003 17:20:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268458AbTCFWWP>; Thu, 6 Mar 2003 17:22:15 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:13965 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268451AbTCFWWM>; Thu, 6 Mar 2003 17:22:12 -0500
-Date: Thu, 06 Mar 2003 14:22:48 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel@vger.kernel.org
-cc: John Levon <levon@movementarian.org>
-Subject: Re: HT and idle = poll
-Message-ID: <17740000.1046989368@flay>
-In-Reply-To: <b487l2$1tn$1@penguin.transmeta.com>
-References: <200303052318.04647.habanero@us.ibm.com> <b487l2$1tn$1@penguin.transmeta.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S268452AbTCFWUY>; Thu, 6 Mar 2003 17:20:24 -0500
+Received: from [66.78.32.3] ([66.78.32.3]:61606 "EHLO blacksea.bsdns.net")
+	by vger.kernel.org with ESMTP id <S268449AbTCFWUV> convert rfc822-to-8bit;
+	Thu, 6 Mar 2003 17:20:21 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Eric Northup <digitale@digitaleric.net>
+Reply-To: digitale@digitaleric.net
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Date: Thu, 6 Mar 2003 17:30:39 -0500
+User-Agent: KMail/1.4.2
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@digeo.com>,
+       <rml@tech9.net>, <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0303060931300.7206-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303060931300.7206-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303061730.39422.digitale@digitaleric.net>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - blacksea.bsdns.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - digitaleric.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andrew Theurer  <habanero@us.ibm.com> wrote:
->> The test:  kernbench (average of  kernel compiles5) with -j2 on a 2 physical/4 
->> logical P4 system.  This is on 2.5.64-HTschedB3:
->> 
->> idle != poll: Elapsed: 136.692s User: 249.846s System: 30.596s CPU: 204.8%
->> idle  = poll: Elapsed: 161.868s User: 295.738s System: 32.966s CPU: 202.6%
->> 
->> A 15.5% increase in compile times.
->> 
->> So, don't use idle=poll with HT when you know your workload has idle time!  I 
->> have not tried oprofile, but it stands to reason that this would be a 
->> problem.  There's no point in using idle=poll with oprofile and HT anyway, as 
->> the cpu utilization is totally wrong with HT to begin with (more on that 
->> later).
->> 
->> Presumably a logical cpu polling while idle uses too many cpu resources 
->> unnecessarily and significantly affects the performance of its sibling. 
-> 
-> Btw, I think this is exactly what the new HT prescott instructions are
-> for: instead of having busy loops polling for a change in memory (be it
-> a spinlock or a "need_resched" flag), new HT CPU's will support a
-> "mwait" instruction. 
-> 
-> But yes, at least for now, I really don't think you should really _ever_
-> use "idle=poll" on HT-enabled hardware. The idle CPU's will just suck
-> cycles from the real work.
+On Thursday 06 March 2003 12:35 pm, Linus Torvalds wrote:
+> On 6 Mar 2003, Alan Cox wrote:
+> > Not all X servers do that. X is not special in any way. Its just a
+> > daemon. It has the same timing properties as many other daemons doing
+> > time critical operations for many clients
+>
+> I really think that this is the most important observation about the
+> behaviour. X really isn't doing anything that other deamons don't do. It
+> so happens that what X is doing is a lot more complex than most deamons
+> do, so it's fairly easy to trigger X into using a fair amount of CPU time,
+> but that only makes the breakdown case so much easier to see.
+>
+> In all honesty, though, it's also obviously the case that the breakdown
+> case in the case of X is _really_ visible in a very very concrete way,
+> since X is the _only_ thing really "visible" unless you have Direct
+> Rendering clients. So even if the problem were to happen with another
+> deamon, it probably wouldn't stand out quite as badly. So in that sense X
+> ends up having some special characteristics - "visibility".
 
-BTW, could someone give a brief summary of why idle=poll is needed for 
-oprofile, I'd love to add it do the "documentation for dummies" file I
-was writing.
+Yes.  The special thing about X (and XMMS, XINE, et al) is that the 
+interactivity heuristic fails in a user-noticeable way.  The heuristic must 
+also be guessing incorrectly in other situations, but nobody seems to have 
+noticed when it did (or, at least, complained about it).
 
-M.
+Another noteworthy attribute of these programs is that they _know_ they will 
+be used interactively.  And, if there were a way for them to convey that 
+information to the kernel (not by using 'nice'), I bet all of the above 
+projects would take advantage of that mechanism.
+
+At first I strongly dissaproved of the kernel's timeslice adjustment by 
+interactivity estimation; policy belongs in userland, I thought.  But the 
+algorithm is actually quite effective -- a balance between high HZ for 
+real-time-ish applications but manages to avoid the cache-thrashing in places 
+it would hurt.  This policy works well most of the time, so the kernel 
+includes it as a sensible default.  But X demonstrates that sometimes we want 
+to set a different policy.  After all, the heuristic will not become perfect, 
+and its worst-case behavior is pretty bad.  (If your computers are too fast 
+to notice, try turning off cache with /proc/mtrr.  Not be a great idea on an 
+important system though...)
+
+The question is: what interface would be used?  A new syscall seems excessive; 
+but something in /proc (/proc/xyz/preferred_timeslice ?) is non-optimal, 
+because it must not be used in chroot.  I am not qualified to suggest the 
+Proper mechanism, but I strongly believe there should be one.
+
+--Eric
 

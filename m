@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292872AbSBVOTy>; Fri, 22 Feb 2002 09:19:54 -0500
+	id <S292873AbSBVOVP>; Fri, 22 Feb 2002 09:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292873AbSBVOTp>; Fri, 22 Feb 2002 09:19:45 -0500
-Received: from pc-62-31-66-117-ed.blueyonder.co.uk ([62.31.66.117]:9601 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S292872AbSBVOTd>; Fri, 22 Feb 2002 09:19:33 -0500
-Date: Fri, 22 Feb 2002 14:19:15 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Chris Mason <mason@suse.com>
-Cc: Andrew Morton <akpm@zip.com.au>, "Stephen C. Tweedie" <sct@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
-Message-ID: <20020222141915.F2424@redhat.com>
-In-Reply-To: <799880000.1014334220@tiny>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <799880000.1014334220@tiny>; from mason@suse.com on Thu, Feb 21, 2002 at 06:30:20PM -0500
+	id <S292874AbSBVOVI>; Fri, 22 Feb 2002 09:21:08 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:62473 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292873AbSBVOUx>; Fri, 22 Feb 2002 09:20:53 -0500
+Message-ID: <3C76539B.2000603@evision-ventures.com>
+Date: Fri, 22 Feb 2002 15:20:11 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Vojtech Pavlik <vojtech@suse.cz>, Gadi Oxman <gadio@netvision.net.il>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com> <00a201c1bb8d$90dd2740$0300a8c0@lemon> <3C764B7C.2000609@evision-ventures.com> <20020222150323.A5530@suse.cz> <3C7651C7.59198769@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff Garzik wrote:
+> Vojtech Pavlik wrote:
+> 
+>>On Fri, Feb 22, 2002 at 02:45:32PM +0100, Martin Dalecki wrote:
+>>
+>>>The chipset drivers will register lists of PCI-id's they can handle
+>>>instead of the single only global list found in ide-pci.c.
+>>>
+>>I think it'd be even better if the chipset drivers did the probing
+>>themselves, and once they find the IDE device, they can register it with
+>>the IDE core. Same as all the other subsystem do this.
+>>
+> 
+> Yes.  I've mentioned before converting the IDE driver into a sort of
+> structure, but it always boiled down to "that requires a complete
+> rewrite" reply to me...  If someone accomplishes such, I would be happy.
 
-On Thu, Feb 21, 2002 at 06:30:20PM -0500, Chris Mason wrote:
- 
-> This makes it much easier to add support for ide writeback
-> flushing to things like ext3 and lvm, where I want to make
-> the minimal possible changes to make things safe.
+Well, apparently it turned out to be true.
 
-Nice.
+BTW> If you have any "dirt bag" of "unfinished" code going into this
+direction I would be quite happy to have a look at it ;-).
 
-> There might be additional spots in ext3 where ordering needs to be 
-> enforced, I've included the ext3 code below in hopes of getting 
-> some comments.
 
-No.  However, there is another optimisation which we can make.
-
-Most ext3 commits, in practice, are lazy, asynchronous commits, and we
-only nedd BH_Ordered_Tag for that, not *_Flush.  It would be easy
-enough to track whether a given transaction has any synchronous
-waiters, and if not, to use the async *_Tag request for the commit
-block instead of forcing a flush.
-
-We'd also have to track the sync status of the most recent
-transaction, too, so that on fsync of a non-dirty file/inode, we make
-sure that its data had been forced to disk by at least one synchronous
-flush.  
-
-But that's really only a win for SCSI, where proper async ordered tags
-are supported.  For IDE, the single BH_Ordered_Flush is quite
-sufficient.
-
-Cheers,
- Stephen

@@ -1,36 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317236AbSEXSXt>; Fri, 24 May 2002 14:23:49 -0400
+	id <S314681AbSEXS3g>; Fri, 24 May 2002 14:29:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317235AbSEXSXs>; Fri, 24 May 2002 14:23:48 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40718 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317234AbSEXSXr>; Fri, 24 May 2002 14:23:47 -0400
-Subject: Re: It hurts when I shoot myself in the foot
-To: kasperd@daimi.au.dk (Kasper Dupont)
-Date: Fri, 24 May 2002 19:44:13 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux-Kernel)
-In-Reply-To: <3CEE6CDC.D5D7FF9E@daimi.au.dk> from "Kasper Dupont" at May 24, 2002 06:39:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314748AbSEXS3f>; Fri, 24 May 2002 14:29:35 -0400
+Received: from [209.184.141.163] ([209.184.141.163]:12015 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S314681AbSEXS3f>;
+	Fri, 24 May 2002 14:29:35 -0400
+Subject: 2.4 Kernel Perf discussion [Was Re: [BUG] 2.4 VM sucks. Again]
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <435570000.1022263849@flay>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17BK2v-00074S-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 24 May 2002 13:29:30 -0500
+Message-Id: <1022264970.10464.12.camel@UberGeek>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > You can solve it by disabling pre-emption (and given its questionable
-> > value doing so permanently might not be a bad idea).
+On Fri, 2002-05-24 at 13:10, Martin J. Bligh wrote:
+> > Also, adjusting the bdflush parms greatly increases stability I've found
+> > in this respect.
 > 
-> Questionable value of what? TSC or preemption?
+> What exactly did you do to them? Can you specify what you're set to
+> at the moment (and anything you found along the way in tuning)?
 
-Pre-emption
+I actually changed the defaults of the bdflush parms before compiling. I
+don't have that info right now because I had to dismantle my system in a
+hurry, was a try-buy from Dell at the time, and we weren't authorized to
+buy yet.
 
-> I wouldn't want to disable preemption during udelays.
-> Either I would disable and enable preemption on every
-> pass through the loop. Or I would just manually check
+At any rate, I found, at the time, (2.4.17-pre5-aa2-xfs I think), that
+the defaults for bdflush when running dbench would just *destroy* the
+system. Changing the bdflush parms to be about 60% full, and flushing to
+30%, while potentially wasteful, was indeed an improvement. 
 
-You've already made it too expensive too bother with
+IOzone benchmarks also show distinct improvements in this regard as
+well, but I never had such terrible kswapd/bdflush issues with that test
+as I did with dbench, to begin with. 
 
+The test system was a Dell 6450 with 8GB ram and P3 Xeon 700Mhz 2MB
+cache procs. I expect far greater peformance from the P4 Xeon 1.6GHz 1MB
+Cache procs though. In that scenario, we will only be using 4GB ram
+probably. That test will be internal to us and should start in the next
+couple weeks (I hope). I'll be charged with making the system testing as
+immaculate as possible so we have crisp information to use in our
+decision making process as we move from Sun to x86.
+
+> > Problem is, my tests are *unofficial* but I plan to do something perhaps
+> > at OSDL and see what we can show in a max single-box config with real
+> > hardware, etc. 
+> 
+> Great stuff, I'm very interested in knowing about any problems you find.
+> We're doing very similar things here, anywhere from 8-32 procs, and
+> 4-32Gb of RAM, both NUMA and SMP.
+
+As soon as I can get time on their systems to do 4/8-way testing, I'll
+make my benches available. Should be good stuff. :)
+
+> Thanks,
+> 
+> Martin.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

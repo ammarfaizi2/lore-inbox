@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268485AbUHLAco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268512AbUHLAhq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268485AbUHLAco (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 20:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268367AbUHLAaT
+	id S268512AbUHLAhq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 20:37:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268501AbUHLAdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 20:30:19 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:487 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268308AbUHLAES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 20:04:18 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Linh Dang <linhd@nortelnetworks.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <wn51xid99qf.fsf@linhd-2.ca.nortel.com>
-References: <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
-	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
-	 <20040810132654.GA28915@elte.hu> <1092174959.5061.6.camel@mindpipe>
-	 <20040811073149.GA4312@elte.hu> <20040811074256.GA5298@elte.hu>
-	 <1092210765.1650.3.camel@mindpipe> <20040811082712.GB6528@elte.hu>
-	 <wn51xid99qf.fsf@linhd-2.ca.nortel.com>
-Content-Type: text/plain
-Message-Id: <1092269085.1090.10.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 11 Aug 2004 20:04:46 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Aug 2004 20:33:51 -0400
+Received: from web14927.mail.yahoo.com ([216.136.225.85]:45949 "HELO
+	web14927.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268481AbUHLAWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 20:22:45 -0400
+Message-ID: <20040812002245.88080.qmail@web14927.mail.yahoo.com>
+Date: Wed, 11 Aug 2004 17:22:45 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: RE: [PATCH] add PCI ROMs to sysfs
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB600296D33C@scsmsx403.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-11 at 07:48, Linh Dang wrote:
-> Hi,
-> 
-> I'm not running the voluntary-preempt-* patches. but I do see some
-> long latencies with:
-> 
->         vanilla 2.6.7+preempt-timing+defer-softirq
-> 
-> which were NOT reported here. Is it useful the report them?
-> 
+Changing the quirk in fixup.c from FINAL to HEADER fixes the problem.
+Only the length was coming from the wrong place, the ROM contents came
+from the shadow memory.
 
-Probably not.  Many latency issues as well as bugs in the preempt timing
-patch have been fixed since then.  You should try the latest version.
+Any ideas on how to solve this problem...
 
-Lee
+Originally I had this in the enable ROM routine
+/* assign the ROM an address if it doesn't have one */
+if (r->parent == NULL)
+   pci_assign_resource(dev->pdev, PCI_ROM_RESOURCE);
+                                                                       
+                                 
+I removed the call to pci_assign_resource(). The sysfs attribute code
+builds the attributes before the pci subsystem is fully initialized.
+specifically before arch pcibios_init() has been called. If
+pci_assign_resource() is called for the ROM before pcibios_init() the
+kernel's resource maps have not been built yet. This will result in the
+ROM being located on top of the framebuffer; as soon as it is enabled
+the system will lock. Right now the code relies on the BIOS getting the
+ROM address set up right. If we can figure out how to initialize the
+sysfs attributes after pcibios_init() then I can put the assign call
+back.
 
+--- "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> wrote:
+
+> 
+> One issue with x86 quirk in this patch.
+> The actual sysfs entries are created during the PCI bus scan.
+> But, pci_fixup_video() gets called later during device_initcalls.
+> So, PCI_ROM_SHADOW is kind of ineffective now. 
+> 
+> Thanks,
+> Venki
+
+=====
+Jon Smirl
+jonsmirl@yahoo.com
+
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail Address AutoComplete - You start. We finish.
+http://promotions.yahoo.com/new_mail 

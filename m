@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266682AbRGOQce>; Sun, 15 Jul 2001 12:32:34 -0400
+	id <S266688AbRGOQos>; Sun, 15 Jul 2001 12:44:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266684AbRGOQcX>; Sun, 15 Jul 2001 12:32:23 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25107 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266682AbRGOQcN>; Sun, 15 Jul 2001 12:32:13 -0400
-Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
-To: volodya@mindspring.com
-Date: Sun, 15 Jul 2001 17:33:11 +0100 (BST)
-Cc: ajschrotenboer@lycosmail.com (Adam Schrotenboer),
-        linux-kernel@vger.kernel.org (lkml), reiser@namesys.com
-In-Reply-To: <Pine.LNX.4.20.0107151158360.645-100000@node2.localnet.net> from "volodya@mindspring.com" at Jul 15, 2001 12:00:14 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266696AbRGOQoi>; Sun, 15 Jul 2001 12:44:38 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:19215 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S266688AbRGOQoW>; Sun, 15 Jul 2001 12:44:22 -0400
+Message-ID: <3B51C864.C98B61DE@namesys.com>
+Date: Sun, 15 Jul 2001 20:44:20 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: volodya@mindspring.com, Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
+In-Reply-To: <E15LopT-0004Cm-00@the-village.bc.nu>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15LopT-0004Cm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Which is a good point - can ext2 handle more than 4gig partitions ? I have
-> some vague ideas that it doesn't (and that it does not handle files more
-> than 2gig long). I am reasonable sure that ReiserFS is better in this
-> regard though I am not certain about this either.
+Alan Cox wrote:
+> 
+> > Which is a good point - can ext2 handle more than 4gig partitions ? I have
+> > some vague ideas that it doesn't (and that it does not handle files more
+> > than 2gig long). I am reasonable sure that ReiserFS is better in this
+> > regard though I am not certain about this either.
+> 
+> Ext2 handles files larger than 2Gb, and can handle up to about 1Tb per volume
+> which is the block layer fs size limit.
+> 
+> Alan
 
-Ext2 handles files larger than 2Gb, and can handle up to about 1Tb per volume
-which is the block layer fs size limit.
+The limits for reiserfs and ext2 for kernels 2.4.x are the same (and they are 2Tb not 1Tb).  The
+limits are not in the individual filesystems.  We need to have Linux go to 64 bit blocknumbers in
+2.5.x, I am seeing a lot of customer demand for it.  (Or we could use scalable integers, which would
+be better.)
 
-Alan
-
+Hans

@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbUBJWpO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 17:45:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbUBJWpO
+	id S261881AbUBJXFF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 18:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbUBJXFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 17:45:14 -0500
-Received: from gate.crashing.org ([63.228.1.57]:64657 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261890AbUBJWpJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 17:45:09 -0500
-Subject: Re: ieee1394 and fbdev oops in 2.6.3rc2
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040210165202.GA7590@suse.de>
-References: <20040210165202.GA7590@suse.de>
-Content-Type: text/plain
-Message-Id: <1076453077.2285.69.camel@gaston>
+	Tue, 10 Feb 2004 18:05:05 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:18704 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S261881AbUBJXFA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 18:05:00 -0500
+Date: Tue, 10 Feb 2004 15:04:52 -0800
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Cc: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: UTF-8 in file systems? xfs/extfs/etc.
+Message-ID: <20040210230452.GA15892@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org, Matthias Urlichs <smurf@smurf.noris.de>
+References: <20040209115852.GB877@schottelius.org> <pan.2004.02.09.13.36.23.911729@smurf.noris.de> <20040210043212.GF18674@srv-lnx2600.matchmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 11 Feb 2004 09:44:38 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040210043212.GF18674@srv-lnx2600.matchmail.com>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may cause mental anguish to the close-minded. Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-11 at 03:52, Olaf Hering wrote:
+On Mon, Feb 09, 2004 at 08:32:12PM -0800, Mike Fedyk wrote:
+> On Mon, Feb 09, 2004 at 02:36:24PM +0100, Matthias Urlichs wrote:
+> > Hi, Nico Schottelius wrote:
+> > 
+> > > What Linux supported filesystems support UTF-8 filenames?
+> > 
+> > Filenames, to the kernel, are a sequence of 8-bit things commonly
+> > called "bytes" or "octets", excluding '/' and '\0'.
+> > 
+> 
+> You can have "/" in the filename also, though that could be encoded somehow...
 
-> NIP: C0101000 LR: C0100F90 SP: EF185CF0 REGS: ef185c40 TRAP: 0700    Not tainted
-> MSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-> TASK = ef1938a0[4325] 'X' Last syscall: 54 
-> GPR00: 00000002 EF185CF0 EF1938A0 EFFA3C00 EF185CF8 00000000 EF185D94 00000000 
-> GPR08: 00000000 FFFFFF00 00000001 00000000 28004884 101E6A58 101EEE08 101EED88 
-> GPR16: 101EF108 101EEF88 101EEE08 7FFFF438 101ECCF8 101E0000 101E0000 101E0000 
-> GPR24: 00000001 C02EBA40 000000A0 00000040 00000400 00000010 EFFA3C00 00000008 
-> Call trace:
->  [<c01011ac>] fbcon_switch+0x11c/0x288
->  [<c00c56c4>] redraw_screen+0x1c0/0x22c
->  [<c00c027c>] complete_change_console+0x44/0xf8
->  [<c00bfa34>] vt_ioctl+0x16c0/0x1d60
->  [<c00b8604>] tty_ioctl+0x160/0x5d4
->  [<c006c51c>] sys_ioctl+0xdc/0x2fc
->  [<c0007c7c>] ret_from_syscall+0x0/0x44
+You might be able to have a non-ASCII character that looks
+like / but not 0x2f.
 
-Can you check the value of NIP in System.map ? May it be accel_clear_margins ?
+I for one do not want open("/var/tpm/diddle", O_WRONLY | O_CREAT)
+to create a file "tpm/diddle" in /var just because /var/tpm
+doesn't exist.  Fortunately what happens is it fails with
+ENOENT.
 
-In this case, james, it's the same crash I saw for ages occasionally when
-using stty. Something doggy is happening in there.
-
-Olaf, is it 100% reproduceable ?
-
-Ben.
-
+I expect UTF-8 to have no multi-byte sequences containing NUL
+but it might be awkward if a multi-byte sequence contained
+0x2F (/).  I would hope that the committees chose to avoid
+using symbol and punctuation byte-codes for alphanumeric
+sequences.
 
 
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

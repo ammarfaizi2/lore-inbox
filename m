@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292314AbSBPEwZ>; Fri, 15 Feb 2002 23:52:25 -0500
+	id <S292187AbSBPE5f>; Fri, 15 Feb 2002 23:57:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292315AbSBPEwP>; Fri, 15 Feb 2002 23:52:15 -0500
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:17160
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S292314AbSBPEwF>; Fri, 15 Feb 2002 23:52:05 -0500
-Date: Fri, 15 Feb 2002 23:53:16 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: "Dennis, Jim" <jdennis@snapserver.com>
-cc: Linux <linux-kernel@vger.kernel.org>
-Subject: RE: XFS + rmap?
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD3@cdserv.meridian-data.com>
-Message-ID: <Pine.LNX.4.40.0202152352110.16438-100000@coredump.sh0n.net>
+	id <S292315AbSBPE5P>; Fri, 15 Feb 2002 23:57:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5132 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292187AbSBPE5I>;
+	Fri, 15 Feb 2002 23:57:08 -0500
+Message-ID: <3C6DE6A1.2B5717BE@mandrakesoft.com>
+Date: Fri, 15 Feb 2002 23:57:05 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: esr@thyrsus.com, Dave Jones <davej@suse.de>,
+        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+In-Reply-To: <E16br21-0004Vw-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> Since the information is there in CML1 to generate the list of constraints
+> for any given option, its a reasonable assertion that the entire CML2
+> language rewrite is self indulgence from a self confessed language invention
+> freak.
 
-you can find it at http://xfs.sh0n.net/2.4
+Correct me if I'm wrong, but there are express two different types of
+situations, and CML1 isn't sufficient to express the second:
 
-Now that im all Olympic out it's time to get to work :)
+1) CONFIG_FOO_OPTION requires CONFIG_FOO
 
-I'd give it about 30-40 mins for me to get the patch ready. Doing some
-testing and there's small changes that need to be done.
+2) CONFIG_SUBSYS2 requires CONFIG_SUBSYS1
 
-Shawn.
+The reason why #2 is different, is the desired prompting and symbol
+behavior for the end user.
 
-On Fri, 15 Feb 2002, Dennis, Jim wrote:
+If CONFIG_SUBSYS1=m or "", and CONFIG_SUBSYS2=y or m, then we gotta
+change the value of CONFIG_SUBSYS1 and options underneath
+CONFIG_SUBSYS1.  Re-prompt for CONFIG_SUBSYS1, perhaps?
+If CONFIG_SUBSYS1=y, value of CONFIG_SUBSYS2 isn't affected
+If CONFIG_SUBSYS1="" and CONFIG_SUBSYS2="", then we gotta prompt for
+CONFIG_SUBSYS1, but -after- CONFIG_SUBSYS2 is prompted for.
 
->
->  Where will you be putting it?
->
-> -----Original Message-----
-> From: Shawn Starr [mailto:shawn.starr@datawire.net]
-> Sent: Friday, February 15, 2002 11:03 AM
-> To: Dennis, Jim
-> Cc: Linux
-> Subject: Re: XFS + rmap?
->
->
-> Yes, I will be releasing -shawn5 with: rmap-12f + XFS + 2.4.18-rc1 w/
-> ac's -ac4 of 2.4.18-pre9.
->
-> Shawn.
->
-> On Fri, 2002-02-15 at 13:14, Dennis, Jim wrote:
-> >
-> >   Has anyone been using the XFS 2.4.x patches with Rik van Riel's rmap
-> >  VM patches?  Any known problems with that?
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> --
-> Shawn Starr
-> Developer Support Engineer
-> Datawire Communication Networks Inc.
-> 10 Carlson Court, Suite 300
-> Toronto, ON, M9W 6L2
-> T: 416-213-2001 ext 179  F: 416-213-2008
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+I was tempted to introduce a "requires" token to express dependencies
+between subsystems, because I feel they are different from the other
+dependencies present, 
 
+	Jeff
+
+
+
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

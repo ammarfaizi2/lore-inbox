@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbTEBTzO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 15:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263160AbTEBTzN
+	id S262274AbTEBOuA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 10:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbTEBOuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 15:55:13 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:17423 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263152AbTEBTzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 15:55:09 -0400
-Date: Fri, 2 May 2003 21:07:32 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: linux-kernel@vger.kernel.org, <linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] fix mach64_gx.c
-In-Reply-To: <16050.3732.615164.697680@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.44.0305022106110.15173-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 May 2003 10:50:00 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:46051 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S262274AbTEBOt6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 10:49:58 -0400
+Subject: Re: 2.5.68-mm4
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <1051886748.2166.20.camel@spc9.esa.lanl.gov>
+References: <20030502020149.1ec3e54f.akpm@digeo.com>
+	 <1051886748.2166.20.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051887650.2163.23.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 02 May 2003 09:00:50 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-05-02 at 08:45, Steven Cole wrote:
+> On Fri, 2003-05-02 at 03:01, Andrew Morton wrote:
 
-New fixes for the ATI driver are coming. I have been neglecting the 
-drivers to finish core changes which for the most part have been done.
+> > - grab kexec-tools from
+> > 
+> > 	http://www.osdl.org/archive/andyp/kexec/2.5.68/
+> > 
+> The andyp directory seems to be missing.  I found kexec-tools-1.8 here:
+> http://www.xmission.com/~ebiederm/files/kexec/
+> 
+> Is that the latest version?
 
-P.S
-   Has anyone tested this chipset on a PPC 64?
+Now kexec-tools-1.8-2.5.68.tgz is there at the original URL.  Thanks.
 
+Steven
 

@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280674AbRKSTxs>; Mon, 19 Nov 2001 14:53:48 -0500
+	id <S280670AbRKSTxi>; Mon, 19 Nov 2001 14:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280676AbRKSTxk>; Mon, 19 Nov 2001 14:53:40 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.21]:19554 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S280674AbRKSTxY>; Mon, 19 Nov 2001 14:53:24 -0500
-Date: Mon, 19 Nov 2001 20:53:16 +0100
-From: Jeroen Vreeken <pe1rxq@amsat.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bug in sock.c
-Message-ID: <20011119205316.I604@jeroen.pe1rxq.ampr.org>
-In-Reply-To: <20011119181106.A604@jeroen.pe1rxq.ampr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20011119181106.A604@jeroen.pe1rxq.ampr.org>; from pe1rxq@amsat.org on Mon, Nov 19, 2001 at 18:11:07 +0100
-X-Mailer: Balsa 1.1.0
+	id <S280676AbRKSTxZ>; Mon, 19 Nov 2001 14:53:25 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14096 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280670AbRKSTxC>; Mon, 19 Nov 2001 14:53:02 -0500
+Date: Mon, 19 Nov 2001 11:48:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] problem with grow_dev_page()/readpage()
+In-Reply-To: <Pine.GSO.4.21.0111191435090.19969-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0111191147040.8447-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is so popular that some people requested it again but this time
-inline :)
 
-So here it is again:
+On Mon, 19 Nov 2001, Alexander Viro wrote:
+>
+> 	Look at block_read_full_page().  If it sees ->buffers != NULL, it
+> assumes that buffer size corresponds to ->i_blkbits.
 
---- linux-2.4.13/net/core/sock.c        Fri Nov 15 21:12:38 2001
-+++ linux/net/core/sock.c       Fri Nov 16 20:53:55 2001
-@@ -81,6 +81,7 @@
-  *             Andi Kleen      :       Fix write_space callback
-  *             Chris Evans     :       Security fixes - signedness again
-  *             Arnaldo C. Melo :       cleanups, use skb_queue_purge
-+ *             Jeroen Vreeken  :       Add check for sk->dead in
-sock_def_write_space
-  *
-  * To Fix:
-  *
-@@ -1130,7 +1131,7 @@
-        /* Do not wake up a writer until he can make "significant"
-         * progress.  --DaveM
-         */
--       if((atomic_read(&sk->wmem_alloc) << 1) <= sk->sndbuf) {
-+       if(!sk->dead && (atomic_read(&sk->wmem_alloc) << 1) <= sk->sndbuf)
-{
-                if (sk->sleep && waitqueue_active(sk->sleep))
-                        wake_up_interruptible(sk->sleep);
+It doesn't matter - it doesn't _use_ the thing, if the buffers are mapped
+(and they will always be mapped for block devices).
 
+So it only cares about i_blkbits if it creates new buffers.
+
+		Linus
 

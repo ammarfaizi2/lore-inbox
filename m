@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVBAE7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVBAE75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbVBAE7V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 23:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVBAE7V
+	id S261551AbVBAE75 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 23:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVBAE75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 23:59:21 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:1183 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261547AbVBAE7P (ORCPT
+	Mon, 31 Jan 2005 23:59:57 -0500
+Received: from gate.crashing.org ([63.228.1.57]:38571 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261546AbVBAE7x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 23:59:15 -0500
-Date: Tue, 1 Feb 2005 15:59:01 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus <torvalds@osdl.org>, ppc64-dev <linuxppc64-dev@ozlabs.org>,
-       paulus@ozlabs.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ppc64 iseries: can't remove viocd module when no cdroms
-Message-Id: <20050201155901.62d7c14d.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 31 Jan 2005 23:59:53 -0500
+Subject: Re: pci: Arch hook to determine config space size
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Brian King <brking@us.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>,
+       Linux Arch list <linux-arch@vger.kernel.org>,
+       Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Paul Mackerras <paulus@samba.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <41FF0B0D.8020003@us.ibm.com>
+References: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com>
+	 <20050131192955.GJ31145@parcelfarce.linux.theplanet.co.uk>
+	 <41FEA4AA.1080407@us.ibm.com> <200501312256.44692.arnd@arndb.de>
+	 <41FEB492.2020002@us.ibm.com> <1107227727.5963.46.camel@gaston>
+	 <41FF0B0D.8020003@us.ibm.com>
+Content-Type: text/plain
+Date: Tue, 01 Feb 2005 15:57:44 +1100
+Message-Id: <1107233864.5963.65.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Tue__1_Feb_2005_15_59_01_+1100_8vFeHku_A0rUpqkx"
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__1_Feb_2005_15_59_01_+1100_8vFeHku_A0rUpqkx
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Mon, 2005-01-31 at 22:52 -0600, Brian King wrote:
 
-Hi Andrew,
+> Assuming I am reading the spec correctly, this is only a property of the 
+> PHB, so I could move it into the pci_controller struct instead.
 
-This patch fixes a bug where attempting to remove the viocd module
-when no virtual cdroms where actually present would cause an oops.
-The driver was not completing its initialisation in this case.
+Note that Arnd seems to imply the opposite ...
 
-Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+BTW. I'm thinking about moving all those PCI/VIO related fields out of
+struct device_node to their own structure and keep only a pointer to
+that structure in device_node. That way, we avoid the bloat for every
+single non-pci node in the system, and we can have different structures
+for different bus types (along with proper iommu function pointers and
+that sort-of-thing).
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+So if you think you really need a per-device info here, feel free to
+add it to device_node for now, and I'll move it to the new structure
+along with the rest of the stuff once I find time to do this patch.
 
-diff -ruN linus-bk/drivers/cdrom/viocd.c linus-bk.viocd.1/drivers/cdrom/viocd.c
---- linus-bk/drivers/cdrom/viocd.c	2004-11-16 16:05:11.000000000 +1100
-+++ linus-bk.viocd.1/drivers/cdrom/viocd.c	2005-02-01 15:52:03.000000000 +1100
-@@ -765,8 +765,6 @@
- 	vio_setHandler(viomajorsubtype_cdio, vio_handle_cd_event);
- 
- 	get_viocd_info();
--	if (viocd_numdev == 0)
--		goto out_undo_vio;
- 
- 	spin_lock_init(&viocd_reqlock);
- 
-@@ -786,7 +784,6 @@
- 	dma_free_coherent(iSeries_vio_dev,
- 			sizeof(*viocd_unitinfo) * VIOCD_MAX_CD,
- 			viocd_unitinfo, unitinfo_dmaaddr);
--out_undo_vio:
- 	vio_clearHandler(viomajorsubtype_cdio);
- 	viopath_close(viopath_hostLp, viomajorsubtype_cdio, MAX_CD_REQ + 2);
- out_unregister:
+Ben.
 
---Signature=_Tue__1_Feb_2005_15_59_01_+1100_8vFeHku_A0rUpqkx
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB/wyV4CJfqux9a+8RAnpHAKCXa+904e0QBc1XRbZSKpMYYfWPEgCfR1Lr
-3KmiLz12UlCp+Son7mHv5Og=
-=Mm8F
------END PGP SIGNATURE-----
-
---Signature=_Tue__1_Feb_2005_15_59_01_+1100_8vFeHku_A0rUpqkx--

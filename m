@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262400AbRFNM15>; Thu, 14 Jun 2001 08:27:57 -0400
+	id <S262432AbRFNMlT>; Thu, 14 Jun 2001 08:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262406AbRFNM1r>; Thu, 14 Jun 2001 08:27:47 -0400
-Received: from darkstar.internet-factory.de ([195.122.142.9]:59081 "EHLO
-	darkstar.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S262400AbRFNM1d>; Thu, 14 Jun 2001 08:27:33 -0400
+	id <S262445AbRFNMlK>; Thu, 14 Jun 2001 08:41:10 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:64811 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S262432AbRFNMlG>; Thu, 14 Jun 2001 08:41:06 -0400
+Date: Thu, 14 Jun 2001 14:40:39 +0200 (MET DST)
+From: Udo Wolter <uwp@dicke-aersche.de>
+Reply-To: uwp@dicke-aersche.de
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <h.lubitz@internet-factory.de>
-Newsgroups: lists.linux.kernel
-Subject: Re: bzDisk compression Q; boot debug Q
-Date: Thu, 14 Jun 2001 14:27:31 +0200
-Organization: Internet Factory AG
-Message-ID: <3B28ADB3.7CE09FC3@internet-factory.de>
-In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678F59@mail-in.comverse-in.com> <3B2869F9.D0AE17CB@idcomm.com>
-NNTP-Posting-Host: bastille.internet-factory.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Trace: darkstar.internet-factory.de 992521652 7000 195.122.142.158 (14 Jun 2001 12:27:32 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 14 Jun 2001 12:27:32 GMT
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac13 i686)
-X-Accept-Language: en
+Subject: EXT2FS problems & 2.2.19 & 3ware RAID
+Message-ID: <Pine.SOL.4.10.10106141420580.20645-100000@blasuarr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Stimits" proclaimed:
-> down to 1.44 MB. But then it would also have to be self-extracting,
-> which complicates it, so I'm wondering how effective this current
-> compression is, and if a more bzip2-like system would be beneficial as
-> kernels get larger?
+Hi !
 
-bzip2 has pretty large memory requirements, consuming up to 8 MB in
-addition to the data being uncompressed.
-Although thats less of an issue now than it was some years ago, i still
-doubt that the kernel is going to be bzip2 compressed any time soon.
+I'm hosting a server with 120 GB disk space. This disk space consists of
+a RAID10 via a 3ware Escalade 6800 controller. As you can see, the disks are
+IDE disks (4 x 60 GB) but the controller maps it as scsi-devices to
+the system. It runs fine but from time to time I get those errors:
 
-if you're looking for better compression, you might want to examine upx
-(http://wildsau.idv.uni-linz.ac.at/mfx/upx.html). The kernel image
-compression is still experimental, but already usable. kernels tend to
-get ~100 K smaller compared to the usual gzip compressed bzImage.
+kernel: EXT2-fs warning (device sd(8,6)): ext2_free_inode: bit already cleared for inode 885312
+kernel: EXT2-fs warning (device sd(8,6)): ext2_free_inode: bit already cleared for inode 885258
 
-Holger
+etc.
+
+The messages are coming almost once a week. As long as those messages are not
+harming the filesystem, I had no problems with them (in fact, they say, they
+are warnings and no errors). But the last times I tried to do a du over the
+full partition, I got 2 or 3 files and directories which say that that they
+can't be accessed -> I/O-Error. Neither I can't delete them nor I can
+access them in any way, not even list.
+
+After using debugfs (read only mode during the mount) I can see the files
+in the listing but even here they are not accessible.
+
+I shut the machine down for 2 hours to do a fsck and the errors had been
+gone but after some days the errors came back (different files and directories,
+not the same). At this time it's not possible to shut it down because
+more than 5000 users use it at the moment. Anyway before doing a fsck again
+I'd like to solve the problem so that the system couldn't get corrupted again.
+
+The kernel-version is 2.2.19. Maybe switching to 2.4.x helps but I really
+like to know what has happened and why, before I'll do such a big step.
+
+BTW, 3ware has a tool to check for the disks etc. This tool says that
+everything is fine so it can only be an EXT2FS problem.
+
+If you'd like to answer my questions, please do it via Mail-CC because I don't
+read all of this mailing list (only some parts of the archives, this is heavy
+enough for me :))
+
+Thanx for any hints !
+
+Bye,
+	Udo
+
+-- 
+Udo Wolter
+email:    uwp@dicke-aersche.de
+www:      www.dicke-aersche.de
+Fonautic:   0700 - UDO - 00000 
+
+

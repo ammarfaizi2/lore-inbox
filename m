@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbUJaXfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbUJaXiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbUJaXfS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 18:35:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbUJaXfS
+	id S261695AbUJaXiN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 18:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUJaXiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 18:35:18 -0500
-Received: from bristol.swissdisk.com ([65.207.35.130]:7093 "EHLO
-	bristol.swissdisk.com") by vger.kernel.org with ESMTP
-	id S261694AbUJaXfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 18:35:11 -0500
-Date: Sun, 31 Oct 2004 17:04:20 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] ieee1394 cleanup
-Message-ID: <20041031220420.GA15424@phunnypharm.org>
-References: <20041031213250.GD2495@stusta.de> <20041031212858.GC9684@phunnypharm.org> <20041031232954.GG2495@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041031232954.GG2495@stusta.de>
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 31 Oct 2004 18:38:12 -0500
+Received: from smtpout2.uol.com.br ([200.221.11.55]:12175 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261695AbUJaXiE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 18:38:04 -0500
+Message-ID: <418576CA.2020005@users.sf.net>
+Date: Sun, 31 Oct 2004 20:35:38 -0300
+From: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@users.sf.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Z Smith <plinius@comcast.net>
+Cc: Diego Calleja <diegocg@teleline.es>, linux-kernel@vger.kernel.org
+Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>	<200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>	<1099170891.1424.1.camel@krustophenia.net>	<200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>	<1099175138.1424.18.camel@krustophenia.net> <20041031150637.6311a2ec.diegocg@teleline.es> <418550C1.1060203@comcast.net>
+In-Reply-To: <418550C1.1060203@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 01, 2004 at 12:29:54AM +0100, Adrian Bunk wrote:
-> On Sun, Oct 31, 2004 at 04:28:58PM -0500, Ben Collins wrote:
+Z Smith wrote:
+> But not everyone can tolerate today's level of bloat.
 > 
-> > Need to leave the csr1212 files alone. csr1212.[ch] is used for userspace
-> > and kernelspace, and I don't want to have two versions.
-> 
-> But in this case, these functions don't have to be EXPORT_SYMBOL'ed?
+> Imagine a small charity in a rural town in Bolivia or
+> Colorado. They have no budget for computers and no one
+> is offering donations.
 
-That's true, but the files themselves need to be left intact.
+Well, let me jump into this thread. I don't live in Bolivia or Colorado, 
+but I do live in Brazil.
 
-> And besides this, they are global functions meaning that although they 
-> are never used inside the kernel, they need space for every user of 
-> FireWire.
-> 
-> What about wrapping them inside #ifndef __KERNEL__ ?
+The fastest computer that I have at my disposal is this one with a Duron 
+600MHz processor. My father uses a Pentium MMX 200MHz with 64MB of RAM. 
+Unfortunately, for financial reasons, I don't see we upgrading our 
+computers too soo.
 
-They may be used, and I don't want to worry about someone using the
-function later on in the kernel, and have to trace down that it isn't
-defined in the kernel build. The exports can be killed (since it isn't
-likely to be used outside the scope of the ieee1394.ko module anyway).
+It is nice to read Alan Cox saying that the Gnome team can make Gnome 
+use less memory in the future. I'm anxiously looking forward to that. In 
+the mean time, I will be using fluxbox and hoping that other parts of 
+the system (libraries etc) don't grow too fast for my computers.
+
+I know plenty of people in the same situation that I am. Given the 
+choice of purchasing a book for my education or upgrading my computer, I 
+guess that I should spend money on the former.
+
+And the same is true for many of my relatives and friends.
+
+
+Rogério Brito.
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Learn to quote e-mails decently at:
+http://pub.tsn.dk/how-to-quote.php
+http://learn.to/quote
+http://www.xs4all.nl/~sbpoley/toppost.htm

@@ -1,79 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135947AbRAHWpD>; Mon, 8 Jan 2001 17:45:03 -0500
+	id <S131342AbRAHWvp>; Mon, 8 Jan 2001 17:51:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131342AbRAHWoo>; Mon, 8 Jan 2001 17:44:44 -0500
-Received: from ns.snowman.net ([63.80.4.34]:21000 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S135947AbRAHWoc>;
-	Mon, 8 Jan 2001 17:44:32 -0500
-Date: Mon, 8 Jan 2001 17:43:56 -0500
-From: Stephen Frost <sfrost@snowman.net>
-To: Jes Sorensen <jes@linuxcare.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Message-ID: <20010108174355.P26953@ns>
-Mail-Followup-To: Jes Sorensen <jes@linuxcare.com>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	netdev@oss.sgi.com
-In-Reply-To: <200101080124.RAA08134@pizda.ninka.net> <d366jp4sin.fsf@lxplus015.cern.ch> <200101082148.NAA21738@pizda.ninka.net> <d31yud4qun.fsf@lxplus015.cern.ch>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="33yLIq9/uqwyGAKN"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <d31yud4qun.fsf@lxplus015.cern.ch>; from jes@linuxcare.com on Mon, Jan 08, 2001 at 11:32:48PM +0100
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.2.16 (i686)
-X-Uptime: 5:39pm  up 144 days, 21:26,  7 users,  load average: 2.00, 2.00, 2.00
+	id <S135791AbRAHWvf>; Mon, 8 Jan 2001 17:51:35 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:40374 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131342AbRAHWvS>;
+	Mon, 8 Jan 2001 17:51:18 -0500
+Date: Mon, 8 Jan 2001 23:50:44 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200101082250.XAA147777.aeb@texel.cwi.nl>
+To: Andries.Brouwer@cwi.nl, andrea@suse.de
+Subject: Re: `rmdir .` doesn't work in 2.4
+Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    From: Andrea Arcangeli <andrea@suse.de>
 
---33yLIq9/uqwyGAKN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+    > But in fact it fails with EINVAL, and
+    > 
+    > [EINVAL]: The path argument contains a last component that is dot.
 
-* Jes Sorensen (jes@linuxcare.com) wrote:
-> >>>>> "David" =3D=3D David S Miller <davem@redhat.com> writes:
->=20
-> I don't question Alexey's skills and I have no intentions of working
-> against him. All I am asking is that someone lets me know if they make
-> major changes to my code so I can keep track of whats happening. It is
-> really hard to maintain code if you work on major changes while
-> someone else branches off in a different direction without you
-> knowing. It's simply a waste of everybody's time.
+    I can't confirm. The specs I'm checking are here:
 
-	Perhaps you missed it, but I believe Dave's intent is for this to
-only be a proof-of-concept idea at this time.  These changes are not=20
-currently up for inclusion into the mainstream kernel.  I can not think
-that Dave would ever just step around a maintainer and submit a patch to
-Linus for large changes.
+        http://www.opengroup.org/onlinepubs/007908799/xsh/rmdir.html
 
-	If many people test these and things work out well for them=20
-then I'm sure Dave will go back to the maintainers with the code and=20
-the api and work with them to get it into the mainstream kernel. =20
-Soliciting ideas and suggestions on how to improve the api and the code=20
-paths in the drivers to handle this new method most effectively.
+That is the SUSv2 text, one of the ingredients for the new
+POSIX standard. I quoted the current Austin draft, the current
+draft for the next version of the POSIX standard.
 
-		Stephen
+Quoting a text fragment:
 
---33yLIq9/uqwyGAKN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+        The rmdir( ) function shall remove a directory whose name is given by
+        path. The directory is removed only if it is an empty directory.
+        If the directory is the root directory or the current working
+        directory of any process, it is unspecified whether the function
+        succeeds, or whether it shall fail and set errno to [EBUSY].
+        If path names a symbolic link, then rmdir( ) shall fail and
+        set errno to [ENOTDIR]. If the path argument refers to a path
+        whose final component is either dot or dot-dot, rmdir( ) shall
+        fail. ...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE6WkKrrzgMPqB3kigRAmokAJ9u4syg08ujQlPVBXuoetDVjJnS6ACeMDj6
-B1oHeCXNmDhAVQQmoP+TeGc=
-=4/AR
------END PGP SIGNATURE-----
+    > Indeed, rmdir("P/D") does roughly the following:
+    > (i) check that P/D is a directory
+    > (ii) check that P/D does not have entries other than . and ..
+    > (iii) delete the names . and .. from P/D
+    > (iv) delete the name D from P
 
---33yLIq9/uqwyGAKN--
+    SUSv2 is straightforward. It doesn't talk about (iv).
+
+I just made explicit what rmdir() actually does, in order to
+show that a trailing dot really is a different case where
+other rules than the usual ones would have to be applied.
+Indeed, rmdir("foo/bar") finishes by removing the name "bar"
+from the directory "foo", but rmdir("foo/.") does not finish
+by removing the name "." from the directory "foo".
+
+Andries
+
+
+[Think classical Unix: there are inodes, and there are names.
+The rmdir call, just like rm, removes names. Now foo and foo/.
+may both be names for the same inode, but they are not the same name.]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

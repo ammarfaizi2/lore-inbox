@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269143AbUJVNfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269604AbUJVNgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269143AbUJVNfI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 09:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269524AbUJVNfH
+	id S269604AbUJVNgs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 09:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269648AbUJVNgs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 09:35:07 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:64701 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269143AbUJVNe5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 09:34:57 -0400
-Date: Fri, 22 Oct 2004 15:35:51 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Fri, 22 Oct 2004 09:36:48 -0400
+Received: from out005pub.verizon.net ([206.46.170.143]:17841 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S269524AbUJVNgi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 09:36:38 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9.3
-Message-ID: <20041022133551.GA6954@elte.hu>
-References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: BT848 video support dropped in 2.6.9?
+Date: Fri, 22 Oct 2004 09:36:35 -0400
+User-Agent: KMail/1.7
+Cc: Markus Trippelsdorf <markus@trippelsdorf.net>
+References: <1098447230.12289.12.camel@localhost>
+In-Reply-To: <1098447230.12289.12.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041021132717.GA29153@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200410220936.35720.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.58.180] at Fri, 22 Oct 2004 08:36:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 22 October 2004 08:13, Markus Trippelsdorf wrote:
+>The "BT848 video for linux" item does not show up
+>with menuconfig in the "Video for linux" category.
+>It was there in all previous kernels that I've used.
+>Am I missing something obvious?
 
-i have released the -U9.3 Real-Time Preemption patch, which can be
-downloaded from:
+You might try using 'make xconfig' as it is there in mine, currently 
+set to build as a module and works quit well.
 
-  http://redhat.com/~mingo/realtime-preempt/
-
-this too is a fixes-only release.
-
-Changes since -U9.2:
-
- - tons more driver/mutex/completion conversion done by Thomas Gleixner 
-   for: ppp, ipmi, parport/ieeee1284, scsi, hotplug, and more.
-
- - iptables/netfilter deadlock fix, this should fix the bug reported by 
-   Michal Schmidt.
-
- - .config housekeeping: disallow the turning off of PREEMPT_BKL when 
-   PREEMPT_REALTIME is on. This solves the build error reported by 
-   Matthew L Foster.
-
- - print the full stacktrace of the current task in the deadlock 
-   detector and dont use show_stack(). This explains some of the weird
-   partial stackdumps reported.
-
- - some more minor updates to the case when the deadlock detector turns
-   itself off due to reaching the limit. We kept the spinlock locked.
-
-to create a -U9.3 tree from scratch, the patching order is:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
- + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
- + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
- + http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U9.3
-
-	Ingo
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

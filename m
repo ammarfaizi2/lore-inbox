@@ -1,92 +1,178 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbUBUAiX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 19:38:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbUBUAiX
+	id S261462AbUBUAly (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 19:41:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbUBUAjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 19:38:23 -0500
-Received: from leary.csoft.net ([63.111.22.80]:47030 "HELO mail63.csoft.net")
-	by vger.kernel.org with SMTP id S261461AbUBUAhu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 19:37:50 -0500
-Message-ID: <4036A85D.9040409@mattcaron.net>
-Date: Fri, 20 Feb 2004 19:37:49 -0500
-From: Matthew Caron <matt@mattcaron.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2 PROBLEMs: mkinitrd fails during make install (2.6.1) + first
- network connect fails after boot (2.6.1)
-References: <40268B01.10608@mattcaron.net> <20040208190812.07703fce.rddunlap@osdl.org>
-In-Reply-To: <20040208190812.07703fce.rddunlap@osdl.org>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Feb 2004 19:39:35 -0500
+Received: from mail.shareable.org ([81.29.64.88]:11393 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261454AbUBUAin
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 19:38:43 -0500
+Date: Sat, 21 Feb 2004 00:38:31 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN
+Message-ID: <20040221003831.GB10928@mail.shareable.org>
+References: <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <20040220120417.GA4010@elte.hu> <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org> <20040220173307.GF8994@mail.shareable.org> <Pine.LNX.4.58.0402201017370.2533@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402201017370.2533@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have resolved my 2 problems. I have included abbreviated versions 
-below for reference.
-
-Problem 1 was solved by workaround.
-1.) Compile 3w-xxxx as a module and nothing complains (on both systems)
-2.) Add a modprobe 3w-xxxx early in rc.sysinit and it gets loaded before 
-anything important happens (boot drive is separate IDE, so this scheme 
-works for me)
-3.) On some machines (1 of 2), mkinitrd still reports the error quoted 
-below when trying to put 3w-xxxx into the kernel. On all machines (2 of 
-2) using 3w-xxxx modules, the kernel does not automagically load the 
-modules on boot. I presume it's not supposed to. Of course, the first 
-hangup means that one cannot boot from the 3w-xxxx array. I do not have 
-a problem with this, but it bears considering, because some folks might 
-want to do it.
-
-Problem 2 was my fault.
-I still had FreeS/WAN starting up in my rc5.d from the 2.4.x setup that 
-I had and that seemed to be killing network communications. Turning that 
-off seemed to fix things.
-
-Randy.Dunlap wrote:
-> On Sun, 08 Feb 2004 14:16:17 -0500 Matthew Caron <matt@mattcaron.net> wrote:
+Linus Torvalds wrote:
+> > How about this: we clean up dnotify, so it can be used for
+> > user<->kernel dcache coherency
 > 
-> | PROBLEM 1:
-> | 
-> | 1. Summary:
-> | 	mkinitrd fails during make install (2.6.1)
-> | 
-> | 2. Description:
-> | 	mkinitrd fails with error:
-> | 
-> | No module 3w-xxxx found for kernel 2.6.1
-> | mkinitrd failed
-> | make[1]: *** [install] Error 1
-> | make: *** [install] Error 2
-> | 
-> | config command was: 'make xconfig'
-> | build command was: 'make clean modules_install install'
+> No can do.
+> 
+> There is no _way_ dnotify can do a race-free update, exactly because any 
+> user-level state is fundamentally irrelevant because it isn't tested under 
+> the directory semaphore.
+> 
+> See? You can have a user-level cache, but the flag and the notification 
+> absolutely has to be under the inode semaphore (and thus in kernel space) 
+> if you want to avoid all races with unrelated processes.
 
-> | PROBLEM 2:
-> | 
-> | 1. Summary:
-> | 	first network connect fails after boot
-> | 
-> | 2. Description:
-> | 	The first connection to any host on any port fails after boot/reboot. 
-> | Subsequent connects work fine. Typical errors are:
-> | 
-> | ssh: connect to host foobar port 22: Resource temporarily unavailable
-> | 
-> | Firebird reports "Document Contains No Data"
+Eh?  The flag and notification operations are set and tested
+under the inode semaphore, when fcntl() is called.
 
+The userspace cache is a slave to the kernel's cache, and I think it
+is _fully_ coherent with the kernel.
 
--- 
-Freedom to learn, freedom to share,
-freedom to change, freedom to improve.
-Free Software: it's about Freedom.
---------------------------------------------------------------------
-PGP Key: http://www.mattcaron.net/pgp_key.txt
-  ~~ Matt Caron ~~
+Every read of the userspace cache is guaranteed to reflect the
+contents of the kernel cache, atomically with respect to other
+operations by unrelated processes.  Also, operations on the directory
+that depend on case-insensitive matching (create, link, rename etc.)
+are also atomic with respect to unrelated processes.
 
+The atomic read nature of the userspace cache comes from a loop.
+It's very similar to the sequence lock in <linux/seqlock.h>:
+
+    cache_lookup_names(names...) {
+        while (fcntl(dirfd, F_NOTIFY, flags) != 0) {
+            userspace_name_list = read_directory(dirfd);
+        }
+        return case_insensitive_lookup(userspace_name_list, names...);
+    }
+
+Atomic operations on the directory come from a higher level loop,
+using Ingo's O_CLEAN idea:
+
+    atomic_create(name, flags, mode) {
+        do {
+            ci_name = cache_lookup_names(name);
+            if (ci_name && (flags & O_EXCL)) { return -EEXIST; }
+            if (!ci_name && !(flags & O_CREAT)) { return -ENOENT; }
+            fd = clean_open (name, flags, mode);
+        } while (fd == -ENOENT || fd == -ENOTCLEAN);
+        return fd;
+    }
+
+    atomic_stat(name, st) {
+        do {
+            ci_name = cache_lookup_names(name);
+            if (!ci_name) { return -ENOENT; }
+            result = stat (ci_name, st);
+        } while (result == -ENOENT);
+        return result;
+    }
+
+    /* This unlinks just one entry if there are multiple case-equivalent
+       ones. If you want to remove _all_ case-equivalent entries, you'll
+       need clean_unlink. */
+    atomic_unlink(name) {
+        do {
+            ci_name = cache_lookup_names(name);
+            if (!ci_name) { return -ENOENT; }
+            result = unlink (ci_name);
+        } while (result == -ENOENT);
+        return result;
+    }
+
+    atomic_rename(old, new) {
+        do {
+            (ci_old, ci_new) = cache_lookup_names(old, new);
+            if (!ci_old) { return -ENOENT; }
+            result = clean_rename(ci_old, ci_new ? ci_new : new);
+        } while (result == -ENOTCLEAN || result == -ENOENT);
+    }
+
+    atomic_link(from, to) {
+        do {
+            (ci_from, ci_to) = cache_lookup_names(from, to);
+            if (!ci_from) { return -ENOENT; }
+            if (ci_to) { return -EEXIST; }
+            result = clean_link(ci_from, to);
+        } while (result == -ENOTCLEAN || result == -ENOENT);
+    }
+
+(symlink, mkdir and rmdir are similar to link, create and unlink).
+
+The operations clean_open, clean_mkdir, clean_rename, clean_link,
+clean_symlink and clean_mknod are either new system calls, or use the
+standard system calls with the fchdir() method I described.
+
+Even path walking is atomic: Samba will do a path walk using a
+case-insensitive lookup on each path component.  That means every
+directory that is involved will be cached in Samba and have a "clean bit".
+
+It doesn't matter whether Samba prefers to fchdir() each step (in
+which case it'll get the atomicity that it would get doing that with
+normal kernel case-sensitive lookups), or not and pass the whole path
+to the clean_*() operation.  In the latter case, the clean_*()
+operation will test all the clean bits involved in the target path
+lookup, and return -ENOTCLEAN if any aren't set, thus providing the
+normal atomicity guarantees.
+
+Ingo's concern that a directory opened by Samba's cache might be moved
+is not a problem: if that happens, it'll clear the clean bit of at
+least one directory in the target path.
+
+You gave an example before:
+
+> On the other hand, even with a nice dnotify infrastructure, you
+> simply _cannot_ get absolute atomicity guarantees. Because by the
+> time you actually execute the "mv" operation, another process may
+> create a new file with the "same" name (ie different name, but
+> comparing the same ignoring case) on another CPU. By the time you
+> get the dnotify, it's too late, and the move will have happened, and
+> undoing the operation (and hiding it from the client) may well be
+> impossible - possibly because another process creating a file with
+> the old name.
+
+The example is flawed: the attempted rename _is_ atomic.  Either
+another process succeeds on another CPU, in which case _our_ attempt
+to "mv" returns -ENOTCLEAN and we will start again by refreshing our
+cache, or we beat the other process to it.
+
+This works because the clean bit checking is done by the kernel, under
+the directory/inode semaphores.
+
+It's atomic w.r.t. both other POSIX processes _and_ other processes
+with their own userspace caches.
+
+> But then it should be documented as such. It's not coherent, it's only 
+> "almost coherent".
+
+It's entirely possible I'm being dense, but I think both Ingo's
+proposal, and mine which is based on it but using dnotify both provide
+_fully_ coherent userspace cache, and _atomic_ operations.
+
+They do it by looping (like a spinlock or seqlock) rather than
+sleeping until ready (like a semaphore), but that is ok as long as
+there isn't excessive competition between Samba and other processes
+modifying the same directory.
+
+(If the excessive competition proves to be a performance problem, then
+we can adapt F_SETLEASE to resolve that too.  But I don't think it is
+necessary).
+
+-- Jamie

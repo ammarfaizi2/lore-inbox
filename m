@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbUKOKZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbUKOK1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbUKOKZt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 05:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUKOKZt
+	id S261568AbUKOK1N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 05:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUKOK1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 05:25:49 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:3565 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261565AbUKOKZo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 05:25:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=OSLN/70S3uGudFV5D5LMtaTuBVOlA4L2C8GoGj88/HLMb5zW/XJL/oR6sVMwbJy3snAa6bPAG+pQ3eZU4h2fzIC7h6cp5f3yDIi5PPKvfhRr/wnjXdQ//mXk6Z9cU+5IP14s3cXoD9IK7gr/6U13yOfX1mR3XYfCyuNCHJaHiaE=
-Message-ID: <84144f0204111502256c8af8b8@mail.gmail.com>
-Date: Mon, 15 Nov 2004 12:25:44 +0200
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Jan Beulich <jbeulich@novell.com>
-Subject: Re: logo_shown check in fbcon_scoll
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <s19348d4.015@emea1-mh.id2.novell.com>
+	Mon, 15 Nov 2004 05:27:12 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19219 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261568AbUKOK0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 05:26:24 -0500
+Date: Mon, 15 Nov 2004 10:26:20 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.10-rc2
+Message-ID: <20041115102620.A25762@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <s19348d4.015@emea1-mh.id2.novell.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>; from torvalds@osdl.org on Sun, Nov 14, 2004 at 06:49:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Nov 2004 12:01:29 +0100, Jan Beulich <jbeulich@novell.com> wrote:
-> Wouldn't it seem reasonable that the logo_shown check in the SM_UP case
-> should similarly be done in the SM_DOWN case?
+On Sun, Nov 14, 2004 at 06:49:04PM -0800, Linus Torvalds wrote:
+> Ok, the -rc2 changes are almost as big as the -rc1 changes, and we should 
+> now calm down, so I do not want to see anything but bug-fixes until 2.6.10 
+> is released. Otherwise we'll never get there.
 
-Yes, but I don't think you can hit that bug in practice. You cannot
-scroll up when the logo is visible.
+There's a few more non-bugfix changes which need merging first though.
+Namely an update to the S3C2410 serial driver from Ben to allow the
+s3c2410 changes which are now in 2.6.10-rc2 to work.  Otherwise I
+suspect s3c2410 is going to be dead in the water for 2.6.10.
 
-                            Pekka
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

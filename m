@@ -1,35 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313440AbSDPAq2>; Mon, 15 Apr 2002 20:46:28 -0400
+	id <S313442AbSDPBDj>; Mon, 15 Apr 2002 21:03:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313442AbSDPAq1>; Mon, 15 Apr 2002 20:46:27 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:17488 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S313440AbSDPAq0>; Mon, 15 Apr 2002 20:46:26 -0400
-Date: Tue, 16 Apr 2002 02:44:58 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-Message-ID: <20020416024458.H26561@dualathlon.random>
-In-Reply-To: <Pine.LNX.4.33.0204151400200.13034-100000@penguin.transmeta.com> <Pine.LNX.4.33.0204151415110.15353-100000@penguin.transmeta.com> <20020415232058.GO21206@holomorphy.com>
+	id <S313443AbSDPBDi>; Mon, 15 Apr 2002 21:03:38 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:29458 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S313442AbSDPBDi>;
+	Mon, 15 Apr 2002 21:03:38 -0400
+Date: Tue, 16 Apr 2002 10:03:02 +0900 (JST)
+Message-Id: <20020416.100302.129343787.taka@valinux.co.jp>
+To: davem@redhat.com
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <20020414.212308.33849971.davem@redhat.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 04:20:58PM -0700, William Lee Irwin III wrote:
-> I won't scream too loud, but I think it's pretty much done right as is.
+Hi, David
 
-Regardless if that's the cleaner implementation or not, I don't see much
-the point of merging those cleanups in 2.4 right now: it won't make any
-functional difference to users and it's only a self contained code
-cleanup, while other patches that make a runtime difference aren't
-merged yet.
+Thank you for your advice!
 
-Andrea
+davem> Sendpages mechanism will not be implemented.
+davem> 
+davem> You must implement UDP sendfile() one page at a time, by building up
+davem> an SKB with multiple calls similar to TCP with TCP_CORK socket option
+davem> set.
+davem> 
+davem> For datagram sockets, define temporary SKB hung off of struct sock.
+davem> Define UDP_CORK socket option which begins the "queue data only"
+davem> state.
+davem> 
+davem> All sendmsg()/sendfile() calls append to temporary SKB, first
+davem> sendmsg()/sendfile() call to UDP will create this sock->skb.  First
+davem> call may be sendmsg() but subsequent calls for that SKB must be
+davem> sendfile() calls.  If this pattern of calls is broken, SKB is sent.
+davem> 
+davem> Call to set UDP_CORK socket option to zero actually sends the SKB
+davem> being built.
+davem> 
+davem> The normal usage will be:
+davem> 
+davem> 	setsockopt(fd, UDP_CORK, 1);
+davem> 	sendmsg(fd, sunrpc_headers, sizeof(sunrpc_headers));
+davem> 	sendfile(fd, ...);
+davem> 	setsockopt(fd, UDP_CORK, 0);
+
+Yes, it seems to be the most general way.
+OK, I'll do this way first of all.
+
+In the kernel, probaboly I'd impelement as following:
+
+	put a RPC header and a NFS header on "bufferA";
+	down(semaphore);
+	sendmsg(bufferA, MSG_MORE);
+	for (eache pages of fileC)
+		sock->opt->sendpage(page, islastpage ? 0 : MSG_MORE)
+	up(semaphore);
+
+the semaphore is required to serialize sending data as many knfsd kthreads
+use the same socket.
+
+Actually I'd like to implement it like following codes, but unfortunatelly
+it wouldn't work on UDP socket of servers as the socket doesn't have specific
+destination address at all, and sendpage has no arguments to specify it.
+It's not so good....
+
+	put a RPC header and a NFS header on "pageB";
+	down(semaphore);
+	sock->opt->sendpage(pageB, MSG_MORE);
+	for (each pages of fileC)
+		sock->opt->sendpage(page, islastpage ? 0 : MSG_MORE)
+	up(semaphore);
+
+
+Thank you,
+Hirokazu Takahashi

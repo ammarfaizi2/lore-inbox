@@ -1,45 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315852AbSEGPDS>; Tue, 7 May 2002 11:03:18 -0400
+	id <S315853AbSEGPHC>; Tue, 7 May 2002 11:07:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315853AbSEGPDR>; Tue, 7 May 2002 11:03:17 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:24080 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315852AbSEGPDQ>; Tue, 7 May 2002 11:03:16 -0400
-Date: Tue, 7 May 2002 17:03:31 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andy Carlson <naclos@andyc.dyndns.org>, linux-kernel@vger.kernel.org
-Subject: Re: Tux in main kernel tree? (was khttpd rotten?)
-Message-ID: <20020507170331.P31998@dualathlon.random>
-In-Reply-To: <Pine.LNX.4.44.0205061106050.2878-100000@ancyc> <E1756Ax-0007gM-00@the-village.bc.nu>
+	id <S315856AbSEGPHC>; Tue, 7 May 2002 11:07:02 -0400
+Received: from firewall.esrf.fr ([193.49.43.1]:49589 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S315853AbSEGPHA>;
+	Tue, 7 May 2002 11:07:00 -0400
+Date: Tue, 7 May 2002 17:06:22 +0200
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: eepro100: wait_for_cmd_done timeout (2.4.19-pre2/8)
+Message-ID: <20020507170621.A3155@pcmaftoul.esrf.fr>
+In-Reply-To: <Pine.LNX.4.44.0205071454270.16371-100000@dunlop.admin.ie.alphyra.com> <Pine.LNX.3.95.1020507104428.7036A-100000@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 07, 2002 at 03:42:47PM +0100, Alan Cox wrote:
-> Tux has a lot of other things that make it questionable for merging -
-> incredibly so for 2.4 - it sticks its fingers into task structs, dcache
+On Tue, May 07, 2002 at 10:53:16AM -0400, Richard B. Johnson wrote:
+> On Tue, 7 May 2002, Paul Jakma wrote:
+> 
+> > hi,
+> > 
+> > i have a problem with a Dell poweredge with onboard Intel eepro NICs.
+> > 
+> > The network card basically doesnt work. The system logs are filled 
+> > with:
+> [SNIPPED...]
+> 
+> 
+> 
+> > looking at the code concerned:
+> > 
+> > static inline void wait_for_cmd_done(long cmd_ioaddr)
+> > {
+> >         int wait = 1000;
+> >         do  udelay(1) ;
+> >         while(inb(cmd_ioaddr) && --wait >= 0);
+> > #ifndef final_version
+> >         if (wait < 0)
+> >                 printk(KERN_ALERT "eepro100: wait_for_cmd_done timeout!\n");
+> > #endif
+> > }
+> > 
+> 
+> This procedure is called from numerous places in the code.
+> In line 1069 of eepro100.c, comment out the call to wait_for_cmd_done().
+> See if this fixes it. If it does, look in the header and send a patch
+> to the current maintainer. FYI, I use this driver with no problems
+> on 2.4.18 -- but I have commented-out that call because there, in fact,
+> might be no command to wait for and I got spurious messages.
+> 
+> Cheers,
+> Dick Johnson
+> 
+> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+> 
+>                  Windows-2000/Professional isn't.
+I have the same message but only when I'm using my ieee-1394 devices (
+firewire ) .
+I copy from NFS to ieee-1394 HD and approximatively at 256 meg of copied
+data from network I have the message (wait_for_cmd_timeout), and I'm not
+able use the network, nor the mounted HD.
 
-I don't buy that, so you may want to give us an answer for why is it
-included into the redhat 2.4 kernel if according to you it's incredibly
-questionable for merging into 2.4?
+I need to say the system is running 2.4.18 SMP ( 2 proc ) with 2go of
+RAM (higmeme 4-GB from suse ) ( It's a scientific data analysis and extraction system ).
 
-I merged it and it's trivial to merge, all "questionable" patches are
-obviously safe.
-
-If Marcelo accepts my patches, I will be very glad to replace khttpd
-with tux into mainline 2.4. The two products are completly equivalent
-and risking to increase the khttpd userbase just because tux isn't in
-mainline doesn't make any sense to me, it can only waste resources.
-(despite it makes much more sense to use zope, apache, servlets and php
-instead of tux for anything real, first of all for security reasons, but
-that's another issue, here the issue is khttpd vs tux and this one is a
-no brainer)
-
-Andrea
+What should I do ? 
+Should I remove the code you told me to remove ?
+        Sam

@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129985AbRALShd>; Fri, 12 Jan 2001 13:37:33 -0500
+	id <S129655AbRALSpZ>; Fri, 12 Jan 2001 13:45:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129655AbRALShX>; Fri, 12 Jan 2001 13:37:23 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:7442 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129985AbRALShN>; Fri, 12 Jan 2001 13:37:13 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: ide.2.4.1-p3.01112001.patch
-Date: 12 Jan 2001 10:37:09 -0800
-Organization: Transmeta Corporation
-Message-ID: <93nisl$20g$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10101120949040.1858-100000@penguin.transmeta.com> <E14H8hl-0004ji-00@the-village.bc.nu>
+	id <S129811AbRALSpP>; Fri, 12 Jan 2001 13:45:15 -0500
+Received: from colorfullife.com ([216.156.138.34]:34821 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129655AbRALSpN>;
+	Fri, 12 Jan 2001 13:45:13 -0500
+Message-ID: <3A5F50B0.ACD5ADB1@colorfullife.com>
+Date: Fri, 12 Jan 2001 19:45:04 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, dwmw2@infradead.org,
+        Linux Kernel List <linux-kernel@vger.kernel.org>, frank@unternet.org
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
+In-Reply-To: <Pine.LNX.4.30.0101121912340.1071-100000@e2>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E14H8hl-0004ji-00@the-village.bc.nu>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->
->The PCI ids I kill autodma on for 2.2 to cover this are:
->
->                /*
->                 *      Don't try and tune a VIA 82C586 or 586A
->                 */
->                if (IDE_PCI_DEVID_EQ(devid, DEVID_VP_IDE))
->                {
->                        autodma_default = 0;
->                        break;
->                }
->                if (IDE_PCI_DEVID_EQ(devid, DEVID_VP_OLDIDE))
->                {
->                        autodma_default = 0;
->                        break;
->                }
->
->
->PCI_VENDOR_ID_VIA,     PCI_DEVICE_ID_82C586_0
->PCI_VENDOR_ID_VIA,     PCI_DEVICE_ID_82C586_1
+Ingo Molnar wrote:
+> 
+> we *already* reorder vector numbers and spread them out as much as
+> possible. We do this in 2.2 as well. We did this almost from day 1 of
+> IO-APIC support. If any manually allocated IRQ vector creates a '3 vectors
+> in the same 16-vector region' situation then thats a bug in hw_irq.h..
+> 
+I reread the 2.2 and 2.4 code:
 
-Can I get a patch, Andre?
+2.2 spreads all vectors, even the internal interrupts (tlb flush,
+reschedule, timer, call function) are spread.
+Hmm. AFAICS there is one bug: 3 interrupts are in priority 5:
 
-		Linus
+CALL_FUNCTION_VECTOR	0x50
+IRQ0_TRAP_VECTOR	0x51
+irq1: irq0+8		0x59
+
+check arch/i386/kernel/irq.h and assign_irq_vector (io_apic.c)
+
+2.4 spreads the vectors for the external (hardware, from io apic)
+interrupts, but 5 ipi vectors have the same priority: reschedule, call
+function, tlb invalidate, apic error, spurious interrupt.
+
+But that doesn't explain what happens with ne2k cards: neither 2.2 nor
+2.4 have more than 2 interrupts in class for the hardware interrupt
+16/19.
+With 2.2 I don't have any problems, 2.4 hangs.
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

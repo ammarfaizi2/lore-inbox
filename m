@@ -1,88 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVAELJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbVAELJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbVAELJN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 06:09:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVAELJN
+	id S262322AbVAELJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 06:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVAELJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 06:09:13 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:57797 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262323AbVAELJH (ORCPT
+	Wed, 5 Jan 2005 06:09:59 -0500
+Received: from smtp.uninet.ee ([194.204.0.4]:28174 "EHLO smtp.uninet.ee")
+	by vger.kernel.org with ESMTP id S262322AbVAELJ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 06:09:07 -0500
-Date: Wed, 5 Jan 2005 12:08:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nathan Lynch <nathanl@austin.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, rusty@rustcorp.com.au,
-       paulus@au1.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] mm_struct leak on cpu hotplug (s390/ppc64)
-Message-ID: <20050105110833.GA14956@elte.hu>
-References: <20050104131101.GA3560@osiris.boeblingen.de.ibm.com> <1104892877.8954.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1104892877.8954.27.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 5 Jan 2005 06:09:57 -0500
+Message-ID: <41DBCAE5.9010408@tuleriit.ee>
+Date: Wed, 05 Jan 2005 13:09:25 +0200
+From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Reply-To: indrek.kruusa@tuleriit.ee
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Very high load on P4 machines with 2.4.28
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > On Maw, 2005-01-04 at 22:41, Nicholas Berry wrote:
+ > >/ Indeed. AIX (sorry) 5.3 on POWER5 explicitly disables SMT (IBM/
+ >>/ hyperthreading) if the load doesn't warrant it./
+ >>/ /
+ > >/ (Now how about that for Linux?) :)/
 
-* Nathan Lynch <nathanl@austin.ibm.com> wrote:
+ > It would be very nice to do but AFAIK no current processor with
+ > hypedthreading lets you do dynamic disabling.
 
-> What about something like this?  Tested on ppc64.
+Maybe I am victim of marketing (or poor memory) but wasn't it so that 
+x86 instruction HLT was possible to use for single logical processor?
 
->  		migrate_nr_uninterruptible(rq);
->  		BUG_ON(rq->nr_running != 0);
->  
-> +		/* Must manually drop reference to avoid leaking mm_structs. */
-> +		mmdrop(rq->idle->active_mm);
-> +
->  		/* No need to migrate the tasks: it was best-effort if
->  		 * they didn't do lock_cpu_hotplug().  Just wake up
->  		 * the requestors. */
 
-this doesnt look correct to me, because we might end up pulling the rug
-(the pagetables) from under the idle task on that CPU. This can happen
-in two ways: 1) there's no direct synchronization between a dead CPU
-having called into cpu_die() and the downing CPU doing the mmdrop(), so
-we might end up dropping it before the idle has entered the final loop
-and is still executing kernel code, 2) even when the dead idle task is
-already in its final loop there's no generic guarantee that an mmdrop()
-can be done - e.g. on x86 the kernel pagetables are mixed up with the
-user pagetables and an mmdrop() in case of lazy-TLB might end up zapping
-the idle task's pagetables which might break in subtle ways.
+Indrek
 
-the correct solution i think would be to call back into the scheduler
-from cpu_die():
-
-void cpu_die(void)
-{
-        if (ppc_md.cpu_die)
-                ppc_md.cpu_die();
-+	idle_task_exit();
-        local_irq_disable();
-        for (;;);
-}
-
-and then in idle_task_exit(), do something like:
-
-void idle_task_exit(void)
-{
-	struct mm_struct *mm = current->active_mm;
-
-	if (mm != &init_mm)
-		switch_mm(mm, &init_mm, current);
-	mmdrop(mm);
-}
-
-(completely untested.) This makes sure that the idle task uses the
-init_mm (which always has valid pagetables), and also ensures correct
-reference-counting. Hm?
-
-	Ingo

@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269504AbUJVHCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269692AbUJVGbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269504AbUJVHCq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 03:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUJVHBp
+	id S269692AbUJVGbU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 02:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269146AbUJVGYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 03:01:45 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:10148
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S269504AbUJVGxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 02:53:31 -0400
-Subject: Re: [PATCH] Completion API extension
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <200410212118.32981.dtor_core@ameritech.net>
-References: <1098289871.12223.1603.camel@thomas>
-	 <200410212118.32981.dtor_core@ameritech.net>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1098427528.8955.45.camel@thomas>
+	Fri, 22 Oct 2004 02:24:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:31961 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S267388AbUJVGXh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 02:23:37 -0400
+Date: Fri, 22 Oct 2004 08:19:01 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041022061901.GM32465@suse.de>
+References: <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <20041021195842.GA23864@nietzsche.lynx.com> <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 08:45:29 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041021203821.GA24628@nietzsche.lynx.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 04:18, Dmitry Torokhov wrote:
-
-Hi,
-
-it's resubmitted in a correct version already.
-
-Thanks,
-
-tglx
-
-
-> Hi,
+On Thu, Oct 21 2004, Bill Huey wrote:
+> On Thu, Oct 21, 2004 at 10:33:50PM +0200, Jens Axboe wrote:
+> > On Thu, Oct 21 2004, Bill Huey wrote:
+> > > You use a semaphore to protect data, a completion isn't protecting data
+> > > but preserving a certain kind of wait ordering in the code. The
+> > > possibility of overloading the current mutex_t for PI makes for a conceptual
+> > > mismatch when used in this case since having a kind of priority for
+> > > completions is a bit odd. It's better to flat out use a completion
+> > > instead, IMO.
+> > 
+> > Linux semaphores (being counted) have always been a fine fit for things
+> > like the loop use, where you get to down it 10 times because you have 10
+> > items pending. I know this isn't the traditional mutex and that it
+> > doesn't protect data as such, but is was never abuse. It isn't overload.
+> > Doing it with a traditional mutex (I'm assuming this is what mutex_t is
+> > in Ingos tree) would be overload and a bad idea, indeed.
 > 
-> On Wednesday 20 October 2004 11:31 am, Thomas Gleixner wrote:
-> > +unsigned long fastcall __sched
-> > +wait_for_completion_interruptible_timeout(struct completion *x,
-> > +                                         unsigned long timeout)
-> > +{
-> > +       might_sleep();
-> > +
-> > +       spin_lock_irq(&x->wait.lock);
-> > +       if (!x->done) {
-> > +               DECLARE_WAITQUEUE(wait, current);
-> > +
-> > +               wait.flags |= WQ_FLAG_EXCLUSIVE;
-> > +               __add_wait_queue_tail(&x->wait, &wait);
-> > +               do {
-> > +                       if (signal_pending(current)) {
-> > +                               timeout = -ERESTARTSYS;
-> > +                               goto out;
-> > +                       }
-> > +                       __set_current_state(TASK_INTERRUPTIBLE);
-> > +                       spin_unlock_irq(&x->wait.lock);
-> > +                       schedule();
-> 
-> 			^^^^^^^^^^^^^^^^^^
-> 
-> schedule_timeout perhaps?
-> 
+> Well, this is something that's got to be considered by the larger Linux
+> community and whether these conventions are to be kept or removed. It's
+> a larger issue than what can be address in Ingo's preemption patch, but
+> with inevitable need for something like this in the kernel (hard RT)
+> it's really unavoidable collision. IMO, it's got to go, which is a nasty
+> change.
+
+It has to go, why? Because your deadlock detection breaks? Doesn't seem
+a very strong reason to me at all, sorry.
+
+-- 
+Jens Axboe
 

@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315546AbSFCVM4>; Mon, 3 Jun 2002 17:12:56 -0400
+	id <S315593AbSFCV3E>; Mon, 3 Jun 2002 17:29:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315547AbSFCVMz>; Mon, 3 Jun 2002 17:12:55 -0400
-Received: from mx1.afara.com ([63.113.218.20]:27224 "EHLO afara-gw.afara.com")
-	by vger.kernel.org with ESMTP id <S315546AbSFCVMz>;
-	Mon, 3 Jun 2002 17:12:55 -0400
-Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, release 3.0 is
-	available
-From: Thomas Duffy <tduffy@directvinternet.com>
+	id <S315595AbSFCV3D>; Mon, 3 Jun 2002 17:29:03 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:29824 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315593AbSFCV3D>; Mon, 3 Jun 2002 17:29:03 -0400
+Date: Mon, 3 Jun 2002 17:30:31 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Thunder from the hill <thunder@ngforever.de>
-Cc: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0206031405081.3833-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 03 Jun 2002 14:12:32 -0700
-Message-Id: <1023138753.25501.16.camel@tduffy-lnx.afara.com>
-Mime-Version: 1.0
-X-OriginalArrivalTime: 03 Jun 2002 21:12:50.0270 (UTC) FILETIME=[6AD2A7E0:01C20B43]
+cc: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>,
+        "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: Atomic operations
+In-Reply-To: <Pine.LNX.4.44.0206031335090.3833-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.3.95.1020603172937.1840A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-03 at 13:06, Thunder from the hill wrote:
+On Mon, 3 Jun 2002, Thunder from the hill wrote:
 
-> Could you please try the core-14 beforehand? (Yes, beat me, Keith, but if 
-> it works, we'll have a stepping stone!)
+> Hi,
+> 
+> On Mon, 3 Jun 2002, Richard B. Johnson wrote:
+> > atomic_t test_and_set(int i, atomic_t *v)
+> > {
+> >     int ret;
+> > 
+> >     __asm__ __volatile__(LOCK "movl (%1), %ecx\n"
+> >                          LOCK "orl   %0,  (%1)\n" 
+> > 	: "ecx" (ret) 
+> > 	: "r" (i), "m" (v)
+> > 	: "ecx", "memory" );
+> > 
+> >     return (ret & i);
+> > }
+> 
+> I'm not an expert, but shouldn't "exc" be quoted here? I'm just 
+                                    ecx 
+                           Yes, we both make typos!
+> wondering...
 
-<= core-14 works fine...
 
--tduffy
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

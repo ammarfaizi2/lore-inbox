@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131672AbRC3Whw>; Fri, 30 Mar 2001 17:37:52 -0500
+	id <S131709AbRC3XNn>; Fri, 30 Mar 2001 18:13:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131676AbRC3Whn>; Fri, 30 Mar 2001 17:37:43 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64263 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S131672AbRC3Whb>; Fri, 30 Mar 2001 17:37:31 -0500
-Date: Sat, 31 Mar 2001 00:36:45 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: geirt@powertech.no, linux-kernel@vger.kernel.org
-Subject: Re: Serial port latency
-Message-ID: <20010331003645.F1579@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <000401c0b319517fea9@local> <20010325231013.A34@(none)> <000401c0b828$bbdf7380$5517fea9@local>
-Mime-Version: 1.0
+	id <S131710AbRC3XNe>; Fri, 30 Mar 2001 18:13:34 -0500
+Received: from mail6.speakeasy.net ([216.254.0.206]:42756 "HELO
+	mail6.speakeasy.net") by vger.kernel.org with SMTP
+	id <S131709AbRC3XNR>; Fri, 30 Mar 2001 18:13:17 -0500
+Message-ID: <3AC51331.105001C@megapathdsl.net>
+Date: Fri, 30 Mar 2001 15:13:53 -0800
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac27 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.3 aic7xxx wont compile
+In-Reply-To: <200103301740.f2UHeSs26880@aslan.scsiguy.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <000401c0b828$bbdf7380$5517fea9@local>; from manfred@colorfullife.com on Thu, Mar 29, 2001 at 09:58:31AM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"Justin T. Gibbs" wrote:
+> 
+> >You cannot expect that all people will instantly start using the
+> >latest driver from your Web site, immediately.  Especially considering
+> 
+> I guess I expect people posting on LK to read it.  There have been
+> announcements for all the driver versions on that list, I've responded
+> to all of the threads complaining about the aicasm stuff, and
+> I've provided updated patches to Linus.
+> 
+> I'll try the psychic waves thing.  Perhaps it will help.
 
-> > > Is the computer otherwise idle?
-> > > I've seen one unexplainable report with atm problems that
-> disappeared
-> > > (!) if a kernel compile was running.
-> >
-> > I've seen similar bugs. If you hook something on schedule_tq and
-> forget
-> > to set current->need_resched, this is exactly what you get.
-> >
-> I'm running with a patch that printk's if cpu_idle() is called while a
-> softirq is pending.
-> If I access the floppy on my K6/200 every track triggers the check, and
-> sometimes the console blanking code triggers it.
+Jeff's implied request that you send in a patch to Alan
+and Linus adding your contact information and development 
+website URL to the MAINTAINERS file and your source code 
+seems like a really good idea.  Would you please do this?
 
-Seems floppy and console is buggy, then.
-
-> What about creating a special cpu_is_idle() function that the idle
-> functions must call before sleeping?
-
-I'd say just fix all the bugs.
-								Pavel
--- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+	Miles

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292733AbSBUTXL>; Thu, 21 Feb 2002 14:23:11 -0500
+	id <S292734AbSBUTYV>; Thu, 21 Feb 2002 14:24:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292732AbSBUTXC>; Thu, 21 Feb 2002 14:23:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65288 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292730AbSBUTWt>; Thu, 21 Feb 2002 14:22:49 -0500
+	id <S292732AbSBUTYE>; Thu, 21 Feb 2002 14:24:04 -0500
+Received: from smtp-2.llnl.gov ([128.115.250.82]:17135 "EHLO smtp-2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S292730AbSBUTXs>;
+	Thu, 21 Feb 2002 14:23:48 -0500
+Date: Thu, 21 Feb 2002 11:23:42 -0800 (PST)
+From: "Tom Epperly" <tepperly@llnl.gov>
+X-X-Sender: epperly@tux06.llnl.gov
+To: arjan@fenrus.demon.nl
+cc: linux-kernel@vger.kernel.org
 Subject: Re: RH7.2 running 2.4.9-21-SMP (dual Xeon's) yields "Illegal
-To: tepperly@llnl.gov (Tom Epperly)
-Date: Thu, 21 Feb 2002 19:36:44 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0202211010270.19681-100000@tux06.llnl.gov> from "Tom Epperly" at Feb 21, 2002 10:26:47 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <200202211833.g1LIXZ012239@fenrus.demon.nl>
+Message-ID: <Pine.LNX.4.44.0202211118030.19681-100000@tux06.llnl.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16dz1I-0007ys-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > tends to be a pointer to thinks like cache faults.
-> Is there any way to test this?
+On Thu, 21 Feb 2002 arjan@fenrus.demon.nl wrote:
 
-Well in theory the cpu should report it with a machine check (which we
-would report). Sometimes it doesnt
+> In article <Pine.LNX.4.44.0202211010270.19681-100000@tux06.llnl.gov> you wrote:
+> > 5. nVidia Corp NV15 GL (Quadro2) plugged into the AGP slot.
+> 
+> > By running without the X11 server, I hoped to remove the nVidia board as a 
+> > source of trouble.
+> 
+> did you ever install the NVidia driver ?
 
-> By running without the X11 server, I hoped to remove the nVidia board as a 
-> source of trouble.
+The NVidia drivers (kernel module and X11) are installed, but I have
+rebooted since disabling the X11 server. /sbin/lsmod does not list the
+NVdriver in the running system.  Will the kernel load NVdriver if the X11
+server is never started after a reboot?  /etc/modules.conf has this line
 
-If you booted and never ran X or hand loaded the nvidia module you did that
+alias char-major-195 NVdriver
 
-> 00:00.0 Host bridge: Intel Corporation 82850 860 (Wombat) Chipset Host Bridge (MCH) (rev 04)
+Tom
 
-when you see the nicknames it makes you wonder if intel know that wombat is
-"waste of money brains and time" in business speak 8)
+--
+------------------------------------------------------------------------
+Tom Epperly
+Center for Applied Scientific Computing   Phone: 925-424-3159
+Lawrence Livermore National Laboratory      Fax: 925-424-2477
+L-661, P.O. Box 808, Livermore, CA 94551  Email: tepperly@llnl.gov
+------------------------------------------------------------------------
 
-Nothing else in the hardware really stands out. You can avoid the sb live!
-for testing I guess but I wouldnt have expected it to be a problem.
-
-Possibly one hardware thing to try (depending on who and how the box is
-maintained) is swapping the cpus over and seeing if it then works single
-cpu..

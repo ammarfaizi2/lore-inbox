@@ -1,80 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132279AbRANMIx>; Sun, 14 Jan 2001 07:08:53 -0500
+	id <S132496AbRANMKn>; Sun, 14 Jan 2001 07:10:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132496AbRANMIf>; Sun, 14 Jan 2001 07:08:35 -0500
-Received: from jdi.jdimedia.nl ([212.204.192.51]:22801 "EHLO jdi.jdimedia.nl")
-	by vger.kernel.org with ESMTP id <S132279AbRANMI1>;
-	Sun, 14 Jan 2001 07:08:27 -0500
-Date: Sun, 14 Jan 2001 13:08:16 +0100 (CET)
-From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+	id <S132430AbRANMKX>; Sun, 14 Jan 2001 07:10:23 -0500
+Received: from kamov.deltanet.ro ([193.226.175.3]:18194 "HELO
+	kamov.deltanet.ro") by vger.kernel.org with SMTP id <S132496AbRANMKO>;
+	Sun, 14 Jan 2001 07:10:14 -0500
+Date: Sun, 14 Jan 2001 14:10:03 +0200
+From: Petru Paler <ppetru@ppetru.net>
 To: "David S. Miller" <davem@redhat.com>
-cc: Harald Welte <laforge@gnumonks.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0 + iproute2
-In-Reply-To: <14945.28354.209720.579437@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.30.0101141253590.16758-100000@jdi.jdimedia.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-pre3+zerocopy: weird messages
+Message-ID: <20010114141003.G1394@ppetru.net>
+In-Reply-To: <20010114121105.B1394@ppetru.net> <14945.32886.671619.99921@pizda.ninka.net> <20010114124549.D1394@ppetru.net> <14945.34414.185794.396720@pizda.ninka.net> <20010114132845.F1394@ppetru.net> <14945.36440.59585.376942@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.13i
+In-Reply-To: <14945.36440.59585.376942@pizda.ninka.net>; from davem@redhat.com on Sun, Jan 14, 2001 at 03:32:40AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Igmar Palsenberg writes:
->
->  > we might want to consider changing the error the call gives in case
->  > MULTIPLE_TABLES isn't set. -EINVAL is ugly, -ENOSYS should make the error
->  > more clear..
->
-> How do I tell the difference between using the wrong system call
-> number to invoke an ioctl or socket option change, and making a
-> call for a feature I haven't configured into my kernel?
+On Sun, Jan 14, 2001 at 03:32:40AM -0800, David S. Miller wrote:
+> Petru Paler writes:
+>  > > Oh, I think I know why this happens.  Can you add this patch, and next
+>  > > time the UDP bad csum message appears, tell me if it says "UDP packet
+>  > > with bad csum was fragmented." in the next line of your syslog
+>  > > messages?  Thanks.
 
-The large tables option is rather strange : Looking at the name I start
-thinking that the option is actually already there, but this option
-enlarges this table.
+Jan 14 06:54:08 grey kernel: Undo loss 193.230.129.57/34342 c2 l0 ss2/2 p0
+Jan 14 06:56:40 grey kernel: udp v4 hw csum failure.
+Jan 14 06:57:05 grey kernel: Undo partial loss 193.230.129.57/34342 c1 l5 ss2/3 p5        
 
-When the kernel return -EINVAL I start thinking that the call is actually
-supported, but the userspace stuff sends garbage. In this case, it sends
-valid data, bit the call isn't there.
-
-I haven't had a real good look at the code, but we might change the
-behaviour so that the call fails (same case if NETLINK isn't compiled in,
-you get an error when creating the socket).
-
-If this isn't possible (if we don't know what userspace wants when
-creating the socket, it's a good idea to print an aditional hint saying
-'you might want to compile LARGE TABLES option'.
-
-> I think ENOSYS is just a bad a choice.
-
-Maybe time for a ENOTSUPPORTED or so ?
-
-The config option says :
-
-'If you have routing zones that grow to more than about 64 entries, you
-may want to say Y here to speed up the routing process'
-
-Which I assume that it just enlarges the table.
-
--ENOSYS is bad in this case indeed, but -EINVAL is also bad IMHO.
-
-
-
-	Regards,
-
-		Igmar
--- 
+So no "UDP packet with bad csum was fragmented" line. This is the first
+one though, will let you know if the fragmented thing occurs.
 
 --
-Igmar Palsenberg
-JDI Media Solutions
-
-Jansplaats 11
-6811 GB Arnhem
-The Netherlands
-
-mailto: i.palsenberg@jdimedia.nl
-PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
-
+Petru Paler, mailto:ppetru@ppetru.net
+http://www.ppetru.net - ICQ: 41817235
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

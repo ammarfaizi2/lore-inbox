@@ -1,124 +1,216 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbUDEUz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 16:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbUDEUz6
+	id S263204AbUDEU4x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 16:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbUDEU4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 16:55:58 -0400
-Received: from web40504.mail.yahoo.com ([66.218.78.121]:3893 "HELO
-	web40504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263014AbUDEUyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 16:54:13 -0400
-Message-ID: <20040405205412.60071.qmail@web40504.mail.yahoo.com>
-Date: Mon, 5 Apr 2004 13:54:12 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge
-To: John Stoffel <stoffel@lucent.com>
-Cc: Timothy Miller <miller@techsource.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <16497.48378.82191.330004@gargle.gargle.HOWL>
-MIME-Version: 1.0
+	Mon, 5 Apr 2004 16:56:52 -0400
+Received: from waste.org ([209.173.204.2]:47759 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263204AbUDEU4Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 16:56:16 -0400
+Date: Mon, 5 Apr 2004 15:55:39 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: [PATCH] Drop exported symbols list if !modules
+Message-ID: <20040405205539.GG6248@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- John Stoffel <stoffel@lucent.com> wrote:
-> >>>>> "Sergiy" == Sergiy Lozovsky
-> <serge_lozovsky@yahoo.com> writes:
-> 
-> Sergiy> Basically there are two reasons.
-> 
-> Sergiy> 1. Give system administrator possibility to
-> change security
-> Sergiy> policy easy enough without C programminig
-> inside the kernel
-> Sergiy> (we should not expect system administartor
-> to be a kernel
-> Sergiy> guru). Language of higher lavel make code
-> more compact (C - is
-> Sergiy> too low level, that's why people use PERL
-> for example or
-> Sergiy> LISP). Lisp was chosen because of very
-> compact VM - around
-> Sergiy> 100K.
-> 
-> Why in god's name does this need to be in the
-> kernel?  This is purely
-> a userspace issue, and the tool for managing the
-> security policy
-> should be completely in userspace.  
+Drop ksyms if we've built without module support
 
-UNIX security policy is already implemented in the
-Kernel, or should we move checking of root priveleges
-and file permissions to the userspace? I just extended
-existing security features.
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: 2.6.1-rc1-tiny2
 
-> Under this design, /bin/ls would be a kernel module,
-> and not a
-> userspace tool!   
+Index: linux-2.6.1-rc1-tiny2/arch/alpha/kernel/Makefile===================================================================
+RCS file: /home/cvsroot/linux-2.6.1-rc1-tiny2/arch/alpha/kernel/Makefile,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 Makefile
 
-No :-) What you suggest is kernel should receive
-system call from user space. Instead of handling it -
-kernel should forward it back to userspace, than it
-should be forwarded back to the kernel. Looks not very
-nice to me. Why not to handle security policy inside
-the kernel as it is done for the file permissions and
-root priveleges?
 
-> Sergiy> 2. Protect system from bugs in security
-> policy created by
-> Sergiy> system administrator (user).  
-> 
-> C'mon, GIGO will kill you from user space or from
-> kernel space.  What
-> makes you think LISP will protect you?  
-> 
-> Sergiy> LISP interpreter is a LISP Virtual Machine
-> (as Java VM). So
-> Sergiy> all bugs are incapsulated and don't affect
-> kernel.
-> 
-> Then *WHY* does the LISP interpreter need to be in
-> the kernel in the
-> first place?  Hint, you just said you wanted to
-> protect the kernel...
+ tiny-mpm/arch/alpha/kernel/Makefile   |    4 ++--
+ tiny-mpm/arch/i386/kernel/Makefile    |    4 ++--
+ tiny-mpm/arch/ia64/kernel/Makefile    |    4 ++--
+ tiny-mpm/arch/m68k/kernel/Makefile    |    4 ++--
+ tiny-mpm/arch/parisc/kernel/Makefile  |    4 ++--
+ tiny-mpm/arch/sh/kernel/Makefile      |    4 ++--
+ tiny-mpm/arch/sparc64/kernel/Makefile |    4 ++--
+ tiny-mpm/arch/x86_64/kernel/Makefile  |    4 ++--
+ 8 files changed, 16 insertions(+), 16 deletions(-)
 
-All LISP errors are incapsulated within LISP VM.
+Index: tiny/arch/alpha/kernel/Makefile
+===================================================================
+--- tiny.orig/arch/alpha/kernel/Makefile	2003-12-17 20:58:48.000000000 -0600
++++ tiny/arch/alpha/kernel/Makefile	2004-04-02 20:28:12.000000000 -0600
+@@ -8,13 +8,13 @@
  
-> Sergiy> Even severe bugs in this LISP kernel module
-> can cause
-> Sergiy> termination of user space application only
-> (except of stack
-> Sergiy> overflow - which I can address). LISP error
-> message will be
-> Sergiy> printed in the kernel log.
-> 
-> Hah!  You just gave the number one reason why you
-> don't want or need a
-> LISP interpreter in the kernel yourself.  
+ obj-y    := entry.o traps.o process.o init_task.o osf_sys.o irq.o \
+ 	    irq_alpha.o signal.o setup.o ptrace.o time.o semaphore.o \
+-	    alpha_ksyms.o systbls.o err_common.o
++	    systbls.o err_common.o
+ 
+ obj-$(CONFIG_VGA_HOSE)	+= console.o
+ obj-$(CONFIG_SMP)	+= smp.o
+ obj-$(CONFIG_PCI)	+= pci.o pci_iommu.o
+ obj-$(CONFIG_SRM_ENV)	+= srm_env.o
+-obj-$(CONFIG_MODULES)	+= module.o
++obj-$(CONFIG_MODULES)	+= alpha_ksyms.o module.o
+ 
+ ifdef CONFIG_ALPHA_GENERIC
+ 
+Index: tiny/arch/i386/kernel/Makefile
+===================================================================
+--- tiny.orig/arch/i386/kernel/Makefile	2004-04-02 20:25:48.000000000 -0600
++++ tiny/arch/i386/kernel/Makefile	2004-04-02 20:28:12.000000000 -0600
+@@ -6,7 +6,7 @@
+ 
+ obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
+ 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
+-		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
++		pci-dma.o i387.o dmi_scan.o bootflag.o \
+ 		doublefault.o
+ 
+ obj-y				+= cpu/
+@@ -26,7 +26,7 @@
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
+ obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
+ obj-$(CONFIG_X86_SUMMIT_NUMA)	+= summit.o
+-obj-$(CONFIG_MODULES)		+= module.o
++obj-$(CONFIG_MODULES)		+= module.o i386_ksyms.o
+ obj-y				+= sysenter.o vsyscall.o
+ obj-$(CONFIG_ACPI_SRAT) 	+= srat.o
+ obj-$(CONFIG_HPET_TIMER) 	+= time_hpet.o
+Index: tiny/arch/ia64/kernel/Makefile
+===================================================================
+--- tiny.orig/arch/ia64/kernel/Makefile	2004-04-02 20:24:32.000000000 -0600
++++ tiny/arch/ia64/kernel/Makefile	2004-04-02 20:28:12.000000000 -0600
+@@ -4,7 +4,7 @@
+ 
+ extra-y	:= head.o init_task.o vmlinux.lds.s
+ 
+-obj-y := acpi.o entry.o efi.o efi_stub.o gate-data.o fsys.o ia64_ksyms.o irq.o irq_ia64.o	\
++obj-y := acpi.o entry.o efi.o efi_stub.o gate-data.o fsys.o irq.o irq_ia64.o	\
+ 	 irq_lsapic.o ivt.o machvec.o pal.o patch.o process.o perfmon.o ptrace.o sal.o		\
+ 	 salinfo.o semaphore.o setup.o signal.o sys_ia64.o time.o traps.o unaligned.o unwind.o mca.o mca_asm.o
+ 
+@@ -14,7 +14,7 @@
+ obj-$(CONFIG_IA64_HP_ZX1)	+= acpi-ext.o
+ obj-$(CONFIG_IA64_PALINFO)	+= palinfo.o
+ obj-$(CONFIG_IOSAPIC)		+= iosapic.o
+-obj-$(CONFIG_MODULES)		+= module.o
++obj-$(CONFIG_MODULES)		+= ia64_ksyms.o module.o
+ obj-$(CONFIG_SMP)		+= smp.o smpboot.o
+ obj-$(CONFIG_PERFMON)		+= perfmon_default_smpl.o
+ obj-$(CONFIG_IA64_CYCLONE)	+= cyclone.o
+Index: tiny/arch/m68k/kernel/Makefile
+===================================================================
+--- tiny.orig/arch/m68k/kernel/Makefile	2004-03-25 13:36:07.000000000 -0600
++++ tiny/arch/m68k/kernel/Makefile	2004-04-02 20:28:12.000000000 -0600
+@@ -10,9 +10,9 @@
+ extra-y	+= vmlinux.lds.s
+ 
+ obj-y		:= entry.o process.o traps.o ints.o signal.o ptrace.o \
+-			sys_m68k.o time.o semaphore.o setup.o m68k_ksyms.o
++			sys_m68k.o time.o semaphore.o setup.o
+ 
+ obj-$(CONFIG_PCI)	+= bios32.o
+-obj-$(CONFIG_MODULES)	+= module.o
++obj-$(CONFIG_MODULES)	+= m68k_ksyms.o module.o
+ 
+ EXTRA_AFLAGS := -traditional
+Index: tiny/arch/parisc/kernel/Makefile
+===================================================================
+--- tiny.orig/arch/parisc/kernel/Makefile	2004-03-03 14:00:22.000000000 -0600
++++ tiny/arch/parisc/kernel/Makefile	2004-04-02 20:28:12.000000000 -0600
+@@ -13,13 +13,13 @@
+ obj-y	     	:= cache.o pacache.o setup.o traps.o time.o irq.o \
+ 		   pa7300lc.o syscall.o entry.o sys_parisc.o firmware.o \
+ 		   ptrace.o hardware.o inventory.o drivers.o semaphore.o \
+-		   signal.o hpmc.o real2.o parisc_ksyms.o unaligned.o \
++		   signal.o hpmc.o real2.o unaligned.o \
+ 		   process.o processor.o pdc_cons.o pdc_chassis.o
+ 
+ obj-$(CONFIG_SMP)	+= smp.o
+ obj-$(CONFIG_PA11)	+= pci-dma.o
+ obj-$(CONFIG_PCI)	+= pci.o
+-obj-$(CONFIG_MODULES)	+= module.o
++obj-$(CONFIG_MODULES)	+= parisc_ksyms.o module.o
+ obj-$(CONFIG_PARISC64)	+= binfmt_elf32.o sys_parisc32.o ioctl32.o signal32.o
+ # only supported for PCX-W/U in 64-bit mode at the moment
+ obj-$(CONFIG_PARISC64)	+= perf.o perf_asm.o
+Index: tiny/arch/sh/kernel/Makefile
+===================================================================
+--- tiny.orig/arch/sh/kernel/Makefile	2004-03-03 14:00:26.000000000 -0600
++++ tiny/arch/sh/kernel/Makefile	2004-04-02 20:28:12.000000000 -0600
+@@ -6,7 +6,7 @@
+ 
+ obj-y	:= process.o signal.o entry.o traps.o irq.o \
+ 	ptrace.o setup.o time.o sys_sh.o semaphore.o \
+-	io.o io_generic.o sh_ksyms.o
++	io.o io_generic.o
+ 
+ obj-y				+= cpu/
+ 
+@@ -15,7 +15,7 @@
+ obj-$(CONFIG_SH_STANDARD_BIOS)	+= sh_bios.o
+ obj-$(CONFIG_SH_KGDB)		+= kgdb_stub.o kgdb_jmp.o
+ obj-$(CONFIG_SH_CPU_FREQ)	+= cpufreq.o
+-obj-$(CONFIG_MODULES)		+= module.o
++obj-$(CONFIG_MODULES)		+= sh_ksyms.o module.o
+ 
+ USE_STANDARD_AS_RULE := true
+ 
+Index: tiny/arch/sparc64/kernel/Makefile
+===================================================================
+--- tiny.orig/arch/sparc64/kernel/Makefile	2003-12-17 20:58:18.000000000 -0600
++++ tiny/arch/sparc64/kernel/Makefile	2004-04-02 20:28:12.000000000 -0600
+@@ -11,7 +11,7 @@
+ 		   traps.o devices.o auxio.o \
+ 		   irq.o ptrace.o time.o sys_sparc.o signal.o \
+ 		   unaligned.o central.o pci.o starfire.o semaphore.o \
+-		   power.o sbus.o iommu_common.o sparc64_ksyms.o chmc.o
++		   power.o sbus.o iommu_common.o chmc.o
+ 
+ obj-$(CONFIG_PCI)	 += ebus.o isa.o pci_common.o pci_iommu.o \
+ 			    pci_psycho.o pci_sabre.o pci_schizo.o
+@@ -19,7 +19,7 @@
+ obj-$(CONFIG_SPARC32_COMPAT) += sys32.o sys_sparc32.o signal32.o ioctl32.o
+ obj-$(CONFIG_BINFMT_ELF32) += binfmt_elf32.o
+ obj-$(CONFIG_BINFMT_AOUT32) += binfmt_aout32.o
+-obj-$(CONFIG_MODULES) += module.o
++obj-$(CONFIG_MODULES) += sparc64_ksyms.o module.o
+ obj-$(CONFIG_US3_FREQ) += us3_cpufreq.o
+ obj-$(CONFIG_US2E_FREQ) += us2e_cpufreq.o
+ 
+Index: tiny/arch/x86_64/kernel/Makefile
+===================================================================
+--- tiny.orig/arch/x86_64/kernel/Makefile	2004-04-02 20:24:33.000000000 -0600
++++ tiny/arch/x86_64/kernel/Makefile	2004-04-02 20:28:12.000000000 -0600
+@@ -6,7 +6,7 @@
+ EXTRA_AFLAGS	:= -traditional
+ obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
+ 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_x86_64.o \
+-		x8664_ksyms.o i387.o syscall.o vsyscall.o \
++		i387.o syscall.o vsyscall.o \
+ 		setup64.o bootflag.o e820.o reboot.o warmreboot.o
+ obj-y += mce.o acpi/
+ 
+@@ -26,7 +26,7 @@
+ obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-dma.o
+ obj-$(CONFIG_SWIOTLB)		+= swiotlb.o
+ 
+-obj-$(CONFIG_MODULES)		+= module.o
++obj-$(CONFIG_MODULES)		+= x8664_ksyms.o module.o
+ 
+ obj-y				+= topology.o
+ 
 
-What reason you have in mind? All available security
-models have predefined stack usage, so it is
-completely safe to use them. 
 
-For those who want to define their security model (not
-security policy!) - they shoud respect stack
-limitations for now. Which sounds reasonable. Using
-existing security models it is impossible to cause
-stack overflow. (depth of subroutine calls is
-constant).
-
-Serge.
-
-> John
->    John Stoffel - Senior Unix Systems Administrator
-> - Lucent Technologies
-> 	 stoffel@lucent.com - http://www.lucent.com -
-978-952-7548
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262965AbVAFTIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262977AbVAFTOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262965AbVAFTIq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 14:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbVAFTIp
+	id S262977AbVAFTOW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 14:14:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbVAFTOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 14:08:45 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:15791 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S262965AbVAFTGm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 14:06:42 -0500
-From: Norbert van Nobelen <norbert-kernel@edusupport.nl>
-Organization: EduSupport BV
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Open hardware wireless cards
-Date: Thu, 6 Jan 2005 20:06:49 +0100
-User-Agent: KMail/1.6.2
-References: <20050105200526.GL5159@ruslug.rutgers.edu> <20050106173858.GV5159@ruslug.rutgers.edu> <1105033349.15352.5.camel@krustophenia.net>
-In-Reply-To: <1105033349.15352.5.camel@krustophenia.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 6 Jan 2005 14:14:21 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:12716 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262972AbVAFTOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 14:14:07 -0500
+Date: Thu, 6 Jan 2005 19:13:55 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+Message-ID: <20050106191355.GA23345@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Paul E. McKenney" <paulmck@us.ibm.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
+	pbadari@us.ibm.com, markv@us.ibm.com,
+	viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
+References: <20050106190538.GB1618@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501062006.49542.norbert-kernel@edusupport.nl>
+In-Reply-To: <20050106190538.GB1618@us.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My personal opinion
-Sound is mainly integrated on boards. Since developing a high end card is not 
-an easy job, and the market is pretty small for that (enough competition), I 
-think the wireless card is not too weird to do
+On Thu, Jan 06, 2005 at 11:05:38AM -0800, Paul E. McKenney wrote:
+> Hello, Andrew,
+> 
+> Some export-removal work causes breakage for an out-of-tree filesystem.
+> Could you please apply the attached patch to restore the exports for
+> files_lock and set_fs_root?
 
-Plus wireless is hot. What we can do is implement the standard and add a 
-little extra once we are done with that, linux a nice encryption layer for 
-linux to linux communication, thus giving linux (or a windowsbox with the 
-right drivers), a nice edge.
+What out of tree filesystem, and what the heck is it doing?
 
+Without proper explanation it's vetoed.
 
-On Thursday 06 January 2005 18:42, you wrote:
-> [removed prism-54 devel as it's subscribers only]
->
-> On Thu, 2005-01-06 at 12:38 -0500, Luis R. Rodriguez wrote:
-> > On Thu, Jan 06, 2005 at 12:37:15PM -0500, Lee Revell wrote:
-> > > On Thu, 2005-01-06 at 12:24 -0500, Luis R. Rodriguez wrote:
-> > > > On Thu, Jan 06, 2005 at 09:02:07AM +0100, Norbert van Nobelen wrote:
-> > > > > You don't have to buy a company. There are white label
-> > > > > manufacturers which are happy to produce any card you like
-> > > >
-> > > > Excellent
-> > >
-> > > Wireless?!?  How abour a freaking pro audio interface (aka "sound
-> > > card")?  Wireless is like rocket science by comparison.
-> >
-> > So be it, let's shoot for friendly open sound card design manufacturing.
->
-> It's been discussed on LAD and LAU.  Not sure what current status is.  I
-> think if the open video card is viable then this certainly is.  Pro
-> sound gear is not a commodity market to the same extent that computer
-> hardware is.
->
-> Please check out those lists if you're interested, I don't want to start
-> an OT thread here...
->
-> Lee
-
--- 
-<a href="http://www.edusupport.nl">EduSupport: Linux Desktop for schools and 
-small to medium business</a>
+btw, any reason you put half the world in the Cc list?  Al and Andrew I
+see, but do the other people on the Cc list have to do with it?  And you
+forgot the person that killed the export.

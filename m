@@ -1,78 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281479AbRKPWKx>; Fri, 16 Nov 2001 17:10:53 -0500
+	id <S281493AbRKPWKm>; Fri, 16 Nov 2001 17:10:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281489AbRKPWKm>; Fri, 16 Nov 2001 17:10:42 -0500
-Received: from mail.cb.monarch.net ([24.244.11.6]:26897 "EHLO
-	baca.cb.monarch.net") by vger.kernel.org with ESMTP
-	id <S281479AbRKPWKe>; Fri, 16 Nov 2001 17:10:34 -0500
-Date: Fri, 16 Nov 2001 15:07:54 -0700
-From: "Peter J . Braam" <braam@clusterfilesystem.com>
-To: Andrew Morton <akpm@zip.com.au>, Steve Lord <lord@sgi.com>,
-        Ben Israel <ben@genesis-one.com>, linux-kernel@vger.kernel.org
-Subject: Re: File System Performance
-Message-ID: <20011116150754.Y5176@lustre.dyn.ca.clusterfilesystem.com>
-In-Reply-To: <3BF02702.34C21E75@zip.com.au>, <00b201c16b81$9d7aaba0$5101a8c0@pbc.adelphia.net> <3BEFF9D1.3CC01AB3@zip.com.au> <00da01c16ba2$96aeda00$5101a8c0@pbc.adelphia.net> <3BF02702.34C21E75@zip.com.au> <1005595583.13307.5.camel@jen.americas.sgi.com> <3BF03402.87D44589@zip.com.au> <20011112171705.Z1778@lynx.no> <20011112174005.N4281@lustre.dyn.ca.clusterfilesystem.com> <20011113134653.O1778@lynx.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011113134653.O1778@lynx.no>; from adilger@turbolabs.com on Tue, Nov 13, 2001 at 01:46:53PM -0700
+	id <S281489AbRKPWKc>; Fri, 16 Nov 2001 17:10:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4868 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281479AbRKPWKZ>; Fri, 16 Nov 2001 17:10:25 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: mmap not working?
+Date: 16 Nov 2001 14:10:04 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9t42rs$5vd$1@cesium.transmeta.com>
+In-Reply-To: <200111162134.WAA22927@cave.bitwizard.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think anybody has a large KML to share.  Unfortunately, I
-suspect in many environments people don't want to give such
-information. 
+Followup to:  <200111162134.WAA22927@cave.bitwizard.nl>
+By author:    R.E.Wolff@BitWizard.nl (Rogier Wolff)
+In newsgroup: linux.dev.kernel
+>
+> 
+> Hi,
+> 
+> I want to mmap a device in an application, so I do: 
+> 
+> 	base = mmap(NULL ,  DEV_LENGTH,  myprot , flags, kmem, dev_base); 
+> 
+> Turns out that some BIOSs put my device at an address like
+> 
+> 	0xdffffc00
+> 
+> whereas others put it at 0xfa000000 . In the latter case, mmap works
+> as expected. However in the first case I get EINVAL: The base is
+> not page-aligned. 
+> 
+> However, in the latter case I get my requested 1k of memory, and the
+> following 3k for free. In the first case I'd want "3k for free,
+> followed by the 1k I requested".
+> 
+> effectively, provided "start" equals NULL, the kernel IMHO should:
+> 
+> 	offset = dev_base & PAGE_MASK; 
+> 	return mmap (NULL, length+offset, prot, flags, base - offset) + offset; 
+> Comments?
+> 
+> The "failure" was observed on 2.4.14 and/or 2.4.9. 
+> 
+> 		Roger. 
+> 
+> 
+> P.S. I end up not being able to closely follow linux-kernel
+> lately. CCs to me appreciated.
+> 
 
-We should start logging somewhere. 
+Sorry, what you're asking for the TLB to do something it simply cannot
+do -- there is no way for the TLB to remap the bottom 12 bits since it
+doesn't control them.
 
-- peter -
+What you'd have to do is to make your device driver move the device to
+a different address.
 
-On Tue, Nov 13, 2001 at 01:46:53PM -0700, Andreas Dilger wrote:
-> On Nov 12, 2001  17:40 -0700, Peter J . Braam wrote:
-> > The KML in fact doesn't record the writes.  I don't have a large KML,
-> > but it is easy to set one up.  Let me know if you need a hand.
-> 
-> We don't actually need to have the data contents, just the file sizes,
-> which I think the CLOSE records have, don't they?  The one thing I'm
-> unsure of is whether you zero the KML as it is "used", or does it keep
-> the data from past transactions?  At one time we were thinking about
-> using "punch" to reduce the actual file size, but I doubt that is in
-> place yet.
-> 
-> This is purely to measure the effects of repeated file creation, deletion,
-> updates in a real setting over a very long period (e.g. many months/years),
-> which is why setting something like this up today won't get us anywhere
-> (any large amount of activity would just be synthetic).
-> 
-> Do you think Ron Minnich or the folks at Tacitus would have a KML which
-> has been generated on a large server over a long period of time and not
-> erased?
-> 
-> > On Mon, Nov 12, 2001 at 05:17:05PM -0700, Andreas Dilger wrote:
-> > > On Nov 12, 2001  12:41 -0800, Andrew Morton wrote:
-> > > > BTW, I've been trying to hunt down a suitable file system aging tool.
-> > > > We're not very happy with Keith Smith's workload because the directory
-> > > > infomation was lost (he was purely studying FFS algorithmic differences
-> > > > - the load isn't 100% suitable for testing other filesystems / algorithms).
-> > > >   Constantin Loizides' tools are proving to be rather complex to compile,
-> > > >   drive and understand.
-> > > 
-> > > What _may_ be a very interesting tool for doing "real-world" I/O generation
-> > > is to use the InterMezzo KML (kernel modification log), which is basically
-> > > a 100% record of every filesystem operation done (e.g. create, write,
-> > > delete, mkdir, rmdir, etc).
-> > > 
-> > > Peter, do you have any very large KML files which would simulate the usage
-> > > of a filesystem over a long period of time, or would Tacitus have something
-> > > like that?
-> 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://sourceforge.net/projects/ext2resize/
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
-> 
+	-hpa
 
 -- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,239 +1,132 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279805AbRKAWBT>; Thu, 1 Nov 2001 17:01:19 -0500
+	id <S277012AbRKAV53>; Thu, 1 Nov 2001 16:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279809AbRKAWBK>; Thu, 1 Nov 2001 17:01:10 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:34693 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S279805AbRKAWAy>; Thu, 1 Nov 2001 17:00:54 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, Rusty.Russell@rustcorp.com.au
-Date: Thu, 1 Nov 2001 13:37:05 -0800 (PST)
-Subject: Re: 2.4.13 (and 2.4.5) performance drops under load and does not
- recover
-In-Reply-To: <Pine.LNX.4.40.0110311512210.7434-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.40.0111011329590.18687-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279802AbRKAV5U>; Thu, 1 Nov 2001 16:57:20 -0500
+Received: from mailrelay3.inwind.it ([212.141.54.103]:32976 "EHLO
+	mailrelay3.inwind.it") by vger.kernel.org with ESMTP
+	id <S277012AbRKAV5I>; Thu, 1 Nov 2001 16:57:08 -0500
+Message-Id: <3.0.6.32.20011101225943.01fee1b0@pop.tiscalinet.it>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Thu, 01 Nov 2001 22:59:43 +0100
+To: Stephan von Krawczynski <skraw@ithnet.com>
+From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
+Subject: Re: new OOM heuristic failure  (was: Re: VM: qsbench)
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <200111012108.WAA28044@webserver.ithnet.com>
+In-Reply-To: <3.0.6.32.20011101214957.01feaa70@pop.tiscalinet.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-testing this with iptables shows a similar performance drop for the first
-few thousand connections, but then it stabalizes and does not get worse.
-After the firewall is allowed to sit idle long enough for
-/proc/net/ip_conntrack to drop back down to zero the performance recoveres
-to the freshly booted state.
+At 22.08 01/11/01 +0100, you wrote:
+>> At 15.44 01/11/01 +0100, Stephan von Krawczynski wrote:             
+>> >On Wed, 31 Oct 2001 22:31:40 +0100 Lorenzo Allegrucci              
+><lenstra@tiscalinet.it>                                               
+>> >wrote:                                                             
+>> >                                                                   
+>> >> Linus,                                                           
+>> >>                                                                  
+>> >> your patch seems to help one case out of three.                  
+>> >> (even though I have not any meaningful statistical data)         
+>> >                                                                   
+>> >Hm, I will not say that I expected that :-), he knows by far more  
+>than me.                                                              
+>> >But can you try my patch below in addition or comparison to linus' 
+>?                                                                     
+>> >Give me a hint what happens.                                       
+>>                                                                     
+>> Well, your patch works but it hurts performance :(                  
+>>
+>> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100   
+>> 71.500u 1.790s 2:29.18 49.1%    0+0k 0+0io 18498pf+0w               
+>> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100   
+>> 71.460u 1.990s 2:26.87 50.0%    0+0k 0+0io 18257pf+0w               
+>> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100   
+>> 71.220u 2.200s 2:26.82 50.0%    0+0k 0+0io 18326pf+0w               
+>> 0:55 kswapd                                                         
+>>                                                                     
+>> Linux-2.4.14-pre5:                                                  
+>> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100   
+>> 70.340u 3.450s 2:13.62 55.2%    0+0k 0+0io 16829pf+0w               
+>> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100   
+>> 70.590u 2.940s 2:15.48 54.2%    0+0k 0+0io 17182pf+0w               
+>> lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100   
+>> 70.140u 3.480s 2:14.66 54.6%    0+0k 0+0io 17122pf+0w               
+>> 0:01 kswapd                                                         
+>                                                                      
+>Hello Lorenzo,                                                        
+>                                                                      
+>to be honest: I expected that. The patch according to my knowledge    
+>fixes a "definition hole" in the shrink_cache algorithm. I tend to say
+>it is the right thing to do it this way, but I am sure it is not as   
+>fast as immediate exit to swap. It would be interesting to know if  it
+>does hurt performance in not-near-oom environment. I'd say Andrea or  
+>Linus might know that, or you can try, of course :-)                  
 
-in doing this test I ran into the 32K limit of connection tracking and
-bumped it to 327680 (just to make it large enough :-)
+400M of swap now (from 200M), Linux-2.4.14-pre6 + your vmscan-patch:
 
-so the ipchains compatability layer appears to have a leak in it that
-prevents it from recovering the memory used to track the connections.
+lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
+71.320u 2.260s 2:28.92 49.4%    0+0k 0+0io 18755pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
+71.330u 2.120s 2:28.40 49.4%    0+0k 0+0io 18838pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
+71.880u 2.100s 2:28.31 49.8%    0+0k 0+0io 18646pf+0w
+0:56 kswapd
 
-under iptables is there a way to cause the tcp connections to timeout from
-the ip_conntrack more rapidly? it appears that they sit in the tcp table
-for the time_wait interval when closed and then sit in the ip_conntrack
-table for an additional time_wait interval as well.
+qsbench vsize is just 343M, definitely not-near-oom environment :)
 
-David Lang
+>Anyway may I beg you to post my patch and your answer to the list,    
+>because I currently cannot do it (I am not in office right now, but on
+>a web-terminal somewhere in the outbacks ;-). I have neither patch at 
+>hand nor am I able to attach it with this mailer...                   
+>                                                                      
+>Thanks,                                                               
+>Stephan                                                               
 
-On Wed, 31 Oct 2001, David Lang wrote:
+your vmscan-patch:
 
-> Date: Wed, 31 Oct 2001 15:22:03 -0800 (PST)
-> From: David Lang <david.lang@digitalinsight.com>
-> To: torvalds@transmeta.com
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: 2.4.13 (and 2.4.5) performance drops under load and does not
->     recover
->
-> This problem is also happening on 2.4.14pre6.
->
-> however one thing that I did find
->
-> in this firewall setup I am useing ipchains REDIRECT to map port 1433 on
-> four IP addresses to ports 1434-1437 to get to the proxies.
->
-> if I do the same test, but instead of having all 5 copies of ab hitting
-> port 1433 I make them connect to the real port of the proxy the slowdown
-> does not happen (I have run 5 iterations of the load test without any
-> slowdown)
->
-> So this slowdown appears to be in the ipchains emulation code or the
-> iptables port mapping code.
->
-> I think my next step is going to be to try to use iptables instead of
-> ipchains to do the port mapping.
->
-> David Lang
->
-> On Wed, 31 Oct 2001, David Lang wrote:
->
-> > Date: Wed, 31 Oct 2001 13:48:43 -0800 (PST)
-> > From: David Lang <david.lang@digitalinsight.com>
-> > To: torvalds@transmeta.com
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: 2.4.13 (and 2.4.5) performance drops under load and does not
-> >     recover
-> >
-> > symptoms: when the firewall is freshly booted it supports >200
-> > connections/sec, when the firewall is hit with lots of simultanious
-> > requests it slows down, after the flood of requests stops and the machine
-> > sits idle it never recovers back to it's origional performance. I can
-> > drive the performance down to <50 connections/sec permanently. The CPU
-> > is eaten up more and more by the system, leaving less time for userspace.
-> >
-> > the single threaded requests do outperform the massivly parallel test (as
-> > can be expected as the scheduler isn't optimized for long runqueues :-) I
-> > am not asking to optimize things for the large runqueue, just to be able
-> > to recover after the long runqueue had finished.
-> >
-> > killing and restarting the proxy does not fix the problem. The only way I
-> > have discovered to resotre performance is a reboot of the firewall.
-> >
-> > test setup:
-> >
-> > client---firewall---server
-> >
-> > all boxes are 1.2GHz athlon, 512MB ram, IDE drive, D-link quad ethernet,
-> > 2GB swap space (although it never comes close to useing it)
-> >
-> > ethernet switches are cisco 3548
-> >
-> > firewall is running 4 proxies, each proxy accepts incoming connections,
-> > forks to handle that connection, relays the data to/from the server and
-> > then exits. (yes I know this is not the most efficiant way to do things,
-> > but this _is_ a real world use)
-> >
-> > I did a vmstat 1 on the firewall during the test and exerpts from it are
-> > listed below.
-> >
-> > server is running apache (maxclients set to 250 after prior runs noted
-> > that it ran up against the 150 limit)
-> >
-> > client is running ab (apache benchmark tool)
-> >
-> > testing procedure:
-> >
-> > 1. boot firewall
-> >
-> > 2. get performance data
-> > run ab -n 400 firewall:port/index.html.en twice (first to get past
-> > initalization delays, second to get a performace value)
-> > This does 400 sequential connections and reports the time to get the
-> > responses
-> >
-> > 3. flood the firewall
-> > run 5 copies of ab -n 5000 -c 200 firewall:port/index.html.en
-> > this does 5000 connections attempting to make up to 200 connections at a
-> > time
-> >
-> > 4. wait for all the connections to clear on the firewall (at least,
-> > possibly longer if I am in a meeting). The idea here is to return
-> > everything to a stable mode.
-> >
-> > 5. run ab -n 400 firewall:port/index.html and record the connections/sec
-> >
-> > loop back to 3.
-> >
-> > after 4 iterations of load reboot the firewall and do two more runs of ab
-> > -n 400 to make sure that performance is back up and the slowdown is not
-> > due to large logfiles anywhere.
-> >
-> > at the start of the test vmstat looks like this
-> >
-> >
-> > ab -n 200 (219 connections/sec) this is two runs sequentially
-> >    procs                      memory    swap          io     system         cpu
-> >  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
-> >  0  0  0      0 496744    604   8076   0   0     0     0  101    11   0   0 100
-> >  1  0  1      0 496548    604   8124   0   0    48     0 3814  1759  36  41  24
-> >  0  0  0      0 496588    604   8124   0   0     0     0 4007  1899  42  34  25
-> >  0  0  0      0 496576    604   8128   0   0     0     0  103    16   0   0 100
-> >  1  0  0      0 496452    604   8128   0   0     0     0  924   405  11   6  83
-> >  2  0  0      0 496360    604   8128   0   0     0     0 4252  2015  41  40  20
-> >  0  0  0      0 496492    604   8128   0   0     0     0 2628  1240  26  21  53
-> >  0  0  0      0 496492    604   8128   0   0     0     0  101     7   0   0 100
-> >
-> >
-> > 5xab -n 5000 -c 200 (~210 connections/sec)
-> >    procs                      memory    swap          io     system         cpu
-> >  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
-> > 19  0  1      0 493192    604   8124   0   0     0     0 5938  1139  55  45   0
-> > 13  0  1      0 492980    604   8124   0   0     0     0 4956  1059  58  42   0
-> > 11  0  1      0 492692    604   8124   0   0     0     0 4878  1057  45  55   0
-> > 17  0  1      0 492900    604   8124   0   0     0     0 4890  1072  57  43   0
-> > 29  0  1      0 492572    604   8124   0   0     0     0 4648  1049  46  54   0
-> > 13  0  1      0 492608    604   8124   0   0     0     0 4650  1041  50  50   0
-> > 11  0  1      0 492484    604   8124   0   0     0     0 4645  1043  38  62   0
-> > 18  0  1      0 492472    604   8128   0   0     0     0 4779  1029  56  44   0
-> > 17  0  1      0 492440    604   8128   0   0     0     0 4691  1057  46  54   0
-> > 18  0  1      0 492476    604   8128   0   0     0     0 4598  1074  54  46   0
-> > 18  0  1      0 492488    604   8128   0   0     0     0 4625  1051  53  47   0
-> > 22  0  1      0 492388    604   8128   0   0     0     0 4661  1057  50  50   0
-> > 10  0  1      0 492448    604   8128   0   0     0     0 4569  1033  56  44   0
-> > 22  0  1      0 492364    604   8128   0   0     0     0 4589  1036  48  52   0
-> > 18  0  1      0 492384    604   8128   0   0     0     0 4536  1031  48  52   0
-> > 15  0  1      0 492236    604   8128   0   0     0     0 4528  1034  43  57   0
-> > 26  0  1      0 492132    604   8128   0   0     0     0 4554  1037  50  50   0
-> > 24  0  1      0 492016    604   8128   0   0     0     0 4518  1037  48  52   0
-> >
-> > at the end of 4 runs
-> >
-> > 5xab -n 5000 -c 200 (~40 connections/sec)
-> >    procs                      memory    swap          io     system         cpu
-> >  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
-> > 23  0  1      0 482356    624   8524   0   0     0     0 1053   181   7  93   0
-> > 29  0  1      0 481724    624   8528   0   0     0     0  960   206   7  93   0
-> > 23  0  1      0 482300    624   8528   0   0     0     0 1059   176   5  95   0
-> > 30  0  1      0 482104    624   8528   0   0     0    72 1095   197   9  91   0
-> > 19  0  1      0 482760    624   8528   0   0     0     0 1014   179   5  95   0
-> > 31  0  1      0 481892    624   8528   0   0     0     0 1010   198   6  94   0
-> > 16  0  1      0 482488    624   8524   0   0     0     0 1001   176   8  92   0
-> > 29  0  1      0 482236    624   8524   0   0     0     0 1037   179   9  91   0
-> > 12  0  1      0 483008    624   8528   0   0     0     0 1182   188   8  92   0
-> > 25  0  1      0 482620    624   8528   0   0     0     0  988   173   8  92   0
-> > 19  0  1      0 482696    624   8528   0   0     0     0  931   173   7  93   0
-> > 20  0  1      0 482776    624   8528   0   0     0     0  985   171   9  91   0
-> > 20  0  1      0 482116    624   8528   0   0     0     0 1122   119   5  95   0
-> > 21  0  1      0 482888    624   8528   0   0     0     0  830   144   3  97   0
-> > 16  0  1      0 481916    624   8528   0   0     0     0 1054   155   9  91   0
-> > 18  0  1      0 482892    624   8528   0   0     0     0  875   143  12  88   0
-> > 20  0  1      0 483100    624   8528   0   0     0     0  875   146   7  93   0
-> > 27  0  1      0 482428    624   8528   0   0     0     0  859   153   6  94   0
-> > 26  0  1      0 482688    624   8528   0   0     0     0  874   151   8  92   0
-> >
-> > ab -n 400 (~48 connections/sec) this is a single run
-> >    procs                      memory    swap          io     system         cpu
-> >  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
-> >  0  0  0      0 483552    624   8544   0   0     0     0  103    13   0   0 100
-> >  2  0  0      0 483388    624   8544   0   0     0     0  592   225  10  38  52
-> >  1  0  0      0 483392    624   8544   0   0     0     0 1088   488  13  87   0
-> >  2  0  0      0 483392    624   8544   0   0     0     0 1108   468  10  89   1
-> >  1  0  0      0 483404    624   8548   0   0     0     0 1081   452   9  89   2
-> >  1  0  0      0 483508    624   8548   0   0     0     0 1096   486   7  90   3
-> >  2  0  1      0 483368    624   8548   0   0     0     0 1091   458  11  87   2
-> >  1  0  0      0 483364    624   8548   0   0     0     0 1085   480  13  85   2
-> >  1  0  0      0 483356    624   8552   0   0     0     0 1098   478   9  87   4
-> >  0  0  0      0 483520    624   8548   0   0     0     0  796   330   9  59  32
-> >  0  0  0      0 483520    624   8548   0   0     0     0  103    13   0   0 100
-> >
-> > Please tell me what additional things I should try to identify what the
-> > kernel is getting tied up doing.
-> >
-> > I was able to duplicate this problem with 2.4.5 as well as 2.4.13. the
-> > performance of 2.4.5 is ~4% lower then 2.4.13 in all cases.
-> >
-> > David Lang
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--- linux-orig/mm/vmscan.c	Wed Oct 31 12:32:11 2001
++++ linux/mm/vmscan.c	Thu Nov  1 15:38:13 2001
+@@ -469,16 +469,10 @@
+ 			spin_unlock(&pagecache_lock);
+ 			UnlockPage(page);
+ page_mapped:
+-			if (--max_mapped >= 0)
+-				continue;
++			if (max_mapped > 0)
++				max_mapped--;
++			continue;
+ 
+-			/*
+-			 * Alert! We've found too many mapped pages on the
+-			 * inactive list, so we start swapping out now!
+-			 */
+-			spin_unlock(&pagemap_lru_lock);
+-			swap_out(priority, gfp_mask, classzone);
+-			return nr_pages;
+ 		}
+ 
+ 		/*
+@@ -514,6 +508,14 @@
+ 		break;
+ 	}
+ 	spin_unlock(&pagemap_lru_lock);
++
++	/*
++	 * Alert! We've found too many mapped pages on the
++	 * inactive list, so we start swapping out - delayed!
++	 * -skraw
++	 */
++	if (max_mapped==0)
++		swap_out(priority, gfp_mask, classzone);
+ 
+ 	return nr_pages;
+ }
+
+
+
+-- 
+Lorenzo

@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVAaHcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVAaHlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVAaHcg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 02:32:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVAaH2x
+	id S261961AbVAaHlH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 02:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVAaHiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 02:28:53 -0500
-Received: from waste.org ([216.27.176.166]:11500 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261944AbVAaH0A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 02:26:00 -0500
-Date: Mon, 31 Jan 2005 01:25:52 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4.687457650@selenic.com>
-Message-Id: <5.687457650@selenic.com>
-Subject: [PATCH 4/8] base-small: shrink PID tables
+	Mon, 31 Jan 2005 02:38:55 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:675 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261961AbVAaHfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 02:35:07 -0500
+Date: Mon, 31 Jan 2005 07:31:51 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Paul Blazejowski <diffie@gmail.com>,
+       linux-kernel@vger.kernel.org, Nathan Scott <nathans@sgi.com>
+Subject: Re: 2.6.11-rc2-mm2
+Message-ID: <20050131073151.GA7567@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Roman Zippel <zippel@linux-m68k.org>, Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>, Paul Blazejowski <diffie@gmail.com>,
+	linux-kernel@vger.kernel.org, Nathan Scott <nathans@sgi.com>
+References: <9dda349205012923347bc6a456@mail.gmail.com> <20050129235653.1d9ba5a9.akpm@osdl.org> <20050130105429.GA28300@infradead.org> <20050130105738.GA28387@infradead.org> <20050130120009.GG3185@stusta.de> <20050130121241.GH3185@stusta.de> <Pine.LNX.4.61.0501302358270.6118@scrub.home> <20050130231055.GA7103@stusta.de> <Pine.LNX.4.61.0501310025360.6118@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501310025360.6118@scrub.home>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_BASE_SMALL reduce size of pidmap table for small machines
+On Mon, Jan 31, 2005 at 12:36:02AM +0100, Roman Zippel wrote:
+> Why not just let XFS_FS select EXPORTFS directly:
+> 
+> config XFS_FS
+> 	select EXPORTFS if NFSD
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+Makes sense.  We'll still need the XFS_EXPORT symbol in it's original
+form to select building xfs_export.o.
 
-Index: tq/include/linux/threads.h
-===================================================================
---- tq.orig/include/linux/threads.h	2005-01-25 09:26:16.000000000 -0800
-+++ tq/include/linux/threads.h	2005-01-26 15:16:55.000000000 -0800
-@@ -7,7 +7,7 @@
-  * The default limit for the nr of threads is now in
-  * /proc/sys/kernel/threads-max.
-  */
-- 
-+
- /*
-  * Maximum supported processors that can run under SMP.  This value is
-  * set via configure setting.  The maximum is equal to the size of the
-@@ -25,11 +25,12 @@
- /*
-  * This controls the default maximum pid allocated to a process
-  */
--#define PID_MAX_DEFAULT 0x8000
-+#define PID_MAX_DEFAULT (CONFIG_BASE_SMALL ? 0x1000 : 0x8000)
- 
- /*
-  * A maximum of 4 million PIDs should be enough for a while:
-  */
--#define PID_MAX_LIMIT (sizeof(long) > 4 ? 4*1024*1024 : PID_MAX_DEFAULT)
-+#define PID_MAX_LIMIT (CONFIG_BASE_SMALL ? PAGE_SIZE * 8 : \
-+	(sizeof(long) > 4 ? 4 * 1024 * 1024 : PID_MAX_DEFAULT))
- 
- #endif

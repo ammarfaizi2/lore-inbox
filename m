@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265328AbUAACYu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 21:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265329AbUAACYu
+	id S265326AbUAACS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 21:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265327AbUAACSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 21:24:50 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.31]:46724 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S265328AbUAACYs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 21:24:48 -0500
-Date: Thu, 1 Jan 2004 03:24:48 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Irda oops with 2.6.0
-Message-ID: <20040101022448.GA812@mail.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.4i
+	Wed, 31 Dec 2003 21:18:25 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:57018 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S265326AbUAACSY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 21:18:24 -0500
+Message-ID: <3FF38375.2090808@metaparadigm.com>
+Date: Thu, 01 Jan 2004 10:18:29 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+Cc: rudi@lambda-computing.de, ivern@acm.org, linux-kernel@vger.kernel.org
+Subject: Re: File change notification
+References: <3FF2FC85.5070906@lambda-computing.de> <3FF31366.30206@acm.org> <3FF31A15.4070307@lambda-computing.de> <3FF377A8.6040302@metaparadigm.com> <20040101015809.GA14930@redhat.com>
+In-Reply-To: <20040101015809.GA14930@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 01/01/04 09:58, Dave Jones wrote:
+> On Thu, Jan 01, 2004 at 09:28:08AM +0800, Michael Clark wrote:
+>  > Have you had a look at dazuko. It provides a consistent file access
+>  > notification mechanism (and also intervention for denying access) across
+>  > linux and freebsd. It is currently being used by various on-access
+>  > virus scanners. It is under active development and supports 2.6 (and 2.4)
+> 
+> Candidate for "Wackiest sys_call_table patching 2004".
+> In a word "ick". Code not to be read on a full stomach.
 
-I got following oops while usiing irda with my laptop. I'm using nsc-ircc
-driver.
+Oh well, hadn't read the kernel code yet. Although certainly the *goal* is
+a good one - a cross platform interface for file change notification.
 
-Badness in local_bh_enable at kernel/softirq.c:121
-Call Trace:
- [<c0121065>] local_bh_enable+0x8c/0x8e
- [<c02aa3c3>] dev_queue_xmit+0x224/0x2b9
- [<d08fc13f>] irlap_send_data_primary_poll+0xc9/0x184 [irda]
- [<d08f9aec>] irlap_state_xmit_p+0x1bf/0x240 [irda]
- [<d08f8f2d>] irlap_do_event+0xef/0x186 [irda]
- [<d08f7c39>] irlap_data_request+0xf2/0x124 [irda]
- [<d08f6ee4>] irlmp_state_dtr+0x100/0x194 [irda]
- [<d08f6707>] irlmp_do_lsap_event+0x3f/0x41 [irda]
- [<d08f5413>] irlmp_disconnect_request+0xa0/0x17f [irda]
- [<d08ffeee>] irttp_disconnect_request+0xdd/0x16f [irda]
- [<d08d2a15>] ircomm_state_conn+0x96/0xca [ircomm]
- [<d08d2a74>] ircomm_do_event+0x2b/0x2f [ircomm]
- [<d08d256d>] ircomm_disconnect_request+0x42/0x44 [ircomm]
- [<d08b1830>] ircomm_tty_state_ready+0x4b/0xc3 [ircomm_tty]
- [<d08b18ee>] ircomm_tty_do_event+0x46/0x48 [ircomm_tty]
- [<d08b0b88>] ircomm_tty_detach_cable+0x7e/0xdc [ircomm_tty]
- [<d08afff5>] ircomm_tty_shutdown+0xb0/0xf9 [ircomm_tty]
- [<d08af73b>] ircomm_tty_close+0x108/0x20c [ircomm_tty]
- [<c01e07db>] release_dev+0x733/0x77e
- [<c01df7c7>] tty_write+0x1a3/0x2be
- [<c01e0baf>] tty_release+0x2e/0x67
- [<c0151f75>] __fput+0x118/0x12a
- [<c015065d>] filp_close+0x57/0x81
- [<c01506eb>] sys_close+0x64/0x96
- [<c010a343>] syscall_call+0x7/0xb
+Yes I see what you mean after having a look. Would make sense to convert
+this over to use only LSM hooks (which it appears to use already) if that
+was possible - or maybe could be done using a VFS proxy filesystem that
+monitors/relays calls to an underlying fs.
 
--- 
-Luká¹ Hejtmánek
+The userspace interface appears relatively sane with its chardev interface
+although due to it's ability to intervene on file access, it creates a
+single point of failure that can livelock the machine if the userspace
+monitoring proccess dies. This could be worked around if the poilicy
+was to go unmonitored in the case that the userspace process dies.
+
+~mc
+

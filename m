@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262964AbTDOUzG (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbTDOUzG 
+	id S264036AbTDOU4x (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264039AbTDOU4x 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 16:55:06 -0400
-Received: from holomorphy.com ([66.224.33.161]:48263 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262964AbTDOUzF 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 16:55:05 -0400
-Date: Tue, 15 Apr 2003 14:06:24 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.66-mm3 -  bad ext2 performance ?
-Message-ID: <20030415210624.GH706@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@digeo.com>
-References: <200304151356.24323.pbadari@us.ibm.com>
-Mime-Version: 1.0
+	Tue, 15 Apr 2003 16:56:53 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2944 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264036AbTDOU4v (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 16:56:51 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304152111.h3FLBJrp000257@81-2-122-30.bradfords.org.uk>
+Subject: Re: statistics for this mailinglist
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Tue, 15 Apr 2003 22:11:19 +0100 (BST)
+Cc: root@vanheusden.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3E9C605A.8020809@colorfullife.com> from "Manfred Spraul" at Apr 15, 2003 09:41:14 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304151356.24323.pbadari@us.ibm.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 02:00:05PM -0700, Badari Pulavarty wrote:
-> This is kind of extreem. But  I have 1070 LUNS and I mkfs/mounted (ext2) all
-> these and running "fsx" on all of them. 
-> I see very bad IO rate on the machine.  fsx with O_DIRECT seems to be
-> doing okay. Any ideas on why regular filesystem (buffered) IO sucks ?
-> I dont' see even cache increasing ..
+> >Messages per hour
+> >----------------------------------------------------------
+> > 1   107 *************************************************
+> > 2    36 *****************
+> > 3    18 *********
+> > 4    10 *****
+> > 5     8 ****
+> > 6    10 *****
+> > 7    28 *************
+> > 8    40 *******************
+> > 9    69 ********************************
+> >10    78 ************************************
+> >11    75 ***********************************
+> >12    69 ********************************
+> >13    91 ******************************************
+> >14    85 ***************************************
+> >15    81 **************************************
+> >16    91 ******************************************
+> >17    70 *********************************
+> >18    77 ************************************
+> >19    56 **************************
+> >20    52 ************************
+> >21    66 *******************************
+> >22    62 *****************************
+> >23    57 ***************************
+> >
+> Which timezone?
 
-Can we get a "before" profile on the same machine to compare against?
+Each individual poster's timezone.
 
-
--- wli
+John.

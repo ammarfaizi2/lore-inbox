@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318284AbSICOOW>; Tue, 3 Sep 2002 10:14:22 -0400
+	id <S318327AbSICO33>; Tue, 3 Sep 2002 10:29:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318327AbSICOOW>; Tue, 3 Sep 2002 10:14:22 -0400
-Received: from relay.muni.cz ([147.251.4.35]:59592 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S318284AbSICOOV>;
-	Tue, 3 Sep 2002 10:14:21 -0400
-Date: Tue, 3 Sep 2002 16:18:46 +0200
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: RAID5 checksum algorithm selection
-Message-ID: <20020903161846.J18187@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Muni-Virus-Test: Clean
+	id <S318355AbSICO32>; Tue, 3 Sep 2002 10:29:28 -0400
+Received: from grace.speakeasy.org ([216.254.0.2]:35592 "HELO
+	grace.speakeasy.org") by vger.kernel.org with SMTP
+	id <S318327AbSICO32>; Tue, 3 Sep 2002 10:29:28 -0400
+Date: Tue, 3 Sep 2002 09:34:00 -0500 (CDT)
+From: Mike Isely <isely@pobox.com>
+X-X-Sender: isely@grace.speakeasy.net
+Reply-To: Mike Isely <isely@pobox.com>
+To: mbs <mbs@mc.com>
+cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-pre4-ac1 trashed my system
+In-Reply-To: <200209031237.IAA27024@mc.com>
+Message-ID: <Pine.LNX.4.44.0209030917040.17540-100000@grace.speakeasy.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, world!\n
+On Tue, 3 Sep 2002, mbs wrote:
 
-	I've tested RAID-5 on my new dual athlon box, and got the
-following messages during system boot:
+> it trashed mine also.
+> 
+> supermicro p4dp8-g2 mobo
+> 2x 2.2 Xeon
+> e7500 chipset
+> wd400 40gb hd
+> 
+> 2.4.20-pre4-ac2 + RML preempt patch (applied cleanly)
+> 
+> boot it and eveything runs fine for a short while, then I start getting "bad 
+> CRC" errors and "seek failure" errors.
+> 
+> I have had this problem with both ext2 and ext3
+> 
+> initially I thought it was a bad HD, so I installed a new one on a new cable 
+> and did a complete rh7.3 install ran for a while eith no problems then built 
+> the same kernel over again, rebooted into the new kernel and within seconds 
+> was having problems again.
+> 
+> 2.4.19-rc3-ac4 +rml preempt has been dead stable, as has (so far) 2.4.29-ac4 
+> +rml and RH 2.4.18-3 and -5
+> 
+> I am not doing anything funky with hd setup, not even specifying idebus= 
+> 
 
-raid5: measuring checksumming speed
-   8regs     :  2550.400 MB/sec
-   32regs    :  1702.000 MB/sec
-   pIII_sse  :  4735.600 MB/sec
-   pII_mmx   :  3910.800 MB/sec
-   p5_mmx    :  5016.800 MB/sec
-raid5: using function: pIII_sse (4735.600 MB/sec)
+This is likely different than the problem I've been seeing.
 
-	Why does the kernel decide to use the pIII_sse function,
-even though the p5_mmx is faster?
+My situation appears to be due to the fact that on my Promise
+controller, LBA48 addressing mode had been turned off on the primary
+channel, which then causes access problems with my 160GB Maxtor drive.  
+Turning LBA48 mode back on (by removing the hack which turned it off,
+which wasn't in 2.4.19-ac4) breaks DMA.  Either that or I screwed
+something up when removing the hack.  I'm wondering if a bug appeared
+after 2.4.19-ac4 which breaks DMA on Promise 20265 primary channel
+access, and that a work-around was put in place that disables LBA48
+addressing.  There are in fact well over 100 diffs in pdc202xx.c between
+2.4.19-ac4 and 2.4.20-pre4-ac1.  This wrong addressing is what
+(indirectly) wrecked my system.  I've posted my findings on this so far
+along with some questions for further investigation, but I haven't seen
+any answers yet (or even a "go away you're bothering me" reply).
 
-	The kernel is 2.4.20-pre5-ac1.
+Unfortunately you've said you are using a 40GB drive and something other
+than a Promise controller so your situation may be a different problem.
 
--Yenya
+  -Mike
 
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-       Pruning my incoming mailbox after being 10 days off-line,
-       sorry for the delayed reply.
+
+                        |         Mike Isely          |     PGP fingerprint
+    POSITIVELY NO       |                             | 03 54 43 4D 75 E5 CC 92
+ UNSOLICITED JUNK MAIL! |   isely @ pobox (dot) com   | 71 16 01 E2 B5 F5 C1 E8
+                        |   (spam-foiling  address)   |
+

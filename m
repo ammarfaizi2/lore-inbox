@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUFFSxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263995AbUFFSxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264002AbUFFSxa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 14:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbUFFSxa
+	id S263995AbUFFSxR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 14:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbUFFSxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 14:53:30 -0400
-Received: from S010600a0c9f25a40.vn.shawcable.net ([24.87.160.169]:23518 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id S264002AbUFFSx0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 14:53:26 -0400
-Date: Sun, 6 Jun 2004 11:53:19 -0700
-From: Simon Kirby <sim@netnation.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: clone() <-> getpid() bug in 2.6?
-Message-ID: <20040606185319.GA5022@netnation.com>
-References: <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org> <20040605205547.GD20716@devserv.devel.redhat.com> <20040605215346.GB29525@taniwha.stupidest.org> <1086475663.7940.50.camel@localhost> <Pine.LNX.4.58.0406051553130.2261@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0406051610430.7010@ppc970.osdl.org> <40C2A6E4.7020103@ThinRope.net> <Pine.LNX.4.58.0406052244290.7010@ppc970.osdl.org> <20040606075754.GA10642@codepoet.org> <Pine.LNX.4.58.0406060937330.7010@ppc970.osdl.org>
+	Sun, 6 Jun 2004 14:53:17 -0400
+Received: from gprs214-14.eurotel.cz ([160.218.214.14]:31105 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263995AbUFFSxL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 14:53:11 -0400
+Date: Sun, 6 Jun 2004 20:51:59 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: locking in psmouse
+Message-ID: <20040606185158.GA3169@elf.ucw.cz>
+References: <20040428213040.GA954@elf.ucw.cz> <200404282347.47411.dtor_core@ameritech.net> <20040429095830.GD390@elf.ucw.cz> <200404290740.18182.dtor_core@ameritech.net> <20040606174143.GA6561@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406060937330.7010@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040606174143.GA6561@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 06, 2004 at 09:57:20AM -0700, Linus Torvalds wrote:
+Hi!
 
-> 	/* Write the pid into the lockfile, fsync it */
-> 	write(fd, name + 9, len - 9);
-> 	fsync(fd);
+> > > > > psmouse-base.c does not have any locking. For example psmouse_command
+> > > > > could race with data coming from the mouse, resulting in problem. This
+> > > > > should fix it.
+> > > > 
+> > > > Although I am not arguing that locking might be needed in psmouse module I
+> > > > am somewhat confused how it will help in case of data stream coming from the
+> > > > mouse... If mouse sent a byte before the kernel issue a command then it will
+> > > > be delivered by KBC controller and will be processed by the interrupt handler,
+> > > > probably messing up detection process. That's why as soon as we decide that
+> > > > the device behind PS/2 port is some kind of mouse we disable the stream mode.
+> > > 
+> > > Does that mean that mouse can not talk while we are sending commands
+> > > to it? That would help a bit.
+> > > 
+> > 
+> > Yes, check psmouse_probe. As soon as PSMOUSE_CMD_RESET_DIS acknowledged mouse
+> > should cease sending motion data. That still leaves possibility of screwing up
+> > detection if you are moving mouse while psmouse doing PSMOUSE_CMD_GETID.
+> > But I don't think we can do much about it as we'd like to know that the device
+> > is some kind of a mouse before we start messing with it.
+> 
+> I've updated the atkbd_command/atkbd_interrupt mechanism so that even
+> bytes coming from the keyboard when we're issuing a command shouldn't
+> disturb us. I've tested by banging my head at the keyboard while
+> plugging it in. ;)
+> 
+> Something like that might be worth implementing for psmouse as well.
 
-Unrelated to this discussion -- and there is a close() missing -- but is
-there any reason for fsync() to be there?  I've seen this often before,
-but I've never understood why it would be necessary to force the data to
-disk, especially when it will likely be removed later before it would
-have otherwise been written to disk.  Shouldn't the lock file behave
-properly without fsync(), even across NFS, and even across all OSes?
+Well, psmouse case should be just converting int foo:1 into
+set_bit(&flags, BIT_FOO), no?
 
-Simon-
+But I guess autorepeat and higher layers of keyboard might be
+"interesting".
+							Pavel 
+
+-- 
+934a471f20d6580d5aad759bf0d97ddc

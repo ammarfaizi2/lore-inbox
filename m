@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267639AbTACULO>; Fri, 3 Jan 2003 15:11:14 -0500
+	id <S267640AbTACUKB>; Fri, 3 Jan 2003 15:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267641AbTACULN>; Fri, 3 Jan 2003 15:11:13 -0500
-Received: from canela.sanfelipe.com.mx ([200.33.143.226]:4616 "EHLO
-	canela.sanfelipe.com.mx") by vger.kernel.org with ESMTP
-	id <S267639AbTACULM>; Fri, 3 Jan 2003 15:11:12 -0500
-Message-Id: <200301031831.KAA05148@ann.qtpi.lakewood.ca.us>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: Brad Hards <bhards@bigpond.net.au>
-cc: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed 
- source drivers?
-In-Reply-To: Message from Brad Hards <bhards@bigpond.net.au> 
-   of "Fri, 03 Jan 2003 17:29:36 +1100." <200301031729.36696.bhards@bigpond.net.au> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 03 Jan 2003 10:31:58 -0800
-From: Bob Taylor <brtaylor@canela.sanfelipe.com.mx>
+	id <S267641AbTACUKA>; Fri, 3 Jan 2003 15:10:00 -0500
+Received: from math.ut.ee ([193.40.5.125]:5000 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id <S267640AbTACUKA>;
+	Fri, 3 Jan 2003 15:10:00 -0500
+Date: Fri, 3 Jan 2003 22:18:28 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-pre2+bk: matroxfb compile broken
+Message-ID: <Pine.GSO.4.44.0301032217080.3954-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200301031729.36696.bhards@bigpond.net.au>, Brad 
-Hards writes:
+matroxfb_base.c: In function `matroxfb_ioctl':
+matroxfb_base.c:1231: `MATROXFB_TVOQUERYCTRL' undeclared (first use in this function)
+matroxfb_base.c:1231: (Each undeclared identifier is reported only once
+matroxfb_base.c:1231: for each function it appears in.)
+matroxfb_base.c:1233: storage size of `qctrl' isn't known
+matroxfb_base.c:1233: warning: unused variable `qctrl'
+matroxfb_base.c:1253: `MATROXFB_G_TVOCTRL' undeclared (first use in this function)
+matroxfb_base.c:1255: storage size of `ctrl' isn't known
+matroxfb_base.c:1255: warning: unused variable `ctrl'
+matroxfb_base.c:1275: `MATROXFB_S_TVOCTRL' undeclared (first use in this function)
+matroxfb_base.c:1277: storage size of `ctrl' isn't known
+matroxfb_base.c:1277: warning: unused variable `ctrl'
 
-[snip]
-
-> I _hate_ intellectual property.
-
-Unless, of course, you happen to have some yourself.
+This is current BK on x86, matroxfb as module.
 
 -- 
-+---------------------------------------------------------------+
-| Bob Taylor             Email: brtaylor@sanfelipe.com.mx       |
-|---------------------------------------------------------------|
-| Like the ad says, at 300 dpi you can tell she's wearing a     |
-| swimsuit. At 600 dpi you can tell it's wet. At 1200 dpi you   |
-| can tell it's painted on. I suppose at 2400 dpi you can tell  |
-| if the paint is giving her a rash. (So says Joshua R. Poulson)|
-+---------------------------------------------------------------+
-
+Meelis Roos (mroos@linux.ee)
 

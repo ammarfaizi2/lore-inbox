@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129777AbQKVLKN>; Wed, 22 Nov 2000 06:10:13 -0500
+	id <S129091AbQKVLKN>; Wed, 22 Nov 2000 06:10:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130607AbQKVLKE>; Wed, 22 Nov 2000 06:10:04 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:11578 "EHLO
-	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S129777AbQKVLJv>; Wed, 22 Nov 2000 06:09:51 -0500
-Date: Wed, 22 Nov 2000 12:47:31 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Keith Owens <kaos@ocs.com.au>
-cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
-Subject: Re: modutils 2.3.20 not backward compatible 
-In-Reply-To: <5038.974864798@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.21.0011221247020.26803-100000@server.serve.me.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129777AbQKVLKE>; Wed, 22 Nov 2000 06:10:04 -0500
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:56075 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S129091AbQKVLJu>;
+	Wed, 22 Nov 2000 06:09:50 -0500
+Message-ID: <013001c05470$717d95e0$0ac809c0@hotmail.com>
+From: "Anthony Barbachan" <barbacha@Hinako.AMBusiness.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Fw: Error in 2.2.14 and 2.2.15: kmem_alloc: Bad slab magic (corrupt) (name=buffer_head)
+Date: Wed, 22 Nov 2000 05:39:07 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-> -i and -m have never been in the base code.  -i in depmod is a Redhat
-> add on, only in their distribution.  I have no idea what -m does, apart
-> from -m in insmod which is supported.  Blame the distributors.
+    I've gotten a few emails like the one below since my original post about
+seeing the bad slab magic corruption on a Linux server which I had been
+running.  From the emails I've gotten this error now spans hardware.  Mine
+was an Athlon.  This guy is a K6-2.  The only thing I am not sure of is if
+one of those emails mentioned an Intel.  Could something be going on here?
 
--m == -F in depmod (RH anyways)
+----- Original Message -----
+From: "Chris Sparks" <mrada@catalina-inter.net>
+To: <barbacha@Hinako.AMBusiness.com>
+Sent: Monday, November 20, 2000 9:03 AM
+Subject: Re: Error in 2.2.14 and 2.2.15: kmem_alloc: Bad slab magic
+(corrupt) (name=buffer_head)
 
 
-	Igmar
+> Hi Anthony,
+>
+> Back in May of this year you responded to a "Bad slab magic" problem
+> with Linux.  Did you ever come to a resolution as to what was causing
+> the error?  I am getting this error with RedHat 7.0 AMD K6-2 400 MHZ
+> system.
+>
+> --
+> Chris Sparks
+>
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

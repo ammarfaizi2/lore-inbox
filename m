@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311264AbSCLSHb>; Tue, 12 Mar 2002 13:07:31 -0500
+	id <S311302AbSCLSGU>; Tue, 12 Mar 2002 13:06:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311303AbSCLSHV>; Tue, 12 Mar 2002 13:07:21 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:31648 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311264AbSCLSHN>; Tue, 12 Mar 2002 13:07:13 -0500
-Date: Tue, 12 Mar 2002 10:06:25 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: walter <walt@nea-fast.com>, linux-kernel@vger.kernel.org
-Subject: Re: oracle rmap kernel version
-Message-ID: <177640000.1015956385@flay>
-In-Reply-To: <200203121729.MAA08522@int1.nea-fast.com>
-In-Reply-To: <200203121729.MAA08522@int1.nea-fast.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S311303AbSCLSGB>; Tue, 12 Mar 2002 13:06:01 -0500
+Received: from grace.speakeasy.org ([216.254.0.2]:29962 "HELO
+	grace.speakeasy.org") by vger.kernel.org with SMTP
+	id <S311302AbSCLSF7>; Tue, 12 Mar 2002 13:05:59 -0500
+Date: Tue, 12 Mar 2002 10:05:58 -0800 (PST)
+From: John Schmerge <schmerge@speakeasy.net>
+To: Andrew Morton <akpm@zip.com.au>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Oops/Crash with 2.4.17 and 2.4.18 kernels
+In-Reply-To: <3C8D25A8.52F46BA4@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0203121005060.13438-100000@grace.speakeasy.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does anyone have any production experience running Oracle 8i on Linux? I've 
-> run it at home, RH 7.2 with vanilla 2.4.16 kernel all IDE drives, and its 
-> fast. We are replacing our SUN/Oracle 8 servers at work in next couple of 
-> months with Linux/Oracle 8i (Pentium 4 1GB ram).  My question is, what is the 
-> best kernel version to use,  vanilla 2.4.x or a RH kernel built from the ac 
-> tree with rmap. All drives will be SCSI. 
-> I read an interview yesterday with Rik van Riel where he said rmap worked 
-> better for db servers but I expect that he is partial to rmap 8-).
-> Our web servers are running vanilla 2.4.16 and we haven't had a problem yet 
-> (knock on wood).
+Thanks for the insight... It turns out that you're conjecture seems to be
+correct. Boy, I feel like a n00b... I had run memtest86 after first noticing
+these problems and everything seemed ok, but after a good long run last night,
+I started to see the failures. Sigh. Looks like i have either a bad mobo or a
+bad processor.
 
-The real answer is to try them and do a benchmark for your particular
-application. Shouldn't take that long .... try the -aa tree too.
+Thanks again,
+John
 
-Martin.
+On Mon, 11 Mar 2002, Andrew Morton wrote:
+
+> John Schmerge wrote:
+> > 
+> > ...
+> >   Asus CUV4X-D motherboard
+> >   2 x Pentium III 1.0 ghz processors
+> >   1024 Mb ram (4x256mb)
+> >   IBM Deskstar 40gb ata100 disk
+> >   Radeon QD AGP card
+> >   Realtek 8139 pci NIC
+> > 
+> > ...
+> > Mar  9 03:46:07 voltaire kernel: Unable to handle kernel paging request at virtual address 04000004
+> 
+> Single-bit error.  Kernel expected either a valid address or a null
+> pointer, but bit 26 was set.
+> 
+> You should run memtest86 for 24 hours, and be suspicious of your
+> shiny new hardware :(
+> 
+> -
+> 
 

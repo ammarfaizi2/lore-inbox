@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbUKDRmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbUKDRqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbUKDRmf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:42:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUKDRmR
+	id S262320AbUKDRqH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 12:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262301AbUKDRpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:42:17 -0500
-Received: from main.gmane.org ([80.91.229.2]:39863 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262319AbUKDRk4 (ORCPT
+	Thu, 4 Nov 2004 12:45:38 -0500
+Received: from mail.kroah.org ([69.55.234.183]:27282 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262320AbUKDRnF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:40:56 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Linux-2.6.9 won't allow a write to a NTFS file-system.
-Date: Thu, 4 Nov 2004 18:40:17 +0100
-Message-ID: <MPG.1bf487f0e7271d7c989707@news.gmane.org>
-References: <Pine.LNX.4.61.0411041054370.4818@chaos.analogic.com> <MPG.1bf47baa1b621da0989706@news.gmane.org> <Pine.LNX.4.61.0411041158010.5193@chaos.analogic.com>
+	Thu, 4 Nov 2004 12:43:05 -0500
+Date: Thu, 4 Nov 2004 09:40:44 -0800
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Germano <germano.barreiro@cyclades.com>, Scott_Kilau@digi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: patch for sysfs in the cyclades driver
+Message-ID: <20041104174044.GC16389@kroah.com>
+References: <1099487348.1428.16.camel@tsthost> <20041104102505.GA8379@logos.cnet> <52fz3po8k2.fsf@topspin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host186-250.pool8248.interbusiness.it
-User-Agent: MicroPlanet-Gravity/2.70.2067
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52fz3po8k2.fsf@topspin.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
-> On Thu, 4 Nov 2004, Giuseppe Bilotta wrote:
+On Thu, Nov 04, 2004 at 08:58:21AM -0800, Roland Dreier wrote:
+>     Marcelo> The problem was class_simple only contains the "dev"
+>     Marcelo> attribute. You can't add other attributes to it.
 > 
-> > linux-os wrote:
-> >>
-> >> Hello anybody maintaining NTFS,
-> >>
-> >> I can't write to a NTFS file-system.
-> >>
-> >> /proc/mounts shows it's mounted RW:
-> >> /dev/sdd1 /mnt ntfs rw,uid=0,gid=0,fmask=0177,dmask=077,nls=utf8,errors=continue,mft_zone_multiplier=1 0 0
-> >>
-> >> .config shows RW support.
-> >>
-> >> CONFIG_NTFS_FS=m
-> >> # CONFIG_NTFS_DEBUG is not set
-> >> CONFIG_NTFS_RW=y
-> >>
-> >> Errno is 1 (Operation not permitted), even though root.
-> >
-> > What are trying to write? AFAIK, the (new) NTFS module only
-> > allows one kind of writing: overwriting an existing file, as
-> > long as its size doesn't change.
+> I believe, based on the comment in class_simple.c:
 > 
-> Huh? Are we talking about the same thing? I'm talking about
-> the NTFS that Windows/NT and later versions puts on its
-> file-systems.
+>   Any further sysfs files that might be required can be created using this pointer.
+> 
+> and the implementation in in drivers/scsi/st.c, that there's no
+> problem adding attributes to a device in a simple class.  You can just
+> use class_set_devdata() on your class_device to set whatever context
+> you need to get back to your internal structures, and then use
+> class_device_create_file() to add the attributes.
+> 
+> I assume this is OK (since there is already one in-kernel driver doing
+> it), but Greg, can you confirm that it's definitely OK for a driver to
+> use class_set_devdata() on a class_device from class_simple_device_add()?
 
-So am I.
+Hm, I think that should be ok, but I'd make sure to test it before
+verifying that it really is :)
 
-> I use an USB external disk with my M$ Laptop
-> and I have always been able to transfer data to/from
-> my machines using that drive. Now I can't. The drive it
-> writable under M$, but I can't even delete anything
-> (no permission for root) under Linux.
+thanks,
 
-http://linux-ntfs.sourceforge.net/info/ntfs.html#3.2
-
--- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+greg k-h

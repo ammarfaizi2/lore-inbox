@@ -1,42 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265790AbUFORjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265791AbUFORkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265790AbUFORjW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 13:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265787AbUFORjW
+	id S265791AbUFORkc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 13:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUFORkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 13:39:22 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:22160 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S265790AbUFORjO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 13:39:14 -0400
-Message-ID: <40CF33D6.80302@colorfullife.com>
-Date: Tue, 15 Jun 2004 19:37:26 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: pj@sgi.com, linux-kernel@vger.kernel.org,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: NUMA API observations
-References: <40CE824D.9020300@colorfullife.com> <20040615110320.GD50463@colin2.muc.de>
-In-Reply-To: <20040615110320.GD50463@colin2.muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jun 2004 13:40:32 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:10006 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265791AbUFORkT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 13:40:19 -0400
+Date: Tue, 15 Jun 2004 19:49:29 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 0/5] kbuild
+Message-ID: <20040615174929.GB2310@mars.ravnborg.org>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@osdl.org>
+References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040615154136.GD11113@smtp.west.cox.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+On Tue, Jun 15, 2004 at 08:41:36AM -0700, Tom Rini wrote:
+> On Mon, Jun 14, 2004 at 10:40:29PM +0200, Sam Ravnborg wrote:
+> 
+> > Hi Andrew. Here follows a number of kbuild patches.
+> > 
+> > The first replaces kbuild-specify-default-target-during-configuration.patch
+> > 
+> > They have seen ligiht testing here, but on the other hand the do not touch
+> > any critical part of kbuild.
+> > 
+> > Patches:
+> > 
+> > default kernel image:		Specify default target at config
+> > 				time rather then hardcode it.
+> > 				Only enabled for i386 for now.
+> 
+> While I'd guess this is better than the patch it's replacing, given that
+> most i386 kernels are 'bzImage', what's wrong with the current logic
+> that picks out what to do for the all target now?
 
->Or maybe just a sysctl. But it doesn't really help because
->applications have to work with older kernels.
->
-What's the largest number of cpus that are supported right now? 256?
-First call sysctl or whatever. If it fails, then glibc can assume 256. 
-If someone installs an old kernel on a new computer then it's his own 
-fault. The API is broken, we should fix it now - it will only get more 
-painful in the future.
+Compared to the original behaviour where the all: target picked the default
+target for a given architecture, this patch adds the following:
 
---
-    Manfred
+- One has to select the default kernel image only once
+  when configuring the kernel.
+- There exist a possibility to add more than half a line of text
+  describing individual targets. All relevant information can be
+  specified in the help section in the Kconfig file
+- Other programs now have access to what kernel image has been built.
+  This is needed when creating kernel packages like rpm.
+
+Where I see this really pay off is for architectures like MIPS with
+at least four different targets, depending on selected config.
+When one has selected to build a certain kernel, including a specific
+bootloader only the make command is needed.
+No need to remember the 'make rom.bin' or whatever target.
+
+But this trigger the discussion how much should actually be
+part of the kernel.
+Building a kernel, storing it on target, and starting the kernel
+should be a simple process.
+>From this the current behaviour seems good:
+$ make
+$ copy image
+$ reset the board (reset PC whatever)
+
+If we remove the current support for for example uboot we create an
+additional step in between the make and copy image.
+
+What is the problem today is more the lack of infrastructure
+support for different kernel images.
+And this is where we should concentrate.
+
+	Sam

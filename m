@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261383AbREUSqG>; Mon, 21 May 2001 14:46:06 -0400
+	id <S261238AbREUSoQ>; Mon, 21 May 2001 14:44:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261377AbREUSp4>; Mon, 21 May 2001 14:45:56 -0400
-Received: from erasmus.off.net ([64.39.30.25]:59914 "HELO erasmus.off.net")
-	by vger.kernel.org with SMTP id <S261375AbREUSpx>;
-	Mon, 21 May 2001 14:45:53 -0400
-Date: Mon, 21 May 2001 14:45:54 -0400
-From: Zach Brown <zab@zabbo.net>
-To: Marcus Meissner <Marcus.Meissner@caldera.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: maestro ported to 2.4 PCI API
-Message-ID: <20010521144554.C7003@erasmus.off.net>
-In-Reply-To: <20010521173707.A10692@caldera.de>
-Mime-Version: 1.0
+	id <S261385AbREUSoG>; Mon, 21 May 2001 14:44:06 -0400
+Received: from pop.gmx.net ([194.221.183.20]:54697 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261238AbREUSoD>;
+	Mon, 21 May 2001 14:44:03 -0400
+Message-ID: <3B0963AF.FDCB8AA2@gmx.at>
+Date: Mon, 21 May 2001 20:51:27 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Vojta <vojta@ipex.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3c905C-TX [Fast Etherlink] problem ...
+In-Reply-To: <20010521090946.D769@ipex.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010521173707.A10692@caldera.de>; from Marcus.Meissner@caldera.de on Mon, May 21, 2001 at 05:37:07PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	- ported to Linux 2.4 PCI API, PCI module based, cleaned up
-> 	  return values. (taking into account all the hints Jeff has given
-> 	  me ;)
+Robert Vojta wrote:
+> 
+> Hi,
+>   I have this card in intranet server and I'm very confused about very often
+> message in log like this:
+> 
+> eth0: Transmit error, Tx status register 82.
+>   Flags; bus-master 1, dirty 20979238(6) current 20979242(10)
+>   Transmit list 1f659290 vs. df659260.
+>   0: @df659200  length 800005ea status 000105ea
+>   1: @df659210  length 80000296 status 00010296
+>   2: @df659220  length 800005ea status 000105ea
+[snip]
 
-cool :)
+Hi,
 
-> 	- did NOT change any power management support, since I don't know
-> 	  anything about power management.
+I had the same problem with 2.4.3-pre6 (also with the 3c905C). Alle
+problems were gone with 2.4.4, so I stopped bothering. Hope this
+helps...
 
-someone else (in .de, it appears to be the source of maestro hacking
-nowadays :)) is cleaning up the power management.
-
-> 	- bumped version.
-
-we might as well just stop using these, they don't mean much of anything
-anymore.
-
-- z
+Wilfried

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266630AbTGFHjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 03:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbTGFHjJ
+	id S266639AbTGFHqb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 03:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266635AbTGFHqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 03:39:09 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:55514 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S266630AbTGFHjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 03:39:07 -0400
-Date: Sun, 6 Jul 2003 09:53:34 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: usb-storage doesn't recognize a Sony DSC-P92
-Message-ID: <20030706075334.GB30442@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030705212021.GB21621@charite.de> <20030706055347.GA3291@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 6 Jul 2003 03:46:25 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:5381 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S266631AbTGFHqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 03:46:24 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Chris Mason <mason@suse.com>
+Subject: Re: Status of the IO scheduler fixes for 2.4
+Date: Sun, 6 Jul 2003 09:58:36 +0200
+User-Agent: KMail/1.5.2
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>,
+       Nick Piggin <piggin@cyberone.com.au>
+References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva> <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva> <1057354654.20903.1280.camel@tiny.suse.com>
+In-Reply-To: <1057354654.20903.1280.camel@tiny.suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030706055347.GA3291@kroah.com>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307060958.36642.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH <greg@kroah.com>:
-> On Sat, Jul 05, 2003 at 11:20:21PM +0200, Ralf Hildebrandt wrote:
-> > Hi!
-> > 
-> > For over a year I've been using a DSC-P9 successfully under Linux.
-> > Now my mother-in-law got a P92, so I thought: "I simply hook it up, it
-> > will work the same way".
-> > 
-> > Not so.
-> 
-> What kernel are you using?
+On Friday 04 July 2003 23:37, Chris Mason wrote:
 
-2.4.21-ac4
+Hi Chris,
 
-> If it doesn't work in the latest 2.4.22-pre3 kernel, please let us know.
+> > If the IO fairness still doesnt
+> > get somewhat better for general use (well get isolated user reports and
+> > benchmarks for both the two patches), then I might consider the q->full
+> > patch (it has throughtput drawbacks and I prefer avoiding a tunable
+> > there).
+now there is io-stalls-10 in .22-pre3 (lowlat elev. + fixpausing). Could you 
+please send "q->full patch" as ontop of -pre3? :-)
 
-I'll try that.
+Thank you.
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-AIM: ralfpostfix
+ciao, Marc
+

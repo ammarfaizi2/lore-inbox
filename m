@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbVAURt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbVAUR5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbVAURt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 12:49:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbVAURt6
+	id S262429AbVAUR5u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 12:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbVAUR5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 12:49:58 -0500
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:35549 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S262434AbVAURsx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 12:48:53 -0500
-Date: Fri, 21 Jan 2005 09:48:31 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
-       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dynamic tick patch
-Message-ID: <20050121174831.GE14554@atomide.com>
-References: <20050119000556.GB14749@atomide.com> <Pine.LNX.4.61.0501192100060.3010@montezuma.fsmlabs.com>
+	Fri, 21 Jan 2005 12:57:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51358 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262429AbVAUR5d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 12:57:33 -0500
+Date: Fri, 21 Jan 2005 17:57:20 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: device-mapper: fix mirror log type module ref count
+Message-ID: <20050121175720.GF10195@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501192100060.3010@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zwane Mwaikambo <zwane@arm.linux.org.uk> [050119 20:02]:
-> On Tue, 18 Jan 2005, Tony Lindgren wrote:
-> 
-> > Hi all,
-> > 
-> > Attached is the dynamic tick patch for x86 to play with
-> > as I promised in few threads earlier on this list.[1][2]
-> > 
-> > The dynamic tick patch does following:
-> > 
-> > - Separates timer interrupts from updating system time
-> > 
-> > - Allows updating time from other interrupts in addition
-> >   to timer interrupt
-> > 
-> > - Makes timer tick dynamic
-> > 
-> > - Allows power management modules to take advantage of the
-> >   idle time inbetween skipped ticks
-> > 
-> > - Might help with the whistling caps?
-> 
-> This doesn't seem to cover the local APIC timer, what do you do about the 
-> 1kHz tick which it's programmed to do?
+Fix module reference counting for mirror log type.
 
-Sorry for the delay in replaying. Thanks for pointing that out, I
-don't know yet what to do with the local APIC timer. Have to look at
-more.
-
-Tony
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+--- diff/drivers/md/dm-log.c	2005-01-12 15:21:22.000000000 +0000
++++ source/drivers/md/dm-log.c	2005-01-12 18:55:17.000000000 +0000
+@@ -17,9 +17,6 @@
+ 
+ int dm_register_dirty_log_type(struct dirty_log_type *type)
+ {
+-	if (!try_module_get(type->module))
+-		return -EINVAL;
+-
+ 	spin_lock(&_lock);
+ 	type->use_count = 0;
+ 	list_add(&type->list, &_log_types);
+@@ -34,10 +31,8 @@
+ 
+ 	if (type->use_count)
+ 		DMWARN("Attempt to unregister a log type that is still in use");
+-	else {
++	else
+ 		list_del(&type->list);
+-		module_put(type->module);
+-	}
+ 
+ 	spin_unlock(&_lock);
+ 
+@@ -51,6 +46,10 @@
+ 	spin_lock(&_lock);
+ 	list_for_each_entry (type, &_log_types, list)
+ 		if (!strcmp(type_name, type->name)) {
++			if (!type->use_count && !try_module_get(type->module)){
++				spin_unlock(&_lock);
++				return NULL;
++			}
+ 			type->use_count++;
+ 			spin_unlock(&_lock);
+ 			return type;
+@@ -63,7 +62,8 @@
+ static void put_type(struct dirty_log_type *type)
+ {
+ 	spin_lock(&_lock);
+-	type->use_count--;
++	if (!--type->use_count)
++		module_put(type->module);
+ 	spin_unlock(&_lock);
+ }
+ 

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263538AbUCYT0x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 14:26:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUCYT0x
+	id S263571AbUCYTeN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 14:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263577AbUCYTeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 14:26:53 -0500
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:12607 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S263538AbUCYT0t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 14:26:49 -0500
-Message-ID: <40633278.9060503@blueyonder.co.uk>
-Date: Thu, 25 Mar 2004 19:26:48 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 25 Mar 2004 14:34:13 -0500
+Received: from [219.133.26.106] ([219.133.26.106]:15877 "ehlo sina.com")
+	by vger.kernel.org with ESMTP id S263575AbUCYTeL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 14:34:11 -0500
+From: "Emma" <hechun1978@sina.com>
+Subject: Headset mp3 player comes out with a very good price!
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm3
-References: <4062E015.2000608@blueyonder.co.uk>
-In-Reply-To: <4062E015.2000608@blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Mar 2004 19:26:49.0149 (UTC) FILETIME=[1E595ED0:01C4129F]
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hechun1978@sina.com
+Date: Fri, 26 Mar 2004 03:34:22 +0800
+X-Priority: 2
+X-Mailer: FoxMail 3.11 Release [cn]
+Message-Id: <S263575AbUCYTeL/20040325193411Z+261@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This doesn't appear to have gotten through to the list. As it builds but 
-doesn't boot fully on the Athlon XP2200+, I started with fresh sources 
-and applied the patches, results the same.
-Regards
-Sid.
+Dear friends,
 
-Sid Boyce wrote:
+Good day!
 
->  HOSTCC  usr/gen_init_cpio
->  CPIO    usr/initramfs_data.cpio
->  GZIP    usr/initramfs_data.cpio.gz
->  AS      usr/initramfs_data.o
->  LD      usr/built-in.o
->  CC      arch/x86_64/kernel/process.o
->  CC      arch/x86_64/kernel/semaphore.o
->  CC      arch/x86_64/kernel/signal.o
-> arch/x86_64/kernel/signal.c: In function `do_signal':
-> arch/x86_64/kernel/signal.c:426: warning: passing arg 2 of 
-> `get_signal_to_deliver' from incompatible poi
-> nter type
-> arch/x86_64/kernel/signal.c:426: error: too few arguments to function 
-> `get_signal_to_deliver'
-> make[1]: *** [arch/x86_64/kernel/signal.o] Error 1
-> make: *** [arch/x86_64/kernel] Error 2
-> Regards
-> Sid.
->
+Just a short message from HY Technology Co, Ltd.
+ 
+We just updated our Mp3 players with internal FM radio function to support 8 languages, 
+English, 
+Chinese, French, Italian, German, Spanish, Czech, Swede. 
+
+>From now on, our BX1002Na, BX1002Nd and BXKing can come with internal FM radio function and 
+support 8 languages also.
+
+The price is only 50 USD for 128M and 68 USD for 256M.
+ 
+By the way, did you get our introduction about our latest Mp3 player------Butterfly, the 
+headset 
+Mp3 player?
+ 
+The Mp3 IC and pc board are already installed in headphone. 
+You can enjoy music completely free now, without any wire around you!
+
+The price is only 54 USD for 128M and 75 USD for 256M.
+
+We have 20 kings of mp3 players to satisfy your demand. And the smallest mp3 player in the 
+world- BXDIOMAND!
+ 
+If you need catalogue and price list, please kindly tell us and we will send them to you.
+ 
+Looking forward to any comment from you. 
+ 
+Have a nice day!
 
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+Emma
+
+HY Technology (Hong Kong) Company Ltd.
 

@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269503AbUI3VNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269502AbUI3VQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269503AbUI3VNH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 17:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269511AbUI3VNH
+	id S269502AbUI3VQr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 17:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUI3VQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 17:13:07 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:22928 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269503AbUI3VND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 17:13:03 -0400
-Subject: Re: Serial driver hangs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Roland =?ISO-8859-1?Q?Ca=DFebohm?= 
-	<roland.cassebohm@VisionSystems.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1096576200.1938.154.camel@deimos.microgate.com>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de>
-	 <200409291607.07493.roland.cassebohm@visionsystems.de>
-	 <1096467951.1964.22.camel@deimos.microgate.com>
-	 <200409301816.44649.roland.cassebohm@visionsystems.de>
-	 <1096571398.1938.112.camel@deimos.microgate.com>
-	 <1096569273.19487.46.camel@localhost.localdomain>
-	 <1096573912.1938.136.camel@deimos.microgate.com>
-	 <20040930205922.F5892@flint.arm.linux.org.uk>
-	 <1096574739.1938.142.camel@deimos.microgate.com>
-	 <1096576200.1938.154.camel@deimos.microgate.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096575030.19487.50.camel@localhost.localdomain>
+	Thu, 30 Sep 2004 17:16:43 -0400
+Received: from cantor.suse.de ([195.135.220.2]:25549 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269502AbUI3VPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 17:15:38 -0400
+Date: Thu, 30 Sep 2004 23:12:28 +0200
+From: Andi Kleen <ak@suse.de>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [RFC PATCH] sched_domains: Make SD_NODE_INIT per-arch
+Message-ID: <20040930211228.GE28315@wotan.suse.de>
+References: <1096420339.15060.139.camel@arrakis> <415BC0BC.6040902@yahoo.com.au> <1096569412.20097.13.camel@arrakis> <20040930204502.GD28315@wotan.suse.de> <1096578415.20964.9.camel@arrakis>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 30 Sep 2004 21:10:33 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096578415.20964.9.camel@arrakis>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-30 at 21:30, Paul Fulghum wrote:
-> tty->flip.work.func and tty->flip.tqueue.routine
-> are set to flush_to_ldisc()
+> Well, you can certainly base the x86_64 CMP values on the current
+> SD_SIBLING_INIT values.  Those are well publicized, see
+> include/linux/sched.h! ;)
 
-flush_to_ldisc was ok, then someone added the low latency
-flag. In the current 2.6.9rc3 patch flush_to_ldisc honours
-TTY_DONT_FLIP also
+Current BK has it in kernel/sched.c.
 
+And it also broke NUMA kernels on UP, but that's a different issue.
+
+> I suppose it would be pretty trivial to define defaults in
+> include/asm-generic/topology.h, and allow arches that care to define
+> their own SD_*_INITs without disrupting anyone else.  Actually, that's
+> far better than what I've got now.  I'll run that patch up after the
+> meeting I'm currently late for and post it in a couple hours.
+
+Full override isn't good imho because it could lead to bit rot, 
+better is to have defaults that can be used as a base, but tweaked.
+
+
+-Andi

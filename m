@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265246AbTLLOEp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 09:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbTLLOEp
+	id S265201AbTLLOPY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 09:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbTLLOPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 09:04:45 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:6584 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265246AbTLLOEn (ORCPT
+	Fri, 12 Dec 2003 09:15:24 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:10377 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265201AbTLLOPW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 09:04:43 -0500
-Date: Fri, 12 Dec 2003 15:04:35 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Vladimir Saveliev <vs@namesys.com>
+	Fri, 12 Dec 2003 09:15:22 -0500
+Date: Fri, 12 Dec 2003 15:15:21 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andrew Walrond <andrew@walrond.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-Message-ID: <20031212140435.GF6112@wohnheim.fh-wedel.de>
-References: <20031211125806.B2422@hexapodia.org> <017c01c3c01b$232bd130$d43147ab@amer.cisco.com> <20031211194815.GA10029@wohnheim.fh-wedel.de> <200312111432.12683.rob@landley.net> <20031212125513.GC6112@wohnheim.fh-wedel.de> <1071235698.27730.146.camel@tribesman.namesys.com> <20031212134301.GD6112@wohnheim.fh-wedel.de> <1071237163.26354.154.camel@tribesman.namesys.com>
+Subject: Re: 2.6.0-test11 ps2 mouse giving corrupt data?
+Message-ID: <20031212141521.GA27405@ucw.cz>
+References: <200312121236.38692.andrew@walrond.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1071237163.26354.154.camel@tribesman.namesys.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200312121236.38692.andrew@walrond.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 December 2003 16:52:43 +0300, Vladimir Saveliev wrote:
-> On Fri, 2003-12-12 at 16:43, Jörn Engel wrote:
-> > On Fri, 12 December 2003 16:28:18 +0300, Vladimir Saveliev wrote:
-> > > 
-> > > Sorry,
-> > > but doesn't truncate do almost exactly what "make hole" is supposed to
-> > > do?
-> > 
-> > Yeah, *almost* exactly.  Some people happen to care about the almost.
-> > 
+On Fri, Dec 12, 2003 at 12:36:38PM +0000, Andrew Walrond wrote:
+> I have just switched from l2.4 to 2.6 on my thinkpad, and the mouse does 
+> something wierd when I boot into x (kde)
 > 
-> I meant: where are those tons of problems (except for the fact that
-> "make hole" is obviously something without which one can live just
-> fine)? 
+> startx, then wait for everything to load, then move mouse. Mouse goes crazy, 
+> menus pop up everywhere as though I were pressing buttons, and after about 3 
+> seconds, it all settles down and works perfectly.
+> 
+> So whats causing this? I 've read about the mouse detection stuff in recent 
+> 2.6 giving incorrect resolutions and stuff, but thats doesn't apply here. Its 
+> getting a load of bad data.
+> 
+> A buffer_len load of crud is being provided before the real stuff arrives 
+> perhaps?
+> 
+> Andrew Walrond
+> 
+> PS For 'mouse' read 'Little Red Nipple' which AFAIK is just a ps2 mouse as far 
+> as linux is concerned. Worked for 2.4 anyway.
 
-Pretty much, yes.  As hinted at before, holes are just special cases
-of a more general problem, block pointer handling.  On my hard drive,
-there are literally millions of identical blocks.  If the filesystem
-knew about those, it throw away most of them and just point to the
-blocks from different files (or maybe just file positions).
-
-A hole is simply a file offset pointing to a special and very common
-shared block, but there are many others.
-
-Jörn
+Most likely X does something nasty to the keyboard controller while it
+is starting up. The psmouse kernel driver has an autosync feature which
+can get it out of trouble if you don't move the mouse for two seconds.
 
 -- 
-He that composes himself is wiser than he that composes a book.
--- B. Franklin
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,213 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264275AbUEIFOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264272AbUEIFnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbUEIFOn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 01:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbUEIFOn
+	id S264272AbUEIFnt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 01:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbUEIFnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 01:14:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31908 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264275AbUEIFOg (ORCPT
+	Sun, 9 May 2004 01:43:49 -0400
+Received: from ozlabs.org ([203.10.76.45]:47558 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264272AbUEIFnm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 01:14:36 -0400
-Date: Sat, 8 May 2004 22:14:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: dipankar@in.ibm.com, manfred@colorfullife.com, davej@redhat.com,
-       wli@holomorphy.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       maneesh@in.ibm.com
-Subject: Re: dentry bloat.
-In-Reply-To: <20040508213643.08e7ae80.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0405082143340.1592@ppc970.osdl.org>
-References: <409B1511.6010500@colorfullife.com> <20040508012357.3559fb6e.akpm@osdl.org>
- <20040508022304.17779635.akpm@osdl.org> <20040508031159.782d6a46.akpm@osdl.org>
- <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org>
- <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org>
- <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org> <20040508204239.GB6383@in.ibm.com>
- <20040508135512.15f2bfec.akpm@osdl.org> <20040508211920.GD4007@in.ibm.com>
- <20040508171027.6e469f70.akpm@osdl.org> <Pine.LNX.4.58.0405081947290.1592@ppc970.osdl.org>
- <20040508211236.10481447.akpm@osdl.org> <Pine.LNX.4.58.0405082120290.1592@ppc970.osdl.org>
- <20040508213643.08e7ae80.akpm@osdl.org>
+	Sun, 9 May 2004 01:43:42 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16541.47807.90358.558608@cargo.ozlabs.ibm.com>
+Date: Sun, 9 May 2004 14:59:43 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: torvalds@osdl.org, akpm@osdl.org, olh@suse.de
+Cc: anton@samba.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC64] extra barrier in I/O operations
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At the moment, on PPC64, the instruction we use for wmb() doesn't
+order cacheable stores vs. non-cacheable stores.  (It does order
+cacheable vs. cacheable and non-cacheable vs. non-cacheable.)  This
+causes problems in the sort of driver code that writes stuff into
+memory, does a wmb(), then a writel to the device to start a DMA
+operation to read the stuff it has just written to memory.
+
+This patch solves the problem by adding a sync instruction before the
+store in the write* and out* macros.  The sync is a full barrier that
+orders all loads and stores, cacheable or not.  The patch also moves
+the eieio instruction that we had after the store to before the load
+in the read* and in* macros.  With the sync before the store, we don't
+need an eieio as well in a sequence of stores, but we still need an
+eieio between a store and a load.
+
+I think it is better to do this than to turn wmb() into a full memory
+barrier (a sync instruction) because the full barrier is slow and
+isn't needed with the sync in the write*/out* macros.  This way,
+write*/out* are fully ordered with respect to preceding loads and
+stores, which is what driver writers expect, and we avoid penalizing
+users of wmb() who are only doing cacheable stores.
+
+Please apply.
+
+Paul.
+
+diff -urN linux-2.5/include/asm-ppc64/io.h g5-ppc64/include/asm-ppc64/io.h
+--- linux-2.5/include/asm-ppc64/io.h	2004-03-20 08:59:11.000000000 +1100
++++ g5-ppc64/include/asm-ppc64/io.h	2004-05-09 13:31:12.607957768 +1000
+@@ -240,22 +240,23 @@
+ {
+ 	int ret;
+ 
+-	__asm__ __volatile__("lbz%U1%X1 %0,%1; twi 0,%0,0; isync" :
+-			     "=r" (ret) : "m" (*addr));
++	__asm__ __volatile__("eieio; lbz%U1%X1 %0,%1; twi 0,%0,0; isync"
++			     : "=r" (ret) : "m" (*addr));
+ 	return ret;
+ }
+ 
+ static inline void out_8(volatile unsigned char *addr, int val)
+ {
+-	__asm__ __volatile__("stb%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r" (val));
++	__asm__ __volatile__("sync; stb%U0%X0 %1,%0"
++			     : "=m" (*addr) : "r" (val));
+ }
+ 
+ static inline int in_le16(volatile unsigned short *addr)
+ {
+ 	int ret;
+ 
+-	__asm__ __volatile__("lhbrx %0,0,%1; twi 0,%0,0; isync" :
+-			     "=r" (ret) : "r" (addr), "m" (*addr));
++	__asm__ __volatile__("eieio; lhbrx %0,0,%1; twi 0,%0,0; isync"
++			     : "=r" (ret) : "r" (addr), "m" (*addr));
+ 	return ret;
+ }
+ 
+@@ -263,28 +264,29 @@
+ {
+ 	int ret;
+ 
+-	__asm__ __volatile__("lhz%U1%X1 %0,%1; twi 0,%0,0; isync" :
+-			     "=r" (ret) : "m" (*addr));
++	__asm__ __volatile__("eieio; lhz%U1%X1 %0,%1; twi 0,%0,0; isync"
++			     : "=r" (ret) : "m" (*addr));
+ 	return ret;
+ }
+ 
+ static inline void out_le16(volatile unsigned short *addr, int val)
+ {
+-	__asm__ __volatile__("sthbrx %1,0,%2; eieio" : "=m" (*addr) :
+-			      "r" (val), "r" (addr));
++	__asm__ __volatile__("sync; sthbrx %1,0,%2"
++			     : "=m" (*addr) : "r" (val), "r" (addr));
+ }
+ 
+ static inline void out_be16(volatile unsigned short *addr, int val)
+ {
+-	__asm__ __volatile__("sth%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r" (val));
++	__asm__ __volatile__("sync; sth%U0%X0 %1,%0"
++			     : "=m" (*addr) : "r" (val));
+ }
+ 
+ static inline unsigned in_le32(volatile unsigned *addr)
+ {
+ 	unsigned ret;
+ 
+-	__asm__ __volatile__("lwbrx %0,0,%1; twi 0,%0,0; isync" :
+-			     "=r" (ret) : "r" (addr), "m" (*addr));
++	__asm__ __volatile__("eieio; lwbrx %0,0,%1; twi 0,%0,0; isync"
++			     : "=r" (ret) : "r" (addr), "m" (*addr));
+ 	return ret;
+ }
+ 
+@@ -292,20 +294,21 @@
+ {
+ 	unsigned ret;
+ 
+-	__asm__ __volatile__("lwz%U1%X1 %0,%1; twi 0,%0,0; isync" :
+-			     "=r" (ret) : "m" (*addr));
++	__asm__ __volatile__("eieio; lwz%U1%X1 %0,%1; twi 0,%0,0; isync"
++			     : "=r" (ret) : "m" (*addr));
+ 	return ret;
+ }
+ 
+ static inline void out_le32(volatile unsigned *addr, int val)
+ {
+-	__asm__ __volatile__("stwbrx %1,0,%2; eieio" : "=m" (*addr) :
+-			     "r" (val), "r" (addr));
++	__asm__ __volatile__("sync; stwbrx %1,0,%2" : "=m" (*addr)
++			     : "r" (val), "r" (addr));
+ }
+ 
+ static inline void out_be32(volatile unsigned *addr, int val)
+ {
+-	__asm__ __volatile__("stw%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r" (val));
++	__asm__ __volatile__("sync; stw%U0%X0 %1,%0; eieio"
++			     : "=m" (*addr) : "r" (val));
+ }
+ 
+ static inline unsigned long in_le64(volatile unsigned long *addr)
+@@ -313,7 +316,7 @@
+ 	unsigned long tmp, ret;
+ 
+ 	__asm__ __volatile__(
+-			     "ld %1,0(%2)\n"
++			     "eieio; ld %1,0(%2)\n"
+ 			     "twi 0,%1,0\n"
+ 			     "isync\n"
+ 			     "rldimi %0,%1,5*8,1*8\n"
+@@ -331,8 +334,8 @@
+ {
+ 	unsigned long ret;
+ 
+-	__asm__ __volatile__("ld %0,0(%1); twi 0,%0,0; isync" :
+-			     "=r" (ret) : "m" (*addr));
++	__asm__ __volatile__("eieio; ld %0,0(%1); twi 0,%0,0; isync"
++			     : "=r" (ret) : "m" (*addr));
+ 	return ret;
+ }
+ 
+@@ -348,14 +351,13 @@
+ 			     "rldicl %1,%1,32,0\n"
+ 			     "rlwimi %0,%1,8,8,31\n"
+ 			     "rlwimi %0,%1,24,16,23\n"
+-			     "std %0,0(%2)\n"
+-			     "eieio\n"
++			     "sync; std %0,0(%2)\n"
+ 			     : "=r" (tmp) : "r" (val), "b" (addr) , "m" (*addr));
+ }
+ 
+ static inline void out_be64(volatile unsigned long *addr, int val)
+ {
+-	__asm__ __volatile__("std %1,0(%0); eieio" : "=m" (*addr) : "r" (val));
++	__asm__ __volatile__("sync; std %1,0(%0)" : "=m" (*addr) : "r" (val));
+ }
+ 
+ #ifndef CONFIG_PPC_ISERIES 
 
 
-On Sat, 8 May 2004, Andrew Morton wrote:
-> 
-> erk.  OK.  Things are (much) worse than I thought.  The 24 byte limit means
-> that 20% of my names will be externally allocated, but that's no worse than
-> what we had before.
-
-In fact, it's better than what we had before at least on 64-bit 
-archtiectures.
-
-But I'd be happy to make the DNAME_INLINE_LEN_MIN #define larger - I just 
-think we should try to shrink the internal structure fields first. 
-
-Btw, at least for the kernel sources, my statistics say that filename
-distribution (in a built tree, and with BK) is
-
-   1:     5.04 % (    5.04 % cum -- 2246)
-   2:     5.19 % (   10.23 % cum -- 2312)
-   3:     0.55 % (   10.79 % cum -- 247)
-   4:     3.30 % (   14.08 % cum -- 1469)
-   5:     3.35 % (   17.43 % cum -- 1492)
-   6:     4.35 % (   21.79 % cum -- 1940)
-   7:     7.55 % (   29.34 % cum -- 3365)
-   8:     9.64 % (   38.98 % cum -- 4293)
-   9:     9.17 % (   48.15 % cum -- 4084)
-  10:    10.98 % (   59.12 % cum -- 4891)
-  11:     7.65 % (   66.77 % cum -- 3406)
-  12:     7.01 % (   73.78 % cum -- 3122)
-  13:     5.16 % (   78.94 % cum -- 2298)
-  14:     3.83 % (   82.77 % cum -- 1706)
-  15:     3.47 % (   86.24 % cum -- 1545)
-  16:     2.11 % (   88.34 % cum -- 939)
-  17:     1.47 % (   89.81 % cum -- 655)
-  18:     1.06 % (   90.87 % cum -- 472)
-  19:     0.68 % (   91.55 % cum -- 303)
-  20:     0.42 % (   91.97 % cum -- 188)
-  21:     0.29 % (   92.26 % cum -- 128)
-  22:     0.24 % (   92.50 % cum -- 107)
-  23:     0.14 % (   92.64 % cum -- 63)
-
-ie we've reached 92% of all names with 24-byte inline thing.
-
-For my whole disk, I have similar stats:
-
-   1:     6.59 % (    6.59 % cum -- 71690)
-   2:     6.86 % (   13.45 % cum -- 74611)
-   3:     1.59 % (   15.04 % cum -- 17292)
-   4:     3.77 % (   18.81 % cum -- 40992)
-   5:     3.11 % (   21.92 % cum -- 33884)
-   6:     4.13 % (   26.05 % cum -- 44898)
-   7:     6.97 % (   33.01 % cum -- 75774)
-   8:     8.13 % (   41.15 % cum -- 88451)
-   9:     7.81 % (   48.96 % cum -- 84987)
-  10:     9.56 % (   58.52 % cum -- 104021)
-  11:     7.67 % (   66.19 % cum -- 83403)
-  12:     8.07 % (   74.26 % cum -- 87826)
-  13:     4.38 % (   78.65 % cum -- 47690)
-  14:     3.36 % (   82.01 % cum -- 36592)
-  15:     2.71 % (   84.71 % cum -- 29431)
-  16:     1.78 % (   86.49 % cum -- 19311)
-  17:     1.35 % (   87.84 % cum -- 14703)
-  18:     1.05 % (   88.89 % cum -- 11410)
-  19:     0.82 % (   89.71 % cum -- 8952)
-  20:     0.77 % (   90.49 % cum -- 8423)
-  21:     0.85 % (   91.34 % cum -- 9264)
-  22:     0.72 % (   92.06 % cum -- 7798)
-  23:     0.69 % (   92.75 % cum -- 7534)
-
-so it appears that I'm either a sad case with a lot of source code on my 
-disk, or you have overlong filenames that brings up your stats.
-
-Or my program is broken. Entirely possible.
-
-Whee. 149 characters is my winning entry:
-
-	/usr/share/doc/HTML/en/kdelibs-3.1-apidocs/kdecore/html/classKGenericFactory_3_01KTypeList_3_01Product_00_01ProductListTail_01_4_00_01KTypeList_3_01ParentType_00_01ParentTypeListTail_01_4_01_4-members.html
-
-That's obscene.
-
-		Linus
-
------
-/*
- * (C) Copyright 2003 Linus Torvalds
- *
- * "bkr" - recusrive "bk" invocations aka "bk -r"
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/param.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <string.h>
-#include <regex.h>
-
-/*
- * Very generic directory tree handling.
- */
-static int bkr(const char *path, int pathlen,
-	void (*regcallback)(const char *path, int pathlen, const char *name, int namelen),
-	void (*dircallback)(const char *path, int pathlen, const char *name, int namelen))
-{
-	struct dirent *de;
-	char fullname[MAXPATHLEN + 1];
-	char *ptr = fullname + pathlen;
-	DIR *base = opendir(path);
-
-	if (!base)
-		return 0;
-	memcpy(fullname, path, pathlen);
-
-	while ((de = readdir(base)) != NULL) {
-		int len;
-
-		len = strlen(de->d_name);
-		memcpy(ptr, de->d_name, len+1);
-
-		if (dircallback) {
-			switch (de->d_type) {
-			struct stat st;
-			case DT_UNKNOWN:
-				if (stat(fullname, &st))
-					break;
-				if (!S_ISDIR(st.st_mode))
-					break;
-			case DT_DIR:
-				if (de->d_name[0] == '.') {
-					if (len == 1)
-						break;
-					if (de->d_name[1] == '.' && len == 2)
-						break;
-				}
-				ptr[len] = '/';
-				ptr[len+1] = '\0';
-				dircallback(fullname, pathlen + len + 1, de->d_name, len);
-				continue;
-			}
-		}
-		regcallback(fullname, pathlen + len, de->d_name, len);
-	}
-	closedir(base);
-	return 0;
-}
-
-static int total;
-static int len[256];
-
-static void file(const char *path, int pathlen, const char *name, int namelen)
-{
-	total++;
-	len[namelen]++;
-}
-
-static void dir(const char *path, int pathlen, const char *name, int namelen)
-{
-	file(path, pathlen, name, namelen);
-	bkr(path, pathlen, file, dir);
-}
 
 
-int main(int argc, char **argv)
-{
-	int i;
-	double sum = 0.0;
-
-	bkr(".", 0, file, dir);
-	for (i = 0; i < 256; i++) {
-		int nr = len[i];
-		if (nr) {
-			double this = (double) nr * 100.0 / total;
-			sum += this;
-			printf("%4i: %8.2f %% (%8.2f %% cum -- %d)\n", i, this, sum, nr);
-		}
-	}
-}

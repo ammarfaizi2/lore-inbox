@@ -1,87 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135851AbRATLsw>; Sat, 20 Jan 2001 06:48:52 -0500
+	id <S129383AbRATMZz>; Sat, 20 Jan 2001 07:25:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136445AbRATLsm>; Sat, 20 Jan 2001 06:48:42 -0500
-Received: from [202.123.212.187] ([202.123.212.187]:60428 "EHLO ns1.b2s.com")
-	by vger.kernel.org with ESMTP id <S135851AbRATLs3>;
-	Sat, 20 Jan 2001 06:48:29 -0500
-Message-ID: <3A697B2B.C5C00B31@vtc.edu.hk>
-Date: Sat, 20 Jan 2001 19:48:59 +0800
-From: Nick Urbanik <nicku@vtc.edu.hk>
-Organization: Institute of Vocational Education (Tsing Yi)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
-X-Accept-Language: en
+	id <S129406AbRATMZo>; Sat, 20 Jan 2001 07:25:44 -0500
+Received: from plzena-225.dialup.vol.cz ([212.20.120.226]:31492 "HELO
+	madness.madness.mad") by vger.kernel.org with SMTP
+	id <S129383AbRATMZb>; Sat, 20 Jan 2001 07:25:31 -0500
+Date: Sat, 20 Jan 2001 13:26:08 +0100 (CET)
+From: Martin MaD Douda <martin@douda.net>
+To: Michael Lindner <mikel@att.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data
+  available
+In-Reply-To: <3A68F855.6F16F152@att.net>
+Message-ID: <Pine.LNX.4.21.0101201322110.839-100000@madness.madness.mad>
 MIME-Version: 1.0
-To: Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: rsync + ssh fail on raid; okay on 2.2.x
-In-Reply-To: <Pine.LNX.4.10.10101181225030.7200-100000@coffee.psychology.mcmaster.ca> <3A677CFA.DE6F7D93@vtc.edu.hk>
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Urbanik wrote:
+On Fri, 19 Jan 2001, Michael Lindner wrote:
 
-> Mark Hahn wrote:
->
-> > > Kernel: 2.4.0, no patches
-> >
-> > use 2.4.1-pre8.  much better VM tuning.
->
-> Thank you Mark, I will try that.
+> data is generated as a result of data received via a select(),
+> the next delivery occurs a clock tick later, with the machine
+> mostly idle.
+  ^^^^^^^^^^^
 
-Yes, 2.4.1-pre8 fixes this, apparently completely.  Something was severely broken
-in 2.4.0 memory management.
+The machine is in fact not idle - there is a task running - idle task.
+Could the problem be that scheduler does not preempt this task to run
+something more useful?
 
-> > > PIII 450MHz, 256MB RAM, Acus P3B-F motherboard (Intel 440BX)
-> > > Mail going to Raid 1 device
-> > > The file Inbox is only 2.9MB
-> > > OS = Red Hat 7 with all updates, both home and work.
-> > > Same with ppp 2.3.x and ppp 2.4.0
-> > > Same whether work machine runs 2.2.16 or 2.4.0 kernel.
-> >
-> > any swap?
->
-> Yes, 400MB swap, only a small fraction of it used; vmstat 5 looks okay
-> and shows no understandable reason for the error message.  Here are a
-> few lines from vmstat: the point at which free memory jumps up is just
-> after the "Write failed: Cannot allocate memory" message:
->
->  2  0  0   9276   1792   8952 110388   0   0   378     0 2400   295  11  26  63
->
->  2  0  0   9276   1760   8952 110420   0   0     0     0  492   319   6   2  92
->
->  3  0  0   9276   1596   8952 110588   0   0    96     0  754   326   8   5  87
->
->  2  1  0   9276   1620   8828 110692   0   0   751   207 5378   275  19  74   7
->
->  1  0  0   9276  26680   8828  91760   0   0   115     0 1094   307   9  11  80
->
->  2  0  0   9276  26680   8828  91760   0   0     0     0  120   318   4   1  95
->
-> I have many hundreds of MB or GB of disk space in the various
-> partititions.  I will try the newer kernel, though I am interested in
-> understanding what's going on here too.
->
-> --
-> Nick Urbanik, Dept. of Computing and Mathematics
-> Hong Kong Institute of Vocational Education (Tsing Yi)
-> email: nicku@vtc.edu.hk
-> Tel:   (852) 2436 8576, (852) 2436 8579   Fax: (852) 2435 1406
-> pgp ID: 7529555D fingerprint: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Symptoms seems to show this. 
 
---
-Nick Urbanik, Dept. of Computing and Mathematics
-Hong Kong Institute of Vocational Education (Tsing Yi)
-email: nicku@vtc.edu.hk
-Tel:   (852) 2436 8576, (852) 2436 8579   Fax: (852) 2435 1406
-pgp ID: 7529555D fingerprint: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B
+			Martin
+
 
 
 

@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUGLKIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266777AbUGLKLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266775AbUGLKIu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 06:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266777AbUGLKIu
+	id S266777AbUGLKLr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 06:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266779AbUGLKLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 06:08:50 -0400
-Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:27041 "EHLO
-	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
-	id S266775AbUGLKIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 06:08:48 -0400
-Date: Mon, 12 Jul 2004 12:08:44 +0200
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with __user annotation in drivers/block/ida_ioctl.h
-Message-ID: <20040712100843.GA17273@hout.vanvergehaald.nl>
+	Mon, 12 Jul 2004 06:11:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26528 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266777AbUGLKLo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 06:11:44 -0400
+Date: Mon, 12 Jul 2004 12:11:07 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Daniel Phillips <phillips@istop.com>, sdake@mvista.com,
+       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Message-ID: <20040712101107.GA31013@devserv.devel.redhat.com>
+References: <200407050209.29268.phillips@redhat.com> <200407101657.06314.phillips@redhat.com> <1089501890.19787.33.camel@persist.az.mvista.com> <200407111544.25590.phillips@istop.com> <20040711210624.GC3933@marowsky-bree.de> <1089615523.2806.5.camel@laptop.fenrus.com> <20040712100547.GF3933@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040712100547.GF3933@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm using the cpqarrayd-2.0 daemon in order to monitor the volumes that
-are managed by the cciss driver. After I upgraded the kernel to 2.6.7
-(coming from 2.6.0), the compilation of the daemon failed because of the
-__user annotation that was added in the file drivers/block/ida_ioctl.h
-as part of the sparse fixes.
+--x+6KMIRAuhnl3hBn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I did some research (read: googling) and found out that this could
-be solved by including /usr/src/linux/include/linux/compiler.h.
-To prove this, I inserted #include statements for the compiler.h file in
-all source files of the cpqarrayd-2.0 daemon where ida_ioctl.h was included.
-With these changes the daemon compiled and ran without problems.
 
-QUESTION: what is the right fix for this?
-I think the header file linux/compiler.h needs to be included in
-the file drivers/block/ida_ioctl.h.  This way we prevent all user
-space tools from breaking.  Am I right?
+On Mon, Jul 12, 2004 at 12:05:47PM +0200, Lars Marowsky-Bree wrote:
+> On 2004-07-12T08:58:46,
+>    Arjan van de Ven <arjanv@redhat.com> said:
+> 
+> > Running realtime and mlocked (prealloced) is most certainly not
+> > sufficient for causes like this; any system call that internally
+> > allocates memory (even if it's just for allocating the kernel side of
+> > the filename you handle to open) can lead to this RT, mlocked process to
+> > cause VM writeout elsewhere. 
+> 
+> Of course; appropriate safety measures - like not doing any syscall
+> which could potentially block, or isolating them from the main task via
+> double-buffering childs - need to be done. (heartbeat does this in
+> fact.)
 
-Regards,
-Toon.
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+well the problem is that you cannot prevent a syscall from blocking really.
+O_NONBLOCK only impacts the waiting for IO/socket buffer space to not do so
+(in general), it doesn't impact the memory allocation strategies by
+syscalls. And there's a whopping lot of that in the non-boring syscalls...
+So while your heartbeat process won't block during getpid, it'll eventually
+need to do real work too .... and I'm quite certain that will lead down to
+GFP_KERNEL memory allocations.
+
+
+
+--x+6KMIRAuhnl3hBn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFA8mO6xULwo51rQBIRAi1UAJ0dZDU3dAEiyXfjhntigkxJTHt7hQCfWuKI
+5nXGvlFq9X3B/mi/EWbh8vY=
+=1Nlu
+-----END PGP SIGNATURE-----
+
+--x+6KMIRAuhnl3hBn--

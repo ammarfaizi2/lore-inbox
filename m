@@ -1,63 +1,261 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262663AbTDEVc1 (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 16:32:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbTDEVc0 (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 16:32:26 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46352
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262663AbTDEVcZ (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 16:32:25 -0500
-Date: Sat, 5 Apr 2003 13:39:13 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Stephan van Hienen <kernel@ddx.a2000.nu>
-cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: onboard ICH4 seen as ICH3 (ultra100 controller onboard)
- (2.4.20/2.4.21-pre7)
-In-Reply-To: <Pine.LNX.4.53.0304052324360.16674@ddx.a2000.nu>
-Message-ID: <Pine.LNX.4.10.10304051337470.29290-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S262665AbTDEVfm (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 16:35:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTDEVfm (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 16:35:42 -0500
+Received: from smtp-102.noc.nerim.net ([62.4.17.102]:47109 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262665AbTDEVfh (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 16:35:37 -0500
+Date: Sat, 5 Apr 2003 23:49:27 +0200
+From: Jerome Chantelauze <jerome.chantelauze@finix.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-pre7
+Message-ID: <20030405214927.GA12244@i486X33>
+References: <Pine.LNX.4.53L.0304041815110.32674@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53L.0304041815110.32674@freak.distro.conectiva>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-NO, since they all use the same timings there is no problem.
-Intel never made an Ultra 133, and all the timings from PIIX forward build
-on each other.
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-There is no bug, except in your BIOS maybe.
-
-Cheers,
-
-On Sat, 5 Apr 2003, Stephan van Hienen wrote:
-
-> On Sat, 5 Apr 2003, Mark Hahn wrote:
+On Fri, Apr 04, 2003 at 06:15:52PM -0300, Marcelo Tosatti wrote:
 > 
-> > > > > I don't think it is doing U100 :
-> > > >
-> > > > why?  25 MB/s is exactly what you should expect from a disk
-> > > > which has around 15 GB/platter density.  the transfer mode
-> > > > doesn't matter, as long as it's 10-20% faster than the transfer
-> > > > rate of the disk's outer tracks.
-> > >
-> > > because it is the same disk (WD1800BB (180GB)) only difference is the
-> > > controller...
-> >
-> > is the 80-pin cable validly configured and properly detected?
-> > or did you cover this already?
+> So here goes -pre7. Hopefully the last -pre.
 > 
-> all disks and cables are the same
-> (i have 15 of these disks in this server)
-> only difference are the controllers
-> 
-> and since the kernel is giving me incorrect info at boottime
-> (ICH3 (instead of what is really there (ICH4))
-> i really think this is an kernel problem
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Please try it.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Hi.
 
+It seems the 2.4.21-pre7 doesn't build without pci support.
+
+***********
+ld -m elf_i386 -T /usr/src/linux-2.4.21-pre7/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/video/video.o drivers/media/media.o \
+        net/network.o \
+        /usr/src/linux-2.4.21-pre7/arch/i386/lib/lib.a /usr/src/linux-2.4.21-pre7/lib/lib.a /usr/src/linux-2.4.21-pre7/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+arch/i386/kernel/kernel.o: In function `broken_pirq':
+arch/i386/kernel/kernel.o(.text.init+0x32c4): undefined reference to `broken_440gx_bios'
+arch/i386/kernel/kernel.o(.text.init+0x32ce): undefined reference to `pci_probe'make: *** [vmlinux] Error 1
+*************
+
+My .config is attached.
+
+A 2.4.21-pre6 with the same options builds.
+
+Regards
+--
+Jerome Chantelauze
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Description: .config
+Content-Disposition: attachment; filename=config
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+CONFIG_UID16=y
+
+#
+# Code maturity level options
+#
+# CONFIG_EXPERIMENTAL is not set
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+CONFIG_M486=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=4
+CONFIG_X86_USE_STRING_486=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_NOHIGHMEM=y
+
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_ISA=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_NETFILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_SYN_COOKIES=y
+
+#
+#   IP: Netfilter Configuration
+#
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_NAT_NEEDED=y
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_HD_ONLY=y
+CONFIG_BLK_DEV_HD=y
+CONFIG_BLK_DEV_IDE_MODES=y
+
+#
+# SCSI support
+#
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=m
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+
+#
+# SCSI low-level drivers
+#
+CONFIG_SCSI_AHA1542=y
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_ISA=y
+CONFIG_NE2000=y
+
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+
+#
+# Watchdog Cards
+#
+CONFIG_RTC=y
+
+#
+# File systems
+#
+CONFIG_AUTOFS4_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=m
+
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+
+#
+# Partition Types
+#
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_UTF8=m
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+CONFIG_SOUND_OSS=m
+CONFIG_SOUND_DMAP=y
+CONFIG_SOUND_SB=m
+
+#
+# Library routines
+#
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+
+--NzB8fVQJ5HfG6fxh--

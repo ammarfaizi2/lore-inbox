@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbUKHVVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbUKHVZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbUKHVVo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 16:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbUKHVVo
+	id S261237AbUKHVZk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 16:25:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUKHVZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 16:21:44 -0500
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:27295 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261220AbUKHVV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 16:21:26 -0500
-Date: Mon, 8 Nov 2004 22:21:00 +0100
-From: Michael Gernoth <simigern@stud.uni-erlangen.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
+	Mon, 8 Nov 2004 16:25:39 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33546 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261237AbUKHVZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 16:25:34 -0500
+Date: Mon, 8 Nov 2004 22:25:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Pawe?? Sikora <pluto@pld-linux.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hanging NFS umounts with 2.4.27
-Message-ID: <20041108212059.GA12717@cip.informatik.uni-erlangen.de>
-References: <20041105100237.GA27689@cip.informatik.uni-erlangen.de> <1099684541.19858.1.camel@lade.trondhjem.org>
+Subject: Re: [2.6 patch] kill IN_STRING_C
+Message-ID: <20041108212503.GG15077@stusta.de>
+References: <20041107142445.GH14308@stusta.de> <200411081942.38954.pluto@pld-linux.org> <20041108185222.GE15077@stusta.de> <200411082011.46775.pluto@pld-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1099684541.19858.1.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200411082011.46775.pluto@pld-linux.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 11:55:41AM -0800, Trond Myklebust wrote:
-> fr den 05.11.2004 Klokka 11:02 (+0100) skreiv Michael Gernoth:
+On Mon, Nov 08, 2004 at 08:11:46PM +0100, Pawe?? Sikora wrote:
 > 
-> > Searching through the Changesets I found 1.1402.1.19:
-> > http://linux.bkbits.net:8080/linux-2.4/cset@1.1402.1.19
-> > After reverting this one, we have a stable umount-behaviour again.
+> gcc -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude  -Wall
+> -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -O2
+> -Wdeclaration-after-statement -pipe -msoft-float -mpreferred-stack-boundary=2
+> -fno-unit-at-a-time -march=pentium3 -Iinclude/asm-i386/mach-default -S sp.c
 > 
-> Does the attached patch help at all?
->
->   NFS: Always wake up tasks that are waiting on the sillyrenamed file to
->        complete.
+>...
+>         call    strcpy
+>...
+> strcpy:
+>         pushl   %ebp
+>...
 
-This seems to fix it for us. Neither my stress-test during the weekend
-nor the students today were able to reproduce the hanging umounts :-)
+That's no function call.  :-)
 
-Thanks,
-  Michael
+cu
+Adrian
 
 -- 
-Michael Gernoth                            Department of Computer Science IV 
-Martensstrasse 1  D-91058 Erlangen Germany  University of Erlangen-Nuremberg
-	         http://wwwcip.informatik.uni-erlangen.de/
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

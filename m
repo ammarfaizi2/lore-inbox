@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbUBYSmi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 13:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbUBYSln
+	id S261695AbUBYSl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 13:41:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbUBYSl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 13:41:43 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:4992 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261673AbUBYSlU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 13:41:20 -0500
-Date: Wed, 25 Feb 2004 13:41:11 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Kristian =?ISO-8859-1?Q?S=F8rensen?= <ks@cs.auc.dk>,
-       linux-kernel@vger.kernel.org, umbrella@cs.auc.dk
-Subject: Re: Implement new system call in 2.6
-In-Reply-To: <20040225101419.5f058573.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.53.0402251336510.3401@chaos>
-References: <Pine.LNX.4.56.0402250933001.648@homer.cs.auc.dk>
- <20040225101419.5f058573.rddunlap@osdl.org>
+	Wed, 25 Feb 2004 13:41:28 -0500
+Received: from h-68-167-140-98.SNVACAID.covad.net ([68.167.140.98]:30726 "EHLO
+	mail.metadata-systems.com") by vger.kernel.org with ESMTP
+	id S261614AbUBYSky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 13:40:54 -0500
+Message-ID: <403CEC2E.5030608@metadata-systems.com>
+Date: Wed, 25 Feb 2004 10:40:46 -0800
+From: Matt Seitz <seitz@metadata-systems.com>
+Organization: Metadata Systems
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel vs AMD x86-64
+References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org> <16435.14044.182718.134404@alkaid.it.uu.se> <Pine.LNX.4.58.0402180744440.2686@home.osdl.org> <20040222025957.GA31813@MAIL.13thfloor.at> <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Feb 2004, Randy.Dunlap wrote:
+Linus Torvalds wrote:
+> The filesystem policy _tends_ to be that dashes and spaces are turned 
+> into underscores when used as filenames. Don't ask me why (well, the space 
+> part is obvious, since real spaces tend to be a pain to use on the command 
+> line, but don't ask me why people tend to conver a dash to an underscore).
 
-> On Wed, 25 Feb 2004 11:07:41 +0100 (CET) Kristian Sørensen wrote:
->
-> | Hi all!
-> |
-> | How do I invoke a newly created system call in the 2.6.3 kernel from
-> | userspace?
-> |
-> | The call is added it arch/i386/kernel/entry.S and include/asm/unistd.h
-> | and the call is implemented in a security module called Umbrella(*).
-> |
-> | The kernel compiles and boots nicely.
-> |
-> | The main problem is now to compile a userspace program that invokes this
-> | call. The guide for implementing the systemcall at
-> | http://fossil.wpi.edu/docs/howto_add_systemcall.html
-> | has been followed, which yields the following userspace program:
-> |
-> | // test.h
-> | #include "/home/snc/linux-2.6.3-umbrella/include/linux/unistd.h"
-> | _syscall1(int, umbrella_scr, int, arg1);
-> |
-> | // test.c
-> | #include "test.h"
-> | main() {
-> |   int test = umbrella_scr(1);
-> |   printf ("%i\n", test);
-> | }
-> |
-> | When compiling:
-> |
-> | gcc -I/home/snc/linux-2.6.3/include test.c
-> |
-> | /tmp/ccYYs1zB.o(.text+0x20): In function `umbrella_scr':
-> | : undefined reference to `errno'
-> | collect2: ld returned 1 exit status
-> |
+Perhaps to comply with the ISO-9660/ECMA-119 standard for CD-ROM file systems? 
+ISO 9660/ECMA-119 requires file names to contain only 0-9, uppercase A-Z, 
+underscore, a single dot ("."), and a single semicolon (";")[1].  For details, 
+see section 7.5.1 of ECMA-119:
 
-#include <errno.h>
+http://www.ecma-international.org/publications/standards/Ecma-119.htm
 
-Some versions of 'C' define errno as *__errno_location().
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+[1] One can use various techniques to create file names that contain additional 
+characters within a valid ISO 9660 file system.  However, these file names may 
+not be accessible on all operating systems.
 

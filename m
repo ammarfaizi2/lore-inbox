@@ -1,82 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267519AbSLLWjq>; Thu, 12 Dec 2002 17:39:46 -0500
+	id <S267516AbSLLW4Y>; Thu, 12 Dec 2002 17:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267525AbSLLWjq>; Thu, 12 Dec 2002 17:39:46 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:43651 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267519AbSLLWjp>; Thu, 12 Dec 2002 17:39:45 -0500
-Message-Id: <200212122247.gBCMlHgY011021@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions)
-From: Valdis.Kletnieks@vt.edu
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-338121838P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 12 Dec 2002 17:47:17 -0500
+	id <S267526AbSLLW4Y>; Thu, 12 Dec 2002 17:56:24 -0500
+Received: from smtp.comcast.net ([24.153.64.2]:6610 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S267516AbSLLWzu>;
+	Thu, 12 Dec 2002 17:55:50 -0500
+X-URL: genehack.org
+Date: Thu, 12 Dec 2002 18:03:36 -0500
+From: jacobs@genehack.org (John S. J. Anderson)
+Subject: crash when calling madvise( MADV_WILLNEED )
+To: linux-kernel@vger.kernel.org
+Message-id: <87d6o64z7b.fsf@mendel.genehack.org>
+Organization: genehackCorps
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)"
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i386-pc-linux-gnu)
+X-Attribution: john
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-338121838P
-Content-Type: multipart/mixed ;
-	boundary="==_Exmh_-3381710880"
 
-This is a multipart MIME message.
-
---==_Exmh_-3381710880
-Content-Type: text/plain; charset=us-ascii
-
-> PCI: Device 02:00.0 not available because of resource collisions
-> PCI: Device 02:00.1 not available because of resource collisions
-
-Been there. Done that. Does the attached patch help? It did for me.
-
-/Valdis
+--Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)
+Content-type: TEXT/PLAIN
+Content-transfer-encoding: 7BIT
 
 
+  A developer that I support has discovered that the attached code is
+  capable of crashing many late series 2.4.x kernels, including
+  2.4.20. The easiest way to reproduce this crash is to compile the
+  attached code, and call it via 'madvise_test 3 FILE', where FILE is
+  a data file of at least 1.5 GB. The contents of FILE don't seem to
+  matter. The crash may happen more quickly if multiple copies of the
+  program are started. Sometimes the process locks up the terminal it
+  is running in; sometimes the kernel throws an OPPS and the whole
+  machine goes down. There doesn't seem to be a pattern as to which
+  event happens when. 
 
---==_Exmh_-3381710880
-Content-Type: text/plain ; name="pcmcia.patch"; charset=us-ascii
-Content-Description: pcmcia.patch
-Content-Disposition: attachment; filename="pcmcia.patch"
+  This has been observed on both a Dell 8450 (8 CPU, 8 gig RAM) and a
+  Dell 1650 (2 CPU, 2 gig RAM). I've also included an oops that we
+  captured.
 
---- drivers/pcmcia/cardbus.c.dist	2002-12-03 01:49:29.000000000 -0500
-+++ drivers/pcmcia/cardbus.c	2002-12-03 01:50:23.000000000 -0500
-@@ -283,8 +283,6 @@
- 		dev->hdr_type = hdr & 0x7f;
- 
- 		pci_setup_device(dev);
--		if (pci_enable_device(dev))
--			continue;
- 
- 		strcpy(dev->dev.bus_id, dev->slot_name);
- 
-@@ -302,6 +300,8 @@
- 			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
- 		}
- 
-+		if (pci_enable_device(dev))
-+			continue;
- 		device_register(&dev->dev);
- 		pci_insert_device(dev, bus);
- 	}
-
---==_Exmh_-3381710880--
+  Thanks for any help. 
 
 
---==_Exmh_-338121838P
-Content-Type: application/pgp-signature
+--Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)
+Content-type: message/external-body; access-type=local-file;
+ name*=us-ascii''~%2ftmp%2fmadvise_test.c
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Content-Type: text/x-csrc
+Content-ID: <87bs3q4z7b.fsf@mendel.genehack.org>
+Content-Transfer-Encoding: binary
 
-iD8DBQE9+RH1cC3lWbTT17ARAp8PAKCphoDmrvovTFS6Mir+hzCw/1WP4gCg8+k8
-EIRcXln0uIdGmpB82Ao5nfc=
-=sdyX
------END PGP SIGNATURE-----
 
---==_Exmh_-338121838P--
+
+--Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)
+Content-type: message/external-body; access-type=local-file;
+ name*=us-ascii''~%2ftmp%2fopps
+
+Content-Type: text/plain
+Content-ID: <87adja4z7b.fsf@mendel.genehack.org>
+Content-Transfer-Encoding: binary
+
+
+
+--Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)
+Content-type: TEXT/PLAIN
+Content-transfer-encoding: 7BIT
+
+
+
+john.
+-- 
+"[L]iberty of the press is the right of the lonely pamphleteer who
+uses carbon paper or a mimeograph just as much as of the large
+metropolitan publisher who utilizes the latest photocomposition
+methods."- judge's decision in Branzburg v. Hayes
+
+--Boundary_(ID_E6wweEjzjUI0hlnPwQEnYA)--

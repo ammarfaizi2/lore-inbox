@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVCCURZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVCCUZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbVCCURZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 15:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVCCUOS
+	id S261266AbVCCUZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 15:25:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVCCUW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 15:14:18 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:25781 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262159AbVCCUMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 15:12:17 -0500
-Subject: Re: [Fwd: United States Patent: 6,862,609]
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-Cc: Bernd Petrovitsch <bernd@firmix.at>, gene.heskett@verizon.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <422731B0.6040007@utah-nac.org>
-References: <4226781B.7080302@utah-nac.org>
-	 <200503022227.40614.gene.heskett@verizon.net>
-	 <4226927A.6010107@utah-nac.org> <1109845583.28561.19.camel@tara.firmix.at>
-	 <422731B0.6040007@utah-nac.org>
-Content-Type: text/plain
-Date: Thu, 03 Mar 2005 13:11:59 -0700
-Message-Id: <1109880720.3298.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.1.6 (2.1.6-2) 
+	Thu, 3 Mar 2005 15:22:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2983 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261266AbVCCUTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 15:19:51 -0500
+Message-ID: <4227714E.5070001@pobox.com>
+Date: Thu, 03 Mar 2005 15:19:26 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: torvalds@osdl.org, tglx@linutronix.de, bunk@stusta.de, greg@kroah.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>	<42268749.4010504@pobox.com>	<20050302200214.3e4f0015.davem@davemloft.net>	<42268F93.6060504@pobox.com>	<4226969E.5020101@pobox.com>	<20050302205826.523b9144.davem@davemloft.net>	<4226C235.1070609@pobox.com>	<20050303080459.GA29235@kroah.com>	<4226CA7E.4090905@pobox.com>	<Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>	<20050303170808.GG4608@stusta.de>	<1109877336.4032.47.camel@tglx.tec.linutronix.de>	<Pine.LNX.4.58.0503031135190.25732@ppc970.osdl.org>	<42276AF5.3080603@pobox.com> <20050303120408.746f49a8.davem@davemloft.net>
+In-Reply-To: <20050303120408.746f49a8.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-03 at 08:48 -0700, Jeff V. Merkey wrote:
-> Patent law in the US is based on section 113 of the United States 
-> Constitution, and patents
-> are not going away.  
+David S. Miller wrote:
+> On Thu, 03 Mar 2005 14:52:21 -0500
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+> 
+>>I disagree it's unsolvable:
+>>
+>>1) At some point in the -rc cycle, you put your foot down and say 
+>>"nothing but bugfixes."
+> 
+> 
+> Linus actually did, as Andrew showed you, and it was actually followed
+> quite well.
+> 
+> You keep ignoring this evidence, why?
+> 
+> You can quiet me up about this by showing counter evidence to what
+> Andrew pointed out to you.
 
-Merkey aren't you supposed to be a lawyer? Unless you do some funky
-concatenation of articles and sections you can't find a section 113 (and
-probably not even then) in the Constitution.
+I agree this occurred.  I'm not ignoring the evidence, you are ignoring 
+the part you didn't quote -- the key component of the "users don't test" 
+problem.
 
-It is Article 1 Section 8. It also says they shall have that power and
-that the intent is to promote the advances of arts and sciences. It
-doesn't say that patents are the methods to be used. It doesn't say 17
-years (or the whole 70/life+75 crap for copyrights). I think many very
-intelligent people have and will show that allowing patents on ideas
-(software patents are only this) tend to destroy such advances.
+A user who doesn't follow LKML does not know that Linus put his foot 
+down in 2.6.11-rc3.  or 2.6.10-rc2.  or 2.6.9-rc1.  A user just sees "at 
+some random point, which is never consistent, it becomes bugfixes only."
 
-Yeah, yeah, from time to time there is someone who seems to show that
-they help... however, 90% of those seem to be backed by MS or SCO.
-Interesting considering many people, including Bill Gates, said quite
-differently in the past.
+The lack of consistency is the problem.  That is why posters in this 
+thread keep suggesting a -pre/-rc split.  That is why posters in this 
+thread talk about "users don't trust -rc to mean -rc."
 
-Trever
---
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety." -- Benjamin Franklin, 1759
+Marcelo consistently says "-rc means serious bugfixes only" and never 
+deviates from that.  And that builds users TRUST.
+
+
+"putting down your foot" is only half the solution.
+
+The other half is, "users need not follow LKML to know when this occurs."
+
+	Jeff
+
 

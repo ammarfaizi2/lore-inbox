@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277501AbRJEREY>; Fri, 5 Oct 2001 13:04:24 -0400
+	id <S277502AbRJERFO>; Fri, 5 Oct 2001 13:05:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277486AbRJEREE>; Fri, 5 Oct 2001 13:04:04 -0400
-Received: from [205.176.221.61] ([205.176.221.61]:41988 "EHLO w20303512")
-	by vger.kernel.org with ESMTP id <S277502AbRJEREC>;
-	Fri, 5 Oct 2001 13:04:02 -0400
-Message-ID: <02a101c14dbf$ea81ec40$3dddb0cd@w20303512>
-From: "Wilson" <defiler@null.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <19AB8F9FA07FB0409732402B4817D75A038B63@FILESERVER.SRF.srfarms.com>
+	id <S277486AbRJERE7>; Fri, 5 Oct 2001 13:04:59 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60935 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277503AbRJEREk>; Fri, 5 Oct 2001 13:04:40 -0400
 Subject: Re: 3ware discontinuing the Escalade Series
-Date: Fri, 5 Oct 2001 13:05:19 -0400
+To: Ryan@srfarms.com (Ryan C. Bonham)
+Date: Fri, 5 Oct 2001 18:10:11 +0100 (BST)
+Cc: lm@bitmover.com (Larry McVoy),
+        alan@lxorguk.ukuu.org.uk ("Alan Cox (E-mail)"),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <19AB8F9FA07FB0409732402B4817D75A038B63@FILESERVER.SRF.srfarms.com> from "Ryan C. Bonham" at Oct 05, 2001 12:49:19 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-Id: <E15pYUF-00071y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
+> The Adaptec 2400A IDE Raid Cards work under Linux, although you will need to
+> patch your kernel, the patch is available from Adaptec's website. 
 
+Adaptec have released complete source code ?
 
-> The Adaptec 2400A IDE Raid Cards work under Linux, although you will need
-to
-> patch your kernel, the patch is available from Adaptec's website.
-> It seems like work was being done to add support for the Promise RAID
-cards,
+> It seems like work was being done to add support for the Promise RAID cards,
 > it seems like Alan had support in his tree, I might be wrong about that
 > though. Alan?
 
-Unfortunately, the Adaptec cards underperform the 3Ware stuff in quite a few
-tests.
-My two main problems with the Adaptec cards: They don't offer an 8-port
-model, and the prices are significantly higher than those of the equivalent
-3Ware card..
+We have partial promise and hpt support for their softraid in the -ac tree
+and the basics pushed into Linus tree. Andre and Promise have sorted out
+full access to promise info on this so we should see full promise softraid
+support.
 
+The Promise hardware raid (Supertrak100) is also supported in the ac and
+Linus trees nowdays but I've never been happy with its price/performance 
+personally.
 
+Alan

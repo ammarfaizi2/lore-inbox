@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267108AbRGPKMv>; Mon, 16 Jul 2001 06:12:51 -0400
+	id <S267159AbRGPKWb>; Mon, 16 Jul 2001 06:22:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267159AbRGPKMm>; Mon, 16 Jul 2001 06:12:42 -0400
-Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:1032 "EHLO
-	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
-	id <S267108AbRGPKMi>; Mon, 16 Jul 2001 06:12:38 -0400
-Date: Mon, 16 Jul 2001 12:12:37 +0200 (CEST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-To: Evan Parker <nave@stanford.edu>
-cc: <linux-kernel@vger.kernel.org>, <mc@cs.stanford.edu>
-Subject: Re: [CHECKER] free errors for 2.4.6 and 2.4.6ac2
-Message-ID: <Pine.LNX.4.33.0107161210120.10060-100000@chaos.tp1.ruhr-uni-bochum.de>
+	id <S267271AbRGPKWL>; Mon, 16 Jul 2001 06:22:11 -0400
+Received: from laxmls03.socal.rr.com ([24.30.163.17]:29628 "EHLO
+	laxmls03.socal.rr.com") by vger.kernel.org with ESMTP
+	id <S267159AbRGPKWD>; Mon, 16 Jul 2001 06:22:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Shane Nay <shane@minirl.com>
+To: James Simmons <jsimmons@transvirtual.com>, Pavel Machek <pavel@suse.cz>
+Subject: Re: [ANNOUNCE] Secondary mips tree.
+Date: Mon, 16 Jul 2001 03:22:40 -0700
+X-Mailer: KMail [version 1.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-mips@oss.sgi.com, linux-mips-kernel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.10.10107130800230.30223-100000@transvirtual.com>
+In-Reply-To: <Pine.LNX.4.10.10107130800230.30223-100000@transvirtual.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0107160322400A.02677@compiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Jul 2001, Evan Parker wrote:
+On Friday 13 July 2001 08:01, James Simmons wrote:
+> > Good. I should definitely take a look. [Do you care about vr4130 or about
+> > tx3912, too?]
+>
+> Yes. If you want to work on it no problem.
 
-> 1	|	/home/eparker/tmp/linux/2.4.6/drivers/isdn/isdn_common.c/
+Huh, Very Cool.  I was getting ready to queue up a huge IRDA forward port in 
+linux-vr to the 2.4.6 version.  (Still el-crashola on me right now)  The one 
+in the present repository likes to overwrite userspace applications pretty 
+much at randomn.
 
-> ---------------------------------------------------------
-> [BUG] double free (then again, dev_kfree_skb does referece counting--maybe
-> not a bug?)
-> /home/eparker/tmp/linux/2.4.6/drivers/isdn/isdn_common.c:1978:isdn_writebuf_skb_stub: ERROR:FREE:1960:1978: Use-after-free of 'skb'!  set by 'kfree_skb':1960 [nbytes = 168]  [distance=36]
-> 			skb_tmp = skb_realloc_headroom(skb, hl);
-> 			printk(KERN_DEBUG "isdn_writebuf_skb_stub: reallocating headroom%s\n", skb_tmp ? "" : " failed");
-> 			if (!skb_tmp) return -ENOMEM; /* 0 better? */
-> 			ret = dev->drv[drvidx]->interface->writebuf_skb(drvidx, chan, ack, skb_tmp);
-> 			if( ret > 0 ){
-> Start --->
-> 				dev_kfree_skb(skb);
-> 
-> 	... DELETED 12 lines ...
-> 
-> 			atomic_dec(&dev->v110use[idx]);
-> 			/* For V.110 return unencoded data length */
-> 			ret = v110_ret;
-> 			/* if the complete frame was send we free the skb;
-> 			   if not upper function will requeue the skb */
-> Error --->
-> 			if (ret == skb->len)
-> 				dev_kfree_skb(skb);
-> 		}
-> 	} else
+Maybe after things simmer down I'll port the Agenda hardware platform over to 
+your repository, and Agenda can switch to using that.  linux-vr has been 
+really really stale since we froze at our present version for toolchain 
+reasons.  Those toolchain problems were fixed ages ago, but Mike & Brad who 
+had been responsible for forward porting the kernel stopped doing that work 
+for the most part.
 
-This is a false positive, since the two dev_kfree_skb() happen in mutually 
-exclusive branches.
-
-Thanks anyway,
---Kai
-
+Thanks,
+Shane Nay.

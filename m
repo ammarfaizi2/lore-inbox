@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVDBSUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVDBSYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbVDBSUW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 13:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVDBSUW
+	id S261170AbVDBSYo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 13:24:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVDBSYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 13:20:22 -0500
-Received: from hammer.engin.umich.edu ([141.213.40.79]:37353 "EHLO
-	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S261244AbVDBSTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 13:19:49 -0500
-Date: Sat, 2 Apr 2005 13:19:44 -0500 (EST)
-From: Christopher Allen Wing <wingc@engin.umich.edu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
-In-Reply-To: <200504021105.j32B5eN2018794@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.58.0504021246550.13028@hammer.engin.umich.edu>
-References: <200504021105.j32B5eN2018794@harpo.it.uu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 2 Apr 2005 13:24:43 -0500
+Received: from pimout4-ext.prodigy.net ([207.115.63.98]:4493 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261170AbVDBSYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 13:24:42 -0500
+Date: Sat, 2 Apr 2005 10:24:38 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: ooyama eiichi <ooyama@tritech.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel stack size
+Message-ID: <20050402182438.GA29095@taniwha.stupidest.org>
+References: <20050403.024634.88477140.ooyama@tritech.co.jp> <20050402175345.GA28710@taniwha.stupidest.org> <20050403.031542.23015132.ooyama@tritech.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050403.031542.23015132.ooyama@tritech.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 03, 2005 at 03:15:42AM +0900, ooyama eiichi wrote:
 
+> in i386 and ia64.
 
-On Sat, 2 Apr 2005, Mikael Pettersson wrote:
+search for CONFIG_DEBUG_STACKOVERFLOW in arch/i386/kernel/irq.c
 
-> >	APIC error on CPU0: 00(40)
-> >	APIC error on CPU0: 40(40)
->
-> Those are "received illegal vector" errors, and they
-> typically indicate hardware flakiness or BIOS issues.
->
-> Could be inadequate power supply, inadequate cooling,
-> a BIOS bug (please check for updates), a too new CPU
-> (again, check for a BIOS update), or simply a poorly-
-> designed mainboard.
+ia64 has fairly large stacks so you probably won't need to check there
+if you get the above working
 
+> because my driver hungs the machine by an certain ioctl.  and it
+> seems to me there is no bad in the code correspond to the ioctl,
+> except for that it is using large auto variables.  (some functions
+> are useing ~1KB autos)
 
-Thanks. I tried the latest BIOS for the board but that did not resolve the
-problem. The clock still runs at double speed (2000 timer
-interrupts/second instead of 1000) and I still get the APIC errors.
-
-I'll enter a support request with the manufacturer.
-
-
-
-I was able to get the problem to go away by using a BIOS option to
-"disable APIC mode". When I do this the kernel outputs at boot:
-
-	ACPI: Using PIC for interrupt routing
-
-and the output of /proc/interrupts reads 'XT-PIC' for everything.
-
-
-If anyone has a suggestion for debugging the clock problem in APIC mode
-I'd be interested. I'm guessing that something is causing the timer
-interrupt to be mapped twice- are there any tools for looking at the ACPI
-tables that may help, or are there kernel boot options to give more detail
-about how the interrupt routing is being set up?
-
-
-Thanks,
-
-Chris Wing
-wingc@engin.umich.edu
+don't do that, even if you make it 'apparently' work for you it will
+just end up being a problem mater on or for someone else

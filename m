@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVATTyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVATT4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbVATTyw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 14:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVATTxa
+	id S261933AbVATT4y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 14:56:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVATTzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 14:53:30 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:2463 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261921AbVATTwM (ORCPT
+	Thu, 20 Jan 2005 14:55:16 -0500
+Received: from holomorphy.com ([66.93.40.71]:16089 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261905AbVATTxT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 14:52:12 -0500
-Date: Thu, 20 Jan 2005 11:50:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Kumar Gala <kumar.gala@freescale.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: serial8250_init and platform_device
-Message-ID: <20050120195058.GA8835@kroah.com>
-References: <20050120154420.D13242@flint.arm.linux.org.uk> <736677C2-6B16-11D9-BD44-000393DBC2E8@freescale.com> <20050120193845.H13242@flint.arm.linux.org.uk>
+	Thu, 20 Jan 2005 14:53:19 -0500
+Date: Thu, 20 Jan 2005 11:50:02 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] unexport profile_pc
+Message-ID: <20050120195002.GN8896@holomorphy.com>
+References: <20050120182019.GJ3174@stusta.de> <20050120185917.GM8896@holomorphy.com> <20050120193938.GA9109@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050120193845.H13242@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050120193938.GA9109@infradead.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 07:38:45PM +0000, Russell King wrote:
-> 
-> Greg - the name is constructed from "name" + "id num" thusly:
-> 
-> 	serial8250
-> 	serial82500
-> 	serial82501
-> 	serial82502
-> 
-> When "name" ends in a number, it gets rather confusing.  Can we have
-> an optional delimiter in there when we append the ID number, maybe
-> something like a '.' or ':' ?
+On Thu, Jan 20, 2005 at 10:59:17AM -0800, William Lee Irwin III wrote:
+>> In theory, /proc/ can be modular. In practice...
 
-Sure, that's fine with me.  Someone send me a patch :)
+On Thu, Jan 20, 2005 at 07:39:38PM +0000, Christoph Hellwig wrote:
+> Not even in theory.
 
-thanks,
+I have vague recollections of modular /proc/ "fixes" being posted.
+I don't have any vested (or other) interest in the thing being modular
+and generally avoid modules altogether myself. fs/Kconfig of course
+reveals that this "option" has since been removed, to my complete
+indifference.
 
-greg k-h
+
+-- wli

@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263538AbTDWUAL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 16:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbTDWUAK
+	id S263578AbTDWUDz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 16:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263581AbTDWUDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 16:00:10 -0400
-Received: from mail.gmx.net ([213.165.65.60]:57544 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263538AbTDWUAJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 16:00:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Kirilenko <icedank@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Searching for string problems
-Date: Wed, 23 Apr 2003 23:12:09 +0300
-User-Agent: KMail/1.4.3
-References: <200304231958.43235.icedank@gmx.net> <200304232248.35985.icedank@gmx.net> <Pine.LNX.4.53.0304231602270.26351@chaos>
-In-Reply-To: <Pine.LNX.4.53.0304231602270.26351@chaos>
+	Wed, 23 Apr 2003 16:03:54 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:8320 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263578AbTDWUDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 16:03:48 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304232019.h3NKJ7lc000582@81-2-122-30.bradfords.org.uk>
+Subject: Re: [PATCH] M68k IDE updates
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 23 Apr 2003 21:19:07 +0100 (BST)
+Cc: rz@linux-m68k.org (Richard Zidlicky),
+       geert@linux-m68k.org (Geert Uytterhoeven),
+       torvalds@transmeta.com (Linus Torvalds), paulus@samba.org,
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <1051095870.2065.84.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 23, 2003 12:04:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304232312.09987.icedank@gmx.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> 
+> On Mer, 2003-04-23 at 12:27, Richard Zidlicky wrote:
+> > It seems that Geert=C2=B4 idea would fit neatly into the current IDE=20
+> > system. Endianness of on disk data and drive control data are
+> > clearly different things. A while ago Andre suggested to switch
+> > the transport based on opcode to make it work, it might be even
+> > more straightforward to set some flag when the handler is selected
+> > or take a distinct handler altogether (ide_cmd_type_parser or
+> > ide_handler_parser).
+> 
+> Thats over complicating stuff I think.
+> 
+> > Otoh trying to solve that with loopback would mean new kernels=20
+> > wouldn=C2=B4t even see the partition table of old installed harddisks
+> > on some machines.=20
+> 
+> Which is a real pain. I think its the right 2.5 answer. I'm not happy
+> about breaking that (even if its only for the m68k userbase in 2.4)
+> either.
+> 
+> I don't think command parsing is the right place. Turn your IDE layer
+> "right endian" and most stuff begins to look a lot saner already.=20
+> The "fixing" needs to be happening at the top of the IDE layer not
+> in the driver itself. For 2.5 that ought to be loopback or similar
+> for 2.4 it makes sense I think to effectively implement an endian
+> switcher without loopback for compatibility.
 
-> >
-> > And this code won't work as well :(
-> >
-> > Unfortunately, I can't start DOS and check, cause there is no video and
-> > keyboard controller on that PC.
-> >
->
-> Change this:
->
->          movw    $0xe000, %ax
->
-> To:
->          movw    $0xf000, %ax
->
-> ... like I told you. The BIOS ROM contents, the stuff that has the
-> serial number _must_ start where I told you.
+Moving byte swapping out of the IDE layer also means that dumping the
+whole disk to a file will then give you non-byte swapped data, which
+could then be written back to a disk on another machine without a
+byte-swapped IDE interface.
 
-Already solved the problem. AX was overwritten, before storing it's value (0 
-or 1) into memory. The most stupid mistake, I've seen last year. 20 hours of 
-kernel programming without breaks isn't really good.
+It will also allow you to exchange tar archives on raw hard disk
+devices, and have them readable on non-byte swapped IDE interfaces
+:-).
 
-Thanks too all of you, once again. You really saved my life.
-
-Best regards,
-Andrew.
-
+John.

@@ -1,88 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVAERTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVAERVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVAERTL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 12:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVAERTK
+	id S261943AbVAERVK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 12:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVAERVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 12:19:10 -0500
-Received: from pop.gmx.de ([213.165.64.20]:27056 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262069AbVAERQ7 (ORCPT
+	Wed, 5 Jan 2005 12:21:10 -0500
+Received: from hazard.jcu.cz ([160.217.1.6]:9088 "EHLO hazard.jcu.cz")
+	by vger.kernel.org with ESMTP id S261943AbVAERUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 12:16:59 -0500
-X-Authenticated: #4512188
-Message-ID: <41DC2113.8080604@gmx.de>
-Date: Wed, 05 Jan 2005 18:17:07 +0100
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050103)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Martin Drab <drab@kepler.fjfi.cvut.cz>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: APIC/LAPIC hanging problems on nForce2 system.
-References: <Pine.LNX.4.60.0501051604200.24191@kepler.fjfi.cvut.cz> <41DC1AD7.7000705@gmx.de> <Pine.LNX.4.60.0501051757300.25946@kepler.fjfi.cvut.cz>
-In-Reply-To: <Pine.LNX.4.60.0501051757300.25946@kepler.fjfi.cvut.cz>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigEE7C44FD8C0F9DB0500E6983"
-X-Y-GMX-Trusted: 0
+	Wed, 5 Jan 2005 12:20:34 -0500
+Date: Wed, 5 Jan 2005 18:20:30 +0100
+From: Jan Marek <linux@hazard.jcu.cz>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: bcollins@debian.org
+Subject: [PROBLEM] 2.6.10: sbp2 vs usb-storage have 16-byte offset
+Message-ID: <20050105172030.GA4390@hazard.jcu.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigEE7C44FD8C0F9DB0500E6983
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Martin Drab schrieb:
->
-> On Wed, 5 Jan 2005, Prakash K. Cheemplavam wrote:
->
->
->>Martin Drab schrieb:
->>
->>>Hi,
->>>
->>>I'm witnessing a total freeze on my system when the APIC and LAPIC are
->>>enabled in kernel 2.6.10-bk7.
->>
->>Do you know whether your bios already contains the C1 halt disconnect
->>fix? I couldn't find this line in your dmesg:
->
->
-> Aha! That might be the problem. Because there is still the factory BIOS,
-> which is F11. I'll try the current F20 when I get home and I'll let you
-> know.
->
->
->>PCI: nForce2 C1 Halt Disconnect fixup
->
->
-> OK, I'll check it out.
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Just to avoid confusion: If your bios does *not contain the fix, the
-kernel should fix it and above line should appear. (It does here with
-2.6.10) So if it doesn't in your case (and your bios does not contain
-that fix), the detection code probably isn't enough. -> This should be
-fixed in kernel.
+Hallo l-k,
 
-When you use a fixed bios though, above line should not appear, and your
-system should be stable.
+I'm using external disc box from Spire with dual USB/IEEE1394 interface
+(GigaPod CF103-NEB, http://www.spirecoolers.com/acc.asp?ProdID=95).
 
-Prakash
+Although I can use my IDE disc (WD600JB) OK via USB, I cannot deal with
+this disc via ieee1394. I tried to debug this situation and I've
+found, that via ieee1394 are data from disc moved with 16B offset
+from data via USB (I can mount this disk via IDE interface, then I
+suppose, that USB deal with this disc in right way, or in another words:
+in the same way as IDE). I've got different size of device, too
+(ieee1394 has wrong size, difference is ieee1394=USB-1 block).
 
---------------enigEE7C44FD8C0F9DB0500E6983
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+I'm sending in attachment 2 files: isdb2.sec2 and usdb2.sec2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+isdb2.sec2 is got via ieee1394 (and sbp2), usdb2.sec2 is via USB (and
+usb-storage). Files are created throught this command:
 
-iD8DBQFB3CETxU2n/+9+t5gRAo2OAKCfH+SRYwkRGae/221qCAFe6wxDJgCg1Rxu
-MzkYtCtEa2uXYNIpK5OejCo=
-=zRGe
------END PGP SIGNATURE-----
+dd if=/dev/sdb2 of=[i,u]sdb2.sec2 bs=512 count=1 skip=2
 
---------------enigEE7C44FD8C0F9DB0500E6983--
+Hope that help to debug...
+
+Sincerely
+Jan Marek
+-- 
+Ing. Jan Marek
+University of South Bohemia
+Academic Computer Centre
+Phone: +420-38-7772080
+
+--opJtzjQTFsWo+cga
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="isdb2.sec2"
+Content-Transfer-Encoding: base64
+
+AAAAAAAAAACgmkoAABiVAGZ0BwD/0ysAfLVJAAAAAAACAAAAAgAAAACAAAAAgAAA4D8AAO8L
+20FJG9tBAgAZAFPvAQABAAAAfQTbQQBO7QAAAAAAAQAAAAAAAAALAAAAgAAAAAQAAAACAAAA
+AQAAAKs9inV9hUL0uy93S01wE64AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAFSW4j1J9kk6jKGVRZb1aNkCAQAAAAAAAAAA
+AAD0EuNACgIAAAsCAAAMAgAADQIAAA4CAAAPAgAAEAIAABECAAASAgAAEwIAABQCAAAVAgAA
+FgIAABcGAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+
+--opJtzjQTFsWo+cga
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="usdb2.sec2"
+Content-Transfer-Encoding: base64
+
+oJpKAAAYlQBmdAcA/9MrAHy1SQAAAAAAAgAAAAIAAAAAgAAAAIAAAOA/AADvC9tB7wvbQQIA
+GQBT7wEAAQAAAH0E20EATu0AAAAAAAEAAAAAAAAACwAAAIAAAAAEAAAABgAAAAEAAACrPYp1
+fYVC9Lsvd0tNcBOuAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAIAAAAAAAAAAAAAABUluI9SfZJOoyhlUWW9WjZAgEAAAAAAAAAAAAA9BLjQAoC
+AAALAgAADAIAAA0CAAAOAgAADwIAABACAAARAgAAEgIAABMCAAAUAgAAFQIAABYCAAAXBgAA
+AAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+
+--opJtzjQTFsWo+cga--

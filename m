@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289834AbSBKQNe>; Mon, 11 Feb 2002 11:13:34 -0500
+	id <S289836AbSBKQME>; Mon, 11 Feb 2002 11:12:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289837AbSBKQNO>; Mon, 11 Feb 2002 11:13:14 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:59655 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289834AbSBKQNJ>; Mon, 11 Feb 2002 11:13:09 -0500
-Date: Mon, 11 Feb 2002 16:12:59 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Cc: Carsten Otte <COTTE@de.ibm.com>, rgooch@ras.ucalgary.ca
-Subject: Re: [PATCH] linux-2.417 devfs 64bit portablility issue
-Message-ID: <20020211161259.E21300@flint.arm.linux.org.uk>
-In-Reply-To: <OFA3A51DAC.14854039-ONC1256B5D.0045F62F@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OFA3A51DAC.14854039-ONC1256B5D.0045F62F@de.ibm.com>; from COTTE@de.ibm.com on Mon, Feb 11, 2002 at 02:00:06PM +0100
+	id <S289834AbSBKQLy>; Mon, 11 Feb 2002 11:11:54 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:17160 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S289837AbSBKQLo>;
+	Mon, 11 Feb 2002 11:11:44 -0500
+Date: Mon, 11 Feb 2002 08:07:38 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: How to check the kernel compile options ? 
+In-Reply-To: <200202082053.g18Krxja001427@tigger.cs.uni-dortmund.de>
+Message-ID: <Pine.LNX.4.33L2.0202110805330.10878-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 11, 2002 at 02:00:06PM +0100, Carsten Otte wrote:
-> Afterwards, the block_major_list.bits is processed using
-> find_first_zero_bit & set_bit out of asm/bitops.h.
+On Fri, 8 Feb 2002, Horst von Brand wrote:
 
-Isn't it about time we made the bitops take an unsigned long pointer
-argument, rather than a void pointer to catch errors like this?
+| Daniel Phillips <phillips@bonn-fries.net> said:
+| > On February 7, 2002 10:41 pm, Mike Touloumtzis wrote:
+| > > Adding configuration information to the kernel is a change to the status
+| > > quo, and has a cost.  The cost is small, but I'm unsympathetic to that
+| > > argument because many small convenience features, each with a small cost,
+| > > add up to a large cost.
+| >
+| > The cost is *zero* if you don't enable the option, is this concept difficult
+| > for you?
+|
+| It isn't zero: Somebody has to add the support, check/fix interactions with
+| other features, write documentation, keep the support and its documentation
+| up to date when stuff in the kernel changes, userland (and user) has to be
+| prepared (and checked that it works if the feature is present, and find
+| workarounds if it isn't), ...
+
+There are customers who actually require a decent, reasonable
+solution to this problem.  If there is a decent, reasonable
+solution, great.  If not, then one will be generated.
+
+| It might be a small cost, but N * small gets big _very_ fast, and the value
+| is marginal at best in this case. There are many other such "small cost
+| features" with equally small value results that haven't been included. One
+| of the big reasons why I like Linux, BTW.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+~Randy
 

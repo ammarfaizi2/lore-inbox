@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263653AbUJ2X2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263533AbUJ2Xhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbUJ2X2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 19:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbUJ2XU4
+	id S263533AbUJ2Xhx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 19:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263683AbUJ2Xhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 19:20:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61362 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263597AbUJ2XPE (ORCPT
+	Fri, 29 Oct 2004 19:37:50 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:39697 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S263533AbUJ2XeD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 19:15:04 -0400
-Date: Fri, 29 Oct 2004 16:14:56 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove duplicate FAKE_STACK_FRAME macro
-Message-ID: <20041029161456.S2357@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	Fri, 29 Oct 2004 19:34:03 -0400
+X-Ironport-AV: i="3.86,111,1096866000"; 
+   d="scan'208"; a="99940391:sNHT19511748"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP kernel
+Date: Fri, 29 Oct 2004 18:33:59 -0500
+Message-ID: <4B0A1C17AA88F94289B0704CFABEF1ABC3460C@ausx2kmps304.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP kernel
+Thread-Index: AcS9/Fb9XwwPmP7rSh6OztBQ42HawQAEXY2wAABxFKA=
+From: <Tim_T_Murphy@Dell.com>
+To: <rmk+lkml@arm.linux.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 29 Oct 2004 23:34:00.0983 (UTC) FILETIME=[C4DD2270:01C4BE0F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+> maddr:	10		# note, this is for the UP kernel. for
+SMP, maddr=201
+> irqno:	ec40
 
-FAKE_STACK_FRAME macro is defined twice.  The one that gets used is in
-arch/x86_64/kernel/entry.S, and is slightly different codewise, although
-should have the same end result (uses pushq rather than addq %rsp + movq
-and has the extra dwarf annotations).  Looks like we can remove the dups?
-
-Signed-off-by: Chris Wright <chrisw@osdl.org>
-
-===== include/asm-x86_64/calling.h 1.10 vs edited =====
---- 1.10/include/asm-x86_64/calling.h	2004-03-21 12:35:48 -08:00
-+++ edited/include/asm-x86_64/calling.h	2004-10-28 17:00:53 -07:00
-@@ -143,22 +143,6 @@
- 	RESTORE_ARGS 0,\addskip
- 	.endm
- 
--	/* push in order ss, rsp, eflags, cs, rip */
--	.macro FAKE_STACK_FRAME child_rip
--	xorl %eax,%eax
--	subq $6*8,%rsp
--	movq %rax,5*8(%rsp)  /* ss */
--	movq %rax,4*8(%rsp)  /* rsp */
--	movq $(1<<9),3*8(%rsp)  /* eflags */
--	movq $__KERNEL_CS,2*8(%rsp) /* cs */
--	movq \child_rip,1*8(%rsp)  /* rip */ 
--	movq %rax,(%rsp)   /* orig_rax */ 
--	.endm
--
--	.macro UNFAKE_STACK_FRAME
--	addq $8*6, %rsp
--	.endm
--
- 	.macro icebp
- 	.byte 0xf1
- 	.endm
+duh, i got maddr and irqno backwards in my last post, sorry.
+Tim

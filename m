@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbUJYU3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbUJYUa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbUJYU3H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 16:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUJYU2i
+	id S261983AbUJYUa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 16:30:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUJYUaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 16:28:38 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3200 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261296AbUJYUQM
+	Mon, 25 Oct 2004 16:30:10 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:54003 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S261310AbUJYUZg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 16:16:12 -0400
-Date: Mon, 25 Oct 2004 16:15:34 -0400 (EDT)
-From: linux-os <root@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Corey Minyard <minyard@acm.org>
-cc: Andi Kleen <ak@suse.de>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Race betwen the NMI handler and the RTC clock in practially all
- kernels
-In-Reply-To: <417D5903.6090106@acm.org>
-Message-ID: <Pine.LNX.4.61.0410251612380.3949@chaos.analogic.com>
-References: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
- <p73u0sik2fa.fsf@verdi.suse.de> <417D5903.6090106@acm.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 25 Oct 2004 16:25:36 -0400
+Subject: Re: linux 2.6.9 on alpha noritake
+From: Alexander Rauth <Alexander.Rauth@promotion-ie.de>
+Reply-To: Alexander.Rauth@promotion-ie.de
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041024195923.A794@den.park.msu.ru>
+References: <1098476483.11296.37.camel@pro30.local.promotion-ie.de>
+	 <1098520279.14984.12.camel@pro30.local.promotion-ie.de>
+	 <20041023175811.GA23184@twiddle.net> <20041024144329.A623@den.park.msu.ru>
+	 <1098632003.8479.4.camel@pro30.local.promotion-ie.de>
+	 <20041024195923.A794@den.park.msu.ru>
+Content-Type: text/plain
+Organization: Pro/Motion Industrie-Elektronik GmbH
+Message-Id: <1098736003.28742.4.camel@pro30.local.promotion-ie.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 25 Oct 2004 22:26:43 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Oct 2004, Corey Minyard wrote:
+Am So, den 24.10.2004 schrieb Ivan Kokshaysky um 17:59:
+> On Sun, Oct 24, 2004 at 05:33:23PM +0200, alex@local.promotion-ie.de wrote:
+> > but as usually one thing fixed next broken....
+> > now the sym53c8xx won't scan the SCSI bus.
+just tested 1.6.10-rc1-bk3 with your patches ...
+... boots ... sym53c8xx works ... __ioremap is defined ... but
 
-> According to the comments in 2.4, this code causes the NMI to be re-asserted 
-> if another NMI occurred while the NMI handler was running.  I have no idea 
-> how twiddling with these CMOS registers causes this to happen, but that is 
-> supposed to be the intent.  I don't think it has anything to do with delays.
->
-> I would like to know what this code really does before removing it.
->
-> -Corey
->
-> Andi Kleen wrote:
->
+the sysrq help messages keeps getting printed to the console over and
+over again ... but I haven't pressed any key at all
 
-NMI is supposed to be turned OFF if the high-bit in the index
-register is set. It is turned back ON if it is reset.
+any ideas???
 
+thanks for your quick help
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
-                  98.36% of all statistics are fiction.
+Alex
+

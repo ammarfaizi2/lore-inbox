@@ -1,90 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262510AbSJVMzp>; Tue, 22 Oct 2002 08:55:45 -0400
+	id <S262500AbSJVM6V>; Tue, 22 Oct 2002 08:58:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262512AbSJVMzp>; Tue, 22 Oct 2002 08:55:45 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:19727 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S262510AbSJVMzo>;
-	Tue, 22 Oct 2002 08:55:44 -0400
-Message-ID: <3DB54C53.9010603@mvista.com>
-Date: Tue, 22 Oct 2002 08:02:11 -0500
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Levon <levon@movementarian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI request/release
-References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262512AbSJVM6V>; Tue, 22 Oct 2002 08:58:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19468 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262500AbSJVM6U>;
+	Tue, 22 Oct 2002 08:58:20 -0400
+Date: Tue, 22 Oct 2002 14:04:28 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Erik Andersen <andersen@codepoet.org>, Matthew Wilcox <willy@debian.org>,
+       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] work around duff ABIs
+Message-ID: <20021022140428.B27461@parcelfarce.linux.theplanet.co.uk>
+References: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk> <20021020045149.GA27887@codepoet.org> <20021020135109.D5285@parcelfarce.linux.theplanet.co.uk> <20021022044309.GA25172@codepoet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021022044309.GA25172@codepoet.org>; from andersen@codepoet.org on Mon, Oct 21, 2002 at 10:43:10PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon wrote:
+On Mon, Oct 21, 2002 at 10:43:10PM -0600, Erik Andersen wrote:
+> I understand the problem very well.  Passing 64 bit stuff via
+> syscalls is a major pain in the butt.  But your patch is not just
+> changing hppa and mips -- you are breaking the ABI on x86, arm,
+> powerpc, etc, etc. etc where it is currently working.  Look very
+> closely at your patch.  See those endianness ifdefs?  You are
+> adding endianness specific ifdefs into pread, truncate, and
+> ftruncate to switch the argument order.  User space is already
+> doing that too.  At no time on any architecture is the low stuff
+> passed into arg3.  Ergo, your patch is going to break userspace
+> where pread and pread64 are now working correctly....
 
->On Mon, Oct 21, 2002 at 09:32:07PM -0500, Corey Minyard wrote:
->
->>This is an NMI, does it really matter?
->>    
->>
->Yes. Both for oprofile and the NMI watchdog (which was firing awfully
->often last time I checked). The handler needs to be as streamlined as
->possible.
->
-Ok.  I'd be inclined to leave the high-usage things where they are, 
-although it would be nice to be able to make the NMI watchdog a module. 
- oprofile should probably stay where it is.  Do you have an alternate 
-implementation that would be more efficient?
+Nope.  Some architectures _do not_ pad 64-bit arguments, others _do_.
+On ARM/x86, we currently do use arg3 for the low part of the argument,
+but on PPC we use it for the high part because of this sexswapping
+crap being done in userspace.
 
->>dev_name could be removed, although it would be nice for reporting 
->>later.
->>    
->>
->Reporting what ? from where ?
->
-Registered NMI users in procfs.
+> If you want to change the kernel to passing eliminate 64 bit
+> stuff via syscalls, and instead pass pairs of 32bit entities --
+> I'm all for that as that would make explicit what user space is
+> doing anyways.  But don't break binary compatibility for no
+> reason.  Why make both user-space _and_ kernel space add ifdefs
+> for endianness?  Make arg3 _always_ contain the hi-bits.
 
->>>Couldn't you modify the notifier code to do the xchg()s (though that's
->>>not available on all CPU types ...)
->>>
->>I don't understand.  The xchg()s are for atomicity between the 
->>request/release code and the NMI handler.  How could the notifier code 
->>do it?
->>    
->>
->You are using the xchg()s in an attempt to thread onto/off the list
->safely no ?
->
-Yes.  But I don't understand why they would be used in the notifier code.
+I'd love to move to that model.  But I suspect we need a consensus to
+_never_ pass 64-bit quantities across the syscall boundary, and we
+aren't going to get it.  So we're going to add more crap every time
+someone adds a loff_t ;-(
 
->>>>+#define HAVE_NMI_HANDLER	1
->>>>        
->>>>
->>This is so the user code can know if it's available or not.
->>    
->>
->If we had that for every API or API change, the kernel would be mostly
->HAVE_*. It's either available or it's not. If you're maintaining an
->external module, then autoconf or similar is the proper way to check for
->its existence.
->
-I'm not worried about kernel versions so much as processor capability. 
- Some processors may not have NMIs, or may not be capable of doing this. 
- A few of these exist (like __HAVE_ARCH_CMPXCHG).  The name's probably 
-bad, maybe it should be "__HAVE_ARCH_NMI_HANDLER"?
-
->>If the rcu code can handle this, I could use it, but I have not looked 
->>to see if it can.
->>    
->>
->If it's possible (and I have no idea, not having looked at RCU at all)
->it seems the right way.
->
-I looked, and the rcu code relys on turning off interrupts to avoid 
-preemption.  So it won't work.
-
-Thanks again,
-
--Corey
-
+-- 
+Revolutions do not require corporate support.

@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262164AbSJNVeM>; Mon, 14 Oct 2002 17:34:12 -0400
+	id <S262181AbSJNVnm>; Mon, 14 Oct 2002 17:43:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262189AbSJNVeM>; Mon, 14 Oct 2002 17:34:12 -0400
-Received: from rj.sgi.com ([192.82.208.96]:41857 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S262164AbSJNVeL>;
-	Mon, 14 Oct 2002 17:34:11 -0400
-Date: Tue, 15 Oct 2002 00:21:10 -0400
-From: Christoph Hellwig <hch@sgi.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] switch knfsd to vfs_read/vfs_write
-Message-ID: <20021015002110.A18265@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S262193AbSJNVnl>; Mon, 14 Oct 2002 17:43:41 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:8144 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262181AbSJNVnk> convert rfc822-to-8bit; Mon, 14 Oct 2002 17:43:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Christoph Hellwig <hch@infradead.org>, Shawn <core@enodev.com>
+Subject: Re: [Evms-devel] Re: Linux v2.5.42
+Date: Mon, 14 Oct 2002 23:48:29 +0200
+User-Agent: KMail/1.4.3
+Cc: Michael Clark <michael@metaparadigm.com>,
+       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
+References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com> <20021014092048.A27417@q.mn.rr.com> <20021014172137.D19897@infradead.org>
+In-Reply-To: <20021014172137.D19897@infradead.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210142348.29628.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Switch knfsd to vfs_read/vfs_write to work on aio-only filesystems.
-This also gets stuff like the LSM checks and mandatory lock checking
-for free.
+Am Montag, 14. Oktober 2002 18:21 schrieb Christoph Hellwig:
+> On Mon, Oct 14, 2002 at 09:20:48AM -0500, Shawn wrote:
+> > Having said all that, given that your premises are true regarding the
+> > code design problems you have with EVMS, you have a valid point about
+> > including it in mainline. The question is, is this good enough to ignore
+> > having a logical device management system?!?
+>
+> It is not good enough to ignore it.  It is good enough to postpone
+> integration for 2.7.
 
+No, that is not an option. Either evms or lvm2 it must be.
+Switching later might be difficult. So it has to be decided
+quite soon.
 
-diff -uNr -p linux-2.5.40-mm1/fs/nfsd/vfs.c linux/fs/nfsd/vfs.c
---- linux-2.5.40-mm1/fs/nfsd/vfs.c	Tue Oct  1 14:23:50 2002
-+++ linux/fs/nfsd/vfs.c	Tue Oct  1 14:53:37 2002
-@@ -585,8 +585,6 @@ nfsd_read(struct svc_rqst *rqstp, struct
- 	if (err)
- 		goto out;
- 	err = nfserr_perm;
--	if (!file.f_op->read)
--		goto out_close;
- 	inode = file.f_dentry->d_inode;
- #ifdef MSNFS
- 	if ((fhp->fh_export->ex_flags & NFSEXP_MSNFS) &&
-@@ -598,11 +596,10 @@ nfsd_read(struct svc_rqst *rqstp, struct
- 	ra = nfsd_get_raparms(inode->i_dev, inode->i_ino);
- 	if (ra)
- 		file.f_ra = ra->p_ra;
--	file.f_pos = offset;
- 
- 	oldfs = get_fs();
- 	set_fs(KERNEL_DS);
--	err = file.f_op->read(&file, buf, *count, &file.f_pos);
-+	err = vfs_read(&file, buf, *count, &offset);
- 	set_fs(oldfs);
- 
- 	/* Write back readahead params */
-@@ -644,8 +641,7 @@ nfsd_write(struct svc_rqst *rqstp, struc
- 	if (!cnt)
- 		goto out_close;
- 	err = nfserr_perm;
--	if (!file.f_op->write)
--		goto out_close;
-+
- #ifdef MSNFS
- 	if ((fhp->fh_export->ex_flags & NFSEXP_MSNFS) &&
- 		(!lock_may_write(file.f_dentry->d_inode, offset, cnt)))
-@@ -675,11 +671,9 @@ nfsd_write(struct svc_rqst *rqstp, struc
- 	if (stable && !EX_WGATHER(exp))
- 		file.f_flags |= O_SYNC;
- 
--	file.f_pos = offset;		/* set write offset */
--
- 	/* Write the data. */
- 	oldfs = get_fs(); set_fs(KERNEL_DS);
--	err = file.f_op->write(&file, buf, cnt, &file.f_pos);
-+	err = vfs_write(&file, buf, cnt, &offset);
- 	if (err >= 0)
- 		nfsdstats.io_write += cnt;
- 	set_fs(oldfs);
+	Regards
+		Oliver
+

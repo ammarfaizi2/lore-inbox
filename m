@@ -1,158 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291333AbSBMHiZ>; Wed, 13 Feb 2002 02:38:25 -0500
+	id <S291434AbSBMHjH>; Wed, 13 Feb 2002 02:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291434AbSBMHiQ>; Wed, 13 Feb 2002 02:38:16 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:64777
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S291333AbSBMHiG>; Wed, 13 Feb 2002 02:38:06 -0500
-Date: Tue, 12 Feb 2002 23:27:42 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: another IDE cleanup: kill duplicated code
-In-Reply-To: <20020213083000.C30588@suse.cz>
-Message-ID: <Pine.LNX.4.10.10202122325000.668-100000@master.linux-ide.org>
+	id <S291436AbSBMHi4>; Wed, 13 Feb 2002 02:38:56 -0500
+Received: from panoramix.vasoftware.com ([198.186.202.147]:20124 "EHLO
+	mail2.vasoftware.com") by vger.kernel.org with ESMTP
+	id <S291434AbSBMHis>; Wed, 13 Feb 2002 02:38:48 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15466.6058.686853.295549@argo.ozlabs.ibm.com>
+Date: Wed, 13 Feb 2002 18:37:14 +1100 (EST)
+To: linux-kernel@vger.kernel.org
+Subject: smp_send_reschedule vs. smp_migrate_task
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Vojtech Pavlik wrote:
+I am looking at the updates for PPC that are needed because of the
+changes to the scheduler in 2.5.x.  I need to implement
+smp_migrate_task(), but I do not have another IPI easily available;
+the Open PIC interrupt controller used in a lot of SMP PPC machines
+supports 4 IPIs in hardware and we are already using all of them.
 
-> On Tue, Feb 12, 2002 at 09:52:07PM -0800, Andre Hedrick wrote:
-> 
-> > HELL NO!
-> 
-> Hell why?
+Thus I was thinking of using the same IPI for smp_migrate_task and
+smp_send_reschedule.  The idea is that smp_send_reschedule(cpu) will
+be effectively smp_migrate_task(cpu, NULL), and the code that receives
+that IPI will check for the NULL and do set_need_resched() instead of
+sched_task_migrated().
 
-Does Virtual DMA mean anything?
+At present the i386 version of smp_migrate_task uses a single global
+spinlock, thus only one task can be migrating at a time.  If I make
+smp_send_reschedule and smp_migrate_task both use the same global
+spinlock, is that likely to cause deadlocks or unacceptable
+contention?  In fact it would not be hard to have a spinlock per cpu.
+Would we ever be likely to do smp_migrate_task and set_need_resched
+for the same target cpu at the same time?
 
-Does a function struct for handling IO and MMIO help?
-
-All you two are doing is causing more work for me to build a working
-model.
-
-But it is clear you must poke and screw things up, so I will continue to
-undo it in my trees until I have it working.
-
-Regards,
-
-
-> > On Mon, 11 Feb 2002, Pavel Machek wrote:
-> > 
-> > > Hi!
-> > > 
-> > > This is slightly longer but also simple cleanup. It kills code
-> > > duplication and removes unneccessary assignments/casts. Please apply,
-> > > 
-> > > 								Pavel
-> > > 
-> > > --- clean-pre3/drivers/ide/ide-disk.c	Sat Feb  9 23:00:02 2002
-> > > +++ linux-dm-pre3/drivers/ide/ide-disk.c	Sun Feb 10 00:06:31 2002
-> > > @@ -172,6 +167,16 @@
-> > >  		return WIN_NOP;
-> > >  }
-> > >  
-> > > +static void fill_args (ide_task_t *args, struct hd_drive_task_hdr *taskfile, struct hd_drive_hob_hdr *hobfile)
-> > > +{
-> > > +	memcpy(args->tfRegister, taskfile, sizeof(struct hd_drive_task_hdr));
-> > > +	memcpy(args->hobRegister, hobfile, sizeof(struct hd_drive_hob_hdr));
-> > > +	args->command_type	= ide_cmd_type_parser(args);
-> > > +	args->prehandler	= ide_pre_handler_parser(taskfile, hobfile);
-> > > +	args->handler		= ide_handler_parser(taskfile, hobfile);
-> > > +	args->posthandler	= NULL;
-> > > +}
-> > > +
-> > >  static ide_startstop_t chs_rw_disk (ide_drive_t *drive, struct request *rq, unsigned long block)
-> > >  {
-> > >  	struct hd_drive_task_hdr	taskfile;
-> > > @@ -210,16 +215,10 @@
-> > >  	printk("buffer=0x%08lx\n", (unsigned long) rq->buffer);
-> > >  #endif
-> > >  
-> > > -	memcpy(args.tfRegister, &taskfile, sizeof(struct hd_drive_task_hdr));
-> > > -	memcpy(args.hobRegister, &hobfile, sizeof(struct hd_drive_hob_hdr));
-> > > -	args.command_type	= ide_cmd_type_parser(&args);
-> > > -	args.prehandler		= ide_pre_handler_parser(&taskfile, &hobfile);
-> > > -	args.handler		= ide_handler_parser(&taskfile, &hobfile);
-> > > -	args.posthandler	= NULL;
-> > > -	args.rq			= (struct request *) rq;
-> > > +	fill_args(&args, &taskfile, &hobfile);
-> > > +	args.rq			= rq;
-> > >  	args.block		= block;
-> > > -	rq->special		= NULL;
-> > > -	rq->special		= (ide_task_t *)&args;
-> > > +	rq->special		= &args;
-> > >  
-> > >  	return do_rw_taskfile(drive, &args);
-> > >  }
-> > > @@ -257,16 +255,10 @@
-> > >  	printk("buffer=0x%08lx\n", (unsigned long) rq->buffer);
-> > >  #endif
-> > >  
-> > > -	memcpy(args.tfRegister, &taskfile, sizeof(struct hd_drive_task_hdr));
-> > > -	memcpy(args.hobRegister, &hobfile, sizeof(struct hd_drive_hob_hdr));
-> > > -	args.command_type	= ide_cmd_type_parser(&args);
-> > > -	args.prehandler		= ide_pre_handler_parser(&taskfile, &hobfile);
-> > > -	args.handler		= ide_handler_parser(&taskfile, &hobfile);
-> > > -	args.posthandler	= NULL;
-> > > -	args.rq			= (struct request *) rq;
-> > > +	fill_args(&args, &taskfile, &hobfile);
-> > > +	args.rq			= rq;
-> > >  	args.block		= block;
-> > > -	rq->special		= NULL;
-> > > -	rq->special		= (ide_task_t *)&args;
-> > > +	rq->special		= &args;
-> > >  
-> > >  	return do_rw_taskfile(drive, &args);
-> > >  }
-> > > @@ -321,16 +313,10 @@
-> > >  	printk("buffer=0x%08lx\n", (unsigned long) rq->buffer);
-> > >  #endif
-> > >  
-> > > -	memcpy(args.tfRegister, &taskfile, sizeof(struct hd_drive_task_hdr));
-> > > -	memcpy(args.hobRegister, &hobfile, sizeof(struct hd_drive_hob_hdr));
-> > > -	args.command_type	= ide_cmd_type_parser(&args);
-> > > -	args.prehandler		= ide_pre_handler_parser(&taskfile, &hobfile);
-> > > -	args.handler		= ide_handler_parser(&taskfile, &hobfile);
-> > > -	args.posthandler	= NULL;
-> > > -	args.rq			= (struct request *) rq;
-> > > +	fill_args(&args, &taskfile, &hobfile);
-> > > +	args.rq			= rq;
-> > >  	args.block		= block;
-> > > -	rq->special		= NULL;
-> > > -	rq->special		= (ide_task_t *)&args;
-> > > +	rq->special		= &args;
-> > >  
-> > >  	return do_rw_taskfile(drive, &args);
-> > >  }
-> > > 
-> > > -- 
-> > > (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-> > > no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > 
-> > Andre Hedrick
-> > Linux Disk Certification Project                Linux ATA Development
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> Vojtech Pavlik
-> SuSE Labs
-> 
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
+Paul.

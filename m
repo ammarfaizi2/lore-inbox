@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316757AbSE0Ueu>; Mon, 27 May 2002 16:34:50 -0400
+	id <S316763AbSE0VWq>; Mon, 27 May 2002 17:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316758AbSE0Uet>; Mon, 27 May 2002 16:34:49 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:39665 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316757AbSE0Uer>; Mon, 27 May 2002 16:34:47 -0400
-Subject: Re: Siemens powermanagment patent? [was Re: patent on
-	O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrea Arcangeli <andrea@e-mind.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020527173611.GA762@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 27 May 2002 22:36:46 +0100
-Message-Id: <1022535406.11859.323.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S316764AbSE0VWp>; Mon, 27 May 2002 17:22:45 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19205 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316763AbSE0VWo>; Mon, 27 May 2002 17:22:44 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Memory management in Kernel 2.4.x
+Date: 27 May 2002 14:22:22 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <acu82e$7qn$1@cesium.transmeta.com>
+In-Reply-To: <fa.iklie8v.5k2hbj@ifi.uio.no> <actahk$6bp$1@ID-44327.news.dfncis.de> <3CF23893.207@loewe-komp.de> <1022513156.1126.289.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-05-27 at 18:36, Pavel Machek wrote:
-> Hi!
+Followup to:  <1022513156.1126.289.camel@irongate.swansea.linux.org.uk>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
 > 
-> > > What, so there are _no_ patents or other restrictions on any of then
-> > > commercial embedded OS vendor products?  I would imagine that you need
-> > > to pay some sort of license fee to those vendors in order to use their
-> > > code for products you sell.
-> > 
-> > Thousands of them. Some of them like the Siemens power management patent
-> > really hurt Linux too.
+> On a -ac kernel with mode 2 or 3 set for overcommit you have to run out
+> of kernel resources to hang the box. It won't go OOM because it can't.
+> That wouldn't be a VM bug but a leak or poor handling of kernel
+> allocations somewhere. Sadly the changes needed to do that (beancounter
+> patch) were things Linus never accepted for 2.4
 > 
-> Can you elaborate on this one?
 
-Siemens own a patent on what basically amounts to keeping per task power
-management settings.(US 6,298,448)
-> 
-> > I'd suggest Andrea does something else. Ask the Red Hat people for a formal
-> > confirmation he can use it, just like IBM with RCU. I have this funny feeling
-> > that he'll get an extremely positive response.
-> 
-> Does he need to ask permission? Code is GPL-ed, "no additional
-> restrictions" in GPL should shield him...
+Well, if you can't fork a new process because that would push you into
+overcommit, then you usually can't actually do anything useful on the
+machine.
 
-I think the GPL is sufficient, but if he wishes to be cautious and ask
-for a formal confirmation Red Hat will be happy to oblige. 
-
-Alan
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
